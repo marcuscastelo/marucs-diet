@@ -1,14 +1,54 @@
 "use client";
 
-export const revalidate = 0
+import MealItem from "@/app/MealItem";
+import { createFood, listFoods } from "@/controllers/food";
+import { FoodData } from "@/model/foodModel";
+import { useEffect, useState } from "react";
 
-import MealItem from '@/app/MealItem';
-import { mockItem } from '../../(mock)/mockItemData';
-import { Suspense } from 'react';
-import { createFood, listFoods } from '@/controllers/food';
-import FoodsRealtime from './FoodsRealtime';
+export default function Page() {
+    const [foods, setFoods] = useState([{ name: 'test' }] as FoodData[]);
 
-export default async function Page() {
-    // const foods = await listFoods();
-    return <FoodsRealtime initialFoods={[]} />
+    const fetchFoods = async () => {
+        const foods = await listFoods();
+        setFoods(foods.slice(0, 10));
+    }
+
+    const addFood = async () => {
+        console.log('addFood')
+        await createFood({
+            name: 'Arroz',
+            tbcaId: Math.random().toString(),
+            components: {
+                'Proteína': ['10', 'g'],
+                'Carboidrato total': ['20', 'g'],
+                'Lipídios': ['30', 'g'],
+            }
+        });
+        fetchFoods();
+    };
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            fetchFoods();
+        }, 1000);
+        return () => clearTimeout(timeout);
+    }, []);
+
+    return (
+        <>
+            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 min-w-full rounded mt-3"
+                onClick={addFood}
+            >
+                Adicionar item
+            </button>
+
+            {
+                foods.map((food, idx) =>
+                    <div key={idx}>
+                        <MealItem key={idx} food={food} id="123" mealId="123" quantity={100} />
+                    </div>
+                )
+            }
+        </>
+    )
 }

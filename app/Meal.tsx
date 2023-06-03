@@ -1,8 +1,10 @@
+"use client";
+
 import MacroNutrients from "./MacroNutrients";
 import { MealData } from "@/model/mealModel";
 import MealItem from "./MealItem";
 
-export default async function Meal(props: MealData) {
+export default function Meal(props: MealData) {
     return (
         <>
             <div className="bg-gray-600 p-3">

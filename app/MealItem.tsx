@@ -1,8 +1,10 @@
+"use client";
+
 import { MealItemData } from "@/model/mealItemModel";
 import MacroNutrients from "./MacroNutrients";
 import { MacroNutrientsData } from "@/model/macroNutrientsModel";
 
-export default async function MealItem(props: MealItemData) {
+export default function MealItem(props: MealItemData) {
     const foodMacros: MacroNutrientsData = {
         carbs: parseFloat(props.food?.components?.['Carboidrato total']?.[0] ?? ''),
         protein: parseFloat(props.food?.components?.['Proteína']?.[0] ?? ''),

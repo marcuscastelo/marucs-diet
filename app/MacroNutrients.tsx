@@ -1,6 +1,8 @@
+"use client";
+
 import { MacroNutrientsData } from "@/model/macroNutrientsModel";
 
-export default async function MacroNutrients(props: MacroNutrientsData) {
+export default function MacroNutrients(props: MacroNutrientsData) {
     return (
         <>
             <span className="text-green-400 mr-1"> C: {Math.round(props.carbs * 100) / 100} </span>

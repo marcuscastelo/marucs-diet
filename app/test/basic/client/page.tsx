@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { createFood, listFoods } from "@/controllers/food";
 import { FoodData } from "@/model/foodModel";
