@@ -1,7 +1,6 @@
 import { MealData } from "./mealModel";
 
 export type DayData = {
-    id: string;
-    creationDate: string;
+    targetDay: Date;
     meals: MealData[];
 };

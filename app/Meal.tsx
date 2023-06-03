@@ -12,8 +12,8 @@ export default function Meal({ mealData, onNewItem }: MealProps) {
             <div className="bg-gray-600 p-3">
                 <h5 className="text-3xl mb-2">{mealData.name}</h5>
                 {
-                    mealData.items.map((item, _index) =>
-                        <div key={item.id} className="mt-2">
+                    mealData.items.map((item, index) =>
+                        <div key={index} className="mt-2">
                             <MealItem {...item} />
                         </div>
                     )
