@@ -74,9 +74,8 @@ type ExtraFoodData = {
     "Álcool": [string, string];
 }
 
-export type FoodData = ExtraFoodData & {
-    id: string;
+export type FoodData = {
+    tbcaId: string;
     name: string;
-    macros: MacroNutrientsData;
-    
+    components: Partial<ExtraFoodData>;
 }
