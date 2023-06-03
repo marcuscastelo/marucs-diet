@@ -157,8 +157,9 @@ export const mockItem: MealItemData = {
     quantity: 123,
 };
 
-export const mockMeal: MealData = {
-    id: '1',
+export const mockMeal = (partial?: Partial<MealData>) => ({
+    id: Math.random().toString(),
     items: [mockItem, mockItem, mockItem],
     name: 'Café da manhã',
-};
+    ...partial,
+} as MealData);

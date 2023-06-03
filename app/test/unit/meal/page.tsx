@@ -9,9 +9,9 @@ import { useState } from "react";
 import { duplicateLastMealItem } from "../(mock)/mockActions";
 
 export default function MealPage() {
-    const [meal, setMeal] = useState(mockMeal);
+    const [meal, setMeal] = useState(mockMeal());
 
     return (
-        <Meal {...meal} onNewItem={() => duplicateLastMealItem(meal, setMeal)}/>
+        <Meal mealData={meal} onNewItem={() => duplicateLastMealItem(meal, setMeal)}/>
     )
 }
