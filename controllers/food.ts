@@ -1,16 +1,17 @@
 import { FoodData } from '@/model/foodModel';
-import PocketBase, { Record } from 'pocketbase'
+import { Record } from 'pocketbase';
 
-const pb = new PocketBase('http://localhost:8090');
+import pb from '@/utils/pocketBase';
+import { parallelLimit } from 'async';
 
 export const listFoods = async () => {
-    const first = await pb.collection('Foods').getList(undefined, undefined, { $autoCancel: false });
+    const first = await pb.collection('Foods').getList(undefined, 1000, { $autoCancel: false });
 
     const totalPages = first.totalPages;
 
     const rest = await Promise.all(
         Array.from({ length: totalPages - 1 }, (_, i) => i + 2).map((page) =>
-            pb.collection('Foods').getList(page, undefined, { $autoCancel: false, $page: page })
+            pb.collection('Foods').getList(page, 1000, { $autoCancel: false, $page: page })
         )
     );
 
@@ -19,4 +20,24 @@ export const listFoods = async () => {
     return items as (Record & FoodData)[];
 }
 
-export const createFood = async (food: FoodData) => await pb.collection('Foods').create(food) as (Record & FoodData);
+export const createFood = async (food: FoodData) => await pb.collection('Foods').create(food, { $autoCancel: false }) as (Record & FoodData);
+
+export const deleteAll = async () => {
+    const foods = await listFoods();
+    console.log(`Deleting ${foods.length} foods...`);
+    const actions = foods.map((food) => async () => {
+        while (true) {
+            try {
+                await pb.collection('Foods').delete(food.id, { $autoCancel: false })
+                break;
+            } catch (e) {
+                console.error(e);
+                console.log(`Retrying ${food.name}...`);
+                await new Promise(r => setTimeout(r, 1000));
+            }
+        }
+    })
+    await parallelLimit(actions, 10);
+    console.log('Finished deleting foods.');
+
+}
