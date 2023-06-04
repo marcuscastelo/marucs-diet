@@ -2,10 +2,10 @@
 
 import Meal, { MealProps } from "./Meal";
 
-export default function DayMeals({ mealsProps }: { mealsProps: MealProps[] }) {
+export default function DayMeals({ mealsProps, className }: { mealsProps: MealProps[], className?: string }) {
 
     return (
-        <>
+        <div className={className}>
             {
                 mealsProps.map((mealProps, index) =>
                     <Meal
@@ -14,6 +14,6 @@ export default function DayMeals({ mealsProps }: { mealsProps: MealProps[] }) {
                     />
                 )
             }
-        </>
+        </div>
     )
 }

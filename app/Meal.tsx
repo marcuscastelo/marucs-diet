@@ -9,7 +9,7 @@ export type MealProps = { mealData: MealData, onNewItem: () => void };
 export default function Meal({ mealData, onNewItem }: MealProps) {
     return (
         <>
-            <div className="bg-gray-600 p-3">
+            <div className="bg-gray-800 p-3">
                 <h5 className="text-3xl mb-2">{mealData.name}</h5>
                 {
                     mealData.items.map((item, index) =>
