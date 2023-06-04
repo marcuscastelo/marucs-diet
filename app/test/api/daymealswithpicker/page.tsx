@@ -85,7 +85,6 @@ export default function Page() {
             <div>Has data: {hasData ? 'true' : 'false'}</div>
             <div>Known days: {days.map((day) => day.targetDay).join(', ')}</div>
 
-
             {
                 hasData && dayData !== undefined &&
                 <>
