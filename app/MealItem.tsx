@@ -4,7 +4,7 @@ import { MealItemData } from "@/model/mealItemModel";
 import MacroNutrients from "./MacroNutrients";
 import { MacroNutrientsData } from "@/model/macroNutrientsModel";
 
-export default function MealItem(props: MealItemData) {
+export default function MealItem(props: MealItemData & { className?: string }) {
     const foodMacros: MacroNutrientsData = {
         carbs: parseFloat(props.food?.components?.['Carboidrato total']?.[0] ?? ''),
         protein: parseFloat(props.food?.components?.['Proteína']?.[0] ?? ''),
@@ -19,7 +19,7 @@ export default function MealItem(props: MealItemData) {
 
     return (
         <>
-            <a href="#" className="block p-3 bg-gray-800 border border-gray-700 rounded-lg shadow hover:bg-gray-700">
+            <a href="#" className={`block p-3 bg-gray-800 border border-gray-700 rounded-lg shadow hover:bg-gray-700 ${props.className ?? ''}`}>
                 <h5 className="mb-2 text-lg font-bold tracking-tight text-white">{props.food.name}</h5>
 
                 <div className="flex">
