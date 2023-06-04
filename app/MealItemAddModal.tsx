@@ -22,6 +22,7 @@ export type MealItemAddModalProps = {
 
 export default function MealItemAddModal({ modalId, show, meal, food, onAdd, onCancel }: MealItemAddModalProps) {
     const [quantity, setQuantity] = useState('');
+    const canAdd = quantity != '' && Number(quantity) > 0;
 
     useEffect(() => {
         if (!show) {
@@ -61,7 +62,7 @@ export default function MealItemAddModal({ modalId, show, meal, food, onAdd, onC
         }
     }
 
-    const createMealItem = () => ({
+    const createMealItemData = () => ({
         quantity: Number(quantity),
         food: food,
     });
@@ -94,7 +95,7 @@ export default function MealItemAddModal({ modalId, show, meal, food, onAdd, onC
                             value={quantity}
                             onChange={(e) => setQuantity(e.target.value.replace(/[^0-9]/, ''))}
                             type="number" placeholder="Quantidade (gramas)"
-                            className="mt-1 input input-bordered flex-1 bg-gray-800 border-gray-300" />
+                            className={`mt-1 input input-bordered flex-1 bg-gray-800 border-gray-300 ${!canAdd ? 'input-error border-red-500' : ''}`} />
                         <div className="w-20 flex ml-1 my-1">
                             <div className="btn btn-xs btn-primary w-10 h-full text-4xl text-red-600"
                                 onClick={decrement}
@@ -118,9 +119,9 @@ export default function MealItemAddModal({ modalId, show, meal, food, onAdd, onC
                     <div className="modal-action">
                         {/* if there is a button in form, it will close the modal */}
                         <button className="btn" onClick={() => onCancel?.()} >Cancelar</button>
-                        <button className="btn" onClick={(e) => {
+                        <button className="btn" disabled={!canAdd} onClick={(e) => {
                             e.preventDefault();
-                            onAdd(createMealItem());
+                            onAdd(createMealItemData());
                         }} >Adicionar</button>
                     </div>
                 </form>

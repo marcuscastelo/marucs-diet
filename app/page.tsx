@@ -62,7 +62,7 @@ export default function Page() {
             mealData: meal,
             onNewItem: () => {
                 // Redirect to new item page
-                window.location.href = '/newItem';
+                window.location.href = `/newItem/${selectedDay}/${meal.id}`;
             }
         } as MealProps;
     });

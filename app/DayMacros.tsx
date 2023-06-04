@@ -28,14 +28,14 @@ export default function DayMacros({ macros, className }: { macros: MacroNutrient
                         <span style={{
                             transform: `rotate(-90deg) scale(-1, -1) translate(0, -0.5rem)`
                         }}>
-                            {macros.calories}/{targetCalories}kcal
+                            {Math.round(macros.calories * 100) / 100}/{Math.round(targetCalories * 100) / 100}kcal
                         </span>
                     </div>
                 </div>
                 <div className="mx-2 w-full">
-                    <Progress className="" size="sm" textLabelPosition="outside" color="green" textLabel={`Carboidrato (${macros.carbs}/${targetMacros.carbs}g)`} labelText={true} progress={100 * macros.carbs / targetMacros.carbs} />
-                    <Progress className="" size="sm" textLabelPosition="outside" color="red" textLabel={`Proteína (${macros.protein}/${targetMacros.protein}g)`} labelText={true} progress={100 * macros.protein / targetMacros.protein} />
-                    <Progress className="" size="sm" textLabelPosition="outside" color="yellow" textLabel={`Gordura (${macros.fat}/${targetMacros.fat}g)`} labelText={true} progress={100 * macros.fat / targetMacros.fat} />
+                    <Progress className="" size="sm" textLabelPosition="outside" color="green" textLabel={`Carboidrato (${Math.round(macros.carbs * 100) / 100}/${Math.round(targetMacros.carbs * 100) / 100}g)`} labelText={true} progress={100 * macros.carbs / targetMacros.carbs} />
+                    <Progress className="" size="sm" textLabelPosition="outside" color="red" textLabel={`Proteína (${Math.round(macros.protein * 100) / 100}/${Math.round(targetMacros.protein * 100) / 100}g)`} labelText={true} progress={100 * macros.protein / targetMacros.protein} />
+                    <Progress className="" size="sm" textLabelPosition="outside" color="yellow" textLabel={`Gordura (${Math.round(macros.fat * 100) / 100}/${Math.round(targetMacros.fat * 100) / 100}g)`} labelText={true} progress={100 * macros.fat / targetMacros.fat} />
                 </div>
             </div>
         </>

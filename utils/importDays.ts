@@ -27,7 +27,12 @@ const mockDays: DayData[] = [
 ]
 
 export async function importDays() {
-    mockDays.forEach(day => {
-        pb.collection('Days').create(day, { $autoCancel: false });
+    mockDays.forEach(async day => {
+        try {
+            await pb.collection('Days').create(day, { $autoCancel: false });
+        }
+        catch (e) {
+            console.error(e);
+        }
     });
 }
