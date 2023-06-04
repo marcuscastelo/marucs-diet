@@ -51,12 +51,7 @@ export default function Page() {
     const loading = days.length == 0 || foods.length == 0;
 
     if (loading) {
-        return <PageLoading message={
-            `Carregando (
-            ${days ? 'dias' : ''}
-            ${days && foods ? 'e ' : ''}
-            ${foods ? 'alimentos' : ''}
-        )`} />
+        return <PageLoading message="Carregando dias e alimentos"/>
     }
 
     const hasData = days.some((day) => day.targetDay === selectedDay);
@@ -65,7 +60,10 @@ export default function Page() {
     const mealProps = dayData?.meals.map((meal) => {
         return {
             mealData: meal,
-            onNewItem: () => console.log("onNewItem"),
+            onNewItem: () => {
+                // Redirect to new item page
+                window.location.href = '/newItem';
+            }
         } as MealProps;
     });
 

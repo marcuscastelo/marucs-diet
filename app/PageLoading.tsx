@@ -9,7 +9,6 @@ export type PageLoadingProps = {
 
 export default function PageLoading({ message }: PageLoadingProps) {
     const [label, setLabel] = useState(message);
-    const [display, setDisplay] = useState('hidden');
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -22,18 +21,13 @@ export default function PageLoading({ message }: PageLoadingProps) {
             }
         }, 300);
 
-        const timeout = setTimeout(() => {
-            setDisplay('flex');
-        }, 100);
-
         return () => {
             clearInterval(interval);
-            clearTimeout(timeout);
         }
     }, [label, message]);
 
     return (
-        <div className={`${display} w-full h-full min-h-screen justify-center`}>
+        <div className={`flex w-full h-full min-h-screen justify-center`}>
             <div className="flex flex-col justify-center w-full align-middle">
                 <LoadingRing />
                 <span className="inline-block text-center w-full">{label}</span>
