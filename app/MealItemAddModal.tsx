@@ -3,12 +3,24 @@
 import { useEffect, useState } from "react";
 import MealItem from "./MealItem";
 import { mockFood } from "./test/unit/(mock)/mockData";
+import { MealItemData } from "@/model/mealItemModel";
+import { FoodData } from "@/model/foodModel";
+import { MealData } from "@/model/mealModel";
 
 export const showMealItemAddModal = (id: string) => {
     window[id].showModal();
 }
 
-export default function MealItemAddModal({ modalId, show }: { modalId: string, show?: boolean }) {
+export type MealItemAddModalProps = {
+    modalId: string,
+    show?: boolean,
+    meal: MealData,
+    food: FoodData,
+    onAdd: (food: MealItemData) => void,
+    onCancel?: () => void,
+}
+
+export default function MealItemAddModal({ modalId, show, meal, food, onAdd, onCancel }: MealItemAddModalProps) {
     const [quantity, setQuantity] = useState('');
 
     useEffect(() => {
@@ -31,7 +43,7 @@ export default function MealItemAddModal({ modalId, show }: { modalId: string, s
     const [currentHoldTimeout, setCurrentHoldTimeout] = useState(undefined as NodeJS.Timeout | undefined);
     const [currentHoldInterval, setCurrentHoldInterval] = useState(undefined as NodeJS.Timeout | undefined);
 
-    const onMouseDown = (action: () => void) => {
+    const holdRepeatStart = (action: () => void) => {
         setCurrentHoldTimeout(setTimeout(() => {
             setCurrentHoldInterval(setInterval(() => {
                 action();
@@ -39,7 +51,7 @@ export default function MealItemAddModal({ modalId, show }: { modalId: string, s
         }, 500));
     }
 
-    const onMouseUp = () => {
+    const holdRepeatStop = () => {
         if (currentHoldTimeout) {
             clearTimeout(currentHoldTimeout);
         }
@@ -49,12 +61,17 @@ export default function MealItemAddModal({ modalId, show }: { modalId: string, s
         }
     }
 
+    const createMealItem = () => ({
+        quantity: Number(quantity),
+        food: food,
+    });
+
     return (
         <>
             <dialog id={modalId} className="modal modal-bottom sm:modal-middle">
                 <form method="dialog" className="modal-box bg-gray-800 text-white">
                     <h3 className="font-bold text-lg text-white">Novo item em
-                        <span className="text-green-500"> &quot;Café da manhã&quot; </span>
+                        <span className="text-green-500"> &quot;{meal.name}&quot; </span>
                     </h3>
 
                     <p className="text-gray-400 mt-1">Atalhos</p>
@@ -81,29 +98,30 @@ export default function MealItemAddModal({ modalId, show }: { modalId: string, s
                         <div className="w-20 flex ml-1 my-1">
                             <div className="btn btn-xs btn-primary w-10 h-full text-4xl text-red-600"
                                 onClick={decrement}
-                                onMouseDown={() => onMouseDown(decrement)} onMouseUp={onMouseUp}
-                                onTouchStart={() => onMouseDown(decrement)} onTouchEnd={onMouseUp}
+                                onMouseDown={() => holdRepeatStart(decrement)} onMouseUp={holdRepeatStop}
+                                onTouchStart={() => holdRepeatStart(decrement)} onTouchEnd={holdRepeatStop}
                             > - </div>
                             <div className="ml-1 btn btn-xs btn-primary w-10 h-full text-4xl text-green-400"
                                 onClick={increment}
-                                onMouseDown={() => onMouseDown(increment)} onMouseUp={onMouseUp}
-                                onTouchStart={() => onMouseDown(increment)} onTouchEnd={onMouseUp}
+                                onMouseDown={() => holdRepeatStart(increment)} onMouseUp={holdRepeatStop}
+                                onTouchStart={() => holdRepeatStart(increment)} onTouchEnd={holdRepeatStop}
                             > + </div>
                         </div>
                     </div>
 
                     <MealItem
                         className="mt-4"
-                        food={mockFood()}
-                        mealId="1"
-                        id="1"
+                        food={food}
                         quantity={Number(quantity)}
                     />
 
                     <div className="modal-action">
                         {/* if there is a button in form, it will close the modal */}
-                        <button className="btn">Cancelar</button>
-                        <button className="btn">Adicionar</button>
+                        <button className="btn" onClick={() => onCancel?.()} >Cancelar</button>
+                        <button className="btn" onClick={(e) => {
+                            e.preventDefault();
+                            onAdd(createMealItem());
+                        }} >Adicionar</button>
                     </div>
                 </form>
             </dialog>

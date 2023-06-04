@@ -7,10 +7,16 @@ import { Alert, Breadcrumb } from "flowbite-react";
 import { useEffect, useState } from "react";
 import PageLoading from "../PageLoading";
 import MealItemAddModal, { showMealItemAddModal } from "../MealItemAddModal";
+import { mockFood, mockMeal } from "../test/unit/(mock)/mockData";
 
 export default function Page() {
     const [search, setSearch] = useState('' as string);
     const [foods, setFoods] = useState([] as FoodData[]);
+    const [selectedFood, setSelectedFood] = useState(mockFood({name: 'BUG: SELECTED FOOD NOT SET'}));
+
+    const meal = mockMeal({
+        name: "Mocked meal",
+    })
 
     const fetchFoods = async () => {
         const foods = await listFoods();
@@ -72,7 +78,7 @@ export default function Page() {
                     2023-06-03
                 </Breadcrumb.Item>
                 <Breadcrumb.Item>
-                    Café da manhã
+                    {meal.name}
                 </Breadcrumb.Item>
             </Breadcrumb>
 
@@ -85,21 +91,28 @@ export default function Page() {
 
             {filteredFoods.length == 0 && <Alert color="warning" className="mt-2">Nenhum alimento encontrado para a busca &quot;{search}&quot;.</Alert>}
 
-            <MealItemAddModal modalId="MealItemAddModal" />
+            <MealItemAddModal modalId="MealItemAddModal" meal={meal} food={selectedFood} 
+                onAdd={(item) => window.location.href = `/`} 
+            />
 
-            {
-                filteredFoods.map((food, idx) =>
-                    <div key={idx}>
-                        <MealItem 
-                            key={idx} 
-                            food={food} id="123" mealId="123" quantity={100}
-                            onClick={() => {
-                                showMealItemAddModal('MealItemAddModal')
-                            }}
-                        />
-                    </div>
-                )
-            }
+            <div className="bg-gray-800 p-1">
+                {
+                    filteredFoods.map((food, idx) =>
+                        <div key={idx}>
+                            <MealItem
+                                className="mt-1"
+                                key={idx} 
+                                food={food} quantity={100}
+                                onClick={() => {
+                                    setSelectedFood(food);
+                                    showMealItemAddModal('MealItemAddModal')
+                                }}
+                            />
+                        </div>
+                    )
+                }
+            </div>
+
         </>
     );
 }

@@ -48,8 +48,6 @@ export const mockFood = (partial?: Partial<FoodData>) => ({
 
 export const mockItem: MealItemData = {
     food: mockFood(),
-    id: '123',
-    mealId: '123',
     quantity: 123,
 };
 
