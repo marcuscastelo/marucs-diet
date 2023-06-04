@@ -148,7 +148,7 @@ export default function Page(context: any) {
             {filteredFoods.length == 0 && <Alert color="warning" className="mt-2">Nenhum alimento encontrado para a busca &quot;{search}&quot;.</Alert>}
 
             <MealItemAddModal modalId="MealItemAddModal" meal={meal} food={selectedFood}
-                onAdd={async (i) => onNewMealItem(i)}
+                onApply={async (i) => onNewMealItem(i)}
             />
 
             <div className="bg-gray-800 p-1">

@@ -11,18 +11,29 @@ export const showMealItemAddModal = (id: string) => {
     window[id].showModal();
 }
 
+export const hideMealItemAddModal = (id: string) => {
+    window[id].close();
+}
+
 export type MealItemAddModalProps = {
     modalId: string,
-    show?: boolean,
     meal: MealData,
-    food: FoodData,
-    onAdd: (food: MealItemData) => void,
+    itemData: Partial<MealItemData> & { food: FoodData },
+    show?: boolean,
+    onApply: (item: MealItemData) => void,
     onCancel?: () => void,
 }
 
-export default function MealItemAddModal({ modalId, show, meal, food, onAdd, onCancel }: MealItemAddModalProps) {
-    const [quantity, setQuantity] = useState('');
+export default function MealItemAddModal({
+    modalId, show, meal, itemData: { food, quantity: initialQuantity, id: initialId },
+    onApply, onCancel
+}: MealItemAddModalProps
+) {
+    const [quantity, setQuantity] = useState(initialQuantity?.toString() ?? '');
+    const [id, setId] = useState(initialId ?? Math.random().toString());
     const canAdd = quantity != '' && Number(quantity) > 0;
+    
+    const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(true);
 
     useEffect(() => {
         if (!show) {
@@ -37,6 +48,23 @@ export default function MealItemAddModal({ modalId, show, meal, food, onAdd, onC
             clearTimeout(timeout);
         }
     }, [show, modalId]);
+
+    useEffect(() => {
+        if (initialQuantity !== undefined) {
+            setQuantity(initialQuantity.toString());
+        }
+
+        if (initialId !== undefined) {
+            setId(initialId);
+        }
+    }, [initialQuantity, initialId]);
+
+    useEffect(() => {
+        setQuantityFieldDisabled(true);
+        setTimeout(() => {
+            setQuantityFieldDisabled(false);
+        }, 500);
+    }, [initialQuantity, initialId]);
 
     const increment = () => setQuantity((old) => (Number(old ?? '0') + 1).toString())
     const decrement = () => setQuantity((old) => Math.max(0, Number(old ?? '0') - 1).toString())
@@ -63,9 +91,10 @@ export default function MealItemAddModal({ modalId, show, meal, food, onAdd, onC
     }
 
     const createMealItemData = () => ({
+        id,
         quantity: Number(quantity),
-        food: food,
-    });
+        food
+    } as MealItemData);
 
     return (
         <>
@@ -92,6 +121,7 @@ export default function MealItemAddModal({ modalId, show, meal, food, onAdd, onC
                     </div>
                     <div className="flex mt-3">
                         <input
+                            disabled={quantityFieldDisabled}
                             value={quantity}
                             onChange={(e) => setQuantity(e.target.value.replace(/[^0-9]/, ''))}
                             type="number" placeholder="Quantidade (gramas)"
@@ -111,6 +141,7 @@ export default function MealItemAddModal({ modalId, show, meal, food, onAdd, onC
                     </div>
 
                     <MealItem
+                        id={id}
                         className="mt-4"
                         food={food}
                         quantity={Number(quantity)}
@@ -121,8 +152,8 @@ export default function MealItemAddModal({ modalId, show, meal, food, onAdd, onC
                         <button className="btn" onClick={() => onCancel?.()} >Cancelar</button>
                         <button className="btn" disabled={!canAdd} onClick={(e) => {
                             e.preventDefault();
-                            onAdd(createMealItemData());
-                        }} >Adicionar</button>
+                            onApply(createMealItemData());
+                        }} >Aplicar</button>
                     </div>
                 </form>
             </dialog>

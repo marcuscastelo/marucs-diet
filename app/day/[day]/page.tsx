@@ -7,7 +7,7 @@ import { MealProps } from "../../Meal";
 import { listFoods } from "@/controllers/food";
 import { FoodData } from "@/model/foodModel";
 import PageLoading from "../../PageLoading";
-import { listDays } from "@/controllers/days";
+import { listDays, updateDay } from "@/controllers/days";
 import { DateValueType } from "react-tailwindcss-datepicker/dist/types";
 import Datepicker from "react-tailwindcss-datepicker";
 import { Alert } from "flowbite-react";
@@ -17,13 +17,21 @@ import { MealData } from "@/model/mealModel";
 import { MealItemData } from "@/model/mealItemModel";
 import { MacroNutrientsData } from "@/model/macroNutrientsModel";
 import { useRouter } from "next/navigation";
+import MealItemAddModal, { hideMealItemAddModal, showMealItemAddModal } from "@/app/MealItemAddModal";
+import { mockFood, mockItem, mockMeal } from "@/app/test/unit/(mock)/mockData";
+import { Record } from "pocketbase";
 
 export default function Page(context: any) {
     const router = useRouter();
 
-    const [foods, setFoods] = useState([] as FoodData[]);
-    const [days, setDays] = useState([] as DayData[]);
+    const [foods, setFoods] = useState([] as (FoodData & Record)[]);
+    const [days, setDays] = useState([] as (DayData & Record)[]);
     const selectedDay = context.params.day as string;
+
+    const [selectedMeal, setSelectedMeal] = useState(mockMeal({name: 'BUG: selectedMeal not set'}));
+    const [selectedMealItem, setSelectedMealItem] = useState(mockItem({quantity: 666}));
+
+    const editModalId = 'edit-modal';
 
     const fetchFoods = async () => {
         const foods = await listFoods();
@@ -55,20 +63,26 @@ export default function Page(context: any) {
     const loading = days.length == 0 || foods.length == 0;
 
     if (loading) {
-        return <PageLoading message="Carregando dias e alimentos"/>
+        return <PageLoading message="Carregando dias e alimentos" />
     }
 
     const hasData = days.some((day) => day.targetDay === selectedDay);
     const dayData = days.find((day) => day.targetDay === selectedDay);
 
     const mealProps = dayData?.meals.map((meal) => {
-        return {
+        const mealProps: MealProps = {
             mealData: meal,
+            onEditItem: (mealItem) => {
+                setSelectedMeal(meal);
+                setSelectedMealItem(mealItem);
+                showMealItemAddModal(editModalId);
+            },
             onNewItem: () => {
                 // Redirect to new item page
                 window.location.href = `/newItem/${selectedDay}/${meal.id}`;
             }
-        } as MealProps;
+        };
+        return mealProps;
     });
 
     const foodMacros = (food: FoodData) => ({
@@ -86,7 +100,6 @@ export default function Page(context: any) {
             fat: fm.fat * mealItem.quantity / 100,
         } as MacroNutrientsData;
     };
-        
 
     const mealMacros = (meal: MealData) => {
         return meal.items.reduce((acc, item) => {
@@ -127,6 +140,7 @@ export default function Page(context: any) {
                 onChange={handleDayChange}
             />
 
+
             <Show when={!selectedDay}>
                 <Alert className="mt-2" color="warning">Selecione um dia</Alert>
             </Show>
@@ -148,7 +162,41 @@ export default function Page(context: any) {
             </Show>
 
             <Show when={hasData}>
-                <DayMacros className="mt-3" 
+                
+                <MealItemAddModal
+                    modalId={editModalId}
+                    itemData={{
+                        id: selectedMealItem.id,
+                        food: selectedMealItem.food,
+                        quantity: selectedMealItem.quantity,
+                    }}
+                    meal={selectedMeal}
+                    show={false}
+                    onApply={async (item) => {
+                        await updateDay(dayData!.id, {
+                            ...dayData!,
+                            meals: dayData!.meals.map((meal) => {
+                                if (meal.id !== selectedMeal.id) {
+                                    return meal;
+                                }
+                                
+                                const items = meal.items;
+                                const changePos = items.findIndex((i) => i.id === item.id);
+                                items[changePos] = item;
+                                return {
+                                    ...meal,
+                                    items,
+                                };
+                            })
+                        });
+
+                        await fetchDays();
+                        
+                        hideMealItemAddModal(editModalId);
+                    }}
+                />
+
+                <DayMacros className="mt-3"
                     macros={dayMacros!}
                 />
                 <DayMeals className="mt-5" mealsProps={mealProps!} />

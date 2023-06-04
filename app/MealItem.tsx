@@ -25,7 +25,8 @@ export default function MealItem(props: MealItemData & { className?: string, onC
     return (
         <>
             <a href="#" onClick={onClick} className={`block p-3 bg-gray-700 border border-gray-700 rounded-lg shadow hover:bg-gray-700 ${props.className ?? ''}`}>
-                <h5 className="mb-2 text-lg font-bold tracking-tight text-white">{props.food.name}</h5>
+                <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.id}]</h5>
+                <h5 className="mb-2 text-lg font-bold tracking-tight text-white">{props.food.name} </h5>
 
                 <div className="flex">
                     <MacroNutrients {...multipliedMacros} />
