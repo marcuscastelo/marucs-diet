@@ -1,6 +1,6 @@
 import { MealData } from "./mealModel";
 
 export type DayData = {
-    targetDay: Date;
+    targetDay: string;
     meals: MealData[];
 };

@@ -11,7 +11,7 @@ import { MealProps } from "@/app/Meal";
 
 export default function Page() {
     const day1: DayData = {
-        targetDay: new Date(),
+        targetDay: new Date().toISOString().split('T')[0],
         meals: [
             mockMeal({ name: 'Café da manhã' }),
             mockMeal({ name: 'Almoço' }),
@@ -19,7 +19,7 @@ export default function Page() {
     }
 
     const day2: DayData = {
-        targetDay: new Date(),
+        targetDay: new Date().toISOString().split('T')[0],
         meals: [
             mockMeal({ name: 'Jejum' }),
         ]
