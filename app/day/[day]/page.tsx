@@ -7,7 +7,7 @@ import { MealProps } from "../../Meal";
 import { listFoods } from "@/controllers/food";
 import { FoodData } from "@/model/foodModel";
 import PageLoading from "../../PageLoading";
-import { listDays, updateDay } from "@/controllers/days";
+import { createDay, listDays, updateDay } from "@/controllers/days";
 import { DateValueType } from "react-tailwindcss-datepicker/dist/types";
 import Datepicker from "react-tailwindcss-datepicker";
 import { Alert } from "flowbite-react";
@@ -18,7 +18,7 @@ import { MealItemData } from "@/model/mealItemModel";
 import { MacroNutrientsData } from "@/model/macroNutrientsModel";
 import { useRouter } from "next/navigation";
 import MealItemAddModal, { hideMealItemAddModal, showMealItemAddModal } from "@/app/MealItemAddModal";
-import { mockFood, mockItem, mockMeal } from "@/app/test/unit/(mock)/mockData";
+import { mockDay, mockFood, mockItem, mockMeal } from "@/app/test/unit/(mock)/mockData";
 import { Record } from "pocketbase";
 
 export default function Page(context: any) {
@@ -28,8 +28,8 @@ export default function Page(context: any) {
     const [days, setDays] = useState([] as (DayData & Record)[]);
     const selectedDay = context.params.day as string;
 
-    const [selectedMeal, setSelectedMeal] = useState(mockMeal({name: 'BUG: selectedMeal not set'}));
-    const [selectedMealItem, setSelectedMealItem] = useState(mockItem({quantity: 666}));
+    const [selectedMeal, setSelectedMeal] = useState(mockMeal({ name: 'BUG: selectedMeal not set' }));
+    const [selectedMealItem, setSelectedMealItem] = useState(mockItem({ quantity: 666 }));
 
     const editModalId = 'edit-modal';
 
@@ -147,6 +147,16 @@ export default function Page(context: any) {
 
             <Show when={!!selectedDay && !hasData}>
                 <Alert className="mt-2" color="warning">Nenhum dado encontrado para o dia {selectedDay}</Alert>
+                <button
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 min-w-full rounded mt-3"
+                    onClick={() => {
+                        createDay(mockDay({ targetDay: selectedDay })).then(() => {
+                            fetchDays();
+                        });
+                    }}
+                >
+                    Criar dia
+                </button>
             </Show>
 
             <Show when={!!selectedDay && hasData && !dayData}>
@@ -162,7 +172,7 @@ export default function Page(context: any) {
             </Show>
 
             <Show when={hasData}>
-                
+
                 <MealItemAddModal
                     modalId={editModalId}
                     itemData={{
@@ -179,7 +189,7 @@ export default function Page(context: any) {
                                 if (meal.id !== selectedMeal.id) {
                                     return meal;
                                 }
-                                
+
                                 const items = meal.items;
                                 const changePos = items.findIndex((i) => i.id === item.id);
 
@@ -198,7 +208,7 @@ export default function Page(context: any) {
                         });
 
                         await fetchDays();
-                        
+
                         hideMealItemAddModal(editModalId);
                     }}
                 />

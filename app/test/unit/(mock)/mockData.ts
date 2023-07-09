@@ -1,3 +1,4 @@
+import { DayData } from "@/model/dayModel";
 import { FoodData } from "@/model/foodModel";
 import { MealItemData } from "@/model/mealItemModel";
 import { MealData } from "@/model/mealModel";
@@ -60,3 +61,25 @@ export const mockItem = (partial?: Partial<MealItemData>) => ({
     quantity: 123,
     ...partial,
 } as MealItemData);
+
+
+export const mockDay = (partial?: Partial<DayData> & Pick<DayData, 'targetDay'>) => ({
+    meals: [
+        mockMeal({
+            name: `Café da Manhã ${Math.round(Math.random() * 100)}`,
+        }),
+        mockMeal({
+            name: `Almoço ${Math.round(Math.random() * 100)}`,
+        }),
+        mockMeal({
+            name: `Lanche ${Math.round(Math.random() * 100)}`,
+        }),
+        mockMeal({
+            name: `Janta ${Math.round(Math.random() * 100)}`,
+        }),
+        mockMeal({
+            name: `Pós Janta ${Math.round(Math.random() * 100)}`,
+        }),
+    ],
+    ...partial
+} as DayData);
