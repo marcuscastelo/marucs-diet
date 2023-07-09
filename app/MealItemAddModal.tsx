@@ -99,7 +99,7 @@ export default function MealItemAddModal({
     return (
         <>
             <dialog id={modalId} className="modal modal-bottom sm:modal-middle">
-                <form method="dialog" className="modal-box bg-gray-800 text-white">
+                <form method="dialog" className="modal-box bg-gray-800 text-white" onSubmit={() => onApply(createMealItemData())}>
                     <h3 className="font-bold text-lg text-white">Novo item em
                         <span className="text-green-500"> &quot;{meal.name}&quot; </span>
                     </h3>
