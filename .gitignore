@@ -36,7 +36,6 @@ next-env.d.ts
 
 
 pb_data/logs.db
-
 secrets/
 
 ```
