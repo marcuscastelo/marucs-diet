@@ -21,6 +21,7 @@ import MealItemAddModal from "@/app/MealItemAddModal";
 import { mockDay, mockFood, mockItem, mockMeal } from "@/app/test/unit/(mock)/mockData";
 import { Record } from "pocketbase";
 import { hideModal, showModal } from "@/utils/DOMModal";
+import UserSelector from "@/app/UserSelector";
 
 export default function Page(context: any) {
     const router = useRouter();
@@ -147,17 +148,7 @@ export default function Page(context: any) {
 
                 {/* User icon */}
                 <div className="flex justify-end">
-                    <div className="flex items-center">
-                        <div className="flex-shrink-0">
-                            <img className="h-10 w-10 rounded-full" src="/user.png" alt="" />
-                        </div>
-                        <div className="ml-3">
-                            <div className="text-base font-medium leading-none text-white">Marcus</div>
-                            <div className="text-sm font-medium leading-none text-slate-300">
-                                Sair
-                            </div>
-                        </div>
-                    </div>
+                    <UserSelector/>
                 </div>
             </div>
 

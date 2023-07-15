@@ -3,12 +3,13 @@
 import { MacroNutrientsData } from "@/model/macroNutrientsModel";
 import { Progress } from "flowbite-react";
 
+const targetMacros = {
+    carbs: 136,
+    protein: 184,
+    fat: 80,
+};
+
 export default function DayMacros({ macros, className }: { macros: MacroNutrientsData, className?: string }) {
-    const targetMacros = {
-        carbs: 136,
-        protein: 184,
-        fat: 80,
-    };
 
     macros.calories = macros.calories || (
         macros.carbs * 4 +
