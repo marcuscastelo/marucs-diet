@@ -1,8 +1,10 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { searchBarCode } from "@/controllers/barcodes";
 import { BarCodeResult } from "@/model/barCodeResult";
 import { useEffect, useState } from "react";
+import { FoodData } from "@/model/foodModel";
 
 export default function Page() {
     const [loading, setLoading] = useState(false);
@@ -33,6 +35,18 @@ export default function Page() {
         }
     }, [barCode]);
 
+
+    //TODO: converter em outro lugar
+    //TODO: parar de usar [qtd, unidade]
+    //TODO: multiplicar por 100 o que vier do BarCodeResult
+    const food: FoodData = {
+        tbcaId: '', // TODO: FoodData should not require tbcaId
+        name: currentResult?.nome ?? '',
+        components: {
+            "Energia": [currentResult?.calorias?.toString() ?? '', 'kcal'],
+        }
+    }
+
     return (
         <div>
             <h3 className="font-bold text-lg text-white">Busca por código de barras (EAN)</h3>
@@ -49,10 +63,10 @@ export default function Page() {
                                 {currentResult.nome}
                             </p>
                             <p className="text-sm">
-                                {currentResult.fotoTabelaNutricional}
+                                {food?.components?.Energia?.[0] ?? ''} {food?.components?.Energia?.[1] ?? ''}
                             </p>
                         </div>
-                    </div>300g
+                    </div>
                 </div>
             )}
 
