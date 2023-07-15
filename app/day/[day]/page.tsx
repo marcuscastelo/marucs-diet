@@ -17,9 +17,10 @@ import { MealData } from "@/model/mealModel";
 import { MealItemData } from "@/model/mealItemModel";
 import { MacroNutrientsData } from "@/model/macroNutrientsModel";
 import { useRouter } from "next/navigation";
-import MealItemAddModal, { hideModal, showModal } from "@/app/MealItemAddModal";
+import MealItemAddModal from "@/app/MealItemAddModal";
 import { mockDay, mockFood, mockItem, mockMeal } from "@/app/test/unit/(mock)/mockData";
 import { Record } from "pocketbase";
+import { hideModal, showModal } from "@/utils/DOMModal";
 
 export default function Page(context: any) {
     const router = useRouter();
@@ -75,7 +76,7 @@ export default function Page(context: any) {
             onEditItem: (mealItem) => {
                 setSelectedMeal(meal);
                 setSelectedMealItem(mealItem);
-                showModal(editModalId);
+                showModal(window, editModalId);
             },
             onNewItem: () => {
                 // Redirect to new item page
@@ -128,17 +129,37 @@ export default function Page(context: any) {
     } as MacroNutrientsData);
 
     return (
-        <>
-            <Datepicker
-                asSingle={true}
-                useRange={false}
-                readOnly={true}
-                value={{
-                    startDate: selectedDay,
-                    endDate: selectedDay,
-                }}
-                onChange={handleDayChange}
-            />
+        <div className="sm:w-3/4 md:w-4/5 lg:w-1/2 xl:w-1/3 mx-auto">
+            {/* Top bar with date picker and user icon */}
+            <div className="bg-slate-900 py-2 flex justify-between items-center gap-4 px-4">
+                <div className="flex-1">
+                    <Datepicker
+                        asSingle={true}
+                        useRange={false}
+                        readOnly={true}
+                        value={{
+                            startDate: selectedDay,
+                            endDate: selectedDay,
+                        }}
+                        onChange={handleDayChange}
+                    />
+                </div>
+
+                {/* User icon */}
+                <div className="flex justify-end">
+                    <div className="flex items-center">
+                        <div className="flex-shrink-0">
+                            <img className="h-10 w-10 rounded-full" src="/user.png" alt="" />
+                        </div>
+                        <div className="ml-3">
+                            <div className="text-base font-medium leading-none text-white">Marcus</div>
+                            <div className="text-sm font-medium leading-none text-slate-300">
+                                Sair
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
 
             <Show when={!selectedDay}>
@@ -209,15 +230,15 @@ export default function Page(context: any) {
 
                         await fetchDays();
 
-                        hideModal(editModalId);
+                        hideModal(window, editModalId);
                     }}
                 />
 
-                <DayMacros className="mt-3"
+                <DayMacros className="mt-3 border-b-2 border-gray-800 pb-4"
                     macros={dayMacros!}
                 />
                 <DayMeals className="mt-5" mealsProps={mealProps!} />
             </Show>
-        </>
+        </div>
     );
 }
