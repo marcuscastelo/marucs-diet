@@ -6,13 +6,18 @@ import { FoodData } from "@/model/foodModel";
 import { Alert, Breadcrumb } from "flowbite-react";
 import { useEffect, useState } from "react";
 import PageLoading from "../../../PageLoading";
-import MealItemAddModal, { showMealItemAddModal } from "../../../MealItemAddModal";
+import MealItemAddModal from "../../../MealItemAddModal";
 import { mockFood, mockMeal } from "../../../test/unit/(mock)/mockData";
 import { MealItemData } from "@/model/mealItemModel";
 import { notFound, usePathname } from "next/navigation";
 import { listDays, updateDay } from "@/controllers/days";
 import { DayData } from "@/model/dayModel";
 import { Record } from "pocketbase";
+import BarCodeInsertModal from "@/app/BarCodeInsertModal";
+import { showModal } from "@/utils/DOMModal";
+
+const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal';
+const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal';
 
 export default function Page(context: any) {
     const dayParam = context.params.date as string;
@@ -140,6 +145,25 @@ export default function Page(context: any) {
                 </Breadcrumb.Item>
             </Breadcrumb>
 
+            <div className="flex justify-start mb-2">
+                <button
+                    onClick={() => {
+                        showModal(window, BAR_CODE_INSERT_MODAL_ID);
+                    }}
+                    className="mt-2 bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+                >
+                    Inserir código de barras
+                </button>
+            </div>
+
+            <BarCodeInsertModal 
+                show={true}
+                modalId={BAR_CODE_INSERT_MODAL_ID} onSelect={
+                (food) => {
+                    alert(JSON.stringify(food, null, 2));
+                }
+            } />
+
             <div className="relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                     <svg aria-hidden="true" className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
@@ -149,7 +173,7 @@ export default function Page(context: any) {
 
             {filteredFoods.length == 0 && <Alert color="warning" className="mt-2">Nenhum alimento encontrado para a busca &quot;{search}&quot;.</Alert>}
 
-            <MealItemAddModal modalId="MealItemAddModal" meal={meal} itemData={{
+            <MealItemAddModal modalId={MEAL_ITEM_ADD_MODAL_ID} meal={meal} itemData={{
                 food: selectedFood,
             }}
                 onApply={async (i) => onNewMealItem(i)}
@@ -166,7 +190,7 @@ export default function Page(context: any) {
                                 food={food} quantity={100}
                                 onClick={() => {
                                     setSelectedFood(food);
-                                    showMealItemAddModal('MealItemAddModal')
+                                    showModal(window, MEAL_ITEM_ADD_MODAL_ID)
                                 }}
                             />
                         </div>

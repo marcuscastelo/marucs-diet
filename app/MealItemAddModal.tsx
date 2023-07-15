@@ -6,14 +6,7 @@ import { mockFood } from "./test/unit/(mock)/mockData";
 import { MealItemData } from "@/model/mealItemModel";
 import { FoodData } from "@/model/foodModel";
 import { MealData } from "@/model/mealModel";
-
-export const showMealItemAddModal = (id: string) => {
-    window[id].showModal();
-}
-
-export const hideMealItemAddModal = (id: string) => {
-    window[id].close();
-}
+import { showModal } from "@/utils/DOMModal";
 
 export type MealItemAddModalProps = {
     modalId: string,
@@ -41,7 +34,7 @@ export default function MealItemAddModal({
         }
 
         const timeout = setTimeout(() => {
-            showMealItemAddModal(modalId);
+            showModal(window, modalId);
         }, 100);
 
         return () => {

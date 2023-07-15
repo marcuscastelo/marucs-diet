@@ -17,7 +17,7 @@ import { MealData } from "@/model/mealModel";
 import { MealItemData } from "@/model/mealItemModel";
 import { MacroNutrientsData } from "@/model/macroNutrientsModel";
 import { useRouter } from "next/navigation";
-import MealItemAddModal, { hideMealItemAddModal, showMealItemAddModal } from "@/app/MealItemAddModal";
+import MealItemAddModal, { hideModal, showModal } from "@/app/MealItemAddModal";
 import { mockDay, mockFood, mockItem, mockMeal } from "@/app/test/unit/(mock)/mockData";
 import { Record } from "pocketbase";
 
@@ -75,7 +75,7 @@ export default function Page(context: any) {
             onEditItem: (mealItem) => {
                 setSelectedMeal(meal);
                 setSelectedMealItem(mealItem);
-                showMealItemAddModal(editModalId);
+                showModal(editModalId);
             },
             onNewItem: () => {
                 // Redirect to new item page
@@ -209,7 +209,7 @@ export default function Page(context: any) {
 
                         await fetchDays();
 
-                        hideMealItemAddModal(editModalId);
+                        hideModal(editModalId);
                     }}
                 />
 
