@@ -2,14 +2,43 @@
 
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { Dropdown } from "react-daisyui";
-import { setName } from "@/redux/features/userSlice";
+import { setUserJson } from "@/redux/features/userSlice";
+import { useEffect, useState } from "react";
+import { User } from "@/model/userModel";
+import { listUsers } from "@/controllers/users";
+import { Record } from "pocketbase";
+import { Loadable } from "@/utils/loadable";
 
 export default function UserSelector() {
-    const availableUsernames = ['Marcus', 'Simone'];
+    const [availableUsers, setAvailableUsers] = useState<Loadable<(User & Record)[]>>({ loading: true });
+    const [loadingHasTimedOut, setLoadingHasTimedOut] = useState(false);
 
-    const username = useAppSelector(state => state.userReducer.name);
+    const currentUser = useAppSelector(state => state.userReducer);
     const dispatch = useAppDispatch();
-    const onChangeUsername = (username: string) => dispatch(setName(username));
+    const onChangeUser = (user: User & Record) => dispatch(setUserJson(JSON.stringify(user)));
+
+    useEffect(() => {
+        listUsers().then(users => {
+            setAvailableUsers({
+                loading: false,
+                data: users
+            });
+        });
+    }, []);
+
+    useEffect(() => {
+        if (!currentUser.loading) {
+            setLoadingHasTimedOut(false);
+        }
+
+        const timeout = setTimeout(() => {
+            setLoadingHasTimedOut(true);
+        }, 500);
+
+        return () => {
+            clearTimeout(timeout);
+        }
+    }, [currentUser]);
 
     return (
         <div className="flex items-center">
@@ -17,34 +46,57 @@ export default function UserSelector() {
                 <img className="h-10 w-10 rounded-full" src="/user.png" alt="" />
             </div>
             <div className="ml-3 text-center flex flex-col gap-1">
-                <div className="text-base font-medium leading-none text-white hover:text-indigo-200 hover:cursor-pointer">{username}</div>
+                <div className="text-base font-medium leading-none text-white hover:text-indigo-200 hover:cursor-pointer">
+                    {
+                        currentUser.loading ?
+                            (
+                                loadingHasTimedOut ?
+                                    "Deslogado" :
+                                    "Carregando..."
+                            ) :
+                            currentUser.data.name
+                    }
+                </div>
                 <div className="text-sm font-medium leading-none text-slate-300">
                     <Dropdown horizontal="left">
-                        <Dropdown.Toggle color="ghost" button={false} className="hover:text-indigo-200 hover:cursor-pointer" >Trocar</Dropdown.Toggle>
+                        <Dropdown.Toggle color="ghost" button={false} className="hover:text-indigo-200 hover:cursor-pointer" >
+                            { loadingHasTimedOut ? "Entrar" : "Trocar"}
+                        </Dropdown.Toggle>
                         <Dropdown.Menu className="bg-slate-950">
                             {
-                                availableUsernames.map((username) => {
-                                    return (
-                                        <Dropdown.Item  
-                                            key={username} 
-                                            onClick={_ => {
-                                                onChangeUsername(username);
-                                                // Force dropdown to close without having to click outside setting aria
-                                                // Credit: https://reacthustle.com/blog/how-to-close-daisyui-dropdown-with-one-click
-                                                (document.activeElement as (any | null))?.blur();
-                                            }}
-                                        >
-                                            {username}
-                                        </Dropdown.Item>
-                                    );
-                                })
+                                availableUsers.loading ?
+                                    (
+                                        <Dropdown.Item>Carregando...</Dropdown.Item>
+                                    ) :
+                                    (
+                                        availableUsers.data.map((user) => {
+                                            return (
+                                                <Dropdown.Item
+                                                    key={user.name}
+                                                    onClick={_ => {
+                                                        onChangeUser(user);
+                                                        // Force dropdown to close without having to click outside setting aria
+                                                        // Credit: https://reacthustle.com/blog/how-to-close-daisyui-dropdown-with-one-click
+                                                        (document.activeElement as (any | null))?.blur();
+                                                    }}
+                                                >
+                                                    {user.name}
+                                                </Dropdown.Item>
+                                            );
+                                        })
+                                    )
+                            }
+
+                            {
+                                !availableUsers.loading && availableUsers.data.length === 0 &&
+                                <Dropdown.Item>Nenhum usuário disponível</Dropdown.Item>
                             }
                         </Dropdown.Menu>
                     </Dropdown>
                 </div>
             </div>
             <div className="">
-            
+
             </div>
         </div>
     );

@@ -22,12 +22,17 @@ import { mockDay, mockFood, mockItem, mockMeal } from "@/app/test/unit/(mock)/mo
 import { Record } from "pocketbase";
 import { hideModal, showModal } from "@/utils/DOMModal";
 import UserSelector from "@/app/UserSelector";
+import { useUser } from "@/redux/features/userSlice";
+import { User } from "@/model/userModel";
+import { Loadable } from "@/utils/loadable";
 
 export default function Page(context: any) {
     const router = useRouter();
 
-    const [foods, setFoods] = useState([] as (FoodData & Record)[]);
-    const [days, setDays] = useState([] as (DayData & Record)[]);
+    const currentUser = useUser();
+
+    const [foods, setFoods] = useState<Loadable<(FoodData & Record)[]>>({ loading: true });
+    const [days, setDays] = useState<Loadable<(DayData & Record)[]>>({ loading: true });
     const selectedDay = context.params.day as string;
 
     const [selectedMeal, setSelectedMeal] = useState(mockMeal({ name: 'BUG: selectedMeal not set' }));
@@ -37,12 +42,24 @@ export default function Page(context: any) {
 
     const fetchFoods = async () => {
         const foods = await listFoods();
-        setFoods(foods);
+        setFoods({
+            loading: false,
+            data: foods
+        });
     }
 
-    const fetchDays = async () => {
-        const days = await listDays();
-        setDays(days);
+    const fetchDays = async (user: User & Record) => {
+
+        if (!user) {
+            alert('Usuário não encontrado');
+
+            return;
+        }   
+        const days = await listDays(user);
+        setDays({
+            loading: false,
+            data: days
+        });
     }
 
     const handleDayChange = (newValue: DateValueType) => {
@@ -59,17 +76,33 @@ export default function Page(context: any) {
 
     useEffect(() => {
         fetchFoods();
-        fetchDays();
     }, []);
 
-    const loading = days.length == 0 || foods.length == 0;
+    useEffect(() => {
+        if (currentUser.loading) {
+            return;
+        }
 
-    if (loading) {
-        return <PageLoading message="Carregando dias e alimentos" />
+        fetchDays(currentUser.data);
+    }, [currentUser]);
+    
+    return;
+
+
+    if (currentUser.loading) {
+        return <PageLoading message="Carregando usuário" />
     }
 
-    const hasData = days.some((day) => day.targetDay === selectedDay);
-    const dayData = days.find((day) => day.targetDay === selectedDay);
+    if (days.loading) {
+        return <PageLoading message="Carregando dias" />
+    }
+
+    if (foods.loading) {
+        return <PageLoading message="Carregando alimentos" />
+    }
+
+    const hasData = days.data.some((day) => day.targetDay === selectedDay);
+    const dayData = days.data.find((day) => day.targetDay === selectedDay);
 
     const mealProps = dayData?.meals.map((meal) => {
         const mealProps: MealProps = {
@@ -129,6 +162,7 @@ export default function Page(context: any) {
         fat: 0,
     } as MacroNutrientsData);
 
+
     return (
         <div className="sm:w-3/4 md:w-4/5 lg:w-1/2 xl:w-1/3 mx-auto">
             {/* Top bar with date picker and user icon */}
@@ -148,7 +182,7 @@ export default function Page(context: any) {
 
                 {/* User icon */}
                 <div className="flex justify-end">
-                    <UserSelector/>
+                    <UserSelector />
                 </div>
             </div>
 
@@ -162,12 +196,12 @@ export default function Page(context: any) {
                 <button
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 min-w-full rounded mt-3"
                     onClick={() => {
-                        createDay(mockDay({ targetDay: selectedDay })).then(() => {
-                            fetchDays();
+                        createDay(mockDay({ owner: currentUser.data.id, targetDay: selectedDay })).then(() => {
+                            fetchDays(currentUser.data);
                         });
                     }}
                 >
-                    Criar dia
+                    Criar dia (TODO: copiar dia anterior)
                 </button>
             </Show>
 
@@ -219,7 +253,7 @@ export default function Page(context: any) {
                             })
                         });
 
-                        await fetchDays();
+                        await fetchDays(currentUser.data);
 
                         hideModal(window, editModalId);
                     }}

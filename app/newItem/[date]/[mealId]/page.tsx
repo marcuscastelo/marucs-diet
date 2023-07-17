@@ -15,6 +15,9 @@ import { DayData } from "@/model/dayModel";
 import { Record } from "pocketbase";
 import BarCodeInsertModal from "@/app/BarCodeInsertModal";
 import { showModal } from "@/utils/DOMModal";
+import { useUser } from "@/redux/features/userSlice";
+import { User } from "@/model/userModel";
+import { Loadable } from "@/utils/loadable";
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal';
 const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal';
@@ -22,38 +25,52 @@ const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal';
 export default function Page(context: any) {
     const dayParam = context.params.date as string;
 
+    const currentUser = useUser();
+
     const [search, setSearch] = useState('' as string);
-    const [foods, setFoods] = useState([] as (FoodData & Record)[]);
-    const [days, setDays] = useState([] as (DayData & Record)[]);
+    const [foods, setFoods] = useState<Loadable<(FoodData & Record)[]>>({ loading: true });
+    const [days, setDays] = useState<Loadable<(DayData & Record)[]>>({ loading: true });
     const [selectedFood, setSelectedFood] = useState(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }));
 
     const isDesktop = (typeof window !== 'undefined') ? window.innerWidth > 768 : false;
 
     const fetchFoods = async () => {
         const foods = await listFoods();
-        setFoods(foods);
+        setFoods({
+            loading: false,
+            data: foods
+        });
     }
 
-    const fetchDays = async () => {
-        const days = await listDays();
-        setDays(days);
+    const fetchDays = async (user: User & Record) => {
+        const days = await listDays(user);
+        setDays({
+            loading: false,
+            data: days
+        });
     }
 
     useEffect(() => {
         fetchFoods();
-        fetchDays();
     }, []);
 
+    useEffect(() => {
+        if (currentUser.loading) {
+            return;
+        }
 
-    if (foods.length == 0) {
+        fetchDays(currentUser.data);
+    }, [currentUser]);
+
+    if (foods.loading) {
         return <PageLoading message="Carregando alimentos" />
     }
 
-    if (days.length == 0) {
+    if (days.loading) {
         return <PageLoading message="Carregando dias" />
     }
 
-    const filteredFoods = foods.filter(
+    const filteredFoods = foods.data.filter(
         (food) => {
             if (search == "") {
                 return true;
@@ -83,14 +100,14 @@ export default function Page(context: any) {
         }
     ).slice(0, 100);
 
-    const day = days.find((day) => day.targetDay == dayParam);
+    const day = days.data.find((day) => day.targetDay == dayParam);
 
     if (!day) {
         return <>
             <Alert color="red" className="mt-2">Dia não encontrado {dayParam}.</Alert>
             <div className="bg-gray-800 p-1">
                 Dias disponíveis:
-                {JSON.stringify(days.map(d=>d.targetDay), null, 2)}
+                {JSON.stringify(days.data.map(d => d.targetDay), null, 2)}
             </div>
         </>
     }
@@ -102,7 +119,7 @@ export default function Page(context: any) {
             <Alert color="red" className="mt-2">Refeição não encontrada {context.params.mealId}.</Alert>
             <div className="bg-gray-800 p-1">
                 Refeições disponíveis para o dia {dayParam}:&nbsp;
-                {JSON.stringify(day.meals.map(m=>m.id), null, 2)}
+                {JSON.stringify(day.meals.map(m => m.id), null, 2)}
             </div>
         </>
     }
@@ -156,13 +173,13 @@ export default function Page(context: any) {
                 </button>
             </div>
 
-            <BarCodeInsertModal 
+            <BarCodeInsertModal
                 show={true}
                 modalId={BAR_CODE_INSERT_MODAL_ID} onSelect={
-                (food) => {
-                    alert(JSON.stringify(food, null, 2));
-                }
-            } />
+                    (food) => {
+                        alert(JSON.stringify(food, null, 2));
+                    }
+                } />
 
             <div className="relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
