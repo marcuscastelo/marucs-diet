@@ -19,6 +19,9 @@ import { setUserJson, useUser } from "@/redux/features/userSlice";
 import { User } from "@/model/userModel";
 import { Loadable } from "@/utils/loadable";
 import { updateUser } from "@/controllers/users";
+import { useAppDispatch } from "@/redux/hooks";
+import UserSelector from "@/app/UserSelector";
+import { MealData } from "@/model/mealModel";
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal';
 const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal';
@@ -26,6 +29,7 @@ const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal';
 export default function Page(context: any) {
     const dayParam = context.params.date as string;
 
+    const dispatch = useAppDispatch();
     const currentUser = useUser();
 
     const [search, setSearch] = useState('' as string);
@@ -37,11 +41,33 @@ export default function Page(context: any) {
 
     const isDesktop = isClient ? window.innerWidth > 768 : false;
 
-    const fetchFoods = async () => {
+    const isFavorite = (favoriteFoods: string[], food: FoodData & Record) => {
+        return favoriteFoods.includes(food.id);
+    }
+
+    const fetchFoods = async (favoriteFoods: string[]) => {
         const foods = await listFoods();
+
+        const isFavorite = (favoriteFoods: string[], food: FoodData & Record) => {
+            return favoriteFoods.includes(food.id);
+        }
+
+        // Sort favorites first
+        const sortedFoods = foods.sort((a, b) => {
+            if (isFavorite(favoriteFoods, a) && !isFavorite(favoriteFoods, b)) {
+                return -1; // a comes first
+            }
+
+            if (!isFavorite(favoriteFoods, a) && isFavorite(favoriteFoods, b)) {
+                return 1; // b comes first
+            }
+
+            return 0;
+        });
+
         setFoods({
             loading: false,
-            data: foods
+            data: sortedFoods
         });
     }
 
@@ -52,14 +78,12 @@ export default function Page(context: any) {
             data: days
         });
     }
-
     const onUserFavoritesChanged = async (user: User & Record) => {
         const updatedUser = await updateUser(user.id, user);
-        setUserJson(JSON.stringify(updatedUser));
+        dispatch(setUserJson(JSON.stringify(updatedUser)));
     }
 
     useEffect(() => {
-        fetchFoods();
         setIsClient(true);
     }, []);
 
@@ -68,6 +92,7 @@ export default function Page(context: any) {
             return;
         }
 
+        fetchFoods(currentUser.data.favoriteFoods);
         fetchDays(currentUser.data.id);
     }, [currentUser]);
 
@@ -79,28 +104,7 @@ export default function Page(context: any) {
         return <PageLoading message="Carregando dias" />
     }
 
-    // Sort favorites first
-    const isFavorite = (food: FoodData & Record) => {
-        if (currentUser.loading) {
-            return false;
-        }
-
-        return currentUser.data.favoriteFoods.includes(food.id);
-    }
-
-    const sortedFoods = foods.data.sort((a, b) => {
-        if (isFavorite(a) && !isFavorite(b)) {
-            return -1; // a comes first
-        }
-
-        if (!isFavorite(a) && isFavorite(b)) {
-            return 1; // b comes first
-        }
-
-        return 0;
-    });
-
-    const filteredFoods = sortedFoods.filter(
+    const filteredFoods = foods.data.filter(
         (food) => {
             if (search == "") {
                 return true;
@@ -134,6 +138,7 @@ export default function Page(context: any) {
 
     if (!day) {
         return <>
+            <TopBar dayParam={dayParam} mealName={"Erro 404 - Dia não encontrado"} />
             <Alert color="red" className="mt-2">Dia não encontrado {dayParam}.</Alert>
             <div className="bg-gray-800 p-1">
                 Dias disponíveis:
@@ -173,24 +178,7 @@ export default function Page(context: any) {
 
     return (
         <>
-            <Breadcrumb
-                aria-label="Solid background breadcrumb example"
-                className="bg-gray-50 px-5 py-3 dark:bg-gray-900"
-            >
-                <Breadcrumb.Item
-                    href="#"
-                >
-                    <p>
-                        Home
-                    </p>
-                </Breadcrumb.Item>
-                <Breadcrumb.Item href="#">
-                    {dayParam}
-                </Breadcrumb.Item>
-                <Breadcrumb.Item>
-                    {meal.name}
-                </Breadcrumb.Item>
-            </Breadcrumb>
+            <TopBar dayParam={dayParam} mealName={meal.name} />
 
             <div className="flex justify-start mb-2">
                 <button
@@ -242,26 +230,53 @@ export default function Page(context: any) {
                                     setSelectedFood(food);
                                     showModal(window, MEAL_ITEM_ADD_MODAL_ID)
                                 }}
-                                favorite={isFavorite(food)}
+                                favorite={
+                                    currentUser.loading ? false :
+                                        isFavorite(currentUser.data.favoriteFoods, food)
+                                }
                                 setFavorite={(favorite) => {
                                     if (currentUser.loading) {
                                         return;
                                     }
 
+                                    const newUser = Object.assign({}, currentUser.data);
+
+                                    newUser.favoriteFoods = [...currentUser.data.favoriteFoods]
+
                                     if (favorite) {
-                                        currentUser.data.favoriteFoods.push(food.id);
+                                        newUser.favoriteFoods.push(food.id);
                                     } else {
-                                        currentUser.data.favoriteFoods = currentUser.data.favoriteFoods.filter((f) => f != food.id);
+                                        newUser.favoriteFoods = newUser.favoriteFoods.filter((f) => f != food.id);
                                     }
 
-                                    onUserFavoritesChanged(currentUser.data);
+                                    onUserFavoritesChanged(newUser);
                                 }}
                             />
                         </div>
                     )
                 }
             </div>
-
         </>
     );
 }
+
+const TopBar = ({dayParam, mealName}: {dayParam: string, mealName: string}) =>             
+    <Breadcrumb
+    aria-label="Solid background breadcrumb example"
+    className="bg-gray-50 px-5 py-3 dark:bg-gray-900"
+    >
+    <Breadcrumb.Item
+        href="/"
+    >
+        <p>
+            Home
+        </p>
+    </Breadcrumb.Item>
+    <Breadcrumb.Item href="#">
+        {dayParam}
+    </Breadcrumb.Item>
+    <Breadcrumb.Item>
+        {mealName}
+    </Breadcrumb.Item>
+    <UserSelector />
+    </Breadcrumb>

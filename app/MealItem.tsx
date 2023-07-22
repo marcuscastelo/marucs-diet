@@ -8,7 +8,7 @@ export type MealItemProps = {
     mealItem: MealItemData,
     className?: string,
     onClick?: (mealItem: MealItemData) => void
-    favorite?: boolean,
+    favorite: boolean | 'hide',
     setFavorite?: (favorite: boolean) => void
 }
 
@@ -26,15 +26,33 @@ export default function MealItem(props: MealItemProps) {
     }
 
     const onClick = (e: React.MouseEvent) => {
-        e.preventDefault();
         props.onClick?.(props.mealItem);
+        e.stopPropagation();
+        e.preventDefault();
+    }
+
+    const toggleFavorite = (e: React.MouseEvent) => {
+        props.setFavorite?.(!props.favorite);
+        e.stopPropagation();
+        e.preventDefault();
     }
 
     return (
         <>
-            <a href="#" onClick={onClick} className={`block p-3 bg-gray-700 border border-gray-700 rounded-lg shadow hover:bg-gray-700 ${props.className ?? ''}`}>
-                <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.mealItem.id}]</h5>
-                <h5 className="mb-2 text-lg font-bold tracking-tight text-white">{props.mealItem.food.name} </h5>
+            <a href="#" className={`block p-3 bg-gray-700 border border-gray-700 rounded-lg shadow hover:bg-gray-700 ${props.className ?? ''}`} onClick={onClick}>
+                <div className="flex">
+                    <div className="">
+                        <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.mealItem.id}]</h5>
+                        <h5 className="mb-2 text-lg font-bold tracking-tight text-white">{props.mealItem.food.name} </h5>
+                    </div>
+                    {
+                        props.favorite !== 'hide' &&
+                        <div className="ml-auto text-3xl hover:text-blue-200" onClick={toggleFavorite}>
+                            {props.favorite ? "★" : "☆"}
+                        </div>
+                    }
+
+                </div>
 
                 <div className="flex">
                     <MacroNutrients {...multipliedMacros} />

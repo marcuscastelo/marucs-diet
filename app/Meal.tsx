@@ -18,6 +18,7 @@ export default function Meal({ mealData, onNewItem, onEditItem }: MealProps) {
                             <MealItem
                                 mealItem={item}
                                 onClick={onEditItem}
+                                favorite='hide'
                             />
                         </div>
                     )

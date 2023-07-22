@@ -75,6 +75,7 @@ type ExtraFoodData = {
 }
 
 export type FoodData = {
+    id: string;
     tbcaId: string;
     name: string;
     components: Partial<ExtraFoodData>;
