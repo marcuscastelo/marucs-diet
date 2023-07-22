@@ -5,6 +5,6 @@ import { mockItem } from "../(mock)/mockData";
 
 export default function MealItemPage() {
     return (
-        <MealItem {...mockItem} />
+        <MealItem mealItem={mockItem()} />
     )
 }

@@ -20,7 +20,7 @@ export default function Page() {
         // console.warn(`Code scan error = ${errorMessage}, error = ${error.type}`);
     }
 
-    let qrboxFunction = function (viewfinderWidth, viewfinderHeight) {
+    let qrboxFunction = function (viewfinderWidth: number, viewfinderHeight: number) {
         let minEdgePercentage = 0.7; // 70%
         let minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
         let qrboxSize = Math.floor(minEdgeSize * minEdgePercentage);

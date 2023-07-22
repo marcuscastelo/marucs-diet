@@ -7,9 +7,9 @@ import { User } from '@/model/userModel';
 
 const PB_COLLECTION = 'Days';
 
-export const listDays = async (user: Record & User) =>
+export const listDays = async (userId: string) =>
     (await listAll<DayData>(PB_COLLECTION))
-        .filter((day) => day.owner === user.id)
+        .filter((day) => day.owner === userId)
         .map((day) => ({
             ...day,
             targetDay: day.targetDay.split(' ')[0],

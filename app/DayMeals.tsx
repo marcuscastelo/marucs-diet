@@ -3,16 +3,26 @@
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import Meal, { MealProps } from "./Meal";
 import { useEffect, useState } from "react";
+import { useUser } from "@/redux/features/userSlice";
 
-export default function DayMeals({ mealsProps: originalMealsProps, className }: { mealsProps: MealProps[], className?: string }) {
-    const user = useAppSelector(state => state.userReducer.name);
+export type DayMealsProps = {
+    mealsProps: MealProps[],
+    className?: string
+}
+
+export default function DayMeals({ mealsProps: originalMealsProps, className }: DayMealsProps) {
+    const currentUser = useUser();
 
     const [mealsProps, setMealProps] = useState<MealProps[]>(originalMealsProps);
 
     useEffect(() => {
-        if (user === 'Simone') setMealProps([])
+        if (currentUser.loading) {
+            return;
+        }
+
+        if (currentUser.data.name === 'Simone') setMealProps([])
         else setMealProps(originalMealsProps)
-    }, [user, originalMealsProps])
+    }, [currentUser, originalMealsProps])
 
     return (
         <div className={className}>

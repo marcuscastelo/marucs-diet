@@ -32,8 +32,10 @@ export default function UserSelector() {
         }
 
         const timeout = setTimeout(() => {
-            setLoadingHasTimedOut(true);
-        }, 1);
+            if (currentUser.loading) {
+                setLoadingHasTimedOut(true);
+            }
+        }, 500);
 
         return () => {
             clearTimeout(timeout);

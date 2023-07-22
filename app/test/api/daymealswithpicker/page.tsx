@@ -8,6 +8,8 @@ import { createFood, listFoods } from "@/controllers/food";
 import { DayData } from "@/model/dayModel";
 import { FoodData } from "@/model/foodModel";
 import { MealData } from "@/model/mealModel";
+import { User } from "@/model/userModel";
+import { useUser } from "@/redux/features/userSlice";
 import { Record } from "pocketbase";
 import { Suspense, useEffect, useState } from "react";
 import Datepicker from "react-tailwindcss-datepicker";
@@ -19,8 +21,10 @@ export default function Page() {
 
     const [selectedDay, setSelectedDay] = useState('');
 
-    const fetchDays = async () => {
-        const days = await listDays();
+    const currentUser = useUser();
+
+    const fetchDays = async (userId: string) => {
+        const days = await listDays(userId);
         setDays(days);
 
         const mealProps = days.map((day) => {
@@ -46,8 +50,12 @@ export default function Page() {
     }
 
     useEffect(() => {
-        fetchDays();
-    }, []);
+        if (currentUser.loading) {
+            return;
+        }
+            
+        fetchDays(currentUser.data.id);
+    }, [currentUser]);
 
     const duplicateLastMealItemOnDatabase = async (day: Record & DayData, meal: MealData) => {
         await updateDay(day.id, {
@@ -62,7 +70,8 @@ export default function Page() {
                 }
             })
         });
-        await fetchDays();
+
+        await fetchDays(day.owner);
     }
 
     const hasData = days.some((day) => day.targetDay === selectedDay);
@@ -95,6 +104,7 @@ export default function Page() {
                                 return {
                                     mealData: meal,
                                     onNewItem: () => duplicateLastMealItemOnDatabase(dayData, meal),
+                                    onEditItem: () => alert('onEditItem'),
                                 } as MealProps;
                             })
                         } />

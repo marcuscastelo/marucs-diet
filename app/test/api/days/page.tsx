@@ -7,14 +7,17 @@ import { listDays } from "@/controllers/days";
 import { createFood, listFoods } from "@/controllers/food";
 import { DayData } from "@/model/dayModel";
 import { FoodData } from "@/model/foodModel";
+import { useUser } from "@/redux/features/userSlice";
 import { Suspense, useEffect, useState } from "react";
 
 export default function Page() {
     const [days, setDays] = useState([] as DayData[]);
     const [mealProps, setMealProps] = useState([] as MealProps[][]);
 
-    const fetchDays = async () => {
-        const days = await listDays();
+    const currentUser = useUser();
+
+    const fetchDays = async (userId: string) => {
+        const days = await listDays(userId);
         setDays(days);
         
         const mealProps = days.map((day) => {
@@ -29,8 +32,12 @@ export default function Page() {
     }
 
     useEffect(() => {
-        fetchDays();
-    }, []);
+        if (currentUser.loading) {
+            return;
+        }
+
+        fetchDays(currentUser.data.id);
+    }, [currentUser]);
 
     return (
         <>

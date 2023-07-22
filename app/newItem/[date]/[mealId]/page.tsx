@@ -15,9 +15,10 @@ import { DayData } from "@/model/dayModel";
 import { Record } from "pocketbase";
 import BarCodeInsertModal from "@/app/BarCodeInsertModal";
 import { showModal } from "@/utils/DOMModal";
-import { useUser } from "@/redux/features/userSlice";
+import { setUserJson, useUser } from "@/redux/features/userSlice";
 import { User } from "@/model/userModel";
 import { Loadable } from "@/utils/loadable";
+import { updateUser } from "@/controllers/users";
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal';
 const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal';
@@ -44,12 +45,17 @@ export default function Page(context: any) {
         });
     }
 
-    const fetchDays = async (user: User & Record) => {
-        const days = await listDays(user);
+    const fetchDays = async (userId: string) => {
+        const days = await listDays(userId);
         setDays({
             loading: false,
             data: days
         });
+    }
+
+    const onUserFavoritesChanged = async (user: User & Record) => {
+        const updatedUser = await updateUser(user.id, user);
+        setUserJson(JSON.stringify(updatedUser));
     }
 
     useEffect(() => {
@@ -62,7 +68,7 @@ export default function Page(context: any) {
             return;
         }
 
-        fetchDays(currentUser.data);
+        fetchDays(currentUser.data.id);
     }, [currentUser]);
 
     if (foods.loading) {
@@ -73,7 +79,28 @@ export default function Page(context: any) {
         return <PageLoading message="Carregando dias" />
     }
 
-    const filteredFoods = foods.data.filter(
+    // Sort favorites first
+    const isFavorite = (food: FoodData & Record) => {
+        if (currentUser.loading) {
+            return false;
+        }
+
+        return currentUser.data.favoriteFoods.includes(food.id);
+    }
+
+    const sortedFoods = foods.data.sort((a, b) => {
+        if (isFavorite(a) && !isFavorite(b)) {
+            return -1; // a comes first
+        }
+
+        if (!isFavorite(a) && isFavorite(b)) {
+            return 1; // b comes first
+        }
+
+        return 0;
+    });
+
+    const filteredFoods = sortedFoods.filter(
         (food) => {
             if (search == "") {
                 return true;
@@ -204,13 +231,30 @@ export default function Page(context: any) {
                     filteredFoods.map((food, idx) =>
                         <div key={idx}>
                             <MealItem
-                                id={Math.random().toString()}
+                                mealItem={{
+                                    id: Math.random().toString(),
+                                    food: food,
+                                    quantity: 100,
+                                }}
                                 className="mt-1"
                                 key={idx}
-                                food={food} quantity={100}
                                 onClick={() => {
                                     setSelectedFood(food);
                                     showModal(window, MEAL_ITEM_ADD_MODAL_ID)
+                                }}
+                                favorite={isFavorite(food)}
+                                setFavorite={(favorite) => {
+                                    if (currentUser.loading) {
+                                        return;
+                                    }
+
+                                    if (favorite) {
+                                        currentUser.data.favoriteFoods.push(food.id);
+                                    } else {
+                                        currentUser.data.favoriteFoods = currentUser.data.favoriteFoods.filter((f) => f != food.id);
+                                    }
+
+                                    onUserFavoritesChanged(currentUser.data);
                                 }}
                             />
                         </div>

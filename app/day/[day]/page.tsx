@@ -48,14 +48,8 @@ export default function Page(context: any) {
         });
     }
 
-    const fetchDays = async (user: User & Record) => {
-
-        if (!user) {
-            alert('Usuário não encontrado');
-
-            return;
-        }   
-        const days = await listDays(user);
+    const fetchDays = async (userId: string) => { 
+        const days = await listDays(userId);
         setDays({
             loading: false,
             data: days
@@ -83,7 +77,7 @@ export default function Page(context: any) {
             return;
         }
 
-        fetchDays(currentUser.data);
+        fetchDays(currentUser.data.id);
     }, [currentUser]);
 
 
@@ -195,7 +189,7 @@ export default function Page(context: any) {
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 min-w-full rounded mt-3"
                     onClick={() => {
                         createDay(mockDay({ owner: currentUser.data.id, targetDay: selectedDay })).then(() => {
-                            fetchDays(currentUser.data);
+                            fetchDays(currentUser.data.id);
                         });
                     }}
                 >
@@ -251,7 +245,7 @@ export default function Page(context: any) {
                             })
                         });
 
-                        await fetchDays(currentUser.data);
+                        await fetchDays(currentUser.data.id);
 
                         hideModal(window, editModalId);
                     }}

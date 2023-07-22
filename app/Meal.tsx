@@ -16,7 +16,7 @@ export default function Meal({ mealData, onNewItem, onEditItem }: MealProps) {
                     mealData.items.map((item, index) =>
                         <div key={index} className="mt-2">
                             <MealItem
-                                {...item}
+                                mealItem={item}
                                 onClick={onEditItem}
                             />
                         </div>

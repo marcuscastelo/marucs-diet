@@ -134,10 +134,12 @@ export default function MealItemAddModal({
                     </div>
 
                     <MealItem
-                        id={id}
+                        mealItem={{
+                            id,
+                            food,
+                            quantity: Number(quantity),
+                        }}
                         className="mt-4"
-                        food={food}
-                        quantity={Number(quantity)}
                     />
 
                     <div className="modal-action">
