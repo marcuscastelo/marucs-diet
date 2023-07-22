@@ -112,19 +112,12 @@ export default function Page(context: any) {
         return mealProps;
     });
 
-    const foodMacros = (food: FoodData) => ({
-        carbs: parseFloat(food.components['Carboidrato total']?.[0] ?? ''),
-        protein: parseFloat(food.components['Proteína']?.[0] ?? ''),
-        fat: parseFloat(food.components['Lipídios']?.[0] ?? ''),
-
-    } as MacroNutrientsData);
-
     const mealItemMacros = (mealItem: MealItemData) => {
-        const fm = foodMacros(mealItem.food);
+        const macros = mealItem.food.macros;
         return {
-            carbs: fm.carbs * mealItem.quantity / 100,
-            protein: fm.protein * mealItem.quantity / 100,
-            fat: fm.fat * mealItem.quantity / 100,
+            carbs: macros.carbs * mealItem.quantity / 100,
+            protein: macros.protein * mealItem.quantity / 100,
+            fat: macros.fat * mealItem.quantity / 100,
         } as MacroNutrientsData;
     };
 

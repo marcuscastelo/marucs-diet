@@ -2,14 +2,14 @@
 "use client";
 
 import { searchBarCode } from "@/controllers/barcodes";
-import { BarCodeResult } from "@/model/barCodeResult";
+import { NewFoodData } from "@/model/barCodeResult";
 import { useEffect, useState } from "react";
 import { FoodData } from "@/model/foodModel";
 
 export default function Page() {
     const [loading, setLoading] = useState(false);
     const [barCode, setBarCode] = useState('');
-    const [currentResult, setCurrentResult] = useState<BarCodeResult | null>(null);
+    const [currentResult, setCurrentResult] = useState<NewFoodData | null>(null);
 
     useEffect(() => {
         if (barCode.length != 13) {

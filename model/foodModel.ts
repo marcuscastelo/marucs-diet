@@ -78,5 +78,5 @@ export type FoodData = {
     id: string;
     tbcaId: string;
     name: string;
-    components: Partial<ExtraFoodData>;
+    macros: MacroNutrientsData; //TODO: add micro, fibers, etc.
 }

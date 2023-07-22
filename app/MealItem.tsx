@@ -13,11 +13,7 @@ export type MealItemProps = {
 }
 
 export default function MealItem(props: MealItemProps) {
-    const foodMacros: MacroNutrientsData = {
-        carbs: parseFloat(props.mealItem.food?.components?.['Carboidrato total']?.[0] ?? ''),
-        protein: parseFloat(props.mealItem.food?.components?.['Proteína']?.[0] ?? ''),
-        fat: parseFloat(props.mealItem.food?.components?.['Lipídios']?.[0] ?? ''),
-    }
+    const foodMacros = props.mealItem.food.macros;
 
     const multipliedMacros: MacroNutrientsData = {
         carbs: foodMacros.carbs * props.mealItem.quantity / 100,

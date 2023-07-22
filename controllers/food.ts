@@ -4,10 +4,30 @@ import { Record } from 'pocketbase';
 import pb from '@/utils/pocketBase';
 import { parallelLimit } from 'async';
 import { listAll } from './utils';
+import axios from 'axios';
+import { NewFoodData } from '@/model/newFoodModel';
 
 const PB_COLLECTION = 'Foods';
 
-export const listFoods = () => listAll<FoodData>(PB_COLLECTION);
+export const listFoods = async () => {
+    const cached = await listAll<FoodData>(PB_COLLECTION);
+
+    const newFoods = (await axios.get(`http://192.168.0.14:3000/api/food`)).data as { alimentos: NewFoodData[] };
+    const foods = newFoods.alimentos.map((food, idx) => ({
+        ...cached[idx], //TODO: remove hack when newFoods come from database (will it ever happen?)
+        id: food.id.toString(),
+        name: food.nome,
+        tbcaId: food.id.toString(),
+        macros: {
+            calories: food.calorias * 100,
+            carbs: food.carboidratos * 100,
+            protein: food.proteinas * 100,
+            fat: food.gordura * 100,
+        }
+    }) as FoodData & Record);
+
+    return foods;
+}
 
 export const createFood = async (food: FoodData) => await pb.collection(PB_COLLECTION).create(food, { $autoCancel: false }) as (Record & FoodData);
 
