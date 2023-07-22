@@ -24,7 +24,7 @@ const userSlice = createSlice({
 
             state.data = {
                 ...state.data,
-                ...JSON.parse(action.payload),
+                ...JSON.parse(action.payload) as User & Record,
             }
 
             // TODO: avoid using localStorage directly

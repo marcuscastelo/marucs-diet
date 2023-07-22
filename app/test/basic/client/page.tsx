@@ -15,12 +15,14 @@ export default function Page() {
     const addFood = async () => {
         console.log('addFood')
         await createFood({
+            id: Math.random().toString(),
             name: 'Arroz',
             tbcaId: Math.random().toString(),
-            components: {
-                'Proteína': ['10', 'g'],
-                'Carboidrato total': ['20', 'g'],
-                'Lipídios': ['30', 'g'],
+            macros: {
+                calories: 100,
+                protein: 10,
+                carbs: 10,
+                fat: 10,
             }
         });
         fetchFoods();

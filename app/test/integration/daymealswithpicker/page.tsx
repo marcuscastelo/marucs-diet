@@ -11,6 +11,7 @@ import { MealProps } from "@/app/Meal";
 
 export default function Page() {
     const day1: DayData = {
+        owner: 'user1',
         targetDay: new Date().toISOString().split('T')[0],
         meals: [
             mockMeal({ name: 'Café da manhã' }),
@@ -19,6 +20,7 @@ export default function Page() {
     }
 
     const day2: DayData = {
+        owner: 'user1',
         targetDay: new Date().toISOString().split('T')[0],
         meals: [
             mockMeal({ name: 'Jejum' }),
@@ -28,14 +30,16 @@ export default function Page() {
     const day1MealProps = day1.meals.map(meal => {
         return {
             mealData: meal,
-            onNewItem: () => {alert('Dia 1') }
+            onNewItem: () => {alert('Dia 1: Novo') },
+            onEditItem: () => {alert('Dia 1: Editar') }
         }
     });
 
     const day2MealProps = day2.meals.map(meal => {
         return {
             mealData: meal,
-            onNewItem: () => {alert('Dia 2!!') }
+            onNewItem: () => {alert('Dia 2!!!: Novo') },
+            onEditItem: () => {alert('Dia 2!!!: Editar') }
         }
     });
 

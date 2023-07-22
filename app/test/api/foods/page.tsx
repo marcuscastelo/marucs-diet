@@ -65,7 +65,9 @@ export default function Page() {
                                 id: "123",
                                 food: food,
                                 quantity: 100,
-                            }} />
+                            }} 
+                            favorite={false} // TODO: implement favorite
+                            />
                     </div>
                 )
             }

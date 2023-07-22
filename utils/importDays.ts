@@ -11,9 +11,9 @@ const nextDay = (date: Date) => {
 }
 
 const mock3Days: DayData[] = [
-    { ...mockDay({ targetDay: today.toISOString().split('T')[0] }) },
-    { ...mockDay({ targetDay: nextDay(today).toISOString().split('T')[0] }) },
-    { ...mockDay({ targetDay: nextDay(nextDay(today)).toISOString().split('T')[0] }) },
+    { ...mockDay({ owner: '1', targetDay: today.toISOString().split('T')[0] }) },
+    { ...mockDay({ owner: '1', targetDay: nextDay(today).toISOString().split('T')[0] }) },
+    { ...mockDay({ owner: '1', targetDay: nextDay(nextDay(today)).toISOString().split('T')[0] }) },
 ]
 
 export async function importDays() {

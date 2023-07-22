@@ -9,7 +9,6 @@ import PageLoading from "../../../PageLoading";
 import MealItemAddModal from "../../../MealItemAddModal";
 import { mockFood, mockMeal } from "../../../test/unit/(mock)/mockData";
 import { MealItemData } from "@/model/mealItemModel";
-import { notFound, usePathname } from "next/navigation";
 import { listDays, updateDay } from "@/controllers/days";
 import { DayData } from "@/model/dayModel";
 import { Record } from "pocketbase";

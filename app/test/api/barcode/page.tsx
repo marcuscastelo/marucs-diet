@@ -2,7 +2,7 @@
 "use client";
 
 import { searchBarCode } from "@/controllers/barcodes";
-import { NewFoodData } from "@/model/barCodeResult";
+import { NewFoodData } from "@/model/newFoodModel";
 import { useEffect, useState } from "react";
 import { FoodData } from "@/model/foodModel";
 
@@ -40,11 +40,15 @@ export default function Page() {
     //TODO: parar de usar [qtd, unidade]
     //TODO: multiplicar por 100 o que vier do BarCodeResult
     const food: FoodData = {
+        id: '',
         tbcaId: '', // TODO: FoodData should not require tbcaId
         name: currentResult?.nome ?? '',
-        components: {
-            "Energia": [currentResult?.calorias?.toString() ?? '', 'kcal'],
-        }
+        macros: {
+            calories: currentResult?.calorias ?? 0,
+            protein: currentResult?.proteinas ?? 0,
+            carbs: currentResult?.carboidratos ?? 0,
+            fat: currentResult?.gordura ?? 0,
+        },
     }
 
     return (
@@ -63,7 +67,7 @@ export default function Page() {
                                 {currentResult.nome}
                             </p>
                             <p className="text-sm">
-                                {food?.components?.Energia?.[0] ?? ''} {food?.components?.Energia?.[1] ?? ''}
+                                {food.macros.calories ?? '?'} {food.macros.calories ? 'kcal' : ''}
                             </p>
                         </div>
                     </div>

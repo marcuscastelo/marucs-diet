@@ -1,9 +1,8 @@
 "use client";
 
-import { DarkThemeToggle } from "flowbite-react";
 import { useState } from "react";
 import Datepicker from "react-tailwindcss-datepicker";
-import { DateRangeType, DateValueType } from "react-tailwindcss-datepicker/dist/types";
+import { DateValueType } from "react-tailwindcss-datepicker/dist/types";
 
 export default function Page() {
     const [value, setValue] = useState({

@@ -2,16 +2,12 @@
 
 import DayMeals from "@/app/DayMeals";
 import { MealProps } from "@/app/Meal";
-import MealItem from "@/app/MealItem";
 import { listDays, updateDay } from "@/controllers/days";
-import { createFood, listFoods } from "@/controllers/food";
 import { DayData } from "@/model/dayModel";
-import { FoodData } from "@/model/foodModel";
 import { MealData } from "@/model/mealModel";
-import { User } from "@/model/userModel";
 import { useUser } from "@/redux/features/userSlice";
 import { Record } from "pocketbase";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Datepicker from "react-tailwindcss-datepicker";
 import { DateValueType } from "react-tailwindcss-datepicker/dist/types";
 

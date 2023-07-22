@@ -1,6 +1,5 @@
 "use client";
 
-import MacroNutrients from "./MacroNutrients";
 import { MealData } from "@/model/mealModel";
 import MealItem from "./MealItem";
 import { MealItemData } from "@/model/mealItemModel";

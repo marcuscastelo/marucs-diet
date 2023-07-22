@@ -7,6 +7,8 @@ export default function Page() {
     const router = useRouter();
     const today = new Date().toISOString().split('T')[0];
 
+    ([1,2,3] as const).includes(4)
+
     useEffect(() => {
         const timeout = setTimeout(() => {
             router.replace(`/day/${today}`);
