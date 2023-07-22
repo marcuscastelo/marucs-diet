@@ -1,3 +1,5 @@
+'use client';
+
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { useAppSelector } from "../hooks";
 import { User } from "@/model/userModel";
@@ -14,15 +16,19 @@ const userSlice = createSlice({
     name: 'user',
     initialState,
     reducers: {
-        setUserJson: (state, action) => {
-            const newUser = {
-                ...state,
+        setUserJson: (state, action: PayloadAction<string>) => {
+            state.loading = false;
+            if (state.loading) {
+                return;
+            }
+
+            state.data = {
+                ...state.data,
                 ...JSON.parse(action.payload),
-                loading: false,
-            };
-            console.log(newUser);
-            (state as any) = newUser;
-            return newUser;
+            }
+
+            // TODO: avoid using localStorage directly
+            localStorage.setItem('user', state.data?.id || '');
         }
     },
 });

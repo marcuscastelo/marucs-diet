@@ -8,6 +8,7 @@ import { setUserJson } from '@/redux/features/userSlice';
 import { listUsers } from '@/controllers/users';
 import { User } from '@/model/userModel';
 import { Record } from 'pocketbase';
+import { useEffect, useState } from 'react';
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
@@ -20,6 +21,17 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  // Disable SSR
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  if (!isClient) {
+    return <></>
+  }
+
   return (
     <html lang="en">
       <body className={inter.className + ' dark'}>
@@ -35,12 +47,20 @@ export default function RootLayout({
 
 function App({ children }: { children: React.ReactNode }) {
   const dispatch = useAppDispatch();
-  // const onChangeUser = (user: User & Record) => dispatch(setUser(user));
-  // listUsers().then(users => {
-  //   if (users.length > 0) {
-  //     onChangeUser(users[0])
-  //   }
-  // })
+  const onChangeUser = (user: User & Record) => dispatch(setUserJson(JSON.stringify(user)));
+  listUsers().then(users => {
+    const localStoredUserId = localStorage.getItem('user');
+    if (localStoredUserId) {
+      const user = users.find(user => user.id === localStoredUserId);
+      if (user) {
+        onChangeUser(user)
+      } else if (users.length > 0) {
+        onChangeUser(users[0])
+      }
+    } else if (users.length > 0) {
+      onChangeUser(users[0])
+    }
+  })
 
   return (
     <>{children}</>

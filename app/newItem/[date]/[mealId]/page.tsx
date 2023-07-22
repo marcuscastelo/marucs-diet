@@ -32,7 +32,9 @@ export default function Page(context: any) {
     const [days, setDays] = useState<Loadable<(DayData & Record)[]>>({ loading: true });
     const [selectedFood, setSelectedFood] = useState(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }));
 
-    const isDesktop = (typeof window !== 'undefined') ? window.innerWidth > 768 : false;
+    const [isClient, setIsClient] = useState(false)
+
+    const isDesktop = isClient ? window.innerWidth > 768 : false;
 
     const fetchFoods = async () => {
         const foods = await listFoods();
@@ -52,6 +54,7 @@ export default function Page(context: any) {
 
     useEffect(() => {
         fetchFoods();
+        setIsClient(true);
     }, []);
 
     useEffect(() => {

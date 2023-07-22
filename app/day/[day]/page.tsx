@@ -85,8 +85,6 @@ export default function Page(context: any) {
 
         fetchDays(currentUser.data);
     }, [currentUser]);
-    
-    return;
 
 
     if (currentUser.loading) {

@@ -33,7 +33,7 @@ export default function UserSelector() {
 
         const timeout = setTimeout(() => {
             setLoadingHasTimedOut(true);
-        }, 500);
+        }, 1);
 
         return () => {
             clearTimeout(timeout);
@@ -69,10 +69,10 @@ export default function UserSelector() {
                                         <Dropdown.Item>Carregando...</Dropdown.Item>
                                     ) :
                                     (
-                                        availableUsers.data.map((user) => {
+                                        availableUsers.data.map((user, idx) => {
                                             return (
                                                 <Dropdown.Item
-                                                    key={user.name}
+                                                    key={idx}
                                                     onClick={_ => {
                                                         onChangeUser(user);
                                                         // Force dropdown to close without having to click outside setting aria
