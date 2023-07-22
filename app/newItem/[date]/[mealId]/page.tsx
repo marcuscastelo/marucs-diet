@@ -78,6 +78,7 @@ export default function Page(context: any) {
             data: days
         });
     }
+
     const onUserFavoritesChanged = async (user: User & Record) => {
         const updatedUser = await updateUser(user.id, user);
         dispatch(setUserJson(JSON.stringify(updatedUser)));

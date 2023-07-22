@@ -10,20 +10,7 @@ export type DayMealsProps = {
     className?: string
 }
 
-export default function DayMeals({ mealsProps: originalMealsProps, className }: DayMealsProps) {
-    const currentUser = useUser();
-
-    const [mealsProps, setMealProps] = useState<MealProps[]>(originalMealsProps);
-
-    useEffect(() => {
-        if (currentUser.loading) {
-            return;
-        }
-
-        if (currentUser.data.name === 'Simone') setMealProps([])
-        else setMealProps(originalMealsProps)
-    }, [currentUser, originalMealsProps])
-
+export default function DayMeals({ mealsProps, className }: DayMealsProps) {
     return (
         <div className={className}>
             {

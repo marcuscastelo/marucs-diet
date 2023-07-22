@@ -140,6 +140,7 @@ export default function MealItemAddModal({
                             quantity: Number(quantity),
                         }}
                         className="mt-4"
+                        favorite='hide' // TODO: implement favorite?
                     />
 
                     <div className="modal-action">

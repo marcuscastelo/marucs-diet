@@ -5,6 +5,8 @@ import { mockItem } from "../(mock)/mockData";
 
 export default function MealItemPage() {
     return (
-        <MealItem mealItem={mockItem()} />
+        <MealItem mealItem={mockItem()} 
+        favorite='hide' // TODO: implement favorite?
+        />
     )
 }

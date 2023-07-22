@@ -84,6 +84,8 @@ export default function Page() {
                                 food: food,
                                 quantity: 100,
                             }}
+                            favorite='hide' // TODO: implement favorite?
+
                         />
                     </div>
                 )
