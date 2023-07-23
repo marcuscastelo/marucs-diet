@@ -38,5 +38,5 @@ next-env.d.ts
 pb_data/logs.db
 pb_data/logs.db-wal
 secrets/
-
+logs/
 ```

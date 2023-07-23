@@ -97,8 +97,15 @@ export default function Page(context: any) {
             return;
         }
 
-        fetchFoods(search, currentUser.data.favoriteFoods);
+        const fetchFoodTimeout = setTimeout(() => {
+            fetchFoods(search, currentUser.data.favoriteFoods);
+        }, 1000);
+
         fetchDays(currentUser.data.id);
+
+        return () => {
+            clearTimeout(fetchFoodTimeout);
+        }
     }, [currentUser, search]);
 
     if (foods.loading) {
