@@ -1,5 +1,6 @@
 import PocketBase from 'pocketbase'
+import { DOMAIN } from './api';
 
-const pb = new PocketBase('http://192.168.0.14:8090');
+const pb = new PocketBase(`${DOMAIN}:8090`);
 
 export default pb;

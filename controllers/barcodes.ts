@@ -1,7 +1,7 @@
 import { apiFoodSchema } from '@/model/apiFoodModel';
-import axios from 'axios';
+import { INTERNAL_API } from '@/utils/api';
 
 export const searchBarCode = async (barcode: string) => {
     //TODO: this url should not be hardcoded
-    return apiFoodSchema.parse((await axios.get(`http://192.168.0.14:3000/api/barcode/${barcode}`)).data);
+    return apiFoodSchema.parse((await INTERNAL_API.get(`barcode/${barcode}`)).data);
 }

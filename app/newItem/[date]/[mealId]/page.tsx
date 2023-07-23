@@ -197,10 +197,10 @@ export default function Page(context: any) {
             </div>
 
             <BarCodeInsertModal
-                show={true}
                 modalId={BAR_CODE_INSERT_MODAL_ID} onSelect={
                     (food) => {
-                        alert(JSON.stringify(food, null, 2));
+                        setSelectedFood(food);
+                        showModal(window, MEAL_ITEM_ADD_MODAL_ID);
                     }
                 } />
 

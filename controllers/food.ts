@@ -8,10 +8,12 @@ import { listAll } from './utils';
 import axios from 'axios';
 import { ApiFood, apiFoodSchema } from '@/model/apiFoodModel';
 import { addToCache, isCached } from './searchCache';
+import { INTERNAL_API } from '@/utils/api';
 
 const PB_COLLECTION = 'Food';
 
-function convertApi2Food(food: ApiFood): Omit<Food, 'id'> {
+//TODO: pensar num lugar melhor pra isso
+export function convertApi2Food(food: ApiFood): Omit<Food, 'id'> {
     return {
         name: food.nome,
         source: {
@@ -74,7 +76,7 @@ export const listFoods = async () => {
             ifCached: async () => await listAll<Food>(PB_COLLECTION),
             ifNotCached:
                 async () => {
-                    const newFoods = newFoodsSchema.parse((await axios.get(`http://192.168.0.14:3000/api/food`)).data);
+                    const newFoods = newFoodsSchema.parse((await INTERNAL_API.get(`food`)).data);
                     const convertedFoods = newFoods.alimentos.map(convertApi2Food);
                     return convertedFoods;
                 }
@@ -90,7 +92,7 @@ export const searchFoods = async (search: string) => {
             ifCached: async () => await listAll<Food>(PB_COLLECTION),
             ifNotCached:
                 async () => {
-                    const newFoods = newFoodsSchema.parse((await axios.get(`http://192.168.0.14:3000/api/food/${search}`)).data);
+                    const newFoods = newFoodsSchema.parse((await await INTERNAL_API.get(`food/${search}`)).data);
                     const convertedFoods = newFoods.alimentos.map(convertApi2Food);
                     return convertedFoods;
                 }
