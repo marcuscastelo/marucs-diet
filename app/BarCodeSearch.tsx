@@ -2,13 +2,17 @@
 
 import { searchBarCode } from "@/controllers/barcodes";
 import { ApiFood } from "@/model/apiFoodModel";
-import { useCallback, useEffect, useState } from "react";
-import { Food } from "@/model/foodModel";
-import MacroNutrients from "./MacroNutrients";
+import { useEffect, useState } from "react";
 import MealItem from "./MealItem";
+import { convertApi2Food, createFood } from "@/controllers/food";
+import { setUserJson, useUser } from "@/redux/features/userSlice";
+import { Food } from "@/model/foodModel";
+import { useAppDispatch } from "@/redux/hooks";
+import { updateUser } from "@/controllers/users";
+import { User } from "@/model/userModel";
 
 export type BarCodeSearchProps = {
-    onFoodChange?: (food: ApiFood | null) => void,
+    onFoodChange?: (food: Food | null) => void,
 }
 
 export default function BarCodeSearch(
@@ -16,7 +20,20 @@ export default function BarCodeSearch(
 ) {
     const [loading, setLoading] = useState(false);
     const [barCode, setBarCode] = useState('');
-    const [currentApiFood, setCurrentApiFood] = useState<ApiFood | null>(null);
+    const [currentFood, setCurrentFood] = useState<Food | null>(null);
+
+    const dispatch = useAppDispatch();
+    const currentUser = useUser();
+
+    const onUserFavoritesChanged = async (user: User) => {
+        const updatedUser = await updateUser(user.id, user);
+        dispatch(setUserJson(JSON.stringify(updatedUser)));
+    }
+
+
+    const isFavorite = (favoriteFoods: string[], food: Food) => {
+        return favoriteFoods.includes(food.id);
+    }
 
     const EAN_LENGTH = 13;
 
@@ -26,8 +43,9 @@ export default function BarCodeSearch(
         }
 
         setLoading(true);
-        const promise = searchBarCode(barCode).then((result) => {
-            setCurrentApiFood(result);
+        const promise = searchBarCode(barCode).then(async (apiFood) => {
+            const food = await createFood(convertApi2Food(apiFood));
+            setCurrentFood(food);
         }).catch((err) => {
             console.error(err);
             alert(err);
@@ -46,26 +64,9 @@ export default function BarCodeSearch(
 
 
     useEffect(() => {
-        onFoodChange?.(currentApiFood);
-    }, [currentApiFood, onFoodChange]);
+        onFoodChange?.(currentFood);
+    }, [currentFood, onFoodChange]);
     
-    //TODO: converter em outro lugar
-    //TODO: parar de usar [qtd, unidade]
-    //TODO: multiplicar por 100 o que vier do BarCodeResult
-    const food: Omit<Food, 'id'> = {
-        source: {
-            type: 'api',
-            id: currentApiFood?.id?.toString() ?? '',
-        },
-        name: currentApiFood?.nome ?? '',
-        macros: {
-            calories: (currentApiFood?.calorias ?? 0) * 100,
-            protein: (currentApiFood?.proteinas ?? 0) * 100,
-            carbs: (currentApiFood?.carboidratos ?? 0) * 100,
-            fat: (currentApiFood?.gordura ?? 0) * 100,
-        },
-    }
-
     return (
         <div>
             <h3 className="font-bold text-lg text-white">Busca por código de barras (EAN)</h3>
@@ -74,28 +75,42 @@ export default function BarCodeSearch(
                 <div className={`loading loading-lg transition-all ${loading ? 'h-80' : 'h-0'}`} />
             </div>
 
-            {currentApiFood && (
+            {currentFood && (
                 <div className="flex flex-col mt-3">
                     <div className="flex">
                         <div className="flex-1">
                             <p className="font-bold">
-                                {currentApiFood.nome}
+                                {currentFood.name}
                             </p>
                             <p className="text-sm">
+
                                 <MealItem mealItem={{
                                     id: Math.random().toString(),
-                                    food: {
-                                        ...food,
-                                        id: 'TODO: criar id'
-                                    },
+                                    food: currentFood,
                                     quantity: 100,
                                 }}
-                                    favorite='hide'
+                                favorite={
+                                    currentUser.loading ? false :
+                                        isFavorite(currentUser.data.favoriteFoods, currentFood)
+                                }
+                                setFavorite={(favorite) => {
+                                    if (currentUser.loading) {
+                                        return;
+                                    }
+
+                                    const newUser = Object.assign({}, currentUser.data);
+
+                                    newUser.favoriteFoods = [...currentUser.data.favoriteFoods]
+
+                                    if (favorite) {
+                                        newUser.favoriteFoods.push(currentFood.id);
+                                    } else {
+                                        newUser.favoriteFoods = newUser.favoriteFoods.filter((f) => f != currentFood.id);
+                                    }
+
+                                    onUserFavoritesChanged(newUser);
+                                }}
                                 />
-                                {food.macros.calories ?? '?'} {food.macros.calories ? 'kcal' : ''}
-                                {food.macros.carbs ?? '?'} {food.macros.carbs ? 'g' : ''}
-                                {food.macros.protein ?? '?'} {food.macros.protein ? 'g' : ''}
-                                {food.macros.fat ?? '?'} {food.macros.fat ? 'g' : ''}
                             </p>
                         </div>
                     </div>

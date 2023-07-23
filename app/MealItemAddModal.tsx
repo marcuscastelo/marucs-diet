@@ -6,7 +6,7 @@ import { mockFood } from "./test/unit/(mock)/mockData";
 import { MealItemData } from "@/model/mealItemModel";
 import { Food } from "@/model/foodModel";
 import { MealData } from "@/model/mealModel";
-import { showModal } from "@/utils/DOMModal";
+import { hideModal, showModal } from "@/utils/DOMModal";
 
 export type MealItemAddModalProps = {
     modalId: string,
@@ -151,6 +151,9 @@ export default function MealItemAddModal({
                             onApply(createMealItemData());
                         }} >Aplicar</button>
                     </div>
+                </form>
+                <form method="dialog" className="modal-backdrop">
+                    <button>close</button>
                 </form>
             </dialog>
         </>

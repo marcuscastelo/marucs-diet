@@ -20,12 +20,15 @@ import { Loadable } from "@/utils/loadable";
 import { updateUser } from "@/controllers/users";
 import { useAppDispatch } from "@/redux/hooks";
 import UserSelector from "@/app/UserSelector";
+import { isCached } from "@/controllers/searchCache";
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal';
 const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal';
 
 export default function Page(context: any) {
     const FOOD_LIMIT = 100;
+    const TYPE_TIMEOUT = 1000;
+
     const dayParam = context.params.date as string;
 
     const dispatch = useAppDispatch();
@@ -35,6 +38,8 @@ export default function Page(context: any) {
     const [foods, setFoods] = useState<Loadable<(Food)[]>>({ loading: true });
     const [days, setDays] = useState<Loadable<(DayData & Record)[]>>({ loading: true });
     const [selectedFood, setSelectedFood] = useState(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }));
+    const [searchingFoods, setSearchingFoods] = useState(false);
+    const [typing, setTyping] = useState(false);
 
     const [isClient, setIsClient] = useState(false)
 
@@ -45,12 +50,17 @@ export default function Page(context: any) {
     }
 
     const fetchFoods = async (search: string | '', favoriteFoods: string[]) => {
+        if (!(await isCached(search))) {
+            setSearchingFoods(true);
+        }
+
         let foods: Food[] = [];
         if (search == '') {
             foods = await listFoods(); // TODO: add limit when search is made on backend
         } else {
             foods = await searchFoods(search); // TODO: add limit when search is made on backend
         }
+        setSearchingFoods(false);
 
         const isFavorite = (favoriteFoods: string[], food: Food) => {
             return favoriteFoods.includes(food.id);
@@ -93,20 +103,25 @@ export default function Page(context: any) {
     }, []);
 
     useEffect(() => {
-        if (currentUser.loading) {
+        if (currentUser.loading || typing) {
             return;
         }
 
-        const fetchFoodTimeout = setTimeout(() => {
-            fetchFoods(search, currentUser.data.favoriteFoods);
-        }, 1000);
-
+        fetchFoods(search, currentUser.data.favoriteFoods);
         fetchDays(currentUser.data.id);
+    }, [currentUser, search, typing]);
 
+    useEffect(() => {
+        setTyping(true);
+
+        const timeout = setTimeout(() => {
+            setTyping(false);
+        }, TYPE_TIMEOUT);
+        
         return () => {
-            clearTimeout(fetchFoodTimeout);
+            clearTimeout(timeout);
         }
-    }, [currentUser, search]);
+    }, [search]);
 
     if (foods.loading) {
         return <PageLoading message="Carregando alimentos" />
@@ -218,7 +233,7 @@ export default function Page(context: any) {
                 <input autoFocus={isDesktop} value={search} onChange={(e) => setSearch(e.target.value)} type="search" id="default-search" className="block w-full p-4 pl-10 text-sm bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500" placeholder="Buscar alimentos" required />
             </div>
 
-            {filteredFoods.length == 0 && <Alert color="warning" className="mt-2">Nenhum alimento encontrado para a busca &quot;{search}&quot;.</Alert>}
+            {!searchingFoods && !typing && filteredFoods.length == 0 && <Alert color="warning" className="mt-2">Nenhum alimento encontrado para a busca &quot;{search}&quot;.</Alert>}
 
             <MealItemAddModal modalId={MEAL_ITEM_ADD_MODAL_ID} meal={meal} itemData={{
                 food: selectedFood,
@@ -228,67 +243,69 @@ export default function Page(context: any) {
 
             <div className="bg-gray-800 p-1">
                 {
-                    filteredFoods.map((food, idx) =>
-                        <div key={idx}>
-                            <MealItem
-                                mealItem={{
-                                    id: Math.random().toString(),
-                                    food: food,
-                                    quantity: 100,
-                                }}
-                                className="mt-1"
-                                key={idx}
-                                onClick={() => {
-                                    setSelectedFood(food);
-                                    showModal(window, MEAL_ITEM_ADD_MODAL_ID)
-                                }}
-                                favorite={
-                                    currentUser.loading ? false :
-                                        isFavorite(currentUser.data.favoriteFoods, food)
-                                }
-                                setFavorite={(favorite) => {
-                                    if (currentUser.loading) {
-                                        return;
+                    searchingFoods ?
+                        <PageLoading message="Carregando alimentos" /> :
+                        filteredFoods.map((food, idx) =>
+                            <div key={idx}>
+                                <MealItem
+                                    mealItem={{
+                                        id: Math.random().toString(),
+                                        food: food,
+                                        quantity: 100,
+                                    }}
+                                    className="mt-1"
+                                    key={idx}
+                                    onClick={() => {
+                                        setSelectedFood(food);
+                                        showModal(window, MEAL_ITEM_ADD_MODAL_ID)
+                                    }}
+                                    favorite={
+                                        currentUser.loading ? false :
+                                            isFavorite(currentUser.data.favoriteFoods, food)
                                     }
+                                    setFavorite={(favorite) => {
+                                        if (currentUser.loading) {
+                                            return;
+                                        }
 
-                                    const newUser = Object.assign({}, currentUser.data);
+                                        const newUser = Object.assign({}, currentUser.data);
 
-                                    newUser.favoriteFoods = [...currentUser.data.favoriteFoods]
+                                        newUser.favoriteFoods = [...currentUser.data.favoriteFoods]
 
-                                    if (favorite) {
-                                        newUser.favoriteFoods.push(food.id);
-                                    } else {
-                                        newUser.favoriteFoods = newUser.favoriteFoods.filter((f) => f != food.id);
-                                    }
+                                        if (favorite) {
+                                            newUser.favoriteFoods.push(food.id);
+                                        } else {
+                                            newUser.favoriteFoods = newUser.favoriteFoods.filter((f) => f != food.id);
+                                        }
 
-                                    onUserFavoritesChanged(newUser);
-                                }}
-                            />
-                        </div>
-                    )
+                                        onUserFavoritesChanged(newUser);
+                                    }}
+                                />
+                            </div>
+                        )
                 }
             </div>
         </>
     );
 }
 
-const TopBar = ({dayParam, mealName}: {dayParam: string, mealName: string}) =>             
+const TopBar = ({ dayParam, mealName }: { dayParam: string, mealName: string }) =>
     <Breadcrumb
-    aria-label="Solid background breadcrumb example"
-    className="bg-gray-50 px-5 py-3 dark:bg-gray-900"
+        aria-label="Solid background breadcrumb example"
+        className="bg-gray-50 px-5 py-3 dark:bg-gray-900"
     >
-    <Breadcrumb.Item
-        href="/"
-    >
-        <p>
-            Home
-        </p>
-    </Breadcrumb.Item>
-    <Breadcrumb.Item href="#">
-        {dayParam}
-    </Breadcrumb.Item>
-    <Breadcrumb.Item>
-        {mealName}
-    </Breadcrumb.Item>
-    <UserSelector />
+        <Breadcrumb.Item
+            href="/"
+        >
+            <p>
+                Home
+            </p>
+        </Breadcrumb.Item>
+        <Breadcrumb.Item href="#">
+            {dayParam}
+        </Breadcrumb.Item>
+        <Breadcrumb.Item>
+            {mealName}
+        </Breadcrumb.Item>
+        {/* <UserSelector /> */}
     </Breadcrumb>
