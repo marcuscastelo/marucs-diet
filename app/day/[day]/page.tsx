@@ -204,12 +204,31 @@ export default function Page(context: any) {
                                 const items = meal.items;
                                 const changePos = items.findIndex((i) => i.id === item.id);
 
-                                if (item.quantity === 666) {
-                                    alert('HACK: remove item with quantity 666');
-                                    items.splice(changePos, 1);
-                                } else {
-                                    items[changePos] = item;
+                                items[changePos] = item;
+
+                                return {
+                                    ...meal,
+                                    items,
+                                };
+                            })
+                        });
+
+                        await fetchDays(currentUser.data.id);
+
+                        hideModal(window, editModalId);
+                    }}
+                    onDelete={async (id: string) => {
+                        await updateDay(dayData!.id, {
+                            ...dayData!,
+                            meals: dayData!.meals.map((meal) => {
+                                if (meal.id !== selectedMeal.id) {
+                                    return meal;
                                 }
+
+                                const items = meal.items;
+                                const changePos = items.findIndex((i) => i.id === id);
+
+                                items.splice(changePos, 1);
 
                                 return {
                                     ...meal,

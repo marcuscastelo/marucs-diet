@@ -15,17 +15,18 @@ export type MealItemAddModalProps = {
     show?: boolean,
     onApply: (item: MealItemData) => void,
     onCancel?: () => void,
+    onDelete?: (itemId: string) => void,
 }
 
 export default function MealItemAddModal({
     modalId, show, meal, itemData: { food, quantity: initialQuantity, id: initialId },
-    onApply, onCancel
+    onApply, onCancel, onDelete
 }: MealItemAddModalProps
 ) {
     const [quantity, setQuantity] = useState(initialQuantity?.toString() ?? '');
     const [id, setId] = useState(initialId ?? Math.random().toString());
     const canAdd = quantity != '' && Number(quantity) > 0;
-    
+
     const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(true);
 
     useEffect(() => {
@@ -145,6 +146,15 @@ export default function MealItemAddModal({
 
                     <div className="modal-action">
                         {/* if there is a button in form, it will close the modal */}
+                        {
+                            onDelete &&
+                            <button className="btn btn-error mr-auto" onClick={(e) => {
+                                if (confirm('Tem certeza que deseja excluir este item?')) {
+                                    e.preventDefault();
+                                    onDelete?.(id);
+                                }
+                            }} >Excluir</button>
+                        }
                         <button className="btn" onClick={() => onCancel?.()} >Cancelar</button>
                         <button className="btn" disabled={!canAdd} onClick={(e) => {
                             e.preventDefault();
