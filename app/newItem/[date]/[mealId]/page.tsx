@@ -1,7 +1,7 @@
 'use client';
 
 import MealItem from "@/app/MealItem";
-import { listFoods } from "@/controllers/food";
+import { listFoods, searchFoods } from "@/controllers/food";
 import { Food } from "@/model/foodModel";
 import { Alert, Breadcrumb } from "flowbite-react";
 import { useEffect, useState } from "react";
@@ -31,7 +31,7 @@ export default function Page(context: any) {
     const dispatch = useAppDispatch();
     const currentUser = useUser();
 
-    const [search, setSearch] = useState('' as string);
+    const [search, setSearch] = useState<string>('');
     const [foods, setFoods] = useState<Loadable<(Food)[]>>({ loading: true });
     const [days, setDays] = useState<Loadable<(DayData & Record)[]>>({ loading: true });
     const [selectedFood, setSelectedFood] = useState(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }));
@@ -44,8 +44,13 @@ export default function Page(context: any) {
         return favoriteFoods.includes(food.id);
     }
 
-    const fetchFoods = async (favoriteFoods: string[]) => {
-        const foods = await listFoods();
+    const fetchFoods = async (search: string | '', favoriteFoods: string[]) => {
+        let foods: Food[] = [];
+        if (search == '') {
+            foods = await listFoods();
+        } else {
+            foods = await searchFoods(search);
+        }
 
         const isFavorite = (favoriteFoods: string[], food: Food) => {
             return favoriteFoods.includes(food.id);
@@ -92,9 +97,9 @@ export default function Page(context: any) {
             return;
         }
 
-        fetchFoods(currentUser.data.favoriteFoods);
+        fetchFoods(search, currentUser.data.favoriteFoods);
         fetchDays(currentUser.data.id);
-    }, [currentUser]);
+    }, [currentUser, search]);
 
     if (foods.loading) {
         return <PageLoading message="Carregando alimentos" />

@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import EAN_SECRETS from '@/secrets/ean_api.json';
 
 import axios from 'axios';
-import { newFoodSchema } from "@/model/newFoodModel";
+import { apiFoodSchema } from "@/model/apiFoodModel";
 
 
 const searchBarCodeInternal = async (barcode: string) => {
@@ -15,7 +15,8 @@ const searchBarCodeInternal = async (barcode: string) => {
     });
     console.log(response.data);
     console.dir(response.data);
-    return newFoodSchema.parse(response.data);
+    return apiFoodSchema.parse(response.data);
+    //TODO cache this
 }
 
 export async function GET(request: NextRequest, {params} : {params: {ean: string}}) {

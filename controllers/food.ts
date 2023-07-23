@@ -6,14 +6,18 @@ import pb from '@/utils/pocketBase';
 import { parallelLimit } from 'async';
 import { listAll } from './utils';
 import axios from 'axios';
-import { NewFood, newFoodSchema } from '@/model/newFoodModel';
+import { ApiFood, apiFoodSchema } from '@/model/apiFoodModel';
 import { addToCache, isCached } from './searchCache';
 
 const PB_COLLECTION = 'Food';
 
-function hackConvert(food: NewFood): Omit<Food, 'id'> {
+function convertApi2Food(food: ApiFood): Omit<Food, 'id'> {
     return {
         name: food.nome,
+        source: {
+            type: 'api',
+            id: food.id.toString(),
+        },
         macros: {
             calories: food.calorias * 100,
             carbs: food.carboidratos * 100,
@@ -59,9 +63,8 @@ const internalCacheLogic = async (
 }
 
 const newFoodsSchema = z.object({
-    alimentos: z.array(newFoodSchema, { required_error: 'Foods is required' })
+    alimentos: z.array(apiFoodSchema, { required_error: 'Foods is required' })
 });
-        
 
 export const listFoods = async () => {
     console.log('Listing foods...');
@@ -69,10 +72,10 @@ export const listFoods = async () => {
     return await internalCacheLogic('__root__',
         {
             ifCached: async () => await listAll<Food>(PB_COLLECTION),
-            ifNotCached: 
+            ifNotCached:
                 async () => {
                     const newFoods = newFoodsSchema.parse((await axios.get(`http://192.168.0.14:3000/api/food`)).data);
-                    const convertedFoods = newFoods.alimentos.map(hackConvert);
+                    const convertedFoods = newFoods.alimentos.map(convertApi2Food);
                     return convertedFoods;
                 }
         }
@@ -80,11 +83,30 @@ export const listFoods = async () => {
 }
 
 export const searchFoods = async (search: string) => {
-    const newFoods = newFoodsSchema.parse((await axios.get(`http://192.168.0.14:3000/api/food/${search}`)).data);
-    return newFoods.alimentos.map(hackConvert);
+    console.log(`Searching for '${search}'...`);
+
+    return await internalCacheLogic(search,
+        {
+            ifCached: async () => await listAll<Food>(PB_COLLECTION),
+            ifNotCached:
+                async () => {
+                    const newFoods = newFoodsSchema.parse((await axios.get(`http://192.168.0.14:3000/api/food/${search}`)).data);
+                    const convertedFoods = newFoods.alimentos.map(convertApi2Food);
+                    return convertedFoods;
+                }
+        }
+    );
 }
 
-export const createFood = async (food: Omit<Food, 'id'>) => await pb.collection(PB_COLLECTION).create(food, { $autoCancel: false }) as (Record & Food);
+export const createFood = async (food: Omit<Food, 'id'>) => {
+    const foods = await listFoods();
+    const existingFood = foods.find((f) => f.source && food.source && f.source.type === food.source.type && f.source.id === food.source.id);
+    if (existingFood) {
+        console.warn(`Food ${food.name} is a duplicate, skipping...`);
+        return existingFood;
+    }
+    return await pb.collection(PB_COLLECTION).create(food, { $autoCancel: false }) as (Record & Food);
+}
 
 export const deleteAll = async () => {
     const foods = await listFoods();
