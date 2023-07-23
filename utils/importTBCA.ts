@@ -1,9 +1,9 @@
-import { FoodData } from '@/model/foodModel'
+import { Food } from '@/model/foodModel'
 import TBCAJson from './tbca.json'
 import { createFood, deleteAll } from '@/controllers/food'
 import parallelLimit from 'async/parallelLimit';
 
-const TBCA = TBCAJson as { [key: string]: FoodData }
+const TBCA = TBCAJson as { [key: string]: Food }
 
 export async function deleteAndReimportFoods(progressCallback?: (total: number) => void) {
     const total = Object.values(TBCA).length;

@@ -2,13 +2,13 @@
 
 import MealItem from "@/app/MealItem";
 import { listFoods } from "@/controllers/food";
-import { FoodData } from "@/model/foodModel";
+import { Food } from "@/model/foodModel";
 import { Alert, Breadcrumb } from "flowbite-react";
 import { useEffect, useState } from "react";
 
 export default function Page() {
     const [search, setSearch] = useState('' as string);
-    const [foods, setFoods] = useState([] as FoodData[]);
+    const [foods, setFoods] = useState([] as Food[]);
 
     const fetchFoods = async () => {
         const foods = await listFoods();

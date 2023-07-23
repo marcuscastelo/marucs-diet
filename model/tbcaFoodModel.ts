@@ -1,0 +1,82 @@
+// import { MacroNutrientsData } from "./macroNutrientsModel";
+
+// type ExtraFoodData = {
+//     // humidity: number;
+//     // totalCarbs: number;
+//     // availableCarbs: number;
+//     // protein: number;
+//     // fat: number;
+//     // fiber: number;
+//     // alcohol: number;
+//     // ash: number;
+//     // colesterol: number;
+//     // saturatedFat: number;
+//     // monounsaturatedFat: number;
+//     // polyunsaturatedFat: number;
+//     // transFat: number;
+//     // calcium: number;
+//     // iron: number;
+//     // sodium: number;
+//     // magnesium: number;
+//     // phosphorus: number;
+//     // potassium: number;
+//     // zinc: number;
+//     // copper: number;
+//     // selenium: number;
+//     // vitaminARE: number;
+//     // vitaminARAE: number;
+//     // vitaminD: number;
+//     // vitaminE: number;
+//     // thiamine: number;
+//     // riboflavin: number;
+//     // niacin: number;
+//     // vitaminB6: number;
+//     // vitaminB12: number;
+//     // vitaminC: number;
+//     // folate: number;
+//     // addedSalt: number;
+//     // addedSugar: number;
+//     "Alfa-tocoferol (Vitamina E)": [string, string];
+//     "Açúcar de adição": [string, string];
+//     "Carboidrato disponível": [string, string];
+//     "Carboidrato total": [string, string];
+//     "Cinzas": [string, string];
+//     "Cobre": [string, string];
+//     "Colesterol": [string, string];
+//     "Cálcio": [string, string];
+//     "Energia": [string, string];
+//     "Equivalente de folato": [string, string];
+//     "Ferro": [string, string];
+//     "Fibra alimentar": [string, string];
+//     "Fósforo": [string, string];
+//     "Lipídios": [string, string];
+//     "Magnésio": [string, string];
+//     "Niacina": [string, string];
+//     "Potássio": [string, string];
+//     "Proteína": [string, string];
+//     "Riboflavina": [string, string];
+//     "Sal de adição": [string, string];
+//     "Selênio": [string, string];
+//     "Sódio": [string, string];
+//     "Tiamina": [string, string];
+//     "Umidade": [string, string];
+//     "Vitamina A (RAE)": [string, string];
+//     "Vitamina A (RE)": [string, string];
+//     "Vitamina B12": [string, string];
+//     "Vitamina B6": [string, string];
+//     "Vitamina C": [string, string];
+//     "Vitamina D": [string, string];
+//     "Zinco": [string, string];
+//     "Ácidos graxos monoinsaturados": [string, string];
+//     "Ácidos graxos poliinsaturados": [string, string];
+//     "Ácidos graxos saturados": [string, string];
+//     "Ácidos graxos trans": [string, string];
+//     "Álcool": [string, string];
+// }
+
+// export type FoodData = {
+//     id: string;
+//     tbcaId: string;
+//     name: string;
+//     macros: MacroNutrientsData; //TODO: add micro, fibers, etc.
+// }

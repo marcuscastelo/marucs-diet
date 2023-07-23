@@ -47,7 +47,7 @@ export default function RootLayout({
 
 function App({ children }: { children: React.ReactNode }) {
   const dispatch = useAppDispatch();
-  const onChangeUser = (user: User & Record) => dispatch(setUserJson(JSON.stringify(user)));
+  const onChangeUser = (user: User) => dispatch(setUserJson(JSON.stringify(user)));
   listUsers().then(users => {
     const localStoredUserId = localStorage.getItem('user');
     if (localStoredUserId) {

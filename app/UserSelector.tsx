@@ -10,12 +10,12 @@ import { Record } from "pocketbase";
 import { Loadable } from "@/utils/loadable";
 
 export default function UserSelector() {
-    const [availableUsers, setAvailableUsers] = useState<Loadable<(User & Record)[]>>({ loading: true });
+    const [availableUsers, setAvailableUsers] = useState<Loadable<(User)[]>>({ loading: true });
     const [loadingHasTimedOut, setLoadingHasTimedOut] = useState(false);
 
     const currentUser = useAppSelector(state => state.userReducer);
     const dispatch = useAppDispatch();
-    const onChangeUser = (user: User & Record) => dispatch(setUserJson(JSON.stringify(user)));
+    const onChangeUser = (user: User) => dispatch(setUserJson(JSON.stringify(user)));
 
     useEffect(() => {
         listUsers().then(users => {

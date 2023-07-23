@@ -4,14 +4,14 @@ import { useEffect, useState } from "react";
 import MealItem from "./MealItem";
 import { mockFood } from "./test/unit/(mock)/mockData";
 import { MealItemData } from "@/model/mealItemModel";
-import { FoodData } from "@/model/foodModel";
+import { Food } from "@/model/foodModel";
 import { MealData } from "@/model/mealModel";
 import { showModal } from "@/utils/DOMModal";
 
 export type MealItemAddModalProps = {
     modalId: string,
     meal: MealData,
-    itemData: Partial<MealItemData> & { food: FoodData },
+    itemData: Partial<MealItemData> & { food: Food },
     show?: boolean,
     onApply: (item: MealItemData) => void,
     onCancel?: () => void,

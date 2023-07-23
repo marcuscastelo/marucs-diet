@@ -6,7 +6,7 @@ import MealItem from "@/app/MealItem";
 import { listDays } from "@/controllers/days";
 import { createFood, listFoods } from "@/controllers/food";
 import { DayData } from "@/model/dayModel";
-import { FoodData } from "@/model/foodModel";
+import { Food } from "@/model/foodModel";
 import { useUser } from "@/redux/features/userSlice";
 import { Suspense, useEffect, useState } from "react";
 

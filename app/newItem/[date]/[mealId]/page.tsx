@@ -2,7 +2,7 @@
 
 import MealItem from "@/app/MealItem";
 import { listFoods } from "@/controllers/food";
-import { FoodData } from "@/model/foodModel";
+import { Food } from "@/model/foodModel";
 import { Alert, Breadcrumb } from "flowbite-react";
 import { useEffect, useState } from "react";
 import PageLoading from "../../../PageLoading";
@@ -32,7 +32,7 @@ export default function Page(context: any) {
     const currentUser = useUser();
 
     const [search, setSearch] = useState('' as string);
-    const [foods, setFoods] = useState<Loadable<(FoodData & Record)[]>>({ loading: true });
+    const [foods, setFoods] = useState<Loadable<(Food)[]>>({ loading: true });
     const [days, setDays] = useState<Loadable<(DayData & Record)[]>>({ loading: true });
     const [selectedFood, setSelectedFood] = useState(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }));
 
@@ -40,14 +40,14 @@ export default function Page(context: any) {
 
     const isDesktop = isClient ? window.innerWidth > 768 : false;
 
-    const isFavorite = (favoriteFoods: string[], food: FoodData & Record) => {
+    const isFavorite = (favoriteFoods: string[], food: Food) => {
         return favoriteFoods.includes(food.id);
     }
 
     const fetchFoods = async (favoriteFoods: string[]) => {
         const foods = await listFoods();
 
-        const isFavorite = (favoriteFoods: string[], food: FoodData & Record) => {
+        const isFavorite = (favoriteFoods: string[], food: Food) => {
             return favoriteFoods.includes(food.id);
         }
 
@@ -78,7 +78,7 @@ export default function Page(context: any) {
         });
     }
 
-    const onUserFavoritesChanged = async (user: User & Record) => {
+    const onUserFavoritesChanged = async (user: User) => {
         const updatedUser = await updateUser(user.id, user);
         dispatch(setUserJson(JSON.stringify(updatedUser)));
     }

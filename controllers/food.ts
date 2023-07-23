@@ -1,4 +1,4 @@
-import { FoodData } from '@/model/foodModel';
+import { Food } from '@/model/foodModel';
 import { Record } from 'pocketbase';
 
 import pb from '@/utils/pocketBase';
@@ -6,11 +6,10 @@ import { parallelLimit } from 'async';
 import { listAll } from './utils';
 import axios from 'axios';
 import { NewFoodData } from '@/model/newFoodModel';
-import { cache } from 'react';
 
-const PB_COLLECTION = 'Foods';
+const PB_COLLECTION = 'Food';
 
-function hackConvert(food: NewFoodData, filler: FoodData & Record) : FoodData & Record {
+function hackConvert(food: NewFoodData, filler: Food) : Food {
     return {
         ...filler,
         id: food.id.toString(),
@@ -22,26 +21,22 @@ function hackConvert(food: NewFoodData, filler: FoodData & Record) : FoodData & 
             protein: food.proteinas * 100,
             fat: food.gordura * 100,
         }
-    } as FoodData & Record; 
+    } as Food; 
 }
 
 export const listFoods = async () => {
-    const cached = await listAll<FoodData>(PB_COLLECTION);
-
+    const cached = await listAll<Food>(PB_COLLECTION);
     const newFoods = (await axios.get(`http://192.168.0.14:3000/api/food`)).data as { alimentos: NewFoodData[] };
-
     return newFoods.alimentos.map((food, idx) => hackConvert(food, cached[idx]));
 }
 
 export const searchFoods = async (search: string) => {
-    const cached = await listAll<FoodData>(PB_COLLECTION);
-
+    const cached = await listAll<Food>(PB_COLLECTION);
     const newFoods = (await axios.get(`http://192.168.0.14:3000/api/food/${search}`)).data as { alimentos: NewFoodData[] };
-
     return newFoods.alimentos.map((food, idx) => hackConvert(food, cached[idx]));
 }
 
-export const createFood = async (food: FoodData) => await pb.collection(PB_COLLECTION).create(food, { $autoCancel: false }) as (Record & FoodData);
+export const createFood = async (food: Food) => await pb.collection(PB_COLLECTION).create(food, { $autoCancel: false }) as (Record & Food);
 
 export const deleteAll = async () => {
     const foods = await listFoods();

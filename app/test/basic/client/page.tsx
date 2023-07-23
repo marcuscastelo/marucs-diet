@@ -1,11 +1,11 @@
 "use client";
 
 import { createFood, listFoods } from "@/controllers/food";
-import { FoodData } from "@/model/foodModel";
+import { Food } from "@/model/foodModel";
 import { useEffect, useState } from "react";
 
 export default function Page() {
-    const [foods, setFoods] = useState([{ name: 'test' }] as FoodData[]);
+    const [foods, setFoods] = useState([{ name: 'test' }] as Food[]);
 
     const fetchFoods = async () => {
         const foods = await listFoods();

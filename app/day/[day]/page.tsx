@@ -5,7 +5,7 @@ import DayMeals from "../../DayMeals";
 import { DayData } from "@/model/dayModel";
 import { MealProps } from "../../Meal";
 import { listFoods } from "@/controllers/food";
-import { FoodData } from "@/model/foodModel";
+import { Food } from "@/model/foodModel";
 import PageLoading from "../../PageLoading";
 import { createDay, listDays, updateDay } from "@/controllers/days";
 import { DateValueType } from "react-tailwindcss-datepicker/dist/types";
@@ -31,7 +31,7 @@ export default function Page(context: any) {
 
     const currentUser = useUser();
 
-    const [foods, setFoods] = useState<Loadable<(FoodData & Record)[]>>({ loading: true });
+    const [foods, setFoods] = useState<Loadable<Food[]>>({ loading: true });
     const [days, setDays] = useState<Loadable<(DayData & Record)[]>>({ loading: true });
     const selectedDay = context.params.day as string;
 

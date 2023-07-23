@@ -1,9 +1,9 @@
 import { DayData } from "@/model/dayModel";
-import { FoodData } from "@/model/foodModel";
+import { Food } from "@/model/foodModel";
 import { MealItemData } from "@/model/mealItemModel";
 import { MealData } from "@/model/mealModel";
 
-export const mockFood = (partial?: Partial<FoodData>): FoodData => ({
+export const mockFood = (partial?: Partial<Food>): Food => ({
     id: Math.random().toString(),
     name: "Papa de carne bovina moída (acém), fubá e couve, c/ caldo de frango, c/ cebola e azeite de oliva, s/ sal",
     tbcaId: "A0105N",

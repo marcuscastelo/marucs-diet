@@ -2,11 +2,11 @@
 
 import MealItem from "@/app/MealItem";
 import { createFood, listFoods } from "@/controllers/food";
-import { FoodData } from "@/model/foodModel";
+import { Food } from "@/model/foodModel";
 import { useEffect, useState } from "react";
 
 export default function Page() {
-    const [foods, setFoods] = useState([] as FoodData[]);
+    const [foods, setFoods] = useState([] as Food[]);
     const [search, setSearch] = useState('' as string);
 
     const fetchFoods = async () => {

@@ -4,7 +4,7 @@
 import { searchBarCode } from "@/controllers/barcodes";
 import { NewFoodData } from "@/model/newFoodModel";
 import { useEffect, useState } from "react";
-import { FoodData } from "@/model/foodModel";
+import { Food } from "@/model/foodModel";
 
 export default function Page() {
     const [loading, setLoading] = useState(false);
@@ -39,7 +39,7 @@ export default function Page() {
     //TODO: converter em outro lugar
     //TODO: parar de usar [qtd, unidade]
     //TODO: multiplicar por 100 o que vier do BarCodeResult
-    const food: FoodData = {
+    const food: Food = {
         id: '',
         tbcaId: '', // TODO: FoodData should not require tbcaId
         name: currentResult?.nome ?? '',

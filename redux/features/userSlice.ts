@@ -2,11 +2,11 @@
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { useAppSelector } from "../hooks";
-import { User } from "@/model/userModel";
+import { User, userSchema } from "@/model/userModel";
 import { Record } from "pocketbase";
 import { Loadable } from "@/utils/loadable";
 
-type UserState = Loadable<User & Record>;
+type UserState = Loadable<User>;
 
 const initialState = {
     loading: true,
@@ -22,9 +22,11 @@ const userSlice = createSlice({
                 return;
             }
 
+            const newUserData = userSchema.parse(JSON.parse(action.payload));
+
             state.data = {
                 ...state.data,
-                ...JSON.parse(action.payload) as User & Record,
+                ...newUserData,
             }
 
             // TODO: avoid using localStorage directly
