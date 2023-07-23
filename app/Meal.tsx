@@ -4,12 +4,17 @@ import { MealData } from "@/model/mealModel";
 import MealItem from "./MealItem";
 import { MealItemData } from "@/model/mealItemModel";
 
-export type MealProps = { mealData: MealData, onNewItem: () => void, onEditItem: (item: MealItemData) => void };
+export type MealProps = { 
+    mealData: MealData, 
+    onNewItem: () => void, 
+    onEditItem: (item: MealItemData) => void,
+    className?: string,
+};
 
-export default function Meal({ mealData, onNewItem, onEditItem }: MealProps) {
+export default function Meal({ mealData, onNewItem, onEditItem, className}: MealProps) {
     return (
         <>
-            <div className="bg-gray-800 p-3">
+            <div className={`bg-gray-800 p-3 ${className || ''}`}>
                 <h5 className="text-3xl mb-2">{mealData.name}</h5>
                 {
                     mealData.items.map((item, index) =>

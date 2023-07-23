@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import DayMeals from "../../DayMeals";
 import { DayData } from "@/model/dayModel";
 import { MealProps } from "../../Meal";
-import { listFoods } from "@/controllers/food";
-import { Food } from "@/model/foodModel";
 import PageLoading from "../../PageLoading";
 import { createDay, listDays, updateDay } from "@/controllers/days";
 import { DateValueType } from "react-tailwindcss-datepicker/dist/types";
@@ -23,7 +21,6 @@ import { Record } from "pocketbase";
 import { hideModal, showModal } from "@/utils/DOMModal";
 import UserSelector from "@/app/UserSelector";
 import { useUser } from "@/redux/features/userSlice";
-import { User } from "@/model/userModel";
 import { Loadable } from "@/utils/loadable";
 
 export default function Page(context: any) {
@@ -31,7 +28,6 @@ export default function Page(context: any) {
 
     const currentUser = useUser();
 
-    const [foods, setFoods] = useState<Loadable<Food[]>>({ loading: true });
     const [days, setDays] = useState<Loadable<(DayData & Record)[]>>({ loading: true });
     const selectedDay = context.params.day as string;
 
@@ -39,14 +35,6 @@ export default function Page(context: any) {
     const [selectedMealItem, setSelectedMealItem] = useState(mockItem({ quantity: 666 }));
 
     const editModalId = 'edit-modal';
-
-    const fetchFoods = async () => {
-        const foods = await listFoods();
-        setFoods({
-            loading: false,
-            data: foods
-        });
-    }
 
     const fetchDays = async (userId: string) => { 
         const days = await listDays(userId);
@@ -69,10 +57,6 @@ export default function Page(context: any) {
     }
 
     useEffect(() => {
-        fetchFoods();
-    }, []);
-
-    useEffect(() => {
         if (currentUser.loading) {
             return;
         }
@@ -87,10 +71,6 @@ export default function Page(context: any) {
 
     if (days.loading) {
         return <PageLoading message="Carregando dias" />
-    }
-
-    if (foods.loading) {
-        return <PageLoading message="Carregando alimentos" />
     }
 
     const hasData = days.data.some((day) => day.targetDay === selectedDay);
@@ -181,7 +161,7 @@ export default function Page(context: any) {
                 <button
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 min-w-full rounded mt-3"
                     onClick={() => {
-                        createDay(mockDay({ owner: currentUser.data.id, targetDay: selectedDay })).then(() => {
+                        createDay(mockDay({ owner: currentUser.data.id, targetDay: selectedDay }, { items: [] })).then(() => {
                             fetchDays(currentUser.data.id);
                         });
                     }}
@@ -247,7 +227,7 @@ export default function Page(context: any) {
                 <DayMacros className="mt-3 border-b-2 border-gray-800 pb-4"
                     macros={dayMacros!}
                 />
-                <DayMeals className="mt-5" mealsProps={mealProps!} />
+                <DayMeals className="mt-5" mealsProps={mealProps!}/>
             </Show>
         </div>
     );

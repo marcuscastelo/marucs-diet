@@ -6,7 +6,6 @@ import { MealData } from "@/model/mealModel";
 export const mockFood = (partial?: Partial<Food>): Food => ({
     id: Math.random().toString(),
     name: "Papa de carne bovina moída (acém), fubá e couve, c/ caldo de frango, c/ cebola e azeite de oliva, s/ sal",
-    tbcaId: "A0105N",
     macros: {
         calories: 100,
         carbs: 100,
@@ -31,22 +30,27 @@ export const mockItem = (partial?: Partial<MealItemData>): MealItemData => ({
 });
 
 
-export const mockDay = (partial: Partial<DayData> & Pick<DayData, 'owner' | 'targetDay'>): DayData => ({
+export const mockDay = (partial: Partial<DayData> & Pick<DayData, 'owner' | 'targetDay'>, mealData ?: Partial<MealData>): DayData => ({
     meals: [
         mockMeal({
-            name: `Café da Manhã ${Math.round(Math.random() * 100)}`,
+            name: `Café da Manhã`,
+            ...mealData
         }),
         mockMeal({
-            name: `Almoço ${Math.round(Math.random() * 100)}`,
+            name: `Almoço`,
+            ...mealData
         }),
         mockMeal({
-            name: `Lanche ${Math.round(Math.random() * 100)}`,
+            name: `Lanche`,
+            ...mealData
         }),
         mockMeal({
-            name: `Janta ${Math.round(Math.random() * 100)}`,
+            name: `Janta`,
+            ...mealData
         }),
         mockMeal({
-            name: `Pós Janta ${Math.round(Math.random() * 100)}`,
+            name: `Pós Janta`,
+            ...mealData
         }),
     ],
     ...partial,

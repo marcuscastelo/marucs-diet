@@ -20,12 +20,12 @@ import { Loadable } from "@/utils/loadable";
 import { updateUser } from "@/controllers/users";
 import { useAppDispatch } from "@/redux/hooks";
 import UserSelector from "@/app/UserSelector";
-import { MealData } from "@/model/mealModel";
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal';
 const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal';
 
 export default function Page(context: any) {
+    const FOOD_LIMIT = 100;
     const dayParam = context.params.date as string;
 
     const dispatch = useAppDispatch();
@@ -47,9 +47,9 @@ export default function Page(context: any) {
     const fetchFoods = async (search: string | '', favoriteFoods: string[]) => {
         let foods: Food[] = [];
         if (search == '') {
-            foods = await listFoods();
+            foods = await listFoods(); // TODO: add limit when search is made on backend
         } else {
-            foods = await searchFoods(search);
+            foods = await searchFoods(search); // TODO: add limit when search is made on backend
         }
 
         const isFavorite = (favoriteFoods: string[], food: Food) => {
@@ -137,7 +137,7 @@ export default function Page(context: any) {
 
             return true;
         }
-    ).slice(0, 100);
+    ).slice(0, FOOD_LIMIT);
 
     const day = days.data.find((day) => day.targetDay == dayParam);
 

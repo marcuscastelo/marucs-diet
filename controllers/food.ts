@@ -68,12 +68,12 @@ const newFoodsSchema = z.object({
     alimentos: z.array(apiFoodSchema, { required_error: 'Foods is required' })
 });
 
-export const listFoods = async () => {
+export const listFoods = async (limit?: number) => {
     console.log('Listing foods...');
 
     return await internalCacheLogic('__root__',
         {
-            ifCached: async () => await listAll<Food>(PB_COLLECTION),
+            ifCached: async () => await listAll<Food>(PB_COLLECTION, limit),
             ifNotCached:
                 async () => {
                     const newFoods = newFoodsSchema.parse((await INTERNAL_API.get(`food`)).data);
@@ -84,15 +84,15 @@ export const listFoods = async () => {
     );
 }
 
-export const searchFoods = async (search: string) => {
+export const searchFoods = async (search: string, limit?: number) => {
     console.log(`Searching for '${search}'...`);
 
     return await internalCacheLogic(search,
         {
-            ifCached: async () => await listAll<Food>(PB_COLLECTION),
+            ifCached: async () => await listAll<Food>(PB_COLLECTION, limit),
             ifNotCached:
                 async () => {
-                    const newFoods = newFoodsSchema.parse((await await INTERNAL_API.get(`food/${search}`)).data);
+                    const newFoods = newFoodsSchema.parse((await await INTERNAL_API.get(encodeURI(`food/${search}`))).data);
                     const convertedFoods = newFoods.alimentos.map(convertApi2Food);
                     return convertedFoods;
                 }
