@@ -92,7 +92,11 @@ export const searchFoods = async (search: string, limit?: number) => {
             ifCached: async () => await listAll<Food>(PB_COLLECTION, limit),
             ifNotCached:
                 async () => {
-                    const newFoods = newFoodsSchema.parse((await await INTERNAL_API.get(encodeURI(`food/${search}`))).data);
+                    const newFoods = newFoodsSchema.parse((await await INTERNAL_API.get('food', {
+                        params: {
+                            q: search,
+                        }
+                    })).data);
                     const convertedFoods = newFoods.alimentos.map(convertApi2Food);
                     return convertedFoods;
                 }

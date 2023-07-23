@@ -1,13 +1,13 @@
-// This is the route file for the barcode API
+// This is the route file for the food search API.
 
 import { NextRequest, NextResponse } from "next/server";
 
 import FOOD_SECRETS from '@/secrets/food_api.json';
 
 import axios from 'axios';
-import { NewFoodData } from "@/model/newFoodModel";
+import { apiFoodSchema } from "@/model/apiFoodModel";
 
-export const searchBarCodeInternal = async (food: string) => {
+export const searchFoodNameInternal = async (food: string) => {
     const url = `${FOOD_SECRETS.base_url}/${FOOD_SECRETS.food_endpoint}`;
     const response = await axios.get(url, {
         headers: FOOD_SECRETS.headers,
@@ -18,9 +18,9 @@ export const searchBarCodeInternal = async (food: string) => {
     });
     console.log(response.data);
     console.dir(response.data);
-    return response.data as NewFoodData;
+    return apiFoodSchema.parse(response.data);
 }
 
 export async function GET(request: NextRequest) {
-    return NextResponse.json(await searchBarCodeInternal(""));
+    return NextResponse.json(await searchFoodNameInternal(request.nextUrl.searchParams.get("q") ?? ''));
 }
