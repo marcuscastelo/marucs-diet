@@ -79,6 +79,17 @@ export default function UserSelector() {
                                                 <Dropdown.Item
                                                     key={idx}
                                                     onClick={_ => {
+                                                        // Prompt user to confirm
+                                                        if (!confirm(`Deseja entrar como ${user.name}?`)) {
+                                                            return;
+                                                        }
+
+                                                        // Prompt username
+                                                        const username = prompt(`Digite '${user.name}':`);
+                                                        if (!username) {
+                                                            return;
+                                                        }
+
                                                         onChangeUser(user);
                                                         // Force dropdown to close without having to click outside setting aria
                                                         // Credit: https://reacthustle.com/blog/how-to-close-daisyui-dropdown-with-one-click
