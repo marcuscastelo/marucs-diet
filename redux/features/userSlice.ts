@@ -5,12 +5,19 @@ import { useAppSelector } from "../hooks";
 import { User, userSchema } from "@/model/userModel";
 import { Record } from "pocketbase";
 import { Loadable } from "@/utils/loadable";
+import { updateUser } from "@/controllers/users";
 
 type UserState = Loadable<User>;
 
 const initialState = {
     loading: true,
 } as UserState;
+
+// TODO: avoid using localStorage directly
+async function saveUser(userData: User) {
+    localStorage.setItem('user', userData.id);
+    await updateUser(userData.id, userData);
+}
 
 const userSlice = createSlice({
     name: 'user',
@@ -29,14 +36,70 @@ const userSlice = createSlice({
                 ...newUserData,
             }
 
-            // TODO: avoid using localStorage directly
-            localStorage.setItem('user', state.data?.id || '');
+            saveUser(state.data);
+        },
+        setFavoriteFoods: (state, action: PayloadAction<string[]>) => {
+            if (state.loading) {
+                console.error('setFavoriteFoods: user is not loaded');
+                return;
+            }
+
+            state.data = {
+                ...state.data,
+                favoriteFoods: action.payload,
+            }
+
+            saveUser(state.data);
+        },
+        setFoodAsFavorite: (state, action: PayloadAction<{foodId: string, favorite: boolean}>) => {
+            if (state.loading) {
+                console.error('removeFavoriteFood: user is not loaded');
+                return;
+            }
+
+            if (action.payload.favorite) {
+                state.data = {
+                    ...state.data,
+                    favoriteFoods: [
+                        ...state.data.favoriteFoods,
+                        action.payload.foodId,
+                    ],
+                }
+            } else {
+                state.data = {
+                    ...state.data,
+                    favoriteFoods: state.data.favoriteFoods.filter((food) => food !== action.payload.foodId),
+                }
+            }
+
+            saveUser(state.data);
         }
     },
 });
 
-export const { setUserJson } = userSlice.actions;
+export const { setUserJson, setFavoriteFoods, setFoodAsFavorite } = userSlice.actions;
 
 export const useUser = () => useAppSelector((state) => state.userReducer);
+
+export const useFavoriteFoods = () => useAppSelector((state) => {
+    const loadable = state.userReducer;
+    if (loadable.loading) 
+        return [];
+
+    const user = loadable.data;
+    return user.favoriteFoods;
+});
+
+export const useIsFoodFavorite = () => useAppSelector((state) => {
+    const loadable = state.userReducer;
+
+    return (foodId: string) => {
+        if (loadable.loading)
+            return false;
+        
+        const user = loadable.data;
+        return user.favoriteFoods.includes(foodId);
+    }
+});
 
 export default userSlice.reducer;

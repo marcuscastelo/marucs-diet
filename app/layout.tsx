@@ -34,6 +34,13 @@ export default function RootLayout({
 
   return (
     <html lang="en">
+      <head>
+        <title>Marucs Diet</title>
+        <meta name="title" content="Marucs Diet"/>
+        <meta 
+          name="description" 
+          content="App de dieta"/>
+      </head>
       <body className={inter.className + ' dark'}>
         <Providers>
           <App>

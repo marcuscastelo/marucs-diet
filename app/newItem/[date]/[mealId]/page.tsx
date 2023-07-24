@@ -7,19 +7,17 @@ import { Alert, Breadcrumb } from "flowbite-react";
 import { useEffect, useState } from "react";
 import PageLoading from "../../../PageLoading";
 import MealItemAddModal from "../../../MealItemAddModal";
-import { mockFood, mockMeal } from "../../../test/unit/(mock)/mockData";
+import { mockFood } from "../../../test/unit/(mock)/mockData";
 import { MealItemData } from "@/model/mealItemModel";
 import { listDays, updateDay } from "@/controllers/days";
 import { DayData } from "@/model/dayModel";
 import { Record } from "pocketbase";
 import BarCodeInsertModal from "@/app/BarCodeInsertModal";
 import { showModal } from "@/utils/DOMModal";
-import { setUserJson, useUser } from "@/redux/features/userSlice";
+import { setFoodAsFavorite, useIsFoodFavorite, useUser } from "@/redux/features/userSlice";
 import { User } from "@/model/userModel";
 import { Loadable } from "@/utils/loadable";
-import { updateUser } from "@/controllers/users";
 import { useAppDispatch } from "@/redux/hooks";
-import UserSelector from "@/app/UserSelector";
 import { isCached } from "@/controllers/searchCache";
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal';
@@ -45,9 +43,7 @@ export default function Page(context: any) {
 
     const isDesktop = isClient ? window.innerWidth > 768 : false;
 
-    const isFavorite = (favoriteFoods: string[], food: Food) => {
-        return favoriteFoods.includes(food.id);
-    }
+    const isFoodFavorite = useIsFoodFavorite();
 
     const fetchFoods = async (search: string | '', favoriteFoods: string[]) => {
         if (!(await isCached(search))) {
@@ -94,8 +90,7 @@ export default function Page(context: any) {
     }
 
     const onUserFavoritesChanged = async (user: User) => {
-        const updatedUser = await updateUser(user.id, user);
-        dispatch(setUserJson(JSON.stringify(updatedUser)));
+        ;
     }
 
     useEffect(() => {
@@ -117,7 +112,7 @@ export default function Page(context: any) {
         const timeout = setTimeout(() => {
             setTyping(false);
         }, TYPE_TIMEOUT);
-        
+
         return () => {
             clearTimeout(timeout);
         }
@@ -260,25 +255,13 @@ export default function Page(context: any) {
                                         showModal(window, MEAL_ITEM_ADD_MODAL_ID)
                                     }}
                                     favorite={
-                                        currentUser.loading ? false :
-                                            isFavorite(currentUser.data.favoriteFoods, food)
+                                        isFoodFavorite(food.id)
                                     }
                                     setFavorite={(favorite) => {
-                                        if (currentUser.loading) {
-                                            return;
-                                        }
-
-                                        const newUser = Object.assign({}, currentUser.data);
-
-                                        newUser.favoriteFoods = [...currentUser.data.favoriteFoods]
-
-                                        if (favorite) {
-                                            newUser.favoriteFoods.push(food.id);
-                                        } else {
-                                            newUser.favoriteFoods = newUser.favoriteFoods.filter((f) => f != food.id);
-                                        }
-
-                                        onUserFavoritesChanged(newUser);
+                                        dispatch(setFoodAsFavorite({
+                                            foodId: food.id,
+                                            favorite
+                                        }));
                                     }}
                                 />
                             </div>

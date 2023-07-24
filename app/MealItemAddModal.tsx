@@ -7,6 +7,8 @@ import { MealItemData } from "@/model/mealItemModel";
 import { Food } from "@/model/foodModel";
 import { MealData } from "@/model/mealModel";
 import { hideModal, showModal } from "@/utils/DOMModal";
+import { setFoodAsFavorite, useIsFoodFavorite } from "@/redux/features/userSlice";
+import { useAppDispatch } from "@/redux/hooks";
 
 export type MealItemAddModalProps = {
     modalId: string,
@@ -28,6 +30,9 @@ export default function MealItemAddModal({
     const canAdd = quantity != '' && Number(quantity) > 0;
 
     const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(true);
+
+    const isFoodFavorite = useIsFoodFavorite();
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
         if (!show) {
@@ -141,7 +146,15 @@ export default function MealItemAddModal({
                             quantity: Number(quantity),
                         }}
                         className="mt-4"
-                        favorite='hide' // TODO: implement favorite?
+                        favorite={
+                            isFoodFavorite(food.id)
+                        }
+                        setFavorite={(favorite) => {
+                            dispatch(setFoodAsFavorite({
+                                foodId: food.id,
+                                favorite
+                            }));
+                        }}
                     />
 
                     <div className="modal-action">

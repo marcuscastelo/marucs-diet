@@ -131,10 +131,22 @@ export default function Page(context: any) {
     function CopyLastDayButton() {
         //TODO: improve this code
         if (days.loading || currentUser.loading) return <>LOADING</>
-        if (days.data.length === 0) return <>NO DAYS TO COPY</>
+
+        const lastDayIdx = days.data.findLastIndex((day) => Date.parse(day.targetDay) < Date.parse(selectedDay));
+        if (lastDayIdx === -1) {
+            return (
+                <button 
+                    className="btn btn-error text-white font-bold py-2 px-4 min-w-full rounded mt-3"
+                    onClick={() => alert(`Não foi possível encontrar um dia anterior a ${selectedDay}`)}
+                >
+                    Copiar dia anterior: não encontrado!
+                </button>
+            )
+            return;
+        }
 
         return <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 min-w-full rounded mt-3"
+            className="btn btn-primary text-white font-bold py-2 px-4 min-w-full rounded mt-3"
             onClick={async () => {
                 if (hasData) {
                     if (confirm('Tem certeza que deseja excluir este dia e copiar o dia anterior?')) {
@@ -158,7 +170,7 @@ export default function Page(context: any) {
             }}
         >
             {/* //TODO: copiar qualquer dia */}
-            Copiar dia anterior
+            Copiar dia anterior ({days.data[lastDayIdx].targetDay})
         </button>
     }
 
@@ -194,16 +206,17 @@ export default function Page(context: any) {
             <Show when={!!selectedDay && !hasData}>
                 <Alert className="mt-2" color="warning">Nenhum dado encontrado para o dia {selectedDay}</Alert>
                 <button
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 min-w-full rounded mt-3"
+                    className="btn btn-primary text-white font-bold py-2 px-4 min-w-full rounded mt-3"
                     onClick={() => {
                         createDay(mockDay({ owner: currentUser.data.id, targetDay: selectedDay }, { items: [] })).then(() => {
                             fetchDays(currentUser.data.id);
                         });
                     }}
                 >
-                    Criar dia
+                    Criar dia do zero
                 </button>
                 <CopyLastDayButton />
+
             </Show>
 
             <Show when={!!selectedDay && hasData && !dayData}>
@@ -284,6 +297,16 @@ export default function Page(context: any) {
                 />
                 <DayMeals className="mt-5" mealsProps={mealProps!} />
                 <CopyLastDayButton />
+                <button
+                    className="hover:bg-red-400 text-white font-bold py-2 px-4 min-w-full rounded mt-3 btn btn-error"
+                    onClick={() => {
+                        createDay(mockDay({ owner: currentUser.data.id, targetDay: selectedDay }, { items: [] })).then(() => {
+                            fetchDays(currentUser.data.id);
+                        });
+                    }}
+                >
+                    PERIGO: Excluir dia
+                </button>
             </Show>
 
         </div>
