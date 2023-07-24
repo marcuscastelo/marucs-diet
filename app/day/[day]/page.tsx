@@ -5,7 +5,7 @@ import DayMeals from "../../DayMeals";
 import { DayData } from "@/model/dayModel";
 import { MealProps } from "../../Meal";
 import PageLoading from "../../PageLoading";
-import { createDay, listDays, updateDay } from "@/controllers/days";
+import { createDay, deleteDay, listDays, updateDay } from "@/controllers/days";
 import { DateValueType } from "react-tailwindcss-datepicker/dist/types";
 import Datepicker from "react-tailwindcss-datepicker";
 import { Alert } from "flowbite-react";
@@ -36,7 +36,7 @@ export default function Page(context: any) {
 
     const editModalId = 'edit-modal';
 
-    const fetchDays = async (userId: string) => { 
+    const fetchDays = async (userId: string) => {
         const days = await listDays(userId);
         setDays({
             loading: false,
@@ -128,6 +128,40 @@ export default function Page(context: any) {
         fat: 0,
     } as MacroNutrientsData);
 
+    function CopyLastDayButton() {
+        //TODO: improve this code
+        if (days.loading || currentUser.loading) return <>LOADING</>
+        if (days.data.length === 0) return <>NO DAYS TO COPY</>
+
+        return <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 min-w-full rounded mt-3"
+            onClick={async () => {
+                if (hasData) {
+                    if (confirm('Tem certeza que deseja excluir este dia e copiar o dia anterior?')) {
+                        await deleteDay(dayData!.id);
+                    }
+                }
+
+                const lastDayIdx = days.data.findLastIndex((day) => Date.parse(day.targetDay) < Date.parse(selectedDay));
+                if (lastDayIdx === -1) {
+                    alert('Não foi possível encontrar um dia anterior');
+                    return;
+                }
+
+                createDay({
+                    ...days.data[lastDayIdx],
+                    id: undefined,
+                    targetDay: selectedDay,
+                }).then(() => {
+                    fetchDays(currentUser.data.id);
+                });
+            }}
+        >
+            {/* //TODO: copiar qualquer dia */}
+            Copiar dia anterior
+        </button>
+    }
+
 
     return (
         <div className="sm:w-3/4 md:w-4/5 lg:w-1/2 xl:w-1/3 mx-auto">
@@ -167,8 +201,9 @@ export default function Page(context: any) {
                         });
                     }}
                 >
-                    Criar dia (TODO: copiar dia anterior)
+                    Criar dia
                 </button>
+                <CopyLastDayButton />
             </Show>
 
             <Show when={!!selectedDay && hasData && !dayData}>
@@ -247,8 +282,11 @@ export default function Page(context: any) {
                 <DayMacros className="mt-3 border-b-2 border-gray-800 pb-4"
                     macros={dayMacros!}
                 />
-                <DayMeals className="mt-5" mealsProps={mealProps!}/>
+                <DayMeals className="mt-5" mealsProps={mealProps!} />
+                <CopyLastDayButton />
             </Show>
+
         </div>
     );
 }
+

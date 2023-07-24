@@ -22,3 +22,7 @@ export const createDay = async (day: DayData) => {
 export const updateDay = async (id: string, day: DayData) => {
     return pb.collection(PB_COLLECTION).update(id, day, { $autoCancel: false }) as Promise<Record & DayData>;
 }
+
+export const deleteDay = async (id: string) => {
+    return pb.collection(PB_COLLECTION).delete(id, { $autoCancel: false });
+}

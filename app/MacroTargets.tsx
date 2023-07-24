@@ -36,7 +36,8 @@ export const calculateMacroTarget = (
     gramsFat: weight * savedMacroTarget.gramsPerKgFat,
 });
 
-const calculateCalories = (targetGrams: TargetGrams): number => (
+//TODO: should not be exported (move to other module)
+export const calculateCalories = (targetGrams: TargetGrams): number => (
     targetGrams.gramsCarbs * 4 + targetGrams.gramsProtein * 4 + targetGrams.gramsFat * 9
 );
 
