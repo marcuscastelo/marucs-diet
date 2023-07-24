@@ -5,7 +5,7 @@ import { Inter } from 'next/font/google'
 import { Providers } from '@/redux/provider'
 import { useAppDispatch } from '@/redux/hooks';
 import { setUserJson } from '@/redux/features/userSlice';
-import { listUsers } from '@/controllers/users';
+import { listUsers, updateUser } from '@/controllers/users';
 import { User } from '@/model/userModel';
 import { Record } from 'pocketbase';
 import { useEffect, useState } from 'react';

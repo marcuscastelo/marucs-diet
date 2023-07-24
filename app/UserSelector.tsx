@@ -49,14 +49,17 @@ export default function UserSelector() {
             </div>
             <div className="ml-3 text-center flex flex-col gap-1">
                 <div className="text-base font-medium leading-none text-white hover:text-indigo-200 hover:cursor-pointer">
+
                     {
                         currentUser.loading ?
-                            (
-                                loadingHasTimedOut ?
-                                    "Deslogado" :
-                                    "Carregando..."
+                        (
+                            loadingHasTimedOut ?
+                            "Deslogado" :
+                            "Carregando..."
                             ) :
-                            currentUser.data.name
+                            <a href="/profile">
+                                {currentUser.data.name}
+                            </a>
                     }
                 </div>
                 <div className="text-sm font-medium leading-none text-slate-300">

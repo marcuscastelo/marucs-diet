@@ -86,6 +86,7 @@ export default function Page(context: any) {
             },
             onNewItem: () => {
                 // Redirect to new item page
+                // TODO: use another method to redirect
                 window.location.href = `/newItem/${selectedDay}/${meal.id}`;
             }
         };

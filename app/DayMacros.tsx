@@ -1,13 +1,9 @@
 'use client';
 
 import { MacroNutrientsData } from "@/model/macroNutrientsModel";
+import { useUser } from "@/redux/features/userSlice";
 import { Progress } from "flowbite-react";
-
-const targetMacros = {
-    carbs: 136,
-    protein: 184,
-    fat: 80,
-};
+import { calculateMacroTarget } from "./MacroTargets";
 
 export default function DayMacros({ macros, className }: { macros: MacroNutrientsData, className?: string }) {
 
@@ -17,7 +13,16 @@ export default function DayMacros({ macros, className }: { macros: MacroNutrient
         macros.fat * 9
     )
 
-    const targetCalories = targetMacros.carbs * 4 + targetMacros.protein * 4 + targetMacros.fat * 9;
+    const currentUser = useUser();
+
+    if (currentUser.loading) {
+        return <>Loading user...</>;
+    }
+
+    const macroProfile = currentUser.data.macroProfile;
+    const macroGrams = calculateMacroTarget(currentUser.data.weight, macroProfile);
+
+    const targetCalories = macroGrams.gramsCarbs * 4 + macroGrams.gramsProtein * 4 + macroGrams.gramsFat * 9;
     return (
         <>
             <div className={`flex pt-3 ${className}`}>
@@ -34,9 +39,9 @@ export default function DayMacros({ macros, className }: { macros: MacroNutrient
                     </div>
                 </div>
                 <div className="mx-2 w-full">
-                    <Progress className="" size="sm" textLabelPosition="outside" color="green" textLabel={`Carboidrato (${Math.round(macros.carbs * 100) / 100}/${Math.round(targetMacros.carbs * 100) / 100}g)`} labelText={true} progress={100 * macros.carbs / targetMacros.carbs} />
-                    <Progress className="" size="sm" textLabelPosition="outside" color="red" textLabel={`Proteína (${Math.round(macros.protein * 100) / 100}/${Math.round(targetMacros.protein * 100) / 100}g)`} labelText={true} progress={100 * macros.protein / targetMacros.protein} />
-                    <Progress className="" size="sm" textLabelPosition="outside" color="yellow" textLabel={`Gordura (${Math.round(macros.fat * 100) / 100}/${Math.round(targetMacros.fat * 100) / 100}g)`} labelText={true} progress={100 * macros.fat / targetMacros.fat} />
+                    <Progress className="" size="sm" textLabelPosition="outside" color="green" textLabel={`Carboidrato (${Math.round(macros.carbs * 100) / 100}/${Math.round(macroGrams.gramsCarbs * 100) / 100}g)`} labelText={true} progress={100 * macros.carbs / macroGrams.gramsCarbs} />
+                    <Progress className="" size="sm" textLabelPosition="outside" color="red" textLabel={`Proteína (${Math.round(macros.protein * 100) / 100}/${Math.round(macroGrams.gramsProtein * 100) / 100}g)`} labelText={true} progress={100 * macros.protein / macroGrams.gramsProtein} />
+                    <Progress className="" size="sm" textLabelPosition="outside" color="yellow" textLabel={`Gordura (${Math.round(macros.fat * 100) / 100}/${Math.round(macroGrams.gramsFat * 100) / 100}g)`} labelText={true} progress={100 * macros.fat / macroGrams.gramsFat} />
                 </div>
             </div>
         </>
