@@ -6,6 +6,7 @@ import { listDays, updateDay } from "@/controllers/days";
 import { DayData } from "@/model/dayModel";
 import { MealData } from "@/model/mealModel";
 import { useUser } from "@/redux/features/userSlice";
+import { stringToDate } from "@/utils/dateUtils";
 import { Record } from "pocketbase";
 import { useEffect, useState } from "react";
 import Datepicker from "react-tailwindcss-datepicker";
@@ -41,8 +42,8 @@ export default function Page() {
         }
 
         const dateString = newValue?.startDate;
-        const date = new Date(`${dateString}T00:00:00`);
-        setSelectedDay(date.toISOString().split('T')[0]);
+        const date = stringToDate(dateString);
+        setSelectedDay(date.toISOString().split('T')[0]); // TODO: use dateUtils when this is understood
     }
 
     useEffect(() => {
@@ -101,6 +102,7 @@ export default function Page() {
                                     mealData: meal,
                                     onNewItem: () => duplicateLastMealItemOnDatabase(dayData, meal),
                                     onEditItem: () => alert('onEditItem'),
+                                    onUpdateMeal: () => alert('onUpdateMeal'),
                                 } as MealProps;
                             })
                         } />

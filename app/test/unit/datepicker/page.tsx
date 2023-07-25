@@ -1,13 +1,14 @@
 "use client";
 
+import { getToday } from "@/utils/dateUtils";
 import { useState } from "react";
 import Datepicker from "react-tailwindcss-datepicker";
 import { DateValueType } from "react-tailwindcss-datepicker/dist/types";
 
 export default function Page() {
     const [value, setValue] = useState({
-        startDate: new Date(),
-        endDate: new Date()
+        startDate: getToday(),
+        endDate: getToday()
     } as DateValueType);
 
     const handleValueChange = (newValue: DateValueType) => {

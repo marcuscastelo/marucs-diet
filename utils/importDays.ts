@@ -1,8 +1,9 @@
 import { mockDay, mockMeal } from "@/app/test/unit/(mock)/mockData";
 import { DayData } from "@/model/dayModel";
 import pb from "./pocketBase";
+import { getToday } from "./dateUtils";
 
-const today = new Date();
+const today = new Date(getToday());
 
 const nextDay = (date: Date) => {
     const nextDay = new Date(date);

@@ -13,6 +13,7 @@ export default function MealPage() {
             mealData={meal} 
             onNewItem={() => duplicateLastMealItem(meal, setMeal)}
             onEditItem={() => {}}
+            onUpdateMeal={(meal) => setMeal(meal)}
         />
     )
 }

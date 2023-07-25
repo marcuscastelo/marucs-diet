@@ -8,11 +8,12 @@ import { mockMeal } from "../../unit/(mock)/mockData";
 import DayMeals from "@/app/DayMeals";
 import { Alert } from "flowbite-react";
 import { MealProps } from "@/app/Meal";
+import { getToday, stringToDate } from "@/utils/dateUtils";
 
 export default function Page() {
     const day1: DayData = {
         owner: 'user1',
-        targetDay: new Date().toISOString().split('T')[0],
+        targetDay: getToday(),
         meals: [
             mockMeal({ name: 'Café da manhã' }),
             mockMeal({ name: 'Almoço' }),
@@ -21,31 +22,33 @@ export default function Page() {
 
     const day2: DayData = {
         owner: 'user1',
-        targetDay: new Date().toISOString().split('T')[0],
+        targetDay: getToday(),
         meals: [
             mockMeal({ name: 'Jejum' }),
         ]
     }
 
-    const day1MealProps = day1.meals.map(meal => {
+    const day1MealProps: MealProps[] = day1.meals.map(meal => {
         return {
             mealData: meal,
             onNewItem: () => {alert('Dia 1: Novo') },
-            onEditItem: () => {alert('Dia 1: Editar') }
+            onEditItem: () => {alert('Dia 1: Editar') },
+            onUpdateMeal: () => {alert('Dia 1: Atualizar') },
         }
     });
 
-    const day2MealProps = day2.meals.map(meal => {
+    const day2MealProps: MealProps[] = day2.meals.map(meal => {
         return {
             mealData: meal,
             onNewItem: () => {alert('Dia 2!!!: Novo') },
-            onEditItem: () => {alert('Dia 2!!!: Editar') }
+            onEditItem: () => {alert('Dia 2!!!: Editar') },
+            onUpdateMeal: () => {alert('Dia 2!!!: Atualizar') },
         }
     });
 
     const [day, setDay] = useState({
-        startDate: new Date(),
-        endDate: new Date()
+        startDate: getToday(),
+        endDate: getToday(),
     } as DateValueType);
     const [currentMealProps, setCurrentMealProps] = useState(null as (MealProps[] | null));
 
@@ -55,7 +58,7 @@ export default function Page() {
             alert('Data inválida');
             return;
         }
-        const date = new Date(`${dateString}T00:00:00`);
+        const date = stringToDate(dateString);
         const dayOfMonth = date.getDate();
         setDay(newValue);
         if (dayOfMonth % 2 === 0) {

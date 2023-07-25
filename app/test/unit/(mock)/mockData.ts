@@ -22,10 +22,11 @@ export const mockMeal = (partial?: Partial<MealData>): MealData => ({
     ...partial,
 }) ;
 
+let mockItemQtyPseudoId = 10;
 export const mockItem = (partial?: Partial<MealItemData>): MealItemData => ({
     id: Math.random().toString(),
     food: mockFood(),
-    quantity: 123,
+    quantity: (mockItemQtyPseudoId++),
     ...partial,
 });
 

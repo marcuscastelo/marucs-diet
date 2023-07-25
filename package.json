@@ -9,11 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@hello-pangea/dnd": "^16.3.0",
     "@reduxjs/toolkit": "^1.9.5",
-    "@types/async": "^3.2.20",
-    "@types/node": "20.2.5",
-    "@types/react": "18.2.8",
-    "@types/react-dom": "18.2.4",
     "async": "^3.2.4",
     "autoprefixer": "10.4.14",
     "axios": "^1.4.0",
@@ -37,6 +34,10 @@
   },
   "devDependencies": {
     "@total-typescript/ts-reset": "^0.4.2",
+    "@types/async": "^3.2.20",
+    "@types/node": "20.2.5",
+    "@types/react": "18.2.8",
+    "@types/react-dom": "18.2.4",
     "@types/react-redux": "^7.1.25",
     "daisyui": "^3.0.1"
   }

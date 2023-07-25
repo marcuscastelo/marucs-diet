@@ -1,11 +1,12 @@
 'use client';
 
+import { getToday } from "@/utils/dateUtils";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function Page() {
     const router = useRouter();
-    const today = new Date().toISOString().split('T')[0];
+    const today = getToday();
 
     ([1,2,3] as const).includes(4)
 

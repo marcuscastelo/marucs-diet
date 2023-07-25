@@ -7,7 +7,6 @@ import { useAppDispatch } from '@/redux/hooks';
 import { setUserJson } from '@/redux/features/userSlice';
 import { listUsers, updateUser } from '@/controllers/users';
 import { User } from '@/model/userModel';
-import { Record } from 'pocketbase';
 import { useEffect, useState } from 'react';
 const inter = Inter({ subsets: ['latin'] })
 

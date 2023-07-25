@@ -2,10 +2,11 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { getToday } from "@/utils/dateUtils";
 
 export default function Page() {
     const router = useRouter();
-    const today = new Date().toISOString().split('T')[0];
+    const today = getToday();
 
     useEffect(() => {
         setTimeout(() => {

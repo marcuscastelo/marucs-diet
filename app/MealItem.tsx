@@ -35,8 +35,59 @@ export default function MealItem(props: MealItemProps) {
     }
 
     return (
-        <>
-            <a href="#" className={`block p-3 bg-gray-700 border border-gray-700 rounded-lg shadow hover:bg-gray-700 ${props.className ?? ''}`} onClick={onClick}>
+        <div 
+            draggable={true} 
+            onDrag={(e) => {
+                console.log(e.clientX, e.clientY);
+                // Reset all meal-item background colors
+                const underlyingElement = document.elementFromPoint(e.clientX, e.clientY);
+                console.log(underlyingElement);
+                if (underlyingElement && underlyingElement !== e.currentTarget) {
+                    const hasClassOrAnyParentHasClass = (element: Element, className: string): Element | null => {
+                        if (element.classList.contains(className)) {
+                            return element;
+                        }
+                        if (element.parentElement) {
+                            return hasClassOrAnyParentHasClass(element.parentElement, className);
+                        }
+                        return null;
+                    }
+
+                    const mealItems = document.querySelectorAll('.meal-item');
+                    mealItems.forEach((mealItem) => {
+                        mealItem.classList.remove('bg-gray-900');
+                        mealItem.classList.add('bg-gray-700');
+                    });
+
+                    const mealItem = hasClassOrAnyParentHasClass(underlyingElement, 'meal-item');
+                        mealItem?.classList.remove('bg-gray-700');
+                        mealItem?.classList.add('bg-gray-900');
+                } else {
+                    const mealItems = document.querySelectorAll('.meal-item');
+                    mealItems.forEach((mealItem) => {
+                        mealItem.classList.remove('bg-gray-900');
+                        mealItem.classList.add('bg-gray-700');
+                    });
+                }
+            }}
+            onDragStart={(e) => {
+                console.log(e.clientX, e.clientY);
+
+                e.dataTransfer.setData("text/plain", JSON.stringify(props.mealItem));
+            }}
+            onDragEnd={(e) => {
+                console.log(e.clientX, e.clientY);
+                const mealItems = document.querySelectorAll('.meal-item');
+                mealItems.forEach((mealItem) => {
+                    mealItem.classList.remove('bg-gray-200');
+                    mealItem.classList.add('bg-gray-700');
+                });
+
+                //TODO: reorder meal items (and move across meals)
+                e.dataTransfer.setData("text/plain", JSON.stringify(props.mealItem));
+            }}
+            >
+            <div className={`meal-item block p-3 bg-gray-700 border border-gray-700 rounded-lg shadow hover:bg-gray-700 hover:cursor-pointer ${props.className ?? ''}`} onClick={onClick}>
                 <div className="flex">
                     <div className="">
                         {/* //TODO: mealItem id is random, but it should be an entry on the database (meal too) */}
@@ -65,7 +116,7 @@ export default function MealItem(props: MealItemProps) {
                     </div>
 
                 </div>
-            </a>
-        </>
+            </div>
+        </div>
     )
 }

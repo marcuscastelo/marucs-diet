@@ -22,6 +22,7 @@ import { hideModal, showModal } from "@/utils/DOMModal";
 import UserSelector from "@/app/UserSelector";
 import { useUser } from "@/redux/features/userSlice";
 import { Loadable } from "@/utils/loadable";
+import { getToday, stringToDate } from "@/utils/dateUtils";
 
 export default function Page(context: any) {
     const router = useRouter();
@@ -50,9 +51,9 @@ export default function Page(context: any) {
             return;
         }
 
-        const dateString = newValue?.startDate;
-        const date = new Date(`${dateString}T00:00:00`);
-        const dayString = date.toISOString().split('T')[0];
+        const dateString = newValue.startDate;
+        const date = stringToDate(dateString)
+        const dayString = date.toISOString().split('T')[0]; //TODO: use dateUtils when this is understood
         router.push(`/day/${dayString}`);
     }
 
@@ -88,6 +89,20 @@ export default function Page(context: any) {
                 // Redirect to new item page
                 // TODO: use another method to redirect
                 window.location.href = `/newItem/${selectedDay}/${meal.id}`;
+            },
+            onUpdateMeal: async (meal) => {
+                await updateDay(dayData.id, {
+                    ...dayData,
+                    meals: dayData.meals.map((m) => {
+                        if (m.id !== meal.id) {
+                            return m;
+                        }
+
+                        return meal;
+                    })
+                });
+
+                await fetchDays(currentUser.data.id);
             }
         };
         return mealProps;
@@ -197,7 +212,6 @@ export default function Page(context: any) {
                     <UserSelector />
                 </div>
             </div>
-
 
             <Show when={!selectedDay}>
                 <Alert className="mt-2" color="warning">Selecione um dia</Alert>
