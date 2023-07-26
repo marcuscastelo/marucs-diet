@@ -6,8 +6,8 @@ import { Food } from "@/model/foodModel";
 import { useEffect, useState } from "react";
 
 export default function Page() {
-    const [foods, setFoods] = useState([] as Food[]);
-    const [search, setSearch] = useState('' as string);
+    const [foods, setFoods] = useState<Food[]>([]);
+    const [search, setSearch] = useState<string>('');
 
     const fetchFoods = async () => {
         const foods = await listFoods();

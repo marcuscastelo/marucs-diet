@@ -111,7 +111,7 @@ export const createFood = async (food: Omit<Food, 'id'>) => {
         console.warn(`Food ${food.name} is a duplicate, skipping...`);
         return existingFood;
     }
-    return await pb.collection(PB_COLLECTION).create(food, { $autoCancel: false }) as (Record & Food);
+    return await pb.collection(PB_COLLECTION).create<Record & Food>(food, { $autoCancel: false });
 }
 
 export const deleteAll = async () => {

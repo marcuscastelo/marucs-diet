@@ -6,10 +6,10 @@ import Datepicker from "react-tailwindcss-datepicker";
 import { DateValueType } from "react-tailwindcss-datepicker/dist/types";
 
 export default function Page() {
-    const [value, setValue] = useState({
+    const [value, setValue] = useState<DateValueType>({
         startDate: getToday(),
         endDate: getToday()
-    } as DateValueType);
+    });
 
     const handleValueChange = (newValue: DateValueType) => {
         console.log("newValue:", newValue);

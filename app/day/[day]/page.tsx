@@ -30,7 +30,7 @@ export default function Page(context: any) {
     const currentUser = useUser();
 
     const [days, setDays] = useState<Loadable<(DayData & Record)[]>>({ loading: true });
-    const selectedDay = context.params.day as string;
+    const selectedDay = context.params.day as string; // TODO: type-safe this
 
     const [selectedMeal, setSelectedMeal] = useState(mockMeal({ name: 'BUG: selectedMeal not set' }));
     const [selectedMealItem, setSelectedMealItem] = useState(mockItem({ quantity: 666 }));
@@ -108,16 +108,16 @@ export default function Page(context: any) {
         return mealProps;
     });
 
-    const mealItemMacros = (mealItem: MealItemData) => {
+    const mealItemMacros = (mealItem: MealItemData): MacroNutrientsData => {
         const macros = mealItem.food.macros;
         return {
             carbs: macros.carbs * mealItem.quantity / 100,
             protein: macros.protein * mealItem.quantity / 100,
             fat: macros.fat * mealItem.quantity / 100,
-        } as MacroNutrientsData;
+        };
     };
 
-    const mealMacros = (meal: MealData) => {
+    const mealMacros = (meal: MealData): MacroNutrientsData => {
         return meal.items.reduce((acc, item) => {
             const itemMacros = mealItemMacros(item);
             acc.carbs += itemMacros.carbs;
@@ -128,10 +128,10 @@ export default function Page(context: any) {
             carbs: 0,
             protein: 0,
             fat: 0,
-        } as MacroNutrientsData);
+        });
     }
 
-    const dayMacros = dayData?.meals.reduce((acc, meal) => {
+    const dayMacros = dayData?.meals.reduce((acc, meal): MacroNutrientsData=> {
         const mm = mealMacros(meal);
         acc.carbs += mm.carbs;
         acc.protein += mm.protein;
@@ -141,7 +141,7 @@ export default function Page(context: any) {
         carbs: 0,
         protein: 0,
         fat: 0,
-    } as MacroNutrientsData);
+    });
 
     function CopyLastDayButton() {
         //TODO: improve this code

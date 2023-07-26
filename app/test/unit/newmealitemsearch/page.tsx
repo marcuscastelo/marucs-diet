@@ -6,7 +6,7 @@ import { useState } from "react";
 import { mockFood } from "../(mock)/mockData";
 
 export default function Page() {
-    const [search, setSearch] = useState('' as string);
+    const [search, setSearch] = useState<string>('');
 
     const foods = Array.from({ length: 10000 }, (_, i) => {
         return mockFood({

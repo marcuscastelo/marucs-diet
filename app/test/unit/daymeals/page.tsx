@@ -8,13 +8,15 @@ import { duplicateLastMealItem } from "../(mock)/mockActions";
 import { MealData } from "@/model/mealModel";
 
 export default function DayPage() {
-    const createMealProps = ([meal, setMeal]: [meal: MealData, setMeal: Dispatch<SetStateAction<MealData>>]) => {
+    const createMealProps = ([meal, setMeal]: [meal: MealData, setMeal: Dispatch<SetStateAction<MealData>>]): MealProps => {
         return {
             mealData: meal,
             onNewItem: () => {
                 duplicateLastMealItem(meal, setMeal);
-            }
-        } as MealProps;
+            },
+            onEditItem: () => { alert('Editar') },
+            onUpdateMeal: () => { alert('Atualizar') },
+        };
     }
 
     return (

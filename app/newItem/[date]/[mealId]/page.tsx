@@ -27,7 +27,7 @@ export default function Page(context: any) {
     const FOOD_LIMIT = 100;
     const TYPE_TIMEOUT = 1000;
 
-    const dayParam = context.params.date as string;
+    const dayParam = context.params.date as string; // TODO: type-safe this
 
     const dispatch = useAppDispatch();
     const currentUser = useUser();
