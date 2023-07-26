@@ -3,7 +3,7 @@
 import { mockMeal } from "../(mock)/mockData";
 import { Dispatch, SetStateAction, useState } from "react";
 import DayMeals from "@/app/DayMeals";
-import { MealProps } from "@/app/Meal";
+import { MealProps } from "@/app/(meal)/Meal";
 import { duplicateLastMealItem } from "../(mock)/mockActions";
 import { MealData } from "@/model/mealModel";
 

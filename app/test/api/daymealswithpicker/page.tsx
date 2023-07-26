@@ -1,7 +1,7 @@
 "use client";
 
 import DayMeals from "@/app/DayMeals";
-import { MealProps } from "@/app/Meal";
+import { MealProps } from "@/app/(meal)/Meal";
 import { listDays, updateDay } from "@/controllers/days";
 import { Day } from "@/model/dayModel";
 import { MealData } from "@/model/mealModel";

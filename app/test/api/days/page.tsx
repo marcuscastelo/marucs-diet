@@ -1,8 +1,7 @@
 "use client";
 
 import DayMeals from "@/app/DayMeals";
-import { MealProps } from "@/app/Meal";
-import MealItem from "@/app/MealItem";
+import Meal, { MealProps } from "@/app/(meal)/Meal";
 import { listDays } from "@/controllers/days";
 import { upsertFood, listFoods } from "@/controllers/food";
 import { Day } from "@/model/dayModel";
@@ -25,9 +24,9 @@ export default function Page() {
             return day.meals.map((meal): MealProps => {
                 return {
                     mealData: meal,
-                    onNewItem: () => console.log("onNewItem"),
-                    onEditItem: () => console.log("onEditItem"),
-                    onUpdateMeal: () => console.log("onUpdateMeal"),
+                    header: <Meal.Header onUpdateMeal={(meal) => alert(`Mock: Update meal ${meal.name}`)} />,
+                    content: <Meal.Content onEditItem={(item) => alert(`Mock: Edit "${item.food.name}"`)                   } />,
+                    actions: <Meal.Actions onNewItem={() => alert('Mock: New item')} />,
                 };
             })
         })
