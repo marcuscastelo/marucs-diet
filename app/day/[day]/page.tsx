@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import DayMeals from "../../DayMeals";
 import { Day } from "@/model/dayModel";
-import { MealProps } from "../../Meal";
+import Meal, { MealProps } from "../../(meal)/Meal";
 import PageLoading from "../../PageLoading";
 import { upsertDay, deleteDay, listDays, updateDay } from "@/controllers/days";
 import { DateValueType } from "react-tailwindcss-datepicker/dist/types";
@@ -82,35 +82,37 @@ export default function Page(context: any) {
     const hasData = days.data.some((day) => day.target_day === selectedDay);
     const dayData = days.data.find((day) => day.target_day === selectedDay);
 
-    const mealProps = dayData?.meals.map((meal) => {
-        const mealProps: MealProps = {
-            mealData: meal,
-            locked: dayLocked,
-            onEditItem: (mealItem) => {
-                setSelectedMeal(meal);
-                setSelectedMealItem(mealItem);
-                showModal(window, editModalId);
-            },
-            onNewItem: () => {
-                router.push(`/newItem/${selectedDay}/${meal.id}`);
-            },
-            onUpdateMeal: async (meal) => {
-                await updateDay(dayData.id, {
-                    ...dayData,
-                    meals: dayData.meals.map((m) => {
-                        if (m.id !== meal.id) {
-                            return m;
-                        }
+    const onEditMealItem = (meal: MealData, mealItem: MealItemData) => {
+        setSelectedMeal(meal);
+        setSelectedMealItem(mealItem);
+        showModal(window, editModalId);
+    };
 
-                        return meal;
-                    })
-                });
+    const onUpdateMeal = async (dayData: Day, meal: MealData) => {
+        await updateDay(dayData.id!, { //TODO: remove !
+            ...dayData,
+            meals: dayData.meals.map((m) => {
+                if (m.id !== meal.id) {
+                    return m;
+                }
 
-                await fetchDays(currentUser.data.id);
-            }
-        };
-        return mealProps;
-    });
+                return meal;
+            })
+        });
+
+        await fetchDays(currentUser.data.id);
+    }
+
+    const handleNewItemButton = (meal: MealData) => {
+        router.push(`/newItem/${selectedDay}/${meal.id}`);
+    }
+
+    const mealProps = dayData?.meals.map((meal): MealProps => ({
+        mealData: meal,
+        header: <Meal.Header onUpdateMeal={(meal) => onUpdateMeal(dayData, meal)} />,
+        content: <Meal.Content onEditItem={(item) => onEditMealItem(meal, item)} />,
+        actions: <Meal.Actions onNewItem={() => handleNewItemButton(meal)} />,
+    }));
 
     const mealItemMacros = (mealItem: MealItemData): MacroNutrientsData => {
         const macros = mealItem.food.macros;
