@@ -1,7 +1,7 @@
 "use client";
 
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
-import Meal, { MealProps } from "./Meal";
+import Meal, { MealProps } from "./(meal)/Meal";
 
 export type DayMealsProps = {
     mealsProps: MealProps[],
