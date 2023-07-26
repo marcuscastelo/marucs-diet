@@ -46,23 +46,42 @@ export default function Meal({ mealData, onNewItem, onEditItem, onUpdateMeal, cl
         onUpdateMeal(newMealData);
     }
 
-    const listHash = mealData.items.map(item => item.id).join('-');
+    const onClearItems = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.preventDefault();
+        // Confirm
+        if (!confirm('Tem certeza que deseja limpar os itens?')) {
+            return;
+        }
+
+        const newMealData = {
+            ...mealData,
+            items: [],
+        };
+
+        onUpdateMeal(newMealData);
+    }
 
     return (
-        
         <DragDropContext
             onDragEnd={onDragEnd} autoScrollerOptions={{
                 startFromPercentage: 0.1,
                 maxScrollAtPercentage: 0.01,
             }}>
-                listHash: {listHash}
             <Droppable droppableId={mealData.id}>
                 {(droppableProvided, droppableSnapshot) => (
                     <div
                         ref={droppableProvided.innerRef}
                     >
                         <div className={`bg-gray-800 p-3 ${className || ''}`}>
-                            <h5 className="text-3xl mb-2">{mealData.name}</h5>
+                            <div className="flex">
+                                <h5 className="text-3xl my-2">{mealData.name}</h5>
+                                <button 
+                                    className="btn bg-red-800 px-5 ml-auto text-white"
+                                    onClick={onClearItems}
+                                >
+                                    Limpar itens
+                                </button>
+                            </div>
                             {
                                 mealData.items.map((item, index) =>
                                     <div key={item.id} className="mt-2">
