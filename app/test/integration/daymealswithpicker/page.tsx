@@ -7,7 +7,7 @@ import { DateValueType } from "react-tailwindcss-datepicker/dist/types";
 import { mockMeal } from "../../unit/(mock)/mockData";
 import DayMeals from "@/app/DayMeals";
 import { Alert } from "flowbite-react";
-import { MealProps } from "@/app/Meal";
+import { MealProps } from "@/app/(meal)/Meal";
 import { getToday, stringToDate } from "@/utils/dateUtils";
 
 export default function Page() {
