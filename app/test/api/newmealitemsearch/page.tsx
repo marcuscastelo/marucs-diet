@@ -7,8 +7,8 @@ import { Alert, Breadcrumb } from "flowbite-react";
 import { useEffect, useState } from "react";
 
 export default function Page() {
-    const [search, setSearch] = useState('' as string);
-    const [foods, setFoods] = useState([] as Food[]);
+    const [search, setSearch] = useState<string>('');
+    const [foods, setFoods] = useState<Food[]>([]);
 
     const fetchFoods = async () => {
         const foods = await listFoods();

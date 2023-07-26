@@ -68,8 +68,8 @@ export default function MealItemAddModal({
     const increment = () => setQuantity((old) => (Number(old ?? '0') + 1).toString())
     const decrement = () => setQuantity((old) => Math.max(0, Number(old ?? '0') - 1).toString())
 
-    const [currentHoldTimeout, setCurrentHoldTimeout] = useState(undefined as NodeJS.Timeout | undefined);
-    const [currentHoldInterval, setCurrentHoldInterval] = useState(undefined as NodeJS.Timeout | undefined);
+    const [currentHoldTimeout, setCurrentHoldTimeout] = useState<NodeJS.Timeout>();
+    const [currentHoldInterval, setCurrentHoldInterval] = useState<NodeJS.Timeout>();
 
     const holdRepeatStart = (action: () => void) => {
         setCurrentHoldTimeout(setTimeout(() => {
@@ -89,11 +89,11 @@ export default function MealItemAddModal({
         }
     }
 
-    const createMealItemData = () => ({
+    const createMealItemData = (): MealItemData => ({
         id,
         quantity: Number(quantity),
         food
-    } as MealItemData);
+    });
 
     return (
         <>

@@ -11,7 +11,7 @@ type UserState = Loadable<User>;
 
 const initialState = {
     loading: true,
-} as UserState;
+} as UserState; // as UserState is needed to avoid type error
 
 // TODO: avoid using localStorage directly
 async function saveUser(userData: User) {

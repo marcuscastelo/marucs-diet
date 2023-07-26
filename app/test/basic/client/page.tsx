@@ -3,9 +3,10 @@
 import { createFood, listFoods } from "@/controllers/food";
 import { Food } from "@/model/foodModel";
 import { useEffect, useState } from "react";
+import { mockFood } from "../../unit/(mock)/mockData";
 
 export default function Page() {
-    const [foods, setFoods] = useState([{ name: 'test' }] as Food[]);
+    const [foods, setFoods] = useState<Food[]>([mockFood()]);
 
     const fetchFoods = async () => {
         const foods = await listFoods();
@@ -15,9 +16,7 @@ export default function Page() {
     const addFood = async () => {
         console.log('addFood')
         await createFood({
-            id: Math.random().toString(),
             name: 'Arroz',
-            tbcaId: Math.random().toString(),
             macros: {
                 calories: 100,
                 protein: 10,

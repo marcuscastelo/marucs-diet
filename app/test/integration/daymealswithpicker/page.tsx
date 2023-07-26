@@ -46,11 +46,11 @@ export default function Page() {
         }
     });
 
-    const [day, setDay] = useState({
+    const [day, setDay] = useState<DateValueType>({
         startDate: getToday(),
         endDate: getToday(),
-    } as DateValueType);
-    const [currentMealProps, setCurrentMealProps] = useState(null as (MealProps[] | null));
+    });
+    const [currentMealProps, setCurrentMealProps] = useState<MealProps[]>();
 
     const handleDayChange = (newValue: DateValueType) => {
         const dateString = newValue?.startDate;
@@ -79,8 +79,8 @@ export default function Page() {
                 onChange={handleDayChange}
             />
 
-            {currentMealProps === null && <Alert color="warning">Selecione uma data</Alert>}
-            {currentMealProps !== null && <DayMeals mealsProps={currentMealProps} />}
+            {currentMealProps === undefined && <Alert color="warning">Selecione uma data</Alert>}
+            {currentMealProps !== undefined && <DayMeals mealsProps={currentMealProps} />}
             
         </>
     );

@@ -11,8 +11,8 @@ import { useUser } from "@/redux/features/userSlice";
 import { Suspense, useEffect, useState } from "react";
 
 export default function Page() {
-    const [days, setDays] = useState([] as DayData[]);
-    const [mealProps, setMealProps] = useState([] as MealProps[][]);
+    const [days, setDays] = useState<DayData[]>([]);
+    const [mealProps, setMealProps] = useState<MealProps[][]>([]);
 
     const currentUser = useUser();
 
@@ -21,11 +21,13 @@ export default function Page() {
         setDays(days);
         
         const mealProps = days.map((day) => {
-            return day.meals.map((meal) => {
+            return day.meals.map((meal): MealProps => {
                 return {
                     mealData: meal,
                     onNewItem: () => console.log("onNewItem"),
-                } as MealProps;
+                    onEditItem: () => console.log("onEditItem"),
+                    onUpdateMeal: () => console.log("onUpdateMeal"),
+                };
             })
         })
         setMealProps(mealProps);

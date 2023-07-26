@@ -13,8 +13,8 @@ import Datepicker from "react-tailwindcss-datepicker";
 import { DateValueType } from "react-tailwindcss-datepicker/dist/types";
 
 export default function Page() {
-    const [days, setDays] = useState([] as (Record & DayData)[]);
-    const [mealProps, setMealProps] = useState([] as MealProps[][]);
+    const [days, setDays] = useState<(Record & DayData)[]>([]); // TODO: remove Record when id is not optional
+    const [mealProps, setMealProps] = useState<MealProps[][]>([]);
 
     const [selectedDay, setSelectedDay] = useState('');
 
@@ -25,11 +25,13 @@ export default function Page() {
         setDays(days);
 
         const mealProps = days.map((day) => {
-            return day.meals.map((meal) => {
+            return day.meals.map((meal): MealProps => {
                 return {
                     mealData: meal,
                     onNewItem: () => console.log("onNewItem"),
-                } as MealProps;
+                    onEditItem: () => console.log("onEditItem"),
+                    onUpdateMeal: () => console.log("onUpdateMeal"),
+                };
             })
         })
         setMealProps(mealProps);
@@ -97,13 +99,13 @@ export default function Page() {
                     <h1> Target day: {dayData.targetDay}</h1>
                     <DayMeals
                         mealsProps={
-                            dayData.meals.map((meal) => {
+                            dayData.meals.map((meal): MealProps => {
                                 return {
                                     mealData: meal,
                                     onNewItem: () => duplicateLastMealItemOnDatabase(dayData, meal),
                                     onEditItem: () => alert('onEditItem'),
                                     onUpdateMeal: () => alert('onUpdateMeal'),
-                                } as MealProps;
+                                };
                             })
                         } />
                 </>

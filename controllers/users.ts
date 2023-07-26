@@ -8,5 +8,5 @@ const PB_COLLECTION = 'User';
 export const listUsers = async () => await listAll<User>(PB_COLLECTION);
 
 export const updateUser = async (id: string, user: User) => {
-    return pb.collection(PB_COLLECTION).update(id, user, { $autoCancel: false }) as Promise<Record & User>;
+    return await pb.collection(PB_COLLECTION).update<Record & User>(id, user, { $autoCancel: false });
 }
