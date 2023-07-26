@@ -63,11 +63,11 @@ export default function UserSelector() {
                     }
                 </div>
                 <div className="text-sm font-medium leading-none text-slate-300">
-                    <Dropdown horizontal="right" vertical="top">
+                    <Dropdown>
                         <Dropdown.Toggle color="ghost" button={false} className="hover:text-indigo-200 hover:cursor-pointer" >
                             { loadingHasTimedOut ? "Entrar" : "Trocar"}
                         </Dropdown.Toggle>
-                        <Dropdown.Menu className="bg-slate-950">
+                        <Dropdown.Menu className="bg-slate-950 outline -translate-x-10 translate-y-3 no-animation">
                             {
                                 availableUsers.loading ?
                                     (

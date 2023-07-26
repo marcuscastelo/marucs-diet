@@ -21,7 +21,7 @@ export default function Page() {
         <>
             <TopBar/>
 
-            <div className={`mx-40`}>
+            <div className={`mx-1 sm:mx-40 lg:w-1/3 lg:mx-auto`}>
                 <BasicInfo userData={currentUser.data} />
                 <WeightProgress userData={currentUser.data} />
             </div>
@@ -45,7 +45,7 @@ function BasicInfo({
                 <div className={`text-center text-lg italic mt-3 mb-1`}>
                     Informações
                 </div>
-                <div className={`mx-20`}>
+                <div className={`mx-5 lg:mx-20`}>
                     <Capsule
                         leftContent={<h5 className={`text-xl`}>Peso (kg)</h5>}
                         rightContent={<h5 className={`text-xl`}>{userData.weight}</h5>}
