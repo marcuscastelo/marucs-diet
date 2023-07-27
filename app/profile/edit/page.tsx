@@ -11,15 +11,15 @@ import { updateUser } from "@/controllers/users";
 const INPUT_STYLE = 'mb-5 border text-sm rounded-lg block  p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 w-full';
 
 export default function Page() {
-    const currentUser = useUser();
+    const { user } = useUser();
 
-    const [userDraft, setUserDraft] = useState<Loadable<User>>(currentUser);
+    const [userDraft, setUserDraft] = useState<Loadable<User>>(user);
 
     useEffect(() => {
-        setUserDraft(currentUser);
-    }, [currentUser]);
+        setUserDraft(user);
+    }, [user]);
 
-    if (currentUser.loading || userDraft.loading) {
+    if (user.loading || userDraft.loading) {
         return (
             <PageLoading message="Carregando usuário..." />
         );
