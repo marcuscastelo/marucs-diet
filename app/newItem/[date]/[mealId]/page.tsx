@@ -4,7 +4,7 @@ import MealItem from "@/app/(mealItem)/MealItem";
 import { listFoods, searchFoods } from "@/controllers/food";
 import { Food } from "@/model/foodModel";
 import { Alert, Breadcrumb } from "flowbite-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PageLoading from "../../../PageLoading";
 import MealItemAddModal from "../../../MealItemAddModal";
 import { mockFood } from "../../../test/unit/(mock)/mockData";
@@ -13,29 +13,34 @@ import { listDays, updateDay } from "@/controllers/days";
 import { DayData } from "@/model/dayModel";
 import { Record } from "pocketbase";
 import BarCodeInsertModal from "@/app/BarCodeInsertModal";
-import { showModal } from "@/utils/DOMModal";
+import { hideModal, showModal } from "@/utils/DOMModal";
 import { useFavoriteFoods, useUser } from "@/redux/features/userSlice";
 import { User } from "@/model/userModel";
 import { Loadable } from "@/utils/loadable";
 import { useAppDispatch } from "@/redux/hooks";
 import { isCached } from "@/controllers/searchCache";
+import { useRouter } from "next/navigation";
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal';
 const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal';
 
 export default function Page(context: any) {
+    const router = useRouter();
+
     const FOOD_LIMIT = 100;
     const TYPE_TIMEOUT = 1000;
 
     const dayParam = context.params.date as string; // TODO: type-safe this
 
-    const dispatch = useAppDispatch();
     const { user } = useUser();
 
     const [search, setSearch] = useState<string>('');
     const [foods, setFoods] = useState<Loadable<(Food)[]>>({ loading: true });
     const [days, setDays] = useState<Loadable<(DayData)[]>>({ loading: true });
+
     const [selectedFood, setSelectedFood] = useState(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }));
+    const [quantity, setQuantity] = useState<number>(0);
+
     const [searchingFoods, setSearchingFoods] = useState(false);
     const [typing, setTyping] = useState(false);
 
@@ -87,10 +92,6 @@ export default function Page(context: any) {
             loading: false,
             data: days
         });
-    }
-
-    const onUserFavoritesChanged = async (user: User) => {
-        ;
     }
 
     useEffect(() => {
@@ -195,7 +196,16 @@ export default function Page(context: any) {
                 return m;
             })
         });
-        window.location.href = `/`;
+        
+        // Prompt if user wants to add another item or go back (Yes/No)
+        const oneMore = confirm("Item adicionado com sucesso. Deseja adicionar outro item?");
+
+        if (!oneMore) {
+            router.push(`/day/${dayParam}`);
+        } else {
+            setSelectedFood(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }));
+            hideModal(window, MEAL_ITEM_ADD_MODAL_ID);
+        }
     }
 
     return (
@@ -230,9 +240,12 @@ export default function Page(context: any) {
 
             {!searchingFoods && !typing && filteredFoods.length == 0 && <Alert color="warning" className="mt-2">Nenhum alimento encontrado para a busca &quot;{search}&quot;.</Alert>}
 
-            <MealItemAddModal modalId={MEAL_ITEM_ADD_MODAL_ID} meal={meal} itemData={{
-                food: selectedFood,
-            }}
+            <MealItemAddModal 
+                modalId={MEAL_ITEM_ADD_MODAL_ID} 
+                meal={meal} 
+                itemData={{
+                    food: selectedFood,
+                }}
                 onApply={async (i) => onNewMealItem(i)}
             />
 

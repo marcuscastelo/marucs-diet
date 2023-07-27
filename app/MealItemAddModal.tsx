@@ -2,13 +2,12 @@
 
 import { useEffect, useState } from "react";
 import MealItem from "./(mealItem)/MealItem";
-import { mockFood } from "./test/unit/(mock)/mockData";
 import { MealItemData } from "@/model/mealItemModel";
 import { Food } from "@/model/foodModel";
 import { MealData } from "@/model/mealModel";
 import { hideModal, showModal } from "@/utils/DOMModal";
-import { useAppDispatch } from "@/redux/hooks";
 import { useFavoriteFoods } from "@/redux/features/userSlice";
+import Modal from "./(modals)/modal";
 
 export type MealItemAddModalProps = {
     modalId: string,
@@ -25,29 +24,29 @@ export default function MealItemAddModal({
     onApply, onCancel, onDelete
 }: MealItemAddModalProps
 ) {
-    const appDispatch = useAppDispatch();
-
     const [quantity, setQuantity] = useState(initialQuantity?.toString() ?? '');
     const [id, setId] = useState(initialId ?? Math.random().toString());
     const canAdd = quantity != '' && Number(quantity) > 0;
 
     const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(true);
 
-    const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods(appDispatch);
+    const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods();
 
     useEffect(() => {
-        if (!show) {
-            return;
+        if (show) {
+            setQuantity('');
+            setId(Math.random().toString());
+            setQuantityFieldDisabled(true);
         }
 
         const timeout = setTimeout(() => {
-            showModal(window, modalId);
+            setQuantityFieldDisabled(false);
         }, 100);
 
         return () => {
             clearTimeout(timeout);
         }
-    }, [show, modalId]);
+    }, [show]);
 
     useEffect(() => {
         if (initialQuantity !== undefined) {
@@ -98,12 +97,16 @@ export default function MealItemAddModal({
 
     return (
         <>
-            <dialog id={modalId} className="modal modal-bottom sm:modal-middle">
-                <form method="dialog" className="modal-box bg-gray-800 text-white" onSubmit={() => onApply(createMealItemData())}>
+            <Modal
+                modalId={modalId}
+                show={show}
+                onSubmit={() => onApply(createMealItemData())}
+                header={
                     <h3 className="font-bold text-lg text-white">Novo item em
                         <span className="text-green-500"> &quot;{meal.name}&quot; </span>
                     </h3>
-
+                }
+                body={<>
                     <p className="text-gray-400 mt-1">Atalhos</p>
                     <div className="flex w-full mt-1">
                         <div className="btn btn-sm btn-primary flex-1" onClick={() => setQuantity('10')} >10g</div>
@@ -162,29 +165,25 @@ export default function MealItemAddModal({
                             <MealItem.NutritionalInfo />
                         }
                     />
-
-                    <div className="modal-action">
-                        {/* if there is a button in form, it will close the modal */}
-                        {
-                            onDelete &&
-                            <button className="btn btn-error mr-auto" onClick={(e) => {
-                                if (confirm('Tem certeza que deseja excluir este item?')) {
-                                    e.preventDefault();
-                                    onDelete?.(id);
-                                }
-                            }} >Excluir</button>
-                        }
-                        <button className="btn" onClick={() => onCancel?.()} >Cancelar</button>
-                        <button className="btn" disabled={!canAdd} onClick={(e) => {
-                            e.preventDefault();
-                            onApply(createMealItemData());
-                        }} >Aplicar</button>
-                    </div>
-                </form>
-                <form method="dialog" className="modal-backdrop">
-                    <button>close</button>
-                </form>
-            </dialog>
+                </>}
+                actions={<Modal.Actions>
+                    {/* if there is a button in form, it will close the modal */}
+                    {
+                        onDelete &&
+                        <button className="btn btn-error mr-auto" onClick={(e) => {
+                            if (confirm('Tem certeza que deseja excluir este item?')) {
+                                e.preventDefault();
+                                onDelete?.(id);
+                            }
+                        }} >Excluir</button>
+                    }
+                    <button className="btn" onClick={() => onCancel?.()} >Cancelar</button>
+                    <button className="btn" disabled={!canAdd} onClick={(e) => {
+                        e.preventDefault();
+                        onApply(createMealItemData());
+                    }} >Aplicar</button>
+                </Modal.Actions>}
+            />
         </>
     );
 }
