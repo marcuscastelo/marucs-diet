@@ -3,13 +3,11 @@
 import { searchBarCode } from "@/controllers/barcodes";
 import { ApiFood } from "@/model/apiFoodModel";
 import { useEffect, useState } from "react";
-import MealItem from "./MealItem";
+import MealItem from "./(mealItem)/MealItem";
 import { convertApi2Food, createFood } from "@/controllers/food";
-import { setUserJson, useUser } from "@/redux/features/userSlice";
+import { useFavoriteFoods } from "@/redux/features/userSlice";
 import { Food } from "@/model/foodModel";
 import { useAppDispatch } from "@/redux/hooks";
-import { updateUser } from "@/controllers/users";
-import { User } from "@/model/userModel";
 
 export type BarCodeSearchProps = {
     onFoodChange?: (food: Food | null) => void,
@@ -23,17 +21,8 @@ export default function BarCodeSearch(
     const [currentFood, setCurrentFood] = useState<Food | null>(null);
 
     const dispatch = useAppDispatch();
-    const currentUser = useUser();
 
-    const onUserFavoritesChanged = async (user: User) => {
-        const updatedUser = await updateUser(user.id, user);
-        dispatch(setUserJson(JSON.stringify(updatedUser)));
-    }
-
-
-    const isFavorite = (favoriteFoods: string[], food: Food) => {
-        return favoriteFoods.includes(food.id);
-    }
+    const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods();
 
     const EAN_LENGTH = 13;
 
@@ -66,7 +55,7 @@ export default function BarCodeSearch(
     useEffect(() => {
         onFoodChange?.(currentFood);
     }, [currentFood, onFoodChange]);
-    
+
     return (
         <div>
             <h3 className="font-bold text-lg text-white">Busca por código de barras (EAN)</h3>
@@ -83,33 +72,23 @@ export default function BarCodeSearch(
                                 {currentFood.name}
                             </p>
                             <p className="text-sm">
-
                                 <MealItem mealItem={{
                                     id: Math.random().toString(),
                                     food: currentFood,
                                     quantity: 100,
                                 }}
-                                favorite={
-                                    currentUser.loading ? false :
-                                        isFavorite(currentUser.data.favoriteFoods, currentFood)
-                                }
-                                setFavorite={(favorite) => {
-                                    if (currentUser.loading) {
-                                        return;
+                                    header={
+                                        <MealItem.Header
+                                            name={<MealItem.Header.Name />}
+                                            favorite={
+                                                <MealItem.Header.Favorite
+                                                    favorite={isFoodFavorite(currentFood.id)}
+                                                    setFavorite={(favorite) => setFoodAsFavorite(currentFood.id, favorite)}
+                                                />
+                                            }
+                                        />
                                     }
-
-                                    const newUser = Object.assign({}, currentUser.data);
-
-                                    newUser.favoriteFoods = [...currentUser.data.favoriteFoods]
-
-                                    if (favorite) {
-                                        newUser.favoriteFoods.push(currentFood.id);
-                                    } else {
-                                        newUser.favoriteFoods = newUser.favoriteFoods.filter((f) => f != currentFood.id);
-                                    }
-
-                                    onUserFavoritesChanged(newUser);
-                                }}
+                                    nutritionalInfo={<MealItem.NutritionalInfo />}
                                 />
                             </p>
                         </div>

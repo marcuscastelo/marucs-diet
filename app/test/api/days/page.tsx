@@ -11,18 +11,18 @@ export default function Page() {
     const [days, setDays] = useState<DayData[]>([]);
     const [mealProps, setMealProps] = useState<MealProps[][]>([]);
 
-    const currentUser = useUser();
+    const { user } = useUser();
 
     const fetchDays = async (userId: string) => {
         const days = await listDays(userId);
         setDays(days);
-        
+
         const mealProps = days.map((day) => {
             return day.meals.map((meal): MealProps => {
                 return {
                     mealData: meal,
                     header: <Meal.Header onUpdateMeal={(meal) => alert(`Mock: Update meal ${meal.name}`)} />,
-                    content: <Meal.Content onEditItem={(item) => alert(`Mock: Edit "${item.food.name}"`)                   } />,
+                    content: <Meal.Content onEditItem={(item) => alert(`Mock: Edit "${item.food.name}"`)} />,
                     actions: <Meal.Actions onNewItem={() => alert('Mock: New item')} />,
                 };
             })
@@ -31,12 +31,12 @@ export default function Page() {
     }
 
     useEffect(() => {
-        if (currentUser.loading) {
+        if (user.loading) {
             return;
         }
 
-        fetchDays(currentUser.data.id);
-    }, [currentUser]);
+        fetchDays(user.data.id);
+    }, [user]);
 
     return (
         <>

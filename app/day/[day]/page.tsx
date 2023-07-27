@@ -27,9 +27,9 @@ import { getToday, stringToDate } from "@/utils/dateUtils";
 export default function Page(context: any) {
     const router = useRouter();
 
-    const currentUser = useUser();
+    const { user } = useUser();
 
-    const [days, setDays] = useState<Loadable<(DayData & Record)[]>>({ loading: true });
+    const [days, setDays] = useState<Loadable<DayData[]>>({ loading: true });
     const selectedDay = context.params.day as string; // TODO: type-safe this
 
     const [selectedMeal, setSelectedMeal] = useState(mockMeal({ name: 'BUG: selectedMeal not set' }));
@@ -58,15 +58,15 @@ export default function Page(context: any) {
     }
 
     useEffect(() => {
-        if (currentUser.loading) {
+        if (user.loading) {
             return;
         }
 
-        fetchDays(currentUser.data.id);
-    }, [currentUser]);
+        fetchDays(user.data.id);
+    }, [user]);
 
 
-    if (currentUser.loading) {
+    if (user.loading) {
         return <PageLoading message="Carregando usuário" />
     }
 
@@ -95,7 +95,7 @@ export default function Page(context: any) {
             })
         });
 
-        await fetchDays(currentUser.data.id);
+        await fetchDays(user.data.id);
     }
 
     const handleNewItemButton = (meal: MealData) => {
@@ -146,7 +146,7 @@ export default function Page(context: any) {
 
     function CopyLastDayButton() {
         //TODO: improve this code
-        if (days.loading || currentUser.loading) return <>LOADING</>
+        if (days.loading || user.loading) return <>LOADING</>
 
         const lastDayIdx = days.data.findLastIndex((day) => Date.parse(day.targetDay) < Date.parse(selectedDay));
         if (lastDayIdx === -1) {
@@ -178,10 +178,9 @@ export default function Page(context: any) {
 
                 createDay({
                     ...days.data[lastDayIdx],
-                    id: undefined,
                     targetDay: selectedDay,
                 }).then(() => {
-                    fetchDays(currentUser.data.id);
+                    fetchDays(user.data.id);
                 });
             }}
         >
@@ -223,8 +222,8 @@ export default function Page(context: any) {
                 <button
                     className="btn btn-primary text-white font-bold py-2 px-4 min-w-full rounded mt-3"
                     onClick={() => {
-                        createDay(mockDay({ owner: currentUser.data.id, targetDay: selectedDay }, { items: [] })).then(() => {
-                            fetchDays(currentUser.data.id);
+                        createDay(mockDay({ owner: user.data.id, targetDay: selectedDay }, { items: [] })).then(() => {
+                            fetchDays(user.data.id);
                         });
                     }}
                 >
@@ -277,7 +276,7 @@ export default function Page(context: any) {
                             })
                         });
 
-                        await fetchDays(currentUser.data.id);
+                        await fetchDays(user.data.id);
 
                         hideModal(window, editModalId);
                     }}
@@ -301,7 +300,7 @@ export default function Page(context: any) {
                             })
                         });
 
-                        await fetchDays(currentUser.data.id);
+                        await fetchDays(user.data.id);
 
                         hideModal(window, editModalId);
                     }}
@@ -315,8 +314,8 @@ export default function Page(context: any) {
                 <button
                     className="hover:bg-red-400 text-white font-bold py-2 px-4 min-w-full rounded mt-3 btn btn-error"
                     onClick={() => {
-                        createDay(mockDay({ owner: currentUser.data.id, targetDay: selectedDay }, { items: [] })).then(() => {
-                            fetchDays(currentUser.data.id);
+                        createDay(mockDay({ owner: user.data.id, targetDay: selectedDay }, { items: [] })).then(() => {
+                            fetchDays(user.data.id);
                         });
                     }}
                 >

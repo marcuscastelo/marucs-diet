@@ -15,7 +15,7 @@ export const listDays = async (userId: string) =>
             targetDay: day.targetDay.split(' ')[0],
         }));
 
-export const createDay = async (day: DayData) => {
+export const createDay = async (day: Omit<DayData, 'id'>) => {
     return await pb.collection(PB_COLLECTION).create<Record & DayData>(day, { $autoCancel: false });
 }
 

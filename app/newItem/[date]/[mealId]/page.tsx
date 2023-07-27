@@ -1,6 +1,6 @@
 'use client';
 
-import MealItem from "@/app/MealItem";
+import MealItem from "@/app/(mealItem)/MealItem";
 import { listFoods, searchFoods } from "@/controllers/food";
 import { Food } from "@/model/foodModel";
 import { Alert, Breadcrumb } from "flowbite-react";
@@ -14,7 +14,7 @@ import { DayData } from "@/model/dayModel";
 import { Record } from "pocketbase";
 import BarCodeInsertModal from "@/app/BarCodeInsertModal";
 import { showModal } from "@/utils/DOMModal";
-import { setFoodAsFavorite, useIsFoodFavorite, useUser } from "@/redux/features/userSlice";
+import { useFavoriteFoods, useUser } from "@/redux/features/userSlice";
 import { User } from "@/model/userModel";
 import { Loadable } from "@/utils/loadable";
 import { useAppDispatch } from "@/redux/hooks";
@@ -30,11 +30,11 @@ export default function Page(context: any) {
     const dayParam = context.params.date as string; // TODO: type-safe this
 
     const dispatch = useAppDispatch();
-    const currentUser = useUser();
+    const { user } = useUser();
 
     const [search, setSearch] = useState<string>('');
     const [foods, setFoods] = useState<Loadable<(Food)[]>>({ loading: true });
-    const [days, setDays] = useState<Loadable<(DayData & Record)[]>>({ loading: true });
+    const [days, setDays] = useState<Loadable<(DayData)[]>>({ loading: true });
     const [selectedFood, setSelectedFood] = useState(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }));
     const [searchingFoods, setSearchingFoods] = useState(false);
     const [typing, setTyping] = useState(false);
@@ -43,7 +43,7 @@ export default function Page(context: any) {
 
     const isDesktop = isClient ? window.innerWidth > 768 : false;
 
-    const isFoodFavorite = useIsFoodFavorite();
+    const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods();
 
     const fetchFoods = async (search: string | '', favoriteFoods: string[]) => {
         if (!(await isCached(search))) {
@@ -98,13 +98,13 @@ export default function Page(context: any) {
     }, []);
 
     useEffect(() => {
-        if (currentUser.loading || typing) {
+        if (user.loading || typing) {
             return;
         }
 
-        fetchFoods(search, currentUser.data.favoriteFoods);
-        fetchDays(currentUser.data.id);
-    }, [currentUser, search, typing]);
+        fetchFoods(search, user.data.favoriteFoods);
+        fetchDays(user.data.id);
+    }, [user, search, typing]);
 
     useEffect(() => {
         setTyping(true);
@@ -249,20 +249,24 @@ export default function Page(context: any) {
                                         quantity: 100,
                                     }}
                                     className="mt-1"
-                                    key={idx}
                                     onClick={() => {
                                         setSelectedFood(food);
                                         showModal(window, MEAL_ITEM_ADD_MODAL_ID)
                                     }}
-                                    favorite={
-                                        isFoodFavorite(food.id)
+                                    header={
+                                        <MealItem.Header
+                                            name={<MealItem.Header.Name />}
+                                            favorite={
+                                                <MealItem.Header.Favorite
+                                                    favorite={isFoodFavorite(food.id)}
+                                                    setFavorite={(favorite) => setFoodAsFavorite(food.id, favorite)}
+                                                />
+                                            }
+                                        />
                                     }
-                                    setFavorite={(favorite) => {
-                                        dispatch(setFoodAsFavorite({
-                                            foodId: food.id,
-                                            favorite
-                                        }));
-                                    }}
+                                    nutritionalInfo={
+                                        <MealItem.NutritionalInfo />
+                                    }
                                 />
                             </div>
                         )

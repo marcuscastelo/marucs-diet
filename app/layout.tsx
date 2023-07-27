@@ -4,7 +4,7 @@ import './globals.css'
 import { Inter } from 'next/font/google'
 import { Providers } from '@/redux/provider'
 import { useAppDispatch } from '@/redux/hooks';
-import { setUserJson } from '@/redux/features/userSlice';
+import { useUser } from '@/redux/features/userSlice';
 import { listUsers, updateUser } from '@/controllers/users';
 import { User } from '@/model/userModel';
 import { useEffect, useState } from 'react';
@@ -35,10 +35,10 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <title>Marucs Diet</title>
-        <meta name="title" content="Marucs Diet"/>
-        <meta 
-          name="description" 
-          content="App de dieta"/>
+        <meta name="title" content="Marucs Diet" />
+        <meta
+          name="description"
+          content="App de dieta" />
       </head>
       <body className={inter.className + ' dark'}>
         <Providers>
@@ -52,21 +52,25 @@ export default function RootLayout({
 }
 
 function App({ children }: { children: React.ReactNode }) {
-  const dispatch = useAppDispatch();
-  const onChangeUser = (user: User) => dispatch(setUserJson(JSON.stringify(user)));
-  listUsers().then(users => {
-    const localStoredUserId = localStorage.getItem('user');
-    if (localStoredUserId) {
-      const user = users.find(user => user.id === localStoredUserId);
-      if (user) {
-        onChangeUser(user)
+  const { setUserJson } = useUser();
+
+  useEffect(() => {
+    const onChangeUser = (user: User) => setUserJson(JSON.stringify(user));
+
+    listUsers().then(users => {
+      const localStoredUserId = localStorage.getItem('user');
+      if (localStoredUserId) {
+        const user = users.find(user => user.id === localStoredUserId);
+        if (user) {
+          onChangeUser(user)
+        } else if (users.length > 0) {
+          onChangeUser(users[0])
+        }
       } else if (users.length > 0) {
         onChangeUser(users[0])
       }
-    } else if (users.length > 0) {
-      onChangeUser(users[0])
-    }
-  })
+    });
+  }, [setUserJson]);
 
   return (
     <>{children}</>

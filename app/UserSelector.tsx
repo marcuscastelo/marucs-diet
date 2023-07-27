@@ -1,8 +1,9 @@
 "use client";
 
+// TODO: remover todos os useAppDispatch e useAppSelector do projeto
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { Dropdown } from "react-daisyui";
-import { setUserJson } from "@/redux/features/userSlice";
+import { useUser } from "@/redux/features/userSlice";
 import { useEffect, useState } from "react";
 import { User } from "@/model/userModel";
 import { listUsers } from "@/controllers/users";
@@ -13,9 +14,8 @@ export default function UserSelector() {
     const [availableUsers, setAvailableUsers] = useState<Loadable<(User)[]>>({ loading: true });
     const [loadingHasTimedOut, setLoadingHasTimedOut] = useState(false);
 
-    const currentUser = useAppSelector(state => state.userReducer);
-    const dispatch = useAppDispatch();
-    const onChangeUser = (user: User) => dispatch(setUserJson(JSON.stringify(user)));
+    const { user, setUserJson } = useUser();
+    const onChangeUser = (user: User) => setUserJson(JSON.stringify(user));
 
     useEffect(() => {
         listUsers().then(users => {
@@ -27,12 +27,12 @@ export default function UserSelector() {
     }, []);
 
     useEffect(() => {
-        if (!currentUser.loading) {
+        if (!user.loading) {
             setLoadingHasTimedOut(false);
         }
 
         const timeout = setTimeout(() => {
-            if (currentUser.loading) {
+            if (user.loading) {
                 setLoadingHasTimedOut(true);
             }
         }, 500);
@@ -40,7 +40,7 @@ export default function UserSelector() {
         return () => {
             clearTimeout(timeout);
         }
-    }, [currentUser]);
+    }, [user]);
 
     return (
         <div className="flex items-center">
@@ -51,21 +51,21 @@ export default function UserSelector() {
                 <div className="text-base font-medium leading-none text-white hover:text-indigo-200 hover:cursor-pointer">
 
                     {
-                        currentUser.loading ?
-                        (
-                            loadingHasTimedOut ?
-                            "Deslogado" :
-                            "Carregando..."
+                        user.loading ?
+                            (
+                                loadingHasTimedOut ?
+                                    "Deslogado" :
+                                    "Carregando..."
                             ) :
                             <a href="/profile">
-                                {currentUser.data.name}
+                                {user.data.name}
                             </a>
                     }
                 </div>
                 <div className="text-sm font-medium leading-none text-slate-300">
                     <Dropdown>
                         <Dropdown.Toggle color="ghost" button={false} className="hover:text-indigo-200 hover:cursor-pointer" >
-                            { loadingHasTimedOut ? "Entrar" : "Trocar"}
+                            {loadingHasTimedOut ? "Entrar" : "Trocar"}
                         </Dropdown.Toggle>
                         <Dropdown.Menu className="bg-slate-950 outline -translate-x-10 translate-y-3 no-animation">
                             {

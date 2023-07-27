@@ -13,14 +13,14 @@ export default function DayMacros({ macros, className }: { macros: MacroNutrient
         macros.fat * 9
     )
 
-    const currentUser = useUser();
+    const { user } = useUser();
 
-    if (currentUser.loading) {
+    if (user.loading) {
         return <>Loading user...</>;
     }
 
-    const macroProfile = currentUser.data.macroProfile;
-    const macroGrams = calculateMacroTarget(currentUser.data.weight, macroProfile);
+    const macroProfile = user.data.macroProfile;
+    const macroGrams = calculateMacroTarget(user.data.weight, macroProfile);
 
     const targetCalories = macroGrams.gramsCarbs * 4 + macroGrams.gramsProtein * 4 + macroGrams.gramsFat * 9;
     return (
