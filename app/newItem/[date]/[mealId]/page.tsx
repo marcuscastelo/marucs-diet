@@ -1,6 +1,6 @@
 'use client';
 
-import MealItem from "@/app/MealItem";
+import MealItem from "@/app/(mealItem)/MealItem";
 import { listFoods, searchFoods } from "@/controllers/food";
 import { Food } from "@/model/foodModel";
 import { Alert, Breadcrumb } from "flowbite-react";
@@ -13,7 +13,7 @@ import { listDays, updateDay } from "@/controllers/days";
 import { Day } from "@/model/dayModel";
 import BarCodeInsertModal from "@/app/BarCodeInsertModal";
 import { showModal } from "@/utils/DOMModal";
-import { setFoodAsFavorite, useIsFoodFavorite, useUser } from "@/redux/features/userSlice";
+import { useFavoriteFoods, useUser } from "@/redux/features/userSlice";
 import { User } from "@/model/userModel";
 import { Loadable } from "@/utils/loadable";
 import { useAppDispatch } from "@/redux/hooks";
@@ -31,7 +31,7 @@ export default function Page(context: any) {
     const dayParam = context.params.date as string; // TODO: type-safe this
 
     const dispatch = useAppDispatch();
-    const currentUser = useUser();
+    const { user } = useUser();
     const router = useRouter();
 
     const [search, setSearch] = useState<string>('');
@@ -46,7 +46,7 @@ export default function Page(context: any) {
 
     const isDesktop = isClient ? window.innerWidth > 768 : false;
 
-    const isFoodFavorite = useIsFoodFavorite();
+    const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods();
 
     const fetchFoods = async (search: string | '', favoriteFoods: number[]) => {
         setSearchingFoods(true);
@@ -97,13 +97,13 @@ export default function Page(context: any) {
     }, []);
 
     useEffect(() => {
-        if (currentUser.loading || typing) {
+        if (user.loading || typing) {
             return;
         }
 
-        fetchFoods(search, currentUser.data.favorite_foods);
-        fetchDays(currentUser.data.id);
-    }, [currentUser, search, typing]);
+        fetchFoods(search, user.data.favorite_foods);
+        fetchDays(user.data.id);
+    }, [user, search, typing]);
 
     useEffect(() => {
         setTyping(true);
@@ -255,25 +255,29 @@ export default function Page(context: any) {
                                         <div key={idx}>
                                             <MealItem
                                                 mealItem={{
-                                                    id: Math.round(Math.random() * 1000000000),
+                                                    id: Math.random().toString(),
                                                     food: food,
                                                     quantity: 100,
                                                 }}
                                                 className="mt-1"
-                                                key={idx}
                                                 onClick={() => {
                                                     setSelectedFood(food);
                                                     showModal(window, MEAL_ITEM_ADD_MODAL_ID)
                                                 }}
-                                                favorite={
-                                                    isFoodFavorite(food.id)
+                                                header={
+                                                    <MealItem.Header
+                                                        name={<MealItem.Header.Name />}
+                                                        favorite={
+                                                            <MealItem.Header.Favorite
+                                                                favorite={isFoodFavorite(food.id)}
+                                                                setFavorite={(favorite) => setFoodAsFavorite(food.id, favorite)}
+                                                            />
+                                                        }
+                                                    />
                                                 }
-                                                setFavorite={(favorite) => {
-                                                    dispatch(setFoodAsFavorite({
-                                                        foodId: food.id,
-                                                        favorite
-                                                    }));
-                                                }}
+                                                nutritionalInfo={
+                                                    <MealItem.NutritionalInfo />
+                                                }
                                             />
                                         </div>
                                     )

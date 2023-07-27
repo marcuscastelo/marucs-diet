@@ -1,14 +1,14 @@
 'use client';
 
 import { useEffect, useRef, useState } from "react";
-import MealItem from "./MealItem";
+import MealItem from "./(mealItem)/MealItem";
 import { mockFood } from "./test/unit/(mock)/mockData";
 import { MealItemData } from "@/model/mealItemModel";
 import { Food } from "@/model/foodModel";
 import { MealData } from "@/model/mealModel";
 import { hideModal, showModal } from "@/utils/DOMModal";
-import { setFoodAsFavorite, useIsFoodFavorite } from "@/redux/features/userSlice";
 import { useAppDispatch } from "@/redux/hooks";
+import { useFavoriteFoods } from "@/redux/features/userSlice";
 
 export type MealItemAddModalProps = {
     modalId: string,
@@ -26,6 +26,8 @@ export default function MealItemAddModal({
 }: MealItemAddModalProps
 ) {
     const [show, setShow] = useState(initialShow ?? false);
+    const appDispatch = useAppDispatch();
+
     const [quantity, setQuantity] = useState(initialQuantity?.toString() ?? '');
     const [id, setId] = useState(initialId ?? Math.random());
     const canAdd = quantity != '' && Number(quantity) > 0;
@@ -33,8 +35,7 @@ export default function MealItemAddModal({
 
     const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(true);
 
-    const isFoodFavorite = useIsFoodFavorite();
-    const dispatch = useAppDispatch();
+    const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods(appDispatch);
 
     useEffect(() => {
         if (!show) {
@@ -154,15 +155,20 @@ export default function MealItemAddModal({
                             quantity: Number(quantity),
                         }}
                         className="mt-4"
-                        favorite={
-                            isFoodFavorite(food.id)
+                        header={
+                            <MealItem.Header
+                                name={<MealItem.Header.Name />}
+                                favorite={
+                                    <MealItem.Header.Favorite
+                                        favorite={isFoodFavorite(food.id)}
+                                        setFavorite={(favorite) => setFoodAsFavorite(food.id, favorite)}
+                                    />
+                                }
+                            />
                         }
-                        setFavorite={(favorite) => {
-                            dispatch(setFoodAsFavorite({
-                                foodId: food.id,
-                                favorite
-                            }));
-                        }}
+                        nutritionalInfo={
+                            <MealItem.NutritionalInfo />
+                        }
                     />
 
                     <div className="modal-action">
