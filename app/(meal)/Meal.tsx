@@ -1,7 +1,7 @@
 "use client";
 
 import { MealData } from "@/model/mealModel";
-import MealItem from "../MealItem";
+import MealItem from "../(mealItem)/MealItem";
 import { MealItemData } from "@/model/mealItemModel";
 import { MealContextProvider, useMealContext } from "./MealContext";
 
@@ -81,7 +81,14 @@ function MealContent({ onEditItem }: { onEditItem: (item: MealItemData) => void 
                         <MealItem
                             mealItem={item}
                             onClick={onEditItem}
-                            favorite='hide'
+                            header={
+                                <MealItem.Header
+                                    name={<MealItem.Header.Name />}
+                                />
+                            }
+                            nutritionalInfo={
+                                <MealItem.NutritionalInfo/>
+                            }
                         />
                     </div>
                 )
