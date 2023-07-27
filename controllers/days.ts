@@ -16,6 +16,10 @@ export const listDays = async (userId: string) =>
         }));
 
 export const createDay = async (day: Omit<DayData, 'id'>) => {
+    if ('id' in day) {
+        console.error('Day should not have an id'); //TODO: better error handling
+        delete day.id;
+    }
     return await pb.collection(PB_COLLECTION).create<Record & DayData>(day, { $autoCancel: false });
 }
 
