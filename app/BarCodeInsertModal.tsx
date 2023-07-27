@@ -5,6 +5,7 @@ import { hideModal, showModal } from "@/utils/DOMModal";
 import BarCodeSearch from "./BarCodeSearch";
 import { Food } from "@/model/foodModel";
 import { BarCodeReader } from "./BarCodeReader";
+import Modal from "./(modals)/modal";
 
 export type BarCodeInsertModalProps = {
     modalId: string,
@@ -42,32 +43,30 @@ export default function BarCodeInsertModal({ modalId, show, onSelect }: BarCodeI
     }
 
     return (
-        <>
-            <dialog id={modalId} className="modal modal-bottom sm:modal-middle">
-                <form method="dialog" className="modal-box bg-gray-800 text-white" onSubmit={handleSelect}>
-                    <BarCodeReader id="reader" onScanned={setBarCode} />
-                    <BarCodeSearch 
-                        barCode={barCode}
-                        setBarCode={setBarCode}
-                        onFoodChange={setFood} 
-                    />
+        <Modal
+            modalId={modalId}
+            show={show}
+            onSubmit={onSubmit}
+            header={<h1 className="modal-title">Pesquisar por código de barras</h1>}
+            body={<>
+                <BarCodeReader id="reader" onScanned={setBarCode} />
+                <BarCodeSearch
+                    barCode={barCode}
+                    setBarCode={setBarCode}
+                    onFoodChange={setFood}
+                />
+            </>}
+            actions={<Modal.Actions>
+                <button className="btn" onClick={(e) => {
+                    e.preventDefault();
+                    hideModal(window, modalId); // TODO: retriggered: remove this and use state/modal component
+                }} >
+                    Cancelar
+                </button>
+                <button className="btn btn-primary" disabled={!food} onClick={handleSelect} >Aplicar</button>
+            </Modal.Actions>}
 
-                    <div className="modal-action">
-                        {/* if there is a button in form, it will close the modal */}
-                        <button className="btn" onClick={(e) => {
-                            e.preventDefault();
-                            hideModal(window, modalId); // TODO: retriggered: remove this and use state/modal component
-                        }} >
-                            Cancelar
-                        </button>
-                        <button className="btn btn-primary" disabled={!food} onClick={handleSelect} >Aplicar</button>
-                    </div>
-                </form>
-                <form method="dialog" className="modal-backdrop">
-                    <button>close</button>
-                </form>
-            </dialog>
-        </>
+        />
     );
 }
 
