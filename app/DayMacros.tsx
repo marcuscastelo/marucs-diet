@@ -19,8 +19,12 @@ export default function DayMacros({ macros, className }: { macros: MacroNutrient
     return (
         <>
             <div className={`flex pt-3 ${className} flex-col xs:flex-row `}>
-                <Calories className="w-full" macros={macros} targetCalories={targetCalories} />
-                <Macros className="mt-3 xs:mt-0" macros={macros} targetMacros={targetMacros} />
+                <div className="flex-shrink">
+                    <Calories className="w-full" macros={macros} targetCalories={targetCalories} />
+                </div>
+                <div className="flex-1">
+                    <Macros className="mt-3 xs:mt-0" macros={macros} targetMacros={targetMacros} />
+                </div>
             </div>
         </>
     );
@@ -68,7 +72,7 @@ function Macros({
     className?: string
 }) {
     return (
-        <div className={`mx-2 w-full ${className}`}>
+        <div className={`mx-2 ${className}`}>
             <Progress className="" size="sm" textLabelPosition="outside" color="green" textLabel={`Carboidrato (${Math.round(macros.carbs * 100) / 100}/${Math.round(targetMacros.carbs * 100) / 100}g)`} labelText={true} progress={100 * macros.carbs / targetMacros.carbs} />
             <Progress className="" size="sm" textLabelPosition="outside" color="red" textLabel={`Proteína (${Math.round(macros.protein * 100) / 100}/${Math.round(targetMacros.protein * 100) / 100}g)`} labelText={true} progress={100 * macros.protein / targetMacros.protein} />
             <Progress className="" size="sm" textLabelPosition="outside" color="yellow" textLabel={`Gordura (${Math.round(macros.fat * 100) / 100}/${Math.round(targetMacros.fat * 100) / 100}g)`} labelText={true} progress={100 * macros.fat / targetMacros.fat} />
