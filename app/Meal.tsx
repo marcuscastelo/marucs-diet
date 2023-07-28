@@ -12,6 +12,7 @@ export type MealProps = {
     onEditItem: (item: MealItemData) => void,
     onUpdateMeal: (meal: MealData) => void,
     className?: string,
+    locked?: boolean,
 };
 
 //TODO: move this function
@@ -20,15 +21,20 @@ const reorder = (list: unknown[], startIndex: number, endIndex: number) => {
     const result = Array.from(list);
     const [removed] = result.splice(startIndex, 1);
     result.splice(endIndex, 0, removed);
-  
-    return result;
-  };
-  
 
-export default function Meal({ mealData, onNewItem, onEditItem, onUpdateMeal, className }: MealProps) {
+    return result;
+};
+
+
+export default function Meal({ mealData, onNewItem, onEditItem, onUpdateMeal, className, locked }: MealProps) {
     const onDragEnd = (result: DropResult) => {
         // dropped outside the list
         if (!result.destination) {
+            return;
+        }
+
+        if (locked) {
+            alert('Não é possível reordenar itens de uma refeição bloqueada, desbloqueie-a primeiro.');
             return;
         }
 
@@ -48,6 +54,12 @@ export default function Meal({ mealData, onNewItem, onEditItem, onUpdateMeal, cl
 
     const onClearItems = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.preventDefault();
+
+        if (locked) {
+            alert('Não é possível limpar itens de uma refeição bloqueada, desbloqueie-a primeiro.');
+            return;
+        }
+
         // Confirm
         if (!confirm('Tem certeza que deseja limpar os itens?')) {
             return;
@@ -59,6 +71,25 @@ export default function Meal({ mealData, onNewItem, onEditItem, onUpdateMeal, cl
         };
 
         onUpdateMeal(newMealData);
+    }
+
+    const handleNewItem = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.preventDefault();
+        if (locked) {
+            alert('Não é possível adicionar itens a uma refeição bloqueada, desbloqueie-a primeiro.');
+            return;
+        }
+
+        onNewItem();
+    }
+
+    const handleEditItem = (item: MealItemData) => {
+        if (locked) {
+            alert('Não é possível editar itens de uma refeição bloqueada, desbloqueie-a primeiro.');
+            return;
+        }
+
+        onEditItem(item);
     }
 
     return (
@@ -74,9 +105,13 @@ export default function Meal({ mealData, onNewItem, onEditItem, onUpdateMeal, cl
                     >
                         <div className={`bg-gray-800 p-3 ${className || ''}`}>
                             <div className="flex">
-                                <h5 className="text-3xl my-2">{mealData.name}</h5>
-                                <button 
-                                    className="btn bg-red-800 px-5 ml-auto text-white"
+                                <h5 className="text-3xl my-2">
+                                    {mealData.name}
+                                    &nbsp;
+                                    {locked && <span className="text-red-700">[TRAVADA]</span>}
+                                </h5>
+                                <button
+                                    className={`btn ${locked ? 'bg-gray-500' : 'bg-red-800'} px-5 ml-auto text-white`}
                                     onClick={onClearItems}
                                 >
                                     Limpar itens
@@ -94,7 +129,7 @@ export default function Meal({ mealData, onNewItem, onEditItem, onUpdateMeal, cl
                                                 >
                                                     <MealItem
                                                         mealItem={item}
-                                                        onClick={onEditItem}
+                                                        onClick={handleEditItem}
                                                         favorite='hide'
                                                     />
                                                 </div>)}
@@ -105,8 +140,8 @@ export default function Meal({ mealData, onNewItem, onEditItem, onUpdateMeal, cl
                             }
                             {droppableProvided.placeholder}
                             <button
-                                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 min-w-full rounded mt-3"
-                                onClick={onNewItem}
+                                className={`${locked ? 'bg-gray-500' : 'bg-blue-500 hover:bg-blue-700'} text-white font-bold py-2 px-4 min-w-full rounded mt-3`}
+                                onClick={handleNewItem}
                             >
                                 Adicionar item
                             </button>

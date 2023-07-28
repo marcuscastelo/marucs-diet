@@ -29,8 +29,12 @@ export default function Page(context: any) {
 
     const currentUser = useUser();
 
-    const [days, setDays] = useState<Loadable<(DayData & Record)[]>>({ loading: true });
     const selectedDay = context.params.day as string; // TODO: type-safe this
+    const today = getToday();
+    const showingToday = today === selectedDay;
+
+    const [days, setDays] = useState<Loadable<DayData[]>>({ loading: true });
+    const [dayLocked, setDayLocked] = useState(!showingToday);
 
     const [selectedMeal, setSelectedMeal] = useState(mockMeal({ name: 'BUG: selectedMeal not set' }));
     const [selectedMealItem, setSelectedMealItem] = useState(mockItem({ quantity: 666 }));
@@ -80,6 +84,7 @@ export default function Page(context: any) {
     const mealProps = dayData?.meals.map((meal) => {
         const mealProps: MealProps = {
             mealData: meal,
+            locked: dayLocked,
             onEditItem: (mealItem) => {
                 setSelectedMeal(meal);
                 setSelectedMealItem(mealItem);
@@ -131,7 +136,7 @@ export default function Page(context: any) {
         });
     }
 
-    const dayMacros = dayData?.meals.reduce((acc, meal): MacroNutrientsData=> {
+    const dayMacros = dayData?.meals.reduce((acc, meal): MacroNutrientsData => {
         const mm = mealMacros(meal);
         acc.carbs += mm.carbs;
         acc.protein += mm.protein;
@@ -150,7 +155,7 @@ export default function Page(context: any) {
         const lastDayIdx = days.data.findLastIndex((day) => Date.parse(day.targetDay) < Date.parse(selectedDay));
         if (lastDayIdx === -1) {
             return (
-                <button 
+                <button
                     className="btn btn-error text-white font-bold py-2 px-4 min-w-full rounded mt-3"
                     onClick={() => alert(`Não foi possível encontrar um dia anterior a ${selectedDay}`)}
                 >
@@ -246,7 +251,6 @@ export default function Page(context: any) {
             </Show>
 
             <Show when={hasData}>
-
                 <MealItemAddModal
                     modalId={editModalId}
                     itemData={{
@@ -309,6 +313,29 @@ export default function Page(context: any) {
                 <DayMacros className="mt-3 border-b-2 border-gray-800 pb-4"
                     macros={dayMacros!}
                 />
+
+                <Show when={!showingToday}>
+                    <Alert className="mt-2" color="warning">Mostrando refeições do dia {selectedDay}!</Alert>
+                    <Show when={dayLocked}>
+                        <Alert className="mt-2 outline" color="info">
+                            Hoje é dia <b>{today}</b> <a
+                                className="text-blue-500 font-bold hover:cursor-pointer "
+                                onClick={() => {
+                                    router.push('/day/' + today);
+                                }}
+                            >
+                                Mostrar refeições de hoje
+                            </a> ou <a
+                                className="text-red-600 font-bold hover:cursor-pointer "
+                                onClick={() => {
+                                    setDayLocked(false);
+                                }}
+                            > Desbloquear dia {selectedDay}</a>
+
+                        </Alert>
+                    </Show>
+                </Show>
+
                 <DayMeals className="mt-5" mealsProps={mealProps!} />
                 <CopyLastDayButton />
                 <button
