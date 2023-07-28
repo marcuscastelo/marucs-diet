@@ -19,6 +19,7 @@ import { User } from "@/model/userModel";
 import { Loadable } from "@/utils/loadable";
 import { useAppDispatch } from "@/redux/hooks";
 import { isCached } from "@/controllers/searchCache";
+import { useRouter } from "next/navigation";
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal';
 const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal';
@@ -31,6 +32,7 @@ export default function Page(context: any) {
 
     const dispatch = useAppDispatch();
     const currentUser = useUser();
+    const router = useRouter();
 
     const [search, setSearch] = useState<string>('');
     const [foods, setFoods] = useState<Loadable<(Food)[]>>({ loading: true });
@@ -195,7 +197,7 @@ export default function Page(context: any) {
                 return m;
             })
         });
-        window.location.href = `/`;
+        router.push(`/day/${dayParam}`);
     }
 
     return (
