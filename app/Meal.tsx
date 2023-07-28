@@ -104,7 +104,7 @@ export default function Meal({ mealData, onNewItem, onEditItem, onUpdateMeal, cl
                         ref={droppableProvided.innerRef}
                     >
                         <div className={`bg-gray-800 p-3 ${className || ''}`}>
-                            <div className="flex">
+                            <div className="flex flex-col 2xs:flex-row">
                                 <h5 className="text-3xl my-2">
                                     {mealData.name}
                                     &nbsp;

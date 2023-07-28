@@ -212,7 +212,6 @@ export default function Page(context: any) {
                     />
                 </div>
 
-                {/* User icon */}
                 <div className="flex justify-end">
                     <UserSelector />
                 </div>
