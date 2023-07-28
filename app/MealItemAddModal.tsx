@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import MealItem from "./MealItem";
 import { mockFood } from "./test/unit/(mock)/mockData";
 import { MealItemData } from "@/model/mealItemModel";
@@ -28,6 +28,7 @@ export default function MealItemAddModal({
     const [quantity, setQuantity] = useState(initialQuantity?.toString() ?? '');
     const [id, setId] = useState(initialId ?? Math.random().toString());
     const canAdd = quantity != '' && Number(quantity) > 0;
+    const quantityRef = useRef<HTMLInputElement>(null);
 
     const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(true);
 
@@ -62,7 +63,7 @@ export default function MealItemAddModal({
         setQuantityFieldDisabled(true);
         setTimeout(() => {
             setQuantityFieldDisabled(false);
-        }, 500);
+        }, 1000);
     }, [initialQuantity, initialId]);
 
     const increment = () => setQuantity((old) => (Number(old ?? '0') + 1).toString())
@@ -122,6 +123,7 @@ export default function MealItemAddModal({
                         <input
                             disabled={quantityFieldDisabled}
                             value={quantity}
+                            ref={quantityRef}
                             onChange={(e) => setQuantity(e.target.value.replace(/[^0-9]/, ''))}
                             type="number" placeholder="Quantidade (gramas)"
                             className={`mt-1 input input-bordered flex-1 bg-gray-800 border-gray-300 ${!canAdd ? 'input-error border-red-500' : ''}`} />
