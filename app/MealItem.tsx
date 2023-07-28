@@ -109,9 +109,9 @@ export default function MealItem(props: MealItemProps) {
                     <span className="text-white"> {props.mealItem.quantity}g </span>
                     |
                     <span className="text-white"> {calculateCalories({
-                        gramsCarbs: props.mealItem.food.macros.carbs * props.mealItem.quantity / 100,
-                        gramsProtein: props.mealItem.food.macros.protein * props.mealItem.quantity / 100,
-                        gramsFat: props.mealItem.food.macros.fat * props.mealItem.quantity / 100,
+                        carbs: props.mealItem.food.macros.carbs * props.mealItem.quantity / 100,
+                        protein: props.mealItem.food.macros.protein * props.mealItem.quantity / 100,
+                        fat: props.mealItem.food.macros.fat * props.mealItem.quantity / 100,
                     }).toFixed(0)}kcal </span>
                     </div>
 
