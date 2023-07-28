@@ -34,9 +34,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-
-pb_data/logs.db
-pb_data/logs.db-wal
+database/
 secrets/
 logs/
 ```
