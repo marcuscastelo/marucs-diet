@@ -5,6 +5,7 @@ import PageLoading from "@/app/PageLoading";
 import { updateUser } from "@/controllers/users";
 import { setUserJson, useUser } from "@/redux/features/userSlice";
 import { useAppDispatch } from "@/redux/hooks";
+import Link from "next/link";
 
 export default function Page() {
     const currentUser = useUser();
@@ -19,7 +20,7 @@ export default function Page() {
 
     return (
         <>
-            <a href="/">Home</a>
+            <Link href="/">Home</Link>
             <h1>Profile</h1>
             <p>Current user: {!currentUser.loading ? currentUser.data?.name : 'Loading user...'}</p>
             <span>
