@@ -1,7 +1,7 @@
 'use client';
 
 import MealItem from "@/app/MealItem";
-import { listFoods, searchFoods } from "@/controllers/food";
+import { listFoods, searchFoodsByName } from "@/controllers/food";
 import { Food } from "@/model/foodModel";
 import { Alert, Breadcrumb } from "flowbite-react";
 import { useEffect, useState } from "react";
@@ -56,7 +56,7 @@ export default function Page(context: any) {
         if (search == '') {
             foods = await listFoods(100);
         } else {
-            foods = await searchFoods(search, 100);
+            foods = await searchFoodsByName(search, 100);
         }
 
         setSearchingFoods(false);

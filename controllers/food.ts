@@ -3,9 +3,10 @@ import { Record } from 'pocketbase';
 import { z } from 'zod';
 
 import { ApiFood, apiFoodSchema } from '@/model/apiFoodModel';
-import { markAsCached, isCached, unmarkAsCached } from './searchCache';
+import { markSearchAsCached, isSearchCached, unmarkSearchAsCached } from './searchCache';
 import { INTERNAL_API } from '@/utils/api';
 import supabase from '@/utils/supabase';
+import { isEanCached } from './eanCache';
 
 const TABLE = 'foods';
 
@@ -17,6 +18,7 @@ export function convertApi2Food(food: ApiFood): Omit<Food, 'id'> {
             type: 'api',
             id: food.id.toString(),
         },
+        ean: food.ean,
         macros: {
             calories: food.calorias * 100,
             carbs: food.carboidratos * 100,
@@ -26,15 +28,16 @@ export function convertApi2Food(food: ApiFood): Omit<Food, 'id'> {
     };
 }
 
-const internalCacheLogic = async (
+const internalSearchCacheLogic = async (
     cacheKey: string,
+    checkCached: (cacheKey: string) => Promise<boolean>,
     { ifCached, ifNotCached }: {
         ifCached: () => Promise<Food[]>,
         ifNotCached: () => Promise<Omit<Food, 'id'>[]>
     }
 ): Promise<Food[]> => {
     console.log('Checking cache...');
-    if (await isCached(cacheKey)) {
+    if (await checkCached(cacheKey)) {
         console.log('Cache found, returning cached foods...'); //TODO: retriggered: fix cached foods being limited to top 1000
         return await ifCached();
     }
@@ -53,7 +56,7 @@ const internalCacheLogic = async (
             console.warn('No foods created!! skipping cache');
         } else {
             console.log(`Marking '${cacheKey}' as cached...`);
-            await markAsCached(cacheKey);
+            await markSearchAsCached(cacheKey);
             console.log('Finished marking cache as cached.');
         }
 
@@ -73,7 +76,7 @@ const newFoodsSchema = z.object({
 export const listFoods = async (limit?: number) => {
     console.log('Listing foods...');
 
-    return await internalCacheLogic('__root__',
+    return await internalSearchCacheLogic('__root__', isSearchCached,
         {
             ifCached: async (): Promise<Food[]> => {
                 const { data, error } = await supabase.from(TABLE).select().limit(limit ?? 100);
@@ -94,13 +97,13 @@ export const listFoods = async (limit?: number) => {
     );
 }
 
-export const searchFoods = async (search: string, limit?: number) => {
-    console.log(`Searching for '${search}'...`);
+export const searchFoodsByName = async (name: string, limit?: number) => {
+    console.log(`Searching for name = '${name}'...`);
 
-    return await internalCacheLogic(search,
+    return await internalSearchCacheLogic(name, isSearchCached,
         {
             ifCached: async (): Promise<Food[]> => {
-                const { data, error } = await supabase.from(TABLE).select().ilike('name', `%${search}%`).limit(limit ?? 100);
+                const { data, error } = await supabase.from(TABLE).select().ilike('name', `%${name}%`).limit(limit ?? 100);
                 console.log(`Got ${data?.length} foods from cache.`);
                 if (data?.length === 0) {
                     //TODO: readd this logic of cache invalidation, but also with time
@@ -118,7 +121,7 @@ export const searchFoods = async (search: string, limit?: number) => {
                 async () => {
                     const newFoods = newFoodsSchema.parse((await await INTERNAL_API.get('food', {
                         params: {
-                            q: search,
+                            q: name,
                         }
                     })).data);
                     const convertedFoods = newFoods.alimentos.map(convertApi2Food);
@@ -126,6 +129,41 @@ export const searchFoods = async (search: string, limit?: number) => {
                 }
         }
     );
+}
+
+export const searchFoodsByEan = async (ean: string, limit?: number): Promise<Food> => {
+    console.log(`Searching for ean = '${ean}'...`);
+
+    //TODO: Rewrite this code together with the entire
+    return foodSchema.parse((await internalSearchCacheLogic(ean, isEanCached,
+        {
+            ifCached: async (): Promise<Food[]> => {
+                const { data, error } = await supabase.from(TABLE).select().ilike('ean', `%${ean}%`).limit(limit ?? 100);
+                console.log(`Got ${data?.length} foods from cache.`);
+                if (data?.length === 0) {
+                    //TODO: readd this logic of cache invalidation, but also with time
+                    // console.log('No foods found, unmarking cache as cached.');
+                    // await unmarkAsCached(search);
+                }
+
+                if (error) {
+                    console.error(error);
+                    throw error;
+                }
+                return (data ?? []).map(food => foodSchema.parse(food));
+            },
+            ifNotCached:
+                async () => {
+                    const newFoods = newFoodsSchema.parse((await await INTERNAL_API.get('barcode', {
+                        params: {
+                            q: ean,
+                        }
+                    })).data);
+                    const convertedFoods = newFoods.alimentos.map(convertApi2Food);
+                    return convertedFoods;
+                }
+        }
+    )).find(food => food.ean === ean));
 }
 
 export const upsertFood = async (food: Omit<Food, 'id'>): Promise<Food> => {
