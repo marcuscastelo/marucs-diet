@@ -1,7 +1,7 @@
 "use client";
 
-import MealItem from "@/app/(mealItem)/MealItem";
-import { createFood, listFoods } from "@/controllers/food";
+import MealItem from "@/app/MealItem";
+import { upsertFood, listFoods } from "@/controllers/food";
 import { Food } from "@/model/foodModel";
 import { useEffect, useState } from "react";
 
@@ -62,11 +62,11 @@ export default function Page() {
                         <MealItem
                             key={idx}
                             mealItem={{
-                                id: "123",
+                                id: 123,
                                 food: food,
                                 quantity: 100,
                             }} 
-                            favorite={false} // TODO: implement favorite
+                            favorite={false} // TODO: retriggered: implement favorite
                             />
                     </div>
                 )

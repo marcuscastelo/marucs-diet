@@ -9,6 +9,7 @@ import { User } from "@/model/userModel";
 import { listUsers } from "@/controllers/users";
 import { Record } from "pocketbase";
 import { Loadable } from "@/utils/loadable";
+import Link from "next/link";
 
 export default function UserSelector() {
     const [availableUsers, setAvailableUsers] = useState<Loadable<(User)[]>>({ loading: true });
@@ -57,9 +58,9 @@ export default function UserSelector() {
                                     "Deslogado" :
                                     "Carregando..."
                             ) :
-                            <a href="/profile">
+                            <Link href="/profile">
                                 {user.data.name}
-                            </a>
+                            </Link>
                     }
                 </div>
                 <div className="text-sm font-medium leading-none text-slate-300">
@@ -106,9 +107,9 @@ export default function UserSelector() {
                             {
                                 !availableUsers.loading && availableUsers.data.length === 0 &&
                                 <Dropdown.Item>Nenhum usuário disponível</Dropdown.Item>
-                            }
+                            } 
                         </Dropdown.Menu>
-                    </Dropdown>
+                    </Dropdown> 
                 </div>
             </div>
             <div className="">

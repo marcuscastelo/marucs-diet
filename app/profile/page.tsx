@@ -4,7 +4,7 @@ import { useUser } from "@/redux/features/userSlice";
 import PageLoading from "../PageLoading";
 import { User } from "@/model/userModel";
 import TopBar from "./TopBar";
-import { useAppDispatch } from "@/redux/hooks";
+import Link from "next/link";
 
 const CARD_BACKGROUND_COLOR = 'bg-slate-500';
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg';
@@ -72,12 +72,12 @@ function BasicInfo({
                     />
                 </div>
             </div>
-            <a
+            <Link
                 className={`btn btn-primary no-animation w-full rounded-t-none`}
                 href="/profile/edit"
             >
                 Editar
-            </a>
+            </Link>
         </>
     )
 }

@@ -5,6 +5,7 @@ import PageLoading from "@/app/PageLoading";
 import { updateUser } from "@/controllers/users";
 import { useUser } from "@/redux/features/userSlice";
 import { useAppDispatch } from "@/redux/hooks";
+import Link from "next/link";
 
 export default function Page() {
     const { user, setUserJson } = useUser();
@@ -15,11 +16,11 @@ export default function Page() {
     }
 
     const weight = user.data?.weight;
-    const macroProfile = user.data?.macroProfile;
+    const macroProfile = user.data?.macro_profile;
 
     return (
         <>
-            <a href="/">Home</a>
+            <Link href="/">Home</Link>
             <h1>Profile</h1>
             <p>Current user: {!user.loading ? user.data?.name : 'Loading user...'}</p>
             <span>

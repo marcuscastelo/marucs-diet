@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import MealItem from "./(mealItem)/MealItem";
 import { MealItemData } from "@/model/mealItemModel";
 import { Food } from "@/model/foodModel";
@@ -16,24 +16,28 @@ export type MealItemAddModalProps = {
     show?: boolean,
     onApply: (item: MealItemData) => void,
     onCancel?: () => void,
-    onDelete?: (itemId: string) => void,
+    onDelete?: (itemId: MealItemData['id']) => void,
 }
 
 export default function MealItemAddModal({
-    modalId, show, meal, itemData: { food, quantity: initialQuantity, id: initialId },
+    modalId, show: initialShow, meal, itemData: { food, quantity: initialQuantity, id: initialId },
     onApply, onCancel, onDelete
 }: MealItemAddModalProps
 ) {
+    const [show, setShow] = useState(initialShow ?? false);
     const [quantity, setQuantity] = useState(initialQuantity?.toString() ?? '');
-    const [id, setId] = useState(initialId ?? Math.random().toString());
+    const [id, setId] = useState(initialId ?? Math.random());
     const canAdd = quantity != '' && Number(quantity) > 0;
+    const quantityRef = useRef<HTMLInputElement>(null);
 
     const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(true);
 
     const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods();
 
     useEffect(() => {
-        if (show) {
+        if (!show) {
+            hideModal(window, modalId);
+        } else {
             setQuantity('');
             setId(Math.random().toString());
             setQuantityFieldDisabled(true);
@@ -62,7 +66,7 @@ export default function MealItemAddModal({
         setQuantityFieldDisabled(true);
         setTimeout(() => {
             setQuantityFieldDisabled(false);
-        }, 500);
+        }, 1000);
     }, [initialQuantity, initialId]);
 
     const increment = () => setQuantity((old) => (Number(old ?? '0') + 1).toString())
@@ -122,20 +126,25 @@ export default function MealItemAddModal({
                         <div className="ml-1 btn btn-sm btn-primary flex-1" onClick={() => setQuantity('250')} >250g</div>
                         <div className="ml-1 btn btn-sm btn-primary flex-1" onClick={() => setQuantity('300')} >300g</div>
                     </div>
-                    <div className="flex mt-3">
-                        <input
-                            disabled={quantityFieldDisabled}
-                            value={quantity}
-                            onChange={(e) => setQuantity(e.target.value.replace(/[^0-9]/, ''))}
-                            type="number" placeholder="Quantidade (gramas)"
-                            className={`mt-1 input input-bordered flex-1 bg-gray-800 border-gray-300 ${!canAdd ? 'input-error border-red-500' : ''}`} />
-                        <div className="w-20 flex ml-1 my-1">
-                            <div className="btn btn-xs btn-primary w-10 h-full text-4xl text-red-600"
+                    <div className="flex w-full mt-3 justify-between gap-1">
+                        <div className="flex-1 flex my-1 justify-around">
+                            <input
+                                style={{ width: '100%' }}
+                                disabled={quantityFieldDisabled}
+                                value={quantity}
+                                ref={quantityRef}
+                                onChange={(e) => setQuantity(e.target.value.replace(/[^0-9]/, ''))}
+                                type="number" placeholder="Quantidade (gramas)"
+                                className={`mt-1  input input-bordered  bg-gray-800 border-gray-300 ${!canAdd ? 'input-error border-red-500' : ''}`} 
+                            />
+                        </div>
+                        <div className="flex-shrink flex ml-1 my-1 justify-around gap-1">
+                            <div className="btn btn-xs btn-primary w-10 px-6 h-full text-4xl text-red-600"
                                 onClick={decrement}
                                 onMouseDown={() => holdRepeatStart(decrement)} onMouseUp={holdRepeatStop}
                                 onTouchStart={() => holdRepeatStart(decrement)} onTouchEnd={holdRepeatStop}
                             > - </div>
-                            <div className="ml-1 btn btn-xs btn-primary w-10 h-full text-4xl text-green-400"
+                            <div className="ml-1 btn btn-xs btn-primary w-10 px-6 h-full text-4xl text-green-400"
                                 onClick={increment}
                                 onMouseDown={() => holdRepeatStart(increment)} onMouseUp={holdRepeatStop}
                                 onTouchStart={() => holdRepeatStart(increment)} onTouchEnd={holdRepeatStop}
@@ -177,7 +186,14 @@ export default function MealItemAddModal({
                             }
                         }} >Excluir</button>
                     }
-                    <button className="btn" onClick={() => onCancel?.()} >Cancelar</button>
+                    <button className="btn" onClick={(e) => {
+                            e.preventDefault();
+                            setShow(false);
+                            hideModal(window, modalId); //TODO: retriggered: remove this and use react state
+                            onCancel?.()
+                        }} >
+                            Cancelar
+                        </button>
                     <button className="btn" disabled={!canAdd} onClick={(e) => {
                         e.preventDefault();
                         onApply(createMealItemData());

@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import DayMeals from "../../DayMeals";
-import { DayData } from "@/model/dayModel";
+import { Day } from "@/model/dayModel";
 import Meal, { MealProps } from "../../(meal)/Meal";
 import PageLoading from "../../PageLoading";
-import { createDay, deleteDay, listDays, updateDay } from "@/controllers/days";
+import { upsertDay, deleteDay, listDays, updateDay } from "@/controllers/days";
 import { DateValueType } from "react-tailwindcss-datepicker/dist/types";
 import Datepicker from "react-tailwindcss-datepicker";
 import { Alert } from "flowbite-react";
@@ -23,21 +23,26 @@ import UserSelector from "@/app/UserSelector";
 import { useUser } from "@/redux/features/userSlice";
 import { Loadable } from "@/utils/loadable";
 import { getToday, stringToDate } from "@/utils/dateUtils";
+import { User } from "@/model/userModel";
 
 export default function Page(context: any) {
     const router = useRouter();
 
     const { user } = useUser();
 
-    const [days, setDays] = useState<Loadable<DayData[]>>({ loading: true });
-    const selectedDay = context.params.day as string; // TODO: type-safe this
+    const selectedDay = context.params.day as string; // TODO: retriggered: type-safe this
+    const today = getToday();
+    const showingToday = today === selectedDay;
+
+    const [days, setDays] = useState<Loadable<Day[]>>({ loading: true });
+    const [dayLocked, setDayLocked] = useState(!showingToday);
 
     const [selectedMeal, setSelectedMeal] = useState(mockMeal({ name: 'BUG: selectedMeal not set' }));
     const [selectedMealItem, setSelectedMealItem] = useState(mockItem({ quantity: 666 }));
 
     const editModalId = 'edit-modal';
 
-    const fetchDays = async (userId: string) => {
+    const fetchDays = async (userId: User['id']) => {
         const days = await listDays(userId);
         setDays({
             loading: false,
@@ -53,7 +58,7 @@ export default function Page(context: any) {
 
         const dateString = newValue.startDate;
         const date = stringToDate(dateString)
-        const dayString = date.toISOString().split('T')[0]; //TODO: use dateUtils when this is understood
+        const dayString = date.toISOString().split('T')[0]; //TODO: retriggered: use dateUtils when this is understood
         router.push(`/day/${dayString}`);
     }
 
@@ -74,22 +79,28 @@ export default function Page(context: any) {
         return <PageLoading message="Carregando dias" />
     }
 
-    const hasData = days.data.some((day) => day.targetDay === selectedDay);
-    const dayData = days.data.find((day) => day.targetDay === selectedDay);
+    const hasData = days.data.some((day) => day.target_day === selectedDay);
+    const dayData = days.data.find((day) => day.target_day === selectedDay);
 
-    const onEditMealItem = (meal: MealData, mealItem: MealItemData) => {
-        setSelectedMeal(meal);
-        setSelectedMealItem(mealItem);
-        showModal(window, editModalId);
-    };
-
-    const onUpdateMeal = async (dayData: DayData, meal: MealData) => {
-        await updateDay(dayData.id!, { //TODO: remove !
-            ...dayData,
-            meals: dayData.meals.map((m) => {
-                if (m.id !== meal.id) {
-                    return m;
-                }
+    const mealProps = dayData?.meals.map((meal) => {
+        const mealProps: MealProps = {
+            mealData: meal,
+            locked: dayLocked,
+            onEditItem: (mealItem) => {
+                setSelectedMeal(meal);
+                setSelectedMealItem(mealItem);
+                showModal(window, editModalId);
+            },
+            onNewItem: () => {
+                router.push(`/newItem/${selectedDay}/${meal.id}`);
+            },
+            onUpdateMeal: async (meal) => {
+                await updateDay(dayData.id, {
+                    ...dayData,
+                    meals: dayData.meals.map((m) => {
+                        if (m.id !== meal.id) {
+                            return m;
+                        }
 
                 return meal;
             })
@@ -132,7 +143,7 @@ export default function Page(context: any) {
         });
     }
 
-    const dayMacros = dayData?.meals.reduce((acc, meal): MacroNutrientsData=> {
+    const dayMacros = dayData?.meals.reduce((acc, meal): MacroNutrientsData => {
         const mm = mealMacros(meal);
         acc.carbs += mm.carbs;
         acc.protein += mm.protein;
@@ -145,10 +156,10 @@ export default function Page(context: any) {
     });
 
     function CopyLastDayButton() {
-        //TODO: improve this code
-        if (days.loading || user.loading) return <>LOADING</>
+        //TODO: retriggered: improve this code
+        if (days.loading || currentUser.loading) return <>LOADING</>
 
-        const lastDayIdx = days.data.findLastIndex((day) => Date.parse(day.targetDay) < Date.parse(selectedDay));
+        const lastDayIdx = days.data.findLastIndex((day) => Date.parse(day.target_day) < Date.parse(selectedDay));
         if (lastDayIdx === -1) {
             return (
                 <button
@@ -170,22 +181,23 @@ export default function Page(context: any) {
                     }
                 }
 
-                const lastDayIdx = days.data.findLastIndex((day) => Date.parse(day.targetDay) < Date.parse(selectedDay));
+                const lastDayIdx = days.data.findLastIndex((day) => Date.parse(day.target_day) < Date.parse(selectedDay));
                 if (lastDayIdx === -1) {
                     alert('Não foi possível encontrar um dia anterior');
                     return;
                 }
 
-                createDay({
+                upsertDay({
                     ...days.data[lastDayIdx],
-                    targetDay: selectedDay,
+                    target_day: selectedDay,
+                    id: dayData?.id,
                 }).then(() => {
                     fetchDays(user.data.id);
                 });
             }}
         >
-            {/* //TODO: copiar qualquer dia */}
-            Copiar dia anterior ({days.data[lastDayIdx].targetDay})
+            {/* //TODO: retriggered: copiar qualquer dia */}
+            Copiar dia anterior ({days.data[lastDayIdx].target_day})
         </button>
     }
 
@@ -207,7 +219,6 @@ export default function Page(context: any) {
                     />
                 </div>
 
-                {/* User icon */}
                 <div className="flex justify-end">
                     <UserSelector />
                 </div>
@@ -222,8 +233,8 @@ export default function Page(context: any) {
                 <button
                     className="btn btn-primary text-white font-bold py-2 px-4 min-w-full rounded mt-3"
                     onClick={() => {
-                        createDay(mockDay({ owner: user.data.id, targetDay: selectedDay }, { items: [] })).then(() => {
-                            fetchDays(user.data.id);
+                        upsertDay(mockDay({ owner: currentUser.data.id, target_day: selectedDay }, { items: [] })).then(() => {
+                            fetchDays(currentUser.data.id);
                         });
                     }}
                 >
@@ -246,7 +257,6 @@ export default function Page(context: any) {
             </Show>
 
             <Show when={hasData}>
-
                 <MealItemAddModal
                     modalId={editModalId}
                     itemData={{
@@ -280,7 +290,7 @@ export default function Page(context: any) {
 
                         hideModal(window, editModalId);
                     }}
-                    onDelete={async (id: string) => {
+                    onDelete={async (id: MealItemData['id']) => {
                         await updateDay(dayData!.id, {
                             ...dayData!,
                             meals: dayData!.meals.map((meal) => {
@@ -309,14 +319,39 @@ export default function Page(context: any) {
                 <DayMacros className="mt-3 border-b-2 border-gray-800 pb-4"
                     macros={dayMacros!}
                 />
+
+                <Show when={!showingToday}>
+                    <Alert className="mt-2" color="warning">Mostrando refeições do dia {selectedDay}!</Alert>
+                    <Show when={dayLocked}>
+                        <Alert className="mt-2 outline" color="info">
+                            Hoje é dia <b>{today}</b> <a
+                                className="text-blue-500 font-bold hover:cursor-pointer "
+                                onClick={() => {
+                                    router.push('/day/' + today);
+                                }}
+                            >
+                                Mostrar refeições de hoje
+                            </a> ou <a
+                                className="text-red-600 font-bold hover:cursor-pointer "
+                                onClick={() => {
+                                    setDayLocked(false);
+                                }}
+                            > Desbloquear dia {selectedDay}</a>
+
+                        </Alert>
+                    </Show>
+                </Show>
+
                 <DayMeals className="mt-5" mealsProps={mealProps!} />
                 <CopyLastDayButton />
                 <button
                     className="hover:bg-red-400 text-white font-bold py-2 px-4 min-w-full rounded mt-3 btn btn-error"
-                    onClick={() => {
-                        createDay(mockDay({ owner: user.data.id, targetDay: selectedDay }, { items: [] })).then(() => {
-                            fetchDays(user.data.id);
-                        });
+                    onClick={async () => {
+                        if (!confirm('Tem certeza que deseja excluir este dia?')) {
+                            return;
+                        }
+                        await deleteDay(dayData!.id);
+                        await fetchDays(currentUser.data.id);
                     }}
                 >
                     PERIGO: Excluir dia
@@ -326,4 +361,3 @@ export default function Page(context: any) {
         </div>
     );
 }
-

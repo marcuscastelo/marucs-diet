@@ -85,11 +85,11 @@ export default function Page() {
                         <MealItem
                             key={idx}
                             mealItem={{
-                                id: "123",
+                                id: 123,
                                 food: food,
                                 quantity: 100,
                             }}
-                            favorite={false} // TODO: implement favorite
+                            favorite={false} // TODO: retriggered: implement favorite
                         />
                     </div>
                 )

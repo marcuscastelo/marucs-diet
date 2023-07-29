@@ -64,9 +64,10 @@ function UserField({
                 className={INPUT_STYLE}
                 type="text"
                 name={fieldName}
-                value={user.data[fieldName]}
+                value={user.data[fieldName].toString()}
                 onChange={
                     (e) => setUser((old: Loadable<User>) => {
+                        //TODO: retriggered: favoritedFoods will error string cannot be assigned to number
                         return old.loading ? old : {
                             loading: false,
                             data: {

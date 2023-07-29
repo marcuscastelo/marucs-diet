@@ -1,43 +1,23 @@
 "use client"
 
-import MacroTarget from "@/app/MacroTargets";
+import MacroTarget, { MacroProfile, MacroRepresentation, TargetGrams } from "@/app/MacroTargets";
 import { useCallback, useEffect, useState } from "react";
 
 const CARBO_CALORIES = 4 as const;
 const PROTEIN_CALORIES = 4 as const;
 const FAT_CALORIES = 9 as const;
 
-type MacroProfile = {
-    gramsPerKgCarb: number,
-    gramsPerKgProtein: number,
-    gramsPerKgFat: number,
-}
-
-type TargetGrams = {
-    gramsCarb: number,
-    gramsProtein: number,
-    gramsFat: number,
-}
-
-type MacroRepresentation = {
-    name: string,
-    percentage: number,
-    grams: number,
-    gramsPerKg: number,
-    calorieMultiplier: number,
-}
-
 const calculateMacroTarget = (
     weight: number,
     savedMacroTarget: MacroProfile
 ): TargetGrams => ({
-    gramsCarb: weight * savedMacroTarget.gramsPerKgCarb,
-    gramsProtein: weight * savedMacroTarget.gramsPerKgProtein,
-    gramsFat: weight * savedMacroTarget.gramsPerKgFat,
+    carbs: weight * savedMacroTarget.gramsPerKgCarbs,
+    protein: weight * savedMacroTarget.gramsPerKgProtein,
+    fat: weight * savedMacroTarget.gramsPerKgFat,
 });
 
 const calculateCalories = (targetGrams: TargetGrams): number => (
-    targetGrams.gramsCarb * 4 + targetGrams.gramsProtein * 4 + targetGrams.gramsFat * 9
+    targetGrams.carbs * 4 + targetGrams.protein * 4 + targetGrams.fat * 9
 );
 
 const calculateMacroRepresentation = (profile: MacroProfile, weight: number): MacroRepresentation[] => {
@@ -47,22 +27,22 @@ const calculateMacroRepresentation = (profile: MacroProfile, weight: number): Ma
     return [
         {
             name: 'Carboidratos',
-            percentage: targetGrams.gramsCarb * 4 / calories,
-            grams: targetGrams.gramsCarb,
-            gramsPerKg: profile.gramsPerKgCarb,
+            percentage: targetGrams.carbs * 4 / calories,
+            grams: targetGrams.carbs,
+            gramsPerKg: profile.gramsPerKgCarbs,
             calorieMultiplier: CARBO_CALORIES,
         },
         {
             name: 'Proteínas',
-            percentage: targetGrams.gramsProtein * 4 / calories,
-            grams: targetGrams.gramsProtein,
+            percentage: targetGrams.protein * 4 / calories,
+            grams: targetGrams.protein,
             gramsPerKg: profile.gramsPerKgProtein,
             calorieMultiplier: PROTEIN_CALORIES,
         },
         {
             name: 'Gorduras',
-            percentage: targetGrams.gramsFat * 9 / calories,
-            grams: targetGrams.gramsFat,
+            percentage: targetGrams.fat * 9 / calories,
+            grams: targetGrams.fat,
             gramsPerKg: profile.gramsPerKgFat,
             calorieMultiplier: FAT_CALORIES,
         },
@@ -77,7 +57,7 @@ const calculateDifferenceInCarbs = (targetCalories: number, weight: number, curr
 export default function Page() {
     const weight = 100;
     const initialProfile: MacroProfile = {
-        gramsPerKgCarb: 2,
+        gramsPerKgCarbs: 2,
         gramsPerKgProtein: 2,
         gramsPerKgFat: 1,
     };
@@ -139,7 +119,7 @@ export default function Page() {
                 id="default-search"
                 className="block text-center w-full p-2 pl-10 text-md bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 italic font-thin"
                 placeholder="Insira a meta de calorias diárias"
-                disabled={true} // TODO: future feature
+                disabled={true} // TODO: retriggered: future feature
                 required
             />
 

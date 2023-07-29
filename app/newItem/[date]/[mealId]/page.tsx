@@ -10,7 +10,7 @@ import MealItemAddModal from "../../../MealItemAddModal";
 import { mockFood } from "../../../test/unit/(mock)/mockData";
 import { MealItemData } from "@/model/mealItemModel";
 import { listDays, updateDay } from "@/controllers/days";
-import { DayData } from "@/model/dayModel";
+import { Day } from "@/model/dayModel";
 import { Record } from "pocketbase";
 import BarCodeInsertModal from "@/app/BarCodeInsertModal";
 import { hideModal, showModal } from "@/utils/DOMModal";
@@ -30,14 +30,13 @@ export default function Page(context: any) {
     const FOOD_LIMIT = 100;
     const TYPE_TIMEOUT = 1000;
 
-    const dayParam = context.params.date as string; // TODO: type-safe this
+    const dayParam = context.params.date as string; // TODO: retriggered: type-safe this
 
     const { user } = useUser();
 
     const [search, setSearch] = useState<string>('');
     const [foods, setFoods] = useState<Loadable<(Food)[]>>({ loading: true });
-    const [days, setDays] = useState<Loadable<(DayData)[]>>({ loading: true });
-
+    const [days, setDays] = useState<Loadable<Day[]>>({ loading: true });
     const [selectedFood, setSelectedFood] = useState(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }));
     const [quantity, setQuantity] = useState<number>(0);
 
@@ -50,20 +49,22 @@ export default function Page(context: any) {
 
     const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods();
 
-    const fetchFoods = async (search: string | '', favoriteFoods: string[]) => {
-        if (!(await isCached(search))) {
-            setSearchingFoods(true);
-        }
+    const fetchFoods = async (search: string | '', favoriteFoods: number[]) => {
+        // if (!(await isCached(search))) {
+        //     setSearchingFoods(true);
+        // }
 
         let foods: Food[] = [];
-        if (search == '') {
-            foods = await listFoods(); // TODO: add limit when search is made on backend
-        } else {
-            foods = await searchFoods(search); // TODO: add limit when search is made on backend
-        }
-        setSearchingFoods(false);
+        // if (search == '') {
+        //     foods = await listFoods(); // TODO: retriggered: add limit when search is made on backend
+        // } else {
+        //     foods = await searchFoods(search); // TODO: retriggered: add limit when search is made on backend
+        // }
+        foods = await searchFoods(search); // TODO: retriggered: add limit when search is made on backend
 
-        const isFavorite = (favoriteFoods: string[], food: Food) => {
+        // setSearchingFoods(false);
+
+        const isFavorite = (favoriteFoods: number[], food: Food) => {
             return favoriteFoods.includes(food.id);
         }
 
@@ -86,7 +87,7 @@ export default function Page(context: any) {
         });
     }
 
-    const fetchDays = async (userId: string) => {
+    const fetchDays = async (userId: User['id']) => {
         const days = await listDays(userId);
         setDays({
             loading: false,
@@ -103,7 +104,7 @@ export default function Page(context: any) {
             return;
         }
 
-        fetchFoods(search, user.data.favoriteFoods);
+        fetchFoods(search, user.data.favorite_foods);
         fetchDays(user.data.id);
     }, [user, search, typing]);
 
@@ -157,7 +158,7 @@ export default function Page(context: any) {
         }
     ).slice(0, FOOD_LIMIT);
 
-    const day = days.data.find((day) => day.targetDay == dayParam);
+    const day = days.data.find((day) => day.target_day == dayParam);
 
     if (!day) {
         return <>
@@ -165,7 +166,7 @@ export default function Page(context: any) {
             <Alert color="red" className="mt-2">Dia não encontrado {dayParam}.</Alert>
             <div className="bg-gray-800 p-1">
                 Dias disponíveis:
-                {JSON.stringify(days.data.map(d => d.targetDay), null, 2)}
+                {JSON.stringify(days.data.map(d => d.target_day), null, 2)}
             </div>
         </>
     }
@@ -235,9 +236,19 @@ export default function Page(context: any) {
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                     <svg aria-hidden="true" className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
-                <input autoFocus={isDesktop} value={search} onChange={(e) => setSearch(e.target.value)} type="search" id="default-search" className="block w-full p-4 pl-10 text-sm bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500" placeholder="Buscar alimentos" required />
+                <input 
+                    autoFocus={isDesktop} 
+                    value={search} 
+                    onChange={(e) => setSearch(e.target.value)} 
+                    type="search" 
+                    id="default-search" 
+                    className="block w-full p-4 pl-10 text-sm bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500" 
+                    placeholder="Buscar alimentos" 
+                    required 
+                />
             </div>
-
+            
+            {/* TODO: fix 'Nenhum alimento encontrado para a busca' being showed while still searching  */}
             {!searchingFoods && !typing && filteredFoods.length == 0 && <Alert color="warning" className="mt-2">Nenhum alimento encontrado para a busca &quot;{search}&quot;.</Alert>}
 
             <MealItemAddModal 
@@ -257,7 +268,7 @@ export default function Page(context: any) {
                             <div key={idx}>
                                 <MealItem
                                     mealItem={{
-                                        id: Math.random().toString(),
+                                        id: Math.round(Math.random() * 1000000000),
                                         food: food,
                                         quantity: 100,
                                     }}

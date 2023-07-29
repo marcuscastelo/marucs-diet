@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { showModal } from "@/utils/DOMModal";
+import { hideModal, showModal } from "@/utils/DOMModal";
 import BarCodeSearch from "./BarCodeSearch";
 import { Food } from "@/model/foodModel";
 import Modal from "./(modals)/modal";
@@ -29,8 +29,8 @@ export default function BarCodeInsertModal({ modalId, show, onSelect }: BarCodeI
         }
     }, [show, modalId]);
 
-    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    const handleSelect = async (e?: React.SyntheticEvent) => {
+        e?.preventDefault();
 
         if (!food) {
             console.warn('Ignoring submit because apiFood is null');
@@ -44,11 +44,17 @@ export default function BarCodeInsertModal({ modalId, show, onSelect }: BarCodeI
         <Modal
             modalId={modalId}
             show={show}
-            onSubmit={onSubmit}
+            onSubmit={handleSelect}
             header={<h1 className="modal-title">Pesquisar por código de barras</h1>}
             body={<BarCodeSearch onFoodChange={setFood} />}
             actions={<>
-
+                <button className="btn" onClick={(e) => {
+                            e.preventDefault();
+                            hideModal(window, modalId); // TODO: retriggered: remove this and use state/modal component
+                        }} >
+                            Cancelar
+                </button>
+                <button className="btn btn-primary" disabled={!food} onClick={handleSelect} >Aplicar</button>
             </>}
         
         />
