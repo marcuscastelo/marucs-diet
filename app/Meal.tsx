@@ -90,12 +90,7 @@ export default function Meal({ mealData, onNewItem, onEditItem, onUpdateMeal, cl
             return;
         }
 
-        navigator.clipboard
-            .readText()
-            .then(
-                (clipText) => (alert(clipText)),
-            );
-        // onEditItem(item);
+        onEditItem(item);
     }
 
     const handleCopyMeal = (e: React.MouseEvent) => {
