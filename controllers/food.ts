@@ -99,7 +99,6 @@ export const searchFoods = async (search: string, limit?: number) => {
 
     return await internalCacheLogic(search,
         {
-            //TODO: retriggered: remover duplicação de código e usar a busca do supabase
             ifCached: async (): Promise<Food[]> => {
                 const { data, error } = await supabase.from(TABLE).select().ilike('name', `%${search}%`).limit(limit ?? 100);
                 console.log(`Got ${data?.length} foods from cache.`);
