@@ -13,9 +13,9 @@ type MacroProfile = {
 }
 
 type TargetGrams = {
-    gramsCarbs: number,
-    gramsProtein: number,
-    gramsFat: number,
+    carbs: number,
+    protein: number,
+    fat: number,
 }
 
 type MacroRepresentation = {
@@ -31,14 +31,14 @@ export const calculateMacroTarget = (
     weight: number,
     savedMacroTarget: MacroProfile
 ): TargetGrams => ({
-    gramsCarbs: weight * savedMacroTarget.gramsPerKgCarbs,
-    gramsProtein: weight * savedMacroTarget.gramsPerKgProtein,
-    gramsFat: weight * savedMacroTarget.gramsPerKgFat,
+    carbs: weight * savedMacroTarget.gramsPerKgCarbs,
+    protein: weight * savedMacroTarget.gramsPerKgProtein,
+    fat: weight * savedMacroTarget.gramsPerKgFat,
 });
 
 //TODO: should not be exported (move to other module)
 export const calculateCalories = (targetGrams: TargetGrams): number => (
-    targetGrams.gramsCarbs * 4 + targetGrams.gramsProtein * 4 + targetGrams.gramsFat * 9
+    targetGrams.carbs * 4 + targetGrams.protein * 4 + targetGrams.fat * 9
 );
 
 const calculateMacroRepresentation = (profile: MacroProfile, weight: number): MacroRepresentation[] => {
@@ -48,22 +48,22 @@ const calculateMacroRepresentation = (profile: MacroProfile, weight: number): Ma
     return [
         {
             name: 'Carboidratos',
-            percentage: targetGrams.gramsCarbs * 4 / calories,
-            grams: targetGrams.gramsCarbs,
+            percentage: targetGrams.carbs * 4 / calories,
+            grams: targetGrams.carbs,
             gramsPerKg: profile.gramsPerKgCarbs,
             calorieMultiplier: CARBO_CALORIES,
         },
         {
             name: 'Proteínas',
-            percentage: targetGrams.gramsProtein * 4 / calories,
-            grams: targetGrams.gramsProtein,
+            percentage: targetGrams.protein * 4 / calories,
+            grams: targetGrams.protein,
             gramsPerKg: profile.gramsPerKgProtein,
             calorieMultiplier: PROTEIN_CALORIES,
         },
         {
             name: 'Gorduras',
-            percentage: targetGrams.gramsFat * 9 / calories,
-            grams: targetGrams.gramsFat,
+            percentage: targetGrams.fat * 9 / calories,
+            grams: targetGrams.fat,
             gramsPerKg: profile.gramsPerKgFat,
             calorieMultiplier: FAT_CALORIES,
         },
