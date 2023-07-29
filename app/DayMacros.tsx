@@ -4,6 +4,7 @@ import { MacroNutrientsData } from "@/model/macroNutrientsModel";
 import { useUser } from "@/redux/features/userSlice";
 import { Progress } from "flowbite-react";
 import { calculateMacroTarget } from "./MacroTargets";
+import { CSSProperties } from "react";
 
 export default function DayMacros({ macros, className }: { macros: MacroNutrientsData, className?: string }) {
     const currentUser = useUser();
@@ -12,7 +13,7 @@ export default function DayMacros({ macros, className }: { macros: MacroNutrient
         return <>Loading user...</>;
     }
 
-    const macroProfile = currentUser.data.macroProfile;
+    const macroProfile = currentUser.data.macro_profile;
     const targetMacros = calculateMacroTarget(currentUser.data.weight, macroProfile);
     const targetCalories = targetMacros.carbs * 4 + targetMacros.protein * 4 + targetMacros.fat * 9;
 
@@ -50,7 +51,7 @@ function Calories({
                 <div className="radial-progress text-blue-600" style={{
                     "--value": (100 * (macros.calories / targetCalories) / 2), "--size": "12rem", "--thickness": "0.7rem",
                     transform: `rotate(90deg) scale(-1, -1)`,
-                }}>
+                } as CSSProperties}>
                     <span className="" style={{
                         transform: `rotate(-90deg) scale(-1, -1) translate(0, -0.5rem)`
                     }}>

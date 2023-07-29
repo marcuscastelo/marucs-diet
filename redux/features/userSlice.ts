@@ -15,7 +15,8 @@ const initialState = {
 
 // TODO: avoid using localStorage directly
 async function saveUser(userData: User) {
-    localStorage.setItem('user', userData.id);
+    if (typeof window !== 'undefined')
+        localStorage?.setItem('user', userData.id.toString());
     await updateUser(userData.id, userData);
 }
 
@@ -38,7 +39,7 @@ const userSlice = createSlice({
 
             saveUser(state.data);
         },
-        setFavoriteFoods: (state, action: PayloadAction<string[]>) => {
+        setFavoriteFoods: (state, action: PayloadAction<number[]>) => {
             if (state.loading) {
                 console.error('setFavoriteFoods: user is not loaded');
                 return;
@@ -46,12 +47,12 @@ const userSlice = createSlice({
 
             state.data = {
                 ...state.data,
-                favoriteFoods: action.payload,
+                favorite_foods: action.payload,
             }
 
             saveUser(state.data);
         },
-        setFoodAsFavorite: (state, action: PayloadAction<{foodId: string, favorite: boolean}>) => {
+        setFoodAsFavorite: (state, action: PayloadAction<{foodId: number, favorite: boolean}>) => {
             if (state.loading) {
                 console.error('removeFavoriteFood: user is not loaded');
                 return;
@@ -60,15 +61,15 @@ const userSlice = createSlice({
             if (action.payload.favorite) {
                 state.data = {
                     ...state.data,
-                    favoriteFoods: [
-                        ...state.data.favoriteFoods,
+                    favorite_foods: [
+                        ...state.data.favorite_foods,
                         action.payload.foodId,
                     ],
                 }
             } else {
                 state.data = {
                     ...state.data,
-                    favoriteFoods: state.data.favoriteFoods.filter((food) => food !== action.payload.foodId),
+                    favorite_foods: state.data.favorite_foods.filter((food) => food !== action.payload.foodId),
                 }
             }
 
@@ -87,18 +88,18 @@ export const useFavoriteFoods = () => useAppSelector((state) => {
         return [];
 
     const user = loadable.data;
-    return user.favoriteFoods;
+    return user.favorite_foods;
 });
 
 export const useIsFoodFavorite = () => useAppSelector((state) => {
     const loadable = state.userReducer;
 
-    return (foodId: string) => {
+    return (foodId: number) => {
         if (loadable.loading)
             return false;
         
         const user = loadable.data;
-        return user.favoriteFoods.includes(foodId);
+        return user.favorite_foods.includes(foodId);
     }
 });
 

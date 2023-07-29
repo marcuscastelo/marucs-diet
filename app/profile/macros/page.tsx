@@ -16,7 +16,7 @@ export default function Page() {
     }
 
     const weight = currentUser.data?.weight;
-    const macroProfile = currentUser.data?.macroProfile;
+    const macroProfile = currentUser.data?.macro_profile;
 
     return (
         <>
