@@ -1,6 +1,6 @@
-import PocketBase from 'pocketbase'
-import { DOMAIN } from './api';
+// import PocketBase from 'pocketbase'
+// import { DOMAIN } from './api';
 
-const pb = new PocketBase(`${DOMAIN}:8090`);
+// const pb = new PocketBase(`${DOMAIN}:8090`);
 
-export default pb;
+// export default pb;

@@ -25,11 +25,11 @@ export default function RootLayout({
           content="App de dieta"/>
       </head>
       <body className={inter.className + ' dark'}>
-        <Providers>
+        {/* <Providers> */}
           <App>
             {children}
           </App>
-        </Providers>
+        {/* </Providers> */}
       </body>
     </html>
   )
