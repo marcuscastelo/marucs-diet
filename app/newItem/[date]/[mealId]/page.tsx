@@ -11,24 +11,24 @@ import { mockFood } from "../../../test/unit/(mock)/mockData";
 import { MealItemData } from "@/model/mealItemModel";
 import { listDays, updateDay } from "@/controllers/days";
 import { Day } from "@/model/dayModel";
-import { Record } from "pocketbase";
 import BarCodeInsertModal from "@/app/BarCodeInsertModal";
 import { showModal } from "@/utils/DOMModal";
 import { setFoodAsFavorite, useIsFoodFavorite, useUser } from "@/redux/features/userSlice";
 import { User } from "@/model/userModel";
 import { Loadable } from "@/utils/loadable";
 import { useAppDispatch } from "@/redux/hooks";
-import { isCached } from "@/controllers/searchCache";
 import { useRouter } from "next/navigation";
+import LoadingRing from "@/app/LoadingRing";
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal';
 const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal';
 
+//TODO: Refactor client-side cache vs server-side cache vs no cache logic on search
 export default function Page(context: any) {
     const FOOD_LIMIT = 100;
     const TYPE_TIMEOUT = 1000;
 
-    const dayParam = context.params.date as string; // TODO: retriggered: type-safe this
+    const dayParam = context.params.date as string; // TODO: type-safe this
 
     const dispatch = useAppDispatch();
     const currentUser = useUser();
@@ -38,8 +38,8 @@ export default function Page(context: any) {
     const [foods, setFoods] = useState<Loadable<(Food)[]>>({ loading: true });
     const [days, setDays] = useState<Loadable<Day[]>>({ loading: true });
     const [selectedFood, setSelectedFood] = useState(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }));
-    // const [searchingFoods, setSearchingFoods] = useState(false);
-    const searchingFoods = false;
+    const [searchingFoods, setSearchingFoods] = useState(false);
+
     const [typing, setTyping] = useState(false);
 
     const [isClient, setIsClient] = useState(false)
@@ -49,19 +49,17 @@ export default function Page(context: any) {
     const isFoodFavorite = useIsFoodFavorite();
 
     const fetchFoods = async (search: string | '', favoriteFoods: number[]) => {
-        // if (!(await isCached(search))) {
-        //     setSearchingFoods(true);
-        // }
+        setSearchingFoods(true);
+        setFoods({ loading: false, data: [] });
 
         let foods: Food[] = [];
-        // if (search == '') {
-        //     foods = await listFoods(); // TODO: retriggered: add limit when search is made on backend
-        // } else {
-        //     foods = await searchFoods(search); // TODO: retriggered: add limit when search is made on backend
-        // }
-        foods = await searchFoods(search); // TODO: retriggered: add limit when search is made on backend
+        if (search == '') {
+            foods = await listFoods(100);
+        } else {
+            foods = await searchFoods(search, 100);
+        }
 
-        // setSearchingFoods(false);
+        setSearchingFoods(false);
 
         const isFavorite = (favoriteFoods: number[], food: Food) => {
             return favoriteFoods.includes(food.id);
@@ -226,19 +224,18 @@ export default function Page(context: any) {
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                     <svg aria-hidden="true" className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
-                <input 
-                    autoFocus={isDesktop} 
-                    value={search} 
-                    onChange={(e) => setSearch(e.target.value)} 
-                    type="search" 
-                    id="default-search" 
-                    className="block w-full p-4 pl-10 text-sm bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500" 
-                    placeholder="Buscar alimentos" 
-                    required 
+                <input
+                    autoFocus={isDesktop}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    type="search"
+                    id="default-search"
+                    className="block w-full p-4 pl-10 text-sm bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Buscar alimentos"
+                    required
                 />
             </div>
-            
-            {/* TODO: fix 'Nenhum alimento encontrado para a busca' being showed while still searching  */}
+
             {!searchingFoods && !typing && filteredFoods.length == 0 && <Alert color="warning" className="mt-2">Nenhum alimento encontrado para a busca &quot;{search}&quot;.</Alert>}
 
             <MealItemAddModal modalId={MEAL_ITEM_ADD_MODAL_ID} meal={meal} itemData={{
@@ -249,33 +246,40 @@ export default function Page(context: any) {
 
             <div className="bg-gray-800 p-1">
                 {
-                    searchingFoods ?
+                    (searchingFoods && filteredFoods.length == 0) ?
                         <PageLoading message="Carregando alimentos" /> :
-                        filteredFoods.map((food, idx) =>
-                            <div key={idx}>
-                                <MealItem
-                                    mealItem={{
-                                        id: Math.round(Math.random() * 1000000000),
-                                        food: food,
-                                        quantity: 100,
-                                    }}
-                                    className="mt-1"
-                                    key={idx}
-                                    onClick={() => {
-                                        setSelectedFood(food);
-                                        showModal(window, MEAL_ITEM_ADD_MODAL_ID)
-                                    }}
-                                    favorite={
-                                        isFoodFavorite(food.id)
-                                    }
-                                    setFavorite={(favorite) => {
-                                        dispatch(setFoodAsFavorite({
-                                            foodId: food.id,
-                                            favorite
-                                        }));
-                                    }}
-                                />
-                            </div>
+                        (
+                            <>
+                                {
+                                    filteredFoods.map((food, idx) =>
+                                        <div key={idx}>
+                                            <MealItem
+                                                mealItem={{
+                                                    id: Math.round(Math.random() * 1000000000),
+                                                    food: food,
+                                                    quantity: 100,
+                                                }}
+                                                className="mt-1"
+                                                key={idx}
+                                                onClick={() => {
+                                                    setSelectedFood(food);
+                                                    showModal(window, MEAL_ITEM_ADD_MODAL_ID)
+                                                }}
+                                                favorite={
+                                                    isFoodFavorite(food.id)
+                                                }
+                                                setFavorite={(favorite) => {
+                                                    dispatch(setFoodAsFavorite({
+                                                        foodId: food.id,
+                                                        favorite
+                                                    }));
+                                                }}
+                                            />
+                                        </div>
+                                    )
+                                }
+                                {(searchingFoods && filteredFoods.length > 0) && <LoadingRing />}
+                            </>
                         )
                 }
             </div>
