@@ -3,7 +3,7 @@ import TBCAJson from './tbca.json'
 import { upsertFood, deleteAll } from '@/controllers/food'
 const parallelLimit = require('async/parallelLimit');
 
-//TODO: revisar esse cast
+//TODO: retriggered: revisar esse cast
 const TBCA = TBCAJson as unknown as { [key: string]: Food }
 
 export async function deleteAndReimportFoods(progressCallback?: (total: number) => void) {

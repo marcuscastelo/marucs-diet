@@ -67,7 +67,7 @@ function UserField({
                 value={user.data[fieldName].toString()}
                 onChange={
                     (e) => setUser((old: Loadable<User>) => {
-                        //TODO: favoritedFoods will error string cannot be assigned to number
+                        //TODO: retriggered: favoritedFoods will error string cannot be assigned to number
                         return old.loading ? old : {
                             loading: false,
                             data: {

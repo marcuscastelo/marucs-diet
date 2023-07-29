@@ -7,7 +7,7 @@ import supabase from '@/utils/supabase';
 const TABLE = 'cached_searches';
 
 export const isCached = async (search: string) => {
-    // TODO: tratar erros e fazer o filtro na query
+    // TODO: retriggered: tratar erros e fazer o filtro na query
     const cached = ((await supabase.from(TABLE).select('*')).data ?? []).map((data) => cachedSearchSchema.parse(data));
     return cached.some((cache) => cache.search.toLowerCase() === search.toLowerCase());
 }

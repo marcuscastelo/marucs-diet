@@ -83,14 +83,14 @@ export default function MealItem(props: MealItemProps) {
                     mealItem.classList.add('bg-gray-700');
                 });
 
-                //TODO: reorder meal items (and move across meals)
+                //TODO: retriggered: reorder meal items (and move across meals)
                 e.dataTransfer.setData("text/plain", JSON.stringify(props.mealItem));
             }}
             >
             <div className={`meal-item block p-3 bg-gray-700 border border-gray-700 rounded-lg shadow hover:bg-gray-700 hover:cursor-pointer ${props.className ?? ''}`} onClick={onClick}>
                 <div className="flex">
                     <div className="">
-                        {/* //TODO: mealItem id is random, but it should be an entry on the database (meal too) */}
+                        {/* //TODO: retriggered: mealItem id is random, but it should be an entry on the database (meal too) */}
                         {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.mealItem.id}]</h5> */}
                         <h5 className="mb-2 text-lg font-bold tracking-tight text-white">{props.mealItem.food.name} </h5>
                     </div>
