@@ -297,6 +297,7 @@ export default function Page(context: any) {
                                 }
                                 {(searchingFoods && filteredFoods.length > 0) && <LoadingRing />}
                             </>
+                        )
                 }
             </div>
         </>
