@@ -42,16 +42,20 @@ const internalCacheLogic = async (
     console.log('Cache not found, fetching from API...');
     const newFoods = await ifNotCached();
     const createdFoodsPromises = newFoods.map(async (food, idx) => {
-        console.log(`Caching ${idx + 1}/${newFoods.length}... (${food.name})`)
+        console.log(`Creating ${idx + 1}/${newFoods.length}... (${food.name})`)
         return await upsertFood(food);
     });
 
     try {
         const createdFoods = await Promise.all(createdFoodsPromises);
-        console.log('Finished caching foods.');
-        console.log(`Marking '${cacheKey}' as cached...`);
-        await markAsCached(cacheKey);
-        console.log('Finished marking cache as cached.');
+        console.log('Finished creating foods.');
+        if (createdFoods.length === 0) {
+            console.warn('No foods created!! skipping cache');
+        } else {
+            console.log(`Marking '${cacheKey}' as cached...`);
+            await markAsCached(cacheKey);
+            console.log('Finished marking cache as cached.');
+        }
 
         return createdFoods;
     }
@@ -72,7 +76,7 @@ export const listFoods = async (limit?: number) => {
     return await internalCacheLogic('__root__',
         {
             ifCached: async (): Promise<Food[]> => {
-                const { data, error } = await supabase.from(TABLE).select('*');
+                const { data, error } = await supabase.from(TABLE).select().limit(limit ?? 100);
                 console.log(`Got ${data?.length} foods from cache.`)
                 if (error) {
                     console.error(error);
@@ -97,7 +101,7 @@ export const searchFoods = async (search: string, limit?: number) => {
         {
             //TODO: retriggered: remover duplicação de código e usar a busca do supabase
             ifCached: async (): Promise<Food[]> => {
-                const { data, error } = await supabase.from(TABLE).select().ilike('name', `%${search}%`);
+                const { data, error } = await supabase.from(TABLE).select().ilike('name', `%${search}%`).limit(limit ?? 100);
                 console.log(`Got ${data?.length} foods from cache.`);
                 if (data?.length === 0) {
                     //TODO: readd this logic of cache invalidation, but also with time
@@ -127,7 +131,7 @@ export const searchFoods = async (search: string, limit?: number) => {
 
 export const upsertFood = async (food: Omit<Food, 'id'>): Promise<Food> => {
 
-    const { data, error } = await supabase.from(TABLE).upsert(food).select('*');
+    const { data, error } = await supabase.from(TABLE).upsert(food).select();
     if (error) {
         console.error(error);
         throw error;
