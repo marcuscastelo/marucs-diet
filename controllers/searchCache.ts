@@ -16,15 +16,9 @@ export const markAsCached = async (search: string) => {
     if (await isCached(search)) {
         return;
     }
-    await supabase.from(TABLE).upsert({ search }).select();
+    await supabase.from(TABLE).upsert({ search: search.toLowerCase() }).select();
 }
 
-export const removeFromCache = async (search: string) => {
-    // const cached = (await listAll<CachedSearch>(TABLE)).map((data) => cachedSearchSchema.parse(data));
-    // const toDelete = cached.find((cache) => cache.search.toLowerCase() === search.toLowerCase());
-    // if (toDelete) {
-    //     await pb.collection(TABLE).delete(toDelete.id, { $autoCancel: false });
-    // } else {
-    //     throw new Error(`Search ${search} not found in cache, cannot delete`);
-    // }
+export const unmarkAsCached = async (search: string) => {
+    await supabase.from(TABLE).delete().match({ search }).select();
 }
