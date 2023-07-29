@@ -71,14 +71,7 @@ function Calories({
                                 kcal
                             </div>
                         </span>
-
-
                     </div>
-                </div>
-                <div className="mx-2 w-full">
-                    <Progress className="" size="sm" textLabelPosition="outside" color="green" textLabel={`Carbo.  (${Math.round(macros.carbs * 100) / 100}/${Math.round(macros.carbs * 100) / 100}g)`} labelText={true} progress={100 * macros.carbs / macros.carbs} />
-                    <Progress className="" size="sm" textLabelPosition="outside" color="red" textLabel={`Proteína (${Math.round(macros.protein * 100) / 100}/${Math.round(macros.protein * 100) / 100}g)`} labelText={true} progress={100 * macros.protein / macros.protein} />
-                    <Progress className="" size="sm" textLabelPosition="outside" color="yellow" textLabel={`Gordura (${Math.round(macros.fat * 100) / 100}/${Math.round(macros.fat * 100) / 100}g)`} labelText={true} progress={100 * macros.fat / macros.fat} />
                 </div>
             </div>
         </>
