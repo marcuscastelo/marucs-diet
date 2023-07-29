@@ -4,7 +4,7 @@ import { searchBarCode } from "@/controllers/barcodes";
 import { ApiFood } from "@/model/apiFoodModel";
 import { useEffect, useState } from "react";
 import MealItem from "./MealItem";
-import { convertApi2Food, createFood } from "@/controllers/food";
+import { convertApi2Food, upsertFood } from "@/controllers/food";
 import { setUserJson, useFavoriteFoods, useUser } from "@/redux/features/userSlice";
 import { Food } from "@/model/foodModel";
 import { useAppDispatch } from "@/redux/hooks";
@@ -44,7 +44,7 @@ export default function BarCodeSearch(
 
         setLoading(true);
         const promise = searchBarCode(barCode).then(async (apiFood) => {
-            const food = await createFood(convertApi2Food(apiFood));
+            const food = await upsertFood(convertApi2Food(apiFood));
             // setCurrentFood(food);
             throw new Error("Not implemented");
         }).catch((err) => {

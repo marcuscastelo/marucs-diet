@@ -3,10 +3,9 @@ import { Record } from 'pocketbase';
 import { z } from 'zod';
 
 import { parallelLimit } from 'async';
-import { listAll } from './utils';
 import axios from 'axios';
 import { ApiFood, apiFoodSchema } from '@/model/apiFoodModel';
-import { addToCache, isCached } from './searchCache';
+import { markAsCached, isCached } from './searchCache';
 import { INTERNAL_API } from '@/utils/api';
 import supabase from '@/utils/supabase';
 
@@ -46,18 +45,17 @@ const internalCacheLogic = async (
     const newFoods = await ifNotCached();
     const createdFoodsPromises = newFoods.map(async (food, idx) => {
         console.log(`Caching ${idx + 1}/${newFoods.length}... (${food.name})`)
-        return await createFood(food);
+        return await upsertFood(food);
     });
 
     try {
         const createdFoods = await Promise.all(createdFoodsPromises);
         console.log('Finished caching foods.');
         console.log(`Marking '${cacheKey}' as cached...`);
-        await addToCache(cacheKey);
+        await markAsCached(cacheKey);
         console.log('Finished marking cache as cached.');
 
-        throw new Error('Not implemented');
-        return createdFoods as unknown as Food[];
+        return createdFoods;
     }
     catch (e) {
         console.error(e);
@@ -99,7 +97,16 @@ export const searchFoods = async (search: string, limit?: number) => {
 
     return await internalCacheLogic(search,
         {
-            ifCached: async () => await listAll<Food>(TABLE, limit),
+            //TODO: remover duplicação de código e usar a busca do supabase
+            ifCached: async (): Promise<Food[]> => {
+                const { data, error } = await supabase.from(TABLE).select('*');
+                console.log(`Got ${data?.length} foods from cache.`)
+                if (error) {
+                    console.error(error);
+                    throw error;
+                }
+                return (data ?? []).map(food => foodSchema.parse(food));
+            },
             ifNotCached:
                 async () => {
                     const newFoods = newFoodsSchema.parse((await await INTERNAL_API.get('food', {
@@ -114,14 +121,13 @@ export const searchFoods = async (search: string, limit?: number) => {
     );
 }
 
-export const createFood = async (food: Omit<Food, 'id'>) => {
-    // const foods = await listFoods();
-    // const existingFood = foods.find((f) => f.source && food.source && f.source.type === food.source.type && f.source.id === food.source.id);
-    // if (existingFood) {
-    //     console.warn(`Food ${food.name} is a duplicate, skipping...`);
-    //     return existingFood;
-    // }
-    // return await pb.collection(PB_COLLECTION).create<Record & Food>(food, { $autoCancel: false });
+export const upsertFood = async (food: Omit<Food, 'id'>): Promise<Food> => {
+    const { data, error } = await supabase.from(TABLE).upsert(food).select('*');
+    if (error) {
+        console.error(error);
+        throw error;
+    }
+    return foodSchema.parse(data?.[0]);
 }
 
 export const deleteAll = async () => {
