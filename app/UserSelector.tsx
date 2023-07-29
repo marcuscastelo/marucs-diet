@@ -8,6 +8,7 @@ import { User } from "@/model/userModel";
 import { listUsers } from "@/controllers/users";
 import { Record } from "pocketbase";
 import { Loadable } from "@/utils/loadable";
+import Link from "next/link";
 
 export default function UserSelector() {
     const [availableUsers, setAvailableUsers] = useState<Loadable<(User)[]>>({ loading: true });
@@ -57,9 +58,9 @@ export default function UserSelector() {
                             "Deslogado" :
                             "Carregando..."
                             ) :
-                            <a href="/profile">
+                            <Link href="/profile">
                                 {currentUser.data.name}
-                            </a>
+                            </Link>
                     }
                 </div>
                 <div className="text-sm font-medium leading-none text-slate-300">
