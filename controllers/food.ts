@@ -2,8 +2,6 @@ import { Food, foodSchema } from '@/model/foodModel';
 import { Record } from 'pocketbase';
 import { z } from 'zod';
 
-import { parallelLimit } from 'async';
-import axios from 'axios';
 import { ApiFood, apiFoodSchema } from '@/model/apiFoodModel';
 import { markAsCached, isCached } from './searchCache';
 import { INTERNAL_API } from '@/utils/api';
@@ -37,7 +35,7 @@ const internalCacheLogic = async (
 ): Promise<Food[]> => {
     console.log('Checking cache...');
     if (await isCached(cacheKey)) {
-        console.log('Cache found, returning cached foods...');
+        console.log('Cache found, returning cached foods...'); //TODO: fix cached foods being limited to top 1000
         return await ifCached();
     }
 
