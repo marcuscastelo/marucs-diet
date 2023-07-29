@@ -13,9 +13,8 @@ export function BarCodeReader({
     useEffect(() => {
         function onScanSuccess(decodedText: string, decodedResult: Html5QrcodeResult) {
             if (decodedResult.result.format?.format != Html5QrcodeSupportedFormats.EAN_13) {
-                alert(`Atenção: Formato de código de barras não suportado: ${decodedResult.result.format?.format}`);
-                alert(`Código de barras lido: ${decodedText}`);
-                return;
+                console.warn(`Atenção: Formato de código de barras não suportado: ${decodedResult.result.format?.format}`);
+                console.warn(`Código de barras lido: ${decodedText}`);
             }
 
             onScanned(decodedText);
