@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { hideModal, showModal } from "@/utils/DOMModal";
 import BarCodeSearch from "./BarCodeSearch";
 import { Food } from "@/model/foodModel";
+import { BarCodeReader } from "./BarCodeReader";
 
 export type BarCodeInsertModalProps = {
     modalId: string,
@@ -12,6 +13,7 @@ export type BarCodeInsertModalProps = {
 }
 
 export default function BarCodeInsertModal({ modalId, show, onSelect }: BarCodeInsertModalProps) {
+    const [barCode, setBarCode] = useState<string>('');
     const [food, setFood] = useState<Food | null>(null);
 
     useEffect(() => {
@@ -43,7 +45,12 @@ export default function BarCodeInsertModal({ modalId, show, onSelect }: BarCodeI
         <>
             <dialog id={modalId} className="modal modal-bottom sm:modal-middle">
                 <form method="dialog" className="modal-box bg-gray-800 text-white" onSubmit={handleSelect}>
-                    <BarCodeSearch onFoodChange={setFood} />
+                    <BarCodeReader id="reader" onScanned={setBarCode} />
+                    <BarCodeSearch 
+                        barCode={barCode}
+                        setBarCode={setBarCode}
+                        onFoodChange={setFood} 
+                    />
 
                     <div className="modal-action">
                         {/* if there is a button in form, it will close the modal */}
