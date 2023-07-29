@@ -6,19 +6,19 @@ const CARBO_CALORIES = 4 as const;
 const PROTEIN_CALORIES = 4 as const;
 const FAT_CALORIES = 9 as const;
 
-type MacroProfile = {
+export type MacroProfile = {
     gramsPerKgCarbs: number,
     gramsPerKgProtein: number,
     gramsPerKgFat: number,
 }
 
-type TargetGrams = {
+export type TargetGrams = {
     carbs: number,
     protein: number,
     fat: number,
 }
 
-type MacroRepresentation = {
+export type MacroRepresentation = {
     name: string,
     percentage: number,
     grams: number,

@@ -35,6 +35,9 @@ yarn-error.log*
 next-env.d.ts
 
 database/
-secrets/
 logs/
+
+yarn.lock
+package-lock.json
+pnpm-lock.yaml
 ```

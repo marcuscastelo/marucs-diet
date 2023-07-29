@@ -98,7 +98,7 @@ export default function Meal({ mealData, onNewItem, onEditItem, onUpdateMeal, cl
                 startFromPercentage: 0.1,
                 maxScrollAtPercentage: 0.01,
             }}>
-            <Droppable droppableId={mealData.id}>
+            <Droppable droppableId={mealData.id.toString()}>
                 {(droppableProvided, droppableSnapshot) => (
                     <div
                         ref={droppableProvided.innerRef}
@@ -120,7 +120,7 @@ export default function Meal({ mealData, onNewItem, onEditItem, onUpdateMeal, cl
                             {
                                 mealData.items.map((item, index) =>
                                     <div key={item.id} className="mt-2">
-                                        <Draggable draggableId={item.id} index={index} shouldRespectForcePress={true}>
+                                        <Draggable draggableId={item.id.toString()} index={index} shouldRespectForcePress={true}>
                                             {(draggableProvided, draggableSnapshot) => (
                                                 <div
                                                     ref={draggableProvided.innerRef}
