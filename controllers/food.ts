@@ -1,4 +1,4 @@
-import { Food } from '@/model/foodModel';
+import { Food, foodSchema } from '@/model/foodModel';
 import { Record } from 'pocketbase';
 import { z } from 'zod';
 
@@ -82,7 +82,7 @@ export const listFoods = async (limit?: number) => {
                     console.error(error);
                     throw error;
                 }
-                return data ?? [];
+                return (data ?? []).map(food => foodSchema.parse(food));
             },
             ifNotCached:
                 async () => {
