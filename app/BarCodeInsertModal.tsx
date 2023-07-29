@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { showModal } from "@/utils/DOMModal";
+import { hideModal, showModal } from "@/utils/DOMModal";
 import BarCodeSearch from "./BarCodeSearch";
 import { Food } from "@/model/foodModel";
 
@@ -28,8 +28,8 @@ export default function BarCodeInsertModal({ modalId, show, onSelect }: BarCodeI
         }
     }, [show, modalId]);
 
-    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    const handleSelect = async (e?: React.SyntheticEvent) => {
+        e?.preventDefault();
 
         if (!food) {
             console.warn('Ignoring submit because apiFood is null');
@@ -42,17 +42,19 @@ export default function BarCodeInsertModal({ modalId, show, onSelect }: BarCodeI
     return (
         <>
             <dialog id={modalId} className="modal modal-bottom sm:modal-middle">
-                <form method="dialog" className="modal-box bg-gray-800 text-white" onSubmit={onSubmit}>
-                    <BarCodeSearch onFoodChange={setFood}/>
-                    
+                <form method="dialog" className="modal-box bg-gray-800 text-white" onSubmit={handleSelect}>
+                    <BarCodeSearch onFoodChange={setFood} />
+
                     <div className="modal-action">
                         {/* //TODO: make buttons work */}
                         {/* if there is a button in form, it will close the modal */}
-                        {/* <button className="btn" onClick={() => onCancel?.()} >Cancelar</button>
-                        <button className="btn" disabled={!canAdd} onClick={(e) => {
+                        <button className="btn" onClick={(e) => {
                             e.preventDefault();
-                            onApply(createMealItemData());
-                        }} >Aplicar</button> */}
+                            hideModal(window, modalId); // TODO: remove this and use state/modal component
+                        }} >
+                            Cancelar
+                        </button>
+                        <button className="btn btn-primary" disabled={!food} onClick={handleSelect} >Aplicar</button>
                     </div>
                 </form>
                 <form method="dialog" className="modal-backdrop">
