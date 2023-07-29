@@ -28,11 +28,29 @@ export const upsertDay = async (day: Partial<Day> & Omit<Day, 'id'>): Promise<Da
     return daySchema.parse(days?.[0] ?? null);
 }
 
-export const updateDay = async (id: Day['id'], day: Day) => {
-    // return await pb.collection(TABLE).update<Record & DayData>(id, day, { $autoCancel: false });
+export const updateDay = async (id: Day['id'], day: Day): Promise<Day> => {
+    const { data, error } = await supabase
+        .from(TABLE)
+        .update(day)
+        .eq('id', id)
+        .select('*');
+
+    if (error) {
+        throw error;
+    }
+
+    return daySchema.parse(data?.[0] ?? null)
 }
 
 //TODO: add boolean to check on usages of this function
-export const deleteDay = async (id: Day['id']) => {
-    // return await pb.collection(TABLE).delete(id, { $autoCancel: false });
+export const deleteDay = async (id: Day['id']): Promise<void> => {
+    const { error } = await supabase
+        .from(TABLE)
+        .delete()
+        .eq('id', id)
+        .select('*');
+
+    if (error) {
+        throw error;
+    }
 }
