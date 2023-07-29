@@ -16,7 +16,7 @@ const searchBarCodeInternal = async (barcode: string) => {
     console.log(response.data);
     console.dir(response.data);
     return apiFoodSchema.parse(response.data);
-    //TODO cache this
+    //TODO: retriggered cache this
 }
 
 export async function GET(request: NextRequest, {params} : {params: {ean: string}}) {

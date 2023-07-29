@@ -30,7 +30,7 @@ export default function Page(context: any) {
 
     const currentUser = useUser();
 
-    const selectedDay = context.params.day as string; // TODO: type-safe this
+    const selectedDay = context.params.day as string; // TODO: retriggered: type-safe this
     const today = getToday();
     const showingToday = today === selectedDay;
 
@@ -58,7 +58,7 @@ export default function Page(context: any) {
 
         const dateString = newValue.startDate;
         const date = stringToDate(dateString)
-        const dayString = date.toISOString().split('T')[0]; //TODO: use dateUtils when this is understood
+        const dayString = date.toISOString().split('T')[0]; //TODO: retriggered: use dateUtils when this is understood
         router.push(`/day/${dayString}`);
     }
 
@@ -148,7 +148,7 @@ export default function Page(context: any) {
     });
 
     function CopyLastDayButton() {
-        //TODO: improve this code
+        //TODO: retriggered: improve this code
         if (days.loading || currentUser.loading) return <>LOADING</>
 
         const lastDayIdx = days.data.findLastIndex((day) => Date.parse(day.target_day) < Date.parse(selectedDay));
@@ -188,7 +188,7 @@ export default function Page(context: any) {
                 });
             }}
         >
-            {/* //TODO: copiar qualquer dia */}
+            {/* //TODO: retriggered: copiar qualquer dia */}
             Copiar dia anterior ({days.data[lastDayIdx].target_day})
         </button>
     }

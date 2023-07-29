@@ -119,7 +119,7 @@ export default function Page() {
                 id="default-search"
                 className="block text-center w-full p-2 pl-10 text-md bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 italic font-thin"
                 placeholder="Insira a meta de calorias diárias"
-                disabled={true} // TODO: future feature
+                disabled={true} // TODO: retriggered: future feature
                 required
             />
 

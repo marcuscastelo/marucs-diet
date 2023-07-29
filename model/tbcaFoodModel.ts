@@ -78,5 +78,5 @@
 //     id: string;
 //     tbcaId: string;
 //     name: string;
-//     macros: MacroNutrientsData; //TODO: add micro, fibers, etc.
+//     macros: MacroNutrientsData; //TODO: retriggered: add micro, fibers, etc.
 // }
