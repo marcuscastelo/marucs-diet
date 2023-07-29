@@ -3,7 +3,7 @@ import { Record } from 'pocketbase';
 import { z } from 'zod';
 
 import { ApiFood, apiFoodSchema } from '@/model/apiFoodModel';
-import { markAsCached, isCached } from './searchCache';
+import { markAsCached, isCached, unmarkAsCached } from './searchCache';
 import { INTERNAL_API } from '@/utils/api';
 import supabase from '@/utils/supabase';
 
@@ -97,8 +97,14 @@ export const searchFoods = async (search: string, limit?: number) => {
         {
             //TODO: retriggered: remover duplicação de código e usar a busca do supabase
             ifCached: async (): Promise<Food[]> => {
-                const { data, error } = await supabase.from(TABLE).select('*');
-                console.log(`Got ${data?.length} foods from cache.`)
+                const { data, error } = await supabase.from(TABLE).select().ilike('name', `%${search}%`);
+                console.log(`Got ${data?.length} foods from cache.`);
+                if (data?.length === 0) {
+                    //TODO: readd this logic of cache invalidation, but also with time
+                    // console.log('No foods found, unmarking cache as cached.');
+                    // await unmarkAsCached(search);
+                }
+
                 if (error) {
                     console.error(error);
                     throw error;
@@ -120,6 +126,7 @@ export const searchFoods = async (search: string, limit?: number) => {
 }
 
 export const upsertFood = async (food: Omit<Food, 'id'>): Promise<Food> => {
+
     const { data, error } = await supabase.from(TABLE).upsert(food).select('*');
     if (error) {
         console.error(error);
