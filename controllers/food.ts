@@ -8,8 +8,9 @@ import axios from 'axios';
 import { ApiFood, apiFoodSchema } from '@/model/apiFoodModel';
 import { addToCache, isCached } from './searchCache';
 import { INTERNAL_API } from '@/utils/api';
+import supabase from '@/utils/supabase';
 
-const PB_COLLECTION = 'Food';
+const TABLE = 'foods';
 
 //TODO: pensar num lugar melhor pra isso
 export function convertApi2Food(food: ApiFood): Omit<Food, 'id'> {
@@ -74,7 +75,15 @@ export const listFoods = async (limit?: number) => {
 
     return await internalCacheLogic('__root__',
         {
-            ifCached: async () => await listAll<Food>(PB_COLLECTION, limit),
+            ifCached: async (): Promise<Food[]> => {
+                const { data, error } = await supabase.from(TABLE).select('*');
+                console.log(`Got ${data?.length} foods from cache.`)
+                if (error) {
+                    console.error(error);
+                    throw error;
+                }
+                return data ?? [];
+            },
             ifNotCached:
                 async () => {
                     const newFoods = newFoodsSchema.parse((await INTERNAL_API.get(`food`)).data);
@@ -90,7 +99,7 @@ export const searchFoods = async (search: string, limit?: number) => {
 
     return await internalCacheLogic(search,
         {
-            ifCached: async () => await listAll<Food>(PB_COLLECTION, limit),
+            ifCached: async () => await listAll<Food>(TABLE, limit),
             ifNotCached:
                 async () => {
                     const newFoods = newFoodsSchema.parse((await await INTERNAL_API.get('food', {
