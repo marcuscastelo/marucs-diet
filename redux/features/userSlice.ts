@@ -46,7 +46,7 @@ const userSlice = createSlice({
 
             state.data = {
                 ...state.data,
-                favoriteFoods: action.payload,
+                favorite_foods: action.payload,
             }
 
             saveUser(state.data);
@@ -60,15 +60,15 @@ const userSlice = createSlice({
             if (action.payload.favorite) {
                 state.data = {
                     ...state.data,
-                    favoriteFoods: [
-                        ...state.data.favoriteFoods,
+                    favorite_foods: [
+                        ...state.data.favorite_foods,
                         action.payload.foodId,
                     ],
                 }
             } else {
                 state.data = {
                     ...state.data,
-                    favoriteFoods: state.data.favoriteFoods.filter((food) => food !== action.payload.foodId),
+                    favorite_foods: state.data.favorite_foods.filter((food) => food !== action.payload.foodId),
                 }
             }
 
@@ -87,7 +87,7 @@ export const useFavoriteFoods = () => useAppSelector((state) => {
         return [];
 
     const user = loadable.data;
-    return user.favoriteFoods;
+    return user.favorite_foods;
 });
 
 export const useIsFoodFavorite = () => useAppSelector((state) => {
@@ -98,7 +98,7 @@ export const useIsFoodFavorite = () => useAppSelector((state) => {
             return false;
         
         const user = loadable.data;
-        return user.favoriteFoods.includes(foodId);
+        return user.favorite_foods.includes(foodId);
     }
 });
 
