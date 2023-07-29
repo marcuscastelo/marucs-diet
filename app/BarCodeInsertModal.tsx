@@ -56,7 +56,6 @@ export default function BarCodeInsertModal({ modalId, show, onSelect }: BarCodeI
                 </button>
                 <button className="btn btn-primary" disabled={!food} onClick={handleSelect} >Aplicar</button>
             </Modal.Actions>}
-
         />
     );
 }
