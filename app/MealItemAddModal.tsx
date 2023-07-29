@@ -21,10 +21,11 @@ export type MealItemAddModalProps = {
 }
 
 export default function MealItemAddModal({
-    modalId, show, meal, itemData: { food, quantity: initialQuantity, id: initialId },
+    modalId, show: initialShow, meal, itemData: { food, quantity: initialQuantity, id: initialId },
     onApply, onCancel, onDelete
 }: MealItemAddModalProps
 ) {
+    const [show, setShow] = useState(initialShow ?? false);
     const [quantity, setQuantity] = useState(initialQuantity?.toString() ?? '');
     const [id, setId] = useState(initialId ?? Math.random().toString());
     const canAdd = quantity != '' && Number(quantity) > 0;
@@ -37,6 +38,7 @@ export default function MealItemAddModal({
 
     useEffect(() => {
         if (!show) {
+            hideModal(window, modalId);
             return;
         }
 
@@ -170,7 +172,14 @@ export default function MealItemAddModal({
                                 }
                             }} >Excluir</button>
                         }
-                        <button className="btn" onClick={() => onCancel?.()} >Cancelar</button>
+                        <button className="btn" onClick={(e) => {
+                            e.preventDefault();
+                            setShow(false);
+                            hideModal(window, modalId); //TODO: remove this and use react state
+                            onCancel?.()
+                        }} >
+                            Cancelar
+                        </button>
                         <button className="btn" disabled={!canAdd} onClick={(e) => {
                             e.preventDefault();
                             onApply(createMealItemData());
