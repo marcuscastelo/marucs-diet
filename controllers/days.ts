@@ -1,28 +1,30 @@
 import { Record } from 'pocketbase';
 
-import { DayData } from '@/model/dayModel';
+import { Day, daySchema } from '@/model/dayModel';
 import { listAll } from './utils';
 import { User } from '@/model/userModel';
+import supabase from '@/utils/supabase';
 
-const PB_COLLECTION = 'Days';
+const TABLE = 'days';
 
-export const listDays = async (userId: User['id']) =>
-    (await listAll<DayData>(PB_COLLECTION))
+export const listDays = async (userId: User['id']): Promise<Day[]> =>
+    ((await supabase.from(TABLE).select('*')).data ?? [])
+        .map(day => daySchema.parse(day))
         .filter((day) => day.owner === userId)
-        .map((day): DayData => ({
+        .map((day): Day => ({
             ...day,
-            targetDay: day.targetDay.split(' ')[0],
+            target_day: day.target_day.split(' ')[0],
         }));
 
-export const createDay = async (day: DayData) => {
-    // return await pb.collection(PB_COLLECTION).create<Record & DayData>(day, { $autoCancel: false });
+export const createDay = async (day: Day) => {
+    // return await pb.collection(TABLE).create<Record & DayData>(day, { $autoCancel: false });
 }
 
-export const updateDay = async (id: DayData['id'], day: DayData) => {
-    // return await pb.collection(PB_COLLECTION).update<Record & DayData>(id, day, { $autoCancel: false });
+export const updateDay = async (id: Day['id'], day: Day) => {
+    // return await pb.collection(TABLE).update<Record & DayData>(id, day, { $autoCancel: false });
 }
 
 //TODO: add boolean to check on usages of this function
-export const deleteDay = async (id: DayData['id']) => {
-    // return await pb.collection(PB_COLLECTION).delete(id, { $autoCancel: false });
+export const deleteDay = async (id: Day['id']) => {
+    // return await pb.collection(TABLE).delete(id, { $autoCancel: false });
 }

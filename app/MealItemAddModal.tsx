@@ -17,7 +17,7 @@ export type MealItemAddModalProps = {
     show?: boolean,
     onApply: (item: MealItemData) => void,
     onCancel?: () => void,
-    onDelete?: (itemId: string) => void,
+    onDelete?: (itemId: MealItemData['id']) => void,
 }
 
 export default function MealItemAddModal({
@@ -27,7 +27,7 @@ export default function MealItemAddModal({
 ) {
     const [show, setShow] = useState(initialShow ?? false);
     const [quantity, setQuantity] = useState(initialQuantity?.toString() ?? '');
-    const [id, setId] = useState(initialId ?? Math.random().toString());
+    const [id, setId] = useState(initialId ?? Math.random());
     const canAdd = quantity != '' && Number(quantity) > 0;
     const quantityRef = useRef<HTMLInputElement>(null);
 
