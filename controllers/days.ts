@@ -1,7 +1,6 @@
 import { Record } from 'pocketbase';
 
 import { Day, daySchema } from '@/model/dayModel';
-import { listAll } from './utils';
 import { User } from '@/model/userModel';
 import supabase from '@/utils/supabase';
 
