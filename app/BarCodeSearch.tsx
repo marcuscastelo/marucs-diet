@@ -91,7 +91,7 @@ export default function BarCodeSearch(
                                 }}
                                 favorite={
                                     currentUser.loading ? false :
-                                        isFavorite(currentUser.data.favoriteFoods, currentFood)
+                                        isFavorite(currentUser.data.favorite_foods, currentFood)
                                 }
                                 setFavorite={(favorite) => {
                                     if (currentUser.loading) {
@@ -100,12 +100,12 @@ export default function BarCodeSearch(
 
                                     const newUser = Object.assign({}, currentUser.data);
 
-                                    newUser.favoriteFoods = [...currentUser.data.favoriteFoods]
+                                    newUser.favorite_foods = [...currentUser.data.favorite_foods]
 
                                     if (favorite) {
-                                        newUser.favoriteFoods.push(currentFood.id);
+                                        newUser.favorite_foods.push(currentFood.id);
                                     } else {
-                                        newUser.favoriteFoods = newUser.favoriteFoods.filter((f) => f != currentFood.id);
+                                        newUser.favorite_foods = newUser.favorite_foods.filter((f) => f != currentFood.id);
                                     }
 
                                     onUserFavoritesChanged(newUser);

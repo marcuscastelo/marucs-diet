@@ -100,7 +100,7 @@ export default function Page(context: any) {
             return;
         }
 
-        fetchFoods(search, currentUser.data.favoriteFoods);
+        fetchFoods(search, currentUser.data.favorite_foods);
         fetchDays(currentUser.data.id);
     }, [currentUser, search, typing]);
 
