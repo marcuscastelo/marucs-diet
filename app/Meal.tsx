@@ -90,6 +90,7 @@ export default function Meal({ mealData, onNewItem, onEditItem, onUpdateMeal, cl
             return;
         }
 
+        //TODO: Uncaught (in promise) DOMException: Document is not focused.
         navigator.clipboard
             .readText()
             .then(
