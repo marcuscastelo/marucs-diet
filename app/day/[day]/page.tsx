@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import DayMeals from "../../DayMeals";
-import { DayData } from "@/model/dayModel";
+import { Day } from "@/model/dayModel";
 import { MealProps } from "../../Meal";
 import PageLoading from "../../PageLoading";
-import { createDay, deleteDay, listDays, updateDay } from "@/controllers/days";
+import { upsertDay, deleteDay, listDays, updateDay } from "@/controllers/days";
 import { DateValueType } from "react-tailwindcss-datepicker/dist/types";
 import Datepicker from "react-tailwindcss-datepicker";
 import { Alert } from "flowbite-react";
@@ -23,6 +23,7 @@ import UserSelector from "@/app/UserSelector";
 import { useUser } from "@/redux/features/userSlice";
 import { Loadable } from "@/utils/loadable";
 import { getToday, stringToDate } from "@/utils/dateUtils";
+import { User } from "@/model/userModel";
 
 export default function Page(context: any) {
     const router = useRouter();
@@ -33,7 +34,7 @@ export default function Page(context: any) {
     const today = getToday();
     const showingToday = today === selectedDay;
 
-    const [days, setDays] = useState<Loadable<DayData[]>>({ loading: true });
+    const [days, setDays] = useState<Loadable<Day[]>>({ loading: true });
     const [dayLocked, setDayLocked] = useState(!showingToday);
 
     const [selectedMeal, setSelectedMeal] = useState(mockMeal({ name: 'BUG: selectedMeal not set' }));
@@ -41,7 +42,7 @@ export default function Page(context: any) {
 
     const editModalId = 'edit-modal';
 
-    const fetchDays = async (userId: string) => {
+    const fetchDays = async (userId: User['id']) => {
         const days = await listDays(userId);
         setDays({
             loading: false,
@@ -78,8 +79,8 @@ export default function Page(context: any) {
         return <PageLoading message="Carregando dias" />
     }
 
-    const hasData = days.data.some((day) => day.targetDay === selectedDay);
-    const dayData = days.data.find((day) => day.targetDay === selectedDay);
+    const hasData = days.data.some((day) => day.target_day === selectedDay);
+    const dayData = days.data.find((day) => day.target_day === selectedDay);
 
     const mealProps = dayData?.meals.map((meal) => {
         const mealProps: MealProps = {
@@ -150,7 +151,7 @@ export default function Page(context: any) {
         //TODO: improve this code
         if (days.loading || currentUser.loading) return <>LOADING</>
 
-        const lastDayIdx = days.data.findLastIndex((day) => Date.parse(day.targetDay) < Date.parse(selectedDay));
+        const lastDayIdx = days.data.findLastIndex((day) => Date.parse(day.target_day) < Date.parse(selectedDay));
         if (lastDayIdx === -1) {
             return (
                 <button
@@ -172,23 +173,23 @@ export default function Page(context: any) {
                     }
                 }
 
-                const lastDayIdx = days.data.findLastIndex((day) => Date.parse(day.targetDay) < Date.parse(selectedDay));
+                const lastDayIdx = days.data.findLastIndex((day) => Date.parse(day.target_day) < Date.parse(selectedDay));
                 if (lastDayIdx === -1) {
                     alert('Não foi possível encontrar um dia anterior');
                     return;
                 }
 
-                createDay({
+                upsertDay({
                     ...days.data[lastDayIdx],
-                    id: undefined,
-                    targetDay: selectedDay,
+                    target_day: selectedDay,
+                    id: dayData?.id,
                 }).then(() => {
                     fetchDays(currentUser.data.id);
                 });
             }}
         >
             {/* //TODO: copiar qualquer dia */}
-            Copiar dia anterior ({days.data[lastDayIdx].targetDay})
+            Copiar dia anterior ({days.data[lastDayIdx].target_day})
         </button>
     }
 
@@ -224,7 +225,7 @@ export default function Page(context: any) {
                 <button
                     className="btn btn-primary text-white font-bold py-2 px-4 min-w-full rounded mt-3"
                     onClick={() => {
-                        createDay(mockDay({ owner: currentUser.data.id, targetDay: selectedDay }, { items: [] })).then(() => {
+                        upsertDay(mockDay({ owner: currentUser.data.id, target_day: selectedDay }, { items: [] })).then(() => {
                             fetchDays(currentUser.data.id);
                         });
                     }}
@@ -281,7 +282,7 @@ export default function Page(context: any) {
 
                         hideModal(window, editModalId);
                     }}
-                    onDelete={async (id: string) => {
+                    onDelete={async (id: MealItemData['id']) => {
                         await updateDay(dayData!.id, {
                             ...dayData!,
                             meals: dayData!.meals.map((meal) => {
@@ -337,10 +338,12 @@ export default function Page(context: any) {
                 <CopyLastDayButton />
                 <button
                     className="hover:bg-red-400 text-white font-bold py-2 px-4 min-w-full rounded mt-3 btn btn-error"
-                    onClick={() => {
-                        createDay(mockDay({ owner: currentUser.data.id, targetDay: selectedDay }, { items: [] })).then(() => {
-                            fetchDays(currentUser.data.id);
-                        });
+                    onClick={async () => {
+                        if (!confirm('Tem certeza que deseja excluir este dia?')) {
+                            return;
+                        }
+                        await deleteDay(dayData!.id);
+                        await fetchDays(currentUser.data.id);
                     }}
                 >
                     PERIGO: Excluir dia

@@ -1,12 +1,20 @@
-import { User } from '@/model/userModel';
-import { listAll } from './utils';
-import { Record } from 'pocketbase';
-import pb from '@/utils/pocketBase';
+import { User, userSchema } from '@/model/userModel';
+import supabase from '@/utils/supabase';
 
-const PB_COLLECTION = 'User';
+const TABLE = 'users';
 
-export const listUsers = async () => await listAll<User>(PB_COLLECTION);
+export const listUsers = async (): Promise<User[]> => ((await supabase.from(TABLE).select('*')).data ?? []).map((user) => userSchema.parse(user));
 
-export const updateUser = async (id: string, user: User) => {
-    return await pb.collection(PB_COLLECTION).update<Record & User>(id, user, { $autoCancel: false });
+export const updateUser = async (id: User['id'], user: User): Promise<User> => {
+    const { data, error } = await supabase
+        .from(TABLE)
+        .update(user)
+        .eq('id', id)
+        .select('*');
+
+    if (error) {
+        throw error;
+    }
+
+    return userSchema.parse(data?.[0] ?? null);
 }
