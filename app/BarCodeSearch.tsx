@@ -26,9 +26,8 @@ export default function BarCodeSearch(
     const currentUser = useUser();
 
     const onUserFavoritesChanged = async (user: User) => {
-        throw new Error("Not implemented");
-        // const updatedUser: User = await updateUser(user.id, user);
-        // dispatch(setUserJson(JSON.stringify(updatedUser)));
+        const updatedUser: User = await updateUser(user.id, user);
+        dispatch(setUserJson(JSON.stringify(updatedUser)));
     }
 
     const isFavorite = (favoriteFoods: number[], food: Food) => {
@@ -45,8 +44,7 @@ export default function BarCodeSearch(
         setLoading(true);
         const promise = searchBarCode(barCode).then(async (apiFood) => {
             const food = await upsertFood(convertApi2Food(apiFood));
-            // setCurrentFood(food);
-            throw new Error("Not implemented");
+            setCurrentFood(food);
         }).catch((err) => {
             console.error(err);
             alert(err);
