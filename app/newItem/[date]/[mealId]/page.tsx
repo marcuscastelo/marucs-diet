@@ -28,7 +28,7 @@ export default function Page(context: any) {
     const FOOD_LIMIT = 100;
     const TYPE_TIMEOUT = 1000;
 
-    const dayParam = context.params.date as string; // TODO: type-safe this
+    const dayParam = context.params.date as string; // TODO: retriggered: type-safe this
 
     const dispatch = useAppDispatch();
     const currentUser = useUser();
@@ -54,9 +54,9 @@ export default function Page(context: any) {
 
         let foods: Food[] = [];
         if (search == '') {
-            foods = await listFoods(); // TODO: add limit when search is made on backend
+            foods = await listFoods(); // TODO: retriggered: add limit when search is made on backend
         } else {
-            foods = await searchFoods(search); // TODO: add limit when search is made on backend
+            foods = await searchFoods(search); // TODO: retriggered: add limit when search is made on backend
         }
         setSearchingFoods(false);
 
