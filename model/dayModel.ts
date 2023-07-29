@@ -3,7 +3,7 @@ import { mealSchema } from "./mealModel";
 
 export const daySchema = z.object({
     id: z.number(),
-    target_day: z.string(), //TODO: use supabase date type
+    target_day: z.string(), //TODO: retriggered: use supabase date type
     owner: z.number(),
     meals: z.array(mealSchema),
 });

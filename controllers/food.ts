@@ -9,7 +9,7 @@ import supabase from '@/utils/supabase';
 
 const TABLE = 'foods';
 
-//TODO: pensar num lugar melhor pra isso
+//TODO: retriggered: pensar num lugar melhor pra isso
 export function convertApi2Food(food: ApiFood): Omit<Food, 'id'> {
     return {
         name: food.nome,
@@ -35,7 +35,7 @@ const internalCacheLogic = async (
 ): Promise<Food[]> => {
     console.log('Checking cache...');
     if (await isCached(cacheKey)) {
-        console.log('Cache found, returning cached foods...'); //TODO: fix cached foods being limited to top 1000
+        console.log('Cache found, returning cached foods...'); //TODO: retriggered: fix cached foods being limited to top 1000
         return await ifCached();
     }
 
@@ -95,7 +95,7 @@ export const searchFoods = async (search: string, limit?: number) => {
 
     return await internalCacheLogic(search,
         {
-            //TODO: remover duplicação de código e usar a busca do supabase
+            //TODO: retriggered: remover duplicação de código e usar a busca do supabase
             ifCached: async (): Promise<Food[]> => {
                 const { data, error } = await supabase.from(TABLE).select('*');
                 console.log(`Got ${data?.length} foods from cache.`)
