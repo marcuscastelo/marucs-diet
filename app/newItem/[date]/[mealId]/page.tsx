@@ -10,7 +10,7 @@ import MealItemAddModal from "../../../MealItemAddModal";
 import { mockFood } from "../../../test/unit/(mock)/mockData";
 import { MealItemData } from "@/model/mealItemModel";
 import { listDays, updateDay } from "@/controllers/days";
-import { DayData } from "@/model/dayModel";
+import { Day } from "@/model/dayModel";
 import { Record } from "pocketbase";
 import BarCodeInsertModal from "@/app/BarCodeInsertModal";
 import { showModal } from "@/utils/DOMModal";
@@ -36,7 +36,7 @@ export default function Page(context: any) {
 
     const [search, setSearch] = useState<string>('');
     const [foods, setFoods] = useState<Loadable<(Food)[]>>({ loading: true });
-    const [days, setDays] = useState<Loadable<DayData[]>>({ loading: true });
+    const [days, setDays] = useState<Loadable<Day[]>>({ loading: true });
     const [selectedFood, setSelectedFood] = useState(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }));
     const [searchingFoods, setSearchingFoods] = useState(false);
     const [typing, setTyping] = useState(false);
@@ -154,7 +154,7 @@ export default function Page(context: any) {
         }
     ).slice(0, FOOD_LIMIT);
 
-    const day = days.data.find((day) => day.targetDay == dayParam);
+    const day = days.data.find((day) => day.target_day == dayParam);
 
     if (!day) {
         return <>
@@ -162,7 +162,7 @@ export default function Page(context: any) {
             <Alert color="red" className="mt-2">Dia não encontrado {dayParam}.</Alert>
             <div className="bg-gray-800 p-1">
                 Dias disponíveis:
-                {JSON.stringify(days.data.map(d => d.targetDay), null, 2)}
+                {JSON.stringify(days.data.map(d => d.target_day), null, 2)}
             </div>
         </>
     }
@@ -251,7 +251,7 @@ export default function Page(context: any) {
                             <div key={idx}>
                                 <MealItem
                                     mealItem={{
-                                        id: Math.random().toString(),
+                                        id: Math.round(Math.random() * 1000000000),
                                         food: food,
                                         quantity: 100,
                                     }}

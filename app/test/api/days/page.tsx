@@ -5,14 +5,14 @@ import { MealProps } from "@/app/Meal";
 import MealItem from "@/app/MealItem";
 import { listDays } from "@/controllers/days";
 import { createFood, listFoods } from "@/controllers/food";
-import { DayData } from "@/model/dayModel";
+import { Day } from "@/model/dayModel";
 import { Food } from "@/model/foodModel";
 import { User } from "@/model/userModel";
 import { useUser } from "@/redux/features/userSlice";
 import { Suspense, useEffect, useState } from "react";
 
 export default function Page() {
-    const [days, setDays] = useState<DayData[]>([]);
+    const [days, setDays] = useState<Day[]>([]);
     const [mealProps, setMealProps] = useState<MealProps[][]>([]);
 
     const currentUser = useUser();
@@ -20,7 +20,7 @@ export default function Page() {
     const fetchDays = async (userId: User['id']) => {
         const days = await listDays(userId);
         setDays(days);
-        
+
         const mealProps = days.map((day) => {
             return day.meals.map((meal): MealProps => {
                 return {
@@ -47,8 +47,13 @@ export default function Page() {
             <Suspense fallback={<div>Loading...</div>}>
                 {days.map((day, idx) =>
                     <div key={idx}>
-                        <div className="text-2xl font-bold">{day.targetDay}</div>
-                        <DayMeals mealsProps={mealProps[idx]} />
+                        <div className="text-2xl font-bold">{day.target_day}</div>
+                        {
+                            mealProps[idx].length > 0 ?
+                                <DayMeals mealsProps={mealProps[idx]} /> :
+                                <div>No meals</div>
+                        }
+
                     </div>
                 )}
             </Suspense>
