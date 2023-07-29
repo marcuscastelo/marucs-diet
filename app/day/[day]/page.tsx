@@ -5,7 +5,7 @@ import DayMeals from "../../DayMeals";
 import { Day } from "@/model/dayModel";
 import { MealProps } from "../../Meal";
 import PageLoading from "../../PageLoading";
-import { createDay, deleteDay, listDays, updateDay } from "@/controllers/days";
+import { upsertDay, deleteDay, listDays, updateDay } from "@/controllers/days";
 import { DateValueType } from "react-tailwindcss-datepicker/dist/types";
 import Datepicker from "react-tailwindcss-datepicker";
 import { Alert } from "flowbite-react";
@@ -179,9 +179,10 @@ export default function Page(context: any) {
                     return;
                 }
 
-                createDay({
+                upsertDay({
                     ...days.data[lastDayIdx],
                     target_day: selectedDay,
+                    id: dayData?.id,
                 }).then(() => {
                     fetchDays(currentUser.data.id);
                 });
@@ -224,7 +225,7 @@ export default function Page(context: any) {
                 <button
                     className="btn btn-primary text-white font-bold py-2 px-4 min-w-full rounded mt-3"
                     onClick={() => {
-                        createDay(mockDay({ owner: currentUser.data.id, target_day: selectedDay }, { items: [] })).then(() => {
+                        upsertDay(mockDay({ owner: currentUser.data.id, target_day: selectedDay }, { items: [] })).then(() => {
                             fetchDays(currentUser.data.id);
                         });
                     }}
@@ -338,7 +339,7 @@ export default function Page(context: any) {
                 <button
                     className="hover:bg-red-400 text-white font-bold py-2 px-4 min-w-full rounded mt-3 btn btn-error"
                     onClick={() => {
-                        createDay(mockDay({ owner: currentUser.data.id, target_day: selectedDay }, { items: [] })).then(() => {
+                        upsertDay(mockDay({ owner: currentUser.data.id, target_day: selectedDay }, { items: [] })).then(() => {
                             fetchDays(currentUser.data.id);
                         });
                     }}
