@@ -13,7 +13,7 @@ const initialState = {
     loading: true,
 } as UserState; // as UserState is needed to avoid type error
 
-// TODO: avoid using localStorage directly
+// TODO: retriggered: avoid using localStorage directly
 async function saveUser(userData: User) {
     if (typeof window !== 'undefined')
         localStorage?.setItem('user', userData.id.toString());

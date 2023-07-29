@@ -26,7 +26,7 @@ export type MacroRepresentation = {
     calorieMultiplier: number,
 }
 
-//TODO: should not be exported (move to other module)
+//TODO: retriggered: should not be exported (move to other module)
 export const calculateMacroTarget = (
     weight: number,
     savedMacroTarget: MacroProfile
@@ -36,7 +36,7 @@ export const calculateMacroTarget = (
     fat: weight * savedMacroTarget.gramsPerKgFat,
 });
 
-//TODO: should not be exported (move to other module)
+//TODO: retriggered: should not be exported (move to other module)
 export const calculateCalories = (targetGrams: TargetGrams): number => (
     targetGrams.carbs * 4 + targetGrams.protein * 4 + targetGrams.fat * 9
 );
@@ -135,7 +135,7 @@ export default function MacroTarget({
                 id="default-search"
                 className="block text-center w-full p-2 pl-10 text-md bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 italic font-thin"
                 placeholder="Insira a meta de calorias diárias"
-                disabled={true} // TODO: future feature
+                disabled={true} // TODO: retriggered: future feature
                 required
             />
 

@@ -46,11 +46,11 @@ export default function BarCodeInsertModal({ modalId, show, onSelect }: BarCodeI
                     <BarCodeSearch onFoodChange={setFood} />
 
                     <div className="modal-action">
-                        {/* //TODO: make buttons work */}
+                        {/* //TODO: retriggered: make buttons work */}
                         {/* if there is a button in form, it will close the modal */}
                         <button className="btn" onClick={(e) => {
                             e.preventDefault();
-                            hideModal(window, modalId); // TODO: remove this and use state/modal component
+                            hideModal(window, modalId); // TODO: retriggered: remove this and use state/modal component
                         }} >
                             Cancelar
                         </button>

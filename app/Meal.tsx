@@ -15,7 +15,7 @@ export type MealProps = {
     locked?: boolean,
 };
 
-//TODO: move this function
+//TODO: retriggered: move this function
 // a little function to help us with reordering the result
 const reorder = (list: unknown[], startIndex: number, endIndex: number) => {
     const result = Array.from(list);
