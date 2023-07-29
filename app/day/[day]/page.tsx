@@ -338,10 +338,12 @@ export default function Page(context: any) {
                 <CopyLastDayButton />
                 <button
                     className="hover:bg-red-400 text-white font-bold py-2 px-4 min-w-full rounded mt-3 btn btn-error"
-                    onClick={() => {
-                        upsertDay(mockDay({ owner: currentUser.data.id, target_day: selectedDay }, { items: [] })).then(() => {
-                            fetchDays(currentUser.data.id);
-                        });
+                    onClick={async () => {
+                        if (!confirm('Tem certeza que deseja excluir este dia?')) {
+                            return;
+                        }
+                        await deleteDay(dayData!.id);
+                        await fetchDays(currentUser.data.id);
                     }}
                 >
                     PERIGO: Excluir dia

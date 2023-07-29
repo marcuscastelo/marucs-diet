@@ -6,8 +6,8 @@ export const foodSchema = z.object({
     source: z.object({
         type: z.union([z.literal('api'), z.literal('tbca')]),
         id: z.string(),
-    }).optional(),
-    name : z.string(),
+    }).nullable().transform((val) => val ?? undefined).optional(),
+    name: z.string(),
     macros: MacroNutrientsSchema,
 });
 
