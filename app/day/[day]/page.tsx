@@ -91,9 +91,7 @@ export default function Page(context: any) {
                 showModal(window, editModalId);
             },
             onNewItem: () => {
-                // Redirect to new item page
-                // TODO: use another method to redirect
-                window.location.href = `/newItem/${selectedDay}/${meal.id}`;
+                router.push(`/newItem/${selectedDay}/${meal.id}`);
             },
             onUpdateMeal: async (meal) => {
                 await updateDay(dayData.id, {
