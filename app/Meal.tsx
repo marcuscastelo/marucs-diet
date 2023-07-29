@@ -128,6 +128,10 @@ export default function Meal({ mealData, onNewItem, onEditItem, onUpdateMeal, cl
             };
 
             onUpdateMeal(newMealData);
+
+            // Clear clipboard
+            navigator.clipboard
+                .writeText('');
         } catch (e) {
             alert('O conteúdo da área de transferência não é uma refeição válida.');
         }
