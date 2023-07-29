@@ -121,21 +121,25 @@ export default function MealItemAddModal({
                         <div className="ml-1 btn btn-sm btn-primary flex-1" onClick={() => setQuantity('250')} >250g</div>
                         <div className="ml-1 btn btn-sm btn-primary flex-1" onClick={() => setQuantity('300')} >300g</div>
                     </div>
-                    <div className="flex mt-3">
-                        <input
-                            disabled={quantityFieldDisabled}
-                            value={quantity}
-                            ref={quantityRef}
-                            onChange={(e) => setQuantity(e.target.value.replace(/[^0-9]/, ''))}
-                            type="number" placeholder="Quantidade (gramas)"
-                            className={`mt-1 input input-bordered flex-1 bg-gray-800 border-gray-300 ${!canAdd ? 'input-error border-red-500' : ''}`} />
-                        <div className="w-20 flex ml-1 my-1">
-                            <div className="btn btn-xs btn-primary w-10 h-full text-4xl text-red-600"
+                    <div className="flex w-full mt-3 justify-between gap-1">
+                        <div className="flex-1 flex my-1 justify-around">
+                            <input
+                                style={{ width: '100%' }}
+                                disabled={quantityFieldDisabled}
+                                value={quantity}
+                                ref={quantityRef}
+                                onChange={(e) => setQuantity(e.target.value.replace(/[^0-9]/, ''))}
+                                type="number" placeholder="Quantidade (gramas)"
+                                className={`mt-1  input input-bordered  bg-gray-800 border-gray-300 ${!canAdd ? 'input-error border-red-500' : ''}`} 
+                            />
+                        </div>
+                        <div className="flex-shrink flex ml-1 my-1 justify-around gap-1">
+                            <div className="btn btn-xs btn-primary w-10 px-6 h-full text-4xl text-red-600"
                                 onClick={decrement}
                                 onMouseDown={() => holdRepeatStart(decrement)} onMouseUp={holdRepeatStop}
                                 onTouchStart={() => holdRepeatStart(decrement)} onTouchEnd={holdRepeatStop}
                             > - </div>
-                            <div className="ml-1 btn btn-xs btn-primary w-10 h-full text-4xl text-green-400"
+                            <div className="ml-1 btn btn-xs btn-primary w-10 px-6 h-full text-4xl text-green-400"
                                 onClick={increment}
                                 onMouseDown={() => holdRepeatStart(increment)} onMouseUp={holdRepeatStop}
                                 onTouchStart={() => holdRepeatStart(increment)} onTouchEnd={holdRepeatStop}
