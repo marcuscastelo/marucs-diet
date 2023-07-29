@@ -8,7 +8,7 @@ const TABLE = 'days';
 
 //TODO: retriggered: tratar erros (também no resto dos controllers)
 export const listDays = async (userId: User['id']): Promise<Day[]> =>
-    ((await supabase.from(TABLE).select('*')).data ?? [])
+    ((await supabase.from(TABLE).select()).data ?? [])
         .map(day => daySchema.parse(day))
         .filter((day) => day.owner === userId)
         .map((day): Day => ({
@@ -20,7 +20,7 @@ export const upsertDay = async (day: Partial<Day> & Omit<Day, 'id'>): Promise<Da
     const { data: days, error } = await supabase.
         from(TABLE)
         .upsert(day)
-        .select('*');
+        .select();
     if (error) {
         throw error;
     }
@@ -32,7 +32,7 @@ export const updateDay = async (id: Day['id'], day: Day): Promise<Day> => {
         .from(TABLE)
         .update(day)
         .eq('id', id)
-        .select('*');
+        .select();
 
     if (error) {
         throw error;
@@ -47,7 +47,7 @@ export const deleteDay = async (id: Day['id']): Promise<void> => {
         .from(TABLE)
         .delete()
         .eq('id', id)
-        .select('*');
+        .select();
 
     if (error) {
         throw error;
