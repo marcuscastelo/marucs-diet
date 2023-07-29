@@ -39,7 +39,7 @@ export default function MealItemAddModal({
             hideModal(window, modalId);
         } else {
             setQuantity('');
-            setId(Math.random().toString());
+            setId(Math.random());
             setQuantityFieldDisabled(true);
         }
 
@@ -50,7 +50,7 @@ export default function MealItemAddModal({
         return () => {
             clearTimeout(timeout);
         }
-    }, [show]);
+    }, [show, modalId]);
 
     useEffect(() => {
         if (initialQuantity !== undefined) {

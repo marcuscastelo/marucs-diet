@@ -19,7 +19,8 @@ export default function BarCodeSearch(
     const [loading, setLoading] = useState(false);
     const [barCode, setBarCode] = useState('');
     const [currentFood, setCurrentFood] = useState<Food | null>(null);
-
+    
+    //TODO: retriggered: useUser hook (all over the entire app. Search for useAppDispatch, useAppSelector and dispatch)
     const dispatch = useAppDispatch();
 
     const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods();

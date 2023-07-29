@@ -82,25 +82,19 @@ export default function Page(context: any) {
     const hasData = days.data.some((day) => day.target_day === selectedDay);
     const dayData = days.data.find((day) => day.target_day === selectedDay);
 
-    const mealProps = dayData?.meals.map((meal) => {
-        const mealProps: MealProps = {
-            mealData: meal,
-            locked: dayLocked,
-            onEditItem: (mealItem) => {
-                setSelectedMeal(meal);
-                setSelectedMealItem(mealItem);
-                showModal(window, editModalId);
-            },
-            onNewItem: () => {
-                router.push(`/newItem/${selectedDay}/${meal.id}`);
-            },
-            onUpdateMeal: async (meal) => {
-                await updateDay(dayData.id, {
-                    ...dayData,
-                    meals: dayData.meals.map((m) => {
-                        if (m.id !== meal.id) {
-                            return m;
-                        }
+    const onEditMealItem = (meal: MealData, mealItem: MealItemData) => {
+        setSelectedMeal(meal);
+        setSelectedMealItem(mealItem);
+        showModal(window, editModalId);
+    };
+
+    const onUpdateMeal = async (dayData: Day, meal: MealData) => {
+        await updateDay(dayData.id!, { //TODO: remove !
+            ...dayData,
+            meals: dayData.meals.map((m) => {
+                if (m.id !== meal.id) {
+                    return m;
+                }
 
                 return meal;
             })
@@ -115,10 +109,12 @@ export default function Page(context: any) {
 
     const mealProps = dayData?.meals.map((meal): MealProps => ({
         mealData: meal,
-        header: <Meal.Header onUpdateMeal={(meal) => onUpdateMeal(dayData, meal)} />,
-        content: <Meal.Content onEditItem={(item) => onEditMealItem(meal, item)} />,
-        actions: <Meal.Actions onNewItem={() => handleNewItemButton(meal)} />,
+        header: <Meal.Header locked={dayLocked} onUpdateMeal={(meal) => onUpdateMeal(dayData, meal)} />,
+        content: <Meal.Content locked={dayLocked} onEditItem={(item) => onEditMealItem(meal, item)} />,
+        actions: <Meal.Actions locked={dayLocked} onNewItem={() => handleNewItemButton(meal)} />,
     }));
+
+    
 
     const mealItemMacros = (mealItem: MealItemData): MacroNutrientsData => {
         const macros = mealItem.food.macros;
@@ -157,7 +153,7 @@ export default function Page(context: any) {
 
     function CopyLastDayButton() {
         //TODO: retriggered: improve this code
-        if (days.loading || currentUser.loading) return <>LOADING</>
+        if (days.loading || user.loading) return <>LOADING</>
 
         const lastDayIdx = days.data.findLastIndex((day) => Date.parse(day.target_day) < Date.parse(selectedDay));
         if (lastDayIdx === -1) {
@@ -233,8 +229,8 @@ export default function Page(context: any) {
                 <button
                     className="btn btn-primary text-white font-bold py-2 px-4 min-w-full rounded mt-3"
                     onClick={() => {
-                        upsertDay(mockDay({ owner: currentUser.data.id, target_day: selectedDay }, { items: [] })).then(() => {
-                            fetchDays(currentUser.data.id);
+                        upsertDay(mockDay({ owner: user.data.id, target_day: selectedDay }, { items: [] })).then(() => {
+                            fetchDays(user.data.id);
                         });
                     }}
                 >
@@ -351,7 +347,7 @@ export default function Page(context: any) {
                             return;
                         }
                         await deleteDay(dayData!.id);
-                        await fetchDays(currentUser.data.id);
+                        await fetchDays(user.data.id);
                     }}
                 >
                     PERIGO: Excluir dia

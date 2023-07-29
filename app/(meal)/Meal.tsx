@@ -43,7 +43,7 @@ Meal.Content = MealContent;
 Meal.Actions = MealActions;
 
 //TODO: move locked to context or to the parent component
-function MealHeader({ locked, onUpdateMeal }: { locked: boolean, onUpdateMeal: (meal: MealData) => void }) {
+function MealHeader({ locked, onUpdateMeal }: { locked?: boolean, onUpdateMeal: (meal: MealData) => void }) {
     const { mealData } = useMealContext();
 
     const onClearItems = (e?: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -80,7 +80,7 @@ function MealHeader({ locked, onUpdateMeal }: { locked: boolean, onUpdateMeal: (
     )
 }
 
-function MealContent({ locked, onEditItem }: { locked: boolean, onEditItem: (item: MealItemData) => void }) {
+function MealContent({ locked, onEditItem }: { locked?: boolean, onEditItem: (item: MealItemData) => void }) {
     const { mealData } = useMealContext();
 
     const handleEditItem = (item: MealItemData) => {
@@ -116,7 +116,7 @@ function MealContent({ locked, onEditItem }: { locked: boolean, onEditItem: (ite
     )
 }
 
-function MealActions({ locked, onNewItem }: { locked: boolean, onNewItem: () => void }) {
+function MealActions({ locked, onNewItem }: { locked?: boolean, onNewItem: () => void }) {
     const handleNewItem = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.preventDefault();
         if (locked) {

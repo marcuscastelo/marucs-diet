@@ -104,9 +104,9 @@ function MealItemNutritionalInfo() {
                 <span className="text-white"> {mealItem.quantity}g </span>
                 |
                 <span className="text-white"> {calculateCalories({
-                    gramsCarbs: mealItem.food.macros.carbs * mealItem.quantity / 100,
-                    gramsProtein: mealItem.food.macros.protein * mealItem.quantity / 100,
-                    gramsFat: mealItem.food.macros.fat * mealItem.quantity / 100,
+                    carbs: mealItem.food.macros.carbs * mealItem.quantity / 100,
+                    protein: mealItem.food.macros.protein * mealItem.quantity / 100,
+                    fat: mealItem.food.macros.fat * mealItem.quantity / 100,
                 }).toFixed(0)}kcal </span>
             </div>
         </div>
