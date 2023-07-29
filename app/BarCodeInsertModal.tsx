@@ -46,7 +46,6 @@ export default function BarCodeInsertModal({ modalId, show, onSelect }: BarCodeI
                     <BarCodeSearch onFoodChange={setFood} />
 
                     <div className="modal-action">
-                        {/* //TODO: retriggered: make buttons work */}
                         {/* if there is a button in form, it will close the modal */}
                         <button className="btn" onClick={(e) => {
                             e.preventDefault();
