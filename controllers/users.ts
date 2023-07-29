@@ -7,6 +7,10 @@ const TABLE = 'users';
 
 export const listUsers = async (): Promise<User[]> => (await supabase.from(TABLE).select('*')).data ?? [];
 
-// export const updateUser = async (id: string, user: User) => {
-//     return await pb.collection(TABLE).update<Record & User>(id, user, { $autoCancel: false });
-// }
+export const updateUser = async (id: string, user: User): Promise<User[]> => (await supabase
+        .from(TABLE)
+        .update(user)
+        .eq('id', id)
+        .select()).data ?? [];
+
+
