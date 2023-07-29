@@ -1,6 +1,6 @@
 "use client";
 
-import { DayData } from "@/model/dayModel";
+import { Day } from "@/model/dayModel";
 import { useEffect, useState } from "react";
 import Datepicker from "react-tailwindcss-datepicker";
 import { DateValueType } from "react-tailwindcss-datepicker/dist/types";
@@ -11,20 +11,20 @@ import { MealProps } from "@/app/Meal";
 import { getToday, stringToDate } from "@/utils/dateUtils";
 
 export default function Page() {
-    const day1: DayData = {
-        id: 'day1',
-        owner: 'user1',
-        targetDay: getToday(),
+    const day1: Day = {
+        id: Math.round(Math.random() * 1000),
+        owner: Math.round(Math.random() * 1000),
+        target_day: getToday(),
         meals: [
             mockMeal({ name: 'Café da manhã' }),
             mockMeal({ name: 'Almoço' }),
         ]
     }
 
-    const day2: DayData = {
-        id: 'day2',
-        owner: 'user1',
-        targetDay: getToday(),
+    const day2: Day = {
+        id: Math.round(Math.random() * 1000),
+        owner: Math.round(Math.random() * 1000),
+        target_day: getToday(),
         meals: [
             mockMeal({ name: 'Jejum' }),
         ]

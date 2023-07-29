@@ -4,8 +4,8 @@ import { searchBarCode } from "@/controllers/barcodes";
 import { ApiFood } from "@/model/apiFoodModel";
 import { useEffect, useState } from "react";
 import MealItem from "./MealItem";
-import { convertApi2Food, createFood } from "@/controllers/food";
-import { setUserJson, useUser } from "@/redux/features/userSlice";
+import { convertApi2Food, upsertFood } from "@/controllers/food";
+import { setUserJson, useFavoriteFoods, useUser } from "@/redux/features/userSlice";
 import { Food } from "@/model/foodModel";
 import { useAppDispatch } from "@/redux/hooks";
 import { updateUser } from "@/controllers/users";
@@ -26,12 +26,11 @@ export default function BarCodeSearch(
     const currentUser = useUser();
 
     const onUserFavoritesChanged = async (user: User) => {
-        const updatedUser = await updateUser(user.id, user);
+        const updatedUser: User = await updateUser(user.id, user);
         dispatch(setUserJson(JSON.stringify(updatedUser)));
     }
 
-
-    const isFavorite = (favoriteFoods: string[], food: Food) => {
+    const isFavorite = (favoriteFoods: number[], food: Food) => {
         return favoriteFoods.includes(food.id);
     }
 
@@ -44,7 +43,7 @@ export default function BarCodeSearch(
 
         setLoading(true);
         const promise = searchBarCode(barCode).then(async (apiFood) => {
-            const food = await createFood(convertApi2Food(apiFood));
+            const food = await upsertFood(convertApi2Food(apiFood));
             setCurrentFood(food);
         }).catch((err) => {
             console.error(err);
@@ -85,13 +84,13 @@ export default function BarCodeSearch(
                             <p className="text-sm">
 
                                 <MealItem mealItem={{
-                                    id: Math.random().toString(),
+                                    id: Math.round(Math.random() * 1000000), // TODO: properly generate id
                                     food: currentFood,
                                     quantity: 100,
                                 }}
                                 favorite={
                                     currentUser.loading ? false :
-                                        isFavorite(currentUser.data.favoriteFoods, currentFood)
+                                        isFavorite(currentUser.data.favorite_foods, currentFood)
                                 }
                                 setFavorite={(favorite) => {
                                     if (currentUser.loading) {
@@ -100,12 +99,12 @@ export default function BarCodeSearch(
 
                                     const newUser = Object.assign({}, currentUser.data);
 
-                                    newUser.favoriteFoods = [...currentUser.data.favoriteFoods]
+                                    newUser.favorite_foods = [...currentUser.data.favorite_foods]
 
                                     if (favorite) {
-                                        newUser.favoriteFoods.push(currentFood.id);
+                                        newUser.favorite_foods.push(currentFood.id);
                                     } else {
-                                        newUser.favoriteFoods = newUser.favoriteFoods.filter((f) => f != currentFood.id);
+                                        newUser.favorite_foods = newUser.favorite_foods.filter((f) => f != currentFood.id);
                                     }
 
                                     onUserFavoritesChanged(newUser);
