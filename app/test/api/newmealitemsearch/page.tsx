@@ -85,7 +85,7 @@ export default function Page() {
                         <MealItem
                             key={idx}
                             mealItem={{
-                                id: "123",
+                                id: 123,
                                 food: food,
                                 quantity: 100,
                             }}

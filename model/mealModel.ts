@@ -1,7 +1,11 @@
-import { MealItemData } from "./mealItemModel";
+import { MealItemData, mealItemSchema } from "./mealItemModel";
 
-export type MealData = {
-    id: string;
-    name: string;
-    items: MealItemData[];
-};
+import { z } from "zod";
+
+export const mealSchema = z.object({
+    id: z.number(),
+    name: z.string(),
+    items: z.array(mealItemSchema),
+});
+
+export type MealData = z.infer<typeof mealSchema>;
