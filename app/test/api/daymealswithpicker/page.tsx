@@ -13,7 +13,7 @@ import Datepicker from "react-tailwindcss-datepicker";
 import { DateValueType } from "react-tailwindcss-datepicker/dist/types";
 
 export default function Page() {
-    const [days, setDays] = useState<(Record & DayData)[]>([]); // TODO: remove Record when id is not optional
+    const [days, setDays] = useState<DayData[]>([]); // TODO: remove Record when id is not optional
     const [mealProps, setMealProps] = useState<MealProps[][]>([]);
 
     const [selectedDay, setSelectedDay] = useState('');
@@ -56,7 +56,7 @@ export default function Page() {
         fetchDays(currentUser.data.id);
     }, [currentUser]);
 
-    const duplicateLastMealItemOnDatabase = async (day: Record & DayData, meal: MealData) => {
+    const duplicateLastMealItemOnDatabase = async (day: DayData, meal: MealData) => {
         await updateDay(day.id, {
             ...day,
             meals: day.meals.map((m) => {

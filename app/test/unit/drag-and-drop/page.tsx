@@ -4,14 +4,14 @@ import React, { Component } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 
 // fake data generator
-const getItems = (count) =>
+const getItems = (count: any) =>
   Array.from({ length: count }, (v, k) => k).map((k) => ({
     id: `item-${k}`,
     content: `item ${k}`,
   }));
 
 // a little function to help us with reordering the result
-const reorder = (list, startIndex, endIndex) => {
+const reorder = (list: any, startIndex: any, endIndex: any) => {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
   result.splice(endIndex, 0, removed);
@@ -21,7 +21,7 @@ const reorder = (list, startIndex, endIndex) => {
 
 const grid = 8;
 
-const getItemStyle = (isDragging, draggableStyle) => ({
+const getItemStyle = (isDragging: any, draggableStyle: any) => ({
   // some basic styles to make the items look a bit nicer
   userSelect: 'none',
   padding: grid * 2,
@@ -34,14 +34,14 @@ const getItemStyle = (isDragging, draggableStyle) => ({
   ...draggableStyle,
 });
 
-const getListStyle = (isDraggingOver) => ({
+const getListStyle = (isDraggingOver: any) => ({
   background: isDraggingOver ? 'lightblue' : 'grey',
   padding: grid,
   width: 250,
 });
 
 export default class App extends Component {
-  constructor(props, context) {
+  constructor(props: any, context: any) {
     super(props, context);
     // eslint-disable-next-line react/state-in-constructor
     this.state = {
@@ -57,7 +57,7 @@ export default class App extends Component {
     }
 
     const items = reorder(
-      this.state.items,
+      (this.state as {items: any[]}).items,
       result.source.index,
       result.destination.index,
     );
@@ -78,7 +78,7 @@ export default class App extends Component {
               ref={droppableProvided.innerRef}
               style={getListStyle(droppableSnapshot.isDraggingOver)}
             >
-              {this.state.items.map((item, index) => (
+              {(this.state as {items: any[]}).items.map((item, index) => (
                 <Draggable key={item.id} draggableId={item.id} index={index}>
                   {(draggableProvided, draggableSnapshot) => (
                     <div

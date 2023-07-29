@@ -180,7 +180,6 @@ export default function Page(context: any) {
 
                 createDay({
                     ...days.data[lastDayIdx],
-                    id: undefined,
                     targetDay: selectedDay,
                 }).then(() => {
                     fetchDays(currentUser.data.id);
