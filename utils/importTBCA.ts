@@ -1,6 +1,6 @@
 import { Food } from '@/model/foodModel'
 import TBCAJson from './tbca.json'
-import { createFood, deleteAll } from '@/controllers/food'
+import { upsertFood, deleteAll } from '@/controllers/food'
 const parallelLimit = require('async/parallelLimit');
 
 //TODO: revisar esse cast
@@ -25,7 +25,7 @@ export async function deleteAndReimportFoods(progressCallback?: (total: number) 
     await parallelLimit(Object.values(TBCA).map((food) => async () => {
         console.log(`Creating ${food.name}...`);
         try {
-            await createFood(food);
+            await upsertFood(food);
             if (progressCallback) progressCallback(total);
         } catch (e) {
             console.error(e);

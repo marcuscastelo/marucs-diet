@@ -1,7 +1,7 @@
 "use client";
 
 import MealItem from "@/app/MealItem";
-import { createFood, listFoods } from "@/controllers/food";
+import { upsertFood, listFoods } from "@/controllers/food";
 import { Food } from "@/model/foodModel";
 import { useEffect, useState } from "react";
 

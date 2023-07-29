@@ -4,7 +4,7 @@ import DayMeals from "@/app/DayMeals";
 import { MealProps } from "@/app/Meal";
 import MealItem from "@/app/MealItem";
 import { listDays } from "@/controllers/days";
-import { createFood, listFoods } from "@/controllers/food";
+import { upsertFood, listFoods } from "@/controllers/food";
 import { Day } from "@/model/dayModel";
 import { Food } from "@/model/foodModel";
 import { User } from "@/model/userModel";

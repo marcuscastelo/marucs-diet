@@ -1,6 +1,4 @@
 import { User, userSchema } from '@/model/userModel';
-import { listAll } from './utils';
-import { Record } from 'pocketbase';
 import supabase from '@/utils/supabase';
 
 const TABLE = 'users';
