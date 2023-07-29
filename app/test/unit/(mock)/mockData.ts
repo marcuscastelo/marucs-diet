@@ -31,7 +31,7 @@ export const mockItem = (partial?: Partial<MealItemData>): MealItemData => ({
 });
 
 
-export const mockDay = (partial: Partial<Day> & Pick<Day, 'owner' | 'targetDay'>, mealData ?: Partial<MealData>): Day => ({
+export const mockDay = (partial: Partial<Day> & Pick<Day, 'owner' | 'target_day'>, mealData ?: Partial<MealData>): Day => ({
     id: Math.round(Math.random() * 1000),
     meals: [
         mockMeal({
