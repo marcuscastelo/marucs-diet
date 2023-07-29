@@ -36,7 +36,7 @@ export default function Page(context: any) {
 
     const [search, setSearch] = useState<string>('');
     const [foods, setFoods] = useState<Loadable<(Food)[]>>({ loading: true });
-    const [days, setDays] = useState<Loadable<(DayData & Record)[]>>({ loading: true });
+    const [days, setDays] = useState<Loadable<DayData[]>>({ loading: true });
     const [selectedFood, setSelectedFood] = useState(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }));
     const [searchingFoods, setSearchingFoods] = useState(false);
     const [typing, setTyping] = useState(false);

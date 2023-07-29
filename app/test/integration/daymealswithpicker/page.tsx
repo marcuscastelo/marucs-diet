@@ -12,6 +12,7 @@ import { getToday, stringToDate } from "@/utils/dateUtils";
 
 export default function Page() {
     const day1: DayData = {
+        id: 'day1',
         owner: 'user1',
         targetDay: getToday(),
         meals: [
@@ -21,6 +22,7 @@ export default function Page() {
     }
 
     const day2: DayData = {
+        id: 'day2',
         owner: 'user1',
         targetDay: getToday(),
         meals: [
