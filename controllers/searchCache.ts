@@ -7,6 +7,7 @@ import { CachedSearch, cachedSearchSchema } from '@/model/cachedSearch';
 const PB_COLLECTION = 'CachedSearch';
 
 export const isCached = async (search: string) => {
+    return true; //TODO: remover isso
     const cached = (await listAll<CachedSearch>(PB_COLLECTION)).map((data) => cachedSearchSchema.parse(data));
     return cached.some((cache) => cache.search.toLowerCase() === search.toLowerCase());
 }
