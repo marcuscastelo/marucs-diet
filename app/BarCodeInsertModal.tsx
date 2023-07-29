@@ -47,16 +47,16 @@ export default function BarCodeInsertModal({ modalId, show, onSelect }: BarCodeI
             onSubmit={handleSelect}
             header={<h1 className="modal-title">Pesquisar por código de barras</h1>}
             body={<BarCodeSearch onFoodChange={setFood} />}
-            actions={<>
+            actions={<Modal.Actions>
                 <button className="btn" onClick={(e) => {
-                            e.preventDefault();
-                            hideModal(window, modalId); // TODO: retriggered: remove this and use state/modal component
-                        }} >
-                            Cancelar
+                    e.preventDefault();
+                    hideModal(window, modalId); // TODO: retriggered: remove this and use state/modal component
+                }} >
+                    Cancelar
                 </button>
                 <button className="btn btn-primary" disabled={!food} onClick={handleSelect} >Aplicar</button>
-            </>}
-        
+            </Modal.Actions>}
+
         />
     );
 }
