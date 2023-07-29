@@ -47,7 +47,7 @@ export default function Page(context: any) {
 
     const isFoodFavorite = useIsFoodFavorite();
 
-    const fetchFoods = async (search: string | '', favoriteFoods: string[]) => {
+    const fetchFoods = async (search: string | '', favoriteFoods: number[]) => {
         if (!(await isCached(search))) {
             setSearchingFoods(true);
         }
@@ -60,7 +60,7 @@ export default function Page(context: any) {
         }
         setSearchingFoods(false);
 
-        const isFavorite = (favoriteFoods: string[], food: Food) => {
+        const isFavorite = (favoriteFoods: number[], food: Food) => {
             return favoriteFoods.includes(food.id);
         }
 
@@ -83,7 +83,7 @@ export default function Page(context: any) {
         });
     }
 
-    const fetchDays = async (userId: string) => {
+    const fetchDays = async (userId: User['id']) => {
         const days = await listDays(userId);
         setDays({
             loading: false,

@@ -23,6 +23,7 @@ import UserSelector from "@/app/UserSelector";
 import { useUser } from "@/redux/features/userSlice";
 import { Loadable } from "@/utils/loadable";
 import { getToday, stringToDate } from "@/utils/dateUtils";
+import { User } from "@/model/userModel";
 
 export default function Page(context: any) {
     const router = useRouter();
@@ -41,7 +42,7 @@ export default function Page(context: any) {
 
     const editModalId = 'edit-modal';
 
-    const fetchDays = async (userId: string) => {
+    const fetchDays = async (userId: User['id']) => {
         const days = await listDays(userId);
         setDays({
             loading: false,

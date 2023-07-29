@@ -13,7 +13,7 @@ import { getToday, stringToDate } from "@/utils/dateUtils";
 export default function Page() {
     const day1: DayData = {
         id: 'day1',
-        owner: 'user1',
+        owner: Math.round(Math.random() * 1000),
         targetDay: getToday(),
         meals: [
             mockMeal({ name: 'Café da manhã' }),
@@ -23,7 +23,7 @@ export default function Page() {
 
     const day2: DayData = {
         id: 'day2',
-        owner: 'user1',
+        owner: Math.round(Math.random() * 1000),
         targetDay: getToday(),
         meals: [
             mockMeal({ name: 'Jejum' }),
