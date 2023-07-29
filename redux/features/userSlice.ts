@@ -15,7 +15,8 @@ const initialState = {
 
 // TODO: avoid using localStorage directly
 async function saveUser(userData: User) {
-    localStorage.setItem('user', userData.id);
+    if (typeof window !== 'undefined')
+        localStorage?.setItem('user', userData.id.toString());
     await updateUser(userData.id, userData);
 }
 
@@ -38,7 +39,7 @@ const userSlice = createSlice({
 
             saveUser(state.data);
         },
-        setFavoriteFoods: (state, action: PayloadAction<string[]>) => {
+        setFavoriteFoods: (state, action: PayloadAction<number[]>) => {
             if (state.loading) {
                 console.error('setFavoriteFoods: user is not loaded');
                 return;
@@ -51,7 +52,7 @@ const userSlice = createSlice({
 
             saveUser(state.data);
         },
-        setFoodAsFavorite: (state, action: PayloadAction<{foodId: string, favorite: boolean}>) => {
+        setFoodAsFavorite: (state, action: PayloadAction<{foodId: number, favorite: boolean}>) => {
             if (state.loading) {
                 console.error('removeFavoriteFood: user is not loaded');
                 return;
@@ -93,7 +94,7 @@ export const useFavoriteFoods = () => useAppSelector((state) => {
 export const useIsFoodFavorite = () => useAppSelector((state) => {
     const loadable = state.userReducer;
 
-    return (foodId: string) => {
+    return (foodId: number) => {
         if (loadable.loading)
             return false;
         

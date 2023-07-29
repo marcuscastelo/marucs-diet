@@ -5,6 +5,7 @@ import { MealProps } from "@/app/Meal";
 import { listDays, updateDay } from "@/controllers/days";
 import { DayData } from "@/model/dayModel";
 import { MealData } from "@/model/mealModel";
+import { User } from "@/model/userModel";
 import { useUser } from "@/redux/features/userSlice";
 import { stringToDate } from "@/utils/dateUtils";
 import { Record } from "pocketbase";
@@ -20,7 +21,7 @@ export default function Page() {
 
     const currentUser = useUser();
 
-    const fetchDays = async (userId: string) => {
+    const fetchDays = async (userId: User['id']) => {
         const days = await listDays(userId);
         setDays(days);
 
