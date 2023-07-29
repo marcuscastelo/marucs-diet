@@ -23,7 +23,7 @@ export default function DayMacros({ macros, className }: { macros: MacroNutrient
                     <Calories className="w-full" macros={macros} targetCalories={targetCalories} />
                 </div>
                 <div className="flex-1">
-                    <Macros className="mt-3 xs:mt-0" macros={macros} targetMacros={targetMacros} />
+                    <Macros className="mt-3 text-xl xs:mt-0" macros={macros} targetMacros={targetMacros} />
                 </div>
             </div>
         </>
@@ -51,7 +51,7 @@ function Calories({
                     "--value": (100 * (macros.calories / targetCalories) / 2), "--size": "12rem", "--thickness": "0.7rem",
                     transform: `rotate(90deg) scale(-1, -1)`,
                 }}>
-                    <span style={{
+                    <span className="" style={{
                         transform: `rotate(-90deg) scale(-1, -1) translate(0, -0.5rem)`
                     }}>
                         {Math.round(macros.calories * 100) / 100}/{Math.round(targetCalories * 100) / 100}kcal
