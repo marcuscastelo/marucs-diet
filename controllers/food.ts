@@ -2,7 +2,6 @@ import { Food } from '@/model/foodModel';
 import { Record } from 'pocketbase';
 import { z } from 'zod';
 
-import pb from '@/utils/pocketBase';
 import { parallelLimit } from 'async';
 import { listAll } from './utils';
 import axios from 'axios';
@@ -55,7 +54,9 @@ const internalCacheLogic = async (
         console.log(`Marking '${cacheKey}' as cached...`);
         await addToCache(cacheKey);
         console.log('Finished marking cache as cached.');
-        return createdFoods;
+
+        throw new Error('Not implemented');
+        return createdFoods as unknown as Food[];
     }
     catch (e) {
         console.error(e);
@@ -105,31 +106,31 @@ export const searchFoods = async (search: string, limit?: number) => {
 }
 
 export const createFood = async (food: Omit<Food, 'id'>) => {
-    const foods = await listFoods();
-    const existingFood = foods.find((f) => f.source && food.source && f.source.type === food.source.type && f.source.id === food.source.id);
-    if (existingFood) {
-        console.warn(`Food ${food.name} is a duplicate, skipping...`);
-        return existingFood;
-    }
-    return await pb.collection(PB_COLLECTION).create<Record & Food>(food, { $autoCancel: false });
+    // const foods = await listFoods();
+    // const existingFood = foods.find((f) => f.source && food.source && f.source.type === food.source.type && f.source.id === food.source.id);
+    // if (existingFood) {
+    //     console.warn(`Food ${food.name} is a duplicate, skipping...`);
+    //     return existingFood;
+    // }
+    // return await pb.collection(PB_COLLECTION).create<Record & Food>(food, { $autoCancel: false });
 }
 
 export const deleteAll = async () => {
-    const foods = await listFoods();
-    console.log(`Deleting ${foods.length} foods...`);
-    const actions = foods.map((food) => async () => {
-        while (true) {
-            try {
-                await pb.collection(PB_COLLECTION).delete(food.id, { $autoCancel: false })
-                break;
-            } catch (e) {
-                console.error(e);
-                console.log(`Retrying ${food.name}...`);
-                await new Promise(r => setTimeout(r, 1000));
-            }
-        }
-    })
-    await parallelLimit(actions, 10);
-    console.log('Finished deleting foods.');
+    // const foods = await listFoods();
+    // console.log(`Deleting ${foods.length} foods...`);
+    // const actions = foods.map((food) => async () => {
+    //     while (true) {
+    //         try {
+    //             await pb.collection(PB_COLLECTION).delete(food.id, { $autoCancel: false })
+    //             break;
+    //         } catch (e) {
+    //             console.error(e);
+    //             console.log(`Retrying ${food.name}...`);
+    //             await new Promise(r => setTimeout(r, 1000));
+    //         }
+    //     }
+    // })
+    // await parallelLimit(actions, 10);
+    // console.log('Finished deleting foods.');
 
 }

@@ -2,7 +2,7 @@ import { MacroNutrientsSchema } from "./macroNutrientsModel";
 import { z } from "zod";
 
 export const FoodSchema = z.object({
-    id: z.string(),
+    id: z.number(),
     source: z.object({
         type: z.union([z.literal('api'), z.literal('tbca')]),
         id: z.string(),

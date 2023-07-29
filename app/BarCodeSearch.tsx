@@ -5,7 +5,7 @@ import { ApiFood } from "@/model/apiFoodModel";
 import { useEffect, useState } from "react";
 import MealItem from "./MealItem";
 import { convertApi2Food, createFood } from "@/controllers/food";
-import { setUserJson, useUser } from "@/redux/features/userSlice";
+import { setUserJson, useFavoriteFoods, useUser } from "@/redux/features/userSlice";
 import { Food } from "@/model/foodModel";
 import { useAppDispatch } from "@/redux/hooks";
 import { updateUser } from "@/controllers/users";
@@ -26,12 +26,12 @@ export default function BarCodeSearch(
     const currentUser = useUser();
 
     const onUserFavoritesChanged = async (user: User) => {
-        const updatedUser = await updateUser(user.id, user);
-        dispatch(setUserJson(JSON.stringify(updatedUser)));
+        throw new Error("Not implemented");
+        // const updatedUser: User = await updateUser(user.id, user);
+        // dispatch(setUserJson(JSON.stringify(updatedUser)));
     }
 
-
-    const isFavorite = (favoriteFoods: string[], food: Food) => {
+    const isFavorite = (favoriteFoods: number[], food: Food) => {
         return favoriteFoods.includes(food.id);
     }
 
@@ -45,7 +45,8 @@ export default function BarCodeSearch(
         setLoading(true);
         const promise = searchBarCode(barCode).then(async (apiFood) => {
             const food = await createFood(convertApi2Food(apiFood));
-            setCurrentFood(food);
+            // setCurrentFood(food);
+            throw new Error("Not implemented");
         }).catch((err) => {
             console.error(err);
             alert(err);

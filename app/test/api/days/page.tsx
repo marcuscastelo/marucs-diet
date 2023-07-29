@@ -7,6 +7,7 @@ import { listDays } from "@/controllers/days";
 import { createFood, listFoods } from "@/controllers/food";
 import { DayData } from "@/model/dayModel";
 import { Food } from "@/model/foodModel";
+import { User } from "@/model/userModel";
 import { useUser } from "@/redux/features/userSlice";
 import { Suspense, useEffect, useState } from "react";
 
@@ -16,7 +17,7 @@ export default function Page() {
 
     const currentUser = useUser();
 
-    const fetchDays = async (userId: string) => {
+    const fetchDays = async (userId: User['id']) => {
         const days = await listDays(userId);
         setDays(days);
         
