@@ -1,7 +1,7 @@
 import { MacroNutrientsSchema } from "./macroNutrientsModel";
 import { z } from "zod";
 
-export const FoodSchema = z.object({
+export const foodSchema = z.object({
     id: z.number(),
     source: z.object({
         type: z.union([z.literal('api'), z.literal('tbca')]),
@@ -11,4 +11,4 @@ export const FoodSchema = z.object({
     macros: MacroNutrientsSchema,
 });
 
-export type Food = z.infer<typeof FoodSchema>;
+export type Food = z.infer<typeof foodSchema>;

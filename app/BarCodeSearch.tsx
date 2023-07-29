@@ -86,7 +86,7 @@ export default function BarCodeSearch(
                             <p className="text-sm">
 
                                 <MealItem mealItem={{
-                                    id: Math.random().toString(),
+                                    id: Math.round(Math.random() * 1000000), // TODO: properly generate id
                                     food: currentFood,
                                     quantity: 100,
                                 }}
