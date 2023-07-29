@@ -2,5 +2,7 @@
 
 import { BarCodeReader } from "@/app/BarCodeReader";
 export default function Page() {
-    return <BarCodeReader id="reader" onScanned={alert} />
+    return <BarCodeReader id="reader" onScanned={(barcode)=>{
+        console.log(`Barcode: ${barcode}`);
+    }} />
 }
