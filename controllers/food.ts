@@ -3,13 +3,13 @@ import { Record } from 'pocketbase';
 import { z } from 'zod';
 
 import { ApiFood, apiFoodSchema } from '@/model/apiFoodModel';
-import { markAsCached, isCached } from './searchCache';
+import { markAsCached, isCached, unmarkAsCached } from './searchCache';
 import { INTERNAL_API } from '@/utils/api';
 import supabase from '@/utils/supabase';
 
 const TABLE = 'foods';
 
-//TODO: pensar num lugar melhor pra isso
+//TODO: retriggered: pensar num lugar melhor pra isso
 export function convertApi2Food(food: ApiFood): Omit<Food, 'id'> {
     return {
         name: food.nome,
@@ -35,23 +35,27 @@ const internalCacheLogic = async (
 ): Promise<Food[]> => {
     console.log('Checking cache...');
     if (await isCached(cacheKey)) {
-        console.log('Cache found, returning cached foods...'); //TODO: fix cached foods being limited to top 1000
+        console.log('Cache found, returning cached foods...'); //TODO: retriggered: fix cached foods being limited to top 1000
         return await ifCached();
     }
 
     console.log('Cache not found, fetching from API...');
     const newFoods = await ifNotCached();
     const createdFoodsPromises = newFoods.map(async (food, idx) => {
-        console.log(`Caching ${idx + 1}/${newFoods.length}... (${food.name})`)
+        console.log(`Creating ${idx + 1}/${newFoods.length}... (${food.name})`)
         return await upsertFood(food);
     });
 
     try {
         const createdFoods = await Promise.all(createdFoodsPromises);
-        console.log('Finished caching foods.');
-        console.log(`Marking '${cacheKey}' as cached...`);
-        await markAsCached(cacheKey);
-        console.log('Finished marking cache as cached.');
+        console.log('Finished creating foods.');
+        if (createdFoods.length === 0) {
+            console.warn('No foods created!! skipping cache');
+        } else {
+            console.log(`Marking '${cacheKey}' as cached...`);
+            await markAsCached(cacheKey);
+            console.log('Finished marking cache as cached.');
+        }
 
         return createdFoods;
     }
@@ -72,7 +76,7 @@ export const listFoods = async (limit?: number) => {
     return await internalCacheLogic('__root__',
         {
             ifCached: async (): Promise<Food[]> => {
-                const { data, error } = await supabase.from(TABLE).select('*');
+                const { data, error } = await supabase.from(TABLE).select().limit(limit ?? 100);
                 console.log(`Got ${data?.length} foods from cache.`)
                 if (error) {
                     console.error(error);
@@ -95,10 +99,16 @@ export const searchFoods = async (search: string, limit?: number) => {
 
     return await internalCacheLogic(search,
         {
-            //TODO: remover duplicação de código e usar a busca do supabase
+            //TODO: retriggered: remover duplicação de código e usar a busca do supabase
             ifCached: async (): Promise<Food[]> => {
-                const { data, error } = await supabase.from(TABLE).select('*');
-                console.log(`Got ${data?.length} foods from cache.`)
+                const { data, error } = await supabase.from(TABLE).select().ilike('name', `%${search}%`).limit(limit ?? 100);
+                console.log(`Got ${data?.length} foods from cache.`);
+                if (data?.length === 0) {
+                    //TODO: readd this logic of cache invalidation, but also with time
+                    // console.log('No foods found, unmarking cache as cached.');
+                    // await unmarkAsCached(search);
+                }
+
                 if (error) {
                     console.error(error);
                     throw error;
@@ -120,7 +130,8 @@ export const searchFoods = async (search: string, limit?: number) => {
 }
 
 export const upsertFood = async (food: Omit<Food, 'id'>): Promise<Food> => {
-    const { data, error } = await supabase.from(TABLE).upsert(food).select('*');
+
+    const { data, error } = await supabase.from(TABLE).upsert(food).select();
     if (error) {
         console.error(error);
         throw error;

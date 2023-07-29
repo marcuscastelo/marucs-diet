@@ -179,7 +179,7 @@ export default function MealItemAddModal({
                         <button className="btn" onClick={(e) => {
                             e.preventDefault();
                             setShow(false);
-                            hideModal(window, modalId); //TODO: remove this and use react state
+                            hideModal(window, modalId); //TODO: retriggered: remove this and use react state
                             onCancel?.()
                         }} >
                             Cancelar

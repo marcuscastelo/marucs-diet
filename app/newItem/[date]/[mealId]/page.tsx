@@ -28,7 +28,7 @@ export default function Page(context: any) {
     const FOOD_LIMIT = 100;
     const TYPE_TIMEOUT = 1000;
 
-    const dayParam = context.params.date as string; // TODO: type-safe this
+    const dayParam = context.params.date as string; // TODO: retriggered: type-safe this
 
     const dispatch = useAppDispatch();
     const currentUser = useUser();
@@ -38,7 +38,8 @@ export default function Page(context: any) {
     const [foods, setFoods] = useState<Loadable<(Food)[]>>({ loading: true });
     const [days, setDays] = useState<Loadable<Day[]>>({ loading: true });
     const [selectedFood, setSelectedFood] = useState(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }));
-    const [searchingFoods, setSearchingFoods] = useState(false);
+    // const [searchingFoods, setSearchingFoods] = useState(false);
+    const searchingFoods = false;
     const [typing, setTyping] = useState(false);
 
     const [isClient, setIsClient] = useState(false)
@@ -48,17 +49,19 @@ export default function Page(context: any) {
     const isFoodFavorite = useIsFoodFavorite();
 
     const fetchFoods = async (search: string | '', favoriteFoods: number[]) => {
-        if (!(await isCached(search))) {
-            setSearchingFoods(true);
-        }
+        // if (!(await isCached(search))) {
+        //     setSearchingFoods(true);
+        // }
 
         let foods: Food[] = [];
-        if (search == '') {
-            foods = await listFoods(); // TODO: add limit when search is made on backend
-        } else {
-            foods = await searchFoods(search); // TODO: add limit when search is made on backend
-        }
-        setSearchingFoods(false);
+        // if (search == '') {
+        //     foods = await listFoods(); // TODO: retriggered: add limit when search is made on backend
+        // } else {
+        //     foods = await searchFoods(search); // TODO: retriggered: add limit when search is made on backend
+        // }
+        foods = await searchFoods(search); // TODO: retriggered: add limit when search is made on backend
+
+        // setSearchingFoods(false);
 
         const isFavorite = (favoriteFoods: number[], food: Food) => {
             return favoriteFoods.includes(food.id);
@@ -234,7 +237,8 @@ export default function Page(context: any) {
                     required 
                 />
             </div>
-
+            
+            {/* TODO: fix 'Nenhum alimento encontrado para a busca' being showed while still searching  */}
             {!searchingFoods && !typing && filteredFoods.length == 0 && <Alert color="warning" className="mt-2">Nenhum alimento encontrado para a busca &quot;{search}&quot;.</Alert>}
 
             <MealItemAddModal modalId={MEAL_ITEM_ADD_MODAL_ID} meal={meal} itemData={{

@@ -14,7 +14,7 @@ import Datepicker from "react-tailwindcss-datepicker";
 import { DateValueType } from "react-tailwindcss-datepicker/dist/types";
 
 export default function Page() {
-    const [days, setDays] = useState<Day[]>([]); // TODO: remove Record when id is not optional
+    const [days, setDays] = useState<Day[]>([]); // TODO: retriggered: remove Record when id is not optional
     const [mealProps, setMealProps] = useState<MealProps[][]>([]);
 
     const [selectedDay, setSelectedDay] = useState('');
@@ -46,7 +46,7 @@ export default function Page() {
 
         const dateString = newValue?.startDate;
         const date = stringToDate(dateString);
-        setSelectedDay(date.toISOString().split('T')[0]); // TODO: use dateUtils when this is understood
+        setSelectedDay(date.toISOString().split('T')[0]); // TODO: retriggered: use dateUtils when this is understood
     }
 
     useEffect(() => {

@@ -11,8 +11,6 @@ export const searchFoodNameInternal = async (food: string) => {
             search: food
         }
     });
-    console.log(response.data);
-    console.dir(response.data);
 
     return response.data;
 }

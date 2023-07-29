@@ -6,7 +6,7 @@ import { listUsers } from '@/controllers/users';
 import { User } from '@/model/userModel';
 
 export default function App({ children }: { children: React.ReactNode }) {
-    //TODO: useUser hook (all over the entire app. Search for useAppDispatch, useAppSelector and dispatch)
+    //TODO: retriggered: useUser hook (all over the entire app. Search for useAppDispatch, useAppSelector and dispatch)
     const dispatch = useAppDispatch();
     const onChangeUser = (user: User) => dispatch(setUserJson(JSON.stringify(user)));
     listUsers().then(users => {
