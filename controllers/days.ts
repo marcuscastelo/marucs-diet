@@ -7,6 +7,7 @@ import supabase from '@/utils/supabase';
 
 const TABLE = 'days';
 
+//TODO: tratar erros (também no resto dos controllers)
 export const listDays = async (userId: User['id']): Promise<Day[]> =>
     ((await supabase.from(TABLE).select('*')).data ?? [])
         .map(day => daySchema.parse(day))
@@ -16,8 +17,15 @@ export const listDays = async (userId: User['id']): Promise<Day[]> =>
             target_day: day.target_day.split(' ')[0],
         }));
 
-export const createDay = async (day: Day) => {
-    // return await pb.collection(TABLE).create<Record & DayData>(day, { $autoCancel: false });
+export const upsertDay = async (day: Partial<Day> & Omit<Day, 'id'>): Promise<Day | null> => {
+    const { data: days, error } = await supabase.
+        from(TABLE)
+        .upsert(day)
+        .select('*');
+    if (error) {
+        throw error;
+    }
+    return daySchema.parse(days?.[0] ?? null);
 }
 
 export const updateDay = async (id: Day['id'], day: Day) => {
