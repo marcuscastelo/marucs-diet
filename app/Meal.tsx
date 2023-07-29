@@ -111,13 +111,18 @@ export default function Meal({ mealData, onNewItem, onEditItem, onUpdateMeal, cl
             return;
         }
 
+        if (mealData.items.length > 0) {
+            if (!confirm(`A refeição ${mealData.name} já possui itens, deseja substituí-los?`)) {
+                return;
+            }
+        }
+
         try {
             const parsedMeal = mealSchema.parse(JSON.parse(clipboardText));
 
             const newMealData = {
                 ...mealData,
                 items: [
-                    ...mealData.items,
                     ...parsedMeal.items,
                 ]
             };
