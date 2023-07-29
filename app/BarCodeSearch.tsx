@@ -12,14 +12,18 @@ import { updateUser } from "@/controllers/users";
 import { User } from "@/model/userModel";
 
 export type BarCodeSearchProps = {
+    barCode?: string,
+    setBarCode?: (barCode: string) => void,
     onFoodChange?: (food: Food | null) => void,
 }
 
-export default function BarCodeSearch(
-    { onFoodChange }: BarCodeSearchProps
-) {
+export default function BarCodeSearch({ 
+    barCode = '',
+    setBarCode,
+    onFoodChange,
+}: BarCodeSearchProps) {
     const [loading, setLoading] = useState(false);
-    const [barCode, setBarCode] = useState('');
+    const [innerBarCode, setInnerBarCode] = useState(barCode);
     const [currentFood, setCurrentFood] = useState<Food | null>(null);
 
     const dispatch = useAppDispatch();
@@ -37,12 +41,12 @@ export default function BarCodeSearch(
     const EAN_LENGTH = 13;
 
     useEffect(() => {
-        if (barCode.length != EAN_LENGTH) {
+        if (innerBarCode.length != EAN_LENGTH) {
             return;
         }
 
         setLoading(true);
-        const promise = searchBarCode(barCode).then(async (apiFood) => {
+        const promise = searchBarCode(innerBarCode).then(async (apiFood) => {
             const food = await upsertFood(convertApi2Food(apiFood));
             setCurrentFood(food);
         }).catch((err) => {
@@ -59,8 +63,15 @@ export default function BarCodeSearch(
         return () => {
             clearTimeout(timeout);
         }
-    }, [barCode]);
+    }, [innerBarCode]);
 
+    useEffect(() => {
+        setBarCode?.(innerBarCode);
+    }, [innerBarCode, setBarCode]);
+
+    useEffect(() => {
+        setInnerBarCode(barCode);
+    }, [barCode]);
 
     useEffect(() => {
         onFoodChange?.(currentFood);
@@ -120,7 +131,7 @@ export default function BarCodeSearch(
                 <input
                     type="number" placeholder="Código de barras (Ex: 7891234567890)"
                     className={`mt-1 input input-bordered flex-1 bg-gray-800 border-gray-300`}
-                    value={barCode} onChange={(e) => setBarCode(e.target.value.slice(0, 13))}
+                    value={innerBarCode} onChange={(e) => setInnerBarCode(e.target.value.slice(0, 13))}
                 />
             </div>
         </div>
