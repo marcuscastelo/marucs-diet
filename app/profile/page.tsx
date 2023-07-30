@@ -6,7 +6,7 @@ import { User, userSchema } from "@/model/userModel";
 import TopBar from "./TopBar";
 import Link from "next/link";
 import { Primitive } from "zod";
-import { useCallback, useEffect, useState } from "react";
+import { SetStateAction, useCallback, useEffect, useState } from "react";
 import { updateUser } from "@/controllers/users";
 import MacroTarget, { MacroProfile } from "../MacroTargets";
 import Capsule from "../Capsule";
@@ -38,10 +38,12 @@ const USER_FIELD_TRANSLATION: Translation<keyof User> = {
 export default function Page() {
     const { user, setUserJson } = useUser();
 
-    const onSetProfile = useCallback(async (profile: MacroProfile) => {
+    const onSetProfile = useCallback(async (action: (old: MacroProfile) => MacroProfile) => {
         if (user.loading) {
             return;
         }
+
+        const profile = action(user.data.macro_profile);
 
         const newUser = {
             ...user.data,
@@ -79,7 +81,7 @@ export default function Page() {
                     <MacroTarget
                         weight={user.data.weight}
                         profile={user.data.macro_profile}
-                        onSaveProfile={onSetProfile}
+                        onSaveProfile={action => onSetProfile(action)}
                     />
                 </div>
                 <WeightProgress userData={user.data} />
