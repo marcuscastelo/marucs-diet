@@ -6,10 +6,12 @@ import { User, userSchema } from "@/model/userModel";
 import TopBar from "./TopBar";
 import Link from "next/link";
 import { Primitive } from "zod";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { updateUser } from "@/controllers/users";
+import MacroTarget, { MacroProfile } from "../MacroTargets";
+import Capsule from "../Capsule";
 
-const CARD_BACKGROUND_COLOR = 'bg-slate-500';
+const CARD_BACKGROUND_COLOR = 'bg-slate-800';
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg';
 
 type Translation<T extends string> = { [key in T]: string };
@@ -34,7 +36,28 @@ const USER_FIELD_TRANSLATION: Translation<keyof User> = {
 };
 
 export default function Page() {
-    const { user } = useUser();
+    const { user, setUserJson } = useUser();
+
+    const onSetProfile = useCallback(async (profile: MacroProfile) => {
+        if (user.loading) {
+            return;
+        }
+
+        const newUser = {
+            ...user.data,
+            macro_profile: profile,
+        };
+
+        // Only update the user if the profile has changed
+        //TODO: This is a hack to avoid updating the user when the profile is the same
+        if (JSON.stringify(newUser.macro_profile) === JSON.stringify(user.data.macro_profile)) {
+            return;
+        }
+
+        await updateUser(newUser.id, newUser);
+        console.log('Updating user');
+        setUserJson(JSON.stringify(newUser));
+    }, [user, setUserJson])
 
     if (user.loading) {
         return (
@@ -51,6 +74,14 @@ export default function Page() {
 
             <div className={`mx-1 sm:mx-40 lg:w-1/3 lg:mx-auto`}>
                 <BasicInfo />
+
+                <div className={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>
+                    <MacroTarget
+                        weight={user.data.weight}
+                        profile={user.data.macro_profile}
+                        onSetProfile={onSetProfile}
+                    />
+                </div>
                 <WeightProgress userData={user.data} />
             </div>
         </>
@@ -143,27 +174,6 @@ function BasicInfo() {
             </Link>
         </>
     )
-}
-
-function Capsule({
-    leftContent,
-    rightContent,
-    className,
-}: {
-    leftContent: React.ReactNode,
-    rightContent: React.ReactNode,
-    className?: string,
-}) {
-    return (
-        <div className={`flex rounded-3xl overflow-hidden ${className || ''}`}>
-            <div className={`flex-1 flex flex-col justify-around text-left bg-slate-700`}>
-                {leftContent}
-            </div>
-            <div className={`flex-1 flex flex-col justify-around text-left bg-slate-900`}>
-                {rightContent}
-            </div>
-        </div>
-    );
 }
 
 function WeightProgress({
