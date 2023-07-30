@@ -12,13 +12,13 @@ import { MealItemData } from "@/model/mealItemModel";
 import { listDays, updateDay } from "@/controllers/days";
 import { Day } from "@/model/dayModel";
 import BarCodeInsertModal from "@/app/BarCodeInsertModal";
-import { hideModal, showModal } from "@/utils/DOMModal";
 import { useFavoriteFoods, useUser } from "@/redux/features/userSlice";
 import { User } from "@/model/userModel";
 import { Loadable } from "@/utils/loadable";
 import { useAppDispatch } from "@/redux/hooks";
 import LoadingRing from "@/app/LoadingRing";
 import { useRouter } from "next/navigation";
+import { ModalRef } from "@/app/(modals)/modal";
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal';
 const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal';
@@ -40,6 +40,12 @@ export default function Page(context: any) {
 
     const [selectedFood, setSelectedFood] = useState(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }));
     const [quantity, setQuantity] = useState<number>(0);
+
+    const [showingMealItemAddModal, setShowingMealItemAddModal] = useState(false);
+    const [showingBarCodeInsertModal, setShowingBarCodeInsertModal] = useState(false);
+
+    const mealItemAddModalRef = useRef<ModalRef>(null);
+    const barCodeInsertModalRef = useRef<ModalRef>(null);
 
     const [searchingFoods, setSearchingFoods] = useState(false);
 
@@ -205,7 +211,7 @@ export default function Page(context: any) {
             router.push(`/day/${dayParam}`);
         } else {
             setSelectedFood(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }));
-            hideModal(window, MEAL_ITEM_ADD_MODAL_ID);
+            mealItemAddModalRef.current?.close();
         }
     }
 
@@ -216,7 +222,7 @@ export default function Page(context: any) {
             <div className="flex justify-start mb-2">
                 <button
                     onClick={() => {
-                        showModal(window, BAR_CODE_INSERT_MODAL_ID);
+                        barCodeInsertModalRef.current?.showModal();
                     }}
                     className="mt-2 bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
                 >
@@ -225,10 +231,12 @@ export default function Page(context: any) {
             </div>
 
             <BarCodeInsertModal
-                modalId={BAR_CODE_INSERT_MODAL_ID} onSelect={
+                modalId={BAR_CODE_INSERT_MODAL_ID} 
+                ref={barCodeInsertModalRef}
+                onSelect={
                     (food) => {
                         setSelectedFood(food);
-                        showModal(window, MEAL_ITEM_ADD_MODAL_ID);
+                        mealItemAddModalRef.current?.showModal();
                     }
                 } />
 
@@ -251,7 +259,8 @@ export default function Page(context: any) {
             {!searchingFoods && !typing && filteredFoods.length == 0 && <Alert color="warning" className="mt-2">Nenhum alimento encontrado para a busca &quot;{search}&quot;.</Alert>}
 
             <MealItemAddModal 
-                modalId={MEAL_ITEM_ADD_MODAL_ID} 
+                modalId={MEAL_ITEM_ADD_MODAL_ID}
+                ref={mealItemAddModalRef}
                 meal={meal} 
                 itemData={{
                     food: selectedFood,
@@ -277,7 +286,8 @@ export default function Page(context: any) {
                                                 className="mt-1"
                                                 onClick={() => {
                                                     setSelectedFood(food);
-                                                    showModal(window, MEAL_ITEM_ADD_MODAL_ID)
+                                                    mealItemAddModalRef.current?.showModal();
+                                                    barCodeInsertModalRef.current?.close();
                                                 }}
                                                 header={
                                                     <MealItem.Header
