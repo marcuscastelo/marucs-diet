@@ -154,20 +154,17 @@ export const searchFoodsByEan = async (ean: string, limit?: number): Promise<Foo
             },
             ifNotCached:
                 async () => {
-                    const newFoods = newFoodsSchema.parse((await await INTERNAL_API.get('barcode', {
-                        params: {
-                            q: ean,
-                        }
-                    })).data);
-                    const convertedFoods = newFoods.alimentos.map(convertApi2Food);
-                    return convertedFoods;
+                    const foodNoId = (await INTERNAL_API.get(`barcode/${ean}`)).data;
+                    const newFood = foodSchema.parse(await upsertFood(foodNoId));
+
+                    return [newFood];
                 }
         }
     )).find(food => food.ean === ean));
 }
 
 export const upsertFood = async (food: Omit<Food, 'id'>): Promise<Food> => {
-
+    food.ean = food.ean || undefined; // Remove empty ean
     const { data, error } = await supabase.from(TABLE).upsert(food).select();
     if (error) {
         console.error(error);
