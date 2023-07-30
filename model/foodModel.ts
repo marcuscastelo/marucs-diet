@@ -8,6 +8,7 @@ export const foodSchema = z.object({
         id: z.string(),
     }).nullable().transform((val) => val ?? undefined).optional(),
     name: z.string(),
+    ean: z.string().nullable().transform((val) => val ?? undefined).optional(),
     macros: MacroNutrientsSchema,
 });
 

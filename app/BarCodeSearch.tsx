@@ -1,10 +1,8 @@
 'use client';
 
-import { searchBarCode } from "@/controllers/barcodes";
-import { ApiFood } from "@/model/apiFoodModel";
 import { useEffect, useState } from "react";
 import MealItem from "./(mealItem)/MealItem";
-import { convertApi2Food, upsertFood } from "@/controllers/food";
+import { searchFoodsByEan, upsertFood } from "@/controllers/food";
 import { useFavoriteFoods } from "@/redux/features/userSlice";
 import { Food } from "@/model/foodModel";
 import { useAppDispatch } from "@/redux/hooks";
@@ -36,8 +34,8 @@ export default function BarCodeSearch({
         }
 
         setLoading(true);
-        const promise = searchBarCode(innerBarCode).then(async (apiFood) => {
-            const food = await upsertFood(convertApi2Food(apiFood));
+        const promise = searchFoodsByEan(innerBarCode).then(async (newFood) => {
+            const food = await upsertFood(newFood);
             setCurrentFood(food);
         }).catch((err) => {
             console.error(err);
