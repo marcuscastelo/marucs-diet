@@ -28,7 +28,7 @@ export function BarCodeReader({
             let qrboxSize = Math.floor(minEdgeSize * minEdgePercentage);
             return {
                 width: qrboxSize,
-                height: qrboxSize * 2/3,
+                height: qrboxSize * 2 / 3,
             };
         }
 

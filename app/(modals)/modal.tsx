@@ -1,56 +1,59 @@
 'use client';
 
-import { hideModal, showModal } from "@/utils/DOMModal";
-import { useEffect, useState } from "react";
+import { forwardRef, useImperativeHandle, useRef, useState } from "react";
+import { BarCodeReader } from "../BarCodeReader";
+import Show from "../Show";
 
 export type ModalProps = {
     modalId: string,
-    show?: boolean,
     header?: React.ReactNode,
     body?: React.ReactNode,
     actions?: React.ReactNode,
     hasBackdrop?: boolean,
     onSubmit: (e: React.FormEvent<HTMLFormElement>) => void,
+    onVisibilityChange?: (isShowing: boolean) => void,
 };
 
-export default function Modal({
-    modalId,
-    show: wantToShow,
-    header,
-    body,
-    actions,
-    hasBackdrop = true,
-    onSubmit,
-}: ModalProps) {
-    const [show, setShow] = useState(wantToShow ?? false);
+export type ModalRef = {
+    showModal: () => void,
+    close: () => void,
+};
 
-    useEffect(() => {
-        if (wantToShow === undefined) {
-            return;
-        }
+//eslint-disable-next-line react/display-name
+const Modal = forwardRef((
+    {
+        modalId,
+        header,
+        body,
+        actions,
+        hasBackdrop = true,
+        onSubmit,
+        onVisibilityChange,
+    }: ModalProps,
+    ref: React.Ref<ModalRef>
+) => {
+    const innerRef = useRef<HTMLDialogElement>(null);
+    const [showing, setShowing] = useState(false);
 
-        setShow(wantToShow);
-    }, [wantToShow]);
-    
-    useEffect(() => {
-        if (!show) {
-            hideModal(window, modalId);
-            return;
-        }
+    const handleVisibilityChange = (isShowing: boolean) => {
+        setShowing(isShowing);
+        onVisibilityChange?.(isShowing);
+    };
 
-        const timeout = setTimeout(() => {
-            showModal(window, modalId);
-        }, 100);
-
-        return () => {
-            clearTimeout(timeout);
-        }
-    }, [show, modalId]);
-
-
+    useImperativeHandle(ref, () => ({
+        showModal: () => {
+            innerRef.current?.showModal();
+            handleVisibilityChange(innerRef.current?.open === true);
+        },
+        close: () => {
+            innerRef.current?.close();
+            handleVisibilityChange(innerRef.current?.open === true);
+        },
+    }));
 
     return (
-        <dialog id={modalId} className="modal modal-bottom sm:modal-middle">
+        <dialog id={modalId} className="modal modal-bottom sm:modal-middle" ref={innerRef}>
+
             {/* TODO: className deveria estar no forms? */}
             <form method="dialog" className="modal-box bg-gray-800 text-white" onSubmit={onSubmit}>
                 {header}
@@ -60,19 +63,20 @@ export default function Modal({
             {
                 hasBackdrop && (
                     <form method="dialog" className="modal-backdrop">
-                        <button>close</button>
+                        <button
+                            onClick={() => onVisibilityChange?.(false)}
+                        >
+                            close
+                        </button>
                     </form>
                 )
             }
         </dialog>
     );
-}
+});
 
-Modal.Header = ModalHeader;
-Modal.Body = ModalBody;
-Modal.Actions = ModalActions;
-
-function ModalHeader() {
+//TODO: ModalHeader => Modal.Header, ModalBody => Modal.Body, ModalActions => Modal.Actions
+export function ModalHeader() {
     return (
         <h3 className="font-bold text-lg text-white">Novo item em
             <span className="text-green-500"> &quot;TEST&quot; </span>
@@ -80,14 +84,16 @@ function ModalHeader() {
     );
 }
 
-function ModalBody() {
+export function ModalBody() {
 
 }
 
-function ModalActions({ children }: { children: React.ReactNode }) {
+export function ModalActions({ children }: { children: React.ReactNode }) {
     return (
         <div className="modal-action">
             {children}
         </div>
     );
 }
+
+export default Modal;
