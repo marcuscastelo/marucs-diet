@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 
 const CARBO_CALORIES = 4 as const;
 const PROTEIN_CALORIES = 4 as const;
@@ -79,30 +79,21 @@ export type MacroTargetProps = {
     weight: number,
     profile: MacroProfile,
     className?: string,
-    onSetProfile: (profile: MacroProfile) => void,
+    onSaveProfile: Dispatch<SetStateAction<MacroProfile>>,
 };
 
 export default function MacroTarget({
-    weight, profile: initialProfile, onSetProfile
+    weight, profile, onSaveProfile: setProfile,
 }: MacroTargetProps) {
-    const initialGrams = calculateMacroTarget(weight, initialProfile);
+    const initialGrams = calculateMacroTarget(weight, profile);
     const initialCalories = calculateCalories(initialGrams);
-    const [initialCarbsRepr, initialProteinRepr, initialFatRepr] = calculateMacroRepresentation(initialProfile, weight);
+    const [initialCarbsRepr, initialProteinRepr, initialFatRepr] = calculateMacroRepresentation(profile, weight);
 
-    const [profile, setProfile] = useState(initialProfile);
     const [targetCalories, setTargetCalories] = useState(initialCalories.toString());
 
     const [carbsRepr, setCarbsRepr] = useState<MacroRepresentation>(initialCarbsRepr);
     const [proteinRepr, setProteinRepr] = useState<MacroRepresentation>(initialProteinRepr);
     const [fatRepr, setFatRepr] = useState<MacroRepresentation>(initialFatRepr);
-
-    useEffect(() => {
-        onSetProfile(profile);
-    }, [profile, onSetProfile]);
-
-    useEffect(() => {
-        setProfile(initialProfile);
-    }, [initialProfile]);
 
     useEffect(() => {
         const [carbsRepr, proteinRepr, fatRepr] = calculateMacroRepresentation(profile, weight);
@@ -131,7 +122,6 @@ export default function MacroTarget({
     const makeOnSetPercentage = (macro: 'carbs' | 'protein' | 'fat') => (percentage: number) => {
         alert('TODO: future feature');
     };
-
 
     return (
         <>
