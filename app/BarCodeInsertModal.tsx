@@ -1,35 +1,37 @@
 'use client';
 
-import { useEffect, useState } from "react";
-import { hideModal, showModal } from "@/utils/DOMModal";
+import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import BarCodeSearch from "./BarCodeSearch";
 import { Food } from "@/model/foodModel";
 import { BarCodeReader } from "./BarCodeReader";
-import Modal from "./(modals)/modal";
+import Modal, { ModalActions, ModalRef } from "./(modals)/modal";
+import Show from "./Show";
 
 export type BarCodeInsertModalProps = {
     modalId: string,
-    show?: boolean,
     onSelect: (apiFood: Food) => void,
+    onVisibilityChange?: (isShowing: boolean) => void,
 }
 
-export default function BarCodeInsertModal({ modalId, show, onSelect }: BarCodeInsertModalProps) {
+//eslint-disable-next-line react/display-name
+const BarCodeInsertModal = forwardRef((
+    {
+        modalId,
+        onSelect,
+        onVisibilityChange,
+    }: BarCodeInsertModalProps,
+    ref: React.Ref<ModalRef>
+) => {
     const [barCode, setBarCode] = useState<string>('');
     const [food, setFood] = useState<Food | null>(null);
+    const [showing, setShowing] = useState(false);
 
-    useEffect(() => {
-        if (!show) {
-            return;
-        }
+    const modalRef = useRef<ModalRef>(null);
 
-        const timeout = setTimeout(() => {
-            showModal(window, modalId);
-        }, 100);
-
-        return () => {
-            clearTimeout(timeout);
-        }
-    }, [show, modalId]);
+    const handleSetShowing = (isShowing: boolean) => {
+        setShowing(isShowing);
+        onVisibilityChange?.(isShowing);
+    };
 
     const handleSelect = async (e?: React.SyntheticEvent) => {
         e?.preventDefault();
@@ -42,32 +44,48 @@ export default function BarCodeInsertModal({ modalId, show, onSelect }: BarCodeI
         onSelect(food);
     }
 
+    //TODO: revisar se isso é necessário
+    useImperativeHandle(ref, () => ({
+        showModal: () => {
+            modalRef.current?.showModal();
+            handleSetShowing(true);
+        },
+        close: () => {
+            modalRef.current?.close();
+            handleSetShowing(false);
+        },
+    }));
+
     return (
         <Modal
             modalId={modalId}
-            show={show}
+            ref={modalRef}
             onSubmit={handleSelect}
             header={<h1 className="modal-title">Pesquisar por código de barras</h1>}
+            onVisibilityChange={handleSetShowing}
             body={<>
-                <BarCodeReader id="reader" onScanned={setBarCode} />
+                <Show when={showing}>
+                    <BarCodeReader id="reader" onScanned={setBarCode} />
+                </Show>
                 <BarCodeSearch
                     barCode={barCode}
                     setBarCode={setBarCode}
                     onFoodChange={setFood}
                 />
             </>}
-            actions={<Modal.Actions>
+            actions={<ModalActions>
                 <button className="btn" onClick={(e) => {
                     e.preventDefault();
-                    hideModal(window, modalId); // TODO: retriggered: remove this and use state/modal component
+                    modalRef.current?.close();
                 }} >
                     Cancelar
                 </button>
                 <button className="btn btn-primary" disabled={!food} onClick={handleSelect} >Aplicar</button>
-            </Modal.Actions>}
+            </ModalActions>}
 
         />
     );
-}
+});
 
 
+export default BarCodeInsertModal;
