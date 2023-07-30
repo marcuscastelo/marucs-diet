@@ -18,8 +18,8 @@ const searchBarCodeInternal = async (barcode: string) => {
     console.log(response.data);
     console.dir(response.data);
     return convertApi2Food(apiFoodSchema.parse(response.data));
-    //TODO: retriggered cache this
 }
+
 //TODO: merge this with the food search by name (using query params like ?name= or ?ean=)
 export async function GET(request: NextRequest, { params }: { params: { ean: string } }) {
     return NextResponse.json(await searchBarCodeInternal(params.ean));
