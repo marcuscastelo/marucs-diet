@@ -1,7 +1,7 @@
 "use client";
 
 import { mockMeal } from "../(mock)/mockData";
-import Meal from "@/app/Meal";
+import Meal from "@/app/(meal)/Meal";
 import { useState } from "react";
 import { duplicateLastMealItem } from "../(mock)/mockActions";
 
@@ -11,9 +11,9 @@ export default function MealPage() {
     return (
         <Meal 
             mealData={meal} 
-            onNewItem={() => duplicateLastMealItem(meal, setMeal)}
-            onEditItem={() => {}}
-            onUpdateMeal={(meal) => setMeal(meal)}
+            header={<Meal.Header onUpdateMeal={(meal) => setMeal(meal)} />}
+            content={<Meal.Content onEditItem={(item) => alert(`Mock: Edit "${item.food.name}"`)} />}
+            actions={<Meal.Actions onNewItem={() => duplicateLastMealItem(meal, setMeal)} />}
         />
-    )
+    );
 }
