@@ -92,6 +92,7 @@ function MealHeader({ onUpdateMeal }: { onUpdateMeal: (meal: MealData) => void }
 
     useEffect(() => {
         const interval = setInterval(() => {
+            //TODO: Uncaught (in promise) DOMException: Document is not focused.
             navigator.clipboard
                 .readText()
                 .then(
