@@ -83,12 +83,22 @@ export default function Page(context: any) {
     const dayData = days.data.find((day) => day.target_day === selectedDay);
 
     const onEditMealItem = (meal: MealData, mealItem: MealItemData) => {
+        if (dayLocked) {
+            alert('Dia bloqueado, não é possível editar');
+            return;
+        }
+
         setSelectedMeal(meal);
         setSelectedMealItem(mealItem);
         showModal(window, editModalId);
     };
 
     const onUpdateMeal = async (dayData: Day, meal: MealData) => {
+        if (dayLocked) {
+            alert('Dia bloqueado, não é possível editar');
+            return;
+        }
+
         await updateDay(dayData.id!, { //TODO: remove !
             ...dayData,
             meals: dayData.meals.map((m) => {
@@ -104,6 +114,11 @@ export default function Page(context: any) {
     }
 
     const handleNewItemButton = (meal: MealData) => {
+        if (dayLocked) {
+            alert('Dia bloqueado, não é possível editar');
+            return;
+        }
+
         router.push(`/newItem/${selectedDay}/${meal.id}`);
     }
 
