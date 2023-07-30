@@ -1,6 +1,6 @@
 'use client';
 
-import MealItem from "@/app/MealItem";
+import MealItem from "@/app/(mealItem)/MealItem";
 import { listFoods } from "@/controllers/food";
 import { Food } from "@/model/foodModel";
 import { Alert, Breadcrumb } from "flowbite-react";
@@ -89,7 +89,6 @@ export default function Page() {
                                 food: food,
                                 quantity: 100,
                             }}
-                            favorite={false} // TODO: retriggered: implement favorite
                         />
                     </div>
                 )

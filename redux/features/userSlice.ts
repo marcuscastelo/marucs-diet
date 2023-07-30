@@ -1,11 +1,13 @@
 'use client';
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { useAppSelector } from "../hooks";
+import { useAppDispatch, useAppSelector } from "../hooks";
 import { User, userSchema } from "@/model/userModel";
 import { Record } from "pocketbase";
 import { Loadable } from "@/utils/loadable";
 import { updateUser } from "@/controllers/users";
+import { AppDispatch } from "../store";
+import { useCallback } from "react";
 
 type UserState = Loadable<User>;
 
@@ -24,7 +26,7 @@ const userSlice = createSlice({
     name: 'user',
     initialState,
     reducers: {
-        setUserJson: (state, action: PayloadAction<string>) => {
+        setUserJson: (state, action: PayloadAction<string>) => { //TODO: use actual type (no Record)
             state.loading = false;
             if (state.loading) {
                 return;
@@ -78,29 +80,39 @@ const userSlice = createSlice({
     },
 });
 
-export const { setUserJson, setFavoriteFoods, setFoodAsFavorite } = userSlice.actions;
+const { setUserJson, setFavoriteFoods, setFoodAsFavorite } = userSlice.actions;
 
-export const useUser = () => useAppSelector((state) => state.userReducer);
+export const useUser = () => {
+    const user = useAppSelector((state) => state.userReducer);
+    const appDispatch = useAppDispatch();
 
-export const useFavoriteFoods = () => useAppSelector((state) => {
-    const loadable = state.userReducer;
-    if (loadable.loading) 
-        return [];
+    const dispatch = {
+        setUserJson: useCallback((userJson: string) => appDispatch(setUserJson(userJson)), [appDispatch])
+    } as const;
 
-    const user = loadable.data;
-    return user.favorite_foods;
-});
+    return {
+        user,
+        ...dispatch,
+    } as const;
+}
+ 
+export const useFavoriteFoods = () => {
+    const user = useAppSelector((state) => state.userReducer);
+    const favoriteFoods = user.loading ? [] : user.data.favorite_foods;
+    const isFoodFavorite = (foodId: number) => favoriteFoods.includes(foodId);
 
-export const useIsFoodFavorite = () => useAppSelector((state) => {
-    const loadable = state.userReducer;
+    const appDispatch = useAppDispatch();
 
-    return (foodId: number) => {
-        if (loadable.loading)
-            return false;
-        
-        const user = loadable.data;
-        return user.favorite_foods.includes(foodId);
+    const dispatch = {
+        setFavoriteFoods: useCallback((favoriteFoods: number[]) => appDispatch(setFavoriteFoods(favoriteFoods)), [appDispatch]),
+        setFoodAsFavorite: useCallback((foodId: number, favorite: boolean) => appDispatch(setFoodAsFavorite({ foodId, favorite })), [appDispatch]),
     }
-});
+
+    return {
+        favoriteFoods,
+        isFoodFavorite,
+        ...dispatch,
+    } as const;
+}
 
 export default userSlice.reducer;

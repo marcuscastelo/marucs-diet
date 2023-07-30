@@ -7,14 +7,14 @@ import { calculateMacroTarget } from "./MacroTargets";
 import { CSSProperties } from "react";
 
 export default function DayMacros({ macros, className }: { macros: MacroNutrientsData, className?: string }) {
-    const currentUser = useUser();
+    const { user } = useUser();
 
-    if (currentUser.loading) {
+    if (user.loading) {
         return <>Loading user...</>;
     }
 
-    const macroProfile = currentUser.data.macro_profile;
-    const targetMacros = calculateMacroTarget(currentUser.data.weight, macroProfile);
+    const macroProfile = user.data.macro_profile;
+    const targetMacros = calculateMacroTarget(user.data.weight, macroProfile);
     const targetCalories = targetMacros.carbs * 4 + targetMacros.protein * 4 + targetMacros.fat * 9;
 
     return (

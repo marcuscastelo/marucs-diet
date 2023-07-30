@@ -1,10 +1,10 @@
 'use client';
 
-import MealItem from "@/app/MealItem";
+import MealItem from "@/app/(mealItem)/MealItem";
 import { listFoods, searchFoods } from "@/controllers/food";
 import { Food } from "@/model/foodModel";
 import { Alert, Breadcrumb } from "flowbite-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PageLoading from "../../../PageLoading";
 import MealItemAddModal from "../../../MealItemAddModal";
 import { mockFood } from "../../../test/unit/(mock)/mockData";
@@ -12,32 +12,35 @@ import { MealItemData } from "@/model/mealItemModel";
 import { listDays, updateDay } from "@/controllers/days";
 import { Day } from "@/model/dayModel";
 import BarCodeInsertModal from "@/app/BarCodeInsertModal";
-import { showModal } from "@/utils/DOMModal";
-import { setFoodAsFavorite, useIsFoodFavorite, useUser } from "@/redux/features/userSlice";
+import { hideModal, showModal } from "@/utils/DOMModal";
+import { useFavoriteFoods, useUser } from "@/redux/features/userSlice";
 import { User } from "@/model/userModel";
 import { Loadable } from "@/utils/loadable";
 import { useAppDispatch } from "@/redux/hooks";
-import { useRouter } from "next/navigation";
 import LoadingRing from "@/app/LoadingRing";
+import { useRouter } from "next/navigation";
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal';
 const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal';
 
 //TODO: Refactor client-side cache vs server-side cache vs no cache logic on search
 export default function Page(context: any) {
+    const router = useRouter();
+
     const FOOD_LIMIT = 100;
     const TYPE_TIMEOUT = 1000;
 
     const dayParam = context.params.date as string; // TODO: type-safe this
 
-    const dispatch = useAppDispatch();
-    const currentUser = useUser();
-    const router = useRouter();
+    const { user } = useUser();
 
     const [search, setSearch] = useState<string>('');
     const [foods, setFoods] = useState<Loadable<(Food)[]>>({ loading: true });
     const [days, setDays] = useState<Loadable<Day[]>>({ loading: true });
+
     const [selectedFood, setSelectedFood] = useState(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }));
+    const [quantity, setQuantity] = useState<number>(0);
+
     const [searchingFoods, setSearchingFoods] = useState(false);
 
     const [typing, setTyping] = useState(false);
@@ -46,7 +49,7 @@ export default function Page(context: any) {
 
     const isDesktop = isClient ? window.innerWidth > 768 : false;
 
-    const isFoodFavorite = useIsFoodFavorite();
+    const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods();
 
     const fetchFoods = async (search: string | '', favoriteFoods: number[]) => {
         setSearchingFoods(true);
@@ -97,13 +100,13 @@ export default function Page(context: any) {
     }, []);
 
     useEffect(() => {
-        if (currentUser.loading || typing) {
+        if (user.loading || typing) {
             return;
         }
 
-        fetchFoods(search, currentUser.data.favorite_foods);
-        fetchDays(currentUser.data.id);
-    }, [currentUser, search, typing]);
+        fetchFoods(search, user.data.favorite_foods);
+        fetchDays(user.data.id);
+    }, [user, search, typing]);
 
     useEffect(() => {
         setTyping(true);
@@ -194,7 +197,16 @@ export default function Page(context: any) {
                 return m;
             })
         });
-        router.push(`/day/${dayParam}`);
+        
+        // Prompt if user wants to add another item or go back (Yes/No)
+        const oneMore = confirm("Item adicionado com sucesso. Deseja adicionar outro item?");
+
+        if (!oneMore) {
+            router.push(`/day/${dayParam}`);
+        } else {
+            setSelectedFood(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }));
+            hideModal(window, MEAL_ITEM_ADD_MODAL_ID);
+        }
     }
 
     return (
@@ -238,9 +250,12 @@ export default function Page(context: any) {
 
             {!searchingFoods && !typing && filteredFoods.length == 0 && <Alert color="warning" className="mt-2">Nenhum alimento encontrado para a busca &quot;{search}&quot;.</Alert>}
 
-            <MealItemAddModal modalId={MEAL_ITEM_ADD_MODAL_ID} meal={meal} itemData={{
-                food: selectedFood,
-            }}
+            <MealItemAddModal 
+                modalId={MEAL_ITEM_ADD_MODAL_ID} 
+                meal={meal} 
+                itemData={{
+                    food: selectedFood,
+                }}
                 onApply={async (i) => onNewMealItem(i)}
             />
 
@@ -255,25 +270,29 @@ export default function Page(context: any) {
                                         <div key={idx}>
                                             <MealItem
                                                 mealItem={{
-                                                    id: Math.round(Math.random() * 1000000000),
+                                                    id: Math.random() * 1000000,
                                                     food: food,
                                                     quantity: 100,
                                                 }}
                                                 className="mt-1"
-                                                key={idx}
                                                 onClick={() => {
                                                     setSelectedFood(food);
                                                     showModal(window, MEAL_ITEM_ADD_MODAL_ID)
                                                 }}
-                                                favorite={
-                                                    isFoodFavorite(food.id)
+                                                header={
+                                                    <MealItem.Header
+                                                        name={<MealItem.Header.Name />}
+                                                        favorite={
+                                                            <MealItem.Header.Favorite
+                                                                favorite={isFoodFavorite(food.id)}
+                                                                setFavorite={(favorite) => setFoodAsFavorite(food.id, favorite)}
+                                                            />
+                                                        }
+                                                    />
                                                 }
-                                                setFavorite={(favorite) => {
-                                                    dispatch(setFoodAsFavorite({
-                                                        foodId: food.id,
-                                                        favorite
-                                                    }));
-                                                }}
+                                                nutritionalInfo={
+                                                    <MealItem.NutritionalInfo />
+                                                }
                                             />
                                         </div>
                                     )

@@ -10,21 +10,24 @@ const CARD_BACKGROUND_COLOR = 'bg-slate-500';
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg';
 
 export default function Page() {
-    const currentUser = useUser();
+    const { user } = useUser();
 
-    if (currentUser.loading) {
+    if (user.loading) {
         return (
-            <PageLoading message="Carregando usuário..." />
+            <>
+                <TopBar />
+                <PageLoading message="Carregando usuário..." />
+            </>
         );
     }
 
     return (
         <>
-            <TopBar/>
+            <TopBar />
 
             <div className={`mx-1 sm:mx-40 lg:w-1/3 lg:mx-auto`}>
-                <BasicInfo userData={currentUser.data} />
-                <WeightProgress userData={currentUser.data} />
+                <BasicInfo userData={user.data} />
+                <WeightProgress userData={user.data} />
             </div>
         </>
     );

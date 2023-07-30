@@ -1,7 +1,7 @@
 "use client";
 
 import DayMeals from "@/app/DayMeals";
-import { MealProps } from "@/app/Meal";
+import Meal, { MealProps } from "@/app/(meal)/Meal";
 import { listDays, updateDay } from "@/controllers/days";
 import { Day } from "@/model/dayModel";
 import { MealData } from "@/model/mealModel";
@@ -14,12 +14,12 @@ import Datepicker from "react-tailwindcss-datepicker";
 import { DateValueType } from "react-tailwindcss-datepicker/dist/types";
 
 export default function Page() {
-    const [days, setDays] = useState<Day[]>([]); // TODO: retriggered: remove Record when id is not optional
+    const [days, setDays] = useState<Day[]>([]);
     const [mealProps, setMealProps] = useState<MealProps[][]>([]);
 
     const [selectedDay, setSelectedDay] = useState('');
 
-    const currentUser = useUser();
+    const { user } = useUser();
 
     const fetchDays = async (userId: User['id']) => {
         const days = await listDays(userId);
@@ -29,9 +29,9 @@ export default function Page() {
             return day.meals.map((meal): MealProps => {
                 return {
                     mealData: meal,
-                    onNewItem: () => console.log("onNewItem"),
-                    onEditItem: () => console.log("onEditItem"),
-                    onUpdateMeal: () => console.log("onUpdateMeal"),
+                    header: <Meal.Header onUpdateMeal={(meal) => alert(`Mock: Update meal ${meal.name}`)} />,
+                    content: <Meal.Content onEditItem={(item) => alert(`Mock: Edit "${item.food.name}"`)} />,
+                    actions: <Meal.Actions onNewItem={() => alert('Mock: New item')} />,
                 };
             })
         })
@@ -50,12 +50,12 @@ export default function Page() {
     }
 
     useEffect(() => {
-        if (currentUser.loading) {
+        if (user.loading) {
             return;
         }
-            
-        fetchDays(currentUser.data.id);
-    }, [currentUser]);
+
+        fetchDays(user.data.id);
+    }, [user]);
 
     const duplicateLastMealItemOnDatabase = async (day: Day, meal: MealData) => {
         await updateDay(day.id, {
@@ -103,9 +103,9 @@ export default function Page() {
                             dayData.meals.map((meal): MealProps => {
                                 return {
                                     mealData: meal,
-                                    onNewItem: () => duplicateLastMealItemOnDatabase(dayData, meal),
-                                    onEditItem: () => alert('onEditItem'),
-                                    onUpdateMeal: () => alert('onUpdateMeal'),
+                                    header: <Meal.Header onUpdateMeal={(meal) => alert(`Mock: Update meal ${meal.name}`)} />,
+                                    content: <Meal.Content onEditItem={(item) => alert(`Mock: Edit "${item.food.name}"`)} />,
+                                    actions: <Meal.Actions onNewItem={() => alert('Mock: New item')} />,
                                 };
                             })
                         } />
