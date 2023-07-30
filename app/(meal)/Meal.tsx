@@ -2,7 +2,7 @@
 
 import { MealData, mealSchema } from "@/model/mealModel";
 import MealItem from "../(mealItem)/MealItem";
-import { MealItemData } from "@/model/mealItemModel";
+import { MealItemData, mealItemSchema } from "@/model/mealItemModel";
 import { MealContextProvider, useMealContext } from "./MealContext";
 import { useEffect, useState } from "react";
 import { calculateCalories } from "../MacroTargets";
@@ -85,19 +85,47 @@ function MealHeader({ onUpdateMeal }: { onUpdateMeal: (meal: MealData) => void }
         e.preventDefault();
 
         try {
-            const parsedMeal = mealSchema.parse(JSON.parse(clipboardText));
+            const parsedMeal = mealSchema.safeParse(JSON.parse(clipboardText));
 
-            const newMealData = {
-                ...mealData,
-                items: [
-                    ...mealData.items,
-                    ...parsedMeal.items,
-                ]
-            };
+            if (parsedMeal.success) {
+                const newMealData = {
+                    ...mealData,
+                    items: [
+                        ...mealData.items,
+                        ...parsedMeal.data.items,
+                    ]
+                };
 
-            onUpdateMeal(newMealData);
+                onUpdateMeal(newMealData);
+
+                // Clear clipboard
+                navigator.clipboard
+                    .writeText('');
+
+                return;
+            }
+
+            const parsedMealItem = mealItemSchema.safeParse(JSON.parse(clipboardText));
+
+            if (parsedMealItem.success) {
+                const newMealData = {
+                    ...mealData,
+                    items: [
+                        ...mealData.items,
+                        parsedMealItem.data,
+                    ]
+                };
+
+                onUpdateMeal(newMealData);
+
+                // Clear clipboard
+                navigator.clipboard
+                    .writeText('');
+
+                return;
+            }
         } catch (e) {
-            alert('O conteúdo da área de transferência não é uma refeição válida.');
+            alert(`Erro ao colar: ${e}`);
         }
 
         // Clear clipboard
@@ -125,7 +153,11 @@ function MealHeader({ onUpdateMeal }: { onUpdateMeal: (meal: MealData) => void }
         // Do nothing
     }
 
-    const hasValidMealOnClipboard = clipboardText && mealSchema.safeParse(parsedJson).success;
+    const hasValidPastableOnClipboard =
+        clipboardText && (
+            mealSchema.safeParse(parsedJson).success ||
+            mealItemSchema.safeParse(parsedJson).success
+        );
 
     return (
         <div className="flex">
@@ -134,14 +166,17 @@ function MealHeader({ onUpdateMeal }: { onUpdateMeal: (meal: MealData) => void }
                 <p className="text-gray-400 italic">{mealCalories}kcal</p>
             </div>
             <div className={`ml-auto flex gap-2`}>
-                <div
-                    className={`px-2 ml-auto mt-1 text-white btn btn-ghost hover:scale-105`}
-                    onClick={handleCopyMeal}
-                >
-                    <CopyIcon />
-                </div>
                 {
-                    hasValidMealOnClipboard &&
+                    !hasValidPastableOnClipboard && mealData.items.length > 0 &&
+                    <div
+                        className={`px-2 ml-auto mt-1 text-white btn btn-ghost hover:scale-105`}
+                        onClick={handleCopyMeal}
+                    >
+                        <CopyIcon />
+                    </div>
+                }
+                {
+                    hasValidPastableOnClipboard &&
                     <div
                         className={`px-2 ml-auto mt-1 text-white btn btn-ghost hover:scale-105`}
                         onClick={handlePasteMeal}
@@ -149,12 +184,15 @@ function MealHeader({ onUpdateMeal }: { onUpdateMeal: (meal: MealData) => void }
                         <PasteIcon />
                     </div>
                 }
-                <div
-                    className={`px-2 ml-auto mt-1 text-white btn btn-ghost hover:scale-105`}
-                    onClick={onClearItems}
-                >
-                    <TrashIcon />
-                </div>
+                {
+                    mealData.items.length > 0 &&
+                    <div
+                        className={`px-2 ml-auto mt-1 text-white btn btn-ghost hover:scale-105`}
+                        onClick={onClearItems}
+                    >
+                        <TrashIcon />
+                    </div>
+                }
             </div>
         </div>
     )
