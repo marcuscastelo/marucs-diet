@@ -79,7 +79,7 @@ export default function Page() {
                     <MacroTarget
                         weight={user.data.weight}
                         profile={user.data.macro_profile}
-                        onSetProfile={onSetProfile}
+                        onSaveProfile={onSetProfile}
                     />
                 </div>
                 <WeightProgress userData={user.data} />
