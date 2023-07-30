@@ -1,10 +1,8 @@
 'use client';
 
-import { searchBarCode } from "@/controllers/barcodes";
-import { ApiFood } from "@/model/apiFoodModel";
 import { useEffect, useState } from "react";
 import MealItem from "./(mealItem)/MealItem";
-import { convertApi2Food, searchFoodsByEan, upsertFood } from "@/controllers/food";
+import { searchFoodsByEan, upsertFood } from "@/controllers/food";
 import { useFavoriteFoods } from "@/redux/features/userSlice";
 import { Food } from "@/model/foodModel";
 import { useAppDispatch } from "@/redux/hooks";
