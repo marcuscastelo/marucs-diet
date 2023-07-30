@@ -73,19 +73,36 @@ const newFoodsSchema = z.object({
     alimentos: z.array(apiFoodSchema, { required_error: 'Foods is required' })
 });
 
-export const listFoods = async (limit?: number) => {
+export const listFoods = async (limit?: number, favorites?: number[]) => {
     console.log('Listing foods...');
 
     return await internalSearchCacheLogic('__root__', isSearchCached,
         {
             ifCached: async (): Promise<Food[]> => {
-                const { data, error } = await supabase.from(TABLE).select().limit(limit ?? 100);
-                console.log(`Got ${data?.length} foods from cache.`)
+                const { data: favoriteResult, error } = await supabase
+                    .from(TABLE)
+                    .select()
+                    .in('id', favorites ?? [])
+                    .limit(limit ?? 100);
+
+                console.log(`Got ${favoriteResult?.length} favorite foods from cache.`)
                 if (error) {
                     console.error(error);
                     throw error;
                 }
-                return (data ?? []).map(food => foodSchema.parse(food));
+
+                const otherLimit = limit ? limit - favoriteResult?.length : undefined;
+                const { data: otherResult, error: otherError } = await supabase
+                    .from(TABLE)
+                    .select()
+                    .limit(otherLimit ?? 100);
+
+                console.log(`Got ${otherResult?.length} other foods from cache.`)
+
+                console.log(`Total: ${(favoriteResult?.length ?? 0) + (otherResult?.length ?? 0)} foods from cache.`)
+
+
+                return (favoriteResult ?? []).map(food => foodSchema.parse(food)).concat((otherResult ?? []).map(food => foodSchema.parse(food)));
             },
             ifNotCached:
                 async () => {
@@ -97,15 +114,21 @@ export const listFoods = async (limit?: number) => {
     );
 }
 
-export const searchFoodsByName = async (name: string, limit?: number) => {
+export const searchFoodsByName = async (name: string, limit?: number, favorites?: number[]) => {
     console.log(`Searching for name = '${name}'...`);
 
     return await internalSearchCacheLogic(name, isSearchCached,
         {
             ifCached: async (): Promise<Food[]> => {
-                const { data, error } = await supabase.from(TABLE).select().ilike('name', `%${name}%`).limit(limit ?? 100);
-                console.log(`Got ${data?.length} foods from cache.`);
-                if (data?.length === 0) {
+                const { data: favoriteResult, error } = await supabase
+                    .from(TABLE)
+                    .select()
+                    .in('id', favorites ?? [])
+                    .ilike('name', `%${name}%`)
+                    .limit(limit ?? 100);
+
+                console.log(`Got ${favoriteResult?.length} favorite foods from cache.`)
+                if (favoriteResult?.length === 0) {
                     //TODO: readd this logic of cache invalidation, but also with time
                     // console.log('No foods found, unmarking cache as cached.');
                     // await unmarkAsCached(search);
@@ -115,7 +138,19 @@ export const searchFoodsByName = async (name: string, limit?: number) => {
                     console.error(error);
                     throw error;
                 }
-                return (data ?? []).map(food => foodSchema.parse(food));
+
+                const otherLimit = limit ? limit - favoriteResult?.length : undefined;
+                const { data: otherResult, error: otherError } = await supabase
+                    .from(TABLE)
+                    .select()
+                    .ilike('name', `%${name}%`)
+                    .limit(otherLimit ?? 100);
+
+                console.log(`Got ${otherResult?.length} other foods from cache.`)
+
+                console.log(`Total: ${(favoriteResult?.length ?? 0) + (otherResult?.length ?? 0)} foods from cache.`)
+
+                return (favoriteResult ?? []).map(food => foodSchema.parse(food)).concat((otherResult ?? []).map(food => foodSchema.parse(food)));
             },
             ifNotCached:
                 async () => {
