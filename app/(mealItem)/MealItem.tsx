@@ -5,6 +5,7 @@ import MacroNutrients from "../MacroNutrients";
 import { MacroNutrientsData } from "@/model/macroNutrientsModel";
 import { calculateCalories } from "../MacroTargets";
 import { MealItemContextProvider, useMealItemContext } from "./MealItemContext";
+import CopyIcon from "../(icons)/CopyIcon";
 
 export type MealItemProps = {
     mealItem: MealItemData,
@@ -14,13 +15,13 @@ export type MealItemProps = {
     onClick?: (mealItem: MealItemData) => void
 }
 
-export default function MealItem({ 
+export default function MealItem({
     mealItem,
     header,
     nutritionalInfo,
     className,
     onClick,
- }: MealItemProps) {
+}: MealItemProps) {
     const handleClick = (e: React.MouseEvent) => {
         onClick?.(mealItem);
         e.stopPropagation();
@@ -43,21 +44,31 @@ MealItem.NutritionalInfo = MealItemNutritionalInfo;
 export type MealItemHeaderProps = {
     name?: React.ReactNode,
     favorite?: React.ReactNode,
+    copyButton?: React.ReactNode,
 }
 
 function MealItemHeader({
     name,
     favorite,
+    copyButton,
 }: MealItemHeaderProps) {
     return (
         <div className="flex">
-            {name}
+            {/* //TODO: mealItem id is random, but it should be an entry on the database (meal too) */}
+            {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.mealItem.id}]</h5> */}
+            <div className="my-2">
+                {name}
+            </div>
+            <div className={`ml-auto flex gap-2`}>
+                {copyButton}
+            </div>
             {favorite}
         </div>
     );
 }
 
 MealItemHeader.Name = MealItemName;
+MealItemHeader.CopyButton = MealItemCopyButton;
 MealItemHeader.Favorite = MealItemFavorite;
 
 function MealItemName() {
@@ -68,6 +79,27 @@ function MealItemName() {
             {/* //TODO: mealItem id is random, but it should be an entry on the database (meal too) */}
             {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.mealItem.id}]</h5> */}
             <h5 className="mb-2 text-lg font-bold tracking-tight text-white">{mealItem.food.name} </h5>
+        </div >
+    );
+}
+
+function MealItemCopyButton({
+    handleCopyMealItem,
+}: {
+    handleCopyMealItem: (mealItem: MealItemData) => void
+}) {
+    const { mealItem } = useMealItemContext();
+
+    return (
+        <div
+            className={`px-2 ml-auto mt-1 text-white btn btn-ghost hover:scale-105`}
+            onClick={e => {
+                e.stopPropagation();
+                e.preventDefault();
+                handleCopyMealItem(mealItem)
+            }}
+        >
+            <CopyIcon />
         </div>
     );
 }
