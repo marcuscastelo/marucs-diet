@@ -63,9 +63,9 @@ export default function Page(context: any) {
 
         let foods: Food[] = [];
         if (search == '') {
-            foods = await listFoods(100);
+            foods = await listFoods(100, favoriteFoods);
         } else {
-            foods = await searchFoodsByName(search, 100);
+            foods = await searchFoodsByName(search, 100, favoriteFoods);
         }
 
         setSearchingFoods(false);
