@@ -1,13 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import MealItem from "./(mealItem)/MealItem";
 import { MealItemData } from "@/model/mealItemModel";
 import { Food } from "@/model/foodModel";
 import { MealData } from "@/model/mealModel";
-import { hideModal, showModal } from "@/utils/DOMModal";
 import { useFavoriteFoods } from "@/redux/features/userSlice";
-import Modal from "./(modals)/modal";
+import Modal, { ModalActions, ModalRef } from "./(modals)/modal";
 
 export type MealItemAddModalProps = {
     modalId: string,
@@ -17,31 +16,40 @@ export type MealItemAddModalProps = {
     onApply: (item: MealItemData) => void,
     onCancel?: () => void,
     onDelete?: (itemId: MealItemData['id']) => void,
+    onVisibilityChange?: (isShowing: boolean) => void,
 }
 
-export default function MealItemAddModal({
-    modalId, show: initialShow, meal, itemData: { food, quantity: initialQuantity, id: initialId },
-    onApply, onCancel, onDelete
-}: MealItemAddModalProps
-) {
-    const [show, setShow] = useState(initialShow ?? false);
+//eslint-disable-next-line react/display-name
+const MealItemAddModal = forwardRef((
+    {
+        modalId, meal, itemData: { food, quantity: initialQuantity, id: initialId },
+        onApply, onCancel, onDelete, onVisibilityChange,
+    }: MealItemAddModalProps,
+    ref: React.Ref<ModalRef>
+) => {
+    const [showing, setShowing] = useState(false);
     const [quantity, setQuantity] = useState(initialQuantity?.toString() ?? '');
     const [id, setId] = useState(initialId ?? Math.random());
     const canAdd = quantity != '' && Number(quantity) > 0;
     const quantityRef = useRef<HTMLInputElement>(null);
 
+    const modalRef = useRef<ModalRef>(null);
+
     const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(true);
 
     const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods();
 
+    const handleSetShowing = (isShowing: boolean) => {
+        setShowing(isShowing);
+        onVisibilityChange?.(isShowing);
+    };
+
     useEffect(() => {
-        if (!show) {
-            hideModal(window, modalId);
-        }
-        else {
+        if (!showing) {
             setQuantity('');
             setId(Math.round(Math.random() * 1000000));
             setQuantityFieldDisabled(true);
+            return;
         }
 
         const timeout = setTimeout(() => {
@@ -51,7 +59,7 @@ export default function MealItemAddModal({
         return () => {
             clearTimeout(timeout);
         }
-    }, [show]);
+    }, [showing]);
 
     useEffect(() => {
         if (initialQuantity !== undefined) {
@@ -65,9 +73,13 @@ export default function MealItemAddModal({
 
     useEffect(() => {
         setQuantityFieldDisabled(true);
-        setTimeout(() => {
+        const timeout = setTimeout(() => {
             setQuantityFieldDisabled(false);
         }, 1000);
+
+        return () => {
+            clearTimeout(timeout);
+        }
     }, [initialQuantity, initialId]);
 
     const increment = () => setQuantity((old) => (Number(old ?? '0') + 1).toString())
@@ -100,17 +112,29 @@ export default function MealItemAddModal({
         food
     });
 
+    useImperativeHandle(ref, () => ({
+        showModal: () => {
+            modalRef.current?.showModal();
+            handleSetShowing(true);
+        },
+        close: () => {
+            modalRef.current?.close();
+            handleSetShowing(false);
+        }
+    }));
+
     return (
         <>
             <Modal
                 modalId={modalId}
-                show={show}
+                ref={modalRef}
                 onSubmit={() => onApply(createMealItemData())}
                 header={
                     <h3 className="font-bold text-lg text-white">Novo item em
                         <span className="text-green-500"> &quot;{meal.name}&quot; </span>
                     </h3>
                 }
+                onVisibilityChange={handleSetShowing}
                 body={<>
                     <p className="text-gray-400 mt-1">Atalhos</p>
                     <div className="flex w-full mt-1">
@@ -176,7 +200,7 @@ export default function MealItemAddModal({
                         }
                     />
                 </>}
-                actions={<Modal.Actions>
+                actions={<ModalActions>
                     {/* if there is a button in form, it will close the modal */}
                     {
                         onDelete &&
@@ -188,21 +212,20 @@ export default function MealItemAddModal({
                         }} >Excluir</button>
                     }
                     <button className="btn" onClick={(e) => {
-                            e.preventDefault();
-                            setShow(false);
-                            hideModal(window, modalId); //TODO: retriggered: remove this and use react state
-                            onCancel?.()
-                        }} >
-                            Cancelar
+                        e.preventDefault();
+                        modalRef.current?.close();
+                        onCancel?.()
+                    }} >
+                        Cancelar
                     </button>
                     <button className="btn" disabled={!canAdd} onClick={(e) => {
                         e.preventDefault();
                         onApply(createMealItemData());
                     }} >Aplicar</button>
-                </Modal.Actions>}
+                </ModalActions>}
             />
         </>
     );
-}
+});
 
-
+export default MealItemAddModal;

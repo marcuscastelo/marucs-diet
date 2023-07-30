@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import DayMeals from "../../DayMeals";
 import { Day } from "@/model/dayModel";
 import Meal, { MealProps } from "../../(meal)/Meal";
@@ -18,12 +18,12 @@ import { useRouter } from "next/navigation";
 import MealItemAddModal from "@/app/MealItemAddModal";
 import { mockDay, mockFood, mockItem, mockMeal } from "@/app/test/unit/(mock)/mockData";
 import { Record } from "pocketbase";
-import { hideModal, showModal } from "@/utils/DOMModal";
 import UserSelector from "@/app/UserSelector";
 import { useUser } from "@/redux/features/userSlice";
 import { Loadable } from "@/utils/loadable";
 import { getToday, stringToDate } from "@/utils/dateUtils";
 import { User } from "@/model/userModel";
+import { ModalRef } from "@/app/(modals)/modal";
 
 export default function Page(context: any) {
     const router = useRouter();
@@ -39,6 +39,9 @@ export default function Page(context: any) {
 
     const [selectedMeal, setSelectedMeal] = useState(mockMeal({ name: 'BUG: selectedMeal not set' }));
     const [selectedMealItem, setSelectedMealItem] = useState(mockItem({ quantity: 666 }));
+
+    const [showingAddModal, setShowingAddModal] = useState(false);
+    const mealAddItemModalRef = useRef<ModalRef>(null);
 
     const editModalId = 'edit-modal';
 
@@ -90,7 +93,8 @@ export default function Page(context: any) {
 
         setSelectedMeal(meal);
         setSelectedMealItem(mealItem);
-        showModal(window, editModalId);
+        
+        mealAddItemModalRef.current?.showModal();
     };
 
     const onUpdateMeal = async (dayData: Day, meal: MealData) => {
@@ -268,6 +272,7 @@ export default function Page(context: any) {
             <Show when={hasData}>
                 <MealItemAddModal
                     modalId={editModalId}
+                    ref={mealAddItemModalRef}
                     itemData={{
                         id: selectedMealItem.id,
                         food: selectedMealItem.food,
@@ -296,8 +301,8 @@ export default function Page(context: any) {
                         });
 
                         await fetchDays(user.data.id);
-
-                        hideModal(window, editModalId);
+                        
+                        mealAddItemModalRef.current?.close();
                     }}
                     onDelete={async (id: MealItemData['id']) => {
                         await updateDay(dayData!.id, {
@@ -321,7 +326,8 @@ export default function Page(context: any) {
 
                         await fetchDays(user.data.id);
 
-                        hideModal(window, editModalId);
+                        //TODO: useRef to hide modal
+                        // hideModal(window, editModalId);
                     }}
                 />
 
