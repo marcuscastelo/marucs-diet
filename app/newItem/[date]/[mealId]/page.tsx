@@ -33,7 +33,6 @@ export default function Page(context: any) {
     const dayParam = context.params.date as string; // TODO: type-safe this
 
     const { user } = useUser();
-    const router = useRouter();
 
     const [search, setSearch] = useState<string>('');
     const [foods, setFoods] = useState<Loadable<(Food)[]>>({ loading: true });
@@ -271,7 +270,7 @@ export default function Page(context: any) {
                                         <div key={idx}>
                                             <MealItem
                                                 mealItem={{
-                                                    id: Math.random().toString(),
+                                                    id: Math.random() * 1000000,
                                                     food: food,
                                                     quantity: 100,
                                                 }}

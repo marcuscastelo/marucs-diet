@@ -40,7 +40,7 @@ export default function MealItemAddModal({
         }
         else {
             setQuantity('');
-            setId(Math.random().toString());
+            setId(Math.round(Math.random() * 1000000));
             setQuantityFieldDisabled(true);
         }
 
