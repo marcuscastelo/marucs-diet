@@ -1,21 +1,16 @@
 import supabase from '@/utils/supabase';
 import { CachedEan, cachedEanSchema } from '@/model/cachedEan';
 
-const TABLE = 'cached_eans';
+const TABLE = 'foods';
 
 export const isEanCached = async (ean: CachedEan['ean']) => {
     // TODO: retriggered: tratar erros e fazer o filtro na query
-    const cached = ((await supabase.from(TABLE).select()).data ?? []).map((data) => cachedEanSchema.parse(data));
-    return cached.some((cache) => cache.ean.toLowerCase() === ean.toLowerCase());
-}
 
-export const markEanAsCached = async (search: CachedEan['ean']) => {
-    if (await isEanCached(search)) {
-        return;
+    const foodsWithEan = await supabase.from(TABLE).select().eq('ean', ean.toLowerCase());
+    if (foodsWithEan.error) {
+        console.error(foodsWithEan.error);
+        throw foodsWithEan.error;
     }
-    await supabase.from(TABLE).upsert({ search: search.toLowerCase() }).select();
-}
 
-export const unmarkEanAsCached = async (search: CachedEan['ean']) => {
-    await supabase.from(TABLE).delete().match({ search }).select();
+    return foodsWithEan.data?.length !== 0;
 }
