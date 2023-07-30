@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 
 const CARBO_CALORIES = 4 as const;
 const PROTEIN_CALORIES = 4 as const;
@@ -78,17 +78,17 @@ const calculateDifferenceInCarbs = (targetCalories: number, weight: number, curr
 export type MacroTargetProps = {
     weight: number,
     profile: MacroProfile,
-    onSetProfile: (profile: MacroProfile) => void,
+    className?: string,
+    onSaveProfile: Dispatch<(old: MacroProfile) => MacroProfile>,
 };
 
 export default function MacroTarget({
-    weight, profile: initialProfile, onSetProfile
+    weight, profile, onSaveProfile: setProfile,
 }: MacroTargetProps) {
-    const initialGrams = calculateMacroTarget(weight, initialProfile);
+    const initialGrams = calculateMacroTarget(weight, profile);
     const initialCalories = calculateCalories(initialGrams);
-    const [initialCarbsRepr, initialProteinRepr, initialFatRepr] = calculateMacroRepresentation(initialProfile, weight);
+    const [initialCarbsRepr, initialProteinRepr, initialFatRepr] = calculateMacroRepresentation(profile, weight);
 
-    const [profile, setProfile] = useState(initialProfile);
     const [targetCalories, setTargetCalories] = useState(initialCalories.toString());
 
     const [carbsRepr, setCarbsRepr] = useState<MacroRepresentation>(initialCarbsRepr);
@@ -103,8 +103,7 @@ export default function MacroTarget({
 
         const targetCalories = calculateCalories(calculateMacroTarget(weight, profile));
         setTargetCalories(targetCalories.toString());
-        onSetProfile(profile);
-    }, [profile, weight, onSetProfile]);
+    }, [profile, weight]);
 
     const makeOnSetGramsPerKg = (macro: 'carbs' | 'protein' | 'fat') =>
         (gramsPerKg: number) =>
@@ -124,45 +123,49 @@ export default function MacroTarget({
         alert('TODO: future feature');
     };
 
-
     return (
-        <div className="w-1/4 mx-auto">
+        <>
             <h1 className="text-center text-3xl font-bold mb-6">Meta calórica diária</h1>
-            <input
-                value={targetCalories}
-                onChange={(e) => setTargetCalories(e.target.value)}
-                type="search"
-                id="default-search"
-                className="block text-center w-full p-2 pl-10 text-md bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 italic font-thin"
-                placeholder="Insira a meta de calorias diárias"
-                disabled={true} // TODO: retriggered: future feature
-                required
-            />
+            <div className="mx-5">
+                <input
+                    value={targetCalories}
+                    onChange={(e) => setTargetCalories(e.target.value)}
+                    type="search"
+                    id="default-search"
+                    className="input input-bordered font-bold text-center"
+                    style={{ width: '100%' }}
+                    placeholder="Insira a meta de calorias diárias"
+                    disabled={true} // TODO: Enable changing target calories directly
+                    required
+                />
 
-            <MacroTargetSetting
-                headerColor="text-green-500"
-                target={carbsRepr}
-                onSetGramsPerKg={makeOnSetGramsPerKg('carbs')}
-                onSetGrams={makeOnSetGrams('carbs')}
-                onSetPercentage={makeOnSetPercentage('carbs')}
-            />
+            </div>
+            <div className="mx-5 flex flex-col">
+                <MacroTargetSetting
+                    headerColor="text-green-400"
+                    target={carbsRepr}
+                    onSetGramsPerKg={makeOnSetGramsPerKg('carbs')}
+                    onSetGrams={makeOnSetGrams('carbs')}
+                    onSetPercentage={makeOnSetPercentage('carbs')}
+                />
 
-            <MacroTargetSetting
-                headerColor="text-red-500"
-                target={proteinRepr}
-                onSetGramsPerKg={makeOnSetGramsPerKg('protein')}
-                onSetGrams={makeOnSetGrams('protein')}
-                onSetPercentage={makeOnSetPercentage('protein')}
-            />
+                <MacroTargetSetting
+                    headerColor="text-red-500"
+                    target={proteinRepr}
+                    onSetGramsPerKg={makeOnSetGramsPerKg('protein')}
+                    onSetGrams={makeOnSetGrams('protein')}
+                    onSetPercentage={makeOnSetPercentage('protein')}
+                />
 
-            <MacroTargetSetting
-                headerColor="text-yellow-500"
-                target={fatRepr}
-                onSetGramsPerKg={makeOnSetGramsPerKg('fat')}
-                onSetGrams={makeOnSetGrams('fat')}
-                onSetPercentage={makeOnSetPercentage('fat')}
-            />
-        </div>
+                <MacroTargetSetting
+                    headerColor="text-yellow-500"
+                    target={fatRepr}
+                    onSetGramsPerKg={makeOnSetGramsPerKg('fat')}
+                    onSetGrams={makeOnSetGrams('fat')}
+                    onSetPercentage={makeOnSetPercentage('fat')}
+                />
+            </div>
+        </>
 
     );
 }
@@ -185,17 +188,21 @@ function MacroTargetSetting(
 ) {
     const emptyIfZeroElse2Decimals = (value: number) => value && value.toFixed(2) || '';
 
-    const percentage = emptyIfZeroElse2Decimals(target.percentage);
+    const percentage = emptyIfZeroElse2Decimals(target.percentage * 100);
     const grams = emptyIfZeroElse2Decimals(target.grams);
     const gramsPerKg = emptyIfZeroElse2Decimals(target.gramsPerKg);
 
     return (
-        <>
-            <h1 className={`text-center text-3xl font-bold my-6 ${headerColor}`}>{target.name}</h1>
-
-            <div className="flex gap-10 ">
-
+        <div className="flex flex-col outline outline-slate-900 my-2 p-2">
+            <div className="flex-1 block text-center">
+                <h1 className={`text-3xl font-bold mt-6 ${headerColor}`}>{target.name}</h1>
+                <div className="text-center mt-1">
+                    {target.calorieMultiplier * (Number(grams) || 0)} kcal
+                </div>
+            </div>
+            <div className="flex-1 flex-shrink flex flex-col gap-1 mt-5">
                 <MacroField
+                    fieldName="Porcentagem (%)"
                     field={percentage}
                     setField={(percentage) => onSetPercentage?.(Number(percentage))}
                     unit="%"
@@ -204,28 +211,28 @@ function MacroTargetSetting(
                 />
 
                 <MacroField
+                    fieldName="Gramas (g)"
                     field={grams}
                     setField={(grams) => onSetGrams?.(Number(grams))}
                     unit="g"
                 />
 
                 <MacroField
+                    fieldName="Proporção (g/kg)"
                     field={gramsPerKg}
                     setField={(gramsPerKg) => onSetGramsPerKg?.(Number(gramsPerKg))}
                     unit="g/kg"
                 />
             </div>
-            <div className="text-center mt-3">
-                {target.calorieMultiplier * (Number(grams) || 0)} kcal 
-                {/* RERENDER: {Math.random().toString().slice(0, 5)} */}
-            </div>
-        </>
+
+        </div>
     );
 }
 
 function MacroField({
-    field, setField, unit, disabled, className
+    fieldName, field, setField, unit, disabled, className
 }: {
+    fieldName: string,
     field: string,
     setField: (field: string) => void,
     unit: string,
@@ -239,20 +246,27 @@ function MacroField({
     }, [field]);
 
     return (
-        <div className="flex flex-1 gap-1">
-            <input
-                value={innerField}
-                onChange={(e) => setInnerField(e.target.value)}
-                onBlur={() => setField(innerField)}
-                type="number"
-                className={`block text-center w-full p-2 pl-10 text-md bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 ${className || ''}`}
-                disabled={disabled}
-                placeholder=""
-                required
-            />
-            <span className="mt-auto">
+        <div className="flex-1 flex flex-col md:flex-row">
+            <div className="md:w-1/3 my-auto text-center md:text-end mr-3">
+                <label>{fieldName}</label>
+            </div>
+            <div className="md:w-2/3">
+                <input
+                    value={innerField}
+                    onChange={(e) => setInnerField(e.target.value)}
+                    onBlur={() => setField(innerField)}
+                    type="number"
+                    // className={`block text-center w-full p-2 pl-10 text-md bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 ${className || ''}`}
+                    className="input input-bordered font-bold text-center"
+                    style={{ width: '100%' }}
+                    disabled={disabled}
+                    placeholder=""
+                    required
+                />
+            </div>
+            {/* <span className="mt-auto">
                 {unit}
-            </span>
+            </span> */}
         </div>
     );
 }
