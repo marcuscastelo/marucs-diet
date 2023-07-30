@@ -1,6 +1,5 @@
-export type Loading<T> = {
+export type Loading<T> = T & {
     loading: true;
-    loadingExtras: T;
 }
 
 export type Loaded<T> = {
@@ -8,4 +7,4 @@ export type Loaded<T> = {
     data: T;
 }
 
-export type Loadable<TLoaded, TLoading = never> = Loading<TLoading> | Loaded<TLoaded>;
+export type Loadable<TLoaded, TLoading = {}> = Loading<TLoading> | Loaded<TLoaded>;

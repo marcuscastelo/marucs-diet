@@ -79,7 +79,7 @@ export type MacroTargetProps = {
     weight: number,
     profile: MacroProfile,
     className?: string,
-    onSaveProfile: Dispatch<SetStateAction<MacroProfile>>,
+    onSaveProfile: Dispatch<(old: MacroProfile) => MacroProfile>,
 };
 
 export default function MacroTarget({
