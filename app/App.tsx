@@ -11,6 +11,7 @@ export default function App({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         const onChangeUser = (user: User) => setUserJson(JSON.stringify(user));
+        // TODO: listUsers should be a hook (useUsers, fetchUsers, etc. see fetchUser in userSlice.ts)
         listUsers().then(users => {
             const localStoredUserId = ((typeof window !== 'undefined') && localStorage) ? parseInt(localStorage.getItem('user') ?? '') : null;
             if (localStoredUserId) {
