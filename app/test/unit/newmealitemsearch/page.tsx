@@ -1,6 +1,6 @@
 'use client';
 
-import MealItem from "@/app/MealItem";
+import MealItem from "@/app/(mealItem)/MealItem";
 import { Alert, Breadcrumb } from "flowbite-react";
 import { useState } from "react";
 import { mockFood } from "../(mock)/mockData";
@@ -84,8 +84,6 @@ export default function Page() {
                                 food: food,
                                 quantity: 100,
                             }}
-                            favorite='hide' // TODO: retriggered: implement favorite?
-
                         />
                     </div>
                 )

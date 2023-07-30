@@ -17,6 +17,10 @@ export const listDays = async (userId: User['id']): Promise<Day[]> =>
         }));
 
 export const upsertDay = async (day: Partial<Day> & Omit<Day, 'id'>): Promise<Day | null> => {
+    if ('id' in day) {
+        console.error('Day should not have an id'); //TODO: better error handling
+        delete day.id;
+    }
     const { data: days, error } = await supabase.
         from(TABLE)
         .upsert(day)
