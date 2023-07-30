@@ -10,7 +10,7 @@ import { AppDispatch } from "../store";
 import { useCallback, useEffect, useMemo } from "react";
 
 type LoadingExtras = { fetchingId?: number };
-type UserState = Loadable<User, LoadingExtras>;
+export type UserState = Loadable<User, LoadingExtras>;
 
 const initialState = {
     loading: true,

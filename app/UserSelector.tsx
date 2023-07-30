@@ -7,12 +7,11 @@ import { useUser } from "@/redux/features/userSlice";
 import { useEffect, useState } from "react";
 import { User } from "@/model/userModel";
 import { listUsers } from "@/controllers/users";
-import { Record } from "pocketbase";
 import { Loadable } from "@/utils/loadable";
 import Link from "next/link";
 
 export default function UserSelector() {
-    const [availableUsers, setAvailableUsers] = useState<Loadable<(User)[]>>({ loading: true });
+    const [availableUsers, setAvailableUsers] = useState<Loadable<User[]>>({ loading: true });
     const [loadingHasTimedOut, setLoadingHasTimedOut] = useState(false);
 
     const { user, setUserJson } = useUser();
