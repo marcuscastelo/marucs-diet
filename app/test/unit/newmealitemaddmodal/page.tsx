@@ -2,13 +2,20 @@
 
 import MealItemAddModal from "@/app/MealItemAddModal";
 import { mockItem, mockMeal } from "../(mock)/mockData";
-import { showModal } from "@/utils/DOMModal";
+import { ModalRef } from "@/app/(modals)/modal";
+import { useRef } from "react";
 
 export default function Page() {
     const modalId = 'testmodal';
+
+    const mealItemAddModalRef = useRef<ModalRef>(null);
+
     return (
         <>
-            <button className="btn" onClick={() => showModal(window, modalId)}>Show modal</button>
+            <button className="btn" onClick={() => mealItemAddModalRef.current?.showModal()}>
+                Show modal
+            </button>
+
             <MealItemAddModal
                 modalId={modalId}
                 show={true}
