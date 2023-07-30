@@ -89,7 +89,6 @@ export default function Page() {
                                 food: food,
                                 quantity: 100,
                             }}
-                            favorite={false} // TODO: retriggered: implement favorite
                         />
                     </div>
                 )
