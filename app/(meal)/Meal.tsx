@@ -5,6 +5,7 @@ import MealItem from "../(mealItem)/MealItem";
 import { MealItemData } from "@/model/mealItemModel";
 import { MealContextProvider, useMealContext } from "./MealContext";
 import { useEffect, useState } from "react";
+import { calculateCalories } from "../MacroTargets";
 
 export type MealProps = {
     mealData: MealData,
@@ -42,6 +43,17 @@ Meal.Actions = MealActions;
 
 function MealHeader({ onUpdateMeal }: { onUpdateMeal: (meal: MealData) => void }) {
     const { mealData } = useMealContext();
+
+    // TODO: Create a module to calculate calories and macros
+    const itemCalories = (item: MealItemData) => calculateCalories({
+        carbs: item.food.macros.carbs * item.quantity / 100,
+        protein: item.food.macros.protein * item.quantity / 100,
+        fat: item.food.macros.fat * item.quantity / 100,
+    })
+    
+    // TODO: Show how much of the daily target is this meal (e.g. 30% of daily calories) (maybe in a tooltip) (useContext)s
+    const mealCalories = mealData.items.reduce((acc, item) => acc + itemCalories(item), 0);
+
     const [clipboardText, setClipboardText] = useState('');
 
     const onClearItems = (e: React.MouseEvent) => {
@@ -114,7 +126,10 @@ function MealHeader({ onUpdateMeal }: { onUpdateMeal: (meal: MealData) => void }
 
     return (
         <div className="flex">
-            <h5 className="text-3xl my-2">{mealData.name}</h5>
+            <div className="my-2">
+                <h5 className="text-3xl">{mealData.name}</h5>
+                <p className="text-gray-400 italic">{mealCalories}kcal</p>
+            </div>
             <div className={`ml-auto flex gap-2`}>
                 <div
                     className={`px-2 ml-auto mt-1 text-white btn btn-ghost hover:scale-105`}
