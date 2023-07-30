@@ -1,14 +1,13 @@
 'use client';
 
 import { useEffect, useRef, useState } from "react";
-import MealItem from "./MealItem";
-import { mockFood } from "./test/unit/(mock)/mockData";
+import MealItem from "./(mealItem)/MealItem";
 import { MealItemData } from "@/model/mealItemModel";
 import { Food } from "@/model/foodModel";
 import { MealData } from "@/model/mealModel";
 import { hideModal, showModal } from "@/utils/DOMModal";
-import { setFoodAsFavorite, useIsFoodFavorite } from "@/redux/features/userSlice";
-import { useAppDispatch } from "@/redux/hooks";
+import { useFavoriteFoods } from "@/redux/features/userSlice";
+import Modal from "./(modals)/modal";
 
 export type MealItemAddModalProps = {
     modalId: string,
@@ -33,23 +32,26 @@ export default function MealItemAddModal({
 
     const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(true);
 
-    const isFoodFavorite = useIsFoodFavorite();
-    const dispatch = useAppDispatch();
+    const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods();
 
     useEffect(() => {
         if (!show) {
             hideModal(window, modalId);
-            return;
+        }
+        else {
+            setQuantity('');
+            setId(Math.round(Math.random() * 1000000));
+            setQuantityFieldDisabled(true);
         }
 
         const timeout = setTimeout(() => {
-            showModal(window, modalId);
+            setQuantityFieldDisabled(false);
         }, 100);
 
         return () => {
             clearTimeout(timeout);
         }
-    }, [show, modalId]);
+    }, [show]);
 
     useEffect(() => {
         if (initialQuantity !== undefined) {
@@ -100,12 +102,16 @@ export default function MealItemAddModal({
 
     return (
         <>
-            <dialog id={modalId} className="modal modal-bottom sm:modal-middle">
-                <form method="dialog" className="modal-box bg-gray-800 text-white" onSubmit={() => onApply(createMealItemData())}>
+            <Modal
+                modalId={modalId}
+                show={show}
+                onSubmit={() => onApply(createMealItemData())}
+                header={
                     <h3 className="font-bold text-lg text-white">Novo item em
                         <span className="text-green-500"> &quot;{meal.name}&quot; </span>
                     </h3>
-
+                }
+                body={<>
                     <p className="text-gray-400 mt-1">Atalhos</p>
                     <div className="flex w-full mt-1">
                         <div className="btn btn-sm btn-primary flex-1" onClick={() => setQuantity('10')} >10g</div>
@@ -130,7 +136,7 @@ export default function MealItemAddModal({
                                 ref={quantityRef}
                                 onChange={(e) => setQuantity(e.target.value.replace(/[^0-9]/, ''))}
                                 type="number" placeholder="Quantidade (gramas)"
-                                className={`mt-1  input input-bordered  bg-gray-800 border-gray-300 ${!canAdd ? 'input-error border-red-500' : ''}`} 
+                                className={`mt-1  input input-bordered  bg-gray-800 border-gray-300 ${!canAdd ? 'input-error border-red-500' : ''}`}
                             />
                         </div>
                         <div className="flex-shrink flex ml-1 my-1 justify-around gap-1">
@@ -154,46 +160,47 @@ export default function MealItemAddModal({
                             quantity: Number(quantity),
                         }}
                         className="mt-4"
-                        favorite={
-                            isFoodFavorite(food.id)
-                        }
-                        setFavorite={(favorite) => {
-                            dispatch(setFoodAsFavorite({
-                                foodId: food.id,
-                                favorite
-                            }));
-                        }}
-                    />
-
-                    <div className="modal-action">
-                        {/* if there is a button in form, it will close the modal */}
-                        {
-                            onDelete &&
-                            <button className="btn btn-error mr-auto" onClick={(e) => {
-                                if (confirm('Tem certeza que deseja excluir este item?')) {
-                                    e.preventDefault();
-                                    onDelete?.(id);
+                        header={
+                            <MealItem.Header
+                                name={<MealItem.Header.Name />}
+                                favorite={
+                                    <MealItem.Header.Favorite
+                                        favorite={isFoodFavorite(food.id)}
+                                        setFavorite={(favorite) => setFoodAsFavorite(food.id, favorite)}
+                                    />
                                 }
-                            }} >Excluir</button>
+                            />
                         }
-                        <button className="btn" onClick={(e) => {
+                        nutritionalInfo={
+                            <MealItem.NutritionalInfo />
+                        }
+                    />
+                </>}
+                actions={<Modal.Actions>
+                    {/* if there is a button in form, it will close the modal */}
+                    {
+                        onDelete &&
+                        <button className="btn btn-error mr-auto" onClick={(e) => {
+                            if (confirm('Tem certeza que deseja excluir este item?')) {
+                                e.preventDefault();
+                                onDelete?.(id);
+                            }
+                        }} >Excluir</button>
+                    }
+                    <button className="btn" onClick={(e) => {
                             e.preventDefault();
                             setShow(false);
                             hideModal(window, modalId); //TODO: retriggered: remove this and use react state
                             onCancel?.()
                         }} >
                             Cancelar
-                        </button>
-                        <button className="btn" disabled={!canAdd} onClick={(e) => {
-                            e.preventDefault();
-                            onApply(createMealItemData());
-                        }} >Aplicar</button>
-                    </div>
-                </form>
-                <form method="dialog" className="modal-backdrop">
-                    <button>close</button>
-                </form>
-            </dialog>
+                    </button>
+                    <button className="btn" disabled={!canAdd} onClick={(e) => {
+                        e.preventDefault();
+                        onApply(createMealItemData());
+                    }} >Aplicar</button>
+                </Modal.Actions>}
+            />
         </>
     );
 }
