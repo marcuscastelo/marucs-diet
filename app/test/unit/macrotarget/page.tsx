@@ -66,7 +66,7 @@ export default function Page() {
         <MacroTarget
             weight={weight}
             profile={initialProfile}
-            onSetProfile={() => {}}
+            onSaveProfile={() => {}}
         />
     );
 
