@@ -35,7 +35,7 @@ export default function BarCodeInsertModal({ modalId, show, onSelect }: BarCodeI
         e?.preventDefault();
 
         if (!food) {
-            console.warn('Ignoring submit because apiFood is null');
+            console.warn('Ignoring submit because food is null');
             return;
         }
 
@@ -46,7 +46,7 @@ export default function BarCodeInsertModal({ modalId, show, onSelect }: BarCodeI
         <Modal
             modalId={modalId}
             show={show}
-            onSubmit={onSubmit}
+            onSubmit={handleSelect}
             header={<h1 className="modal-title">Pesquisar por código de barras</h1>}
             body={<>
                 <BarCodeReader id="reader" onScanned={setBarCode} />

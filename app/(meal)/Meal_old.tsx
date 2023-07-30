@@ -1,3 +1,4 @@
+// TODO: remove this file
 // "use client";
 
 // import { MealData } from "@/model/mealModel";
@@ -14,7 +15,6 @@
 //     className?: string,
 // };
 
-// //TODO: move this function
 // // a little function to help us with reordering the result
 // const reorder = (list: unknown[], startIndex: number, endIndex: number) => {
 //     const result = Array.from(list);

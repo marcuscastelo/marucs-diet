@@ -345,7 +345,7 @@ export default function Page(context: any) {
                             return;
                         }
                         await deleteDay(dayData!.id);
-                        await fetchDays(currentUser.data.id);
+                        await fetchDays(user.data.id);
                     }}
                 >
                     PERIGO: Excluir dia
