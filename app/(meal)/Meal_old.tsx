@@ -20,10 +20,9 @@
 //     const result = Array.from(list);
 //     const [removed] = result.splice(startIndex, 1);
 //     result.splice(endIndex, 0, removed);
-  
+
 //     return result;
 //   };
-  
 
 // export default function Meal({ mealData, onNewItem, onEditItem, onUpdateMeal, className }: MealProps) {
 //     const onDragEnd = (result: DropResult) => {
@@ -75,7 +74,7 @@
 //                         <div className={`bg-gray-800 p-3 ${className || ''}`}>
 //                             <div className="flex">
 //                                 <h5 className="text-3xl my-2">{mealData.name}</h5>
-//                                 <button 
+//                                 <button
 //                                     className="btn bg-red-800 px-5 ml-auto text-white"
 //                                     onClick={onClearItems}
 //                                 >
