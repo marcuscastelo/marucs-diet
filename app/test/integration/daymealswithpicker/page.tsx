@@ -1,15 +1,12 @@
 'use client'
 
-// TODO: reenable this test
+// TODO: Reenable DayMealsWithPicker Integration Test Component
 import { Day } from '@/model/dayModel'
-import { useEffect, useState, useState } from 'react'
-import Datepicker from 'react-tailwindcss-datepicker'
+import { useState } from 'react'
 import { DateValueType } from 'react-tailwindcss-datepicker/dist/types'
 import { mockMeal } from '../../unit/(mock)/mockData'
-import DayMeals from '@/app/DayMeals'
-import { Alert } from 'flowbite-react'
 import { MealProps } from '@/app/(meal)/Meal'
-import { getToday, stringToDate } from '@/utils/dateUtils'
+import { getToday } from '@/utils/dateUtils'
 
 export default function Page() {
   const day1: Day = {
