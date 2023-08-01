@@ -6,6 +6,7 @@ changelog:
     - title: Bugfixes
       labels:
         - bug
+        - hotfix
     - title: Improvements
       labels:
         - improvement
@@ -13,6 +14,8 @@ changelog:
       labels:
         - '*'
       exclude:
-        - feature
-        - bug
-        - improvement
+        labels:
+          - feature
+          - bug
+          - improvement
+          - hotfix
