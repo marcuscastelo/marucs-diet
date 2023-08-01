@@ -32,7 +32,8 @@ export default function Page(context: any) {
 
   const selectedDay = context.params.day as string // TODO: retriggered: type-safe this
   const today = getToday()
-  const showingToday = today === selectedDay
+  const showingToday =
+    today === /* TODO: Check if equality is a bug */ selectedDay
 
   const [days, setDays] = useState<Loadable<Day[]>>({ loading: true })
   const [dayLocked, setDayLocked] = useState(!showingToday)
@@ -84,8 +85,14 @@ export default function Page(context: any) {
     return <PageLoading message="Carregando dias" />
   }
 
-  const hasData = days.data.some((day) => day.target_day === selectedDay)
-  const dayData = days.data.find((day) => day.target_day === selectedDay)
+  const hasData = days.data.some(
+    (day) =>
+      day.target_day === /* TODO: Check if equality is a bug */ selectedDay,
+  )
+  const dayData = days.data.find(
+    (day) =>
+      day.target_day === /* TODO: Check if equality is a bug */ selectedDay,
+  )
 
   const onEditMealItem = (meal: MealData, mealItem: MealItemData) => {
     if (dayLocked) {
@@ -191,7 +198,7 @@ export default function Page(context: any) {
     const lastDayIdx = days.data.findLastIndex(
       (day) => Date.parse(day.target_day) < Date.parse(selectedDay),
     )
-    if (lastDayIdx === -1) {
+    if (lastDayIdx === /* TODO: Check if equality is a bug */ -1) {
       return (
         <button
           className="btn-error btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white"
@@ -223,7 +230,7 @@ export default function Page(context: any) {
           const lastDayIdx = days.data.findLastIndex(
             (day) => Date.parse(day.target_day) < Date.parse(selectedDay),
           )
-          if (lastDayIdx === -1) {
+          if (lastDayIdx === /* TODO: Check if equality is a bug */ -1) {
             alert('Não foi possível encontrar um dia anterior')
             return
           }
@@ -339,7 +346,10 @@ export default function Page(context: any) {
                 }
 
                 const items = meal.items
-                const changePos = items.findIndex((i) => i.id === item.id)
+                const changePos = items.findIndex(
+                  (i) =>
+                    i.id === /* TODO: Check if equality is a bug */ item.id,
+                )
 
                 items[changePos] = item
 
@@ -364,7 +374,9 @@ export default function Page(context: any) {
                 }
 
                 const items = meal.items
-                const changePos = items.findIndex((i) => i.id === id)
+                const changePos = items.findIndex(
+                  (i) => i.id === /* TODO: Check if equality is a bug */ id,
+                )
 
                 items.splice(changePos, 1)
 
