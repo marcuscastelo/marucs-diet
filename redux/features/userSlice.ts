@@ -25,14 +25,13 @@ const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    // TODO: Change setUserJson to setUser
-    setUserJson: (state, action: PayloadAction<string>) => {
+    setUser: (state, action: PayloadAction<User>) => {
       state.loading = false
       if (state.loading) {
         return
       }
 
-      const newUserData = userSchema.parse(JSON.parse(action.payload))
+      const newUserData = userSchema.parse(action.payload)
 
       state.data = {
         ...state.data,
@@ -91,7 +90,7 @@ const userSlice = createSlice({
   },
 })
 
-const { setUserJson, fetchUser, setFavoriteFoods, setFoodAsFavorite } =
+const { setUser, fetchUser, setFavoriteFoods, setFoodAsFavorite } =
   userSlice.actions
 
 export const useUser = () => {
@@ -101,7 +100,7 @@ export const useUser = () => {
   const dispatch = useMemo(
     () =>
       ({
-        setUserJson: (userJson: string) => appDispatch(setUserJson(userJson)),
+        setUser: (userJson: User) => appDispatch(setUser(userJson)),
         fetchUser: async (userId: User['id']) => appDispatch(fetchUser(userId)),
       }) as const,
     [appDispatch],
@@ -127,8 +126,8 @@ export const useUser = () => {
   //                 data: userSchema.parse(userData),
   //             }
 
-  //             appDispatch(setUserJson(JSON.stringify(newUser)));
-  //             // dispatch.setUserJson(JSON.stringify(newUser));
+  //             appDispatch(setUser(newUser));
+  //             // dispatch.setUser(newUser);
   //         });
   //     }
 

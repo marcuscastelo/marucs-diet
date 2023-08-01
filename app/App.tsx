@@ -6,10 +6,10 @@ import { useUser } from '@/redux/features/userSlice'
 import { useEffect } from 'react'
 
 export default function App({ children }: { children: React.ReactNode }) {
-  const { setUserJson } = useUser()
+  const { setUser } = useUser()
 
   useEffect(() => {
-    const onChangeUser = (user: User) => setUserJson(JSON.stringify(user))
+    const onChangeUser = (user: User) => setUser(user)
     // TODO: listUsers should be a hook (useUsers, fetchUsers, etc. see fetchUser in userSlice.ts)
     listUsers().then((users) => {
       const localStoredUserId =
@@ -31,7 +31,7 @@ export default function App({ children }: { children: React.ReactNode }) {
         onChangeUser(users[0])
       }
     })
-  }, [setUserJson])
+  }, [setUser])
 
   return <>{children}</>
 }
