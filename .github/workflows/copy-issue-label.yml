@@ -4,6 +4,7 @@ on:
 
 jobs:
     copy-labels:
+      permissions: write-all
       runs-on: ubuntu-latest
       name: Copy labels from linked issues
       steps:
