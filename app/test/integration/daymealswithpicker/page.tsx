@@ -58,7 +58,7 @@ export default function Page() {
   //     const date = stringToDate(dateString);
   //     const dayOfMonth = date.getDate();
   //     setDay(newValue);
-  //     if (dayOfMonth % 2 === 0) {
+  //     if (dayOfMonth % 2 === /* TODO: Check if equality is a bug */ 0) {
   //         setCurrentMealProps(day2MealProps);
   //     }
   //     else {
@@ -76,7 +76,7 @@ export default function Page() {
                 onChange={handleDayChange}
             />
 
-            {currentMealProps === undefined && <Alert color="warning">Selecione uma data</Alert>}
+            {currentMealProps === /* TODO: Check if equality is a bug */ undefined && <Alert color="warning">Selecione uma data</Alert>}
             {currentMealProps !== undefined && <DayMeals mealsProps={currentMealProps} />} */}
     </>
   )

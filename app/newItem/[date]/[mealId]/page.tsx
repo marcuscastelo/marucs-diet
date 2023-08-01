@@ -22,14 +22,21 @@ import { ModalRef } from '@/app/(modals)/modal'
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal'
 const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal'
 
+type PageProperties = {
+  params: {
+    date: string
+    mealId: string
+  }
+}
+
 // TODO: Refactor client-side cache vs server-side cache vs no cache logic on search
-export default function Page(context: any) {
+export default function Page({ params }: PageProperties) {
   const router = useRouter()
 
   const FOOD_LIMIT = 100
   const TYPE_TIMEOUT = 1000
 
-  const dayParam = context.params.date as string // TODO: type-safe this
+  const dayParam = params.date
 
   const { user } = useUser()
 
@@ -64,7 +71,7 @@ export default function Page(context: any) {
     setFoods({ loading: false, data: [] })
 
     let foods: Food[] = []
-    if (search === '') {
+    if (search === /* TODO: Check if equality is a bug */ '') {
       foods = await listFoods(100, favoriteFoods)
     } else {
       foods = await searchFoodsByName(search, 100, favoriteFoods)
@@ -138,7 +145,7 @@ export default function Page(context: any) {
 
   const filteredFoods = foods.data
     .filter((food) => {
-      if (search === '') {
+      if (search === /* TODO: Check if equality is a bug */ '') {
         return true
       }
 
@@ -166,7 +173,9 @@ export default function Page(context: any) {
     })
     .slice(0, FOOD_LIMIT)
 
-  const day = days.data.find((day) => day.target_day === dayParam)
+  const day = days.data.find(
+    (day) => day.target_day === /* TODO: Check if equality is a bug */ dayParam,
+  )
 
   if (!day) {
     return (
@@ -190,13 +199,17 @@ export default function Page(context: any) {
     )
   }
 
-  const meal = day.meals.find((meal) => meal.id === context.params.mealId)
+  const meal = day.meals.find(
+    (meal) =>
+      meal.id.toString() ===
+      /* TODO: Check if equality is a bug */ params.mealId,
+  )
 
   if (!meal) {
     return (
       <>
         <Alert color="red" className="mt-2">
-          Refeição não encontrada {context.params.mealId}.
+          Refeição não encontrada: &apos;{params.mealId}&apos;.
         </Alert>
         <div className="bg-gray-800 p-1">
           Refeições disponíveis para o dia {dayParam}:&nbsp;
@@ -214,7 +227,7 @@ export default function Page(context: any) {
     await updateDay(day.id, {
       ...day,
       meals: day.meals.map((m) => {
-        if (m.id === meal.id) {
+        if (m.id === /* TODO: Check if equality is a bug */ meal.id) {
           return {
             ...m,
             items: [...m.items, mealItem],
@@ -292,11 +305,13 @@ export default function Page(context: any) {
         />
       </div>
 
-      {!searchingFoods && !typing && filteredFoods.length === 0 && (
-        <Alert color="warning" className="mt-2">
-          Nenhum alimento encontrado para a busca &quot;{search}&quot;.
-        </Alert>
-      )}
+      {!searchingFoods &&
+        !typing &&
+        filteredFoods.length === /* TODO: Check if equality is a bug */ 0 && (
+          <Alert color="warning" className="mt-2">
+            Nenhum alimento encontrado para a busca &quot;{search}&quot;.
+          </Alert>
+        )}
 
       <MealItemAddModal
         modalId={MEAL_ITEM_ADD_MODAL_ID}
@@ -309,7 +324,8 @@ export default function Page(context: any) {
       />
 
       <div className="bg-gray-800 p-1">
-        {searchingFoods && filteredFoods.length === 0 ? (
+        {searchingFoods &&
+        filteredFoods.length === /* TODO: Check if equality is a bug */ 0 ? (
           <PageLoading message="Carregando alimentos" />
         ) : (
           <>
