@@ -17,7 +17,11 @@ export default function App({ children }: { children: React.ReactNode }) {
           ? parseInt(localStorage.getItem('user') ?? '')
           : null
       if (localStoredUserId) {
-        const user = users.find((user) => user.id === localStoredUserId)
+        const user = users.find(
+          (user) =>
+            user.id ===
+            /* TODO: Check if equality is a bug */ localStoredUserId,
+        )
         if (user) {
           onChangeUser(user)
         } else if (users.length > 0) {
