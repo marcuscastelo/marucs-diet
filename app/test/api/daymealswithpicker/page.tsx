@@ -82,8 +82,14 @@ export default function Page() {
   //     await fetchDays(day.owner)
   //   }
 
-  const hasData = days.some((day) => day.target_day === /* TODO: Check if equality is a bug */ selectedDay)
-  const dayData = days.find((day) => day.target_day === /* TODO: Check if equality is a bug */ selectedDay)
+  const hasData = days.some(
+    (day) =>
+      day.target_day === /* TODO: Check if equality is a bug */ selectedDay,
+  )
+  const dayData = days.find(
+    (day) =>
+      day.target_day === /* TODO: Check if equality is a bug */ selectedDay,
+  )
 
   return (
     <>
@@ -132,7 +138,8 @@ export default function Page() {
         </>
       )}
 
-      {/* {currentMealProps === /* TODO: Check if equality is a bug */ null && <Alert color="warning">Selecione uma data</Alert>} */}
+      {/* TODO: Check if equality is a bug */}
+      {/* {currentMealProps === null && <Alert color="warning">Selecione uma data</Alert>} */}
       {/* {currentMealProps !== null && <DayMeals mealsProps={currentMealProps} />} */}
     </>
   )
