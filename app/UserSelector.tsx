@@ -14,8 +14,8 @@ export default function UserSelector() {
   })
   const [loadingHasTimedOut, setLoadingHasTimedOut] = useState(false)
 
-  const { user, setUserJson } = useUser()
-  const onChangeUser = (user: User) => setUserJson(JSON.stringify(user))
+  const { user, setUser } = useUser()
+  const onChangeUser = (user: User) => setUser(user)
 
   useEffect(() => {
     listUsers().then((users) => {
