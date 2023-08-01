@@ -1,25 +1,32 @@
-'use client';
+'use client'
 
-import React, { Component } from 'react';
-import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+// TODO: remove this example after we have implemented our own
+
+import React, { Component } from 'react'
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from '@hello-pangea/dnd'
 
 // fake data generator
 const getItems = (count: any) =>
   Array.from({ length: count }, (v, k) => k).map((k) => ({
     id: `item-${k}`,
     content: `item ${k}`,
-  }));
+  }))
 
 // a little function to help us with reordering the result
 const reorder = (list: any, startIndex: any, endIndex: any) => {
-  const result = Array.from(list);
-  const [removed] = result.splice(startIndex, 1);
-  result.splice(endIndex, 0, removed);
+  const result = Array.from(list)
+  const [removed] = result.splice(startIndex, 1)
+  result.splice(endIndex, 0, removed)
 
-  return result;
-};
+  return result
+}
 
-const grid = 8;
+const grid = 8
 
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
   // some basic styles to make the items look a bit nicer
@@ -32,39 +39,39 @@ const getItemStyle = (isDragging: any, draggableStyle: any) => ({
 
   // styles we need to apply on draggables
   ...draggableStyle,
-});
+})
 
 const getListStyle = (isDraggingOver: any) => ({
   background: isDraggingOver ? 'lightblue' : 'grey',
   padding: grid,
   width: 250,
-});
+})
 
 export default class App extends Component {
   constructor(props: any, context: any) {
-    super(props, context);
+    super(props, context)
     // eslint-disable-next-line react/state-in-constructor
     this.state = {
       items: getItems(100),
-    };
-    this.onDragEnd = this.onDragEnd.bind(this);
+    }
+    this.onDragEnd = this.onDragEnd.bind(this)
   }
 
   onDragEnd(result: DropResult) {
     // dropped outside the list
     if (!result.destination) {
-      return;
+      return
     }
 
     const items = reorder(
-      (this.state as {items: any[]}).items,
+      (this.state as { items: any[] }).items,
       result.source.index,
       result.destination.index,
-    );
+    )
 
     this.setState({
       items,
-    });
+    })
   }
 
   // Normally you would want to split things out into separate components.
@@ -78,7 +85,7 @@ export default class App extends Component {
               ref={droppableProvided.innerRef}
               style={getListStyle(droppableSnapshot.isDraggingOver)}
             >
-              {(this.state as {items: any[]}).items.map((item, index) => (
+              {(this.state as { items: any[] }).items.map((item, index) => (
                 <Draggable key={item.id} draggableId={item.id} index={index}>
                   {(draggableProvided, draggableSnapshot) => (
                     <div
@@ -100,6 +107,6 @@ export default class App extends Component {
           )}
         </Droppable>
       </DragDropContext>
-    );
+    )
   }
 }
