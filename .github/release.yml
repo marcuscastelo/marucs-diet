@@ -9,3 +9,10 @@ changelog:
     - title: Improvements
       labels:
         - improvement
+    - title: Other
+      labels:
+        - '*'
+        exclude:
+          - feature
+          - bug
+          - improvement
