@@ -1,12 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
-"use client";
+'use client'
 
-import BarCodeSearch from "@/app/BarCodeSearch";
+import BarCodeSearch from '@/app/BarCodeSearch'
 
 export default function Page() {
-    return (
-        <>
-            <BarCodeSearch />
-        </>
-    )
+  return (
+    <>
+      <BarCodeSearch />
+    </>
+  )
 }

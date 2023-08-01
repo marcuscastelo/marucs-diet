@@ -1,22 +1,26 @@
-'use client';
+'use client'
 
 export default function Capsule({
-    leftContent,
-    rightContent,
-    className,
+  leftContent,
+  rightContent,
+  className,
 }: {
-    leftContent: React.ReactNode,
-    rightContent: React.ReactNode,
-    className?: string,
+  leftContent: React.ReactNode
+  rightContent: React.ReactNode
+  className?: string
 }) {
-    return (
-        <div className={`flex rounded-3xl overflow-hidden ${className || ''}`}>
-            <div className={`flex-1 flex flex-col justify-around text-left bg-slate-700`}>
-                {leftContent}
-            </div>
-            <div className={`flex-1 flex flex-col justify-around text-left bg-slate-900`}>
-                {rightContent}
-            </div>
-        </div>
-    );
+  return (
+    <div className={`flex overflow-hidden rounded-3xl ${className || ''}`}>
+      <div
+        className={`flex flex-1 flex-col justify-around bg-slate-700 text-left`}
+      >
+        {leftContent}
+      </div>
+      <div
+        className={`flex flex-1 flex-col justify-around bg-slate-900 text-left`}
+      >
+        {rightContent}
+      </div>
+    </div>
+  )
 }

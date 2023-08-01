@@ -1,9 +1,9 @@
-'use client';
+'use client'
 
 export default function LoadingRing() {
-    return (
-        <div className="flex justify-center max-w-xs w-full mx-auto">
-            <span className="loading loading-ring w-1/2 max-w-xs text-center border" />
-        </div>
-    )
+  return (
+    <div className="mx-auto flex w-full max-w-xs justify-center">
+      <span className="loading loading-ring w-1/2 max-w-xs border text-center" />
+    </div>
+  )
 }
