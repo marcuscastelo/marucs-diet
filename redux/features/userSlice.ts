@@ -3,11 +3,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { useAppDispatch, useAppSelector } from '../hooks'
 import { User, userSchema } from '@/model/userModel'
-import { Record } from 'pocketbase'
-import { Loadable, Loaded, Loading } from '@/utils/loadable'
-import { listUsers, updateUser } from '@/controllers/users'
-import { AppDispatch } from '../store'
-import { useCallback, useEffect, useMemo } from 'react'
+import { Loadable } from '@/utils/loadable'
+import { updateUser } from '@/controllers/users'
+import { useCallback, useMemo } from 'react'
 
 type LoadingExtras = { fetchingId?: number }
 export type UserState = Loadable<User, LoadingExtras>
