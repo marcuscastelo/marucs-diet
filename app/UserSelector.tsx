@@ -1,7 +1,5 @@
 'use client'
 
-// TODO: remover todos os useAppDispatch e useAppSelector do projeto
-import { useAppDispatch, useAppSelector } from '@/redux/hooks'
 import { Dropdown } from 'react-daisyui'
 import { useUser } from '@/redux/features/userSlice'
 import { useEffect, useState } from 'react'
