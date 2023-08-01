@@ -20,7 +20,7 @@ export async function deleteAndReimportFoods(
   console.log('Waiting 3 seconds...')
 
   // sleep for 1 second to allow the server to catch up
-  await new Promise((r) => setTimeout(r, 3000))
+  await new Promise((resolve) => setTimeout(resolve, 3000))
 
   console.log('Finished waiting.')
 
