@@ -1,4 +1,7 @@
-export const getToday = () => new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
+export const getToday = () =>
+  new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000)
+    .toISOString()
+    .split('T')[0]
 
-//TODO: retriggered: | Date is correct?
-export const stringToDate = (day: string | Date) => new Date(`${day}T00:00:00`);
+// TODO: retriggered: | Date is correct?
+export const stringToDate = (day: string | Date) => new Date(`${day}T00:00:00`)

@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const defaultTheme = require('tailwindcss/defaultTheme')
 
 /** @type {import('tailwindcss').Config} */
@@ -6,7 +7,7 @@ module.exports = {
   darkMode: 'class',
   content: [
     './node_modules/flowbite-react/**/*.js',
-    "./node_modules/react-tailwindcss-datepicker/dist/index.esm.js",
+    './node_modules/react-tailwindcss-datepicker/dist/index.esm.js',
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
@@ -26,8 +27,5 @@ module.exports = {
       },
     },
   },
-  plugins: [
-    require("flowbite/plugin"),
-    require("daisyui"),
-  ],
+  plugins: [require('flowbite/plugin'), require('daisyui')],
 }

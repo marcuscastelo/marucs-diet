@@ -1,5 +1,5 @@
-"use client";
+'use client'
 
 export default function FoodsPage() {
-    return <div>Foods Page</div>
+  return <div>Foods Page</div>
 }
