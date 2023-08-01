@@ -75,8 +75,8 @@ export default function Page() {
                 value={day}
                 onChange={handleDayChange}
             />
-
-            {currentMealProps === /* TODO: Check if equality is a bug */ undefined && <Alert color="warning">Selecione uma data</Alert>}
+            //TODO: Check if equality is a bug 
+            {currentMealProps ===  undefined && <Alert color="warning">Selecione uma data</Alert>}
             {currentMealProps !== undefined && <DayMeals mealsProps={currentMealProps} />} */}
     </>
   )
