@@ -42,11 +42,17 @@ const Modal = forwardRef(
     useImperativeHandle(ref, () => ({
       showModal: () => {
         innerRef.current?.showModal()
-        handleVisibilityChange(innerRef.current?.open === true)
+        handleVisibilityChange(
+          innerRef.current?.open ===
+            /* TODO: Check if equality is a bug */ true,
+        )
       },
       close: () => {
         innerRef.current?.close()
-        handleVisibilityChange(innerRef.current?.open === true)
+        handleVisibilityChange(
+          innerRef.current?.open ===
+            /* TODO: Check if equality is a bug */ true,
+        )
       },
     }))
 

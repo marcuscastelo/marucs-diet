@@ -54,7 +54,7 @@ const internalSearchCacheLogic = async (
   try {
     const createdFoods = await Promise.all(createdFoodsPromises)
     console.log('Finished creating foods.')
-    if (createdFoods.length === 0) {
+    if (createdFoods.length === /* TODO: Check if equality is a bug */ 0) {
       console.warn('No foods created!! skipping cache')
     } else {
       console.log(`Marking '${cacheKey}' as cached...`)
@@ -136,7 +136,7 @@ export const searchFoodsByName = async (
         .limit(limit ?? 100)
 
       console.log(`Got ${favoriteResult?.length} favorite foods from cache.`)
-      if (favoriteResult?.length === 0) {
+      if (favoriteResult?.length === /* TODO: Check if equality is a bug */ 0) {
         // TODO: readd this logic of cache invalidation, but also with time
         // console.log('No foods found, unmarking cache as cached.');
         // await unmarkAsCached(search);
@@ -199,7 +199,7 @@ export const searchFoodsByEan = async (
             .ilike('ean', `%${ean}%`)
             .limit(limit ?? 100)
           console.log(`Got ${data?.length} foods from cache.`)
-          if (data?.length === 0) {
+          if (data?.length === /* TODO: Check if equality is a bug */ 0) {
             // TODO: readd this logic of cache invalidation, but also with time
             // console.log('No foods found, unmarking cache as cached.');
             // await unmarkAsCached(search);
@@ -218,7 +218,7 @@ export const searchFoodsByEan = async (
           return [newFood]
         },
       })
-    ).find((food) => food.ean === ean),
+    ).find((food) => food.ean === /* TODO: Check if equality is a bug */ ean),
   )
 }
 

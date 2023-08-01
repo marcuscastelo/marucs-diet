@@ -21,7 +21,7 @@ export default function Page() {
 
   const filteredFoods = foods
     .filter((food) => {
-      if (search === '') {
+      if (search === /* TODO: Check if equality is a bug */ '') {
         return true
       }
 
@@ -91,7 +91,7 @@ export default function Page() {
         />
       </div>
 
-      {filteredFoods.length === 0 && (
+      {filteredFoods.length === /* TODO: Check if equality is a bug */ 0 && (
         <Alert color="warning" className="mt-2">
           Nenhum alimento encontrado para a busca &quot;{search}&quot;.
         </Alert>
