@@ -102,9 +102,11 @@ export default function UserSelector() {
                 })
               )}
 
-              {!availableUsers.loading && availableUsers.data.length === 0 && (
-                <Dropdown.Item>Nenhum usuário disponível</Dropdown.Item>
-              )}
+              {!availableUsers.loading &&
+                availableUsers.data.length ===
+                  /* TODO: Check if equality is a bug */ 0 && (
+                  <Dropdown.Item>Nenhum usuário disponível</Dropdown.Item>
+                )}
             </Dropdown.Menu>
           </Dropdown>
         </div>
