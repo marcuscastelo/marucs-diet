@@ -1,9 +1,10 @@
 'use client'
 
 import UserSelector from '@/app/UserSelector'
-import { useAppSelector } from '@/redux/hooks'
+import { useUser } from '@/redux/features/userSlice'
 
 export default function Page() {
+  const { user } = useUser()
   return (
     <div className="w-64">
       <div className="mb-10">
@@ -11,13 +12,7 @@ export default function Page() {
       </div>
 
       <code className="text-xs">
-        <pre>
-          {JSON.stringify(
-            useAppSelector((state) => state.userReducer), // TODO: Remove useAppSelector
-            null,
-            4,
-          )}
-        </pre>
+        <pre>{JSON.stringify(user, null, 4)}</pre>
       </code>
     </div>
   )

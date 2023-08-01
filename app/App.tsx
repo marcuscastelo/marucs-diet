@@ -6,7 +6,6 @@ import { useUser } from '@/redux/features/userSlice'
 import { useEffect } from 'react'
 
 export default function App({ children }: { children: React.ReactNode }) {
-  // TODO: retriggered: useUser hook (all over the entire app. Search for useAppDispatch, useAppSelector and dispatch)
   const { setUserJson } = useUser()
 
   useEffect(() => {
