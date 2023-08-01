@@ -36,7 +36,7 @@ const USER_FIELD_TRANSLATION: Translation<keyof User> = {
 }
 
 export default function Page() {
-  const { user, setUserJson } = useUser()
+  const { user, setUser } = useUser()
 
   const onSetProfile = useCallback(
     async (action: (old: MacroProfile) => MacroProfile) => {
@@ -64,9 +64,9 @@ export default function Page() {
 
       await updateUser(newUser.id, newUser)
       console.log('Updating user')
-      setUserJson(JSON.stringify(newUser))
+      setUser(newUser)
     },
-    [user, setUserJson],
+    [user, setUser],
   )
 
   if (user.loading) {
@@ -99,7 +99,7 @@ export default function Page() {
 }
 
 function BasicInfo() {
-  const { user, setUserJson, fetchUser } = useUser()
+  const { user, setUser, fetchUser } = useUser()
   const [innerData, setInnerData] = useState<User | undefined>(
     user.loading ? undefined : user.data,
   )
@@ -127,7 +127,7 @@ function BasicInfo() {
       newUser[field] = convert(event.target.value)
       const updatedUser = await updateUser(newUser.id, newUser)
       setInnerData(updatedUser)
-      setUserJson(JSON.stringify(updatedUser))
+      setUser(updatedUser)
     }
   }
 
