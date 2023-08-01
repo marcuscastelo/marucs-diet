@@ -52,7 +52,7 @@ export default function Page() {
 
       {foods
         .filter((food) => {
-          if (search === '') {
+          if (search === /* TODO: Check if equality is a bug */ '') {
             return true
           }
 

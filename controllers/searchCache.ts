@@ -9,7 +9,9 @@ export const isSearchCached = async (search: CachedSearch['search']) => {
     (data) => cachedSearchSchema.parse(data),
   )
   return cached.some(
-    (cache) => cache.search.toLowerCase() === search.toLowerCase(),
+    (cache) =>
+      cache.search.toLowerCase() ===
+      /* TODO: Check if equality is a bug */ search.toLowerCase(),
   )
 }
 
