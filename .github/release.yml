@@ -12,7 +12,7 @@ changelog:
     - title: Other
       labels:
         - '*'
-        exclude:
-          - feature
-          - bug
-          - improvement
+      exclude:
+        - feature
+        - bug
+        - improvement
