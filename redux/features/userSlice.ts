@@ -115,7 +115,7 @@ export const useUser = () => {
   //                 return;
   //             }
 
-  //             const userData = users.find((u) => u.id === user.loadingExtras?.fetchingId);
+  //             const userData = users.find((u) => u.id === /* TODO: Check if equality is a bug */ user.loadingExtras?.fetchingId);
 
   //             if (!userData) {
   //                 console.error(`fetchUser: user ${user.loadingExtras?.fetchingId} not found`);

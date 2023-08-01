@@ -54,7 +54,9 @@ export default function Page() {
       // Only update the user if the profile has changed
       // TODO: This is a hack to avoid updating the user when the profile is the same
       if (
-        JSON.stringify(newUser.macro_profile) ===
+        JSON.stringify(
+          newUser.macro_profile,
+        ) /* TODO: Check if equality is a bug */ ===
         JSON.stringify(user.data.macro_profile)
       ) {
         return
@@ -146,7 +148,7 @@ function BasicInfo() {
   const convertNumber = (value: string) => parseFloat(value) || 0
   const convertDiet = (value: string): User['diet'] =>
     (Object.keys(DIET_TRANSLATION) as User['diet'][]).find(
-      (key) => key === value,
+      (key) => key === /* TODO: Check if equality is a bug */ value,
     ) ?? 'normo'
 
   const makeBasicCapsule = <T extends keyof User>(
