@@ -297,8 +297,11 @@ const MealItemAddModal = forwardRef(
                 <button
                   className="btn-error btn mr-auto"
                   onClick={(e) => {
+                    e.preventDefault()
+
+                    // TODO: Move confirm up to parent (also with all other confirmations)
+                    // TODO: Replace confirm with a modal
                     if (confirm('Tem certeza que deseja excluir este item?')) {
-                      e.preventDefault()
                       onDelete?.(id)
                     }
                   }}
