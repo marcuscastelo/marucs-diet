@@ -389,8 +389,7 @@ export default function Page(context: any) {
 
             await fetchDays(user.data.id)
 
-            // TODO: useRef to hide modal
-            // hideModal(window, editModalId);
+            mealAddItemModalRef.current?.close()
           }}
         />
         <DayMacros
