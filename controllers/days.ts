@@ -19,6 +19,11 @@ export const listDays = async (userId: User['id']): Promise<Day[]> =>
         target_day: day.target_day.split(' ')[0],
       }),
     )
+    .sort((a, b) => {
+      const aDate = new Date(a.target_day)
+      const bDate = new Date(b.target_day)
+      return aDate.getTime() - bDate.getTime()
+    })
 
 export const upsertDay = async (
   day: Partial<Day> & Omit<Day, 'id'>,
