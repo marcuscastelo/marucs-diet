@@ -5,7 +5,7 @@ export const foodSchema = z.object({
   id: z.number(),
   source: z
     .object({
-      type: z.union([z.literal('api'), z.literal('tbca')]),
+      type: z.literal('api'),
       id: z.string(),
     })
     .nullable()
