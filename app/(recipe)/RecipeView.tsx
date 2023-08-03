@@ -1,8 +1,10 @@
 'use client'
 
-import { MealData, mealSchema } from '@/model/mealModel'
+// TODO: Unify Recipe and Recipe components into a single component?
+
+import { Recipe, recipeSchema } from '@/model/recipeModel'
 import { FoodItem, foodItemSchema } from '@/model/foodItemModel'
-import { MealContextProvider, useMealContext } from './MealContext'
+import { RecipeContextProvider, useRecipeContext } from './RecipeContext'
 import { useEffect, useState } from 'react'
 import { calculateCalories } from '../MacroTargets'
 import TrashIcon from '../(icons)/TrashIcon'
@@ -10,8 +12,8 @@ import PasteIcon from '../(icons)/PasteIcon'
 import CopyIcon from '../(icons)/CopyIcon'
 import FoodItemListView from '../(foodItem)/FoodItemListView'
 
-export type MealProps = {
-  mealData: MealData
+export type RecipeViewProps = {
+  recipe: Recipe
   header?: React.ReactNode
   content?: React.ReactNode
   actions?: React.ReactNode
@@ -28,34 +30,34 @@ export type MealProps = {
 //   return result
 // }
 
-export default function Meal({
-  mealData,
+export default function RecipeView({
+  recipe,
   header,
   content,
   actions,
   className,
-}: MealProps) {
+}: RecipeViewProps) {
   return (
     <div className={`bg-gray-800 p-3 ${className || ''}`}>
-      <MealContextProvider mealData={mealData}>
+      <RecipeContextProvider recipe={recipe}>
         {header}
         {content}
         {actions}
-      </MealContextProvider>
+      </RecipeContextProvider>
     </div>
   )
 }
 
-Meal.Header = MealHeader
-Meal.Content = MealContent
-Meal.Actions = MealActions
+RecipeView.Header = RecipeHeader
+RecipeView.Content = RecipeContent
+RecipeView.Actions = RecipeActions
 
-function MealHeader({
-  onUpdateMeal,
+function RecipeHeader({
+  onUpdateRecipe,
 }: {
-  onUpdateMeal: (meal: MealData) => void
+  onUpdateRecipe: (Recipe: Recipe) => void
 }) {
-  const { mealData } = useMealContext()
+  const { recipe } = useRecipeContext()
 
   // TODO: Create a module to calculate calories and macros
   const itemCalories = (item: FoodItem) =>
@@ -65,8 +67,8 @@ function MealHeader({
       fat: (item.food.macros.fat * item.quantity) / 100,
     })
 
-  // TODO: Show how much of the daily target is this meal (e.g. 30% of daily calories) (maybe in a tooltip) (useContext)s
-  const mealCalories = mealData.items.reduce(
+  // TODO: Show how much of the daily target is this Recipe (e.g. 30% of daily calories) (maybe in a tooltip) (useContext)s
+  const RecipeCalories = recipe.items.reduce(
     (acc, item) => acc + itemCalories(item),
     0,
   )
@@ -80,39 +82,39 @@ function MealHeader({
       return
     }
 
-    const newMealData = {
-      ...mealData,
+    const newRecipe = {
+      ...recipe,
       items: [],
     }
 
-    onUpdateMeal(newMealData)
+    onUpdateRecipe(newRecipe)
   }
 
-  const handleCopyMeal = (e: React.MouseEvent) => {
+  const handleCopyRecipe = (e: React.MouseEvent) => {
     e.preventDefault()
 
-    navigator.clipboard.writeText(JSON.stringify(mealData))
+    navigator.clipboard.writeText(JSON.stringify(recipe))
   }
 
-  const handlePasteMeal = (e: React.MouseEvent) => {
+  const handlePasteRecipe = (e: React.MouseEvent) => {
     e.preventDefault()
 
     try {
-      const parsedMeal = mealSchema.safeParse(JSON.parse(clipboardText))
+      const parsedRecipe = recipeSchema.safeParse(JSON.parse(clipboardText))
 
-      if (parsedMeal.success) {
-        const newMealData = {
-          ...mealData,
+      if (parsedRecipe.success) {
+        const newRecipe = {
+          ...recipe,
           items: [
-            ...mealData.items,
-            ...parsedMeal.data.items.map((item) => ({
+            ...recipe.items,
+            ...parsedRecipe.data.items.map((item) => ({
               ...item,
               id: Math.floor(Math.random() * 1000000), // TODO: Create a function to generate a unique id
             })),
           ],
         }
 
-        onUpdateMeal(newMealData)
+        onUpdateRecipe(newRecipe)
 
         // Clear clipboard
         navigator.clipboard.writeText('')
@@ -120,21 +122,23 @@ function MealHeader({
         return
       }
 
-      const parsedMealItem = foodItemSchema.safeParse(JSON.parse(clipboardText))
+      const parsedRecipeItem = foodItemSchema.safeParse(
+        JSON.parse(clipboardText),
+      )
 
-      if (parsedMealItem.success) {
-        const newMealData = {
-          ...mealData,
+      if (parsedRecipeItem.success) {
+        const newRecipe = {
+          ...recipe,
           items: [
-            ...mealData.items,
+            ...recipe.items,
             {
-              ...parsedMealItem.data,
+              ...parsedRecipeItem.data,
               id: Math.floor(Math.random() * 1000000), // TODO: Create a function to generate a unique id
             },
           ],
         }
 
-        onUpdateMeal(newMealData)
+        onUpdateRecipe(newRecipe)
 
         // Clear clipboard
         navigator.clipboard.writeText('')
@@ -169,20 +173,20 @@ function MealHeader({
 
   const hasValidPastableOnClipboard =
     clipboardText &&
-    (mealSchema.safeParse(parsedJson).success ||
+    (recipeSchema.safeParse(parsedJson).success ||
       foodItemSchema.safeParse(parsedJson).success)
 
   return (
     <div className="flex">
       <div className="my-2">
-        <h5 className="text-3xl">{mealData.name}</h5>
-        <p className="italic text-gray-400">{mealCalories}kcal</p>
+        <h5 className="text-3xl">{recipe.name}</h5>
+        <p className="italic text-gray-400">{RecipeCalories}kcal</p>
       </div>
       <div className={`ml-auto flex gap-2`}>
-        {!hasValidPastableOnClipboard && mealData.items.length > 0 && (
+        {!hasValidPastableOnClipboard && recipe.items.length > 0 && (
           <div
             className={`btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105`}
-            onClick={handleCopyMeal}
+            onClick={handleCopyRecipe}
           >
             <CopyIcon />
           </div>
@@ -190,12 +194,12 @@ function MealHeader({
         {hasValidPastableOnClipboard && (
           <div
             className={`btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105`}
-            onClick={handlePasteMeal}
+            onClick={handlePasteRecipe}
           >
             <PasteIcon />
           </div>
         )}
-        {mealData.items.length > 0 && (
+        {recipe.items.length > 0 && (
           <div
             className={`btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105`}
             onClick={onClearItems}
@@ -208,15 +212,17 @@ function MealHeader({
   )
 }
 
-function MealContent({ onEditItem }: { onEditItem: (item: FoodItem) => void }) {
-  const { mealData } = useMealContext()
+function RecipeContent({
+  onEditItem,
+}: {
+  onEditItem: (item: FoodItem) => void
+}) {
+  const { recipe } = useRecipeContext()
 
-  return (
-    <FoodItemListView foodItems={mealData.items} onItemClick={onEditItem} />
-  )
+  return <FoodItemListView foodItems={recipe.items} onItemClick={onEditItem} />
 }
 
-function MealActions({ onNewItem }: { onNewItem: () => void }) {
+function RecipeActions({ onNewItem }: { onNewItem: () => void }) {
   return (
     <button
       className="mt-3 min-w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
