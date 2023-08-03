@@ -6,11 +6,14 @@ export const recipeSchema = z.object({
   id: z.number(),
   name: z.string(),
   items: z.array(foodItemSchema),
+  '': z
+    .string()
+    .nullable()
+    .optional()
+    .transform(() => 'Recipe' as const),
 })
 
-export type Recipe = z.infer<typeof recipeSchema> & {
-  readonly '': 'Recipe'
-}
+export type Recipe = z.infer<typeof recipeSchema>
 
 // TODO: Create factory function for other models
 export function createRecipe({

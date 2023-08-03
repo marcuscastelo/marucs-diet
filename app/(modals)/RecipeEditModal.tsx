@@ -14,15 +14,18 @@ import { Food } from '@/model/foodModel'
 import { useFavoriteFoods } from '@/redux/features/userSlice'
 import Modal, { ModalActions, ModalRef } from './modal'
 import { Recipe } from '@/model/recipeModel'
+import FoodItemListView from '../(foodItem)/FoodItemListView'
+import RecipeView from '../(recipe)/RecipeView'
+import MealItemAddModal from '../MealItemAddModal'
+import Show from '../Show'
+import { MealData } from '@/model/mealModel'
 
 export type RecipeEditModalProps = {
   modalId: string
   recipe: Recipe
-  itemData: Partial<FoodItem> & { food: Food }
   show?: boolean
-  onApply: (item: FoodItem) => void
+  onSaveRecipe: (recipe: Recipe) => void
   onCancel?: () => void
-  onDelete?: (itemId: FoodItem['id']) => void
   onVisibilityChange?: (isShowing: boolean) => void
 }
 
@@ -31,136 +34,79 @@ const RecipeEditModal = forwardRef(
   (
     {
       modalId,
-      recipe,
-      itemData: { food, quantity: initialQuantity, id: initialId },
-      onApply,
+      recipe: initialRecipe,
+      onSaveRecipe,
       onCancel,
-      onDelete,
       onVisibilityChange,
     }: RecipeEditModalProps,
     ref: React.Ref<ModalRef>,
   ) => {
-    const [showing, setShowing] = useState(false) // TODO: remove showing state here and in RecipeEditModal
-    const [quantity, setQuantity] = useState(initialQuantity?.toString() ?? '')
-    const [id, setId] = useState(initialId ?? Math.random())
-    const canAdd = quantity !== '' && Number(quantity) > 0
-    const quantityRef = useRef<HTMLInputElement>(null)
+    const [recipe, setRecipe] = useState<Recipe>(initialRecipe)
+    const [itemToEdit, setItemToEdit] = useState<FoodItem | null>(null)
 
-    const modalRef = useRef<ModalRef>(null)
-
-    const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(true)
-
-    const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods()
+    // TODO: Change other modals modalRef variable to selfModalRef on other files
+    const selfModalRef = useRef<ModalRef>(null)
+    // TODO: Rename mealItemAddModalRef to foodItemAddModalRef on other files (and here)
+    const mealItemAddModalRef = useRef<ModalRef>(null)
 
     const handleSetShowing = useCallback(
       (isShowing: boolean) => {
-        setShowing(isShowing)
         onVisibilityChange?.(isShowing)
       },
       [onVisibilityChange],
     )
 
     useEffect(() => {
-      if (!showing) {
-        setQuantity('')
-        setId(Math.round(Math.random() * 1000000)) // TODO: Stop using random id here
-        setQuantityFieldDisabled(true)
-        return
+      if (itemToEdit) {
+        mealItemAddModalRef.current?.showModal()
+      } else {
+        mealItemAddModalRef.current?.close()
       }
-
-      const timeout = setTimeout(() => {
-        setQuantityFieldDisabled(false)
-      }, 100)
-
-      return () => {
-        clearTimeout(timeout)
-      }
-    }, [showing])
-
-    useEffect(() => {
-      if (initialQuantity !== undefined) {
-        setQuantity(initialQuantity.toString())
-      }
-
-      if (initialId !== undefined) {
-        setId(initialId)
-      }
-    }, [initialQuantity, initialId])
-
-    useEffect(() => {
-      setQuantityFieldDisabled(true)
-      const timeout = setTimeout(() => {
-        setQuantityFieldDisabled(false)
-      }, 1000)
-
-      return () => {
-        clearTimeout(timeout)
-      }
-    }, [initialQuantity, initialId])
-
-    const increment = () =>
-      setQuantity((old) => (Number(old ?? '0') + 1).toString())
-    const decrement = () =>
-      setQuantity((old) => Math.max(0, Number(old ?? '0') - 1).toString())
-
-    const [currentHoldTimeout, setCurrentHoldTimeout] =
-      useState<NodeJS.Timeout>()
-    const [currentHoldInterval, setCurrentHoldInterval] =
-      useState<NodeJS.Timeout>()
-
-    const holdRepeatStart = (action: () => void) => {
-      setCurrentHoldTimeout(
-        setTimeout(() => {
-          setCurrentHoldInterval(
-            setInterval(() => {
-              action()
-            }, 100),
-          )
-        }, 500),
-      )
-    }
-
-    const holdRepeatStop = () => {
-      if (currentHoldTimeout) {
-        clearTimeout(currentHoldTimeout)
-      }
-
-      if (currentHoldInterval) {
-        clearInterval(currentHoldInterval)
-      }
-    }
-
-    const createMealItemData = (): FoodItem => ({
-      id,
-      quantity: Number(quantity),
-      food,
-    })
+    }, [itemToEdit])
 
     useImperativeHandle(ref, () => ({
       showModal: () => {
-        modalRef.current?.showModal()
+        selfModalRef.current?.showModal()
         handleSetShowing(true)
       },
       close: () => {
-        modalRef.current?.close()
+        selfModalRef.current?.close()
         handleSetShowing(false)
       },
     }))
 
     useEffect(() => {
-      modalRef.current?.showModal()
+      selfModalRef.current?.showModal()
       handleSetShowing(true)
     }, [handleSetShowing]) // TODO : remove after POC
 
     return (
       <>
+        <Show when={itemToEdit !== null}>
+          <MealItemAddModal
+            modalId="RECIPES_EDIT_MODAL:FOOD_ITEM_ADD_MODAL"
+            ref={mealItemAddModalRef}
+            itemData={itemToEdit!} // TODO: <Show> should handle this with a type guard
+            meal={recipe as unknown as MealData} // TODO: Make MealItemAddModal not depend on MealData anymore
+            onApply={(foodItem) => {
+              setRecipe((recipe) => ({
+                ...recipe,
+                items: [
+                  ...recipe.items.filter((item) => item.id !== foodItem.id),
+                  foodItem,
+                ],
+              }))
+              setItemToEdit(null)
+            }}
+          />
+        </Show>
         <Modal
           modalId={modalId}
-          ref={modalRef}
-          onSubmit={() => onApply(createMealItemData())}
+          ref={selfModalRef}
+          onSubmit={() => onSaveRecipe(recipe)}
           header={
             <h3 className="text-lg font-bold text-white">
-              Novo item em
+              Editando receita
               <span className="text-green-500">
                 {' '}
                 &quot;{recipe.name}&quot;{' '}
@@ -169,143 +115,33 @@ const RecipeEditModal = forwardRef(
           }
           onVisibilityChange={handleSetShowing}
           body={
-            <>
-              <p className="mt-1 text-gray-400">Atalhos</p>
-              <div className="mt-1 flex w-full">
-                <div
-                  className="btn-primary btn-sm btn flex-1"
-                  onClick={() => setQuantity('10')}
-                >
-                  10g
-                </div>
-                <div
-                  className="btn-primary btn-sm btn ml-1 flex-1"
-                  onClick={() => setQuantity('20')}
-                >
-                  20g
-                </div>
-                <div
-                  className="btn-primary btn-sm btn ml-1 flex-1"
-                  onClick={() => setQuantity('30')}
-                >
-                  30g
-                </div>
-                <div
-                  className="btn-primary btn-sm btn ml-1 flex-1"
-                  onClick={() => setQuantity('40')}
-                >
-                  40g
-                </div>
-                <div
-                  className="btn-primary btn-sm btn ml-1 flex-1"
-                  onClick={() => setQuantity('50')}
-                >
-                  50g
-                </div>
-              </div>
-              <div className="mt-1 flex w-full">
-                <div
-                  className="btn-primary btn-sm btn flex-1"
-                  onClick={() => setQuantity('100')}
-                >
-                  100g
-                </div>
-                <div
-                  className="btn-primary btn-sm btn ml-1 flex-1"
-                  onClick={() => setQuantity('150')}
-                >
-                  150g
-                </div>
-                <div
-                  className="btn-primary btn-sm btn ml-1 flex-1"
-                  onClick={() => setQuantity('200')}
-                >
-                  200g
-                </div>
-                <div
-                  className="btn-primary btn-sm btn ml-1 flex-1"
-                  onClick={() => setQuantity('250')}
-                >
-                  250g
-                </div>
-                <div
-                  className="btn-primary btn-sm btn ml-1 flex-1"
-                  onClick={() => setQuantity('300')}
-                >
-                  300g
-                </div>
-              </div>
-              <div className="mt-3 flex w-full justify-between gap-1">
-                <div className="my-1 flex flex-1 justify-around">
-                  <input
-                    style={{ width: '100%' }}
-                    disabled={quantityFieldDisabled}
-                    value={quantity}
-                    ref={quantityRef}
-                    onChange={(e) =>
-                      setQuantity(e.target.value.replace(/[^0-9]/, ''))
-                    }
-                    type="number"
-                    placeholder="Quantidade (gramas)"
-                    className={`input-bordered  input mt-1  border-gray-300 bg-gray-800 ${
-                      !canAdd ? 'input-error border-red-500' : ''
-                    }`}
-                  />
-                </div>
-                <div className="my-1 ml-1 flex flex-shrink justify-around gap-1">
-                  <div
-                    className="btn-primary btn-xs btn h-full w-10 px-6 text-4xl text-red-600"
-                    onClick={decrement}
-                    onMouseDown={() => holdRepeatStart(decrement)}
-                    onMouseUp={holdRepeatStop}
-                    onTouchStart={() => holdRepeatStart(decrement)}
-                    onTouchEnd={holdRepeatStop}
-                  >
-                    {' '}
-                    -{' '}
-                  </div>
-                  <div
-                    className="btn-primary btn-xs btn ml-1 h-full w-10 px-6 text-4xl text-green-400"
-                    onClick={increment}
-                    onMouseDown={() => holdRepeatStart(increment)}
-                    onMouseUp={holdRepeatStop}
-                    onTouchStart={() => holdRepeatStart(increment)}
-                    onTouchEnd={holdRepeatStop}
-                  >
-                    {' '}
-                    +{' '}
-                  </div>
-                </div>
-              </div>
-
-              <FoodItemView
-                foodItem={{
-                  id,
-                  food,
-                  quantity: Number(quantity),
-                }}
-                className="mt-4"
-                header={
-                  <FoodItemView.Header
-                    name={<FoodItemView.Header.Name />}
-                    favorite={
-                      <FoodItemView.Header.Favorite
-                        favorite={isFoodFavorite(food.id)}
-                        setFavorite={(favorite) =>
-                          setFoodAsFavorite(food.id, favorite)
-                        }
-                      />
-                    }
-                  />
-                }
-                nutritionalInfo={<FoodItemView.NutritionalInfo />}
-              />
-            </>
+            <RecipeView
+              recipe={recipe}
+              header={
+                <RecipeView.Header
+                  onUpdateRecipe={(recipe) => {
+                    setRecipe(recipe)
+                  }}
+                />
+              }
+              content={
+                <RecipeView.Content
+                  onEditItem={(item) => setItemToEdit(item)}
+                />
+              }
+              actions={
+                <RecipeView.Actions
+                  // TODO: Treat recursive recipe
+                  onNewItem={() => alert('TODO: onAddItem')}
+                />
+              }
+            />
+            // TODO: Add barcode button and handle barcode scan
           }
           actions={
             <ModalActions>
               {/* if there is a button in form, it will close the modal */}
-              {onDelete && (
+              {
                 <button
                   className="btn-error btn mr-auto"
                   onClick={(e) => {
@@ -314,18 +150,19 @@ const RecipeEditModal = forwardRef(
                     // TODO: Move confirm up to parent (also with all other confirmations)
                     // TODO: Replace confirm with a modal
                     if (confirm('Tem certeza que deseja excluir este item?')) {
-                      onDelete?.(id)
+                      // handleDeleteItem?.(id)
+                      alert('TODO: handleDeleteItem')
                     }
                   }}
                 >
                   Excluir
                 </button>
-              )}
+              }
               <button
                 className="btn"
                 onClick={(e) => {
                   e.preventDefault()
-                  modalRef.current?.close()
+                  selfModalRef.current?.close()
                   onCancel?.()
                 }}
               >
@@ -333,10 +170,10 @@ const RecipeEditModal = forwardRef(
               </button>
               <button
                 className="btn"
-                disabled={!canAdd}
                 onClick={(e) => {
                   e.preventDefault()
-                  onApply(createMealItemData())
+                  // onSaveRecipe(createMealItemData())
+                  alert('TODO: onSaveRecipe')
                 }}
               >
                 Aplicar
