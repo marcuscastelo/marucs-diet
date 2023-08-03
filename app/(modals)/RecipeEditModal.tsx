@@ -2,21 +2,22 @@
 
 import {
   forwardRef,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useRef,
   useState,
 } from 'react'
-import MealItem from './(mealItem)/MealItem'
-import { FoodItem } from '@/model/mealItemModel'
+import MealItem from '../(mealItem)/MealItem'
+import { FoodItem } from '@/model/foodItemModel'
 import { Food } from '@/model/foodModel'
-import { MealData } from '@/model/mealModel'
 import { useFavoriteFoods } from '@/redux/features/userSlice'
-import Modal, { ModalActions, ModalRef } from './(modals)/modal'
+import Modal, { ModalActions, ModalRef } from './modal'
+import { Recipe } from '@/model/recipeModel'
 
-export type MealItemAddModalProps = {
+export type RecipeEditModalProps = {
   modalId: string
-  meal: MealData
+  recipe: Recipe
   itemData: Partial<FoodItem> & { food: Food }
   show?: boolean
   onApply: (item: FoodItem) => void
@@ -26,20 +27,20 @@ export type MealItemAddModalProps = {
 }
 
 // eslint-disable-next-line react/display-name
-const MealItemAddModal = forwardRef(
+const RecipeEditModal = forwardRef(
   (
     {
       modalId,
-      meal,
+      recipe,
       itemData: { food, quantity: initialQuantity, id: initialId },
       onApply,
       onCancel,
       onDelete,
       onVisibilityChange,
-    }: MealItemAddModalProps,
+    }: RecipeEditModalProps,
     ref: React.Ref<ModalRef>,
   ) => {
-    const [showing, setShowing] = useState(false)
+    const [showing, setShowing] = useState(false) // TODO: remove showing state here and in RecipeEditModal
     const [quantity, setQuantity] = useState(initialQuantity?.toString() ?? '')
     const [id, setId] = useState(initialId ?? Math.random())
     const canAdd = quantity !== '' && Number(quantity) > 0
@@ -51,15 +52,18 @@ const MealItemAddModal = forwardRef(
 
     const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods()
 
-    const handleSetShowing = (isShowing: boolean) => {
-      setShowing(isShowing)
-      onVisibilityChange?.(isShowing)
-    }
+    const handleSetShowing = useCallback(
+      (isShowing: boolean) => {
+        setShowing(isShowing)
+        onVisibilityChange?.(isShowing)
+      },
+      [onVisibilityChange],
+    )
 
     useEffect(() => {
       if (!showing) {
         setQuantity('')
-        setId(Math.round(Math.random() * 1000000))
+        setId(Math.round(Math.random() * 1000000)) // TODO: Stop using random id here
         setQuantityFieldDisabled(true)
         return
       }
@@ -143,6 +147,11 @@ const MealItemAddModal = forwardRef(
       },
     }))
 
+    useEffect(() => {
+      modalRef.current?.showModal()
+      handleSetShowing(true)
+    }, [handleSetShowing]) // TODO : remove after POC
+
     return (
       <>
         <Modal
@@ -152,7 +161,10 @@ const MealItemAddModal = forwardRef(
           header={
             <h3 className="text-lg font-bold text-white">
               Novo item em
-              <span className="text-green-500"> &quot;{meal.name}&quot; </span>
+              <span className="text-green-500">
+                {' '}
+                &quot;{recipe.name}&quot;{' '}
+              </span>
             </h3>
           }
           onVisibilityChange={handleSetShowing}
@@ -337,4 +349,4 @@ const MealItemAddModal = forwardRef(
   },
 )
 
-export default MealItemAddModal
+export default RecipeEditModal

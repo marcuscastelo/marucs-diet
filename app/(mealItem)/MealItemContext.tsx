@@ -1,9 +1,9 @@
 'use client'
 
-import { MealItemData } from '@/model/mealItemModel'
+import { FoodItem } from '@/model/mealItemModel'
 import { createContext, useContext } from 'react'
 
-const MealItemContext = createContext<{ mealItem: MealItemData } | null>(null)
+const MealItemContext = createContext<{ mealItem: FoodItem } | null>(null)
 
 export function useMealItemContext() {
   const context = useContext(MealItemContext)
@@ -21,7 +21,7 @@ export function MealItemContextProvider({
   mealItem,
   children,
 }: {
-  mealItem: MealItemData
+  mealItem: FoodItem
   children: React.ReactNode
 }) {
   return (

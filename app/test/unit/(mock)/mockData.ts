@@ -1,6 +1,6 @@
 import { Day } from '@/model/dayModel'
 import { Food } from '@/model/foodModel'
-import { MealItemData } from '@/model/mealItemModel'
+import { FoodItem } from '@/model/mealItemModel'
 import { MealData } from '@/model/mealModel'
 
 export const mockFood = (partial?: Partial<Food>): Food => ({
@@ -23,7 +23,7 @@ export const mockMeal = (partial?: Partial<MealData>): MealData => ({
 })
 
 let mockItemQtyPseudoId = 10
-export const mockItem = (partial?: Partial<MealItemData>): MealItemData => ({
+export const mockItem = (partial?: Partial<FoodItem>): FoodItem => ({
   id: Math.round(Math.random() * 1000),
   food: mockFood(),
   quantity: mockItemQtyPseudoId++,
