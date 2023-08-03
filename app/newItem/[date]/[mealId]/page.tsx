@@ -1,6 +1,6 @@
 'use client'
 
-import MealItem from '@/app/(mealItem)/MealItem'
+import FoodItemView from '@/app/(foodItem)/FoodItemView'
 import { listFoods, searchFoodsByName } from '@/controllers/food'
 import { Food } from '@/model/foodModel'
 import { Alert, Breadcrumb } from 'flowbite-react'
@@ -469,8 +469,8 @@ const SearchResults = ({
           <>
             {filteredFoods.map((food, idx) => (
               <div key={idx}>
-                <MealItem
-                  mealItem={{
+                <FoodItemView
+                  foodItem={{
                     id: Math.random() * 1000000,
                     food,
                     quantity: 100,
@@ -482,10 +482,10 @@ const SearchResults = ({
                     barCodeInsertModalRef.current?.close()
                   }}
                   header={
-                    <MealItem.Header
-                      name={<MealItem.Header.Name />}
+                    <FoodItemView.Header
+                      name={<FoodItemView.Header.Name />}
                       favorite={
-                        <MealItem.Header.Favorite
+                        <FoodItemView.Header.Favorite
                           favorite={isFoodFavorite(food.id)}
                           setFavorite={(favorite) =>
                             setFoodAsFavorite(food.id, favorite)
@@ -494,7 +494,7 @@ const SearchResults = ({
                       }
                     />
                   }
-                  nutritionalInfo={<MealItem.NutritionalInfo />}
+                  nutritionalInfo={<FoodItemView.NutritionalInfo />}
                 />
               </div>
             ))}

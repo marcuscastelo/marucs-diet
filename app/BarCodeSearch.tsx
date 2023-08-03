@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import MealItem from './(mealItem)/MealItem'
+import FoodItemView from './(foodItem)/FoodItemView'
 import { searchFoodsByEan, upsertFood } from '@/controllers/food'
 import { useFavoriteFoods } from '@/redux/features/userSlice'
 import { Food } from '@/model/foodModel'
@@ -96,17 +96,17 @@ export default function BarCodeSearch({
             <div className="flex-1">
               <p className="font-bold">{currentFood.name}</p>
               <p className="text-sm">
-                <MealItem
-                  mealItem={{
+                <FoodItemView
+                  foodItem={{
                     id: Math.round(Math.random() * 1000000), // TODO: retriggered: properly generate id
                     food: currentFood,
                     quantity: 100,
                   }}
                   header={
-                    <MealItem.Header
-                      name={<MealItem.Header.Name />}
+                    <FoodItemView.Header
+                      name={<FoodItemView.Header.Name />}
                       favorite={
-                        <MealItem.Header.Favorite
+                        <FoodItemView.Header.Favorite
                           favorite={isFoodFavorite(currentFood.id)}
                           setFavorite={(favorite) =>
                             setFoodAsFavorite(currentFood.id, favorite)
@@ -115,7 +115,7 @@ export default function BarCodeSearch({
                       }
                     />
                   }
-                  nutritionalInfo={<MealItem.NutritionalInfo />}
+                  nutritionalInfo={<FoodItemView.NutritionalInfo />}
                 />
               </p>
             </div>

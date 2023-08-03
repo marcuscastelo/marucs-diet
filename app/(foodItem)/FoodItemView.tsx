@@ -1,29 +1,29 @@
 'use client'
 
-import { FoodItem } from '@/model/mealItemModel'
+import { FoodItem } from '@/model/foodItemModel'
 import MacroNutrients from '../MacroNutrients'
 import { MacroNutrientsData } from '@/model/macroNutrientsModel'
 import { calculateCalories } from '../MacroTargets'
-import { MealItemContextProvider, useMealItemContext } from './MealItemContext'
+import { FoodItemContextProvider, useFoodItemContext } from './FoodItemContext'
 import CopyIcon from '../(icons)/CopyIcon'
 
-export type MealItemProps = {
-  mealItem: FoodItem
+export type FoodItemViewProps = {
+  foodItem: FoodItem
   header?: React.ReactNode
   nutritionalInfo?: React.ReactNode
   className?: string
   onClick?: (mealItem: FoodItem) => void
 }
 
-export default function MealItem({
-  mealItem,
+export default function FoodItemView({
+  foodItem,
   header,
   nutritionalInfo,
   className,
   onClick,
-}: MealItemProps) {
+}: FoodItemViewProps) {
   const handleClick = (e: React.MouseEvent) => {
-    onClick?.(mealItem)
+    onClick?.(foodItem)
     e.stopPropagation()
     e.preventDefault()
   }
@@ -35,16 +35,16 @@ export default function MealItem({
       }`}
       onClick={handleClick}
     >
-      <MealItemContextProvider mealItem={mealItem}>
+      <FoodItemContextProvider foodItem={foodItem}>
         {header}
         {nutritionalInfo}
-      </MealItemContextProvider>
+      </FoodItemContextProvider>
     </div>
   )
 }
 
-MealItem.Header = MealItemHeader
-MealItem.NutritionalInfo = MealItemNutritionalInfo
+FoodItemView.Header = MealItemHeader
+FoodItemView.NutritionalInfo = MealItemNutritionalInfo
 
 export type MealItemHeaderProps = {
   name?: React.ReactNode
@@ -69,7 +69,7 @@ MealItemHeader.CopyButton = MealItemCopyButton
 MealItemHeader.Favorite = MealItemFavorite
 
 function MealItemName() {
-  const { mealItem } = useMealItemContext()
+  const { foodItem: mealItem } = useFoodItemContext()
 
   return (
     <div className="">
@@ -87,7 +87,7 @@ function MealItemCopyButton({
 }: {
   handleCopyMealItem: (mealItem: FoodItem) => void
 }) {
-  const { mealItem } = useMealItemContext()
+  const { foodItem: mealItem } = useFoodItemContext()
 
   return (
     <div
@@ -129,7 +129,7 @@ function MealItemFavorite({
 }
 
 function MealItemNutritionalInfo() {
-  const { mealItem } = useMealItemContext()
+  const { foodItem: mealItem } = useFoodItemContext()
 
   const foodMacros = mealItem.food.macros
 

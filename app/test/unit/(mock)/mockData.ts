@@ -1,6 +1,6 @@
 import { Day } from '@/model/dayModel'
 import { Food } from '@/model/foodModel'
-import { FoodItem } from '@/model/mealItemModel'
+import { FoodItem } from '@/model/foodItemModel'
 import { MealData } from '@/model/mealModel'
 
 export const mockFood = (partial?: Partial<Food>): Food => ({

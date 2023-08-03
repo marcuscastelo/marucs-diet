@@ -3,7 +3,7 @@
 
 // import { MealData } from "@/model/mealModel";
 // import MealItem from "../MealItem";
-// import { MealItemData } from "@/model/mealItemModel";
+// import { MealItemData } from "@/model/foodItemModel";
 // import { DragDropContext, Draggable, DropResult, Droppable } from "@hello-pangea/dnd";
 // import { useState } from "react";
 

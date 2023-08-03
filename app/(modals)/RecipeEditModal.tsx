@@ -8,7 +8,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import MealItem from '../(mealItem)/MealItem'
+import FoodItemView from '../(foodItem)/FoodItemView'
 import { FoodItem } from '@/model/foodItemModel'
 import { Food } from '@/model/foodModel'
 import { useFavoriteFoods } from '@/redux/features/userSlice'
@@ -278,18 +278,18 @@ const RecipeEditModal = forwardRef(
                 </div>
               </div>
 
-              <MealItem
-                mealItem={{
+              <FoodItemView
+                foodItem={{
                   id,
                   food,
                   quantity: Number(quantity),
                 }}
                 className="mt-4"
                 header={
-                  <MealItem.Header
-                    name={<MealItem.Header.Name />}
+                  <FoodItemView.Header
+                    name={<FoodItemView.Header.Name />}
                     favorite={
-                      <MealItem.Header.Favorite
+                      <FoodItemView.Header.Favorite
                         favorite={isFoodFavorite(food.id)}
                         setFavorite={(favorite) =>
                           setFoodAsFavorite(food.id, favorite)
@@ -298,7 +298,7 @@ const RecipeEditModal = forwardRef(
                     }
                   />
                 }
-                nutritionalInfo={<MealItem.NutritionalInfo />}
+                nutritionalInfo={<FoodItemView.NutritionalInfo />}
               />
             </>
           }

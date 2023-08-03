@@ -1,6 +1,6 @@
 'use client'
 
-import MealItem from '@/app/(mealItem)/MealItem'
+import FoodItemView from '@/app/(foodItem)/FoodItemView'
 import { listFoods } from '@/controllers/food'
 import { Food } from '@/model/foodModel'
 import { Alert, Breadcrumb } from 'flowbite-react'
@@ -99,9 +99,9 @@ export default function Page() {
 
       {filteredFoods.map((food, idx) => (
         <div key={idx}>
-          <MealItem
+          <FoodItemView
             key={idx}
-            mealItem={{
+            foodItem={{
               id: 123,
               food,
               quantity: 100,
