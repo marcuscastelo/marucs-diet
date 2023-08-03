@@ -254,65 +254,11 @@ export default function Page({ params }: PageProperties) {
   return (
     <>
       <TopBar dayParam={dayParam} mealName={meal.name} />
-
-      <div className="mb-2 flex justify-start">
-        <button
-          onClick={() => {
-            barCodeInsertModalRef.current?.showModal()
-          }}
-          className="mt-2 rounded bg-gray-800 px-4 py-2 font-bold text-white hover:bg-gray-700"
-        >
-          Inserir código de barras
-        </button>
-      </div>
-
-      <BarCodeInsertModal
-        modalId={BAR_CODE_INSERT_MODAL_ID}
-        ref={barCodeInsertModalRef}
-        onSelect={(food) => {
-          setSelectedFood(food)
-          mealItemAddModalRef.current?.showModal()
-        }}
+      <BarCode
+        barCodeInsertModalRef={barCodeInsertModalRef}
+        mealItemAddModalRef={mealItemAddModalRef}
+        setSelectedFood={setSelectedFood}
       />
-
-      <div className="relative">
-        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-          <svg
-            aria-hidden="true"
-            className="h-5 w-5 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            ></path>
-          </svg>
-        </div>
-        <input
-          autoFocus={isDesktop}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          type="search"
-          id="default-search"
-          className="block w-full border-gray-600 bg-gray-700 p-4 pl-10 text-sm text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500"
-          placeholder="Buscar alimentos"
-          required
-        />
-      </div>
-
-      {!searchingFoods &&
-        !typing &&
-        filteredFoods.length === /* TODO: Check if equality is a bug */ 0 && (
-          <Alert color="warning" className="mt-2">
-            Nenhum alimento encontrado para a busca &quot;{search}&quot;.
-          </Alert>
-        )}
-
       <MealItemAddModal
         modalId={MEAL_ITEM_ADD_MODAL_ID}
         ref={mealItemAddModalRef}
@@ -322,10 +268,183 @@ export default function Page({ params }: PageProperties) {
         }}
         onApply={async (i) => onNewMealItem(i)}
       />
+      <Tabs />
+      <SearchBar isDesktop={isDesktop} search={search} setSearch={setSearch} />
+      <SearchResults
+        search={search}
+        filteredFoods={filteredFoods}
+        barCodeInsertModalRef={barCodeInsertModalRef}
+        mealItemAddModalRef={mealItemAddModalRef}
+        searchingFoods={searchingFoods}
+        isFoodFavorite={isFoodFavorite}
+        setFoodAsFavorite={setFoodAsFavorite}
+        setSelectedFood={setSelectedFood}
+        typing={typing}
+      />
+    </>
+  )
+}
+
+const BarCode = ({
+  barCodeInsertModalRef,
+  mealItemAddModalRef,
+  setSelectedFood,
+}: {
+  barCodeInsertModalRef: React.RefObject<ModalRef>
+  mealItemAddModalRef: React.RefObject<ModalRef>
+  setSelectedFood: (food: Food) => void
+}) => (
+  <>
+    <div className="mb-2 flex justify-start">
+      <button
+        onClick={() => {
+          barCodeInsertModalRef.current?.showModal()
+        }}
+        className="mt-2 rounded bg-gray-800 px-4 py-2 font-bold text-white hover:bg-gray-700"
+      >
+        Inserir código de barras
+      </button>
+    </div>
+    <BarCodeInsertModal
+      modalId={BAR_CODE_INSERT_MODAL_ID}
+      ref={barCodeInsertModalRef}
+      onSelect={(food) => {
+        setSelectedFood(food)
+        mealItemAddModalRef.current?.showModal()
+      }}
+    />
+  </>
+)
+
+const Tabs = () => {
+  return (
+    <>
+      <div className="sm:hidden">
+        <label htmlFor="tabs" className="sr-only">
+          Select your country
+        </label>
+        <select
+          id="tabs"
+          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+        >
+          <option>Profile</option>
+          <option>Canada</option>
+          <option>France</option>
+          <option>Germany</option>
+        </select>
+      </div>
+      <ul className="hidden divide-x divide-gray-200 rounded-lg text-center text-sm font-medium text-gray-500 shadow dark:divide-gray-700 dark:text-gray-400 sm:flex">
+        <li className="w-full">
+          <a
+            href="#"
+            className="active inline-block w-full rounded-l-lg rounded-bl-none bg-gray-100 p-4 text-gray-900 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-gray-700 dark:text-white"
+            aria-current="page"
+          >
+            Profile
+          </a>
+        </li>
+        <li className="w-full">
+          <a
+            href="#"
+            className="inline-block w-full bg-white p-4 hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white"
+          >
+            Dashboard
+          </a>
+        </li>
+        <li className="w-full">
+          <a
+            href="#"
+            className="inline-block w-full bg-white p-4 hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white"
+          >
+            Settings
+          </a>
+        </li>
+        <li className="w-full">
+          <a
+            href="#"
+            className="inline-block w-full rounded-r-lg rounded-br-none bg-white p-4 hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white"
+          >
+            Invoice
+          </a>
+        </li>
+      </ul>
+    </>
+  )
+}
+
+const SearchBar = ({
+  isDesktop,
+  search,
+  setSearch,
+}: {
+  isDesktop: boolean
+  search: string
+  setSearch: (search: string) => void
+}) => (
+  <div className="relative">
+    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+      <svg
+        aria-hidden="true"
+        className="h-5 w-5 text-gray-400"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+        ></path>
+      </svg>
+    </div>
+    <input
+      autoFocus={isDesktop}
+      value={search}
+      onChange={(e) => setSearch(e.target.value)}
+      type="search"
+      id="default-search"
+      className="block w-full border-gray-600 bg-gray-700 p-4 pl-10 text-sm text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500"
+      placeholder="Buscar alimentos"
+      required
+    />
+  </div>
+)
+
+const SearchResults = ({
+  search,
+  searchingFoods,
+  typing,
+  filteredFoods,
+  isFoodFavorite,
+  setFoodAsFavorite,
+  setSelectedFood,
+  mealItemAddModalRef,
+  barCodeInsertModalRef,
+}: {
+  search: string
+  searchingFoods: boolean
+  typing: boolean
+  filteredFoods: Food[]
+  isFoodFavorite: (food: number) => boolean
+  setFoodAsFavorite: (food: number, favorite: boolean) => void
+  setSelectedFood: (food: Food) => void
+  mealItemAddModalRef: React.RefObject<ModalRef>
+  barCodeInsertModalRef: React.RefObject<ModalRef>
+}) => {
+  return (
+    <>
+      {!searchingFoods &&
+        !typing &&
+        filteredFoods.length === /* TODO: Check if equality is a bug */ 0 && (
+          <Alert color="warning" className="mt-2">
+            Nenhum alimento encontrado para a busca &quot;{search}&quot;.
+          </Alert>
+        )}
 
       <div className="bg-gray-800 p-1">
-        {searchingFoods &&
-        filteredFoods.length === /* TODO: Check if equality is a bug */ 0 ? (
+        {searchingFoods && filteredFoods.length === 0 ? (
           <PageLoading message="Carregando alimentos" />
         ) : (
           <>
