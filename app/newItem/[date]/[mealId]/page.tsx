@@ -7,8 +7,8 @@ import { Alert, Breadcrumb } from 'flowbite-react'
 import { useEffect, useRef, useState } from 'react'
 import PageLoading from '../../../PageLoading'
 import MealItemAddModal from '../../../MealItemAddModal'
-import { mockFood } from '../../../test/unit/(mock)/mockData'
-import { MealItemData } from '@/model/mealItemModel'
+import { mockFood, mockItem } from '../../../test/unit/(mock)/mockData'
+import { FoodItem } from '@/model/foodItemModel'
 import { listDays, updateDay } from '@/controllers/days'
 import { Day } from '@/model/dayModel'
 import BarCodeInsertModal from '@/app/BarCodeInsertModal'
@@ -18,9 +18,12 @@ import { Loadable } from '@/utils/loadable'
 import LoadingRing from '@/app/LoadingRing'
 import { useRouter } from 'next/navigation'
 import { ModalRef } from '@/app/(modals)/modal'
+import RecipeEditModal from '@/app/(modals)/RecipeEditModal'
+import { Recipe, createRecipe } from '@/model/recipeModel'
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal'
 const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal'
+const RECIPE_EDIT_MODAL_ID = 'recipe-edit-modal'
 
 type PageProperties = {
   params: {
@@ -45,24 +48,26 @@ export default function Page({ params }: PageProperties) {
   const [days, setDays] = useState<Loadable<Day[]>>({ loading: true })
 
   const [selectedFood, setSelectedFood] = useState(
-    mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }),
+    mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }), // TODO: Properly handle no food selected
   )
-  const [quantity, setQuantity] = useState<number>(0)
+  const [quantity, setQuantity] = useState<number>(0) // TODO: Remove managed state of quantity
 
   const [showingMealItemAddModal, setShowingMealItemAddModal] = useState(false)
   const [showingBarCodeInsertModal, setShowingBarCodeInsertModal] =
     useState(false)
+  const [showingRecipeEditModal, setShowingRecipeEditModal] = useState(false)
 
   const mealItemAddModalRef = useRef<ModalRef>(null)
   const barCodeInsertModalRef = useRef<ModalRef>(null)
+  const recipeEditModalRef = useRef<ModalRef>(null)
 
   const [searchingFoods, setSearchingFoods] = useState(false)
 
   const [typing, setTyping] = useState(false)
 
-  const [isClient, setIsClient] = useState(false)
+  const [isClient, setIsClient] = useState(false) // TODO: Stop using isClient and typeof window
 
-  const isDesktop = isClient ? window.innerWidth > 768 : false
+  const isDesktop = isClient ? window.innerWidth > 768 : false // TODO: Stop using innerWidth to detect desktop
 
   const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods()
 
@@ -223,7 +228,7 @@ export default function Page({ params }: PageProperties) {
     )
   }
 
-  const onNewMealItem = async (mealItem: MealItemData) => {
+  const onNewMealItem = async (mealItem: FoodItem) => {
     await updateDay(day.id, {
       ...day,
       meals: day.meals.map((m) => {
@@ -251,6 +256,11 @@ export default function Page({ params }: PageProperties) {
     }
   }
 
+  const mockedRecipe: Recipe = createRecipe({
+    name: 'Receita de teste',
+    items: [mockItem()],
+  })
+
   return (
     <>
       <TopBar dayParam={dayParam} mealName={meal.name} />
@@ -263,6 +273,15 @@ export default function Page({ params }: PageProperties) {
         modalId={MEAL_ITEM_ADD_MODAL_ID}
         ref={mealItemAddModalRef}
         meal={meal}
+        itemData={{
+          food: selectedFood,
+        }}
+        onApply={async (i) => onNewMealItem(i)}
+      />
+      <RecipeEditModal
+        modalId={RECIPE_EDIT_MODAL_ID}
+        ref={recipeEditModalRef}
+        recipe={mockedRecipe}
         itemData={{
           food: selectedFood,
         }}

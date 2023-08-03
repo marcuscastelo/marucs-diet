@@ -1,6 +1,6 @@
 'use client'
 
-import { MealItemData } from '@/model/mealItemModel'
+import { FoodItem } from '@/model/mealItemModel'
 import MacroNutrients from '../MacroNutrients'
 import { MacroNutrientsData } from '@/model/macroNutrientsModel'
 import { calculateCalories } from '../MacroTargets'
@@ -8,11 +8,11 @@ import { MealItemContextProvider, useMealItemContext } from './MealItemContext'
 import CopyIcon from '../(icons)/CopyIcon'
 
 export type MealItemProps = {
-  mealItem: MealItemData
+  mealItem: FoodItem
   header?: React.ReactNode
   nutritionalInfo?: React.ReactNode
   className?: string
-  onClick?: (mealItem: MealItemData) => void
+  onClick?: (mealItem: FoodItem) => void
 }
 
 export default function MealItem({
@@ -85,7 +85,7 @@ function MealItemName() {
 function MealItemCopyButton({
   handleCopyMealItem,
 }: {
-  handleCopyMealItem: (mealItem: MealItemData) => void
+  handleCopyMealItem: (mealItem: FoodItem) => void
 }) {
   const { mealItem } = useMealItemContext()
 
