@@ -50,12 +50,6 @@ export default function Page({ params }: PageProperties) {
   const [selectedFood, setSelectedFood] = useState(
     mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }), // TODO: Properly handle no food selected
   )
-  const [quantity, setQuantity] = useState<number>(0) // TODO: Remove managed state of quantity
-
-  const [showingMealItemAddModal, setShowingMealItemAddModal] = useState(false)
-  const [showingBarCodeInsertModal, setShowingBarCodeInsertModal] =
-    useState(false)
-  const [showingRecipeEditModal, setShowingRecipeEditModal] = useState(false)
 
   const mealItemAddModalRef = useRef<ModalRef>(null)
   const barCodeInsertModalRef = useRef<ModalRef>(null)
@@ -282,10 +276,7 @@ export default function Page({ params }: PageProperties) {
         modalId={RECIPE_EDIT_MODAL_ID}
         ref={recipeEditModalRef}
         recipe={mockedRecipe}
-        itemData={{
-          food: selectedFood,
-        }}
-        onApply={async (i) => onNewMealItem(i)}
+        onSaveRecipe={async () => alert('TODO: Save recipe')}
       />
       <Tabs />
       <SearchBar isDesktop={isDesktop} search={search} setSearch={setSearch} />
