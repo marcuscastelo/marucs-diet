@@ -1,14 +1,15 @@
 'use client'
 
 import { MealData, mealSchema } from '@/model/mealModel'
-import MealItem from '../(mealItem)/MealItem'
-import { FoodItem, foodItemSchema } from '@/model/mealItemModel'
+import FoodItemView from '../(foodItem)/FoodItemView'
+import { FoodItem, foodItemSchema } from '@/model/foodItemModel'
 import { MealContextProvider, useMealContext } from './MealContext'
 import { useEffect, useState } from 'react'
 import { calculateCalories } from '../MacroTargets'
 import TrashIcon from '../(icons)/TrashIcon'
 import PasteIcon from '../(icons)/PasteIcon'
 import CopyIcon from '../(icons)/CopyIcon'
+import FoodItemListView from '../(foodItem)/FoodItemListView'
 
 export type MealProps = {
   mealData: MealData
@@ -200,29 +201,7 @@ function MealContent({ onEditItem }: { onEditItem: (item: FoodItem) => void }) {
   const { mealData } = useMealContext()
 
   return (
-    <>
-      {mealData.items.map((item) => (
-        <div key={item.id} className="mt-2">
-          <MealItem
-            mealItem={item}
-            onClick={onEditItem}
-            header={
-              <MealItem.Header
-                name={<MealItem.Header.Name />}
-                copyButton={
-                  <MealItem.Header.CopyButton
-                    handleCopyMealItem={(item) => {
-                      navigator.clipboard.writeText(JSON.stringify(item))
-                    }}
-                  />
-                }
-              />
-            }
-            nutritionalInfo={<MealItem.NutritionalInfo />}
-          />
-        </div>
-      ))}
-    </>
+    <FoodItemListView foodItems={mealData.items} onItemClick={onEditItem} />
   )
 }
 
