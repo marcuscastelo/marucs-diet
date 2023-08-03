@@ -12,7 +12,7 @@ import { Alert } from 'flowbite-react'
 import Show from '../../Show'
 import DayMacros from '../../DayMacros'
 import { MealData } from '@/model/mealModel'
-import { MealItemData } from '@/model/mealItemModel'
+import { FoodItem } from '@/model/mealItemModel'
 import { MacroNutrientsData } from '@/model/macroNutrientsModel'
 import { useRouter } from 'next/navigation'
 import MealItemAddModal from '@/app/MealItemAddModal'
@@ -94,7 +94,7 @@ export default function Page(context: any) {
       day.target_day === /* TODO: Check if equality is a bug */ selectedDay,
   )
 
-  const onEditMealItem = (meal: MealData, mealItem: MealItemData) => {
+  const onEditMealItem = (meal: MealData, mealItem: FoodItem) => {
     if (dayLocked) {
       alert('Dia bloqueado, não é possível editar')
       return
@@ -150,7 +150,7 @@ export default function Page(context: any) {
     }),
   )
 
-  const mealItemMacros = (mealItem: MealItemData): MacroNutrientsData => {
+  const mealItemMacros = (mealItem: FoodItem): MacroNutrientsData => {
     const macros = mealItem.food.macros
     return {
       carbs: (macros.carbs * mealItem.quantity) / 100,
@@ -364,7 +364,7 @@ export default function Page(context: any) {
 
             mealAddItemModalRef.current?.close()
           }}
-          onDelete={async (id: MealItemData['id']) => {
+          onDelete={async (id: FoodItem['id']) => {
             // TODO: Avoid non-null assertion
             await updateDay(dayData!.id, {
               ...dayData!,

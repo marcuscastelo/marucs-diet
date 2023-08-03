@@ -2,7 +2,7 @@
 
 import { MealData, mealSchema } from '@/model/mealModel'
 import MealItem from '../(mealItem)/MealItem'
-import { MealItemData, mealItemSchema } from '@/model/mealItemModel'
+import { FoodItem, foodItemSchema } from '@/model/mealItemModel'
 import { MealContextProvider, useMealContext } from './MealContext'
 import { useEffect, useState } from 'react'
 import { calculateCalories } from '../MacroTargets'
@@ -58,7 +58,7 @@ function MealHeader({
   const { mealData } = useMealContext()
 
   // TODO: Create a module to calculate calories and macros
-  const itemCalories = (item: MealItemData) =>
+  const itemCalories = (item: FoodItem) =>
     calculateCalories({
       carbs: (item.food.macros.carbs * item.quantity) / 100,
       protein: (item.food.macros.protein * item.quantity) / 100,
@@ -114,7 +114,7 @@ function MealHeader({
         return
       }
 
-      const parsedMealItem = mealItemSchema.safeParse(JSON.parse(clipboardText))
+      const parsedMealItem = foodItemSchema.safeParse(JSON.parse(clipboardText))
 
       if (parsedMealItem.success) {
         const newMealData = {
@@ -158,7 +158,7 @@ function MealHeader({
   const hasValidPastableOnClipboard =
     clipboardText &&
     (mealSchema.safeParse(parsedJson).success ||
-      mealItemSchema.safeParse(parsedJson).success)
+      foodItemSchema.safeParse(parsedJson).success)
 
   return (
     <div className="flex">
@@ -196,11 +196,7 @@ function MealHeader({
   )
 }
 
-function MealContent({
-  onEditItem,
-}: {
-  onEditItem: (item: MealItemData) => void
-}) {
+function MealContent({ onEditItem }: { onEditItem: (item: FoodItem) => void }) {
   const { mealData } = useMealContext()
 
   return (
