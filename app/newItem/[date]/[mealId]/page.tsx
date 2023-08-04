@@ -382,7 +382,7 @@ const TopBar = ({
     <Breadcrumb.Item href="/">
       <p>Home</p>
     </Breadcrumb.Item>
-    <Breadcrumb.Item href="#">{dayParam}</Breadcrumb.Item>
+    <Breadcrumb.Item href={`/day/${dayParam}`}>{dayParam}</Breadcrumb.Item>
     <Breadcrumb.Item>{mealName}</Breadcrumb.Item>
     {/* <UserSelector /> */}
   </Breadcrumb>
