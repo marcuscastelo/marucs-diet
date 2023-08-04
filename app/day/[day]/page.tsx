@@ -38,11 +38,13 @@ export default function Page(context: any) {
   const [days, setDays] = useState<Loadable<Day[]>>({ loading: true })
   const [dayLocked, setDayLocked] = useState(!showingToday)
 
-  const [selectedMeal, setSelectedMeal] = useState(
-    mockMeal({ name: 'BUG: selectedMeal not set' }),
-  )
+  // TODO: stop using mock data and treat nulls properly
+  const NO_SELECTED_MEAL = mockMeal({ name: 'BUG: selectedMeal not set' })
+  const NO_SELECTED_MEAL_ITEM = mockItem({ quantity: 666 })
+
+  const [selectedMeal, setSelectedMeal] = useState(NO_SELECTED_MEAL)
   const [selectedMealItem, setSelectedMealItem] = useState(
-    mockItem({ quantity: 666 }),
+    NO_SELECTED_MEAL_ITEM,
   )
 
   const mealAddItemModalRef = useRef<ModalRef>(null)
@@ -346,10 +348,7 @@ export default function Page(context: any) {
                 }
 
                 const items = meal.items
-                const changePos = items.findIndex(
-                  (i) =>
-                    i.id === /* TODO: Check if equality is a bug */ item.id,
-                )
+                const changePos = items.findIndex((i) => i.id === item.id)
 
                 items[changePos] = item
 
@@ -390,6 +389,12 @@ export default function Page(context: any) {
             await fetchDays(user.data.id)
 
             mealAddItemModalRef.current?.close()
+          }}
+          onVisibilityChange={(visible) => {
+            if (!visible) {
+              setSelectedMeal(NO_SELECTED_MEAL)
+              setSelectedMealItem(NO_SELECTED_MEAL_ITEM)
+            }
           }}
         />
         <DayMacros
