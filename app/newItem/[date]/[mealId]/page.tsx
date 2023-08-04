@@ -18,7 +18,7 @@ import { Loadable } from '@/utils/loadable'
 import LoadingRing from '@/app/LoadingRing'
 import { useRouter } from 'next/navigation'
 import { ModalRef } from '@/app/(modals)/modal'
-import RecipeEditModal from '@/app/(modals)/RecipeEditModal'
+import RecipeEditModal from '@/app/(recipe)/RecipeEditModal'
 import { Recipe, createRecipe } from '@/model/recipeModel'
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal'
