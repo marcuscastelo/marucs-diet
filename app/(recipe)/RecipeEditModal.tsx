@@ -12,10 +12,10 @@ import FoodItemView from '../(foodItem)/FoodItemView'
 import { FoodItem } from '@/model/foodItemModel'
 import { Food } from '@/model/foodModel'
 import { useFavoriteFoods } from '@/redux/features/userSlice'
-import Modal, { ModalActions, ModalRef } from './modal'
+import Modal, { ModalActions, ModalRef } from '../(modals)/modal'
 import { Recipe } from '@/model/recipeModel'
 import FoodItemListView from '../(foodItem)/FoodItemListView'
-import RecipeView from '../(recipe)/RecipeView'
+import RecipeView from './RecipeView'
 import MealItemAddModal from '../MealItemAddModal'
 import Show from '../Show'
 import { MealData } from '@/model/mealModel'
@@ -107,10 +107,7 @@ const RecipeEditModal = forwardRef(
           header={
             <h3 className="text-lg font-bold text-white">
               Editando receita
-              <span className="text-green-500">
-                {' '}
-                &quot;{recipe.name}&quot;{' '}
-              </span>
+              <span className="text-blue-500"> &quot;{recipe.name}&quot; </span>
             </h3>
           }
           onVisibilityChange={handleSetShowing}
