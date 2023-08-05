@@ -20,8 +20,7 @@ export default function Page({ params }: PageProperties) {
 
   return (
     <FoodSearch
-      date={params.date}
-      mealId={Number(params.mealId)}
+      targetName="Não implementado"
       onNewFoodItem={async (foodItem) => {
         alert('TODO: Implement onNewFoodItem') // TODO: Implement onNewFoodItem
       }}

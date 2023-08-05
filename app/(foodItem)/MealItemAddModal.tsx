@@ -24,7 +24,7 @@ const RECIPE_EDIT_MODAL_ID = 'meal-item-add-modal:self:recipe-edit-modal'
 // TODO: Add item name field
 export type MealItemAddModalProps = {
   modalId: string
-  meal: MealData | null
+  targetName: string
   itemData: (Partial<FoodItem> & Pick<FoodItem, 'reference' | 'macros'>) | null
   onApply: (item: FoodItem) => void
   onCancel?: () => void
@@ -37,7 +37,7 @@ const MealItemAddModal = forwardRef(
   (
     {
       modalId,
-      meal,
+      targetName,
       itemData,
       onApply,
       onCancel,
@@ -186,7 +186,7 @@ const MealItemAddModal = forwardRef(
               Editando item em
               <span className="text-green-500">
                 {' '}
-                &quot;{meal?.name ?? 'MEAL NOT LOADED'}&quot;{' '}
+                &quot;{targetName ?? 'ERRO: destino desconhecido'}&quot;{' '}
               </span>
             </h3>
           }

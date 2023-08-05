@@ -28,28 +28,23 @@ const RECIPE_EDIT_MODAL_ID = 'recipe-edit-modal'
 // TODO: Refactor client-side cache vs server-side cache vs no cache logic on search
 
 export type FoodSearchProps = {
-  date: string
-  mealId: MealData['id'] | undefined
+  targetName: string
   onNewFoodItem: (foodItem: FoodItem) => Promise<void>
   onFinish: () => void
 }
 
 export default function FoodSearch({
-  date,
-  mealId,
+  targetName,
   onNewFoodItem,
   onFinish,
 }: FoodSearchProps) {
   const FOOD_LIMIT = 100
   const TYPE_TIMEOUT = 1000
 
-  const dayParam = /* TODO: Decouple FoodSearch component */ date
-
   const { user } = useUser()
 
   const [search, setSearch] = useState<string>('')
   const [foods, setFoods] = useState<Loadable<Food[]>>({ loading: true })
-  const [days, setDays] = useState<Loadable<Day[]>>({ loading: true })
 
   const [selectedFood, setSelectedFood] = useState(
     mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }), // TODO: Properly handle no food selected
@@ -105,14 +100,6 @@ export default function FoodSearch({
     })
   }
 
-  const fetchDays = async (userId: User['id']) => {
-    const days = await listDays(userId)
-    setDays({
-      loading: false,
-      data: days,
-    })
-  }
-
   useEffect(() => {
     setIsClient(true)
   }, [])
@@ -123,7 +110,6 @@ export default function FoodSearch({
     }
 
     fetchFoods(search, user.data.favorite_foods)
-    fetchDays(user.data.id)
   }, [user, search, typing])
 
   useEffect(() => {
@@ -140,10 +126,6 @@ export default function FoodSearch({
 
   if (foods.loading) {
     return <PageLoading message="Carregando alimentos" />
-  }
-
-  if (days.loading) {
-    return <PageLoading message="Carregando dias" />
   }
 
   const filteredFoods = foods.data
@@ -176,32 +158,6 @@ export default function FoodSearch({
     })
     .slice(0, FOOD_LIMIT)
 
-  const day = days.data.find(
-    (day) => day.target_day === /* TODO: Check if equality is a bug */ dayParam,
-  )
-
-  if (!day) {
-    return (
-      <>
-        <TopBar
-          dayParam={dayParam}
-          mealName={'Erro 404 - Dia não encontrado'}
-        />
-        <Alert color="red" className="mt-2">
-          Dia não encontrado {dayParam}.
-        </Alert>
-        <div className="bg-gray-800 p-1">
-          Dias disponíveis:
-          {JSON.stringify(
-            days.data.map((d) => d.target_day),
-            null,
-            2,
-          )}
-        </div>
-      </>
-    )
-  }
-
   const handleNewFoodItem = async (item: FoodItem) => {
     await onNewFoodItem(item)
     // Prompt if user wants to add another item or go back (Yes/No)
@@ -222,43 +178,8 @@ export default function FoodSearch({
     items: [mockItem()],
   })
 
-  if (!mealId) {
-    return (
-      <>
-        <TopBar dayParam={dayParam} mealName={'Refeição não especificada'} />
-        <Alert color="error" className="mt-2">
-          Refeição não especificada ({mealId})
-        </Alert>
-      </>
-    )
-  }
-  const meal = day.meals.find(
-    (meal) =>
-      meal.id ===
-      /* TODO: Check if equality is a bug */ /* TODO: Decouple FoodSearch component */ mealId,
-  )
-
-  if (!meal) {
-    return (
-      <>
-        <Alert color="red" className="mt-2">
-          Refeição não encontrada: &apos;
-          {/* TODO: Decouple FoodSearch component */ mealId}&apos;.
-        </Alert>
-        <div className="bg-gray-800 p-1">
-          Refeições disponíveis para o dia {dayParam}:&nbsp;
-          {JSON.stringify(
-            day.meals.map((m) => m.id),
-            null,
-            2,
-          )}
-        </div>
-      </>
-    )
-  }
   return (
     <>
-      <TopBar dayParam={dayParam} mealName={meal.name} />
       <BarCode
         barCodeInsertModalRef={barCodeInsertModalRef}
         mealItemAddModalRef={mealItemAddModalRef}
@@ -267,7 +188,7 @@ export default function FoodSearch({
       <MealItemAddModal
         modalId={MEAL_ITEM_ADD_MODAL_ID}
         ref={mealItemAddModalRef}
-        meal={meal}
+        targetName={targetName}
         itemData={{
           reference: selectedFood.id,
           name: selectedFood.name,
@@ -275,7 +196,7 @@ export default function FoodSearch({
         }}
         onApply={async (i) => handleNewFoodItem(i)}
       />
-      {/* TODO: Revisit if RecipeEditModal should be on FoodSearch */}
+      {/* // TODO: Revisit if RecipeEditModal should be on FoodSearch */}
       {/* <RecipeEditModal
         modalId={RECIPE_EDIT_MODAL_ID}
         ref={recipeEditModalRef}
@@ -502,23 +423,3 @@ const SearchResults = ({
     </>
   )
 }
-
-const TopBar = ({
-  dayParam,
-  mealName,
-}: {
-  dayParam: string
-  mealName: string
-}) => (
-  <Breadcrumb
-    aria-label="Solid background breadcrumb example"
-    className="bg-gray-50 px-5 py-3 dark:bg-gray-900"
-  >
-    <Breadcrumb.Item href="/">
-      <p>Home</p>
-    </Breadcrumb.Item>
-    <Breadcrumb.Item href={`/day/${dayParam}`}>{dayParam}</Breadcrumb.Item>
-    <Breadcrumb.Item>{mealName}</Breadcrumb.Item>
-    {/* <UserSelector /> */}
-  </Breadcrumb>
-)

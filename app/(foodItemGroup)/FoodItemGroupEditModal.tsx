@@ -7,6 +7,8 @@ import FoodItemListView from '../(foodItem)/FoodItemListView'
 import FoodItemView from '../(foodItem)/FoodItemView'
 import { FoodItem } from '@/model/foodItemModel'
 import { useFavoriteFoods } from '@/redux/features/userSlice'
+import FoodSearchModal from '../newItem/FoodSearchModal'
+import MealItemAddModal from '../(foodItem)/MealItemAddModal'
 
 // import {
 //   forwardRef,
@@ -38,6 +40,7 @@ export type FoodItemGroupEditModalProps = {
   onCancel?: () => void
   onDelete?: (groupId: FoodItemGroup['id']) => void
   onVisibilityChange?: (isShowing: boolean) => void
+  onRefetch: () => void
 }
 
 // eslint-disable-next-line react/display-name
@@ -51,6 +54,7 @@ const FoodItemGroupEditModal = forwardRef(
       onCancel,
       onDelete,
       onVisibilityChange,
+      onRefetch,
     }: FoodItemGroupEditModalProps,
     ref: React.Ref<ModalRef>,
   ) => {
@@ -58,8 +62,10 @@ const FoodItemGroupEditModal = forwardRef(
     const [quantity, setQuantity] = useState(group?.quantity?.toString() ?? '')
     const [id, setId] = useState(group?.id ?? Math.random()) // TODO: Proper ID generation on other module or backend
     const canApply = quantity !== '' && Number(quantity) > 0
-    const quantityRef = useRef<HTMLInputElement>(null)
+    // const quantityRef = useRef<HTMLInputElement>(null)
     const selfModalRef = useRef<ModalRef>(null)
+    const foodSearchModalRef = useRef<ModalRef>(null)
+    const mealItemAddModalRef = useRef<ModalRef>(null)
     //     const recipeEditModalRef = useRef<ModalRef>(null)
     //     const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(true)
     //     const [recipe, setRecipe] = useState<Loadable<Recipe | null>>({
@@ -158,16 +164,6 @@ const FoodItemGroupEditModal = forwardRef(
         type: 'simple', // TODO: Allow user to change type
         quantity: Number(quantity), // TODO: What does quantity mean for a FoodItemGroup?
         items: group?.items ?? [],
-
-        // TODO: Remove old code below when no longer needed
-        // quantity: Number(quantity),
-        // reference: itemData?.reference ?? 0,
-        // macros: itemData?.macros ?? {
-        //   protein: 0,
-        //   carbs: 0,
-        //   fat: 0,
-        // },
-        // type: itemData?.type ?? 'food',
       }) satisfies FoodItemGroup
 
     return (
@@ -186,13 +182,65 @@ const FoodItemGroupEditModal = forwardRef(
           recipe={(!recipe.loading && recipe.data) || null}
           onSaveRecipe={async () => alert('TODO: Save recipe')}
         /> */}
+        {/* <MealItemAddModal
+          modalId={`VERY_UNIQUE_ID_${id}`} // TODO: Clean all modal IDs on the project
+          ref={mealItemAddModalRef}
+          targetName={
+            group?.name ?? 'ERRO: Grupo de alimentos não especificado'
+          }
+          itemData={{
+            reference: selectedFood.id,
+            name: selectedFood.name,
+            macros: selectedFood.macros,
+          }}
+          onApply={async (i) => handleNewFoodItem(i)}
+        /> */}
+        <FoodSearchModal
+          ref={foodSearchModalRef}
+          targetName={
+            group?.name ?? 'ERRO: Grupo de alimentos não especificado'
+          }
+          onFinish={() => {
+            console.debug('setSelectedMeal(null)')
+            foodSearchModalRef.current?.close()
+            onRefetch()
+          }}
+          onVisibilityChange={(visible) => {
+            if (!visible) {
+              console.debug('setSelectedMeal(null)')
+              onRefetch()
+            }
+          }}
+          onNewFoodItem={async (item) => {
+            // TODO: Create a proper onNewFoodItem function
+            console.debug('onNewFoodItem', item)
+
+            const newGroup: FoodItemGroup = {
+              ...group,
+              id: group?.id ?? Math.round(Math.random() * 1000000),
+              name: `${group?.name ?? ''} | ${item.name}`,
+              quantity: (group?.quantity ?? 0) + item.quantity,
+              type: 'simple', // TODO: Allow user to change type
+              items: [
+                ...(group?.items?.filter((i) => i.id !== item.id) || []),
+                { ...item },
+              ],
+            } satisfies FoodItemGroup
+
+            console.debug(
+              'onNewFoodItem: applying',
+              JSON.stringify(newGroup, null, 2),
+            )
+            onApply(newGroup)
+          }}
+        />
         <Modal
           modalId={modalId}
           ref={selfModalRef}
           onSubmit={() => onApply(createMealItemGroup())}
           header={
             <h3 className="text-lg font-bold text-white">
-              Editando item em
+              Editando grupo em
               <span className="text-green-500">
                 {' '}
                 &quot;{targetMealName}&quot;{' '}
@@ -202,156 +250,67 @@ const FoodItemGroupEditModal = forwardRef(
           onVisibilityChange={handleSetShowing}
           body={
             <>
-              {/* <p className="mt-1 text-gray-400">Atalhos</p>
-              <div className="mt-1 flex w-full">
-                <div
-                  className="btn-primary btn-sm btn flex-1"
-                  onClick={() => setQuantity('10')}
-                >
-                  10g
-                </div>
-                <div
-                  className="btn-primary btn-sm btn ml-1 flex-1"
-                  onClick={() => setQuantity('20')}
-                >
-                  20g
-                </div>
-                <div
-                  className="btn-primary btn-sm btn ml-1 flex-1"
-                  onClick={() => setQuantity('30')}
-                >
-                  30g
-                </div>
-                <div
-                  className="btn-primary btn-sm btn ml-1 flex-1"
-                  onClick={() => setQuantity('40')}
-                >
-                  40g
-                </div>
-                <div
-                  className="btn-primary btn-sm btn ml-1 flex-1"
-                  onClick={() => setQuantity('50')}
-                >
-                  50g
-                </div>
-              </div>
-              <div className="mt-1 flex w-full">
-                <div
-                  className="btn-primary btn-sm btn flex-1"
-                  onClick={() => setQuantity('100')}
-                >
-                  100g
-                </div>
-                <div
-                  className="btn-primary btn-sm btn ml-1 flex-1"
-                  onClick={() => setQuantity('150')}
-                >
-                  150g
-                </div>
-                <div
-                  className="btn-primary btn-sm btn ml-1 flex-1"
-                  onClick={() => setQuantity('200')}
-                >
-                  200g
-                </div>
-                <div
-                  className="btn-primary btn-sm btn ml-1 flex-1"
-                  onClick={() => setQuantity('250')}
-                >
-                  250g
-                </div>
-                <div
-                  className="btn-primary btn-sm btn ml-1 flex-1"
-                  onClick={() => setQuantity('300')}
-                >
-                  300g
-                </div>
-              </div>
-              <div className="mt-3 flex w-full justify-between gap-1">
-                <div className="my-1 flex flex-1 justify-around">
-                  <input
-                    style={{ width: '100%' }}
-                    disabled={true}
-                    // TODO: Only allow for recipe items?
-                    // disabled={quantityFieldDisabled}
-                    value={quantity}
-                    ref={quantityRef}
-                    onChange={(e) =>
-                      setQuantity(e.target.value.replace(/[^0-9]/, ''))
-                    }
-                    type="number"
-                    placeholder="Quantidade (gramas)"
-                    className={`input-bordered  input mt-1  border-gray-300 bg-gray-800 ${
-                      !canApply ? 'input-error border-red-500' : ''
-                    }`}
-                  />
-                </div>
-                <div className="my-1 ml-1 flex flex-shrink justify-around gap-1">
-                  <div
-                    className="btn-primary btn-xs btn h-full w-10 px-6 text-4xl text-red-600"
-                    onClick={decrement}
-                    onMouseDown={() => holdRepeatStart(decrement)}
-                    onMouseUp={holdRepeatStop}
-                    onTouchStart={() => holdRepeatStart(decrement)}
-                    onTouchEnd={holdRepeatStop}
-                  >
-                    {' '}
-                    -{' '}
-                  </div>
-                  <div
-                    className="btn-primary btn-xs btn ml-1 h-full w-10 px-6 text-4xl text-green-400"
-                    onClick={increment}
-                    onMouseDown={() => holdRepeatStart(increment)}
-                    onMouseUp={holdRepeatStop}
-                    onTouchStart={() => holdRepeatStart(increment)}
-                    onTouchEnd={holdRepeatStop}
-                  >
-                    {' '}
-                    +{' '}
-                  </div>
-                </div>
-              </div> */}
               {group && (
-                <FoodItemListView
-                  foodItems={
-                    group.items ?? []
-
-                    // {
-                    //   id,
-                    //   quantity: Number(quantity),
-                    //   type: group.type ?? 'food',
-                    //   reference: group.reference,
-                    //   macros: group.macros,
-                    // } satisfies FoodItem
-                  }
-                  // TODO: Check if this margin was lost
-                  //   className="mt-4"
-                  onItemClick={(item) => {
-                    // TODO: Allow user to edit recipe
-                    // if (group?.type === 'recipe') {
-                    //   recipeEditModalRef.current?.showModal()
-                    // } else {
-                    alert('Alimento não editável (ainda)')
-                    // }
-                  }}
-                  makeHeaderFn={(item) => (
-                    <FoodItemView.Header
-                      name={<FoodItemView.Header.Name />}
-                      favorite={
-                        <FoodItemView.Header.Favorite
-                          favorite={
-                            // TODO: isRecipeFavorite as well
-                            isFoodFavorite(item.reference)
-                          }
-                          setFavorite={(favorite) =>
-                            // TODO: setRecipeAsFavorite as well
-                            setFoodAsFavorite(item.reference, favorite)
-                          }
-                        />
-                      }
+                <>
+                  <div className="text-md">
+                    <div className="my-auto mr-2">Nome do grupo</div>
+                    <input
+                      className="input w-full"
+                      disabled
+                      value={group?.name ?? 'ERRO: Nome não especificado'}
                     />
-                  )}
-                />
+                  </div>
+
+                  <FoodItemListView
+                    foodItems={
+                      group.items ?? []
+
+                      // {
+                      //   id,
+                      //   quantity: Number(quantity),
+                      //   type: group.type ?? 'food',
+                      //   reference: group.reference,
+                      //   macros: group.macros,
+                      // } satisfies FoodItem
+                    }
+                    // TODO: Check if this margin was lost
+                    //   className="mt-4"
+                    onItemClick={(item) => {
+                      // TODO: Allow user to edit recipe
+                      // if (group?.type === 'recipe') {
+                      //   recipeEditModalRef.current?.showModal()
+                      // } else {
+                      alert('Alimento não editável (ainda)')
+                      // }
+                    }}
+                    makeHeaderFn={(item) => (
+                      <FoodItemView.Header
+                        name={<FoodItemView.Header.Name />}
+                        favorite={
+                          <FoodItemView.Header.Favorite
+                            favorite={
+                              // TODO: isRecipeFavorite as well
+                              isFoodFavorite(item.reference)
+                            }
+                            setFavorite={(favorite) =>
+                              // TODO: setRecipeAsFavorite as well
+                              setFoodAsFavorite(item.reference, favorite)
+                            }
+                          />
+                        }
+                      />
+                    )}
+                  />
+
+                  <button
+                    className="mt-3 min-w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
+                    onClick={() => {
+                      foodSearchModalRef.current?.showModal()
+                    }}
+                  >
+                    Adicionar item
+                  </button>
+                </>
               )}
             </>
           }

@@ -84,13 +84,10 @@ const Modal = forwardRef(
 )
 
 // TODO: ModalHeader => Modal.Header, ModalBody => Modal.Body, ModalActions => Modal.Actions
+
+// TODO: Use Modal.Header & Modal.Body or delete them
 export function ModalHeader() {
-  return (
-    <h3 className="text-lg font-bold text-white">
-      Editando item em
-      <span className="text-green-500"> &quot;TEST&quot; </span>
-    </h3>
-  )
+  return <h3 className="text-lg font-bold text-white">Modal header</h3>
 }
 
 export function ModalBody() {

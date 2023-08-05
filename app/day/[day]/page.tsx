@@ -286,8 +286,7 @@ function DayContent({
   return (
     <>
       <FoodSearchModal
-        date={selectedDay}
-        mealId={selectedMeal?.id}
+        targetName={selectedMeal?.name ?? 'ERRO: Nenhuma refeição selecionada!'}
         ref={foodSearchModalRef}
         onFinish={() => {
           console.debug('setSelectedMeal(null)')
@@ -339,7 +338,8 @@ function DayContent({
         ref={foodItemGroupEditModalRef}
         group={selectedItemGroup}
         targetMealName={selectedMeal?.name ?? 'ERROR: No meal selected'}
-        onApply={async (item) => {
+        onApply={async (group) => {
+          console.debug('FoodItemGroupEditModal onApply, received group', group)
           // TODO: Avoid non-null assertion
           await updateDay(dayData!.id, {
             ...dayData!,
@@ -347,15 +347,22 @@ function DayContent({
               if (meal.id !== selectedMeal!.id) {
                 return meal
               }
+              console.debug('Found meal to update, meal name: ', meal.name)
+              const groups = meal.groups
+              const changePos = groups.findIndex((i) => i.id === group.id)
 
-              const items = meal.groups
-              const changePos = items.findIndex((i) => i.id === item.id)
+              console.debug('Index of group to update: ', changePos)
+              console.debug(
+                'Found group to update, group name: ',
+                groups[changePos].name,
+              )
+              groups[changePos] = group
 
-              items[changePos] = item
+              console.debug('Updated groups: ', JSON.stringify(groups, null, 2))
 
               return {
                 ...meal,
-                groups: items,
+                groups,
               }
             }),
           })
@@ -405,6 +412,7 @@ function DayContent({
             setSelectedItemGroup(null)
           }
         }}
+        onRefetch={() => fetchDays(user.data.id)}
       />
       <DayMacros
         className="mt-3 border-b-2 border-gray-800 pb-4"

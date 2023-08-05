@@ -83,7 +83,7 @@ const RecipeEditModal = forwardRef(
             modalId="RECIPES_EDIT_MODAL:FOOD_ITEM_ADD_MODAL"
             ref={mealItemAddModalRef}
             itemData={itemToEdit}
-            meal={recipe as unknown as MealData} // TODO: Make MealItemAddModal not depend on MealData anymore
+            targetName={recipe?.name ?? 'LOADING RECIPE'}
             onApply={(foodItem) => {
               if (!recipe) return
 
