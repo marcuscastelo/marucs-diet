@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { RefObject, useEffect, useRef, useState } from 'react'
 import DayMeals from '../../DayMeals'
 import { Day } from '@/model/dayModel'
 import Meal, { MealProps } from '../../(meal)/Meal'
@@ -19,10 +19,12 @@ import MealItemAddModal from '@/app/MealItemAddModal'
 import { mockDay, mockItem, mockMeal } from '@/app/test/unit/(mock)/mockData'
 import UserSelector from '@/app/UserSelector'
 import { useUser } from '@/redux/features/userSlice'
-import { Loadable } from '@/utils/loadable'
+import { Loadable, Loaded } from '@/utils/loadable'
 import { getToday, stringToDate } from '@/utils/dateUtils'
 import { User } from '@/model/userModel'
 import { ModalRef } from '@/app/(modals)/modal'
+import FoodSearchModal from '@/app/newItem/FoodSearchModal'
+import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context'
 
 // TODO: Set context type
 export default function Page(context: any) {
@@ -39,10 +41,9 @@ export default function Page(context: any) {
   const [dayLocked, setDayLocked] = useState(!showingToday)
 
   // TODO: stop using mock data and treat nulls properly
-  const NO_SELECTED_MEAL = mockMeal({ name: 'BUG: selectedMeal not set' })
   const NO_SELECTED_MEAL_ITEM = mockItem({ quantity: 666 })
 
-  const [selectedMeal, setSelectedMeal] = useState(NO_SELECTED_MEAL)
+  const [selectedMeal, setSelectedMeal] = useState<MealData | null>(null)
   const [selectedMealItem, setSelectedMealItem] = useState(
     NO_SELECTED_MEAL_ITEM,
   )
@@ -255,25 +256,7 @@ export default function Page(context: any) {
   return (
     <div className="mx-auto sm:w-3/4 md:w-4/5 lg:w-1/2 xl:w-1/3">
       {/* Top bar with date picker and user icon */}
-      <div className="flex items-center justify-between gap-4 bg-slate-900 px-4 py-2">
-        <div className="flex-1">
-          <Datepicker
-            asSingle={true}
-            useRange={false}
-            readOnly={true}
-            value={{
-              startDate: selectedDay,
-              endDate: selectedDay,
-            }}
-            onChange={handleDayChange}
-          />
-        </div>
-
-        <div className="flex justify-end">
-          <UserSelector />
-        </div>
-      </div>
-
+      <TopBar selectedDay={selectedDay} handleDayChange={handleDayChange} />
       <Show when={!selectedDay}>
         <Alert className="mt-2" color="warning">
           Selecione um dia
@@ -326,8 +309,108 @@ export default function Page(context: any) {
         </Alert>
         ;
       </Show>
+      {hasData && (
+        <DayContent
+          CopyLastDayButton={CopyLastDayButton}
+          NO_SELECTED_MEAL_ITEM={NO_SELECTED_MEAL_ITEM}
+          dayData={dayData}
+          selectedMeal={selectedMeal}
+          selectedMealItem={selectedMealItem}
+          editModalId={editModalId}
+          mealAddItemModalRef={mealAddItemModalRef}
+          selectedDay={selectedDay}
+          mealProps={mealProps}
+          dayMacros={dayMacros}
+          dayLocked={dayLocked}
+          fetchDays={fetchDays}
+          router={router}
+          setDayLocked={setDayLocked}
+          setSelectedMeal={setSelectedMeal}
+          setSelectedMealItem={setSelectedMealItem}
+          showingToday={showingToday}
+          today={today}
+          user={user}
+        />
+      )}
+    </div>
+  )
+}
 
-      <Show when={hasData}>
+const TopBar = ({
+  selectedDay,
+  handleDayChange,
+}: {
+  selectedDay: string
+  handleDayChange: (day: DateValueType) => void
+}) => (
+  <>
+    <div className="flex items-center justify-between gap-4 bg-slate-900 px-4 py-2">
+      <div className="flex-1">
+        <Datepicker
+          asSingle={true}
+          useRange={false}
+          readOnly={true}
+          value={{
+            startDate: selectedDay,
+            endDate: selectedDay,
+          }}
+          onChange={handleDayChange}
+        />
+      </div>
+
+      <div className="flex justify-end">
+        <UserSelector />
+      </div>
+    </div>
+  </>
+)
+
+const DayContent = ({
+  selectedDay,
+  selectedMeal,
+  editModalId,
+  mealAddItemModalRef,
+  selectedMealItem,
+  dayData,
+  fetchDays,
+  user,
+  setSelectedMeal,
+  setSelectedMealItem,
+  NO_SELECTED_MEAL_ITEM,
+  dayMacros,
+  showingToday,
+  dayLocked,
+  today,
+  router,
+  setDayLocked,
+  mealProps,
+  CopyLastDayButton,
+}: {
+  selectedDay: string
+  selectedMeal: MealData | null
+  editModalId: string
+  mealAddItemModalRef: RefObject<ModalRef>
+  selectedMealItem: FoodItem // TODO: rename to foodItem
+  dayData: Day | undefined
+  fetchDays: (userId: User['id']) => void
+  user: Loaded<User>
+  setSelectedMeal: (meal: MealData | null) => void
+  setSelectedMealItem: (item: FoodItem) => void
+  NO_SELECTED_MEAL_ITEM: FoodItem
+  dayMacros: MacroNutrientsData | undefined
+  showingToday: boolean
+  dayLocked: boolean
+  today: string
+  router: AppRouterInstance
+  mealProps: MealProps[] | undefined
+  CopyLastDayButton: () => JSX.Element | undefined
+  setDayLocked: (locked: boolean) => void
+}) => (
+  <>
+    {/* // TODO: Avoid non-null assertion */}
+    {selectedMeal && (
+      <>
+        <FoodSearchModal date={selectedDay} mealId={selectedMeal!.id} />
         <MealItemAddModal
           modalId={editModalId}
           ref={mealAddItemModalRef}
@@ -336,14 +419,14 @@ export default function Page(context: any) {
             food: selectedMealItem.food,
             quantity: selectedMealItem.quantity,
           }}
-          meal={selectedMeal}
+          meal={selectedMeal!}
           show={false}
           onApply={async (item) => {
             // TODO: Avoid non-null assertion
             await updateDay(dayData!.id, {
               ...dayData!,
               meals: dayData!.meals.map((meal) => {
-                if (meal.id !== selectedMeal.id) {
+                if (meal.id !== selectedMeal!.id) {
                   return meal
                 }
 
@@ -368,7 +451,7 @@ export default function Page(context: any) {
             await updateDay(dayData!.id, {
               ...dayData!,
               meals: dayData!.meals.map((meal) => {
-                if (meal.id !== selectedMeal.id) {
+                if (meal.id !== selectedMeal!.id) {
                   return meal
                 }
 
@@ -392,61 +475,61 @@ export default function Page(context: any) {
           }}
           onVisibilityChange={(visible) => {
             if (!visible) {
-              setSelectedMeal(NO_SELECTED_MEAL)
+              setSelectedMeal(null)
               setSelectedMealItem(NO_SELECTED_MEAL_ITEM)
             }
           }}
         />
-        <DayMacros
-          className="mt-3 border-b-2 border-gray-800 pb-4"
-          // TODO: Avoid non-null assertion
-          macros={dayMacros!}
-        />
-        <Show when={!showingToday}>
-          <Alert className="mt-2" color="warning">
-            Mostrando refeições do dia {selectedDay}!
-          </Alert>
-          <Show when={dayLocked}>
-            <Alert className="mt-2 outline" color="info">
-              Hoje é dia <b>{today}</b>{' '}
-              <a
-                className="font-bold text-blue-500 hover:cursor-pointer "
-                onClick={() => {
-                  router.push('/day/' + today)
-                }}
-              >
-                Mostrar refeições de hoje
-              </a>{' '}
-              ou{' '}
-              <a
-                className="font-bold text-red-600 hover:cursor-pointer "
-                onClick={() => {
-                  setDayLocked(false)
-                }}
-              >
-                {' '}
-                Desbloquear dia {selectedDay}
-              </a>
-            </Alert>
-          </Show>
-        </Show>
-        {/* // TODO: Avoid non-null assertion */}
-        <DayMeals className="mt-5" mealsProps={mealProps!} />
-        <CopyLastDayButton />
-        <button
-          className="btn-error btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white hover:bg-red-400"
-          onClick={async () => {
-            if (!confirm('Tem certeza que deseja excluir este dia?')) {
-              return
-            }
-            // TODO: Avoid non-null assertion
-            await deleteDay(dayData!.id)
-            await fetchDays(user.data.id)
-          }}
-        >
-          PERIGO: Excluir dia
-        </button>
+      </>
+    )}
+    <DayMacros
+      className="mt-3 border-b-2 border-gray-800 pb-4"
+      // TODO: Avoid non-null assertion
+      macros={dayMacros!}
+    />
+    <Show when={!showingToday}>
+      <Alert className="mt-2" color="warning">
+        Mostrando refeições do dia {selectedDay}!
+      </Alert>
+      <Show when={dayLocked}>
+        <Alert className="mt-2 outline" color="info">
+          Hoje é dia <b>{today}</b>{' '}
+          <a
+            className="font-bold text-blue-500 hover:cursor-pointer "
+            onClick={() => {
+              router.push('/day/' + today)
+            }}
+          >
+            Mostrar refeições de hoje
+          </a>{' '}
+          ou{' '}
+          <a
+            className="font-bold text-red-600 hover:cursor-pointer "
+            onClick={() => {
+              setDayLocked(false)
+            }}
+          >
+            {' '}
+            Desbloquear dia {selectedDay}
+          </a>
+        </Alert>
       </Show>
-    </div>
-  )
-}
+    </Show>
+    {/* // TODO: Avoid non-null assertion */}
+    <DayMeals className="mt-5" mealsProps={mealProps!} />
+    <CopyLastDayButton />
+    <button
+      className="btn-error btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white hover:bg-red-400"
+      onClick={async () => {
+        if (!confirm('Tem certeza que deseja excluir este dia?')) {
+          return
+        }
+        // TODO: Avoid non-null assertion
+        await deleteDay(dayData!.id)
+        await fetchDays(user.data.id)
+      }}
+    >
+      PERIGO: Excluir dia
+    </button>
+  </>
+)
