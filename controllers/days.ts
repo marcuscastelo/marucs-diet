@@ -10,9 +10,7 @@ const TABLE = 'days'
 export const listDays = async (userId: User['id']): Promise<Day[]> =>
   ((await supabase.from(TABLE).select()).data ?? [])
     .map((day) => daySchema.parse(day))
-    .filter(
-      (day) => day.owner === /* TODO: Check if equality is a bug */ userId,
-    )
+    .filter((day) => day.owner === userId)
     .map(
       (day): Day => ({
         ...day,
