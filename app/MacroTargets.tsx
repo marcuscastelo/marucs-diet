@@ -1,5 +1,7 @@
 'use client'
 
+import { MacroNutrientsData } from '@/model/macroNutrientsModel'
+import { calcCalories } from '@/utils/macroMath'
 import { Dispatch, useEffect, useState } from 'react'
 
 const CARBO_CALORIES = 4 as const
@@ -10,12 +12,6 @@ export type MacroProfile = {
   gramsPerKgCarbs: number
   gramsPerKgProtein: number
   gramsPerKgFat: number
-}
-
-export type TargetGrams = {
-  carbs: number
-  protein: number
-  fat: number
 }
 
 export type MacroRepresentation = {
@@ -30,22 +26,18 @@ export type MacroRepresentation = {
 export const calculateMacroTarget = (
   weight: number,
   savedMacroTarget: MacroProfile,
-): TargetGrams => ({
+): MacroNutrientsData => ({
   carbs: weight * savedMacroTarget.gramsPerKgCarbs,
   protein: weight * savedMacroTarget.gramsPerKgProtein,
   fat: weight * savedMacroTarget.gramsPerKgFat,
 })
-
-// TODO: retriggered: should not be exported (move to other module)
-export const calculateCalories = (targetGrams: TargetGrams): number =>
-  targetGrams.carbs * 4 + targetGrams.protein * 4 + targetGrams.fat * 9
 
 const calculateMacroRepresentation = (
   profile: MacroProfile,
   weight: number,
 ): MacroRepresentation[] => {
   const targetGrams = calculateMacroTarget(weight, profile)
-  const calories = calculateCalories(targetGrams)
+  const calories = calcCalories(targetGrams)
 
   return [
     {
@@ -79,7 +71,7 @@ const calculateDifferenceInCarbs = (
   weight: number,
   currentProfile: MacroProfile,
 ): number => {
-  const currentCalories = calculateCalories(
+  const currentCalories = calcCalories(
     calculateMacroTarget(weight, currentProfile),
   )
   return (targetCalories - currentCalories) / CARBO_CALORIES
@@ -98,7 +90,7 @@ export default function MacroTarget({
   onSaveProfile: setProfile,
 }: MacroTargetProps) {
   const initialGrams = calculateMacroTarget(weight, profile)
-  const initialCalories = calculateCalories(initialGrams)
+  const initialCalories = calcCalories(initialGrams)
   const [initialCarbsRepr, initialProteinRepr, initialFatRepr] =
     calculateMacroRepresentation(profile, weight)
 
@@ -121,9 +113,7 @@ export default function MacroTarget({
     setProteinRepr(proteinRepr)
     setFatRepr(fatRepr)
 
-    const targetCalories = calculateCalories(
-      calculateMacroTarget(weight, profile),
-    )
+    const targetCalories = calcCalories(calculateMacroTarget(weight, profile))
     setTargetCalories(targetCalories.toString())
   }, [profile, weight])
 

@@ -35,8 +35,8 @@ export default function Page() {
           ),
           content: (
             <Meal.Content
-              onEditItem={(item) =>
-                alert(`Mock: Edit foodid= "${item.reference}"`)
+              onEditItemGroup={(group) =>
+                alert(`Mock: Edit group.id = "${group.id}"`)
               }
             />
           ),
@@ -126,8 +126,8 @@ export default function Page() {
                 ),
                 content: (
                   <Meal.Content
-                    onEditItem={(item) =>
-                      alert(`Mock: Edit foodid= "${item.reference}"`)
+                    onEditItemGroup={(group) =>
+                      alert(`Mock: Edit group.id = "${group.id}"`)
                     }
                   />
                 ),

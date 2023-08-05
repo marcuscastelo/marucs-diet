@@ -1,14 +1,14 @@
 'use client'
 
 import { MealData, mealSchema } from '@/model/mealModel'
-import { FoodItem, itemSchema } from '@/model/foodItemModel'
 import { MealContextProvider, useMealContext } from './MealContext'
 import { useEffect, useState } from 'react'
-import { calculateCalories } from '../MacroTargets'
 import TrashIcon from '../(icons)/TrashIcon'
 import PasteIcon from '../(icons)/PasteIcon'
 import CopyIcon from '../(icons)/CopyIcon'
-import FoodItemListView from '../(foodItem)/FoodItemListView'
+import { calcMealCalories } from '@/utils/macroMath'
+import FoodItemGroupListView from '../(foodItemGroup)/FoodItemGroupListView'
+import { FoodItemGroup, itemGroupSchema } from '@/model/foodItemGroupModel'
 
 export type MealProps = {
   mealData: MealData
@@ -57,19 +57,8 @@ function MealHeader({
 }) {
   const { mealData } = useMealContext()
 
-  // TODO: Create a module to calculate calories and macros
-  const itemCalories = (item: FoodItem) =>
-    calculateCalories({
-      carbs: (item.macros.carbs * item.quantity) / 100,
-      protein: (item.macros.protein * item.quantity) / 100,
-      fat: (item.macros.fat * item.quantity) / 100,
-    })
-
   // TODO: Show how much of the daily target is this meal (e.g. 30% of daily calories) (maybe in a tooltip) (useContext)s
-  const mealCalories = mealData.items.reduce(
-    (acc, item) => acc + itemCalories(item),
-    0,
-  )
+  const mealCalories = calcMealCalories(mealData)
 
   const [clipboardText, setClipboardText] = useState('')
 
@@ -101,14 +90,16 @@ function MealHeader({
       const parsedMeal = mealSchema.safeParse(JSON.parse(clipboardText))
 
       if (parsedMeal.success) {
-        const newMealData = {
+        const newMealData: MealData = {
           ...mealData,
-          items: [
-            ...mealData.items,
-            ...parsedMeal.data.items.map((item) => ({
-              ...item,
-              id: Math.floor(Math.random() * 1000000), // TODO: Create a function to generate a unique id
-            })),
+          groups: [
+            ...mealData.groups,
+            ...parsedMeal.data.groups.map(
+              (item): FoodItemGroup => ({
+                ...item,
+                id: Math.floor(Math.random() * 1000000), // TODO: Create a function to generate a unique id
+              }),
+            ),
           ],
         }
 
@@ -120,15 +111,15 @@ function MealHeader({
         return
       }
 
-      const parsedMealItem = itemSchema.safeParse(JSON.parse(clipboardText))
+      const parsedGroup = itemGroupSchema.safeParse(JSON.parse(clipboardText))
 
-      if (parsedMealItem.success) {
-        const newMealData = {
+      if (parsedGroup.success) {
+        const newMealData: MealData = {
           ...mealData,
-          items: [
-            ...mealData.items,
+          groups: [
+            ...mealData.groups,
             {
-              ...parsedMealItem.data,
+              ...parsedGroup.data,
               id: Math.floor(Math.random() * 1000000), // TODO: Create a function to generate a unique id
             },
           ],
@@ -170,7 +161,7 @@ function MealHeader({
   const hasValidPastableOnClipboard =
     clipboardText &&
     (mealSchema.safeParse(parsedJson).success ||
-      itemSchema.safeParse(parsedJson).success)
+      itemGroupSchema.safeParse(parsedJson).success)
 
   return (
     <div className="flex">
@@ -179,7 +170,7 @@ function MealHeader({
         <p className="italic text-gray-400">{mealCalories}kcal</p>
       </div>
       <div className={`ml-auto flex gap-2`}>
-        {!hasValidPastableOnClipboard && mealData.items.length > 0 && (
+        {!hasValidPastableOnClipboard && mealData.groups.length > 0 && (
           <div
             className={`btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105`}
             onClick={handleCopyMeal}
@@ -195,7 +186,7 @@ function MealHeader({
             <PasteIcon />
           </div>
         )}
-        {mealData.items.length > 0 && (
+        {mealData.groups.length > 0 && (
           <div
             className={`btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105`}
             onClick={onClearItems}
@@ -208,11 +199,18 @@ function MealHeader({
   )
 }
 
-function MealContent({ onEditItem }: { onEditItem: (item: FoodItem) => void }) {
+function MealContent({
+  onEditItemGroup,
+}: {
+  onEditItemGroup: (item: FoodItemGroup) => void
+}) {
   const { mealData } = useMealContext()
 
   return (
-    <FoodItemListView foodItems={mealData.items} onItemClick={onEditItem} />
+    <FoodItemGroupListView
+      foodItems={mealData.groups}
+      onItemClick={onEditItemGroup}
+    />
   )
 }
 

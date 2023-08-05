@@ -1,1 +1,1 @@
-export type New<T> = Omit<T, 'id'>
+export type New<T> = Omit<T, 'id' | ''>

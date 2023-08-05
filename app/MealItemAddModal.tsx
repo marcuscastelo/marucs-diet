@@ -20,12 +20,11 @@ import { searchRecipeById } from '@/controllers/recipes'
 
 const RECIPE_EDIT_MODAL_ID = 'meal-item-add-modal:self:recipe-edit-modal'
 
+// TODO: Rename to FoodItemEdit
 export type MealItemAddModalProps = {
   modalId: string
   meal: MealData | null
-  itemData:
-    | (Partial<FoodItem> & Pick<FoodItem, 'reference' | 'type' | 'macros'>)
-    | null
+  itemData: (Partial<FoodItem> & Pick<FoodItem, 'reference' | 'macros'>) | null
   onApply: (item: FoodItem) => void
   onCancel?: () => void
   onDelete?: (itemId: FoodItem['id']) => void
@@ -98,21 +97,6 @@ const MealItemAddModal = forwardRef(
     }, [itemData?.quantity, itemData?.id])
 
     useEffect(() => {
-      if (itemData?.type !== 'recipe') {
-        setRecipe({ loading: false, data: null })
-      }
-
-      if (itemData?.reference === undefined) {
-        setRecipe({ loading: false, data: null })
-      } else {
-        setRecipe({ loading: true })
-        searchRecipeById(itemData?.reference).then((recipe) => {
-          setRecipe({ loading: false, data: recipe })
-        })
-      }
-    }, [itemData?.type, itemData?.reference])
-
-    useEffect(() => {
       setQuantityFieldDisabled(true)
       const timeout = setTimeout(() => {
         setQuantityFieldDisabled(false)
@@ -175,7 +159,6 @@ const MealItemAddModal = forwardRef(
         carbs: 0,
         fat: 0,
       },
-      type: itemData?.type ?? 'food',
     })
 
     return (
@@ -321,18 +304,13 @@ const MealItemAddModal = forwardRef(
                     {
                       id,
                       quantity: Number(quantity),
-                      type: itemData.type ?? 'food',
                       reference: itemData.reference,
                       macros: itemData.macros,
                     } satisfies FoodItem
                   }
                   className="mt-4"
                   onClick={() => {
-                    if (itemData?.type === 'recipe') {
-                      recipeEditModalRef.current?.showModal()
-                    } else {
-                      alert('Alimento não editável (ainda)')
-                    }
+                    alert('Alimento não editável (ainda)')
                   }}
                   header={
                     <FoodItemView.Header
@@ -341,14 +319,11 @@ const MealItemAddModal = forwardRef(
                         <FoodItemView.Header.Favorite
                           favorite={
                             // TODO: isRecipeFavorite as well
-                            (itemData &&
-                              itemData.type === 'food' &&
-                              isFoodFavorite(itemData.reference)) ||
+                            (itemData && isFoodFavorite(itemData.reference)) ||
                             false
                           }
                           setFavorite={(favorite) =>
                             itemData &&
-                            itemData.type === 'food' &&
                             // TODO: setRecipeAsFavorite as well
                             setFoodAsFavorite(itemData.reference, favorite)
                           }

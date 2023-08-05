@@ -89,7 +89,6 @@ export default function Page() {
                 macros: {
                   ...food.macros,
                 },
-                type: 'food',
                 reference: food.id,
               }}
             />

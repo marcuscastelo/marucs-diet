@@ -108,7 +108,6 @@ export default function Page() {
                 ...food.macros,
               },
               reference: food.id,
-              type: 'food',
             }}
           />
         </div>

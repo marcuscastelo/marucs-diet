@@ -1,33 +1,35 @@
 'use client'
 
-import { FoodItem } from '@/model/foodItemModel'
 import MacroNutrients from '../MacroNutrients'
 import { MacroNutrientsData } from '@/model/macroNutrientsModel'
-import { FoodItemContextProvider, useFoodItemContext } from './FoodItemContext'
 import CopyIcon from '../(icons)/CopyIcon'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Food } from '@/model/foodModel'
-import { searchFoodById } from '@/controllers/food'
-import { calcItemCalories } from '@/utils/macroMath'
+import { Recipe } from '@/model/recipeModel'
+import {
+  FoodItemGroupContextProvider,
+  useFoodItemGroupContext,
+} from './FoodItemGroupContext'
+import { FoodItemGroup } from '@/model/foodItemGroupModel'
 
-export type FoodItemViewProps = {
-  foodItem: FoodItem
+export type FoodItemGroupViewProps = {
+  foodItemGroup: FoodItemGroup
   header?: React.ReactNode
   nutritionalInfo?: React.ReactNode
   className?: string
-  onClick?: (mealItem: FoodItem) => void
+  onClick?: (foodItemGroup: FoodItemGroup) => void
 }
 
-export default function FoodItemView({
-  foodItem,
+export default function FoodItemGroupView({
+  foodItemGroup,
   header,
   nutritionalInfo,
   className,
   onClick,
-}: FoodItemViewProps) {
+}: FoodItemGroupViewProps) {
   const handleClick = (e: React.MouseEvent) => {
     // TODO: Check if parameter is needed (foodItem doesn't seem to be changed)
-    onClick?.(foodItem)
+    onClick?.(foodItemGroup)
     e.stopPropagation()
     e.preventDefault()
   }
@@ -39,16 +41,16 @@ export default function FoodItemView({
       }`}
       onClick={handleClick}
     >
-      <FoodItemContextProvider foodItem={foodItem}>
+      <FoodItemGroupContextProvider foodItemGroup={foodItemGroup}>
         {header}
         {nutritionalInfo}
-      </FoodItemContextProvider>
+      </FoodItemGroupContextProvider>
     </div>
   )
 }
 
-FoodItemView.Header = MealItemHeader
-FoodItemView.NutritionalInfo = MealItemNutritionalInfo
+FoodItemGroupView.Header = MealItemHeader
+FoodItemGroupView.NutritionalInfo = MealItemNutritionalInfo
 
 export type MealItemHeaderProps = {
   name?: React.ReactNode
@@ -73,24 +75,26 @@ MealItemHeader.CopyButton = MealItemCopyButton
 MealItemHeader.Favorite = MealItemFavorite
 
 function MealItemName({ debug = true }: { debug?: boolean }) {
-  const { foodItem: item } = useFoodItemContext()
+  const { foodItemGroup: itemGroup } = useFoodItemGroupContext()
 
-  const [food, setFood] = useState<Food | null>(null)
-
-  useEffect(() => {
-    searchFoodById(item.reference).then((food) => setFood(food))
-  }, [item])
+  const NAME_COLOR: Record<FoodItemGroup['type'], string> = {
+    simple: 'text-orange-500',
+    recipe: 'text-blue-500',
+  }
 
   return (
     <div className="">
       {/* //TODO: mealItem id is random, but it should be an entry on the database (meal too) */}
       {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.mealItem.id}]</h5> */}
-      <h5 className={`mb-2 text-lg font-bold tracking-tight text-white`}>
-        {food?.name ?? 'food not found'}{' '}
+      <h5
+        className={`mb-2 text-lg font-bold tracking-tight ${
+          NAME_COLOR[itemGroup.type]
+        }`}
+      >
+        {itemGroup.name}{' '}
         {debug && (
           <>
-            <div className="text-sm text-gray-400">[ID: {item?.id}]</div>
-            <div className="text-sm text-gray-400">[ID: {food?.id}]</div>
+            <div className="text-sm text-gray-400">[ID: {itemGroup?.id}]</div>
           </>
         )}
       </h5>
@@ -101,9 +105,9 @@ function MealItemName({ debug = true }: { debug?: boolean }) {
 function MealItemCopyButton({
   handleCopyMealItem,
 }: {
-  handleCopyMealItem: (mealItem: FoodItem) => void
+  handleCopyMealItem: (mealItem: FoodItemGroup) => void
 }) {
-  const { foodItem: mealItem } = useFoodItemContext()
+  const { foodItemGroup: itemGroup } = useFoodItemGroupContext()
 
   return (
     <div
@@ -111,7 +115,7 @@ function MealItemCopyButton({
       onClick={(e) => {
         e.stopPropagation()
         e.preventDefault()
-        handleCopyMealItem(mealItem)
+        handleCopyMealItem(itemGroup)
       }}
     >
       <CopyIcon />
@@ -145,23 +149,33 @@ function MealItemFavorite({
 }
 
 function MealItemNutritionalInfo() {
-  const { foodItem: item } = useFoodItemContext()
+  const { foodItemGroup: itemGroup } = useFoodItemGroupContext()
 
+  // TODO: Calculate macros for itemgroup
+  // const multipliedMacros: MacroNutrientsData = {
+  //   carbs: (itemGroup.macros.carbs * itemGroup.quantity) / 100,
+  //   protein: (itemGroup.macros.protein * itemGroup.quantity) / 100,
+  //   fat: (itemGroup.macros.fat * itemGroup.quantity) / 100,
+  // }
   const multipliedMacros: MacroNutrientsData = {
-    carbs: (item.macros.carbs * item.quantity) / 100,
-    protein: (item.macros.protein * item.quantity) / 100,
-    fat: (item.macros.fat * item.quantity) / 100,
+    carbs: 6666,
+    protein: 6666,
+    fat: 6666,
   }
 
   return (
     <div className="flex">
       <MacroNutrients {...multipliedMacros} />
       <div className="ml-auto">
-        <span className="text-white"> {item.quantity}g </span>|
+        <span className="text-white"> {itemGroup.quantity}g </span>|
         <span className="text-white">
           {' '}
-          {/* // TODO: Use toFixed(0) on all calcItemCalories */}
-          {calcItemCalories(item).toFixed(0)}
+          {/* // TODO: Calculate calories for itemgroup */}
+          {/* {calculateCalories({
+            carbs: (itemGroup.macros.carbs * itemGroup.quantity) / 100,
+            protein: (itemGroup.macros.protein * itemGroup.quantity) / 100,
+            fat: (itemGroup.macros.fat * itemGroup.quantity) / 100,
+          }).toFixed(0)} */}
           kcal{' '}
         </span>
       </div>
