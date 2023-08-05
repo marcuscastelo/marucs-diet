@@ -1,33 +1,61 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react'
 import Modal, { ModalActions, ModalRef } from '../(modals)/modal'
 import FoodSearch, { FoodSearchProps } from './FoodSearch'
 
-export default function FoodSearchModal(props: FoodSearchProps) {
-  const selfModalRef = useRef<ModalRef>(null)
+// eslint-disable-next-line react/display-name
+const FoodSearchModal = forwardRef(
+  (
+    props: FoodSearchProps & {
+      onVisibilityChange?: (isShowing: boolean) => void
+    },
+    ref,
+  ) => {
+    const [showing, setShowing] = useState(false)
 
-  useEffect(() => {
-    if (selfModalRef.current) {
-      selfModalRef.current.showModal()
+    const modalRef = useRef<ModalRef>(null)
+
+    const handleSetShowing = (isShowing: boolean) => {
+      setShowing(isShowing)
+      props.onVisibilityChange?.(isShowing)
     }
-  }, [])
 
-  return (
-    <Modal
-      ref={selfModalRef}
-      modalId="foodSearchModal"
-      header={<h1>Busca de alimentos</h1>}
-      body={
-        <div className="max-h-full">
-          <FoodSearch {...props} />
-        </div>
-      }
-      actions={
-        <ModalActions>
-          <button onClick={() => selfModalRef.current?.close()}>Fechar</button>
-        </ModalActions>
-      }
-    />
-  )
-}
+    useImperativeHandle(ref, () => ({
+      showModal: () => {
+        modalRef.current?.showModal()
+        handleSetShowing(true)
+      },
+      close: () => {
+        modalRef.current?.close()
+        handleSetShowing(false)
+      },
+    }))
+
+    return (
+      <Modal
+        ref={modalRef}
+        modalId="foodSearchModal"
+        header={<h1>Busca de alimentos</h1>}
+        body={
+          <div className="max-h-full">
+            <FoodSearch {...props} />
+          </div>
+        }
+        actions={
+          <ModalActions>
+            <button onClick={() => modalRef.current?.close()}>Fechar</button>
+          </ModalActions>
+        }
+      />
+    )
+  },
+)
+
+export default FoodSearchModal

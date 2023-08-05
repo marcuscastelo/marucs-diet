@@ -6,7 +6,7 @@ import { Food } from '@/model/foodModel'
 import { Alert, Breadcrumb } from 'flowbite-react'
 import { useEffect, useRef, useState } from 'react'
 import { FoodItem } from '@/model/foodItemModel'
-import { listDays, updateDay } from '@/controllers/days'
+import { listDays } from '@/controllers/days'
 import { Day } from '@/model/dayModel'
 import BarCodeInsertModal from '@/app/BarCodeInsertModal'
 import { useFavoriteFoods, useUser } from '@/redux/features/userSlice'
@@ -20,6 +20,7 @@ import { Recipe, createRecipe } from '@/model/recipeModel'
 import { mockFood, mockItem } from '../test/unit/(mock)/mockData'
 import PageLoading from '../PageLoading'
 import MealItemAddModal from '../MealItemAddModal'
+import { MealData } from '@/model/mealModel'
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal'
 const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal'
@@ -29,10 +30,17 @@ const RECIPE_EDIT_MODAL_ID = 'recipe-edit-modal'
 
 export type FoodSearchProps = {
   date: string
-  mealId: number
+  mealId: MealData['id']
+  onNewFoodItem: (foodItem: FoodItem) => Promise<void>
+  onFinish: () => void
 }
 
-export default function FoodSearch({ date, mealId }: FoodSearchProps) {
+export default function FoodSearch({
+  date,
+  mealId,
+  onNewFoodItem,
+  onFinish,
+}: FoodSearchProps) {
   const router = useRouter()
 
   const FOOD_LIMIT = 100
@@ -197,6 +205,26 @@ export default function FoodSearch({ date, mealId }: FoodSearchProps) {
     )
   }
 
+  const handleNewFoodItem = async (item: FoodItem) => {
+    await onNewFoodItem(item)
+    // Prompt if user wants to add another item or go back (Yes/No)
+    const oneMore = confirm(
+      'Item adicionado com sucesso. Deseja adicionar outro item?',
+    )
+
+    if (!oneMore) {
+      onFinish()
+    } else {
+      setSelectedFood(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }))
+      mealItemAddModalRef.current?.close()
+    }
+  }
+
+  const mockedRecipe: Recipe = createRecipe({
+    name: 'Receita de teste',
+    items: [mockItem()],
+  })
+
   const meal = day.meals.find(
     (meal) =>
       meal.id ===
@@ -221,43 +249,10 @@ export default function FoodSearch({ date, mealId }: FoodSearchProps) {
       </>
     )
   }
-
-  const onNewMealItem = async (mealItem: FoodItem) => {
-    await updateDay(day.id, {
-      ...day,
-      meals: day.meals.map((m) => {
-        if (m.id === /* TODO: Check if equality is a bug */ meal.id) {
-          return {
-            ...m,
-            items: [...m.items, mealItem],
-          }
-        }
-
-        return m
-      }),
-    })
-
-    // Prompt if user wants to add another item or go back (Yes/No)
-    const oneMore = confirm(
-      'Item adicionado com sucesso. Deseja adicionar outro item?',
-    )
-
-    if (!oneMore) {
-      router.push(`/day/${dayParam}`)
-    } else {
-      setSelectedFood(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }))
-      mealItemAddModalRef.current?.close()
-    }
-  }
-
-  const mockedRecipe: Recipe = createRecipe({
-    name: 'Receita de teste',
-    items: [mockItem()],
-  })
-
   return (
     <>
-      <TopBar dayParam={dayParam} mealName={meal.name} />
+      {/* TODO: Decide whether we will keep or delete TopBar */}
+      {/* <TopBar dayParam={dayParam} mealName={meal.name} /> */}
       <BarCode
         barCodeInsertModalRef={barCodeInsertModalRef}
         mealItemAddModalRef={mealItemAddModalRef}
@@ -270,7 +265,7 @@ export default function FoodSearch({ date, mealId }: FoodSearchProps) {
         itemData={{
           food: selectedFood,
         }}
-        onApply={async (i) => onNewMealItem(i)}
+        onApply={async (i) => handleNewFoodItem(i)}
       />
       <RecipeEditModal
         modalId={RECIPE_EDIT_MODAL_ID}
