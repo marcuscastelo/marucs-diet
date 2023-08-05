@@ -12,7 +12,7 @@ import { FoodItem } from '@/model/foodItemModel'
 import Modal, { ModalActions, ModalRef } from '../(modals)/modal'
 import { Recipe } from '@/model/recipeModel'
 import RecipeView from './RecipeView'
-import MealItemAddModal from '../MealItemAddModal'
+import MealItemAddModal from '../(foodItem)/MealItemAddModal'
 import Show from '../Show'
 import { MealData } from '@/model/mealModel'
 

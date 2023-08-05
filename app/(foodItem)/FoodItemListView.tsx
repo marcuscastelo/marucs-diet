@@ -6,9 +6,11 @@ import FoodItemView, { FoodItemViewProps } from './FoodItemView'
 export default function FoodItemListView({
   foodItems,
   onItemClick,
+  makeHeaderFn = () => <DefaultHeader />,
 }: {
   foodItems: FoodItem[]
   onItemClick: FoodItemViewProps['onClick']
+  makeHeaderFn?: (item: FoodItem) => FoodItemViewProps['header']
 }) {
   return (
     <>
@@ -17,22 +19,26 @@ export default function FoodItemListView({
           <FoodItemView
             foodItem={item}
             onClick={onItemClick}
-            header={
-              <FoodItemView.Header
-                name={<FoodItemView.Header.Name />}
-                copyButton={
-                  <FoodItemView.Header.CopyButton
-                    handleCopyMealItem={(item) => {
-                      navigator.clipboard.writeText(JSON.stringify(item))
-                    }}
-                  />
-                }
-              />
-            }
+            header={makeHeaderFn(item)}
             nutritionalInfo={<FoodItemView.NutritionalInfo />}
           />
         </div>
       ))}
     </>
+  )
+}
+
+function DefaultHeader() {
+  return (
+    <FoodItemView.Header
+      name={<FoodItemView.Header.Name />}
+      copyButton={
+        <FoodItemView.Header.CopyButton
+          handleCopyMealItem={(item) => {
+            navigator.clipboard.writeText(JSON.stringify(item))
+          }}
+        />
+      }
+    />
   )
 }
