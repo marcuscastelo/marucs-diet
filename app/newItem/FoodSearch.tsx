@@ -13,7 +13,6 @@ import { useFavoriteFoods, useUser } from '@/redux/features/userSlice'
 import { User } from '@/model/userModel'
 import { Loadable } from '@/utils/loadable'
 import LoadingRing from '@/app/LoadingRing'
-import { useRouter } from 'next/navigation'
 import { ModalRef } from '@/app/(modals)/modal'
 import RecipeEditModal from '@/app/(recipe)/RecipeEditModal'
 import { Recipe, createRecipe } from '@/model/recipeModel'
@@ -41,8 +40,6 @@ export default function FoodSearch({
   onNewFoodItem,
   onFinish,
 }: FoodSearchProps) {
-  const router = useRouter()
-
   const FOOD_LIMIT = 100
   const TYPE_TIMEOUT = 1000
 

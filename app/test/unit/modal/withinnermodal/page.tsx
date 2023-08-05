@@ -1,10 +1,7 @@
 'use client'
 
 import Modal, { ModalRef } from '@/app/(modals)/modal'
-import { BarCodeReader } from '@/app/BarCodeReader'
-import Show from '@/app/Show'
 import { useEffect, useRef, useState } from 'react'
-import { set } from 'zod'
 
 export default function Page() {
   const modalRef = useRef<ModalRef>(null)
