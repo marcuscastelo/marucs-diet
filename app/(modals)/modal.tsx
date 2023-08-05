@@ -8,7 +8,7 @@ export type ModalProps = {
   body?: React.ReactNode
   actions?: React.ReactNode
   hasBackdrop?: boolean
-  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void
+  onSubmit?: (e: React.FormEvent<HTMLFormElement>) => void
   onVisibilityChange?: (isShowing: boolean) => void
 }
 
