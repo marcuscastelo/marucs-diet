@@ -71,7 +71,7 @@ function RecipeHeader({
       return
     }
 
-    const newRecipe = {
+    const newRecipe: Recipe = {
       ...recipe,
       items: [],
     }
@@ -92,7 +92,7 @@ function RecipeHeader({
       const parsedRecipe = recipeSchema.safeParse(JSON.parse(clipboardText))
 
       if (parsedRecipe.success) {
-        const newRecipe = {
+        const newRecipe: Recipe = {
           ...recipe,
           items: [
             ...recipe.items,
@@ -114,7 +114,7 @@ function RecipeHeader({
       const parsedRecipeItem = itemSchema.safeParse(JSON.parse(clipboardText))
 
       if (parsedRecipeItem.success) {
-        const newRecipe = {
+        const newRecipe: Recipe = {
           ...recipe,
           items: [
             ...recipe.items,
