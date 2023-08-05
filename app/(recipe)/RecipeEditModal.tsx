@@ -18,7 +18,7 @@ import { MealData } from '@/model/mealModel'
 
 export type RecipeEditModalProps = {
   modalId: string
-  recipe: Recipe
+  recipe: Recipe | null
   onSaveRecipe: (recipe: Recipe) => void
   onCancel?: () => void
   onVisibilityChange?: (isShowing: boolean) => void
@@ -36,7 +36,7 @@ const RecipeEditModal = forwardRef(
     }: RecipeEditModalProps,
     ref: React.Ref<ModalRef>,
   ) => {
-    const [recipe, setRecipe] = useState<Recipe>(initialRecipe)
+    const [recipe, setRecipe] = useState<Recipe | null>(initialRecipe)
     const [itemToEdit, setItemToEdit] = useState<FoodItem | null>(null)
 
     // TODO: Change other modals modalRef variable to selfModalRef on other files
@@ -50,6 +50,12 @@ const RecipeEditModal = forwardRef(
       },
       [onVisibilityChange],
     )
+
+    useEffect(() => {
+      if (initialRecipe) {
+        setRecipe(initialRecipe)
+      }
+    }, [initialRecipe])
 
     useEffect(() => {
       if (itemToEdit) {
@@ -79,13 +85,18 @@ const RecipeEditModal = forwardRef(
             itemData={itemToEdit!} // TODO: <Show> should handle this with a type guard
             meal={recipe as unknown as MealData} // TODO: Make MealItemAddModal not depend on MealData anymore
             onApply={(foodItem) => {
-              setRecipe((recipe) => ({
-                ...recipe,
-                items: [
-                  ...recipe.items.filter((item) => item.id !== foodItem.id),
-                  foodItem,
-                ],
-              }))
+              if (!recipe) return
+
+              setRecipe(
+                (recipe) =>
+                  recipe && {
+                    ...recipe,
+                    items: [
+                      ...recipe.items.filter((item) => item.id !== foodItem.id),
+                      foodItem,
+                    ],
+                  },
+              )
               setItemToEdit(null)
             }}
             onVisibilityChange={(isShowing) => {
@@ -98,36 +109,43 @@ const RecipeEditModal = forwardRef(
         <Modal
           modalId={modalId}
           ref={selfModalRef}
-          onSubmit={() => onSaveRecipe(recipe)}
+          onSubmit={() => recipe && onSaveRecipe(recipe)}
           header={
             <h3 className="text-lg font-bold text-white">
               Editando receita
-              <span className="text-blue-500"> &quot;{recipe.name}&quot; </span>
+              <span className="text-blue-500">
+                {' '}
+                &quot;
+                {recipe?.name ?? 'LOADING RECIPE'}
+                &quot;{' '}
+              </span>
             </h3>
           }
           onVisibilityChange={handleSetShowing}
           body={
-            <RecipeView
-              recipe={recipe}
-              header={
-                <RecipeView.Header
-                  onUpdateRecipe={(recipe) => {
-                    setRecipe(recipe)
-                  }}
-                />
-              }
-              content={
-                <RecipeView.Content
-                  onEditItem={(item) => setItemToEdit(item)}
-                />
-              }
-              actions={
-                <RecipeView.Actions
-                  // TODO: Treat recursive recipe
-                  onNewItem={() => alert('TODO: onAddItem')}
-                />
-              }
-            />
+            recipe && (
+              <RecipeView
+                recipe={recipe}
+                header={
+                  <RecipeView.Header
+                    onUpdateRecipe={(recipe) => {
+                      setRecipe(recipe)
+                    }}
+                  />
+                }
+                content={
+                  <RecipeView.Content
+                    onEditItem={(item) => setItemToEdit(item)}
+                  />
+                }
+                actions={
+                  <RecipeView.Actions
+                    // TODO: Treat recursive recipe
+                    onNewItem={() => alert('TODO: onAddItem')}
+                  />
+                }
+              />
+            )
             // TODO: Add barcode button and handle barcode scan
           }
           actions={

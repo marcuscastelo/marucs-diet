@@ -11,11 +11,13 @@ import FoodItemView from './(foodItem)/FoodItemView'
 import { FoodItem } from '@/model/foodItemModel'
 import { Food } from '@/model/foodModel'
 import { MealData } from '@/model/mealModel'
-import { useFavoriteFoods } from '@/redux/features/userSlice'
+import { useFavoriteFoods, useUser } from '@/redux/features/userSlice'
 import Modal, { ModalActions, ModalRef } from './(modals)/modal'
 import { mockFood, mockItem } from './test/unit/(mock)/mockData'
 import RecipeEditModal from './(recipe)/RecipeEditModal'
 import { Recipe, createRecipe } from '@/model/recipeModel'
+import { Loadable } from '@/utils/loadable'
+import { searchRecipeById, listRecipes } from '@/controllers/recipes'
 
 const RECIPE_EDIT_MODAL_ID = 'meal-item-add-modal:self:recipe-edit-modal'
 
@@ -56,6 +58,10 @@ const MealItemAddModal = forwardRef(
 
     const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(true)
 
+    const [recipe, setRecipe] = useState<Loadable<Recipe | null>>({
+      loading: true,
+    })
+
     const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods()
 
     const handleSetShowing = (isShowing: boolean) => {
@@ -89,6 +95,17 @@ const MealItemAddModal = forwardRef(
         setId(itemData?.id)
       }
     }, [itemData?.quantity, itemData?.id])
+
+    useEffect(() => {
+      if (itemData?.food.recipeId === undefined) {
+        setRecipe({ loading: false, data: null })
+      } else {
+        setRecipe({ loading: true })
+        searchRecipeById(itemData?.food.recipeId).then((recipe) => {
+          setRecipe({ loading: false, data: recipe })
+        })
+      }
+    }, [itemData?.food.recipeId])
 
     useEffect(() => {
       setQuantityFieldDisabled(true)
@@ -150,17 +167,18 @@ const MealItemAddModal = forwardRef(
       food: itemData?.food ?? mockFood({ name: 'THIS IS A BUG' }), // TODO: Remove mock food
     })
 
-    const mockedRecipe: Recipe = createRecipe({
-      name: 'Receita de teste',
-      items: [mockItem()],
-    })
-
     return (
       <>
+        {itemData?.food.name.toString()}
+        {itemData?.food.id.toString()}
+        {itemData?.food.recipeId?.toString() ?? 'NO RECIPE ID'}
+        {recipe.loading.valueOf().toString()}
+        {(!recipe.loading && JSON.stringify(recipe.data, null, 2)) ||
+          'NO RECIPE DATA'}
         <RecipeEditModal
           modalId={RECIPE_EDIT_MODAL_ID}
           ref={recipeEditModalRef}
-          recipe={mockedRecipe}
+          recipe={(!recipe.loading && recipe.data) || null}
           onSaveRecipe={async () => alert('TODO: Save recipe')}
         />
         <Modal

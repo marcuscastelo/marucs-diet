@@ -6,6 +6,7 @@ export const recipeSchema = z.object({
   id: z.number(),
   name: z.string(),
   items: z.array(foodItemSchema),
+  owner: z.number(),
   '': z
     .string()
     .nullable()
@@ -25,6 +26,7 @@ export function createRecipe({
 }): Recipe {
   return {
     id: Math.floor(Math.random() * 1000000),
+    owner: 3, // TODO: Get user id
     name,
     items,
     '': 'Recipe',
