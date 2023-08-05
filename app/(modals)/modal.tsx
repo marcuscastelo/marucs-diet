@@ -63,15 +63,16 @@ const Modal = forwardRef(
         ref={innerRef}
       >
         {/* TODO: className deveria estar no forms? */}
-        <form
-          method="dialog"
+        <div
           className="modal-box bg-gray-800 text-white"
-          onSubmit={onSubmit}
+          // TODO: Fix onSubmit
+          // method="dialog"
+          // onSubmit={onSubmit}
         >
           {header}
           {body}
           {actions}
-        </form>
+        </div>
         {hasBackdrop && (
           <form method="dialog" className="modal-backdrop">
             <button onClick={() => onVisibilityChange?.(false)}>close</button>

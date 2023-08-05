@@ -45,6 +45,7 @@ export default function Page({ params }: PageParams) {
   const [dayLocked, setDayLocked] = useState(!showingToday)
 
   const mealAddItemModalRef = useRef<ModalRef>(null)
+  const foodSearchModalRef = useRef<ModalRef>(null)
 
   const EDIT_MODAL_ID = 'edit-modal'
 
@@ -142,6 +143,7 @@ export default function Page({ params }: PageParams) {
           dayData={dayData}
           editModalId={EDIT_MODAL_ID}
           mealAddItemModalRef={mealAddItemModalRef}
+          foodSearchModalRef={MealItemAddModal}
           selectedDay={selectedDay}
           dayLocked={dayLocked}
           fetchDays={fetchDays}
@@ -190,7 +192,8 @@ function DayContent({
   selectedDay,
   editModalId,
   mealAddItemModalRef,
-  dayData,
+  foodSearchModalRef,
+  dayData, // TODO: Rename all occurrences of dayData to day
   fetchDays,
   user,
   showingToday,
@@ -203,6 +206,7 @@ function DayContent({
   selectedDay: string
   editModalId: string
   mealAddItemModalRef: RefObject<ModalRef>
+  foodSearchModalRef: RefObject<ModalRef>
   dayData: Day | undefined
   fetchDays: (userId: User['id']) => Promise<void>
   user: Loaded<User>
@@ -230,8 +234,6 @@ function DayContent({
 
     setSelectedMeal(meal)
     setSelectedMealItem(mealItem)
-
-    mealAddItemModalRef.current?.showModal()
   }
 
   const onUpdateMeal = async (dayData: Day, meal: MealData) => {
@@ -262,7 +264,8 @@ function DayContent({
       return
     }
 
-    router.push(`/newItem/${selectedDay}/${meal.id}`)
+    setSelectedMeal(meal)
+    foodSearchModalRef.current?.showModal()
   }
 
   const mealProps = dayData?.meals.map(
@@ -322,9 +325,39 @@ function DayContent({
   return (
     <>
       {/* // TODO: Avoid non-null assertion */}
+
       {selectedMeal && (
         <>
-          <FoodSearchModal date={selectedDay} mealId={selectedMeal!.id} />
+          <FoodSearchModal
+            date={selectedDay}
+            mealId={selectedMeal.id}
+            onFinish={() => {
+              mealAddItemModalRef.current?.close()
+            }}
+            onNewFoodItem={async (item) => {
+              // TODO: Create a proper onNewFoodItem function
+              const oldMeal = selectedMeal! // TODO: Avoid non-null assertion
+
+              const newMeal = {
+                ...oldMeal,
+                items: [...oldMeal.items, item],
+              }
+
+              const newDay: Day = {
+                ...dayData!,
+                meals: dayData!.meals.map((m) => {
+                  // TODO: Avoid non-null assertion
+                  if (m.id === oldMeal.id) {
+                    return newMeal
+                  }
+
+                  return m
+                }),
+              }
+
+              await updateDay(dayData!.id, newDay)
+            }}
+          />
           <MealItemAddModal
             modalId={editModalId}
             ref={mealAddItemModalRef}
