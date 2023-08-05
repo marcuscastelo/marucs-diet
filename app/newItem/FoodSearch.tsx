@@ -30,7 +30,7 @@ const RECIPE_EDIT_MODAL_ID = 'recipe-edit-modal'
 
 export type FoodSearchProps = {
   date: string
-  mealId: MealData['id']
+  mealId: MealData['id'] | undefined
   onNewFoodItem: (foodItem: FoodItem) => Promise<void>
   onFinish: () => void
 }
@@ -225,6 +225,16 @@ export default function FoodSearch({
     items: [mockItem()],
   })
 
+  if (!mealId) {
+    return (
+      <>
+        <TopBar dayParam={dayParam} mealName={'Refeição não especificada'} />
+        <Alert color="error" className="mt-2">
+          Refeição não especificada ({mealId})
+        </Alert>
+      </>
+    )
+  }
   const meal = day.meals.find(
     (meal) =>
       meal.id ===
@@ -251,8 +261,7 @@ export default function FoodSearch({
   }
   return (
     <>
-      {/* TODO: Decide whether we will keep or delete TopBar */}
-      {/* <TopBar dayParam={dayParam} mealName={meal.name} /> */}
+      <TopBar dayParam={dayParam} mealName={meal.name} />
       <BarCode
         barCodeInsertModalRef={barCodeInsertModalRef}
         mealItemAddModalRef={mealItemAddModalRef}
