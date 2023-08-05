@@ -315,7 +315,7 @@ function DayContent({
                 type: 'simple',
                 items: [{ ...item }],
               } satisfies FoodItemGroup,
-            ],
+            ] satisfies MealData['groups'],
           }
 
           const newDay: Day = {

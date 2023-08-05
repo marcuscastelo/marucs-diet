@@ -69,9 +69,9 @@ function MealHeader({
       return
     }
 
-    const newMealData = {
+    const newMealData: MealData = {
       ...mealData,
-      items: [],
+      groups: [],
     }
 
     onUpdateMeal(newMealData)
