@@ -15,7 +15,7 @@ const FoodSearchModal = forwardRef(
     },
     ref,
   ) => {
-    const [, setShowing_] = useState(false)
+    const [showing, setShowing_] = useState(false)
 
     const modalRef = useRef<ModalRef>(null)
 
@@ -42,7 +42,7 @@ const FoodSearchModal = forwardRef(
         header={<h1>Busca de alimentos</h1>}
         body={
           <div className="max-h-full">
-            <FoodSearch {...props} />
+            {showing && <FoodSearch {...props} />}
           </div>
         }
         actions={
