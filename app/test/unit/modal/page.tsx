@@ -11,11 +11,6 @@ export default function Page() {
 
   return (
     <>
-      <Show when={showing}>
-        <div className="mx-auto w-1/2">
-          <BarCodeReader id="asd" onScanned={() => undefined} />
-        </div>
-      </Show>
       <span>isShowing: {showing ? 'true' : 'false'}</span>
       <br />
 

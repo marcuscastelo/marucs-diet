@@ -13,18 +13,21 @@ import FoodSearch, { FoodSearchProps } from './FoodSearch'
 // eslint-disable-next-line react/display-name
 const FoodSearchModal = forwardRef(
   (
-    props: FoodSearchProps & {
+    {
+      onVisibilityChange,
+      ...props
+    }: FoodSearchProps & {
       onVisibilityChange?: (isShowing: boolean) => void
     },
     ref,
   ) => {
-    const [showing, setShowing] = useState(false)
+    const [showing, setShowing_] = useState(false)
 
     const modalRef = useRef<ModalRef>(null)
 
     const handleSetShowing = (isShowing: boolean) => {
-      setShowing(isShowing)
-      props.onVisibilityChange?.(isShowing)
+      setShowing_(isShowing)
+      onVisibilityChange?.(isShowing)
     }
 
     useImperativeHandle(ref, () => ({

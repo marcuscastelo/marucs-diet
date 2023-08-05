@@ -13,12 +13,12 @@ import { Food } from '@/model/foodModel'
 import { MealData } from '@/model/mealModel'
 import { useFavoriteFoods } from '@/redux/features/userSlice'
 import Modal, { ModalActions, ModalRef } from './(modals)/modal'
+import { mockFood } from './test/unit/(mock)/mockData'
 
 export type MealItemAddModalProps = {
   modalId: string
-  meal: MealData
-  itemData: Partial<FoodItem> & { food: Food }
-  show?: boolean
+  meal: MealData | null
+  itemData: (Partial<FoodItem> & { food: Food }) | null
   onApply: (item: FoodItem) => void
   onCancel?: () => void
   onDelete?: (itemId: FoodItem['id']) => void
@@ -31,7 +31,7 @@ const MealItemAddModal = forwardRef(
     {
       modalId,
       meal,
-      itemData: { food, quantity: initialQuantity, id: initialId },
+      itemData,
       onApply,
       onCancel,
       onDelete,
@@ -39,9 +39,11 @@ const MealItemAddModal = forwardRef(
     }: MealItemAddModalProps,
     ref: React.Ref<ModalRef>,
   ) => {
-    const [showing, setShowing] = useState(false)
-    const [quantity, setQuantity] = useState(initialQuantity?.toString() ?? '')
-    const [id, setId] = useState(initialId ?? Math.random())
+    const [showing, setShowing_] = useState(false)
+    const [quantity, setQuantity] = useState(
+      itemData?.quantity?.toString() ?? '',
+    )
+    const [id, setId] = useState(itemData?.id ?? Math.random()) // TODO: Proper ID generation on other module or backend
     const canAdd = quantity !== '' && Number(quantity) > 0
     const quantityRef = useRef<HTMLInputElement>(null)
 
@@ -52,7 +54,7 @@ const MealItemAddModal = forwardRef(
     const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods()
 
     const handleSetShowing = (isShowing: boolean) => {
-      setShowing(isShowing)
+      setShowing_(isShowing)
       onVisibilityChange?.(isShowing)
     }
 
@@ -74,14 +76,14 @@ const MealItemAddModal = forwardRef(
     }, [showing])
 
     useEffect(() => {
-      if (initialQuantity !== undefined) {
-        setQuantity(initialQuantity.toString())
+      if (itemData?.quantity !== undefined) {
+        setQuantity(itemData?.quantity.toString())
       }
 
-      if (initialId !== undefined) {
-        setId(initialId)
+      if (itemData?.id !== undefined) {
+        setId(itemData?.id)
       }
-    }, [initialQuantity, initialId])
+    }, [itemData?.quantity, itemData?.id])
 
     useEffect(() => {
       setQuantityFieldDisabled(true)
@@ -92,7 +94,7 @@ const MealItemAddModal = forwardRef(
       return () => {
         clearTimeout(timeout)
       }
-    }, [initialQuantity, initialId])
+    }, [itemData?.quantity, itemData?.id])
 
     const increment = () =>
       setQuantity((old) => (Number(old ?? '0') + 1).toString())
@@ -126,12 +128,6 @@ const MealItemAddModal = forwardRef(
       }
     }
 
-    const createMealItemData = (): FoodItem => ({
-      id,
-      quantity: Number(quantity),
-      food,
-    })
-
     useImperativeHandle(ref, () => ({
       showModal: () => {
         modalRef.current?.showModal()
@@ -143,6 +139,12 @@ const MealItemAddModal = forwardRef(
       },
     }))
 
+    const createMealItemData = (): FoodItem => ({
+      id,
+      quantity: Number(quantity),
+      food: itemData?.food ?? mockFood({ name: 'THIS IS A BUG' }), // TODO: Remove mock food
+    })
+
     return (
       <>
         <Modal
@@ -152,7 +154,10 @@ const MealItemAddModal = forwardRef(
           header={
             <h3 className="text-lg font-bold text-white">
               Novo item em
-              <span className="text-green-500"> &quot;{meal.name}&quot; </span>
+              <span className="text-green-500">
+                {' '}
+                &quot;{meal?.name ?? 'MEAL NOT LOADED'}&quot;{' '}
+              </span>
             </h3>
           }
           onVisibilityChange={handleSetShowing}
@@ -269,7 +274,7 @@ const MealItemAddModal = forwardRef(
               <FoodItemView
                 foodItem={{
                   id,
-                  food,
+                  food: itemData?.food ?? mockFood({ name: 'THIS IS A BUG' }), // TODO: Remove mock food
                   quantity: Number(quantity),
                 }}
                 className="mt-4"
@@ -278,9 +283,13 @@ const MealItemAddModal = forwardRef(
                     name={<FoodItemView.Header.Name />}
                     favorite={
                       <FoodItemView.Header.Favorite
-                        favorite={isFoodFavorite(food.id)}
+                        favorite={
+                          (itemData && isFoodFavorite(itemData.food.id)) ||
+                          false
+                        }
                         setFavorite={(favorite) =>
-                          setFoodAsFavorite(food.id, favorite)
+                          itemData &&
+                          setFoodAsFavorite(itemData.food.id, favorite)
                         }
                       />
                     }

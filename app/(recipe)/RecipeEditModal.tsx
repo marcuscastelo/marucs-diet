@@ -8,13 +8,9 @@ import {
   useRef,
   useState,
 } from 'react'
-import FoodItemView from '../(foodItem)/FoodItemView'
 import { FoodItem } from '@/model/foodItemModel'
-import { Food } from '@/model/foodModel'
-import { useFavoriteFoods } from '@/redux/features/userSlice'
 import Modal, { ModalActions, ModalRef } from '../(modals)/modal'
 import { Recipe } from '@/model/recipeModel'
-import FoodItemListView from '../(foodItem)/FoodItemListView'
 import RecipeView from './RecipeView'
 import MealItemAddModal from '../MealItemAddModal'
 import Show from '../Show'
@@ -23,7 +19,6 @@ import { MealData } from '@/model/mealModel'
 export type RecipeEditModalProps = {
   modalId: string
   recipe: Recipe
-  show?: boolean
   onSaveRecipe: (recipe: Recipe) => void
   onCancel?: () => void
   onVisibilityChange?: (isShowing: boolean) => void
