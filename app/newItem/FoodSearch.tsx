@@ -18,7 +18,7 @@ import RecipeEditModal from '@/app/(recipe)/RecipeEditModal'
 import { Recipe, createRecipe } from '@/model/recipeModel'
 import { mockFood, mockItem } from '../test/unit/(mock)/mockData'
 import PageLoading from '../PageLoading'
-import MealItemAddModal from '../MealItemAddModal'
+import MealItemAddModal from '../(foodItem)/MealItemAddModal'
 import { MealData } from '@/model/mealModel'
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal'

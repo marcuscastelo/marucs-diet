@@ -1,9 +1,9 @@
 'use client'
 
 import { ModalRef } from '@/app/(modals)/modal'
-import MealItemAddModal from '@/app/MealItemAddModal'
 import { useRef } from 'react'
 import { mockItem, mockMeal } from '../(mock)/mockData'
+import MealItemAddModal from '@/app/(foodItem)/MealItemAddModal'
 
 export default function Page() {
   const modalId = 'testmodal'

@@ -7,13 +7,13 @@ import {
   useRef,
   useState,
 } from 'react'
-import FoodItemView from './(foodItem)/FoodItemView'
+import FoodItemView from './FoodItemView'
 import { FoodItem } from '@/model/foodItemModel'
 import { MealData } from '@/model/mealModel'
 import { useFavoriteFoods } from '@/redux/features/userSlice'
-import Modal, { ModalActions, ModalRef } from './(modals)/modal'
-import { mockFood } from './test/unit/(mock)/mockData'
-import RecipeEditModal from './(recipe)/RecipeEditModal'
+import Modal, { ModalActions, ModalRef } from '../(modals)/modal'
+import { mockFood } from '../test/unit/(mock)/mockData'
+import RecipeEditModal from '../(recipe)/RecipeEditModal'
 import { Recipe } from '@/model/recipeModel'
 import { Loadable } from '@/utils/loadable'
 import { searchRecipeById } from '@/controllers/recipes'
