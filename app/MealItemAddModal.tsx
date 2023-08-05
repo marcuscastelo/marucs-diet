@@ -13,7 +13,11 @@ import { Food } from '@/model/foodModel'
 import { MealData } from '@/model/mealModel'
 import { useFavoriteFoods } from '@/redux/features/userSlice'
 import Modal, { ModalActions, ModalRef } from './(modals)/modal'
-import { mockFood } from './test/unit/(mock)/mockData'
+import { mockFood, mockItem } from './test/unit/(mock)/mockData'
+import RecipeEditModal from './(recipe)/RecipeEditModal'
+import { Recipe, createRecipe } from '@/model/recipeModel'
+
+const RECIPE_EDIT_MODAL_ID = 'meal-item-add-modal:self:recipe-edit-modal'
 
 export type MealItemAddModalProps = {
   modalId: string
@@ -47,7 +51,8 @@ const MealItemAddModal = forwardRef(
     const canAdd = quantity !== '' && Number(quantity) > 0
     const quantityRef = useRef<HTMLInputElement>(null)
 
-    const modalRef = useRef<ModalRef>(null)
+    const selfModalRef = useRef<ModalRef>(null)
+    const recipeEditModalRef = useRef<ModalRef>(null)
 
     const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(true)
 
@@ -130,11 +135,11 @@ const MealItemAddModal = forwardRef(
 
     useImperativeHandle(ref, () => ({
       showModal: () => {
-        modalRef.current?.showModal()
+        selfModalRef.current?.showModal()
         handleSetShowing(true)
       },
       close: () => {
-        modalRef.current?.close()
+        selfModalRef.current?.close()
         handleSetShowing(false)
       },
     }))
@@ -145,11 +150,22 @@ const MealItemAddModal = forwardRef(
       food: itemData?.food ?? mockFood({ name: 'THIS IS A BUG' }), // TODO: Remove mock food
     })
 
+    const mockedRecipe: Recipe = createRecipe({
+      name: 'Receita de teste',
+      items: [mockItem()],
+    })
+
     return (
       <>
+        <RecipeEditModal
+          modalId={RECIPE_EDIT_MODAL_ID}
+          ref={recipeEditModalRef}
+          recipe={mockedRecipe}
+          onSaveRecipe={async () => alert('TODO: Save recipe')}
+        />
         <Modal
           modalId={modalId}
-          ref={modalRef}
+          ref={selfModalRef}
           onSubmit={() => onApply(createMealItemData())}
           header={
             <h3 className="text-lg font-bold text-white">
@@ -278,6 +294,13 @@ const MealItemAddModal = forwardRef(
                   quantity: Number(quantity),
                 }}
                 className="mt-4"
+                onClick={() => {
+                  if (itemData?.food.recipeId !== undefined) {
+                    recipeEditModalRef.current?.showModal()
+                  } else {
+                    alert('Alimento não editável (ainda)')
+                  }
+                }}
                 header={
                   <FoodItemView.Header
                     name={<FoodItemView.Header.Name />}
@@ -322,7 +345,7 @@ const MealItemAddModal = forwardRef(
                 className="btn"
                 onClick={(e) => {
                   e.preventDefault()
-                  modalRef.current?.close()
+                  selfModalRef.current?.close()
                   onCancel?.()
                 }}
               >

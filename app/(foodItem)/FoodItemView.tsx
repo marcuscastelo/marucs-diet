@@ -68,15 +68,29 @@ MealItemHeader.Name = MealItemName
 MealItemHeader.CopyButton = MealItemCopyButton
 MealItemHeader.Favorite = MealItemFavorite
 
-function MealItemName() {
+function MealItemName({ debug = true }: { debug?: boolean }) {
   const { foodItem: mealItem } = useFoodItemContext()
 
   return (
     <div className="">
       {/* //TODO: mealItem id is random, but it should be an entry on the database (meal too) */}
       {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.mealItem.id}]</h5> */}
-      <h5 className="mb-2 text-lg font-bold tracking-tight text-white">
+      <h5
+        className={`mb-2 text-lg font-bold tracking-tight ${
+          mealItem.food.recipeId === undefined ? 'text-white' : 'text-blue-500'
+        }`}
+      >
         {mealItem.food.name}{' '}
+        {debug && (
+          <>
+            <div className="text-sm text-gray-400">
+              [ID: {mealItem.food.id}]
+            </div>
+            <div className="text-sm text-gray-400">
+              [Recipe: {mealItem.food.recipeId ?? 'no recipe'}]
+            </div>
+          </>
+        )}
       </h5>
     </div>
   )

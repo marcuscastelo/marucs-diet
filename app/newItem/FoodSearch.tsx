@@ -273,12 +273,13 @@ export default function FoodSearch({
         }}
         onApply={async (i) => handleNewFoodItem(i)}
       />
-      <RecipeEditModal
+      {/* TODO: Revisit if RecipeEditModal should be on FoodSearch */}
+      {/* <RecipeEditModal
         modalId={RECIPE_EDIT_MODAL_ID}
         ref={recipeEditModalRef}
         recipe={mockedRecipe}
         onSaveRecipe={async () => alert('TODO: Save recipe')}
-      />
+      /> */}
       <Tabs />
       <SearchBar isDesktop={isDesktop} search={search} setSearch={setSearch} />
       <SearchResults
