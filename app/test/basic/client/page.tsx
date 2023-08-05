@@ -18,7 +18,6 @@ export default function Page() {
     await upsertFood({
       name: 'Arroz',
       macros: {
-        calories: 100,
         protein: 10,
         carbs: 10,
         fat: 10,

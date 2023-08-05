@@ -5,6 +5,7 @@ import { useUser } from '@/redux/features/userSlice'
 import { Progress } from 'flowbite-react'
 import { calculateMacroTarget } from './MacroTargets'
 import { CSSProperties } from 'react'
+import { calcCalories } from '@/utils/macroMath'
 
 export default function DayMacros({
   macros,
@@ -55,8 +56,7 @@ function Calories({
   targetCalories: number
   className?: string
 }) {
-  macros.calories =
-    macros.calories || macros.carbs * 4 + macros.protein * 4 + macros.fat * 9
+  const calories = calcCalories(macros)
   return (
     <>
       <div className={`h-24 overflow-y-clip text-center ${className}`}>
@@ -64,7 +64,7 @@ function Calories({
           className="radial-progress text-blue-600"
           style={
             {
-              '--value': (100 * (macros.calories / targetCalories)) / 2,
+              '--value': (100 * (calories / targetCalories)) / 2,
               '--size': '12rem',
               '--thickness': '0.7rem',
               transform: `rotate(90deg) scale(-1, -1)`,
@@ -77,7 +77,7 @@ function Calories({
               transform: `rotate(-90deg) scale(-1, -1) translate(0, -0.5rem)`,
             }}
           >
-            {Math.round(macros.calories * 100) / 100}/
+            {Math.round(calories * 100) / 100}/
             {Math.round(targetCalories * 100) / 100}kcal
           </span>
         </div>

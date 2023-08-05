@@ -270,7 +270,6 @@ export default function FoodSearch({
         meal={meal}
         itemData={{
           reference: selectedFood.id,
-          type: 'food',
           macros: selectedFood.macros,
         }}
         onApply={async (i) => handleNewFoodItem(i)}
@@ -468,7 +467,6 @@ const SearchResults = ({
                   foodItem={{
                     id: Math.random() * 1000000,
                     quantity: 100,
-                    type: 'food',
                     macros: food.macros,
                     reference: food.id,
                   }}

@@ -6,11 +6,11 @@ import { Recipe, recipeSchema } from '@/model/recipeModel'
 import { FoodItem, itemSchema } from '@/model/foodItemModel'
 import { RecipeContextProvider, useRecipeContext } from './RecipeContext'
 import { useEffect, useState } from 'react'
-import { calculateCalories } from '../MacroTargets'
 import TrashIcon from '../(icons)/TrashIcon'
 import PasteIcon from '../(icons)/PasteIcon'
 import CopyIcon from '../(icons)/CopyIcon'
 import FoodItemListView from '../(foodItem)/FoodItemListView'
+import { calcRecipeCalories } from '@/utils/macroMath'
 
 export type RecipeViewProps = {
   recipe: Recipe
@@ -59,19 +59,8 @@ function RecipeHeader({
 }) {
   const { recipe } = useRecipeContext()
 
-  // TODO: Create a module to calculate calories and macros
-  const itemCalories = (item: FoodItem) =>
-    calculateCalories({
-      carbs: (item.macros.carbs * item.quantity) / 100,
-      protein: (item.macros.protein * item.quantity) / 100,
-      fat: (item.macros.fat * item.quantity) / 100,
-    })
-
   // TODO: Show how much of the daily target is this Recipe (e.g. 30% of daily calories) (maybe in a tooltip) (useContext)s
-  const RecipeCalories = recipe.items.reduce(
-    (acc, item) => acc + itemCalories(item),
-    0,
-  )
+  const recipeCalories = calcRecipeCalories(recipe)
 
   const [clipboardText, setClipboardText] = useState('')
 
@@ -178,7 +167,7 @@ function RecipeHeader({
     <div className="flex">
       <div className="my-2">
         <h5 className="text-3xl">{recipe.name}</h5>
-        <p className="italic text-gray-400">{RecipeCalories}kcal</p>
+        <p className="italic text-gray-400">{recipeCalories}kcal</p>
       </div>
       <div className={`ml-auto flex gap-2`}>
         {!hasValidPastableOnClipboard && recipe.items.length > 0 && (

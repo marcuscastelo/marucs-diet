@@ -99,7 +99,6 @@ export default function BarCodeSearch({
                 <FoodItemView
                   foodItem={{
                     id: Math.round(Math.random() * 1000000), // TODO: retriggered: properly generate id
-                    type: 'food',
                     reference: currentFood.id,
                     quantity: 100,
                     macros: {
