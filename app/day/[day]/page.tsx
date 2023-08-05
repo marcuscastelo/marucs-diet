@@ -117,16 +117,14 @@ export default function Page({ params }: PageParams) {
         >
           Criar dia do zero
         </button>
-        {dayData && (
-          <CopyLastDayButton
-            // TODO: avoid null assertion
-            dayData={dayData!}
-            days={days}
-            fetchDays={fetchDays}
-            selectedDay={selectedDay}
-            user={user}
-          />
-        )}
+        <CopyLastDayButton
+          // TODO: avoid null assertion
+          dayData={dayData}
+          days={days}
+          fetchDays={fetchDays}
+          selectedDay={selectedDay}
+          user={user}
+        />
       </Show>
 
       <Show
@@ -519,7 +517,7 @@ function CopyLastDayButton({
 }: {
   days: Loaded<Day[]>
   user: Loaded<User>
-  dayData: Day | null
+  dayData: Day | null | undefined
   selectedDay: string
   fetchDays: (userId: User['id']) => Promise<void>
 }) {
