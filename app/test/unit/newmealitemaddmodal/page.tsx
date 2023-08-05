@@ -21,7 +21,7 @@ export default function Page() {
 
       <MealItemAddModal
         modalId={modalId}
-        meal={mockMeal()}
+        targetName="Teste"
         itemData={mockItem()}
         onApply={() => alert('apply')}
       />
