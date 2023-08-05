@@ -25,6 +25,8 @@ import { User } from '@/model/userModel'
 import { ModalRef } from '@/app/(modals)/modal'
 import FoodSearchModal from '@/app/newItem/FoodSearchModal'
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context'
+import { FoodItemGroup } from '@/model/foodItemGroupModel'
+import { calcDayMacros } from '@/utils/macroMath'
 
 type PageParams = {
   params: {
@@ -108,7 +110,7 @@ export default function Page({ params }: PageParams) {
             upsertDay(
               mockDay(
                 { owner: user.data.id, target_day: selectedDay },
-                { items: [] },
+                { groups: [] },
               ),
             ).then(() => {
               fetchDays(user.data.id)
@@ -216,11 +218,10 @@ function DayContent({
   days: Loaded<Day[]>
 }) {
   const [selectedMeal, setSelectedMeal] = useState<MealData | null>(null)
-  const [selectedMealItem, setSelectedMealItem] = useState<FoodItem | null>(
-    null,
-  )
+  const [selectedItemGroup, setSelectedItemGroup] =
+    useState<FoodItemGroup | null>(null)
 
-  const onEditMealItem = (meal: MealData, mealItem: FoodItem) => {
+  const onEditItemGroup = (meal: MealData, itemGroup: FoodItemGroup) => {
     if (dayLocked) {
       alert('Dia bloqueado, não é possível editar')
       return
@@ -229,7 +230,10 @@ function DayContent({
     console.debug('setSelectedMeal(meal)')
     setSelectedMeal(meal)
     console.debug('setSelectedMealItem(mealItem)')
-    setSelectedMealItem(mealItem)
+    setSelectedItemGroup(itemGroup)
+    alert(
+      'TODO: Implement edit item group: ' + JSON.stringify(itemGroup, null, 2),
+    )
     mealAddItemModalRef.current?.showModal()
   }
 
@@ -263,7 +267,7 @@ function DayContent({
     }
 
     console.debug('setSelectedMealItem(null)')
-    setSelectedMealItem(null)
+    setSelectedItemGroup(null)
     console.debug('Setting selected meal to', meal)
     console.debug('setSelectedMeal(meal)')
     setSelectedMeal(meal)
@@ -278,51 +282,10 @@ function DayContent({
         <Meal.Header onUpdateMeal={(meal) => onUpdateMeal(dayData, meal)} />
       ),
       content: (
-        <Meal.Content onEditItem={(item) => onEditMealItem(meal, item)} />
+        <Meal.Content onEditItemGroup={(item) => onEditItemGroup(meal, item)} />
       ),
       actions: <Meal.Actions onNewItem={() => handleNewItemButton(meal)} />,
     }),
-  )
-
-  const mealItemMacros = (item: FoodItem): MacroNutrientsData => {
-    const macros = item.macros
-    return {
-      carbs: (macros.carbs * item.quantity) / 100,
-      protein: (macros.protein * item.quantity) / 100,
-      fat: (macros.fat * item.quantity) / 100,
-    }
-  }
-
-  const mealMacros = (meal: MealData): MacroNutrientsData => {
-    return meal.items.reduce(
-      (acc, item) => {
-        const itemMacros = mealItemMacros(item)
-        acc.carbs += itemMacros.carbs
-        acc.protein += itemMacros.protein
-        acc.fat += itemMacros.fat
-        return acc
-      },
-      {
-        carbs: 0,
-        protein: 0,
-        fat: 0,
-      },
-    )
-  }
-
-  const dayMacros = dayData?.meals.reduce(
-    (acc, meal): MacroNutrientsData => {
-      const mm = mealMacros(meal)
-      acc.carbs += mm.carbs
-      acc.protein += mm.protein
-      acc.fat += mm.fat
-      return acc
-    },
-    {
-      carbs: 0,
-      protein: 0,
-      fat: 0,
-    },
   )
 
   return (
@@ -347,9 +310,18 @@ function DayContent({
           // TODO: Create a proper onNewFoodItem function
           const oldMeal = selectedMeal! // TODO: Avoid non-null assertion
 
-          const newMeal = {
+          const newMeal: MealData = {
             ...oldMeal,
-            items: [...oldMeal.items, item],
+            groups: [
+              ...oldMeal.groups,
+              {
+                id: item.id,
+                name: 'Test',
+                quantity: item.quantity,
+                type: 'simple',
+                items: [{ ...item }],
+              } satisfies FoodItemGroup,
+            ],
           }
 
           const newDay: Day = {
@@ -367,13 +339,13 @@ function DayContent({
           await updateDay(dayData!.id, newDay)
         }}
       />
-
-      <MealItemAddModal
+      {/* // TODO: Create FoodItemGroupEditModal */}
+      {/* <MealItemAddModal
         modalId={editModalId}
         ref={mealAddItemModalRef}
         itemData={
-          selectedMealItem && {
-            ...selectedMealItem,
+          selectedItemGroup && {
+            ...selectedItemGroup,
           }
         }
         meal={selectedMeal}
@@ -386,14 +358,14 @@ function DayContent({
                 return meal
               }
 
-              const items = meal.items
+              const items = meal.groups
               const changePos = items.findIndex((i) => i.id === item.id)
 
               items[changePos] = item
 
               return {
                 ...meal,
-                items,
+                groups: items,
               }
             }),
           })
@@ -403,7 +375,7 @@ function DayContent({
           console.debug('setSelectedMeal(null)')
           setSelectedMeal(null)
           console.debug('setSelectedMealItem(null)')
-          setSelectedMealItem(null)
+          setSelectedItemGroup(null)
           mealAddItemModalRef.current?.close()
         }}
         onDelete={async (id: FoodItem['id']) => {
@@ -415,16 +387,16 @@ function DayContent({
                 return meal
               }
 
-              const items = meal.items
+              const items = meal.groups
               const changePos = items.findIndex(
-                (i) => i.id === /* TODO: Check if equality is a bug */ id,
+                (i) => i.id === id,
               )
 
               items.splice(changePos, 1)
 
               return {
                 ...meal,
-                items,
+                groups: items,
               }
             }),
           })
@@ -434,7 +406,7 @@ function DayContent({
           console.debug('setSelectedMeal(null)')
           setSelectedMeal(null)
           console.debug('setSelectedMealItem(null)')
-          setSelectedMealItem(null)
+          setSelectedItemGroup(null)
           mealAddItemModalRef.current?.close()
         }}
         onVisibilityChange={(visible) => {
@@ -442,14 +414,14 @@ function DayContent({
             console.debug('setSelectedMeal(null)')
             setSelectedMeal(null)
             console.debug('setSelectedMealItem(null)')
-            setSelectedMealItem(null)
+            setSelectedItemGroup(null)
           }
         }}
-      />
+      /> */}
       <DayMacros
         className="mt-3 border-b-2 border-gray-800 pb-4"
         // TODO: Avoid non-null assertion
-        macros={dayMacros!}
+        macros={calcDayMacros(dayData!)}
       />
       <Show when={!showingToday}>
         <Alert className="mt-2" color="warning">

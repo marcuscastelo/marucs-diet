@@ -5,8 +5,8 @@ import { z } from 'zod'
 export const recipeSchema = z.object({
   id: z.number(),
   name: z.string(),
-  items: z.array(itemSchema),
   owner: z.number(),
+  items: z.array(itemSchema),
   '': z
     .string()
     .nullable()

@@ -1,5 +1,3 @@
-import { Record } from 'pocketbase'
-
 import { Day, daySchema } from '@/model/dayModel'
 import { User } from '@/model/userModel'
 import supabase from '@/utils/supabase'
@@ -45,6 +43,8 @@ export const updateDay = async (id: Day['id'], day: Day): Promise<Day> => {
     .select()
 
   if (error) {
+    console.error('Error while updating day: ', day)
+    console.error(error)
     throw error
   }
 

@@ -8,7 +8,6 @@ export const mockFood = (partial?: Partial<Food>): Food => ({
   id: Math.round(Math.random() * 1000),
   name: 'Papa de carne bovina moída (acém), fubá e couve, c/ caldo de frango, c/ cebola e azeite de oliva, s/ sal',
   macros: {
-    calories: 100,
     carbs: 100,
     protein: 100,
     fat: 100,
@@ -18,17 +17,24 @@ export const mockFood = (partial?: Partial<Food>): Food => ({
 
 export const mockMeal = (partial?: Partial<New<MealData>>): MealData =>
   createMeal({
-    items: [mockItem(), mockItem(), mockItem()],
+    groups: [
+      {
+        id: Math.round(Math.random() * 1000),
+        name: 'Grupo 1',
+        quantity: 100,
+        type: 'simple',
+        items: [mockItem(), mockItem(), mockItem()],
+      },
+    ],
     name: 'Café da manhã',
     ...partial,
-  })
+  } satisfies New<MealData>)
 
 let mockItemQtyPseudoId = 10
 export const mockItem = (partial?: Partial<FoodItem>): FoodItem => ({
   id: Math.round(Math.random() * 1000),
   reference: mockFood().id,
   macros: mockFood().macros,
-  type: 'food',
   quantity: mockItemQtyPseudoId++,
   ...partial,
 })
