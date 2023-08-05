@@ -11,7 +11,7 @@ export default function Page() {
   const [foods, setFoods] = useState<Food[]>([])
 
   const fetchFoods = async () => {
-    const foods = await listFoods()
+    const foods = await listFoods(10)
     setFoods(foods)
   }
 
@@ -103,8 +103,12 @@ export default function Page() {
             key={idx}
             foodItem={{
               id: 123,
-              food,
               quantity: 100,
+              macros: {
+                ...food.macros,
+              },
+              reference: food.id,
+              type: 'food',
             }}
           />
         </div>

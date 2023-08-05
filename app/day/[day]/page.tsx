@@ -284,12 +284,12 @@ function DayContent({
     }),
   )
 
-  const mealItemMacros = (mealItem: FoodItem): MacroNutrientsData => {
-    const macros = mealItem.food.macros
+  const mealItemMacros = (item: FoodItem): MacroNutrientsData => {
+    const macros = item.macros
     return {
-      carbs: (macros.carbs * mealItem.quantity) / 100,
-      protein: (macros.protein * mealItem.quantity) / 100,
-      fat: (macros.fat * mealItem.quantity) / 100,
+      carbs: (macros.carbs * item.quantity) / 100,
+      protein: (macros.protein * item.quantity) / 100,
+      fat: (macros.fat * item.quantity) / 100,
     }
   }
 
@@ -373,9 +373,7 @@ function DayContent({
         ref={mealAddItemModalRef}
         itemData={
           selectedMealItem && {
-            id: selectedMealItem.id,
-            food: selectedMealItem.food,
-            quantity: selectedMealItem.quantity,
+            ...selectedMealItem,
           }
         }
         meal={selectedMeal}

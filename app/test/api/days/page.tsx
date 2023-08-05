@@ -3,9 +3,7 @@
 import DayMeals from '@/app/DayMeals'
 import Meal, { MealProps } from '@/app/(meal)/Meal'
 import { listDays } from '@/controllers/days'
-import { upsertFood, listFoods } from '@/controllers/food'
 import { Day } from '@/model/dayModel'
-import { Food } from '@/model/foodModel'
 import { User } from '@/model/userModel'
 import { useUser } from '@/redux/features/userSlice'
 import { Suspense, useEffect, useState } from 'react'
@@ -31,7 +29,9 @@ export default function Page() {
           ),
           content: (
             <Meal.Content
-              onEditItem={(item) => alert(`Mock: Edit "${item.food.name}"`)}
+              onEditItem={(item) =>
+                alert(`Mock: Edit foodid= "${item.reference}"`)
+              }
             />
           ),
           actions: <Meal.Actions onNewItem={() => alert('Mock: New item')} />,

@@ -1,11 +1,11 @@
-import { foodItemSchema } from './foodItemModel'
+import { itemSchema } from './foodItemModel'
 
 import { z } from 'zod'
 
 export const recipeSchema = z.object({
   id: z.number(),
   name: z.string(),
-  items: z.array(foodItemSchema),
+  items: z.array(itemSchema),
   owner: z.number(),
   '': z
     .string()

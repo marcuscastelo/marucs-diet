@@ -75,9 +75,9 @@ export default function FoodSearch({
 
     let foods: Food[] = []
     if (search === /* TODO: Check if equality is a bug */ '') {
-      foods = await listFoods(100, favoriteFoods)
+      foods = await listFoods(10, favoriteFoods)
     } else {
-      foods = await searchFoodsByName(search, 100, favoriteFoods)
+      foods = await searchFoodsByName(search, 10, favoriteFoods)
     }
 
     setSearchingFoods(false)
@@ -269,7 +269,9 @@ export default function FoodSearch({
         ref={mealItemAddModalRef}
         meal={meal}
         itemData={{
-          food: selectedFood,
+          reference: selectedFood.id,
+          type: 'food',
+          macros: selectedFood.macros,
         }}
         onApply={async (i) => handleNewFoodItem(i)}
       />
@@ -465,8 +467,10 @@ const SearchResults = ({
                 <FoodItemView
                   foodItem={{
                     id: Math.random() * 1000000,
-                    food,
                     quantity: 100,
+                    type: 'food',
+                    macros: food.macros,
+                    reference: food.id,
                   }}
                   className="mt-1"
                   onClick={() => {
