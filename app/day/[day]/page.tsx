@@ -26,32 +26,29 @@ import { ModalRef } from '@/app/(modals)/modal'
 import FoodSearchModal from '@/app/newItem/FoodSearchModal'
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context'
 
-// TODO: Set context type
-export default function Page(context: any) {
+type PageParams = {
+  params: {
+    day: string
+  }
+}
+
+export default function Page({ params }: PageParams) {
   const router = useRouter()
 
   const { user } = useUser()
 
-  const selectedDay = context.params.day as string // TODO: retriggered: type-safe this
+  const selectedDay = params.day
   const today = getToday()
-  const showingToday =
-    today === /* TODO: Check if equality is a bug */ selectedDay
+  const showingToday = today === selectedDay
 
   const [days, setDays] = useState<Loadable<Day[]>>({ loading: true })
   const [dayLocked, setDayLocked] = useState(!showingToday)
 
-  // TODO: stop using mock data and treat nulls properly
-  const NO_SELECTED_MEAL_ITEM = mockItem({ quantity: 666 })
-
-  const [selectedMeal, setSelectedMeal] = useState<MealData | null>(null)
-  const [selectedMealItem, setSelectedMealItem] = useState(
-    NO_SELECTED_MEAL_ITEM,
-  )
-
   const mealAddItemModalRef = useRef<ModalRef>(null)
 
-  const editModalId = 'edit-modal'
+  const EDIT_MODAL_ID = 'edit-modal'
 
+  // TODO: Create a hook for this (useDay)
   const fetchDays = async (userId: User['id']) => {
     const days = await listDays(userId)
     setDays({
@@ -88,13 +85,141 @@ export default function Page(context: any) {
     return <PageLoading message="Carregando dias" />
   }
 
-  const hasData = days.data.some(
-    (day) =>
-      day.target_day === /* TODO: Check if equality is a bug */ selectedDay,
+  const dayData = days.data.find((day) => day.target_day === selectedDay)
+
+  return (
+    <div className="mx-auto sm:w-3/4 md:w-4/5 lg:w-1/2 xl:w-1/3">
+      {/* Top bar with date picker and user icon */}
+      <TopBar selectedDay={selectedDay} handleDayChange={handleDayChange} />
+      <Show when={!selectedDay}>
+        <Alert className="mt-2" color="warning">
+          Selecione um dia
+        </Alert>
+      </Show>
+
+      <Show when={!!selectedDay && !(dayData !== undefined)}>
+        <Alert className="mt-2" color="warning">
+          Nenhum dado encontrado para o dia {selectedDay}
+        </Alert>
+        <button
+          className="btn-primary btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white"
+          onClick={() => {
+            upsertDay(
+              mockDay(
+                { owner: user.data.id, target_day: selectedDay },
+                { items: [] },
+              ),
+            ).then(() => {
+              fetchDays(user.data.id)
+            })
+          }}
+        >
+          Criar dia do zero
+        </button>
+        {dayData && (
+          <CopyLastDayButton
+            // TODO: avoid null assertion
+            dayData={dayData!}
+            days={days}
+            fetchDays={fetchDays}
+            selectedDay={selectedDay}
+            user={user}
+          />
+        )}
+      </Show>
+
+      <Show
+        when={selectedDay !== undefined && dayData !== undefined && !dayData}
+      >
+        <Alert className="mt-2" color="warning">
+          Dia encontrado, mas sem dados {selectedDay}
+        </Alert>
+        ;
+      </Show>
+
+      {dayData !== undefined && (
+        <DayContent
+          dayData={dayData}
+          editModalId={EDIT_MODAL_ID}
+          mealAddItemModalRef={mealAddItemModalRef}
+          selectedDay={selectedDay}
+          dayLocked={dayLocked}
+          fetchDays={fetchDays}
+          router={router}
+          setDayLocked={setDayLocked}
+          showingToday={showingToday}
+          today={today}
+          user={user}
+          days={days}
+        />
+      )}
+    </div>
   )
-  const dayData = days.data.find(
-    (day) =>
-      day.target_day === /* TODO: Check if equality is a bug */ selectedDay,
+}
+
+const TopBar = ({
+  selectedDay,
+  handleDayChange,
+}: {
+  selectedDay: string
+  handleDayChange: (day: DateValueType) => void
+}) => (
+  <>
+    <div className="flex items-center justify-between gap-4 bg-slate-900 px-4 py-2">
+      <div className="flex-1">
+        <Datepicker
+          asSingle={true}
+          useRange={false}
+          readOnly={true}
+          value={{
+            startDate: selectedDay,
+            endDate: selectedDay,
+          }}
+          onChange={handleDayChange}
+        />
+      </div>
+
+      <div className="flex justify-end">
+        <UserSelector />
+      </div>
+    </div>
+  </>
+)
+
+function DayContent({
+  selectedDay,
+  editModalId,
+  mealAddItemModalRef,
+  dayData,
+  fetchDays,
+  user,
+  showingToday,
+  dayLocked,
+  today,
+  router,
+  setDayLocked,
+  days,
+}: {
+  selectedDay: string
+  editModalId: string
+  mealAddItemModalRef: RefObject<ModalRef>
+  dayData: Day | undefined
+  fetchDays: (userId: User['id']) => Promise<void>
+  user: Loaded<User>
+  showingToday: boolean
+  dayLocked: boolean
+  today: string
+  router: AppRouterInstance
+  setDayLocked: (locked: boolean) => void
+  days: Loaded<Day[]>
+}) {
+  // TODO: stop using mock data and treat nulls properly
+  const NO_SELECTED_MEAL_ITEM = mockItem({ quantity: 666 })
+
+  const [selectedMeal, setSelectedMeal] = useState<MealData | null>(null)
+  // TODO: rename to FoodItem
+  const [selectedMealItem, setSelectedMealItem] = useState(
+    NO_SELECTED_MEAL_ITEM,
   )
 
   const onEditMealItem = (meal: MealData, mealItem: FoodItem) => {
@@ -194,342 +319,209 @@ export default function Page(context: any) {
     },
   )
 
-  function CopyLastDayButton() {
-    // TODO: retriggered: improve this code
-    if (days.loading || user.loading) return <>LOADING</>
-
-    const lastDayIdx = days.data.findLastIndex(
-      (day) => Date.parse(day.target_day) < Date.parse(selectedDay),
-    )
-    if (lastDayIdx === /* TODO: Check if equality is a bug */ -1) {
-      return (
-        <button
-          className="btn-error btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white"
-          onClick={() =>
-            alert(`Não foi possível encontrar um dia anterior a ${selectedDay}`)
-          }
-        >
-          Copiar dia anterior: não encontrado!
-        </button>
-      )
-      return
-    }
-
-    return (
-      <button
-        className="btn-primary btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white"
-        onClick={async () => {
-          if (hasData) {
-            if (
-              confirm(
-                'Tem certeza que deseja excluir este dia e copiar o dia anterior?',
-              )
-            ) {
+  return (
+    <>
+      {/* // TODO: Avoid non-null assertion */}
+      {selectedMeal && (
+        <>
+          <FoodSearchModal date={selectedDay} mealId={selectedMeal!.id} />
+          <MealItemAddModal
+            modalId={editModalId}
+            ref={mealAddItemModalRef}
+            itemData={{
+              id: selectedMealItem.id,
+              food: selectedMealItem.food,
+              quantity: selectedMealItem.quantity,
+            }}
+            meal={selectedMeal!}
+            show={false}
+            onApply={async (item) => {
               // TODO: Avoid non-null assertion
-              await deleteDay(dayData!.id)
-            }
-          }
+              await updateDay(dayData!.id, {
+                ...dayData!,
+                meals: dayData!.meals.map((meal) => {
+                  if (meal.id !== selectedMeal!.id) {
+                    return meal
+                  }
 
-          const lastDayIdx = days.data.findLastIndex(
-            (day) => Date.parse(day.target_day) < Date.parse(selectedDay),
-          )
-          if (lastDayIdx === /* TODO: Check if equality is a bug */ -1) {
-            alert('Não foi possível encontrar um dia anterior')
+                  const items = meal.items
+                  const changePos = items.findIndex((i) => i.id === item.id)
+
+                  items[changePos] = item
+
+                  return {
+                    ...meal,
+                    items,
+                  }
+                }),
+              })
+
+              await fetchDays(user.data.id)
+
+              mealAddItemModalRef.current?.close()
+            }}
+            onDelete={async (id: FoodItem['id']) => {
+              // TODO: Avoid non-null assertion
+              await updateDay(dayData!.id, {
+                ...dayData!,
+                meals: dayData!.meals.map((meal) => {
+                  if (meal.id !== selectedMeal!.id) {
+                    return meal
+                  }
+
+                  const items = meal.items
+                  const changePos = items.findIndex(
+                    (i) => i.id === /* TODO: Check if equality is a bug */ id,
+                  )
+
+                  items.splice(changePos, 1)
+
+                  return {
+                    ...meal,
+                    items,
+                  }
+                }),
+              })
+
+              await fetchDays(user.data.id)
+
+              mealAddItemModalRef.current?.close()
+            }}
+            onVisibilityChange={(visible) => {
+              if (!visible) {
+                setSelectedMeal(null)
+                setSelectedMealItem(NO_SELECTED_MEAL_ITEM)
+              }
+            }}
+          />
+        </>
+      )}
+      <DayMacros
+        className="mt-3 border-b-2 border-gray-800 pb-4"
+        // TODO: Avoid non-null assertion
+        macros={dayMacros!}
+      />
+      <Show when={!showingToday}>
+        <Alert className="mt-2" color="warning">
+          Mostrando refeições do dia {selectedDay}!
+        </Alert>
+        <Show when={dayLocked}>
+          <Alert className="mt-2 outline" color="info">
+            Hoje é dia <b>{today}</b>{' '}
+            <a
+              className="font-bold text-blue-500 hover:cursor-pointer "
+              onClick={() => {
+                router.push('/day/' + today)
+              }}
+            >
+              Mostrar refeições de hoje
+            </a>{' '}
+            ou{' '}
+            <a
+              className="font-bold text-red-600 hover:cursor-pointer "
+              onClick={() => {
+                setDayLocked(false)
+              }}
+            >
+              {' '}
+              Desbloquear dia {selectedDay}
+            </a>
+          </Alert>
+        </Show>
+      </Show>
+      {/* // TODO: Avoid non-null assertion */}
+      <DayMeals className="mt-5" mealsProps={mealProps!} />
+      {/* // TODO: Avoid non-null assertion */}
+      <CopyLastDayButton
+        dayData={dayData!}
+        days={days}
+        user={user}
+        selectedDay={selectedDay}
+        fetchDays={fetchDays}
+      />
+      <button
+        className="btn-error btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white hover:bg-red-400"
+        onClick={async () => {
+          if (!confirm('Tem certeza que deseja excluir este dia?')) {
             return
           }
-
-          upsertDay({
-            ...days.data[lastDayIdx],
-            target_day: selectedDay,
-            id: dayData?.id,
-          }).then(() => {
-            fetchDays(user.data.id)
-          })
+          // TODO: Avoid non-null assertion
+          await deleteDay(dayData!.id)
+          await fetchDays(user.data.id)
         }}
       >
-        {/* //TODO: retriggered: copiar qualquer dia */}
-        Copiar dia anterior ({days.data[lastDayIdx].target_day})
+        PERIGO: Excluir dia
+      </button>
+    </>
+  )
+}
+
+function CopyLastDayButton({
+  days,
+  user,
+  dayData,
+  selectedDay,
+  fetchDays,
+}: {
+  days: Loaded<Day[]>
+  user: Loaded<User>
+  dayData: Day | null
+  selectedDay: string
+  fetchDays: (userId: User['id']) => Promise<void>
+}) {
+  // TODO: Remove duplicate check of user and days loading
+  if (days.loading || user.loading) return <>LOADING</>
+
+  const lastDayIdx = days.data.findLastIndex(
+    (day) => Date.parse(day.target_day) < Date.parse(selectedDay),
+  )
+  if (lastDayIdx === /* TODO: Check if equality is a bug */ -1) {
+    return (
+      <button
+        className="btn-error btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white"
+        onClick={() =>
+          alert(`Não foi possível encontrar um dia anterior a ${selectedDay}`)
+        }
+      >
+        Copiar dia anterior: não encontrado!
       </button>
     )
   }
 
   return (
-    <div className="mx-auto sm:w-3/4 md:w-4/5 lg:w-1/2 xl:w-1/3">
-      {/* Top bar with date picker and user icon */}
-      <TopBar selectedDay={selectedDay} handleDayChange={handleDayChange} />
-      <Show when={!selectedDay}>
-        <Alert className="mt-2" color="warning">
-          Selecione um dia
-        </Alert>
-      </Show>
-
-      <Show when={!!selectedDay && !hasData}>
-        <Alert className="mt-2" color="warning">
-          Nenhum dado encontrado para o dia {selectedDay}
-        </Alert>
-        <button
-          className="btn-primary btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white"
-          onClick={() => {
-            upsertDay(
-              mockDay(
-                { owner: user.data.id, target_day: selectedDay },
-                { items: [] },
-              ),
-            ).then(() => {
-              fetchDays(user.data.id)
-            })
-          }}
-        >
-          Criar dia do zero
-        </button>
-        <CopyLastDayButton />
-      </Show>
-
-      <Show when={!!selectedDay && hasData && !dayData}>
-        <Alert className="mt-2" color="warning">
-          Dia encontrado, mas sem dados {selectedDay}
-        </Alert>
-        ;
-      </Show>
-
-      <Show when={!!selectedDay && hasData && !!dayData && !mealProps}>
-        <Alert className="mt-2" color="warning">
-          Dia encontrado, mas sem dados de refeições {selectedDay}
-        </Alert>
-        ;
-      </Show>
-
-      <Show
-        when={
-          !!selectedDay && hasData && !!dayData && !!mealProps && !dayMacros
-        }
-      >
-        <Alert className="mt-2" color="warning">
-          Dia encontrado, mas sem dados de macros {selectedDay}
-        </Alert>
-        ;
-      </Show>
-      {hasData && (
-        <DayContent
-          CopyLastDayButton={CopyLastDayButton}
-          NO_SELECTED_MEAL_ITEM={NO_SELECTED_MEAL_ITEM}
-          dayData={dayData}
-          selectedMeal={selectedMeal}
-          selectedMealItem={selectedMealItem}
-          editModalId={editModalId}
-          mealAddItemModalRef={mealAddItemModalRef}
-          selectedDay={selectedDay}
-          mealProps={mealProps}
-          dayMacros={dayMacros}
-          dayLocked={dayLocked}
-          fetchDays={fetchDays}
-          router={router}
-          setDayLocked={setDayLocked}
-          setSelectedMeal={setSelectedMeal}
-          setSelectedMealItem={setSelectedMealItem}
-          showingToday={showingToday}
-          today={today}
-          user={user}
-        />
-      )}
-    </div>
-  )
-}
-
-const TopBar = ({
-  selectedDay,
-  handleDayChange,
-}: {
-  selectedDay: string
-  handleDayChange: (day: DateValueType) => void
-}) => (
-  <>
-    <div className="flex items-center justify-between gap-4 bg-slate-900 px-4 py-2">
-      <div className="flex-1">
-        <Datepicker
-          asSingle={true}
-          useRange={false}
-          readOnly={true}
-          value={{
-            startDate: selectedDay,
-            endDate: selectedDay,
-          }}
-          onChange={handleDayChange}
-        />
-      </div>
-
-      <div className="flex justify-end">
-        <UserSelector />
-      </div>
-    </div>
-  </>
-)
-
-const DayContent = ({
-  selectedDay,
-  selectedMeal,
-  editModalId,
-  mealAddItemModalRef,
-  selectedMealItem,
-  dayData,
-  fetchDays,
-  user,
-  setSelectedMeal,
-  setSelectedMealItem,
-  NO_SELECTED_MEAL_ITEM,
-  dayMacros,
-  showingToday,
-  dayLocked,
-  today,
-  router,
-  setDayLocked,
-  mealProps,
-  CopyLastDayButton,
-}: {
-  selectedDay: string
-  selectedMeal: MealData | null
-  editModalId: string
-  mealAddItemModalRef: RefObject<ModalRef>
-  selectedMealItem: FoodItem // TODO: rename to foodItem
-  dayData: Day | undefined
-  fetchDays: (userId: User['id']) => void
-  user: Loaded<User>
-  setSelectedMeal: (meal: MealData | null) => void
-  setSelectedMealItem: (item: FoodItem) => void
-  NO_SELECTED_MEAL_ITEM: FoodItem
-  dayMacros: MacroNutrientsData | undefined
-  showingToday: boolean
-  dayLocked: boolean
-  today: string
-  router: AppRouterInstance
-  mealProps: MealProps[] | undefined
-  CopyLastDayButton: () => JSX.Element | undefined
-  setDayLocked: (locked: boolean) => void
-}) => (
-  <>
-    {/* // TODO: Avoid non-null assertion */}
-    {selectedMeal && (
-      <>
-        <FoodSearchModal date={selectedDay} mealId={selectedMeal!.id} />
-        <MealItemAddModal
-          modalId={editModalId}
-          ref={mealAddItemModalRef}
-          itemData={{
-            id: selectedMealItem.id,
-            food: selectedMealItem.food,
-            quantity: selectedMealItem.quantity,
-          }}
-          meal={selectedMeal!}
-          show={false}
-          onApply={async (item) => {
-            // TODO: Avoid non-null assertion
-            await updateDay(dayData!.id, {
-              ...dayData!,
-              meals: dayData!.meals.map((meal) => {
-                if (meal.id !== selectedMeal!.id) {
-                  return meal
-                }
-
-                const items = meal.items
-                const changePos = items.findIndex((i) => i.id === item.id)
-
-                items[changePos] = item
-
-                return {
-                  ...meal,
-                  items,
-                }
-              }),
-            })
-
-            await fetchDays(user.data.id)
-
-            mealAddItemModalRef.current?.close()
-          }}
-          onDelete={async (id: FoodItem['id']) => {
-            // TODO: Avoid non-null assertion
-            await updateDay(dayData!.id, {
-              ...dayData!,
-              meals: dayData!.meals.map((meal) => {
-                if (meal.id !== selectedMeal!.id) {
-                  return meal
-                }
-
-                const items = meal.items
-                const changePos = items.findIndex(
-                  (i) => i.id === /* TODO: Check if equality is a bug */ id,
-                )
-
-                items.splice(changePos, 1)
-
-                return {
-                  ...meal,
-                  items,
-                }
-              }),
-            })
-
-            await fetchDays(user.data.id)
-
-            mealAddItemModalRef.current?.close()
-          }}
-          onVisibilityChange={(visible) => {
-            if (!visible) {
-              setSelectedMeal(null)
-              setSelectedMealItem(NO_SELECTED_MEAL_ITEM)
-            }
-          }}
-        />
-      </>
-    )}
-    <DayMacros
-      className="mt-3 border-b-2 border-gray-800 pb-4"
-      // TODO: Avoid non-null assertion
-      macros={dayMacros!}
-    />
-    <Show when={!showingToday}>
-      <Alert className="mt-2" color="warning">
-        Mostrando refeições do dia {selectedDay}!
-      </Alert>
-      <Show when={dayLocked}>
-        <Alert className="mt-2 outline" color="info">
-          Hoje é dia <b>{today}</b>{' '}
-          <a
-            className="font-bold text-blue-500 hover:cursor-pointer "
-            onClick={() => {
-              router.push('/day/' + today)
-            }}
-          >
-            Mostrar refeições de hoje
-          </a>{' '}
-          ou{' '}
-          <a
-            className="font-bold text-red-600 hover:cursor-pointer "
-            onClick={() => {
-              setDayLocked(false)
-            }}
-          >
-            {' '}
-            Desbloquear dia {selectedDay}
-          </a>
-        </Alert>
-      </Show>
-    </Show>
-    {/* // TODO: Avoid non-null assertion */}
-    <DayMeals className="mt-5" mealsProps={mealProps!} />
-    <CopyLastDayButton />
     <button
-      className="btn-error btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white hover:bg-red-400"
+      className="btn-primary btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white"
       onClick={async () => {
-        if (!confirm('Tem certeza que deseja excluir este dia?')) {
+        if (dayData !== undefined) {
+          if (
+            confirm(
+              'Tem certeza que deseja excluir este dia e copiar o dia anterior?',
+            )
+          ) {
+            // TODO: Avoid non-null assertion
+            await deleteDay(dayData!.id)
+          }
+        }
+
+        const lastDayIdx = days.data.findLastIndex(
+          (day) => Date.parse(day.target_day) < Date.parse(selectedDay),
+        )
+        if (lastDayIdx === /* TODO: Check if equality is a bug */ -1) {
+          alert('Não foi possível encontrar um dia anterior')
           return
         }
-        // TODO: Avoid non-null assertion
-        await deleteDay(dayData!.id)
-        await fetchDays(user.data.id)
+
+        upsertDay({
+          ...days.data[lastDayIdx],
+          target_day: selectedDay,
+          id: dayData?.id,
+        }).then(() => {
+          fetchDays(user.data.id)
+        })
       }}
     >
-      PERIGO: Excluir dia
+      {/* //TODO: retriggered: copiar qualquer dia */}
+      Copiar dia anterior ({days.data[lastDayIdx].target_day})
     </button>
-  </>
-)
+  )
+}
