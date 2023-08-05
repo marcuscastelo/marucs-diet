@@ -1,12 +1,6 @@
 'use client'
 
-import {
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from 'react'
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import Modal, { ModalActions, ModalRef } from '../(modals)/modal'
 import FoodSearch, { FoodSearchProps } from './FoodSearch'
 
@@ -21,7 +15,7 @@ const FoodSearchModal = forwardRef(
     },
     ref,
   ) => {
-    const [showing, setShowing_] = useState(false)
+    const [, setShowing_] = useState(false)
 
     const modalRef = useRef<ModalRef>(null)
 
