@@ -87,7 +87,7 @@ const Modal = forwardRef(
 export function ModalHeader() {
   return (
     <h3 className="text-lg font-bold text-white">
-      Novo item em
+      Editando item em
       <span className="text-green-500"> &quot;TEST&quot; </span>
     </h3>
   )

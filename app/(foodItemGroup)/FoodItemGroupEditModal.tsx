@@ -192,7 +192,7 @@ const FoodItemGroupEditModal = forwardRef(
           onSubmit={() => onApply(createMealItemGroup())}
           header={
             <h3 className="text-lg font-bold text-white">
-              Novo item em
+              Editando item em
               <span className="text-green-500">
                 {' '}
                 &quot;{targetMealName}&quot;{' '}

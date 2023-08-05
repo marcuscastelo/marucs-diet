@@ -270,6 +270,7 @@ export default function FoodSearch({
         meal={meal}
         itemData={{
           reference: selectedFood.id,
+          name: selectedFood.name,
           macros: selectedFood.macros,
         }}
         onApply={async (i) => handleNewFoodItem(i)}
@@ -466,6 +467,7 @@ const SearchResults = ({
                 <FoodItemView
                   foodItem={{
                     id: Math.random() * 1000000,
+                    name: food.name,
                     quantity: 100,
                     macros: food.macros,
                     reference: food.id,

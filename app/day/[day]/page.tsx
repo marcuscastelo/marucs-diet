@@ -12,8 +12,6 @@ import { Alert } from 'flowbite-react'
 import Show from '../../Show'
 import DayMacros from '../../DayMacros'
 import { MealData } from '@/model/mealModel'
-import { FoodItem } from '@/model/foodItemModel'
-import { MacroNutrientsData } from '@/model/macroNutrientsModel'
 import { useRouter } from 'next/navigation'
 import { mockDay } from '@/app/test/unit/(mock)/mockData'
 import UserSelector from '@/app/UserSelector'
@@ -26,6 +24,7 @@ import FoodSearchModal from '@/app/newItem/FoodSearchModal'
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context'
 import { FoodItemGroup } from '@/model/foodItemGroupModel'
 import { calcDayMacros } from '@/utils/macroMath'
+import FoodItemGroupEditModal from '@/app/(foodItemGroup)/FoodItemGroupEditModal'
 
 type PageParams = {
   params: {
@@ -190,7 +189,7 @@ const TopBar = ({
 function DayContent({
   selectedDay,
   editModalId,
-  mealAddItemModalRef,
+  mealAddItemModalRef: foodItemGroupEditModalRef,
   foodSearchModalRef,
   dayData, // TODO: Rename all occurrences of dayData to day
   fetchDays,
@@ -230,10 +229,7 @@ function DayContent({
     setSelectedMeal(meal)
     console.debug('setSelectedMealItem(mealItem)')
     setSelectedItemGroup(itemGroup)
-    alert(
-      'TODO: Implement edit item group: ' + JSON.stringify(itemGroup, null, 2),
-    )
-    mealAddItemModalRef.current?.showModal()
+    foodItemGroupEditModalRef.current?.showModal()
   }
 
   const onUpdateMeal = async (dayData: Day, meal: MealData) => {
@@ -315,7 +311,7 @@ function DayContent({
               ...oldMeal.groups,
               {
                 id: item.id,
-                name: 'Test',
+                name: item.name,
                 quantity: item.quantity,
                 type: 'simple',
                 items: [{ ...item }],
@@ -338,16 +334,11 @@ function DayContent({
           await updateDay(dayData!.id, newDay)
         }}
       />
-      {/* // TODO: Create FoodItemGroupEditModal */}
-      {/* <MealItemAddModal
+      <FoodItemGroupEditModal
         modalId={editModalId}
-        ref={mealAddItemModalRef}
-        itemData={
-          selectedItemGroup && {
-            ...selectedItemGroup,
-          }
-        }
-        meal={selectedMeal}
+        ref={foodItemGroupEditModalRef}
+        group={selectedItemGroup}
+        targetMealName={selectedMeal?.name ?? 'ERROR: No meal selected'}
         onApply={async (item) => {
           // TODO: Avoid non-null assertion
           await updateDay(dayData!.id, {
@@ -375,9 +366,9 @@ function DayContent({
           setSelectedMeal(null)
           console.debug('setSelectedMealItem(null)')
           setSelectedItemGroup(null)
-          mealAddItemModalRef.current?.close()
+          foodItemGroupEditModalRef.current?.close()
         }}
-        onDelete={async (id: FoodItem['id']) => {
+        onDelete={async (id: FoodItemGroup['id']) => {
           // TODO: Avoid non-null assertion
           await updateDay(dayData!.id, {
             ...dayData!,
@@ -387,9 +378,7 @@ function DayContent({
               }
 
               const items = meal.groups
-              const changePos = items.findIndex(
-                (i) => i.id === id,
-              )
+              const changePos = items.findIndex((i) => i.id === id)
 
               items.splice(changePos, 1)
 
@@ -406,7 +395,7 @@ function DayContent({
           setSelectedMeal(null)
           console.debug('setSelectedMealItem(null)')
           setSelectedItemGroup(null)
-          mealAddItemModalRef.current?.close()
+          foodItemGroupEditModalRef.current?.close()
         }}
         onVisibilityChange={(visible) => {
           if (!visible) {
@@ -416,7 +405,7 @@ function DayContent({
             setSelectedItemGroup(null)
           }
         }}
-      /> */}
+      />
       <DayMacros
         className="mt-3 border-b-2 border-gray-800 pb-4"
         // TODO: Avoid non-null assertion
