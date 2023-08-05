@@ -70,11 +70,6 @@ const RecipeEditModal = forwardRef(
       },
     }))
 
-    useEffect(() => {
-      selfModalRef.current?.showModal()
-      handleSetShowing(true)
-    }, [handleSetShowing]) // TODO : remove after POC
-
     return (
       <>
         <Show when={itemToEdit !== null}>
@@ -92,6 +87,11 @@ const RecipeEditModal = forwardRef(
                 ],
               }))
               setItemToEdit(null)
+            }}
+            onVisibilityChange={(isShowing) => {
+              if (!isShowing) {
+                setItemToEdit(null)
+              }
             }}
           />
         </Show>
