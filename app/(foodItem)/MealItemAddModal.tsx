@@ -21,6 +21,7 @@ import { searchRecipeById } from '@/controllers/recipes'
 const RECIPE_EDIT_MODAL_ID = 'meal-item-add-modal:self:recipe-edit-modal'
 
 // TODO: Rename to FoodItemEdit
+// TODO: Add item name field
 export type MealItemAddModalProps = {
   modalId: string
   meal: MealData | null
@@ -153,6 +154,7 @@ const MealItemAddModal = forwardRef(
     const createMealItemData = (): FoodItem => ({
       id,
       quantity: Number(quantity),
+      name: itemData?.name ?? 'Sem nome (createMealItemData)',
       reference: itemData?.reference ?? 0,
       macros: itemData?.macros ?? {
         protein: 0,
@@ -181,7 +183,7 @@ const MealItemAddModal = forwardRef(
           onSubmit={() => onApply(createMealItemData())}
           header={
             <h3 className="text-lg font-bold text-white">
-              Novo item em
+              Editando item em
               <span className="text-green-500">
                 {' '}
                 &quot;{meal?.name ?? 'MEAL NOT LOADED'}&quot;{' '}
@@ -303,6 +305,8 @@ const MealItemAddModal = forwardRef(
                   foodItem={
                     {
                       id,
+                      name:
+                        itemData.name ?? 'Sem nome (itemData && FoodItemView)',
                       quantity: Number(quantity),
                       reference: itemData.reference,
                       macros: itemData.macros,

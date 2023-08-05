@@ -85,6 +85,7 @@ export default function Page() {
               key={idx}
               foodItem={{
                 id: 123,
+                name: food.name,
                 quantity: 100,
                 macros: {
                   ...food.macros,

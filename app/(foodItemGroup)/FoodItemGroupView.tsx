@@ -3,14 +3,12 @@
 import MacroNutrients from '../MacroNutrients'
 import { MacroNutrientsData } from '@/model/macroNutrientsModel'
 import CopyIcon from '../(icons)/CopyIcon'
-import { useState } from 'react'
-import { Food } from '@/model/foodModel'
-import { Recipe } from '@/model/recipeModel'
 import {
   FoodItemGroupContextProvider,
   useFoodItemGroupContext,
 } from './FoodItemGroupContext'
 import { FoodItemGroup } from '@/model/foodItemGroupModel'
+import { calcGroupCalories, calcGroupMacros } from '@/utils/macroMath'
 
 export type FoodItemGroupViewProps = {
   foodItemGroup: FoodItemGroup
@@ -151,17 +149,7 @@ function MealItemFavorite({
 function MealItemNutritionalInfo() {
   const { foodItemGroup: itemGroup } = useFoodItemGroupContext()
 
-  // TODO: Calculate macros for itemgroup
-  // const multipliedMacros: MacroNutrientsData = {
-  //   carbs: (itemGroup.macros.carbs * itemGroup.quantity) / 100,
-  //   protein: (itemGroup.macros.protein * itemGroup.quantity) / 100,
-  //   fat: (itemGroup.macros.fat * itemGroup.quantity) / 100,
-  // }
-  const multipliedMacros: MacroNutrientsData = {
-    carbs: 6666,
-    protein: 6666,
-    fat: 6666,
-  }
+  const multipliedMacros: MacroNutrientsData = calcGroupMacros(itemGroup)
 
   return (
     <div className="flex">

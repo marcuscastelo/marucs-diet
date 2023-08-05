@@ -3,6 +3,7 @@ import { MacroNutrientsSchema as macroNutrientsSchema } from './macroNutrientsMo
 
 export const itemSchema = z.object({
   id: z.number(),
+  name: z.string(),
   reference: z.number(),
   quantity: z.number(),
   macros: macroNutrientsSchema,
