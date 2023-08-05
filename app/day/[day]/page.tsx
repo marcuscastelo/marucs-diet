@@ -11,12 +11,12 @@ import Datepicker from 'react-tailwindcss-datepicker'
 import { Alert } from 'flowbite-react'
 import Show from '../../Show'
 import DayMacros from '../../DayMacros'
-import { MealData } from '@/model/mealModel'
-import { FoodItem } from '@/model/foodItemModel'
+import { MealData, mealSchema } from '@/model/mealModel'
+import { FoodItem, foodItemSchema } from '@/model/foodItemModel'
 import { MacroNutrientsData } from '@/model/macroNutrientsModel'
 import { useRouter } from 'next/navigation'
 import MealItemAddModal from '@/app/MealItemAddModal'
-import { mockDay, mockItem, mockMeal } from '@/app/test/unit/(mock)/mockData'
+import { mockDay, mockItem } from '@/app/test/unit/(mock)/mockData'
 import UserSelector from '@/app/UserSelector'
 import { useUser } from '@/redux/features/userSlice'
 import { Loadable, Loaded } from '@/utils/loadable'
@@ -25,6 +25,7 @@ import { User } from '@/model/userModel'
 import { ModalRef } from '@/app/(modals)/modal'
 import FoodSearchModal from '@/app/newItem/FoodSearchModal'
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context'
+import { z } from 'zod'
 
 type PageParams = {
   params: {
@@ -143,7 +144,7 @@ export default function Page({ params }: PageParams) {
           dayData={dayData}
           editModalId={EDIT_MODAL_ID}
           mealAddItemModalRef={mealAddItemModalRef}
-          foodSearchModalRef={MealItemAddModal}
+          foodSearchModalRef={foodSearchModalRef}
           selectedDay={selectedDay}
           dayLocked={dayLocked}
           fetchDays={fetchDays}
@@ -217,13 +218,9 @@ function DayContent({
   setDayLocked: (locked: boolean) => void
   days: Loaded<Day[]>
 }) {
-  // TODO: stop using mock data and treat nulls properly
-  const NO_SELECTED_MEAL_ITEM = mockItem({ quantity: 666 })
-
   const [selectedMeal, setSelectedMeal] = useState<MealData | null>(null)
-  // TODO: rename to FoodItem
-  const [selectedMealItem, setSelectedMealItem] = useState(
-    NO_SELECTED_MEAL_ITEM,
+  const [selectedMealItem, setSelectedMealItem] = useState<FoodItem | null>(
+    null,
   )
 
   const onEditMealItem = (meal: MealData, mealItem: FoodItem) => {
@@ -232,8 +229,11 @@ function DayContent({
       return
     }
 
+    console.debug('setSelectedMeal(meal)')
     setSelectedMeal(meal)
+    console.debug('setSelectedMealItem(mealItem)')
     setSelectedMealItem(mealItem)
+    mealAddItemModalRef.current?.showModal()
   }
 
   const onUpdateMeal = async (dayData: Day, meal: MealData) => {
@@ -259,12 +259,18 @@ function DayContent({
   }
 
   const handleNewItemButton = (meal: MealData) => {
+    console.log('New item button clicked')
     if (dayLocked) {
       alert('Dia bloqueado, não é possível editar')
       return
     }
 
+    console.debug('setSelectedMealItem(null)')
+    setSelectedMealItem(null)
+    console.debug('Setting selected meal to', meal)
+    console.debug('setSelectedMeal(meal)')
     setSelectedMeal(meal)
+    console.debug('foodSearchModalRef', foodSearchModalRef)
     foodSearchModalRef.current?.showModal()
   }
 
@@ -324,111 +330,127 @@ function DayContent({
 
   return (
     <>
-      {/* // TODO: Avoid non-null assertion */}
+      <FoodSearchModal
+        date={selectedDay}
+        mealId={selectedMeal?.id}
+        ref={foodSearchModalRef}
+        onFinish={() => {
+          console.debug('setSelectedMeal(null)')
+          setSelectedMeal(null)
+          foodSearchModalRef.current?.close()
+          fetchDays(user.data.id)
+        }}
+        onVisibilityChange={(visible) => {
+          if (!visible) {
+            console.debug('setSelectedMeal(null)')
+            setSelectedMeal(null)
+          }
+        }}
+        onNewFoodItem={async (item) => {
+          // TODO: Create a proper onNewFoodItem function
+          const oldMeal = selectedMeal! // TODO: Avoid non-null assertion
 
-      {selectedMeal && (
-        <>
-          <FoodSearchModal
-            date={selectedDay}
-            mealId={selectedMeal.id}
-            onFinish={() => {
-              mealAddItemModalRef.current?.close()
-            }}
-            onNewFoodItem={async (item) => {
-              // TODO: Create a proper onNewFoodItem function
-              const oldMeal = selectedMeal! // TODO: Avoid non-null assertion
+          const newMeal = {
+            ...oldMeal,
+            items: [...oldMeal.items, item],
+          }
 
-              const newMeal = {
-                ...oldMeal,
-                items: [...oldMeal.items, item],
-              }
-
-              const newDay: Day = {
-                ...dayData!,
-                meals: dayData!.meals.map((m) => {
-                  // TODO: Avoid non-null assertion
-                  if (m.id === oldMeal.id) {
-                    return newMeal
-                  }
-
-                  return m
-                }),
-              }
-
-              await updateDay(dayData!.id, newDay)
-            }}
-          />
-          <MealItemAddModal
-            modalId={editModalId}
-            ref={mealAddItemModalRef}
-            itemData={{
-              id: selectedMealItem.id,
-              food: selectedMealItem.food,
-              quantity: selectedMealItem.quantity,
-            }}
-            meal={selectedMeal!}
-            show={false}
-            onApply={async (item) => {
+          const newDay: Day = {
+            ...dayData!,
+            meals: dayData!.meals.map((m) => {
               // TODO: Avoid non-null assertion
-              await updateDay(dayData!.id, {
-                ...dayData!,
-                meals: dayData!.meals.map((meal) => {
-                  if (meal.id !== selectedMeal!.id) {
-                    return meal
-                  }
-
-                  const items = meal.items
-                  const changePos = items.findIndex((i) => i.id === item.id)
-
-                  items[changePos] = item
-
-                  return {
-                    ...meal,
-                    items,
-                  }
-                }),
-              })
-
-              await fetchDays(user.data.id)
-
-              mealAddItemModalRef.current?.close()
-            }}
-            onDelete={async (id: FoodItem['id']) => {
-              // TODO: Avoid non-null assertion
-              await updateDay(dayData!.id, {
-                ...dayData!,
-                meals: dayData!.meals.map((meal) => {
-                  if (meal.id !== selectedMeal!.id) {
-                    return meal
-                  }
-
-                  const items = meal.items
-                  const changePos = items.findIndex(
-                    (i) => i.id === /* TODO: Check if equality is a bug */ id,
-                  )
-
-                  items.splice(changePos, 1)
-
-                  return {
-                    ...meal,
-                    items,
-                  }
-                }),
-              })
-
-              await fetchDays(user.data.id)
-
-              mealAddItemModalRef.current?.close()
-            }}
-            onVisibilityChange={(visible) => {
-              if (!visible) {
-                setSelectedMeal(null)
-                setSelectedMealItem(NO_SELECTED_MEAL_ITEM)
+              if (m.id === oldMeal.id) {
+                return newMeal
               }
-            }}
-          />
-        </>
-      )}
+
+              return m
+            }),
+          }
+
+          await updateDay(dayData!.id, newDay)
+        }}
+      />
+
+      <MealItemAddModal
+        modalId={editModalId}
+        ref={mealAddItemModalRef}
+        itemData={
+          selectedMealItem && {
+            id: selectedMealItem.id,
+            food: selectedMealItem.food,
+            quantity: selectedMealItem.quantity,
+          }
+        }
+        meal={selectedMeal}
+        onApply={async (item) => {
+          // TODO: Avoid non-null assertion
+          await updateDay(dayData!.id, {
+            ...dayData!,
+            meals: dayData!.meals.map((meal) => {
+              if (meal.id !== selectedMeal!.id) {
+                return meal
+              }
+
+              const items = meal.items
+              const changePos = items.findIndex((i) => i.id === item.id)
+
+              items[changePos] = item
+
+              return {
+                ...meal,
+                items,
+              }
+            }),
+          })
+
+          await fetchDays(user.data.id)
+
+          console.debug('setSelectedMeal(null)')
+          setSelectedMeal(null)
+          console.debug('setSelectedMealItem(null)')
+          setSelectedMealItem(null)
+          mealAddItemModalRef.current?.close()
+        }}
+        onDelete={async (id: FoodItem['id']) => {
+          // TODO: Avoid non-null assertion
+          await updateDay(dayData!.id, {
+            ...dayData!,
+            meals: dayData!.meals.map((meal) => {
+              if (meal.id !== selectedMeal!.id) {
+                return meal
+              }
+
+              const items = meal.items
+              const changePos = items.findIndex(
+                (i) => i.id === /* TODO: Check if equality is a bug */ id,
+              )
+
+              items.splice(changePos, 1)
+
+              return {
+                ...meal,
+                items,
+              }
+            }),
+          })
+
+          await fetchDays(user.data.id)
+
+          console.debug('setSelectedMeal(null)')
+          setSelectedMeal(null)
+          console.debug('setSelectedMealItem(null)')
+          setSelectedMealItem(null)
+          mealAddItemModalRef.current?.close()
+        }}
+        onVisibilityChange={(visible) => {
+          if (!visible) {
+            console.debug('setSelectedMeal(null)')
+            setSelectedMeal(null)
+            console.debug('setSelectedMealItem(null)')
+            setSelectedMealItem(null)
+          }
+        }}
+      />
       <DayMacros
         className="mt-3 border-b-2 border-gray-800 pb-4"
         // TODO: Avoid non-null assertion
