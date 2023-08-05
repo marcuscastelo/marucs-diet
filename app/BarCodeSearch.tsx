@@ -99,8 +99,12 @@ export default function BarCodeSearch({
                 <FoodItemView
                   foodItem={{
                     id: Math.round(Math.random() * 1000000), // TODO: retriggered: properly generate id
-                    food: currentFood,
+                    type: 'food',
+                    reference: currentFood.id,
                     quantity: 100,
+                    macros: {
+                      ...currentFood.macros,
+                    },
                   }}
                   header={
                     <FoodItemView.Header

@@ -9,22 +9,23 @@ import {
 } from 'react'
 import FoodItemView from './(foodItem)/FoodItemView'
 import { FoodItem } from '@/model/foodItemModel'
-import { Food } from '@/model/foodModel'
 import { MealData } from '@/model/mealModel'
-import { useFavoriteFoods, useUser } from '@/redux/features/userSlice'
+import { useFavoriteFoods } from '@/redux/features/userSlice'
 import Modal, { ModalActions, ModalRef } from './(modals)/modal'
-import { mockFood, mockItem } from './test/unit/(mock)/mockData'
+import { mockFood } from './test/unit/(mock)/mockData'
 import RecipeEditModal from './(recipe)/RecipeEditModal'
-import { Recipe, createRecipe } from '@/model/recipeModel'
+import { Recipe } from '@/model/recipeModel'
 import { Loadable } from '@/utils/loadable'
-import { searchRecipeById, listRecipes } from '@/controllers/recipes'
+import { searchRecipeById } from '@/controllers/recipes'
 
 const RECIPE_EDIT_MODAL_ID = 'meal-item-add-modal:self:recipe-edit-modal'
 
 export type MealItemAddModalProps = {
   modalId: string
   meal: MealData | null
-  itemData: (Partial<FoodItem> & { food: Food }) | null
+  itemData:
+    | (Partial<FoodItem> & Pick<FoodItem, 'reference' | 'type' | 'macros'>)
+    | null
   onApply: (item: FoodItem) => void
   onCancel?: () => void
   onDelete?: (itemId: FoodItem['id']) => void
@@ -97,15 +98,19 @@ const MealItemAddModal = forwardRef(
     }, [itemData?.quantity, itemData?.id])
 
     useEffect(() => {
-      if (itemData?.food.recipeId === undefined) {
+      if (itemData?.type !== 'recipe') {
+        setRecipe({ loading: false, data: null })
+      }
+
+      if (itemData?.reference === undefined) {
         setRecipe({ loading: false, data: null })
       } else {
         setRecipe({ loading: true })
-        searchRecipeById(itemData?.food.recipeId).then((recipe) => {
+        searchRecipeById(itemData?.reference).then((recipe) => {
           setRecipe({ loading: false, data: recipe })
         })
       }
-    }, [itemData?.food.recipeId])
+    }, [itemData?.type, itemData?.reference])
 
     useEffect(() => {
       setQuantityFieldDisabled(true)
@@ -164,14 +169,20 @@ const MealItemAddModal = forwardRef(
     const createMealItemData = (): FoodItem => ({
       id,
       quantity: Number(quantity),
-      food: itemData?.food ?? mockFood({ name: 'THIS IS A BUG' }), // TODO: Remove mock food
+      reference: itemData?.reference ?? 0,
+      macros: itemData?.macros ?? {
+        protein: 0,
+        carbs: 0,
+        fat: 0,
+      },
+      type: itemData?.type ?? 'food',
     })
 
     return (
       <>
-        {itemData?.food.name.toString()}
+        {/* {itemData?.food.name.toString()}
         {itemData?.food.id.toString()}
-        {itemData?.food.recipeId?.toString() ?? 'NO RECIPE ID'}
+        {itemData?.food.recipeId?.toString() ?? 'NO RECIPE ID'} */}
         {recipe.loading.valueOf().toString()}
         {(!recipe.loading && JSON.stringify(recipe.data, null, 2)) ||
           'NO RECIPE DATA'}
@@ -304,40 +315,50 @@ const MealItemAddModal = forwardRef(
                   </div>
                 </div>
               </div>
-
-              <FoodItemView
-                foodItem={{
-                  id,
-                  food: itemData?.food ?? mockFood({ name: 'THIS IS A BUG' }), // TODO: Remove mock food
-                  quantity: Number(quantity),
-                }}
-                className="mt-4"
-                onClick={() => {
-                  if (itemData?.food.recipeId !== undefined) {
-                    recipeEditModalRef.current?.showModal()
-                  } else {
-                    alert('Alimento não editável (ainda)')
+              {itemData && (
+                <FoodItemView
+                  foodItem={
+                    {
+                      id,
+                      quantity: Number(quantity),
+                      type: itemData.type ?? 'food',
+                      reference: itemData.reference,
+                      macros: itemData.macros,
+                    } satisfies FoodItem
                   }
-                }}
-                header={
-                  <FoodItemView.Header
-                    name={<FoodItemView.Header.Name />}
-                    favorite={
-                      <FoodItemView.Header.Favorite
-                        favorite={
-                          (itemData && isFoodFavorite(itemData.food.id)) ||
-                          false
-                        }
-                        setFavorite={(favorite) =>
-                          itemData &&
-                          setFoodAsFavorite(itemData.food.id, favorite)
-                        }
-                      />
+                  className="mt-4"
+                  onClick={() => {
+                    if (itemData?.type === 'recipe') {
+                      recipeEditModalRef.current?.showModal()
+                    } else {
+                      alert('Alimento não editável (ainda)')
                     }
-                  />
-                }
-                nutritionalInfo={<FoodItemView.NutritionalInfo />}
-              />
+                  }}
+                  header={
+                    <FoodItemView.Header
+                      name={<FoodItemView.Header.Name />}
+                      favorite={
+                        <FoodItemView.Header.Favorite
+                          favorite={
+                            // TODO: isRecipeFavorite as well
+                            (itemData &&
+                              itemData.type === 'food' &&
+                              isFoodFavorite(itemData.reference)) ||
+                            false
+                          }
+                          setFavorite={(favorite) =>
+                            itemData &&
+                            itemData.type === 'food' &&
+                            // TODO: setRecipeAsFavorite as well
+                            setFoodAsFavorite(itemData.reference, favorite)
+                          }
+                        />
+                      }
+                    />
+                  }
+                  nutritionalInfo={<FoodItemView.NutritionalInfo />}
+                />
+              )}
             </>
           }
           actions={

@@ -26,7 +26,9 @@ export const mockMeal = (partial?: Partial<New<MealData>>): MealData =>
 let mockItemQtyPseudoId = 10
 export const mockItem = (partial?: Partial<FoodItem>): FoodItem => ({
   id: Math.round(Math.random() * 1000),
-  food: mockFood(),
+  reference: mockFood().id,
+  macros: mockFood().macros,
+  type: 'food',
   quantity: mockItemQtyPseudoId++,
   ...partial,
 })

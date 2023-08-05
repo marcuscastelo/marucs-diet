@@ -9,7 +9,7 @@ export default function Page() {
   const [foods, setFoods] = useState<Food[]>([mockFood()])
 
   const fetchFoods = async () => {
-    const foods = await listFoods()
+    const foods = await listFoods(10)
     setFoods(foods)
   }
 

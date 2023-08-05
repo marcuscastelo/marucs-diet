@@ -6,6 +6,11 @@ import { MacroNutrientsData } from '@/model/macroNutrientsModel'
 import { calculateCalories } from '../MacroTargets'
 import { FoodItemContextProvider, useFoodItemContext } from './FoodItemContext'
 import CopyIcon from '../(icons)/CopyIcon'
+import { useEffect, useState } from 'react'
+import { Food } from '@/model/foodModel'
+import { Recipe } from '@/model/recipeModel'
+import { searchFoodById, searchFoodsByEan } from '@/controllers/food'
+import { searchRecipeById } from '@/controllers/recipes'
 
 export type FoodItemViewProps = {
   foodItem: FoodItem
@@ -23,6 +28,7 @@ export default function FoodItemView({
   onClick,
 }: FoodItemViewProps) {
   const handleClick = (e: React.MouseEvent) => {
+    // TODO: Check if parameter is needed (foodItem doesn't seem to be changed)
     onClick?.(foodItem)
     e.stopPropagation()
     e.preventDefault()
@@ -69,7 +75,27 @@ MealItemHeader.CopyButton = MealItemCopyButton
 MealItemHeader.Favorite = MealItemFavorite
 
 function MealItemName({ debug = true }: { debug?: boolean }) {
-  const { foodItem: mealItem } = useFoodItemContext()
+  const { foodItem: item } = useFoodItemContext()
+
+  const [food, setFood] = useState<Food | null>(null)
+  const [recipe, setRecipe] = useState<Recipe | null>(null)
+
+  useEffect(() => {
+    if (item.type === 'food') {
+      setRecipe(null)
+      searchFoodById(item.reference).then((food) => setFood(food))
+    } else if (item.type === 'recipe') {
+      setFood(null)
+      searchRecipeById(item.reference).then((recipe) => setRecipe(recipe))
+    }
+  }, [item])
+
+  const itemSource = food ?? recipe
+
+  const NAME_COLOR: Record<FoodItem['type'], string> = {
+    food: 'text-white',
+    recipe: 'text-blue-500',
+  }
 
   return (
     <div className="">
@@ -77,18 +103,14 @@ function MealItemName({ debug = true }: { debug?: boolean }) {
       {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.mealItem.id}]</h5> */}
       <h5
         className={`mb-2 text-lg font-bold tracking-tight ${
-          mealItem.food.recipeId === undefined ? 'text-white' : 'text-blue-500'
+          NAME_COLOR[item.type]
         }`}
       >
-        {mealItem.food.name}{' '}
+        {itemSource?.name ?? 'ItemSource not found'}{' '}
         {debug && (
           <>
-            <div className="text-sm text-gray-400">
-              [ID: {mealItem.food.id}]
-            </div>
-            <div className="text-sm text-gray-400">
-              [Recipe: {mealItem.food.recipeId ?? 'no recipe'}]
-            </div>
+            <div className="text-sm text-gray-400">[ID: {item?.id}]</div>
+            <div className="text-sm text-gray-400">[ID: {itemSource?.id}]</div>
           </>
         )}
       </h5>
@@ -143,27 +165,25 @@ function MealItemFavorite({
 }
 
 function MealItemNutritionalInfo() {
-  const { foodItem: mealItem } = useFoodItemContext()
-
-  const foodMacros = mealItem.food.macros
+  const { foodItem: item } = useFoodItemContext()
 
   const multipliedMacros: MacroNutrientsData = {
-    carbs: (foodMacros.carbs * mealItem.quantity) / 100,
-    protein: (foodMacros.protein * mealItem.quantity) / 100,
-    fat: (foodMacros.fat * mealItem.quantity) / 100,
+    carbs: (item.macros.carbs * item.quantity) / 100,
+    protein: (item.macros.protein * item.quantity) / 100,
+    fat: (item.macros.fat * item.quantity) / 100,
   }
 
   return (
     <div className="flex">
       <MacroNutrients {...multipliedMacros} />
       <div className="ml-auto">
-        <span className="text-white"> {mealItem.quantity}g </span>|
+        <span className="text-white"> {item.quantity}g </span>|
         <span className="text-white">
           {' '}
           {calculateCalories({
-            carbs: (mealItem.food.macros.carbs * mealItem.quantity) / 100,
-            protein: (mealItem.food.macros.protein * mealItem.quantity) / 100,
-            fat: (mealItem.food.macros.fat * mealItem.quantity) / 100,
+            carbs: (item.macros.carbs * item.quantity) / 100,
+            protein: (item.macros.protein * item.quantity) / 100,
+            fat: (item.macros.fat * item.quantity) / 100,
           }).toFixed(0)}
           kcal{' '}
         </span>

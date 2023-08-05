@@ -182,6 +182,22 @@ export const searchFoodsByName = async (
   })
 }
 
+// TODO: Rename controllers searchXById to getXById or something like that
+export const searchFoodById = async (id: Food['id']): Promise<Food> => {
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select()
+    .eq('id', id)
+    .limit(1)
+    .single()
+
+  if (error) {
+    console.error(error)
+    throw error
+  }
+  return foodSchema.parse(data)
+}
+
 export const searchFoodsByEan = async (
   ean: string,
   limit?: number,

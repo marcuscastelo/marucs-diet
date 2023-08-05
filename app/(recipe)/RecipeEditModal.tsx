@@ -82,7 +82,7 @@ const RecipeEditModal = forwardRef(
           <MealItemAddModal
             modalId="RECIPES_EDIT_MODAL:FOOD_ITEM_ADD_MODAL"
             ref={mealItemAddModalRef}
-            itemData={itemToEdit!} // TODO: <Show> should handle this with a type guard
+            itemData={itemToEdit}
             meal={recipe as unknown as MealData} // TODO: Make MealItemAddModal not depend on MealData anymore
             onApply={(foodItem) => {
               if (!recipe) return

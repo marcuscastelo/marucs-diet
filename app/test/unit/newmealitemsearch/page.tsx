@@ -98,8 +98,12 @@ export default function Page() {
             key={idx}
             foodItem={{
               id: 123,
-              food,
               quantity: 100,
+              macros: {
+                ...food.macros,
+              },
+              reference: food.id,
+              type: 'food',
             }}
           />
         </div>
