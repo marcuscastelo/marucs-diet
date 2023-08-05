@@ -338,7 +338,7 @@ function DayContent({
         ref={foodItemGroupEditModalRef}
         group={selectedItemGroup}
         targetMealName={selectedMeal?.name ?? 'ERROR: No meal selected'}
-        onApply={async (group) => {
+        onSaveGroup={async (group) => {
           console.debug('FoodItemGroupEditModal onApply, received group', group)
           // TODO: Avoid non-null assertion
           await updateDay(dayData!.id, {
