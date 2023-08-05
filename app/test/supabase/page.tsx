@@ -24,7 +24,7 @@ export default function Cart() {
       })
     })
 
-    listFoods().then((foods) => {
+    listFoods(10).then((foods) => {
       setFoods({
         loading: false,
         data: foods,

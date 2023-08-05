@@ -4,7 +4,7 @@ import { Day, daySchema } from '@/model/dayModel'
 import { User } from '@/model/userModel'
 import supabase from '@/utils/supabase'
 
-const TABLE = 'days'
+const TABLE = 'days_test'
 
 // TODO: retriggered: tratar erros (também no resto dos controllers)
 export const listDays = async (userId: User['id']): Promise<Day[]> =>

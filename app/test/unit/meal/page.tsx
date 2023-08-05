@@ -14,7 +14,7 @@ export default function MealPage() {
       header={<Meal.Header onUpdateMeal={(meal) => setMeal(meal)} />}
       content={
         <Meal.Content
-          onEditItem={(item) => alert(`Mock: Edit "${item.food.name}"`)}
+          onEditItem={(item) => alert(`Mock: Edit foodid="${item.reference}"`)}
         />
       }
       actions={

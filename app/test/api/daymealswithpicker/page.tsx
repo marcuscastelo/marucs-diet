@@ -35,7 +35,9 @@ export default function Page() {
           ),
           content: (
             <Meal.Content
-              onEditItem={(item) => alert(`Mock: Edit "${item.food.name}"`)}
+              onEditItem={(item) =>
+                alert(`Mock: Edit foodid= "${item.reference}"`)
+              }
             />
           ),
           actions: <Meal.Actions onNewItem={() => alert('Mock: New item')} />,
@@ -125,7 +127,7 @@ export default function Page() {
                 content: (
                   <Meal.Content
                     onEditItem={(item) =>
-                      alert(`Mock: Edit "${item.food.name}"`)
+                      alert(`Mock: Edit foodid= "${item.reference}"`)
                     }
                   />
                 ),
