@@ -36,7 +36,7 @@ export type FoodItemGroupEditModalProps = {
   //   meal: MealData | null
   targetMealName: string
   group: (Partial<FoodItemGroup> & Pick<FoodItemGroup, never>) | null
-  onApply: (item: FoodItemGroup) => void
+  onSaveGroup: (item: FoodItemGroup) => void
   onCancel?: () => void
   onDelete?: (groupId: FoodItemGroup['id']) => void
   onVisibilityChange?: (isShowing: boolean) => void
@@ -50,7 +50,7 @@ const FoodItemGroupEditModal = forwardRef(
       modalId,
       group,
       targetMealName,
-      onApply,
+      onSaveGroup,
       onCancel,
       onDelete,
       onVisibilityChange,
@@ -61,6 +61,11 @@ const FoodItemGroupEditModal = forwardRef(
     const [showing, setShowing_] = useState(false)
     const [quantity, setQuantity] = useState(group?.quantity?.toString() ?? '')
     const [id, setId] = useState(group?.id ?? Math.random()) // TODO: Proper ID generation on other module or backend
+
+    const [selectedFoodItem, setSelectedFoodItem] = useState<FoodItem | null>(
+      null,
+    )
+
     const canApply = quantity !== '' && Number(quantity) > 0
     // const quantityRef = useRef<HTMLInputElement>(null)
     const selfModalRef = useRef<ModalRef>(null)
@@ -182,19 +187,42 @@ const FoodItemGroupEditModal = forwardRef(
           recipe={(!recipe.loading && recipe.data) || null}
           onSaveRecipe={async () => alert('TODO: Save recipe')}
         /> */}
-        {/* <MealItemAddModal
+        <MealItemAddModal
           modalId={`VERY_UNIQUE_ID_${id}`} // TODO: Clean all modal IDs on the project
           ref={mealItemAddModalRef}
           targetName={
             group?.name ?? 'ERRO: Grupo de alimentos não especificado'
           }
-          itemData={{
-            reference: selectedFood.id,
-            name: selectedFood.name,
-            macros: selectedFood.macros,
+          itemData={selectedFoodItem}
+          onApply={async (item) => {
+            const newGroup: FoodItemGroup = {
+              ...group,
+              id: group?.id ?? Math.round(Math.random() * 1000000),
+              name: `${group?.name ?? ''}`,
+              quantity: 0, // Will be set later
+              type: 'simple',
+              items: [
+                ...(group?.items?.map((i) => {
+                  if (i.id !== item.id) {
+                    return i
+                  }
+                  return {
+                    ...item,
+                  }
+                }) ?? []),
+              ],
+            } satisfies FoodItemGroup
+
+            newGroup.quantity = newGroup.items.reduce(
+              (acc, curr) => acc + curr.quantity,
+              0,
+            )
+
+            console.debug('newGroup', newGroup)
+            mealItemAddModalRef.current?.close()
+            onSaveGroup(newGroup)
           }}
-          onApply={async (i) => handleNewFoodItem(i)}
-        /> */}
+        />
         <FoodSearchModal
           ref={foodSearchModalRef}
           targetName={
@@ -231,13 +259,13 @@ const FoodItemGroupEditModal = forwardRef(
               'onNewFoodItem: applying',
               JSON.stringify(newGroup, null, 2),
             )
-            onApply(newGroup)
+            onSaveGroup(newGroup)
           }}
         />
         <Modal
           modalId={modalId}
           ref={selfModalRef}
-          onSubmit={() => onApply(createMealItemGroup())}
+          onSubmit={() => onSaveGroup(createMealItemGroup())}
           header={
             <h3 className="text-lg font-bold text-white">
               Editando grupo em
@@ -280,7 +308,8 @@ const FoodItemGroupEditModal = forwardRef(
                       // if (group?.type === 'recipe') {
                       //   recipeEditModalRef.current?.showModal()
                       // } else {
-                      alert('Alimento não editável (ainda)')
+                      setSelectedFoodItem(item)
+                      mealItemAddModalRef.current?.showModal()
                       // }
                     }}
                     makeHeaderFn={(item) => (
@@ -347,7 +376,7 @@ const FoodItemGroupEditModal = forwardRef(
                 disabled={!canApply} // TODO: Rename canAdd to canApply on MealItemAddModal
                 onClick={(e) => {
                   e.preventDefault()
-                  onApply(createMealItemGroup())
+                  onSaveGroup(createMealItemGroup())
                 }}
               >
                 Aplicar
