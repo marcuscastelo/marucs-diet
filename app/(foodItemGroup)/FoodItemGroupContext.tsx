@@ -1,10 +1,19 @@
 'use client'
 
 import { FoodItemGroup } from '@/model/foodItemGroupModel'
-import { ReactNode, createContext, useContext } from 'react'
+import {
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
 
 const FoodItemGroupContext = createContext<{
-  foodItemGroup: FoodItemGroup
+  foodItemGroup: FoodItemGroup | null
+  setFoodItemGroup: Dispatch<SetStateAction<FoodItemGroup | null>>
 } | null>(null)
 
 export function useFoodItemGroupContext() {
@@ -20,14 +29,22 @@ export function useFoodItemGroupContext() {
 }
 
 export function FoodItemGroupContextProvider({
-  foodItemGroup,
+  foodItemGroup: initialFoodItemGroup,
   children,
 }: {
-  foodItemGroup: FoodItemGroup
+  foodItemGroup: FoodItemGroup | null
   children: ReactNode
 }) {
+  const [foodItemGroup, setFoodItemGroup] = useState<FoodItemGroup | null>(
+    initialFoodItemGroup,
+  )
+
+  useEffect(() => {
+    setFoodItemGroup(initialFoodItemGroup)
+  }, [initialFoodItemGroup])
+
   return (
-    <FoodItemGroupContext.Provider value={{ foodItemGroup }}>
+    <FoodItemGroupContext.Provider value={{ foodItemGroup, setFoodItemGroup }}>
       {children}
     </FoodItemGroupContext.Provider>
   )
