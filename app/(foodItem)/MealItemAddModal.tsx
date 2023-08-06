@@ -1,6 +1,8 @@
 'use client'
 
 import {
+  Dispatch,
+  SetStateAction,
   forwardRef,
   useEffect,
   useImperativeHandle,
@@ -51,18 +53,10 @@ const MealItemAddModal = forwardRef(
     )
     const [id, setId] = useState(itemData?.id ?? Math.random()) // TODO: Proper ID generation on other module or backend
     const canAdd = quantity !== '' && Number(quantity) > 0
-    const quantityRef = useRef<HTMLInputElement>(null)
 
     const selfModalRef = useRef<ModalRef>(null)
-    const recipeEditModalRef = useRef<ModalRef>(null)
 
     const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(true)
-
-    const [recipe, setRecipe] = useState<Loadable<Recipe | null>>({
-      loading: true,
-    })
-
-    const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods()
 
     const handleSetShowing = (isShowing: boolean) => {
       setShowing_(isShowing)
@@ -92,7 +86,7 @@ const MealItemAddModal = forwardRef(
       if (itemData?.id !== undefined) {
         setId(itemData?.id)
       }
-    }, [itemData?.quantity, itemData?.id])
+    }, [itemData?.quantity, itemData?.id, showing])
 
     useEffect(() => {
       setQuantityFieldDisabled(true)
@@ -104,38 +98,6 @@ const MealItemAddModal = forwardRef(
         clearTimeout(timeout)
       }
     }, [itemData?.quantity, itemData?.id])
-
-    const increment = () =>
-      setQuantity((old) => (Number(old ?? '0') + 1).toString())
-    const decrement = () =>
-      setQuantity((old) => Math.max(0, Number(old ?? '0') - 1).toString())
-
-    const [currentHoldTimeout, setCurrentHoldTimeout] =
-      useState<NodeJS.Timeout>()
-    const [currentHoldInterval, setCurrentHoldInterval] =
-      useState<NodeJS.Timeout>()
-
-    const holdRepeatStart = (action: () => void) => {
-      setCurrentHoldTimeout(
-        setTimeout(() => {
-          setCurrentHoldInterval(
-            setInterval(() => {
-              action()
-            }, 100),
-          )
-        }, 500),
-      )
-    }
-
-    const holdRepeatStop = () => {
-      if (currentHoldTimeout) {
-        clearTimeout(currentHoldTimeout)
-      }
-
-      if (currentHoldInterval) {
-        clearInterval(currentHoldInterval)
-      }
-    }
 
     useImperativeHandle(ref, () => ({
       showModal: () => {
@@ -165,223 +127,282 @@ const MealItemAddModal = forwardRef(
         {/* {itemData?.food.name.toString()}
         {itemData?.food.id.toString()}
         {itemData?.food.recipeId?.toString() ?? 'NO RECIPE ID'} */}
-        {recipe.loading.valueOf().toString()}
+        {/* {recipe.loading.valueOf().toString()}
         {(!recipe.loading && JSON.stringify(recipe.data, null, 2)) ||
-          'NO RECIPE DATA'}
-        <RecipeEditModal
+          'NO RECIPE DATA'} */}
+        {/* <RecipeEditModal
           modalId={RECIPE_EDIT_MODAL_ID}
           ref={recipeEditModalRef}
           recipe={(!recipe.loading && recipe.data) || null}
           onSaveRecipe={async () => alert('TODO: Save recipe')}
-        />
+        /> */}
         <Modal
           modalId={modalId}
           ref={selfModalRef}
           onSubmit={() => onApply(createMealItemData())}
           header={
-            <h3 className="text-lg font-bold text-white">
-              Editando item em
-              <span className={targetNameColor}>
-                {' '}
-                &quot;{targetName ?? 'ERRO: destino desconhecido'}&quot;{' '}
-              </span>
-            </h3>
+            <Header targetName={targetName} targetNameColor={targetNameColor} />
           }
           onVisibilityChange={handleSetShowing}
           body={
-            <>
-              <p className="mt-1 text-gray-400">Atalhos</p>
-              <div className="mt-1 flex w-full">
-                <div
-                  className="btn-primary btn-sm btn flex-1"
-                  onClick={() => setQuantity('10')}
-                >
-                  10g
-                </div>
-                <div
-                  className="btn-primary btn-sm btn ml-1 flex-1"
-                  onClick={() => setQuantity('20')}
-                >
-                  20g
-                </div>
-                <div
-                  className="btn-primary btn-sm btn ml-1 flex-1"
-                  onClick={() => setQuantity('30')}
-                >
-                  30g
-                </div>
-                <div
-                  className="btn-primary btn-sm btn ml-1 flex-1"
-                  onClick={() => setQuantity('40')}
-                >
-                  40g
-                </div>
-                <div
-                  className="btn-primary btn-sm btn ml-1 flex-1"
-                  onClick={() => setQuantity('50')}
-                >
-                  50g
-                </div>
-              </div>
-              <div className="mt-1 flex w-full">
-                <div
-                  className="btn-primary btn-sm btn flex-1"
-                  onClick={() => setQuantity('100')}
-                >
-                  100g
-                </div>
-                <div
-                  className="btn-primary btn-sm btn ml-1 flex-1"
-                  onClick={() => setQuantity('150')}
-                >
-                  150g
-                </div>
-                <div
-                  className="btn-primary btn-sm btn ml-1 flex-1"
-                  onClick={() => setQuantity('200')}
-                >
-                  200g
-                </div>
-                <div
-                  className="btn-primary btn-sm btn ml-1 flex-1"
-                  onClick={() => setQuantity('250')}
-                >
-                  250g
-                </div>
-                <div
-                  className="btn-primary btn-sm btn ml-1 flex-1"
-                  onClick={() => setQuantity('300')}
-                >
-                  300g
-                </div>
-              </div>
-              <div className="mt-3 flex w-full justify-between gap-1">
-                <div className="my-1 flex flex-1 justify-around">
-                  <input
-                    style={{ width: '100%' }}
-                    disabled={quantityFieldDisabled}
-                    value={quantity}
-                    ref={quantityRef}
-                    onChange={(e) =>
-                      setQuantity(e.target.value.replace(/[^0-9]/, ''))
-                    }
-                    type="number"
-                    placeholder="Quantidade (gramas)"
-                    className={`input-bordered  input mt-1  border-gray-300 bg-gray-800 ${
-                      !canAdd ? 'input-error border-red-500' : ''
-                    }`}
-                  />
-                </div>
-                <div className="my-1 ml-1 flex flex-shrink justify-around gap-1">
-                  <div
-                    className="btn-primary btn-xs btn h-full w-10 px-6 text-4xl text-red-600"
-                    onClick={decrement}
-                    onMouseDown={() => holdRepeatStart(decrement)}
-                    onMouseUp={holdRepeatStop}
-                    onTouchStart={() => holdRepeatStart(decrement)}
-                    onTouchEnd={holdRepeatStop}
-                  >
-                    {' '}
-                    -{' '}
-                  </div>
-                  <div
-                    className="btn-primary btn-xs btn ml-1 h-full w-10 px-6 text-4xl text-green-400"
-                    onClick={increment}
-                    onMouseDown={() => holdRepeatStart(increment)}
-                    onMouseUp={holdRepeatStop}
-                    onTouchStart={() => holdRepeatStart(increment)}
-                    onTouchEnd={holdRepeatStop}
-                  >
-                    {' '}
-                    +{' '}
-                  </div>
-                </div>
-              </div>
-              {itemData && (
-                <FoodItemView
-                  foodItem={
-                    {
-                      id,
-                      name:
-                        itemData.name ?? 'Sem nome (itemData && FoodItemView)',
-                      quantity: Number(quantity),
-                      reference: itemData.reference,
-                      macros: itemData.macros,
-                    } satisfies FoodItem
-                  }
-                  className="mt-4"
-                  onClick={() => {
-                    alert('Alimento não editável (ainda)')
-                  }}
-                  header={
-                    <FoodItemView.Header
-                      name={<FoodItemView.Header.Name />}
-                      favorite={
-                        <FoodItemView.Header.Favorite
-                          favorite={
-                            // TODO: isRecipeFavorite as well
-                            (itemData && isFoodFavorite(itemData.reference)) ||
-                            false
-                          }
-                          setFavorite={(favorite) =>
-                            itemData &&
-                            // TODO: setRecipeAsFavorite as well
-                            setFoodAsFavorite(itemData.reference, favorite)
-                          }
-                        />
-                      }
-                    />
-                  }
-                  nutritionalInfo={<FoodItemView.NutritionalInfo />}
-                />
-              )}
-            </>
+            <Body
+              quantity={quantity}
+              setQuantity={setQuantity}
+              quantityFieldDisabled={quantityFieldDisabled}
+              canAdd={canAdd}
+              itemData={itemData}
+              id={id}
+            />
           }
           actions={
-            <ModalActions>
-              {/* if there is a button in form, it will close the modal */}
-              {onDelete && (
-                <button
-                  className="btn-error btn mr-auto"
-                  onClick={(e) => {
-                    e.preventDefault()
-
-                    // TODO: Move confirm up to parent (also with all other confirmations)
-                    // TODO: Replace confirm with a modal
-                    if (confirm('Tem certeza que deseja excluir este item?')) {
-                      onDelete?.(id)
-                    }
-                  }}
-                >
-                  Excluir
-                </button>
-              )}
-              <button
-                className="btn"
-                onClick={(e) => {
-                  e.preventDefault()
-                  selfModalRef.current?.close()
-                  onCancel?.()
-                }}
-              >
-                Cancelar
-              </button>
-              <button
-                className="btn"
-                disabled={!canAdd}
-                onClick={(e) => {
-                  e.preventDefault()
-                  onApply(createMealItemData())
-                }}
-              >
-                Aplicar
-              </button>
-            </ModalActions>
+            <Actions
+              id={id}
+              canAdd={canAdd}
+              onApply={() => {
+                selfModalRef.current?.close()
+                onApply(createMealItemData())
+              }}
+              onCancel={() => {
+                selfModalRef.current?.close()
+                onCancel?.()
+              }}
+              onDelete={onDelete}
+            />
           }
         />
       </>
     )
   },
 )
+
+function Header({
+  targetName,
+  targetNameColor,
+}: {
+  targetName: string
+  targetNameColor: string
+}) {
+  return (
+    <h3 className="text-lg font-bold text-white">
+      Editando item em
+      <span className={targetNameColor}>
+        {' '}
+        &quot;{targetName ?? 'ERRO: destino desconhecido'}&quot;{' '}
+      </span>
+    </h3>
+  )
+}
+
+function Body({
+  quantity,
+  setQuantity,
+  quantityFieldDisabled,
+  canAdd,
+  itemData,
+  id,
+}: {
+  quantity: string
+  setQuantity: Dispatch<SetStateAction<string>>
+  quantityFieldDisabled: boolean
+  canAdd: boolean
+  itemData: (Partial<FoodItem> & Pick<FoodItem, 'reference' | 'macros'>) | null
+  id: FoodItem['id']
+}) {
+  const quantityRef = useRef<HTMLInputElement>(null)
+
+  const recipeEditModalRef = useRef<ModalRef>(null)
+
+  const [recipe, setRecipe] = useState<Loadable<Recipe | null>>({
+    loading: true,
+  })
+  const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods()
+
+  const [currentHoldTimeout, setCurrentHoldTimeout] = useState<NodeJS.Timeout>()
+  const [currentHoldInterval, setCurrentHoldInterval] =
+    useState<NodeJS.Timeout>()
+
+  const increment = () =>
+    setQuantity((old) => (Number(old ?? '0') + 1).toString())
+  const decrement = () =>
+    setQuantity((old) => Math.max(0, Number(old ?? '0') - 1).toString())
+
+  const holdRepeatStart = (action: () => void) => {
+    setCurrentHoldTimeout(
+      setTimeout(() => {
+        setCurrentHoldInterval(
+          setInterval(() => {
+            action()
+          }, 100),
+        )
+      }, 500),
+    )
+  }
+
+  const holdRepeatStop = () => {
+    if (currentHoldTimeout) {
+      clearTimeout(currentHoldTimeout)
+    }
+
+    if (currentHoldInterval) {
+      clearInterval(currentHoldInterval)
+    }
+  }
+
+  return (
+    <>
+      <p className="mt-1 text-gray-400">Atalhos</p>
+      {[
+        [10, 20, 30, 40, 50],
+        [100, 150, 200, 250, 300],
+      ].map((row, rowIndex) => (
+        <div
+          key={`shortcuts-row-${rowIndex}`}
+          className="mt-1 flex w-full gap-1"
+        >
+          {row.map((value, index) => (
+            <div
+              key={`shortcuts-row-${rowIndex}-button-${index}}`}
+              className="btn-primary btn-sm btn flex-1"
+              onClick={() => setQuantity('10')}
+            >
+              {value}g
+            </div>
+          ))}
+        </div>
+      ))}
+      <div className="mt-3 flex w-full justify-between gap-1">
+        <div className="my-1 flex flex-1 justify-around">
+          <input
+            style={{ width: '100%' }}
+            disabled={quantityFieldDisabled}
+            value={quantity}
+            ref={quantityRef}
+            onChange={(e) => setQuantity(e.target.value.replace(/[^0-9]/, ''))}
+            type="number"
+            placeholder="Quantidade (gramas)"
+            className={`input-bordered  input mt-1  border-gray-300 bg-gray-800 ${
+              !canAdd ? 'input-error border-red-500' : ''
+            }`}
+          />
+        </div>
+        <div className="my-1 ml-1 flex flex-shrink justify-around gap-1">
+          <div
+            className="btn-primary btn-xs btn h-full w-10 px-6 text-4xl text-red-600"
+            onClick={decrement}
+            onMouseDown={() => holdRepeatStart(decrement)}
+            onMouseUp={holdRepeatStop}
+            onTouchStart={() => holdRepeatStart(decrement)}
+            onTouchEnd={holdRepeatStop}
+          >
+            {' '}
+            -{' '}
+          </div>
+          <div
+            className="btn-primary btn-xs btn ml-1 h-full w-10 px-6 text-4xl text-green-400"
+            onClick={increment}
+            onMouseDown={() => holdRepeatStart(increment)}
+            onMouseUp={holdRepeatStop}
+            onTouchStart={() => holdRepeatStart(increment)}
+            onTouchEnd={holdRepeatStop}
+          >
+            {' '}
+            +{' '}
+          </div>
+        </div>
+      </div>
+      {itemData && (
+        <FoodItemView
+          foodItem={
+            {
+              id,
+              name: itemData.name ?? 'Sem nome (itemData && FoodItemView)',
+              quantity: Number(quantity),
+              reference: itemData.reference,
+              macros: itemData.macros,
+            } satisfies FoodItem
+          }
+          className="mt-4"
+          onClick={() => {
+            alert('Alimento não editável (ainda)')
+          }}
+          header={
+            <FoodItemView.Header
+              name={<FoodItemView.Header.Name />}
+              favorite={
+                <FoodItemView.Header.Favorite
+                  favorite={
+                    // TODO: isRecipeFavorite as well
+                    (itemData && isFoodFavorite(itemData.reference)) || false
+                  }
+                  setFavorite={(favorite) =>
+                    itemData &&
+                    // TODO: setRecipeAsFavorite as well
+                    setFoodAsFavorite(itemData.reference, favorite)
+                  }
+                />
+              }
+            />
+          }
+          nutritionalInfo={<FoodItemView.NutritionalInfo />}
+        />
+      )}
+    </>
+  )
+}
+
+function Actions({
+  id,
+  canAdd,
+  onDelete,
+  onCancel,
+  onApply,
+}: {
+  id: number
+  canAdd: boolean
+  onDelete?: (id: number) => void
+  onCancel?: () => void
+  onApply: () => void
+}) {
+  return (
+    <ModalActions>
+      {/* if there is a button in form, it will close the modal */}
+      {onDelete && (
+        <button
+          className="btn-error btn mr-auto"
+          onClick={(e) => {
+            e.preventDefault()
+
+            // TODO: Move confirm up to parent (also with all other confirmations)
+            // TODO: Replace confirm with a modal
+            if (confirm('Tem certeza que deseja excluir este item?')) {
+              onDelete?.(id)
+            }
+          }}
+        >
+          Excluir
+        </button>
+      )}
+      <button
+        className="btn"
+        onClick={(e) => {
+          e.preventDefault()
+          onCancel?.()
+        }}
+      >
+        Cancelar
+      </button>
+      <button
+        className="btn"
+        disabled={!canAdd}
+        onClick={(e) => {
+          e.preventDefault()
+          onApply() // TODO: pass data inside onApply()
+        }}
+      >
+        Aplicar
+      </button>
+    </ModalActions>
+  )
+}
 
 export default MealItemAddModal
