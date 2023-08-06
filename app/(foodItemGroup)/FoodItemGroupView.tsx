@@ -7,7 +7,7 @@ import {
   FoodItemGroupContextProvider,
   useFoodItemGroupContext,
 } from './FoodItemGroupContext'
-import { FoodItemGroup } from '@/model/foodItemGroupModel'
+import { FoodItemGroup, isGroupSingleItem } from '@/model/foodItemGroupModel'
 import { calcGroupMacros } from '@/utils/macroMath'
 
 export type FoodItemGroupViewProps = {
@@ -75,20 +75,25 @@ MealItemHeader.Favorite = MealItemFavorite
 function MealItemName({ debug = true }: { debug?: boolean }) {
   const { foodItemGroup: itemGroup } = useFoodItemGroupContext()
 
-  const NAME_COLOR: Record<FoodItemGroup['type'], string> = {
-    simple: 'text-orange-500',
-    recipe: 'text-blue-500',
+  const getNameColor = () => {
+    if (itemGroup.type === 'simple') {
+      if (isGroupSingleItem(itemGroup)) {
+        return 'text-white'
+      } else {
+        return 'text-orange-400'
+      }
+    } else if (itemGroup.type === 'recipe') {
+      return 'text-green-400'
+    } else {
+      return 'text-red-400'
+    }
   }
 
   return (
     <div className="">
       {/* //TODO: mealItem id is random, but it should be an entry on the database (meal too) */}
       {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.mealItem.id}]</h5> */}
-      <h5
-        className={`mb-2 text-lg font-bold tracking-tight ${
-          NAME_COLOR[itemGroup.type]
-        }`}
-      >
+      <h5 className={`mb-2 text-lg font-bold tracking-tight ${getNameColor()}`}>
         {itemGroup.name}{' '}
         {debug && (
           <>

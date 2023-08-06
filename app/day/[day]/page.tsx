@@ -344,7 +344,10 @@ function DayContent({
           await updateDay(dayData!.id, {
             ...dayData!,
             meals: dayData!.meals.map((meal) => {
-              if (meal.id !== selectedMeal!.id) {
+              if (!selectedMeal) {
+                throw new Error('No meal selected!')
+              }
+              if (meal.id !== selectedMeal.id) {
                 return meal
               }
               console.debug('Found meal to update, meal name: ', meal.name)

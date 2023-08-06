@@ -1,6 +1,6 @@
 // 'use client'
 
-import { FoodItemGroup } from '@/model/foodItemGroupModel'
+import { FoodItemGroup, isGroupSingleItem } from '@/model/foodItemGroupModel'
 import {
   forwardRef,
   useEffect,
@@ -60,6 +60,15 @@ const FoodItemGroupEditModal = forwardRef(
     const selfModalRef = useRef<ModalRef>(null)
     const foodSearchModalRef = useRef<ModalRef>(null)
     const mealItemAddModalRef = useRef<ModalRef>(null)
+
+    useEffect(() => {
+      if (!group) return
+
+      if (isGroupSingleItem(group)) {
+        setSelectedFoodItem(group.items[0])
+        mealItemAddModalRef.current?.showModal()
+      }
+    }, [group])
     //     const recipeEditModalRef = useRef<ModalRef>(null)
     //     const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(true)
     //     const [recipe, setRecipe] = useState<Loadable<Recipe | null>>({
