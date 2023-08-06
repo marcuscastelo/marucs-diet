@@ -16,6 +16,7 @@ import Modal, { ModalActions, ModalRef } from '../(modals)/modal'
 import RecipeEditModal from '../(recipe)/RecipeEditModal'
 import { Recipe } from '@/model/recipeModel'
 import { Loadable } from '@/utils/loadable'
+import { FoodItemContextProvider } from './FoodItemContext'
 
 const RECIPE_EDIT_MODAL_ID = 'meal-item-add-modal:self:recipe-edit-modal'
 
@@ -24,7 +25,7 @@ export type FoodItemEditModalProps = {
   modalId: string
   targetName: string
   targetNameColor?: string
-  itemData: (Partial<FoodItem> & Pick<FoodItem, 'reference' | 'macros'>) | null
+  foodItem: Partial<FoodItem> & Pick<FoodItem, 'reference' | 'macros'>
   onApply: (item: FoodItem) => void
   onCancel?: () => void
   onDelete?: (itemId: FoodItem['id']) => void
@@ -38,7 +39,7 @@ const FoodItemEditModal = forwardRef(
       modalId,
       targetName,
       targetNameColor = 'text-green-500',
-      itemData,
+      foodItem: initialFoodItem,
       onApply,
       onCancel,
       onDelete,
@@ -47,56 +48,45 @@ const FoodItemEditModal = forwardRef(
     ref: React.Ref<ModalRef>,
   ) => {
     const [showing, setShowing_] = useState(false)
-    const [quantity, setQuantity] = useState(
-      itemData?.quantity?.toString() ?? '',
-    )
-    const [id, setId] = useState(itemData?.id ?? Math.random()) // TODO: Proper ID generation on other module or backend
+    const [foodItem, setFoodItem] = useState<FoodItem>({
+      id: initialFoodItem?.id ?? Math.round(Math.random() * 1000000),
+      name: initialFoodItem?.name ?? 'ERRO: Sem nome',
+      quantity: initialFoodItem?.quantity ?? 0,
+      ...initialFoodItem,
+    } satisfies FoodItem)
+
+    useEffect(() => {
+      setFoodItem((old) => ({
+        ...old,
+        ...initialFoodItem,
+      }))
+    }, [initialFoodItem])
+
+    const quantity = foodItem.quantity.toString()
+    const setQuantity: Dispatch<SetStateAction<string>> = (
+      value: SetStateAction<string>,
+    ) => {
+      if (typeof value === 'function') {
+        setFoodItem((old) => ({
+          ...old,
+          quantity: Number(value(old.quantity.toString())),
+        }))
+      } else {
+        setFoodItem((old) => ({
+          ...old,
+          quantity: Number(value),
+        }))
+      }
+    }
+
     const canAdd = quantity !== '' && Number(quantity) > 0
 
     const selfModalRef = useRef<ModalRef>(null)
-
-    const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(true)
 
     const handleSetShowing = (isShowing: boolean) => {
       setShowing_(isShowing)
       onVisibilityChange?.(isShowing)
     }
-
-    useEffect(() => {
-      if (!showing) {
-        setQuantityFieldDisabled(true)
-        return
-      }
-
-      const timeout = setTimeout(() => {
-        setQuantityFieldDisabled(false)
-      }, 100)
-
-      return () => {
-        clearTimeout(timeout)
-      }
-    }, [showing])
-
-    useEffect(() => {
-      if (itemData?.quantity !== undefined) {
-        setQuantity(itemData?.quantity.toString())
-      }
-
-      if (itemData?.id !== undefined) {
-        setId(itemData?.id)
-      }
-    }, [itemData?.quantity, itemData?.id, showing])
-
-    useEffect(() => {
-      setQuantityFieldDisabled(true)
-      const timeout = setTimeout(() => {
-        setQuantityFieldDisabled(false)
-      }, 1000)
-
-      return () => {
-        clearTimeout(timeout)
-      }
-    }, [itemData?.quantity, itemData?.id])
 
     useImperativeHandle(ref, () => ({
       showModal: () => {
@@ -109,17 +99,11 @@ const FoodItemEditModal = forwardRef(
       },
     }))
 
-    const createMealItemData = (): FoodItem => ({
-      id,
-      quantity: Number(quantity),
-      name: itemData?.name ?? 'Sem nome (createMealItemData)',
-      reference: itemData?.reference ?? 0,
-      macros: itemData?.macros ?? {
-        protein: 0,
-        carbs: 0,
-        fat: 0,
-      },
-    })
+    // TODO: Remove createMealItemData
+    const createMealItemData = (): FoodItem =>
+      ({
+        ...foodItem,
+      }) satisfies FoodItem
 
     return (
       <>
@@ -140,22 +124,26 @@ const FoodItemEditModal = forwardRef(
           ref={selfModalRef}
           onSubmit={() => onApply(createMealItemData())}
           header={
-            <Header targetName={targetName} targetNameColor={targetNameColor} />
+            <Header
+              foodItem={foodItem}
+              targetName={targetName}
+              targetNameColor={targetNameColor}
+            />
           }
           onVisibilityChange={handleSetShowing}
           body={
             <Body
+              showing={showing}
               quantity={quantity}
               setQuantity={setQuantity}
-              quantityFieldDisabled={quantityFieldDisabled}
               canAdd={canAdd}
-              itemData={itemData}
-              id={id}
+              foodItem={foodItem}
+              id={foodItem.id}
             />
           }
           actions={
             <Actions
-              id={id}
+              id={foodItem.id}
               canAdd={canAdd}
               onApply={() => {
                 selfModalRef.current?.close()
@@ -175,36 +163,47 @@ const FoodItemEditModal = forwardRef(
 )
 
 function Header({
+  foodItem,
   targetName,
   targetNameColor,
+  debug = true, // TODO: Change all debugs to false
 }: {
+  foodItem: FoodItem
   targetName: string
   targetNameColor: string
+  debug?: boolean
 }) {
   return (
-    <h3 className="text-lg font-bold text-white">
-      Editando item em
-      <span className={targetNameColor}>
-        {' '}
-        &quot;{targetName ?? 'ERRO: destino desconhecido'}&quot;{' '}
-      </span>
-    </h3>
+    <>
+      {debug && (
+        <code className="text-xs text-gray-400">
+          <pre>{JSON.stringify(foodItem, null, 2)}</pre>
+        </code>
+      )}
+      <h3 className="text-lg font-bold text-white">
+        Editando item em
+        <span className={targetNameColor}>
+          {' '}
+          &quot;{targetName ?? 'ERRO: destino desconhecido'}&quot;{' '}
+        </span>
+      </h3>
+    </>
   )
 }
 
 function Body({
+  showing,
   quantity,
   setQuantity,
-  quantityFieldDisabled,
   canAdd,
-  itemData,
+  foodItem,
   id,
 }: {
+  showing: boolean
   quantity: string
   setQuantity: Dispatch<SetStateAction<string>>
-  quantityFieldDisabled: boolean
   canAdd: boolean
-  itemData: (Partial<FoodItem> & Pick<FoodItem, 'reference' | 'macros'>) | null
+  foodItem: (Partial<FoodItem> & Pick<FoodItem, 'reference' | 'macros'>) | null
   id: FoodItem['id']
 }) {
   const quantityRef = useRef<HTMLInputElement>(null)
@@ -214,6 +213,35 @@ function Body({
   const [recipe, setRecipe] = useState<Loadable<Recipe | null>>({
     loading: true,
   })
+
+  const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(true)
+
+  useEffect(() => {
+    if (!showing) {
+      setQuantityFieldDisabled(true)
+      return
+    }
+
+    const timeout = setTimeout(() => {
+      setQuantityFieldDisabled(false)
+    }, 100)
+
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [showing])
+
+  useEffect(() => {
+    setQuantityFieldDisabled(true)
+    const timeout = setTimeout(() => {
+      setQuantityFieldDisabled(false)
+    }, 1000)
+
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [foodItem?.quantity, foodItem?.id])
+
   const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods()
 
   const [currentHoldTimeout, setCurrentHoldTimeout] = useState<NodeJS.Timeout>()
@@ -262,7 +290,7 @@ function Body({
             <div
               key={`shortcuts-row-${rowIndex}-button-${index}}`}
               className="btn-primary btn-sm btn flex-1"
-              onClick={() => setQuantity('10')}
+              onClick={() => setQuantity(value.toString())}
             >
               {value}g
             </div>
@@ -309,15 +337,15 @@ function Body({
           </div>
         </div>
       </div>
-      {itemData && (
+      {foodItem && (
         <FoodItemView
           foodItem={
             {
               id,
-              name: itemData.name ?? 'Sem nome (itemData && FoodItemView)',
+              name: foodItem.name ?? 'Sem nome (itemData && FoodItemView)',
               quantity: Number(quantity),
-              reference: itemData.reference,
-              macros: itemData.macros,
+              reference: foodItem.reference,
+              macros: foodItem.macros,
             } satisfies FoodItem
           }
           className="mt-4"
@@ -331,12 +359,12 @@ function Body({
                 <FoodItemView.Header.Favorite
                   favorite={
                     // TODO: isRecipeFavorite as well
-                    (itemData && isFoodFavorite(itemData.reference)) || false
+                    (foodItem && isFoodFavorite(foodItem.reference)) || false
                   }
                   setFavorite={(favorite) =>
-                    itemData &&
+                    foodItem &&
                     // TODO: setRecipeAsFavorite as well
-                    setFoodAsFavorite(itemData.reference, favorite)
+                    setFoodAsFavorite(foodItem.reference, favorite)
                   }
                 />
               }

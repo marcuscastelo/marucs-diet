@@ -79,7 +79,7 @@ function MealItemName({ debug = true }: { debug?: boolean }) {
 
   useEffect(() => {
     searchFoodById(item.reference).then((food) => setFood(food))
-  }, [item])
+  }, [item.reference])
 
   return (
     <div className="">
