@@ -16,6 +16,12 @@ import { useFavoriteFoods } from '@/redux/features/userSlice'
 import FoodSearchModal from '../newItem/FoodSearchModal'
 import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
 import RecipeIcon from '../(icons)/RecipeIcon'
+import RecipeEditModal from '../(recipe)/RecipeEditModal'
+import {
+  Recipe,
+  createRecipe,
+  createRecipeFromGroup,
+} from '@/model/recipeModel'
 
 // TODO: Rename to FoodItemEdit
 export type FoodItemGroupEditModalProps = {
@@ -50,6 +56,7 @@ const FoodItemGroupEditModal = forwardRef(
     const [showing, setShowing_] = useState(false)
 
     const [group, setGroup] = useState<FoodItemGroup | null>(initialGroup)
+    const [recipe, setRecipe] = useState<Recipe | null>(null)
 
     useEffect(() => {
       setGroup(initialGroup)
@@ -77,11 +84,8 @@ const FoodItemGroupEditModal = forwardRef(
         foodItemEditModalRef.current?.showModal()
       }
     }, [group])
-    //     const recipeEditModalRef = useRef<ModalRef>(null)
-    //     const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(true)
-    //     const [recipe, setRecipe] = useState<Loadable<Recipe | null>>({
-    //       loading: true,
-    //     })
+    const recipeEditModalRef = useRef<ModalRef>(null)
+
     const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods()
     const handleSetShowing = (isShowing: boolean) => {
       setShowing_(isShowing)
@@ -109,12 +113,12 @@ const FoodItemGroupEditModal = forwardRef(
           'NO RECIPE DATA'} */}
 
         {/* //TODO: Allow user to edit recipe */}
-        {/* <RecipeEditModal
-          modalId={RECIPE_EDIT_MODAL_ID}
+        <RecipeEditModal
+          modalId={`VERY_UNIQUE_ID_FOR_RECIPE_${group?.id}`} // TODO: Clean all modal IDs on the project
           ref={recipeEditModalRef}
-          recipe={(!recipe.loading && recipe.data) || null}
+          recipe={recipe}
           onSaveRecipe={async () => alert('TODO: Save recipe')}
-        /> */}
+        />
         <FoodItemEditModal
           modalId={`VERY_UNIQUE_ID_${group?.id}`} // TODO: Clean all modal IDs on the project
           ref={foodItemEditModalRef}
@@ -261,7 +265,13 @@ const FoodItemGroupEditModal = forwardRef(
                           value={group.name ?? ''}
                         />
                       </div>
-                      <div className="my-auto ml-auto ">
+                      <div
+                        className="my-auto ml-auto"
+                        onClick={() => {
+                          setRecipe(createRecipeFromGroup(group))
+                          recipeEditModalRef.current?.showModal()
+                        }}
+                      >
                         <RecipeIcon />
                       </div>
                     </div>
