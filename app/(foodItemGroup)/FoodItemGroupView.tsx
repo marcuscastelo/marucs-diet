@@ -8,7 +8,7 @@ import {
   useFoodItemGroupContext,
 } from './FoodItemGroupContext'
 import { FoodItemGroup } from '@/model/foodItemGroupModel'
-import { calcGroupCalories, calcGroupMacros } from '@/utils/macroMath'
+import { calcGroupMacros } from '@/utils/macroMath'
 
 export type FoodItemGroupViewProps = {
   foodItemGroup: FoodItemGroup
