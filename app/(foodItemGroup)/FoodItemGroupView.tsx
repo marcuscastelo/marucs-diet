@@ -9,6 +9,7 @@ import {
 } from './FoodItemGroupContext'
 import { FoodItemGroup, isGroupSingleItem } from '@/model/foodItemGroupModel'
 import { calcGroupMacros } from '@/utils/macroMath'
+import { useDebug } from '@/redux/features/userSlice'
 
 export type FoodItemGroupViewProps = {
   foodItemGroup: FoodItemGroup
@@ -72,8 +73,10 @@ MealItemHeader.Name = MealItemName
 MealItemHeader.CopyButton = MealItemCopyButton
 MealItemHeader.Favorite = MealItemFavorite
 
-function MealItemName({ debug = true }: { debug?: boolean }) {
+function MealItemName() {
   const { foodItemGroup: itemGroup } = useFoodItemGroupContext()
+
+  const { debug } = useDebug()
 
   const getNameColor = () => {
     if (itemGroup.type === 'simple') {

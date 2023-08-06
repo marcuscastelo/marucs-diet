@@ -12,7 +12,7 @@ import Modal, { ModalActions, ModalRef } from '../(modals)/modal'
 import FoodItemListView from '../(foodItem)/FoodItemListView'
 import FoodItemView from '../(foodItem)/FoodItemView'
 import { FoodItem, createFoodItem } from '@/model/foodItemModel'
-import { useFavoriteFoods } from '@/redux/features/userSlice'
+import { useDebug, useFavoriteFoods } from '@/redux/features/userSlice'
 import FoodSearchModal from '../newItem/FoodSearchModal'
 import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
 import RecipeIcon from '../(icons)/RecipeIcon'
@@ -30,7 +30,6 @@ export type FoodItemGroupEditModalProps = {
   onDelete?: (groupId: FoodItemGroup['id']) => void
   onVisibilityChange?: (isShowing: boolean) => void
   onRefetch: () => void
-  debug?: boolean
 }
 
 // eslint-disable-next-line react/display-name
@@ -45,11 +44,12 @@ const FoodItemGroupEditModal = forwardRef(
       onDelete,
       onVisibilityChange,
       onRefetch,
-      debug = true, // TODO: useDebug()
     }: FoodItemGroupEditModalProps,
     ref: React.Ref<ModalRef>,
   ) => {
     const [showing, setShowing_] = useState(false)
+
+    const { debug } = useDebug()
 
     const [group, setGroup] = useState<FoodItemGroup | null>(initialGroup)
     const [recipe, setRecipe] = useState<Recipe | null>(null)
@@ -133,17 +133,10 @@ const FoodItemGroupEditModal = forwardRef(
           modalId={modalId}
           ref={selfModalRef}
           onSubmit={() => group && onSaveGroup(group)}
-          header={
-            <Header
-              debug={debug}
-              group={group}
-              targetMealName={targetMealName}
-            />
-          }
+          header={<Header group={group} targetMealName={targetMealName} />}
           onVisibilityChange={handleSetShowing}
           body={
             <Body
-              debug={debug}
               group={group}
               setGroup={setGroup}
               setRecipe={setRecipe}
@@ -172,14 +165,14 @@ const FoodItemGroupEditModal = forwardRef(
 )
 
 function Header({
-  debug = true,
   targetMealName,
   group,
 }: {
-  debug?: boolean
   targetMealName: string
   group: FoodItemGroup | null
 }) {
+  const { debug } = useDebug()
+
   return (
     <>
       <h3 className="text-lg font-bold text-white">
@@ -354,7 +347,6 @@ function ExternalFoodSearchModal({
 }
 
 function Body({
-  debug = true,
   group,
   setGroup,
   setRecipe,
@@ -365,7 +357,6 @@ function Body({
   setFoodAsFavorite,
   foodSearchModalRef,
 }: {
-  debug?: boolean
   group: FoodItemGroup | null
   setGroup: React.Dispatch<React.SetStateAction<FoodItemGroup | null>>
   setRecipe: React.Dispatch<React.SetStateAction<Recipe | null>>
