@@ -15,6 +15,7 @@ import { FoodItem } from '@/model/foodItemModel'
 import { useFavoriteFoods } from '@/redux/features/userSlice'
 import FoodSearchModal from '../newItem/FoodSearchModal'
 import MealItemAddModal from '../(foodItem)/MealItemAddModal'
+import RecipeIcon from '../(icons)/RecipeIcon'
 
 // TODO: Rename to FoodItemEdit
 export type FoodItemGroupEditModalProps = {
@@ -27,6 +28,7 @@ export type FoodItemGroupEditModalProps = {
   onDelete?: (groupId: FoodItemGroup['id']) => void
   onVisibilityChange?: (isShowing: boolean) => void
   onRefetch: () => void
+  debug?: boolean
 }
 
 // eslint-disable-next-line react/display-name
@@ -41,6 +43,7 @@ const FoodItemGroupEditModal = forwardRef(
       onDelete,
       onVisibilityChange,
       onRefetch,
+      debug = true, // TODO: useDebug()
     }: FoodItemGroupEditModalProps,
     ref: React.Ref<ModalRef>,
   ) => {
@@ -111,7 +114,14 @@ const FoodItemGroupEditModal = forwardRef(
           modalId={`VERY_UNIQUE_ID_${group?.id}`} // TODO: Clean all modal IDs on the project
           ref={mealItemAddModalRef}
           targetName={
-            group?.name ?? 'ERRO: Grupo de alimentos não especificado'
+            (group &&
+              (isGroupSingleItem(group) ? targetMealName : group.name)) ||
+            'Erro: Grupo sem nome'
+          }
+          targetNameColor={
+            group && isGroupSingleItem(group)
+              ? 'text-green-500'
+              : 'text-orange-400'
           }
           itemData={selectedFoodItem}
           onApply={async (item) => {
@@ -162,6 +172,12 @@ const FoodItemGroupEditModal = forwardRef(
             mealItemAddModalRef.current?.close()
             onSaveGroup(newGroup)
           }}
+          onVisibilityChange={(visible) => {
+            if (!visible) {
+              setSelectedFoodItem(null)
+              // TODO: Refactor all modals so that when they close, they call onCancel() or onClose()
+            }
+          }}
         />
         <FoodSearchModal
           ref={foodSearchModalRef}
@@ -207,29 +223,43 @@ const FoodItemGroupEditModal = forwardRef(
           ref={selfModalRef}
           onSubmit={() => group && onSaveGroup(group)}
           header={
-            <h3 className="text-lg font-bold text-white">
-              Editando grupo em
-              <span className="text-green-500">
-                {' '}
-                &quot;{targetMealName}&quot;{' '}
-              </span>
-            </h3>
+            <>
+              <h3 className="text-lg font-bold text-white">
+                Editando grupo em
+                <span className="text-green-500">
+                  {' '}
+                  &quot;{targetMealName}&quot;{' '}
+                </span>
+              </h3>
+              {debug && (
+                <code>
+                  <pre>{JSON.stringify(group, null, 2)}</pre>
+                </code>
+              )}
+            </>
           }
           onVisibilityChange={handleSetShowing}
           body={
             <>
               {group && (
                 <>
-                  <div className="text-md">
-                    <div className="my-auto mr-2">Nome do grupo</div>
-                    <input
-                      className="input w-full"
-                      type="text"
-                      onChange={(e) =>
-                        setGroup((g) => g && { ...g, name: e.target.value })
-                      }
-                      value={group.name ?? ''}
-                    />
+                  <div className="text-md mt-4">
+                    <div className="flex gap-4">
+                      <div className="my-auto flex-1">
+                        <input
+                          className="input w-full"
+                          type="text"
+                          onChange={(e) =>
+                            setGroup((g) => g && { ...g, name: e.target.value })
+                          }
+                          onFocus={(e) => e.target.select()}
+                          value={group.name ?? ''}
+                        />
+                      </div>
+                      <div className="my-auto ml-auto ">
+                        <RecipeIcon />
+                      </div>
+                    </div>
                   </div>
 
                   <FoodItemListView
