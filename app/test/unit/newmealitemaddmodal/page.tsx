@@ -22,7 +22,7 @@ export default function Page() {
       <FoodItemEditModal
         modalId={modalId}
         targetName="Teste"
-        itemData={mockItem()}
+        foodItem={mockItem()}
         onApply={() => alert('apply')}
       />
     </>

@@ -189,7 +189,7 @@ export default function FoodSearch({
         modalId={MEAL_ITEM_ADD_MODAL_ID}
         ref={foodItemEditModalRef}
         targetName={targetName}
-        itemData={{
+        foodItem={{
           reference: selectedFood.id,
           name: selectedFood.name,
           macros: selectedFood.macros,

@@ -8,7 +8,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { FoodItem } from '@/model/foodItemModel'
+import { FoodItem, createFoodItem } from '@/model/foodItemModel'
 import Modal, { ModalActions, ModalRef } from '../(modals)/modal'
 import { Recipe } from '@/model/recipeModel'
 import RecipeView from './RecipeView'
@@ -38,6 +38,11 @@ const RecipeEditModal = forwardRef(
   ) => {
     const [recipe, setRecipe] = useState<Recipe | null>(initialRecipe)
     const [itemToEdit, setItemToEdit] = useState<FoodItem | null>(null)
+
+    const impossibleFoodItem = createFoodItem({
+      name: 'IMPOSSIBLE FOOD ITEM',
+      reference: 0,
+    })
 
     // TODO: Change other modals modalRef variable to selfModalRef on other files
     const selfModalRef = useRef<ModalRef>(null)
@@ -82,7 +87,7 @@ const RecipeEditModal = forwardRef(
           <FoodItemEditModal
             modalId="RECIPES_EDIT_MODAL:FOOD_ITEM_ADD_MODAL"
             ref={foodItemEditModalRef}
-            itemData={itemToEdit}
+            foodItem={itemToEdit ?? impossibleFoodItem}
             targetName={recipe?.name ?? 'LOADING RECIPE'}
             onApply={(foodItem) => {
               if (!recipe) return
