@@ -231,17 +231,6 @@ function Body({
     }
   }, [showing])
 
-  useEffect(() => {
-    setQuantityFieldDisabled(true)
-    const timeout = setTimeout(() => {
-      setQuantityFieldDisabled(false)
-    }, 1000)
-
-    return () => {
-      clearTimeout(timeout)
-    }
-  }, [foodItem?.quantity, foodItem?.id])
-
   const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods()
 
   const [currentHoldTimeout, setCurrentHoldTimeout] = useState<NodeJS.Timeout>()
