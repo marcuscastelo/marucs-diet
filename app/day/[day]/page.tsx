@@ -352,6 +352,13 @@ function DayContent({
               const changePos = groups.findIndex((i) => i.id === group.id)
 
               console.debug('Index of group to update: ', changePos)
+
+              if (changePos === -1) {
+                throw new Error(
+                  'Group not found! Searching for id: ' + group.id,
+                )
+              }
+
               console.debug(
                 'Found group to update, group name: ',
                 groups[changePos].name,

@@ -16,32 +16,12 @@ import { useFavoriteFoods } from '@/redux/features/userSlice'
 import FoodSearchModal from '../newItem/FoodSearchModal'
 import MealItemAddModal from '../(foodItem)/MealItemAddModal'
 
-// import {
-//   forwardRef,
-//   useEffect,
-//   useImperativeHandle,
-//   useRef,
-//   useState,
-// } from 'react'
-// import FoodItemView from './(foodItem)/FoodItemView'
-// import { FoodItem } from '@/model/foodItemModel'
-// import { MealData } from '@/model/mealModel'
-// import { useFavoriteFoods } from '@/redux/features/userSlice'
-// import Modal, { ModalActions, ModalRef } from './(modals)/modal'
-// import { mockFood } from './test/unit/(mock)/mockData'
-// import RecipeEditModal from './(recipe)/RecipeEditModal'
-// import { Recipe } from '@/model/recipeModel'
-// import { Loadable } from '@/utils/loadable'
-// import { searchRecipeById } from '@/controllers/recipes'
-
-// const RECIPE_EDIT_MODAL_ID = 'meal-item-add-modal:self:recipe-edit-modal'
-
-// // TODO: Rename to FoodItemEdit
+// TODO: Rename to FoodItemEdit
 export type FoodItemGroupEditModalProps = {
   modalId: string
   //   meal: MealData | null
   targetMealName: string
-  group: (Partial<FoodItemGroup> & Pick<FoodItemGroup, never>) | null
+  group: FoodItemGroup | null
   onSaveGroup: (item: FoodItemGroup) => void
   onCancel?: () => void
   onDelete?: (groupId: FoodItemGroup['id']) => void
@@ -54,7 +34,7 @@ const FoodItemGroupEditModal = forwardRef(
   (
     {
       modalId,
-      group,
+      group: initialGroup,
       targetMealName,
       onSaveGroup,
       onCancel,
@@ -65,20 +45,18 @@ const FoodItemGroupEditModal = forwardRef(
     ref: React.Ref<ModalRef>,
   ) => {
     const [showing, setShowing_] = useState(false)
-    const [quantity, setQuantity] = useState(group?.quantity?.toString() ?? '')
-    const [id, setId] = useState(group?.id ?? Math.random()) // TODO: Proper ID generation on other module or backend
-    const [groupName, setGroupName] = useState(group?.name ?? '')
+
+    const [group, setGroup] = useState<FoodItemGroup | null>(initialGroup)
 
     useEffect(() => {
-      setGroupName(group?.name ?? '')
-    }, [group?.name])
+      setGroup(initialGroup)
+    }, [initialGroup])
 
     const [selectedFoodItem, setSelectedFoodItem] = useState<FoodItem | null>(
       null,
     )
 
-    const canApply = groupName.length > 0 && selectedFoodItem === null
-    // const quantityRef = useRef<HTMLInputElement>(null)
+    const canApply = (group?.name.length ?? 0) > 0 && selectedFoodItem === null
     const selfModalRef = useRef<ModalRef>(null)
     const foodSearchModalRef = useRef<ModalRef>(null)
     const mealItemAddModalRef = useRef<ModalRef>(null)
@@ -92,77 +70,7 @@ const FoodItemGroupEditModal = forwardRef(
       setShowing_(isShowing)
       onVisibilityChange?.(isShowing)
     }
-    //     useEffect(() => {
-    //       if (!showing) {
-    //         setQuantity('')
-    //         setId(Math.round(Math.random() * 1000000))
-    //         setQuantityFieldDisabled(true)
-    //         return
-    //       }
-    //       const timeout = setTimeout(() => {
-    //         setQuantityFieldDisabled(false)
-    //       }, 100)
-    //       return () => {
-    //         clearTimeout(timeout)
-    //       }
-    //     }, [showing])
-    //     useEffect(() => {
-    //       if (itemData?.quantity !== undefined) {
-    //         setQuantity(itemData?.quantity.toString())
-    //       }
-    //       if (itemData?.id !== undefined) {
-    //         setId(itemData?.id)
-    //       }
-    //     }, [itemData?.quantity, itemData?.id])
-    //     useEffect(() => {
-    //       if (itemData?.type !== 'recipe') {
-    //         setRecipe({ loading: false, data: null })
-    //       }
-    //       if (itemData?.reference === undefined) {
-    //         setRecipe({ loading: false, data: null })
-    //       } else {
-    //         setRecipe({ loading: true })
-    //         searchRecipeById(itemData?.reference).then((recipe) => {
-    //           setRecipe({ loading: false, data: recipe })
-    //         })
-    //       }
-    //     }, [itemData?.type, itemData?.reference])
-    //     useEffect(() => {
-    //       setQuantityFieldDisabled(true)
-    //       const timeout = setTimeout(() => {
-    //         setQuantityFieldDisabled(false)
-    //       }, 1000)
-    //       return () => {
-    //         clearTimeout(timeout)
-    //       }
-    //     }, [itemData?.quantity, itemData?.id])
-    //     const increment = () =>
-    //       setQuantity((old) => (Number(old ?? '0') + 1).toString())
-    //     const decrement = () =>
-    //       setQuantity((old) => Math.max(0, Number(old ?? '0') - 1).toString())
-    //     const [currentHoldTimeout, setCurrentHoldTimeout] =
-    //       useState<NodeJS.Timeout>()
-    //     const [currentHoldInterval, setCurrentHoldInterval] =
-    //       useState<NodeJS.Timeout>()
-    //     const holdRepeatStart = (action: () => void) => {
-    //       setCurrentHoldTimeout(
-    //         setTimeout(() => {
-    //           setCurrentHoldInterval(
-    //             setInterval(() => {
-    //               action()
-    //             }, 100),
-    //           )
-    //         }, 500),
-    //       )
-    //     }
-    //     const holdRepeatStop = () => {
-    //       if (currentHoldTimeout) {
-    //         clearTimeout(currentHoldTimeout)
-    //       }
-    //       if (currentHoldInterval) {
-    //         clearInterval(currentHoldInterval)
-    //       }
-    //     }
+
     useImperativeHandle(ref, () => ({
       showModal: () => {
         selfModalRef.current?.showModal()
@@ -173,14 +81,6 @@ const FoodItemGroupEditModal = forwardRef(
         handleSetShowing(false)
       },
     }))
-    const createMealItemGroup = (): FoodItemGroup =>
-      ({
-        id,
-        name: groupName,
-        type: 'simple', // TODO: Allow user to change type
-        quantity: Number(quantity), // TODO: What does quantity mean for a FoodItemGroup?
-        items: group?.items ?? [],
-      }) satisfies FoodItemGroup
 
     return (
       <>
@@ -199,7 +99,7 @@ const FoodItemGroupEditModal = forwardRef(
           onSaveRecipe={async () => alert('TODO: Save recipe')}
         /> */}
         <MealItemAddModal
-          modalId={`VERY_UNIQUE_ID_${id}`} // TODO: Clean all modal IDs on the project
+          modalId={`VERY_UNIQUE_ID_${group?.id}`} // TODO: Clean all modal IDs on the project
           ref={mealItemAddModalRef}
           targetName={
             group?.name ?? 'ERRO: Grupo de alimentos não especificado'
@@ -209,7 +109,7 @@ const FoodItemGroupEditModal = forwardRef(
             const newGroup: FoodItemGroup = {
               ...group,
               id: group?.id ?? Math.round(Math.random() * 1000000),
-              name: groupName,
+              name: group?.name ?? item.name,
               quantity: 0, // Will be set later
               type: 'simple',
               items: [
@@ -238,7 +138,7 @@ const FoodItemGroupEditModal = forwardRef(
             const newGroup: FoodItemGroup = {
               ...group,
               id: group?.id ?? Math.round(Math.random() * 1000000),
-              name: groupName,
+              name: group?.name ?? 'Grupo sem nome',
               quantity: 0, // Will be set later
               type: 'simple',
               items: [...(group?.items?.filter((i) => i.id !== itemId) ?? [])],
@@ -277,7 +177,7 @@ const FoodItemGroupEditModal = forwardRef(
             const newGroup: FoodItemGroup = {
               ...group,
               id: group?.id ?? Math.round(Math.random() * 1000000),
-              name: groupName,
+              name: group?.name ?? item.name,
               quantity: (group?.quantity ?? 0) + item.quantity,
               type: 'simple', // TODO: Allow user to change type
               items: [
@@ -296,7 +196,7 @@ const FoodItemGroupEditModal = forwardRef(
         <Modal
           modalId={modalId}
           ref={selfModalRef}
-          onSubmit={() => onSaveGroup(createMealItemGroup())}
+          onSubmit={() => group && onSaveGroup(group)}
           header={
             <h3 className="text-lg font-bold text-white">
               Editando grupo em
@@ -316,8 +216,10 @@ const FoodItemGroupEditModal = forwardRef(
                     <input
                       className="input w-full"
                       type="text"
-                      onChange={(e) => setGroupName(e.target.value)}
-                      value={groupName}
+                      onChange={(e) =>
+                        setGroup((g) => g && { ...g, name: e.target.value })
+                      }
+                      value={group.name ?? ''}
                     />
                   </div>
 
@@ -386,7 +288,7 @@ const FoodItemGroupEditModal = forwardRef(
                     // TODO: Move confirm up to parent (also with all other confirmations)
                     // TODO: Replace confirm with a modal
                     if (confirm('Tem certeza que deseja excluir este item?')) {
-                      onDelete?.(id)
+                      group && onDelete?.(group.id)
                     }
                   }}
                 >
@@ -408,8 +310,8 @@ const FoodItemGroupEditModal = forwardRef(
                 disabled={!canApply} // TODO: Rename canAdd to canApply on MealItemAddModal
                 onClick={(e) => {
                   e.preventDefault()
-                  // TODO: only apply when apply button is pressed, i.e. keeping internal state
-                  onSaveGroup(createMealItemGroup())
+                  // TODO: only onSaveGroup when apply button is pressed, i.e. keeping internal state
+                  group && onSaveGroup(group)
                 }}
               >
                 Aplicar
