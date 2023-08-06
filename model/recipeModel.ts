@@ -8,6 +8,7 @@ export const recipeSchema = z.object({
   name: z.string(),
   owner: z.number(),
   items: z.array(itemSchema), // TODO: Think of a way to avoid id reuse on each item and bugs
+  prepared_multiplier: z.number().default(1),
   '': z
     .string()
     .nullable()
