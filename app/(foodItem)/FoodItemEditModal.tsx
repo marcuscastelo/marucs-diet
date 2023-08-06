@@ -11,7 +11,7 @@ import {
 } from 'react'
 import FoodItemView from './FoodItemView'
 import { FoodItem } from '@/model/foodItemModel'
-import { useFavoriteFoods } from '@/redux/features/userSlice'
+import { useDebug, useFavoriteFoods } from '@/redux/features/userSlice'
 import Modal, { ModalActions, ModalRef } from '../(modals)/modal'
 import RecipeEditModal from '../(recipe)/RecipeEditModal'
 import { Recipe } from '@/model/recipeModel'
@@ -166,13 +166,12 @@ function Header({
   foodItem,
   targetName,
   targetNameColor,
-  debug = true, // TODO: Change all debugs to false
 }: {
   foodItem: FoodItem
   targetName: string
   targetNameColor: string
-  debug?: boolean
 }) {
+  const { debug } = useDebug()
   return (
     <>
       {debug && (
