@@ -18,7 +18,7 @@ import RecipeEditModal from '@/app/(recipe)/RecipeEditModal'
 import { Recipe, createRecipe } from '@/model/recipeModel'
 import { mockFood, mockItem } from '../test/unit/(mock)/mockData'
 import PageLoading from '../PageLoading'
-import MealItemAddModal from '../(foodItem)/MealItemAddModal'
+import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
 import { MealData } from '@/model/mealModel'
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal'
@@ -50,7 +50,7 @@ export default function FoodSearch({
     mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }), // TODO: Properly handle no food selected
   )
 
-  const mealItemAddModalRef = useRef<ModalRef>(null)
+  const foodItemEditModalRef = useRef<ModalRef>(null)
   const barCodeInsertModalRef = useRef<ModalRef>(null)
   const recipeEditModalRef = useRef<ModalRef>(null)
 
@@ -169,7 +169,7 @@ export default function FoodSearch({
       onFinish()
     } else {
       setSelectedFood(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }))
-      mealItemAddModalRef.current?.close()
+      foodItemEditModalRef.current?.close()
     }
   }
 
@@ -182,12 +182,12 @@ export default function FoodSearch({
     <>
       <BarCode
         barCodeInsertModalRef={barCodeInsertModalRef}
-        mealItemAddModalRef={mealItemAddModalRef}
+        foodItemEditModalRef={foodItemEditModalRef}
         setSelectedFood={setSelectedFood}
       />
-      <MealItemAddModal
+      <FoodItemEditModal
         modalId={MEAL_ITEM_ADD_MODAL_ID}
-        ref={mealItemAddModalRef}
+        ref={foodItemEditModalRef}
         targetName={targetName}
         itemData={{
           reference: selectedFood.id,
@@ -209,7 +209,7 @@ export default function FoodSearch({
         search={search}
         filteredFoods={filteredFoods}
         barCodeInsertModalRef={barCodeInsertModalRef}
-        mealItemAddModalRef={mealItemAddModalRef}
+        foodItemEditModalRef={foodItemEditModalRef}
         searchingFoods={searchingFoods}
         isFoodFavorite={isFoodFavorite}
         setFoodAsFavorite={setFoodAsFavorite}
@@ -222,11 +222,11 @@ export default function FoodSearch({
 
 const BarCode = ({
   barCodeInsertModalRef,
-  mealItemAddModalRef,
+  foodItemEditModalRef,
   setSelectedFood,
 }: {
   barCodeInsertModalRef: React.RefObject<ModalRef>
-  mealItemAddModalRef: React.RefObject<ModalRef>
+  foodItemEditModalRef: React.RefObject<ModalRef>
   setSelectedFood: (food: Food) => void
 }) => (
   <>
@@ -245,7 +245,7 @@ const BarCode = ({
       ref={barCodeInsertModalRef}
       onSelect={(food) => {
         setSelectedFood(food)
-        mealItemAddModalRef.current?.showModal()
+        foodItemEditModalRef.current?.showModal()
       }}
     />
   </>
@@ -355,7 +355,7 @@ const SearchResults = ({
   isFoodFavorite,
   setFoodAsFavorite,
   setSelectedFood,
-  mealItemAddModalRef,
+  foodItemEditModalRef,
   barCodeInsertModalRef,
 }: {
   search: string
@@ -365,7 +365,7 @@ const SearchResults = ({
   isFoodFavorite: (food: number) => boolean
   setFoodAsFavorite: (food: number, favorite: boolean) => void
   setSelectedFood: (food: Food) => void
-  mealItemAddModalRef: React.RefObject<ModalRef>
+  foodItemEditModalRef: React.RefObject<ModalRef>
   barCodeInsertModalRef: React.RefObject<ModalRef>
 }) => {
   return (
@@ -396,7 +396,7 @@ const SearchResults = ({
                   className="mt-1"
                   onClick={() => {
                     setSelectedFood(food)
-                    mealItemAddModalRef.current?.showModal()
+                    foodItemEditModalRef.current?.showModal()
                     barCodeInsertModalRef.current?.close()
                   }}
                   header={
