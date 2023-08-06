@@ -72,8 +72,6 @@ const MealItemAddModal = forwardRef(
 
     useEffect(() => {
       if (!showing) {
-        setQuantity('')
-        setId(Math.round(Math.random() * 1000000))
         setQuantityFieldDisabled(true)
         return
       }
