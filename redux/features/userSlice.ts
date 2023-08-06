@@ -166,4 +166,11 @@ export const useFavoriteFoods = () => {
   } as const
 }
 
+// TODO: Implement debug mode as part of the user preferences
+export const useDebug = () => {
+  return {
+    debug: false,
+  }
+}
+
 export default userSlice.reducer

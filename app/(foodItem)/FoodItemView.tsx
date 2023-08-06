@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react'
 import { Food } from '@/model/foodModel'
 import { searchFoodById } from '@/controllers/food'
 import { calcItemCalories } from '@/utils/macroMath'
+import { useDebug } from '@/redux/features/userSlice'
 
 export type FoodItemViewProps = {
   foodItem: FoodItem
@@ -72,8 +73,10 @@ MealItemHeader.Name = MealItemName
 MealItemHeader.CopyButton = MealItemCopyButton
 MealItemHeader.Favorite = MealItemFavorite
 
-function MealItemName({ debug = true }: { debug?: boolean }) {
+function MealItemName() {
   const { foodItem: item } = useFoodItemContext()
+
+  const { debug } = useDebug()
 
   const [food, setFood] = useState<Food | null>(null)
 
