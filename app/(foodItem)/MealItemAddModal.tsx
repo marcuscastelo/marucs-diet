@@ -9,14 +9,11 @@ import {
 } from 'react'
 import FoodItemView from './FoodItemView'
 import { FoodItem } from '@/model/foodItemModel'
-import { MealData } from '@/model/mealModel'
 import { useFavoriteFoods } from '@/redux/features/userSlice'
 import Modal, { ModalActions, ModalRef } from '../(modals)/modal'
-import { mockFood } from '../test/unit/(mock)/mockData'
 import RecipeEditModal from '../(recipe)/RecipeEditModal'
 import { Recipe } from '@/model/recipeModel'
 import { Loadable } from '@/utils/loadable'
-import { searchRecipeById } from '@/controllers/recipes'
 
 const RECIPE_EDIT_MODAL_ID = 'meal-item-add-modal:self:recipe-edit-modal'
 
@@ -25,6 +22,7 @@ const RECIPE_EDIT_MODAL_ID = 'meal-item-add-modal:self:recipe-edit-modal'
 export type MealItemAddModalProps = {
   modalId: string
   targetName: string
+  targetNameColor?: string
   itemData: (Partial<FoodItem> & Pick<FoodItem, 'reference' | 'macros'>) | null
   onApply: (item: FoodItem) => void
   onCancel?: () => void
@@ -38,6 +36,7 @@ const MealItemAddModal = forwardRef(
     {
       modalId,
       targetName,
+      targetNameColor = 'text-green-500',
       itemData,
       onApply,
       onCancel,
@@ -182,7 +181,7 @@ const MealItemAddModal = forwardRef(
           header={
             <h3 className="text-lg font-bold text-white">
               Editando item em
-              <span className="text-green-500">
+              <span className={targetNameColor}>
                 {' '}
                 &quot;{targetName ?? 'ERRO: destino desconhecido'}&quot;{' '}
               </span>
