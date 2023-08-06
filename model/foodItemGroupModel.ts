@@ -10,6 +10,11 @@ export const itemGroupSchema = z.discriminatedUnion('type', [
     items: itemSchema.array(),
     quantity: z.number(),
     type: z.literal('simple'),
+    recipe: z
+      .number()
+      .nullable()
+      .optional()
+      .transform((recipe) => recipe ?? undefined),
   }),
   z.object({
     id: z.number(),
