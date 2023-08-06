@@ -10,7 +10,7 @@ import {
 } from 'react'
 import { FoodItem, createFoodItem } from '@/model/foodItemModel'
 import Modal, { ModalActions, ModalRef } from '../(modals)/modal'
-import { Recipe } from '@/model/recipeModel'
+import { Recipe, createRecipe } from '@/model/recipeModel'
 import RecipeView from './RecipeView'
 import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
 import Show from '../Show'
@@ -36,8 +36,17 @@ const RecipeEditModal = forwardRef(
     }: RecipeEditModalProps,
     ref: React.Ref<ModalRef>,
   ) => {
-    const [recipe, setRecipe] = useState<Recipe | null>(initialRecipe)
-    const [itemToEdit, setItemToEdit] = useState<FoodItem | null>(null)
+    const [recipe, setRecipe] = useState<Recipe>(
+      initialRecipe ??
+        createRecipe({
+          name: 'New Recipe',
+          items: [],
+        }),
+    )
+
+    const [selectedFoodItem, setSelectedFoodItem] = useState<FoodItem | null>(
+      null,
+    )
 
     const impossibleFoodItem = createFoodItem({
       name: 'IMPOSSIBLE FOOD ITEM',
@@ -63,12 +72,12 @@ const RecipeEditModal = forwardRef(
     }, [initialRecipe])
 
     useEffect(() => {
-      if (itemToEdit) {
+      if (selectedFoodItem) {
         foodItemEditModalRef.current?.showModal()
       } else {
         foodItemEditModalRef.current?.close()
       }
-    }, [itemToEdit])
+    }, [selectedFoodItem])
 
     useImperativeHandle(ref, () => ({
       showModal: () => {
@@ -83,11 +92,11 @@ const RecipeEditModal = forwardRef(
 
     return (
       <>
-        <Show when={itemToEdit !== null}>
+        <Show when={selectedFoodItem !== null}>
           <FoodItemEditModal
             modalId="RECIPES_EDIT_MODAL:FOOD_ITEM_ADD_MODAL"
             ref={foodItemEditModalRef}
-            foodItem={itemToEdit ?? impossibleFoodItem}
+            foodItem={selectedFoodItem ?? impossibleFoodItem}
             targetName={recipe?.name ?? 'LOADING RECIPE'}
             onApply={(foodItem) => {
               if (!recipe) return
@@ -102,11 +111,11 @@ const RecipeEditModal = forwardRef(
                     ],
                   },
               )
-              setItemToEdit(null)
+              setSelectedFoodItem(null)
             }}
             onVisibilityChange={(isShowing) => {
               if (!isShowing) {
-                setItemToEdit(null)
+                setSelectedFoodItem(null)
               }
             }}
           />
@@ -140,7 +149,7 @@ const RecipeEditModal = forwardRef(
                 }
                 content={
                   <RecipeView.Content
-                    onEditItem={(item) => setItemToEdit(item)}
+                    onEditItem={(item) => setSelectedFoodItem(item)}
                   />
                 }
                 actions={
