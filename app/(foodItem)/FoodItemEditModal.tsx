@@ -19,9 +19,8 @@ import { Loadable } from '@/utils/loadable'
 
 const RECIPE_EDIT_MODAL_ID = 'meal-item-add-modal:self:recipe-edit-modal'
 
-// TODO: Rename to FoodItemEdit
 // TODO: Add item name field
-export type MealItemAddModalProps = {
+export type FoodItemEditModalProps = {
   modalId: string
   targetName: string
   targetNameColor?: string
@@ -33,7 +32,7 @@ export type MealItemAddModalProps = {
 }
 
 // eslint-disable-next-line react/display-name
-const MealItemAddModal = forwardRef(
+const FoodItemEditModal = forwardRef(
   (
     {
       modalId,
@@ -44,7 +43,7 @@ const MealItemAddModal = forwardRef(
       onCancel,
       onDelete,
       onVisibilityChange,
-    }: MealItemAddModalProps,
+    }: FoodItemEditModalProps,
     ref: React.Ref<ModalRef>,
   ) => {
     const [showing, setShowing_] = useState(false)
@@ -405,4 +404,4 @@ function Actions({
   )
 }
 
-export default MealItemAddModal
+export default FoodItemEditModal

@@ -12,7 +12,7 @@ import { FoodItem } from '@/model/foodItemModel'
 import Modal, { ModalActions, ModalRef } from '../(modals)/modal'
 import { Recipe } from '@/model/recipeModel'
 import RecipeView from './RecipeView'
-import MealItemAddModal from '../(foodItem)/MealItemAddModal'
+import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
 import Show from '../Show'
 import { MealData } from '@/model/mealModel'
 
@@ -41,8 +41,8 @@ const RecipeEditModal = forwardRef(
 
     // TODO: Change other modals modalRef variable to selfModalRef on other files
     const selfModalRef = useRef<ModalRef>(null)
-    // TODO: Rename mealItemAddModalRef to foodItemAddModalRef on other files (and here)
-    const mealItemAddModalRef = useRef<ModalRef>(null)
+    // TODO: Rename foodItemEditModalRef to foodItemAddModalRef on other files (and here)
+    const foodItemEditModalRef = useRef<ModalRef>(null)
 
     const handleSetShowing = useCallback(
       (isShowing: boolean) => {
@@ -59,9 +59,9 @@ const RecipeEditModal = forwardRef(
 
     useEffect(() => {
       if (itemToEdit) {
-        mealItemAddModalRef.current?.showModal()
+        foodItemEditModalRef.current?.showModal()
       } else {
-        mealItemAddModalRef.current?.close()
+        foodItemEditModalRef.current?.close()
       }
     }, [itemToEdit])
 
@@ -79,9 +79,9 @@ const RecipeEditModal = forwardRef(
     return (
       <>
         <Show when={itemToEdit !== null}>
-          <MealItemAddModal
+          <FoodItemEditModal
             modalId="RECIPES_EDIT_MODAL:FOOD_ITEM_ADD_MODAL"
-            ref={mealItemAddModalRef}
+            ref={foodItemEditModalRef}
             itemData={itemToEdit}
             targetName={recipe?.name ?? 'LOADING RECIPE'}
             onApply={(foodItem) => {
