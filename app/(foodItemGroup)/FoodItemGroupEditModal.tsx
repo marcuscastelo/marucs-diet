@@ -18,6 +18,10 @@ import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
 import RecipeIcon from '../(icons)/RecipeIcon'
 import RecipeEditModal from '../(recipe)/RecipeEditModal'
 import { Recipe, createRecipeFromGroup } from '@/model/recipeModel'
+import { Loadable } from '@/utils/loadable'
+import LoadingRing from '../LoadingRing'
+import PageLoading from '../PageLoading'
+import { searchRecipeById } from '@/controllers/recipes'
 
 // TODO: Rename to FoodItemEdit
 export type FoodItemGroupEditModalProps = {
@@ -52,11 +56,29 @@ const FoodItemGroupEditModal = forwardRef(
     const { debug } = useDebug()
 
     const [group, setGroup] = useState<FoodItemGroup | null>(initialGroup)
-    const [recipe, setRecipe] = useState<Recipe | null>(null)
+    const [recipe, setRecipe] = useState<Loadable<Recipe | null>>({
+      loading: true,
+    })
 
     useEffect(() => {
       setGroup(initialGroup)
     }, [initialGroup])
+
+    useEffect(() => {
+      if (!initialGroup || !initialGroup.recipe) {
+        setRecipe({ loading: false, data: null })
+        return
+      }
+      let ignore = false
+      searchRecipeById(initialGroup?.recipe).then((recipe) => {
+        if (ignore) return
+        setRecipe({ loading: false, data: recipe })
+      })
+
+      return () => {
+        ignore = true
+      }
+    })
 
     const [selectedFoodItem, setSelectedFoodItem] = useState<FoodItem | null>(
       null,
@@ -99,6 +121,14 @@ const FoodItemGroupEditModal = forwardRef(
       },
     }))
 
+    if (recipe.loading) {
+      return (
+        <PageLoading
+          message={`Carregando receita atrelada ao grupo ${group?.name}`}
+        />
+      )
+    }
+
     return (
       <>
         {/* {itemData?.food.name.toString()}
@@ -111,7 +141,7 @@ const FoodItemGroupEditModal = forwardRef(
         {/* //TODO: Allow user to edit recipe */}
         <ExternalRecipeEditModal
           group={group}
-          recipe={recipe}
+          recipe={recipe.data}
           recipeEditModalRef={recipeEditModalRef}
         />
         <ExternalFoodItemEditModal
@@ -133,13 +163,27 @@ const FoodItemGroupEditModal = forwardRef(
           modalId={modalId}
           ref={selfModalRef}
           onSubmit={() => group && onSaveGroup(group)}
-          header={<Header group={group} targetMealName={targetMealName} />}
+          header={
+            <Header
+              recipe={recipe.data}
+              group={group}
+              targetMealName={targetMealName}
+            />
+          }
           onVisibilityChange={handleSetShowing}
           body={
             <Body
               group={group}
               setGroup={setGroup}
-              setRecipe={setRecipe}
+              setRecipe={(recipeAction) => {
+                if (typeof recipeAction === 'function') {
+                  setRecipe((old) =>
+                    old.loading ? old : { ...old, ...recipeAction(old.data) },
+                  )
+                } else {
+                  setRecipe((old) => ({ ...old, ...recipeAction }))
+                }
+              }}
               recipeEditModalRef={recipeEditModalRef}
               foodItemEditModalRef={foodItemEditModalRef}
               foodSearchModalRef={foodSearchModalRef}
@@ -167,9 +211,11 @@ const FoodItemGroupEditModal = forwardRef(
 function Header({
   targetMealName,
   group,
+  recipe,
 }: {
   targetMealName: string
   group: FoodItemGroup | null
+  recipe: Recipe | null
 }) {
   const { debug } = useDebug()
 
@@ -179,6 +225,7 @@ function Header({
         Editando grupo em
         <span className="text-green-500"> &quot;{targetMealName}&quot; </span>
       </h3>
+      Receita: {recipe?.name?.toString() ?? 'Nenhuma'}
       {debug && (
         <code>
           <pre>{JSON.stringify(group, null, 2)}</pre>

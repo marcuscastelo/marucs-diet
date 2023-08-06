@@ -48,7 +48,7 @@ export default function FoodItemGroupView({
   )
 }
 
-FoodItemGroupView.Header = MealItemHeader
+FoodItemGroupView.Header = FoodItemGroupHeader
 FoodItemGroupView.NutritionalInfo = MealItemNutritionalInfo
 
 export type MealItemHeaderProps = {
@@ -57,7 +57,11 @@ export type MealItemHeaderProps = {
   copyButton?: React.ReactNode
 }
 
-function MealItemHeader({ name, favorite, copyButton }: MealItemHeaderProps) {
+function FoodItemGroupHeader({
+  name,
+  favorite,
+  copyButton,
+}: MealItemHeaderProps) {
   return (
     <div className="flex">
       {/* //TODO: mealItem id is random, but it should be an entry on the database (meal too) */}
@@ -69,11 +73,11 @@ function MealItemHeader({ name, favorite, copyButton }: MealItemHeaderProps) {
   )
 }
 
-MealItemHeader.Name = MealItemName
-MealItemHeader.CopyButton = MealItemCopyButton
-MealItemHeader.Favorite = MealItemFavorite
+FoodItemGroupHeader.Name = FoodItemGroupName
+FoodItemGroupHeader.CopyButton = FoodItemGroupCopyButton
+FoodItemGroupHeader.Favorite = FoodItemGroupFavorite
 
-function MealItemName() {
+function FoodItemGroupName() {
   const { foodItemGroup: itemGroup } = useFoodItemGroupContext()
 
   const { debug } = useDebug()
@@ -86,7 +90,7 @@ function MealItemName() {
         return 'text-orange-400'
       }
     } else if (itemGroup.type === 'recipe') {
-      return 'text-green-400'
+      return 'text-blue-500'
     } else {
       return 'text-red-400'
     }
@@ -108,7 +112,7 @@ function MealItemName() {
   )
 }
 
-function MealItemCopyButton({
+function FoodItemGroupCopyButton({
   handleCopyMealItem,
 }: {
   handleCopyMealItem: (mealItem: FoodItemGroup) => void
@@ -129,7 +133,7 @@ function MealItemCopyButton({
   )
 }
 
-function MealItemFavorite({
+function FoodItemGroupFavorite({
   favorite,
   setFavorite,
 }: {
