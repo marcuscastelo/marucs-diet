@@ -11,7 +11,7 @@ import {
 import Modal, { ModalActions, ModalRef } from '../(modals)/modal'
 import FoodItemListView from '../(foodItem)/FoodItemListView'
 import FoodItemView from '../(foodItem)/FoodItemView'
-import { FoodItem } from '@/model/foodItemModel'
+import { FoodItem, createFoodItem } from '@/model/foodItemModel'
 import { useFavoriteFoods } from '@/redux/features/userSlice'
 import FoodSearchModal from '../newItem/FoodSearchModal'
 import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
@@ -58,6 +58,11 @@ const FoodItemGroupEditModal = forwardRef(
     const [selectedFoodItem, setSelectedFoodItem] = useState<FoodItem | null>(
       null,
     )
+
+    const impossibleFoodItem = createFoodItem({
+      name: 'Erro de implementação: nenhum item selecionado',
+      reference: 0,
+    })
 
     const canApply = (group?.name.length ?? 0) > 0 && selectedFoodItem === null
     const selfModalRef = useRef<ModalRef>(null)
@@ -123,7 +128,7 @@ const FoodItemGroupEditModal = forwardRef(
               ? 'text-green-500'
               : 'text-orange-400'
           }
-          itemData={selectedFoodItem}
+          foodItem={selectedFoodItem ?? impossibleFoodItem}
           onApply={async (item) => {
             const newGroup: FoodItemGroup = {
               ...group,
