@@ -3,23 +3,23 @@
 import { ModalRef } from '@/app/(modals)/modal'
 import { useRef } from 'react'
 import { mockItem, mockMeal } from '../(mock)/mockData'
-import MealItemAddModal from '@/app/(foodItem)/MealItemAddModal'
+import FoodItemEditModal from '@/app/(foodItem)/FoodItemEditModal'
 
 export default function Page() {
   const modalId = 'testmodal'
 
-  const mealItemAddModalRef = useRef<ModalRef>(null)
+  const foodItemEditModalRef = useRef<ModalRef>(null)
 
   return (
     <>
       <button
         className="btn"
-        onClick={() => mealItemAddModalRef.current?.showModal()}
+        onClick={() => foodItemEditModalRef.current?.showModal()}
       >
         Show modal
       </button>
 
-      <MealItemAddModal
+      <FoodItemEditModal
         modalId={modalId}
         targetName="Teste"
         itemData={mockItem()}

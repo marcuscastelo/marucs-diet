@@ -14,7 +14,7 @@ import FoodItemView from '../(foodItem)/FoodItemView'
 import { FoodItem } from '@/model/foodItemModel'
 import { useFavoriteFoods } from '@/redux/features/userSlice'
 import FoodSearchModal from '../newItem/FoodSearchModal'
-import MealItemAddModal from '../(foodItem)/MealItemAddModal'
+import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
 import RecipeIcon from '../(icons)/RecipeIcon'
 
 // TODO: Rename to FoodItemEdit
@@ -62,14 +62,14 @@ const FoodItemGroupEditModal = forwardRef(
     const canApply = (group?.name.length ?? 0) > 0 && selectedFoodItem === null
     const selfModalRef = useRef<ModalRef>(null)
     const foodSearchModalRef = useRef<ModalRef>(null)
-    const mealItemAddModalRef = useRef<ModalRef>(null)
+    const foodItemEditModalRef = useRef<ModalRef>(null)
 
     useEffect(() => {
       if (!group) return
 
       if (isGroupSingleItem(group)) {
         setSelectedFoodItem(group.items[0])
-        mealItemAddModalRef.current?.showModal()
+        foodItemEditModalRef.current?.showModal()
       }
     }, [group])
     //     const recipeEditModalRef = useRef<ModalRef>(null)
@@ -110,9 +110,9 @@ const FoodItemGroupEditModal = forwardRef(
           recipe={(!recipe.loading && recipe.data) || null}
           onSaveRecipe={async () => alert('TODO: Save recipe')}
         /> */}
-        <MealItemAddModal
+        <FoodItemEditModal
           modalId={`VERY_UNIQUE_ID_${group?.id}`} // TODO: Clean all modal IDs on the project
-          ref={mealItemAddModalRef}
+          ref={foodItemEditModalRef}
           targetName={
             (group &&
               (isGroupSingleItem(group) ? targetMealName : group.name)) ||
@@ -149,7 +149,7 @@ const FoodItemGroupEditModal = forwardRef(
             )
 
             console.debug('newGroup', newGroup)
-            mealItemAddModalRef.current?.close()
+            foodItemEditModalRef.current?.close()
             setSelectedFoodItem(null)
             onSaveGroup(newGroup)
           }}
@@ -169,7 +169,7 @@ const FoodItemGroupEditModal = forwardRef(
             )
 
             console.debug('newGroup', newGroup)
-            mealItemAddModalRef.current?.close()
+            foodItemEditModalRef.current?.close()
             onSaveGroup(newGroup)
           }}
           onVisibilityChange={(visible) => {
@@ -282,7 +282,7 @@ const FoodItemGroupEditModal = forwardRef(
                       //   recipeEditModalRef.current?.showModal()
                       // } else {
                       setSelectedFoodItem(item)
-                      mealItemAddModalRef.current?.showModal()
+                      foodItemEditModalRef.current?.showModal()
                       // }
                     }}
                     makeHeaderFn={(item) => (
@@ -346,7 +346,7 @@ const FoodItemGroupEditModal = forwardRef(
               </button>
               <button
                 className="btn"
-                disabled={!canApply} // TODO: Rename canAdd to canApply on MealItemAddModal
+                disabled={!canApply} // TODO: Rename canAdd to canApply on FoodItemEditModal
                 onClick={(e) => {
                   e.preventDefault()
                   // TODO: only onSaveGroup when apply button is pressed, i.e. keeping internal state
