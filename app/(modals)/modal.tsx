@@ -1,6 +1,13 @@
 'use client'
 
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react'
 
 export type ModalProps = {
   modalId: string
@@ -10,6 +17,7 @@ export type ModalProps = {
   hasBackdrop?: boolean
   onSubmit?: (e: React.FormEvent<HTMLFormElement>) => void
   onVisibilityChange?: (isShowing: boolean) => void
+  show?: boolean
 }
 
 export type ModalRef = {
@@ -28,16 +36,30 @@ const Modal = forwardRef(
       hasBackdrop = true,
       onSubmit,
       onVisibilityChange,
+      show = false,
     }: ModalProps,
     ref: React.Ref<ModalRef>,
   ) => {
     const innerRef = useRef<HTMLDialogElement>(null)
-    const [, setShowing] = useState(false)
+    const [, setShowing] = useState(show)
 
-    const handleVisibilityChange = (isShowing: boolean) => {
-      setShowing(isShowing)
-      onVisibilityChange?.(isShowing)
-    }
+    const handleVisibilityChange = useCallback(
+      (isShowing: boolean) => {
+        setShowing(isShowing)
+        onVisibilityChange?.(isShowing)
+      },
+      [onVisibilityChange],
+    )
+
+    useEffect(() => {
+      if (show) {
+        innerRef.current?.showModal()
+        handleVisibilityChange(true)
+      } else {
+        innerRef.current?.close()
+        handleVisibilityChange(false)
+      }
+    }, [show, handleVisibilityChange])
 
     useImperativeHandle(ref, () => ({
       showModal: () => {
@@ -92,7 +114,7 @@ export function ModalHeader() {
 }
 
 export function ModalBody() {
-  return <></>
+  return <>Modal body</>
 }
 
 export function ModalActions({ children }: { children: React.ReactNode }) {
