@@ -104,14 +104,6 @@ const InnerFoodItemGroupEditModal = forwardRef(
     const foodSearchModalRef = useRef<ModalRef>(null)
     const foodItemEditModalRef = useRef<ModalRef>(null)
 
-    useEffect(() => {
-      if (!group) return
-
-      if (isGroupSingleItem(group)) {
-        setSelectedFoodItem(group.items[0])
-        foodItemEditModalRef.current?.showModal()
-      }
-    }, [group])
     const recipeEditModalRef = useRef<ModalRef>(null)
 
     const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods()
@@ -294,7 +286,7 @@ function ExternalFoodItemEditModal({
         console.debug('newGroup', newGroup)
         foodItemEditModalRef.current?.close()
         setSelectedFoodItem(null)
-        onSaveGroup(newGroup)
+        setGroup(newGroup)
       }}
       onDelete={async (itemId) => {
         const newGroup: FoodItemGroup = {
@@ -313,7 +305,7 @@ function ExternalFoodItemEditModal({
 
         console.debug('newGroup', newGroup)
         foodItemEditModalRef.current?.close()
-        onSaveGroup(newGroup)
+        setGroup(newGroup)
       }}
       onVisibilityChange={(visible) => {
         if (!visible) {
