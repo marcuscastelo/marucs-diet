@@ -84,6 +84,7 @@ const FoodItemEditModal = forwardRef(
     const selfModalRef = useRef<ModalRef>(null)
 
     const handleSetShowing = (isShowing: boolean) => {
+      console.debug('FoodItemEditModal: handleSetShowing', isShowing)
       setShowing_(isShowing)
       onVisibilityChange?.(isShowing)
     }
@@ -213,20 +214,11 @@ function Body({
     loading: true,
   })
 
-  const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(true)
+  // const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(true)
 
   useEffect(() => {
-    if (!showing) {
-      setQuantityFieldDisabled(true)
-      return
-    }
-
-    const timeout = setTimeout(() => {
-      setQuantityFieldDisabled(false)
-    }, 100)
-
-    return () => {
-      clearTimeout(timeout)
+    if (showing) {
+      quantityRef.current?.blur()
     }
   }, [showing])
 
@@ -289,7 +281,6 @@ function Body({
         <div className="my-1 flex flex-1 justify-around">
           <input
             style={{ width: '100%' }}
-            disabled={quantityFieldDisabled}
             value={quantity}
             ref={quantityRef}
             onChange={(e) => setQuantity(e.target.value.replace(/[^0-9]/, ''))}

@@ -61,6 +61,7 @@ const Modal = forwardRef(
         id={modalId}
         className="modal modal-bottom sm:modal-middle"
         ref={innerRef}
+        onClose={() => handleVisibilityChange(false)}
       >
         {/* TODO: className deveria estar no forms? */}
         <div
