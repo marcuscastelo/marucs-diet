@@ -83,6 +83,8 @@ function FoodItemGroupName() {
   const { debug } = useDebug()
 
   const getNameColor = () => {
+    if (!itemGroup) return 'text-red-900'
+
     if (itemGroup.type === 'simple') {
       if (isGroupSingleItem(itemGroup)) {
         return 'text-white'
@@ -101,7 +103,7 @@ function FoodItemGroupName() {
       {/* //TODO: mealItem id is random, but it should be an entry on the database (meal too) */}
       {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.mealItem.id}]</h5> */}
       <h5 className={`mb-2 text-lg font-bold tracking-tight ${getNameColor()}`}>
-        {itemGroup.name}{' '}
+        {itemGroup?.name ?? 'Erro: grupo sem nome'}{' '}
         {debug && (
           <>
             <div className="text-sm text-gray-400">[ID: {itemGroup?.id}]</div>
@@ -125,7 +127,7 @@ function FoodItemGroupCopyButton({
       onClick={(e) => {
         e.stopPropagation()
         e.preventDefault()
-        handleCopyMealItem(itemGroup)
+        itemGroup && handleCopyMealItem(itemGroup)
       }}
     >
       <CopyIcon />
@@ -161,13 +163,18 @@ function FoodItemGroupFavorite({
 function MealItemNutritionalInfo() {
   const { foodItemGroup: itemGroup } = useFoodItemGroupContext()
 
-  const multipliedMacros: MacroNutrientsData = calcGroupMacros(itemGroup)
+  const multipliedMacros: MacroNutrientsData = (itemGroup &&
+    calcGroupMacros(itemGroup)) || {
+    carbs: -666,
+    protein: -666,
+    fat: -666,
+  }
 
   return (
     <div className="flex">
       <MacroNutrients {...multipliedMacros} />
       <div className="ml-auto">
-        <span className="text-white"> {itemGroup.quantity}g </span>|
+        <span className="text-white"> {itemGroup?.quantity ?? -666}g </span>|
         <span className="text-white">
           {' '}
           {/* // TODO: Calculate calories for itemgroup */}
