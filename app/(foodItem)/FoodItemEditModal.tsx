@@ -12,11 +12,9 @@ import {
 import FoodItemView from './FoodItemView'
 import { FoodItem } from '@/model/foodItemModel'
 import { useDebug, useFavoriteFoods } from '@/redux/features/userSlice'
-import Modal, { ModalActions, ModalRef } from '../(modals)/modal'
-import RecipeEditModal from '../(recipe)/RecipeEditModal'
+import Modal, { ModalActions, ModalProps, ModalRef } from '../(modals)/modal'
 import { Recipe } from '@/model/recipeModel'
 import { Loadable } from '@/utils/loadable'
-import { FoodItemContextProvider } from './FoodItemContext'
 
 const RECIPE_EDIT_MODAL_ID = 'meal-item-add-modal:self:recipe-edit-modal'
 
@@ -30,6 +28,7 @@ export type FoodItemEditModalProps = {
   onCancel?: () => void
   onDelete?: (itemId: FoodItem['id']) => void
   onVisibilityChange?: (isShowing: boolean) => void
+  show?: boolean
 }
 
 // eslint-disable-next-line react/display-name
@@ -44,6 +43,7 @@ const FoodItemEditModal = forwardRef(
       onCancel,
       onDelete,
       onVisibilityChange,
+      show = false,
     }: FoodItemEditModalProps,
     ref: React.Ref<ModalRef>,
   ) => {
@@ -122,6 +122,7 @@ const FoodItemEditModal = forwardRef(
         /> */}
         <Modal
           modalId={modalId}
+          show={show}
           ref={selfModalRef}
           onSubmit={() => onApply(createMealItemData())}
           header={

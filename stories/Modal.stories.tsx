@@ -4,7 +4,7 @@ import Modal, {
   ModalActions,
   ModalBody,
   ModalHeader,
-} from '../app/(modals)/modal'
+} from '@/app/(modals)/modal'
 
 const meta: Meta<typeof Modal> = {
   component: Modal,
