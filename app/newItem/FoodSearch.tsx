@@ -9,7 +9,6 @@ import { FoodItem } from '@/model/foodItemModel'
 import { listDays } from '@/controllers/days'
 import { Day } from '@/model/dayModel'
 import BarCodeInsertModal from '@/app/BarCodeInsertModal'
-import { useFavoriteFoods, useUser } from '@/redux/features/userSlice'
 import { User } from '@/model/userModel'
 import { Loadable } from '@/utils/loadable'
 import LoadingRing from '@/app/LoadingRing'
@@ -20,6 +19,7 @@ import { mockFood, mockItem } from '../test/unit/(mock)/mockData'
 import PageLoading from '../PageLoading'
 import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
 import { MealData } from '@/model/mealModel'
+import { useUserContext } from '@/context/users.context'
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal'
 const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal'
@@ -41,7 +41,7 @@ export default function FoodSearch({
   const FOOD_LIMIT = 100
   const TYPE_TIMEOUT = 1000
 
-  const { user } = useUser()
+  const { user, isFoodFavorite, setFoodAsFavorite } = useUserContext()
 
   const [search, setSearch] = useState<string>('')
   const [foods, setFoods] = useState<Loadable<Food[]>>({ loading: true })
@@ -62,11 +62,9 @@ export default function FoodSearch({
 
   const isDesktop = isClient ? window.innerWidth > 768 : false // TODO: Stop using innerWidth to detect desktop
 
-  const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods()
-
   const fetchFoods = async (search: string | '', favoriteFoods: number[]) => {
     setSearchingFoods(true)
-    setFoods({ loading: false, data: [] })
+    setFoods({ loading: false, errored: false, data: [] })
 
     let foods: Food[] = []
     if (search === /* TODO: Check if equality is a bug */ '') {
@@ -96,6 +94,7 @@ export default function FoodSearch({
 
     setFoods({
       loading: false,
+      errored: false,
       data: sortedFoods,
     })
   }
@@ -105,7 +104,8 @@ export default function FoodSearch({
   }, [])
 
   useEffect(() => {
-    if (user.loading || typing) {
+    // TODO: Add proper error handling for all user.errored, days.errored and foods.errored checks
+    if (user.loading || user.errored || typing) {
       return
     }
 
@@ -126,6 +126,12 @@ export default function FoodSearch({
 
   if (foods.loading) {
     return <PageLoading message="Carregando alimentos" />
+  }
+
+  if (foods.errored) {
+    return (
+      <PageLoading message="Erro ao carregar alimentos. Tente novamente mais tarde" />
+    )
   }
 
   const filteredFoods = foods.data

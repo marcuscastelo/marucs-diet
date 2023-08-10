@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react'
 import FoodItemView from './(foodItem)/FoodItemView'
 import { searchFoodsByEan, upsertFood } from '@/controllers/food'
-import { useFavoriteFoods } from '@/redux/features/userSlice'
 import { Food } from '@/model/foodModel'
+import { useUserContext } from '@/context/users.context'
 
 export type BarCodeSearchProps = {
   barCode?: string
@@ -21,7 +21,7 @@ export default function BarCodeSearch({
   const [innerBarCode, setInnerBarCode] = useState(barCode)
   const [currentFood, setCurrentFood] = useState<Food | null>(null)
 
-  const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods()
+  const { isFoodFavorite, setFoodAsFavorite } = useUserContext()
 
   const EAN_LENGTH = 13
 

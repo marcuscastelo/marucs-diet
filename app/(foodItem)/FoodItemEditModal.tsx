@@ -11,10 +11,10 @@ import {
 } from 'react'
 import FoodItemView from './FoodItemView'
 import { FoodItem } from '@/model/foodItemModel'
-import { useDebug, useFavoriteFoods } from '@/redux/features/userSlice'
 import Modal, { ModalActions, ModalProps, ModalRef } from '../(modals)/modal'
 import { Recipe } from '@/model/recipeModel'
 import { Loadable } from '@/utils/loadable'
+import { useUserContext } from '@/context/users.context'
 
 const RECIPE_EDIT_MODAL_ID = 'meal-item-add-modal:self:recipe-edit-modal'
 
@@ -173,7 +173,7 @@ function Header({
   targetName: string
   targetNameColor: string
 }) {
-  const { debug } = useDebug()
+  const { debug } = useUserContext()
   return (
     <>
       {debug && (
@@ -223,7 +223,7 @@ function Body({
     }
   }, [showing])
 
-  const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods()
+  const { isFoodFavorite, setFoodAsFavorite } = useUserContext()
 
   const [currentHoldTimeout, setCurrentHoldTimeout] = useState<NodeJS.Timeout>()
   const [currentHoldInterval, setCurrentHoldInterval] =

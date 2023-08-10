@@ -1,6 +1,5 @@
 'use client'
 
-import { useUser } from '@/redux/features/userSlice'
 import PageLoading from '../PageLoading'
 import { User, userSchema } from '@/model/userModel'
 import TopBar from './TopBar'
@@ -10,6 +9,7 @@ import { SetStateAction, useCallback, useEffect, useState } from 'react'
 import { updateUser } from '@/controllers/users'
 import MacroTarget, { MacroProfile } from '../MacroTargets'
 import Capsule from '../Capsule'
+import { useUserContext } from '@/context/users.context'
 
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
@@ -36,11 +36,11 @@ const USER_FIELD_TRANSLATION: Translation<keyof User> = {
 }
 
 export default function Page() {
-  const { user, setUser } = useUser()
+  const { user, setUser } = useUserContext()
 
   const onSetProfile = useCallback(
     async (action: (old: MacroProfile) => MacroProfile) => {
-      if (user.loading) {
+      if (user.loading || user.errored) {
         return
       }
 
@@ -78,6 +78,17 @@ export default function Page() {
     )
   }
 
+  if (user.errored) {
+    return (
+      <>
+        <TopBar />
+        <p className="text-center text-red-600">
+          Ocorreu um erro ao carregar o usuário.
+        </p>
+      </>
+    )
+  }
+
   return (
     <>
       <TopBar />
@@ -99,13 +110,13 @@ export default function Page() {
 }
 
 function BasicInfo() {
-  const { user, setUser, fetchUser } = useUser()
+  const { user, setUser } = useUserContext()
   const [innerData, setInnerData] = useState<User | undefined>(
-    user.loading ? undefined : user.data,
+    user.loading || user.errored ? undefined : user.data,
   )
 
   useEffect(() => {
-    if (user.loading) {
+    if (user.loading || user.errored) {
       return
     }
 
@@ -114,6 +125,16 @@ function BasicInfo() {
 
   if (user.loading || !innerData) {
     return <CardLoading />
+  }
+
+  if (user.errored) {
+    return (
+      <>
+        <p className="text-center text-red-600">
+          Ocorreu um erro ao carregar o usuário.
+        </p>
+      </>
+    )
   }
 
   const makeOnBlur = <T extends keyof User>(
@@ -227,6 +248,7 @@ function WeightProgress({ userData }: { userData: User }) {
   )
 }
 
+// TODO: Make this a global component (and maybe use animations with mocked content)
 const CardLoading = () => (
   <div className={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE} rounded-b-none pb-6`}>
     <h5 className={`mx-auto animate-pulse text-center text-3xl font-bold`}>

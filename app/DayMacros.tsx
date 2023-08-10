@@ -1,11 +1,11 @@
 'use client'
 
 import { MacroNutrientsData } from '@/model/macroNutrientsModel'
-import { useUser } from '@/redux/features/userSlice'
 import { Progress } from 'flowbite-react'
 import { calculateMacroTarget } from './MacroTargets'
 import { CSSProperties } from 'react'
 import { calcCalories } from '@/utils/macroMath'
+import { useUserContext } from '@/context/users.context'
 
 export default function DayMacros({
   macros,
@@ -14,16 +14,19 @@ export default function DayMacros({
   macros: MacroNutrientsData
   className?: string
 }) {
-  const { user } = useUser()
+  const { user } = useUserContext()
 
   if (user.loading) {
     return <>Loading user...</>
   }
 
+  if (user.errored) {
+    return <>Error loading user</>
+  }
+
   const macroProfile = user.data.macro_profile
   const targetMacros = calculateMacroTarget(user.data.weight, macroProfile)
-  const targetCalories =
-    targetMacros.carbs * 4 + targetMacros.protein * 4 + targetMacros.fat * 9
+  const targetCalories = calcCalories(targetMacros)
 
   return (
     <>

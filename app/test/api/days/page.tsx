@@ -5,14 +5,14 @@ import Meal, { MealProps } from '@/app/(meal)/Meal'
 import { listDays } from '@/controllers/days'
 import { Day } from '@/model/dayModel'
 import { User } from '@/model/userModel'
-import { useUser } from '@/redux/features/userSlice'
 import { Suspense, useEffect, useState } from 'react'
+import { useUserContext } from '@/context/users.context'
 
 export default function Page() {
   const [days, setDays] = useState<Day[]>([])
   const [mealProps, setMealProps] = useState<MealProps[][]>([])
 
-  const { user } = useUser()
+  const { user } = useUserContext()
 
   const fetchDays = async (userId: User['id']) => {
     const days = await listDays(userId)
@@ -42,7 +42,7 @@ export default function Page() {
   }
 
   useEffect(() => {
-    if (user.loading) {
+    if (user.loading || user.errored) {
       return
     }
 

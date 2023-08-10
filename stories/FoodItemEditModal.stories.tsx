@@ -3,7 +3,6 @@ import FoodItemEditModal, {
   FoodItemEditModalProps,
 } from '../app/(foodItem)/FoodItemEditModal'
 import { mockItem } from '@/app/test/unit/(mock)/mockData'
-import { Providers } from '@/redux/provider'
 
 const meta: Meta<typeof FoodItemEditModal> = {
   component: FoodItemEditModal,
@@ -14,7 +13,11 @@ const meta: Meta<typeof FoodItemEditModal> = {
       },
     },
   },
-  decorators: [(Story) => <Providers>{Story()}</Providers>],
+  decorators: [
+    (Story) => {
+      return Story()
+    },
+  ],
 }
 
 export default meta
