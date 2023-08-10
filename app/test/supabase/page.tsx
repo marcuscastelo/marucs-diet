@@ -20,6 +20,7 @@ export default function Cart() {
     listUsers().then((users) => {
       setUsers({
         loading: false,
+        errored: false,
         data: users,
       })
     })
@@ -27,6 +28,7 @@ export default function Cart() {
     listFoods(10).then((foods) => {
       setFoods({
         loading: false,
+        errored: false,
         data: foods,
       })
     })
@@ -34,6 +36,10 @@ export default function Cart() {
 
   if (users.loading || foods.loading) {
     return <div>Loading...</div>
+  }
+
+  if (users.errored || foods.errored) {
+    return <div>Errored</div>
   }
 
   return (

@@ -1,10 +1,10 @@
 'use client'
 
 import UserSelector from '@/app/UserSelector'
-import { useUser } from '@/redux/features/userSlice'
+import { useUserContext } from '@/context/users.context'
 
 export default function Page() {
-  const { user } = useUser()
+  const { user } = useUserContext()
   return (
     <div className="w-64">
       <div className="mb-10">

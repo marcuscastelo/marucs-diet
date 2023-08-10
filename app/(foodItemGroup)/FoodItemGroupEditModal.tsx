@@ -12,7 +12,6 @@ import Modal, { ModalActions, ModalRef } from '../(modals)/modal'
 import FoodItemListView from '../(foodItem)/FoodItemListView'
 import FoodItemView from '../(foodItem)/FoodItemView'
 import { FoodItem, createFoodItem } from '@/model/foodItemModel'
-import { useDebug, useFavoriteFoods } from '@/redux/features/userSlice'
 import FoodSearchModal from '../newItem/FoodSearchModal'
 import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
 import RecipeIcon from '../(icons)/RecipeIcon'
@@ -25,6 +24,7 @@ import {
   FoodItemGroupContextProvider,
   useFoodItemGroupContext,
 } from './FoodItemGroupContext'
+import { useUserContext } from '@/context/users.context'
 
 // TODO: Rename to FoodItemEdit
 export type FoodItemGroupEditModalProps = {
@@ -76,13 +76,13 @@ const InnerFoodItemGroupEditModal = forwardRef(
 
     useEffect(() => {
       if (!group || !group.recipe) {
-        setRecipe({ loading: false, data: null })
+        setRecipe({ loading: false, errored: false, data: null })
         return
       }
       let ignore = false
       searchRecipeById(group?.recipe).then((recipe) => {
         if (ignore) return
-        setRecipe({ loading: false, data: recipe })
+        setRecipe({ loading: false, errored: false, data: recipe })
       })
 
       return () => {
@@ -106,7 +106,7 @@ const InnerFoodItemGroupEditModal = forwardRef(
 
     const recipeEditModalRef = useRef<ModalRef>(null)
 
-    const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods()
+    const { isFoodFavorite, setFoodAsFavorite } = useUserContext()
     const handleSetShowing = (isShowing: boolean) => {
       setShowing_(isShowing)
       onVisibilityChange?.(isShowing)
@@ -127,6 +127,14 @@ const InnerFoodItemGroupEditModal = forwardRef(
       return (
         <PageLoading
           message={`Carregando receita atrelada ao grupo ${group?.name}`}
+        />
+      )
+    }
+
+    if (recipe.errored) {
+      return (
+        <PageLoading
+          message={`Erro ao carregar receita atrelada ao grupo ${group?.name}`}
         />
       )
     }
@@ -160,7 +168,9 @@ const InnerFoodItemGroupEditModal = forwardRef(
           onVisibilityChange={handleSetShowing}
           body={
             <Body
-              setRecipe={(data) => setRecipe({ loading: false, data })}
+              setRecipe={(data) =>
+                setRecipe({ loading: false, errored: false, data })
+              }
               recipeEditModalRef={recipeEditModalRef}
               foodItemEditModalRef={foodItemEditModalRef}
               foodSearchModalRef={foodSearchModalRef}
@@ -191,7 +201,7 @@ function Header({
   targetMealName: string
   recipe: Recipe | null
 }) {
-  const { debug } = useDebug()
+  const { debug } = useUserContext()
   const { foodItemGroup: group, setFoodItemGroup: setGroup } =
     useFoodItemGroupContext()
   return (

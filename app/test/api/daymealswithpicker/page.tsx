@@ -6,11 +6,11 @@ import { listDays, updateDay } from '@/controllers/days'
 import { Day } from '@/model/dayModel'
 import { MealData } from '@/model/mealModel'
 import { User } from '@/model/userModel'
-import { useUser } from '@/redux/features/userSlice'
 import { stringToDate } from '@/utils/dateUtils'
 import { useEffect, useState } from 'react'
 import Datepicker from 'react-tailwindcss-datepicker'
 import { DateValueType } from 'react-tailwindcss-datepicker/dist/types'
+import { useUserContext } from '@/context/users.context'
 
 export default function Page() {
   const [days, setDays] = useState<Day[]>([])
@@ -18,7 +18,7 @@ export default function Page() {
 
   const [selectedDay, setSelectedDay] = useState('')
 
-  const { user } = useUser()
+  const { user } = useUserContext()
 
   const fetchDays = async (userId: User['id']) => {
     const days = await listDays(userId)
@@ -59,7 +59,7 @@ export default function Page() {
   }
 
   useEffect(() => {
-    if (user.loading) {
+    if (user.loading || user.errored) {
       return
     }
 

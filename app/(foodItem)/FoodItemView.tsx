@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react'
 import { Food } from '@/model/foodModel'
 import { searchFoodById } from '@/controllers/food'
 import { calcItemCalories } from '@/utils/macroMath'
-import { useDebug } from '@/redux/features/userSlice'
+import { useUserContext } from '@/context/users.context'
 
 export type FoodItemViewProps = {
   foodItem: FoodItem
@@ -76,7 +76,7 @@ MealItemHeader.Favorite = MealItemFavorite
 function MealItemName() {
   const { foodItem: item } = useFoodItemContext()
 
-  const { debug } = useDebug()
+  const { debug } = useUserContext()
 
   const [food, setFood] = useState<Food | null>(null)
 
