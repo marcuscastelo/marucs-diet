@@ -112,7 +112,7 @@ export default function BarCodeSearch({
                       favorite={
                         <FoodItemView.Header.Favorite
                           favorite={isFoodFavorite(currentFood.id)}
-                          setFavorite={(favorite) =>
+                          onSetFavorite={(favorite) =>
                             setFoodAsFavorite(currentFood.id, favorite)
                           }
                         />

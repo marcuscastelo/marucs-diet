@@ -459,7 +459,7 @@ function Body({
                       // TODO: isRecipeFavorite as well
                       isFoodFavorite(item.reference)
                     }
-                    setFavorite={(favorite) =>
+                    onSetFavorite={(favorite) =>
                       // TODO: setRecipeAsFavorite as well
                       setFoodAsFavorite(item.reference, favorite)
                     }
