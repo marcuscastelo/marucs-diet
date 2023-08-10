@@ -79,6 +79,9 @@ export function UserContextProvider({
     setUser({ loading: true })
     try {
       const user = await onFetchUser(id)
+      if (!user) {
+        throw new Error('User not found')
+      }
       setUser({ loading: false, errored: false, data: user })
     } catch (error) {
       setUser({ loading: false, errored: true, error: error as Error })
