@@ -15,7 +15,6 @@ import { MealData } from '@/model/mealModel'
 import { useRouter } from 'next/navigation'
 import { mockDay } from '@/app/test/unit/(mock)/mockData'
 import UserSelector from '@/app/UserSelector'
-import { useUser } from '@/redux/features/userSlice'
 import { Loadable, Loaded } from '@/utils/loadable'
 import { getToday, stringToDate } from '@/utils/dateUtils'
 import { User } from '@/model/userModel'
@@ -25,6 +24,7 @@ import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context'
 import { FoodItemGroup } from '@/model/foodItemGroupModel'
 import { calcDayMacros } from '@/utils/macroMath'
 import FoodItemGroupEditModal from '@/app/(foodItemGroup)/FoodItemGroupEditModal'
+import { useUserContext } from '@/context/users.context'
 
 type PageParams = {
   params: {
@@ -35,7 +35,7 @@ type PageParams = {
 export default function Page({ params }: PageParams) {
   const router = useRouter()
 
-  const { user } = useUser()
+  const { user } = useUserContext()
 
   const selectedDay = params.day
   const today = getToday()
@@ -54,6 +54,7 @@ export default function Page({ params }: PageParams) {
     const days = await listDays(userId)
     setDays({
       loading: false,
+      errored: false,
       data: days,
     })
   }
@@ -71,7 +72,7 @@ export default function Page({ params }: PageParams) {
   }
 
   useEffect(() => {
-    if (user.loading) {
+    if (user.loading || user.errored) {
       return
     }
 
@@ -82,8 +83,16 @@ export default function Page({ params }: PageParams) {
     return <PageLoading message="Carregando usuário" />
   }
 
+  if (user.errored) {
+    return <PageLoading message="Erro ao carregar usuário" />
+  }
+
   if (days.loading) {
     return <PageLoading message="Carregando dias" />
+  }
+
+  if (days.errored) {
+    return <PageLoading message="Erro ao carregar dias" />
   }
 
   const dayData = days.data.find((day) => day.target_day === selectedDay)

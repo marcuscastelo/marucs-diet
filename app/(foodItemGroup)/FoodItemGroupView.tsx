@@ -9,7 +9,7 @@ import {
 } from './FoodItemGroupContext'
 import { FoodItemGroup, isGroupSingleItem } from '@/model/foodItemGroupModel'
 import { calcGroupMacros } from '@/utils/macroMath'
-import { useDebug } from '@/redux/features/userSlice'
+import { useUserContext } from '@/context/users.context'
 
 export type FoodItemGroupViewProps = {
   foodItemGroup: FoodItemGroup
@@ -80,7 +80,7 @@ FoodItemGroupHeader.Favorite = FoodItemGroupFavorite
 function FoodItemGroupName() {
   const { foodItemGroup: itemGroup } = useFoodItemGroupContext()
 
-  const { debug } = useDebug()
+  const { debug } = useUserContext()
 
   const getNameColor = () => {
     if (!itemGroup) return 'text-red-900'
