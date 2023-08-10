@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import FoodItemView, { FoodItemViewProps } from '../app/(foodItem)/FoodItemView'
-import { FoodItem } from '@/model/foodItemModel'
+import { mockItem } from '@/app/test/unit/(mock)/mockData'
 
 const meta: Meta<typeof FoodItemView> = {
   component: FoodItemView,
@@ -11,6 +11,6 @@ type Story = StoryObj<typeof FoodItemView>
 
 export const Root: Story = {
   args: {
-    foodItem: {} as FoodItem,
+    foodItem: mockItem(),
   } satisfies FoodItemViewProps,
 }
