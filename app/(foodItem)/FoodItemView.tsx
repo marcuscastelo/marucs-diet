@@ -63,8 +63,10 @@ function MealItemHeader({ name, favorite, copyButton }: MealItemHeaderProps) {
       {/* //TODO: mealItem id is random, but it should be an entry on the database (meal too) */}
       {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.mealItem.id}]</h5> */}
       <div className="my-2">{name}</div>
-      <div className={`ml-auto flex gap-2`}>{copyButton}</div>
-      {favorite}
+      <div className={`ml-auto flex gap-2`}>
+        <div className="my-auto">{copyButton}</div>
+        <div className="my-auto">{favorite}</div>
+      </div>
     </div>
   )
 }
@@ -124,10 +126,10 @@ function MealItemCopyButton({
 
 function MealItemFavorite({
   favorite,
-  setFavorite,
+  onSetFavorite: setFavorite,
 }: {
   favorite: boolean
-  setFavorite?: (favorite: boolean) => void
+  onSetFavorite?: (favorite: boolean) => void
 }) {
   const toggleFavorite = (e: React.MouseEvent) => {
     setFavorite?.(!favorite)

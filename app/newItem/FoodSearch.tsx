@@ -411,7 +411,7 @@ const SearchResults = ({
                       favorite={
                         <FoodItemView.Header.Favorite
                           favorite={isFoodFavorite(food.id)}
-                          setFavorite={(favorite) =>
+                          onSetFavorite={(favorite) =>
                             setFoodAsFavorite(food.id, favorite)
                           }
                         />
