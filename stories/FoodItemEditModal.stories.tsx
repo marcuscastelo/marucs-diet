@@ -3,6 +3,7 @@ import FoodItemEditModal, {
   FoodItemEditModalProps,
 } from '../app/(foodItem)/FoodItemEditModal'
 import { mockItem } from '@/app/test/unit/(mock)/mockData'
+import App from '@/app/App'
 
 const meta: Meta<typeof FoodItemEditModal> = {
   component: FoodItemEditModal,
@@ -13,11 +14,7 @@ const meta: Meta<typeof FoodItemEditModal> = {
       },
     },
   },
-  decorators: [
-    (Story) => {
-      return Story()
-    },
-  ],
+  decorators: [(Story) => <App>{Story()}</App>],
 }
 
 export default meta

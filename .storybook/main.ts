@@ -18,5 +18,9 @@ const config: StorybookConfig = {
   docs: {
     autodocs: "tag",
   },
+  typescript: {
+    // Needed to avoid Chunk Loading Errors: https://stackoverflow.com/questions/70637257/storybook-error-when-using-webpack5-with-next-js-app-typescript
+    reactDocgen: false
+  }
 };
 export default config;
