@@ -34,7 +34,9 @@ export default function Page() {
               }
             />
           ),
-          actions: <MealView.Actions onNewItem={() => alert('Mock: New item')} />,
+          actions: (
+            <MealView.Actions onNewItem={() => alert('Mock: New item')} />
+          ),
         }
       })
     })

@@ -20,7 +20,9 @@ export default function MealPage() {
         />
       }
       actions={
-        <MealView.Actions onNewItem={() => duplicateLastMealItem(meal, setMeal)} />
+        <MealView.Actions
+          onNewItem={() => duplicateLastMealItem(meal, setMeal)}
+        />
       }
     />
   )

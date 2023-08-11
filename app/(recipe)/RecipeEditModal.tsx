@@ -11,7 +11,7 @@ import {
 import { FoodItem, createFoodItem } from '@/model/foodItemModel'
 import Modal, { ModalActions, ModalRef } from '../(modals)/modal'
 import { Recipe, createRecipe } from '@/model/recipeModel'
-import RecipeView from './RecipeView'
+import RecipeEditView from './RecipeEditView'
 import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
 import Show from '../Show'
 import { MealData } from '@/model/mealModel'
@@ -138,22 +138,22 @@ const RecipeEditModal = forwardRef(
           onVisibilityChange={handleSetShowing}
           body={
             recipe && (
-              <RecipeView
+              <RecipeEditView
                 recipe={recipe}
                 header={
-                  <RecipeView.Header
+                  <RecipeEditView.Header
                     onUpdateRecipe={(recipe) => {
                       setRecipe(recipe)
                     }}
                   />
                 }
                 content={
-                  <RecipeView.Content
+                  <RecipeEditView.Content
                     onEditItem={(item) => setSelectedFoodItem(item)}
                   />
                 }
                 actions={
-                  <RecipeView.Actions
+                  <RecipeEditView.Actions
                     // TODO: Treat recursive recipe
                     onNewItem={() => alert('TODO: onAddItem')}
                   />
