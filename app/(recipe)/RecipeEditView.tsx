@@ -12,7 +12,7 @@ import CopyIcon from '../(icons)/CopyIcon'
 import FoodItemListView from '../(foodItem)/FoodItemListView'
 import { calcRecipeCalories } from '@/utils/macroMath'
 
-export type RecipeViewProps = {
+export type RecipeEditViewProps = {
   recipe: Recipe
   header?: React.ReactNode
   content?: React.ReactNode
@@ -30,13 +30,13 @@ export type RecipeViewProps = {
 //   return result
 // }
 
-export default function RecipeView({
+export default function RecipeEditView({
   recipe,
   header,
   content,
   actions,
   className,
-}: RecipeViewProps) {
+}: RecipeEditViewProps) {
   return (
     <div className={`bg-gray-800 p-3 ${className || ''}`}>
       <RecipeContextProvider recipe={recipe}>
@@ -48,11 +48,11 @@ export default function RecipeView({
   )
 }
 
-RecipeView.Header = RecipeHeader
-RecipeView.Content = RecipeContent
-RecipeView.Actions = RecipeActions
+RecipeEditView.Header = RecipeEditHeader
+RecipeEditView.Content = RecipeEditContent
+RecipeEditView.Actions = RecipeEditActions
 
-function RecipeHeader({
+function RecipeEditHeader({
   onUpdateRecipe,
 }: {
   onUpdateRecipe: (Recipe: Recipe) => void
@@ -199,7 +199,7 @@ function RecipeHeader({
   )
 }
 
-function RecipeContent({
+function RecipeEditContent({
   onEditItem,
 }: {
   onEditItem: (item: FoodItem) => void
@@ -209,7 +209,7 @@ function RecipeContent({
   return <FoodItemListView foodItems={recipe.items} onItemClick={onEditItem} />
 }
 
-function RecipeActions({ onNewItem }: { onNewItem: () => void }) {
+function RecipeEditActions({ onNewItem }: { onNewItem: () => void }) {
   return (
     <button
       className="mt-3 min-w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"

@@ -286,7 +286,9 @@ function DayContent({
         <MealView.Header onUpdateMeal={(meal) => onUpdateMeal(dayData, meal)} />
       ),
       content: (
-        <MealView.Content onEditItemGroup={(item) => onEditItemGroup(meal, item)} />
+        <MealView.Content
+          onEditItemGroup={(item) => onEditItemGroup(meal, item)}
+        />
       ),
       actions: <MealView.Actions onNewItem={() => handleNewItemButton(meal)} />,
     }),
