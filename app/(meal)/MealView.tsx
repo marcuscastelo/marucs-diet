@@ -10,7 +10,7 @@ import { calcMealCalories } from '@/utils/macroMath'
 import FoodItemGroupListView from '../(foodItemGroup)/FoodItemGroupListView'
 import { FoodItemGroup, itemGroupSchema } from '@/model/foodItemGroupModel'
 
-export type MealProps = {
+export type MealViewProps = {
   mealData: MealData
   header?: React.ReactNode
   content?: React.ReactNode
@@ -28,13 +28,13 @@ export type MealProps = {
 //   return result
 // }
 
-export default function Meal({
+export default function MealView({
   mealData,
   header,
   content,
   actions,
   className,
-}: MealProps) {
+}: MealViewProps) {
   return (
     <div className={`bg-gray-800 p-3 ${className || ''}`}>
       <MealContextProvider mealData={mealData}>
@@ -46,11 +46,11 @@ export default function Meal({
   )
 }
 
-Meal.Header = MealHeader
-Meal.Content = MealContent
-Meal.Actions = MealActions
+MealView.Header = MealViewHeader
+MealView.Content = MealViewContent
+MealView.Actions = MealViewActions
 
-function MealHeader({
+function MealViewHeader({
   onUpdateMeal,
 }: {
   onUpdateMeal: (meal: MealData) => void
@@ -169,6 +169,7 @@ function MealHeader({
         <h5 className="text-3xl">{mealData.name}</h5>
         <p className="italic text-gray-400">{mealCalories}kcal</p>
       </div>
+      {/* // TODO: Remove code duplication between MealView and RecipeView */}
       <div className={`ml-auto flex gap-2`}>
         {!hasValidPastableOnClipboard && mealData.groups.length > 0 && (
           <div
@@ -199,7 +200,7 @@ function MealHeader({
   )
 }
 
-function MealContent({
+function MealViewContent({
   onEditItemGroup,
 }: {
   onEditItemGroup: (item: FoodItemGroup) => void
@@ -214,7 +215,7 @@ function MealContent({
   )
 }
 
-function MealActions({ onNewItem }: { onNewItem: () => void }) {
+function MealViewActions({ onNewItem }: { onNewItem: () => void }) {
   return (
     <button
       className="mt-3 min-w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
