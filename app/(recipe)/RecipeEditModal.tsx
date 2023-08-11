@@ -14,9 +14,9 @@ import { Recipe, createRecipe } from '@/model/recipeModel'
 import RecipeEditView from './RecipeEditView'
 import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
 import Show from '../Show'
-import { MealData } from '@/model/mealModel'
 
 export type RecipeEditModalProps = {
+  show?: boolean
   modalId: string
   recipe: Recipe | null
   onSaveRecipe: (recipe: Recipe) => void
@@ -28,6 +28,7 @@ export type RecipeEditModalProps = {
 const RecipeEditModal = forwardRef(
   (
     {
+      show = false,
       modalId,
       recipe: initialRecipe,
       onSaveRecipe,
@@ -121,6 +122,7 @@ const RecipeEditModal = forwardRef(
           />
         </Show>
         <Modal
+          show={show}
           modalId={modalId}
           ref={selfModalRef}
           onSubmit={() => recipe && onSaveRecipe(recipe)}
