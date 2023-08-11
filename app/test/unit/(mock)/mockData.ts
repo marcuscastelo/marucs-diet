@@ -3,6 +3,7 @@ import { Food } from '@/model/foodModel'
 import { FoodItem } from '@/model/foodItemModel'
 import { MealData, createMeal } from '@/model/mealModel'
 import { New } from '@/utils/newDbRecord'
+import { Recipe, createRecipe } from '@/model/recipeModel'
 
 export const mockFood = (partial?: Partial<Food>): Food => ({
   id: Math.round(Math.random() * 1000),
@@ -32,7 +33,7 @@ export const mockMeal = (partial?: Partial<New<MealData>>): MealData =>
 
 let mockItemQtyPseudoId = 10
 export const mockItem = (partial?: Partial<FoodItem>): FoodItem => ({
-  id: Math.round(Math.random() * 1000),
+  id: Math.round(Math.random() * 10000),
   name: mockFood().name,
   reference: mockFood().id,
   macros: mockFood().macros,
@@ -69,3 +70,10 @@ export const mockDay = (
   ],
   ...partial,
 })
+
+export const mockRecipe = (partial?: Partial<Recipe>): Recipe =>
+  createRecipe({
+    name: 'Receita de teste',
+    items: [mockItem()],
+    ...partial,
+  })
