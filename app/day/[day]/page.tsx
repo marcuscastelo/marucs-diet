@@ -3,7 +3,7 @@
 import { RefObject, useEffect, useRef, useState } from 'react'
 import DayMeals from '../../DayMeals'
 import { Day } from '@/model/dayModel'
-import Meal, { MealProps } from '../../(meal)/Meal'
+import MealView, { MealViewProps } from '../../(meal)/MealView'
 import PageLoading from '../../PageLoading'
 import { upsertDay, deleteDay, listDays, updateDay } from '@/controllers/days'
 import { DateValueType } from 'react-tailwindcss-datepicker/dist/types'
@@ -280,15 +280,15 @@ function DayContent({
   }
 
   const mealProps = dayData?.meals.map(
-    (meal): MealProps => ({
+    (meal): MealViewProps => ({
       mealData: meal,
       header: (
-        <Meal.Header onUpdateMeal={(meal) => onUpdateMeal(dayData, meal)} />
+        <MealView.Header onUpdateMeal={(meal) => onUpdateMeal(dayData, meal)} />
       ),
       content: (
-        <Meal.Content onEditItemGroup={(item) => onEditItemGroup(meal, item)} />
+        <MealView.Content onEditItemGroup={(item) => onEditItemGroup(meal, item)} />
       ),
-      actions: <Meal.Actions onNewItem={() => handleNewItemButton(meal)} />,
+      actions: <MealView.Actions onNewItem={() => handleNewItemButton(meal)} />,
     }),
   )
 

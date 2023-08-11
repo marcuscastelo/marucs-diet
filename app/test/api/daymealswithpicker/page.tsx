@@ -1,7 +1,7 @@
 'use client'
 
 import DayMeals from '@/app/DayMeals'
-import Meal, { MealProps } from '@/app/(meal)/Meal'
+import MealView, { MealViewProps } from '@/app/(meal)/MealView'
 import { listDays, updateDay } from '@/controllers/days'
 import { Day } from '@/model/dayModel'
 import { MealData } from '@/model/mealModel'
@@ -14,7 +14,7 @@ import { useUserContext } from '@/context/users.context'
 
 export default function Page() {
   const [days, setDays] = useState<Day[]>([])
-  const [, setMealProps] = useState<MealProps[][]>([])
+  const [, setMealProps] = useState<MealViewProps[][]>([])
 
   const [selectedDay, setSelectedDay] = useState('')
 
@@ -25,22 +25,22 @@ export default function Page() {
     setDays(days)
 
     const mealProps = days.map((day) => {
-      return day.meals.map((meal): MealProps => {
+      return day.meals.map((meal): MealViewProps => {
         return {
           mealData: meal,
           header: (
-            <Meal.Header
+            <MealView.Header
               onUpdateMeal={(meal) => alert(`Mock: Update meal ${meal.name}`)}
             />
           ),
           content: (
-            <Meal.Content
+            <MealView.Content
               onEditItemGroup={(group) =>
                 alert(`Mock: Edit group.id = "${group.id}"`)
               }
             />
           ),
-          actions: <Meal.Actions onNewItem={() => alert('Mock: New item')} />,
+          actions: <MealView.Actions onNewItem={() => alert('Mock: New item')} />,
         }
       })
     })
@@ -114,25 +114,25 @@ export default function Page() {
         <>
           <h1> Target day: {dayData.target_day}</h1>
           <DayMeals
-            mealsProps={dayData.meals.map((meal): MealProps => {
+            mealsProps={dayData.meals.map((meal): MealViewProps => {
               return {
                 mealData: meal,
                 header: (
-                  <Meal.Header
+                  <MealView.Header
                     onUpdateMeal={(meal) =>
                       alert(`Mock: Update meal ${meal.name}`)
                     }
                   />
                 ),
                 content: (
-                  <Meal.Content
+                  <MealView.Content
                     onEditItemGroup={(group) =>
                       alert(`Mock: Edit group.id = "${group.id}"`)
                     }
                   />
                 ),
                 actions: (
-                  <Meal.Actions onNewItem={() => alert('Mock: New item')} />
+                  <MealView.Actions onNewItem={() => alert('Mock: New item')} />
                 ),
               }
             })}
