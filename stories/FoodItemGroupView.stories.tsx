@@ -8,16 +8,6 @@ import App from '@/app/App'
 const meta: Meta<typeof FoodItemGroupView> = {
   component: FoodItemGroupView,
   decorators: [(Story) => <App>{Story()}</App>],
-}
-
-export default meta
-type Story = StoryObj<typeof FoodItemGroupView>
-
-export const Root: Story = {
-  args: {
-    foodItemGroup: mockMeal().groups[0], // TODO: Create mockGroup()
-  } satisfies FoodItemGroupViewProps,
-
   render: (args) => (
     <FoodItemGroupView
       {...args}
@@ -35,4 +25,24 @@ export const Root: Story = {
       nutritionalInfo={<FoodItemGroupView.NutritionalInfo />}
     />
   ),
+}
+
+export default meta
+type Story = StoryObj<typeof FoodItemGroupView>
+
+export const Simple: Story = {
+  args: {
+    foodItemGroup: mockMeal().groups[0], // TODO: Create mockGroup()
+  } satisfies FoodItemGroupViewProps,
+}
+
+export const Recipe: Story = {
+  args: {
+    // TODO: Create mockGroup()
+    foodItemGroup: {
+      ...mockMeal().groups[0],
+      type: 'recipe',
+      recipe: 2,
+    },
+  } satisfies FoodItemGroupViewProps,
 }
