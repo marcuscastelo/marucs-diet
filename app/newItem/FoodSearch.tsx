@@ -179,10 +179,7 @@ export default function FoodSearch({
     }
   }
 
-  const mockedRecipe: Recipe = createRecipe({
-    name: 'Receita de teste',
-    items: [mockItem()],
-  })
+  const mockedRecipe: Recipe = mockRecipe()
 
   return (
     <>
