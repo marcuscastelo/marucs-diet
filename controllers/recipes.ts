@@ -6,11 +6,19 @@ import supabase from '@/utils/supabase'
 const TABLE = 'recipes'
 
 // TODO: retriggered: tratar erros (também no resto dos controllers)
-export const listRecipes = async (userId: User['id']): Promise<Recipe[]> =>
-  ((await supabase.from(TABLE).select()).data ?? [])
-    .map((recipe) => recipeSchema.parse(recipe))
-    .filter((recipe) => recipe.owner === userId)
+export const listRecipes = async (userId: User['id']): Promise<Recipe[]> => {
+  const { data: recipes, error } = await supabase
+    .from(TABLE)
+    .select()
+    .eq('owner', userId)
 
+  if (error) {
+    console.error(error)
+    throw error
+  }
+
+  return recipes.map((recipe) => recipeSchema.parse(recipe))
+}
 export const searchRecipeById = async (
   id: Recipe['id'],
 ): Promise<Recipe | null> => {
@@ -22,6 +30,7 @@ export const searchRecipeById = async (
     .single()
 
   if (error) {
+    console.error(error)
     throw error
   }
 
@@ -40,6 +49,7 @@ export const upsertRecipe = async (
     .upsert(recipe)
     .select()
   if (error) {
+    console.error(error)
     throw error
   }
   return recipeSchema.parse(recipes?.[0] ?? null)
@@ -59,6 +69,7 @@ export const updateRecipe = async (
     .select()
 
   if (error) {
+    console.error(error)
     throw error
   }
   return recipeSchema.parse(data?.[0] ?? null)
