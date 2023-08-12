@@ -213,8 +213,8 @@ const RecipeEditModal = forwardRef(
                   className="btn"
                   onClick={(e) => {
                     e.preventDefault()
-                    // onSaveRecipe(createMealItemData())
-                    alert('TODO: onSaveRecipe')
+                    onSaveRecipe(recipe)
+                    selfModalRef.current?.close()
                   }}
                 >
                   Aplicar

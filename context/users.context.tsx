@@ -103,7 +103,7 @@ export function UserContextProvider({
   }
   const context: UserContextProps = {
     user,
-    debug: false,
+    debug: true,
     setUser: handleSetUser,
     changeUser: handleChangeUser,
     availableUsers,
