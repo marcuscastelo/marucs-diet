@@ -49,6 +49,9 @@ export const updateRecipe = async (
   id: Recipe['id'],
   recipe: New<Recipe>,
 ): Promise<Recipe> => {
+  // TODO: Remove '' and id fields on every update (how to do it in a cleaner way?)
+  delete (recipe as Partial<Recipe>)['']
+  delete (recipe as Partial<Recipe>).id
   const { data, error } = await supabase
     .from(TABLE)
     .update(recipe)
@@ -59,30 +62,4 @@ export const updateRecipe = async (
     throw error
   }
   return recipeSchema.parse(data?.[0] ?? null)
-}
-
-export const updateDay = async (
-  id: Recipe['id'],
-  recipe: New<Recipe>,
-): Promise<Recipe> => {
-  const { data, error } = await supabase
-    .from(TABLE)
-    .update(recipe)
-    .eq('id', id)
-    .select()
-
-  if (error) {
-    throw error
-  }
-
-  return recipeSchema.parse(data?.[0] ?? null)
-}
-
-// TODO: retriggered: add boolean to check on usages of this function
-export const deleteDay = async (id: Recipe['id']): Promise<void> => {
-  const { error } = await supabase.from(TABLE).delete().eq('id', id).select()
-
-  if (error) {
-    throw error
-  }
 }
