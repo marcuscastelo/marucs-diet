@@ -1,4 +1,5 @@
-import { RecipedItemGroup } from '@/model/foodItemGroupModel'
+import { ItemGroup, RecipedItemGroup } from '@/model/foodItemGroupModel'
+import { FoodItem } from '@/model/foodItemModel'
 import { Recipe } from '@/model/recipeModel'
 
 export function isRecipedGroupUpToDate(
@@ -35,4 +36,55 @@ export function isRecipedGroupUpToDate(
   }
 
   return true
+}
+
+export function editInnerItem(group: ItemGroup, innerItem: FoodItem) {
+  const newGroup = { ...group }
+
+  const index = newGroup.items.findIndex((item) => item.id === innerItem.id)
+
+  if (index === -1) {
+    console.error('Invalid state! This is a bug! Item not found in group!')
+    throw new Error('Invalid state! This is a bug! see console.error')
+  }
+
+  newGroup.items[index] = { ...innerItem }
+
+  return newGroup
+}
+
+export function deleteInnerItem(group: ItemGroup, itemId: FoodItem['id']) {
+  const newGroup = { ...group }
+
+  const index = newGroup.items.findIndex((item) => item.id === itemId)
+
+  if (index === -1) {
+    console.error('Invalid state! This is a bug! Item not found in group!')
+    throw new Error('Invalid state! This is a bug! see console.error')
+  }
+
+  newGroup.items.splice(index, 1)
+
+  return newGroup
+}
+
+export function addInnerItem(group: ItemGroup, innerItem: FoodItem) {
+  const newGroup = { ...group }
+
+  // Check if same ID already exists
+  const index = newGroup.items.findIndex((item) => item.id === innerItem.id)
+
+  // If already exists, warn and return
+  if (index !== -1) {
+    console.warn(
+      'Invalid state! This is a bug! Item already exists in group! Not adding!',
+    )
+
+    return newGroup
+  }
+
+  // If not exists, add
+  newGroup.items.push(innerItem)
+
+  return newGroup
 }
