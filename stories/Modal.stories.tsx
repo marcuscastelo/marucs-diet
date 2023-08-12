@@ -7,6 +7,7 @@ import Modal, {
 } from '@/app/(modals)/modal'
 
 const meta: Meta<typeof Modal> = {
+  title: 'Components/Modal',
   component: Modal,
 }
 

@@ -6,6 +6,7 @@ import { mockMeal } from '@/app/test/unit/(mock)/mockData'
 import App from '@/app/App'
 
 const meta: Meta<typeof FoodItemGroupView> = {
+  title: 'Components/FoodItemGroupView',
   component: FoodItemGroupView,
   decorators: [(Story) => <App>{Story()}</App>],
   render: (args) => (
