@@ -1,6 +1,6 @@
 // 'use client'
 
-import { FoodItemGroup, isGroupSingleItem } from '@/model/foodItemGroupModel'
+import { ItemGroup, isGroupSingleItem } from '@/model/foodItemGroupModel'
 import {
   forwardRef,
   useEffect,
@@ -21,37 +21,37 @@ import { Loadable } from '@/utils/loadable'
 import PageLoading from '../PageLoading'
 import { searchRecipeById } from '@/controllers/recipes'
 import {
-  FoodItemGroupContextProvider,
-  useFoodItemGroupContext,
-} from './FoodItemGroupContext'
+  ItemGroupContextProvider,
+  useItemGroupContext,
+} from './ItemGroupContext'
 import { useUserContext } from '@/context/users.context'
 
 // TODO: Rename to FoodItemEdit
-export type FoodItemGroupEditModalProps = {
+export type ItemGroupEditModalProps = {
   show?: boolean
   modalId: string
   //   meal: MealData | null
   targetMealName: string
-  onSaveGroup: (item: FoodItemGroup) => void
+  onSaveGroup: (item: ItemGroup) => void
   onCancel?: () => void
-  onDelete?: (groupId: FoodItemGroup['id']) => void
+  onDelete?: (groupId: ItemGroup['id']) => void
   onVisibilityChange?: (isShowing: boolean) => void
   onRefetch: () => void
-} & { group: FoodItemGroup | null }
+} & { group: ItemGroup | null }
 
 // eslint-disable-next-line react/display-name
-const FoodItemGroupEditModal = forwardRef(
-  (props: FoodItemGroupEditModalProps, ref: React.Ref<ModalRef>) => {
+const ItemGroupEditModal = forwardRef(
+  (props: ItemGroupEditModalProps, ref: React.Ref<ModalRef>) => {
     return (
-      <FoodItemGroupContextProvider foodItemGroup={props.group}>
-        <InnerFoodItemGroupEditModal {...props} ref={ref} />
-      </FoodItemGroupContextProvider>
+      <ItemGroupContextProvider itemGroup={props.group}>
+        <InnerItemGroupEditModal {...props} ref={ref} />
+      </ItemGroupContextProvider>
     )
   },
 )
 
 // eslint-disable-next-line react/display-name
-const InnerFoodItemGroupEditModal = forwardRef(
+const InnerItemGroupEditModal = forwardRef(
   (
     {
       show = false,
@@ -62,13 +62,12 @@ const InnerFoodItemGroupEditModal = forwardRef(
       onDelete,
       onVisibilityChange,
       onRefetch,
-    }: FoodItemGroupEditModalProps,
+    }: ItemGroupEditModalProps,
     ref: React.Ref<ModalRef>,
   ) => {
     const [showing, setShowing_] = useState(false)
 
-    const { foodItemGroup: group, setFoodItemGroup: setGroup } =
-      useFoodItemGroupContext()
+    const { itemGroup: group, setItemGroup: setGroup } = useItemGroupContext()
     const [recipe, setRecipe] = useState<Loadable<Recipe | null>>({
       loading: true,
     })
@@ -202,8 +201,7 @@ function Header({
   recipe: Recipe | null
 }) {
   const { debug } = useUserContext()
-  const { foodItemGroup: group, setFoodItemGroup: setGroup } =
-    useFoodItemGroupContext()
+  const { itemGroup: group, setItemGroup: setGroup } = useItemGroupContext()
   return (
     <>
       <h3 className="text-lg font-bold text-white">
@@ -227,8 +225,7 @@ function ExternalRecipeEditModal({
   recipe: Recipe | null
   recipeEditModalRef: React.RefObject<ModalRef>
 }) {
-  const { foodItemGroup: group, setFoodItemGroup: setGroup } =
-    useFoodItemGroupContext()
+  const { itemGroup: group, setItemGroup: setGroup } = useItemGroupContext()
   return (
     <RecipeEditModal
       modalId={`VERY_UNIQUE_ID_FOR_RECIPE_${group?.id}`} // TODO: Clean all modal IDs on the project
@@ -252,10 +249,9 @@ function ExternalFoodItemEditModal({
   selectedFoodItem: FoodItem | null
   impossibleFoodItem: FoodItem
   setSelectedFoodItem: (item: FoodItem | null) => void
-  onSaveGroup: (group: FoodItemGroup) => void
+  onSaveGroup: (group: ItemGroup) => void
 }) {
-  const { foodItemGroup: group, setFoodItemGroup: setGroup } =
-    useFoodItemGroupContext()
+  const { itemGroup: group, setItemGroup: setGroup } = useItemGroupContext()
 
   return (
     <FoodItemEditModal
@@ -270,7 +266,7 @@ function ExternalFoodItemEditModal({
       }
       foodItem={selectedFoodItem ?? impossibleFoodItem}
       onApply={async (item) => {
-        const newGroup: FoodItemGroup = {
+        const newGroup: ItemGroup = {
           ...group,
           id: group?.id ?? Math.round(Math.random() * 1000000),
           name: group?.name ?? item.name,
@@ -286,7 +282,7 @@ function ExternalFoodItemEditModal({
               }
             }) ?? []),
           ],
-        } satisfies FoodItemGroup
+        } satisfies ItemGroup
 
         newGroup.quantity = newGroup.items.reduce(
           (acc, curr) => acc + curr.quantity,
@@ -299,14 +295,14 @@ function ExternalFoodItemEditModal({
         setGroup(newGroup)
       }}
       onDelete={async (itemId) => {
-        const newGroup: FoodItemGroup = {
+        const newGroup: ItemGroup = {
           ...group,
           id: group?.id ?? Math.round(Math.random() * 1000000),
           name: group?.name ?? 'Grupo sem nome',
           quantity: 0, // Will be set later
           type: 'simple',
           items: [...(group?.items?.filter((i) => i.id !== itemId) ?? [])],
-        } satisfies FoodItemGroup
+        } satisfies ItemGroup
 
         newGroup.quantity = newGroup.items.reduce(
           (acc, curr) => acc + curr.quantity,
@@ -334,10 +330,9 @@ function ExternalFoodSearchModal({
 }: {
   foodSearchModalRef: React.RefObject<ModalRef>
   onRefetch: () => void
-  onSaveGroup: (group: FoodItemGroup) => void
+  onSaveGroup: (group: ItemGroup) => void
 }) {
-  const { foodItemGroup: group, setFoodItemGroup: setGroup } =
-    useFoodItemGroupContext()
+  const { itemGroup: group, setItemGroup: setGroup } = useItemGroupContext()
   return (
     <FoodSearchModal
       ref={foodSearchModalRef}
@@ -357,7 +352,7 @@ function ExternalFoodSearchModal({
         // TODO: Create a proper onNewFoodItem function
         console.debug('onNewFoodItem', item)
 
-        const newGroup: FoodItemGroup = {
+        const newGroup: ItemGroup = {
           ...group,
           id: group?.id ?? Math.round(Math.random() * 1000000),
           name: group?.name ?? item.name,
@@ -367,7 +362,7 @@ function ExternalFoodSearchModal({
             ...(group?.items?.filter((i) => i.id !== item.id) || []),
             { ...item },
           ],
-        } satisfies FoodItemGroup
+        } satisfies ItemGroup
 
         console.debug(
           'onNewFoodItem: applying',
@@ -396,8 +391,7 @@ function Body({
   setFoodAsFavorite: (foodId: number, isFavorite: boolean) => void
   foodSearchModalRef: React.RefObject<ModalRef>
 }) {
-  const { foodItemGroup: group, setFoodItemGroup: setGroup } =
-    useFoodItemGroupContext()
+  const { itemGroup: group, setItemGroup: setGroup } = useItemGroupContext()
   return (
     <>
       {group && (
@@ -494,12 +488,11 @@ function Actions({
 }: {
   onDelete?: (groupId: number) => void
   onCancel?: () => void
-  onSaveGroup: (group: FoodItemGroup) => void
+  onSaveGroup: (group: ItemGroup) => void
   selfModalRef: React.RefObject<ModalRef>
   canApply: boolean
 }) {
-  const { foodItemGroup: group, setFoodItemGroup: setGroup } =
-    useFoodItemGroupContext()
+  const { itemGroup: group, setItemGroup: setGroup } = useItemGroupContext()
   return (
     <ModalActions>
       {/* if there is a button in form, it will close the modal */}
@@ -543,4 +536,4 @@ function Actions({
   )
 }
 
-export default FoodItemGroupEditModal
+export default ItemGroupEditModal

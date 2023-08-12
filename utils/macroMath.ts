@@ -1,5 +1,5 @@
 import { Day } from '@/model/dayModel'
-import { FoodItemGroup } from '@/model/foodItemGroupModel'
+import { ItemGroup } from '@/model/foodItemGroupModel'
 import { FoodItem } from '@/model/foodItemModel'
 import { MacroNutrientsData } from '@/model/macroNutrientsModel'
 import { MealData } from '@/model/mealModel'
@@ -27,7 +27,7 @@ export function calcRecipeMacros(recipe: Recipe): MacroNutrientsData {
   )
 }
 
-export function calcGroupMacros(group: FoodItemGroup): MacroNutrientsData {
+export function calcGroupMacros(group: ItemGroup): MacroNutrientsData {
   return group.items.reduce(
     (acc, item) => {
       const itemMacros = calcItemMacros(item)
@@ -83,7 +83,7 @@ export const calcItemCalories = (item: FoodItem) =>
 export const calcRecipeCalories = (recipe: Recipe) =>
   calcCalories(calcRecipeMacros(recipe))
 
-export const calcGroupCalories = (group: FoodItemGroup) =>
+export const calcGroupCalories = (group: ItemGroup) =>
   calcCalories(calcGroupMacros(group))
 
 export const calcMealCalories = (meal: MealData) =>
