@@ -99,6 +99,8 @@ function ItemGroupName() {
         if (ignore) return
         setRecipe({ loading: false, errored: false, data: recipe })
       })
+    } else {
+      setRecipe({ loading: false, errored: false, data: null })
     }
     return () => {
       ignore = true
@@ -108,7 +110,7 @@ function ItemGroupName() {
   const getNameColor = () => {
     if (!itemGroup) return 'text-red-900'
 
-    if (recipe.loading) return 'text-white'
+    if (recipe.loading) return 'text-green-500 animate-pulse'
     if (recipe.errored) return 'text-red-900'
 
     if (itemGroup.type === 'simple') {
