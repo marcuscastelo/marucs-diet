@@ -6,7 +6,7 @@ import { Meta, StoryObj } from '@storybook/react'
 const meta: Meta<typeof MealView> = {
   title: 'Components/MealView',
   component: MealView,
-  decorators: [(Story) => <App>{Story()}</App>],
+  decorators: [(Story) => <App>{Story()}</App>], // TODO: Create <MockApp> to provide context to all stories
 }
 
 export default meta
