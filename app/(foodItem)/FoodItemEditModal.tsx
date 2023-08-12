@@ -11,10 +11,11 @@ import {
 } from 'react'
 import FoodItemView from './FoodItemView'
 import { FoodItem } from '@/model/foodItemModel'
-import Modal, { ModalActions, ModalProps, ModalRef } from '../(modals)/modal'
+import Modal, { ModalActions, ModalProps, ModalRef } from '../(modals)/Modal'
 import { Recipe } from '@/model/recipeModel'
 import { Loadable } from '@/utils/loadable'
 import { useUserContext } from '@/context/users.context'
+import { ModalContextProvider } from '../(modals)/ModalContext'
 
 const RECIPE_EDIT_MODAL_ID = 'meal-item-add-modal:self:recipe-edit-modal'
 
@@ -120,45 +121,48 @@ const FoodItemEditModal = forwardRef(
           recipe={(!recipe.loading && recipe.data) || null}
           onSaveRecipe={async () => alert('TODO: Save recipe')}
         /> */}
-        <Modal
-          modalId={modalId}
-          show={show}
-          ref={selfModalRef}
-          onSubmit={() => onApply(createMealItemData())}
-          header={
-            <Header
-              foodItem={foodItem}
-              targetName={targetName}
-              targetNameColor={targetNameColor}
-            />
-          }
-          onVisibilityChange={handleSetShowing}
-          body={
-            <Body
-              showing={showing}
-              quantity={quantity}
-              setQuantity={setQuantity}
-              canAdd={canAdd}
-              foodItem={foodItem}
-              id={foodItem.id}
-            />
-          }
-          actions={
-            <Actions
-              id={foodItem.id}
-              canAdd={canAdd}
-              onApply={() => {
-                selfModalRef.current?.close()
-                onApply(createMealItemData())
-              }}
-              onCancel={() => {
-                selfModalRef.current?.close()
-                onCancel?.()
-              }}
-              onDelete={onDelete}
-            />
-          }
-        />
+        <ModalContextProvider
+          visible={show}
+          onVisibilityChange={(...args) => handleSetShowing(...args)}
+        >
+          <Modal
+            modalId={modalId}
+            ref={selfModalRef}
+            onSubmit={() => onApply(createMealItemData())}
+            header={
+              <Header
+                foodItem={foodItem}
+                targetName={targetName}
+                targetNameColor={targetNameColor}
+              />
+            }
+            body={
+              <Body
+                showing={showing}
+                quantity={quantity}
+                setQuantity={setQuantity}
+                canAdd={canAdd}
+                foodItem={foodItem}
+                id={foodItem.id}
+              />
+            }
+            actions={
+              <Actions
+                id={foodItem.id}
+                canAdd={canAdd}
+                onApply={() => {
+                  selfModalRef.current?.close()
+                  onApply(createMealItemData())
+                }}
+                onCancel={() => {
+                  selfModalRef.current?.close()
+                  onCancel?.()
+                }}
+                onDelete={onDelete}
+              />
+            }
+          />
+        </ModalContextProvider>
       </>
     )
   },

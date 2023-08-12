@@ -1,8 +1,9 @@
 'use client'
 
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
-import Modal, { ModalActions, ModalRef } from '../(modals)/modal'
+import Modal, { ModalActions, ModalRef } from '../(modals)/Modal'
 import FoodSearch, { FoodSearchProps } from './FoodSearch'
+import { ModalContextProvider } from '../(modals)/ModalContext'
 
 // eslint-disable-next-line react/display-name
 const FoodSearchModal = forwardRef(
@@ -36,21 +37,23 @@ const FoodSearchModal = forwardRef(
     }))
 
     return (
-      <Modal
-        ref={modalRef}
-        modalId="foodSearchModal"
-        header={<h1>Busca de alimentos</h1>}
-        body={
-          <div className="max-h-full">
-            {showing && <FoodSearch {...props} />}
-          </div>
-        }
-        actions={
-          <ModalActions>
-            <button onClick={() => modalRef.current?.close()}>Fechar</button>
-          </ModalActions>
-        }
-      />
+      <ModalContextProvider visible={false}>
+        <Modal
+          ref={modalRef}
+          modalId="foodSearchModal"
+          header={<h1>Busca de alimentos</h1>}
+          body={
+            <div className="max-h-full">
+              {showing && <FoodSearch {...props} />}
+            </div>
+          }
+          actions={
+            <ModalActions>
+              <button onClick={() => modalRef.current?.close()}>Fechar</button>
+            </ModalActions>
+          }
+        />
+      </ModalContextProvider>
     )
   },
 )

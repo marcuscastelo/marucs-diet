@@ -4,11 +4,38 @@ import Modal, {
   ModalActions,
   ModalBody,
   ModalHeader,
-} from '@/app/(modals)/modal'
+} from '@/app/(modals)/Modal'
+import { ModalContextProvider } from '@/app/(modals)/ModalContext'
+import { useState } from 'react'
 
 const meta: Meta<typeof Modal> = {
   title: 'Components/Modal',
   component: Modal,
+  decorators: [
+    (Story) => {
+      const [visible, setVisible] = useState(false)
+      return (
+        <>
+          Visible: {visible ? 'true' : 'false'}
+          <button
+            className="btn"
+            onClick={(e) => {
+              e.preventDefault()
+              setVisible((v) => !v)
+            }}
+          >
+            Toggle Modal
+          </button>
+          <ModalContextProvider
+            visible={visible}
+            onVisibilityChange={setVisible}
+          >
+            {Story()}
+          </ModalContextProvider>
+        </>
+      )
+    },
+  ],
 }
 
 export default meta
@@ -17,7 +44,6 @@ type Story = StoryObj<typeof Modal>
 export const Root: Story = {
   args: {
     modalId: 'teste123',
-    show: true,
     hasBackdrop: true,
     header: (
       <>
@@ -40,7 +66,6 @@ export const Root: Story = {
 export const Full: Story = {
   args: {
     modalId: 'teste123',
-    show: true,
     hasBackdrop: true,
     header: <ModalHeader />,
     body: <ModalBody />,

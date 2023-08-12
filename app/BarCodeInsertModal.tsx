@@ -2,10 +2,11 @@
 
 import { Food } from '@/model/foodModel'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
-import Modal, { ModalActions, ModalRef } from './(modals)/modal'
+import Modal, { ModalActions, ModalRef } from './(modals)/Modal'
 import { BarCodeReader } from './BarCodeReader'
 import BarCodeSearch from './BarCodeSearch'
 import Show from './Show'
+import { ModalContextProvider } from './(modals)/ModalContext'
 
 export type BarCodeInsertModalProps = {
   modalId: string
@@ -54,45 +55,53 @@ const BarCodeInsertModal = forwardRef(
     }))
 
     return (
-      <Modal
-        modalId={modalId}
-        ref={modalRef}
-        onSubmit={handleSelect}
-        header={<h1 className="modal-title">Pesquisar por código de barras</h1>}
-        onVisibilityChange={handleSetShowing}
-        body={
-          <>
-            <Show when={showing}>
-              <BarCodeReader id="reader" onScanned={setBarCode} />
-            </Show>
-            <BarCodeSearch
-              barCode={barCode}
-              setBarCode={setBarCode}
-              onFoodChange={setFood}
-            />
-          </>
-        }
-        actions={
-          <ModalActions>
-            <button
-              className="btn"
-              onClick={(e) => {
-                e.preventDefault()
-                modalRef.current?.close()
-              }}
-            >
-              Cancelar
-            </button>
-            <button
-              className="btn-primary btn"
-              disabled={!food}
-              onClick={handleSelect}
-            >
-              Aplicar
-            </button>
-          </ModalActions>
-        }
-      />
+      <ModalContextProvider
+        visible={false}
+        onVisibilityChange={(...args) => {
+          handleSetShowing(...args)
+        }}
+      >
+        <Modal
+          modalId={modalId}
+          ref={modalRef}
+          onSubmit={handleSelect}
+          header={
+            <h1 className="modal-title">Pesquisar por código de barras</h1>
+          }
+          body={
+            <>
+              <Show when={showing}>
+                <BarCodeReader id="reader" onScanned={setBarCode} />
+              </Show>
+              <BarCodeSearch
+                barCode={barCode}
+                setBarCode={setBarCode}
+                onFoodChange={setFood}
+              />
+            </>
+          }
+          actions={
+            <ModalActions>
+              <button
+                className="btn"
+                onClick={(e) => {
+                  e.preventDefault()
+                  modalRef.current?.close()
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                className="btn-primary btn"
+                disabled={!food}
+                onClick={handleSelect}
+              >
+                Aplicar
+              </button>
+            </ModalActions>
+          }
+        />
+      </ModalContextProvider>
     )
   },
 )

@@ -211,7 +211,7 @@ function MealViewContent({
   return (
     <ItemGroupListView
       itemGroups={mealData.groups}
-      onItemClick={onEditItemGroup}
+      onItemClick={(...args) => onEditItemGroup(...args)}
     />
   )
 }
