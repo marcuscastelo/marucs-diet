@@ -32,6 +32,7 @@ import {
 import { useUserContext } from '@/context/users.context'
 import { ModalContextProvider } from '../(modals)/ModalContext'
 import { isRecipedGroupUpToDate } from '@/utils/groupUtils'
+import { DownloadIcon } from '../(icons)/DownloadIcon'
 
 // TODO: Rename to FoodItemEdit
 export type ItemGroupEditModalProps = {
@@ -431,19 +432,30 @@ function Body({
                   value={group.name ?? ''}
                 />
               </div>
-              {group.type === 'recipe' &&
-                recipe &&
-                isRecipedGroupUpToDate(group, recipe) && (
-                  <div
-                    className="my-auto ml-auto"
-                    onClick={() => {
-                      // TODO: Create recipe for groups that don't have one
-                      recipeEditModalRef.current?.showModal()
-                    }}
-                  >
-                    <RecipeIcon />
-                  </div>
-                )}
+              {group.type === 'recipe' && (
+                <>
+                  {recipe && isRecipedGroupUpToDate(group, recipe) ? (
+                    <button
+                      className="my-auto ml-auto"
+                      onClick={() => {
+                        // TODO: Create recipe for groups that don't have one
+                        recipeEditModalRef.current?.showModal()
+                      }}
+                    >
+                      <RecipeIcon />
+                    </button>
+                  ) : (
+                    <button
+                      className="my-auto ml-auto hover:animate-pulse"
+                      onClick={() => {
+                        alert('TODO: Download recipe')
+                      }}
+                    >
+                      <DownloadIcon />
+                    </button>
+                  )}
+                </>
+              )}
             </div>
           </div>
 
