@@ -9,11 +9,12 @@ import {
   useState,
 } from 'react'
 import { FoodItem, createFoodItem } from '@/model/foodItemModel'
-import Modal, { ModalActions, ModalRef } from '../(modals)/modal'
+import Modal, { ModalActions, ModalRef } from '../(modals)/Modal'
 import { Recipe, createRecipe } from '@/model/recipeModel'
 import RecipeEditView from './RecipeEditView'
 import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
 import Show from '../Show'
+import { ModalContextProvider } from '../(modals)/ModalContext'
 
 export type RecipeEditModalProps = {
   show?: boolean
@@ -121,92 +122,99 @@ const RecipeEditModal = forwardRef(
             }}
           />
         </Show>
-        <Modal
-          show={show}
-          modalId={modalId}
-          ref={selfModalRef}
-          onSubmit={() => recipe && onSaveRecipe(recipe)}
-          header={
-            <h3 className="text-lg font-bold text-white">
-              Editando receita
-              <span className="text-blue-500">
-                {' '}
-                &quot;
-                {recipe?.name ?? 'LOADING RECIPE'}
-                &quot;{' '}
-              </span>
-            </h3>
-          }
-          onVisibilityChange={handleSetShowing}
-          body={
-            recipe && (
-              <RecipeEditView
-                recipe={recipe}
-                header={
-                  <RecipeEditView.Header
-                    onUpdateRecipe={(recipe) => {
-                      setRecipe(recipe)
+        <ModalContextProvider
+          visible={show}
+          onVisibilityChange={(...args) => {
+            handleSetShowing(...args)
+          }}
+        >
+          <Modal
+            modalId={modalId}
+            ref={selfModalRef}
+            onSubmit={() => recipe && onSaveRecipe(recipe)}
+            header={
+              <h3 className="text-lg font-bold text-white">
+                Editando receita
+                <span className="text-blue-500">
+                  {' '}
+                  &quot;
+                  {recipe?.name ?? 'LOADING RECIPE'}
+                  &quot;{' '}
+                </span>
+              </h3>
+            }
+            body={
+              recipe && (
+                <RecipeEditView
+                  recipe={recipe}
+                  header={
+                    <RecipeEditView.Header
+                      onUpdateRecipe={(recipe) => {
+                        setRecipe(recipe)
+                      }}
+                    />
+                  }
+                  content={
+                    <RecipeEditView.Content
+                      onEditItem={(item) => setSelectedFoodItem(item)}
+                    />
+                  }
+                  actions={
+                    <RecipeEditView.Actions
+                      // TODO: Treat recursive recipe
+                      onNewItem={() => alert('TODO: onAddItem')}
+                    />
+                  }
+                />
+              )
+              // TODO: Add barcode button and handle barcode scan
+            }
+            actions={
+              <ModalActions>
+                {/* if there is a button in form, it will close the modal */}
+                {
+                  <button
+                    className="btn-error btn mr-auto"
+                    onClick={(e) => {
+                      e.preventDefault()
+
+                      // TODO: Move confirm up to parent (also with all other confirmations)
+                      // TODO: Replace confirm with a modal
+                      if (
+                        confirm('Tem certeza que deseja excluir este item?')
+                      ) {
+                        // handleDeleteItem?.(id)
+                        alert('TODO: handleDeleteItem')
+                      }
                     }}
-                  />
+                  >
+                    Excluir
+                  </button>
                 }
-                content={
-                  <RecipeEditView.Content
-                    onEditItem={(item) => setSelectedFoodItem(item)}
-                  />
-                }
-                actions={
-                  <RecipeEditView.Actions
-                    // TODO: Treat recursive recipe
-                    onNewItem={() => alert('TODO: onAddItem')}
-                  />
-                }
-              />
-            )
-            // TODO: Add barcode button and handle barcode scan
-          }
-          actions={
-            <ModalActions>
-              {/* if there is a button in form, it will close the modal */}
-              {
                 <button
-                  className="btn-error btn mr-auto"
+                  className="btn"
                   onClick={(e) => {
                     e.preventDefault()
-
-                    // TODO: Move confirm up to parent (also with all other confirmations)
-                    // TODO: Replace confirm with a modal
-                    if (confirm('Tem certeza que deseja excluir este item?')) {
-                      // handleDeleteItem?.(id)
-                      alert('TODO: handleDeleteItem')
-                    }
+                    selfModalRef.current?.close()
+                    onCancel?.()
                   }}
                 >
-                  Excluir
+                  Cancelar
                 </button>
-              }
-              <button
-                className="btn"
-                onClick={(e) => {
-                  e.preventDefault()
-                  selfModalRef.current?.close()
-                  onCancel?.()
-                }}
-              >
-                Cancelar
-              </button>
-              <button
-                className="btn"
-                onClick={(e) => {
-                  e.preventDefault()
-                  // onSaveRecipe(createMealItemData())
-                  alert('TODO: onSaveRecipe')
-                }}
-              >
-                Aplicar
-              </button>
-            </ModalActions>
-          }
-        />
+                <button
+                  className="btn"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    // onSaveRecipe(createMealItemData())
+                    alert('TODO: onSaveRecipe')
+                  }}
+                >
+                  Aplicar
+                </button>
+              </ModalActions>
+            }
+          />
+        </ModalContextProvider>
       </>
     )
   },
