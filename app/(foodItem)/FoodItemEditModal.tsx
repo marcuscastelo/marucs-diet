@@ -26,7 +26,7 @@ export type FoodItemEditModalProps = {
   targetName: string
   targetNameColor?: string
   foodItem: Partial<FoodItem> &
-    Pick<FoodItem, 'reference' | 'macros'> & { type: 'food' | 'recipe' }
+    Pick<FoodItem, 'reference' | 'macros'> & { type?: 'food' | 'recipe' }
   onApply: (item: FoodItem & { type: 'food' | 'recipe' }) => void
   onCancel?: () => void
   onDelete?: (itemId: FoodItem['id']) => void
@@ -60,6 +60,7 @@ const FoodItemEditModal = forwardRef(
       id: initialFoodItem?.id ?? Math.round(Math.random() * 1000000),
       name: initialFoodItem?.name ?? 'ERRO: Sem nome',
       quantity: initialFoodItem?.quantity ?? 0,
+      type: initialFoodItem?.type ?? 'food',
       ...initialFoodItem,
     } satisfies FoodItem & { type: 'food' | 'recipe' })
 
