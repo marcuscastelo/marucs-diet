@@ -10,6 +10,11 @@ import {
 import { ItemGroup, isGroupSingleItem } from '@/model/foodItemGroupModel'
 import { calcGroupMacros } from '@/utils/macroMath'
 import { useUserContext } from '@/context/users.context'
+import { isRecipedGroupUpToDate } from '@/utils/groupUtils'
+import { Loadable } from '@/utils/loadable'
+import { Recipe } from '@/model/recipeModel'
+import { useEffect, useState } from 'react'
+import { searchRecipeById } from '@/controllers/recipes'
 
 export type ItemGroupViewProps = {
   itemGroup: ItemGroup
@@ -83,8 +88,28 @@ function ItemGroupName() {
 
   const { debug } = useUserContext()
 
+  const [recipe, setRecipe] = useState<Loadable<Recipe | null>>({
+    loading: true,
+  })
+
+  useEffect(() => {
+    let ignore = false
+    if (itemGroup?.type === 'recipe') {
+      searchRecipeById(itemGroup.recipe).then((recipe) => {
+        if (ignore) return
+        setRecipe({ loading: false, errored: false, data: recipe })
+      })
+    }
+    return () => {
+      ignore = true
+    }
+  }, [itemGroup])
+
   const getNameColor = () => {
     if (!itemGroup) return 'text-red-900'
+
+    if (recipe.loading) return 'text-white'
+    if (recipe.errored) return 'text-red-900'
 
     if (itemGroup.type === 'simple') {
       if (isGroupSingleItem(itemGroup)) {
@@ -92,8 +117,14 @@ function ItemGroupName() {
       } else {
         return 'text-orange-400'
       }
-    } else if (itemGroup.type === 'recipe') {
-      return 'text-blue-500'
+    } else if (itemGroup.type === 'recipe' && recipe.data) {
+      if (isRecipedGroupUpToDate(itemGroup, recipe.data)) {
+        return 'text-blue-500'
+      } else {
+        // Strike-through text in red
+        const className = 'text-indigo-600 underline decoration-red-500'
+        return className
+      }
     } else {
       return 'text-red-400'
     }

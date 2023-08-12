@@ -31,6 +31,7 @@ import {
 } from './ItemGroupContext'
 import { useUserContext } from '@/context/users.context'
 import { ModalContextProvider } from '../(modals)/ModalContext'
+import { isRecipedGroupUpToDate } from '@/utils/groupUtils'
 
 // TODO: Rename to FoodItemEdit
 export type ItemGroupEditModalProps = {
@@ -79,12 +80,12 @@ const InnerItemGroupEditModal = forwardRef(
     })
 
     useEffect(() => {
-      if (!group || !group.recipe) {
+      if (!group || group.type !== 'recipe') {
         setRecipe({ loading: false, errored: false, data: null })
         return
       }
       let ignore = false
-      searchRecipeById(group?.recipe).then((recipe) => {
+      searchRecipeById(group.recipe).then((recipe) => {
         if (ignore) return
         setRecipe({ loading: false, errored: false, data: recipe })
       })
@@ -147,7 +148,9 @@ const InnerItemGroupEditModal = forwardRef(
       <>
         <ExternalRecipeEditModal
           recipe={recipe.data}
-          setRecipe={setRecipe}
+          setRecipe={(recipe) =>
+            setRecipe({ loading: false, errored: false, data: recipe })
+          }
           recipeEditModalRef={recipeEditModalRef}
         />
         <ExternalFoodItemEditModal
@@ -176,9 +179,7 @@ const InnerItemGroupEditModal = forwardRef(
             }
             body={
               <Body
-                setRecipe={(data) =>
-                  setRecipe({ loading: false, errored: false, data })
-                }
+                recipe={recipe.data}
                 recipeEditModalRef={recipeEditModalRef}
                 foodItemEditModalRef={foodItemEditModalRef}
                 foodSearchModalRef={foodSearchModalRef}
@@ -234,10 +235,10 @@ function ExternalRecipeEditModal({
   recipeEditModalRef,
 }: {
   recipe: Recipe | null
-  setRecipe: Dispatch<React.SetStateAction<Recipe | null>>
+  setRecipe: (recipe: Recipe | null) => void
   recipeEditModalRef: React.RefObject<ModalRef>
 }) {
-  const { itemGroup: group, setItemGroup: setGroup } = useItemGroupContext()
+  const { itemGroup: group } = useItemGroupContext()
   return (
     <RecipeEditModal
       modalId={`VERY_UNIQUE_ID_FOR_RECIPE_${group?.id}`} // TODO: Clean all modal IDs on the project
@@ -396,7 +397,7 @@ function ExternalFoodSearchModal({
 }
 
 function Body({
-  setRecipe,
+  recipe,
   recipeEditModalRef,
   setSelectedFoodItem,
   foodItemEditModalRef,
@@ -404,7 +405,7 @@ function Body({
   setFoodAsFavorite,
   foodSearchModalRef,
 }: {
-  setRecipe: (recipe: Recipe | null) => void
+  recipe: Recipe | null
   recipeEditModalRef: React.RefObject<ModalRef>
   setSelectedFoodItem: React.Dispatch<React.SetStateAction<FoodItem | null>>
   foodItemEditModalRef: React.RefObject<ModalRef>
@@ -430,17 +431,19 @@ function Body({
                   value={group.name ?? ''}
                 />
               </div>
-              {group.type === 'recipe' && (
-                <div
-                  className="my-auto ml-auto"
-                  onClick={() => {
-                    // TODO: Create recipe for groups that don't have one
-                    recipeEditModalRef.current?.showModal()
-                  }}
-                >
-                  <RecipeIcon />
-                </div>
-              )}
+              {group.type === 'recipe' &&
+                recipe &&
+                isRecipedGroupUpToDate(group, recipe) && (
+                  <div
+                    className="my-auto ml-auto"
+                    onClick={() => {
+                      // TODO: Create recipe for groups that don't have one
+                      recipeEditModalRef.current?.showModal()
+                    }}
+                  >
+                    <RecipeIcon />
+                  </div>
+                )}
             </div>
           </div>
 
