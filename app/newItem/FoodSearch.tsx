@@ -3,27 +3,26 @@
 import FoodItemView from '@/app/(foodItem)/FoodItemView'
 import { listFoods, searchFoodsByName } from '@/controllers/food'
 import { Food } from '@/model/foodModel'
-import { Alert, Breadcrumb } from 'flowbite-react'
-import { useEffect, useRef, useState } from 'react'
+import { Alert } from 'flowbite-react'
+import React, { useEffect, useRef, useState } from 'react'
 import { FoodItem } from '@/model/foodItemModel'
-import { listDays } from '@/controllers/days'
-import { Day } from '@/model/dayModel'
 import BarCodeInsertModal from '@/app/BarCodeInsertModal'
 import { User } from '@/model/userModel'
 import { Loadable } from '@/utils/loadable'
 import LoadingRing from '@/app/LoadingRing'
 import { ModalRef } from '@/app/(modals)/Modal'
-import RecipeEditModal from '@/app/(recipe)/RecipeEditModal'
-import { Recipe, createRecipe } from '@/model/recipeModel'
-import { mockFood, mockItem, mockRecipe } from '../test/unit/(mock)/mockData'
+import { Recipe } from '@/model/recipeModel'
+import { mockFood } from '../test/unit/(mock)/mockData'
 import PageLoading from '../PageLoading'
 import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
-import { MealData } from '@/model/mealModel'
 import { useUserContext } from '@/context/users.context'
 import { ModalContextProvider } from '../(modals)/ModalContext'
+import { listRecipes } from '@/controllers/recipes'
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal'
 const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal'
+
+// TODO: Remove all RecipeEditModal references from FoodSearch component
 const RECIPE_EDIT_MODAL_ID = 'recipe-edit-modal'
 
 // TODO: Refactor client-side cache vs server-side cache vs no cache logic on search
@@ -33,6 +32,8 @@ export type FoodSearchProps = {
   onNewFoodItem: (foodItem: FoodItem) => Promise<void>
   onFinish: () => void
 }
+
+type Consumable = Food | Recipe
 
 export default function FoodSearch({
   targetName,
@@ -45,7 +46,9 @@ export default function FoodSearch({
   const { user, isFoodFavorite, setFoodAsFavorite } = useUserContext()
 
   const [search, setSearch] = useState<string>('')
-  const [foods, setFoods] = useState<Loadable<Food[]>>({ loading: true })
+  const [consumables, setConsumables] = useState<Loadable<Consumable[]>>({
+    loading: true,
+  })
 
   const [selectedFood, setSelectedFood] = useState(
     mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }), // TODO: Properly handle no food selected
@@ -55,7 +58,7 @@ export default function FoodSearch({
   const barCodeInsertModalRef = useRef<ModalRef>(null)
   const recipeEditModalRef = useRef<ModalRef>(null)
 
-  const [searchingFoods, setSearchingFoods] = useState(false)
+  const [searching, setSearching] = useState(false)
 
   const [typing, setTyping] = useState(false)
 
@@ -63,18 +66,20 @@ export default function FoodSearch({
 
   const isDesktop = isClient ? window.innerWidth > 768 : false // TODO: Stop using innerWidth to detect desktop
 
-  const fetchFoods = async (search: string | '', favoriteFoods: number[]) => {
-    setSearchingFoods(true)
-    setFoods({ loading: false, errored: false, data: [] })
+  const fetchConsumables = async (
+    search: string | '',
+    favoriteConsumables: number[], // TODO: Implement favorite recipes
+    userId: User['id'],
+  ) => {
+    setSearching(true)
+    setConsumables({ loading: false, errored: false, data: [] })
 
     let foods: Food[] = []
-    if (search === /* TODO: Check if equality is a bug */ '') {
-      foods = await listFoods(10, favoriteFoods)
+    if (search === '') {
+      foods = await listFoods(10, favoriteConsumables)
     } else {
-      foods = await searchFoodsByName(search, 10, favoriteFoods)
+      foods = await searchFoodsByName(search, 10, favoriteConsumables)
     }
-
-    setSearchingFoods(false)
 
     const isFavorite = (favoriteFoods: number[], food: Food) => {
       return favoriteFoods.includes(food.id)
@@ -82,21 +87,33 @@ export default function FoodSearch({
 
     // Sort favorites first
     const sortedFoods = foods.sort((a, b) => {
-      if (isFavorite(favoriteFoods, a) && !isFavorite(favoriteFoods, b)) {
+      if (
+        isFavorite(favoriteConsumables, a) &&
+        !isFavorite(favoriteConsumables, b)
+      ) {
         return -1 // a comes first
       }
 
-      if (!isFavorite(favoriteFoods, a) && isFavorite(favoriteFoods, b)) {
+      if (
+        !isFavorite(favoriteConsumables, a) &&
+        isFavorite(favoriteConsumables, b)
+      ) {
         return 1 // b comes first
       }
 
       return 0
     })
 
-    setFoods({
+    const recipes = await listRecipes(userId)
+
+    setSearching(false) // TODO: Refactor to use loading state instead of searchingFoods
+
+    const consumables = [...recipes]
+
+    setConsumables({
       loading: false,
       errored: false,
-      data: sortedFoods,
+      data: consumables,
     })
   }
 
@@ -110,7 +127,7 @@ export default function FoodSearch({
       return
     }
 
-    fetchFoods(search, user.data.favorite_foods)
+    fetchConsumables(search, user.data.favorite_foods, user.data.id)
   }, [user, search, typing])
 
   useEffect(() => {
@@ -125,25 +142,25 @@ export default function FoodSearch({
     }
   }, [search])
 
-  if (foods.loading) {
+  if (consumables.loading) {
     return <PageLoading message="Carregando alimentos" />
   }
 
-  if (foods.errored) {
+  if (consumables.errored) {
     return (
       <PageLoading message="Erro ao carregar alimentos. Tente novamente mais tarde" />
     )
   }
 
-  const filteredFoods = foods.data
-    .filter((food) => {
-      if (search === /* TODO: Check if equality is a bug */ '') {
+  const filteredConsumables = consumables.data
+    .filter((consumable) => {
+      if (search === '') {
         return true
       }
 
       // Fuzzy search
       const searchLower = search.toLowerCase()
-      const nameLower = food.name.toLowerCase()
+      const nameLower = consumable.name.toLowerCase()
       const searchWords = searchLower.split(' ')
       const nameWords = nameLower.split(' ')
 
@@ -180,8 +197,6 @@ export default function FoodSearch({
     }
   }
 
-  const mockedRecipe: Recipe = mockRecipe()
-
   return (
     <>
       <BarCode
@@ -213,10 +228,10 @@ export default function FoodSearch({
       <SearchBar isDesktop={isDesktop} search={search} setSearch={setSearch} />
       <SearchResults
         search={search}
-        filteredFoods={filteredFoods}
+        filteredConsumables={filteredConsumables}
         barCodeInsertModalRef={barCodeInsertModalRef}
         foodItemEditModalRef={foodItemEditModalRef}
-        searchingFoods={searchingFoods}
+        searchingFoods={searching}
         isFoodFavorite={isFoodFavorite}
         setFoodAsFavorite={setFoodAsFavorite}
         setSelectedFood={setSelectedFood}
@@ -357,7 +372,7 @@ const SearchResults = ({
   search,
   searchingFoods,
   typing,
-  filteredFoods,
+  filteredConsumables,
   isFoodFavorite,
   setFoodAsFavorite,
   setSelectedFood,
@@ -367,7 +382,7 @@ const SearchResults = ({
   search: string
   searchingFoods: boolean
   typing: boolean
-  filteredFoods: Food[]
+  filteredConsumables: Consumable[]
   isFoodFavorite: (food: number) => boolean
   setFoodAsFavorite: (food: number, favorite: boolean) => void
   setSelectedFood: (food: Food) => void
@@ -378,51 +393,60 @@ const SearchResults = ({
     <>
       {!searchingFoods &&
         !typing &&
-        filteredFoods.length === /* TODO: Check if equality is a bug */ 0 && (
+        filteredConsumables.length ===
+          /* TODO: Check if equality is a bug */ 0 && (
           <Alert color="warning" className="mt-2">
             Nenhum alimento encontrado para a busca &quot;{search}&quot;.
           </Alert>
         )}
 
       <div className="bg-gray-800 p-1">
-        {searchingFoods && filteredFoods.length === 0 ? (
+        {searchingFoods && filteredConsumables.length === 0 ? (
           <PageLoading message="Carregando alimentos" />
         ) : (
           <>
-            {filteredFoods.map((food, idx) => (
-              <div key={idx}>
-                <FoodItemView
-                  foodItem={{
-                    id: Math.random() * 1000000,
-                    name: food.name,
-                    quantity: 100,
-                    macros: food.macros,
-                    reference: food.id,
-                  }}
-                  className="mt-1"
-                  onClick={() => {
-                    setSelectedFood(food)
-                    foodItemEditModalRef.current?.showModal()
-                    barCodeInsertModalRef.current?.close()
-                  }}
-                  header={
-                    <FoodItemView.Header
-                      name={<FoodItemView.Header.Name />}
-                      favorite={
-                        <FoodItemView.Header.Favorite
-                          favorite={isFoodFavorite(food.id)}
-                          onSetFavorite={(favorite) =>
-                            setFoodAsFavorite(food.id, favorite)
+            {filteredConsumables.map(
+              (consumable, idx) =>
+                consumable[''] === 'Food' && (
+                  <React.Fragment key={idx}>
+                    <FoodItemView
+                      foodItem={{
+                        id: Math.random() * 1000000,
+                        name: consumable.name,
+                        quantity: 100,
+                        macros: consumable.macros,
+                        reference: consumable.id,
+                      }}
+                      className="mt-1"
+                      onClick={() => {
+                        setSelectedFood({
+                          ...consumable,
+                          '': 'Food', // TODO: Clean up this hack
+                        } satisfies Food)
+                        foodItemEditModalRef.current?.showModal()
+                        barCodeInsertModalRef.current?.close()
+                      }}
+                      header={
+                        <FoodItemView.Header
+                          name={<FoodItemView.Header.Name />}
+                          favorite={
+                            <FoodItemView.Header.Favorite
+                              favorite={isFoodFavorite(consumable.id)}
+                              onSetFavorite={(favorite) =>
+                                setFoodAsFavorite(consumable.id, favorite)
+                              }
+                            />
                           }
                         />
                       }
+                      nutritionalInfo={<FoodItemView.NutritionalInfo />}
                     />
-                  }
-                  nutritionalInfo={<FoodItemView.NutritionalInfo />}
-                />
-              </div>
-            ))}
-            {searchingFoods && filteredFoods.length > 0 && <LoadingRing />}
+                  </React.Fragment>
+                ),
+            )}
+            {searchingFoods && filteredConsumables.length > 0 && (
+              <LoadingRing />
+            )}
           </>
         )}
       </div>
