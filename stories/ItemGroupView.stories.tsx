@@ -8,7 +8,7 @@ import App from '@/app/App'
 const meta: Meta<typeof ItemGroupView> = {
   title: 'Components/ItemGroupView',
   component: ItemGroupView,
-  decorators: [(Story) => <App>{Story()}</App>],
+  decorators: [(Story) => <App>{Story()}</App>], // TODO: Create <MockApp> to provide context to all stories
   render: (args) => (
     <ItemGroupView
       {...args}

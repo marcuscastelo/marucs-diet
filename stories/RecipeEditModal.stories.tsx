@@ -9,7 +9,7 @@ const meta: Meta<typeof RecipeEditModal> = {
   title: 'Components/RecipeEditModal',
   component: RecipeEditModal,
   argTypes: {},
-  decorators: [(Story) => <App>{Story()}</App>],
+  decorators: [(Story) => <App>{Story()}</App>], // TODO: Create <MockApp> to provide context to all stories
 }
 
 export default meta
