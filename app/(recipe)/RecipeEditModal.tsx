@@ -115,15 +115,17 @@ const RecipeEditModal = forwardRef(
                   (recipe) =>
                     recipe && {
                       ...recipe,
-                      items: [
-                        ...recipe.items.filter(
-                          (item) => item.id !== foodItem.id,
-                        ),
-                        foodItem,
-                      ],
+                      items: recipe.items.map((item) =>
+                        item.id === foodItem.id
+                          ? {
+                              ...item,
+                              quantity: foodItem.quantity,
+                            }
+                          : item,
+                      ),
                     },
                 )
-                // setSelectedFoodItem(null)
+                setSelectedFoodItem(null)
               }}
             />
           </ModalContextProvider>
