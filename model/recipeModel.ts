@@ -1,4 +1,4 @@
-import { FoodItemGroup } from './foodItemGroupModel'
+import { ItemGroup } from './foodItemGroupModel'
 import { itemSchema } from './foodItemModel'
 
 import { z } from 'zod'
@@ -38,7 +38,7 @@ export function createRecipe({
   }
 }
 
-export function createRecipeFromGroup(group: FoodItemGroup) {
+export function createRecipeFromGroup(group: ItemGroup) {
   return createRecipe({
     name: group.name,
     items: [...group.items],

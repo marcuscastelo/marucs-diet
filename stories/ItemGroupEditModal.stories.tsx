@@ -1,19 +1,19 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import FoodItemGroupEditModal, {
-  FoodItemGroupEditModalProps,
-} from '../app/(foodItemGroup)/FoodItemGroupEditModal'
+import ItemGroupEditModal, {
+  ItemGroupEditModalProps,
+} from '../app/(itemGroup)/ItemGroupEditModal'
 import App from '@/app/App'
 import { mockMeal } from '@/app/test/unit/(mock)/mockData'
 
-const meta: Meta<typeof FoodItemGroupEditModal> = {
-  title: 'Components/FoodItemGroupEditModal',
-  component: FoodItemGroupEditModal,
+const meta: Meta<typeof ItemGroupEditModal> = {
+  title: 'Components/ItemGroupEditModal',
+  component: ItemGroupEditModal,
   argTypes: {},
   decorators: [(Story) => <App>{Story()}</App>],
 }
 
 export default meta
-type Story = StoryObj<typeof FoodItemGroupEditModal>
+type Story = StoryObj<typeof ItemGroupEditModal>
 
 export const Simple: Story = {
   args: {
@@ -26,8 +26,8 @@ export const Simple: Story = {
     onDelete: () => undefined,
     onVisibilityChange: () => undefined,
     group: mockMeal().groups[0],
-  } satisfies FoodItemGroupEditModalProps,
-  render: (args) => <FoodItemGroupEditModal {...args} ref={null} />,
+  } satisfies ItemGroupEditModalProps,
+  render: (args) => <ItemGroupEditModal {...args} ref={null} />,
 }
 
 export const Recipe: Story = {
@@ -45,6 +45,6 @@ export const Recipe: Story = {
       type: 'recipe',
       recipe: 2,
     },
-  } satisfies FoodItemGroupEditModalProps,
-  render: (args) => <FoodItemGroupEditModal {...args} ref={null} />,
+  } satisfies ItemGroupEditModalProps,
+  render: (args) => <ItemGroupEditModal {...args} ref={null} />,
 }

@@ -4,31 +4,31 @@ import MacroNutrients from '../MacroNutrients'
 import { MacroNutrientsData } from '@/model/macroNutrientsModel'
 import CopyIcon from '../(icons)/CopyIcon'
 import {
-  FoodItemGroupContextProvider,
-  useFoodItemGroupContext,
-} from './FoodItemGroupContext'
-import { FoodItemGroup, isGroupSingleItem } from '@/model/foodItemGroupModel'
+  ItemGroupContextProvider,
+  useItemGroupContext,
+} from './ItemGroupContext'
+import { ItemGroup, isGroupSingleItem } from '@/model/foodItemGroupModel'
 import { calcGroupMacros } from '@/utils/macroMath'
 import { useUserContext } from '@/context/users.context'
 
-export type FoodItemGroupViewProps = {
-  foodItemGroup: FoodItemGroup
+export type ItemGroupViewProps = {
+  itemGroup: ItemGroup
   header?: React.ReactNode
   nutritionalInfo?: React.ReactNode
   className?: string
-  onClick?: (foodItemGroup: FoodItemGroup) => void
+  onClick?: (foodItemGroup: ItemGroup) => void
 }
 
-export default function FoodItemGroupView({
-  foodItemGroup,
+export default function ItemGroupView({
+  itemGroup,
   header,
   nutritionalInfo,
   className,
   onClick,
-}: FoodItemGroupViewProps) {
+}: ItemGroupViewProps) {
   const handleClick = (e: React.MouseEvent) => {
     // TODO: Check if parameter is needed (foodItem doesn't seem to be changed)
-    onClick?.(foodItemGroup)
+    onClick?.(itemGroup)
     e.stopPropagation()
     e.preventDefault()
   }
@@ -40,16 +40,16 @@ export default function FoodItemGroupView({
       }`}
       onClick={handleClick}
     >
-      <FoodItemGroupContextProvider foodItemGroup={foodItemGroup}>
+      <ItemGroupContextProvider itemGroup={itemGroup}>
         {header}
         {nutritionalInfo}
-      </FoodItemGroupContextProvider>
+      </ItemGroupContextProvider>
     </div>
   )
 }
 
-FoodItemGroupView.Header = FoodItemGroupHeader
-FoodItemGroupView.NutritionalInfo = MealItemNutritionalInfo
+ItemGroupView.Header = ItemGroupHeader
+ItemGroupView.NutritionalInfo = MealItemNutritionalInfo
 
 export type MealItemHeaderProps = {
   name?: React.ReactNode
@@ -57,18 +57,14 @@ export type MealItemHeaderProps = {
   copyButton?: React.ReactNode
 }
 
-function FoodItemGroupHeader({
-  name,
-  favorite,
-  copyButton,
-}: MealItemHeaderProps) {
+function ItemGroupHeader({ name, favorite, copyButton }: MealItemHeaderProps) {
   return (
     <div className="flex">
       {/* //TODO: mealItem id is random, but it should be an entry on the database (meal too) */}
       {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.mealItem.id}]</h5> */}
       <div className="my-2">{name}</div>
       {/* 
-        // TODO: Remove code duplication between FoodItemView and FoodItemGroupView 
+        // TODO: Remove code duplication between FoodItemView and ItemGroupView 
       */}
       <div className={`ml-auto flex gap-2`}>
         <div className="my-auto">{copyButton}</div>
@@ -78,12 +74,12 @@ function FoodItemGroupHeader({
   )
 }
 
-FoodItemGroupHeader.Name = FoodItemGroupName
-FoodItemGroupHeader.CopyButton = FoodItemGroupCopyButton
-FoodItemGroupHeader.Favorite = FoodItemGroupFavorite
+ItemGroupHeader.Name = ItemGroupName
+ItemGroupHeader.CopyButton = ItemGroupCopyButton
+ItemGroupHeader.Favorite = ItemGroupFavorite
 
-function FoodItemGroupName() {
-  const { foodItemGroup: itemGroup } = useFoodItemGroupContext()
+function ItemGroupName() {
+  const { itemGroup } = useItemGroupContext()
 
   const { debug } = useUserContext()
 
@@ -119,12 +115,12 @@ function FoodItemGroupName() {
   )
 }
 
-function FoodItemGroupCopyButton({
+function ItemGroupCopyButton({
   handleCopyMealItem,
 }: {
-  handleCopyMealItem: (mealItem: FoodItemGroup) => void
+  handleCopyMealItem: (mealItem: ItemGroup) => void
 }) {
-  const { foodItemGroup: itemGroup } = useFoodItemGroupContext()
+  const { itemGroup } = useItemGroupContext()
 
   return (
     <div
@@ -140,7 +136,7 @@ function FoodItemGroupCopyButton({
   )
 }
 
-function FoodItemGroupFavorite({
+function ItemGroupFavorite({
   favorite,
   setFavorite,
 }: {
@@ -166,7 +162,7 @@ function FoodItemGroupFavorite({
 }
 
 function MealItemNutritionalInfo() {
-  const { foodItemGroup: itemGroup } = useFoodItemGroupContext()
+  const { itemGroup } = useItemGroupContext()
 
   const multipliedMacros: MacroNutrientsData = (itemGroup &&
     calcGroupMacros(itemGroup)) || {

@@ -21,9 +21,9 @@ import { User } from '@/model/userModel'
 import { ModalRef } from '@/app/(modals)/modal'
 import FoodSearchModal from '@/app/newItem/FoodSearchModal'
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context'
-import { FoodItemGroup } from '@/model/foodItemGroupModel'
+import { ItemGroup } from '@/model/foodItemGroupModel'
 import { calcDayMacros } from '@/utils/macroMath'
-import FoodItemGroupEditModal from '@/app/(foodItemGroup)/FoodItemGroupEditModal'
+import ItemGroupEditModal from '@/app/(itemGroup)/ItemGroupEditModal'
 import { useUserContext } from '@/context/users.context'
 
 type PageParams = {
@@ -225,10 +225,11 @@ function DayContent({
   days: Loaded<Day[]>
 }) {
   const [selectedMeal, setSelectedMeal] = useState<MealData | null>(null)
-  const [selectedItemGroup, setSelectedItemGroup] =
-    useState<FoodItemGroup | null>(null)
+  const [selectedItemGroup, setSelectedItemGroup] = useState<ItemGroup | null>(
+    null,
+  )
 
-  const onEditItemGroup = (meal: MealData, itemGroup: FoodItemGroup) => {
+  const onEditItemGroup = (meal: MealData, itemGroup: ItemGroup) => {
     if (dayLocked) {
       alert('Dia bloqueado, não é possível editar')
       return
@@ -325,7 +326,7 @@ function DayContent({
                 quantity: item.quantity,
                 type: 'simple',
                 items: [{ ...item }],
-              } satisfies FoodItemGroup,
+              } satisfies ItemGroup,
             ] satisfies MealData['groups'],
           }
 
@@ -344,13 +345,13 @@ function DayContent({
           await updateDay(dayData!.id, newDay)
         }}
       />
-      <FoodItemGroupEditModal
+      <ItemGroupEditModal
         modalId={editModalId}
         ref={foodItemGroupEditModalRef}
         group={selectedItemGroup}
         targetMealName={selectedMeal?.name ?? 'ERROR: No meal selected'}
         onSaveGroup={async (group) => {
-          console.debug('FoodItemGroupEditModal onApply, received group', group)
+          console.debug('ItemGroupEditModal onApply, received group', group)
           // TODO: Avoid non-null assertion
           await updateDay(dayData!.id, {
             ...dayData!,
@@ -396,7 +397,7 @@ function DayContent({
           setSelectedItemGroup(null)
           foodItemGroupEditModalRef.current?.close()
         }}
-        onDelete={async (id: FoodItemGroup['id']) => {
+        onDelete={async (id: ItemGroup['id']) => {
           // TODO: Avoid non-null assertion
           await updateDay(dayData!.id, {
             ...dayData!,

@@ -7,8 +7,8 @@ import TrashIcon from '../(icons)/TrashIcon'
 import PasteIcon from '../(icons)/PasteIcon'
 import CopyIcon from '../(icons)/CopyIcon'
 import { calcMealCalories } from '@/utils/macroMath'
-import FoodItemGroupListView from '../(foodItemGroup)/FoodItemGroupListView'
-import { FoodItemGroup, itemGroupSchema } from '@/model/foodItemGroupModel'
+import ItemGroupListView from '../(itemGroup)/ItemGroupListView'
+import { ItemGroup, itemGroupSchema } from '@/model/foodItemGroupModel'
 
 export type MealViewProps = {
   mealData: MealData
@@ -96,7 +96,7 @@ function MealViewHeader({
           groups: [
             ...mealData.groups,
             ...parsedMeal.data.groups.map(
-              (item): FoodItemGroup => ({
+              (item): ItemGroup => ({
                 ...item,
                 id: Math.floor(Math.random() * 1000000), // TODO: Create a function to generate a unique id
               }),
@@ -204,13 +204,13 @@ function MealViewHeader({
 function MealViewContent({
   onEditItemGroup,
 }: {
-  onEditItemGroup: (item: FoodItemGroup) => void
+  onEditItemGroup: (item: ItemGroup) => void
 }) {
   const { mealData } = useMealContext()
 
   return (
-    <FoodItemGroupListView
-      foodItems={mealData.groups}
+    <ItemGroupListView
+      itemGroups={mealData.groups}
       onItemClick={onEditItemGroup}
     />
   )

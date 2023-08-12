@@ -26,9 +26,9 @@ export const itemGroupSchema = z.discriminatedUnion('type', [
   }),
 ])
 
-// TODO: rename FoodItemGroup component to ItemGroupView
-export type FoodItemGroup = z.infer<typeof itemGroupSchema>
+// TODO: rename ItemGroup component to ItemGroupView
+export type ItemGroup = z.infer<typeof itemGroupSchema>
 
-export function isGroupSingleItem(group: FoodItemGroup) {
+export function isGroupSingleItem(group: ItemGroup) {
   return group.items.length === 1
 }
