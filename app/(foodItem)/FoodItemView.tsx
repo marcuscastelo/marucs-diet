@@ -13,7 +13,7 @@ import { Consumable } from '../newItem/FoodSearch'
 import { searchRecipeById } from '@/controllers/recipes'
 
 export type FoodItemViewProps = {
-  foodItem: FoodItem & { type: 'food' | 'recipe' } // TODO: Replace all & { type: 'food' | 'recipe' } with a real type
+  foodItem: FoodItem & { type?: 'food' | 'recipe' } // TODO: Replace all & { type: 'food' | 'recipe' } with a real type
   header?: React.ReactNode
   nutritionalInfo?: React.ReactNode
   className?: string
@@ -41,7 +41,12 @@ export default function FoodItemView({
       }`}
       onClick={handleClick}
     >
-      <FoodItemContextProvider foodItem={foodItem}>
+      <FoodItemContextProvider
+        foodItem={{
+          type: 'food', // TODO: Remove this hack
+          ...foodItem,
+        }}
+      >
         {header}
         {nutritionalInfo}
       </FoodItemContextProvider>
