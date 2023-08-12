@@ -2,6 +2,7 @@
 
 import { ItemGroup, isGroupSingleItem } from '@/model/foodItemGroupModel'
 import {
+  Dispatch,
   forwardRef,
   useEffect,
   useImperativeHandle,
@@ -19,7 +20,11 @@ import RecipeEditModal from '../(recipe)/RecipeEditModal'
 import { Recipe, createRecipeFromGroup } from '@/model/recipeModel'
 import { Loadable } from '@/utils/loadable'
 import PageLoading from '../PageLoading'
-import { searchRecipeById } from '@/controllers/recipes'
+import {
+  searchRecipeById,
+  updateRecipe,
+  upsertRecipe,
+} from '@/controllers/recipes'
 import {
   ItemGroupContextProvider,
   useItemGroupContext,
@@ -142,6 +147,7 @@ const InnerItemGroupEditModal = forwardRef(
       <>
         <ExternalRecipeEditModal
           recipe={recipe.data}
+          setRecipe={setRecipe}
           recipeEditModalRef={recipeEditModalRef}
         />
         <ExternalFoodItemEditModal
@@ -224,9 +230,11 @@ function Header({
 
 function ExternalRecipeEditModal({
   recipe,
+  setRecipe,
   recipeEditModalRef,
 }: {
   recipe: Recipe | null
+  setRecipe: Dispatch<React.SetStateAction<Recipe | null>>
   recipeEditModalRef: React.RefObject<ModalRef>
 }) {
   const { itemGroup: group, setItemGroup: setGroup } = useItemGroupContext()
@@ -235,7 +243,10 @@ function ExternalRecipeEditModal({
       modalId={`VERY_UNIQUE_ID_FOR_RECIPE_${group?.id}`} // TODO: Clean all modal IDs on the project
       ref={recipeEditModalRef}
       recipe={recipe}
-      onSaveRecipe={async () => alert('TODO: Save recipe')}
+      onSaveRecipe={async (recipe) => {
+        const updatedRecipe = await updateRecipe(recipe.id, recipe)
+        setRecipe(updatedRecipe)
+      }}
     />
   )
 }
@@ -423,7 +434,7 @@ function Body({
                 <div
                   className="my-auto ml-auto"
                   onClick={() => {
-                    setRecipe(createRecipeFromGroup(group))
+                    // TODO: Create recipe for groups that don't have one
                     recipeEditModalRef.current?.showModal()
                   }}
                 >

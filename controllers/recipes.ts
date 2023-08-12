@@ -45,6 +45,22 @@ export const upsertRecipe = async (
   return recipeSchema.parse(recipes?.[0] ?? null)
 }
 
+export const updateRecipe = async (
+  id: Recipe['id'],
+  recipe: New<Recipe>,
+): Promise<Recipe> => {
+  const { data, error } = await supabase
+    .from(TABLE)
+    .update(recipe)
+    .eq('id', id)
+    .select()
+
+  if (error) {
+    throw error
+  }
+  return recipeSchema.parse(data?.[0] ?? null)
+}
+
 export const updateDay = async (
   id: Recipe['id'],
   recipe: New<Recipe>,
