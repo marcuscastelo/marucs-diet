@@ -3,7 +3,9 @@
 import { FoodItem } from '@/model/foodItemModel'
 import { ReactNode, createContext, useContext } from 'react'
 
-const FoodItemContext = createContext<{ foodItem: FoodItem } | null>(null)
+const FoodItemContext = createContext<{
+  foodItem: FoodItem & { type: 'food' | 'recipe' }
+} | null>(null)
 
 export function useFoodItemContext() {
   const context = useContext(FoodItemContext)
@@ -21,7 +23,7 @@ export function FoodItemContextProvider({
   foodItem,
   children,
 }: {
-  foodItem: FoodItem
+  foodItem: FoodItem & { type: 'food' | 'recipe' }
   children: ReactNode
 }) {
   return (

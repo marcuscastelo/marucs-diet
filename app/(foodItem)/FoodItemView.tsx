@@ -6,13 +6,14 @@ import { MacroNutrientsData } from '@/model/macroNutrientsModel'
 import { FoodItemContextProvider, useFoodItemContext } from './FoodItemContext'
 import CopyIcon from '../(icons)/CopyIcon'
 import { useEffect, useState } from 'react'
-import { Food } from '@/model/foodModel'
 import { searchFoodById } from '@/controllers/food'
 import { calcItemCalories } from '@/utils/macroMath'
 import { useUserContext } from '@/context/users.context'
+import { Consumable } from '../newItem/FoodSearch'
+import { searchRecipeById } from '@/controllers/recipes'
 
 export type FoodItemViewProps = {
-  foodItem: FoodItem
+  foodItem: FoodItem & { type: 'food' | 'recipe' } // TODO: Replace all & { type: 'food' | 'recipe' } with a real type
   header?: React.ReactNode
   nutritionalInfo?: React.ReactNode
   className?: string
@@ -80,22 +81,38 @@ function MealItemName() {
 
   const { debug } = useUserContext()
 
-  const [food, setFood] = useState<Food | null>(null)
+  const [consumable, setConsumable] = useState<Consumable | null>(null)
 
   useEffect(() => {
-    searchFoodById(item.reference).then((food) => setFood(food))
-  }, [item.reference])
+    if (item.type === 'recipe') {
+      searchRecipeById(item.reference).then((recipe) => setConsumable(recipe))
+    } else {
+      searchFoodById(item.reference).then((food) => setConsumable(food))
+    }
+  }, [item.type, item.reference])
+
+  const getConsumableNameColor = () => {
+    if (item.type === 'food') {
+      return 'text-white'
+    } else if (item.type === 'recipe') {
+      return 'text-blue-500'
+    } else {
+      return 'text-red-500'
+    }
+  }
 
   return (
     <div className="">
       {/* //TODO: mealItem id is random, but it should be an entry on the database (meal too) */}
       {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.mealItem.id}]</h5> */}
-      <h5 className={`mb-2 text-lg font-bold tracking-tight text-white`}>
-        {food?.name ?? 'food not found'}{' '}
+      <h5
+        className={`mb-2 text-lg font-bold tracking-tight ${getConsumableNameColor()}`}
+      >
+        {consumable?.name ?? 'food not found'}{' '}
         {debug && (
           <>
             <div className="text-sm text-gray-400">[ID: {item?.id}]</div>
-            <div className="text-sm text-gray-400">[ID: {food?.id}]</div>
+            <div className="text-sm text-gray-400">[ID: {consumable?.id}]</div>
           </>
         )}
       </h5>

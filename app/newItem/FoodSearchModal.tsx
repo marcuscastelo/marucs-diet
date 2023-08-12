@@ -37,7 +37,10 @@ const FoodSearchModal = forwardRef(
     }))
 
     return (
-      <ModalContextProvider visible={false}>
+      <ModalContextProvider
+        visible={false}
+        onVisibilityChange={onVisibilityChange}
+      >
         <Modal
           ref={modalRef}
           modalId="foodSearchModal"

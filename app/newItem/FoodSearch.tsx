@@ -17,7 +17,12 @@ import PageLoading from '../PageLoading'
 import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
 import { useUserContext } from '@/context/users.context'
 import { ModalContextProvider } from '../(modals)/ModalContext'
-import { listRecipes } from '@/controllers/recipes'
+import { listRecipes, searchRecipeById } from '@/controllers/recipes'
+import {
+  ItemGroup,
+  RecipedItemGroup,
+  SimpleItemGroup,
+} from '@/model/foodItemGroupModel'
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal'
 const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal'
@@ -29,15 +34,16 @@ const RECIPE_EDIT_MODAL_ID = 'recipe-edit-modal'
 
 export type FoodSearchProps = {
   targetName: string
-  onNewFoodItem: (foodItem: FoodItem) => Promise<void>
+  onNewItemGroup: (foodItem: ItemGroup) => Promise<void>
   onFinish: () => void
 }
 
-type Consumable = Food | Recipe
+export type Consumable = Food | Recipe
 
+// TODO: Rename to ConsumableSearch?
 export default function FoodSearch({
   targetName,
-  onNewFoodItem,
+  onNewItemGroup,
   onFinish,
 }: FoodSearchProps) {
   const FOOD_LIMIT = 100
@@ -50,7 +56,7 @@ export default function FoodSearch({
     loading: true,
   })
 
-  const [selectedFood, setSelectedFood] = useState(
+  const [selectedConsumable, setSelectedConsumable] = useState<Consumable>(
     mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }), // TODO: Properly handle no food selected
   )
 
@@ -108,7 +114,7 @@ export default function FoodSearch({
 
     setSearching(false) // TODO: Refactor to use loading state instead of searchingFoods
 
-    const consumables = [...recipes]
+    const consumables = [...recipes, ...sortedFoods]
 
     setConsumables({
       loading: false,
@@ -182,8 +188,8 @@ export default function FoodSearch({
     })
     .slice(0, FOOD_LIMIT)
 
-  const handleNewFoodItem = async (item: FoodItem) => {
-    await onNewFoodItem(item)
+  const handleNewItemGroup = async (newGroup: ItemGroup) => {
+    await onNewItemGroup(newGroup)
     // Prompt if user wants to add another item or go back (Yes/No)
     const oneMore = confirm(
       'Item adicionado com sucesso. Deseja adicionar outro item?',
@@ -192,7 +198,7 @@ export default function FoodSearch({
     if (!oneMore) {
       onFinish()
     } else {
-      setSelectedFood(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }))
+      setSelectedConsumable(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }))
       foodItemEditModalRef.current?.close()
     }
   }
@@ -202,7 +208,7 @@ export default function FoodSearch({
       <BarCode
         barCodeInsertModalRef={barCodeInsertModalRef}
         foodItemEditModalRef={foodItemEditModalRef}
-        setSelectedFood={setSelectedFood}
+        setSelectedConsumable={setSelectedConsumable}
       />
       <ModalContextProvider visible={false}>
         <FoodItemEditModal
@@ -210,11 +216,33 @@ export default function FoodSearch({
           ref={foodItemEditModalRef}
           targetName={targetName}
           foodItem={{
-            reference: selectedFood.id,
-            name: selectedFood.name,
-            macros: selectedFood.macros,
+            reference: selectedConsumable.id,
+            name: selectedConsumable.name,
+            macros: selectedConsumable.macros,
+            type: selectedConsumable[''] === 'Food' ? 'food' : 'recipe', // TODO: Refactor
           }}
-          onApply={async (i) => handleNewFoodItem(i)}
+          onApply={async (item) => {
+            if (item.type === 'food') {
+              const newGroup: SimpleItemGroup = {
+                id: Math.round(Math.random() * 1000000),
+                name: item.name,
+                items: [item],
+                type: 'simple',
+                quantity: item.quantity,
+              }
+              handleNewItemGroup(newGroup)
+            } else {
+              const newGroup: RecipedItemGroup = {
+                id: Math.round(Math.random() * 1000000),
+                name: item.name,
+                items: [...(selectedConsumable as Recipe).items],
+                type: 'recipe',
+                quantity: item.quantity, // TODO: Implement quantity on recipe item groups (should influence macros)
+                recipe: (selectedConsumable as Recipe).id,
+              }
+              handleNewItemGroup(newGroup)
+            }
+          }}
         />
       </ModalContextProvider>
       {/* // TODO: Revisit if RecipeEditModal should be on FoodSearch */}
@@ -234,7 +262,7 @@ export default function FoodSearch({
         searchingFoods={searching}
         isFoodFavorite={isFoodFavorite}
         setFoodAsFavorite={setFoodAsFavorite}
-        setSelectedFood={setSelectedFood}
+        setSelectedConsumable={setSelectedConsumable}
         typing={typing}
       />
     </>
@@ -244,11 +272,11 @@ export default function FoodSearch({
 const BarCode = ({
   barCodeInsertModalRef,
   foodItemEditModalRef,
-  setSelectedFood,
+  setSelectedConsumable,
 }: {
   barCodeInsertModalRef: React.RefObject<ModalRef>
   foodItemEditModalRef: React.RefObject<ModalRef>
-  setSelectedFood: (food: Food) => void
+  setSelectedConsumable: (food: Food) => void
 }) => (
   <>
     <div className="mb-2 flex justify-start">
@@ -265,7 +293,7 @@ const BarCode = ({
       modalId={BAR_CODE_INSERT_MODAL_ID}
       ref={barCodeInsertModalRef}
       onSelect={(food) => {
-        setSelectedFood(food)
+        setSelectedConsumable(food)
         foodItemEditModalRef.current?.showModal()
       }}
     />
@@ -375,7 +403,7 @@ const SearchResults = ({
   filteredConsumables,
   isFoodFavorite,
   setFoodAsFavorite,
-  setSelectedFood,
+  setSelectedConsumable,
   foodItemEditModalRef,
   barCodeInsertModalRef,
 }: {
@@ -385,7 +413,7 @@ const SearchResults = ({
   filteredConsumables: Consumable[]
   isFoodFavorite: (food: number) => boolean
   setFoodAsFavorite: (food: number, favorite: boolean) => void
-  setSelectedFood: (food: Food) => void
+  setSelectedConsumable: (food: Consumable) => void
   foodItemEditModalRef: React.RefObject<ModalRef>
   barCodeInsertModalRef: React.RefObject<ModalRef>
 }) => {
@@ -405,45 +433,40 @@ const SearchResults = ({
           <PageLoading message="Carregando alimentos" />
         ) : (
           <>
-            {filteredConsumables.map(
-              (consumable, idx) =>
-                consumable[''] === 'Food' && (
-                  <React.Fragment key={idx}>
-                    <FoodItemView
-                      foodItem={{
-                        id: Math.random() * 1000000,
-                        name: consumable.name,
-                        quantity: 100,
-                        macros: consumable.macros,
-                        reference: consumable.id,
-                      }}
-                      className="mt-1"
-                      onClick={() => {
-                        setSelectedFood({
-                          ...consumable,
-                          '': 'Food', // TODO: Clean up this hack
-                        } satisfies Food)
-                        foodItemEditModalRef.current?.showModal()
-                        barCodeInsertModalRef.current?.close()
-                      }}
-                      header={
-                        <FoodItemView.Header
-                          name={<FoodItemView.Header.Name />}
-                          favorite={
-                            <FoodItemView.Header.Favorite
-                              favorite={isFoodFavorite(consumable.id)}
-                              onSetFavorite={(favorite) =>
-                                setFoodAsFavorite(consumable.id, favorite)
-                              }
-                            />
+            {filteredConsumables.map((consumable, idx) => (
+              <React.Fragment key={idx}>
+                <FoodItemView
+                  foodItem={{
+                    id: Math.random() * 1000000,
+                    name: consumable.name,
+                    quantity: 100,
+                    macros: consumable.macros,
+                    reference: consumable.id,
+                    type: consumable[''] === 'Food' ? 'food' : 'recipe', // TODO: Refactor
+                  }}
+                  className="mt-1"
+                  onClick={() => {
+                    setSelectedConsumable(consumable)
+                    foodItemEditModalRef.current?.showModal()
+                    barCodeInsertModalRef.current?.close()
+                  }}
+                  header={
+                    <FoodItemView.Header
+                      name={<FoodItemView.Header.Name />}
+                      favorite={
+                        <FoodItemView.Header.Favorite
+                          favorite={isFoodFavorite(consumable.id)}
+                          onSetFavorite={(favorite) =>
+                            setFoodAsFavorite(consumable.id, favorite)
                           }
                         />
                       }
-                      nutritionalInfo={<FoodItemView.NutritionalInfo />}
                     />
-                  </React.Fragment>
-                ),
-            )}
+                  }
+                  nutritionalInfo={<FoodItemView.NutritionalInfo />}
+                />
+              </React.Fragment>
+            ))}
             {searchingFoods && filteredConsumables.length > 0 && (
               <LoadingRing />
             )}

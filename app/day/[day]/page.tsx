@@ -224,6 +224,8 @@ function DayContent({
   setDayLocked: (locked: boolean) => void
   days: Loaded<Day[]>
 }) {
+  const { debug } = useUserContext()
+
   const [selectedMeal, setSelectedMeal] = useState<MealData | null>(null)
   const [selectedItemGroup, setSelectedItemGroup] = useState<ItemGroup | null>(
     null,
@@ -297,144 +299,24 @@ function DayContent({
 
   return (
     <>
-      <FoodSearchModal
-        targetName={selectedMeal?.name ?? 'ERRO: Nenhuma refeição selecionada!'}
-        ref={foodSearchModalRef}
-        onFinish={() => {
-          console.debug('setSelectedMeal(null)')
-          setSelectedMeal(null)
-          foodSearchModalRef.current?.close()
-          fetchDays(user.data.id)
-        }}
-        onVisibilityChange={(visible) => {
-          if (!visible) {
-            console.debug('setSelectedMeal(null)')
-            setSelectedMeal(null)
-          }
-        }}
-        onNewFoodItem={async (item) => {
-          // TODO: Create a proper onNewFoodItem function
-          const oldMeal = selectedMeal! // TODO: Avoid non-null assertion
-
-          const newMeal: MealData = {
-            ...oldMeal,
-            groups: [
-              ...oldMeal.groups,
-              {
-                id: item.id,
-                name: item.name,
-                quantity: item.quantity,
-                type: 'simple',
-                items: [{ ...item }],
-              } satisfies ItemGroup,
-            ] satisfies MealData['groups'],
-          }
-
-          const newDay: Day = {
-            ...dayData!,
-            meals: dayData!.meals.map((m) => {
-              // TODO: Avoid non-null assertion
-              if (m.id === oldMeal.id) {
-                return newMeal
-              }
-
-              return m
-            }),
-          }
-
-          await updateDay(dayData!.id, newDay)
-        }}
+      <ExternalFoodSearchModal
+        dayData={dayData}
+        fetchDays={fetchDays}
+        foodSearchModalRef={foodSearchModalRef}
+        selectedMeal={selectedMeal}
+        setSelectedMeal={setSelectedMeal}
+        user={user}
       />
-      <ItemGroupEditModal
-        modalId={editModalId}
-        ref={foodItemGroupEditModalRef}
-        group={selectedItemGroup}
-        targetMealName={selectedMeal?.name ?? 'ERROR: No meal selected'}
-        onSaveGroup={async (group) => {
-          console.debug('ItemGroupEditModal onApply, received group', group)
-          // TODO: Avoid non-null assertion
-          await updateDay(dayData!.id, {
-            ...dayData!,
-            meals: dayData!.meals.map((meal) => {
-              if (!selectedMeal) {
-                throw new Error('No meal selected!')
-              }
-              if (meal.id !== selectedMeal.id) {
-                return meal
-              }
-              console.debug('Found meal to update, meal name: ', meal.name)
-              const groups = meal.groups
-              const changePos = groups.findIndex((i) => i.id === group.id)
-
-              console.debug('Index of group to update: ', changePos)
-
-              if (changePos === -1) {
-                throw new Error(
-                  'Group not found! Searching for id: ' + group.id,
-                )
-              }
-
-              console.debug(
-                'Found group to update, group name: ',
-                groups[changePos].name,
-              )
-              groups[changePos] = group
-
-              console.debug('Updated groups: ', JSON.stringify(groups, null, 2))
-
-              return {
-                ...meal,
-                groups,
-              }
-            }),
-          })
-
-          await fetchDays(user.data.id)
-
-          console.debug('setSelectedMeal(null)')
-          setSelectedMeal(null)
-          console.debug('setSelectedMealItem(null)')
-          setSelectedItemGroup(null)
-          foodItemGroupEditModalRef.current?.close()
-        }}
-        onDelete={async (id: ItemGroup['id']) => {
-          // TODO: Avoid non-null assertion
-          await updateDay(dayData!.id, {
-            ...dayData!,
-            meals: dayData!.meals.map((meal) => {
-              if (meal.id !== selectedMeal!.id) {
-                return meal
-              }
-
-              const items = meal.groups
-              const changePos = items.findIndex((i) => i.id === id)
-
-              items.splice(changePos, 1)
-
-              return {
-                ...meal,
-                groups: items,
-              }
-            }),
-          })
-
-          await fetchDays(user.data.id)
-
-          console.debug('setSelectedMeal(null)')
-          setSelectedMeal(null)
-          console.debug('setSelectedMealItem(null)')
-          setSelectedItemGroup(null)
-          foodItemGroupEditModalRef.current?.close()
-        }}
-        onVisibilityChange={(visible) => {
-          if (!visible) {
-            console.debug('setSelectedMeal(null)')
-            setSelectedMeal(null)
-            console.debug('setSelectedMealItem(null)')
-            setSelectedItemGroup(null)
-          }
-        }}
-        onRefetch={() => fetchDays(user.data.id)}
+      <ExternalItemGroupEditModal
+        dayData={dayData}
+        editModalId={editModalId}
+        fetchDays={fetchDays}
+        foodItemGroupEditModalRef={foodItemGroupEditModalRef}
+        selectedItemGroup={selectedItemGroup}
+        selectedMeal={selectedMeal}
+        setSelectedItemGroup={setSelectedItemGroup}
+        setSelectedMeal={setSelectedMeal}
+        user={user}
       />
       <DayMacros
         className="mt-3 border-b-2 border-gray-800 pb-4"
@@ -479,20 +361,172 @@ function DayContent({
         selectedDay={selectedDay}
         fetchDays={fetchDays}
       />
-      <button
-        className="btn-error btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white hover:bg-red-400"
-        onClick={async () => {
-          if (!confirm('Tem certeza que deseja excluir este dia?')) {
-            return
-          }
-          // TODO: Avoid non-null assertion
-          await deleteDay(dayData!.id)
-          await fetchDays(user.data.id)
-        }}
-      >
-        PERIGO: Excluir dia
-      </button>
+      <DeleteDayButton dayData={dayData} fetchDays={fetchDays} user={user} />
     </>
+  )
+}
+
+function ExternalFoodSearchModal({
+  selectedMeal,
+  setSelectedMeal,
+  foodSearchModalRef,
+  dayData,
+  fetchDays,
+  user,
+}: {
+  selectedMeal: MealData | null
+  setSelectedMeal: (meal: MealData | null) => void
+  foodSearchModalRef: RefObject<ModalRef>
+  dayData: Day | undefined
+  fetchDays: (userId: User['id']) => Promise<void>
+  user: Loaded<User>
+}) {
+  return (
+    <FoodSearchModal
+      targetName={selectedMeal?.name ?? 'ERRO: Nenhuma refeição selecionada!'}
+      ref={foodSearchModalRef}
+      onFinish={() => {
+        console.debug('setSelectedMeal(null)')
+        setSelectedMeal(null)
+        foodSearchModalRef.current?.close()
+        fetchDays(user.data.id)
+      }}
+      onVisibilityChange={(visible) => {
+        if (!visible) {
+          console.debug('setSelectedMeal(null)')
+          setSelectedMeal(null)
+        }
+      }}
+      onNewItemGroup={async (newGroup) => {
+        // TODO: Create a proper onNewFoodItem function
+        const oldMeal = selectedMeal! // TODO: Avoid non-null assertion
+
+        const newMeal: MealData = {
+          ...oldMeal,
+          groups: [...oldMeal.groups, newGroup] satisfies MealData['groups'],
+        }
+
+        const newDay: Day = {
+          ...dayData!,
+          meals: dayData!.meals.map((m) => {
+            // TODO: Avoid non-null assertion
+            if (m.id === oldMeal.id) {
+              return newMeal
+            }
+
+            return m
+          }),
+        }
+
+        await updateDay(dayData!.id, newDay)
+      }}
+    />
+  )
+}
+
+function ExternalItemGroupEditModal({
+  editModalId,
+  foodItemGroupEditModalRef,
+  selectedItemGroup,
+  setSelectedItemGroup,
+  selectedMeal,
+  setSelectedMeal,
+  dayData,
+  fetchDays,
+  user,
+}: {
+  editModalId: string
+  foodItemGroupEditModalRef: RefObject<ModalRef>
+  selectedItemGroup: ItemGroup | null
+  setSelectedItemGroup: (itemGroup: ItemGroup | null) => void
+  selectedMeal: MealData | null
+  setSelectedMeal: (meal: MealData | null) => void
+  dayData: Day | undefined
+  fetchDays: (userId: User['id']) => Promise<void>
+  user: Loaded<User>
+}) {
+  return (
+    <ItemGroupEditModal
+      modalId={editModalId}
+      ref={foodItemGroupEditModalRef}
+      group={selectedItemGroup}
+      targetMealName={selectedMeal?.name ?? 'ERROR: No meal selected'}
+      onSaveGroup={async (group) => {
+        console.debug('ItemGroupEditModal onApply, received group', group)
+        // TODO: Avoid non-null assertion
+        await updateDay(dayData!.id, {
+          ...dayData!,
+          meals: dayData!.meals.map((meal) => {
+            if (!selectedMeal) {
+              throw new Error('No meal selected!')
+            }
+            if (meal.id !== selectedMeal.id) {
+              return meal
+            }
+            console.debug('Found meal to update, meal name: ', meal.name)
+            const groups = meal.groups
+            const changePos = groups.findIndex((i) => i.id === group.id)
+
+            console.debug('Index of group to update: ', changePos)
+
+            if (changePos === -1) {
+              throw new Error('Group not found! Searching for id: ' + group.id)
+            }
+
+            console.debug(
+              'Found group to update, group name: ',
+              groups[changePos].name,
+            )
+            groups[changePos] = group
+
+            console.debug('Updated groups: ', JSON.stringify(groups, null, 2))
+
+            return {
+              ...meal,
+              groups,
+            }
+          }),
+        })
+
+        await fetchDays(user.data.id)
+
+        console.debug('setSelectedMeal(null)')
+        setSelectedMeal(null)
+        console.debug('setSelectedMealItem(null)')
+        setSelectedItemGroup(null)
+        foodItemGroupEditModalRef.current?.close()
+      }}
+      onDelete={async (id: ItemGroup['id']) => {
+        // TODO: Avoid non-null assertion
+        await updateDay(dayData!.id, {
+          ...dayData!,
+          meals: dayData!.meals.map((meal) => {
+            if (meal.id !== selectedMeal!.id) {
+              return meal
+            }
+
+            const items = meal.groups
+            const changePos = items.findIndex((i) => i.id === id)
+
+            items.splice(changePos, 1)
+
+            return {
+              ...meal,
+              groups: items,
+            }
+          }),
+        })
+
+        await fetchDays(user.data.id)
+
+        console.debug('setSelectedMeal(null)')
+        setSelectedMeal(null)
+        console.debug('setSelectedMealItem(null)')
+        setSelectedItemGroup(null)
+        foodItemGroupEditModalRef.current?.close()
+      }}
+      onRefetch={() => fetchDays(user.data.id)}
+    />
   )
 }
 
@@ -562,6 +596,32 @@ function CopyLastDayButton({
     >
       {/* //TODO: retriggered: copiar qualquer dia */}
       Copiar dia anterior ({days.data[lastDayIdx].target_day})
+    </button>
+  )
+}
+
+function DeleteDayButton({
+  dayData,
+  fetchDays,
+  user,
+}: {
+  dayData: Day | null | undefined
+  fetchDays: (userId: User['id']) => Promise<void>
+  user: Loaded<User>
+}) {
+  return (
+    <button
+      className="btn-error btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white hover:bg-red-400"
+      onClick={async () => {
+        if (!confirm('Tem certeza que deseja excluir este dia?')) {
+          return
+        }
+        // TODO: Avoid non-null assertion
+        await deleteDay(dayData!.id)
+        await fetchDays(user.data.id)
+      }}
+    >
+      PERIGO: Excluir dia
     </button>
   )
 }
