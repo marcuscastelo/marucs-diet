@@ -6,7 +6,7 @@ import App from '@/app/App'
 const meta: Meta<typeof FoodItemView> = {
   title: 'Components/FoodItemView',
   component: FoodItemView,
-  decorators: [(Story) => <App>{Story()}</App>],
+  decorators: [(Story) => <App>{Story()}</App>], // TODO: Create <MockApp> to provide context to all stories
 }
 
 export default meta
