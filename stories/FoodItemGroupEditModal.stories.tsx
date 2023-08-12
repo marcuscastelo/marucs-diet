@@ -3,9 +3,10 @@ import FoodItemGroupEditModal, {
   FoodItemGroupEditModalProps,
 } from '../app/(foodItemGroup)/FoodItemGroupEditModal'
 import App from '@/app/App'
-import { mockDay, mockMeal } from '@/app/test/unit/(mock)/mockData'
+import { mockMeal } from '@/app/test/unit/(mock)/mockData'
 
 const meta: Meta<typeof FoodItemGroupEditModal> = {
+  title: 'Components/FoodItemGroupEditModal',
   component: FoodItemGroupEditModal,
   argTypes: {},
   decorators: [(Story) => <App>{Story()}</App>],

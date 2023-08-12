@@ -6,6 +6,7 @@ import { mockRecipe } from '@/app/test/unit/(mock)/mockData'
 import App from '@/app/App'
 
 const meta: Meta<typeof RecipeEditView> = {
+  title: 'Components/RecipeEditView',
   component: RecipeEditView,
   decorators: [(Story) => <App>{Story()}</App>],
 }
