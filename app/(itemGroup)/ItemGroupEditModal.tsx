@@ -1,6 +1,6 @@
 // 'use client'
 
-import { ItemGroup, isGroupSingleItem } from '@/model/foodItemGroupModel'
+import { ItemGroup, isSimpleSingleGroup } from '@/model/foodItemGroupModel'
 import {
   forwardRef,
   useEffect,
@@ -284,11 +284,12 @@ function ExternalFoodItemEditModal({
         modalId={`VERY_UNIQUE_ID_${group?.id}`} // TODO: Clean all modal IDs on the project
         ref={foodItemEditModalRef}
         targetName={
-          (group && (isGroupSingleItem(group) ? targetMealName : group.name)) ||
+          (group &&
+            (isSimpleSingleGroup(group) ? targetMealName : group.name)) ||
           'Erro: Grupo sem nome'
         }
         targetNameColor={
-          group && isGroupSingleItem(group)
+          group && isSimpleSingleGroup(group)
             ? 'text-green-500'
             : 'text-orange-400'
         }
@@ -344,38 +345,48 @@ function ExternalFoodSearchModal({
 }) {
   const { itemGroup: group, setItemGroup: setGroup } = useItemGroupContext()
   return (
-    <FoodSearchModal
-      ref={foodSearchModalRef}
-      targetName={group?.name ?? 'ERRO: Grupo de alimentos não especificado'}
-      onFinish={() => {
-        console.debug('setSelectedMeal(null)')
-        foodSearchModalRef.current?.close()
-        onRefetch()
-      }}
+    <ModalContextProvider
+      visible={false}
       onVisibilityChange={(visible) => {
         if (!visible) {
           console.debug('setSelectedMeal(null)')
           onRefetch()
         }
       }}
-      onNewFoodItem={async (item) => {
-        // TODO: Create a proper onNewFoodItem function
-        console.debug('onNewFoodItem', item)
+    >
+      <FoodSearchModal
+        ref={foodSearchModalRef}
+        targetName={group?.name ?? 'ERRO: Grupo de alimentos não especificado'}
+        onFinish={() => {
+          console.debug('setSelectedMeal(null)')
+          foodSearchModalRef.current?.close()
+          onRefetch()
+        }}
+        onNewItemGroup={async (newGroup) => {
+          // TODO: Create a proper onNewFoodItem function
+          console.debug('onNewItemGroup', newGroup)
 
-        if (!group) {
-          console.error('group is null')
-          throw new Error('group is null')
-        }
+          if (!group) {
+            console.error('group is null')
+            throw new Error('group is null')
+          }
 
-        const newGroup: ItemGroup = addInnerItem(group, item)
+          if (!isSimpleSingleGroup(newGroup)) {
+            console.error('TODO: Handle non-simple groups')
+            alert('TODO: Handle non-simple groups')
+            return
+          }
 
-        console.debug(
-          'onNewFoodItem: applying',
-          JSON.stringify(newGroup, null, 2),
-        )
-        onSaveGroup(newGroup)
-      }}
-    />
+          const finalGroup: ItemGroup = addInnerItem(group, newGroup.items[0])
+
+          console.debug(
+            'onNewFoodItem: applying',
+            JSON.stringify(finalGroup, null, 2),
+          )
+          onSaveGroup(finalGroup)
+        }}
+      />
+    </ModalContextProvider>
   )
 }
 

@@ -7,7 +7,7 @@ import {
   ItemGroupContextProvider,
   useItemGroupContext,
 } from './ItemGroupContext'
-import { ItemGroup, isGroupSingleItem } from '@/model/foodItemGroupModel'
+import { ItemGroup, isSimpleSingleGroup } from '@/model/foodItemGroupModel'
 import { calcGroupMacros } from '@/utils/macroMath'
 import { useUserContext } from '@/context/users.context'
 import { isRecipedGroupUpToDate } from '@/utils/groupUtils'
@@ -114,7 +114,7 @@ function ItemGroupName() {
     if (recipe.errored) return 'text-red-900'
 
     if (itemGroup.type === 'simple') {
-      if (isGroupSingleItem(itemGroup)) {
+      if (isSimpleSingleGroup(itemGroup)) {
         return 'text-white'
       } else {
         return 'text-orange-400'

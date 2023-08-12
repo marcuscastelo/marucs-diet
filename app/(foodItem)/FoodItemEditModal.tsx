@@ -16,6 +16,7 @@ import { Recipe } from '@/model/recipeModel'
 import { Loadable } from '@/utils/loadable'
 import { useUserContext } from '@/context/users.context'
 import { ModalContextProvider, useModalContext } from '../(modals)/ModalContext'
+import { Consumable } from '../newItem/FoodSearch'
 
 const RECIPE_EDIT_MODAL_ID = 'meal-item-add-modal:self:recipe-edit-modal'
 
@@ -24,8 +25,9 @@ export type FoodItemEditModalProps = {
   modalId: string
   targetName: string
   targetNameColor?: string
-  foodItem: Partial<FoodItem> & Pick<FoodItem, 'reference' | 'macros'>
-  onApply: (item: FoodItem) => void
+  foodItem: Partial<FoodItem> &
+    Pick<FoodItem, 'reference' | 'macros'> & { type: 'food' | 'recipe' }
+  onApply: (item: FoodItem & { type: 'food' | 'recipe' }) => void
   onCancel?: () => void
   onDelete?: (itemId: FoodItem['id']) => void
 }
@@ -52,12 +54,14 @@ const FoodItemEditModal = forwardRef(
     } = useModalContext()
 
     const [showing, setShowing_] = useState(false)
-    const [foodItem, setFoodItem] = useState<FoodItem>({
+    const [foodItem, setFoodItem] = useState<
+      FoodItem & { type: 'food' | 'recipe' }
+    >({
       id: initialFoodItem?.id ?? Math.round(Math.random() * 1000000),
       name: initialFoodItem?.name ?? 'ERRO: Sem nome',
       quantity: initialFoodItem?.quantity ?? 0,
       ...initialFoodItem,
-    } satisfies FoodItem)
+    } satisfies FoodItem & { type: 'food' | 'recipe' })
 
     useEffect(() => {
       setFoodItem((old) => ({
@@ -103,10 +107,10 @@ const FoodItemEditModal = forwardRef(
     }))
 
     // TODO: Remove createMealItemData
-    const createMealItemData = (): FoodItem =>
+    const createMealItemData = (): FoodItem & { type: 'food' | 'recipe' } =>
       ({
         ...foodItem,
-      }) satisfies FoodItem
+      }) satisfies FoodItem & { type: 'food' | 'recipe' }
 
     return (
       <>
@@ -209,7 +213,12 @@ function Body({
   quantity: string
   setQuantity: Dispatch<SetStateAction<string>>
   canAdd: boolean
-  foodItem: (Partial<FoodItem> & Pick<FoodItem, 'reference' | 'macros'>) | null
+  foodItem:
+    | (Partial<FoodItem> &
+        Pick<FoodItem, 'reference' | 'macros'> & {
+          type: 'food' | 'recipe'
+        })
+    | null
   id: FoodItem['id']
 }) {
   const quantityRef = useRef<HTMLInputElement>(null)
@@ -331,7 +340,8 @@ function Body({
               quantity: Number(quantity),
               reference: foodItem.reference,
               macros: foodItem.macros,
-            } satisfies FoodItem
+              type: foodItem.type,
+            } satisfies FoodItem & { type: 'food' | 'recipe' }
           }
           className="mt-4"
           onClick={() => {

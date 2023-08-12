@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { macroNutrientsSchema as macroNutrientsSchema } from './macroNutrientsModel'
+import { macroNutrientsSchema } from './macroNutrientsModel'
 
 export const itemSchema = z.object({
   id: z.number(),
