@@ -4,6 +4,7 @@ import { ModalRef } from '@/app/(modals)/Modal'
 import { useRef } from 'react'
 import { mockItem, mockMeal } from '../(mock)/mockData'
 import FoodItemEditModal from '@/app/(foodItem)/FoodItemEditModal'
+import { ModalContextProvider } from '@/app/(modals)/ModalContext'
 
 export default function Page() {
   const modalId = 'testmodal'
@@ -19,12 +20,14 @@ export default function Page() {
         Show modal
       </button>
 
-      <FoodItemEditModal
-        modalId={modalId}
-        targetName="Teste"
-        foodItem={mockItem()}
-        onApply={() => alert('apply')}
-      />
+      <ModalContextProvider visible={false}>
+        <FoodItemEditModal
+          modalId={modalId}
+          targetName="Teste"
+          foodItem={mockItem()}
+          onApply={() => alert('apply')}
+        />
+      </ModalContextProvider>
     </>
   )
 }

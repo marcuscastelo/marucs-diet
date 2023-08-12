@@ -8,7 +8,7 @@ import App from '@/app/App'
 const meta: Meta<typeof RecipeEditView> = {
   title: 'Components/RecipeEditView',
   component: RecipeEditView,
-  decorators: [(Story) => <App>{Story()}</App>],
+  decorators: [(Story) => <App>{Story()}</App>], // TODO: Create <MockApp> to provide context to all stories
 }
 
 export default meta

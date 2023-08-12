@@ -62,6 +62,7 @@ const Modal = forwardRef(
       }
     }, [visible, innerRef, handleVisibilityChange])
 
+    // TODO: Replace all imperative show/close with context visibility state
     useImperativeHandle(ref, () => ({
       showModal: () => {
         innerRef.current?.showModal()

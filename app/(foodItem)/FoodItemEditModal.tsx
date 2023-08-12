@@ -15,7 +15,7 @@ import Modal, { ModalActions, ModalProps, ModalRef } from '../(modals)/Modal'
 import { Recipe } from '@/model/recipeModel'
 import { Loadable } from '@/utils/loadable'
 import { useUserContext } from '@/context/users.context'
-import { ModalContextProvider } from '../(modals)/ModalContext'
+import { ModalContextProvider, useModalContext } from '../(modals)/ModalContext'
 
 const RECIPE_EDIT_MODAL_ID = 'meal-item-add-modal:self:recipe-edit-modal'
 
@@ -28,8 +28,6 @@ export type FoodItemEditModalProps = {
   onApply: (item: FoodItem) => void
   onCancel?: () => void
   onDelete?: (itemId: FoodItem['id']) => void
-  onVisibilityChange?: (isShowing: boolean) => void
-  show?: boolean
 }
 
 // eslint-disable-next-line react/display-name
@@ -43,11 +41,16 @@ const FoodItemEditModal = forwardRef(
       onApply,
       onCancel,
       onDelete,
-      onVisibilityChange,
-      show = false,
     }: FoodItemEditModalProps,
     ref: React.Ref<ModalRef>,
   ) => {
+    const {
+      visible,
+      setVisible,
+      onVisibilityChange,
+      modalRef: selfModalRef,
+    } = useModalContext()
+
     const [showing, setShowing_] = useState(false)
     const [foodItem, setFoodItem] = useState<FoodItem>({
       id: initialFoodItem?.id ?? Math.round(Math.random() * 1000000),
@@ -81,8 +84,6 @@ const FoodItemEditModal = forwardRef(
     }
 
     const canAdd = quantity !== '' && Number(quantity) > 0
-
-    const selfModalRef = useRef<ModalRef>(null)
 
     const handleSetShowing = (isShowing: boolean) => {
       console.debug('FoodItemEditModal: handleSetShowing', isShowing)
@@ -122,7 +123,7 @@ const FoodItemEditModal = forwardRef(
           onSaveRecipe={async () => alert('TODO: Save recipe')}
         /> */}
         <ModalContextProvider
-          visible={show}
+          visible={visible}
           onVisibilityChange={(...args) => handleSetShowing(...args)}
         >
           <Modal

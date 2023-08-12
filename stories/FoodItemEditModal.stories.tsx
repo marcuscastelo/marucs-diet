@@ -4,6 +4,7 @@ import FoodItemEditModal, {
 } from '../app/(foodItem)/FoodItemEditModal'
 import { mockItem } from '@/app/test/unit/(mock)/mockData'
 import App from '@/app/App'
+import { ModalContextProvider } from '@/app/(modals)/ModalContext'
 
 const meta: Meta<typeof FoodItemEditModal> = {
   title: 'Components/FoodItemEditModal',
@@ -15,7 +16,14 @@ const meta: Meta<typeof FoodItemEditModal> = {
       },
     },
   },
-  decorators: [(Story) => <App>{Story()}</App>],
+  decorators: [
+    // TODO: Create <MockApp> to provide context to all stories
+    (Story) => (
+      <App>
+        <ModalContextProvider visible={true}>{Story()}</ModalContextProvider>
+      </App>
+    ),
+  ],
 }
 
 export default meta
@@ -23,7 +31,6 @@ type Story = StoryObj<typeof FoodItemEditModal>
 
 export const RootGreen: Story = {
   args: {
-    show: true,
     foodItem: mockItem(),
     modalId: 'teste123',
     onApply: () => undefined,
@@ -35,7 +42,6 @@ export const RootGreen: Story = {
 
 export const RootBlue: Story = {
   args: {
-    show: true,
     foodItem: mockItem(),
     modalId: 'teste123',
     onApply: () => undefined,
