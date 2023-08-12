@@ -6,12 +6,14 @@ import { markSearchAsCached, isSearchCached } from './searchCache'
 import { INTERNAL_API } from '@/utils/api'
 import supabase from '@/utils/supabase'
 import { isEanCached } from './eanCache'
+import { New } from '@/utils/newDbRecord'
 
 const TABLE = 'foods'
 
 // TODO: retriggered: pensar num lugar melhor pra isso
 export function convertApi2Food(food: ApiFood): Omit<Food, 'id'> {
   return {
+    '': 'Food',
     name: food.nome,
     source: {
       type: 'api',
@@ -242,7 +244,9 @@ export const searchFoodsByEan = async (
   )
 }
 
-export const upsertFood = async (food: Omit<Food, 'id'>): Promise<Food> => {
+export const upsertFood = async (food: New<Food>): Promise<Food> => {
+  delete (food as Partial<Food>).id
+  delete (food as Partial<Food>)['']
   food.ean = food.ean || undefined // Remove empty ean
   const { data, error } = await supabase.from(TABLE).upsert(food).select()
   if (error) {
