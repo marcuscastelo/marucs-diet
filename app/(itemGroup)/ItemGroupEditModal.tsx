@@ -31,7 +31,12 @@ import {
 } from './ItemGroupContext'
 import { useUserContext } from '@/context/users.context'
 import { ModalContextProvider } from '../(modals)/ModalContext'
-import { isRecipedGroupUpToDate } from '@/utils/groupUtils'
+import {
+  addInnerItem,
+  deleteInnerItem,
+  editInnerItem,
+  isRecipedGroupUpToDate,
+} from '@/utils/groupUtils'
 import { DownloadIcon } from '../(icons)/DownloadIcon'
 
 // TODO: Rename to FoodItemEdit
@@ -294,23 +299,12 @@ function ExternalFoodItemEditModal({
         }
         foodItem={selectedFoodItem ?? impossibleFoodItem}
         onApply={async (item) => {
-          const newGroup: ItemGroup = {
-            ...group,
-            id: group?.id ?? Math.round(Math.random() * 1000000),
-            name: group?.name ?? item.name,
-            quantity: 0, // Will be set later
-            type: 'simple',
-            items: [
-              ...(group?.items?.map((i) => {
-                if (i.id !== item.id) {
-                  return i
-                }
-                return {
-                  ...item,
-                }
-              }) ?? []),
-            ],
-          } satisfies ItemGroup
+          if (!group) {
+            console.error('group is null')
+            throw new Error('group is null')
+          }
+
+          const newGroup: ItemGroup = editInnerItem(group, item)
 
           newGroup.quantity = newGroup.items.reduce(
             (acc, curr) => acc + curr.quantity,
@@ -323,14 +317,12 @@ function ExternalFoodItemEditModal({
           setGroup(newGroup)
         }}
         onDelete={async (itemId) => {
-          const newGroup: ItemGroup = {
-            ...group,
-            id: group?.id ?? Math.round(Math.random() * 1000000),
-            name: group?.name ?? 'Grupo sem nome',
-            quantity: 0, // Will be set later
-            type: 'simple',
-            items: [...(group?.items?.filter((i) => i.id !== itemId) ?? [])],
-          } satisfies ItemGroup
+          if (!group) {
+            console.error('group is null')
+            throw new Error('group is null')
+          }
+
+          const newGroup: ItemGroup = deleteInnerItem(group, itemId)
 
           newGroup.quantity = newGroup.items.reduce(
             (acc, curr) => acc + curr.quantity,
@@ -375,17 +367,12 @@ function ExternalFoodSearchModal({
         // TODO: Create a proper onNewFoodItem function
         console.debug('onNewFoodItem', item)
 
-        const newGroup: ItemGroup = {
-          ...group,
-          id: group?.id ?? Math.round(Math.random() * 1000000),
-          name: group?.name ?? item.name,
-          quantity: (group?.quantity ?? 0) + item.quantity,
-          type: 'simple', // TODO: Allow user to change type
-          items: [
-            ...(group?.items?.filter((i) => i.id !== item.id) || []),
-            { ...item },
-          ],
-        } satisfies ItemGroup
+        if (!group) {
+          console.error('group is null')
+          throw new Error('group is null')
+        }
+
+        const newGroup: ItemGroup = addInnerItem(group, item)
 
         console.debug(
           'onNewFoodItem: applying',
