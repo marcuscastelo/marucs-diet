@@ -1,6 +1,6 @@
 'use client'
 
-import { ModalRef } from '@/app/(modals)/modal'
+import { ModalRef } from '@/app/(modals)/Modal'
 import { useRef } from 'react'
 import { mockItem, mockMeal } from '../(mock)/mockData'
 import FoodItemEditModal from '@/app/(foodItem)/FoodItemEditModal'

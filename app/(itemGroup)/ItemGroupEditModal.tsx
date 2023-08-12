@@ -8,7 +8,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import Modal, { ModalActions, ModalRef } from '../(modals)/modal'
+import Modal, { ModalActions, ModalRef } from '../(modals)/Modal'
 import FoodItemListView from '../(foodItem)/FoodItemListView'
 import FoodItemView from '../(foodItem)/FoodItemView'
 import { FoodItem, createFoodItem } from '@/model/foodItemModel'
@@ -25,6 +25,7 @@ import {
   useItemGroupContext,
 } from './ItemGroupContext'
 import { useUserContext } from '@/context/users.context'
+import { ModalContextProvider } from '../(modals)/ModalContext'
 
 // TODO: Rename to FoodItemEdit
 export type ItemGroupEditModalProps = {
@@ -105,9 +106,9 @@ const InnerItemGroupEditModal = forwardRef(
     const recipeEditModalRef = useRef<ModalRef>(null)
 
     const { isFoodFavorite, setFoodAsFavorite } = useUserContext()
-    const handleSetShowing = (isShowing: boolean) => {
-      setShowing_(isShowing)
-      onVisibilityChange?.(isShowing)
+    const handleSetShowing = (visible: boolean) => {
+      setShowing_(visible)
+      onVisibilityChange?.(visible)
     }
 
     useImperativeHandle(ref, () => ({
@@ -156,38 +157,41 @@ const InnerItemGroupEditModal = forwardRef(
           onRefetch={onRefetch}
           onSaveGroup={onSaveGroup}
         />
-        <Modal
-          show={show}
-          modalId={modalId}
-          ref={selfModalRef}
-          onSubmit={() => group && onSaveGroup(group)}
-          header={
-            <Header recipe={recipe.data} targetMealName={targetMealName} />
-          }
-          onVisibilityChange={handleSetShowing}
-          body={
-            <Body
-              setRecipe={(data) =>
-                setRecipe({ loading: false, errored: false, data })
-              }
-              recipeEditModalRef={recipeEditModalRef}
-              foodItemEditModalRef={foodItemEditModalRef}
-              foodSearchModalRef={foodSearchModalRef}
-              isFoodFavorite={isFoodFavorite}
-              setFoodAsFavorite={setFoodAsFavorite}
-              setSelectedFoodItem={setSelectedFoodItem}
-            />
-          }
-          actions={
-            <Actions
-              canApply={canApply}
-              onSaveGroup={onSaveGroup}
-              selfModalRef={selfModalRef}
-              onCancel={onCancel}
-              onDelete={onDelete}
-            />
-          }
-        />
+        <ModalContextProvider
+          visible={show}
+          onVisibilityChange={(...args) => handleSetShowing(...args)}
+        >
+          <Modal
+            modalId={modalId}
+            ref={selfModalRef}
+            onSubmit={() => group && onSaveGroup(group)}
+            header={
+              <Header recipe={recipe.data} targetMealName={targetMealName} />
+            }
+            body={
+              <Body
+                setRecipe={(data) =>
+                  setRecipe({ loading: false, errored: false, data })
+                }
+                recipeEditModalRef={recipeEditModalRef}
+                foodItemEditModalRef={foodItemEditModalRef}
+                foodSearchModalRef={foodSearchModalRef}
+                isFoodFavorite={isFoodFavorite}
+                setFoodAsFavorite={setFoodAsFavorite}
+                setSelectedFoodItem={setSelectedFoodItem}
+              />
+            }
+            actions={
+              <Actions
+                canApply={canApply}
+                onSaveGroup={onSaveGroup}
+                selfModalRef={selfModalRef}
+                onCancel={onCancel}
+                onDelete={onDelete}
+              />
+            }
+          />
+        </ModalContextProvider>
       </>
     )
   },
