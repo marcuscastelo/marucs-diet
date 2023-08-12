@@ -4,7 +4,7 @@ import { mockMeal } from '@/app/test/unit/(mock)/mockData'
 import { Meta, StoryObj } from '@storybook/react'
 
 const meta: Meta<typeof MealView> = {
-  title: 'MealView',
+  title: 'Components/MealView',
   component: MealView,
   decorators: [(Story) => <App>{Story()}</App>],
 }

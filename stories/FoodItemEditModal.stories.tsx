@@ -6,6 +6,7 @@ import { mockItem } from '@/app/test/unit/(mock)/mockData'
 import App from '@/app/App'
 
 const meta: Meta<typeof FoodItemEditModal> = {
+  title: 'Components/FoodItemEditModal',
   component: FoodItemEditModal,
   argTypes: {
     targetNameColor: {
@@ -20,13 +21,26 @@ const meta: Meta<typeof FoodItemEditModal> = {
 export default meta
 type Story = StoryObj<typeof FoodItemEditModal>
 
-export const Root: Story = {
+export const RootGreen: Story = {
   args: {
     show: true,
     foodItem: mockItem(),
     modalId: 'teste123',
     onApply: () => undefined,
     targetName: 'Teste',
+    targetNameColor: 'text-green-500',
+  } satisfies FoodItemEditModalProps,
+  render: (args) => <FoodItemEditModal {...args} ref={null} />,
+}
+
+export const RootBlue: Story = {
+  args: {
+    show: true,
+    foodItem: mockItem(),
+    modalId: 'teste123',
+    onApply: () => undefined,
+    targetName: 'Teste',
+    targetNameColor: 'text-blue-500',
   } satisfies FoodItemEditModalProps,
   render: (args) => <FoodItemEditModal {...args} ref={null} />,
 }
