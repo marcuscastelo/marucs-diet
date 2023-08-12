@@ -28,6 +28,7 @@ import { useUserContext } from '@/context/users.context'
 
 // TODO: Rename to FoodItemEdit
 export type FoodItemGroupEditModalProps = {
+  show?: boolean
   modalId: string
   //   meal: MealData | null
   targetMealName: string
@@ -36,14 +37,11 @@ export type FoodItemGroupEditModalProps = {
   onDelete?: (groupId: FoodItemGroup['id']) => void
   onVisibilityChange?: (isShowing: boolean) => void
   onRefetch: () => void
-}
+} & { group: FoodItemGroup | null }
 
 // eslint-disable-next-line react/display-name
 const FoodItemGroupEditModal = forwardRef(
-  (
-    props: FoodItemGroupEditModalProps & { group: FoodItemGroup | null },
-    ref: React.Ref<ModalRef>,
-  ) => {
+  (props: FoodItemGroupEditModalProps, ref: React.Ref<ModalRef>) => {
     return (
       <FoodItemGroupContextProvider foodItemGroup={props.group}>
         <InnerFoodItemGroupEditModal {...props} ref={ref} />
@@ -56,6 +54,7 @@ const FoodItemGroupEditModal = forwardRef(
 const InnerFoodItemGroupEditModal = forwardRef(
   (
     {
+      show = false,
       modalId,
       targetMealName,
       onSaveGroup,
@@ -159,6 +158,7 @@ const InnerFoodItemGroupEditModal = forwardRef(
           onSaveGroup={onSaveGroup}
         />
         <Modal
+          show={show}
           modalId={modalId}
           ref={selfModalRef}
           onSubmit={() => group && onSaveGroup(group)}
@@ -415,15 +415,17 @@ function Body({
                   value={group.name ?? ''}
                 />
               </div>
-              <div
-                className="my-auto ml-auto"
-                onClick={() => {
-                  setRecipe(createRecipeFromGroup(group))
-                  recipeEditModalRef.current?.showModal()
-                }}
-              >
-                <RecipeIcon />
-              </div>
+              {group.type === 'recipe' && (
+                <div
+                  className="my-auto ml-auto"
+                  onClick={() => {
+                    setRecipe(createRecipeFromGroup(group))
+                    recipeEditModalRef.current?.showModal()
+                  }}
+                >
+                  <RecipeIcon />
+                </div>
+              )}
             </div>
           </div>
 
