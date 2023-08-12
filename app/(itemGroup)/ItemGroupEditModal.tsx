@@ -258,72 +258,78 @@ function ExternalFoodItemEditModal({
   const { itemGroup: group, setItemGroup: setGroup } = useItemGroupContext()
 
   return (
-    <FoodItemEditModal
-      modalId={`VERY_UNIQUE_ID_${group?.id}`} // TODO: Clean all modal IDs on the project
-      ref={foodItemEditModalRef}
-      targetName={
-        (group && (isGroupSingleItem(group) ? targetMealName : group.name)) ||
-        'Erro: Grupo sem nome'
-      }
-      targetNameColor={
-        group && isGroupSingleItem(group) ? 'text-green-500' : 'text-orange-400'
-      }
-      foodItem={selectedFoodItem ?? impossibleFoodItem}
-      onApply={async (item) => {
-        const newGroup: ItemGroup = {
-          ...group,
-          id: group?.id ?? Math.round(Math.random() * 1000000),
-          name: group?.name ?? item.name,
-          quantity: 0, // Will be set later
-          type: 'simple',
-          items: [
-            ...(group?.items?.map((i) => {
-              if (i.id !== item.id) {
-                return i
-              }
-              return {
-                ...item,
-              }
-            }) ?? []),
-          ],
-        } satisfies ItemGroup
-
-        newGroup.quantity = newGroup.items.reduce(
-          (acc, curr) => acc + curr.quantity,
-          0,
-        )
-
-        console.debug('newGroup', newGroup)
-        foodItemEditModalRef.current?.close()
-        setSelectedFoodItem(null)
-        setGroup(newGroup)
-      }}
-      onDelete={async (itemId) => {
-        const newGroup: ItemGroup = {
-          ...group,
-          id: group?.id ?? Math.round(Math.random() * 1000000),
-          name: group?.name ?? 'Grupo sem nome',
-          quantity: 0, // Will be set later
-          type: 'simple',
-          items: [...(group?.items?.filter((i) => i.id !== itemId) ?? [])],
-        } satisfies ItemGroup
-
-        newGroup.quantity = newGroup.items.reduce(
-          (acc, curr) => acc + curr.quantity,
-          0,
-        )
-
-        console.debug('newGroup', newGroup)
-        foodItemEditModalRef.current?.close()
-        setGroup(newGroup)
-      }}
+    <ModalContextProvider
+      visible={false}
       onVisibilityChange={(visible) => {
         if (!visible) {
           setSelectedFoodItem(null)
           // TODO: Refactor all modals so that when they close, they call onCancel() or onClose()
         }
       }}
-    />
+    >
+      <FoodItemEditModal
+        modalId={`VERY_UNIQUE_ID_${group?.id}`} // TODO: Clean all modal IDs on the project
+        ref={foodItemEditModalRef}
+        targetName={
+          (group && (isGroupSingleItem(group) ? targetMealName : group.name)) ||
+          'Erro: Grupo sem nome'
+        }
+        targetNameColor={
+          group && isGroupSingleItem(group)
+            ? 'text-green-500'
+            : 'text-orange-400'
+        }
+        foodItem={selectedFoodItem ?? impossibleFoodItem}
+        onApply={async (item) => {
+          const newGroup: ItemGroup = {
+            ...group,
+            id: group?.id ?? Math.round(Math.random() * 1000000),
+            name: group?.name ?? item.name,
+            quantity: 0, // Will be set later
+            type: 'simple',
+            items: [
+              ...(group?.items?.map((i) => {
+                if (i.id !== item.id) {
+                  return i
+                }
+                return {
+                  ...item,
+                }
+              }) ?? []),
+            ],
+          } satisfies ItemGroup
+
+          newGroup.quantity = newGroup.items.reduce(
+            (acc, curr) => acc + curr.quantity,
+            0,
+          )
+
+          console.debug('newGroup', newGroup)
+          foodItemEditModalRef.current?.close()
+          setSelectedFoodItem(null)
+          setGroup(newGroup)
+        }}
+        onDelete={async (itemId) => {
+          const newGroup: ItemGroup = {
+            ...group,
+            id: group?.id ?? Math.round(Math.random() * 1000000),
+            name: group?.name ?? 'Grupo sem nome',
+            quantity: 0, // Will be set later
+            type: 'simple',
+            items: [...(group?.items?.filter((i) => i.id !== itemId) ?? [])],
+          } satisfies ItemGroup
+
+          newGroup.quantity = newGroup.items.reduce(
+            (acc, curr) => acc + curr.quantity,
+            0,
+          )
+
+          console.debug('newGroup', newGroup)
+          foodItemEditModalRef.current?.close()
+          setGroup(newGroup)
+        }}
+      />
+    </ModalContextProvider>
   )
 }
 

@@ -95,32 +95,38 @@ const RecipeEditModal = forwardRef(
     return (
       <>
         <Show when={selectedFoodItem !== null}>
-          <FoodItemEditModal
-            modalId="RECIPES_EDIT_MODAL:FOOD_ITEM_ADD_MODAL"
-            ref={foodItemEditModalRef}
-            foodItem={selectedFoodItem ?? impossibleFoodItem}
-            targetName={recipe?.name ?? 'LOADING RECIPE'}
-            onApply={(foodItem) => {
-              if (!recipe) return
-
-              setRecipe(
-                (recipe) =>
-                  recipe && {
-                    ...recipe,
-                    items: [
-                      ...recipe.items.filter((item) => item.id !== foodItem.id),
-                      foodItem,
-                    ],
-                  },
-              )
-              setSelectedFoodItem(null)
-            }}
-            onVisibilityChange={(isShowing) => {
-              if (!isShowing) {
+          <ModalContextProvider
+            visible={selectedFoodItem !== null}
+            onVisibilityChange={(visible) => {
+              if (!visible) {
                 setSelectedFoodItem(null)
               }
             }}
-          />
+          >
+            <FoodItemEditModal
+              modalId="RECIPES_EDIT_MODAL:FOOD_ITEM_ADD_MODAL"
+              ref={foodItemEditModalRef}
+              foodItem={selectedFoodItem ?? impossibleFoodItem}
+              targetName={recipe?.name ?? 'LOADING RECIPE'}
+              onApply={(foodItem) => {
+                if (!recipe) return
+
+                setRecipe(
+                  (recipe) =>
+                    recipe && {
+                      ...recipe,
+                      items: [
+                        ...recipe.items.filter(
+                          (item) => item.id !== foodItem.id,
+                        ),
+                        foodItem,
+                      ],
+                    },
+                )
+                // setSelectedFoodItem(null)
+              }}
+            />
+          </ModalContextProvider>
         </Show>
         <ModalContextProvider
           visible={show}
