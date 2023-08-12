@@ -2,7 +2,6 @@
 
 import { ItemGroup, isGroupSingleItem } from '@/model/foodItemGroupModel'
 import {
-  Dispatch,
   forwardRef,
   useEffect,
   useImperativeHandle,
@@ -17,14 +16,10 @@ import FoodSearchModal from '../newItem/FoodSearchModal'
 import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
 import RecipeIcon from '../(icons)/RecipeIcon'
 import RecipeEditModal from '../(recipe)/RecipeEditModal'
-import { Recipe, createRecipeFromGroup } from '@/model/recipeModel'
+import { Recipe } from '@/model/recipeModel'
 import { Loadable } from '@/utils/loadable'
 import PageLoading from '../PageLoading'
-import {
-  searchRecipeById,
-  updateRecipe,
-  upsertRecipe,
-} from '@/controllers/recipes'
+import { searchRecipeById, updateRecipe } from '@/controllers/recipes'
 import {
   ItemGroupContextProvider,
   useItemGroupContext,
@@ -435,7 +430,17 @@ function Body({
                     <button
                       className="my-auto ml-auto hover:animate-pulse"
                       onClick={() => {
-                        alert('TODO: Download recipe')
+                        if (!recipe) {
+                          return
+                        }
+
+                        const newItems = [...recipe.items]
+
+                        const newGroup: ItemGroup = { ...group }
+
+                        newGroup.items = newItems
+
+                        setGroup(newGroup)
                       }}
                     >
                       <DownloadIcon />
