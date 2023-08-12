@@ -20,6 +20,7 @@ import PageLoading from '../PageLoading'
 import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
 import { MealData } from '@/model/mealModel'
 import { useUserContext } from '@/context/users.context'
+import { ModalContextProvider } from '../(modals)/ModalContext'
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal'
 const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal'
@@ -188,17 +189,19 @@ export default function FoodSearch({
         foodItemEditModalRef={foodItemEditModalRef}
         setSelectedFood={setSelectedFood}
       />
-      <FoodItemEditModal
-        modalId={MEAL_ITEM_ADD_MODAL_ID}
-        ref={foodItemEditModalRef}
-        targetName={targetName}
-        foodItem={{
-          reference: selectedFood.id,
-          name: selectedFood.name,
-          macros: selectedFood.macros,
-        }}
-        onApply={async (i) => handleNewFoodItem(i)}
-      />
+      <ModalContextProvider visible={false}>
+        <FoodItemEditModal
+          modalId={MEAL_ITEM_ADD_MODAL_ID}
+          ref={foodItemEditModalRef}
+          targetName={targetName}
+          foodItem={{
+            reference: selectedFood.id,
+            name: selectedFood.name,
+            macros: selectedFood.macros,
+          }}
+          onApply={async (i) => handleNewFoodItem(i)}
+        />
+      </ModalContextProvider>
       {/* // TODO: Revisit if RecipeEditModal should be on FoodSearch */}
       {/* <RecipeEditModal
         modalId={RECIPE_EDIT_MODAL_ID}
