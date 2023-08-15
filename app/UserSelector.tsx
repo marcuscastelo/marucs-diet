@@ -1,10 +1,7 @@
 'use client'
 
 import { Dropdown } from 'react-daisyui'
-import { useEffect, useState } from 'react'
-import { User } from '@/model/userModel'
-import { listUsers } from '@/controllers/users'
-import { Loadable } from '@/utils/loadable'
+import { useState } from 'react'
 import Link from 'next/link'
 import { useUserContext } from '@/context/users.context'
 

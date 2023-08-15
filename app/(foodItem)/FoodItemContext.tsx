@@ -1,7 +1,8 @@
 'use client'
 
 import { FoodItem } from '@/model/foodItemModel'
-import { ReactNode, createContext, useContext } from 'react'
+import { ReactNode } from 'react'
+import { createContext, useContext } from 'use-context-selector'
 
 const FoodItemContext = createContext<{
   foodItem: FoodItem & { type: 'food' | 'recipe' }
