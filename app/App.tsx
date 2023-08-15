@@ -1,15 +1,19 @@
 'use client'
 
-import {
-  AvaliableUser,
-  UserContextProvider,
-  useUserContext,
-} from '@/context/users.context'
+import { DaysContextProvider } from '@/context/days.context'
+import { UserContextProvider, useUserContext } from '@/context/users.context'
+import { listDays } from '@/controllers/days'
 import { listUsers } from '@/controllers/users'
-import { User } from '@/model/userModel'
-import { useEffect } from 'react'
 
 export default function App({ children }: { children: React.ReactNode }) {
+  return (
+    <AppUserProvider>
+      <AppDaysProvider>{children}</AppDaysProvider>
+    </AppUserProvider>
+  )
+}
+
+function AppUserProvider({ children }: { children: React.ReactNode }) {
   return (
     <UserContextProvider
       onFetchAvailableUsers={async () => {
@@ -21,5 +25,24 @@ export default function App({ children }: { children: React.ReactNode }) {
     >
       {children}
     </UserContextProvider>
+  )
+}
+
+function AppDaysProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useUserContext()
+
+  if (user.loading || user.errored) {
+    return <div>User loading or errored</div>
+  }
+
+  return (
+    <DaysContextProvider
+      userId={user.data.id}
+      onFetchDays={async () => {
+        return await listDays(user.data.id)
+      }}
+    >
+      {children}
+    </DaysContextProvider>
   )
 }
