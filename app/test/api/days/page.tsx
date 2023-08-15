@@ -1,6 +1,6 @@
 'use client'
 
-import DayMeals from '@/app/DayMeals'
+import MealList from '@/app/(meal)/MealList'
 import MealView, { MealViewProps } from '@/app/(meal)/MealView'
 import { listDays } from '@/controllers/days'
 import { Day } from '@/model/dayModel'
@@ -58,7 +58,7 @@ export default function Page() {
           <div key={idx}>
             <div className="text-2xl font-bold">{day.target_day}</div>
             {mealProps[idx].length > 0 ? (
-              <DayMeals mealsProps={mealProps[idx]} />
+              <MealList mealsProps={mealProps[idx]} />
             ) : (
               <div>No meals</div>
             )}
