@@ -38,9 +38,9 @@ export type FoodSearchProps = {
   onFinish: () => void
 }
 
-export type Consumable = Food | Recipe
+export type Template = Food | Recipe
 
-// TODO: Rename to ConsumableSearch?
+// TODO: Rename to TemplateSearch?
 export default function FoodSearch({
   targetName,
   onNewItemGroup,
@@ -52,11 +52,12 @@ export default function FoodSearch({
   const { user, isFoodFavorite, setFoodAsFavorite } = useUserContext()
 
   const [search, setSearch] = useState<string>('')
-  const [consumables, setConsumables] = useState<Loadable<Consumable[]>>({
+  // TODO: rename all consumables to templates
+  const [consumables, setConsumables] = useState<Loadable<Template[]>>({
     loading: true,
   })
 
-  const [selectedConsumable, setSelectedConsumable] = useState<Consumable>(
+  const [selectedConsumable, setSelectedConsumable] = useState<Template>(
     mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }), // TODO: Properly handle no food selected
   )
 
@@ -410,10 +411,10 @@ const SearchResults = ({
   search: string
   searchingFoods: boolean
   typing: boolean
-  filteredConsumables: Consumable[]
+  filteredConsumables: Template[]
   isFoodFavorite: (food: number) => boolean
   setFoodAsFavorite: (food: number, favorite: boolean) => void
-  setSelectedConsumable: (food: Consumable) => void
+  setSelectedConsumable: (food: Template) => void
   foodItemEditModalRef: React.RefObject<ModalRef>
   barCodeInsertModalRef: React.RefObject<ModalRef>
 }) => {

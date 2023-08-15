@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react'
 import { searchFoodById } from '@/controllers/food'
 import { calcItemCalories } from '@/utils/macroMath'
 import { useUserContext } from '@/context/users.context'
-import { Consumable } from '../newItem/FoodSearch'
+import { Template } from '../newItem/FoodSearch'
 import { searchRecipeById } from '@/controllers/recipes'
 
 export type FoodItemViewProps = {
@@ -86,7 +86,7 @@ function MealItemName() {
 
   const { debug } = useUserContext()
 
-  const [consumable, setConsumable] = useState<Consumable | null>(null)
+  const [consumable, setConsumable] = useState<Template | null>(null)
 
   useEffect(() => {
     if (item.type === 'recipe') {
