@@ -44,6 +44,12 @@ export function UserContextProvider({
     Loadable<AvaliableUser[]>
   >({ loading: true })
 
+  useEffect(() => {
+    if (!user.loading && !user.errored && user.data) {
+      localStorage.setItem('userId', user.data.id.toString())
+    }
+  }, [user])
+
   // At first, we fetch the available users and set the first one as the current user
   useEffect(() => {
     const ignore = false
@@ -54,7 +60,11 @@ export function UserContextProvider({
         }
         setAvailableUsers({ loading: false, errored: false, data: users })
         if (users.length > 0) {
-          const user = await onFetchUser(users[0].id)
+          const value = localStorage.getItem('userId')
+          const localStorageUserId = value !== null && parseInt(value)
+          const userId = users.find((u) => u.id === localStorageUserId)?.id
+
+          const user = await onFetchUser(userId ?? users[0].id)
           if (!user) {
             throw new Error('User not found')
           }
@@ -70,7 +80,7 @@ export function UserContextProvider({
         console.error(err)
         alert(err)
       })
-  }, [])
+  }, []) // TODO: Fix missing dependencies
 
   const handleSetUser = (user: User) => {
     setUser({ loading: false, errored: false, data: user })
@@ -104,7 +114,7 @@ export function UserContextProvider({
   }
   const context: UserContextProps = {
     user,
-    debug: true,
+    debug: false,
     setUser: handleSetUser,
     changeUser: handleChangeUser,
     availableUsers,
