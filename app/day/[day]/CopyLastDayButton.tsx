@@ -11,17 +11,14 @@ export default function CopyLastDayButton({
   refetchDays,
 }: {
   days: Loaded<Day[]>
-  dayData: Day | null | undefined
+  dayData: Day | undefined
   selectedDay: string
   refetchDays: () => void
 }) {
-  // TODO: Remove duplicate check of user and days loading
-  if (days.loading) return <>LOADING</>
-
   const lastDayIdx = days.data.findLastIndex(
     (day) => Date.parse(day.target_day) < Date.parse(selectedDay),
   )
-  if (lastDayIdx === /* TODO: Check if equality is a bug */ -1) {
+  if (lastDayIdx === -1) {
     return (
       <button
         className="btn-error btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white"
@@ -44,8 +41,7 @@ export default function CopyLastDayButton({
               'Tem certeza que deseja excluir este dia e copiar o dia anterior?',
             )
           ) {
-            // TODO: Avoid non-null assertion
-            await deleteDay(dayData!.id)
+            await deleteDay(dayData.id)
           }
         }
 
