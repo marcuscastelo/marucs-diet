@@ -34,7 +34,7 @@ const RECIPE_EDIT_MODAL_ID = 'recipe-edit-modal'
 
 export type FoodSearchProps = {
   targetName: string
-  onNewItemGroup: (foodItem: ItemGroup) => Promise<void>
+  onNewItemGroup: (foodItem: ItemGroup) => void
   onFinish: () => void
 }
 

@@ -69,7 +69,7 @@ export default function Page({ params }: PageParams) {
       {/* Top bar with date picker and user icon */}
       <TopBar selectedDay={selectedDay} />
       <DayMeals
-        dayData={dayData}
+        day={dayData}
         editModalId={EDIT_MODAL_ID}
         selectedDay={selectedDay}
         refetchDays={refetchDays}
