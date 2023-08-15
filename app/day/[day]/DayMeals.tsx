@@ -19,6 +19,7 @@ import DeleteDayButton from './DeleteDayButton'
 import { useRouter } from 'next/navigation'
 import { getToday } from '@/utils/dateUtils'
 import { ModalContextProvider } from '@/app/(modals)/ModalContext'
+import { useUserContext } from '@/context/users.context'
 
 export default function DayMeals({
   selectedDay,
@@ -187,9 +188,7 @@ export default function DayMeals({
           </Alert>
         </Show>
       </Show>
-      {/* // TODO: Avoid non-null assertion */}
-      <MealList className="mt-5" mealsProps={mealProps!} />
-      {/* // TODO: Avoid non-null assertion */}
+      <MealList className="mt-5" mealsProps={mealProps} />
       <CopyLastDayButton
         dayData={day}
         days={days}
@@ -216,43 +215,45 @@ function ExternalFoodSearchModal({
   day: Day
   refetchDays: () => void
 }) {
-  const handleNewItemGroup = useCallback(
-    (newGroup: ItemGroup) => {
-      if (!selectedMeal) {
-        throw new Error('No meal selected!')
-      }
+  const { debug } = useUserContext()
+  const handleNewItemGroup = async (newGroup: ItemGroup) => {
+    if (!selectedMeal) {
+      throw new Error('No meal selected!')
+    }
 
-      // TODO: Create a proper onNewFoodItem function
-      const oldMeal = { ...selectedMeal }
+    // TODO: Create a proper onNewFoodItem function
+    const oldMeal = { ...selectedMeal }
 
-      const newMeal: MealData = {
-        ...oldMeal,
-        groups: [...oldMeal.groups, newGroup] satisfies MealData['groups'],
-      }
+    const newMeal: MealData = {
+      ...oldMeal,
+      groups: [...oldMeal.groups, newGroup] satisfies MealData['groups'],
+    }
 
-      const oldMeals = [...day.meals]
+    const oldMeals = [...day.meals]
 
-      const newMeals: MealData[] = [...oldMeals]
-      const changePos = newMeals.findIndex((m) => m.id === oldMeal.id)
+    const newMeals: MealData[] = [...oldMeals]
+    const changePos = newMeals.findIndex((m) => m.id === oldMeal.id)
 
-      if (changePos === -1) {
-        throw new Error('Meal not found! Searching for id: ' + oldMeal.id)
-      }
+    if (changePos === -1) {
+      throw new Error('Meal not found! Searching for id: ' + oldMeal.id)
+    }
 
-      newMeals[changePos] = newMeal
+    newMeals[changePos] = newMeal
 
-      const newDay: Day = {
-        ...day,
-        meals: newMeals,
-      }
+    const newDay: Day = {
+      ...day,
+      meals: newMeals,
+    }
 
-      updateDay(day.id, newDay)
-    },
-    [day, selectedMeal],
-  )
+    updateDay(day.id, newDay)
+  }
 
   if (!selectedMeal) {
-    return <h1>ERRO: Nenhuma refeição selecionada!</h1>
+    return (
+      debug && (
+        <h1>ERRO ExternalFoodSearchModal: Nenhuma refeição selecionada!</h1>
+      )
+    )
   }
 
   return (
@@ -297,14 +298,25 @@ function ExternalItemGroupEditModal({
   dayData: Day
   refetchDays: () => void
 }) {
+  const { debug } = useUserContext()
+
   if (selectedMeal === null) {
-    return <h1>ERRO: Nenhuma refeição selecionada!</h1>
+    return (
+      debug && (
+        <h1>ERRO ExternalItemGroupEditModal: Nenhuma refeição selecionada!</h1>
+      )
+    )
   }
 
   return (
     <ModalContextProvider
       visible={visible}
-      setVisible={setVisible} // TODO: unselect something?
+      setVisible={(visible) => {
+        if (!visible) {
+          unselect()
+        }
+        setVisible(visible)
+      }}
     >
       <ItemGroupEditModal
         modalId={editModalId}
