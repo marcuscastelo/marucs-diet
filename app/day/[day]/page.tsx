@@ -1,17 +1,14 @@
 'use client'
 
 import PageLoading from '../../PageLoading'
-import { upsertDay } from '@/controllers/days'
 import { Alert } from 'flowbite-react'
-import { mockDay } from '@/app/test/unit/(mock)/mockData'
-import { useUserContext } from '@/context/users.context'
 import CopyLastDayButton from './CopyLastDayButton'
 import { useDaysContext } from '@/context/days.context'
 import DayMeals from './DayMeals'
 import TopBar from './TopBar'
-import { User } from '@/model/userModel'
 import { Loaded } from '@/utils/loadable'
 import { Day } from '@/model/dayModel'
+import CreateBlankDayButton from './CreateBlankDayButton'
 
 type PageParams = {
   params: {
@@ -20,20 +17,11 @@ type PageParams = {
 }
 
 export default function Page({ params }: PageParams) {
-  const { user } = useUserContext()
   const { days, refetchDays } = useDaysContext()
 
   const selectedDay = params.day
 
   const EDIT_MODAL_ID = 'edit-modal'
-
-  if (user.loading) {
-    return <PageLoading message="Carregando usuário" />
-  }
-
-  if (user.errored) {
-    return <PageLoading message="Erro ao carregar usuário" />
-  }
 
   if (days.loading) {
     return <PageLoading message="Carregando dias" />
@@ -59,7 +47,6 @@ export default function Page({ params }: PageParams) {
         days={days}
         refetchDays={refetchDays}
         selectedDay={selectedDay}
-        user={user}
       />
     )
   }
@@ -81,12 +68,10 @@ export default function Page({ params }: PageParams) {
 
 function DayNotFound({
   selectedDay,
-  user,
   refetchDays,
   days,
 }: {
   selectedDay: string
-  user: Loaded<User>
   refetchDays: () => void
   days: Loaded<Day[]>
 }) {
@@ -95,21 +80,10 @@ function DayNotFound({
       <Alert className="mt-2" color="warning">
         Nenhum dado encontrado para o dia {selectedDay}
       </Alert>
-      <button
-        className="btn-primary btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white"
-        onClick={() => {
-          upsertDay(
-            mockDay(
-              { owner: user.data.id, target_day: selectedDay },
-              { groups: [] },
-            ),
-          ).then(() => {
-            refetchDays()
-          })
-        }}
-      >
-        Criar dia do zero
-      </button>
+      <CreateBlankDayButton
+        selectedDay={selectedDay}
+        refetchDays={refetchDays}
+      />
       <CopyLastDayButton
         dayData={undefined}
         days={days}
