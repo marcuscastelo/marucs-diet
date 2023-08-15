@@ -2,24 +2,21 @@
 
 import { deleteDay, upsertDay } from '@/controllers/days'
 import { Day } from '@/model/dayModel'
-import { User } from '@/model/userModel'
 import { Loaded } from '@/utils/loadable'
 
 export default function CopyLastDayButton({
   days,
-  user,
   dayData,
   selectedDay,
-  fetchDays,
+  refetchDays,
 }: {
   days: Loaded<Day[]>
-  user: Loaded<User>
   dayData: Day | null | undefined
   selectedDay: string
-  fetchDays: (userId: User['id']) => Promise<void>
+  refetchDays: () => void
 }) {
   // TODO: Remove duplicate check of user and days loading
-  if (days.loading || user.loading) return <>LOADING</>
+  if (days.loading) return <>LOADING</>
 
   const lastDayIdx = days.data.findLastIndex(
     (day) => Date.parse(day.target_day) < Date.parse(selectedDay),
@@ -65,7 +62,7 @@ export default function CopyLastDayButton({
           target_day: selectedDay,
           id: dayData?.id,
         }).then(() => {
-          fetchDays(user.data.id)
+          refetchDays()
         })
       }}
     >

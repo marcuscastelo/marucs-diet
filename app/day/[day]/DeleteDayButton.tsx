@@ -2,17 +2,13 @@
 
 import { deleteDay } from '@/controllers/days'
 import { Day } from '@/model/dayModel'
-import { User } from '@/model/userModel'
-import { Loaded } from '@/utils/loadable'
 
 export default function DeleteDayButton({
   dayData,
-  fetchDays,
-  user,
+  refetchDays,
 }: {
   dayData: Day | null | undefined
-  fetchDays: (userId: User['id']) => Promise<void>
-  user: Loaded<User>
+  refetchDays: () => void
 }) {
   return (
     <button
@@ -23,7 +19,7 @@ export default function DeleteDayButton({
         }
         // TODO: Avoid non-null assertion
         await deleteDay(dayData!.id)
-        await fetchDays(user.data.id)
+        refetchDays()
       }}
     >
       PERIGO: Excluir dia

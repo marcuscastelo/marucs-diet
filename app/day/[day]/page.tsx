@@ -1,11 +1,11 @@
 'use client'
 
-import { RefObject, useEffect, useRef, useState } from 'react'
-import DayMeals from '../../DayMeals'
+import { RefObject, useRef, useState } from 'react'
+import MealList from '../../(meal)/MealList'
 import { Day } from '@/model/dayModel'
 import MealView, { MealViewProps } from '../../(meal)/MealView'
 import PageLoading from '../../PageLoading'
-import { upsertDay, deleteDay, listDays, updateDay } from '@/controllers/days'
+import { upsertDay, updateDay } from '@/controllers/days'
 import { DateValueType } from 'react-tailwindcss-datepicker/dist/types'
 import Datepicker from 'react-tailwindcss-datepicker'
 import { Alert } from 'flowbite-react'
@@ -15,9 +15,8 @@ import { MealData } from '@/model/mealModel'
 import { useRouter } from 'next/navigation'
 import { mockDay } from '@/app/test/unit/(mock)/mockData'
 import UserSelector from '@/app/UserSelector'
-import { Loadable, Loaded } from '@/utils/loadable'
+import { Loaded } from '@/utils/loadable'
 import { getToday, stringToDate } from '@/utils/dateUtils'
-import { User } from '@/model/userModel'
 import { ModalRef } from '@/app/(modals)/Modal'
 import FoodSearchModal from '@/app/newItem/FoodSearchModal'
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context'
@@ -27,6 +26,7 @@ import ItemGroupEditModal from '@/app/(itemGroup)/ItemGroupEditModal'
 import { useUserContext } from '@/context/users.context'
 import CopyLastDayButton from './CopyLastDayButton'
 import DeleteDayButton from './DeleteDayButton'
+import { useDaysContext } from '@/context/days.context'
 
 type PageParams = {
   params: {
@@ -38,28 +38,15 @@ export default function Page({ params }: PageParams) {
   const router = useRouter()
 
   const { user } = useUserContext()
+  const { days, refetchDays } = useDaysContext()
 
   const selectedDay = params.day
   const today = getToday()
   const showingToday = today === selectedDay
 
-  const [days, setDays] = useState<Loadable<Day[]>>({ loading: true })
   const [dayLocked, setDayLocked] = useState(!showingToday)
 
-  const mealAddItemModalRef = useRef<ModalRef>(null)
-  const foodSearchModalRef = useRef<ModalRef>(null)
-
   const EDIT_MODAL_ID = 'edit-modal'
-
-  // TODO: Create a hook for this (useDay)
-  const fetchDays = async (userId: User['id']) => {
-    const days = await listDays(userId)
-    setDays({
-      loading: false,
-      errored: false,
-      data: days,
-    })
-  }
 
   const handleDayChange = (newValue: DateValueType) => {
     if (!newValue?.startDate) {
@@ -72,14 +59,6 @@ export default function Page({ params }: PageParams) {
     const dayString = date.toISOString().split('T')[0] // TODO: retriggered: use dateUtils when this is understood
     router.push(`/day/${dayString}`)
   }
-
-  useEffect(() => {
-    if (user.loading || user.errored) {
-      return
-    }
-
-    fetchDays(user.data.id)
-  }, [user])
 
   if (user.loading) {
     return <PageLoading message="Carregando usuário" />
@@ -122,7 +101,7 @@ export default function Page({ params }: PageParams) {
                 { groups: [] },
               ),
             ).then(() => {
-              fetchDays(user.data.id)
+              refetchDays()
             })
           }}
         >
@@ -132,9 +111,8 @@ export default function Page({ params }: PageParams) {
           // TODO: avoid null assertion
           dayData={dayData}
           days={days}
-          fetchDays={fetchDays}
+          refetchDays={refetchDays}
           selectedDay={selectedDay}
-          user={user}
         />
       </Show>
 
@@ -151,16 +129,13 @@ export default function Page({ params }: PageParams) {
         <DayContent
           dayData={dayData}
           editModalId={EDIT_MODAL_ID}
-          mealAddItemModalRef={mealAddItemModalRef}
-          foodSearchModalRef={foodSearchModalRef}
           selectedDay={selectedDay}
           dayLocked={dayLocked}
-          fetchDays={fetchDays}
+          refetchDays={refetchDays}
           router={router}
           setDayLocked={setDayLocked}
           showingToday={showingToday}
           today={today}
-          user={user}
           days={days}
         />
       )}
@@ -200,11 +175,8 @@ const TopBar = ({
 function DayContent({
   selectedDay,
   editModalId,
-  mealAddItemModalRef: foodItemGroupEditModalRef,
-  foodSearchModalRef,
   dayData, // TODO: Rename all occurrences of dayData to day
-  fetchDays,
-  user,
+  refetchDays,
   showingToday,
   dayLocked,
   today,
@@ -214,11 +186,8 @@ function DayContent({
 }: {
   selectedDay: string
   editModalId: string
-  mealAddItemModalRef: RefObject<ModalRef>
-  foodSearchModalRef: RefObject<ModalRef>
   dayData: Day | undefined
-  fetchDays: (userId: User['id']) => Promise<void>
-  user: Loaded<User>
+  refetchDays: () => void
   showingToday: boolean
   dayLocked: boolean
   today: string
@@ -226,7 +195,8 @@ function DayContent({
   setDayLocked: (locked: boolean) => void
   days: Loaded<Day[]>
 }) {
-  const { debug } = useUserContext()
+  const mealAddItemModalRef = useRef<ModalRef>(null)
+  const foodSearchModalRef = useRef<ModalRef>(null)
 
   type Selection = {
     meal: MealData | null
@@ -260,7 +230,7 @@ function DayContent({
       itemGroup,
       origin: 'mealItemEdit',
     })
-    foodItemGroupEditModalRef.current?.showModal()
+    mealAddItemModalRef.current?.showModal()
   }
 
   const onUpdateMeal = async (dayData: Day, meal: MealData) => {
@@ -282,7 +252,7 @@ function DayContent({
       }),
     })
 
-    await fetchDays(user.data.id)
+    refetchDays()
   }
 
   const handleNewItemButton = (meal: MealData) => {
@@ -327,7 +297,7 @@ function DayContent({
     <>
       <ExternalFoodSearchModal
         dayData={dayData}
-        fetchDays={fetchDays}
+        refetchDays={refetchDays}
         foodSearchModalRef={foodSearchModalRef}
         selectedMeal={selection.meal}
         unselect={() => {
@@ -345,13 +315,12 @@ function DayContent({
             origin: 'none',
           })
         }}
-        user={user}
       />
       <ExternalItemGroupEditModal
         dayData={dayData}
         editModalId={editModalId}
-        fetchDays={fetchDays}
-        foodItemGroupEditModalRef={foodItemGroupEditModalRef}
+        refetchDays={refetchDays}
+        foodItemGroupEditModalRef={mealAddItemModalRef}
         selectedItemGroup={selection.itemGroup}
         selectedMeal={selection.meal}
         unselect={() => {
@@ -369,7 +338,6 @@ function DayContent({
             origin: 'none',
           })
         }}
-        user={user}
       />
       <DayMacros
         className="mt-3 border-b-2 border-gray-800 pb-4"
@@ -405,16 +373,15 @@ function DayContent({
         </Show>
       </Show>
       {/* // TODO: Avoid non-null assertion */}
-      <DayMeals className="mt-5" mealsProps={mealProps!} />
+      <MealList className="mt-5" mealsProps={mealProps!} />
       {/* // TODO: Avoid non-null assertion */}
       <CopyLastDayButton
         dayData={dayData!}
         days={days}
-        user={user}
         selectedDay={selectedDay}
-        fetchDays={fetchDays}
+        refetchDays={refetchDays}
       />
-      <DeleteDayButton dayData={dayData} fetchDays={fetchDays} user={user} />
+      <DeleteDayButton dayData={dayData} refetchDays={refetchDays} />
     </>
   )
 }
@@ -424,15 +391,13 @@ function ExternalFoodSearchModal({
   unselect,
   foodSearchModalRef,
   dayData,
-  fetchDays,
-  user,
+  refetchDays,
 }: {
   selectedMeal: MealData | null
   unselect: () => void
   foodSearchModalRef: RefObject<ModalRef>
   dayData: Day | undefined
-  fetchDays: (userId: User['id']) => Promise<void>
-  user: Loaded<User>
+  refetchDays: () => void
 }) {
   return (
     <FoodSearchModal
@@ -442,7 +407,7 @@ function ExternalFoodSearchModal({
         console.debug('setSelectedMeal(null)')
         unselect()
         foodSearchModalRef.current?.close()
-        fetchDays(user.data.id)
+        refetchDays()
       }}
       onVisibilityChange={(visible) => {
         if (!visible) {
@@ -484,8 +449,7 @@ function ExternalItemGroupEditModal({
   unselect,
   selectedMeal,
   dayData,
-  fetchDays,
-  user,
+  refetchDays,
 }: {
   editModalId: string
   foodItemGroupEditModalRef: RefObject<ModalRef>
@@ -493,8 +457,7 @@ function ExternalItemGroupEditModal({
   selectedMeal: MealData | null
   unselect: () => void
   dayData: Day | undefined
-  fetchDays: (userId: User['id']) => Promise<void>
-  user: Loaded<User>
+  refetchDays: () => void
 }) {
   return (
     <ItemGroupEditModal
@@ -539,10 +502,9 @@ function ExternalItemGroupEditModal({
           }),
         })
 
-        await fetchDays(user.data.id)
-
-        unselect()
-        foodItemGroupEditModalRef.current?.close()
+        refetchDays() // TODO: Vai dar uma merda
+        unselect() // TODO: Vai dar uma merda
+        foodItemGroupEditModalRef.current?.close() // TODO: Vai dar uma merda
       }}
       onDelete={async (id: ItemGroup['id']) => {
         const oldMeals = [...dayData!.meals]
@@ -570,12 +532,11 @@ function ExternalItemGroupEditModal({
         // TODO: Avoid non-null assertion
         await updateDay(dayData!.id, newDay)
 
-        await fetchDays(user.data.id)
-
-        unselect()
+        refetchDays() // TODO: Vai dar uma merda
+        unselect() // TODO: Vai dar uma merda
         foodItemGroupEditModalRef.current?.close()
       }}
-      onRefetch={() => fetchDays(user.data.id)}
+      onRefetch={refetchDays}
     />
   )
 }
