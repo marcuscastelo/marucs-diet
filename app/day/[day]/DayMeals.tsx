@@ -1,6 +1,6 @@
 'use client'
 
-import { RefObject, useRef, useState } from 'react'
+import { RefObject, useCallback, useRef, useState } from 'react'
 import MealList from '../../(meal)/MealList'
 import { Day } from '@/model/dayModel'
 import MealView, { MealViewProps } from '../../(meal)/MealView'
@@ -19,17 +19,18 @@ import CopyLastDayButton from './CopyLastDayButton'
 import DeleteDayButton from './DeleteDayButton'
 import { useRouter } from 'next/navigation'
 import { getToday } from '@/utils/dateUtils'
+import { ModalContextProvider } from '@/app/(modals)/ModalContext'
 
 export default function DayMeals({
   selectedDay,
   editModalId,
-  dayData, // TODO: Rename all occurrences of dayData to day
+  day, // TODO: Rename all occurrences of dayData to day
   refetchDays,
   days,
 }: {
   selectedDay: string
   editModalId: string
-  dayData: Day | undefined
+  day: Day
   refetchDays: () => void
   days: Loaded<Day[]>
 }) {
@@ -39,19 +40,30 @@ export default function DayMeals({
 
   const [dayLocked, setDayLocked] = useState(!showingToday)
 
-  const mealAddItemModalRef = useRef<ModalRef>(null)
+  const itemGroupEditModalRef = useRef<ModalRef>(null)
   const foodSearchModalRef = useRef<ModalRef>(null)
 
-  type Selection = {
+  type EditSelection =
+    | {
+        meal: MealData
+        itemGroup: ItemGroup
+      }
+    | {
+        meal: null
+        itemGroup: null
+      }
+
+  type NewItemSelection = {
     meal: MealData | null
-    itemGroup: ItemGroup | null
-    origin: 'foodSearch' | 'mealItemEdit' | 'none'
   }
 
-  const [selection, setSelection] = useState<Selection>({
+  const [editSelection, setEditSelection] = useState<EditSelection>({
     meal: null,
     itemGroup: null,
-    origin: 'none',
+  })
+
+  const [newItemSelection, setNewItemSelection] = useState<NewItemSelection>({
+    meal: null,
   })
 
   const onEditItemGroup = (meal: MealData, itemGroup: ItemGroup) => {
@@ -60,34 +72,19 @@ export default function DayMeals({
       return
     }
 
-    console.debug('setSelectedMeal(meal)')
-    console.debug('setSelectedMealItem(mealItem)')
-
-    if (selection.origin !== 'none') {
-      console.error('Selection origin is not none, but ', selection.origin)
-      alert('Erro ao editar item, tente novamente')
-      return
-    }
-
-    setSelection({
-      meal,
-      itemGroup,
-      origin: 'mealItemEdit',
-    })
-    mealAddItemModalRef.current?.showModal()
+    setEditSelection({ meal, itemGroup })
+    itemGroupEditModalRef.current?.showModal()
   }
 
-  const onUpdateMeal = async (dayData: Day, meal: MealData) => {
+  const onUpdateMeal = async (day: Day, meal: MealData) => {
     if (dayLocked) {
       alert('Dia bloqueado, não é possível editar')
       return
     }
 
-    // TODO: Avoid non-null assertion
-    await updateDay(dayData.id!, {
-      // TODO: remove !
-      ...dayData,
-      meals: dayData.meals.map((m) => {
+    await updateDay(day.id, {
+      ...day,
+      meals: day.meals.map((m) => {
         if (m.id !== meal.id) {
           return m
         }
@@ -106,27 +103,17 @@ export default function DayMeals({
       return
     }
 
-    if (selection.origin !== 'none') {
-      console.error('Selection origin is not none, but ', selection.origin)
-      alert('Erro ao adicionar item, tente novamente')
-      return
-    }
-
-    setSelection({
-      meal,
-      itemGroup: null,
-      origin: 'foodSearch',
-    })
+    setNewItemSelection({ meal })
 
     console.debug('Setting selected meal to', meal)
     foodSearchModalRef.current?.showModal()
   }
 
-  const mealProps = dayData?.meals.map(
+  const mealProps = day.meals.map(
     (meal): MealViewProps => ({
       mealData: meal,
       header: (
-        <MealView.Header onUpdateMeal={(meal) => onUpdateMeal(dayData, meal)} />
+        <MealView.Header onUpdateMeal={(meal) => onUpdateMeal(day, meal)} />
       ),
       content: (
         <MealView.Content
@@ -140,53 +127,35 @@ export default function DayMeals({
   return (
     <>
       <ExternalFoodSearchModal
-        dayData={dayData}
+        day={day}
         refetchDays={refetchDays}
         foodSearchModalRef={foodSearchModalRef}
-        selectedMeal={selection.meal}
+        selectedMeal={newItemSelection.meal}
         unselect={() => {
-          if (selection.origin !== 'foodSearch') {
-            console.error(
-              'Selection origin is not foodSearch, but ',
-              selection.origin,
-            )
-            return
-          }
-
-          setSelection({
+          console.debug('FoodSearchModal: Unselecting meal')
+          setNewItemSelection({
             meal: null,
-            itemGroup: null,
-            origin: 'none',
           })
         }}
       />
       <ExternalItemGroupEditModal
-        dayData={dayData}
+        dayData={day}
         editModalId={editModalId}
         refetchDays={refetchDays}
-        foodItemGroupEditModalRef={mealAddItemModalRef}
-        selectedItemGroup={selection.itemGroup}
-        selectedMeal={selection.meal}
+        foodItemGroupEditModalRef={itemGroupEditModalRef}
+        selectedItemGroup={editSelection.itemGroup}
+        selectedMeal={editSelection.meal}
         unselect={() => {
-          if (selection.origin !== 'mealItemEdit') {
-            console.error(
-              'Selection origin is not mealItemEdit, but ',
-              selection.origin,
-            )
-            return
-          }
-
-          setSelection({
+          console.debug('ItemGroupEditModal: Unselecting meal and itemGroup')
+          setEditSelection({
             meal: null,
             itemGroup: null,
-            origin: 'none',
           })
         }}
       />
       <DayMacros
         className="mt-3 border-b-2 border-gray-800 pb-4"
-        // TODO: Avoid non-null assertion
-        macros={calcDayMacros(dayData!)}
+        macros={calcDayMacros(day)}
       />
       <Show when={!showingToday}>
         <Alert className="mt-2" color="warning">
@@ -220,12 +189,12 @@ export default function DayMeals({
       <MealList className="mt-5" mealsProps={mealProps!} />
       {/* // TODO: Avoid non-null assertion */}
       <CopyLastDayButton
-        dayData={dayData!}
+        dayData={day}
         days={days}
         selectedDay={selectedDay}
         refetchDays={refetchDays}
       />
-      <DeleteDayButton dayData={dayData} refetchDays={refetchDays} />
+      <DeleteDayButton dayData={day} refetchDays={refetchDays} />
     </>
   )
 }
@@ -234,55 +203,72 @@ function ExternalFoodSearchModal({
   selectedMeal,
   unselect,
   foodSearchModalRef,
-  dayData,
+  day,
   refetchDays,
 }: {
   selectedMeal: MealData | null
   unselect: () => void
   foodSearchModalRef: RefObject<ModalRef>
-  dayData: Day | undefined
+  day: Day
   refetchDays: () => void
 }) {
+  const handleNewItemGroup = useCallback(
+    (newGroup: ItemGroup) => {
+      if (!selectedMeal) {
+        throw new Error('No meal selected!')
+      }
+
+      // TODO: Create a proper onNewFoodItem function
+      const oldMeal = { ...selectedMeal }
+
+      const newMeal: MealData = {
+        ...oldMeal,
+        groups: [...oldMeal.groups, newGroup] satisfies MealData['groups'],
+      }
+
+      const oldMeals = [...day.meals]
+
+      const newMeals: MealData[] = [...oldMeals]
+      const changePos = newMeals.findIndex((m) => m.id === oldMeal.id)
+
+      if (changePos === -1) {
+        throw new Error('Meal not found! Searching for id: ' + oldMeal.id)
+      }
+
+      newMeals[changePos] = newMeal
+
+      const newDay: Day = {
+        ...day,
+        meals: newMeals,
+      }
+
+      updateDay(day.id, newDay)
+    },
+    [day, selectedMeal],
+  )
+
+  if (!selectedMeal) {
+    return <h1>ERRO: Nenhuma refeição selecionada!</h1>
+  }
+
   return (
-    <FoodSearchModal
-      targetName={selectedMeal?.name ?? 'ERRO: Nenhuma refeição selecionada!'}
-      ref={foodSearchModalRef}
-      onFinish={() => {
-        console.debug('setSelectedMeal(null)')
-        unselect()
-        foodSearchModalRef.current?.close()
-        refetchDays()
-      }}
-      onVisibilityChange={(visible) => {
-        if (!visible) {
-          console.debug('setSelectedMeal(null)')
-          unselect()
-        }
-      }}
-      onNewItemGroup={async (newGroup) => {
-        // TODO: Create a proper onNewFoodItem function
-        const oldMeal = selectedMeal! // TODO: Avoid non-null assertion
-
-        const newMeal: MealData = {
-          ...oldMeal,
-          groups: [...oldMeal.groups, newGroup] satisfies MealData['groups'],
-        }
-
-        const newDay: Day = {
-          ...dayData!,
-          meals: dayData!.meals.map((m) => {
-            // TODO: Avoid non-null assertion
-            if (m.id === oldMeal.id) {
-              return newMeal
-            }
-
-            return m
-          }),
-        }
-
-        await updateDay(dayData!.id, newDay)
-      }}
-    />
+    <ModalContextProvider visible={false}>
+      <FoodSearchModal
+        targetName={selectedMeal.name}
+        ref={foodSearchModalRef}
+        onFinish={() => {
+          // unselect()
+          // foodSearchModalRef.current?.close()
+          // refetchDays()
+        }}
+        onVisibilityChange={(visible) => {
+          if (!visible) {
+            unselect()
+          }
+        }}
+        onNewItemGroup={handleNewItemGroup}
+      />
+    </ModalContextProvider>
   )
 }
 
@@ -300,9 +286,13 @@ function ExternalItemGroupEditModal({
   selectedItemGroup: ItemGroup | null
   selectedMeal: MealData | null
   unselect: () => void
-  dayData: Day | undefined
+  dayData: Day
   refetchDays: () => void
 }) {
+  if (selectedMeal === null) {
+    return <h1>ERRO: Nenhuma refeição selecionada!</h1>
+  }
+
   return (
     <ItemGroupEditModal
       modalId={editModalId}

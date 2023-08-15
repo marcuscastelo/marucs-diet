@@ -37,12 +37,8 @@ const Modal = forwardRef(
     }: ModalProps,
     ref: React.Ref<ModalRef>,
   ) => {
-    const {
-      visible,
-      setVisible,
-      onVisibilityChange,
-      modalRef: innerRef,
-    } = useModalContext()
+    const { visible, setVisible, onVisibilityChange, modalRef } =
+      useModalContext()
 
     const handleVisibilityChange = useCallback(
       (isShowing: boolean) => {
@@ -54,27 +50,27 @@ const Modal = forwardRef(
 
     useEffect(() => {
       if (visible) {
-        innerRef.current?.showModal()
+        modalRef.current?.showModal()
         handleVisibilityChange(true)
       } else {
-        innerRef.current?.close()
+        modalRef.current?.close()
         handleVisibilityChange(false)
       }
-    }, [visible, innerRef, handleVisibilityChange])
+    }, [visible, modalRef, handleVisibilityChange])
 
     // TODO: Replace all imperative show/close with context visibility state
     useImperativeHandle(ref, () => ({
       showModal: () => {
-        innerRef.current?.showModal()
+        modalRef.current?.showModal()
         handleVisibilityChange(
-          innerRef.current?.open ===
+          modalRef.current?.open ===
             /* TODO: Check if equality is a bug */ true,
         )
       },
       close: () => {
-        innerRef.current?.close()
+        modalRef.current?.close()
         handleVisibilityChange(
-          innerRef.current?.open ===
+          modalRef.current?.open ===
             /* TODO: Check if equality is a bug */ true,
         )
       },
@@ -84,7 +80,7 @@ const Modal = forwardRef(
       <dialog
         id={modalId}
         className="modal modal-bottom sm:modal-middle"
-        ref={innerRef}
+        ref={modalRef}
         onClose={() => handleVisibilityChange(false)}
       >
         {/* TODO: className deveria estar no forms? */}
