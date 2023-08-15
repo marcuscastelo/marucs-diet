@@ -6,16 +6,11 @@ import {
   SetStateAction,
   createContext,
   useContext,
-  useEffect,
-  useRef,
-  useState,
 } from 'react'
 
 type ModalContext = {
   visible: boolean
   setVisible: Dispatch<SetStateAction<boolean>>
-  onVisibilityChange?: (visible: boolean) => void
-  modalRef: React.RefObject<HTMLDialogElement>
 }
 
 const ModalContext = createContext<ModalContext | null>(null)
@@ -33,26 +28,16 @@ export function useModalContext() {
 }
 
 export function ModalContextProvider({
-  visible: initialVisible,
-  onVisibilityChange,
+  visible,
+  setVisible,
   children,
 }: {
   visible: boolean
-  onVisibilityChange?: (visible: boolean) => void
+  setVisible: Dispatch<SetStateAction<boolean>>
   children: ReactNode
 }) {
-  const [visible, setVisible] = useState<boolean>(initialVisible)
-
-  const modalRef = useRef<HTMLDialogElement>(null)
-
-  useEffect(() => {
-    setVisible(initialVisible)
-  }, [initialVisible])
-
   return (
-    <ModalContext.Provider
-      value={{ visible, setVisible, onVisibilityChange, modalRef }}
-    >
+    <ModalContext.Provider value={{ visible, setVisible }}>
       {children}
     </ModalContext.Provider>
   )

@@ -24,10 +24,9 @@ export const Simple: Story = {
     targetMealName: 'Teste',
     onCancel: () => undefined,
     onDelete: () => undefined,
-    onVisibilityChange: () => undefined,
     group: mockMeal().groups[0],
   } satisfies ItemGroupEditModalProps,
-  render: (args) => <ItemGroupEditModal {...args} ref={null} />,
+  render: (args) => <ItemGroupEditModal {...args} />,
 }
 
 export const Recipe: Story = {
@@ -39,12 +38,11 @@ export const Recipe: Story = {
     targetMealName: 'Teste',
     onCancel: () => undefined,
     onDelete: () => undefined,
-    onVisibilityChange: () => undefined,
     group: {
       ...mockMeal().groups[0],
       type: 'recipe',
       recipe: 2,
     },
   } satisfies ItemGroupEditModalProps,
-  render: (args) => <ItemGroupEditModal {...args} ref={null} />,
+  render: (args) => <ItemGroupEditModal {...args} />,
 }

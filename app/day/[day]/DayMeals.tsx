@@ -1,6 +1,6 @@
 'use client'
 
-import { RefObject, useCallback, useRef, useState } from 'react'
+import { Dispatch, SetStateAction, useCallback, useState } from 'react'
 import MealList from '../../(meal)/MealList'
 import { Day } from '@/model/dayModel'
 import MealView, { MealViewProps } from '../../(meal)/MealView'
@@ -10,7 +10,6 @@ import Show from '../../Show'
 import DayMacros from '../../DayMacros'
 import { MealData } from '@/model/mealModel'
 import { Loaded } from '@/utils/loadable'
-import { ModalRef } from '@/app/(modals)/Modal'
 import FoodSearchModal from '@/app/newItem/FoodSearchModal'
 import { ItemGroup } from '@/model/foodItemGroupModel'
 import { calcDayMacros } from '@/utils/macroMath'
@@ -40,8 +39,9 @@ export default function DayMeals({
 
   const [dayLocked, setDayLocked] = useState(!showingToday)
 
-  const itemGroupEditModalRef = useRef<ModalRef>(null)
-  const foodSearchModalRef = useRef<ModalRef>(null)
+  const [itemGroupEditModalVisible, setItemGroupEditModalVisible] =
+    useState(false)
+  const [foodSearchModalVisible, setFoodSearchModalVisible] = useState(false)
 
   type EditSelection =
     | {
@@ -73,7 +73,7 @@ export default function DayMeals({
     }
 
     setEditSelection({ meal, itemGroup })
-    itemGroupEditModalRef.current?.showModal()
+    setItemGroupEditModalVisible(true)
   }
 
   const onUpdateMeal = async (day: Day, meal: MealData) => {
@@ -106,7 +106,7 @@ export default function DayMeals({
     setNewItemSelection({ meal })
 
     console.debug('Setting selected meal to', meal)
-    foodSearchModalRef.current?.showModal()
+    setFoodSearchModalVisible(true)
   }
 
   const mealProps = day.meals.map(
@@ -129,7 +129,8 @@ export default function DayMeals({
       <ExternalFoodSearchModal
         day={day}
         refetchDays={refetchDays}
-        foodSearchModalRef={foodSearchModalRef}
+        visible={foodSearchModalVisible}
+        setVisible={setFoodSearchModalVisible}
         selectedMeal={newItemSelection.meal}
         unselect={() => {
           console.debug('FoodSearchModal: Unselecting meal')
@@ -142,7 +143,8 @@ export default function DayMeals({
         dayData={day}
         editModalId={editModalId}
         refetchDays={refetchDays}
-        foodItemGroupEditModalRef={itemGroupEditModalRef}
+        visible={itemGroupEditModalVisible}
+        setVisible={setItemGroupEditModalVisible}
         selectedItemGroup={editSelection.itemGroup}
         selectedMeal={editSelection.meal}
         unselect={() => {
@@ -202,13 +204,15 @@ export default function DayMeals({
 function ExternalFoodSearchModal({
   selectedMeal,
   unselect,
-  foodSearchModalRef,
+  visible,
+  setVisible,
   day,
   refetchDays,
 }: {
   selectedMeal: MealData | null
   unselect: () => void
-  foodSearchModalRef: RefObject<ModalRef>
+  visible: boolean
+  setVisible: Dispatch<SetStateAction<boolean>>
   day: Day
   refetchDays: () => void
 }) {
@@ -252,19 +256,21 @@ function ExternalFoodSearchModal({
   }
 
   return (
-    <ModalContextProvider visible={false}>
+    <ModalContextProvider
+      visible={visible}
+      setVisible={(visible) => {
+        if (!visible) {
+          unselect()
+        }
+        setVisible(visible)
+      }}
+    >
       <FoodSearchModal
         targetName={selectedMeal.name}
-        ref={foodSearchModalRef}
         onFinish={() => {
-          // unselect()
-          // foodSearchModalRef.current?.close()
-          // refetchDays()
-        }}
-        onVisibilityChange={(visible) => {
-          if (!visible) {
-            unselect()
-          }
+          unselect()
+          setVisible(false)
+          refetchDays()
         }}
         onNewItemGroup={handleNewItemGroup}
       />
@@ -274,15 +280,17 @@ function ExternalFoodSearchModal({
 
 function ExternalItemGroupEditModal({
   editModalId,
-  foodItemGroupEditModalRef,
   selectedItemGroup,
+  visible,
+  setVisible,
   unselect,
   selectedMeal,
   dayData,
   refetchDays,
 }: {
   editModalId: string
-  foodItemGroupEditModalRef: RefObject<ModalRef>
+  visible: boolean
+  setVisible: Dispatch<SetStateAction<boolean>>
   selectedItemGroup: ItemGroup | null
   selectedMeal: MealData | null
   unselect: () => void
@@ -294,83 +302,89 @@ function ExternalItemGroupEditModal({
   }
 
   return (
-    <ItemGroupEditModal
-      modalId={editModalId}
-      ref={foodItemGroupEditModalRef}
-      group={selectedItemGroup}
-      targetMealName={selectedMeal?.name ?? 'ERROR: No meal selected'}
-      onSaveGroup={async (group) => {
-        console.debug('ItemGroupEditModal onApply, received group', group)
-        // TODO: Avoid non-null assertion
-        await updateDay(dayData!.id, {
-          ...dayData!,
-          meals: dayData!.meals.map((meal) => {
-            if (!selectedMeal) {
-              throw new Error('No meal selected!')
-            }
-            if (meal.id !== selectedMeal.id) {
+    <ModalContextProvider
+      visible={visible}
+      setVisible={setVisible} // TODO: unselect something?
+    >
+      <ItemGroupEditModal
+        modalId={editModalId}
+        group={selectedItemGroup}
+        targetMealName={selectedMeal?.name ?? 'ERROR: No meal selected'}
+        onSaveGroup={async (group) => {
+          console.debug('ItemGroupEditModal onApply, received group', group)
+          // TODO: Avoid non-null assertion
+          await updateDay(dayData!.id, {
+            ...dayData!,
+            meals: dayData!.meals.map((meal) => {
+              if (!selectedMeal) {
+                throw new Error('No meal selected!')
+              }
+              if (meal.id !== selectedMeal.id) {
+                return meal
+              }
+              console.debug('Found meal to update, meal name: ', meal.name)
+              const groups = meal.groups
+              const changePos = groups.findIndex((i) => i.id === group.id)
+
+              console.debug('Index of group to update: ', changePos)
+
+              if (changePos === -1) {
+                throw new Error(
+                  'Group not found! Searching for id: ' + group.id,
+                )
+              }
+
+              console.debug(
+                'Found group to update, group name: ',
+                groups[changePos].name,
+              )
+              groups[changePos] = group
+
+              console.debug('Updated groups: ', JSON.stringify(groups, null, 2))
+
+              return {
+                ...meal,
+                groups,
+              }
+            }),
+          })
+
+          refetchDays() // TODO: Vai dar uma merda
+          unselect() // TODO: Vai dar uma merda
+          setVisible(false)
+        }}
+        onDelete={async (id: ItemGroup['id']) => {
+          const oldMeals = [...dayData!.meals]
+
+          const newMeals: MealData[] = oldMeals.map((meal) => {
+            if (meal.id !== selectedMeal!.id) {
               return meal
             }
-            console.debug('Found meal to update, meal name: ', meal.name)
-            const groups = meal.groups
-            const changePos = groups.findIndex((i) => i.id === group.id)
 
-            console.debug('Index of group to update: ', changePos)
+            const items = meal.groups
+            const changePos = items.findIndex((i) => i.id === id)
 
-            if (changePos === -1) {
-              throw new Error('Group not found! Searching for id: ' + group.id)
-            }
-
-            console.debug(
-              'Found group to update, group name: ',
-              groups[changePos].name,
-            )
-            groups[changePos] = group
-
-            console.debug('Updated groups: ', JSON.stringify(groups, null, 2))
+            items.splice(changePos, 1)
 
             return {
               ...meal,
-              groups,
+              groups: items,
             }
-          }),
-        })
+          })
 
-        refetchDays() // TODO: Vai dar uma merda
-        unselect() // TODO: Vai dar uma merda
-        foodItemGroupEditModalRef.current?.close() // TODO: Vai dar uma merda
-      }}
-      onDelete={async (id: ItemGroup['id']) => {
-        const oldMeals = [...dayData!.meals]
+          const newDay = { ...dayData! }
 
-        const newMeals: MealData[] = oldMeals.map((meal) => {
-          if (meal.id !== selectedMeal!.id) {
-            return meal
-          }
+          newDay.meals = newMeals
 
-          const items = meal.groups
-          const changePos = items.findIndex((i) => i.id === id)
+          // TODO: Avoid non-null assertion
+          await updateDay(dayData!.id, newDay)
 
-          items.splice(changePos, 1)
-
-          return {
-            ...meal,
-            groups: items,
-          }
-        })
-
-        const newDay = { ...dayData! }
-
-        newDay.meals = newMeals
-
-        // TODO: Avoid non-null assertion
-        await updateDay(dayData!.id, newDay)
-
-        refetchDays() // TODO: Vai dar uma merda
-        unselect() // TODO: Vai dar uma merda
-        foodItemGroupEditModalRef.current?.close()
-      }}
-      onRefetch={refetchDays}
-    />
+          refetchDays() // TODO: Vai dar uma merda
+          unselect() // TODO: Vai dar uma merda
+          setVisible(false)
+        }}
+        onRefetch={refetchDays}
+      />
+    </ModalContextProvider>
   )
 }

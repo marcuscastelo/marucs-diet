@@ -1,14 +1,8 @@
 // 'use client'
 
 import { ItemGroup, isSimpleSingleGroup } from '@/model/foodItemGroupModel'
-import {
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from 'react'
-import Modal, { ModalActions, ModalRef } from '../(modals)/Modal'
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import Modal, { ModalActions } from '../(modals)/Modal'
 import FoodItemListView from '../(foodItem)/FoodItemListView'
 import FoodItemView from '../(foodItem)/FoodItemView'
 import { FoodItem, createFoodItem } from '@/model/foodItemModel'
@@ -25,7 +19,7 @@ import {
   useItemGroupContext,
 } from './ItemGroupContext'
 import { useUserContext } from '@/context/users.context'
-import { ModalContextProvider } from '../(modals)/ModalContext'
+import { ModalContextProvider, useModalContext } from '../(modals)/ModalContext'
 import {
   addInnerItem,
   deleteInnerItem,
@@ -38,172 +32,150 @@ import { DownloadIcon } from '../(icons)/DownloadIcon'
 export type ItemGroupEditModalProps = {
   show?: boolean
   modalId: string
-  //   meal: MealData | null
   targetMealName: string
   onSaveGroup: (item: ItemGroup) => void
   onCancel?: () => void
   onDelete?: (groupId: ItemGroup['id']) => void
-  onVisibilityChange?: (isShowing: boolean) => void
   onRefetch: () => void
 } & { group: ItemGroup | null }
 
+// TODO: Remove all eslint-disable-next-line react/display-name
 // eslint-disable-next-line react/display-name
-const ItemGroupEditModal = forwardRef(
-  (props: ItemGroupEditModalProps, ref: React.Ref<ModalRef>) => {
-    return (
-      <ItemGroupContextProvider itemGroup={props.group}>
-        <InnerItemGroupEditModal {...props} ref={ref} />
-      </ItemGroupContextProvider>
-    )
-  },
-)
+const ItemGroupEditModal = (props: ItemGroupEditModalProps) => {
+  return (
+    <ItemGroupContextProvider itemGroup={props.group}>
+      <InnerItemGroupEditModal {...props} />
+    </ItemGroupContextProvider>
+  )
+}
 
 // eslint-disable-next-line react/display-name
-const InnerItemGroupEditModal = forwardRef(
-  (
-    {
-      show = false,
-      modalId,
-      targetMealName,
-      onSaveGroup,
-      onCancel,
-      onDelete,
-      onVisibilityChange,
-      onRefetch,
-    }: ItemGroupEditModalProps,
-    ref: React.Ref<ModalRef>,
-  ) => {
-    const [showing, setShowing_] = useState(false)
+const InnerItemGroupEditModal = ({
+  modalId,
+  targetMealName,
+  onSaveGroup,
+  onCancel,
+  onDelete,
+  onRefetch,
+}: ItemGroupEditModalProps) => {
+  const { visible, setVisible } = useModalContext()
 
-    const { itemGroup: group, setItemGroup: setGroup } = useItemGroupContext()
-    const [recipe, setRecipe] = useState<Loadable<Recipe | null>>({
-      loading: true,
+  const [recipeEditModalVisible, setRecipeEditModalVisible] = useState(false)
+  const [foodItemEditModalVisible, setFoodItemEditModalVisible] =
+    useState(false)
+  const [foodSearchModalVisible, setFoodSearchModalVisible] = useState(false)
+
+  const { itemGroup: group } = useItemGroupContext()
+  const [recipe, setRecipe] = useState<Loadable<Recipe | null>>({
+    loading: true,
+  })
+
+  useEffect(() => {
+    if (!group || group.type !== 'recipe') {
+      setRecipe({ loading: false, errored: false, data: null })
+      return
+    }
+    let ignore = false
+    searchRecipeById(group.recipe).then((recipe) => {
+      if (ignore) return
+      setRecipe({ loading: false, errored: false, data: recipe })
     })
 
-    useEffect(() => {
-      if (!group || group.type !== 'recipe') {
-        setRecipe({ loading: false, errored: false, data: null })
-        return
-      }
-      let ignore = false
-      searchRecipeById(group.recipe).then((recipe) => {
-        if (ignore) return
-        setRecipe({ loading: false, errored: false, data: recipe })
-      })
-
-      return () => {
-        ignore = true
-      }
-    }, [group, group?.recipe])
-
-    const [selectedFoodItem, setSelectedFoodItem] = useState<FoodItem | null>(
-      null,
-    )
-
-    const impossibleFoodItem = createFoodItem({
-      name: 'Erro de implementação: nenhum item selecionado',
-      reference: 0,
-    })
-
-    const canApply = (group?.name.length ?? 0) > 0 && selectedFoodItem === null
-    const selfModalRef = useRef<ModalRef>(null)
-    const foodSearchModalRef = useRef<ModalRef>(null)
-    const foodItemEditModalRef = useRef<ModalRef>(null)
-
-    const recipeEditModalRef = useRef<ModalRef>(null)
-
-    const { isFoodFavorite, setFoodAsFavorite } = useUserContext()
-    const handleSetShowing = (visible: boolean) => {
-      setShowing_(visible)
-      onVisibilityChange?.(visible)
+    return () => {
+      ignore = true
     }
+  }, [group, group?.recipe])
 
-    useImperativeHandle(ref, () => ({
-      showModal: () => {
-        selfModalRef.current?.showModal()
-        handleSetShowing(true)
-      },
-      close: () => {
-        selfModalRef.current?.close()
-        handleSetShowing(false)
-      },
-    }))
+  const [selectedFoodItem, setSelectedFoodItem] = useState<FoodItem | null>(
+    null,
+  )
 
-    if (recipe.loading) {
-      return (
-        <PageLoading
-          message={`Carregando receita atrelada ao grupo ${group?.name}`}
-        />
-      )
-    }
+  const impossibleFoodItem = createFoodItem({
+    name: 'Erro de implementação: nenhum item selecionado',
+    reference: 0,
+  })
 
-    if (recipe.errored) {
-      return (
-        <PageLoading
-          message={`Erro ao carregar receita atrelada ao grupo ${group?.name}`}
-        />
-      )
-    }
+  const canApply = (group?.name.length ?? 0) > 0 && selectedFoodItem === null
 
+  const { isFoodFavorite, setFoodAsFavorite } = useUserContext()
+
+  if (recipe.loading) {
     return (
-      <>
-        <ExternalRecipeEditModal
-          recipe={recipe.data}
-          setRecipe={(recipe) =>
-            setRecipe({ loading: false, errored: false, data: recipe })
+      <PageLoading
+        message={`Carregando receita atrelada ao grupo ${group?.name}`}
+      />
+    )
+  }
+
+  if (recipe.errored) {
+    return (
+      <PageLoading
+        message={`Erro ao carregar receita atrelada ao grupo ${group?.name}`}
+      />
+    )
+  }
+
+  return (
+    <>
+      <ExternalRecipeEditModal
+        recipe={recipe.data}
+        setRecipe={(recipe) =>
+          setRecipe({ loading: false, errored: false, data: recipe })
+        }
+        visible={recipeEditModalVisible}
+        setVisible={setRecipeEditModalVisible}
+      />
+      <ExternalFoodItemEditModal
+        visible={foodItemEditModalVisible}
+        setVisible={setFoodItemEditModalVisible}
+        impossibleFoodItem={impossibleFoodItem}
+        onSaveGroup={onSaveGroup}
+        selectedFoodItem={selectedFoodItem}
+        setSelectedFoodItem={setSelectedFoodItem}
+        targetMealName={targetMealName}
+      />
+      <ExternalFoodSearchModal
+        visible={foodSearchModalVisible}
+        setVisible={setFoodSearchModalVisible}
+        onRefetch={onRefetch}
+        onSaveGroup={onSaveGroup}
+      />
+      <ModalContextProvider visible={visible} setVisible={setVisible}>
+        <Modal
+          modalId={modalId}
+          // TODO: Where to put this?
+          // onSubmit={() => group && onSaveGroup(group)}
+          header={
+            <Header recipe={recipe.data} targetMealName={targetMealName} />
           }
-          recipeEditModalRef={recipeEditModalRef}
+          body={
+            <Body
+              recipe={recipe.data}
+              isFoodFavorite={isFoodFavorite}
+              setFoodAsFavorite={setFoodAsFavorite}
+              setSelectedFoodItem={setSelectedFoodItem}
+              foodItemEditModalVisible={foodItemEditModalVisible}
+              foodSearchModalVisible={foodSearchModalVisible}
+              recipeEditModalVisible={recipeEditModalVisible}
+              setFoodItemEditModalVisible={setFoodItemEditModalVisible}
+              setFoodSearchModalVisible={setFoodSearchModalVisible}
+              setRecipeEditModalVisible={setRecipeEditModalVisible}
+            />
+          }
+          actions={
+            <Actions
+              canApply={canApply}
+              onSaveGroup={onSaveGroup}
+              setVisible={setVisible}
+              onCancel={onCancel}
+              onDelete={onDelete}
+            />
+          }
         />
-        <ExternalFoodItemEditModal
-          foodItemEditModalRef={foodItemEditModalRef}
-          impossibleFoodItem={impossibleFoodItem}
-          onSaveGroup={onSaveGroup}
-          selectedFoodItem={selectedFoodItem}
-          setSelectedFoodItem={setSelectedFoodItem}
-          targetMealName={targetMealName}
-        />
-        <ExternalFoodSearchModal
-          foodSearchModalRef={foodSearchModalRef}
-          onRefetch={onRefetch}
-          onSaveGroup={onSaveGroup}
-        />
-        <ModalContextProvider
-          visible={show}
-          onVisibilityChange={(...args) => handleSetShowing(...args)}
-        >
-          <Modal
-            modalId={modalId}
-            ref={selfModalRef}
-            onSubmit={() => group && onSaveGroup(group)}
-            header={
-              <Header recipe={recipe.data} targetMealName={targetMealName} />
-            }
-            body={
-              <Body
-                recipe={recipe.data}
-                recipeEditModalRef={recipeEditModalRef}
-                foodItemEditModalRef={foodItemEditModalRef}
-                foodSearchModalRef={foodSearchModalRef}
-                isFoodFavorite={isFoodFavorite}
-                setFoodAsFavorite={setFoodAsFavorite}
-                setSelectedFoodItem={setSelectedFoodItem}
-              />
-            }
-            actions={
-              <Actions
-                canApply={canApply}
-                onSaveGroup={onSaveGroup}
-                selfModalRef={selfModalRef}
-                onCancel={onCancel}
-                onDelete={onDelete}
-              />
-            }
-          />
-        </ModalContextProvider>
-      </>
-    )
-  },
-)
+      </ModalContextProvider>
+    </>
+  )
+}
 
 function Header({
   targetMealName,
@@ -213,7 +185,7 @@ function Header({
   recipe: Recipe | null
 }) {
   const { debug } = useUserContext()
-  const { itemGroup: group, setItemGroup: setGroup } = useItemGroupContext()
+  const { itemGroup: group } = useItemGroupContext()
   return (
     <>
       <h3 className="text-lg font-bold text-white">
@@ -233,35 +205,39 @@ function Header({
 function ExternalRecipeEditModal({
   recipe,
   setRecipe,
-  recipeEditModalRef,
+  visible,
+  setVisible,
 }: {
   recipe: Recipe | null
   setRecipe: (recipe: Recipe | null) => void
-  recipeEditModalRef: React.RefObject<ModalRef>
+  visible: boolean
+  setVisible: Dispatch<SetStateAction<boolean>>
 }) {
   const { itemGroup: group } = useItemGroupContext()
   return (
-    <RecipeEditModal
-      modalId={`VERY_UNIQUE_ID_FOR_RECIPE_${group?.id}`} // TODO: Clean all modal IDs on the project
-      ref={recipeEditModalRef}
-      recipe={recipe}
-      onSaveRecipe={async (recipe) => {
-        const updatedRecipe = await updateRecipe(recipe.id, recipe)
-        setRecipe(updatedRecipe)
-      }}
-    />
+    <ModalContextProvider visible={visible} setVisible={setVisible}>
+      <RecipeEditModal
+        modalId={`VERY_UNIQUE_ID_FOR_RECIPE_${group?.id}`} // TODO: Clean all modal IDs on the project
+        recipe={recipe}
+        onSaveRecipe={async (recipe) => {
+          const updatedRecipe = await updateRecipe(recipe.id, recipe)
+          setRecipe(updatedRecipe)
+        }}
+      />
+    </ModalContextProvider>
   )
 }
 
 function ExternalFoodItemEditModal({
-  foodItemEditModalRef,
+  visible,
+  setVisible,
   targetMealName,
   selectedFoodItem,
   impossibleFoodItem,
   setSelectedFoodItem,
-  onSaveGroup,
 }: {
-  foodItemEditModalRef: React.RefObject<ModalRef>
+  visible: boolean
+  setVisible: Dispatch<SetStateAction<boolean>>
   targetMealName: string
   selectedFoodItem: FoodItem | null
   impossibleFoodItem: FoodItem
@@ -272,17 +248,17 @@ function ExternalFoodItemEditModal({
 
   return (
     <ModalContextProvider
-      visible={false}
-      onVisibilityChange={(visible) => {
+      visible={visible}
+      setVisible={(visible) => {
         if (!visible) {
           setSelectedFoodItem(null)
           // TODO: Refactor all modals so that when they close, they call onCancel() or onClose()
         }
+        setVisible(visible)
       }}
     >
       <FoodItemEditModal
         modalId={`VERY_UNIQUE_ID_${group?.id}`} // TODO: Clean all modal IDs on the project
-        ref={foodItemEditModalRef}
         targetName={
           (group &&
             (isSimpleSingleGroup(group) ? targetMealName : group.name)) ||
@@ -308,7 +284,7 @@ function ExternalFoodItemEditModal({
           )
 
           console.debug('newGroup', newGroup)
-          foodItemEditModalRef.current?.close()
+          setVisible(false)
           setSelectedFoodItem(null)
           setGroup(newGroup)
         }}
@@ -326,7 +302,7 @@ function ExternalFoodItemEditModal({
           )
 
           console.debug('newGroup', newGroup)
-          foodItemEditModalRef.current?.close()
+          setVisible(false)
           setGroup(newGroup)
         }}
       />
@@ -335,31 +311,34 @@ function ExternalFoodItemEditModal({
 }
 
 function ExternalFoodSearchModal({
-  foodSearchModalRef,
+  visible,
+  setVisible,
   onRefetch,
   onSaveGroup,
 }: {
-  foodSearchModalRef: React.RefObject<ModalRef>
+  visible: boolean
+  setVisible: Dispatch<SetStateAction<boolean>>
   onRefetch: () => void
   onSaveGroup: (group: ItemGroup) => void
 }) {
-  const { itemGroup: group, setItemGroup: setGroup } = useItemGroupContext()
+  const { itemGroup: group } = useItemGroupContext()
+
   return (
     <ModalContextProvider
-      visible={false}
-      onVisibilityChange={(visible) => {
+      visible={visible}
+      setVisible={(visible) => {
         if (!visible) {
           console.debug('setSelectedMeal(null)')
           onRefetch()
         }
+        setVisible(visible)
       }}
     >
       <FoodSearchModal
-        ref={foodSearchModalRef}
         targetName={group?.name ?? 'ERRO: Grupo de alimentos não especificado'}
         onFinish={() => {
           console.debug('setSelectedMeal(null)')
-          foodSearchModalRef.current?.close()
+          setVisible(false)
           onRefetch()
         }}
         onNewItemGroup={async (newGroup) => {
@@ -392,20 +371,23 @@ function ExternalFoodSearchModal({
 
 function Body({
   recipe,
-  recipeEditModalRef,
   setSelectedFoodItem,
-  foodItemEditModalRef,
   isFoodFavorite,
   setFoodAsFavorite,
-  foodSearchModalRef,
+  setRecipeEditModalVisible,
+  setFoodItemEditModalVisible,
+  setFoodSearchModalVisible,
 }: {
   recipe: Recipe | null
-  recipeEditModalRef: React.RefObject<ModalRef>
   setSelectedFoodItem: React.Dispatch<React.SetStateAction<FoodItem | null>>
-  foodItemEditModalRef: React.RefObject<ModalRef>
   isFoodFavorite: (foodId: number) => boolean
   setFoodAsFavorite: (foodId: number, isFavorite: boolean) => void
-  foodSearchModalRef: React.RefObject<ModalRef>
+  recipeEditModalVisible: boolean
+  setRecipeEditModalVisible: Dispatch<SetStateAction<boolean>>
+  foodItemEditModalVisible: boolean
+  setFoodItemEditModalVisible: Dispatch<SetStateAction<boolean>>
+  foodSearchModalVisible: boolean
+  setFoodSearchModalVisible: Dispatch<SetStateAction<boolean>>
 }) {
   const { itemGroup: group, setItemGroup: setGroup } = useItemGroupContext()
   return (
@@ -432,7 +414,7 @@ function Body({
                       className="my-auto ml-auto"
                       onClick={() => {
                         // TODO: Create recipe for groups that don't have one
-                        recipeEditModalRef.current?.showModal()
+                        setRecipeEditModalVisible(true)
                       }}
                     >
                       <RecipeIcon />
@@ -482,7 +464,7 @@ function Body({
               //   recipeEditModalRef.current?.showModal()
               // } else {
               setSelectedFoodItem(item)
-              foodItemEditModalRef.current?.showModal()
+              setFoodItemEditModalVisible(true)
               // }
             }}
             makeHeaderFn={(item) => (
@@ -507,7 +489,7 @@ function Body({
           <button
             className="mt-3 min-w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
             onClick={() => {
-              foodSearchModalRef.current?.showModal()
+              setFoodSearchModalVisible(true)
             }}
           >
             Adicionar item
@@ -522,16 +504,16 @@ function Actions({
   onDelete,
   onCancel,
   onSaveGroup,
-  selfModalRef,
   canApply,
+  setVisible,
 }: {
   onDelete?: (groupId: number) => void
   onCancel?: () => void
   onSaveGroup: (group: ItemGroup) => void
-  selfModalRef: React.RefObject<ModalRef>
   canApply: boolean
+  setVisible: Dispatch<SetStateAction<boolean>>
 }) {
-  const { itemGroup: group, setItemGroup: setGroup } = useItemGroupContext()
+  const { itemGroup: group } = useItemGroupContext()
   return (
     <ModalActions>
       {/* if there is a button in form, it will close the modal */}
@@ -554,7 +536,7 @@ function Actions({
         className="btn"
         onClick={(e) => {
           e.preventDefault()
-          selfModalRef.current?.close()
+          setVisible(false)
           onCancel?.()
         }}
       >
