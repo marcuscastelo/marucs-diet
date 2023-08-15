@@ -1,13 +1,13 @@
 'use client'
 
-import MealView, { MealViewProps } from './(meal)/MealView'
+import MealView, { MealViewProps } from './MealView'
 
 export type DayMealsProps = {
   mealsProps: MealViewProps[]
   className?: string
 }
 
-export default function DayMeals({ mealsProps, className }: DayMealsProps) {
+export default function MealList({ mealsProps, className }: DayMealsProps) {
   return (
     <div className={className}>
       {mealsProps.map((mealProps, index) => (
