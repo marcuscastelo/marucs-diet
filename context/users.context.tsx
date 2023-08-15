@@ -1,7 +1,8 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Loadable } from '@/utils/loadable'
 import { User } from '@/model/userModel'
 import { Food } from '@/model/foodModel'
+import { createContext, useContext } from 'use-context-selector'
 
 export type AvaliableUser = Pick<User, 'id' | 'name'>
 

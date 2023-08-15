@@ -1,7 +1,7 @@
 'use client'
 
 import { Recipe } from '@/model/recipeModel'
-import { createContext, useContext } from 'react'
+import { createContext, useContext } from 'use-context-selector'
 
 const RecipeContext = createContext<{ recipe: Recipe } | null>(null)
 

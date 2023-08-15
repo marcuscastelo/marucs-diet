@@ -1,12 +1,7 @@
 'use client'
 
-import {
-  Dispatch,
-  ReactNode,
-  SetStateAction,
-  createContext,
-  useContext,
-} from 'react'
+import { Dispatch, ReactNode, SetStateAction } from 'react'
+import { createContext, useContext } from 'use-context-selector'
 
 type ModalContext = {
   visible: boolean
