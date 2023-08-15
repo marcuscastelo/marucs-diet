@@ -1,13 +1,6 @@
 'use client'
 
-import {
-  forwardRef,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from 'react'
+import { useEffect, useRef } from 'react'
 import { useModalContext } from './ModalContext'
 
 export type ModalProps = {
@@ -16,93 +9,48 @@ export type ModalProps = {
   body?: React.ReactNode
   actions?: React.ReactNode
   hasBackdrop?: boolean
-  onSubmit?: (e: React.FormEvent<HTMLFormElement>) => void // TODO: Remove onSubmit?
-}
-
-export type ModalRef = {
-  showModal: () => void
-  close: () => void
 }
 
 // eslint-disable-next-line react/display-name
-const Modal = forwardRef(
-  (
-    {
-      modalId,
-      header,
-      body,
-      actions,
-      hasBackdrop = true,
-      onSubmit, // TODO: Remove onSubmit?
-    }: ModalProps,
-    ref: React.Ref<ModalRef>,
-  ) => {
-    const { visible, setVisible, onVisibilityChange, modalRef } =
-      useModalContext()
+const Modal = ({
+  modalId,
+  header,
+  body,
+  actions,
+  hasBackdrop = true,
+}: ModalProps) => {
+  const { visible, setVisible } = useModalContext()
 
-    const handleVisibilityChange = useCallback(
-      (isShowing: boolean) => {
-        setVisible(isShowing)
-        onVisibilityChange?.(isShowing)
-      },
-      [onVisibilityChange, setVisible],
-    )
+  const modalRef = useRef<HTMLDialogElement>(null)
 
-    useEffect(() => {
-      if (visible) {
-        modalRef.current?.showModal()
-        handleVisibilityChange(true)
-      } else {
-        modalRef.current?.close()
-        handleVisibilityChange(false)
-      }
-    }, [visible, modalRef, handleVisibilityChange])
+  useEffect(() => {
+    if (visible) {
+      modalRef.current?.showModal()
+    } else {
+      modalRef.current?.close()
+    }
+  }, [visible, modalRef])
 
-    // TODO: Replace all imperative show/close with context visibility state
-    useImperativeHandle(ref, () => ({
-      showModal: () => {
-        modalRef.current?.showModal()
-        handleVisibilityChange(
-          modalRef.current?.open ===
-            /* TODO: Check if equality is a bug */ true,
-        )
-      },
-      close: () => {
-        modalRef.current?.close()
-        handleVisibilityChange(
-          modalRef.current?.open ===
-            /* TODO: Check if equality is a bug */ true,
-        )
-      },
-    }))
-
-    return (
-      <dialog
-        id={modalId}
-        className="modal modal-bottom sm:modal-middle"
-        ref={modalRef}
-        onClose={() => handleVisibilityChange(false)}
-      >
-        {/* TODO: className deveria estar no forms? */}
-        <div
-          className="modal-box bg-gray-800 text-white"
-          // TODO: Fix onSubmit
-          // method="dialog"
-          // onSubmit={onSubmit}
-        >
-          {header}
-          {body}
-          {actions}
-        </div>
-        {hasBackdrop && (
-          <form method="dialog" className="modal-backdrop">
-            <button onClick={() => onVisibilityChange?.(false)}>close</button>
-          </form>
-        )}
-      </dialog>
-    )
-  },
-)
+  return (
+    <dialog
+      id={modalId}
+      className="modal modal-bottom sm:modal-middle"
+      ref={modalRef}
+      onClose={() => visible && setVisible(false)}
+    >
+      <div className="modal-box bg-gray-800 text-white">
+        {header}
+        {body}
+        {actions}
+      </div>
+      {hasBackdrop && (
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
+      )}
+    </dialog>
+  )
+}
 
 // TODO: ModalHeader => Modal.Header, ModalBody => Modal.Body, ModalActions => Modal.Actions
 

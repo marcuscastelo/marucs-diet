@@ -1,26 +1,22 @@
 'use client'
 
-import { ModalRef } from '@/app/(modals)/Modal'
-import { useRef } from 'react'
-import { mockItem, mockMeal } from '../(mock)/mockData'
+import { useState } from 'react'
+import { mockItem } from '../(mock)/mockData'
 import FoodItemEditModal from '@/app/(foodItem)/FoodItemEditModal'
 import { ModalContextProvider } from '@/app/(modals)/ModalContext'
 
 export default function Page() {
   const modalId = 'testmodal'
 
-  const foodItemEditModalRef = useRef<ModalRef>(null)
+  const [visible, setVisible] = useState(false)
 
   return (
     <>
-      <button
-        className="btn"
-        onClick={() => foodItemEditModalRef.current?.showModal()}
-      >
-        Show modal
+      <button className="btn" onClick={() => setVisible((v) => !v)}>
+        Toggle modal
       </button>
 
-      <ModalContextProvider visible={false}>
+      <ModalContextProvider visible={visible} setVisible={setVisible}>
         <FoodItemEditModal
           modalId={modalId}
           targetName="Teste"
