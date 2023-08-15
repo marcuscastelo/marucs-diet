@@ -25,6 +25,8 @@ import { ItemGroup } from '@/model/foodItemGroupModel'
 import { calcDayMacros } from '@/utils/macroMath'
 import ItemGroupEditModal from '@/app/(itemGroup)/ItemGroupEditModal'
 import { useUserContext } from '@/context/users.context'
+import CopyLastDayButton from './CopyLastDayButton'
+import DeleteDayButton from './DeleteDayButton'
 
 type PageParams = {
   params: {
@@ -226,10 +228,17 @@ function DayContent({
 }) {
   const { debug } = useUserContext()
 
-  const [selectedMeal, setSelectedMeal] = useState<MealData | null>(null)
-  const [selectedItemGroup, setSelectedItemGroup] = useState<ItemGroup | null>(
-    null,
-  )
+  type Selection = {
+    meal: MealData | null
+    itemGroup: ItemGroup | null
+    origin: 'foodSearch' | 'mealItemEdit' | 'none'
+  }
+
+  const [selection, setSelection] = useState<Selection>({
+    meal: null,
+    itemGroup: null,
+    origin: 'none',
+  })
 
   const onEditItemGroup = (meal: MealData, itemGroup: ItemGroup) => {
     if (dayLocked) {
@@ -238,9 +247,19 @@ function DayContent({
     }
 
     console.debug('setSelectedMeal(meal)')
-    setSelectedMeal(meal)
     console.debug('setSelectedMealItem(mealItem)')
-    setSelectedItemGroup(itemGroup)
+
+    if (selection.origin !== 'none') {
+      console.error('Selection origin is not none, but ', selection.origin)
+      alert('Erro ao editar item, tente novamente')
+      return
+    }
+
+    setSelection({
+      meal,
+      itemGroup,
+      origin: 'mealItemEdit',
+    })
     foodItemGroupEditModalRef.current?.showModal()
   }
 
@@ -273,12 +292,19 @@ function DayContent({
       return
     }
 
-    console.debug('setSelectedMealItem(null)')
-    setSelectedItemGroup(null)
+    if (selection.origin !== 'none') {
+      console.error('Selection origin is not none, but ', selection.origin)
+      alert('Erro ao adicionar item, tente novamente')
+      return
+    }
+
+    setSelection({
+      meal,
+      itemGroup: null,
+      origin: 'foodSearch',
+    })
+
     console.debug('Setting selected meal to', meal)
-    console.debug('setSelectedMeal(meal)')
-    setSelectedMeal(meal)
-    console.debug('foodSearchModalRef', foodSearchModalRef)
     foodSearchModalRef.current?.showModal()
   }
 
@@ -303,8 +329,22 @@ function DayContent({
         dayData={dayData}
         fetchDays={fetchDays}
         foodSearchModalRef={foodSearchModalRef}
-        selectedMeal={selectedMeal}
-        setSelectedMeal={setSelectedMeal}
+        selectedMeal={selection.meal}
+        unselect={() => {
+          if (selection.origin !== 'foodSearch') {
+            console.error(
+              'Selection origin is not foodSearch, but ',
+              selection.origin,
+            )
+            return
+          }
+
+          setSelection({
+            meal: null,
+            itemGroup: null,
+            origin: 'none',
+          })
+        }}
         user={user}
       />
       <ExternalItemGroupEditModal
@@ -312,10 +352,23 @@ function DayContent({
         editModalId={editModalId}
         fetchDays={fetchDays}
         foodItemGroupEditModalRef={foodItemGroupEditModalRef}
-        selectedItemGroup={selectedItemGroup}
-        selectedMeal={selectedMeal}
-        setSelectedItemGroup={setSelectedItemGroup}
-        setSelectedMeal={setSelectedMeal}
+        selectedItemGroup={selection.itemGroup}
+        selectedMeal={selection.meal}
+        unselect={() => {
+          if (selection.origin !== 'mealItemEdit') {
+            console.error(
+              'Selection origin is not mealItemEdit, but ',
+              selection.origin,
+            )
+            return
+          }
+
+          setSelection({
+            meal: null,
+            itemGroup: null,
+            origin: 'none',
+          })
+        }}
         user={user}
       />
       <DayMacros
@@ -368,14 +421,14 @@ function DayContent({
 
 function ExternalFoodSearchModal({
   selectedMeal,
-  setSelectedMeal,
+  unselect,
   foodSearchModalRef,
   dayData,
   fetchDays,
   user,
 }: {
   selectedMeal: MealData | null
-  setSelectedMeal: (meal: MealData | null) => void
+  unselect: () => void
   foodSearchModalRef: RefObject<ModalRef>
   dayData: Day | undefined
   fetchDays: (userId: User['id']) => Promise<void>
@@ -387,14 +440,14 @@ function ExternalFoodSearchModal({
       ref={foodSearchModalRef}
       onFinish={() => {
         console.debug('setSelectedMeal(null)')
-        setSelectedMeal(null)
+        unselect()
         foodSearchModalRef.current?.close()
         fetchDays(user.data.id)
       }}
       onVisibilityChange={(visible) => {
         if (!visible) {
           console.debug('setSelectedMeal(null)')
-          setSelectedMeal(null)
+          unselect()
         }
       }}
       onNewItemGroup={async (newGroup) => {
@@ -428,9 +481,8 @@ function ExternalItemGroupEditModal({
   editModalId,
   foodItemGroupEditModalRef,
   selectedItemGroup,
-  setSelectedItemGroup,
+  unselect,
   selectedMeal,
-  setSelectedMeal,
   dayData,
   fetchDays,
   user,
@@ -438,9 +490,8 @@ function ExternalItemGroupEditModal({
   editModalId: string
   foodItemGroupEditModalRef: RefObject<ModalRef>
   selectedItemGroup: ItemGroup | null
-  setSelectedItemGroup: (itemGroup: ItemGroup | null) => void
   selectedMeal: MealData | null
-  setSelectedMeal: (meal: MealData | null) => void
+  unselect: () => void
   dayData: Day | undefined
   fetchDays: (userId: User['id']) => Promise<void>
   user: Loaded<User>
@@ -490,138 +541,41 @@ function ExternalItemGroupEditModal({
 
         await fetchDays(user.data.id)
 
-        console.debug('setSelectedMeal(null)')
-        setSelectedMeal(null)
-        console.debug('setSelectedMealItem(null)')
-        setSelectedItemGroup(null)
+        unselect()
         foodItemGroupEditModalRef.current?.close()
       }}
       onDelete={async (id: ItemGroup['id']) => {
-        // TODO: Avoid non-null assertion
-        await updateDay(dayData!.id, {
-          ...dayData!,
-          meals: dayData!.meals.map((meal) => {
-            if (meal.id !== selectedMeal!.id) {
-              return meal
-            }
+        const oldMeals = [...dayData!.meals]
 
-            const items = meal.groups
-            const changePos = items.findIndex((i) => i.id === id)
+        const newMeals: MealData[] = oldMeals.map((meal) => {
+          if (meal.id !== selectedMeal!.id) {
+            return meal
+          }
 
-            items.splice(changePos, 1)
+          const items = meal.groups
+          const changePos = items.findIndex((i) => i.id === id)
 
-            return {
-              ...meal,
-              groups: items,
-            }
-          }),
+          items.splice(changePos, 1)
+
+          return {
+            ...meal,
+            groups: items,
+          }
         })
+
+        const newDay = { ...dayData! }
+
+        newDay.meals = newMeals
+
+        // TODO: Avoid non-null assertion
+        await updateDay(dayData!.id, newDay)
 
         await fetchDays(user.data.id)
 
-        console.debug('setSelectedMeal(null)')
-        setSelectedMeal(null)
-        console.debug('setSelectedMealItem(null)')
-        setSelectedItemGroup(null)
+        unselect()
         foodItemGroupEditModalRef.current?.close()
       }}
       onRefetch={() => fetchDays(user.data.id)}
     />
-  )
-}
-
-function CopyLastDayButton({
-  days,
-  user,
-  dayData,
-  selectedDay,
-  fetchDays,
-}: {
-  days: Loaded<Day[]>
-  user: Loaded<User>
-  dayData: Day | null | undefined
-  selectedDay: string
-  fetchDays: (userId: User['id']) => Promise<void>
-}) {
-  // TODO: Remove duplicate check of user and days loading
-  if (days.loading || user.loading) return <>LOADING</>
-
-  const lastDayIdx = days.data.findLastIndex(
-    (day) => Date.parse(day.target_day) < Date.parse(selectedDay),
-  )
-  if (lastDayIdx === /* TODO: Check if equality is a bug */ -1) {
-    return (
-      <button
-        className="btn-error btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white"
-        onClick={() =>
-          alert(`Não foi possível encontrar um dia anterior a ${selectedDay}`)
-        }
-      >
-        Copiar dia anterior: não encontrado!
-      </button>
-    )
-  }
-
-  return (
-    <button
-      className="btn-primary btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white"
-      onClick={async () => {
-        if (dayData !== undefined) {
-          if (
-            confirm(
-              'Tem certeza que deseja excluir este dia e copiar o dia anterior?',
-            )
-          ) {
-            // TODO: Avoid non-null assertion
-            await deleteDay(dayData!.id)
-          }
-        }
-
-        const lastDayIdx = days.data.findLastIndex(
-          (day) => Date.parse(day.target_day) < Date.parse(selectedDay),
-        )
-        if (lastDayIdx === /* TODO: Check if equality is a bug */ -1) {
-          alert('Não foi possível encontrar um dia anterior')
-          return
-        }
-
-        upsertDay({
-          ...days.data[lastDayIdx],
-          target_day: selectedDay,
-          id: dayData?.id,
-        }).then(() => {
-          fetchDays(user.data.id)
-        })
-      }}
-    >
-      {/* //TODO: retriggered: copiar qualquer dia */}
-      Copiar dia anterior ({days.data[lastDayIdx].target_day})
-    </button>
-  )
-}
-
-function DeleteDayButton({
-  dayData,
-  fetchDays,
-  user,
-}: {
-  dayData: Day | null | undefined
-  fetchDays: (userId: User['id']) => Promise<void>
-  user: Loaded<User>
-}) {
-  return (
-    <button
-      className="btn-error btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white hover:bg-red-400"
-      onClick={async () => {
-        if (!confirm('Tem certeza que deseja excluir este dia?')) {
-          return
-        }
-        // TODO: Avoid non-null assertion
-        await deleteDay(dayData!.id)
-        await fetchDays(user.data.id)
-      }}
-    >
-      PERIGO: Excluir dia
-    </button>
   )
 }

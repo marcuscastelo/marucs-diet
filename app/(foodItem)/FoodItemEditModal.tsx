@@ -16,7 +16,7 @@ import { Recipe } from '@/model/recipeModel'
 import { Loadable } from '@/utils/loadable'
 import { useUserContext } from '@/context/users.context'
 import { ModalContextProvider, useModalContext } from '../(modals)/ModalContext'
-import { Consumable } from '../newItem/FoodSearch'
+import { Template } from '../newItem/FoodSearch'
 
 const RECIPE_EDIT_MODAL_ID = 'meal-item-add-modal:self:recipe-edit-modal'
 
