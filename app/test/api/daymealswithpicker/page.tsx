@@ -1,10 +1,9 @@
 'use client'
 
-import DayMeals from '@/app/DayMeals'
+import MealList from '@/app/(meal)/MealList'
 import MealView, { MealViewProps } from '@/app/(meal)/MealView'
-import { listDays, updateDay } from '@/controllers/days'
+import { listDays } from '@/controllers/days'
 import { Day } from '@/model/dayModel'
-import { MealData } from '@/model/mealModel'
 import { User } from '@/model/userModel'
 import { stringToDate } from '@/utils/dateUtils'
 import { useEffect, useState } from 'react'
@@ -115,7 +114,7 @@ export default function Page() {
       {hasData && dayData !== undefined && (
         <>
           <h1> Target day: {dayData.target_day}</h1>
-          <DayMeals
+          <MealList
             mealsProps={dayData.meals.map((meal): MealViewProps => {
               return {
                 mealData: meal,
@@ -144,7 +143,7 @@ export default function Page() {
 
       {/* TODO: Check if equality is a bug */}
       {/* {currentMealProps === null && <Alert color="warning">Selecione uma data</Alert>} */}
-      {/* {currentMealProps !== null && <DayMeals mealsProps={currentMealProps} />} */}
+      {/* {currentMealProps !== null && <MealList mealsProps={currentMealProps} />} */}
     </>
   )
 }
