@@ -20,7 +20,9 @@ const meta: Meta<typeof FoodItemEditModal> = {
     // TODO: Create <MockApp> to provide context to all stories
     (Story) => (
       <App>
-        <ModalContextProvider visible={true}>{Story()}</ModalContextProvider>
+        <ModalContextProvider visible={true} setVisible={() => undefined}>
+          {Story()}
+        </ModalContextProvider>
       </App>
     ),
   ],
@@ -37,7 +39,7 @@ export const RootGreen: Story = {
     targetName: 'Teste',
     targetNameColor: 'text-green-500',
   } satisfies FoodItemEditModalProps,
-  render: (args) => <FoodItemEditModal {...args} ref={null} />,
+  render: (args) => <FoodItemEditModal {...args} />,
 }
 
 export const RootBlue: Story = {
@@ -48,5 +50,5 @@ export const RootBlue: Story = {
     targetName: 'Teste',
     targetNameColor: 'text-blue-500',
   } satisfies FoodItemEditModalProps,
-  render: (args) => <FoodItemEditModal {...args} ref={null} />,
+  render: (args) => <FoodItemEditModal {...args} />,
 }

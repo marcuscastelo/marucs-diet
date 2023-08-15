@@ -1,13 +1,10 @@
 'use client'
 
-import Modal, { ModalRef } from '@/app/(modals)/Modal'
+import Modal from '@/app/(modals)/Modal'
 import { ModalContextProvider } from '@/app/(modals)/ModalContext'
-import { BarCodeReader } from '@/app/BarCodeReader'
-import Show from '@/app/Show'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 
 export default function Page() {
-  const modalRef = useRef<ModalRef>(null)
   const [showing, setShowing] = useState(false)
 
   return (
@@ -19,7 +16,7 @@ export default function Page() {
         className="btn"
         onClick={(e) => {
           e.preventDefault()
-          modalRef.current?.showModal()
+          setShowing(true)
         }}
       >
         Show Modal
@@ -29,7 +26,7 @@ export default function Page() {
         className="btn"
         onClick={(e) => {
           e.preventDefault()
-          modalRef.current?.close()
+          setShowing(false)
         }}
       >
         Close Modal
@@ -37,17 +34,11 @@ export default function Page() {
 
       <ModalContextProvider
         visible={false}
-        onVisibilityChange={(...args) => {
+        setVisible={(...args) => {
           setShowing(...args)
         }}
       >
-        <Modal
-          modalId="modal-id"
-          onSubmit={() => {
-            alert('submit')
-          }}
-          ref={modalRef}
-        />
+        <Modal modalId="modal-id" />
       </ModalContextProvider>
     </>
   )

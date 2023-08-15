@@ -1,17 +1,12 @@
 'use client'
 
-import Modal, { ModalRef } from '@/app/(modals)/Modal'
+import Modal from '@/app/(modals)/Modal'
 import { ModalContextProvider } from '@/app/(modals)/ModalContext'
-import { useEffect, useRef, useState } from 'react'
+import { Dispatch, SetStateAction, useState } from 'react'
 
 export default function Page() {
-  const modalRef = useRef<ModalRef>(null)
   const [showing, setShowing] = useState(false)
   const [innerShowing, setInnerShowing] = useState(false)
-
-  useEffect(() => {
-    showing ? modalRef.current?.showModal() : modalRef.current?.close()
-  }, [showing])
 
   return (
     <>
@@ -23,7 +18,7 @@ export default function Page() {
         className="btn"
         onClick={(e) => {
           e.preventDefault()
-          modalRef.current?.showModal()
+          setShowing(true)
         }}
       >
         Show Modal
@@ -33,7 +28,7 @@ export default function Page() {
         className="btn"
         onClick={(e) => {
           e.preventDefault()
-          modalRef.current?.close()
+          setShowing(false)
         }}
       >
         Close Modal
@@ -41,16 +36,12 @@ export default function Page() {
 
       <ModalContextProvider
         visible={false}
-        onVisibilityChange={(...args) => {
+        setVisible={(...args) => {
           setShowing(...args)
         }}
       >
         <Modal
           modalId="modal-id"
-          onSubmit={() => {
-            alert('submit')
-          }}
-          ref={modalRef}
           body={<MyModal showing={innerShowing} setShowing={setInnerShowing} />}
         />
       </ModalContextProvider>
@@ -63,14 +54,8 @@ function MyModal({
   setShowing,
 }: {
   showing: boolean
-  setShowing: (showing: boolean) => void
+  setShowing: Dispatch<SetStateAction<boolean>>
 }) {
-  const modalRef = useRef<ModalRef>(null)
-
-  useEffect(() => {
-    showing ? modalRef.current?.showModal() : modalRef.current?.close()
-  }, [showing])
-
   return (
     <>
       <span>isShowing: {showing ? 'true' : 'false'}</span>
@@ -80,7 +65,7 @@ function MyModal({
         className="btn"
         onClick={(e) => {
           e.preventDefault()
-          modalRef.current?.showModal()
+          setShowing(true)
         }}
       >
         Show Modal
@@ -90,7 +75,7 @@ function MyModal({
         className="btn"
         onClick={(e) => {
           e.preventDefault()
-          modalRef.current?.close()
+          setShowing(false)
         }}
       >
         Close Modal
@@ -98,17 +83,11 @@ function MyModal({
 
       <ModalContextProvider
         visible={false}
-        onVisibilityChange={(...args) => {
-          setShowing(...args)
+        setVisible={(a) => {
+          setShowing(a)
         }}
       >
-        <Modal
-          modalId="modal-id"
-          onSubmit={() => {
-            alert('submit')
-          }}
-          ref={modalRef}
-        />
+        <Modal modalId="modal-id" />
       </ModalContextProvider>
     </>
   )

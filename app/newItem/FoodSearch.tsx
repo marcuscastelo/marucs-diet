@@ -4,20 +4,18 @@ import FoodItemView from '@/app/(foodItem)/FoodItemView'
 import { listFoods, searchFoodsByName } from '@/controllers/food'
 import { Food } from '@/model/foodModel'
 import { Alert } from 'flowbite-react'
-import React, { useEffect, useRef, useState } from 'react'
-import { FoodItem } from '@/model/foodItemModel'
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import BarCodeInsertModal from '@/app/BarCodeInsertModal'
 import { User } from '@/model/userModel'
 import { Loadable } from '@/utils/loadable'
 import LoadingRing from '@/app/LoadingRing'
-import { ModalRef } from '@/app/(modals)/Modal'
 import { Recipe } from '@/model/recipeModel'
 import { mockFood } from '../test/unit/(mock)/mockData'
 import PageLoading from '../PageLoading'
 import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
 import { useUserContext } from '@/context/users.context'
 import { ModalContextProvider } from '../(modals)/ModalContext'
-import { listRecipes, searchRecipeById } from '@/controllers/recipes'
+import { listRecipes } from '@/controllers/recipes'
 import {
   ItemGroup,
   RecipedItemGroup,
@@ -61,9 +59,10 @@ export default function FoodSearch({
     mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }), // TODO: Properly handle no food selected
   )
 
-  const foodItemEditModalRef = useRef<ModalRef>(null)
-  const barCodeInsertModalRef = useRef<ModalRef>(null)
-  const recipeEditModalRef = useRef<ModalRef>(null)
+  const [barCodeModalVisible, setBarCodeModalVisible] = useState(false)
+  const [foodItemEditModalVisible, setFoodItemEditModalVisible] =
+    useState(false)
+  const [recipeEditModalVisible, setRecipeEditModalVisible] = useState(false)
 
   const [searching, setSearching] = useState(false)
 
@@ -190,7 +189,7 @@ export default function FoodSearch({
     .slice(0, FOOD_LIMIT)
 
   const handleNewItemGroup = async (newGroup: ItemGroup) => {
-    await onNewItemGroup(newGroup)
+    onNewItemGroup(newGroup)
     // Prompt if user wants to add another item or go back (Yes/No)
     const oneMore = confirm(
       'Item adicionado com sucesso. Deseja adicionar outro item?',
@@ -200,21 +199,24 @@ export default function FoodSearch({
       onFinish()
     } else {
       setSelectedConsumable(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }))
-      foodItemEditModalRef.current?.close()
+      setFoodItemEditModalVisible(false)
     }
   }
 
   return (
     <>
       <BarCode
-        barCodeInsertModalRef={barCodeInsertModalRef}
-        foodItemEditModalRef={foodItemEditModalRef}
+        barCodeModalVisible={barCodeModalVisible}
+        setBarCodeModalVisible={setBarCodeModalVisible}
+        setFoodItemEditModalVisible={setFoodItemEditModalVisible}
         setSelectedConsumable={setSelectedConsumable}
       />
-      <ModalContextProvider visible={false}>
+      <ModalContextProvider
+        visible={foodItemEditModalVisible}
+        setVisible={setFoodItemEditModalVisible}
+      >
         <FoodItemEditModal
           modalId={MEAL_ITEM_ADD_MODAL_ID}
-          ref={foodItemEditModalRef}
           targetName={targetName}
           foodItem={{
             reference: selectedConsumable.id,
@@ -258,8 +260,8 @@ export default function FoodSearch({
       <SearchResults
         search={search}
         filteredConsumables={filteredConsumables}
-        barCodeInsertModalRef={barCodeInsertModalRef}
-        foodItemEditModalRef={foodItemEditModalRef}
+        setBarCodeModalVisible={setBarCodeModalVisible}
+        setFoodItemEditModalVisible={setFoodItemEditModalVisible}
         searchingFoods={searching}
         isFoodFavorite={isFoodFavorite}
         setFoodAsFavorite={setFoodAsFavorite}
@@ -271,33 +273,39 @@ export default function FoodSearch({
 }
 
 const BarCode = ({
-  barCodeInsertModalRef,
-  foodItemEditModalRef,
+  barCodeModalVisible,
+  setBarCodeModalVisible,
+  setFoodItemEditModalVisible,
   setSelectedConsumable,
 }: {
-  barCodeInsertModalRef: React.RefObject<ModalRef>
-  foodItemEditModalRef: React.RefObject<ModalRef>
+  barCodeModalVisible: boolean
+  setBarCodeModalVisible: Dispatch<SetStateAction<boolean>>
+  setFoodItemEditModalVisible: Dispatch<SetStateAction<boolean>>
   setSelectedConsumable: (food: Food) => void
 }) => (
   <>
     <div className="mb-2 flex justify-start">
       <button
         onClick={() => {
-          barCodeInsertModalRef.current?.showModal()
+          setBarCodeModalVisible(true)
         }}
         className="mt-2 rounded bg-gray-800 px-4 py-2 font-bold text-white hover:bg-gray-700"
       >
         Inserir código de barras
       </button>
     </div>
-    <BarCodeInsertModal
-      modalId={BAR_CODE_INSERT_MODAL_ID}
-      ref={barCodeInsertModalRef}
-      onSelect={(food) => {
-        setSelectedConsumable(food)
-        foodItemEditModalRef.current?.showModal()
-      }}
-    />
+    <ModalContextProvider
+      visible={barCodeModalVisible}
+      setVisible={setBarCodeModalVisible}
+    >
+      <BarCodeInsertModal
+        modalId={BAR_CODE_INSERT_MODAL_ID}
+        onSelect={(food) => {
+          setSelectedConsumable(food)
+          setFoodItemEditModalVisible(true)
+        }}
+      />
+    </ModalContextProvider>
   </>
 )
 
@@ -405,8 +413,8 @@ const SearchResults = ({
   isFoodFavorite,
   setFoodAsFavorite,
   setSelectedConsumable,
-  foodItemEditModalRef,
-  barCodeInsertModalRef,
+  setBarCodeModalVisible,
+  setFoodItemEditModalVisible,
 }: {
   search: string
   searchingFoods: boolean
@@ -415,8 +423,8 @@ const SearchResults = ({
   isFoodFavorite: (food: number) => boolean
   setFoodAsFavorite: (food: number, favorite: boolean) => void
   setSelectedConsumable: (food: Template) => void
-  foodItemEditModalRef: React.RefObject<ModalRef>
-  barCodeInsertModalRef: React.RefObject<ModalRef>
+  setBarCodeModalVisible: Dispatch<SetStateAction<boolean>>
+  setFoodItemEditModalVisible: Dispatch<SetStateAction<boolean>>
 }) => {
   return (
     <>
@@ -448,8 +456,8 @@ const SearchResults = ({
                   className="mt-1"
                   onClick={() => {
                     setSelectedConsumable(consumable)
-                    foodItemEditModalRef.current?.showModal()
-                    barCodeInsertModalRef.current?.close()
+                    setFoodItemEditModalVisible(true)
+                    setBarCodeModalVisible(false)
                   }}
                   header={
                     <FoodItemView.Header

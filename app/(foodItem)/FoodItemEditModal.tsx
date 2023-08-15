@@ -1,22 +1,13 @@
 'use client'
 
-import {
-  Dispatch,
-  SetStateAction,
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from 'react'
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react'
 import FoodItemView from './FoodItemView'
 import { FoodItem } from '@/model/foodItemModel'
-import Modal, { ModalActions, ModalProps, ModalRef } from '../(modals)/Modal'
+import Modal, { ModalActions } from '../(modals)/Modal'
 import { Recipe } from '@/model/recipeModel'
 import { Loadable } from '@/utils/loadable'
 import { useUserContext } from '@/context/users.context'
-import { ModalContextProvider, useModalContext } from '../(modals)/ModalContext'
-import { Template } from '../newItem/FoodSearch'
+import { useModalContext } from '../(modals)/ModalContext'
 
 const RECIPE_EDIT_MODAL_ID = 'meal-item-add-modal:self:recipe-edit-modal'
 
@@ -33,146 +24,112 @@ export type FoodItemEditModalProps = {
 }
 
 // eslint-disable-next-line react/display-name
-const FoodItemEditModal = forwardRef(
-  (
-    {
-      modalId,
-      targetName,
-      targetNameColor = 'text-green-500',
-      foodItem: initialFoodItem,
-      onApply,
-      onCancel,
-      onDelete,
-    }: FoodItemEditModalProps,
-    ref: React.Ref<ModalRef>,
-  ) => {
-    const {
-      visible,
-      setVisible,
-      onVisibilityChange,
-      modalRef: selfModalRef,
-    } = useModalContext()
+const FoodItemEditModal = ({
+  modalId,
+  targetName,
+  targetNameColor = 'text-green-500',
+  foodItem: initialFoodItem,
+  onApply,
+  onCancel,
+  onDelete,
+}: FoodItemEditModalProps) => {
+  const { visible, setVisible } = useModalContext()
 
-    const [showing, setShowing_] = useState(false)
-    const [foodItem, setFoodItem] = useState<
-      FoodItem & { type: 'food' | 'recipe' }
-    >({
-      id: initialFoodItem?.id ?? Math.round(Math.random() * 1000000),
-      name: initialFoodItem?.name ?? 'ERRO: Sem nome',
-      quantity: initialFoodItem?.quantity ?? 0,
-      type: initialFoodItem?.type ?? 'food',
+  const [foodItem, setFoodItem] = useState<
+    FoodItem & { type: 'food' | 'recipe' }
+  >({
+    id: initialFoodItem?.id ?? Math.round(Math.random() * 1000000),
+    name: initialFoodItem?.name ?? 'ERRO: Sem nome',
+    quantity: initialFoodItem?.quantity ?? 0,
+    type: initialFoodItem?.type ?? 'food',
+    ...initialFoodItem,
+  } satisfies FoodItem & { type: 'food' | 'recipe' })
+
+  useEffect(() => {
+    setFoodItem((old) => ({
+      ...old,
       ...initialFoodItem,
-    } satisfies FoodItem & { type: 'food' | 'recipe' })
+    }))
+  }, [initialFoodItem])
 
-    useEffect(() => {
+  const quantity = foodItem.quantity.toString()
+  const setQuantity: Dispatch<SetStateAction<string>> = (
+    value: SetStateAction<string>,
+  ) => {
+    if (typeof value === 'function') {
       setFoodItem((old) => ({
         ...old,
-        ...initialFoodItem,
+        quantity: Number(value(old.quantity.toString())),
       }))
-    }, [initialFoodItem])
-
-    const quantity = foodItem.quantity.toString()
-    const setQuantity: Dispatch<SetStateAction<string>> = (
-      value: SetStateAction<string>,
-    ) => {
-      if (typeof value === 'function') {
-        setFoodItem((old) => ({
-          ...old,
-          quantity: Number(value(old.quantity.toString())),
-        }))
-      } else {
-        setFoodItem((old) => ({
-          ...old,
-          quantity: Number(value),
-        }))
-      }
+    } else {
+      setFoodItem((old) => ({
+        ...old,
+        quantity: Number(value),
+      }))
     }
+  }
 
-    const canAdd = quantity !== '' && Number(quantity) > 0
+  const canAdd = quantity !== '' && Number(quantity) > 0
 
-    const handleSetShowing = (isShowing: boolean) => {
-      console.debug('FoodItemEditModal: handleSetShowing', isShowing)
-      setShowing_(isShowing)
-      onVisibilityChange?.(isShowing)
-    }
+  // TODO: Remove createMealItemData
+  const createMealItemData = (): FoodItem & { type: 'food' | 'recipe' } =>
+    ({
+      ...foodItem,
+    }) satisfies FoodItem & { type: 'food' | 'recipe' }
 
-    useImperativeHandle(ref, () => ({
-      showModal: () => {
-        selfModalRef.current?.showModal()
-        handleSetShowing(true)
-      },
-      close: () => {
-        selfModalRef.current?.close()
-        handleSetShowing(false)
-      },
-    }))
-
-    // TODO: Remove createMealItemData
-    const createMealItemData = (): FoodItem & { type: 'food' | 'recipe' } =>
-      ({
-        ...foodItem,
-      }) satisfies FoodItem & { type: 'food' | 'recipe' }
-
-    return (
-      <>
-        {/* {itemData?.food.name.toString()}
+  return (
+    <>
+      {/* {itemData?.food.name.toString()}
         {itemData?.food.id.toString()}
         {itemData?.food.recipeId?.toString() ?? 'NO RECIPE ID'} */}
-        {/* {recipe.loading.valueOf().toString()}
+      {/* {recipe.loading.valueOf().toString()}
         {(!recipe.loading && JSON.stringify(recipe.data, null, 2)) ||
           'NO RECIPE DATA'} */}
-        {/* <RecipeEditModal
+      {/* <RecipeEditModal
           modalId={RECIPE_EDIT_MODAL_ID}
           ref={recipeEditModalRef}
           recipe={(!recipe.loading && recipe.data) || null}
           onSaveRecipe={async () => alert('TODO: Save recipe')}
         /> */}
-        <ModalContextProvider
-          visible={visible}
-          onVisibilityChange={(...args) => handleSetShowing(...args)}
-        >
-          <Modal
-            modalId={modalId}
-            ref={selfModalRef}
-            onSubmit={() => onApply(createMealItemData())}
-            header={
-              <Header
-                foodItem={foodItem}
-                targetName={targetName}
-                targetNameColor={targetNameColor}
-              />
-            }
-            body={
-              <Body
-                showing={showing}
-                quantity={quantity}
-                setQuantity={setQuantity}
-                canAdd={canAdd}
-                foodItem={foodItem}
-                id={foodItem.id}
-              />
-            }
-            actions={
-              <Actions
-                id={foodItem.id}
-                canAdd={canAdd}
-                onApply={() => {
-                  selfModalRef.current?.close()
-                  onApply(createMealItemData())
-                }}
-                onCancel={() => {
-                  selfModalRef.current?.close()
-                  onCancel?.()
-                }}
-                onDelete={onDelete}
-              />
-            }
+
+      <Modal
+        modalId={modalId}
+        header={
+          <Header
+            foodItem={foodItem}
+            targetName={targetName}
+            targetNameColor={targetNameColor}
           />
-        </ModalContextProvider>
-      </>
-    )
-  },
-)
+        }
+        body={
+          <Body
+            visible={visible}
+            quantity={quantity}
+            setQuantity={setQuantity}
+            canAdd={canAdd}
+            foodItem={foodItem}
+            id={foodItem.id}
+          />
+        }
+        actions={
+          <Actions
+            id={foodItem.id}
+            canAdd={canAdd}
+            onApply={() => {
+              setVisible(false)
+              onApply(createMealItemData())
+            }}
+            onCancel={() => {
+              setVisible(false)
+              onCancel?.()
+            }}
+            onDelete={onDelete}
+          />
+        }
+      />
+    </>
+  )
+}
 
 function Header({
   foodItem,
@@ -203,14 +160,14 @@ function Header({
 }
 
 function Body({
-  showing,
+  visible,
   quantity,
   setQuantity,
   canAdd,
   foodItem,
   id,
 }: {
-  showing: boolean
+  visible: boolean
   quantity: string
   setQuantity: Dispatch<SetStateAction<string>>
   canAdd: boolean
@@ -224,8 +181,6 @@ function Body({
 }) {
   const quantityRef = useRef<HTMLInputElement>(null)
 
-  const recipeEditModalRef = useRef<ModalRef>(null)
-
   const [recipe, setRecipe] = useState<Loadable<Recipe | null>>({
     loading: true,
   })
@@ -233,10 +188,10 @@ function Body({
   // const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(true)
 
   useEffect(() => {
-    if (showing) {
+    if (visible) {
       quantityRef.current?.blur()
     }
-  }, [showing])
+  }, [visible])
 
   const { isFoodFavorite, setFoodAsFavorite } = useUserContext()
 

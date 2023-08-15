@@ -26,10 +26,7 @@ const meta: Meta<typeof Modal> = {
           >
             Toggle Modal
           </button>
-          <ModalContextProvider
-            visible={visible}
-            onVisibilityChange={setVisible}
-          >
+          <ModalContextProvider visible={visible} setVisible={setVisible}>
             {Story()}
           </ModalContextProvider>
         </>
