@@ -1,6 +1,6 @@
 'use client'
 
-import MealItem from '@/app/(mealItem)/MealItem'
+import FoodItemView from '@/app/(foodItem)/FoodItemView'
 import { upsertFood, listFoods } from '@/controllers/food'
 import { Food } from '@/model/foodModel'
 import { useEffect, useState } from 'react'
@@ -81,12 +81,16 @@ export default function Page() {
         .slice(0, 100)
         .map((food, idx) => (
           <div key={idx}>
-            <MealItem
+            <FoodItemView
               key={idx}
-              mealItem={{
+              foodItem={{
                 id: 123,
-                food,
+                name: food.name,
                 quantity: 100,
+                macros: {
+                  ...food.macros,
+                },
+                reference: food.id,
               }}
             />
           </div>

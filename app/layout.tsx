@@ -1,6 +1,5 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
-import { Providers } from '@/redux/provider'
 
 import App from './App'
 const inter = Inter({ subsets: ['latin'] })
@@ -23,9 +22,7 @@ export default function RootLayout({
         <meta name="description" content="App de dieta" />
       </head>
       <body className={inter.className + ' dark'}>
-        <Providers>
-          <App>{children}</App>
-        </Providers>
+        <App>{children}</App>
       </body>
     </html>
   )

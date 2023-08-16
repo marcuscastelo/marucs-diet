@@ -1,11 +1,33 @@
-import { mealItemSchema } from './mealItemModel'
+import { itemGroupSchema } from './foodItemGroupModel'
 
 import { z } from 'zod'
 
 export const mealSchema = z.object({
   id: z.number(),
   name: z.string(),
-  items: z.array(mealItemSchema),
+  groups: z.array(itemGroupSchema),
+  '': z
+    .string()
+    .nullable()
+    .optional()
+    .transform(() => 'Meal' as const),
 })
 
+// TODO: rename MealData to Meal (and Meal component to MealView)
 export type MealData = z.infer<typeof mealSchema>
+
+// TODO: Create factory function for other models
+export function createMeal({
+  name,
+  groups,
+}: {
+  name: string
+  groups: MealData['groups']
+}): MealData {
+  return {
+    id: Math.floor(Math.random() * 1000000),
+    name,
+    groups,
+    '': 'Meal',
+  }
+}

@@ -1,40 +1,42 @@
 'use client'
 
-import DayMeals from '@/app/DayMeals'
-import Meal, { MealProps } from '@/app/(meal)/Meal'
+import MealList from '@/app/(meal)/MealList'
+import MealView, { MealViewProps } from '@/app/(meal)/MealView'
 import { listDays } from '@/controllers/days'
-import { upsertFood, listFoods } from '@/controllers/food'
 import { Day } from '@/model/dayModel'
-import { Food } from '@/model/foodModel'
 import { User } from '@/model/userModel'
-import { useUser } from '@/redux/features/userSlice'
 import { Suspense, useEffect, useState } from 'react'
+import { useUserContext } from '@/context/users.context'
 
 export default function Page() {
   const [days, setDays] = useState<Day[]>([])
-  const [mealProps, setMealProps] = useState<MealProps[][]>([])
+  const [mealProps, setMealProps] = useState<MealViewProps[][]>([])
 
-  const { user } = useUser()
+  const { user } = useUserContext()
 
   const fetchDays = async (userId: User['id']) => {
     const days = await listDays(userId)
     setDays(days)
 
     const mealProps = days.map((day) => {
-      return day.meals.map((meal): MealProps => {
+      return day.meals.map((meal): MealViewProps => {
         return {
           mealData: meal,
           header: (
-            <Meal.Header
+            <MealView.Header
               onUpdateMeal={(meal) => alert(`Mock: Update meal ${meal.name}`)}
             />
           ),
           content: (
-            <Meal.Content
-              onEditItem={(item) => alert(`Mock: Edit "${item.food.name}"`)}
+            <MealView.Content
+              onEditItemGroup={(group) =>
+                alert(`Mock: Edit group.id = "${group.id}"`)
+              }
             />
           ),
-          actions: <Meal.Actions onNewItem={() => alert('Mock: New item')} />,
+          actions: (
+            <MealView.Actions onNewItem={() => alert('Mock: New item')} />
+          ),
         }
       })
     })
@@ -42,7 +44,7 @@ export default function Page() {
   }
 
   useEffect(() => {
-    if (user.loading) {
+    if (user.loading || user.errored) {
       return
     }
 
@@ -56,7 +58,7 @@ export default function Page() {
           <div key={idx}>
             <div className="text-2xl font-bold">{day.target_day}</div>
             {mealProps[idx].length > 0 ? (
-              <DayMeals mealsProps={mealProps[idx]} />
+              <MealList mealsProps={mealProps[idx]} />
             ) : (
               <div>No meals</div>
             )}

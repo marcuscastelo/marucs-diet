@@ -7,7 +7,6 @@ export default function Page() {
     <>
       <DayMacros
         macros={{
-          calories: 2000,
           protein: 200,
           carbs: 200,
           fat: 200,
