@@ -28,6 +28,43 @@ export function convertApi2Food(food: ApiFood): Omit<Food, 'id'> {
   }
 }
 
+export async function searchCachedFoodsByName(
+  name: Food['name'],
+  limit?: number,
+) {
+  // const { data: favoriteResult, error } = await supabase
+  //   .from(TABLE)
+  //   .select()
+  //   .in('id', favorites ?? [])
+  //   .ilike('name', `%${name}%`)
+  //   .limit(limit ?? 100)
+
+  // console.log(`Got ${favoriteResult?.length} favorite foods from cache.`)
+  // if (favoriteResult?.length === /* TODO: Check if equality is a bug */ 0) {
+  //   // TODO: readd this logic of cache invalidation, but also with time
+  //   // console.log('No foods found, unmarking cache as cached.');
+  //   // await unmarkAsCached(search);
+  // }
+
+  // if (error) {
+  //   console.error('Error while searching for favorites: ', favorites)
+  //   console.error(error)
+  //   throw error
+  // }
+
+  // const otherLimit = limit ? limit - favoriteResult?.length : undefined
+  const otherLimit = limit
+  const { data: otherResult } = await supabase
+    .from(TABLE)
+    .select()
+    .ilike('name', `%${name}%`)
+    .limit(otherLimit ?? 100)
+
+  console.log(`Got ${otherResult?.length} other foods from cache.`)
+
+  return (otherResult ?? []).map((food) => foodSchema.parse(food))
+}
+
 const internalSearchCacheLogic = async (
   cacheKey: string,
   checkCached: (cacheKey: string) => Promise<boolean>,

@@ -9,7 +9,7 @@ export default function FoodItemListView({
   makeHeaderFn = () => <DefaultHeader />,
 }: {
   foodItems: FoodItem[]
-  onItemClick: FoodItemViewProps['onClick']
+  onItemClick?: FoodItemViewProps['onClick']
   makeHeaderFn?: (item: FoodItem) => FoodItemViewProps['header']
 }) {
   return (

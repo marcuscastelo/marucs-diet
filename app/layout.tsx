@@ -22,7 +22,8 @@ export default function RootLayout({
         <meta name="description" content="App de dieta" />
       </head>
       <body className={inter.className + ' dark'}>
-        <App>{children}</App>
+        {children}
+        {/* <App>{children}</App> */}
       </body>
     </html>
   )
