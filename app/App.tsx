@@ -1,37 +1,48 @@
 'use client'
 
+import { DaysContextProvider } from '@/context/days.context'
+import { UserContextProvider, useUserContext } from '@/context/users.context'
+import { listDays } from '@/controllers/days'
 import { listUsers } from '@/controllers/users'
-import { User } from '@/model/userModel'
-import { useUser } from '@/redux/features/userSlice'
-import { useEffect } from 'react'
 
 export default function App({ children }: { children: React.ReactNode }) {
-  const { setUser } = useUser()
+  return (
+    <AppUserProvider>
+      <AppDaysProvider>{children}</AppDaysProvider>
+    </AppUserProvider>
+  )
+}
 
-  useEffect(() => {
-    const onChangeUser = (user: User) => setUser(user)
-    // TODO: listUsers should be a hook (useUsers, fetchUsers, etc. see fetchUser in userSlice.ts)
-    listUsers().then((users) => {
-      const localStoredUserId =
-        typeof window !== 'undefined' && localStorage
-          ? parseInt(localStorage.getItem('user') ?? '')
-          : null
-      if (localStoredUserId) {
-        const user = users.find(
-          (user) =>
-            user.id ===
-            /* TODO: Check if equality is a bug */ localStoredUserId,
-        )
-        if (user) {
-          onChangeUser(user)
-        } else if (users.length > 0) {
-          onChangeUser(users[0])
-        }
-      } else if (users.length > 0) {
-        onChangeUser(users[0])
-      }
-    })
-  }, [setUser])
+function AppUserProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <UserContextProvider
+      onFetchAvailableUsers={async () => {
+        return await listUsers()
+      }}
+      onFetchUser={async (id) => {
+        return (await listUsers()).find((user) => user.id === id)
+      }}
+    >
+      {children}
+    </UserContextProvider>
+  )
+}
 
-  return <>{children}</>
+function AppDaysProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useUserContext()
+
+  if (user.loading || user.errored) {
+    return <div>User loading or errored</div>
+  }
+
+  return (
+    <DaysContextProvider
+      userId={user.data.id}
+      onFetchDays={async () => {
+        return await listDays(user.data.id)
+      }}
+    >
+      {children}
+    </DaysContextProvider>
+  )
 }

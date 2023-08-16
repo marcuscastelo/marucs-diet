@@ -1,16 +1,16 @@
 'use client'
 
 import { MealData, mealSchema } from '@/model/mealModel'
-import MealItem from '../(mealItem)/MealItem'
-import { MealItemData, mealItemSchema } from '@/model/mealItemModel'
 import { MealContextProvider, useMealContext } from './MealContext'
 import { useEffect, useState } from 'react'
-import { calculateCalories } from '../MacroTargets'
 import TrashIcon from '../(icons)/TrashIcon'
 import PasteIcon from '../(icons)/PasteIcon'
 import CopyIcon from '../(icons)/CopyIcon'
+import { calcMealCalories } from '@/utils/macroMath'
+import ItemGroupListView from '../(itemGroup)/ItemGroupListView'
+import { ItemGroup, itemGroupSchema } from '@/model/foodItemGroupModel'
 
-export type MealProps = {
+export type MealViewProps = {
   mealData: MealData
   header?: React.ReactNode
   content?: React.ReactNode
@@ -28,13 +28,14 @@ export type MealProps = {
 //   return result
 // }
 
-export default function Meal({
+// TODO: Rename MealView to MealEditView
+export default function MealView({
   mealData,
   header,
   content,
   actions,
   className,
-}: MealProps) {
+}: MealViewProps) {
   return (
     <div className={`bg-gray-800 p-3 ${className || ''}`}>
       <MealContextProvider mealData={mealData}>
@@ -46,30 +47,19 @@ export default function Meal({
   )
 }
 
-Meal.Header = MealHeader
-Meal.Content = MealContent
-Meal.Actions = MealActions
+MealView.Header = MealViewHeader
+MealView.Content = MealViewContent
+MealView.Actions = MealViewActions
 
-function MealHeader({
+function MealViewHeader({
   onUpdateMeal,
 }: {
   onUpdateMeal: (meal: MealData) => void
 }) {
   const { mealData } = useMealContext()
 
-  // TODO: Create a module to calculate calories and macros
-  const itemCalories = (item: MealItemData) =>
-    calculateCalories({
-      carbs: (item.food.macros.carbs * item.quantity) / 100,
-      protein: (item.food.macros.protein * item.quantity) / 100,
-      fat: (item.food.macros.fat * item.quantity) / 100,
-    })
-
   // TODO: Show how much of the daily target is this meal (e.g. 30% of daily calories) (maybe in a tooltip) (useContext)s
-  const mealCalories = mealData.items.reduce(
-    (acc, item) => acc + itemCalories(item),
-    0,
-  )
+  const mealCalories = calcMealCalories(mealData)
 
   const [clipboardText, setClipboardText] = useState('')
 
@@ -80,9 +70,9 @@ function MealHeader({
       return
     }
 
-    const newMealData = {
+    const newMealData: MealData = {
       ...mealData,
-      items: [],
+      groups: [],
     }
 
     onUpdateMeal(newMealData)
@@ -101,9 +91,17 @@ function MealHeader({
       const parsedMeal = mealSchema.safeParse(JSON.parse(clipboardText))
 
       if (parsedMeal.success) {
-        const newMealData = {
+        const newMealData: MealData = {
           ...mealData,
-          items: [...mealData.items, ...parsedMeal.data.items],
+          groups: [
+            ...mealData.groups,
+            ...parsedMeal.data.groups.map(
+              (item): ItemGroup => ({
+                ...item,
+                id: Math.floor(Math.random() * 1000000), // TODO: Create a function to generate a unique id
+              }),
+            ),
+          ],
         }
 
         onUpdateMeal(newMealData)
@@ -114,12 +112,18 @@ function MealHeader({
         return
       }
 
-      const parsedMealItem = mealItemSchema.safeParse(JSON.parse(clipboardText))
+      const parsedGroup = itemGroupSchema.safeParse(JSON.parse(clipboardText))
 
-      if (parsedMealItem.success) {
-        const newMealData = {
+      if (parsedGroup.success) {
+        const newMealData: MealData = {
           ...mealData,
-          items: [...mealData.items, parsedMealItem.data],
+          groups: [
+            ...mealData.groups,
+            {
+              ...parsedGroup.data,
+              id: Math.floor(Math.random() * 1000000), // TODO: Create a function to generate a unique id
+            },
+          ],
         }
 
         onUpdateMeal(newMealData)
@@ -158,7 +162,7 @@ function MealHeader({
   const hasValidPastableOnClipboard =
     clipboardText &&
     (mealSchema.safeParse(parsedJson).success ||
-      mealItemSchema.safeParse(parsedJson).success)
+      itemGroupSchema.safeParse(parsedJson).success)
 
   return (
     <div className="flex">
@@ -166,8 +170,9 @@ function MealHeader({
         <h5 className="text-3xl">{mealData.name}</h5>
         <p className="italic text-gray-400">{mealCalories}kcal</p>
       </div>
+      {/* // TODO: Remove code duplication between MealView and RecipeView */}
       <div className={`ml-auto flex gap-2`}>
-        {!hasValidPastableOnClipboard && mealData.items.length > 0 && (
+        {!hasValidPastableOnClipboard && mealData.groups.length > 0 && (
           <div
             className={`btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105`}
             onClick={handleCopyMeal}
@@ -183,7 +188,7 @@ function MealHeader({
             <PasteIcon />
           </div>
         )}
-        {mealData.items.length > 0 && (
+        {mealData.groups.length > 0 && (
           <div
             className={`btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105`}
             onClick={onClearItems}
@@ -196,41 +201,22 @@ function MealHeader({
   )
 }
 
-function MealContent({
-  onEditItem,
+function MealViewContent({
+  onEditItemGroup,
 }: {
-  onEditItem: (item: MealItemData) => void
+  onEditItemGroup: (item: ItemGroup) => void
 }) {
   const { mealData } = useMealContext()
 
   return (
-    <>
-      {mealData.items.map((item) => (
-        <div key={item.id} className="mt-2">
-          <MealItem
-            mealItem={item}
-            onClick={onEditItem}
-            header={
-              <MealItem.Header
-                name={<MealItem.Header.Name />}
-                copyButton={
-                  <MealItem.Header.CopyButton
-                    handleCopyMealItem={(item) => {
-                      navigator.clipboard.writeText(JSON.stringify(item))
-                    }}
-                  />
-                }
-              />
-            }
-            nutritionalInfo={<MealItem.NutritionalInfo />}
-          />
-        </div>
-      ))}
-    </>
+    <ItemGroupListView
+      itemGroups={mealData.groups}
+      onItemClick={(...args) => onEditItemGroup(...args)}
+    />
   )
 }
 
-function MealActions({ onNewItem }: { onNewItem: () => void }) {
+function MealViewActions({ onNewItem }: { onNewItem: () => void }) {
   return (
     <button
       className="mt-3 min-w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"

@@ -1,8 +1,8 @@
 'use client'
 
-import MealItem from '@/app/(mealItem)/MealItem'
+import FoodItemView from '@/app/(foodItem)/FoodItemView'
 import { mockItem } from '../(mock)/mockData'
 
 export default function MealItemPage() {
-  return <MealItem mealItem={mockItem()} />
+  return <FoodItemView foodItem={mockItem()} />
 }

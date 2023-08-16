@@ -1,46 +1,14 @@
 'use client'
 
 import { Dropdown } from 'react-daisyui'
-import { useUser } from '@/redux/features/userSlice'
-import { useEffect, useState } from 'react'
-import { User } from '@/model/userModel'
-import { listUsers } from '@/controllers/users'
-import { Loadable } from '@/utils/loadable'
+import { useState } from 'react'
 import Link from 'next/link'
+import { useUserContext } from '@/context/users.context'
 
 export default function UserSelector() {
-  const [availableUsers, setAvailableUsers] = useState<Loadable<User[]>>({
-    loading: true,
-  })
   const [loadingHasTimedOut, setLoadingHasTimedOut] = useState(false)
 
-  const { user, setUser } = useUser()
-  const onChangeUser = (user: User) => setUser(user)
-
-  useEffect(() => {
-    listUsers().then((users) => {
-      setAvailableUsers({
-        loading: false,
-        data: users,
-      })
-    })
-  }, [])
-
-  useEffect(() => {
-    if (!user.loading) {
-      setLoadingHasTimedOut(false)
-    }
-
-    const timeout = setTimeout(() => {
-      if (user.loading) {
-        setLoadingHasTimedOut(true)
-      }
-    }, 500)
-
-    return () => {
-      clearTimeout(timeout)
-    }
-  }, [user])
+  const { user, changeUser, availableUsers } = useUserContext()
 
   return (
     <div className="flex items-center">
@@ -49,7 +17,7 @@ export default function UserSelector() {
       </div>
       <div className="ml-3 flex flex-col gap-1 text-center">
         <div className="text-base font-medium leading-none text-white hover:cursor-pointer hover:text-indigo-200">
-          {user.loading ? (
+          {user.loading || user.errored ? (
             loadingHasTimedOut ? (
               'Deslogado'
             ) : (
@@ -69,7 +37,7 @@ export default function UserSelector() {
               {loadingHasTimedOut ? 'Entrar' : 'Trocar'}
             </Dropdown.Toggle>
             <Dropdown.Menu className="no-animation -translate-x-10 translate-y-3 bg-slate-950 outline">
-              {availableUsers.loading ? (
+              {availableUsers.loading || availableUsers.errored ? (
                 <Dropdown.Item>Carregando...</Dropdown.Item>
               ) : (
                 availableUsers.data.map((user, idx) => {
@@ -88,7 +56,7 @@ export default function UserSelector() {
                           return
                         }
 
-                        onChangeUser(user)
+                        changeUser(user.id)
                         // Force dropdown to close without having to click outside setting aria
                         // Credit: https://reacthustle.com/blog/how-to-close-daisyui-dropdown-with-one-click
                         const dropdown =
@@ -103,6 +71,7 @@ export default function UserSelector() {
               )}
 
               {!availableUsers.loading &&
+                !availableUsers.errored &&
                 availableUsers.data.length ===
                   /* TODO: Check if equality is a bug */ 0 && (
                   <Dropdown.Item>Nenhum usuário disponível</Dropdown.Item>

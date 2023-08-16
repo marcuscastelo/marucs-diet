@@ -1,6 +1,5 @@
-import { MacroNutrientsSchema } from './macroNutrientsModel'
+import { macroNutrientsSchema } from './macroNutrientsModel'
 import { z } from 'zod'
-
 export const foodSchema = z.object({
   id: z.number(),
   source: z
@@ -17,7 +16,17 @@ export const foodSchema = z.object({
     .nullable()
     .transform((val) => val ?? undefined)
     .optional(),
-  macros: MacroNutrientsSchema,
+  macros: macroNutrientsSchema,
+  recipeId: z
+    .number()
+    .nullable()
+    .transform((val) => val ?? undefined)
+    .optional(),
+  '': z
+    .string()
+    .nullable()
+    .optional()
+    .transform(() => 'Food' as const),
 })
 
 export type Food = z.infer<typeof foodSchema>
