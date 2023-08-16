@@ -3,8 +3,8 @@
 import MacroTarget, {
   MacroProfile,
   MacroRepresentation,
-  TargetGrams,
 } from '@/app/MacroTargets'
+import { MacroNutrientsData } from '@/model/macroNutrientsModel'
 import { useEffect, useState } from 'react'
 
 const CARBO_CALORIES = 4 as const
@@ -14,13 +14,13 @@ const FAT_CALORIES = 9 as const
 const calculateMacroTarget = (
   weight: number,
   savedMacroTarget: MacroProfile,
-): TargetGrams => ({
+): MacroNutrientsData => ({
   carbs: weight * savedMacroTarget.gramsPerKgCarbs,
   protein: weight * savedMacroTarget.gramsPerKgProtein,
   fat: weight * savedMacroTarget.gramsPerKgFat,
 })
 
-const calculateCalories = (targetGrams: TargetGrams): number =>
+const calculateCalories = (targetGrams: MacroNutrientsData): number =>
   targetGrams.carbs * 4 + targetGrams.protein * 4 + targetGrams.fat * 9
 
 const calculateMacroRepresentation = (

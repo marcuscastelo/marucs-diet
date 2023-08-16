@@ -1,10 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import MealItem from './(mealItem)/MealItem'
+import FoodItemView from './(foodItem)/FoodItemView'
 import { searchFoodsByEan, upsertFood } from '@/controllers/food'
-import { useFavoriteFoods } from '@/redux/features/userSlice'
 import { Food } from '@/model/foodModel'
+import { useUserContext } from '@/context/users.context'
 
 export type BarCodeSearchProps = {
   barCode?: string
@@ -21,7 +21,7 @@ export default function BarCodeSearch({
   const [innerBarCode, setInnerBarCode] = useState(barCode)
   const [currentFood, setCurrentFood] = useState<Food | null>(null)
 
-  const { isFoodFavorite, setFoodAsFavorite } = useFavoriteFoods()
+  const { isFoodFavorite, setFoodAsFavorite } = useUserContext()
 
   const EAN_LENGTH = 13
 
@@ -96,26 +96,30 @@ export default function BarCodeSearch({
             <div className="flex-1">
               <p className="font-bold">{currentFood.name}</p>
               <p className="text-sm">
-                <MealItem
-                  mealItem={{
+                <FoodItemView
+                  foodItem={{
                     id: Math.round(Math.random() * 1000000), // TODO: retriggered: properly generate id
-                    food: currentFood,
+                    name: currentFood.name,
+                    reference: currentFood.id,
                     quantity: 100,
+                    macros: {
+                      ...currentFood.macros,
+                    },
                   }}
                   header={
-                    <MealItem.Header
-                      name={<MealItem.Header.Name />}
+                    <FoodItemView.Header
+                      name={<FoodItemView.Header.Name />}
                       favorite={
-                        <MealItem.Header.Favorite
+                        <FoodItemView.Header.Favorite
                           favorite={isFoodFavorite(currentFood.id)}
-                          setFavorite={(favorite) =>
+                          onSetFavorite={(favorite) =>
                             setFoodAsFavorite(currentFood.id, favorite)
                           }
                         />
                       }
                     />
                   }
-                  nutritionalInfo={<MealItem.NutritionalInfo />}
+                  nutritionalInfo={<FoodItemView.NutritionalInfo />}
                 />
               </p>
             </div>

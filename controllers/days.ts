@@ -1,18 +1,14 @@
-import { Record } from 'pocketbase'
-
 import { Day, daySchema } from '@/model/dayModel'
 import { User } from '@/model/userModel'
 import supabase from '@/utils/supabase'
 
-const TABLE = 'days'
+const TABLE = 'days_test'
 
 // TODO: retriggered: tratar erros (também no resto dos controllers)
 export const listDays = async (userId: User['id']): Promise<Day[]> =>
   ((await supabase.from(TABLE).select()).data ?? [])
     .map((day) => daySchema.parse(day))
-    .filter(
-      (day) => day.owner === /* TODO: Check if equality is a bug */ userId,
-    )
+    .filter((day) => day.owner === userId)
     .map(
       (day): Day => ({
         ...day,
@@ -47,6 +43,8 @@ export const updateDay = async (id: Day['id'], day: Day): Promise<Day> => {
     .select()
 
   if (error) {
+    console.error('Error while updating day: ', day)
+    console.error(error)
     throw error
   }
 

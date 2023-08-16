@@ -6,12 +6,14 @@ import { markSearchAsCached, isSearchCached } from './searchCache'
 import { INTERNAL_API } from '@/utils/api'
 import supabase from '@/utils/supabase'
 import { isEanCached } from './eanCache'
+import { New } from '@/utils/newDbRecord'
 
 const TABLE = 'foods'
 
 // TODO: retriggered: pensar num lugar melhor pra isso
 export function convertApi2Food(food: ApiFood): Omit<Food, 'id'> {
   return {
+    '': 'Food',
     name: food.nome,
     source: {
       type: 'api',
@@ -19,7 +21,6 @@ export function convertApi2Food(food: ApiFood): Omit<Food, 'id'> {
     },
     ean: food.ean,
     macros: {
-      calories: food.calorias * 100,
       carbs: food.carboidratos * 100,
       protein: food.proteinas * 100,
       fat: food.gordura * 100,
@@ -64,6 +65,7 @@ const internalSearchCacheLogic = async (
 
     return createdFoods
   } catch (e) {
+    console.error('Error while creating foods for: ', newFoods)
     console.error(e)
     console.log('Failed to cache foods!!')
     return []
@@ -87,6 +89,7 @@ export const listFoods = async (limit?: number, favorites?: number[]) => {
 
       console.log(`Got ${favoriteResult?.length} favorite foods from cache.`)
       if (error) {
+        console.error('Error while searching for favorites: ', favorites)
         console.error(error)
         throw error
       }
@@ -143,6 +146,7 @@ export const searchFoodsByName = async (
       }
 
       if (error) {
+        console.error('Error while searching for favorites: ', favorites)
         console.error(error)
         throw error
       }
@@ -182,6 +186,23 @@ export const searchFoodsByName = async (
   })
 }
 
+// TODO: Rename controllers searchXById to getXById or something like that
+export const searchFoodById = async (id: Food['id']): Promise<Food> => {
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select()
+    .eq('id', id)
+    .limit(1)
+    .single()
+
+  if (error) {
+    console.error('Error while searching for id: ', id)
+    console.error(error)
+    throw error
+  }
+  return foodSchema.parse(data)
+}
+
 export const searchFoodsByEan = async (
   ean: string,
   limit?: number,
@@ -206,6 +227,7 @@ export const searchFoodsByEan = async (
           }
 
           if (error) {
+            console.error('Error while searching for ean: ', ean)
             console.error(error)
             throw error
           }
@@ -222,10 +244,13 @@ export const searchFoodsByEan = async (
   )
 }
 
-export const upsertFood = async (food: Omit<Food, 'id'>): Promise<Food> => {
+export const upsertFood = async (food: New<Food>): Promise<Food> => {
+  delete (food as Partial<Food>).id
+  delete (food as Partial<Food>)['']
   food.ean = food.ean || undefined // Remove empty ean
   const { data, error } = await supabase.from(TABLE).upsert(food).select()
   if (error) {
+    console.error('Error while upserting food: ', food)
     console.error(error)
     throw error
   }
@@ -241,6 +266,7 @@ export const deleteAll = async () => {
   //             await pb.collection(PB_COLLECTION).delete(food.id, { $autoCancel: false })
   //             break;
   //         } catch (e) {
+  // console.error('Error while deleteAll for: ',)
   //             console.error(e);
   //             console.log(`Retrying ${food.name}...`);
   //             await new Promise(r => setTimeout(r, 1000));

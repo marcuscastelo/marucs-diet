@@ -1,7 +1,7 @@
 'use client'
 
 import { MealData } from '@/model/mealModel'
-import { createContext, useContext } from 'react'
+import { createContext, useContext } from 'use-context-selector'
 
 const MealContext = createContext<{ mealData: MealData } | null>(null)
 

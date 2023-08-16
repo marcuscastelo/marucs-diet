@@ -9,7 +9,7 @@ export default function Page() {
   const [foods, setFoods] = useState<Food[]>([mockFood()])
 
   const fetchFoods = async () => {
-    const foods = await listFoods()
+    const foods = await listFoods(10)
     setFoods(foods)
   }
 
@@ -18,7 +18,6 @@ export default function Page() {
     await upsertFood({
       name: 'Arroz',
       macros: {
-        calories: 100,
         protein: 10,
         carbs: 10,
         fat: 10,
