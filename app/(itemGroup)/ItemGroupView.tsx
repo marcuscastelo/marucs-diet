@@ -8,7 +8,7 @@ import {
   useItemGroupContext,
 } from './ItemGroupContext'
 import { ItemGroup, isSimpleSingleGroup } from '@/model/foodItemGroupModel'
-import { calcGroupMacros } from '@/utils/macroMath'
+import { calcGroupCalories, calcGroupMacros } from '@/utils/macroMath'
 import { useUserContext } from '@/context/users.context'
 import { isRecipedGroupUpToDate } from '@/utils/groupUtils'
 import { Loadable } from '@/utils/loadable'
@@ -211,12 +211,7 @@ function MealItemNutritionalInfo() {
         <span className="text-white"> {itemGroup?.quantity ?? -666}g </span>|
         <span className="text-white">
           {' '}
-          {/* // TODO: Calculate calories for itemgroup */}
-          {/* {calculateCalories({
-            carbs: (itemGroup.macros.carbs * itemGroup.quantity) / 100,
-            protein: (itemGroup.macros.protein * itemGroup.quantity) / 100,
-            fat: (itemGroup.macros.fat * itemGroup.quantity) / 100,
-          }).toFixed(0)} */}
+          {itemGroup && calcGroupCalories(itemGroup).toFixed(0)}
           kcal{' '}
         </span>
       </div>
