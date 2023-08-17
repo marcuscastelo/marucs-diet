@@ -1,5 +1,6 @@
 'use client'
 
+import { useConfirmModalContext } from '@/context/confirmModal.context'
 import { deleteDay, upsertDay } from '@/controllers/days'
 import { Day } from '@/model/dayModel'
 import { Loaded } from '@/utils/loadable'
@@ -15,6 +16,8 @@ export default function CopyLastDayButton({
   selectedDay: string
   refetchDays: () => void
 }) {
+  const { show: showConfirmModal } = useConfirmModalContext()
+
   const lastDayIdx = days.data.findLastIndex(
     (day) => Date.parse(day.target_day) < Date.parse(selectedDay),
   )
@@ -36,13 +39,13 @@ export default function CopyLastDayButton({
       className="btn-primary btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white"
       onClick={async () => {
         if (dayData !== undefined) {
-          if (
-            confirm(
-              'Tem certeza que deseja excluir este dia e copiar o dia anterior?',
-            )
-          ) {
-            await deleteDay(dayData.id)
-          }
+          showConfirmModal({
+            title: 'Excluir dia',
+            message: 'Tem certeza que deseja excluir este dia?',
+            onConfirm: async () => {
+              await deleteDay(dayData.id)
+            },
+          })
         }
 
         const lastDayIdx = days.data.findLastIndex(

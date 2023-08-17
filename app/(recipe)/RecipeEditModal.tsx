@@ -7,6 +7,7 @@ import { Recipe, createRecipe } from '@/model/recipeModel'
 import RecipeEditView from './RecipeEditView'
 import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
 import { ModalContextProvider, useModalContext } from '../(modals)/ModalContext'
+import { useConfirmModalContext } from '@/context/confirmModal.context'
 
 export type RecipeEditModalProps = {
   show?: boolean
@@ -25,6 +26,7 @@ const RecipeEditModal = ({
   onCancel,
 }: RecipeEditModalProps) => {
   const { visible, setVisible } = useModalContext()
+  const { show: showConfirmModal } = useConfirmModalContext()
 
   const [recipe, setRecipe] = useState<Recipe>(
     initialRecipe ??
@@ -134,6 +136,7 @@ const RecipeEditModal = ({
                 actions={
                   <RecipeEditView.Actions
                     // TODO: Treat recursive recipe
+                    // TODO: Implement onAddItem for RecipeEditModal
                     onNewItem={() => alert('TODO: onAddItem')}
                   />
                 }
@@ -151,11 +154,16 @@ const RecipeEditModal = ({
                     e.preventDefault()
 
                     // TODO: Move confirm up to parent (also with all other confirmations)
-                    // TODO: Replace confirm with a modal
-                    if (confirm('Tem certeza que deseja excluir este item?')) {
-                      // handleDeleteItem?.(id)
-                      alert('TODO: handleDeleteItem')
-                    }
+
+                    showConfirmModal({
+                      title: 'Excluir item',
+                      message: 'Tem certeza que deseja excluir este item?',
+                      onConfirm: () => {
+                        // handleDeleteItem?.(id)
+                        // TODO: Implement handleDeleteItem for RecipeEditModal
+                        alert('TODO: handleDeleteItem')
+                      },
+                    })
                   }}
                 >
                   Excluir
