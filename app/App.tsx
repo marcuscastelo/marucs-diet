@@ -1,5 +1,7 @@
 'use client'
 
+import ConfirmModal from '@/components/ConfirmModal'
+import { ConfirmModalProvider } from '@/context/confirmModal.context'
 import { DaysContextProvider } from '@/context/days.context'
 import { UserContextProvider, useUserContext } from '@/context/users.context'
 import { listDays } from '@/controllers/days'
@@ -8,7 +10,9 @@ import { listUsers } from '@/controllers/users'
 export default function App({ children }: { children: React.ReactNode }) {
   return (
     <AppUserProvider>
-      <AppDaysProvider>{children}</AppDaysProvider>
+      <AppDaysProvider>
+        <AppConfirmModalProvider>{children}</AppConfirmModalProvider>
+      </AppDaysProvider>
     </AppUserProvider>
   )
 }
@@ -44,5 +48,14 @@ function AppDaysProvider({ children }: { children: React.ReactNode }) {
     >
       {children}
     </DaysContextProvider>
+  )
+}
+
+function AppConfirmModalProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <ConfirmModalProvider>
+      <ConfirmModal />
+      {children}
+    </ConfirmModalProvider>
   )
 }

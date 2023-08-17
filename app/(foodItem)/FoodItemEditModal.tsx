@@ -8,6 +8,7 @@ import { Recipe } from '@/model/recipeModel'
 import { Loadable } from '@/utils/loadable'
 import { useUserContext } from '@/context/users.context'
 import { useModalContext } from '../(modals)/ModalContext'
+import ConfirmModal from '@/components/ConfirmModal'
 
 const RECIPE_EDIT_MODAL_ID = 'meal-item-add-modal:self:recipe-edit-modal'
 
