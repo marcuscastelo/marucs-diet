@@ -5,7 +5,7 @@ import { useConfirmModalContext } from '@/context/confirmModal.context'
 export default function ConfirmModal() {
   const {
     visible,
-    internals: { title, body, setVisible, onCancel, onConfirm },
+    internals: { title, message: body, setVisible, onCancel, onConfirm },
   } = useConfirmModalContext()
 
   return (

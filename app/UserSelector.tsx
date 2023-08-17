@@ -19,7 +19,7 @@ export default function UserSelector() {
 
   const { user, changeUser, availableUsers } = useUserContext()
 
-  const { show: showConfirm } = useConfirmModalContext()
+  const { show: showConfirmModal } = useConfirmModalContext()
 
   return (
     <div className="flex items-center">
@@ -34,9 +34,9 @@ export default function UserSelector() {
           <UsersDropdown
             availableUsers={availableUsers}
             changeUser={(user: AvaliableUser) => {
-              showConfirm({
+              showConfirmModal({
                 title: 'Trocar de usuário',
-                body: `Deseja entrar como ${user.name}?`,
+                message: `Deseja entrar como ${user.name}?`,
                 onConfirm: () => {
                   changeUser(user.id)
                 },
@@ -103,17 +103,6 @@ function UsersDropdown({
               <Dropdown.Item
                 key={idx}
                 onClick={() => {
-                  // // Prompt user to confirm
-                  // if (!confirm(`Deseja entrar como ${user.name}?`)) {
-                  //   return
-                  // }
-
-                  // // Prompt username
-                  // const username = prompt(`Digite '${user.name}':`)
-                  // if (!username) {
-                  //   return
-                  // }
-
                   changeUser(user)
                   // Force dropdown to close without having to click outside setting aria
                   // Credit: https://reacthustle.com/blog/how-to-close-daisyui-dropdown-with-one-click

@@ -12,8 +12,8 @@ export type ConfirmModalContext = {
     setVisible: Dispatch<SetStateAction<boolean>>
     title: Title
     setTitle: Dispatch<SetStateAction<Title>>
-    body: Body
-    setBody: Dispatch<SetStateAction<Body>>
+    message: Body
+    setMessage: Dispatch<SetStateAction<Body>>
     onConfirm: () => void
     onCancel: () => void
     setOnConfirm: Dispatch<SetStateAction<() => void>>
@@ -22,15 +22,15 @@ export type ConfirmModalContext = {
   visible: boolean
   show: ({
     title,
-    body,
+    message,
     onConfirm,
     onCancel,
-  }: {
-    title?: Title
-    body?: Body
-    onConfirm?: () => void
-    onCancel?: () => void
-  }) => void
+  }: Partial<
+    Pick<
+      ConfirmModalContext['internals'],
+      'title' | 'message' | 'onConfirm' | 'onCancel'
+    >
+  >) => void
   close: () => void
 }
 
@@ -50,24 +50,30 @@ export function useConfirmModalContext() {
 
 export function ConfirmModalProvider({
   title: initialTitle = 'BUG: No title provided',
-  body: initialBody = 'BUG: No body provided',
+  message: initialMessage = 'BUG: No body provided',
   visible: initiallyVisible = false,
   onConfirm: initialOnConfirm = () => undefined,
   onCancel: initialOnCancel = () => undefined,
   children,
 }: {
   title?: Title
-  body?: Body
+  message?: Body
   visible?: boolean
   onConfirm?: () => void
   onCancel?: () => void
   children: React.ReactNode
 }) {
   const [title, setTitle] = useState(initialTitle)
-  const [body, setBody] = useState(initialBody)
+  const [message, setMessage] = useState(initialMessage)
   const [visible, setVisible] = useState(initiallyVisible)
-  const [onConfirm, setOnConfirm] = useState<() => void>(() => initialOnConfirm)
-  const [onCancel, setOnCancel] = useState<() => void>(() => initialOnCancel)
+  const [onConfirm, setOnConfirm] = useState<() => void>(() => () => {
+    setVisible(false)
+    initialOnConfirm()
+  })
+  const [onCancel, setOnCancel] = useState<() => void>(() => () => {
+    setVisible(false)
+    // initialOnCancel()
+  })
 
   const context: ConfirmModalContext = {
     internals: {
@@ -75,30 +81,20 @@ export function ConfirmModalProvider({
       setVisible,
       title,
       setTitle,
-      body,
-      setBody,
+      message,
+      setMessage,
       onConfirm,
       onCancel,
       setOnConfirm,
       setOnCancel,
     },
     visible,
-    show: ({
-      title,
-      body,
-      onConfirm,
-      onCancel,
-    }: {
-      title?: Title
-      body?: Body
-      onConfirm?: () => void
-      onCancel?: () => void
-    }) => {
+    show: ({ title, message, onConfirm, onCancel }) => {
       if (title !== undefined) {
         setTitle(title)
       }
-      if (body !== undefined) {
-        setBody(body)
+      if (message !== undefined) {
+        setMessage(message)
       }
       if (onConfirm !== undefined) {
         setOnConfirm(() => () => {

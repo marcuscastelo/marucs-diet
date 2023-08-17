@@ -27,6 +27,7 @@ import {
   isRecipedGroupUpToDate,
 } from '@/utils/groupUtils'
 import { DownloadIcon } from '../(icons)/DownloadIcon'
+import { useConfirmModalContext } from '@/context/confirmModal.context'
 
 // TODO: Rename to FoodItemEdit
 export type ItemGroupEditModalProps = {
@@ -513,7 +514,11 @@ function Actions({
   canApply: boolean
   setVisible: Dispatch<SetStateAction<boolean>>
 }) {
-  const { itemGroup: group } = useItemGroupContext()
+  // TODO: Make itemGroup not nullable? Reflect changes on all group?. and itemGroup?. and ?? everywhere
+  const { itemGroup } = useItemGroupContext()
+
+  const { show: showConfirmModal } = useConfirmModalContext()
+
   return (
     <ModalActions>
       {/* if there is a button in form, it will close the modal */}
@@ -523,10 +528,18 @@ function Actions({
           onClick={(e) => {
             e.preventDefault()
             // TODO: Move confirm up to parent (also with all other confirmations)
-            // TODO: Replace confirm with a modal
-            if (confirm('Tem certeza que deseja excluir este item?')) {
-              group && onDelete?.(group.id)
+            if (!itemGroup || !onDelete) {
+              alert('BUG: group or onDelete is null')
             }
+            showConfirmModal({
+              title: 'Excluir grupo',
+              message: `Tem certeza que deseja excluir o grupo ${
+                itemGroup?.name ?? 'BUG: group is null' // TODO: Color group name orange and BUG red
+              }?`,
+              onConfirm: () => {
+                itemGroup && onDelete(itemGroup.id)
+              },
+            })
           }}
         >
           Excluir
@@ -548,7 +561,7 @@ function Actions({
         onClick={(e) => {
           e.preventDefault()
           // TODO: only onSaveGroup when apply button is pressed, i.e. keeping internal state
-          group && onSaveGroup(group)
+          itemGroup && onSaveGroup(itemGroup)
         }}
       >
         Aplicar
