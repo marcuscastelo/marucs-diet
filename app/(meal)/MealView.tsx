@@ -9,6 +9,7 @@ import CopyIcon from '../(icons)/CopyIcon'
 import { calcMealCalories } from '@/utils/macroMath'
 import ItemGroupListView from '../(itemGroup)/ItemGroupListView'
 import { ItemGroup, itemGroupSchema } from '@/model/foodItemGroupModel'
+import { useConfirmModalContext } from '@/context/confirmModal.context'
 
 export type MealViewProps = {
   mealData: MealData
@@ -57,6 +58,7 @@ function MealViewHeader({
   onUpdateMeal: (meal: MealData) => void
 }) {
   const { mealData } = useMealContext()
+  const { show: showConfirmModal } = useConfirmModalContext()
 
   // TODO: Show how much of the daily target is this meal (e.g. 30% of daily calories) (maybe in a tooltip) (useContext)s
   const mealCalories = calcMealCalories(mealData)
@@ -65,17 +67,19 @@ function MealViewHeader({
 
   const onClearItems = (e: React.MouseEvent) => {
     e.preventDefault()
-    // Confirm
-    if (!confirm('Tem certeza que deseja limpar os itens?')) {
-      return
-    }
 
-    const newMealData: MealData = {
-      ...mealData,
-      groups: [],
-    }
+    showConfirmModal({
+      title: 'Limpar itens',
+      message: 'Tem certeza que deseja limpar os itens?',
+      onConfirm: () => {
+        const newMealData: MealData = {
+          ...mealData,
+          groups: [],
+        }
 
-    onUpdateMeal(newMealData)
+        onUpdateMeal(newMealData)
+      },
+    })
   }
 
   const handleCopyMeal = (e: React.MouseEvent) => {

@@ -9,6 +9,7 @@ import { Loadable } from '@/utils/loadable'
 import { useUserContext } from '@/context/users.context'
 import { useModalContext } from '../(modals)/ModalContext'
 import ConfirmModal from '@/components/ConfirmModal'
+import { useConfirmModalContext } from '@/context/confirmModal.context'
 
 const RECIPE_EDIT_MODAL_ID = 'meal-item-add-modal:self:recipe-edit-modal'
 
@@ -342,6 +343,8 @@ function Actions({
   onCancel?: () => void
   onApply: () => void
 }) {
+  const { show: showConfirmModal } = useConfirmModalContext()
+
   return (
     <ModalActions>
       {/* if there is a button in form, it will close the modal */}
@@ -352,10 +355,14 @@ function Actions({
             e.preventDefault()
 
             // TODO: Move confirm up to parent (also with all other confirmations)
-            // TODO: Replace confirm with a modal
-            if (confirm('Tem certeza que deseja excluir este item?')) {
-              onDelete?.(id)
-            }
+            onDelete &&
+              showConfirmModal({
+                title: 'Excluir item',
+                message: 'Tem certeza que deseja excluir este item?',
+                onConfirm: () => {
+                  onDelete?.(id)
+                },
+              })
           }}
         >
           Excluir
