@@ -11,6 +11,7 @@ import PasteIcon from '../(icons)/PasteIcon'
 import CopyIcon from '../(icons)/CopyIcon'
 import FoodItemListView from '../(foodItem)/FoodItemListView'
 import { calcRecipeCalories } from '@/utils/macroMath'
+import { useConfirmModalContext } from '@/context/confirmModal.context'
 
 export type RecipeEditViewProps = {
   recipe: Recipe
@@ -58,6 +59,7 @@ function RecipeEditHeader({
   onUpdateRecipe: (Recipe: Recipe) => void
 }) {
   const { recipe } = useRecipeContext()
+  const { show: showConfirmModal } = useConfirmModalContext()
 
   // TODO: Show how much of the daily target is this Recipe (e.g. 30% of daily calories) (maybe in a tooltip) (useContext)s
   const recipeCalories = calcRecipeCalories(recipe)
@@ -66,17 +68,19 @@ function RecipeEditHeader({
 
   const onClearItems = (e: React.MouseEvent) => {
     e.preventDefault()
-    // Confirm
-    if (!confirm('Tem certeza que deseja limpar os itens?')) {
-      return
-    }
 
-    const newRecipe: Recipe = {
-      ...recipe,
-      items: [],
-    }
+    showConfirmModal({
+      title: 'Limpar itens',
+      message: 'Tem certeza que deseja limpar os itens?',
+      onConfirm: () => {
+        const newRecipe: Recipe = {
+          ...recipe,
+          items: [],
+        }
 
-    onUpdateRecipe(newRecipe)
+        onUpdateRecipe(newRecipe)
+      },
+    })
   }
 
   const handleCopyRecipe = (e: React.MouseEvent) => {
