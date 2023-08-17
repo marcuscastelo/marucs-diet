@@ -6,8 +6,11 @@ import Link from 'next/link'
 import { AvaliableUser, useUserContext } from '@/context/users.context'
 import { Loadable } from '@/utils/loadable'
 import { User } from '@/model/userModel'
-import { ModalContextProvider } from './(modals)/ModalContext'
-import Modal, { ModalActions, ModalHeader } from './(modals)/Modal'
+import ConfirmModal from '@/components/ConfirmModal'
+import {
+  ConfirmModalProvider,
+  useConfirmModalContext,
+} from '@/context/confirmModal.context'
 
 export default function UserSelector() {
   // TODO: Reenable loading timeout
@@ -16,30 +19,10 @@ export default function UserSelector() {
 
   const { user, changeUser, availableUsers } = useUserContext()
 
-  const [confirmModalVisible, setConfirmModalVisible] = useState(false)
-  const [selectedUser, setSelectedUser] = useState<AvaliableUser | undefined>()
+  const { show: showConfirm } = useConfirmModalContext()
 
   return (
     <div className="flex items-center">
-      {!user.loading && !user.errored && (
-        <ConfirmModal
-          visible={confirmModalVisible}
-          setVisible={setConfirmModalVisible}
-          onConfirm={() => {
-            if (selectedUser) {
-              changeUser(selectedUser.id)
-              setSelectedUser(undefined)
-            }
-            setConfirmModalVisible(false)
-          }}
-          onCancel={() => setConfirmModalVisible(false)}
-        >
-          <p>
-            Tem certeza que deseja entrar como{' '}
-            {selectedUser?.name ?? 'BUG: no user selected'}?
-          </p>
-        </ConfirmModal>
-      )}
       <div className="flex-shrink-0">
         <UserIcon />
       </div>
@@ -51,8 +34,16 @@ export default function UserSelector() {
           <UsersDropdown
             availableUsers={availableUsers}
             changeUser={(user: AvaliableUser) => {
-              setSelectedUser(user)
-              setConfirmModalVisible(true)
+              showConfirm({
+                title: 'Trocar de usuário',
+                body: `Deseja entrar como ${user.name}?`,
+                onConfirm: () => {
+                  changeUser(user.id)
+                },
+                onCancel: () => {
+                  alert('Cancelado')
+                },
+              })
             }}
             loadingHasTimedOut={loadingHasTimedOut}
           />
@@ -145,42 +136,5 @@ function UsersDropdown({
           )}
       </Dropdown.Menu>
     </Dropdown>
-  )
-}
-
-function ConfirmModal({
-  customTitle: title = 'Confirmar',
-  onConfirm,
-  onCancel,
-  children,
-  visible,
-  setVisible,
-}: {
-  visible: boolean
-  setVisible: Dispatch<SetStateAction<boolean>>
-  customTitle?: string
-  onConfirm: () => void
-  onCancel: () => void
-  children: React.ReactNode
-}) {
-  return (
-    <ModalContextProvider visible={visible} setVisible={setVisible}>
-      {/* TODO: Move modal-id to ModalContextProvider with a pseudo-random ID generation */}
-      <Modal
-        modalId={`confirm-modal-${Math.random()}`}
-        header={<h1>{title}</h1>}
-        body={<p>{children}</p>}
-        actions={
-          <ModalActions>
-            <button className="btn btn-ghost" onClick={onCancel}>
-              Cancelar
-            </button>
-            <button className="btn btn-primary" onClick={onConfirm}>
-              Confirmar
-            </button>
-          </ModalActions>
-        }
-      />
-    </ModalContextProvider>
   )
 }
