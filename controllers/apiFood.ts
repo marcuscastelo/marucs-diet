@@ -30,25 +30,38 @@ export async function importFoodFromApiByEan(ean: string): Promise<Food> {
 }
 
 export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
+  console.debug(`[ApiFood] Importing foods with name "${name}"`)
   const apiFoods = (await INTERNAL_API.get('food', { params: { q: name } }))
-    .data as ApiFood[]
+    .data.alimentos as ApiFood[]
 
+  console.debug(`[ApiFood] Found ${apiFoods.length} foods`)
   const foodsToInsert = apiFoods.map(convertApi2Food)
 
   const insertPromises = foodsToInsert.map(insertFood)
 
   const insertionResults = await Promise.allSettled(insertPromises)
+  console.debug(
+    `[ApiFood] Inserted ${insertionResults.length} foods. ${
+      insertionResults.filter((result) => result.status === 'fulfilled').length
+    } succeeded, ${
+      insertionResults.filter((result) => result.status === 'rejected').length
+    } failed`,
+  )
 
   if (insertionResults.some((result) => result.status === 'rejected')) {
     console.error(`Failed to insert some foods: ${insertionResults}`)
     throw new Error('Failed to insert some foods. See console for details.')
+  } else {
+    console.debug(`[ApiFood] No failed insertions, marking search as cached`)
+    await markSearchAsCached(name)
   }
 
   const insertedFoods: Food[] = insertionResults.map((result) =>
     result.status === 'fulfilled' ? result.value : (null as unknown as Food),
   )
-
-  markSearchAsCached(name)
+  console.debug(
+    `[ApiFood] Returning ${insertedFoods.length}/${apiFoods.length} foods`,
+  )
 
   return insertedFoods.map((food) => foodSchema.parse(food))
 }
