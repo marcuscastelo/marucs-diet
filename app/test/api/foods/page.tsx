@@ -1,22 +1,23 @@
 'use client'
 
 import FoodItemView from '@/app/(foodItem)/FoodItemView'
-import { listFoods } from '@/controllers/food'
-import { Food } from '@/model/foodModel'
+import UserSelector from '@/app/UserSelector'
+import { useFoodContext } from '@/context/food.context'
+import { useUserContext } from '@/context/users.context'
 import { useEffect, useState } from 'react'
 
 export default function Page() {
-  const [foods, setFoods] = useState<Food[]>([])
+  const { foods, refetchFoods } = useFoodContext()
+  const { isFoodFavorite } = useUserContext()
   const [search, setSearch] = useState<string>('')
 
-  const fetchFoods = async () => {
-    const foods = await listFoods()
-    setFoods(foods)
-  }
-
   useEffect(() => {
-    fetchFoods()
-  }, [])
+    refetchFoods(search)
+  }, [refetchFoods, search])
+
+  if (foods.loading || foods.errored) {
+    return <div>Loading...</div>
+  }
 
   return (
     <>
@@ -49,8 +50,8 @@ export default function Page() {
         />
         {/* <button type="submit" className="text-white absolute right-2.5 bottom-2.5 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-4 py-2 bg-blue-600 hover:bg-blue-700 focus:ring-blue-800">Search</button> */}
       </div>
-
-      {foods
+      <UserSelector />
+      {foods.data
         .filter((food) => {
           if (search === /* TODO: Check if equality is a bug */ '') {
             return true
@@ -92,6 +93,17 @@ export default function Page() {
                 },
                 reference: food.id,
               }}
+              header={
+                <FoodItemView.Header
+                  name={<FoodItemView.Header.Name />}
+                  favorite={
+                    <FoodItemView.Header.Favorite
+                      favorite={isFoodFavorite(food.id)}
+                    />
+                  }
+                />
+              }
+              nutritionalInfo={<FoodItemView.NutritionalInfo />}
             />
           </div>
         ))}

@@ -11,7 +11,7 @@ export default function Page() {
   const [foods, setFoods] = useState<Food[]>([])
 
   const fetchFoods = async () => {
-    const foods = await listFoods(10)
+    const foods = await listFoods({ limit: 10 })
     setFoods(foods)
   }
 
