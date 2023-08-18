@@ -48,14 +48,6 @@ export default function CopyLastDayButton({
           })
         }
 
-        const lastDayIdx = days.data.findLastIndex(
-          (day) => Date.parse(day.target_day) < Date.parse(selectedDay),
-        )
-        if (lastDayIdx === /* TODO: Check if equality is a bug */ -1) {
-          alert('Não foi possível encontrar um dia anterior')
-          return
-        }
-
         upsertDay({
           ...days.data[lastDayIdx],
           target_day: selectedDay,
