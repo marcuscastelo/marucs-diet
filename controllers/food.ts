@@ -1,9 +1,7 @@
 import { Food, foodSchema } from '@/model/foodModel'
 import { New, enforceNew } from '@/utils/newDbRecord'
 import supabase from '@/utils/supabase'
-import { forEachLeadingCommentRange } from 'typescript'
 import { isEanCached } from './eanCache'
-import { mockFood } from '@/app/test/unit/(mock)/mockData'
 import { importFoodFromApiByEan, importFoodsFromApiByName } from './apiFood'
 import { isSearchCached } from './searchCache'
 
@@ -17,7 +15,10 @@ export async function searchFoodById(
   id: Food['id'],
   params: FoodSearchParams = {},
 ) {
-  const [food] = await internalSearchFoods({ field: 'id', value: id }, params)
+  const [food] = await internalCachedSearchFoods(
+    { field: 'id', value: id },
+    params,
+  )
   return food
 }
 
@@ -25,53 +26,83 @@ export async function searchFoodsByName(
   name: Required<Food>['name'],
   params: FoodSearchParams = {},
 ) {
+  console.debug(`[Food] Searching for food with name ${name}`)
   if (!(await isSearchCached(name))) {
+    console.debug(`[Food] Food with name ${name} not cached, importing`)
     await importFoodsFromApiByName(name)
   }
-  return await internalSearchFoods({ field: 'name', value: name }, params)
+  console.debug(`[Food] Food with name ${name} cached, searching`)
+  return await internalCachedSearchFoods(
+    { field: 'name', value: name, operator: 'ilike' },
+    params,
+  )
 }
 
 export async function searchFoodsByEan(
   ean: Required<Food>['ean'],
   params: FoodSearchParams = {},
 ) {
+  console.debug(`[Food] Searching for food with EAN ${ean}`)
   if (!(await isEanCached(ean))) {
     await importFoodFromApiByEan(ean)
   }
-  const [food] = await internalSearchFoods({ field: 'ean', value: ean }, params)
+  const [food] = await internalCachedSearchFoods(
+    { field: 'ean', value: ean },
+    params,
+  )
   return food
 }
 
 export async function listFoods(params: FoodSearchParams = {}) {
-  return await internalSearchFoods({ field: '', value: '' }, params)
+  return await internalCachedSearchFoods({ field: '', value: '' }, params)
 }
 
 // TODO: Favorites on top? other function for that?
-async function internalSearchFoods(
+async function internalCachedSearchFoods(
   {
     field,
     value,
+    operator = 'eq',
   }:
     | {
         field: keyof Food
         value: Food[keyof Food]
+        operator?: 'eq' | 'ilike'
       }
     | {
         field: ''
         value: ''
+        operator?: 'eq' | 'ilike'
       },
   params?: FoodSearchParams,
 ): Promise<Food[]> {
+  console.debug(
+    `[Food] Searching for foods with ${field} = ${value} (limit: ${
+      params?.limit ?? 'none'
+    })`,
+  )
   const { limit } = params ?? {}
   const base = supabase.from(TABLE).select('*')
 
   let query = base
 
   if (field !== '' && value !== '') {
-    query = query.eq(field, value)
+    console.debug(`[Food] Searching for foods with ${field} = ${value}`)
+
+    switch (operator) {
+      case 'eq':
+        query = query.eq(field, value)
+        break
+      case 'ilike':
+        query = query.ilike(field, `%${value}%`)
+        break
+      default:
+        ;((_: never) => _)(operator) // TODO: Create a better function for exhaustive checks
+    }
   }
 
   if (limit) {
+    console.debug(`[Food] Limiting search to ${limit} results`)
     query = query.limit(limit)
   }
 
@@ -81,6 +112,7 @@ async function internalSearchFoods(
     throw error
   }
 
+  console.debug(`[Food] Found ${data?.length ?? 0} foods`)
   return foodSchema.array().parse(data ?? [])
 }
 
