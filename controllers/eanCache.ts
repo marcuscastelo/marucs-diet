@@ -1,5 +1,5 @@
 import supabase from '@/utils/supabase'
-import { CachedEan, cachedEanSchema } from '@/model/cachedEan'
+import { CachedEan } from '@/model/cachedEan'
 
 const TABLE = 'foods'
 

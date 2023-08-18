@@ -86,17 +86,17 @@ function MealItemName() {
 
   const { debug } = useUserContext()
 
-  const [consumable, setConsumable] = useState<Template | null>(null)
+  const [template, setTemplate] = useState<Template | null>(null)
 
   useEffect(() => {
     if (item.type === 'recipe') {
-      searchRecipeById(item.reference).then((recipe) => setConsumable(recipe))
+      searchRecipeById(item.reference).then((recipe) => setTemplate(recipe))
     } else {
-      searchFoodById(item.reference).then((food) => setConsumable(food))
+      searchFoodById(item.reference).then((food) => setTemplate(food))
     }
   }, [item.type, item.reference])
 
-  const getConsumableNameColor = () => {
+  const getTemplateNameColor = () => {
     if (item.type === 'food') {
       return 'text-white'
     } else if (item.type === 'recipe') {
@@ -111,13 +111,13 @@ function MealItemName() {
       {/* //TODO: mealItem id is random, but it should be an entry on the database (meal too) */}
       {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.mealItem.id}]</h5> */}
       <h5
-        className={`mb-2 text-lg font-bold tracking-tight ${getConsumableNameColor()}`}
+        className={`mb-2 text-lg font-bold tracking-tight ${getTemplateNameColor()}`}
       >
-        {consumable?.name ?? 'food not found'}{' '}
+        {template?.name ?? 'food not found'}{' '}
         {debug && (
           <>
             <div className="text-sm text-gray-400">[ID: {item?.id}]</div>
-            <div className="text-sm text-gray-400">[ID: {consumable?.id}]</div>
+            <div className="text-sm text-gray-400">[ID: {template?.id}]</div>
           </>
         )}
       </h5>
