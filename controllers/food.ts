@@ -247,7 +247,7 @@ export const searchFoodsByEan = async (
 export const upsertFood = async (food: New<Food>): Promise<Food> => {
   delete (food as Partial<Food>).id
   delete (food as Partial<Food>)['']
-  food.ean = food.ean || undefined // Remove empty ean
+  food.ean = food.ean || undefined // This removes empty ean ('') from being inserted
   const { data, error } = await supabase.from(TABLE).upsert(food).select()
   if (error) {
     console.error('Error while upserting food: ', food)
