@@ -80,8 +80,8 @@ function Calories({
               transform: `rotate(-90deg) scale(-1, -1) translate(0, -0.5rem)`,
             }}
           >
-            {Math.round(calories * 100) / 100}/
-            {Math.round(targetCalories * 100) / 100}kcal
+            {Math.round(calories).toFixed(2)}/
+            {Math.round(targetCalories).toFixed(2)}kcal
           </span>
         </div>
       </div>
