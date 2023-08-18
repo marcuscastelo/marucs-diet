@@ -33,11 +33,7 @@ export default function BarCodeSearch({
     setLoading(true)
     let ignore = false
     searchFoodsByEan(innerBarCode)
-      .then(async (newFood) => {
-        if (ignore) {
-          return
-        }
-        const food = await upsertFood(newFood)
+      .then((food) => {
         if (ignore) {
           return
         }
@@ -45,7 +41,7 @@ export default function BarCodeSearch({
       })
       .catch((err) => {
         console.error(err)
-        alert(err)
+        alert(JSON.stringify(err, null, 2))
       })
       .finally(() => {
         if (ignore) {
