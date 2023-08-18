@@ -214,7 +214,7 @@ function MacroTargetSetting({
           {target.name}
         </h1>
         <div className="mt-1 text-center">
-          {target.calorieMultiplier * (Number(grams) || 0)} kcal
+          {(target.calorieMultiplier * (Number(grams) || 0)).toFixed(0)} kcal
         </div>
       </div>
       <div className="mt-5 flex flex-1 flex-shrink flex-col gap-1">
