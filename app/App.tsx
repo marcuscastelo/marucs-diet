@@ -4,10 +4,11 @@ import ConfirmModal from '@/components/ConfirmModal'
 import { ConfirmModalProvider } from '@/context/confirmModal.context'
 import { DaysContextProvider } from '@/context/days.context'
 import { FoodContextProvider } from '@/context/food.context'
-import { UserContextProvider, useUserContext } from '@/context/users.context'
+import { UserContext, UserContextProvider } from '@/context/users.context'
 import { listDays } from '@/controllers/days'
 import { listFoods, searchFoodsByName } from '@/controllers/food'
 import { listUsers, updateUser } from '@/controllers/users'
+import { useContextSelector } from 'use-context-selector'
 
 export default function App({ children }: { children: React.ReactNode }) {
   return (
@@ -22,6 +23,7 @@ export default function App({ children }: { children: React.ReactNode }) {
 }
 
 function AppUserProvider({ children }: { children: React.ReactNode }) {
+  console.debug(`[AppUserProvider] - Rendering`)
   return (
     <UserContextProvider
       onFetchAvailableUsers={async () => {
@@ -40,17 +42,25 @@ function AppUserProvider({ children }: { children: React.ReactNode }) {
 }
 
 function AppDaysProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useUserContext()
+  console.debug(`[AppDaysProvider] - Rendering`)
+  // TODO: useUserId() is not working here
+  const userId = useContextSelector(
+    UserContext,
+    (ctx) =>
+      ctx &&
+      !(ctx.user.loading || ctx.user.errored) &&
+      Number(ctx.user.data.id),
+  )
 
-  if (user.loading || user.errored) {
-    return <div>User loading or errored</div>
+  if (!userId) {
+    return <div>UserId not found</div>
   }
 
   return (
     <DaysContextProvider
-      userId={user.data.id}
+      userId={userId}
       onFetchDays={async () => {
-        return await listDays(user.data.id)
+        return await listDays(userId)
       }}
     >
       {children}
@@ -59,6 +69,8 @@ function AppDaysProvider({ children }: { children: React.ReactNode }) {
 }
 
 function AppConfirmModalProvider({ children }: { children: React.ReactNode }) {
+  console.debug(`[AppConfirmModalProvider] - Rendering`)
+
   return (
     <ConfirmModalProvider>
       <ConfirmModal />
@@ -68,10 +80,12 @@ function AppConfirmModalProvider({ children }: { children: React.ReactNode }) {
 }
 
 function AppFoodsProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useUserContext()
-  if (user.loading || user.errored) {
-    return <div>User loading or errored aa</div>
-  }
+  console.debug(`[AppFoodsProvider] - Rendering`)
+
+  // const { user } = useUserContext()
+  // if (user.loading || user.errored) {
+  //   return <div>User loading or errored aa</div>
+  // }
   return (
     <FoodContextProvider
       onFetchFoods={async (search?: string) => {
