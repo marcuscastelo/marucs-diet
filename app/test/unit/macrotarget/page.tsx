@@ -226,7 +226,7 @@ function MacroTargetSetting({
         />
       </div>
       <div className="mt-3 text-center">
-        {target.calorieMultiplier * (Number(grams) || 0)} kcal
+        {(target.calorieMultiplier * (Number(grams) || 0)).toFixed(0)} kcal
         {/* RERENDER: {Math.random().toString().slice(0, 5)} */}
       </div>
     </>

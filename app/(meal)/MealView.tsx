@@ -163,7 +163,7 @@ function MealViewHeader({
     <div className="flex">
       <div className="my-2">
         <h5 className="text-3xl">{mealData.name}</h5>
-        <p className="italic text-gray-400">{mealCalories}kcal</p>
+        <p className="italic text-gray-400">{mealCalories.toFixed(0)}kcal</p>
       </div>
       {/* // TODO: Remove code duplication between MealView and RecipeView */}
       <div className={`ml-auto flex gap-2`}>
