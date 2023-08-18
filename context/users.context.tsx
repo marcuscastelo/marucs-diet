@@ -82,7 +82,7 @@ export function UserContextProvider({
         console.error(err)
         alert(err)
       })
-  }, []) // TODO: Fix missing dependencies
+  }, [onFetchUser, onFetchAvailableUsers])
 
   const handleSetUser = (user: User) => {
     setUser({ loading: false, errored: false, data: user })
