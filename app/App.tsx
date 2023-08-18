@@ -82,12 +82,12 @@ function AppFoodsProvider({ children }: { children: React.ReactNode }) {
           console.debug(
             `[FoodContextProvider] onFetchFoods - calling searchFoodsByName`,
           )
-          return await searchFoodsByName(search, 100, user.data.favorite_foods)
+          return await searchFoodsByName(search, { limit: 100 })
         } else {
           console.debug(
             `[FoodContextProvider] onFetchFoods - calling listFoods`,
           )
-          return await listFoods(100, user.data.favorite_foods)
+          return await listFoods({ limit: 100 })
         }
       }}
     >

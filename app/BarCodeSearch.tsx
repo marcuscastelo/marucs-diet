@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import FoodItemView from './(foodItem)/FoodItemView'
-import { searchFoodsByEan, upsertFood } from '@/controllers/food'
+import { searchFoodsByEan } from '@/controllers/food'
 import { Food } from '@/model/foodModel'
 import { useUserContext } from '@/context/users.context'
 
