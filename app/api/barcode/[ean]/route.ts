@@ -5,8 +5,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import EAN_SECRETS from '@/secrets/ean_api.json'
 
 import axios from 'axios'
-import { apiFoodSchema } from '@/model/apiFoodModel'
-import { convertApi2Food } from '@/controllers/food'
 
 // TODO: rename all barcodes to EAN?
 const searchBarCodeInternal = async (barcode: string) => {
@@ -16,7 +14,7 @@ const searchBarCodeInternal = async (barcode: string) => {
   })
   console.log(response.data)
   console.dir(response.data)
-  return convertApi2Food(apiFoodSchema.parse(response.data))
+  return response.data
 }
 
 // TODO: merge this with the food search by name (using query params like ?name= or ?ean=)

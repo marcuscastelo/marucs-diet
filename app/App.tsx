@@ -3,15 +3,19 @@
 import ConfirmModal from '@/components/ConfirmModal'
 import { ConfirmModalProvider } from '@/context/confirmModal.context'
 import { DaysContextProvider } from '@/context/days.context'
+import { FoodContextProvider } from '@/context/food.context'
 import { UserContextProvider, useUserContext } from '@/context/users.context'
 import { listDays } from '@/controllers/days'
+import { listFoods, searchFoodsByName } from '@/controllers/food'
 import { listUsers, updateUser } from '@/controllers/users'
 
 export default function App({ children }: { children: React.ReactNode }) {
   return (
     <AppUserProvider>
       <AppDaysProvider>
-        <AppConfirmModalProvider>{children}</AppConfirmModalProvider>
+        <AppConfirmModalProvider>
+          <AppFoodsProvider>{children}</AppFoodsProvider>
+        </AppConfirmModalProvider>
       </AppDaysProvider>
     </AppUserProvider>
   )
@@ -60,5 +64,34 @@ function AppConfirmModalProvider({ children }: { children: React.ReactNode }) {
       <ConfirmModal />
       {children}
     </ConfirmModalProvider>
+  )
+}
+
+function AppFoodsProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useUserContext()
+  if (user.loading || user.errored) {
+    return <div>User loading or errored aa</div>
+  }
+  return (
+    <FoodContextProvider
+      onFetchFoods={async (search?: string) => {
+        console.debug(
+          `[FoodContextProvider] onFetchFoods - called with search: ${search}`,
+        )
+        if (search) {
+          console.debug(
+            `[FoodContextProvider] onFetchFoods - calling searchFoodsByName`,
+          )
+          return await searchFoodsByName(search, { limit: 100 })
+        } else {
+          console.debug(
+            `[FoodContextProvider] onFetchFoods - calling listFoods`,
+          )
+          return await listFoods({ limit: 100 })
+        }
+      }}
+    >
+      {children}
+    </FoodContextProvider>
   )
 }

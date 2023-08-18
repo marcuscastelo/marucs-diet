@@ -8,7 +8,7 @@ import { Recipe, createRecipe } from '@/model/recipeModel'
 export const mockFood = (partial?: Partial<Food>): Food => ({
   '': 'Food',
   id: Math.round(Math.random() * 1000),
-  name: 'Papa de carne bovina moída (acém), fubá e couve, c/ caldo de frango, c/ cebola e azeite de oliva, s/ sal',
+  name: 'Mocked food',
   macros: {
     carbs: 100,
     protein: 100,

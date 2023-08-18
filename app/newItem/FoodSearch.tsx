@@ -22,6 +22,7 @@ import {
   SimpleItemGroup,
 } from '@/model/foodItemGroupModel'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
+import { useFoodContext } from '@/context/food.context'
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal'
 const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal'
@@ -48,26 +49,21 @@ export default function FoodSearch({
   const FOOD_LIMIT = 100
   const TYPE_TIMEOUT = 1000
 
-  const { user, isFoodFavorite, setFoodAsFavorite } = useUserContext()
-
   const { show: showConfirmModal } = useConfirmModalContext()
 
   const [search, setSearch] = useState<string>('')
   // TODO: rename all consumables to templates
-  const [consumables, setConsumables] = useState<Loadable<Template[]>>({
+  const [templates, setTemplates] = useState<Loadable<Template[]>>({
     loading: true,
   })
 
-  const [selectedConsumable, setSelectedConsumable] = useState<Template>(
+  const [selectedTemplate, setSelectedTemplate] = useState<Template>(
     mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }), // TODO: Properly handle no food selected
   )
 
   const [barCodeModalVisible, setBarCodeModalVisible] = useState(false)
   const [foodItemEditModalVisible, setFoodItemEditModalVisible] =
     useState(false)
-  const [recipeEditModalVisible, setRecipeEditModalVisible] = useState(false)
-
-  const [searching, setSearching] = useState(false)
 
   const [typing, setTyping] = useState(false)
 
@@ -75,56 +71,34 @@ export default function FoodSearch({
 
   const isDesktop = isClient ? window.innerWidth > 768 : false // TODO: Stop using innerWidth to detect desktop
 
-  const fetchConsumables = async (
-    search: string | '',
-    favoriteConsumables: number[], // TODO: Implement favorite recipes
-    userId: User['id'],
-  ) => {
-    setSearching(true)
-    setConsumables({ loading: false, errored: false, data: [] })
+  const { foods, refetchFoods } = useFoodContext()
 
-    let foods: Food[] = []
-    if (search === '') {
-      foods = await listFoods(10, favoriteConsumables)
-    } else {
-      foods = await searchFoodsByName(search, 10, favoriteConsumables)
+  useEffect(() => {
+    if (foods.loading) {
+      setTemplates({ loading: true })
+      return
     }
 
-    const isFavorite = (favoriteFoods: number[], food: Food) => {
-      return favoriteFoods.includes(food.id)
+    if (foods.errored) {
+      setTemplates({ loading: false, errored: true, error: foods.error })
+      showConfirmModal({
+        title: 'Erro ao carregar alimentos',
+        message: 'Deseja tentar novamente?',
+        onConfirm: () => {
+          refetchFoods()
+        },
+      })
+      return
     }
 
-    // Sort favorites first
-    const sortedFoods = foods.sort((a, b) => {
-      if (
-        isFavorite(favoriteConsumables, a) &&
-        !isFavorite(favoriteConsumables, b)
-      ) {
-        return -1 // a comes first
-      }
-
-      if (
-        !isFavorite(favoriteConsumables, a) &&
-        isFavorite(favoriteConsumables, b)
-      ) {
-        return 1 // b comes first
-      }
-
-      return 0
-    })
-
-    const recipes = await listRecipes(userId)
-
-    setSearching(false) // TODO: Refactor to use loading state instead of searchingFoods
-
-    const consumables = [...recipes, ...sortedFoods]
-
-    setConsumables({
+    setTemplates({
       loading: false,
       errored: false,
-      data: consumables,
+      data: foods.data,
     })
-  }
+
+    // TODO: Add recipes to templates
+  }, [foods])
 
   useEffect(() => {
     setIsClient(true)
@@ -132,13 +106,14 @@ export default function FoodSearch({
 
   useEffect(() => {
     // TODO: Add proper error handling for all user.errored, days.errored and foods.errored checks
-    if (user.loading || user.errored || typing) {
+    if (typing) {
       return
     }
 
-    fetchConsumables(search, user.data.favorite_foods, user.data.id)
-  }, [user, search, typing])
+    refetchFoods(search)
+  }, [refetchFoods, search, typing])
 
+  // TODO: Create custom hook for typing "const { typing, startTyping } = useTyping(timeout: number)"
   useEffect(() => {
     setTyping(true)
 
@@ -151,17 +126,23 @@ export default function FoodSearch({
     }
   }, [search])
 
-  if (consumables.loading) {
-    return <PageLoading message="Carregando alimentos" />
+  if (templates.loading) {
+    return <PageLoading message="Carregando alimentos e receitas" />
   }
 
-  if (consumables.errored) {
+  if (templates.errored) {
     return (
-      <PageLoading message="Erro ao carregar alimentos. Tente novamente mais tarde" />
+      <PageLoading
+        message={`Erro ao carregar alimentos e receitas: ${JSON.stringify(
+          templates.error,
+          null,
+          2,
+        )}. Tente novamente.`}
+      />
     )
   }
 
-  const filteredConsumables = consumables.data
+  const filteredConsumables = templates.data
     .filter((consumable) => {
       if (search === '') {
         return true
@@ -201,7 +182,7 @@ export default function FoodSearch({
       message: 'Deseja adicionar outro item?',
       onConfirm: () => {
         // TODO: Remove mockFood as default selected food
-        setSelectedConsumable(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }))
+        setSelectedTemplate(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }))
         setFoodItemEditModalVisible(false)
       },
       onCancel: () => {
@@ -216,7 +197,7 @@ export default function FoodSearch({
         barCodeModalVisible={barCodeModalVisible}
         setBarCodeModalVisible={setBarCodeModalVisible}
         setFoodItemEditModalVisible={setFoodItemEditModalVisible}
-        setSelectedConsumable={setSelectedConsumable}
+        setSelectedConsumable={setSelectedTemplate}
       />
       <ModalContextProvider
         visible={foodItemEditModalVisible}
@@ -226,10 +207,10 @@ export default function FoodSearch({
           modalId={MEAL_ITEM_ADD_MODAL_ID}
           targetName={targetName}
           foodItem={{
-            reference: selectedConsumable.id,
-            name: selectedConsumable.name,
-            macros: selectedConsumable.macros,
-            type: selectedConsumable[''] === 'Food' ? 'food' : 'recipe', // TODO: Refactor
+            reference: selectedTemplate.id,
+            name: selectedTemplate.name,
+            macros: selectedTemplate.macros,
+            type: selectedTemplate[''] === 'Food' ? 'food' : 'recipe', // TODO: Refactor
           }}
           onApply={async (item) => {
             if (item.type === 'food') {
@@ -245,10 +226,10 @@ export default function FoodSearch({
               const newGroup: RecipedItemGroup = {
                 id: Math.round(Math.random() * 1000000),
                 name: item.name,
-                items: [...(selectedConsumable as Recipe).items],
+                items: [...(selectedTemplate as Recipe).items],
                 type: 'recipe',
                 quantity: item.quantity, // TODO: Implement quantity on recipe item groups (should influence macros)
-                recipe: (selectedConsumable as Recipe).id,
+                recipe: (selectedTemplate as Recipe).id,
               }
               handleNewItemGroup(newGroup)
             }
@@ -269,10 +250,7 @@ export default function FoodSearch({
         filteredConsumables={filteredConsumables}
         setBarCodeModalVisible={setBarCodeModalVisible}
         setFoodItemEditModalVisible={setFoodItemEditModalVisible}
-        searchingFoods={searching}
-        isFoodFavorite={isFoodFavorite}
-        setFoodAsFavorite={setFoodAsFavorite}
-        setSelectedConsumable={setSelectedConsumable}
+        setSelectedConsumable={setSelectedTemplate}
         typing={typing}
       />
     </>
@@ -414,80 +392,64 @@ const SearchBar = ({
 
 const SearchResults = ({
   search,
-  searchingFoods,
   typing,
   filteredConsumables,
-  isFoodFavorite,
-  setFoodAsFavorite,
   setSelectedConsumable,
   setBarCodeModalVisible,
   setFoodItemEditModalVisible,
 }: {
   search: string
-  searchingFoods: boolean
   typing: boolean
   filteredConsumables: Template[]
-  isFoodFavorite: (food: number) => boolean
-  setFoodAsFavorite: (food: number, favorite: boolean) => void
   setSelectedConsumable: (food: Template) => void
   setBarCodeModalVisible: Dispatch<SetStateAction<boolean>>
   setFoodItemEditModalVisible: Dispatch<SetStateAction<boolean>>
 }) => {
+  const { isFoodFavorite, setFoodAsFavorite } = useUserContext()
+
   return (
     <>
-      {!searchingFoods &&
-        !typing &&
-        filteredConsumables.length ===
-          /* TODO: Check if equality is a bug */ 0 && (
-          <Alert color="warning" className="mt-2">
-            Nenhum alimento encontrado para a busca &quot;{search}&quot;.
-          </Alert>
-        )}
+      {!typing && filteredConsumables.length === 0 && (
+        <Alert color="warning" className="mt-2">
+          Nenhum alimento encontrado para a busca &quot;{search}&quot;.
+        </Alert>
+      )}
 
       <div className="bg-gray-800 p-1">
-        {searchingFoods && filteredConsumables.length === 0 ? (
-          <PageLoading message="Carregando alimentos" />
-        ) : (
-          <>
-            {filteredConsumables.map((consumable, idx) => (
-              <React.Fragment key={idx}>
-                <FoodItemView
-                  foodItem={{
-                    id: Math.random() * 1000000,
-                    name: consumable.name,
-                    quantity: 100,
-                    macros: consumable.macros,
-                    reference: consumable.id,
-                    type: consumable[''] === 'Food' ? 'food' : 'recipe', // TODO: Refactor
-                  }}
-                  className="mt-1"
-                  onClick={() => {
-                    setSelectedConsumable(consumable)
-                    setFoodItemEditModalVisible(true)
-                    setBarCodeModalVisible(false)
-                  }}
-                  header={
-                    <FoodItemView.Header
-                      name={<FoodItemView.Header.Name />}
-                      favorite={
-                        <FoodItemView.Header.Favorite
-                          favorite={isFoodFavorite(consumable.id)}
-                          onSetFavorite={(favorite) =>
-                            setFoodAsFavorite(consumable.id, favorite)
-                          }
-                        />
+        {filteredConsumables.map((consumable, idx) => (
+          <React.Fragment key={idx}>
+            <FoodItemView
+              foodItem={{
+                id: Math.random() * 1000000,
+                name: consumable.name,
+                quantity: 100,
+                macros: consumable.macros,
+                reference: consumable.id,
+                type: consumable[''] === 'Food' ? 'food' : 'recipe', // TODO: Refactor
+              }}
+              className="mt-1"
+              onClick={() => {
+                setSelectedConsumable(consumable)
+                setFoodItemEditModalVisible(true)
+                setBarCodeModalVisible(false)
+              }}
+              header={
+                <FoodItemView.Header
+                  name={<FoodItemView.Header.Name />}
+                  favorite={
+                    <FoodItemView.Header.Favorite
+                      favorite={isFoodFavorite(consumable.id)}
+                      onSetFavorite={(favorite) =>
+                        setFoodAsFavorite(consumable.id, favorite)
                       }
                     />
                   }
-                  nutritionalInfo={<FoodItemView.NutritionalInfo />}
                 />
-              </React.Fragment>
-            ))}
-            {searchingFoods && filteredConsumables.length > 0 && (
-              <LoadingRing />
-            )}
-          </>
-        )}
+              }
+              nutritionalInfo={<FoodItemView.NutritionalInfo />}
+            />
+          </React.Fragment>
+        ))}
       </div>
     </>
   )
