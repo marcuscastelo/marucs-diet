@@ -1,11 +1,11 @@
 import { Food } from '@/model/foodModel'
 import { Loadable } from '@/utils/loadable'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { createContext, useContext } from 'use-context-selector'
 
 export type FoodContext = {
   foods: Loadable<Food[]>
-  refetchFoods: (search?: string) => Promise<Food[]>
+  refetchFoods: (search?: string) => void
 }
 
 const FoodContext = createContext<FoodContext | null>(null)
@@ -29,29 +29,26 @@ export function FoodContextProvider({
 }) {
   const [foods, setFoods] = useState<Loadable<Food[]>>({ loading: true })
 
+  const handleFetchFoods = useCallback(
+    (search?: string) => {
+      onFetchFoods(search)
+        .then((foods) => {
+          setFoods({ loading: false, errored: false, data: foods })
+        })
+        .catch((error) => {
+          setFoods({ loading: false, errored: true, error })
+        })
+    },
+    [onFetchFoods],
+  )
+
   useEffect(() => {
-    let ignore = false
-    onFetchFoods()
-      .then((foods) => {
-        if (ignore) {
-          return
-        }
-        setFoods({ loading: false, errored: false, data: foods })
-      })
-      .catch((error) => {
-        if (ignore) {
-          return
-        }
-        setFoods({ loading: false, errored: true, error })
-      })
-    return () => {
-      ignore = true
-    }
-  }, [onFetchFoods])
+    handleFetchFoods()
+  }, [handleFetchFoods])
 
   const context: FoodContext = {
     foods,
-    refetchFoods: onFetchFoods,
+    refetchFoods: handleFetchFoods,
   }
 
   return <FoodContext.Provider value={context}>{children}</FoodContext.Provider>
