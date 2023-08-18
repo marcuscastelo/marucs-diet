@@ -13,13 +13,18 @@ export default function useClipboard(props?: { filter?: ClipboardFilter }) {
   }, [])
 
   const handleRead = useCallback(() => {
-    window.navigator.clipboard.readText().then((newClipboard) => {
-      if (filter && !filter(newClipboard)) {
-        return
-      }
+    window.navigator.clipboard
+      .readText()
+      .then((newClipboard) => {
+        if (filter && !filter(newClipboard)) {
+          return
+        }
 
-      setClipboard(newClipboard)
-    })
+        setClipboard(newClipboard)
+      })
+      .catch(() => {
+        // Do nothing. This is expected when the DOM is not focused
+      })
   }, [filter])
 
   // Update clipboard periodically
