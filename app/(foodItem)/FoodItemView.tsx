@@ -187,7 +187,6 @@ function MealItemNutritionalInfo() {
         <span className="text-white"> {item.quantity}g </span>|
         <span className="text-white">
           {' '}
-          {/* // TODO: Use toFixed(0) on all calcItemCalories */}
           {calcItemCalories(item).toFixed(0)}
           kcal{' '}
         </span>

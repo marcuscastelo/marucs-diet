@@ -171,7 +171,7 @@ function RecipeEditHeader({
     <div className="flex">
       <div className="my-2">
         <h5 className="text-3xl text-blue-500">{recipe.name}</h5>
-        <p className="italic text-gray-400">{recipeCalories}kcal</p>
+        <p className="italic text-gray-400">{recipeCalories.toFixed(0)}kcal</p>
       </div>
       <div className={`ml-auto flex gap-2`}>
         {!hasValidPastableOnClipboard && recipe.items.length > 0 && (
