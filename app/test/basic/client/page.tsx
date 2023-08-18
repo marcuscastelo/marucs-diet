@@ -1,6 +1,6 @@
 'use client'
 
-import { upsertFood, listFoods } from '@/controllers/food'
+import { listFoods, insertFood } from '@/controllers/food'
 import { Food } from '@/model/foodModel'
 import { useEffect, useState } from 'react'
 import { mockFood } from '../../unit/(mock)/mockData'
@@ -9,13 +9,13 @@ export default function Page() {
   const [foods, setFoods] = useState<Food[]>([mockFood()])
 
   const fetchFoods = async () => {
-    const foods = await listFoods(10)
+    const foods = await listFoods({ limit: 10 })
     setFoods(foods)
   }
 
   const addFood = async () => {
     console.log('addFood')
-    await upsertFood({
+    await insertFood({
       name: 'Arroz',
       macros: {
         protein: 10,

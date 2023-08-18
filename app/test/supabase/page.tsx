@@ -25,7 +25,7 @@ export default function Cart() {
       })
     })
 
-    listFoods(10).then((foods) => {
+    listFoods({ limit: 10 }).then((foods) => {
       setFoods({
         loading: false,
         errored: false,
