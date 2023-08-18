@@ -2,7 +2,11 @@ import { useEffect, useState } from 'react'
 import { Loadable } from '@/utils/loadable'
 import { User } from '@/model/userModel'
 import { Food } from '@/model/foodModel'
-import { createContext, useContext } from 'use-context-selector'
+import {
+  createContext,
+  useContext,
+  useContextSelector,
+} from 'use-context-selector'
 
 export type AvaliableUser = Pick<User, 'id' | 'name'>
 
@@ -17,7 +21,7 @@ export type UserContextProps = {
   debug: boolean
 }
 
-const UserContext = createContext<UserContextProps | null>(null)
+export const UserContext = createContext<UserContextProps | null>(null)
 
 // TODO: Use context selectors to avoid unnecessary re-renders
 export function useUserContext() {
@@ -29,6 +33,34 @@ export function useUserContext() {
 
   return context
 }
+
+// TODO: Revive useUserId
+// export function useUserId() {
+//   const userId: Loadable<User['id']> = useContextSelector(
+//     UserContext,
+//     (context) => {
+//       if (!context) {
+//         throw new Error('useUserId must be used within a UserContextProvider')
+//       }
+
+//       if (context.user.loading) {
+//         return { loading: true }
+//       }
+
+//       if (context.user.errored) {
+//         return { loading: false, errored: true, error: context.user.error }
+//       }
+
+//       return {
+//         loading: false,
+//         errored: false,
+//         data: context.user.data.id,
+//       }
+//     },
+//   )
+
+//   return userId
+// }
 
 export function UserContextProvider({
   children,
@@ -134,7 +166,6 @@ export function UserContextProvider({
         : user.data.favorite_foods.filter((id) => id !== foodId),
     }
 
-    setUser({ loading: true })
     onSaveUser(newUser)
       .then(() => {
         setUser({ loading: false, errored: false, data: newUser })
