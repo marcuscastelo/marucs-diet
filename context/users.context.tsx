@@ -34,10 +34,12 @@ export function UserContextProvider({
   children,
   onFetchUser,
   onFetchAvailableUsers,
+  onSaveUser,
 }: {
   children: React.ReactNode
   onFetchUser: (id: User['id']) => Promise<User | undefined>
   onFetchAvailableUsers: () => Promise<AvaliableUser[]>
+  onSaveUser: (user: User) => Promise<void>
 }) {
   const [user, setUser] = useState<Loadable<User>>({ loading: true })
   const [availableUsers, setAvailableUsers] = useState<
@@ -112,6 +114,36 @@ export function UserContextProvider({
       })
     }
   }
+
+  const handleIsFoodFavorite = (foodId: Food['id']) => {
+    if (user.loading || user.errored) {
+      return false
+    }
+    return user.data.favorite_foods.includes(foodId)
+  }
+
+  const handleSetFoodAsFavorite = (foodId: Food['id'], favorite: boolean) => {
+    if (user.loading || user.errored) {
+      return
+    }
+
+    const newUser: User = {
+      ...user.data,
+      favorite_foods: favorite
+        ? [...user.data.favorite_foods, foodId]
+        : user.data.favorite_foods.filter((id) => id !== foodId),
+    }
+
+    setUser({ loading: true })
+    onSaveUser(newUser)
+      .then(() => {
+        setUser({ loading: false, errored: false, data: newUser })
+      })
+      .catch((error) => {
+        setUser({ loading: false, errored: true, error })
+      })
+  }
+
   const context: UserContextProps = {
     user,
     debug: false,
@@ -119,8 +151,8 @@ export function UserContextProvider({
     changeUser: handleChangeUser,
     availableUsers,
     fetchAvailableUsers: handleFetchAvailableUsers,
-    isFoodFavorite: (foodId: Food['id']) => false,
-    setFoodAsFavorite: (foodId: Food['id'], isFavorite: boolean) => undefined,
+    isFoodFavorite: handleIsFoodFavorite,
+    setFoodAsFavorite: handleSetFoodAsFavorite,
   }
 
   return <UserContext.Provider value={context}>{children}</UserContext.Provider>

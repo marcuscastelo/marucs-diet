@@ -5,7 +5,7 @@ import { ConfirmModalProvider } from '@/context/confirmModal.context'
 import { DaysContextProvider } from '@/context/days.context'
 import { UserContextProvider, useUserContext } from '@/context/users.context'
 import { listDays } from '@/controllers/days'
-import { listUsers } from '@/controllers/users'
+import { listUsers, updateUser } from '@/controllers/users'
 
 export default function App({ children }: { children: React.ReactNode }) {
   return (
@@ -25,6 +25,9 @@ function AppUserProvider({ children }: { children: React.ReactNode }) {
       }}
       onFetchUser={async (id) => {
         return (await listUsers()).find((user) => user.id === id)
+      }}
+      onSaveUser={async (user) => {
+        await updateUser(user.id, user)
       }}
     >
       {children}
