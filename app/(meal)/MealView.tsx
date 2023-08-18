@@ -64,7 +64,14 @@ function MealViewHeader({
 
   const isClipboardValid = (clipboard: string) => {
     if (!clipboard) return false
-    const parsedClipboard = JSON.parse(clipboard)
+    let parsedClipboard: unknown
+    try {
+      parsedClipboard = JSON.parse(clipboard)
+    } catch (e) {
+      // Error parsing JSON. Probably clipboard is some random text from the user
+      return false
+    }
+
     return acceptedClipboardSchema.safeParse(parsedClipboard).success
   }
 
