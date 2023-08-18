@@ -122,6 +122,50 @@ export const listFoods = async (limit?: number, favorites?: number[]) => {
   })
 }
 
+const searchCachedFoodsByName = async (
+  name: string,
+  limit?: number,
+  favorites?: number[],
+) => {
+  const { data: favoriteResult, error } = await supabase
+    .from(TABLE)
+    .select()
+    .in('id', favorites ?? [])
+    .ilike('name', `%${name}%`)
+    .limit(limit ?? 100)
+
+  console.log(`Got ${favoriteResult?.length} favorite foods from cache.`)
+  if (favoriteResult?.length === /* TODO: Check if equality is a bug */ 0) {
+    // TODO: readd this logic of cache invalidation, but also with time
+    // console.log('No foods found, unmarking cache as cached.');
+    // await unmarkAsCached(search);
+  }
+
+  if (error) {
+    console.error('Error while searching for favorites: ', favorites)
+    console.error(error)
+    throw error
+  }
+
+  const otherLimit = limit ? limit - favoriteResult?.length : undefined
+  const { data: otherResult } = await supabase
+    .from(TABLE)
+    .select()
+    .ilike('name', `%${name}%`)
+    .limit(otherLimit ?? 100)
+
+  console.log(`Got ${otherResult?.length} other foods from cache.`)
+
+  console.log(
+    `Total: ${
+      (favoriteResult?.length ?? 0) + (otherResult?.length ?? 0)
+    } foods from cache.`,
+  )
+
+  return (favoriteResult ?? [])
+    .map((food) => foodSchema.parse(food))
+    .concat((otherResult ?? []).map((food) => foodSchema.parse(food)))
+}
 export const searchFoodsByName = async (
   name: string,
   limit?: number,
@@ -131,44 +175,7 @@ export const searchFoodsByName = async (
 
   return await internalSearchCacheLogic(name, isSearchCached, {
     ifCached: async (): Promise<Food[]> => {
-      const { data: favoriteResult, error } = await supabase
-        .from(TABLE)
-        .select()
-        .in('id', favorites ?? [])
-        .ilike('name', `%${name}%`)
-        .limit(limit ?? 100)
-
-      console.log(`Got ${favoriteResult?.length} favorite foods from cache.`)
-      if (favoriteResult?.length === /* TODO: Check if equality is a bug */ 0) {
-        // TODO: readd this logic of cache invalidation, but also with time
-        // console.log('No foods found, unmarking cache as cached.');
-        // await unmarkAsCached(search);
-      }
-
-      if (error) {
-        console.error('Error while searching for favorites: ', favorites)
-        console.error(error)
-        throw error
-      }
-
-      const otherLimit = limit ? limit - favoriteResult?.length : undefined
-      const { data: otherResult } = await supabase
-        .from(TABLE)
-        .select()
-        .ilike('name', `%${name}%`)
-        .limit(otherLimit ?? 100)
-
-      console.log(`Got ${otherResult?.length} other foods from cache.`)
-
-      console.log(
-        `Total: ${
-          (favoriteResult?.length ?? 0) + (otherResult?.length ?? 0)
-        } foods from cache.`,
-      )
-
-      return (favoriteResult ?? [])
-        .map((food) => foodSchema.parse(food))
-        .concat((otherResult ?? []).map((food) => foodSchema.parse(food)))
+      return await searchCachedFoodsByName(name, limit, favorites)
     },
     ifNotCached: async () => {
       const newFoods = newFoodsSchema.parse(
@@ -244,11 +251,43 @@ export const searchFoodsByEan = async (
   )
 }
 
-export const upsertFood = async (food: New<Food>): Promise<Food> => {
-  delete (food as Partial<Food>).id
+export const updateFood = async (
+  id: Food['id'],
+  food: New<Food>,
+): Promise<Food> => {
   delete (food as Partial<Food>)['']
-  food.ean = food.ean || undefined // This removes empty ean ('') from being inserted
-  const { data, error } = await supabase.from(TABLE).upsert(food).select()
+  delete (food as Partial<Food>).id
+  const { data, error } = await supabase
+    .from(TABLE)
+    .update(food)
+    .eq('id', id)
+    .select()
+
+  if (error) {
+    console.error('Error while updating food: ', food)
+    console.error(error)
+    throw error
+  }
+  return foodSchema.parse(data?.[0])
+}
+
+export const upsertFood = async (food: New<Food> | Food): Promise<Food> => {
+  food.ean = food.ean || undefined // This prevents empty ean ('') from being inserted
+
+  // TODO: Avoid searching by name if ID is present
+  const foodExists = (await searchCachedFoodsByName(food.name, 1)).length > 0
+
+  // TODO: Get ID from query to avoid mismatch
+  if (foodExists && 'id' in food) {
+    console.debug(
+      `[FoodController] Food '${food.name}' already exists. Updating...`,
+    )
+    return updateFood(food.id, food)
+  }
+
+  delete (food as Partial<Food>)['']
+  delete (food as Partial<Food>).id
+  const { data, error } = await supabase.from(TABLE).insert(food).select()
   if (error) {
     console.error('Error while upserting food: ', food)
     console.error(error)

@@ -6,7 +6,7 @@ import { DaysContextProvider } from '@/context/days.context'
 import { FoodContextProvider } from '@/context/food.context'
 import { UserContextProvider, useUserContext } from '@/context/users.context'
 import { listDays } from '@/controllers/days'
-import { listFoods } from '@/controllers/food'
+import { listFoods, searchFoodsByName } from '@/controllers/food'
 import { listUsers, updateUser } from '@/controllers/users'
 
 export default function App({ children }: { children: React.ReactNode }) {
@@ -74,8 +74,21 @@ function AppFoodsProvider({ children }: { children: React.ReactNode }) {
   }
   return (
     <FoodContextProvider
-      onFetchFoods={async () => {
-        return await listFoods(100, user.data.favorite_foods)
+      onFetchFoods={async (search?: string) => {
+        console.debug(
+          `[FoodContextProvider] onFetchFoods - called with search: ${search}`,
+        )
+        if (search) {
+          console.debug(
+            `[FoodContextProvider] onFetchFoods - calling searchFoodsByName`,
+          )
+          return await searchFoodsByName(search, 100, user.data.favorite_foods)
+        } else {
+          console.debug(
+            `[FoodContextProvider] onFetchFoods - calling listFoods`,
+          )
+          return await listFoods(100, user.data.favorite_foods)
+        }
       }}
     >
       {children}
