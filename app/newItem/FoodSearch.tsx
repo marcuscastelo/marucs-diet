@@ -74,7 +74,20 @@ export default function FoodSearch({
   const { foods, refetchFoods } = useFoodContext()
 
   useEffect(() => {
-    if (foods.loading || foods.errored) {
+    if (foods.loading) {
+      setTemplates({ loading: true })
+      return
+    }
+
+    if (foods.errored) {
+      setTemplates({ loading: false, errored: true, error: foods.error })
+      showConfirmModal({
+        title: 'Erro ao carregar alimentos',
+        message: 'Deseja tentar novamente?',
+        onConfirm: () => {
+          refetchFoods()
+        },
+      })
       return
     }
 
@@ -114,12 +127,18 @@ export default function FoodSearch({
   }, [search])
 
   if (templates.loading) {
-    return <PageLoading message="Carregando alimentos" />
+    return <PageLoading message="Carregando alimentos e receitas" />
   }
 
   if (templates.errored) {
     return (
-      <PageLoading message="Erro ao carregar alimentos. Tente novamente mais tarde" />
+      <PageLoading
+        message={`Erro ao carregar alimentos e receitas: ${JSON.stringify(
+          templates.error,
+          null,
+          2,
+        )}. Tente novamente.`}
+      />
     )
   }
 
