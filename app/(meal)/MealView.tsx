@@ -2,7 +2,7 @@
 
 import { MealData, mealSchema } from '@/model/mealModel'
 import { MealContextProvider, useMealContext } from './MealContext'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import TrashIcon from '../(icons)/TrashIcon'
 import PasteIcon from '../(icons)/PasteIcon'
 import CopyIcon from '../(icons)/CopyIcon'
@@ -10,6 +10,7 @@ import { calcMealCalories } from '@/utils/macroMath'
 import ItemGroupListView from '../(itemGroup)/ItemGroupListView'
 import { ItemGroup, itemGroupSchema } from '@/model/foodItemGroupModel'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
+import useClipboard from '@/hooks/clipboard'
 
 export type MealViewProps = {
   mealData: MealData
@@ -57,13 +58,80 @@ function MealViewHeader({
 }: {
   onUpdateMeal: (meal: MealData) => void
 }) {
+  const acceptedClipboardSchema = mealSchema.or(itemGroupSchema)
   const { mealData } = useMealContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
+  const isClipboardValid = (clipboard: string) => {
+    if (!clipboard) return false
+    const parsedClipboard = JSON.parse(clipboard)
+    return acceptedClipboardSchema.safeParse(parsedClipboard).success
+  }
+
+  const { clipboard: clipboardText, write: writeToClipboard } = useClipboard({
+    filter: isClipboardValid,
+  })
+
+  const handleCopy = useCallback(
+    () => writeToClipboard(JSON.stringify(mealData)),
+    [mealData, writeToClipboard],
+  )
+
+  const handlePasteAfterConfirm = useCallback(() => {
+    const parsedClipboard = JSON.parse(clipboardText)
+    const result = acceptedClipboardSchema.safeParse(parsedClipboard)
+
+    if (!result.success) return
+
+    const data = result.data
+
+    let groupsToAdd: ItemGroup[] = []
+    if ('' in data && data[''] === 'Meal') {
+      groupsToAdd = data.groups
+    } else if ('type' in data) {
+      groupsToAdd = [
+        {
+          ...data,
+        } satisfies ItemGroup,
+      ] satisfies ItemGroup[]
+    } else {
+      throw new Error('Invalid clipboard data: ' + clipboardText)
+    }
+
+    const groupsWithNewIds = groupsToAdd.map(
+      (item: ItemGroup): ItemGroup => ({
+        ...item,
+        id: Math.floor(Math.random() * 1000000), // TODO: Create a function to generate a unique id
+      }),
+    )
+
+    const newMealData: MealData = {
+      ...mealData,
+      groups: [...mealData.groups, ...groupsWithNewIds],
+    }
+
+    onUpdateMeal(newMealData)
+
+    // Clear clipboard
+    writeToClipboard('')
+  }, [
+    clipboardText,
+    mealData,
+    onUpdateMeal,
+    writeToClipboard,
+    acceptedClipboardSchema,
+  ])
+
+  const handlePaste = useCallback(() => {
+    showConfirmModal({
+      title: 'Colar itens',
+      message: 'Tem certeza que deseja colar os itens?',
+      onConfirm: handlePasteAfterConfirm,
+    })
+  }, [handlePasteAfterConfirm, showConfirmModal])
+
   // TODO: Show how much of the daily target is this meal (e.g. 30% of daily calories) (maybe in a tooltip) (useContext)s
   const mealCalories = calcMealCalories(mealData)
-
-  const [clipboardText, setClipboardText] = useState('')
 
   const onClearItems = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -82,91 +150,7 @@ function MealViewHeader({
     })
   }
 
-  const handleCopyMeal = (e: React.MouseEvent) => {
-    e.preventDefault()
-
-    navigator.clipboard.writeText(JSON.stringify(mealData))
-  }
-
-  const handlePasteMeal = (e: React.MouseEvent) => {
-    e.preventDefault()
-
-    try {
-      const parsedMeal = mealSchema.safeParse(JSON.parse(clipboardText))
-
-      if (parsedMeal.success) {
-        const newMealData: MealData = {
-          ...mealData,
-          groups: [
-            ...mealData.groups,
-            ...parsedMeal.data.groups.map(
-              (item): ItemGroup => ({
-                ...item,
-                id: Math.floor(Math.random() * 1000000), // TODO: Create a function to generate a unique id
-              }),
-            ),
-          ],
-        }
-
-        onUpdateMeal(newMealData)
-
-        // Clear clipboard
-        navigator.clipboard.writeText('')
-
-        return
-      }
-
-      const parsedGroup = itemGroupSchema.safeParse(JSON.parse(clipboardText))
-
-      if (parsedGroup.success) {
-        const newMealData: MealData = {
-          ...mealData,
-          groups: [
-            ...mealData.groups,
-            {
-              ...parsedGroup.data,
-              id: Math.floor(Math.random() * 1000000), // TODO: Create a function to generate a unique id
-            },
-          ],
-        }
-
-        onUpdateMeal(newMealData)
-
-        // Clear clipboard
-        navigator.clipboard.writeText('')
-
-        return
-      }
-    } catch (e) {
-      alert(`Erro ao colar: ${e}`)
-    }
-
-    // Clear clipboard
-    navigator.clipboard.writeText('')
-  }
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // TODO: Uncaught (in promise) DOMException: Document is not focused.
-      navigator.clipboard
-        .readText()
-        .then((clipText) => setClipboardText(clipText))
-    }, 1000)
-
-    return () => clearInterval(interval)
-  }, [])
-
-  let parsedJson = {} as object // TODO: Create a type for this
-  try {
-    parsedJson = JSON.parse(clipboardText) as object // TODO: Create a type for this
-  } catch (e) {
-    // Do nothing
-  }
-
-  const hasValidPastableOnClipboard =
-    clipboardText &&
-    (mealSchema.safeParse(parsedJson).success ||
-      itemGroupSchema.safeParse(parsedJson).success)
+  const hasValidPastableOnClipboard = isClipboardValid(clipboardText)
 
   return (
     <div className="flex">
@@ -179,7 +163,7 @@ function MealViewHeader({
         {!hasValidPastableOnClipboard && mealData.groups.length > 0 && (
           <div
             className={`btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105`}
-            onClick={handleCopyMeal}
+            onClick={handleCopy}
           >
             <CopyIcon />
           </div>
@@ -187,7 +171,7 @@ function MealViewHeader({
         {hasValidPastableOnClipboard && (
           <div
             className={`btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105`}
-            onClick={handlePasteMeal}
+            onClick={handlePaste}
           >
             <PasteIcon />
           </div>
