@@ -22,6 +22,7 @@ import {
   SimpleItemGroup,
 } from '@/model/foodItemGroupModel'
 import SearchBar from '@/components/SearchBar'
+import { useConfirmModalContext } from '@/context/confirmModal.context'
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal'
 const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal'
@@ -49,6 +50,8 @@ export default function FoodSearch({
   const TYPE_TIMEOUT = 1000
 
   const { user, isFoodFavorite, setFoodAsFavorite } = useUserContext()
+
+  const { show: showConfirmModal } = useConfirmModalContext()
 
   const [search, setSearch] = useState<string>('')
   // TODO: rename all consumables to templates
@@ -192,16 +195,20 @@ export default function FoodSearch({
   const handleNewItemGroup = async (newGroup: ItemGroup) => {
     onNewItemGroup(newGroup)
     // Prompt if user wants to add another item or go back (Yes/No)
-    const oneMore = confirm(
-      'Item adicionado com sucesso. Deseja adicionar outro item?',
-    )
+    // TODO: Allow modal to show Yes/No instead of Ok/Cancel
 
-    if (!oneMore) {
-      onFinish()
-    } else {
-      setSelectedConsumable(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }))
-      setFoodItemEditModalVisible(false)
-    }
+    showConfirmModal({
+      title: 'Item adicionado com sucesso',
+      message: 'Deseja adicionar outro item?',
+      onConfirm: () => {
+        // TODO: Remove mockFood as default selected food
+        setSelectedConsumable(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }))
+        setFoodItemEditModalVisible(false)
+      },
+      onCancel: () => {
+        onFinish()
+      },
+    })
   }
 
   return (
