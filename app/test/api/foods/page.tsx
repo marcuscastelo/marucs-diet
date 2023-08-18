@@ -1,7 +1,7 @@
 'use client'
 
 import FoodItemView from '@/app/(foodItem)/FoodItemView'
-import { upsertFood, listFoods } from '@/controllers/food'
+import { listFoods } from '@/controllers/food'
 import { Food } from '@/model/foodModel'
 import { useEffect, useState } from 'react'
 
