@@ -8,6 +8,21 @@ export const listUsers = async (): Promise<User[]> =>
     userSchema.parse(user),
   )
 
+export const getUser = async (id: User['id']): Promise<User> => {
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select()
+    .eq('id', id)
+    .single()
+
+  if (error) {
+    console.error(error)
+    throw error
+  }
+
+  return userSchema.parse(data ?? null)
+}
+
 export const updateUser = async (id: User['id'], user: User): Promise<User> => {
   const { data, error } = await supabase
     .from(TABLE)

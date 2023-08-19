@@ -1,14 +1,11 @@
-'use client'
-
-import { useUserContext } from '@/context/users.context'
+import { getUser } from '@/controllers/users'
+import { cookies } from 'next/dist/client/components/headers'
 import Link from 'next/link'
 
-export default function UserName() {
-  const { user } = useUserContext()
+export default async function UserName() {
+  const userId = cookies().get('userId')?.value || '0'
 
-  if (user.loading || user.errored) {
-    return 'Carregando...'
-  }
+  const user = await getUser(parseInt(userId))
 
-  return <Link href="/profile">{user.data.name}</Link>
+  return <Link href="/profile">{user.name}</Link>
 }
