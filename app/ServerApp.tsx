@@ -1,6 +1,7 @@
 import { fetchUser } from '@/controllers/users'
 import App from './App'
 import { getUser } from '@/actions/user'
+import { revalidatePath } from 'next/cache'
 
 export default async function ServerApp({
   children,
@@ -19,5 +20,15 @@ export default async function ServerApp({
     return <h1>Usuário {userId} não encontrado</h1>
   }
 
-  return <App user={user}>{children}</App>
+  return (
+    <App
+      user={user}
+      onSaveUser={async () => {
+        'use server'
+        revalidatePath('/')
+      }}
+    >
+      {children}
+    </App>
+  )
 }
