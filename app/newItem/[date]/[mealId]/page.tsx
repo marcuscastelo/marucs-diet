@@ -21,7 +21,7 @@ export default function Page({ params }: PageProperties) {
   return (
     <FoodSearch
       targetName="Não implementado"
-      onNewItemGroup={async (_foodItem) => {
+      onNewItemGroup={async () => {
         alert('TODO: Implement onNewItemGroup') // TODO: Implement onNewFoodItem
       }}
       onFinish={() => {
