@@ -4,12 +4,13 @@ import ItemGroupEditModal, {
 } from '../app/(itemGroup)/ItemGroupEditModal'
 import App from '@/app/App'
 import { mockMeal } from '@/app/test/unit/(mock)/mockData'
+import ServerApp from '@/app/ServerApp'
 
 const meta: Meta<typeof ItemGroupEditModal> = {
   title: 'Components/ItemGroupEditModal',
   component: ItemGroupEditModal,
   argTypes: {},
-  decorators: [(Story) => <App>{Story()}</App>], // TODO: Create <MockApp> to provide context to all stories
+  decorators: [(Story) => <ServerApp>{Story()}</ServerApp>], // TODO: Create <MockApp> to provide context to all stories
 }
 
 export default meta
