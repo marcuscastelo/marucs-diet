@@ -1,21 +1,17 @@
 'use client'
 
 import FoodItemView from '@/app/(foodItem)/FoodItemView'
-import { listFoods, searchFoodsByName } from '@/controllers/food'
 import { Food } from '@/model/foodModel'
 import { Alert } from 'flowbite-react'
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import BarCodeInsertModal from '@/app/BarCodeInsertModal'
-import { User } from '@/model/userModel'
 import { Loadable } from '@/utils/loadable'
-import LoadingRing from '@/app/LoadingRing'
 import { Recipe } from '@/model/recipeModel'
 import { mockFood } from '../test/unit/(mock)/mockData'
 import PageLoading from '../PageLoading'
 import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
 import { useUserContext } from '@/context/users.context'
 import { ModalContextProvider } from '../(modals)/ModalContext'
-import { listRecipes } from '@/controllers/recipes'
 import {
   ItemGroup,
   RecipedItemGroup,
@@ -34,8 +30,8 @@ const RECIPE_EDIT_MODAL_ID = 'recipe-edit-modal'
 
 export type FoodSearchProps = {
   targetName: string
-  onNewItemGroup: (foodItem: ItemGroup) => Promise<void>
-  onFinish: () => void
+  onNewItemGroup?: (foodItem: ItemGroup) => Promise<void>
+  onFinish?: () => void
 }
 
 export type Template = Food | Recipe
@@ -43,8 +39,8 @@ export type Template = Food | Recipe
 // TODO: Rename to TemplateSearch?
 export default function FoodSearch({
   targetName,
-  onNewItemGroup,
-  onFinish,
+  onNewItemGroup = async () => undefined,
+  onFinish = () => undefined,
 }: FoodSearchProps) {
   const FOOD_LIMIT = 100
   const TYPE_TIMEOUT = 1000
