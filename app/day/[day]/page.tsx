@@ -80,7 +80,6 @@ export default async function Page({ params }: PageParams) {
     <div className="mx-auto sm:w-3/4 md:w-4/5 lg:w-1/2 xl:w-1/3">
       {/* Top bar with date picker and user icon */}
       <TopBar selectedDay={selectedDay} />
-      Cookies: {JSON.stringify(await getUser())}
       <DayMeals
         day={dayData}
         editModalId={EDIT_MODAL_ID}
