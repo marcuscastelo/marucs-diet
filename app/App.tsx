@@ -7,19 +7,21 @@ import { FoodContextProvider } from '@/context/food.context'
 import { UserContext, UserContextProvider } from '@/context/users.context'
 import { listDays } from '@/controllers/days'
 import { listFoods, searchFoodsByName } from '@/controllers/food'
-import { fetchUsers, updateUser } from '@/controllers/users'
+import { updateUser } from '@/controllers/users'
 import { User } from '@/model/userModel'
 import { useContextSelector } from 'use-context-selector'
 
 export default function App({
   user,
+  onSaveUser,
   children,
 }: {
   user: User
+  onSaveUser: () => void
   children: React.ReactNode
 }) {
   return (
-    <AppUserProvider user={user}>
+    <AppUserProvider user={user} onSaveUser={onSaveUser}>
       <AppDaysProvider>
         <AppConfirmModalProvider>
           <AppFoodsProvider>{children}</AppFoodsProvider>
@@ -31,9 +33,11 @@ export default function App({
 
 function AppUserProvider({
   user,
+  onSaveUser,
   children,
 }: {
   user: User
+  onSaveUser: () => void
   children: React.ReactNode
 }) {
   console.debug(`[AppUserProvider] - Rendering`)
@@ -42,6 +46,7 @@ function AppUserProvider({
       user={user}
       onSaveUser={async (user) => {
         await updateUser(user.id, user)
+        onSaveUser()
       }}
     >
       {children}
