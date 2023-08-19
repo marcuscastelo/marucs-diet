@@ -60,11 +60,7 @@ export default function Page() {
   }
 
   useEffect(() => {
-    if (user.loading || user.errored) {
-      return
-    }
-
-    fetchDays(user.data.id)
+    fetchDays(user.id)
   }, [user])
 
   // TODO: remove this function

@@ -13,18 +13,12 @@ export default function CreateBlankDayButton({
 }) {
   const { user } = useUserContext()
 
-  // TODO: Better loading and error handling (on the entire app)
-  if (user.loading || user.errored) return null
-
   return (
     <button
       className="btn-primary btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white"
       onClick={() => {
         upsertDay(
-          mockDay(
-            { owner: user.data.id, target_day: selectedDay },
-            { groups: [] },
-          ),
+          mockDay({ owner: user.id, target_day: selectedDay }, { groups: [] }),
         ).then(() => {
           refetchDays()
         })

@@ -8,11 +8,18 @@ import { UserContext, UserContextProvider } from '@/context/users.context'
 import { listDays } from '@/controllers/days'
 import { listFoods, searchFoodsByName } from '@/controllers/food'
 import { fetchUsers, updateUser } from '@/controllers/users'
+import { User } from '@/model/userModel'
 import { useContextSelector } from 'use-context-selector'
 
-export default function App({ children }: { children: React.ReactNode }) {
+export default function App({
+  user,
+  children,
+}: {
+  user: User
+  children: React.ReactNode
+}) {
   return (
-    <AppUserProvider>
+    <AppUserProvider user={user}>
       <AppDaysProvider>
         <AppConfirmModalProvider>
           <AppFoodsProvider>{children}</AppFoodsProvider>
@@ -22,16 +29,17 @@ export default function App({ children }: { children: React.ReactNode }) {
   )
 }
 
-function AppUserProvider({ children }: { children: React.ReactNode }) {
+function AppUserProvider({
+  user,
+  children,
+}: {
+  user: User
+  children: React.ReactNode
+}) {
   console.debug(`[AppUserProvider] - Rendering`)
   return (
     <UserContextProvider
-      onFetchAvailableUsers={async () => {
-        return await fetchUsers()
-      }}
-      onFetchUser={async (id) => {
-        return (await fetchUsers()).find((user) => user.id === id)
-      }}
+      user={user}
       onSaveUser={async (user) => {
         await updateUser(user.id, user)
       }}
@@ -46,10 +54,7 @@ function AppDaysProvider({ children }: { children: React.ReactNode }) {
   // TODO: useUserId() is not working here
   const userId = useContextSelector(
     UserContext,
-    (ctx) =>
-      ctx &&
-      !(ctx.user.loading || ctx.user.errored) &&
-      Number(ctx.user.data.id),
+    (ctx) => ctx && Number(ctx.user.id),
   )
 
   if (!userId) {
