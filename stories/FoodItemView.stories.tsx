@@ -2,11 +2,12 @@ import type { Meta, StoryObj } from '@storybook/react'
 import FoodItemView, { FoodItemViewProps } from '../app/(foodItem)/FoodItemView'
 import { mockItem } from '@/app/test/unit/(mock)/mockData'
 import App from '@/app/App'
+import ServerApp from '@/app/ServerApp'
 
 const meta: Meta<typeof FoodItemView> = {
   title: 'Components/FoodItemView',
   component: FoodItemView,
-  decorators: [(Story) => <App>{Story()}</App>], // TODO: Create <MockApp> to provide context to all stories
+  decorators: [(Story) => <ServerApp>{Story()}</ServerApp>], // TODO: Create <MockApp> to provide context to all stories
 }
 
 export default meta
