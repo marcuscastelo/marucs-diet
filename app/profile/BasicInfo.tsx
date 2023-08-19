@@ -5,21 +5,17 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { updateUser } from '@/controllers/users'
 import Capsule from '../Capsule'
-import { useUserContext } from '@/context/users.context'
-import CardLoading from './CardLoading'
-import { revalidate } from '../day/[day]/page'
-import { revalidatePath } from 'next/cache'
 type Translation<T extends string> = { [key in T]: string }
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
-// TODO: Módulo de tradução de enum para string
+// TODO: Create module for translations
 const DIET_TRANSLATION: Translation<User['diet']> = {
   cut: 'Cutting',
   normo: 'Normocalórica',
   bulk: 'Bulking',
 }
 
-// TODO: Módulo de tradução de enum para string
+// TODO: Create module for translations
 const USER_FIELD_TRANSLATION: Translation<keyof User> = {
   name: 'Nome',
   weight: 'Peso',

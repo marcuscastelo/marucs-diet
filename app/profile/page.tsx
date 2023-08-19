@@ -68,7 +68,7 @@ export default async function Page() {
             onSaveMacroProfile={onSetProfile}
           />
         </div>
-        {/* <WeightProgress userData={user} /> */}
+        {/* <WeightProgress /> */}
       </div>
     </>
   )

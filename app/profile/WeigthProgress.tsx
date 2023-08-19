@@ -1,9 +1,8 @@
 'use client'
-import { User } from '@/model/userModel'
 import Capsule from '../Capsule'
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
-export default function WeightProgress({ userData }: { userData: User }) {
+export default function WeightProgress() {
   return (
     <div className={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>
       <h5 className={`mx-auto mb-5 text-center text-3xl font-bold`}>
