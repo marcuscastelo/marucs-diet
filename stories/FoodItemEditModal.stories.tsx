@@ -5,6 +5,7 @@ import FoodItemEditModal, {
 import { mockItem } from '@/app/test/unit/(mock)/mockData'
 import App from '@/app/App'
 import { ModalContextProvider } from '@/app/(modals)/ModalContext'
+import ServerApp from '@/app/ServerApp'
 
 const meta: Meta<typeof FoodItemEditModal> = {
   title: 'Components/FoodItemEditModal',
@@ -19,11 +20,11 @@ const meta: Meta<typeof FoodItemEditModal> = {
   decorators: [
     // TODO: Create <MockApp> to provide context to all stories
     (Story) => (
-      <App>
+      <ServerApp>
         <ModalContextProvider visible={true} setVisible={() => undefined}>
           {Story()}
         </ModalContextProvider>
-      </App>
+      </ServerApp>
     ),
   ],
 }
