@@ -16,16 +16,8 @@ export default function DayMacros({
 }) {
   const { user } = useUserContext()
 
-  if (user.loading) {
-    return <>Loading user...</>
-  }
-
-  if (user.errored) {
-    return <>Error loading user</>
-  }
-
-  const macroProfile = user.data.macro_profile
-  const targetMacros = calculateMacroTarget(user.data.weight, macroProfile)
+  const macroProfile = user.macro_profile
+  const targetMacros = calculateMacroTarget(user.weight, macroProfile)
   const targetCalories = calcCalories(targetMacros)
 
   return (

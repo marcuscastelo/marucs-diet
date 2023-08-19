@@ -1,7 +1,7 @@
 'use client'
 
 import { listFoods } from '@/controllers/food'
-import { listUsers } from '@/controllers/users'
+import { fetchUsers } from '@/controllers/users'
 import { Food } from '@/model/foodModel'
 import { User } from '@/model/userModel'
 import { Loadable } from '@/utils/loadable'
@@ -17,7 +17,7 @@ export default function Cart() {
   })
 
   useEffect(() => {
-    listUsers().then((users) => {
+    fetchUsers().then((users) => {
       setUsers({
         loading: false,
         errored: false,

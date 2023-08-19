@@ -4,12 +4,13 @@ import RecipeEditModal, {
 } from '../app/(recipe)/RecipeEditModal'
 import { mockRecipe } from '@/app/test/unit/(mock)/mockData'
 import App from '@/app/App'
+import ServerApp from '@/app/ServerApp'
 
 const meta: Meta<typeof RecipeEditModal> = {
   title: 'Components/RecipeEditModal',
   component: RecipeEditModal,
   argTypes: {},
-  decorators: [(Story) => <App>{Story()}</App>], // TODO: Create <MockApp> to provide context to all stories
+  decorators: [(Story) => <ServerApp>{Story()}</ServerApp>], // TODO: Create <MockApp> to provide context to all stories
 }
 
 export default meta

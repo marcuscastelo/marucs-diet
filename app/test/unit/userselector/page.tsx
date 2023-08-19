@@ -1,9 +1,10 @@
 'use client'
 
-import UserSelector from '@/app/UserSelector'
+import UserSelector from '@/components/UserSelector'
 import { useUserContext } from '@/context/users.context'
 
 export default function Page() {
+  // TODO: Get user server side and convert Page to server component
   const { user } = useUserContext()
   return (
     <div className="w-64">

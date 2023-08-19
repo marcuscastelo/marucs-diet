@@ -1,7 +1,5 @@
-'use client'
-
 import Link from 'next/link'
-import UserSelector from '../UserSelector'
+import UserSelector from '../../components/UserSelector'
 
 export default function TopBar() {
   return (
