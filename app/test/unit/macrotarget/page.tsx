@@ -78,7 +78,7 @@ export default function Page() {
     <MacroTarget
       weight={weight}
       profile={initialProfile}
-      onSaveProfile={() => alert('Save profile')}
+      onSaveMacroProfile={() => alert('Save profile')}
     />
   )
   // TODO: Check code below

@@ -81,13 +81,13 @@ export type MacroTargetProps = {
   weight: number
   profile: MacroProfile
   className?: string
-  onSaveProfile: Dispatch<(old: MacroProfile) => MacroProfile>
+  onSaveMacroProfile: (newProfile: MacroProfile) => void
 }
 
 export default function MacroTarget({
   weight,
   profile,
-  onSaveProfile: setProfile,
+  onSaveMacroProfile,
 }: MacroTargetProps) {
   const initialGrams = calculateMacroTarget(weight, profile)
   const initialCalories = calcCalories(initialGrams)
@@ -119,19 +119,20 @@ export default function MacroTarget({
 
   const makeOnSetGramsPerKg =
     (macro: 'carbs' | 'protein' | 'fat') => (gramsPerKg: number) =>
-      setProfile((profile) => ({
-        ...profile,
-        [`gramsPerKg${macro.charAt(0).toUpperCase() + macro.slice(1)}`]:
-          gramsPerKg,
-      }))
+      undefined
+  // onSaveMacroProfile({
+  //   ...profile,
+  //   [`gramsPerKg${macro.charAt(0).toUpperCase() + macro.slice(1)}`]:
+  //     gramsPerKg,
+  // })
 
   const makeOnSetGrams =
     (macro: 'carbs' | 'protein' | 'fat') => (grams: number) =>
-      setProfile((profile) => ({
+      onSaveMacroProfile({
         ...profile,
         [`gramsPerKg${macro.charAt(0).toUpperCase() + macro.slice(1)}`]:
           grams / weight,
-      }))
+      })
 
   // TODO: Allow changing percentage directly
   const makeOnSetPercentage =
