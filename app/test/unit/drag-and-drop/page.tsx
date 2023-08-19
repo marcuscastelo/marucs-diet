@@ -1,3 +1,4 @@
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 'use client'
 
 // TODO: remove this example after we have implemented our own

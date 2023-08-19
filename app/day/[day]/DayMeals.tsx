@@ -1,6 +1,6 @@
 'use client'
 
-import { Dispatch, SetStateAction, useCallback, useState } from 'react'
+import { Dispatch, SetStateAction, useState } from 'react'
 import MealList from '../../(meal)/MealList'
 import { Day } from '@/model/dayModel'
 import MealView, { MealViewProps } from '../../(meal)/MealView'
@@ -325,10 +325,9 @@ function ExternalItemGroupEditModal({
         targetMealName={selectedMeal?.name ?? 'ERROR: No meal selected'}
         onSaveGroup={async (group) => {
           console.debug('ItemGroupEditModal onApply, received group', group)
-          // TODO: Avoid non-null assertion
-          await updateDay(dayData!.id, {
-            ...dayData!,
-            meals: dayData!.meals.map((meal) => {
+          await updateDay(dayData.id, {
+            ...dayData,
+            meals: dayData.meals.map((meal) => {
               if (!selectedMeal) {
                 throw new Error('No meal selected!')
               }
@@ -368,10 +367,10 @@ function ExternalItemGroupEditModal({
           setVisible(false)
         }}
         onDelete={async (id: ItemGroup['id']) => {
-          const oldMeals = [...dayData!.meals]
+          const oldMeals = [...dayData.meals]
 
           const newMeals: MealData[] = oldMeals.map((meal) => {
-            if (meal.id !== selectedMeal!.id) {
+            if (meal.id !== selectedMeal.id) {
               return meal
             }
 
@@ -386,12 +385,11 @@ function ExternalItemGroupEditModal({
             }
           })
 
-          const newDay = { ...dayData! }
+          const newDay = { ...dayData }
 
           newDay.meals = newMeals
 
-          // TODO: Avoid non-null assertion
-          await updateDay(dayData!.id, newDay)
+          await updateDay(dayData.id, newDay)
 
           refetchDays() // TODO: Vai dar uma merda
           unselect() // TODO: Vai dar uma merda
