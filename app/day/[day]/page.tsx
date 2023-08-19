@@ -1,23 +1,33 @@
-'use client'
-
 import PageLoading from '../../PageLoading'
-import { Alert } from 'flowbite-react'
-import CopyLastDayButton from './CopyLastDayButton'
-import { useDaysContext } from '@/context/days.context'
-import DayMeals from './DayMeals'
 import TopBar from './TopBar'
-import { Loaded } from '@/utils/loadable'
+import { Loadable } from '@/utils/loadable'
 import { Day } from '@/model/dayModel'
-import CreateBlankDayButton from './CreateBlankDayButton'
+import { listDays } from '@/controllers/days'
+import { revalidatePath } from 'next/cache'
+import DayNotFound from './DayNotFound'
+import DayMeals from './DayMeals'
 
+export const revalidate = 0
+export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
 type PageParams = {
   params: {
     day: string
   }
 }
 
-export default function Page({ params }: PageParams) {
-  const { days, refetchDays } = useDaysContext()
+export default async function Page({ params }: PageParams) {
+  console.debug(`[DayPage] Rendering day ${params.day}`)
+  // TODO: Remove Loadable and use days directly
+  const days: Loadable<Day[]> = {
+    loading: false,
+    errored: false,
+    data: await listDays(3), // TODO: Get user id from cookies
+  }
+  const refetchDays = async () => {
+    'use server'
+    revalidatePath(`/day/${params.day}`)
+  }
 
   const selectedDay = params.day
 
@@ -35,19 +45,24 @@ export default function Page({ params }: PageParams) {
 
   if (!selectedDay) {
     return (
-      <Alert className="mt-2" color="warning">
+      // TODO: Use flowbite-react Alert component
+      <h1 className="mt-2" color="warning">
         Selecione um dia
-      </Alert>
+      </h1>
     )
   }
 
   if (!dayData) {
     return (
-      <DayNotFound
-        days={days}
-        refetchDays={refetchDays}
-        selectedDay={selectedDay}
-      />
+      <>
+        <TopBar selectedDay={selectedDay} />
+
+        <DayNotFound
+          days={days}
+          refetchDays={refetchDays}
+          selectedDay={selectedDay}
+        />
+      </>
     )
   }
 
@@ -59,37 +74,9 @@ export default function Page({ params }: PageParams) {
         day={dayData}
         editModalId={EDIT_MODAL_ID}
         selectedDay={selectedDay}
-        refetchDays={refetchDays}
+        refetchDays={refetchDays} // TODO: usePathname hook to get current path
         days={days}
       />
     </div>
-  )
-}
-
-function DayNotFound({
-  selectedDay,
-  refetchDays,
-  days,
-}: {
-  selectedDay: string
-  refetchDays: () => void
-  days: Loaded<Day[]>
-}) {
-  return (
-    <>
-      <Alert className="mt-2" color="warning">
-        Nenhum dado encontrado para o dia {selectedDay}
-      </Alert>
-      <CreateBlankDayButton
-        selectedDay={selectedDay}
-        refetchDays={refetchDays}
-      />
-      <CopyLastDayButton
-        dayData={undefined}
-        days={days}
-        refetchDays={refetchDays}
-        selectedDay={selectedDay}
-      />
-    </>
   )
 }
