@@ -246,6 +246,7 @@ function ExternalFoodSearchModal({
     }
 
     updateDay(day.id, newDay)
+    refetchDays()
   }
 
   if (!selectedMeal) {
@@ -361,6 +362,7 @@ function ExternalItemGroupEditModal({
             }),
           })
 
+          // TODO: Analyze if these 3 commands are troublesome
           refetchDays() // TODO: Vai dar uma merda
           unselect() // TODO: Vai dar uma merda
           setVisible(false)
