@@ -1,12 +1,12 @@
 import UserSelectorDropdown from './UserSelectorDropdown'
 import UserIcon from './UserIcon'
 import UserName from './UserName'
-import { listUsers } from '@/controllers/users'
+import { fetchUsers } from '@/controllers/users'
 
 export default async function UserSelector() {
   // const { availableUsers } = useUserContext()
 
-  const availableUsers = await listUsers()
+  const availableUsers = await fetchUsers()
 
   return (
     <div className="flex items-center">

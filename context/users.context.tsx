@@ -76,6 +76,7 @@ export function UserContextProvider({
 
   useEffect(() => {
     if (!user.loading && !user.errored && user.data) {
+      // TODO: Convert to serverAction
       localStorage.setItem('userId', user.data.id.toString())
     }
   }, [user])
@@ -90,6 +91,7 @@ export function UserContextProvider({
         }
         setAvailableUsers({ loading: false, errored: false, data: users })
         if (users.length > 0) {
+          // TODO: Convert to serverAction
           const value = localStorage.getItem('userId')
           const localStorageUserId = value !== null && parseInt(value)
           const userId = users.find((u) => u.id === localStorageUserId)?.id

@@ -1,7 +1,7 @@
 'use client'
 
 import { Dropdown } from 'react-daisyui'
-import { AvaliableUser, useUserContext } from '@/context/users.context'
+import { AvaliableUser } from '@/context/users.context'
 import { Loadable } from '@/utils/loadable'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import { changeUser } from '@/actions/user'

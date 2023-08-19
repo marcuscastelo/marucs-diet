@@ -1,11 +1,19 @@
-import { getUser } from '@/controllers/users'
-import { cookies } from 'next/dist/client/components/headers'
+import { getUser } from '@/actions/user'
+import { fetchUser } from '@/controllers/users'
 import Link from 'next/link'
 
 export default async function UserName() {
-  const userId = cookies().get('userId')?.value || '0'
+  const userId = await getUser()
 
-  const user = await getUser(parseInt(userId))
+  if (!userId) {
+    return <h1>Usuário não encontrado</h1>
+  }
+
+  const user = await fetchUser(userId)
+
+  if (!user) {
+    return <h1>Usuário {userId} não encontrado</h1>
+  }
 
   return <Link href="/profile">{user.name}</Link>
 }
