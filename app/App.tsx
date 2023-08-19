@@ -7,7 +7,7 @@ import { FoodContextProvider } from '@/context/food.context'
 import { UserContext, UserContextProvider } from '@/context/users.context'
 import { listDays } from '@/controllers/days'
 import { listFoods, searchFoodsByName } from '@/controllers/food'
-import { listUsers, updateUser } from '@/controllers/users'
+import { fetchUsers, updateUser } from '@/controllers/users'
 import { useContextSelector } from 'use-context-selector'
 
 export default function App({ children }: { children: React.ReactNode }) {
@@ -27,10 +27,10 @@ function AppUserProvider({ children }: { children: React.ReactNode }) {
   return (
     <UserContextProvider
       onFetchAvailableUsers={async () => {
-        return await listUsers()
+        return await fetchUsers()
       }}
       onFetchUser={async (id) => {
-        return (await listUsers()).find((user) => user.id === id)
+        return (await fetchUsers()).find((user) => user.id === id)
       }}
       onSaveUser={async (user) => {
         await updateUser(user.id, user)
