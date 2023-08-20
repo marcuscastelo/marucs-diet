@@ -67,11 +67,6 @@ const FoodItemEditModal = ({
 
   const canAdd = quantity !== '' && Number(quantity) > 0
 
-  // TODO: Remove createMealItemData
-  const createMealItemData = () => ({
-    ...foodItem,
-  })
-
   return (
     <>
       <Modal
@@ -99,7 +94,7 @@ const FoodItemEditModal = ({
             canAdd={canAdd}
             onApply={() => {
               setVisible(false)
-              onApply(createMealItemData())
+              onApply(foodItem)
             }}
             onCancel={() => {
               setVisible(false)
