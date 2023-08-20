@@ -25,7 +25,7 @@ export const Root: Story = {
           name={<FoodItemView.Header.Name />}
           copyButton={
             <FoodItemView.Header.CopyButton
-              handleCopyMealItem={() => console.log('copy meal item')}
+              handleCopyFoodItem={() => console.log('copy meal item')}
             />
           }
           favorite={

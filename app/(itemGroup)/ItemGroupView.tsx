@@ -54,19 +54,23 @@ export default function ItemGroupView({
 }
 
 ItemGroupView.Header = ItemGroupHeader
-ItemGroupView.NutritionalInfo = MealItemNutritionalInfo
+ItemGroupView.NutritionalInfo = ItemGroupViewNutritionalInfo
 
-export type MealItemHeaderProps = {
+export type ItemGroupViewHeaderProps = {
   name?: React.ReactNode
   favorite?: React.ReactNode
   copyButton?: React.ReactNode
 }
 
-function ItemGroupHeader({ name, favorite, copyButton }: MealItemHeaderProps) {
+function ItemGroupHeader({
+  name,
+  favorite,
+  copyButton,
+}: ItemGroupViewHeaderProps) {
   return (
     <div className="flex">
-      {/* //TODO: mealItem id is random, but it should be an entry on the database (meal too) */}
-      {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.mealItem.id}]</h5> */}
+      {/* //TODO: ItemGroupView id is random, but it should be an entry on the database (meal too) */}
+      {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.ItemGroupView.id}]</h5> */}
       <div className="my-2">{name}</div>
       {/* 
         // TODO: Remove code duplication between FoodItemView and ItemGroupView 
@@ -134,8 +138,8 @@ function ItemGroupName() {
 
   return (
     <div className="">
-      {/* //TODO: mealItem id is random, but it should be an entry on the database (meal too) */}
-      {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.mealItem.id}]</h5> */}
+      {/* //TODO: ItemGroupView id is random, but it should be an entry on the database (meal too) */}
+      {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.ItemGroupView.id}]</h5> */}
       <h5 className={`mb-2 text-lg font-bold tracking-tight ${getNameColor()}`}>
         {itemGroup?.name ?? 'Erro: grupo sem nome'}{' '}
         {debug && (
@@ -149,9 +153,9 @@ function ItemGroupName() {
 }
 
 function ItemGroupCopyButton({
-  handleCopyMealItem,
+  handleCopyItemGroup: handleCopyItemGroupView,
 }: {
-  handleCopyMealItem: (mealItem: ItemGroup) => void
+  handleCopyItemGroup: (ItemGroupView: ItemGroup) => void
 }) {
   const { itemGroup } = useItemGroupContext()
 
@@ -161,7 +165,7 @@ function ItemGroupCopyButton({
       onClick={(e) => {
         e.stopPropagation()
         e.preventDefault()
-        itemGroup && handleCopyMealItem(itemGroup)
+        itemGroup && handleCopyItemGroupView(itemGroup)
       }}
     >
       <CopyIcon />
@@ -194,7 +198,7 @@ function ItemGroupFavorite({
   )
 }
 
-function MealItemNutritionalInfo() {
+function ItemGroupViewNutritionalInfo() {
   const { itemGroup } = useItemGroupContext()
 
   const multipliedMacros: MacroNutrients = (itemGroup &&
