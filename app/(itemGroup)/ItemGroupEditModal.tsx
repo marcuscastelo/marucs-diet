@@ -1,4 +1,4 @@
-// 'use client'
+'use client'
 
 import { ItemGroup, isSimpleSingleGroup } from '@/model/foodItemGroupModel'
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
@@ -15,9 +15,9 @@ import { Loadable } from '@/utils/loadable'
 import PageLoading from '../PageLoading'
 import { searchRecipeById, updateRecipe } from '@/controllers/recipes'
 import {
-  ItemGroupContextProvider,
-  useItemGroupContext,
-} from './ItemGroupContext'
+  ItemGroupEditContextProvider,
+  useItemGroupEditContext,
+} from './ItemGroupEditContext'
 import { useUserContext } from '@/context/users.context'
 import { ModalContextProvider, useModalContext } from '../(modals)/ModalContext'
 import {
@@ -41,28 +41,30 @@ export type ItemGroupEditModalProps = {
 
 const ItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   return (
-    <ItemGroupContextProvider itemGroup={props.group}>
+    <ItemGroupEditContextProvider
+      group={props.group}
+      onSaveGroup={props.onSaveGroup}
+    >
       <InnerItemGroupEditModal {...props} />
-    </ItemGroupContextProvider>
+    </ItemGroupEditContextProvider>
   )
 }
 
 const InnerItemGroupEditModal = ({
   modalId,
   targetMealName,
-  onSaveGroup,
   onCancel,
   onDelete,
   onRefetch,
 }: ItemGroupEditModalProps) => {
   const { visible, setVisible } = useModalContext()
+  const { group } = useItemGroupEditContext()
 
   const [recipeEditModalVisible, setRecipeEditModalVisible] = useState(false)
   const [foodItemEditModalVisible, setFoodItemEditModalVisible] =
     useState(false)
   const [foodSearchModalVisible, setFoodSearchModalVisible] = useState(false)
 
-  const { itemGroup: group } = useItemGroupContext()
   const [recipe, setRecipe] = useState<Loadable<Recipe | null>>({
     loading: true,
   })
@@ -126,7 +128,6 @@ const InnerItemGroupEditModal = ({
         visible={foodItemEditModalVisible}
         setVisible={setFoodItemEditModalVisible}
         impossibleFoodItem={impossibleFoodItem}
-        onSaveGroup={onSaveGroup}
         selectedFoodItem={selectedFoodItem}
         setSelectedFoodItem={setSelectedFoodItem}
         targetMealName={targetMealName}
@@ -135,11 +136,11 @@ const InnerItemGroupEditModal = ({
         visible={foodSearchModalVisible}
         setVisible={setFoodSearchModalVisible}
         onRefetch={onRefetch}
-        onSaveGroup={onSaveGroup}
       />
       <ModalContextProvider visible={visible} setVisible={setVisible}>
         <Modal
           modalId={modalId}
+          hasBackdrop={false}
           // TODO: Where to put this?
           // onSubmit={() => group && onSaveGroup(group)}
           header={
@@ -162,7 +163,6 @@ const InnerItemGroupEditModal = ({
           actions={
             <Actions
               canApply={canApply}
-              onSaveGroup={onSaveGroup}
               setVisible={setVisible}
               onCancel={onCancel}
               onDelete={onDelete}
@@ -182,7 +182,7 @@ function Header({
   recipe: Recipe | null
 }) {
   const { debug } = useUserContext()
-  const { itemGroup: group } = useItemGroupContext()
+  const { group } = useItemGroupEditContext()
   return (
     <>
       <h3 className="text-lg font-bold text-white">
@@ -210,7 +210,7 @@ function ExternalRecipeEditModal({
   visible: boolean
   setVisible: Dispatch<SetStateAction<boolean>>
 }) {
-  const { itemGroup: group } = useItemGroupContext()
+  const { group } = useItemGroupEditContext()
   return (
     <ModalContextProvider visible={visible} setVisible={setVisible}>
       <RecipeEditModal
@@ -239,9 +239,8 @@ function ExternalFoodItemEditModal({
   selectedFoodItem: FoodItem | null
   impossibleFoodItem: FoodItem
   setSelectedFoodItem: (item: FoodItem | null) => void
-  onSaveGroup: (group: ItemGroup) => void
 }) {
-  const { itemGroup: group, setItemGroup: setGroup } = useItemGroupContext()
+  const { group, setGroup } = useItemGroupEditContext()
 
   return (
     <ModalContextProvider
@@ -311,14 +310,12 @@ function ExternalFoodSearchModal({
   visible,
   setVisible,
   onRefetch,
-  onSaveGroup,
 }: {
   visible: boolean
   setVisible: Dispatch<SetStateAction<boolean>>
   onRefetch: () => void
-  onSaveGroup: (group: ItemGroup) => void
 }) {
-  const { itemGroup: group } = useItemGroupContext()
+  const { group, setGroup } = useItemGroupEditContext()
 
   return (
     <ModalContextProvider
@@ -359,7 +356,8 @@ function ExternalFoodSearchModal({
             'onNewFoodItem: applying',
             JSON.stringify(finalGroup, null, 2),
           )
-          onSaveGroup(finalGroup)
+
+          setGroup(finalGroup)
         }}
       />
     </ModalContextProvider>
@@ -386,7 +384,7 @@ function Body({
   foodSearchModalVisible: boolean
   setFoodSearchModalVisible: Dispatch<SetStateAction<boolean>>
 }) {
-  const { itemGroup: group, setItemGroup: setGroup } = useItemGroupContext()
+  const { group, setGroup } = useItemGroupEditContext()
   return (
     <>
       {group && (
@@ -500,18 +498,16 @@ function Body({
 function Actions({
   onDelete,
   onCancel,
-  onSaveGroup,
   canApply,
   setVisible,
 }: {
   onDelete?: (groupId: number) => void
   onCancel?: () => void
-  onSaveGroup: (group: ItemGroup) => void
   canApply: boolean
   setVisible: Dispatch<SetStateAction<boolean>>
 }) {
   // TODO: Make itemGroup not nullable? Reflect changes on all group?. and itemGroup?. and ?? everywhere
-  const { itemGroup } = useItemGroupContext()
+  const { group, saveGroup } = useItemGroupEditContext()
 
   const { show: showConfirmModal } = useConfirmModalContext()
 
@@ -524,16 +520,16 @@ function Actions({
           onClick={(e) => {
             e.preventDefault()
             // TODO: Move confirm up to parent (also with all other confirmations)
-            if (!itemGroup || !onDelete) {
+            if (!group || !onDelete) {
               alert('BUG: group or onDelete is null')
             }
             showConfirmModal({
               title: 'Excluir grupo',
               message: `Tem certeza que deseja excluir o grupo ${
-                itemGroup?.name ?? 'BUG: group is null' // TODO: Color group name orange and BUG red
+                group?.name ?? 'BUG: group is null' // TODO: Color group name orange and BUG red
               }?`,
               onConfirm: () => {
-                itemGroup && onDelete(itemGroup.id)
+                group && onDelete(group.id)
               },
             })
           }}
@@ -556,8 +552,7 @@ function Actions({
         disabled={!canApply} // TODO: Rename canAdd to canApply on FoodItemEditModal
         onClick={(e) => {
           e.preventDefault()
-          // TODO: only onSaveGroup when apply button is pressed, i.e. keeping internal state
-          itemGroup && onSaveGroup(itemGroup)
+          saveGroup()
         }}
       >
         Aplicar
