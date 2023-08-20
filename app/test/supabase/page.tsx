@@ -62,7 +62,7 @@ export default function Cart() {
 }
 
 // TODO: (Urgent) Remove secrets from repo
-// ***REMOVED***
+// OL4rsk9Ztwf6RnlB
 
-// ***REMOVED***
-// ***REMOVED***
+// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNiaGh4Z2VhZmx6bXpwbWF0bmlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTA2MDMwMDEsImV4cCI6MjAwNjE3OTAwMX0.wRQ_utWfnmSEVhtEysiobLmntfM3GLLcToc2rD1MMPc
+// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNiaGh4Z2VhZmx6bXpwbWF0bmlyIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY5MDYwMzAwMSwiZXhwIjoyMDA2MTc5MDAxfQ.DxI2ekjAMZNlCJilpo4D3o8OMyTOY6iXd0NJWT_C4vY
