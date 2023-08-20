@@ -1,8 +1,8 @@
 'use client'
 
-import { MacroNutrientsData } from '@/model/macroNutrientsModel'
+import { MacroNutrients } from '@/model/macroNutrientsModel'
 
-export default function MacroNutrients(props: MacroNutrientsData) {
+export default function MacroNutrientsView(props: MacroNutrients) {
   return (
     <>
       <span className="mr-1 text-green-400">

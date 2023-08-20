@@ -5,10 +5,10 @@ import { deleteDay } from '@/controllers/days'
 import { Day } from '@/model/dayModel'
 
 export default function DeleteDayButton({
-  dayData,
+  day,
   refetchDays,
 }: {
-  dayData: Day | null | undefined
+  day: Day | null | undefined
   refetchDays: () => void
 }) {
   const { show: showConfirmModal } = useConfirmModalContext()
@@ -21,12 +21,12 @@ export default function DeleteDayButton({
           title: 'Excluir dia',
           message: 'Tem certeza que deseja excluir este dia?',
           onConfirm: async () => {
-            if (dayData) {
-              await deleteDay(dayData.id)
+            if (day) {
+              await deleteDay(day.id)
               refetchDays()
             } else {
-              console.error('Day data is null')
-              throw new Error('Day data is null')
+              console.error('Day is null')
+              throw new Error('Day is null')
             }
           },
         })
