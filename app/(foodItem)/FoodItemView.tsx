@@ -1,8 +1,8 @@
 'use client'
 
 import { FoodItem } from '@/model/foodItemModel'
-import MacroNutrients from '../MacroNutrients'
-import { MacroNutrientsData } from '@/model/macroNutrientsModel'
+import MacroNutrientsView from '../MacroNutrientsView'
+import { MacroNutrients } from '@/model/macroNutrientsModel'
 import { FoodItemContextProvider, useFoodItemContext } from './FoodItemContext'
 import CopyIcon from '../(icons)/CopyIcon'
 import { useEffect, useState } from 'react'
@@ -174,7 +174,7 @@ function MealItemFavorite({
 function MealItemNutritionalInfo() {
   const { foodItem: item } = useFoodItemContext()
 
-  const multipliedMacros: MacroNutrientsData = {
+  const multipliedMacros: MacroNutrients = {
     carbs: (item.macros.carbs * item.quantity) / 100,
     protein: (item.macros.protein * item.quantity) / 100,
     fat: (item.macros.fat * item.quantity) / 100,
@@ -182,7 +182,7 @@ function MealItemNutritionalInfo() {
 
   return (
     <div className="flex">
-      <MacroNutrients {...multipliedMacros} />
+      <MacroNutrientsView {...multipliedMacros} />
       <div className="ml-auto">
         <span className="text-white"> {item.quantity}g </span>|
         <span className="text-white">
