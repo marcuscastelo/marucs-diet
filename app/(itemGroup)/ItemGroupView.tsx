@@ -1,7 +1,7 @@
 'use client'
 
-import MacroNutrients from '../MacroNutrients'
-import { MacroNutrientsData } from '@/model/macroNutrientsModel'
+import MacroNutrientsView from '../MacroNutrientsView'
+import { MacroNutrients } from '@/model/macroNutrientsModel'
 import CopyIcon from '../(icons)/CopyIcon'
 import {
   ItemGroupContextProvider,
@@ -197,7 +197,7 @@ function ItemGroupFavorite({
 function MealItemNutritionalInfo() {
   const { itemGroup } = useItemGroupContext()
 
-  const multipliedMacros: MacroNutrientsData = (itemGroup &&
+  const multipliedMacros: MacroNutrients = (itemGroup &&
     calcGroupMacros(itemGroup)) || {
     carbs: -666,
     protein: -666,
@@ -206,7 +206,7 @@ function MealItemNutritionalInfo() {
 
   return (
     <div className="flex">
-      <MacroNutrients {...multipliedMacros} />
+      <MacroNutrientsView {...multipliedMacros} />
       <div className="ml-auto">
         <span className="text-white"> {itemGroup?.quantity ?? -666}g </span>|
         <span className="text-white">
