@@ -1,27 +1,27 @@
 'use client'
 
 // TODO: Reenable DayMealsWithPicker Integration Test Component
-import { Day } from '@/model/dayModel'
-import { useState } from 'react'
-import { DateValueType } from 'react-tailwindcss-datepicker/dist/types'
-import { mockMeal } from '../../unit/(mock)/mockData'
-import { MealViewProps } from '@/app/(meal)/MealView'
-import { getToday } from '@/utils/dateUtils'
+// import { Day } from '@/model/dayModel'
+// import { useState } from 'react'
+// import { DateValueType } from 'react-tailwindcss-datepicker/dist/types'
+// import { mockMeal } from '../../unit/(mock)/mockData'
+// import { MealViewProps } from '@/app/(meal)/MealView'
+// import { getToday } from '@/utils/dateUtils'
 
 export default function Page() {
-  const day1: Day = {
-    id: Math.round(Math.random() * 1000),
-    owner: Math.round(Math.random() * 1000),
-    target_day: getToday(),
-    meals: [mockMeal({ name: 'Café da manhã' }), mockMeal({ name: 'Almoço' })],
-  }
+  // const day1: Day = {
+  //   id: Math.round(Math.random() * 1000),
+  //   owner: Math.round(Math.random() * 1000),
+  //   target_day: getToday(),
+  //   meals: [mockMeal({ name: 'Café da manhã' }), mockMeal({ name: 'Almoço' })],
+  // }
 
-  const day2: Day = {
-    id: Math.round(Math.random() * 1000),
-    owner: Math.round(Math.random() * 1000),
-    target_day: getToday(),
-    meals: [mockMeal({ name: 'Jejum' })],
-  }
+  // const day2: Day = {
+  //   id: Math.round(Math.random() * 1000),
+  //   owner: Math.round(Math.random() * 1000),
+  //   target_day: getToday(),
+  //   meals: [mockMeal({ name: 'Jejum' })],
+  // }
 
   // TODO: Reenable DayMealsWithPicker Unit Test Component
   // const day1MealProps: MealProps[] = day1.meals.map(meal => {
@@ -42,11 +42,11 @@ export default function Page() {
   //     }
   // });
 
-  const [day, setDay] = useState<DateValueType>({
-    startDate: getToday(),
-    endDate: getToday(),
-  })
-  const [currentMealProps, setCurrentMealProps] = useState<MealViewProps[]>()
+  // const [day, setDay] = useState<DateValueType>({
+  //   startDate: getToday(),
+  //   endDate: getToday(),
+  // })
+  // const [currentMealProps, setCurrentMealProps] = useState<MealViewProps[]>()
 
   // TODO: Reenable DayMealsWithPicker Unit Test Component
   // const handleDayChange = (newValue: DateValueType) => {

@@ -2,7 +2,7 @@
 
 import { MacroNutrientsData } from '@/model/macroNutrientsModel'
 import { calcCalories } from '@/utils/macroMath'
-import { Dispatch, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const CARBO_CALORIES = 4 as const
 const PROTEIN_CALORIES = 4 as const
@@ -119,12 +119,11 @@ export default function MacroTarget({
 
   const makeOnSetGramsPerKg =
     (macro: 'carbs' | 'protein' | 'fat') => (gramsPerKg: number) =>
-      undefined
-  // onSaveMacroProfile({
-  //   ...profile,
-  //   [`gramsPerKg${macro.charAt(0).toUpperCase() + macro.slice(1)}`]:
-  //     gramsPerKg,
-  // })
+      onSaveMacroProfile({
+        ...profile,
+        [`gramsPerKg${macro.charAt(0).toUpperCase() + macro.slice(1)}`]:
+          gramsPerKg,
+      })
 
   const makeOnSetGrams =
     (macro: 'carbs' | 'protein' | 'fat') => (grams: number) =>

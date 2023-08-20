@@ -6,7 +6,6 @@ import { listDays } from '@/controllers/days'
 import { revalidatePath } from 'next/cache'
 import DayNotFound from './DayNotFound'
 import DayMeals from './DayMeals'
-import { cookies } from 'next/dist/client/components/headers'
 import { getUser } from '@/actions/user'
 
 export const revalidate = 0

@@ -4,8 +4,6 @@ import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react'
 import FoodItemView from './FoodItemView'
 import { FoodItem } from '@/model/foodItemModel'
 import Modal, { ModalActions } from '../(modals)/Modal'
-import { Recipe } from '@/model/recipeModel'
-import { Loadable } from '@/utils/loadable'
 import { useUserContext } from '@/context/users.context'
 import { useModalContext } from '../(modals)/ModalContext'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
@@ -78,19 +76,6 @@ const FoodItemEditModal = ({
 
   return (
     <>
-      {/* {itemData?.food.name.toString()}
-        {itemData?.food.id.toString()}
-        {itemData?.food.recipeId?.toString() ?? 'NO RECIPE ID'} */}
-      {/* {recipe.loading.valueOf().toString()}
-        {(!recipe.loading && JSON.stringify(recipe.data, null, 2)) ||
-          'NO RECIPE DATA'} */}
-      {/* <RecipeEditModal
-          modalId={RECIPE_EDIT_MODAL_ID}
-          ref={recipeEditModalRef}
-          recipe={(!recipe.loading && recipe.data) || null}
-          onSaveRecipe={async () => alert('TODO: Save recipe')}
-        /> */}
-
       <Modal
         modalId={modalId}
         header={
@@ -179,12 +164,6 @@ function Body({
   id: FoodItem['id']
 }) {
   const quantityRef = useRef<HTMLInputElement>(null)
-
-  const [recipe, setRecipe] = useState<Loadable<Recipe | null>>({
-    loading: true,
-  })
-
-  // const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(true)
 
   useEffect(() => {
     if (visible) {
@@ -308,12 +287,12 @@ function Body({
               favorite={
                 <FoodItemView.Header.Favorite
                   favorite={
-                    // TODO: isRecipeFavorite as well
+                    // TODO: [Feature] Add recipe favorite
                     (foodItem && isFoodFavorite(foodItem.reference)) || false
                   }
                   onSetFavorite={(favorite) =>
                     foodItem &&
-                    // TODO: setRecipeAsFavorite as well
+                    // TODO: [Feature] Add recipe favorite
                     setFoodAsFavorite(foodItem.reference, favorite)
                   }
                 />
@@ -351,7 +330,7 @@ function Actions({
           onClick={(e) => {
             e.preventDefault()
 
-            // TODO: Move confirm up to parent (also with all other confirmations)
+            // TODO: Move confirm up to parent? (also with all other confirmations)
             onDelete &&
               showConfirmModal({
                 title: 'Excluir item',
