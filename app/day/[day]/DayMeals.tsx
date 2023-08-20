@@ -24,7 +24,7 @@ import { useUserContext } from '@/context/users.context'
 export default function DayMeals({
   selectedDay,
   editModalId,
-  day, // TODO: Rename all occurrences of dayData to day
+  day,
   refetchDays,
   days,
 }: {
@@ -143,7 +143,7 @@ export default function DayMeals({
         }}
       />
       <ExternalItemGroupEditModal
-        dayData={day}
+        day={day}
         editModalId={editModalId}
         refetchDays={refetchDays}
         visible={itemGroupEditModalVisible}
@@ -195,12 +195,12 @@ export default function DayMeals({
         mealEditPropsList={mealEditPropsList}
       />
       <CopyLastDayButton
-        dayData={day}
+        day={day}
         days={days}
         selectedDay={selectedDay}
         refetchDays={refetchDays}
       />
-      <DeleteDayButton dayData={day} refetchDays={refetchDays} />
+      <DeleteDayButton day={day} refetchDays={refetchDays} />
     </>
   )
 }
@@ -292,7 +292,7 @@ function ExternalItemGroupEditModal({
   setVisible,
   unselect,
   selectedMeal,
-  dayData,
+  day,
   refetchDays,
 }: {
   editModalId: string
@@ -301,7 +301,7 @@ function ExternalItemGroupEditModal({
   selectedItemGroup: ItemGroup | null
   selectedMeal: MealData | null
   unselect: () => void
-  dayData: Day
+  day: Day
   refetchDays: () => void
 }) {
   const { debug } = useUserContext()
@@ -330,9 +330,9 @@ function ExternalItemGroupEditModal({
         targetMealName={selectedMeal?.name ?? 'ERROR: No meal selected'}
         onSaveGroup={async (group) => {
           console.debug('ItemGroupEditModal onApply, received group', group)
-          await updateDay(dayData.id, {
-            ...dayData,
-            meals: dayData.meals.map((meal) => {
+          await updateDay(day.id, {
+            ...day,
+            meals: day.meals.map((meal) => {
               if (!selectedMeal) {
                 throw new Error('No meal selected!')
               }
@@ -372,7 +372,7 @@ function ExternalItemGroupEditModal({
           setVisible(false)
         }}
         onDelete={async (id: ItemGroup['id']) => {
-          const oldMeals = [...dayData.meals]
+          const oldMeals = [...day.meals]
 
           const newMeals: MealData[] = oldMeals.map((meal) => {
             if (meal.id !== selectedMeal.id) {
@@ -390,11 +390,11 @@ function ExternalItemGroupEditModal({
             }
           })
 
-          const newDay = { ...dayData }
+          const newDay = { ...day }
 
           newDay.meals = newMeals
 
-          await updateDay(dayData.id, newDay)
+          await updateDay(day.id, newDay)
 
           refetchDays() // TODO: Vai dar uma merda
           unselect() // TODO: Vai dar uma merda

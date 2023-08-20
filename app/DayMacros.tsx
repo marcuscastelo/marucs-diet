@@ -1,6 +1,6 @@
 'use client'
 
-import { MacroNutrientsData } from '@/model/macroNutrientsModel'
+import { MacroNutrients } from '@/model/macroNutrientsModel'
 import { Progress } from 'flowbite-react'
 import { calculateMacroTarget } from './MacroTargets'
 import { CSSProperties } from 'react'
@@ -11,7 +11,7 @@ export default function DayMacros({
   macros,
   className,
 }: {
-  macros: MacroNutrientsData
+  macros: MacroNutrients
   className?: string
 }) {
   const { user } = useUserContext()
@@ -47,7 +47,7 @@ function Calories({
   targetCalories,
   className,
 }: {
-  macros: MacroNutrientsData
+  macros: MacroNutrients
   targetCalories: number
   className?: string
 }) {
@@ -86,8 +86,8 @@ function Macros({
   targetMacros,
   className,
 }: {
-  macros: MacroNutrientsData
-  targetMacros: MacroNutrientsData
+  macros: MacroNutrients
+  targetMacros: MacroNutrients
   className?: string
 }) {
   return (
