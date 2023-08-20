@@ -8,7 +8,7 @@ import { updateDay } from '@/controllers/days'
 import { Alert } from 'flowbite-react'
 import Show from '../../Show'
 import DayMacros from '../../DayMacros'
-import { MealData } from '@/model/mealModel'
+import { Meal } from '@/model/mealModel'
 import { Loaded } from '@/utils/loadable'
 import FoodSearchModal from '@/app/newItem/FoodSearchModal'
 import { ItemGroup } from '@/model/foodItemGroupModel'
@@ -46,7 +46,7 @@ export default function DayMeals({
 
   type EditSelection =
     | {
-        meal: MealData
+        meal: Meal
         itemGroup: ItemGroup
       }
     | {
@@ -55,7 +55,7 @@ export default function DayMeals({
       }
 
   type NewItemSelection = {
-    meal: MealData | null
+    meal: Meal | null
   }
 
   const [editSelection, setEditSelection] = useState<EditSelection>({
@@ -67,7 +67,7 @@ export default function DayMeals({
     meal: null,
   })
 
-  const onEditItemGroup = (meal: MealData, itemGroup: ItemGroup) => {
+  const onEditItemGroup = (meal: Meal, itemGroup: ItemGroup) => {
     if (dayLocked) {
       alert('Dia bloqueado, não é possível editar')
       return
@@ -77,7 +77,7 @@ export default function DayMeals({
     setItemGroupEditModalVisible(true)
   }
 
-  const onUpdateMeal = async (day: Day, meal: MealData) => {
+  const onUpdateMeal = async (day: Day, meal: Meal) => {
     if (dayLocked) {
       alert('Dia bloqueado, não é possível editar')
       return
@@ -97,7 +97,7 @@ export default function DayMeals({
     refetchDays()
   }
 
-  const handleNewItemButton = (meal: MealData) => {
+  const handleNewItemButton = (meal: Meal) => {
     console.log('New item button clicked')
     if (dayLocked) {
       alert('Dia bloqueado, não é possível editar')
@@ -112,7 +112,7 @@ export default function DayMeals({
 
   const mealEditPropsList = day.meals.map(
     (meal): MealEditViewProps => ({
-      mealData: meal,
+      meal,
       header: (
         <MealEditView.Header onUpdateMeal={(meal) => onUpdateMeal(day, meal)} />
       ),
@@ -213,7 +213,7 @@ function ExternalFoodSearchModal({
   day,
   refetchDays,
 }: {
-  selectedMeal: MealData | null
+  selectedMeal: Meal | null
   unselect: () => void
   visible: boolean
   setVisible: Dispatch<SetStateAction<boolean>>
@@ -229,14 +229,14 @@ function ExternalFoodSearchModal({
     // TODO: Create a proper onNewFoodItem function
     const oldMeal = { ...selectedMeal }
 
-    const newMeal: MealData = {
+    const newMeal: Meal = {
       ...oldMeal,
-      groups: [...oldMeal.groups, newGroup] satisfies MealData['groups'],
+      groups: [...oldMeal.groups, newGroup] satisfies Meal['groups'],
     }
 
     const oldMeals = [...day.meals]
 
-    const newMeals: MealData[] = [...oldMeals]
+    const newMeals: Meal[] = [...oldMeals]
     const changePos = newMeals.findIndex((m) => m.id === oldMeal.id)
 
     if (changePos === -1) {
@@ -299,7 +299,7 @@ function ExternalItemGroupEditModal({
   visible: boolean
   setVisible: Dispatch<SetStateAction<boolean>>
   selectedItemGroup: ItemGroup | null
-  selectedMeal: MealData | null
+  selectedMeal: Meal | null
   unselect: () => void
   dayData: Day
   refetchDays: () => void
@@ -374,7 +374,7 @@ function ExternalItemGroupEditModal({
         onDelete={async (id: ItemGroup['id']) => {
           const oldMeals = [...dayData.meals]
 
-          const newMeals: MealData[] = oldMeals.map((meal) => {
+          const newMeals: Meal[] = oldMeals.map((meal) => {
             if (meal.id !== selectedMeal.id) {
               return meal
             }
