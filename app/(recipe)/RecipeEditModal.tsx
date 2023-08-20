@@ -18,7 +18,6 @@ export type RecipeEditModalProps = {
   onVisibilityChange?: (isShowing: boolean) => void
 }
 
-// eslint-disable-next-line react/display-name
 const RecipeEditModal = ({
   modalId,
   recipe: initialRecipe,
