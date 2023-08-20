@@ -15,7 +15,6 @@ export const itemSchema = z.object({
   //   .transform(() => 'FoodItem' as const),
 })
 
-// TODO: rename MealItem component to FoodItemView
 export type FoodItem = z.infer<typeof itemSchema>
 
 export function createFoodItem({
