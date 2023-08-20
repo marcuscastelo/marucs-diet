@@ -65,7 +65,6 @@ const calculateMacroRepresentation = (
 }
 
 // TODO: use this function
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const calculateDifferenceInCarbs = (
   targetCalories: number,
   weight: number,

@@ -4,7 +4,6 @@ import Modal, { ModalActions } from '../(modals)/Modal'
 import FoodSearch, { FoodSearchProps } from './FoodSearch'
 import { useModalContext } from '../(modals)/ModalContext'
 
-// eslint-disable-next-line react/display-name
 const FoodSearchModal = ({ ...props }: FoodSearchProps) => {
   const { visible, setVisible } = useModalContext()
   return (
