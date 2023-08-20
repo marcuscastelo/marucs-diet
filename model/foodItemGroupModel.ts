@@ -35,7 +35,6 @@ export type SimpleItemGroup = z.infer<typeof simpleItemGroupSchema>
 
 export type RecipedItemGroup = z.infer<typeof recipedItemGroup>
 
-// TODO: rename ItemGroup component to ItemGroupView
 export type ItemGroup = z.infer<typeof itemGroupSchema>
 
 export function isSimpleSingleGroup(
