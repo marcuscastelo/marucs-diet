@@ -60,9 +60,3 @@ export default function Cart() {
     </div>
   )
 }
-
-// TODO: (Urgent) Remove secrets from repo
-// ***REMOVED***
-
-// ***REMOVED***
-// ***REMOVED***
