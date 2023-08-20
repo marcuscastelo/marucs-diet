@@ -3,17 +3,17 @@
 import MealEditView, { MealEditViewProps } from './MealEditView'
 
 export type DayMealsProps = {
-  mealsProps: MealEditViewProps[]
+  mealEditPropsList: MealEditViewProps[]
   className?: string
 }
 
 export default function MealEditViewList({
-  mealsProps,
+  mealEditPropsList,
   className,
 }: DayMealsProps) {
   return (
     <div className={className}>
-      {mealsProps.map((mealProps, index) => (
+      {mealEditPropsList.map((mealProps, index) => (
         <MealEditView key={index} {...mealProps} className="mt-2" />
       ))}
     </div>
