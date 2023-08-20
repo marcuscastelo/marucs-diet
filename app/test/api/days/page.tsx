@@ -1,7 +1,7 @@
 'use client'
 
-import MealList from '@/app/(meal)/MealList'
-import MealView, { MealViewProps } from '@/app/(meal)/MealView'
+import MealEditViewList from '@/app/(meal)/MealEditViewList'
+import MealEditView, { MealEditViewProps } from '@/app/(meal)/MealEditView'
 import { listDays } from '@/controllers/days'
 import { Day } from '@/model/dayModel'
 import { User } from '@/model/userModel'
@@ -10,7 +10,7 @@ import { useUserContext } from '@/context/users.context'
 
 export default function Page() {
   const [days, setDays] = useState<Day[]>([])
-  const [mealProps, setMealProps] = useState<MealViewProps[][]>([])
+  const [mealEditPropsList, setMealProps] = useState<MealEditViewProps[][]>([])
 
   const { user } = useUserContext()
 
@@ -19,23 +19,23 @@ export default function Page() {
     setDays(days)
 
     const mealProps = days.map((day) => {
-      return day.meals.map((meal): MealViewProps => {
+      return day.meals.map((meal): MealEditViewProps => {
         return {
           mealData: meal,
           header: (
-            <MealView.Header
+            <MealEditView.Header
               onUpdateMeal={(meal) => alert(`Mock: Update meal ${meal.name}`)}
             />
           ),
           content: (
-            <MealView.Content
+            <MealEditView.Content
               onEditItemGroup={(group) =>
                 alert(`Mock: Edit group.id = "${group.id}"`)
               }
             />
           ),
           actions: (
-            <MealView.Actions onNewItem={() => alert('Mock: New item')} />
+            <MealEditView.Actions onNewItem={() => alert('Mock: New item')} />
           ),
         }
       })
@@ -53,8 +53,8 @@ export default function Page() {
         {days.map((day, idx) => (
           <div key={idx}>
             <div className="text-2xl font-bold">{day.target_day}</div>
-            {mealProps[idx].length > 0 ? (
-              <MealList mealsProps={mealProps[idx]} />
+            {mealEditPropsList[idx].length > 0 ? (
+              <MealEditViewList mealEditPropsList={mealEditPropsList[idx]} />
             ) : (
               <div>No meals</div>
             )}

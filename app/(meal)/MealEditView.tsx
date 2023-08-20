@@ -12,7 +12,7 @@ import { ItemGroup, itemGroupSchema } from '@/model/foodItemGroupModel'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import useClipboard from '@/hooks/clipboard'
 
-export type MealViewProps = {
+export type MealEditViewProps = {
   mealData: MealData
   header?: React.ReactNode
   content?: React.ReactNode
@@ -27,17 +27,16 @@ export type MealViewProps = {
 //   const [removed] = result.splice(startIndex, 1)
 //   result.splice(endIndex, 0, removed)
 
-//   return result
+//   return result.
 // }
 
-// TODO: Rename MealView to MealEditView
-export default function MealView({
+export default function MealEditView({
   mealData,
   header,
   content,
   actions,
   className,
-}: MealViewProps) {
+}: MealEditViewProps) {
   return (
     <div className={`bg-gray-800 p-3 ${className || ''}`}>
       <MealContextProvider mealData={mealData}>
@@ -49,11 +48,11 @@ export default function MealView({
   )
 }
 
-MealView.Header = MealViewHeader
-MealView.Content = MealViewContent
-MealView.Actions = MealViewActions
+MealEditView.Header = MealEditViewHeader
+MealEditView.Content = MealEditViewContent
+MealEditView.Actions = MealEditViewActions
 
-function MealViewHeader({
+function MealEditViewHeader({
   onUpdateMeal,
 }: {
   onUpdateMeal: (meal: MealData) => void
@@ -165,7 +164,7 @@ function MealViewHeader({
         <h5 className="text-3xl">{mealData.name}</h5>
         <p className="italic text-gray-400">{mealCalories.toFixed(0)}kcal</p>
       </div>
-      {/* // TODO: Remove code duplication between MealView and RecipeView */}
+      {/* // TODO: Remove code duplication between MealEditView and RecipeView */}
       <div className={`ml-auto flex gap-2`}>
         {!hasValidPastableOnClipboard && mealData.groups.length > 0 && (
           <div
@@ -196,7 +195,7 @@ function MealViewHeader({
   )
 }
 
-function MealViewContent({
+function MealEditViewContent({
   onEditItemGroup,
 }: {
   onEditItemGroup: (item: ItemGroup) => void
@@ -211,7 +210,7 @@ function MealViewContent({
   )
 }
 
-function MealViewActions({ onNewItem }: { onNewItem: () => void }) {
+function MealEditViewActions({ onNewItem }: { onNewItem: () => void }) {
   return (
     <button
       className="mt-3 min-w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"

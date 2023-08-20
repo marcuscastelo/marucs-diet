@@ -3,7 +3,6 @@ import ItemGroupView, {
   ItemGroupViewProps,
 } from '../app/(itemGroup)/ItemGroupView'
 import { mockMeal } from '@/app/test/unit/(mock)/mockData'
-import App from '@/app/App'
 import ServerApp from '@/app/ServerApp'
 
 const meta: Meta<typeof ItemGroupView> = {
