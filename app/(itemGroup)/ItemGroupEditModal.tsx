@@ -39,8 +39,6 @@ export type ItemGroupEditModalProps = {
   onRefetch: () => void
 } & { group: ItemGroup | null }
 
-// TODO: Remove all eslint-disable-next-line react/display-name
-// eslint-disable-next-line react/display-name
 const ItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   return (
     <ItemGroupContextProvider itemGroup={props.group}>
@@ -49,7 +47,6 @@ const ItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   )
 }
 
-// eslint-disable-next-line react/display-name
 const InnerItemGroupEditModal = ({
   modalId,
   targetMealName,
