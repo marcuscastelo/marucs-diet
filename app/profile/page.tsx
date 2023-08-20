@@ -4,6 +4,7 @@ import MacroTarget, { MacroProfile } from '../MacroTargets'
 import { revalidatePath } from 'next/cache'
 import BasicInfo from './BasicInfo'
 import { getUser } from '@/actions/user'
+import WeightProgress from './WeightProgress'
 
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
@@ -68,7 +69,7 @@ export default async function Page() {
             onSaveMacroProfile={onSetProfile}
           />
         </div>
-        {/* <WeightProgress /> */}
+        <WeightProgress />
       </div>
     </>
   )
