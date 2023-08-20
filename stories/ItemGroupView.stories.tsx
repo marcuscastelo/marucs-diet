@@ -17,7 +17,7 @@ const meta: Meta<typeof ItemGroupView> = {
           name={<ItemGroupView.Header.Name />}
           copyButton={
             <ItemGroupView.Header.CopyButton
-              handleCopyMealItem={() => console.log('copy meal item')}
+              handleCopyItemGroup={() => console.log('copy meal item')}
             />
           }
           favorite={<ItemGroupView.Header.Favorite favorite={false} />}
