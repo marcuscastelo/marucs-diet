@@ -1,6 +1,6 @@
 'use client'
 
-import { MealData, mealSchema } from '@/model/mealModel'
+import { Meal, mealSchema } from '@/model/mealModel'
 import { MealContextProvider, useMealContext } from './MealContext'
 import { useCallback } from 'react'
 import TrashIcon from '../(icons)/TrashIcon'
@@ -13,7 +13,7 @@ import { useConfirmModalContext } from '@/context/confirmModal.context'
 import useClipboard from '@/hooks/clipboard'
 
 export type MealEditViewProps = {
-  mealData: MealData
+  meal: Meal
   header?: React.ReactNode
   content?: React.ReactNode
   actions?: React.ReactNode
@@ -31,7 +31,7 @@ export type MealEditViewProps = {
 // }
 
 export default function MealEditView({
-  mealData,
+  meal,
   header,
   content,
   actions,
@@ -39,7 +39,7 @@ export default function MealEditView({
 }: MealEditViewProps) {
   return (
     <div className={`bg-gray-800 p-3 ${className || ''}`}>
-      <MealContextProvider mealData={mealData}>
+      <MealContextProvider meal={meal}>
         {header}
         {content}
         {actions}
@@ -55,10 +55,10 @@ MealEditView.Actions = MealEditViewActions
 function MealEditViewHeader({
   onUpdateMeal,
 }: {
-  onUpdateMeal: (meal: MealData) => void
+  onUpdateMeal: (meal: Meal) => void
 }) {
   const acceptedClipboardSchema = mealSchema.or(itemGroupSchema)
-  const { mealData } = useMealContext()
+  const { meal } = useMealContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
   const isClipboardValid = (clipboard: string) => {
@@ -79,8 +79,8 @@ function MealEditViewHeader({
   })
 
   const handleCopy = useCallback(
-    () => writeToClipboard(JSON.stringify(mealData)),
-    [mealData, writeToClipboard],
+    () => writeToClipboard(JSON.stringify(meal)),
+    [meal, writeToClipboard],
   )
 
   const handlePasteAfterConfirm = useCallback(() => {
@@ -111,18 +111,18 @@ function MealEditViewHeader({
       }),
     )
 
-    const newMealData: MealData = {
-      ...mealData,
-      groups: [...mealData.groups, ...groupsWithNewIds],
+    const newMeal: Meal = {
+      ...meal,
+      groups: [...meal.groups, ...groupsWithNewIds],
     }
 
-    onUpdateMeal(newMealData)
+    onUpdateMeal(newMeal)
 
     // Clear clipboard
     writeToClipboard('')
   }, [
     clipboardText,
-    mealData,
+    meal,
     onUpdateMeal,
     writeToClipboard,
     acceptedClipboardSchema,
@@ -137,7 +137,7 @@ function MealEditViewHeader({
   }, [handlePasteAfterConfirm, showConfirmModal])
 
   // TODO: Show how much of the daily target is this meal (e.g. 30% of daily calories) (maybe in a tooltip) (useContext)s
-  const mealCalories = calcMealCalories(mealData)
+  const mealCalories = calcMealCalories(meal)
 
   const onClearItems = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -146,12 +146,12 @@ function MealEditViewHeader({
       title: 'Limpar itens',
       message: 'Tem certeza que deseja limpar os itens?',
       onConfirm: () => {
-        const newMealData: MealData = {
-          ...mealData,
+        const newMeal: Meal = {
+          ...meal,
           groups: [],
         }
 
-        onUpdateMeal(newMealData)
+        onUpdateMeal(newMeal)
       },
     })
   }
@@ -161,12 +161,12 @@ function MealEditViewHeader({
   return (
     <div className="flex">
       <div className="my-2">
-        <h5 className="text-3xl">{mealData.name}</h5>
+        <h5 className="text-3xl">{meal.name}</h5>
         <p className="italic text-gray-400">{mealCalories.toFixed(0)}kcal</p>
       </div>
       {/* // TODO: Remove code duplication between MealEditView and RecipeView */}
       <div className={`ml-auto flex gap-2`}>
-        {!hasValidPastableOnClipboard && mealData.groups.length > 0 && (
+        {!hasValidPastableOnClipboard && meal.groups.length > 0 && (
           <div
             className={`btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105`}
             onClick={handleCopy}
@@ -182,7 +182,7 @@ function MealEditViewHeader({
             <PasteIcon />
           </div>
         )}
-        {mealData.groups.length > 0 && (
+        {meal.groups.length > 0 && (
           <div
             className={`btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105`}
             onClick={onClearItems}
@@ -200,11 +200,11 @@ function MealEditViewContent({
 }: {
   onEditItemGroup: (item: ItemGroup) => void
 }) {
-  const { mealData } = useMealContext()
+  const { meal } = useMealContext()
 
   return (
     <ItemGroupListView
-      itemGroups={mealData.groups}
+      itemGroups={meal.groups}
       onItemClick={(...args) => onEditItemGroup(...args)}
     />
   )

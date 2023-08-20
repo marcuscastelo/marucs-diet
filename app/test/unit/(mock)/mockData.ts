@@ -1,7 +1,7 @@
 import { Day } from '@/model/dayModel'
 import { Food } from '@/model/foodModel'
 import { FoodItem } from '@/model/foodItemModel'
-import { MealData, createMeal } from '@/model/mealModel'
+import { Meal, createMeal } from '@/model/mealModel'
 import { New } from '@/utils/newDbRecord'
 import { Recipe, createRecipe } from '@/model/recipeModel'
 
@@ -17,7 +17,7 @@ export const mockFood = (partial?: Partial<Food>): Food => ({
   ...partial,
 })
 
-export const mockMeal = (partial?: Partial<New<MealData>>): MealData =>
+export const mockMeal = (partial?: Partial<New<Meal>>): Meal =>
   createMeal({
     groups: [
       {
@@ -30,7 +30,7 @@ export const mockMeal = (partial?: Partial<New<MealData>>): MealData =>
     ],
     name: 'Café da manhã',
     ...partial,
-  } satisfies New<MealData>)
+  } satisfies New<Meal>)
 
 let mockItemQtyPseudoId = 10
 export const mockItem = (partial?: Partial<FoodItem>): FoodItem => ({
@@ -44,29 +44,29 @@ export const mockItem = (partial?: Partial<FoodItem>): FoodItem => ({
 
 export const mockDay = (
   partial: Partial<Day> & Pick<Day, 'owner' | 'target_day'>,
-  mealData?: Partial<MealData>,
+  meal?: Partial<Meal>,
 ): Day => ({
   id: Math.round(Math.random() * 1000),
   meals: [
     mockMeal({
       name: `Café da Manhã`,
-      ...mealData,
+      ...meal,
     }),
     mockMeal({
       name: `Almoço`,
-      ...mealData,
+      ...meal,
     }),
     mockMeal({
       name: `Lanche`,
-      ...mealData,
+      ...meal,
     }),
     mockMeal({
       name: `Janta`,
-      ...mealData,
+      ...meal,
     }),
     mockMeal({
       name: `Pós Janta`,
-      ...mealData,
+      ...meal,
     }),
   ],
   ...partial,
