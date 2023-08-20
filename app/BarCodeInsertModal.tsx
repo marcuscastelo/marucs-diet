@@ -12,7 +12,6 @@ export type BarCodeInsertModalProps = {
   onSelect: (apiFood: Food) => void
 }
 
-// eslint-disable-next-line react/display-name
 const BarCodeInsertModal = ({ modalId, onSelect }: BarCodeInsertModalProps) => {
   const { visible, setVisible } = useModalContext()
 
