@@ -15,7 +15,7 @@ export function useItemGroupContext() {
 
   if (!context) {
     throw new Error(
-      'useMealItemContext must be used within a MealItemContextProvider',
+      'useItemGroupContext must be used within a ItemGroupContextProvider',
     )
   }
 

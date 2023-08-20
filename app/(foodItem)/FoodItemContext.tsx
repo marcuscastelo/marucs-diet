@@ -13,7 +13,7 @@ export function useFoodItemContext() {
 
   if (!context) {
     throw new Error(
-      'useMealItemContext must be used within a MealItemContextProvider',
+      'useFoodItemContext must be used within a FoodItemContextProvider',
     )
   }
 
