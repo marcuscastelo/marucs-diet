@@ -1,7 +1,7 @@
 'use client'
 
 import { mockMeal } from '../(mock)/mockData'
-import MealView from '@/app/(meal)/MealView'
+import MealEditView from '@/app/(meal)/MealEditView'
 import { useState } from 'react'
 import { duplicateLastMealItem } from '../(mock)/mockActions'
 
@@ -9,18 +9,18 @@ export default function MealPage() {
   const [meal, setMeal] = useState(mockMeal())
 
   return (
-    <MealView
+    <MealEditView
       mealData={meal}
-      header={<MealView.Header onUpdateMeal={(meal) => setMeal(meal)} />}
+      header={<MealEditView.Header onUpdateMeal={(meal) => setMeal(meal)} />}
       content={
-        <MealView.Content
+        <MealEditView.Content
           onEditItemGroup={(group) =>
             alert(`Mock: Edit group.id = "${group.id}"`)
           }
         />
       }
       actions={
-        <MealView.Actions
+        <MealEditView.Actions
           onNewItem={() => duplicateLastMealItem(meal, setMeal)}
         />
       }

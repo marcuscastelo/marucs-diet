@@ -82,13 +82,13 @@ function RecipeEditHeader({
       },
     })
   }
-  // TODO: Remove code duplication between MealView and RecipeView
+  // TODO: Remove code duplication between MealEditView and RecipeView
   const handleCopyRecipe = (e: React.MouseEvent) => {
     e.preventDefault()
 
     navigator.clipboard.writeText(JSON.stringify(recipe))
   }
-  // TODO: Remove code duplication between MealView and RecipeView
+  // TODO: Remove code duplication between MealEditView and RecipeView
   const handlePasteRecipe = (e: React.MouseEvent) => {
     e.preventDefault()
 

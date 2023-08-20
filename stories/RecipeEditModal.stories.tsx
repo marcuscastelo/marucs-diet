@@ -3,7 +3,6 @@ import RecipeEditModal, {
   RecipeEditModalProps,
 } from '../app/(recipe)/RecipeEditModal'
 import { mockRecipe } from '@/app/test/unit/(mock)/mockData'
-import App from '@/app/App'
 import ServerApp from '@/app/ServerApp'
 
 const meta: Meta<typeof RecipeEditModal> = {

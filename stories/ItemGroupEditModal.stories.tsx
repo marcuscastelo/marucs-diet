@@ -2,7 +2,6 @@ import type { Meta, StoryObj } from '@storybook/react'
 import ItemGroupEditModal, {
   ItemGroupEditModalProps,
 } from '../app/(itemGroup)/ItemGroupEditModal'
-import App from '@/app/App'
 import { mockMeal } from '@/app/test/unit/(mock)/mockData'
 import ServerApp from '@/app/ServerApp'
 

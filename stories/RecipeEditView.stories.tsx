@@ -3,7 +3,6 @@ import RecipeEditView, {
   RecipeEditViewProps,
 } from '../app/(recipe)/RecipeEditView'
 import { mockRecipe } from '@/app/test/unit/(mock)/mockData'
-import App from '@/app/App'
 import ServerApp from '@/app/ServerApp'
 
 const meta: Meta<typeof RecipeEditView> = {
