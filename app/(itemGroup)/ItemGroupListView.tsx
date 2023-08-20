@@ -22,8 +22,9 @@ export default function ItemGroupListView({
                 name={<ItemGroupView.Header.Name />}
                 copyButton={
                   <ItemGroupView.Header.CopyButton
-                    handleCopyMealItem={(item) => {
-                      navigator.clipboard.writeText(JSON.stringify(item))
+                    handleCopyItemGroup={(group) => {
+                      // TOOD: Replace with clipboard hook (here and in FoodItemView, if applicable)
+                      navigator.clipboard.writeText(JSON.stringify(group))
                     }}
                   />
                 }
