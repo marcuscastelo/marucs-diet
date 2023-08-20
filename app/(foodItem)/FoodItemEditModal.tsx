@@ -20,7 +20,6 @@ export type FoodItemEditModalProps = {
   onDelete?: (itemId: FoodItem['id']) => void
 }
 
-// eslint-disable-next-line react/display-name
 const FoodItemEditModal = ({
   modalId,
   targetName,
