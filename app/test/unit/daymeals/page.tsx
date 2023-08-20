@@ -6,7 +6,7 @@ export default function DayPage() {
   //     return {
   //         meal: meal,
   //         onNewItem: () => {
-  //             duplicateLastMealItem(meal, setMeal);
+  //             duplicateLastItemGroup(meal, setMeal);
   //         },
   //         onEditItem: () => { alert('Editar') },
   //         onUpdateMeal: () => { alert('Atualizar') },

@@ -15,7 +15,7 @@ export function useModalContext() {
 
   if (!context) {
     throw new Error(
-      'useMealItemContext must be used within a MealItemContextProvider',
+      'useModalContext must be used within a ModalContextProvider',
     )
   }
 
