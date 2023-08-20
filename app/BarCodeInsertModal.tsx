@@ -5,7 +5,6 @@ import { useState } from 'react'
 import Modal, { ModalActions } from './(modals)/Modal'
 import { BarCodeReader } from './BarCodeReader'
 import BarCodeSearch from './BarCodeSearch'
-import Show from './Show'
 import { useModalContext } from './(modals)/ModalContext'
 
 export type BarCodeInsertModalProps = {
