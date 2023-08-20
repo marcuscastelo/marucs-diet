@@ -37,9 +37,7 @@ const BarCodeInsertModal = ({ modalId, onSelect }: BarCodeInsertModalProps) => {
       header={<h1 className="modal-title">Pesquisar por código de barras</h1>}
       body={
         <>
-          <Show when={visible}>
-            <BarCodeReader id="reader" onScanned={setBarCode} />
-          </Show>
+          {visible && <BarCodeReader id="reader" onScanned={setBarCode} />}
           <BarCodeSearch
             barCode={barCode}
             setBarCode={setBarCode}
