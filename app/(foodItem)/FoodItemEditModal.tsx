@@ -69,10 +69,9 @@ const FoodItemEditModal = ({
   const canAdd = quantity !== '' && Number(quantity) > 0
 
   // TODO: Remove createMealItemData
-  const createMealItemData = (): FoodItem & { type: 'food' | 'recipe' } =>
-    ({
-      ...foodItem,
-    }) satisfies FoodItem & { type: 'food' | 'recipe' }
+  const createMealItemData = () => ({
+    ...foodItem,
+  })
 
   return (
     <>
