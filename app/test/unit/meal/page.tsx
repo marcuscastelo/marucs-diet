@@ -10,7 +10,7 @@ export default function MealPage() {
 
   return (
     <MealEditView
-      mealData={meal}
+      meal={meal}
       header={<MealEditView.Header onUpdateMeal={(meal) => setMeal(meal)} />}
       content={
         <MealEditView.Content

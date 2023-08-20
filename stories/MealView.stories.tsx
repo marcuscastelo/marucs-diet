@@ -14,7 +14,7 @@ type Story = StoryObj<typeof MealEditView>
 
 export const Root: Story = {
   args: {
-    mealData: mockMeal(), // TODO: display group with 3 (orange), group with 1 (white), and recipe (blue)
+    meal: mockMeal(), // TODO: display group with 3 (orange), group with 1 (white), and recipe (blue)
   },
   render: (args) => (
     <MealEditView

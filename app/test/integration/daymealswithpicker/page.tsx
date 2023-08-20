@@ -26,7 +26,7 @@ export default function Page() {
   // TODO: Reenable DayMealsWithPicker Unit Test Component
   // const day1MealProps: MealProps[] = day1.meals.map(meal => {
   //     return {
-  //         mealData: meal,
+  //         meal: meal,
   //         onNewItem: () => {alert('Dia 1: Novo') },
   //         onEditItem: () => {alert('Dia 1: Editar') },
   //         onUpdateMeal: () => {alert('Dia 1: Atualizar') },
@@ -35,7 +35,7 @@ export default function Page() {
 
   // const day2MealProps: MealProps[] = day2.meals.map(meal => {
   //     return {
-  //         mealData: meal,
+  //         meal: meal,
   //         onNewItem: () => {alert('Dia 2!!!: Novo') },
   //         onEditItem: () => {alert('Dia 2!!!: Editar') },
   //         onUpdateMeal: () => {alert('Dia 2!!!: Atualizar') },
