@@ -29,7 +29,6 @@ import {
 import { DownloadIcon } from '../(icons)/DownloadIcon'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 
-// TODO: Rename to FoodItemEdit
 export type ItemGroupEditModalProps = {
   show?: boolean
   modalId: string
