@@ -3,7 +3,7 @@
 import { mockMeal } from '../(mock)/mockData'
 import MealEditView from '@/app/(meal)/MealEditView'
 import { useState } from 'react'
-import { duplicateLastMealItem } from '../(mock)/mockActions'
+import { duplicateLastItemGroup } from '../(mock)/mockActions'
 
 export default function MealPage() {
   const [meal, setMeal] = useState(mockMeal())
@@ -21,7 +21,7 @@ export default function MealPage() {
       }
       actions={
         <MealEditView.Actions
-          onNewItem={() => duplicateLastMealItem(meal, setMeal)}
+          onNewItem={() => duplicateLastItemGroup(meal, setMeal)}
         />
       }
     />
