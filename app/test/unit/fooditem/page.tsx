@@ -3,6 +3,6 @@
 import FoodItemView from '@/app/(foodItem)/FoodItemView'
 import { mockItem } from '../(mock)/mockData'
 
-export default function MealItemPage() {
+export default function FoodItemPage() {
   return <FoodItemView foodItem={mockItem()} />
 }
