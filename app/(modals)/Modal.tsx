@@ -11,7 +11,6 @@ export type ModalProps = {
   hasBackdrop?: boolean
 }
 
-// eslint-disable-next-line react/display-name
 const Modal = ({
   modalId,
   header,
