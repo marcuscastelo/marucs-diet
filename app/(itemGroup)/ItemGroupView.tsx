@@ -45,7 +45,13 @@ export default function ItemGroupView({
       }`}
       onClick={handleClick}
     >
-      <ItemGroupEditContextProvider group={itemGroup}>
+      <ItemGroupEditContextProvider
+        group={itemGroup}
+        onSaveGroup={() => {
+          throw new Error('ItemGroupView should not be editable')
+          // TODO: Create a context (ItemGroupContextProvider) for non-edit purposes
+        }}
+      >
         {header}
         {nutritionalInfo}
       </ItemGroupEditContextProvider>
