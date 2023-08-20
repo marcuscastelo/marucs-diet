@@ -4,6 +4,7 @@ import { FoodItem } from '@/model/foodItemModel'
 import { ReactNode } from 'react'
 import { createContext, useContext } from 'use-context-selector'
 
+// TODO: Rename to FoodItemEditContext and provide setFoodItem and saveFoodItem functions
 const FoodItemContext = createContext<{
   foodItem: FoodItem & { type: 'food' | 'recipe' }
 } | null>(null)
