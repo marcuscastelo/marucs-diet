@@ -2,7 +2,7 @@ import { ItemGroup } from './foodItemGroupModel'
 import { itemSchema } from './foodItemModel'
 
 import { z } from 'zod'
-import { MacroNutrientsData, macroNutrientsSchema } from './macroNutrientsModel'
+import { MacroNutrients, macroNutrientsSchema } from './macroNutrientsModel'
 import { calcGroupMacros } from '@/utils/macroMath'
 
 export const recipeSchema = z.object({
@@ -16,7 +16,7 @@ export const recipeSchema = z.object({
     .transform(
       (macros) =>
         macros ??
-        ({ carbs: 0, fat: 0, protein: 0 } satisfies MacroNutrientsData), // TODO: Remove transform or derive from items
+        ({ carbs: 0, fat: 0, protein: 0 } satisfies MacroNutrients), // TODO: Remove transform or derive from items
     ),
   prepared_multiplier: z.number().default(1), // TODO: Rename all snake_case to camelCase (also in db)
   '': z

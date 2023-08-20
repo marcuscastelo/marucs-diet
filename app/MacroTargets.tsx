@@ -1,6 +1,6 @@
 'use client'
 
-import { MacroNutrientsData } from '@/model/macroNutrientsModel'
+import { MacroNutrients } from '@/model/macroNutrientsModel'
 import { calcCalories } from '@/utils/macroMath'
 import { useEffect, useState } from 'react'
 
@@ -26,7 +26,7 @@ export type MacroRepresentation = {
 export const calculateMacroTarget = (
   weight: number,
   savedMacroTarget: MacroProfile,
-): MacroNutrientsData => ({
+): MacroNutrients => ({
   carbs: weight * savedMacroTarget.gramsPerKgCarbs,
   protein: weight * savedMacroTarget.gramsPerKgProtein,
   fat: weight * savedMacroTarget.gramsPerKgFat,
