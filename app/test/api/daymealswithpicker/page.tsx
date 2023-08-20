@@ -85,7 +85,7 @@ export default function Page() {
     (day) =>
       day.target_day === /* TODO: Check if equality is a bug */ selectedDay,
   )
-  const dayData = days.find(
+  const day = days.find(
     (day) =>
       day.target_day === /* TODO: Check if equality is a bug */ selectedDay,
   )
@@ -107,11 +107,11 @@ export default function Page() {
       <div>Has data: {hasData ? 'true' : 'false'}</div>
       <div>Known days: {days.map((day) => day.target_day).join(', ')}</div>
 
-      {hasData && dayData !== undefined && (
+      {hasData && day !== undefined && (
         <>
-          <h1> Target day: {dayData.target_day}</h1>
+          <h1> Target day: {day.target_day}</h1>
           <MealEditViewList
-            mealsProps={dayData.meals.map((meal): MealEditViewProps => {
+            mealEditPropsList={day.meals.map((meal): MealEditViewProps => {
               return {
                 mealData: meal,
                 header: (
@@ -138,10 +138,6 @@ export default function Page() {
           />
         </>
       )}
-
-      {/* TODO: Check if equality is a bug */}
-      {/* {currentMealProps === null && <Alert color="warning">Selecione uma data</Alert>} */}
-      {/* {currentMealProps !== null && <MealEditViewList mealsProps={currentMealProps} />} */}
     </>
   )
 }
