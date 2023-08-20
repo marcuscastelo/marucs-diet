@@ -17,6 +17,7 @@ export type FoodItemViewProps = {
   header?: React.ReactNode
   nutritionalInfo?: React.ReactNode
   className?: string
+  // TODO: rename all mealItem occurrences to foodItem (or foodItemGroup)
   onClick?: (mealItem: FoodItem) => void
 }
 

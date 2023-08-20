@@ -21,7 +21,7 @@ export default function Page() {
     const mealProps = days.map((day) => {
       return day.meals.map((meal): MealEditViewProps => {
         return {
-          mealData: meal,
+          meal,
           header: (
             <MealEditView.Header
               onUpdateMeal={(meal) => alert(`Mock: Update meal ${meal.name}`)}
