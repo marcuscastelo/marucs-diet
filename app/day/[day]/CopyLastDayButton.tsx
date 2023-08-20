@@ -7,12 +7,12 @@ import { Loaded } from '@/utils/loadable'
 
 export default function CopyLastDayButton({
   days,
-  dayData,
+  day,
   selectedDay,
   refetchDays,
 }: {
   days: Loaded<Day[]>
-  dayData: Day | undefined
+  day: Day | undefined
   selectedDay: string
   refetchDays: () => void
 }) {
@@ -38,12 +38,12 @@ export default function CopyLastDayButton({
     <button
       className="btn-primary btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white"
       onClick={async () => {
-        if (dayData !== undefined) {
+        if (day !== undefined) {
           showConfirmModal({
             title: 'Excluir dia',
             message: 'Tem certeza que deseja excluir este dia?',
             onConfirm: async () => {
-              await deleteDay(dayData.id)
+              await deleteDay(day.id)
             },
           })
         }
@@ -51,7 +51,7 @@ export default function CopyLastDayButton({
         upsertDay({
           ...days.data[lastDayIdx],
           target_day: selectedDay,
-          id: dayData?.id,
+          id: day?.id,
         }).then(() => {
           refetchDays()
         })
