@@ -10,7 +10,7 @@ import { useUserContext } from '@/context/users.context'
 
 export default function Page() {
   const [days, setDays] = useState<Day[]>([])
-  const [mealProps, setMealProps] = useState<MealEditViewProps[][]>([])
+  const [mealEditPropsList, setMealProps] = useState<MealEditViewProps[][]>([])
 
   const { user } = useUserContext()
 
@@ -53,8 +53,8 @@ export default function Page() {
         {days.map((day, idx) => (
           <div key={idx}>
             <div className="text-2xl font-bold">{day.target_day}</div>
-            {mealProps[idx].length > 0 ? (
-              <MealEditViewList mealsProps={mealProps[idx]} />
+            {mealEditPropsList[idx].length > 0 ? (
+              <MealEditViewList mealEditPropsList={mealEditPropsList[idx]} />
             ) : (
               <div>No meals</div>
             )}

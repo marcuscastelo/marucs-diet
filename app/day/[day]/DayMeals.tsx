@@ -110,7 +110,7 @@ export default function DayMeals({
     setFoodSearchModalVisible(true)
   }
 
-  const mealProps = day.meals.map(
+  const mealEditPropsList = day.meals.map(
     (meal): MealEditViewProps => ({
       mealData: meal,
       header: (
@@ -190,7 +190,10 @@ export default function DayMeals({
           </Alert>
         </Show>
       </Show>
-      <MealEditViewList className="mt-5" mealsProps={mealProps} />
+      <MealEditViewList
+        className="mt-5"
+        mealEditPropsList={mealEditPropsList}
+      />
       <CopyLastDayButton
         dayData={day}
         days={days}
