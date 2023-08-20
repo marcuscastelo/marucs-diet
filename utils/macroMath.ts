@@ -1,11 +1,11 @@
 import { Day } from '@/model/dayModel'
 import { ItemGroup } from '@/model/foodItemGroupModel'
 import { FoodItem } from '@/model/foodItemModel'
-import { MacroNutrientsData } from '@/model/macroNutrientsModel'
+import { MacroNutrients } from '@/model/macroNutrientsModel'
 import { Meal } from '@/model/mealModel'
 import { Recipe } from '@/model/recipeModel'
 
-export function calcItemMacros(item: FoodItem): MacroNutrientsData {
+export function calcItemMacros(item: FoodItem): MacroNutrients {
   return {
     carbs: (item.macros.carbs * item.quantity) / 100,
     fat: (item.macros.fat * item.quantity) / 100,
@@ -13,7 +13,7 @@ export function calcItemMacros(item: FoodItem): MacroNutrientsData {
   }
 }
 
-export function calcRecipeMacros(recipe: Recipe): MacroNutrientsData {
+export function calcRecipeMacros(recipe: Recipe): MacroNutrients {
   return recipe.items.reduce(
     (acc, item) => {
       const itemMacros = calcItemMacros(item)
@@ -27,7 +27,7 @@ export function calcRecipeMacros(recipe: Recipe): MacroNutrientsData {
   )
 }
 
-export function calcGroupMacros(group: ItemGroup): MacroNutrientsData {
+export function calcGroupMacros(group: ItemGroup): MacroNutrients {
   return group.items.reduce(
     (acc, item) => {
       const itemMacros = calcItemMacros(item)
@@ -41,7 +41,7 @@ export function calcGroupMacros(group: ItemGroup): MacroNutrientsData {
   )
 }
 
-export function calcMealMacros(meal: Meal): MacroNutrientsData {
+export function calcMealMacros(meal: Meal): MacroNutrients {
   return meal.groups.reduce(
     (acc, group) => {
       const groupMacros = calcGroupMacros(group)
@@ -55,7 +55,7 @@ export function calcMealMacros(meal: Meal): MacroNutrientsData {
   )
 }
 
-export function calcDayMacros(day: Day): MacroNutrientsData {
+export function calcDayMacros(day: Day): MacroNutrients {
   return day.meals.reduce(
     (acc, meal) => {
       const mealMacros = calcMealMacros(meal)
@@ -69,7 +69,7 @@ export function calcDayMacros(day: Day): MacroNutrientsData {
   )
 }
 
-export function calcCalories(macroNutrients: MacroNutrientsData): number {
+export function calcCalories(macroNutrients: MacroNutrients): number {
   return (
     macroNutrients.carbs * 4 +
     macroNutrients.fat * 9 +
