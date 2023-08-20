@@ -23,9 +23,6 @@ import { useFoodContext } from '@/context/food.context'
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal'
 const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal'
 
-// TODO: Remove all RecipeEditModal references from FoodSearch component
-const RECIPE_EDIT_MODAL_ID = 'recipe-edit-modal'
-
 // TODO: Refactor client-side cache vs server-side cache vs no cache logic on search
 
 export type FoodSearchProps = {
@@ -94,7 +91,7 @@ export default function FoodSearch({
     })
 
     // TODO: Add recipes to templates
-  }, [foods])
+  }, [foods, refetchFoods, showConfirmModal])
 
   useEffect(() => {
     setIsClient(true)
@@ -232,13 +229,6 @@ export default function FoodSearch({
           }}
         />
       </ModalContextProvider>
-      {/* // TODO: Revisit if RecipeEditModal should be on FoodSearch */}
-      {/* <RecipeEditModal
-        modalId={RECIPE_EDIT_MODAL_ID}
-        ref={recipeEditModalRef}
-        recipe={mockedRecipe}
-        onSaveRecipe={async () => alert('TODO: Save recipe')}
-      /> */}
       <Tabs />
       <SearchBar isDesktop={isDesktop} search={search} setSearch={setSearch} />
       <SearchResults

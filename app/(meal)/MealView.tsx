@@ -2,7 +2,7 @@
 
 import { MealData, mealSchema } from '@/model/mealModel'
 import { MealContextProvider, useMealContext } from './MealContext'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
 import TrashIcon from '../(icons)/TrashIcon'
 import PasteIcon from '../(icons)/PasteIcon'
 import CopyIcon from '../(icons)/CopyIcon'
