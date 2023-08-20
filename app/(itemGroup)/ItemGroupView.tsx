@@ -4,9 +4,9 @@ import MacroNutrientsView from '../MacroNutrientsView'
 import { MacroNutrients } from '@/model/macroNutrientsModel'
 import CopyIcon from '../(icons)/CopyIcon'
 import {
-  ItemGroupContextProvider,
-  useItemGroupContext,
-} from './ItemGroupContext'
+  ItemGroupEditContextProvider,
+  useItemGroupEditContext,
+} from './ItemGroupEditContext'
 import { ItemGroup, isSimpleSingleGroup } from '@/model/foodItemGroupModel'
 import { calcGroupCalories, calcGroupMacros } from '@/utils/macroMath'
 import { useUserContext } from '@/context/users.context'
@@ -45,10 +45,16 @@ export default function ItemGroupView({
       }`}
       onClick={handleClick}
     >
-      <ItemGroupContextProvider itemGroup={itemGroup}>
+      <ItemGroupEditContextProvider
+        group={itemGroup}
+        onSaveGroup={() => {
+          throw new Error('ItemGroupView should not be editable')
+          // TODO: Create a context (ItemGroupContextProvider) for non-edit purposes
+        }}
+      >
         {header}
         {nutritionalInfo}
-      </ItemGroupContextProvider>
+      </ItemGroupEditContextProvider>
     </div>
   )
 }
@@ -88,7 +94,7 @@ ItemGroupHeader.CopyButton = ItemGroupCopyButton
 ItemGroupHeader.Favorite = ItemGroupFavorite
 
 function ItemGroupName() {
-  const { itemGroup } = useItemGroupContext()
+  const { group: itemGroup } = useItemGroupEditContext()
 
   const { debug } = useUserContext()
 
@@ -157,7 +163,7 @@ function ItemGroupCopyButton({
 }: {
   handleCopyItemGroup: (ItemGroupView: ItemGroup) => void
 }) {
-  const { itemGroup } = useItemGroupContext()
+  const { group: itemGroup } = useItemGroupEditContext()
 
   return (
     <div
@@ -199,7 +205,7 @@ function ItemGroupFavorite({
 }
 
 function ItemGroupViewNutritionalInfo() {
-  const { itemGroup } = useItemGroupContext()
+  const { group: itemGroup } = useItemGroupEditContext()
 
   const multipliedMacros: MacroNutrients = (itemGroup &&
     calcGroupMacros(itemGroup)) || {
