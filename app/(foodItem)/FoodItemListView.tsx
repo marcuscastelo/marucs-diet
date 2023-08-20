@@ -34,7 +34,7 @@ function DefaultHeader() {
       name={<FoodItemView.Header.Name />}
       copyButton={
         <FoodItemView.Header.CopyButton
-          handleCopyMealItem={(item) => {
+          handleCopyFoodItem={(item) => {
             navigator.clipboard.writeText(JSON.stringify(item))
           }}
         />

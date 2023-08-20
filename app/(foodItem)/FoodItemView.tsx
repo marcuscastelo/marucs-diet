@@ -17,8 +17,7 @@ export type FoodItemViewProps = {
   header?: React.ReactNode
   nutritionalInfo?: React.ReactNode
   className?: string
-  // TODO: rename all mealItem occurrences to foodItem (or foodItemGroup)
-  onClick?: (mealItem: FoodItem) => void
+  onClick?: (foodItem: FoodItem) => void
 }
 
 export default function FoodItemView({
@@ -55,20 +54,20 @@ export default function FoodItemView({
   )
 }
 
-FoodItemView.Header = MealItemHeader
-FoodItemView.NutritionalInfo = MealItemNutritionalInfo
+FoodItemView.Header = FoodItemHeader
+FoodItemView.NutritionalInfo = FoodItemNutritionalInfo
 
-export type MealItemHeaderProps = {
+export type FoodItemHeaderProps = {
   name?: React.ReactNode
   favorite?: React.ReactNode
   copyButton?: React.ReactNode
 }
 
-function MealItemHeader({ name, favorite, copyButton }: MealItemHeaderProps) {
+function FoodItemHeader({ name, favorite, copyButton }: FoodItemHeaderProps) {
   return (
     <div className="flex">
-      {/* //TODO: mealItem id is random, but it should be an entry on the database (meal too) */}
-      {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.mealItem.id}]</h5> */}
+      {/* //TODO: FoodItem id is random, but it should be an entry on the database (meal too) */}
+      {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.FoodItem.id}]</h5> */}
       <div className="my-2">{name}</div>
       <div className={`ml-auto flex gap-2`}>
         <div className="my-auto">{copyButton}</div>
@@ -78,11 +77,11 @@ function MealItemHeader({ name, favorite, copyButton }: MealItemHeaderProps) {
   )
 }
 
-MealItemHeader.Name = MealItemName
-MealItemHeader.CopyButton = MealItemCopyButton
-MealItemHeader.Favorite = MealItemFavorite
+FoodItemHeader.Name = FoodItemName
+FoodItemHeader.CopyButton = FoodItemCopyButton
+FoodItemHeader.Favorite = FoodItemFavorite
 
-function MealItemName() {
+function FoodItemName() {
   const { foodItem: item } = useFoodItemContext()
 
   const { debug } = useUserContext()
@@ -109,8 +108,8 @@ function MealItemName() {
 
   return (
     <div className="">
-      {/* //TODO: mealItem id is random, but it should be an entry on the database (meal too) */}
-      {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.mealItem.id}]</h5> */}
+      {/* //TODO: FoodItem id is random, but it should be an entry on the database (meal too) */}
+      {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.FoodItem.id}]</h5> */}
       <h5
         className={`mb-2 text-lg font-bold tracking-tight ${getTemplateNameColor()}`}
       >
@@ -126,12 +125,12 @@ function MealItemName() {
   )
 }
 
-function MealItemCopyButton({
-  handleCopyMealItem,
+function FoodItemCopyButton({
+  handleCopyFoodItem,
 }: {
-  handleCopyMealItem: (mealItem: FoodItem) => void
+  handleCopyFoodItem: (FoodItem: FoodItem) => void
 }) {
-  const { foodItem: mealItem } = useFoodItemContext()
+  const { foodItem: FoodItem } = useFoodItemContext()
 
   return (
     <div
@@ -139,7 +138,7 @@ function MealItemCopyButton({
       onClick={(e) => {
         e.stopPropagation()
         e.preventDefault()
-        handleCopyMealItem(mealItem)
+        handleCopyFoodItem(FoodItem)
       }}
     >
       <CopyIcon />
@@ -147,7 +146,7 @@ function MealItemCopyButton({
   )
 }
 
-function MealItemFavorite({
+function FoodItemFavorite({
   favorite,
   onSetFavorite: setFavorite,
 }: {
@@ -172,7 +171,7 @@ function MealItemFavorite({
   )
 }
 
-function MealItemNutritionalInfo() {
+function FoodItemNutritionalInfo() {
   const { foodItem: item } = useFoodItemContext()
 
   const multipliedMacros: MacroNutrients = {
