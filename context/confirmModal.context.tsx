@@ -72,7 +72,7 @@ export function ConfirmModalProvider({
   })
   const [onCancel, setOnCancel] = useState<() => void>(() => () => {
     setVisible(false)
-    // initialOnCancel()
+    initialOnCancel()
   })
 
   const context: ConfirmModalContext = {

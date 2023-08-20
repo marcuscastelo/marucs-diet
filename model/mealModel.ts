@@ -13,7 +13,7 @@ export const mealSchema = z.object({
     .transform(() => 'Meal' as const),
 })
 
-// TODO: rename MealData to Meal (and Meal component to MealView)
+// TODO: rename MealData to Meal (and Meal component to MealEditView)
 export type MealData = z.infer<typeof mealSchema>
 
 // TODO: Create factory function for other models

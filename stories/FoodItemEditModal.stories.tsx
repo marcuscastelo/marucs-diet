@@ -3,7 +3,6 @@ import FoodItemEditModal, {
   FoodItemEditModalProps,
 } from '../app/(foodItem)/FoodItemEditModal'
 import { mockItem } from '@/app/test/unit/(mock)/mockData'
-import App from '@/app/App'
 import { ModalContextProvider } from '@/app/(modals)/ModalContext'
 import ServerApp from '@/app/ServerApp'
 

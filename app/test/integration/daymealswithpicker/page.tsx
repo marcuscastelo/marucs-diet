@@ -5,7 +5,7 @@
 // import { useState } from 'react'
 // import { DateValueType } from 'react-tailwindcss-datepicker/dist/types'
 // import { mockMeal } from '../../unit/(mock)/mockData'
-// import { MealViewProps } from '@/app/(meal)/MealView'
+// import { MealEditViewProps } from '@/app/(meal)/MealEditView'
 // import { getToday } from '@/utils/dateUtils'
 
 export default function Page() {
@@ -46,7 +46,7 @@ export default function Page() {
   //   startDate: getToday(),
   //   endDate: getToday(),
   // })
-  // const [currentMealProps, setCurrentMealProps] = useState<MealViewProps[]>()
+  // const [currentMealProps, setCurrentMealProps] = useState<MealEditViewProps[]>()
 
   // TODO: Reenable DayMealsWithPicker Unit Test Component
   // const handleDayChange = (newValue: DateValueType) => {
