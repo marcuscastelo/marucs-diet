@@ -6,7 +6,6 @@ import { Day } from '@/model/dayModel'
 import MealEditView, { MealEditViewProps } from '../../(meal)/MealEditView'
 import { updateDay } from '@/controllers/days'
 import { Alert } from 'flowbite-react'
-import Show from '../../Show'
 import DayMacros from '../../DayMacros'
 import { Meal } from '@/model/mealModel'
 import { Loaded } from '@/utils/loadable'
@@ -162,34 +161,39 @@ export default function DayMeals({
         className="mt-3 border-b-2 border-gray-800 pb-4"
         macros={calcDayMacros(day)}
       />
-      <Show when={!showingToday}>
-        <Alert className="mt-2" color="warning">
-          Mostrando refeições do dia {selectedDay}!
-        </Alert>
-        <Show when={dayLocked}>
-          <Alert className="mt-2 outline" color="info">
-            Hoje é dia <b>{today}</b>{' '}
-            <a
-              className="font-bold text-blue-500 hover:cursor-pointer "
-              onClick={() => {
-                router.push('/day/' + today)
-              }}
-            >
-              Mostrar refeições de hoje
-            </a>{' '}
-            ou{' '}
-            <a
-              className="font-bold text-red-600 hover:cursor-pointer "
-              onClick={() => {
-                setDayLocked(false)
-              }}
-            >
-              {' '}
-              Desbloquear dia {selectedDay}
-            </a>
+      {!showingToday && (
+        <>
+          <Alert className="mt-2" color="warning">
+            Mostrando refeições do dia {selectedDay}!
           </Alert>
-        </Show>
-      </Show>
+
+          {dayLocked && (
+            <>
+              <Alert className="mt-2 outline" color="info">
+                Hoje é dia <b>{today}</b>{' '}
+                <a
+                  className="font-bold text-blue-500 hover:cursor-pointer "
+                  onClick={() => {
+                    router.push('/day/' + today)
+                  }}
+                >
+                  Mostrar refeições de hoje
+                </a>{' '}
+                ou{' '}
+                <a
+                  className="font-bold text-red-600 hover:cursor-pointer "
+                  onClick={() => {
+                    setDayLocked(false)
+                  }}
+                >
+                  {' '}
+                  Desbloquear dia {selectedDay}
+                </a>
+              </Alert>
+            </>
+          )}
+        </>
+      )}
       <MealEditViewList
         className="mt-5"
         mealEditPropsList={mealEditPropsList}

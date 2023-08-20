@@ -5,7 +5,6 @@ import { useState } from 'react'
 import Modal, { ModalActions } from './(modals)/Modal'
 import { BarCodeReader } from './BarCodeReader'
 import BarCodeSearch from './BarCodeSearch'
-import Show from './Show'
 import { useModalContext } from './(modals)/ModalContext'
 
 export type BarCodeInsertModalProps = {
@@ -36,9 +35,7 @@ const BarCodeInsertModal = ({ modalId, onSelect }: BarCodeInsertModalProps) => {
       header={<h1 className="modal-title">Pesquisar por código de barras</h1>}
       body={
         <>
-          <Show when={visible}>
-            <BarCodeReader id="reader" onScanned={setBarCode} />
-          </Show>
+          {visible && <BarCodeReader id="reader" onScanned={setBarCode} />}
           <BarCodeSearch
             barCode={barCode}
             setBarCode={setBarCode}
