@@ -60,8 +60,7 @@ export default function UserSelectorDropdown({
 
         {!availableUsers.loading &&
           !availableUsers.errored &&
-          availableUsers.data.length ===
-            /* TODO: Check if equality is a bug */ 0 && (
+          availableUsers.data.length === 0 && (
             <Dropdown.Item>Nenhum usuário disponível</Dropdown.Item>
           )}
       </Dropdown.Menu>
