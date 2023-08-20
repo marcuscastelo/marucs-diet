@@ -1,13 +1,28 @@
-import FOOD_SECRETS from '@/secrets/food_api.json'
-
 import axios from 'axios'
+import {
+  EXTERNAL_API_AUTHORIZATION,
+  EXTERNAL_API_BASE_URL,
+  EXTERNAL_API_FOOD_ENDPOINT,
+  EXTERNAL_API_FOOD_PARAMS,
+  EXTERNAL_API_HOST,
+  EXTERNAL_API_REFERER,
+} from '../apiSecrets'
 
 export const searchFoodNameInternal = async (food: string) => {
-  const url = `${FOOD_SECRETS.base_url}/${FOOD_SECRETS.food_endpoint}`
+  const url = `${EXTERNAL_API_BASE_URL}/${EXTERNAL_API_FOOD_ENDPOINT}`
   const response = await axios.get(url, {
-    headers: FOOD_SECRETS.headers,
+    headers: {
+      accept: 'application/json, text/plain, */*',
+      'accept-encoding': 'gzip',
+      'app-token': 'wapstore',
+      authorization: EXTERNAL_API_AUTHORIZATION,
+      connection: 'Keep-Alive',
+      host: EXTERNAL_API_HOST,
+      referer: EXTERNAL_API_REFERER,
+      'user-agent': 'okhttp/4.9.2',
+    },
     params: {
-      ...FOOD_SECRETS.params,
+      ...(JSON.parse(EXTERNAL_API_FOOD_PARAMS) as object),
       search: food,
     },
   })

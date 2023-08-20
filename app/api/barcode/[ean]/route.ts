@@ -2,15 +2,29 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 
-import EAN_SECRETS from '@/secrets/ean_api.json'
-
 import axios from 'axios'
+import {
+  EXTERNAL_API_AUTHORIZATION,
+  EXTERNAL_API_BASE_URL,
+  EXTERNAL_API_EAN_ENDPOINT,
+  EXTERNAL_API_HOST,
+  EXTERNAL_API_REFERER,
+} from '../../apiSecrets'
 
 // TODO: rename all barcodes to EAN?
 const searchBarCodeInternal = async (barcode: string) => {
-  const url = `${EAN_SECRETS.base_url}/${EAN_SECRETS.ean_endpoint}/${barcode}`
+  const url = `${EXTERNAL_API_BASE_URL}/${EXTERNAL_API_EAN_ENDPOINT}/${barcode}`
   const response = await axios.get(url, {
-    headers: EAN_SECRETS.headers,
+    headers: {
+      accept: 'application/json, text/plain, */*',
+      'accept-encoding': 'gzip',
+      'app-token': 'wapstore',
+      authorization: EXTERNAL_API_AUTHORIZATION,
+      connection: 'Keep-Alive',
+      host: EXTERNAL_API_HOST,
+      referer: EXTERNAL_API_REFERER,
+      'user-agent': 'okhttp/4.9.2',
+    },
   })
   console.log(response.data)
   console.dir(response.data)
