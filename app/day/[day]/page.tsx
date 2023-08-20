@@ -50,7 +50,7 @@ export default async function Page({ params }: PageParams) {
     return <PageLoading message="Erro ao carregar dias" />
   }
 
-  const dayData = days.data.find((day) => day.target_day === selectedDay)
+  const day = days.data.find((day) => day.target_day === selectedDay)
 
   if (!selectedDay) {
     return (
@@ -61,7 +61,7 @@ export default async function Page({ params }: PageParams) {
     )
   }
 
-  if (!dayData) {
+  if (!day) {
     return (
       <>
         <TopBar selectedDay={selectedDay} />
@@ -80,7 +80,7 @@ export default async function Page({ params }: PageParams) {
       {/* Top bar with date picker and user icon */}
       <TopBar selectedDay={selectedDay} />
       <DayMeals
-        day={dayData}
+        day={day}
         editModalId={EDIT_MODAL_ID}
         selectedDay={selectedDay}
         refetchDays={refetchDays} // TODO: usePathname hook to get current path

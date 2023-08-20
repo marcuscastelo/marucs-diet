@@ -1,13 +1,13 @@
 'use client'
 
-import MacroNutrients from '../../../MacroNutrients'
+import MacroNutrientsView from '../../../MacroNutrientsView'
 
 export default function MacrosPage() {
   const props = { carbs: 123, protein: 222, fat: 321 }
 
   return (
     <>
-      <MacroNutrients {...props} />
+      <MacroNutrientsView {...props} />
     </>
   )
 }
