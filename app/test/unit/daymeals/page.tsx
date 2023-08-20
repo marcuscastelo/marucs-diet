@@ -2,9 +2,9 @@
 
 export default function DayPage() {
   // TODO: reenable Day Meals Unit Test Component
-  // const createMealProps = ([meal, setMeal]: [meal: MealData, setMeal: Dispatch<SetStateAction<MealData>>]): MealProps => {
+  // const createMealProps = ([meal, setMeal]: [meal: Meal, setMeal: Dispatch<SetStateAction<Meal>>]): MealProps => {
   //     return {
-  //         mealData: meal,
+  //         meal: meal,
   //         onNewItem: () => {
   //             duplicateLastMealItem(meal, setMeal);
   //         },

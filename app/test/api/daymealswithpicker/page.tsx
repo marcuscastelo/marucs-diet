@@ -26,7 +26,7 @@ export default function Page() {
     const mealProps = days.map((day) => {
       return day.meals.map((meal): MealEditViewProps => {
         return {
-          mealData: meal,
+          meal,
           header: (
             <MealEditView.Header
               onUpdateMeal={(meal) => alert(`Mock: Update meal ${meal.name}`)}
@@ -63,24 +63,6 @@ export default function Page() {
     fetchDays(user.id)
   }, [user])
 
-  // TODO: remove this function
-  //   const duplicateLastMealItemOnDatabase = async (day: Day, meal: MealData) => {
-  //     await updateDay(day.id, {
-  //       ...day,
-  //       meals: day.meals.map((m) => {
-  //         if (m.id !== meal.id) return m
-
-  //         const lastItem = m.items[m.items.length - 1]
-  //         return {
-  //           ...m,
-  //           items: [...m.items, lastItem],
-  //         }
-  //       }),
-  //     })
-
-  //     await fetchDays(day.owner)
-  //   }
-
   const hasData = days.some(
     (day) =>
       day.target_day === /* TODO: Check if equality is a bug */ selectedDay,
@@ -113,7 +95,7 @@ export default function Page() {
           <MealEditViewList
             mealEditPropsList={day.meals.map((meal): MealEditViewProps => {
               return {
-                mealData: meal,
+                meal,
                 header: (
                   <MealEditView.Header
                     onUpdateMeal={(meal) =>

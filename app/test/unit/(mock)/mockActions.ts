@@ -1,9 +1,9 @@
-import { MealData } from '@/model/mealModel'
+import { Meal } from '@/model/mealModel'
 import { Dispatch, SetStateAction } from 'react'
 
 export const duplicateLastMealItem = (
-  meal: MealData,
-  setMeal: Dispatch<SetStateAction<MealData>>,
+  meal: Meal,
+  setMeal: Dispatch<SetStateAction<Meal>>,
 ) => {
   const lastItem = meal.groups[meal.groups.length - 1]
   const newItem = {

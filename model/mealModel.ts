@@ -13,8 +13,7 @@ export const mealSchema = z.object({
     .transform(() => 'Meal' as const),
 })
 
-// TODO: rename MealData to Meal (and Meal component to MealEditView)
-export type MealData = z.infer<typeof mealSchema>
+export type Meal = z.infer<typeof mealSchema>
 
 // TODO: Create factory function for other models
 export function createMeal({
@@ -22,8 +21,8 @@ export function createMeal({
   groups,
 }: {
   name: string
-  groups: MealData['groups']
-}): MealData {
+  groups: Meal['groups']
+}): Meal {
   return {
     id: Math.floor(Math.random() * 1000000),
     name,
