@@ -1,7 +1,7 @@
 'use client'
 
-import MealList from '@/app/(meal)/MealList'
-import MealView, { MealViewProps } from '@/app/(meal)/MealView'
+import MealEditViewList from '@/app/(meal)/MealEditViewList'
+import MealEditView, { MealEditViewProps } from '@/app/(meal)/MealEditView'
 import { listDays } from '@/controllers/days'
 import { Day } from '@/model/dayModel'
 import { User } from '@/model/userModel'
@@ -13,7 +13,7 @@ import { useUserContext } from '@/context/users.context'
 
 export default function Page() {
   const [days, setDays] = useState<Day[]>([])
-  const [, setMealProps] = useState<MealViewProps[][]>([])
+  const [, setMealProps] = useState<MealEditViewProps[][]>([])
 
   const [selectedDay, setSelectedDay] = useState('')
 
@@ -24,23 +24,23 @@ export default function Page() {
     setDays(days)
 
     const mealProps = days.map((day) => {
-      return day.meals.map((meal): MealViewProps => {
+      return day.meals.map((meal): MealEditViewProps => {
         return {
           mealData: meal,
           header: (
-            <MealView.Header
+            <MealEditView.Header
               onUpdateMeal={(meal) => alert(`Mock: Update meal ${meal.name}`)}
             />
           ),
           content: (
-            <MealView.Content
+            <MealEditView.Content
               onEditItemGroup={(group) =>
                 alert(`Mock: Edit group.id = "${group.id}"`)
               }
             />
           ),
           actions: (
-            <MealView.Actions onNewItem={() => alert('Mock: New item')} />
+            <MealEditView.Actions onNewItem={() => alert('Mock: New item')} />
           ),
         }
       })
@@ -85,7 +85,7 @@ export default function Page() {
     (day) =>
       day.target_day === /* TODO: Check if equality is a bug */ selectedDay,
   )
-  const dayData = days.find(
+  const day = days.find(
     (day) =>
       day.target_day === /* TODO: Check if equality is a bug */ selectedDay,
   )
@@ -107,39 +107,37 @@ export default function Page() {
       <div>Has data: {hasData ? 'true' : 'false'}</div>
       <div>Known days: {days.map((day) => day.target_day).join(', ')}</div>
 
-      {hasData && dayData !== undefined && (
+      {hasData && day !== undefined && (
         <>
-          <h1> Target day: {dayData.target_day}</h1>
-          <MealList
-            mealsProps={dayData.meals.map((meal): MealViewProps => {
+          <h1> Target day: {day.target_day}</h1>
+          <MealEditViewList
+            mealEditPropsList={day.meals.map((meal): MealEditViewProps => {
               return {
                 mealData: meal,
                 header: (
-                  <MealView.Header
+                  <MealEditView.Header
                     onUpdateMeal={(meal) =>
                       alert(`Mock: Update meal ${meal.name}`)
                     }
                   />
                 ),
                 content: (
-                  <MealView.Content
+                  <MealEditView.Content
                     onEditItemGroup={(group) =>
                       alert(`Mock: Edit group.id = "${group.id}"`)
                     }
                   />
                 ),
                 actions: (
-                  <MealView.Actions onNewItem={() => alert('Mock: New item')} />
+                  <MealEditView.Actions
+                    onNewItem={() => alert('Mock: New item')}
+                  />
                 ),
               }
             })}
           />
         </>
       )}
-
-      {/* TODO: Check if equality is a bug */}
-      {/* {currentMealProps === null && <Alert color="warning">Selecione uma data</Alert>} */}
-      {/* {currentMealProps !== null && <MealList mealsProps={currentMealProps} />} */}
     </>
   )
 }

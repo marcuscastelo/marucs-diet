@@ -1,9 +1,9 @@
 'use client'
 
 import { Dispatch, SetStateAction, useState } from 'react'
-import MealList from '../../(meal)/MealList'
+import MealEditViewList from '../../(meal)/MealEditViewList'
 import { Day } from '@/model/dayModel'
-import MealView, { MealViewProps } from '../../(meal)/MealView'
+import MealEditView, { MealEditViewProps } from '../../(meal)/MealEditView'
 import { updateDay } from '@/controllers/days'
 import { Alert } from 'flowbite-react'
 import Show from '../../Show'
@@ -110,18 +110,20 @@ export default function DayMeals({
     setFoodSearchModalVisible(true)
   }
 
-  const mealProps = day.meals.map(
-    (meal): MealViewProps => ({
+  const mealEditPropsList = day.meals.map(
+    (meal): MealEditViewProps => ({
       mealData: meal,
       header: (
-        <MealView.Header onUpdateMeal={(meal) => onUpdateMeal(day, meal)} />
+        <MealEditView.Header onUpdateMeal={(meal) => onUpdateMeal(day, meal)} />
       ),
       content: (
-        <MealView.Content
+        <MealEditView.Content
           onEditItemGroup={(item) => onEditItemGroup(meal, item)}
         />
       ),
-      actions: <MealView.Actions onNewItem={() => handleNewItemButton(meal)} />,
+      actions: (
+        <MealEditView.Actions onNewItem={() => handleNewItemButton(meal)} />
+      ),
     }),
   )
 
@@ -188,7 +190,10 @@ export default function DayMeals({
           </Alert>
         </Show>
       </Show>
-      <MealList className="mt-5" mealsProps={mealProps} />
+      <MealEditViewList
+        className="mt-5"
+        mealEditPropsList={mealEditPropsList}
+      />
       <CopyLastDayButton
         dayData={day}
         days={days}
