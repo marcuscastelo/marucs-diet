@@ -85,10 +85,10 @@ export default function WeightEvolution() {
         <WeightChart weights={weights.data} />
         <div className="mx-5 lg:mx-20 pb-10">
           {weights.data &&
-            [...weights.data].reverse().map((weight, index) => {
+            [...weights.data].reverse().map((weight) => {
               return (
                 <WeightView
-                  key={index}
+                  key={weight.id}
                   weight={weight}
                   onRefetchWeights={handleRefetchWeights}
                 />
