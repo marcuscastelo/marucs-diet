@@ -23,6 +23,7 @@ import {
 } from 'recharts'
 import { CandleStickChart } from '@/components/chart/CandleStickChart'
 import { OHLC } from '@/model/ohlcModel'
+import Datepicker from 'react-tailwindcss-datepicker'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -113,16 +114,25 @@ function WeightView({
   onRefetchWeights: () => void
   onSave: () => void
 }) {
+  const [dateField, setDateField] = useState<Date>(weight.target_timestamp)
+
   const [weightField, setWeightField] = useState<string>(
     weight.weight.toString(),
   )
 
-  const handleSave = async () => {
+  const handleSave = async ({
+    dateField,
+    weightField,
+  }: {
+    dateField: Date
+    weightField: string
+  }) => {
     const floatWeightField = parseFloat(weightField)
     setWeightField(floatWeightField.toFixed(2))
     await updateWeight(weight.id, {
       ...weight,
       weight: parseFloat(floatWeightField.toFixed(2)),
+      target_timestamp: dateField,
     })
     onSave()
   }
@@ -130,10 +140,41 @@ function WeightView({
   return (
     <Capsule
       leftContent={
-        <p className={`ml-2 p-2 text-md text-center`}>
-          {weight.target_timestamp.toLocaleDateString()}{' '}
-          {weight.target_timestamp.toLocaleTimeString()}
-        </p>
+        <>
+          <Datepicker
+            value={{
+              startDate: dateField,
+              endDate: dateField,
+            }}
+            onChange={async (value) => {
+              if (!value?.startDate) {
+                alert('Data inválida')
+                return
+              }
+              // Apply timezone offset
+              const date = new Date(value.startDate)
+              date.setHours(date.getHours() + 3)
+              setDateField(date)
+
+              await handleSave({
+                dateField: date,
+                weightField,
+              })
+              onRefetchWeights()
+            }}
+            // Timezone = GMT-3
+            displayFormat="DD/MM/YYYY HH:mm"
+            asSingle={true}
+            useRange={false}
+            readOnly={true}
+            containerClassName={`ml-2 p-2 text-md text-center`}
+            inputClassName={`btn-ghost`}
+          />
+          {/* <p className={`ml-2 p-2 text-md text-center`}>
+            {weight.target_timestamp.toLocaleDateString()}{' '}
+            {weight.target_timestamp.toLocaleTimeString()}
+          </p> */}
+        </>
       }
       rightContent={
         <div className={`ml-2 p-2 text-xl flex justify-between`}>
@@ -145,7 +186,10 @@ function WeightView({
               onChange={(event) => setWeightField(event.target.value)}
               onFocus={(event) => event.target.select()}
               onBlur={async () => {
-                await handleSave()
+                await handleSave({
+                  dateField,
+                  weightField,
+                })
                 onRefetchWeights()
               }}
             />
@@ -219,9 +263,11 @@ function WeightChart({ weights }: { weights: Weight[] }) {
         <Line
           type="monotone"
           dataKey="movingAverage"
-          stroke="#00FFFF"
-          fill="#00FFFF"
-          strokeDasharray={'10 10'}
+          stroke="orange"
+          fill="orange"
+          dot={false}
+          strokeWidth={3}
+          opacity={0.2}
         />
       </CandleStickChart>
       {/* <ComposedChart width={0} height={400} data={data}>

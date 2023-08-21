@@ -23,7 +23,7 @@ export const CandleStickShape = (props: CandleStickProps) => {
     openClose: [open, close],
   } = props
   const isGrowing = open < close
-  const color = isGrowing ? 'green' : 'red'
+  const color = open === close ? 'grey' : isGrowing ? 'green' : 'red'
   const ratio = Math.abs(height / (open - close))
   console.log(props)
   return (

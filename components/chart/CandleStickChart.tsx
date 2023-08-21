@@ -1,5 +1,13 @@
 import { OHLC } from '@/model/ohlcModel'
-import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from 'recharts'
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ComposedChart,
+  XAxis,
+  YAxis,
+} from 'recharts'
 import { CandleStickShape } from './shapes/CandleStickShape'
 
 const colors = [
@@ -33,22 +41,30 @@ export const CandleStickChart = <T extends OHLC>({
 }) => {
   const data = prepareData(rawData)
   data.forEach(console.log)
-  const minValue = Math.min(...data.map((d) => d.low)) * 0.8
-  const maxValue = Math.max(...data.map((d) => d.high)) * 1.25
+  const dataMargin = 0.01
+  const minValue = Math.min(...data.map((d) => d.low)) * (1 - dataMargin)
+  const maxValue = Math.max(...data.map((d) => d.high)) * (1 / (1 - dataMargin))
 
   console.log(data)
   console.log(minValue, maxValue)
 
   return (
-    <BarChart
+    <ComposedChart
       width={600}
       height={300}
       data={data}
       margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
     >
       <XAxis dataKey="date" />
-      <YAxis domain={[minValue, maxValue]} />
-      <CartesianGrid strokeDasharray="3 3" />
+      <YAxis
+        domain={[minValue, maxValue]}
+        type="number"
+        allowDecimals={false}
+        ticks={Array.from(Array(10).keys()).map(
+          (i) => Math.floor(minValue + (maxValue - minValue) * (i / 10)) + 1,
+        )}
+      />
+      <CartesianGrid opacity={0.1} />
       <Bar
         dataKey="openClose"
         fill="#8884d8"
@@ -60,6 +76,6 @@ export const CandleStickChart = <T extends OHLC>({
         ))}
       </Bar>
       {children}
-    </BarChart>
+    </ComposedChart>
   )
 }

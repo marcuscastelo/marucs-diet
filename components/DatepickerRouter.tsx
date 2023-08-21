@@ -28,6 +28,7 @@ export default function DatepickerRouter({
       asSingle={true}
       useRange={false}
       readOnly={true}
+      displayFormat="DD/MM/YYYY"
       value={{
         startDate: selectedDay,
         endDate: selectedDay,
