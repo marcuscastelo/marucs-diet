@@ -31,7 +31,7 @@ export default async function Page() {
   }
 
   const weights = await fetchUserWeights(userId)
-  const weight = latestWeight(weights).weight
+  const weight = latestWeight(weights)?.weight
 
   const onSetProfile = async (profile: MacroProfile) => {
     'use server'
@@ -75,11 +75,15 @@ export default async function Page() {
         />
 
         <div className={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>
-          <MacroTarget
-            weight={weight}
-            profile={user.macro_profile}
-            onSaveMacroProfile={onSetProfile}
-          />
+          {weight !== undefined ? (
+            <MacroTarget
+              weight={weight}
+              profile={user.macro_profile}
+              onSaveMacroProfile={onSetProfile}
+            />
+          ) : (
+            <h1>Não há pesos registrados, o perfil não pode ser calculado</h1>
+          )}
         </div>
         <WeightEvolution onSave={handleSave} />
         <WeightProgress />

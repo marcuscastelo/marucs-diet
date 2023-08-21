@@ -21,6 +21,8 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
+import { CandleStickChart } from '@/components/chart/CandleStickChart'
+import { OHLC } from '@/model/ohlcModel'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -167,58 +169,85 @@ function WeightView({
 }
 
 function WeightChart({ weights }: { weights: Weight[] }) {
-  const movingAverage = (weights: Weight[], windowSize: number) => {
-    const movingAverageWeights: Weight[] = []
-
-    for (let i = 0; i < weights.length; i++) {
-      const windowStart = Math.max(0, i - windowSize)
-      const windowEnd = i + 1
-
-      const windowWeights = weights.slice(windowStart, windowEnd)
-
-      const windowSum = windowWeights.reduce(
-        (sum, weight) => sum + weight.weight,
-        0,
-      )
-
-      const windowAverage = windowSum / windowWeights.length
-
-      movingAverageWeights.push({
-        ...weights[i],
-        weight: windowAverage,
-      })
-    }
-
-    return movingAverageWeights
+  type DayWeight = OHLC & {
+    movingAverage?: number
   }
 
-  const weightsWithMovingAverage = movingAverage(weights, 7)
+  const weightsByDay = weights.reduce(
+    (acc, weight) => {
+      const day = weight.target_timestamp.toLocaleDateString()
+      if (!acc[day]) {
+        acc[day] = []
+      }
+      acc[day].push(weight)
+      return acc
+    },
+    {} as { [day: string]: Weight[] },
+  )
 
-  const data = weights.map((weight, index) => {
-    return {
-      name: weight.target_timestamp.toLocaleDateString(),
-      weight: weight.weight,
-      movingAverage: weightsWithMovingAverage[index].weight,
-    }
+  const data: DayWeight[] = Object.entries(weightsByDay)
+    .map(([day, weights]) => {
+      const open = weights[0].weight
+      const low = Math.min(...weights.map((weight) => weight.weight))
+      const high = Math.max(...weights.map((weight) => weight.weight))
+      const close = weights[weights.length - 1].weight
+
+      return {
+        date: day,
+        open,
+        close,
+        high,
+        low,
+      }
+    })
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
+  const movingAverage = data.map((_, index) => {
+    const weights = data.slice(Math.max(0, index - 7), index + 1) // 7 days
+    const avgWeight =
+      weights.reduce((acc, weight) => acc + weight.low, 0) / weights.length
+    return avgWeight
+  })
+
+  data.forEach((_, index) => {
+    data[index].movingAverage = movingAverage[index]
   })
 
   return (
     <ResponsiveContainer width="90%" height={400}>
-      <ComposedChart width={0} height={400} data={data}>
+      <CandleStickChart data={data}>
+        <Line
+          type="monotone"
+          dataKey="movingAverage"
+          stroke="#00FFFF"
+          fill="#00FFFF"
+          strokeDasharray={'10 10'}
+        />
+      </CandleStickChart>
+      {/* <ComposedChart width={0} height={400} data={data}>
         <CartesianGrid strokeDasharray="1 1" />
-        <XAxis type="category" dataKey="name" angle={30} />
+        <XAxis type="category" dataKey="day" angle={30} />
         <YAxis
           type="number"
-          domain={[
-            Math.min(...data.map((weight) => weight.weight)) - 1,
-            Math.max(...data.map((weight) => weight.weight)) + 1,
-          ]}
+          domain={[minWeight - 1, maxWeight + 1]}
           allowDecimals={false}
         />
         <Tooltip />
         <Line
           type="monotone"
-          dataKey="weight"
+          dataKey="avgWeight"
+          stroke="#FF8A4C"
+          fill="#FF8A4C"
+        />
+        <Line
+          type="monotone"
+          dataKey="minWeight"
+          stroke="#FF8A4C"
+          fill="#FF8A4C"
+        />
+        <Line
+          type="monotone"
+          dataKey="maxWeigth"
           stroke="#FF8A4C"
           fill="#FF8A4C"
         />
@@ -229,7 +258,7 @@ function WeightChart({ weights }: { weights: Weight[] }) {
           fill="#00FFFF"
           strokeDasharray={'10 10'}
         />
-      </ComposedChart>
+      </ComposedChart> */}
     </ResponsiveContainer>
   )
 }
