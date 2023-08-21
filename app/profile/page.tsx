@@ -6,6 +6,8 @@ import BasicInfo from './BasicInfo'
 import { getUser } from '@/actions/user'
 import WeightProgress from './WeightProgress'
 import WeightEvolution from './WeightEvolution'
+import { fetchUserWeights } from '@/controllers/weights'
+import { latestWeight } from '@/utils/weightUtils'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -27,6 +29,9 @@ export default async function Page() {
   if (!user) {
     return <h1>Usuário {userId} não encontrado</h1>
   }
+
+  const weights = await fetchUserWeights(userId)
+  const weight = latestWeight(weights).weight
 
   const onSetProfile = async (profile: MacroProfile) => {
     'use server'
@@ -50,6 +55,11 @@ export default async function Page() {
     revalidatePath('/')
   }
 
+  const handleSave = async () => {
+    'use server'
+    revalidatePath('/')
+  }
+
   console.debug(`[ProfilePage] Rendering profile ${user.name}`)
   return (
     <>
@@ -66,12 +76,12 @@ export default async function Page() {
 
         <div className={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>
           <MacroTarget
-            weight={user.weight}
+            weight={weight}
             profile={user.macro_profile}
             onSaveMacroProfile={onSetProfile}
           />
         </div>
-        <WeightEvolution />
+        <WeightEvolution onSave={handleSave} />
         <WeightProgress />
       </div>
     </>

@@ -19,7 +19,6 @@ const DIET_TRANSLATION: Translation<User['diet']> = {
 // TODO: Create module for translations
 const USER_FIELD_TRANSLATION: Translation<keyof User> = {
   name: 'Nome',
-  weight: 'Peso',
   height: 'Altura',
   diet: 'Dieta',
   birthdate: 'Data de Nascimento',
@@ -115,7 +114,6 @@ export default function BasicInfo({
         </div>
         <div className={`mx-5 lg:mx-20`}>
           {makeBasicCapsule('name', convertString)}
-          {makeBasicCapsule('weight', convertNumber, '(kg)')}
           {makeBasicCapsule('height', convertNumber, '(cm)')}
           {makeBasicCapsule('diet', convertDiet)}
           {makeBasicCapsule('birthdate', convertString)}

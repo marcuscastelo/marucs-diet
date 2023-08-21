@@ -13,7 +13,6 @@ import { useCallback, useEffect, useState } from 'react'
 import Capsule from '../Capsule'
 import TrashIcon from '../(icons)/TrashIcon'
 import {
-  Area,
   CartesianGrid,
   ComposedChart,
   Line,
@@ -27,7 +26,7 @@ import {
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
 
-export default function WeightEvolution() {
+export default function WeightEvolution({ onSave }: { onSave: () => void }) {
   const userId = useUserId()
 
   const [weights, setWeights] = useState<Loadable<Weight[]>>({ loading: true })
@@ -77,6 +76,7 @@ export default function WeightEvolution() {
                 }),
               )
               handleRefetchWeights()
+              onSave()
             }}
           >
             Adicionar peso
@@ -91,6 +91,7 @@ export default function WeightEvolution() {
                   key={weight.id}
                   weight={weight}
                   onRefetchWeights={handleRefetchWeights}
+                  onSave={onSave}
                 />
               )
             })}
@@ -104,9 +105,11 @@ export default function WeightEvolution() {
 function WeightView({
   weight,
   onRefetchWeights,
+  onSave,
 }: {
   weight: Weight
   onRefetchWeights: () => void
+  onSave: () => void
 }) {
   const [weightField, setWeightField] = useState<string>(
     weight.weight.toString(),
@@ -119,6 +122,7 @@ function WeightView({
       ...weight,
       weight: parseFloat(floatWeightField.toFixed(2)),
     })
+    onSave()
   }
 
   return (
@@ -149,6 +153,7 @@ function WeightView({
             onClick={async () => {
               await deleteWeight(weight.id)
               onRefetchWeights()
+              onSave()
             }}
           >
             <TrashIcon />
