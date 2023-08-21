@@ -5,7 +5,9 @@ import { revalidatePath } from 'next/cache'
 import BasicInfo from './BasicInfo'
 import { getUser } from '@/actions/user'
 import WeightProgress from './WeightProgress'
+import WeightEvolution from './WeightEvolution'
 
+// TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
 
@@ -69,6 +71,7 @@ export default async function Page() {
             onSaveMacroProfile={onSetProfile}
           />
         </div>
+        <WeightEvolution />
         <WeightProgress />
       </div>
     </>
