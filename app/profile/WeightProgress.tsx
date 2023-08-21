@@ -45,7 +45,11 @@ export default function WeightProgress() {
     return <h1>Carregando...</h1>
   }
 
-  const weight = latestWeight(weights.data).weight
+  const weight = latestWeight(weights.data)?.weight
+
+  if (!weight) {
+    return <h1>Usuário não possui pesos</h1>
+  }
 
   return (
     <div className={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>
