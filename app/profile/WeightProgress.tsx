@@ -27,7 +27,7 @@ export default function WeightProgress() {
       <h5 className={`mx-auto mb-5 text-center text-3xl font-bold`}>
         Progresso do peso
       </h5>
-      <div className="mx-20">
+      <div className="mx-5 lg:mx-20">
         <Capsule
           leftContent={<h5 className={`ml-2 p-2 text-xl`}>Peso Atual (kg)</h5>}
           rightContent={<h5 className={`ml-2 p-2 text-xl`}>0</h5>}
