@@ -36,11 +36,14 @@ export default function DayMacros({
     return <h1>Carregando...</h1>
   }
 
+  const weight = latestWeight(weights.data)?.weight
+
+  if (!weight) {
+    return <h1>O usuário não possui pesos registrados</h1>
+  }
+
   const macroProfile = user.macro_profile
-  const targetMacros = calculateMacroTarget(
-    latestWeight(weights.data).weight,
-    macroProfile,
-  )
+  const targetMacros = calculateMacroTarget(weight, macroProfile)
 
   const targetCalories = calcCalories(targetMacros)
 
