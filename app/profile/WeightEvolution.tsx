@@ -124,16 +124,16 @@ function WeightView({
   return (
     <Capsule
       leftContent={
-        <h5 className={`ml-2 p-2 text-xl`}>
+        <p className={`ml-2 p-2 text-md`}>
           {weight.target_timestamp.toLocaleDateString()}
-        </h5>
+        </p>
       }
       rightContent={
         <div className={`ml-2 p-2 text-xl flex justify-between`}>
-          <div className="">
+          <div className="flex">
             <input
-              className="input btn-ghost"
-              style={{ width: '100px' }}
+              className="input btn-ghost px-0 flex-shrink"
+              style={{ width: '100%' }}
               value={weightField}
               onChange={(event) => setWeightField(event.target.value)}
               onFocus={(event) => event.target.select()}
@@ -142,7 +142,7 @@ function WeightView({
                 onRefetchWeights()
               }}
             />
-            <span className="my-auto">kg</span>
+            <span className="my-auto flex-1">kg</span>
           </div>
           <button
             className="btn btn-ghost my-auto"
