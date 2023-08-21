@@ -53,7 +53,7 @@ export default function WeightEvolution() {
         <h5 className={`mx-auto mb-5 text-center text-3xl font-bold`}>
           Progresso do peso
         </h5>
-        <div className="mx-20 pb-10">
+        <div className="mx-5 lg:mx-20 pb-10">
           <input
             className="input px-0 pl-5 text-xl mb-3"
             style={{ width: '100%' }}
@@ -83,7 +83,7 @@ export default function WeightEvolution() {
           </button>
         </div>
         <WeightChart weights={weights.data} />
-        <div className="mx-20 pb-10">
+        <div className="mx-5 lg:mx-20 pb-10">
           {weights.data &&
             [...weights.data].reverse().map((weight, index) => {
               return (
