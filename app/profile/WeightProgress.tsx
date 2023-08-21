@@ -17,8 +17,10 @@ import { calcCalories, calcDayCalories, calcDayMacros } from '@/utils/macroMath'
 import { useUserContext } from '@/context/users.context'
 import { calculateMacroTarget } from '../MacroTargets'
 
+// TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
+// TODO: Rename to MacrosEvolution
 export default function WeightProgress() {
   return (
     <div className={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>
