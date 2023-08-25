@@ -185,7 +185,9 @@ function WeightView({
               className="input text-center btn-ghost px-0 flex-shrink"
               style={{ width: '100%' }}
               value={weightField}
-              onChange={(event) => setWeightField(event.target.value)}
+              onChange={(event) =>
+                setWeightField(event.target.value.replace(',', '.'))
+              }
               onFocus={(event) => event.target.select()}
               onBlur={async () => {
                 await handleSave({
