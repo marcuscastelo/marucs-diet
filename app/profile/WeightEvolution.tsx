@@ -89,16 +89,19 @@ export default function WeightEvolution({ onSave }: { onSave: () => void }) {
         <WeightChart weights={weights.data} />
         <div className="mx-5 lg:mx-20 pb-10">
           {weights.data &&
-            [...weights.data].reverse().map((weight) => {
-              return (
-                <WeightView
-                  key={weight.id}
-                  weight={weight}
-                  onRefetchWeights={handleRefetchWeights}
-                  onSave={onSave}
-                />
-              )
-            })}
+            [...weights.data]
+              .reverse()
+              .slice(0, 10)
+              .map((weight) => {
+                return (
+                  <WeightView
+                    key={weight.id}
+                    weight={weight}
+                    onRefetchWeights={handleRefetchWeights}
+                    onSave={onSave}
+                  />
+                )
+              })}
           {weights.data.length === 0 && 'Não há pesos registrados'}
         </div>
       </div>
@@ -257,7 +260,8 @@ function WeightChart({ weights }: { weights: Weight[] }) {
   })
 
   return (
-    <ResponsiveContainer width="90%" height={400}>
+    <>
+      {/*  */}
       <CandleStickChart data={data} />
       {/* <Line
           type="monotone"
@@ -283,6 +287,7 @@ function WeightChart({ weights }: { weights: Weight[] }) {
           opacity={0.2}
         />
       </ComposedChart> */}
-    </ResponsiveContainer>
+      {/* </ResponsiveContainer> */}
+    </>
   )
 }

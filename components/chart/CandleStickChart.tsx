@@ -7,6 +7,7 @@ import {
   Cell,
   ComposedChart,
   Line,
+  ResponsiveContainer,
   XAxis,
   YAxis,
 } from 'recharts'
@@ -83,19 +84,21 @@ export default function CandleStickChart<T extends OHLC>({
   data: T[]
 }) {
   return (
-    <ComposedChart data={data} className="outline">
-      <XAxis dataKey="date" />
-      <YAxis type="number" allowDecimals={false} />
-      <CartesianGrid opacity={0.1} />
-      <Line
-        type="monotone"
-        dataKey="movingAverage"
-        stroke="orange"
-        fill="orange"
-        dot={false}
-        strokeWidth={3}
-        opacity={0.2}
-      />
-    </ComposedChart>
+    <ResponsiveContainer width="95%" height={400}>
+      <ComposedChart data={data} width={0} height={400}>
+        <XAxis dataKey="date" />
+        <YAxis type="number" allowDecimals={false} />
+        <CartesianGrid opacity={0.1} />
+        <Line
+          type="monotone"
+          dataKey="movingAverage"
+          stroke="orange"
+          fill="orange"
+          dot={false}
+          strokeWidth={3}
+          opacity={0.2}
+        />
+      </ComposedChart>
+    </ResponsiveContainer>
   )
 }
