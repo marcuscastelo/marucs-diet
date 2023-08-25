@@ -9,7 +9,7 @@ export function middleware(request: NextRequest) {
   if (!request.cookies.has(COOKIES.USER_ID)) {
     // TODO: After setting cookie, redirect to the same page to make sure the cookie is set when the page loads
     res.cookies.set(COOKIES.USER_ID, COOKIES.DEFAULT_USER_ID, {
-      expires: new Date('2038-01-19T03:14:07.000Z'),
+      expires: new Date('2024-01-19T03:14:07.000Z'),
       httpOnly: true,
     })
   }
