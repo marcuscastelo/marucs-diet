@@ -22,7 +22,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import CandleStickChart from '@/components/chart/CandleStickChart'
+import { CandleStickChart } from '@/components/chart/CandleStickChart'
 import { OHLC } from '@/model/ohlcModel'
 import Datepicker from 'react-tailwindcss-datepicker'
 
@@ -262,8 +262,8 @@ function WeightChart({ weights }: { weights: Weight[] }) {
   return (
     <>
       {/*  */}
-      <CandleStickChart data={data} />
-      {/* <Line
+      <CandleStickChart data={data}>
+        <Line
           type="monotone"
           dataKey="movingAverage"
           stroke="orange"
@@ -271,8 +271,9 @@ function WeightChart({ weights }: { weights: Weight[] }) {
           dot={false}
           strokeWidth={3}
           opacity={0.2}
-        /> */}
-      {/* </CandleStickChart> */}
+        />
+      </CandleStickChart>
+      {/* </CandleStickChart */}
       {/* <ComposedChart data={data} className="outline">
         <XAxis dataKey="date" />
         <YAxis type="number" allowDecimals={false} />
