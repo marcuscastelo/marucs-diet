@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { COOKIES } from './constants/cookies'
+import { createUserIdCookie } from './cookies/userId'
 
 // This function can be marked `async` if using `await` inside
 export function middleware(request: NextRequest) {
@@ -15,10 +16,9 @@ export function middleware(request: NextRequest) {
     )
 
     // Set cookie on res
-    res.cookies.set(COOKIES.USER_ID, COOKIES.DEFAULT_USER_ID, {
-      expires: new Date('2038-01-19T03:14:07.000Z'),
-      httpOnly: true,
-    })
+    const { key, value, cookie } = createUserIdCookie(COOKIES.DEFAULT_USER_ID)
+    res.cookies.set(key, value, cookie)
+
     return res
   }
 
