@@ -141,7 +141,7 @@ function WeightView({
   return (
     <Capsule
       leftContent={
-        <>
+        <div className="overflow-visible">
           <Datepicker
             value={{
               startDate: dateField,
@@ -168,18 +168,16 @@ function WeightView({
             asSingle={true}
             useRange={false}
             readOnly={true}
-            containerClassName={`ml-2 p-2 text-md text-center`}
-            inputClassName={`btn-ghost`}
+            containerClassName="relative w-full text-gray-700"
+            inputClassName="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full dark:bg-slate-700 dark:text-white/80 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed border-none"
+            // containerClassName={`text-md text-center flex-shrink outline overflow-hidden`}
+            // inputClassName={`btn-ghost flex-shrink`}
           />
-          {/* <p className={`ml-2 p-2 text-md text-center`}>
-            {weight.target_timestamp.toLocaleDateString()}{' '}
-            {weight.target_timestamp.toLocaleTimeString()}
-          </p> */}
-        </>
+        </div>
       }
       rightContent={
         <div className={`ml-2 p-2 text-xl flex justify-between`}>
-          <div className="flex">
+          <div className="flex justify-between sm:gap-10 px-2">
             <input
               className="input text-center btn-ghost px-0 flex-shrink"
               style={{ width: '100%' }}
@@ -194,7 +192,7 @@ function WeightView({
                 onRefetchWeights()
               }}
             />
-            <span className="my-auto flex-1">kg</span>
+            <span className="my-auto flex-1 hidden sm:block">kg</span>
           </div>
           <button
             className="btn btn-ghost my-auto"
