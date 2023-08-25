@@ -14,6 +14,7 @@ import Capsule from '../Capsule'
 import TrashIcon from '../(icons)/TrashIcon'
 import {
   CartesianGrid,
+  Cell,
   ComposedChart,
   Line,
   ResponsiveContainer,
@@ -21,7 +22,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { CandleStickChart } from '@/components/chart/CandleStickChart'
+import CandleStickChart from '@/components/chart/CandleStickChart'
 import { OHLC } from '@/model/ohlcModel'
 import Datepicker from 'react-tailwindcss-datepicker'
 
@@ -259,7 +260,21 @@ function WeightChart({ weights }: { weights: Weight[] }) {
 
   return (
     <ResponsiveContainer width="90%" height={400}>
-      <CandleStickChart data={data}>
+      <CandleStickChart data={data} />
+      {/* <Line
+          type="monotone"
+          dataKey="movingAverage"
+          stroke="orange"
+          fill="orange"
+          dot={false}
+          strokeWidth={3}
+          opacity={0.2}
+        /> */}
+      {/* </CandleStickChart> */}
+      {/* <ComposedChart data={data} className="outline">
+        <XAxis dataKey="date" />
+        <YAxis type="number" allowDecimals={false} />
+        <CartesianGrid opacity={0.1} />
         <Line
           type="monotone"
           dataKey="movingAverage"
@@ -268,41 +283,6 @@ function WeightChart({ weights }: { weights: Weight[] }) {
           dot={false}
           strokeWidth={3}
           opacity={0.2}
-        />
-      </CandleStickChart>
-      {/* <ComposedChart width={0} height={400} data={data}>
-        <CartesianGrid strokeDasharray="1 1" />
-        <XAxis type="category" dataKey="day" angle={30} />
-        <YAxis
-          type="number"
-          domain={[minWeight - 1, maxWeight + 1]}
-          allowDecimals={false}
-        />
-        <Tooltip />
-        <Line
-          type="monotone"
-          dataKey="avgWeight"
-          stroke="#FF8A4C"
-          fill="#FF8A4C"
-        />
-        <Line
-          type="monotone"
-          dataKey="minWeight"
-          stroke="#FF8A4C"
-          fill="#FF8A4C"
-        />
-        <Line
-          type="monotone"
-          dataKey="maxWeigth"
-          stroke="#FF8A4C"
-          fill="#FF8A4C"
-        />
-        <Line
-          type="monotone"
-          dataKey="movingAverage"
-          stroke="#00FFFF"
-          fill="#00FFFF"
-          strokeDasharray={'10 10'}
         />
       </ComposedChart> */}
     </ResponsiveContainer>

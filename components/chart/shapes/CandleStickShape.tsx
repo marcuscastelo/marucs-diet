@@ -1,5 +1,4 @@
 // From https://codesandbox.io/s/recharts-candlesticks-8m6n8?file=/src/Chart.jsx:3000-4236
-
 export type CandleStickProps = {
   fill: string
   x: number

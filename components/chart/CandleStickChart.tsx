@@ -1,10 +1,12 @@
+'use client'
+
 import { OHLC } from '@/model/ohlcModel'
 import {
   Bar,
-  BarChart,
   CartesianGrid,
   Cell,
   ComposedChart,
+  Line,
   XAxis,
   YAxis,
 } from 'recharts'
@@ -32,7 +34,7 @@ const prepareData = <T extends OHLC>(data: T[]) => {
   })
 }
 
-export const CandleStickChart = <T extends OHLC>({
+export const CandleStickCharta = <T extends OHLC>({
   data: rawData,
   children,
 }: {
@@ -49,12 +51,7 @@ export const CandleStickChart = <T extends OHLC>({
   console.log(minValue, maxValue)
 
   return (
-    <ComposedChart
-      width={600}
-      height={300}
-      data={data}
-      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-    >
+    <ComposedChart data={data} className="outline">
       <XAxis dataKey="date" />
       <YAxis
         domain={[minValue, maxValue]}
@@ -76,6 +73,29 @@ export const CandleStickChart = <T extends OHLC>({
         ))}
       </Bar>
       {children}
+    </ComposedChart>
+  )
+}
+
+export default function CandleStickChart<T extends OHLC>({
+  data,
+}: {
+  data: T[]
+}) {
+  return (
+    <ComposedChart data={data} className="outline">
+      <XAxis dataKey="date" />
+      <YAxis type="number" allowDecimals={false} />
+      <CartesianGrid opacity={0.1} />
+      <Line
+        type="monotone"
+        dataKey="movingAverage"
+        stroke="orange"
+        fill="orange"
+        dot={false}
+        strokeWidth={3}
+        opacity={0.2}
+      />
     </ComposedChart>
   )
 }
