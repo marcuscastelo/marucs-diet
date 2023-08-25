@@ -1,6 +1,10 @@
 import { User } from '@/model/userModel'
 import { Food } from '@/model/foodModel'
-import { createContext, useContext } from 'use-context-selector'
+import {
+  createContext,
+  useContext,
+  useContextSelector,
+} from 'use-context-selector'
 
 export type AvaliableUser = User
 
@@ -13,16 +17,22 @@ export type UserContextProps = {
 
 export const UserContext = createContext<UserContextProps | null>(null)
 
-// TODO: Use context selectors to avoid unnecessary re-renders
-export function useUserContext() {
-  const context = useContext(UserContext)
-
+function assertedContext(context: UserContextProps | null) {
   if (!context) {
     throw new Error('useUserContext must be used within a UserContextProvider')
   }
 
   return context
 }
+
+// TODO: Use context selectors to avoid unnecessary re-renders
+export function useUserContext() {
+  const context = useContext(UserContext)
+  return assertedContext(context)
+}
+
+export const useUserId = () =>
+  useContextSelector(UserContext, (context) => assertedContext(context).user.id)
 
 export function UserContextProvider({
   children,

@@ -16,10 +16,6 @@ export const userSchema = z.object({
     )
     .nullable()
     .transform((value) => value ?? []),
-  weight: z.number({
-    required_error: 'Weight is required',
-    invalid_type_error: 'Weight must be a number',
-  }),
   height: z.number({
     required_error: 'Height is required',
     invalid_type_error: 'Height must be a number',

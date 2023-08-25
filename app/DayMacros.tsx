@@ -3,9 +3,13 @@
 import { MacroNutrients } from '@/model/macroNutrientsModel'
 import { Progress } from 'flowbite-react'
 import { calculateMacroTarget } from './MacroTargets'
-import { CSSProperties } from 'react'
+import { CSSProperties, useCallback, useEffect, useState } from 'react'
 import { calcCalories } from '@/utils/macroMath'
 import { useUserContext } from '@/context/users.context'
+import { fetchUserWeights } from '@/controllers/weights'
+import { Loadable } from '@/utils/loadable'
+import { Weight } from '@/model/weightModel'
+import { latestWeight } from '@/utils/weightUtils'
 
 export default function DayMacros({
   macros,
@@ -16,8 +20,31 @@ export default function DayMacros({
 }) {
   const { user } = useUserContext()
 
+  const [weights, setWeights] = useState<Loadable<Weight[]>>({ loading: true })
+
+  const handleRefetchWeights = useCallback(() => {
+    fetchUserWeights(user.id).then((weights) =>
+      setWeights({ loading: false, errored: false, data: weights }),
+    )
+  }, [user.id])
+
+  useEffect(() => {
+    handleRefetchWeights()
+  }, [handleRefetchWeights])
+
+  if (weights.loading || weights.errored) {
+    return <h1>Carregando...</h1>
+  }
+
+  const weight = latestWeight(weights.data)?.weight
+
+  if (!weight) {
+    return <h1>O usuário não possui pesos registrados</h1>
+  }
+
   const macroProfile = user.macro_profile
-  const targetMacros = calculateMacroTarget(user.weight, macroProfile)
+  const targetMacros = calculateMacroTarget(weight, macroProfile)
+
   const targetCalories = calcCalories(targetMacros)
 
   return (

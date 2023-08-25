@@ -1,4 +1,5 @@
 // TODO: Make this a global component (and maybe use animations with mocked content)
+// TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
 

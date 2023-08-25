@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { updateUser } from '@/controllers/users'
 import Capsule from '../Capsule'
 type Translation<T extends string> = { [key in T]: string }
+// TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
 // TODO: Create module for translations
@@ -18,7 +19,6 @@ const DIET_TRANSLATION: Translation<User['diet']> = {
 // TODO: Create module for translations
 const USER_FIELD_TRANSLATION: Translation<keyof User> = {
   name: 'Nome',
-  weight: 'Peso',
   height: 'Altura',
   diet: 'Dieta',
   birthdate: 'Data de Nascimento',
@@ -114,7 +114,6 @@ export default function BasicInfo({
         </div>
         <div className={`mx-5 lg:mx-20`}>
           {makeBasicCapsule('name', convertString)}
-          {makeBasicCapsule('weight', convertNumber, '(kg)')}
           {makeBasicCapsule('height', convertNumber, '(cm)')}
           {makeBasicCapsule('diet', convertDiet)}
           {makeBasicCapsule('birthdate', convertString)}
