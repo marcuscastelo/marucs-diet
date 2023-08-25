@@ -5,7 +5,11 @@ import { revalidatePath } from 'next/cache'
 import BasicInfo from './BasicInfo'
 import { getUser } from '@/actions/user'
 import WeightProgress from './WeightProgress'
+import WeightEvolution from './WeightEvolution'
+import { fetchUserWeights } from '@/controllers/weights'
+import { latestWeight } from '@/utils/weightUtils'
 
+// TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
 
@@ -25,6 +29,9 @@ export default async function Page() {
   if (!user) {
     return <h1>Usuário {userId} não encontrado</h1>
   }
+
+  const weights = await fetchUserWeights(userId)
+  const weight = latestWeight(weights)?.weight
 
   const onSetProfile = async (profile: MacroProfile) => {
     'use server'
@@ -48,12 +55,17 @@ export default async function Page() {
     revalidatePath('/')
   }
 
+  const handleSave = async () => {
+    'use server'
+    revalidatePath('/')
+  }
+
   console.debug(`[ProfilePage] Rendering profile ${user.name}`)
   return (
     <>
       <TopBar />
 
-      <div className={`mx-1 sm:mx-40 lg:mx-auto lg:w-1/3`}>
+      <div className={`mx-1 md:mx-40 lg:mx-auto lg:w-1/3`}>
         <BasicInfo
           user={user}
           onSave={async () => {
@@ -63,12 +75,17 @@ export default async function Page() {
         />
 
         <div className={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>
-          <MacroTarget
-            weight={user.weight}
-            profile={user.macro_profile}
-            onSaveMacroProfile={onSetProfile}
-          />
+          {weight !== undefined ? (
+            <MacroTarget
+              weight={weight}
+              profile={user.macro_profile}
+              onSaveMacroProfile={onSetProfile}
+            />
+          ) : (
+            <h1>Não há pesos registrados, o perfil não pode ser calculado</h1>
+          )}
         </div>
+        <WeightEvolution onSave={handleSave} />
         <WeightProgress />
       </div>
     </>
