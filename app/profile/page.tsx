@@ -65,7 +65,7 @@ export default async function Page() {
     <>
       <TopBar />
 
-      <div className={`mx-1 sm:mx-40 lg:mx-auto lg:w-1/3`}>
+      <div className={`mx-1 md:mx-40 lg:mx-auto lg:w-1/3`}>
         <BasicInfo
           user={user}
           onSave={async () => {
