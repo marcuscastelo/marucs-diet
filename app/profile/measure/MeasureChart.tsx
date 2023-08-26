@@ -12,12 +12,7 @@ import {
 import { Measure } from '@/model/measureModel'
 import { BodyFatInput, calculateBodyFat } from '@/utils/bfMath'
 import { useUserGender, useUserId } from '@/context/users.context'
-import { useEffect, useState } from 'react'
-import { Loadable } from '@/utils/loadable'
-import { Weight } from '@/model/weightModel'
-import { fetchUserWeights } from '@/controllers/weights'
 import { useWeights } from '@/hooks/weights'
-import { DarkTooltip } from '@/components/chart/tooltip/DarkTooltip'
 type DayAverage = Omit<Measure, '' | 'id' | 'owner' | 'target_timestamp'>
 type DayMeasures = {
   date: string
