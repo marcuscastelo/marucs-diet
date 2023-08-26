@@ -17,6 +17,7 @@ export default function useClipboard(props?: { filter?: ClipboardFilter }) {
       .readText()
       .then((newClipboard) => {
         if (filter && !filter(newClipboard)) {
+          setClipboard('')
           return
         }
 
