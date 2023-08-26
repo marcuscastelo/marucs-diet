@@ -16,10 +16,6 @@ export const userSchema = z.object({
     )
     .nullable()
     .transform((value) => value ?? []),
-  height: z.number({
-    required_error: 'Height is required',
-    invalid_type_error: 'Height must be a number',
-  }),
   diet: z.enum(['cut', 'normo', 'bulk'], {
     required_error: 'Diet is required',
     invalid_type_error: 'Diet must be one of these strings: [cut, normo, bulk]',
