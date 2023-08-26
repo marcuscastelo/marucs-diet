@@ -16,6 +16,7 @@ import { Line } from 'recharts'
 import { CandleStickChart } from '@/components/chart/CandleStickChart'
 import { OHLC } from '@/model/ohlcModel'
 import Datepicker from 'react-tailwindcss-datepicker'
+import { useWeights } from '@/hooks/weights'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -24,18 +25,9 @@ const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
 export default function WeightEvolution({ onSave }: { onSave: () => void }) {
   const userId = useUserId()
 
-  const [weights, setWeights] = useState<Loadable<Weight[]>>({ loading: true })
+  const { weights, refetch: handleRefetchWeights } = useWeights(userId)
+
   const [weightField, setWeightField] = useState<string>('')
-
-  const handleRefetchWeights = useCallback(() => {
-    fetchUserWeights(userId).then((weights) =>
-      setWeights({ loading: false, errored: false, data: weights }),
-    )
-  }, [userId])
-
-  useEffect(() => {
-    handleRefetchWeights()
-  }, [handleRefetchWeights])
 
   if (weights.loading || weights.errored) {
     return <h1>Carregando...</h1>
