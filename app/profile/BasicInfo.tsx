@@ -4,7 +4,7 @@ import { User } from '@/model/userModel'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { updateUser } from '@/controllers/users'
-import Capsule from '../Capsule'
+import Capsule from '../../components/capsule/Capsule'
 type Translation<T extends string> = { [key in T]: string }
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
