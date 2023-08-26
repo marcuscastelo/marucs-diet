@@ -1,6 +1,6 @@
 'use client'
 import { useDaysContext } from '@/context/days.context'
-import Capsule from '../Capsule'
+import Capsule from '../../components/capsule/Capsule'
 
 import {
   AreaChart,

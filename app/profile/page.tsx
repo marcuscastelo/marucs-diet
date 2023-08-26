@@ -5,9 +5,10 @@ import { revalidatePath } from 'next/cache'
 import BasicInfo from './BasicInfo'
 import { getUser } from '@/actions/user'
 import WeightProgress from './WeightProgress'
-import WeightEvolution from './WeightEvolution'
+import WeightEvolution from './weight/WeightEvolution'
 import { fetchUserWeights } from '@/controllers/weights'
 import { latestWeight } from '@/utils/weightUtils'
+import MeasuresEvolution from './measure/MeasuresEvolution'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -85,6 +86,7 @@ export default async function Page() {
             <h1>Não há pesos registrados, o perfil não pode ser calculado</h1>
           )}
         </div>
+        <MeasuresEvolution onSave={handleSave} />
         <WeightEvolution onSave={handleSave} />
         <WeightProgress />
       </div>
