@@ -13,6 +13,7 @@ import {
   YAxis,
 } from 'recharts'
 import { CandleStickShape } from './shapes/CandleStickShape'
+import { DarkTooltip } from './tooltip/DarkTooltip'
 
 const colors = [
   '#1f77b4',

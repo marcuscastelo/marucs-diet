@@ -2,6 +2,7 @@
 import { New } from '@/utils/newDbRecord'
 import { z } from 'zod'
 
+// TODO: Create discriminate union type for Male and Female measures
 export const measureSchema = z.object({
   id: z.number(),
   height: z.number(),
