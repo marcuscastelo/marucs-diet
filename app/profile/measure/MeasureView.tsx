@@ -142,7 +142,7 @@ export function MeasureView({
               <div className="flex">
                 <span className="my-auto">Quadril:</span>
                 <FloatInput
-                  field={waistField123}
+                  field={hipField123}
                   className="input text-center btn-ghost px-0 flex-shrink"
                   style={{ width: '100%' }}
                   onFocus={(event) => event.target.select()}
@@ -161,14 +161,13 @@ export function MeasureView({
               <div className="flex">
                 <span className="my-auto">Pescoço:</span>
                 <FloatInput
-                  field={waistField123}
+                  field={neckField123}
                   className="input text-center btn-ghost px-0 flex-shrink"
                   style={{ width: '100%' }}
                   onFocus={(event) => event.target.select()}
                   onFieldChange={(value) => {
                     handleSave({
-                      ;}P{{{}""}""} // FIXME: ta renderizando infinitamente
-                       date: dateField,
+                      date: dateField,
                       height: heightField123.value,
                       waist: waistField123.value,
                       hip: hipField123.value,

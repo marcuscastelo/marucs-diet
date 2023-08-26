@@ -18,16 +18,16 @@ export function FloatInput({
   >,
   'value' | 'onChange'
 >) {
-  const { rawValue, setRawValue, finishTyping, value } = field
+  const { rawValue, setRawValue, finishTyping } = field
 
   const handleOnBlur: FocusEventHandler<HTMLInputElement> = (e) => {
     finishTyping()
     onBlur?.(e)
-  }
 
-  useEffect(() => {
-    onFieldChange?.(value)
-  }, [onFieldChange, value])
+    // TODO: Avoid duplicating `finishTyping` logic here
+    const nextValue = field.transform.fromField(e.target.value)
+    onFieldChange?.(nextValue)
+  }
 
   return (
     <input

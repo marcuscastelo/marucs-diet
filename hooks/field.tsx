@@ -15,13 +15,13 @@ export const floatTransform: FieldTransform<number> = {
 // Any T except string
 export function useField<T>({
   initialValue,
-  tranform,
+  transform,
 }: {
   initialValue?: T
-  tranform: FieldTransform<T>
+  transform: FieldTransform<T>
 }) {
   const [rawValue, setRawValue] = useState<string>(
-    initialValue === undefined ? '' : tranform.toField(initialValue),
+    initialValue === undefined ? '' : transform.toField(initialValue),
   )
 
   const [value, setValue] = useState<T | undefined>(initialValue)
@@ -34,26 +34,27 @@ export function useField<T>({
   const handleFinishTyping = useCallback(() => {
     console.debug(`[useField] updateValue: ${rawValue}`)
 
-    const newValue = tranform.fromField(rawValue)
-    const newRawValue = tranform.toField(newValue)
+    const newValue = transform.fromField(rawValue)
+    const newRawValue = transform.toField(newValue)
 
     console.debug(`[useField] newValue: ${newValue}`)
-    setValue(tranform.fromField(rawValue))
+    setValue(transform.fromField(rawValue))
 
     console.debug(`[useField] newRawValue: ${newRawValue}`)
-    setRawValue(tranform.toField(tranform.fromField(rawValue)))
-  }, [rawValue, tranform])
+    setRawValue(transform.toField(transform.fromField(rawValue)))
+  }, [rawValue, transform])
 
   return {
     rawValue,
     setRawValue: handleSetRawValue,
     value,
     finishTyping: handleFinishTyping,
+    transform,
   }
 }
 
 export const useFloatField = (initialValue?: number) =>
   useField<number>({
     initialValue,
-    tranform: floatTransform,
+    transform: floatTransform,
   })

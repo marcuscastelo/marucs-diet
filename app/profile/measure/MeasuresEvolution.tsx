@@ -46,30 +46,43 @@ export default function MeasuresEvolution({ onSave }: { onSave: () => void }) {
           Progresso das medidas
         </h5>
         <div className="mx-5 lg:mx-20 pb-10">
-          <FloatInput
-            field={heightField123}
-            className="input px-0 pl-5 text-xl mb-3"
-            style={{ width: '100%' }}
-            onFocus={(event) => event.target.select()}
-          />
-          <FloatInput
-            field={waistField123}
-            className="input px-0 pl-5 text-xl mb-3"
-            style={{ width: '100%' }}
-            onFocus={(event) => event.target.select()}
-          />
-          <FloatInput
-            field={hipField123}
-            className="input px-0 pl-5 text-xl mb-3"
-            style={{ width: '100%' }}
-            onFocus={(event) => event.target.select()}
-          />
-          <FloatInput
-            field={neckField123}
-            className="input px-0 pl-5 text-xl mb-3"
-            style={{ width: '100%' }}
-            onFocus={(event) => event.target.select()}
-          />
+          <div className="flex mb-3">
+            <span className="w-1/4 text-center my-auto text-lg">Altura</span>
+            <FloatInput
+              field={heightField123}
+              className="input px-0 pl-5 text-xl"
+              style={{ width: '100%' }}
+              onFocus={(event) => event.target.select()}
+            />
+          </div>
+          <div className="flex mb-3">
+            <span className="w-1/4 text-center my-auto text-lg">Cintura</span>
+            <FloatInput
+              field={waistField123}
+              className="input px-0 pl-5 text-xl"
+              style={{ width: '100%' }}
+              onFocus={(event) => event.target.select()}
+            />
+          </div>
+          <div className="flex mb-3">
+            <span className="w-1/4 text-center my-auto text-lg">Quadril</span>
+            <FloatInput
+              field={hipField123}
+              className="input px-0 pl-5 text-xl"
+              style={{ width: '100%' }}
+              onFocus={(event) => event.target.select()}
+            />
+          </div>
+          <div className="flex mb-3">
+            <span className="w-1/4 text-center my-auto text-lg">Pescoço</span>
+            <FloatInput
+              field={neckField123}
+              className="input px-0 pl-5 text-xl"
+              style={{ width: '100%' }}
+              onFocus={(event) => event.target.select()}
+            />
+          </div>
+
           <button
             className="btn btn-primary no-animation w-full"
             onClick={async () => {

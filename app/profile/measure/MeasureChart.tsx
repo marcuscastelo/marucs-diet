@@ -5,6 +5,7 @@ import {
   ComposedChart,
   Line,
   ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
 } from 'recharts'
@@ -66,11 +67,35 @@ export function MeasureChart({ measures }: { measures: Measure[] }) {
           <XAxis dataKey="date" />
           <YAxis type="number" allowDecimals={false} />
           <CartesianGrid opacity={0.1} />
+          <Tooltip />
           <Line
             type="monotone"
             dataKey="dayAverage.height"
+            stroke="magenta"
+            dot={false}
+            strokeWidth={3}
+            opacity={0.2}
+          />
+          <Line
+            type="monotone"
+            dataKey="dayAverage.waist"
             stroke="orange"
-            fill="orange"
+            dot={false}
+            strokeWidth={3}
+            opacity={0.2}
+          />
+          <Line
+            type="monotone"
+            dataKey="dayAverage.hip"
+            stroke="cyan"
+            dot={false}
+            strokeWidth={3}
+            opacity={0.2}
+          />
+          <Line
+            type="monotone"
+            dataKey="dayAverage.neck"
+            stroke="pink"
             dot={false}
             strokeWidth={3}
             opacity={0.2}
