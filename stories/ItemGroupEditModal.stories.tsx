@@ -2,7 +2,11 @@ import type { Meta, StoryObj } from '@storybook/react'
 import ItemGroupEditModal, {
   ItemGroupEditModalProps,
 } from '../app/(itemGroup)/ItemGroupEditModal'
-import { mockMeal } from '@/app/test/unit/(mock)/mockData'
+import {
+  mockMeal,
+  mockRecipedGroup,
+  mockSimpleGroup,
+} from '@/app/test/unit/(mock)/mockData'
 import ServerApp from '@/app/ServerApp'
 
 const meta: Meta<typeof ItemGroupEditModal> = {
@@ -24,7 +28,7 @@ export const Simple: Story = {
     targetMealName: 'Teste',
     onCancel: () => undefined,
     onDelete: () => undefined,
-    group: mockMeal().groups[0],
+    group: mockSimpleGroup(),
   } satisfies ItemGroupEditModalProps,
   render: (args) => <ItemGroupEditModal {...args} />,
 }
@@ -38,11 +42,7 @@ export const Recipe: Story = {
     targetMealName: 'Teste',
     onCancel: () => undefined,
     onDelete: () => undefined,
-    group: {
-      ...mockMeal().groups[0],
-      type: 'recipe',
-      recipe: 2,
-    },
+    group: mockRecipedGroup(),
   } satisfies ItemGroupEditModalProps,
   render: (args) => <ItemGroupEditModal {...args} />,
 }
