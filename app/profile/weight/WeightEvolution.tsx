@@ -10,18 +10,9 @@ import {
 import { Weight, createWeight } from '@/model/weightModel'
 import { Loadable } from '@/utils/loadable'
 import { useCallback, useEffect, useState } from 'react'
-import Capsule from '../Capsule'
-import TrashIcon from '../(icons)/TrashIcon'
-import {
-  CartesianGrid,
-  Cell,
-  ComposedChart,
-  Line,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts'
+import Capsule from '../../../components/capsule/Capsule'
+import TrashIcon from '../../(icons)/TrashIcon'
+import { Line } from 'recharts'
 import { CandleStickChart } from '@/components/chart/CandleStickChart'
 import { OHLC } from '@/model/ohlcModel'
 import Datepicker from 'react-tailwindcss-datepicker'

@@ -4,7 +4,7 @@ import { User } from '@/model/userModel'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { updateUser } from '@/controllers/users'
-import Capsule from '../Capsule'
+import Capsule from '../../components/capsule/Capsule'
 type Translation<T extends string> = { [key in T]: string }
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -19,7 +19,6 @@ const DIET_TRANSLATION: Translation<User['diet']> = {
 // TODO: Create module for translations
 const USER_FIELD_TRANSLATION: Translation<keyof User> = {
   name: 'Nome',
-  height: 'Altura',
   diet: 'Dieta',
   birthdate: 'Data de Nascimento',
   macro_profile: 'Perfil de Macronutrientes',
@@ -71,10 +70,9 @@ export default function BasicInfo({
   }
 
   const convertString = (value: string) => value
-  const convertNumber = (value: string) => parseFloat(value) || 0
   const convertDiet = (value: string): User['diet'] =>
     (Object.keys(DIET_TRANSLATION) as User['diet'][]).find(
-      (key) => key === /* TODO: Check if equality is a bug */ value,
+      (key) => key === value,
     ) ?? 'normo'
 
   const makeBasicCapsule = <T extends keyof User>(
@@ -114,7 +112,6 @@ export default function BasicInfo({
         </div>
         <div className={`mx-5 lg:mx-20`}>
           {makeBasicCapsule('name', convertString)}
-          {makeBasicCapsule('height', convertNumber, '(cm)')}
           {makeBasicCapsule('diet', convertDiet)}
           {makeBasicCapsule('birthdate', convertString)}
         </div>
