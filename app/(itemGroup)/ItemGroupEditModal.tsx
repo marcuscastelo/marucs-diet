@@ -1,11 +1,17 @@
 'use client'
 
-import { ItemGroup, isSimpleSingleGroup } from '@/model/foodItemGroupModel'
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import { ItemGroup, isSimpleSingleGroup } from '@/model/itemGroupModel'
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react'
 import Modal, { ModalActions } from '../(modals)/Modal'
 import FoodItemListView from '../(foodItem)/FoodItemListView'
 import FoodItemView from '../(foodItem)/FoodItemView'
-import { FoodItem, createFoodItem } from '@/model/foodItemModel'
+import { FoodItem, createFoodItem, foodItemSchema } from '@/model/foodItemModel'
 import FoodSearchModal from '../newItem/FoodSearchModal'
 import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
 import RecipeIcon from '../(icons)/RecipeIcon'
@@ -22,6 +28,7 @@ import { useUserContext } from '@/context/users.context'
 import { ModalContextProvider, useModalContext } from '../(modals)/ModalContext'
 import {
   addInnerItem,
+  convertToGroups,
   deleteInnerItem,
   editInnerItem,
   isRecipedGroupUpToDate,
@@ -29,6 +36,9 @@ import {
 import { DownloadIcon } from '../(icons)/DownloadIcon'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import useClipboard from '@/hooks/clipboard'
+import PasteIcon from '../(icons)/PasteIcon'
+import { deserialize as deserializeClipboard } from '@/utils/clipboardUtils'
+import { renegerateId } from '@/utils/idUtils'
 
 export type ItemGroupEditModalProps = {
   show?: boolean
@@ -391,7 +401,58 @@ function Body({
   setFoodSearchModalVisible: Dispatch<SetStateAction<boolean>>
 }) {
   const { group, setGroup } = useItemGroupEditContext()
-  const { write } = useClipboard({ periodicRead: false })
+  const {
+    write: writeToClipboard,
+    clear: clearClipboard,
+    clipboard: clipboardText,
+  } = useClipboard({
+    filter: (clipboard) => {
+      if (!clipboard) return false
+      let parsedClipboard: unknown
+      try {
+        parsedClipboard = JSON.parse(clipboard)
+      } catch (e) {
+        // Error parsing JSON. Probably clipboard is some random text from the user
+        return false
+      }
+
+      return foodItemSchema.safeParse(parsedClipboard).success
+    },
+  })
+  const { show: showConfirmModal } = useConfirmModalContext()
+
+  const acceptedClipboardSchema = foodItemSchema
+
+  const hasValidPastableOnClipboard = clipboardText.length > 0
+
+  const handlePasteAfterConfirm = useCallback(() => {
+    const data = deserializeClipboard(clipboardText, acceptedClipboardSchema)
+
+    if (!data) {
+      throw new Error('Invalid clipboard data: ' + clipboardText)
+    }
+
+    if (!group) {
+      throw new Error('BUG: group is null')
+    }
+
+    const itemsToAdd = renegerateId(data)
+
+    const newGroup = addInnerItem(group, itemsToAdd)
+
+    setGroup(newGroup)
+
+    // Clear clipboard
+    clearClipboard()
+  }, [acceptedClipboardSchema, clipboardText, group, setGroup, clearClipboard])
+
+  const handlePaste = useCallback(() => {
+    showConfirmModal({
+      title: 'Colar itens',
+      message: 'Tem certeza que deseja colar os itens?',
+      onConfirm: handlePasteAfterConfirm,
+    })
+  }, [handlePasteAfterConfirm, showConfirmModal])
 
   return (
     <>
@@ -410,6 +471,14 @@ function Body({
                   value={group.name ?? ''}
                 />
               </div>
+              {hasValidPastableOnClipboard && (
+                <div
+                  className={`btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105`}
+                  onClick={handlePaste}
+                >
+                  <PasteIcon />
+                </div>
+              )}
               {group.type === 'recipe' && (
                 <>
                   {recipe && isRecipedGroupUpToDate(group, recipe) ? (
@@ -473,7 +542,9 @@ function Body({
                 }
                 copyButton={
                   <FoodItemView.Header.CopyButton
-                    onCopyItem={(item) => write(JSON.stringify(item))}
+                    onCopyItem={(item) =>
+                      writeToClipboard(JSON.stringify(item))
+                    }
                   />
                 }
               />

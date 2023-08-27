@@ -1,4 +1,4 @@
-import { ItemGroup } from './foodItemGroupModel'
+import { ItemGroup } from './itemGroupModel'
 import { foodItemSchema } from './foodItemModel'
 
 import { z } from 'zod'

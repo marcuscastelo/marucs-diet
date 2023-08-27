@@ -1,4 +1,4 @@
-import { ItemGroup } from '@/model/foodItemGroupModel'
+import { ItemGroup } from '@/model/itemGroupModel'
 import { Meal } from '@/model/mealModel'
 
 export function editInnerGroup(meal: Meal, innerGroup: ItemGroup) {

@@ -8,7 +8,7 @@ import PasteIcon from '../(icons)/PasteIcon'
 import CopyIcon from '../(icons)/CopyIcon'
 import { calcMealCalories } from '@/utils/macroMath'
 import ItemGroupListView from '../(itemGroup)/ItemGroupListView'
-import { ItemGroup, itemGroupSchema } from '@/model/foodItemGroupModel'
+import { ItemGroup, itemGroupSchema } from '@/model/itemGroupModel'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import useClipboard from '@/hooks/clipboard'
 import { addInnerGroups } from '@/utils/mealUtils'
@@ -81,7 +81,11 @@ function MealEditViewHeader({
     return acceptedClipboardSchema.safeParse(parsedClipboard).success
   }
 
-  const { clipboard: clipboardText, write: writeToClipboard } = useClipboard({
+  const {
+    clipboard: clipboardText,
+    write: writeToClipboard,
+    clear: clearClipboard,
+  } = useClipboard({
     filter: isClipboardValid,
   })
 
@@ -109,12 +113,12 @@ function MealEditViewHeader({
     onUpdateMeal(newMeal)
 
     // Clear clipboard
-    writeToClipboard('')
+    clearClipboard()
   }, [
     clipboardText,
+    clearClipboard,
     meal,
     onUpdateMeal,
-    writeToClipboard,
     acceptedClipboardSchema,
   ])
 

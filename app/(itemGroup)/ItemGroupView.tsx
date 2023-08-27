@@ -7,7 +7,7 @@ import {
   ItemGroupEditContextProvider,
   useItemGroupEditContext,
 } from './ItemGroupEditContext'
-import { ItemGroup, isSimpleSingleGroup } from '@/model/foodItemGroupModel'
+import { ItemGroup, isSimpleSingleGroup } from '@/model/itemGroupModel'
 import { calcGroupCalories, calcGroupMacros } from '@/utils/macroMath'
 import { useUserContext } from '@/context/users.context'
 import { isRecipedGroupUpToDate } from '@/utils/groupUtils'
