@@ -21,7 +21,7 @@ export type RecipeEditViewProps = {
   className?: string
 }
 
-// TODO: move this function
+// TODO: Reenable drag and drop
 // a little function to help us with reordering the result
 // const reorder = (list: unknown[], startIndex: number, endIndex: number) => {
 //   const result = Array.from(list)
