@@ -28,7 +28,6 @@ export default function FoodItemView({
   onClick,
 }: FoodItemViewProps) {
   const handleClick = (e: React.MouseEvent) => {
-    // TODO: Check if parameter is needed (foodItem doesn't seem to be changed)
     onClick?.(foodItem)
     e.stopPropagation()
     e.preventDefault()
