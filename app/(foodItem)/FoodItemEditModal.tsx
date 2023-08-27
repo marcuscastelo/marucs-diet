@@ -9,7 +9,6 @@ import { useModalContext } from '../(modals)/ModalContext'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import { generateId } from '@/utils/idUtils'
 
-// TODO: Add item name field
 export type FoodItemEditModalProps = {
   modalId: string
   targetName: string
@@ -324,7 +323,6 @@ function Actions({
           onClick={(e) => {
             e.preventDefault()
 
-            // TODO: Move confirm up to parent? (also with all other confirmations)
             onDelete &&
               showConfirmModal({
                 title: 'Excluir item',
