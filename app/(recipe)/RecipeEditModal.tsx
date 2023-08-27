@@ -67,6 +67,7 @@ const RecipeEditModal = ({
         <ModalContextProvider
           visible={foodItemEditModalVisible}
           setVisible={(visible) => {
+            // TODO: Implement onClose and onOpen to reduce code duplication
             if (!visible) {
               setSelectedFoodItem(null)
             }
