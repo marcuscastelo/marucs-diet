@@ -1,6 +1,13 @@
-import { ItemGroup, RecipedItemGroup } from '@/model/foodItemGroupModel'
+import { ItemGroup, RecipedItemGroup } from '@/model/itemGroupModel'
 import { FoodItem } from '@/model/foodItemModel'
 import { Recipe } from '@/model/recipeModel'
+import { generateId } from './idUtils'
+
+export type GroupConvertible =
+  | ItemGroup
+  | ItemGroup[]
+  | { groups: ItemGroup[] }
+  | FoodItem
 
 export function isRecipedGroupUpToDate(
   group: RecipedItemGroup,
@@ -87,4 +94,44 @@ export function addInnerItem(group: ItemGroup, innerItem: FoodItem) {
   newGroup.items.push(innerItem)
 
   return newGroup
+}
+
+export function addInnerItems(group: ItemGroup, innerItem: FoodItem[]) {
+  let newGroup = { ...group }
+
+  innerItem.forEach((item) => {
+    newGroup = addInnerItem(newGroup, item)
+  })
+
+  return newGroup
+}
+
+export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
+  if (Array.isArray(convertible)) {
+    return { ...convertible }
+  }
+
+  if ('groups' in convertible) {
+    return [...convertible.groups]
+  }
+
+  if ('reference' in convertible) {
+    return [
+      // TODO: createItemGroup({ items: [container] })
+      {
+        id: generateId(),
+        name: convertible.name,
+        items: [{ ...convertible } satisfies FoodItem],
+        quantity: convertible.quantity,
+        type: 'simple',
+      } satisfies ItemGroup,
+    ]
+  }
+
+  if ('items' in convertible) {
+    return [{ ...convertible }]
+  }
+
+  console.error('Invalid state! This is a bug! Unhandled convertible type!')
+  throw new Error('Invalid state! This is a bug! see console.error')
 }

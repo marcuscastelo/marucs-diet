@@ -1,6 +1,6 @@
 'use client'
 
-import { ItemGroup } from '@/model/foodItemGroupModel'
+import { ItemGroup } from '@/model/itemGroupModel'
 import ItemGroupView, { ItemGroupViewProps } from './ItemGroupView'
 
 export default function ItemGroupListView({

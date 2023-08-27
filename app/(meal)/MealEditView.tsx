@@ -8,9 +8,14 @@ import PasteIcon from '../(icons)/PasteIcon'
 import CopyIcon from '../(icons)/CopyIcon'
 import { calcMealCalories } from '@/utils/macroMath'
 import ItemGroupListView from '../(itemGroup)/ItemGroupListView'
-import { ItemGroup, itemGroupSchema } from '@/model/foodItemGroupModel'
+import { ItemGroup, itemGroupSchema } from '@/model/itemGroupModel'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import useClipboard from '@/hooks/clipboard'
+import { addInnerGroups } from '@/utils/mealUtils'
+import { deserialize as deserializeClipboard } from '@/utils/clipboardUtils'
+import { convertToGroups } from '@/utils/groupUtils'
+import { renegerateId } from '@/utils/idUtils'
+import { foodItemSchema } from '@/model/foodItemModel'
 
 export type MealEditViewProps = {
   meal: Meal
@@ -57,7 +62,9 @@ function MealEditViewHeader({
 }: {
   onUpdateMeal: (meal: Meal) => void
 }) {
-  const acceptedClipboardSchema = mealSchema.or(itemGroupSchema)
+  const acceptedClipboardSchema = mealSchema
+    .or(itemGroupSchema)
+    .or(foodItemSchema)
   const { meal } = useMealContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
@@ -74,7 +81,11 @@ function MealEditViewHeader({
     return acceptedClipboardSchema.safeParse(parsedClipboard).success
   }
 
-  const { clipboard: clipboardText, write: writeToClipboard } = useClipboard({
+  const {
+    clipboard: clipboardText,
+    write: writeToClipboard,
+    clear: clearClipboard,
+  } = useClipboard({
     filter: isClipboardValid,
   })
 
@@ -84,48 +95,30 @@ function MealEditViewHeader({
   )
 
   const handlePasteAfterConfirm = useCallback(() => {
-    const parsedClipboard = JSON.parse(clipboardText)
-    const result = acceptedClipboardSchema.safeParse(parsedClipboard)
+    const data = deserializeClipboard(clipboardText, acceptedClipboardSchema)
 
-    if (!result.success) return
-
-    const data = result.data
-
-    let groupsToAdd: ItemGroup[] = []
-    if ('' in data && data[''] === 'Meal') {
-      groupsToAdd = data.groups
-    } else if ('type' in data) {
-      // TODO: Implement a better way to check if data is ItemGroup (nominal typing)
-      groupsToAdd = [
-        {
-          ...data,
-        } satisfies ItemGroup,
-      ] satisfies ItemGroup[]
-    } else {
+    if (!data) {
       throw new Error('Invalid clipboard data: ' + clipboardText)
     }
 
-    const groupsWithNewIds = groupsToAdd.map(
-      (item: ItemGroup): ItemGroup => ({
-        ...item,
-        id: Math.floor(Math.random() * 1000000), // TODO: Create a function to generate a unique id
-      }),
-    )
+    const groupsToAdd = convertToGroups(data)
+      .map(renegerateId)
+      .map((g) => ({
+        ...g,
+        items: g.items.map(renegerateId),
+      }))
 
-    const newMeal: Meal = {
-      ...meal,
-      groups: [...meal.groups, ...groupsWithNewIds],
-    }
+    const newMeal = addInnerGroups(meal, groupsToAdd)
 
     onUpdateMeal(newMeal)
 
     // Clear clipboard
-    writeToClipboard('')
+    clearClipboard()
   }, [
     clipboardText,
+    clearClipboard,
     meal,
     onUpdateMeal,
-    writeToClipboard,
     acceptedClipboardSchema,
   ])
 
