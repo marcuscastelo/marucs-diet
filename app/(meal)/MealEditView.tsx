@@ -11,6 +11,10 @@ import ItemGroupListView from '../(itemGroup)/ItemGroupListView'
 import { ItemGroup, itemGroupSchema } from '@/model/foodItemGroupModel'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import useClipboard from '@/hooks/clipboard'
+import { addInnerGroups } from '@/utils/mealUtils'
+import { deserialize as deserializeClipboard } from '@/utils/clipboardUtils'
+import { extractGroups } from '@/utils/groupUtils'
+import { renegerateId } from '@/utils/idUtils'
 
 export type MealEditViewProps = {
   meal: Meal
@@ -84,38 +88,20 @@ function MealEditViewHeader({
   )
 
   const handlePasteAfterConfirm = useCallback(() => {
-    const parsedClipboard = JSON.parse(clipboardText)
-    const result = acceptedClipboardSchema.safeParse(parsedClipboard)
+    const data = deserializeClipboard(clipboardText, acceptedClipboardSchema)
 
-    if (!result.success) return
-
-    const data = result.data
-
-    let groupsToAdd: ItemGroup[] = []
-    if ('' in data && data[''] === 'Meal') {
-      groupsToAdd = data.groups
-    } else if ('type' in data) {
-      // TODO: Implement a better way to check if data is ItemGroup (nominal typing)
-      groupsToAdd = [
-        {
-          ...data,
-        } satisfies ItemGroup,
-      ] satisfies ItemGroup[]
-    } else {
+    if (!data) {
       throw new Error('Invalid clipboard data: ' + clipboardText)
     }
 
-    const groupsWithNewIds = groupsToAdd.map(
-      (item: ItemGroup): ItemGroup => ({
-        ...item,
-        id: Math.floor(Math.random() * 1000000), // TODO: Create a function to generate a unique id
-      }),
-    )
+    const groupsToAdd = extractGroups(data)
+      .map(renegerateId)
+      .map((g) => ({
+        ...g,
+        items: g.items.map(renegerateId),
+      }))
 
-    const newMeal: Meal = {
-      ...meal,
-      groups: [...meal.groups, ...groupsWithNewIds],
-    }
+    const newMeal = addInnerGroups(meal, groupsToAdd)
 
     onUpdateMeal(newMeal)
 

@@ -2,6 +2,8 @@ import { ItemGroup, RecipedItemGroup } from '@/model/foodItemGroupModel'
 import { FoodItem } from '@/model/foodItemModel'
 import { Recipe } from '@/model/recipeModel'
 
+export type GroupContainer = ItemGroup | ItemGroup[] | { groups: ItemGroup[] }
+
 export function isRecipedGroupUpToDate(
   group: RecipedItemGroup,
   groupRecipe: Recipe,
@@ -87,4 +89,16 @@ export function addInnerItem(group: ItemGroup, innerItem: FoodItem) {
   newGroup.items.push(innerItem)
 
   return newGroup
+}
+
+export function extractGroups(container: GroupContainer): ItemGroup[] {
+  if (Array.isArray(container)) {
+    return { ...container }
+  }
+
+  if ('groups' in container) {
+    return [...container.groups]
+  }
+
+  return [{ ...container }]
 }
