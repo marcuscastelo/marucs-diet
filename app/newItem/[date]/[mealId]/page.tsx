@@ -22,7 +22,8 @@ export default function Page({ params }: PageProperties) {
     <FoodSearch
       targetName="Não implementado"
       onNewItemGroup={async () => {
-        alert('TODO: Implement onNewItemGroup') // TODO: Implement onNewFoodItem
+        // TODO: Implement onNewFoodItem
+        alert('TODO: Implement onNewItemGroup')
       }}
       onFinish={() => {
         router.push(`/day/${params.date}`)
