@@ -104,8 +104,6 @@ const RecipeEditModal = ({
       <ModalContextProvider visible={visible} setVisible={setVisible}>
         <Modal
           modalId={modalId}
-          // TODO: Where to put this?
-          // onSubmit={() => recipe && onSaveRecipe(recipe)}
           header={
             <h3 className="text-lg font-bold text-white">
               Editando receita
@@ -152,8 +150,6 @@ const RecipeEditModal = ({
                   className="btn-error btn mr-auto"
                   onClick={(e) => {
                     e.preventDefault()
-
-                    // TODO: Move confirm up to parent (also with all other confirmations)
 
                     showConfirmModal({
                       title: 'Excluir item',

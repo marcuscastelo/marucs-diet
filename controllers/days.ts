@@ -4,7 +4,7 @@ import supabase from '@/utils/supabase'
 
 const TABLE = 'days_test'
 
-// TODO: retriggered: tratar erros (também no resto dos controllers)
+// TODO: better error handling
 export const listDays = async (userId: User['id']): Promise<Day[]> =>
   ((await supabase.from(TABLE).select()).data ?? [])
     .map((day) => daySchema.parse(day))
@@ -51,7 +51,6 @@ export const updateDay = async (id: Day['id'], day: Day): Promise<Day> => {
   return daySchema.parse(data?.[0] ?? null)
 }
 
-// TODO: retriggered: add boolean to check on usages of this function
 export const deleteDay = async (id: Day['id']): Promise<void> => {
   const { error } = await supabase.from(TABLE).delete().eq('id', id).select()
 
