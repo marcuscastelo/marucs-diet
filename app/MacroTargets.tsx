@@ -64,7 +64,7 @@ const calculateMacroRepresentation = (
   ]
 }
 
-// TODO: use this function
+// TODO: Enable changing target calories directly (and update macros accordingly)
 const calculateDifferenceInCarbs = (
   targetCalories: number,
   weight: number,
@@ -153,7 +153,7 @@ export default function MacroTarget({
           className="input-bordered input text-center font-bold"
           style={{ width: '100%' }}
           placeholder="Insira a meta de calorias diárias"
-          disabled={true} // TODO: Enable changing target calories directly
+          disabled={true} // TODO: Enable changing target calories directly (and update macros accordingly)
           required
         />
       </div>
