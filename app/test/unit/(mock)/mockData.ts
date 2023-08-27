@@ -4,6 +4,11 @@ import { FoodItem } from '@/model/foodItemModel'
 import { Meal, createMeal } from '@/model/mealModel'
 import { New } from '@/utils/newDbRecord'
 import { Recipe, createRecipe } from '@/model/recipeModel'
+import {
+  ItemGroup,
+  RecipedItemGroup,
+  SimpleItemGroup,
+} from '@/model/foodItemGroupModel'
 
 export const mockFood = (partial?: Partial<Food>): Food => ({
   '': 'Food',
@@ -17,16 +22,43 @@ export const mockFood = (partial?: Partial<Food>): Food => ({
   ...partial,
 })
 
+export const mockSimpleGroup = (
+  partial?: Partial<SimpleItemGroup>,
+): ItemGroup =>
+  ({
+    id: Math.round(Math.random() * 1000),
+    name: 'Grupo 1',
+    quantity: 100,
+    type: 'simple',
+    items: [mockItem(), mockItem(), mockItem()],
+    ...partial,
+  }) satisfies ItemGroup
+
+export const mockRecipedGroup = (
+  partial?: Partial<RecipedItemGroup>,
+): ItemGroup =>
+  ({
+    id: Math.round(Math.random() * 1000),
+    name: 'Grupo 1 (receita)',
+    quantity: 100,
+    type: 'recipe',
+    recipe: 2,
+    items: [mockItem(), mockItem(), mockItem()],
+    ...partial,
+  }) satisfies ItemGroup
+
 export const mockMeal = (partial?: Partial<New<Meal>>): Meal =>
   createMeal({
     groups: [
-      {
-        id: Math.round(Math.random() * 1000),
+      mockSimpleGroup({
         name: 'Grupo 1',
-        quantity: 100,
-        type: 'simple',
-        items: [mockItem(), mockItem(), mockItem()],
-      },
+      }),
+      mockSimpleGroup({
+        name: 'Grupo 2',
+      }),
+      mockSimpleGroup({
+        name: 'Grupo 3',
+      }),
     ],
     name: 'Café da manhã',
     ...partial,
