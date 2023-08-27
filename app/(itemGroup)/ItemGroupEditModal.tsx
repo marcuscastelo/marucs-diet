@@ -141,8 +141,6 @@ const InnerItemGroupEditModal = ({
         <Modal
           modalId={modalId}
           hasBackdrop={false}
-          // TODO: Where to put this?
-          // onSubmit={() => group && onSaveGroup(group)}
           header={
             <Header recipe={recipe.data} targetMealName={targetMealName} />
           }
