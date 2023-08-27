@@ -1,5 +1,5 @@
 import { Day } from '@/model/dayModel'
-import { ItemGroup } from '@/model/foodItemGroupModel'
+import { ItemGroup } from '@/model/itemGroupModel'
 import { FoodItem } from '@/model/foodItemModel'
 import { MacroNutrients } from '@/model/macroNutrientsModel'
 import { Meal } from '@/model/mealModel'

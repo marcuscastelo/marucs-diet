@@ -1,13 +1,13 @@
 import { z } from 'zod'
 import { macroNutrientsSchema } from './macroNutrientsModel'
+import { generateId } from '@/utils/idUtils'
 
-export const itemSchema = z.object({
+export const foodItemSchema = z.object({
   id: z.number(),
   name: z.string(),
   reference: z.number(),
   quantity: z.number(),
   macros: macroNutrientsSchema,
-  // TODO: Nominally typed string
   // '': z
   //   .string()
   //   .nullable()
@@ -15,7 +15,7 @@ export const itemSchema = z.object({
   //   .transform(() => 'FoodItem' as const),
 })
 
-export type FoodItem = z.infer<typeof itemSchema>
+export type FoodItem = z.infer<typeof foodItemSchema>
 
 export function createFoodItem({
   name,
@@ -24,8 +24,8 @@ export function createFoodItem({
   name: string
   reference: number
 }) {
-  return itemSchema.parse({
-    id: Math.round(Math.random() * 100000), // TODO: Module for generating unique ids
+  return foodItemSchema.parse({
+    id: generateId(),
     name,
     reference,
     quantity: 0,
