@@ -104,8 +104,6 @@ const RecipeEditModal = ({
       <ModalContextProvider visible={visible} setVisible={setVisible}>
         <Modal
           modalId={modalId}
-          // TODO: Where to put this?
-          // onSubmit={() => recipe && onSaveRecipe(recipe)}
           header={
             <h3 className="text-lg font-bold text-white">
               Editando receita
