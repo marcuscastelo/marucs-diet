@@ -7,6 +7,7 @@ import Modal, { ModalActions } from '../(modals)/Modal'
 import { useUserContext } from '@/context/users.context'
 import { useModalContext } from '../(modals)/ModalContext'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
+import { generateId } from '@/utils/idUtils'
 
 // TODO: Add item name field
 export type FoodItemEditModalProps = {
@@ -34,7 +35,7 @@ const FoodItemEditModal = ({
   const [foodItem, setFoodItem] = useState<
     FoodItem & { type: 'food' | 'recipe' }
   >({
-    id: initialFoodItem?.id ?? Math.round(Math.random() * 1000000),
+    id: initialFoodItem?.id ?? generateId(),
     name: initialFoodItem?.name ?? 'ERRO: Sem nome',
     quantity: initialFoodItem?.quantity ?? 0,
     type: initialFoodItem?.type ?? 'food',

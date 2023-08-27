@@ -9,10 +9,11 @@ import {
   RecipedItemGroup,
   SimpleItemGroup,
 } from '@/model/foodItemGroupModel'
+import { generateId } from '@/utils/idUtils'
 
 export const mockFood = (partial?: Partial<Food>): Food => ({
   '': 'Food',
-  id: Math.round(Math.random() * 1000),
+  id: generateId(),
   name: 'Mocked food',
   macros: {
     carbs: 100,
@@ -26,7 +27,7 @@ export const mockSimpleGroup = (
   partial?: Partial<SimpleItemGroup>,
 ): ItemGroup =>
   ({
-    id: Math.round(Math.random() * 1000),
+    id: generateId(),
     name: 'Grupo 1',
     quantity: 100,
     type: 'simple',
@@ -38,7 +39,7 @@ export const mockRecipedGroup = (
   partial?: Partial<RecipedItemGroup>,
 ): ItemGroup =>
   ({
-    id: Math.round(Math.random() * 1000),
+    id: generateId(),
     name: 'Grupo 1 (receita)',
     quantity: 100,
     type: 'recipe',
@@ -66,7 +67,7 @@ export const mockMeal = (partial?: Partial<New<Meal>>): Meal =>
 
 let mockItemQtyPseudoId = 10
 export const mockItem = (partial?: Partial<FoodItem>): FoodItem => ({
-  id: Math.round(Math.random() * 10000),
+  id: generateId(),
   name: mockFood().name,
   reference: mockFood().id,
   macros: mockFood().macros,
@@ -78,7 +79,7 @@ export const mockDay = (
   partial: Partial<Day> & Pick<Day, 'owner' | 'target_day'>,
   meal?: Partial<Meal>,
 ): Day => ({
-  id: Math.round(Math.random() * 1000),
+  id: generateId(),
   meals: [
     mockMeal({
       name: `Café da Manhã`,

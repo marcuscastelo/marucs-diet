@@ -13,8 +13,9 @@ import { useConfirmModalContext } from '@/context/confirmModal.context'
 import useClipboard from '@/hooks/clipboard'
 import { addInnerGroups } from '@/utils/mealUtils'
 import { deserialize as deserializeClipboard } from '@/utils/clipboardUtils'
-import { extractGroups } from '@/utils/groupUtils'
+import { convertToGroups } from '@/utils/groupUtils'
 import { renegerateId } from '@/utils/idUtils'
+import { foodItemSchema } from '@/model/foodItemModel'
 
 export type MealEditViewProps = {
   meal: Meal
@@ -61,7 +62,9 @@ function MealEditViewHeader({
 }: {
   onUpdateMeal: (meal: Meal) => void
 }) {
-  const acceptedClipboardSchema = mealSchema.or(itemGroupSchema)
+  const acceptedClipboardSchema = mealSchema
+    .or(itemGroupSchema)
+    .or(foodItemSchema)
   const { meal } = useMealContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
@@ -94,7 +97,7 @@ function MealEditViewHeader({
       throw new Error('Invalid clipboard data: ' + clipboardText)
     }
 
-    const groupsToAdd = extractGroups(data)
+    const groupsToAdd = convertToGroups(data)
       .map(renegerateId)
       .map((g) => ({
         ...g,

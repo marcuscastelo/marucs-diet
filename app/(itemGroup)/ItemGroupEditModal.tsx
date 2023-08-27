@@ -28,6 +28,7 @@ import {
 } from '@/utils/groupUtils'
 import { DownloadIcon } from '../(icons)/DownloadIcon'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
+import useClipboard from '@/hooks/clipboard'
 
 export type ItemGroupEditModalProps = {
   show?: boolean
@@ -390,6 +391,8 @@ function Body({
   setFoodSearchModalVisible: Dispatch<SetStateAction<boolean>>
 }) {
   const { group, setGroup } = useItemGroupEditContext()
+  const { write } = useClipboard({ periodicRead: false })
+
   return (
     <>
       {group && (
@@ -445,17 +448,7 @@ function Body({
           </div>
 
           <FoodItemListView
-            foodItems={
-              group.items ?? []
-
-              // {
-              //   id,
-              //   quantity: Number(quantity),
-              //   type: group.type ?? 'food',
-              //   reference: group.reference,
-              //   macros: group.macros,
-              // } satisfies FoodItem
-            }
+            foodItems={group.items ?? []}
             // TODO: Check if this margin was lost
             //   className="mt-4"
             onItemClick={(item) => {
@@ -472,14 +465,15 @@ function Body({
                 name={<FoodItemView.Header.Name />}
                 favorite={
                   <FoodItemView.Header.Favorite
-                    favorite={
-                      // TODO: isRecipeFavorite as well
-                      isFoodFavorite(item.reference)
-                    }
+                    favorite={isFoodFavorite(item.reference)}
                     onSetFavorite={(favorite) =>
-                      // TODO: setRecipeAsFavorite as well
                       setFoodAsFavorite(item.reference, favorite)
                     }
+                  />
+                }
+                copyButton={
+                  <FoodItemView.Header.CopyButton
+                    onCopyItem={(item) => write(JSON.stringify(item))}
                   />
                 }
               />

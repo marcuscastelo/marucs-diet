@@ -5,6 +5,7 @@ import FoodItemView from './(foodItem)/FoodItemView'
 import { searchFoodsByEan } from '@/controllers/food'
 import { Food } from '@/model/foodModel'
 import { useUserContext } from '@/context/users.context'
+import { generateId } from '@/utils/idUtils'
 
 export type BarCodeSearchProps = {
   barCode?: string
@@ -94,7 +95,7 @@ export default function BarCodeSearch({
               <p className="text-sm">
                 <FoodItemView
                   foodItem={{
-                    id: Math.round(Math.random() * 1000000), // TODO: retriggered: properly generate id
+                    id: generateId(),
                     name: currentFood.name,
                     reference: currentFood.id,
                     quantity: 100,

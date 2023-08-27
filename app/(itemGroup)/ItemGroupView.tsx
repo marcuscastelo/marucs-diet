@@ -77,7 +77,7 @@ function ItemGroupHeader({
       {/* //TODO: ItemGroupView id is random, but it should be an entry on the database (meal too) */}
       {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.ItemGroupView.id}]</h5> */}
       <div className="my-2">{name}</div>
-      {/* 
+      {/*
         // TODO: Remove code duplication between FoodItemView and ItemGroupView 
       */}
       <div className={`ml-auto flex gap-2`}>
@@ -143,7 +143,9 @@ function ItemGroupName() {
 
   return (
     <div className="">
-      {/* //TODO: ItemGroupView id is random, but it should be an entry on the database (meal too) */}
+      {/* 
+        //TODO: ItemGroupView id is random, but it should be an entry on the database (meal too) 
+      */}
       {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.ItemGroupView.id}]</h5> */}
       <h5 className={`mb-2 text-lg font-bold tracking-tight ${getNameColor()}`}>
         {itemGroup?.name ?? 'Erro: grupo sem nome'}{' '}

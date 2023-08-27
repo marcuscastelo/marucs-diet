@@ -1,8 +1,13 @@
 import { ItemGroup, RecipedItemGroup } from '@/model/foodItemGroupModel'
 import { FoodItem } from '@/model/foodItemModel'
 import { Recipe } from '@/model/recipeModel'
+import { generateId } from './idUtils'
 
-export type GroupContainer = ItemGroup | ItemGroup[] | { groups: ItemGroup[] }
+export type GroupConvertible =
+  | ItemGroup
+  | ItemGroup[]
+  | { groups: ItemGroup[] }
+  | FoodItem
 
 export function isRecipedGroupUpToDate(
   group: RecipedItemGroup,
@@ -91,14 +96,32 @@ export function addInnerItem(group: ItemGroup, innerItem: FoodItem) {
   return newGroup
 }
 
-export function extractGroups(container: GroupContainer): ItemGroup[] {
-  if (Array.isArray(container)) {
-    return { ...container }
+export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
+  if (Array.isArray(convertible)) {
+    return { ...convertible }
   }
 
-  if ('groups' in container) {
-    return [...container.groups]
+  if ('groups' in convertible) {
+    return [...convertible.groups]
   }
 
-  return [{ ...container }]
+  if ('reference' in convertible) {
+    return [
+      // TODO: createItemGroup({ items: [container] })
+      {
+        id: generateId(),
+        name: convertible.name,
+        items: [{ ...convertible } satisfies FoodItem],
+        quantity: convertible.quantity,
+        type: 'simple',
+      } satisfies ItemGroup,
+    ]
+  }
+
+  if ('items' in convertible) {
+    return [{ ...convertible }]
+  }
+
+  console.error('Invalid state! This is a bug! Unhandled convertible type!')
+  throw new Error('Invalid state! This is a bug! see console.error')
 }

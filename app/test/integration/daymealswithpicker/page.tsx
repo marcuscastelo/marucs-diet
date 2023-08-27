@@ -10,15 +10,15 @@
 
 export default function Page() {
   // const day1: Day = {
-  //   id: Math.round(Math.random() * 1000),
-  //   owner: Math.round(Math.random() * 1000),
+  //   id: generateId(),
+  //   owner: generateId(),
   //   target_day: getToday(),
   //   meals: [mockMeal({ name: 'Café da manhã' }), mockMeal({ name: 'Almoço' })],
   // }
 
   // const day2: Day = {
-  //   id: Math.round(Math.random() * 1000),
-  //   owner: Math.round(Math.random() * 1000),
+  //   id: generateId(),
+  //   owner: generateId(),
   //   target_day: getToday(),
   //   meals: [mockMeal({ name: 'Jejum' })],
   // }
