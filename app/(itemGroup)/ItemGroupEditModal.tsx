@@ -246,6 +246,7 @@ function ExternalFoodItemEditModal({
     <ModalContextProvider
       visible={visible}
       setVisible={(visible) => {
+        // TODO: Implement onClose and onOpen to reduce code duplication
         if (!visible) {
           setSelectedFoodItem(null)
           // TODO: Refactor all modals so that when they close, they call onCancel() or onClose()
@@ -317,10 +318,41 @@ function ExternalFoodSearchModal({
 }) {
   const { group, setGroup } = useItemGroupEditContext()
 
+  const handleNewItemGroup = async (newGroup: ItemGroup) => {
+    console.debug('onNewItemGroup', newGroup)
+
+    if (!group) {
+      console.error('group is null')
+      throw new Error('group is null')
+    }
+
+    if (!isSimpleSingleGroup(newGroup)) {
+      // TODO: Handle non-simple groups on onNewFoodItem
+      console.error('TODO: Handle non-simple groups')
+      alert('TODO: Handle non-simple groups')
+      return
+    }
+
+    const finalGroup: ItemGroup = addInnerItem(group, newGroup.items[0])
+
+    console.debug(
+      'onNewFoodItem: applying',
+      JSON.stringify(finalGroup, null, 2),
+    )
+
+    setGroup(finalGroup)
+  }
+
+  const handleFinishSearch = () => {
+    setVisible(false)
+    onRefetch()
+  }
+
   return (
     <ModalContextProvider
       visible={visible}
       setVisible={(visible) => {
+        // TODO: Implement onClose and onOpen to reduce code duplication
         if (!visible) {
           console.debug('setSelectedMeal(null)')
           onRefetch()
@@ -330,35 +362,8 @@ function ExternalFoodSearchModal({
     >
       <FoodSearchModal
         targetName={group?.name ?? 'ERRO: Grupo de alimentos não especificado'}
-        onFinish={() => {
-          console.debug('setSelectedMeal(null)')
-          setVisible(false)
-          onRefetch()
-        }}
-        onNewItemGroup={async (newGroup) => {
-          // TODO: Create a proper onNewFoodItem function
-          console.debug('onNewItemGroup', newGroup)
-
-          if (!group) {
-            console.error('group is null')
-            throw new Error('group is null')
-          }
-
-          if (!isSimpleSingleGroup(newGroup)) {
-            console.error('TODO: Handle non-simple groups')
-            alert('TODO: Handle non-simple groups')
-            return
-          }
-
-          const finalGroup: ItemGroup = addInnerItem(group, newGroup.items[0])
-
-          console.debug(
-            'onNewFoodItem: applying',
-            JSON.stringify(finalGroup, null, 2),
-          )
-
-          setGroup(finalGroup)
-        }}
+        onFinish={handleFinishSearch}
+        onNewItemGroup={handleNewItemGroup}
       />
     </ModalContextProvider>
   )
