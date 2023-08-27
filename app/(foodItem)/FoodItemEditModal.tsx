@@ -323,7 +323,6 @@ function Actions({
           onClick={(e) => {
             e.preventDefault()
 
-            // TODO: Move confirm up to parent? (also with all other confirmations)
             onDelete &&
               showConfirmModal({
                 title: 'Excluir item',
