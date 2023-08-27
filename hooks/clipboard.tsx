@@ -4,8 +4,12 @@ import { useCallback, useEffect, useState } from 'react'
 
 export type ClipboardFilter = (clipboard: string) => boolean
 
-export default function useClipboard(props?: { filter?: ClipboardFilter }) {
+export default function useClipboard(props?: {
+  filter?: ClipboardFilter
+  periodicRead?: boolean
+}) {
   const filter = props?.filter
+  const periodicRead = props?.periodicRead ?? true
   const [clipboard, setClipboard] = useState('')
 
   const handleWrite = useCallback((text: string) => {
@@ -30,14 +34,16 @@ export default function useClipboard(props?: { filter?: ClipboardFilter }) {
 
   // Update clipboard periodically
   useEffect(() => {
-    const interval = setInterval(handleRead, 1000)
+    if (!periodicRead) return
 
+    const interval = setInterval(handleRead, 1000)
     return () => clearInterval(interval)
-  }, [filter, handleRead])
+  }, [periodicRead, filter, handleRead])
 
   return {
     clipboard,
     write: handleWrite,
     read: handleRead,
+    clear: () => handleWrite(''),
   }
 }

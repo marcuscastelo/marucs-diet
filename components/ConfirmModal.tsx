@@ -1,6 +1,7 @@
 import Modal, { ModalActions } from '@/app/(modals)/Modal'
 import { ModalContextProvider } from '@/app/(modals)/ModalContext'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
+import { generateId } from '@/utils/idUtils'
 
 export default function ConfirmModal() {
   const {
@@ -12,7 +13,7 @@ export default function ConfirmModal() {
     <ModalContextProvider visible={visible} setVisible={setVisible}>
       {/* TODO: Move modal-id to ModalContextProvider with a pseudo-random ID generation */}
       <Modal
-        modalId={`confirm-modal-${Math.random()}`}
+        modalId={`confirm-modal-${generateId()}`}
         header={<h1>{title}</h1>}
         body={<p>{body}</p>}
         actions={
