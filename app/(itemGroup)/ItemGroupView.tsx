@@ -21,7 +21,7 @@ export type ItemGroupViewProps = {
   header?: React.ReactNode
   nutritionalInfo?: React.ReactNode
   className?: string
-  onClick?: (foodItemGroup: ItemGroup) => void
+  onClick?: (itemGroup: ItemGroup) => void
 }
 
 export default function ItemGroupView({
@@ -32,7 +32,6 @@ export default function ItemGroupView({
   onClick,
 }: ItemGroupViewProps) {
   const handleClick = (e: React.MouseEvent) => {
-    // TODO: Check if parameter is needed (foodItem doesn't seem to be changed)
     onClick?.(itemGroup)
     e.stopPropagation()
     e.preventDefault()
