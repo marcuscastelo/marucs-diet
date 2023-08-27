@@ -50,6 +50,7 @@ export const userSchema = z.object({
       (value) =>
         value ?? { gramsPerKgCarbs: 2, gramsPerKgProtein: 2, gramsPerKgFat: 1 },
     ),
+  gender: z.union([z.literal('male'), z.literal('female')]),
 })
 
 export type User = z.infer<typeof userSchema>

@@ -34,6 +34,12 @@ export function useUserContext() {
 export const useUserId = () =>
   useContextSelector(UserContext, (context) => assertedContext(context).user.id)
 
+export const useUserGender = () =>
+  useContextSelector(
+    UserContext,
+    (context) => assertedContext(context).user.gender,
+  )
+
 export function UserContextProvider({
   children,
   user,
