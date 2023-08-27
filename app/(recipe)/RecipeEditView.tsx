@@ -3,7 +3,7 @@
 // TODO: Unify Recipe and Recipe components into a single component?
 
 import { Recipe, recipeSchema } from '@/model/recipeModel'
-import { FoodItem, itemSchema } from '@/model/foodItemModel'
+import { FoodItem, foodItemSchema } from '@/model/foodItemModel'
 import { RecipeContextProvider, useRecipeContext } from './RecipeContext'
 import { useEffect, useState } from 'react'
 import TrashIcon from '../(icons)/TrashIcon'
@@ -12,6 +12,7 @@ import CopyIcon from '../(icons)/CopyIcon'
 import FoodItemListView from '../(foodItem)/FoodItemListView'
 import { calcRecipeCalories } from '@/utils/macroMath'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
+import { generateId } from '@/utils/idUtils'
 
 export type RecipeEditViewProps = {
   recipe: Recipe
@@ -102,7 +103,7 @@ function RecipeEditHeader({
             ...recipe.items,
             ...parsedRecipe.data.items.map((item) => ({
               ...item,
-              id: Math.floor(Math.random() * 1000000), // TODO: Create a function to generate a unique id
+              id: generateId(),
             })),
           ],
         }
@@ -115,7 +116,9 @@ function RecipeEditHeader({
         return
       }
 
-      const parsedRecipeItem = itemSchema.safeParse(JSON.parse(clipboardText))
+      const parsedRecipeItem = foodItemSchema.safeParse(
+        JSON.parse(clipboardText),
+      )
 
       if (parsedRecipeItem.success) {
         const newRecipe: Recipe = {
@@ -124,7 +127,7 @@ function RecipeEditHeader({
             ...recipe.items,
             {
               ...parsedRecipeItem.data,
-              id: Math.floor(Math.random() * 1000000), // TODO: Create a function to generate a unique id
+              id: generateId(),
             },
           ],
         }
@@ -165,7 +168,7 @@ function RecipeEditHeader({
   const hasValidPastableOnClipboard =
     clipboardText &&
     (recipeSchema.safeParse(parsedJson).success ||
-      itemSchema.safeParse(parsedJson).success)
+      foodItemSchema.safeParse(parsedJson).success)
 
   return (
     <div className="flex">
