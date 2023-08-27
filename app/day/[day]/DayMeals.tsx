@@ -230,7 +230,6 @@ function ExternalFoodSearchModal({
       throw new Error('No meal selected!')
     }
 
-    // TODO: Create a proper onNewFoodItem function
     const oldMeal = { ...selectedMeal }
 
     const newMeal: Meal = {
@@ -258,6 +257,12 @@ function ExternalFoodSearchModal({
     refetchDays()
   }
 
+  const handleFinishSearch = () => {
+    unselect()
+    setVisible(false)
+    refetchDays()
+  }
+
   if (!selectedMeal) {
     return (
       debug && (
@@ -269,7 +274,9 @@ function ExternalFoodSearchModal({
   return (
     <ModalContextProvider
       visible={visible}
+      // TODO: Implement onClose and onOpen to reduce code duplication
       setVisible={(visible) => {
+        // TODO: Implement onClose and onOpen to reduce code duplication
         if (!visible) {
           unselect()
         }
@@ -278,11 +285,7 @@ function ExternalFoodSearchModal({
     >
       <FoodSearchModal
         targetName={selectedMeal.name}
-        onFinish={() => {
-          unselect()
-          setVisible(false)
-          refetchDays()
-        }}
+        onFinish={handleFinishSearch}
         onNewItemGroup={handleNewItemGroup}
       />
     </ModalContextProvider>
@@ -322,6 +325,7 @@ function ExternalItemGroupEditModal({
     <ModalContextProvider
       visible={visible}
       setVisible={(visible) => {
+        // TODO: Implement onClose and onOpen to reduce code duplication
         if (!visible) {
           unselect()
         }
