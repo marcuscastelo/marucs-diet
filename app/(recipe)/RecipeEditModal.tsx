@@ -151,8 +151,6 @@ const RecipeEditModal = ({
                   onClick={(e) => {
                     e.preventDefault()
 
-                    // TODO: Move confirm up to parent (also with all other confirmations)
-
                     showConfirmModal({
                       title: 'Excluir item',
                       message: 'Tem certeza que deseja excluir este item?',

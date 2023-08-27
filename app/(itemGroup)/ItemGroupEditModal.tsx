@@ -522,7 +522,6 @@ function Actions({
           className="btn-error btn mr-auto"
           onClick={(e) => {
             e.preventDefault()
-            // TODO: Move confirm up to parent (also with all other confirmations)
             if (!group || !onDelete) {
               alert('BUG: group or onDelete is null')
             }
