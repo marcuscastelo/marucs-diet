@@ -1,3 +1,4 @@
+import { generateId } from '@/utils/idUtils'
 import { itemGroupSchema } from './foodItemGroupModel'
 
 import { z } from 'zod'
@@ -24,7 +25,7 @@ export function createMeal({
   groups: Meal['groups']
 }): Meal {
   return {
-    id: Math.floor(Math.random() * 1000000),
+    id: generateId(),
     name,
     groups,
     '': 'Meal',

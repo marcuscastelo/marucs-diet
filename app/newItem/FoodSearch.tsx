@@ -19,6 +19,7 @@ import {
 } from '@/model/foodItemGroupModel'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import { useFoodContext } from '@/context/food.context'
+import { generateId } from '@/utils/idUtils'
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal'
 const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal'
@@ -208,7 +209,7 @@ export default function FoodSearch({
           onApply={async (item) => {
             if (item.type === 'food') {
               const newGroup: SimpleItemGroup = {
-                id: Math.round(Math.random() * 1000000),
+                id: generateId(),
                 name: item.name,
                 items: [item],
                 type: 'simple',
@@ -217,7 +218,7 @@ export default function FoodSearch({
               handleNewItemGroup(newGroup)
             } else {
               const newGroup: RecipedItemGroup = {
-                id: Math.round(Math.random() * 1000000),
+                id: generateId(),
                 name: item.name,
                 items: [...(selectedTemplate as Recipe).items],
                 type: 'recipe',
@@ -406,7 +407,7 @@ const SearchResults = ({
           <React.Fragment key={idx}>
             <FoodItemView
               foodItem={{
-                id: Math.random() * 1000000,
+                id: generateId(),
                 name: consumable.name,
                 quantity: 100,
                 macros: consumable.macros,
