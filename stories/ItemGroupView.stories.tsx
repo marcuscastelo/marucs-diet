@@ -2,7 +2,11 @@ import type { Meta, StoryObj } from '@storybook/react'
 import ItemGroupView, {
   ItemGroupViewProps,
 } from '../app/(itemGroup)/ItemGroupView'
-import { mockMeal } from '@/app/test/unit/(mock)/mockData'
+import {
+  mockSimpleGroup,
+  mockMeal,
+  mockRecipedGroup,
+} from '@/app/test/unit/(mock)/mockData'
 import ServerApp from '@/app/ServerApp'
 
 const meta: Meta<typeof ItemGroupView> = {
@@ -33,17 +37,12 @@ type Story = StoryObj<typeof ItemGroupView>
 
 export const Simple: Story = {
   args: {
-    itemGroup: mockMeal().groups[0], // TODO: Create mockGroup()
+    itemGroup: mockSimpleGroup(),
   } satisfies ItemGroupViewProps,
 }
 
 export const Recipe: Story = {
   args: {
-    // TODO: Create mockGroup()
-    itemGroup: {
-      ...mockMeal().groups[0],
-      type: 'recipe',
-      recipe: 2,
-    },
+    itemGroup: mockRecipedGroup(),
   } satisfies ItemGroupViewProps,
 }

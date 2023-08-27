@@ -1,15 +1,18 @@
 'use client'
 
-import { User } from '@/model/userModel'
+import { User, userSchema } from '@/model/userModel'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { updateUser } from '@/controllers/users'
 import Capsule from '../../components/capsule/Capsule'
+import { z } from 'zod'
 type Translation<T extends string> = { [key in T]: string }
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
 // TODO: Create module for translations
+// TODO: Make diet translations appear in the UI
+// TODO: Make select input for diet (cut, normo, bulk)
 const DIET_TRANSLATION: Translation<User['diet']> = {
   cut: 'Cutting',
   normo: 'Normocalórica',
@@ -19,6 +22,7 @@ const DIET_TRANSLATION: Translation<User['diet']> = {
 // TODO: Create module for translations
 const USER_FIELD_TRANSLATION: Translation<keyof User> = {
   name: 'Nome',
+  gender: 'Gênero',
   diet: 'Dieta',
   birthdate: 'Data de Nascimento',
   macro_profile: 'Perfil de Macronutrientes',
@@ -70,6 +74,21 @@ export default function BasicInfo({
   }
 
   const convertString = (value: string) => value
+  const makeLiteralConverter =
+    <T extends z.ZodUnion<any>>(schema: T, defaultValue: z.infer<T>) =>
+    (value: string): z.infer<T> => {
+      const result = schema.safeParse(value)
+      if (!result.success) {
+        return defaultValue
+      }
+      return result.data
+    }
+
+  const convertGender = makeLiteralConverter(
+    userSchema._def.shape().gender,
+    'male',
+  )
+
   const convertDiet = (value: string): User['diet'] =>
     (Object.keys(DIET_TRANSLATION) as User['diet'][]).find(
       (key) => key === value,
@@ -112,6 +131,7 @@ export default function BasicInfo({
         </div>
         <div className={`mx-5 lg:mx-20`}>
           {makeBasicCapsule('name', convertString)}
+          {makeBasicCapsule('gender', convertGender)}
           {makeBasicCapsule('diet', convertDiet)}
           {makeBasicCapsule('birthdate', convertString)}
         </div>

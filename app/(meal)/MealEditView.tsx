@@ -95,6 +95,7 @@ function MealEditViewHeader({
     if ('' in data && data[''] === 'Meal') {
       groupsToAdd = data.groups
     } else if ('type' in data) {
+      // TODO: Implement a better way to check if data is ItemGroup (nominal typing)
       groupsToAdd = [
         {
           ...data,
