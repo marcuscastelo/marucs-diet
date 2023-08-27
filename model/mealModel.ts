@@ -1,5 +1,5 @@
 import { generateId } from '@/utils/idUtils'
-import { itemGroupSchema } from './foodItemGroupModel'
+import { itemGroupSchema } from './itemGroupModel'
 
 import { z } from 'zod'
 

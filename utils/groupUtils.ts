@@ -1,4 +1,4 @@
-import { ItemGroup, RecipedItemGroup } from '@/model/foodItemGroupModel'
+import { ItemGroup, RecipedItemGroup } from '@/model/itemGroupModel'
 import { FoodItem } from '@/model/foodItemModel'
 import { Recipe } from '@/model/recipeModel'
 import { generateId } from './idUtils'
@@ -92,6 +92,16 @@ export function addInnerItem(group: ItemGroup, innerItem: FoodItem) {
 
   // If not exists, add
   newGroup.items.push(innerItem)
+
+  return newGroup
+}
+
+export function addInnerItems(group: ItemGroup, innerItem: FoodItem[]) {
+  let newGroup = { ...group }
+
+  innerItem.forEach((item) => {
+    newGroup = addInnerItem(newGroup, item)
+  })
 
   return newGroup
 }

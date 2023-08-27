@@ -16,7 +16,7 @@ import {
   ItemGroup,
   RecipedItemGroup,
   SimpleItemGroup,
-} from '@/model/foodItemGroupModel'
+} from '@/model/itemGroupModel'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import { useFoodContext } from '@/context/food.context'
 import { generateId } from '@/utils/idUtils'

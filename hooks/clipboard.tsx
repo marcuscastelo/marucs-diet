@@ -44,5 +44,6 @@ export default function useClipboard(props?: {
     clipboard,
     write: handleWrite,
     read: handleRead,
+    clear: () => handleWrite(''),
   }
 }

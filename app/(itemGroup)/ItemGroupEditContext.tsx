@@ -1,6 +1,6 @@
 'use client'
 
-import { ItemGroup } from '@/model/foodItemGroupModel'
+import { ItemGroup } from '@/model/itemGroupModel'
 import { Dispatch, ReactNode, SetStateAction, useEffect, useState } from 'react'
 
 import { createContext, useContext } from 'use-context-selector'

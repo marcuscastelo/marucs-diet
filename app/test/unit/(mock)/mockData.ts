@@ -8,7 +8,7 @@ import {
   ItemGroup,
   RecipedItemGroup,
   SimpleItemGroup,
-} from '@/model/foodItemGroupModel'
+} from '@/model/itemGroupModel'
 import { generateId } from '@/utils/idUtils'
 
 export const mockFood = (partial?: Partial<Food>): Food => ({
