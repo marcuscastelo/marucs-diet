@@ -8,7 +8,6 @@ import { useUserContext } from '@/context/users.context'
 import { useModalContext } from '../(modals)/ModalContext'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 
-// TODO: Add item name field
 export type FoodItemEditModalProps = {
   modalId: string
   targetName: string
