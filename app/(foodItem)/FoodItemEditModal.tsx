@@ -1,6 +1,14 @@
 'use client'
 
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react'
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import FoodItemView from './FoodItemView'
 import { FoodItem } from '@/model/foodItemModel'
 import Modal, { ModalActions } from '../(modals)/Modal'
@@ -68,7 +76,7 @@ const FoodItemEditModal = ({
     }
   }
 
-  const canAdd = quantity !== '' && Number(quantity) > 0
+  const canApply = quantity !== '' && Number(quantity) > 0
 
   return (
     <>
@@ -85,14 +93,14 @@ const FoodItemEditModal = ({
           <Body
             visible={visible}
             onQuantityChanged={setQuantity}
-            canAdd={canAdd}
+            canApply={canApply}
             foodItem={foodItem}
           />
         }
         actions={
           <Actions
             id={foodItem.id}
-            canAdd={canAdd}
+            canApply={canApply}
             onApply={() => {
               setVisible(false)
               onApply(foodItem)
@@ -140,26 +148,41 @@ function Header({
 function Body({
   visible,
   onQuantityChanged,
-  canAdd,
+  canApply,
   foodItem,
 }: {
   visible: boolean
   onQuantityChanged: Dispatch<SetStateAction<number>>
-  canAdd: boolean
+  canApply: boolean
   foodItem: CustomFoodItem
 }) {
   const id = foodItem.id
   const quantityRef = useRef<HTMLInputElement>(null)
+  const dummyRef = useRef<HTMLDivElement>(null)
+  const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(false)
 
   const quantityField = useFloatField(foodItem.quantity || undefined, {
     decimalPlaces: 0,
+    defaultValue: foodItem.quantity,
   })
 
   useEffect(() => {
-    if (visible) {
-      quantityRef.current?.blur()
+    if (!visible) {
+      setQuantityFieldDisabled(true)
+      return
     }
-  }, [visible])
+    const timeout = setTimeout(() => {
+      quantityRef.current?.blur()
+      quantityField.setValue(foodItem.quantity)
+      setQuantityFieldDisabled(false)
+    }, 100)
+
+    return () => {
+      clearTimeout(timeout)
+    }
+    // TODO: Find a way to include foodItem.quantity in the deps array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible, foodItem.quantity])
 
   const { isFoodFavorite, setFoodAsFavorite } = useUserContext()
 
@@ -195,6 +218,7 @@ function Body({
 
   return (
     <>
+      <div className="dummy" ref={dummyRef}></div>
       <p className="mt-1 text-gray-400">Atalhos</p>
       {[
         [10, 20, 30, 40, 50],
@@ -220,7 +244,12 @@ function Body({
           <FloatInput
             field={quantityField}
             style={{ width: '100%' }}
-            onFieldChange={(value) => onQuantityChanged(value ?? 0)}
+            onFieldChange={(value) =>
+              value === undefined
+                ? quantityField.setValue(foodItem.quantity)
+                : onQuantityChanged(value ?? foodItem.quantity)
+            }
+            tabIndex={-1}
             onFocus={(event) => {
               event.target.select()
               if (quantityField.value === 0) {
@@ -228,10 +257,11 @@ function Body({
               }
             }}
             ref={quantityRef}
+            disabled={quantityFieldDisabled}
             type="number"
             placeholder="Quantidade (gramas)"
             className={`input-bordered  input mt-1  border-gray-300 bg-gray-800 ${
-              !canAdd ? 'input-error border-red-500' : ''
+              !canApply ? 'input-error border-red-500' : ''
             }`}
           />
         </div>
@@ -266,7 +296,7 @@ function Body({
           {
             id,
             name: foodItem.name ?? 'Sem nome (itemData && FoodItemView)',
-            quantity: quantityField.value ?? 0,
+            quantity: quantityField.value ?? foodItem.quantity,
             reference: foodItem.reference,
             macros: foodItem.macros,
             type: foodItem.type,
@@ -274,7 +304,7 @@ function Body({
         }
         className="mt-4"
         onClick={() => {
-          alert('Alimento não editável (ainda)')
+          // alert('Alimento não editável (ainda)')
         }}
         header={
           <FoodItemView.Header
@@ -302,13 +332,13 @@ function Body({
 
 function Actions({
   id,
-  canAdd,
+  canApply,
   onDelete,
   onCancel,
   onApply,
 }: {
   id: number
-  canAdd: boolean
+  canApply: boolean
   onDelete?: (id: number) => void
   onCancel?: () => void
   onApply: () => void
@@ -348,7 +378,7 @@ function Actions({
       </button>
       <button
         className="btn"
-        disabled={!canAdd}
+        disabled={!canApply}
         onClick={(e) => {
           e.preventDefault()
           onApply() // TODO: pass data inside onApply()
