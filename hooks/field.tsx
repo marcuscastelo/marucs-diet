@@ -16,6 +16,7 @@ export type FieldTransform<T> = {
 
 export const createFloatTransform = (
   decimalPlaces?: number,
+  defaultValue?: number,
 ): FieldTransform<number> => ({
   toRaw: (value: number) => value.toFixed(decimalPlaces ?? 2),
   toValue: (value: string) => {
@@ -26,8 +27,14 @@ export const createFloatTransform = (
     const noMultipleSpaces = noMultiplePlus.replace(/\s/g, '')
     const noMultipleZeros = noMultipleSpaces.replace(/^0+(?=\d)/g, '')
 
-    const fixed = Number(Number(noMultipleZeros).toFixed(decimalPlaces ?? 2))
-    return fixed
+    const fixedOrNan = parseFloat(
+      parseFloat(noMultipleZeros).toFixed(decimalPlaces ?? 2),
+    )
+
+    if (isNaN(fixedOrNan)) {
+      return defaultValue ?? 0
+    }
+    return fixedOrNan
   },
 })
 
@@ -92,11 +99,15 @@ export const useFloatField = (
   initialValue: number | undefined = undefined,
   extras?: {
     decimalPlaces?: number
+    defaultValue?: number
   },
 ) =>
   useField<number>({
     initialValue,
-    transform: createFloatTransform(extras?.decimalPlaces),
+    transform: createFloatTransform(
+      extras?.decimalPlaces,
+      extras?.defaultValue,
+    ),
   })
 
 export const useDateField = (initialValue: Date | undefined = undefined) =>
