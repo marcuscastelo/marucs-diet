@@ -1,16 +1,43 @@
 'use client'
 
+import {
+  adjustToTimezone,
+  dateToDateString,
+  dateToString,
+  stringToDate,
+} from '@/utils/dateUtils'
 import { useCallback, useState } from 'react'
 
+// TODO: Unit test all FieldTransforms
 export type FieldTransform<T> = {
-  toField: (value: T) => string
-  fromField: (value: string) => T
+  toRaw: (value: T) => string
+  toValue: (value: string) => T
 }
 
-export const floatTransform: FieldTransform<number> = {
-  toField: (value: number) => value.toFixed(2),
-  fromField: (value: string) => parseFloat(value.replace(',', '.')),
-}
+export const createFloatTransform = (
+  decimalPlaces?: number,
+): FieldTransform<number> => ({
+  toRaw: (value: number) => value.toFixed(decimalPlaces ?? 2),
+  toValue: (value: string) => {
+    const noCommas = value.replace(/,/g, '.')
+    const noMultipleDots = noCommas.replace(/\.(?=.*\.)/g, '')
+    const noMultipleMinus = noMultipleDots.replace(/-/g, '')
+    const noMultiplePlus = noMultipleMinus.replace(/\+/g, '')
+    const noMultipleSpaces = noMultiplePlus.replace(/\s/g, '')
+    const noMultipleZeros = noMultipleSpaces.replace(/^0+(?=\d)/g, '')
+
+    const fixed = Number(Number(noMultipleZeros).toFixed(decimalPlaces ?? 2))
+    return fixed
+  },
+})
+
+export const createDateTransform = (): FieldTransform<Date> => ({
+  toRaw: (value) => dateToString(value),
+  toValue: (value) => {
+    const date = adjustToTimezone(new Date(stringToDate(value)))
+    return date
+  },
+})
 
 // Any T except string
 export function useField<T>({
@@ -21,40 +48,59 @@ export function useField<T>({
   transform: FieldTransform<T>
 }) {
   const [rawValue, setRawValue] = useState<string>(
-    initialValue === undefined ? '' : transform.toField(initialValue),
+    initialValue === undefined ? '' : transform.toRaw(initialValue),
   )
 
   const [value, setValue] = useState<T | undefined>(initialValue)
 
-  const handleSetRawValue = useCallback((value: string) => {
-    setRawValue(value)
-    // setRawValue(tranform.toField(tranform.fromField(value)))
-  }, [])
+  const handleSetValue = useCallback(
+    (newValue: T) => {
+      // Convert to rawValue and then back to value
+      const newRawValue = transform.toRaw(newValue)
+      const newValueFromRawValue = transform.toValue(newRawValue)
+      setValue(newValueFromRawValue)
+      const newRawValueFromNewValue = transform.toRaw(newValueFromRawValue)
+      setRawValue(newRawValueFromNewValue)
+    },
+    [transform],
+  )
 
   const handleFinishTyping = useCallback(() => {
     console.debug(`[useField] updateValue: ${rawValue}`)
 
-    const newValue = transform.fromField(rawValue)
-    const newRawValue = transform.toField(newValue)
+    const newValue = transform.toValue(rawValue)
+    const newRawValue = transform.toRaw(newValue)
 
     console.debug(`[useField] newValue: ${newValue}`)
-    setValue(transform.fromField(rawValue))
+    setValue(transform.toValue(rawValue))
 
     console.debug(`[useField] newRawValue: ${newRawValue}`)
-    setRawValue(transform.toField(transform.fromField(rawValue)))
+    setRawValue(transform.toRaw(transform.toValue(rawValue)))
   }, [rawValue, transform])
 
   return {
     rawValue,
-    setRawValue: handleSetRawValue,
+    setRawValue,
     value,
+    setValue: handleSetValue,
     finishTyping: handleFinishTyping,
     transform,
   }
 }
 
-export const useFloatField = (initialValue?: number) =>
+export const useFloatField = (
+  initialValue: number | undefined = undefined,
+  extras?: {
+    decimalPlaces?: number
+  },
+) =>
   useField<number>({
     initialValue,
-    transform: floatTransform,
+    transform: createFloatTransform(extras?.decimalPlaces),
+  })
+
+export const useDateField = (initialValue: Date | undefined = undefined) =>
+  useField<Date>({
+    initialValue,
+    transform: createDateTransform(),
   })

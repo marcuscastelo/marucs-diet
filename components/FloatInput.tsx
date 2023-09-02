@@ -25,14 +25,13 @@ export function FloatInput({
     onBlur?.(e)
 
     // TODO: Avoid duplicating `finishTyping` logic here
-    const nextValue = field.transform.fromField(e.target.value)
+    const nextValue = field.transform.toValue(e.target.value)
     onFieldChange?.(nextValue)
   }
 
   return (
     <input
       {...props}
-      type="number"
       value={rawValue}
       onChange={(e) => setRawValue(e.target.value)}
       onBlur={handleOnBlur}
