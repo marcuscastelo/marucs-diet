@@ -1,6 +1,13 @@
 'use client'
 
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react'
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import FoodItemView from './FoodItemView'
 import { FoodItem } from '@/model/foodItemModel'
 import Modal, { ModalActions } from '../(modals)/Modal'
@@ -52,21 +59,22 @@ const FoodItemEditModal = ({
   }, [initialFoodItem])
 
   const quantity = foodItem.quantity.toString()
-  const setQuantity: Dispatch<SetStateAction<number>> = (
-    value: SetStateAction<number>,
-  ) => {
-    if (typeof value === 'function') {
-      setFoodItem((old) => ({
-        ...old,
-        quantity: value(old.quantity),
-      }))
-    } else {
-      setFoodItem((old) => ({
-        ...old,
-        quantity: value,
-      }))
-    }
-  }
+  const setQuantity: Dispatch<SetStateAction<number>> = useCallback(
+    (value: SetStateAction<number>) => {
+      if (typeof value === 'function') {
+        setFoodItem((old) => ({
+          ...old,
+          quantity: value(old.quantity),
+        }))
+      } else {
+        setFoodItem((old) => ({
+          ...old,
+          quantity: value,
+        }))
+      }
+    },
+    [],
+  )
 
   const canAdd = quantity !== '' && Number(quantity) > 0
 
@@ -161,6 +169,10 @@ function Body({
     }
   }, [visible])
 
+  useEffect(() => {
+    onQuantityChanged(quantityField.value ?? 0)
+  }, [quantityField.value, onQuantityChanged])
+
   const { isFoodFavorite, setFoodAsFavorite } = useUserContext()
 
   const [currentHoldTimeout, setCurrentHoldTimeout] = useState<NodeJS.Timeout>()
@@ -220,7 +232,6 @@ function Body({
           <FloatInput
             field={quantityField}
             style={{ width: '100%' }}
-            onFieldChange={(value) => onQuantityChanged(value ?? 0)}
             onFocus={(event) => {
               event.target.select()
               if (quantityField.value === 0) {
