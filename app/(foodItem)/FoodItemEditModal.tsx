@@ -7,6 +7,11 @@ import Modal, { ModalActions } from '../(modals)/Modal'
 import { useUserContext } from '@/context/users.context'
 import { useModalContext } from '../(modals)/ModalContext'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
+import { useFloatField } from '@/hooks/field'
+import { FloatInput } from '@/components/FloatInput'
+
+// TODO: Rename CustomFoodItem to something more meaningful
+type CustomFoodItem = FoodItem & { type: 'food' | 'recipe' }
 
 export type FoodItemEditModalProps = {
   modalId: string
@@ -14,7 +19,7 @@ export type FoodItemEditModalProps = {
   targetNameColor?: string
   foodItem: Partial<FoodItem> &
     Pick<FoodItem, 'reference' | 'macros'> & { type?: 'food' | 'recipe' }
-  onApply: (item: FoodItem & { type: 'food' | 'recipe' }) => void
+  onApply: (item: CustomFoodItem) => void
   onCancel?: () => void
   onDelete?: (itemId: FoodItem['id']) => void
 }
@@ -30,15 +35,13 @@ const FoodItemEditModal = ({
 }: FoodItemEditModalProps) => {
   const { visible, setVisible } = useModalContext()
 
-  const [foodItem, setFoodItem] = useState<
-    FoodItem & { type: 'food' | 'recipe' }
-  >({
+  const [foodItem, setFoodItem] = useState<CustomFoodItem>({
     id: initialFoodItem?.id ?? Math.round(Math.random() * 1000000),
     name: initialFoodItem?.name ?? 'ERRO: Sem nome',
     quantity: initialFoodItem?.quantity ?? 0,
     type: initialFoodItem?.type ?? 'food',
     ...initialFoodItem,
-  } satisfies FoodItem & { type: 'food' | 'recipe' })
+  } satisfies CustomFoodItem)
 
   useEffect(() => {
     setFoodItem((old) => ({
@@ -48,18 +51,18 @@ const FoodItemEditModal = ({
   }, [initialFoodItem])
 
   const quantity = foodItem.quantity.toString()
-  const setQuantity: Dispatch<SetStateAction<string>> = (
-    value: SetStateAction<string>,
+  const setQuantity: Dispatch<SetStateAction<number>> = (
+    value: SetStateAction<number>,
   ) => {
     if (typeof value === 'function') {
       setFoodItem((old) => ({
         ...old,
-        quantity: Number(value(old.quantity.toString())),
+        quantity: value(old.quantity),
       }))
     } else {
       setFoodItem((old) => ({
         ...old,
-        quantity: Number(value),
+        quantity: value,
       }))
     }
   }
@@ -80,11 +83,9 @@ const FoodItemEditModal = ({
         body={
           <Body
             visible={visible}
-            quantity={quantity}
-            setQuantity={setQuantity}
+            onQuantityChanged={setQuantity}
             canAdd={canAdd}
             foodItem={foodItem}
-            id={foodItem.id}
           />
         }
         actions={
@@ -137,25 +138,21 @@ function Header({
 
 function Body({
   visible,
-  quantity,
-  setQuantity,
+  onQuantityChanged,
   canAdd,
   foodItem,
-  id,
 }: {
   visible: boolean
-  quantity: string
-  setQuantity: Dispatch<SetStateAction<string>>
+  onQuantityChanged: Dispatch<SetStateAction<number>>
   canAdd: boolean
-  foodItem:
-    | (Partial<FoodItem> &
-        Pick<FoodItem, 'reference' | 'macros'> & {
-          type: 'food' | 'recipe'
-        })
-    | null
-  id: FoodItem['id']
+  foodItem: CustomFoodItem
 }) {
+  const id = foodItem.id
   const quantityRef = useRef<HTMLInputElement>(null)
+
+  const quantityField = useFloatField(foodItem.quantity || undefined, {
+    decimalPlaces: 0,
+  })
 
   useEffect(() => {
     if (visible) {
@@ -169,10 +166,9 @@ function Body({
   const [currentHoldInterval, setCurrentHoldInterval] =
     useState<NodeJS.Timeout>()
 
-  const increment = () =>
-    setQuantity((old) => (Number(old ?? '0') + 1).toString())
+  const increment = () => quantityField.setValue((quantityField.value ?? 0) + 1)
   const decrement = () =>
-    setQuantity((old) => Math.max(0, Number(old ?? '0') - 1).toString())
+    quantityField.setValue(Math.max(0, (quantityField.value ?? 0) - 1))
 
   const holdRepeatStart = (action: () => void) => {
     setCurrentHoldTimeout(
@@ -211,7 +207,7 @@ function Body({
             <div
               key={`shortcuts-row-${rowIndex}-button-${index}}`}
               className="btn-primary btn-sm btn flex-1"
-              onClick={() => setQuantity(value.toString())}
+              onClick={() => quantityField.setValue(value)}
             >
               {value}g
             </div>
@@ -220,11 +216,17 @@ function Body({
       ))}
       <div className="mt-3 flex w-full justify-between gap-1">
         <div className="my-1 flex flex-1 justify-around">
-          <input
+          <FloatInput
+            field={quantityField}
             style={{ width: '100%' }}
-            value={quantity}
+            onFieldChange={(value) => onQuantityChanged(value ?? 0)}
+            onFocus={(event) => {
+              event.target.select()
+              if (quantityField.value === 0) {
+                quantityField.setRawValue('')
+              }
+            }}
             ref={quantityRef}
-            onChange={(e) => setQuantity(e.target.value.replace(/[^0-9]/, ''))}
             type="number"
             placeholder="Quantidade (gramas)"
             className={`input-bordered  input mt-1  border-gray-300 bg-gray-800 ${
@@ -257,43 +259,42 @@ function Body({
           </div>
         </div>
       </div>
-      {foodItem && (
-        <FoodItemView
-          foodItem={
-            {
-              id,
-              name: foodItem.name ?? 'Sem nome (itemData && FoodItemView)',
-              quantity: Number(quantity),
-              reference: foodItem.reference,
-              macros: foodItem.macros,
-              type: foodItem.type,
-            } satisfies FoodItem & { type: 'food' | 'recipe' }
-          }
-          className="mt-4"
-          onClick={() => {
-            alert('Alimento não editável (ainda)')
-          }}
-          header={
-            <FoodItemView.Header
-              name={<FoodItemView.Header.Name />}
-              favorite={
-                <FoodItemView.Header.Favorite
-                  favorite={
-                    // TODO: [Feature] Add recipe favorite
-                    (foodItem && isFoodFavorite(foodItem.reference)) || false
-                  }
-                  onSetFavorite={(favorite) =>
-                    foodItem &&
-                    // TODO: [Feature] Add recipe favorite
-                    setFoodAsFavorite(foodItem.reference, favorite)
-                  }
-                />
-              }
-            />
-          }
-          nutritionalInfo={<FoodItemView.NutritionalInfo />}
-        />
-      )}
+
+      <FoodItemView
+        foodItem={
+          {
+            id,
+            name: foodItem.name ?? 'Sem nome (itemData && FoodItemView)',
+            quantity: quantityField.value ?? 0,
+            reference: foodItem.reference,
+            macros: foodItem.macros,
+            type: foodItem.type,
+          } satisfies CustomFoodItem
+        }
+        className="mt-4"
+        onClick={() => {
+          alert('Alimento não editável (ainda)')
+        }}
+        header={
+          <FoodItemView.Header
+            name={<FoodItemView.Header.Name />}
+            favorite={
+              <FoodItemView.Header.Favorite
+                favorite={
+                  // TODO: [Feature] Add recipe favorite
+                  (foodItem && isFoodFavorite(foodItem.reference)) || false
+                }
+                onSetFavorite={(favorite) =>
+                  foodItem &&
+                  // TODO: [Feature] Add recipe favorite
+                  setFoodAsFavorite(foodItem.reference, favorite)
+                }
+              />
+            }
+          />
+        }
+        nutritionalInfo={<FoodItemView.NutritionalInfo />}
+      />
     </>
   )
 }

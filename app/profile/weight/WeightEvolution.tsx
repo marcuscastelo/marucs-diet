@@ -17,6 +17,10 @@ import { CandleStickChart } from '@/components/chart/CandleStickChart'
 import { OHLC } from '@/model/ohlcModel'
 import Datepicker from 'react-tailwindcss-datepicker'
 import { useWeights } from '@/hooks/weights'
+import { useDateField, useField, useFloatField } from '@/hooks/field'
+import { FloatInput } from '@/components/FloatInput'
+import { dateToDateString } from '@/utils/dateUtils'
+import { CapsuleContent } from '@/components/capsule/CapsuleContent'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -27,7 +31,7 @@ export default function WeightEvolution({ onSave }: { onSave: () => void }) {
 
   const { weights, refetch: handleRefetchWeights } = useWeights(userId)
 
-  const [weightField, setWeightField] = useState<string>('')
+  const weightField = useFloatField()
 
   if (weights.loading || weights.errored) {
     return <h1>Carregando...</h1>
@@ -40,18 +44,19 @@ export default function WeightEvolution({ onSave }: { onSave: () => void }) {
           Progresso do peso
         </h5>
         <div className="mx-5 lg:mx-20 pb-10">
-          <input
+          <FloatInput
+            field={weightField}
             className="input px-0 pl-5 text-xl mb-3"
+            onFocus={(event) => event.target.select()}
             style={{ width: '100%' }}
-            value={weightField}
-            onChange={(event) => setWeightField(event.target.value)}
           />
           <button
             className="btn btn-primary no-animation w-full"
             onClick={async () => {
-              const weight = parseFloat(weightField)
-              if (isNaN(weight)) {
-                alert('Peso inválido')
+              const weight = weightField.value
+
+              if (weight === undefined) {
+                alert('Peso inválido (undefined)')
                 return
               }
 
@@ -64,6 +69,7 @@ export default function WeightEvolution({ onSave }: { onSave: () => void }) {
               )
               handleRefetchWeights()
               onSave()
+              weightField.setRawValue('')
             }}
           >
             Adicionar peso
@@ -101,25 +107,26 @@ function WeightView({
   onRefetchWeights: () => void
   onSave: () => void
 }) {
-  const [dateField, setDateField] = useState<Date>(weight.target_timestamp)
+  const dateField = useDateField(weight.target_timestamp)
+  const weightField = useFloatField(weight.weight)
 
-  const [weightField, setWeightField] = useState<string>(
-    weight.weight.toString(),
-  )
+  const handleSave = async ({ date }: { date: Date | undefined }) => {
+    if (weightField.value === undefined) {
+      alert('Peso inválido (undefined)')
+      console.error('Weight is undefined')
+      return
+    }
 
-  const handleSave = async ({
-    dateField,
-    weightField,
-  }: {
-    dateField: Date
-    weightField: string
-  }) => {
-    const floatWeightField = parseFloat(weightField)
-    setWeightField(floatWeightField.toFixed(2))
+    if (date === undefined) {
+      alert('Data inválida (undefined)')
+      console.error('Date is undefined')
+      return
+    }
+
     await updateWeight(weight.id, {
       ...weight,
-      weight: parseFloat(floatWeightField.toFixed(2)),
-      target_timestamp: dateField,
+      weight: weightField.value,
+      target_timestamp: date,
     })
     onSave()
   }
@@ -127,11 +134,11 @@ function WeightView({
   return (
     <Capsule
       leftContent={
-        <div className="overflow-visible">
+        <CapsuleContent>
           <Datepicker
             value={{
-              startDate: dateField,
-              endDate: dateField,
+              startDate: dateField.rawValue,
+              endDate: dateField.rawValue,
             }}
             onChange={async (value) => {
               if (!value?.startDate) {
@@ -140,13 +147,9 @@ function WeightView({
               }
               // Apply timezone offset
               const date = new Date(value.startDate)
-              date.setHours(date.getHours() + 3)
-              setDateField(date)
-
-              await handleSave({
-                dateField: date,
-                weightField,
-              })
+              dateField.setRawValue(dateToDateString(date))
+              dateField.finishTyping() // TODO: Trigger finishTyping onBlur of Datepicker or parent div
+              await handleSave({ date })
               onRefetchWeights()
             }}
             // Timezone = GMT-3
@@ -154,29 +157,24 @@ function WeightView({
             asSingle={true}
             useRange={false}
             readOnly={true}
-            containerClassName="relative w-full text-gray-700"
+            toggleIcon={() => <></>}
+            containerClassName="relative w-full text-gray-700 "
             inputClassName="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full dark:bg-slate-700 dark:text-white/80 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed border-none"
             // containerClassName={`text-md text-center flex-shrink outline overflow-hidden`}
             // inputClassName={`btn-ghost flex-shrink`}
           />
-        </div>
+        </CapsuleContent>
       }
       rightContent={
         <div className={`ml-2 p-2 text-xl flex justify-between`}>
           <div className="flex justify-between sm:gap-10 px-2">
-            <input
+            <FloatInput
+              field={weightField}
               className="input text-center btn-ghost px-0 flex-shrink"
               style={{ width: '100%' }}
-              value={weightField}
-              onChange={(event) =>
-                setWeightField(event.target.value.replace(',', '.'))
-              }
               onFocus={(event) => event.target.select()}
               onBlur={async () => {
-                await handleSave({
-                  dateField,
-                  weightField,
-                })
+                await handleSave({ date: dateField.value })
                 onRefetchWeights()
               }}
             />

@@ -20,10 +20,10 @@ export default function MeasuresEvolution({ onSave }: { onSave: () => void }) {
   const [measures, setMeasures] = useState<Loadable<Measure[]>>({
     loading: true,
   })
-  const heightField123 = useFloatField()
-  const waistField123 = useFloatField()
-  const hipField123 = useFloatField()
-  const neckField123 = useFloatField()
+  const heightField = useFloatField()
+  const waistField = useFloatField()
+  const hipField = useFloatField()
+  const neckField = useFloatField()
 
   const handleRefetchMeasures = useCallback(() => {
     fetchUserMeasures(userId).then((measures) =>
@@ -49,7 +49,7 @@ export default function MeasuresEvolution({ onSave }: { onSave: () => void }) {
           <div className="flex mb-3">
             <span className="w-1/4 text-center my-auto text-lg">Altura</span>
             <FloatInput
-              field={heightField123}
+              field={heightField}
               className="input px-0 pl-5 text-xl"
               style={{ width: '100%' }}
               onFocus={(event) => event.target.select()}
@@ -58,7 +58,7 @@ export default function MeasuresEvolution({ onSave }: { onSave: () => void }) {
           <div className="flex mb-3">
             <span className="w-1/4 text-center my-auto text-lg">Cintura</span>
             <FloatInput
-              field={waistField123}
+              field={waistField}
               className="input px-0 pl-5 text-xl"
               style={{ width: '100%' }}
               onFocus={(event) => event.target.select()}
@@ -67,7 +67,7 @@ export default function MeasuresEvolution({ onSave }: { onSave: () => void }) {
           <div className="flex mb-3">
             <span className="w-1/4 text-center my-auto text-lg">Quadril</span>
             <FloatInput
-              field={hipField123}
+              field={hipField}
               className="input px-0 pl-5 text-xl"
               style={{ width: '100%' }}
               onFocus={(event) => event.target.select()}
@@ -76,7 +76,7 @@ export default function MeasuresEvolution({ onSave }: { onSave: () => void }) {
           <div className="flex mb-3">
             <span className="w-1/4 text-center my-auto text-lg">Pescoço</span>
             <FloatInput
-              field={neckField123}
+              field={neckField}
               className="input px-0 pl-5 text-xl"
               style={{ width: '100%' }}
               onFocus={(event) => event.target.select()}
@@ -87,10 +87,10 @@ export default function MeasuresEvolution({ onSave }: { onSave: () => void }) {
             className="btn btn-primary no-animation w-full"
             onClick={async () => {
               if (
-                !heightField123.value ||
-                !waistField123.value ||
-                !hipField123.value ||
-                !neckField123.value
+                !heightField.value ||
+                !waistField.value ||
+                !hipField.value ||
+                !neckField.value
               ) {
                 alert('Medidas inválidas')
                 return
@@ -99,10 +99,10 @@ export default function MeasuresEvolution({ onSave }: { onSave: () => void }) {
               await insertMeasure(
                 createMeasure({
                   owner: userId,
-                  height: heightField123.value,
-                  waist: waistField123.value,
-                  hip: hipField123.value,
-                  neck: neckField123.value,
+                  height: heightField.value,
+                  waist: waistField.value,
+                  hip: hipField.value,
+                  neck: neckField.value,
                   target_timestamp: new Date(Date.now()),
                 }),
               )
