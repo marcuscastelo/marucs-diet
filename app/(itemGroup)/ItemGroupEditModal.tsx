@@ -1,6 +1,10 @@
 'use client'
 
-import { ItemGroup, isSimpleSingleGroup } from '@/model/itemGroupModel'
+import {
+  ItemGroup,
+  isSimpleSingleGroup,
+  itemGroupSchema,
+} from '@/model/itemGroupModel'
 import {
   Dispatch,
   SetStateAction,
@@ -28,6 +32,7 @@ import { useUserContext } from '@/context/users.context'
 import { ModalContextProvider, useModalContext } from '../(modals)/ModalContext'
 import {
   addInnerItem,
+  addInnerItems,
   convertToGroups,
   deleteInnerItem,
   editInnerItem,
@@ -398,6 +403,8 @@ function Body({
   foodSearchModalVisible: boolean
   setFoodSearchModalVisible: Dispatch<SetStateAction<boolean>>
 }) {
+  const acceptedClipboardSchema = foodItemSchema.or(itemGroupSchema)
+
   const { group, setGroup } = useItemGroupEditContext()
   const {
     write: writeToClipboard,
@@ -414,12 +421,10 @@ function Body({
         return false
       }
 
-      return foodItemSchema.safeParse(parsedClipboard).success
+      return acceptedClipboardSchema.safeParse(parsedClipboard).success
     },
   })
   const { show: showConfirmModal } = useConfirmModalContext()
-
-  const acceptedClipboardSchema = foodItemSchema
 
   const hasValidPastableOnClipboard = clipboardText.length > 0
 
@@ -434,11 +439,14 @@ function Body({
       throw new Error('BUG: group is null')
     }
 
-    const itemsToAdd = renegerateId(data)
-
-    const newGroup = addInnerItem(group, itemsToAdd)
-
-    setGroup(newGroup)
+    if ('items' in data) {
+      // data is an itemGroup
+      const newGroup = addInnerItems(group, data.items.map(renegerateId))
+      setGroup(newGroup)
+    } else {
+      const newGroup = addInnerItem(group, renegerateId(data))
+      setGroup(newGroup)
+    }
 
     // Clear clipboard
     clearClipboard()
