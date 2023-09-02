@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { updateUser } from '@/controllers/users'
 import Capsule from '../../components/capsule/Capsule'
 import { z } from 'zod'
+import { CapsuleContent } from '@/components/capsule/CapsuleContent'
 type Translation<T extends string> = { [key in T]: string }
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -101,18 +102,22 @@ export default function BasicInfo({
   ) => (
     <Capsule
       leftContent={
-        <h5 className={`pl-5 text-xl`}>
-          {USER_FIELD_TRANSLATION[field]} {extra}
-        </h5>
+        <CapsuleContent>
+          <h5 className={`pl-5 text-xl`}>
+            {USER_FIELD_TRANSLATION[field]} {extra}
+          </h5>
+        </CapsuleContent>
       }
       rightContent={
-        <input
-          className={`btn-ghost input px-0 pl-5 text-xl`}
-          value={innerData[field].toString()}
-          onChange={makeOnChange(field, convertString)}
-          onBlur={makeOnBlur(field, convert)}
-          style={{ width: '100%' }}
-        />
+        <CapsuleContent>
+          <input
+            className={`btn-ghost input px-0 pl-5 text-xl`}
+            value={innerData[field].toString()}
+            onChange={makeOnChange(field, convertString)}
+            onBlur={makeOnBlur(field, convert)}
+            style={{ width: '100%' }}
+          />
+        </CapsuleContent>
       }
       className={`mb-2`}
     />

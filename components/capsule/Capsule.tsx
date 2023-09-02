@@ -10,14 +10,18 @@ export default function Capsule({
   className?: string
 }) {
   return (
-    <div className={`flex overflow-visible ${className || ''}`}>
+    <div
+      className={`flex flex-col sm:flex-row gap-2 sm:gap-0 overflow-visible mt-10 sm:mt-0 ${
+        className || ''
+      }`}
+    >
       <div
-        className={`flex flex-1 flex-col justify-around bg-slate-700 text-left rounded-3xl rounded-r-none`}
+        className={`flex flex-1 flex-col justify-around bg-slate-700 text-left rounded-3xl sm:rounded-r-none`}
       >
         {leftContent}
       </div>
       <div
-        className={`flex flex-1 flex-col justify-around bg-slate-900 text-left rounded-3xl rounded-l-none`}
+        className={`flex flex-1 flex-col justify-around bg-slate-900 text-left rounded-3xl sm:rounded-l-none`}
       >
         {rightContent}
       </div>
