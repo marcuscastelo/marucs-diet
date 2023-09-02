@@ -125,9 +125,9 @@ function FoodItemName() {
 }
 
 function FoodItemCopyButton({
-  handleCopyFoodItem,
+  onCopyItem,
 }: {
-  handleCopyFoodItem: (FoodItem: FoodItem) => void
+  onCopyItem: (foodItem: FoodItem) => void
 }) {
   const { foodItem: FoodItem } = useFoodItemContext()
 
@@ -137,7 +137,7 @@ function FoodItemCopyButton({
       onClick={(e) => {
         e.stopPropagation()
         e.preventDefault()
-        handleCopyFoodItem(FoodItem)
+        onCopyItem(FoodItem)
       }}
     >
       <CopyIcon />
