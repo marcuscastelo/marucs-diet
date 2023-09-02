@@ -7,6 +7,7 @@ import Modal, { ModalActions } from '../(modals)/Modal'
 import { useUserContext } from '@/context/users.context'
 import { useModalContext } from '../(modals)/ModalContext'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
+import { generateId } from '@/utils/idUtils'
 import { useFloatField } from '@/hooks/field'
 import { FloatInput } from '@/components/FloatInput'
 
@@ -36,7 +37,7 @@ const FoodItemEditModal = ({
   const { visible, setVisible } = useModalContext()
 
   const [foodItem, setFoodItem] = useState<CustomFoodItem>({
-    id: initialFoodItem?.id ?? Math.round(Math.random() * 1000000),
+    id: initialFoodItem?.id ?? generateId(),
     name: initialFoodItem?.name ?? 'ERRO: Sem nome',
     quantity: initialFoodItem?.quantity ?? 0,
     type: initialFoodItem?.type ?? 'food',

@@ -10,7 +10,7 @@ import DayMacros from '../../DayMacros'
 import { Meal } from '@/model/mealModel'
 import { Loaded } from '@/utils/loadable'
 import FoodSearchModal from '@/app/newItem/FoodSearchModal'
-import { ItemGroup } from '@/model/foodItemGroupModel'
+import { ItemGroup } from '@/model/itemGroupModel'
 import { calcDayMacros } from '@/utils/macroMath'
 import ItemGroupEditModal from '@/app/(itemGroup)/ItemGroupEditModal'
 import CopyLastDayButton from './CopyLastDayButton'
@@ -19,6 +19,7 @@ import { useRouter } from 'next/navigation'
 import { getToday } from '@/utils/dateUtils'
 import { ModalContextProvider } from '@/app/(modals)/ModalContext'
 import { useUserContext } from '@/context/users.context'
+import { deepCopy } from '@/utils/deepCopy'
 
 export default function DayMeals({
   selectedDay,
@@ -66,7 +67,7 @@ export default function DayMeals({
     meal: null,
   })
 
-  const onEditItemGroup = (meal: Meal, itemGroup: ItemGroup) => {
+  const handleEditItemGroup = (meal: Meal, itemGroup: ItemGroup) => {
     if (dayLocked) {
       alert('Dia bloqueado, não é possível editar')
       return
@@ -76,7 +77,7 @@ export default function DayMeals({
     setItemGroupEditModalVisible(true)
   }
 
-  const onUpdateMeal = async (day: Day, meal: Meal) => {
+  const handleUpdateMeal = async (day: Day, meal: Meal) => {
     if (dayLocked) {
       alert('Dia bloqueado, não é possível editar')
       return
@@ -113,11 +114,13 @@ export default function DayMeals({
     (meal): MealEditViewProps => ({
       meal,
       header: (
-        <MealEditView.Header onUpdateMeal={(meal) => onUpdateMeal(day, meal)} />
+        <MealEditView.Header
+          onUpdateMeal={(meal) => handleUpdateMeal(day, meal)}
+        />
       ),
       content: (
         <MealEditView.Content
-          onEditItemGroup={(item) => onEditItemGroup(meal, item)}
+          onEditItemGroup={(item) => handleEditItemGroup(meal, item)}
         />
       ),
       actions: (
@@ -147,8 +150,8 @@ export default function DayMeals({
         refetchDays={refetchDays}
         visible={itemGroupEditModalVisible}
         setVisible={setItemGroupEditModalVisible}
-        selectedItemGroup={editSelection.itemGroup}
-        selectedMeal={editSelection.meal}
+        selectedItemGroup={deepCopy(editSelection.itemGroup)}
+        selectedMeal={deepCopy(editSelection.meal)}
         unselect={() => {
           console.debug('ItemGroupEditModal: Unselecting meal and itemGroup')
           setEditSelection({
@@ -334,10 +337,14 @@ function ExternalItemGroupEditModal({
     >
       <ItemGroupEditModal
         modalId={editModalId}
-        group={selectedItemGroup}
+        group={deepCopy(selectedItemGroup)}
         targetMealName={selectedMeal?.name ?? 'ERROR: No meal selected'}
         onSaveGroup={async (group) => {
-          console.debug('ItemGroupEditModal onApply, received group', group)
+          console.debug(
+            `[DayMeals] (<ItemGroupEditModal/>) Saving group: ${JSON.stringify(
+              group,
+            )}`,
+          )
           await updateDay(day.id, {
             ...day,
             meals: day.meals.map((meal) => {
