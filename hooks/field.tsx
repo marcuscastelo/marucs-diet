@@ -6,7 +6,7 @@ import {
   dateToString,
   stringToDate,
 } from '@/utils/dateUtils'
-import { useCallback, useState } from 'react'
+import { SetStateAction, useCallback, useState } from 'react'
 
 // TODO: Unit test all FieldTransforms
 export type FieldTransform<T> = {
@@ -61,9 +61,25 @@ export function useField<T>({
   const [value, setValue] = useState<T | undefined>(initialValue)
 
   const handleSetValue = useCallback(
-    (newValue: T) => {
-      // Convert to rawValue and then back to value
-      const newRawValue = transform.toRaw(newValue)
+    (actionOrValue: T | SetStateAction<T | undefined>) => {
+      if (actionOrValue instanceof Function) {
+        setValue((oldValue) => {
+          const newValue = actionOrValue(oldValue)
+          const newRawValue =
+            newValue !== undefined ? transform.toRaw(newValue) : ''
+          const newValueFromRawValue = transform.toValue(newRawValue)
+          const newRawValueFromNewValue = transform.toRaw(newValueFromRawValue)
+          setRawValue(newRawValueFromNewValue)
+          return newValueFromRawValue
+        })
+        return
+      }
+
+      const newValue = actionOrValue
+
+      const newRawValue =
+        newValue === undefined ? '' : transform.toRaw(newValue)
+
       const newValueFromRawValue = transform.toValue(newRawValue)
       setValue(newValueFromRawValue)
       const newRawValueFromNewValue = transform.toRaw(newValueFromRawValue)

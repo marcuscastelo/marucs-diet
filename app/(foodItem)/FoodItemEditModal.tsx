@@ -194,9 +194,9 @@ function Body({
   const [currentHoldInterval, setCurrentHoldInterval] =
     useState<NodeJS.Timeout>()
 
-  const increment = () => quantityField.setValue((quantityField.value ?? 0) + 1)
+  const increment = () => quantityField.setValue((old) => (old ?? 0) + 1)
   const decrement = () =>
-    quantityField.setValue(Math.max(0, (quantityField.value ?? 0) - 1))
+    quantityField.setValue((old) => Math.max(0, (old ?? 0) - 1))
 
   const holdRepeatStart = (action: () => void) => {
     setCurrentHoldTimeout(
