@@ -5,7 +5,6 @@ import {
   SetStateAction,
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react'
@@ -60,21 +59,22 @@ const FoodItemEditModal = ({
   }, [initialFoodItem])
 
   const quantity = foodItem.quantity.toString()
-  const setQuantity: Dispatch<SetStateAction<number>> = (
-    value: SetStateAction<number>,
-  ) => {
-    if (typeof value === 'function') {
-      setFoodItem((old) => ({
-        ...old,
-        quantity: value(old.quantity),
-      }))
-    } else {
-      setFoodItem((old) => ({
-        ...old,
-        quantity: value,
-      }))
-    }
-  }
+  const setQuantity: Dispatch<SetStateAction<number>> = useCallback(
+    (value: SetStateAction<number>) => {
+      if (typeof value === 'function') {
+        setFoodItem((old) => ({
+          ...old,
+          quantity: value(old.quantity),
+        }))
+      } else {
+        setFoodItem((old) => ({
+          ...old,
+          quantity: value,
+        }))
+      }
+    },
+    [],
+  )
 
   const canApply = quantity !== '' && Number(quantity) > 0
 
@@ -184,6 +184,10 @@ function Body({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, foodItem.quantity])
 
+  useEffect(() => {
+    onQuantityChanged(quantityField.value ?? 0)
+  }, [quantityField.value, onQuantityChanged])
+
   const { isFoodFavorite, setFoodAsFavorite } = useUserContext()
 
   const [currentHoldTimeout, setCurrentHoldTimeout] = useState<NodeJS.Timeout>()
@@ -245,9 +249,7 @@ function Body({
             field={quantityField}
             style={{ width: '100%' }}
             onFieldChange={(value) =>
-              value === undefined
-                ? quantityField.setValue(foodItem.quantity)
-                : onQuantityChanged(value ?? foodItem.quantity)
+              value === undefined && quantityField.setValue(foodItem.quantity)
             }
             tabIndex={-1}
             onFocus={(event) => {
