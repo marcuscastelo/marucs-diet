@@ -110,14 +110,20 @@ function WeightView({
   const dateField = useDateField(weight.target_timestamp)
   const weightField = useFloatField(weight.weight)
 
-  const handleSave = async ({ date }: { date: Date | undefined }) => {
-    if (weightField.value === undefined) {
+  const handleSave = async ({
+    dateValue,
+    weightValue,
+  }: {
+    dateValue: Date | undefined
+    weightValue: number | undefined
+  }) => {
+    if (weightValue === undefined) {
       alert('Peso inválido (undefined)')
       console.error('Weight is undefined')
       return
     }
 
-    if (date === undefined) {
+    if (dateValue === undefined) {
       alert('Data inválida (undefined)')
       console.error('Date is undefined')
       return
@@ -125,8 +131,8 @@ function WeightView({
 
     await updateWeight(weight.id, {
       ...weight,
-      weight: weightField.value,
-      target_timestamp: date,
+      weight: weightValue,
+      target_timestamp: dateValue,
     })
     onSave()
   }
@@ -149,7 +155,10 @@ function WeightView({
               const date = new Date(value.startDate)
               dateField.setRawValue(dateToDateString(date))
               dateField.finishTyping() // TODO: Trigger finishTyping onBlur of Datepicker or parent div
-              await handleSave({ date })
+              await handleSave({
+                dateValue: date,
+                weightValue: weightField.value,
+              })
               onRefetchWeights()
             }}
             // Timezone = GMT-3
@@ -173,8 +182,11 @@ function WeightView({
               className="input text-center btn-ghost px-0 flex-shrink"
               style={{ width: '100%' }}
               onFocus={(event) => event.target.select()}
-              onBlur={async () => {
-                await handleSave({ date: dateField.value })
+              onFieldChange={async (value) => {
+                await handleSave({
+                  dateValue: dateField.value,
+                  weightValue: value,
+                })
                 onRefetchWeights()
               }}
             />
