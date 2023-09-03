@@ -43,7 +43,7 @@ export default function CopyLastDayButton({
             message: 'Tem certeza que deseja SOBRESCREVER este dia?',
             onConfirm: async () => {
               updateDay(day?.id, {
-                ...days.data[lastDayIdx],
+                ...lastDay,
                 target_day: selectedDay,
               }).then(() => {
                 refetchDays()
