@@ -9,6 +9,7 @@ export const listDays = async (userId: User['id']): Promise<Day[]> =>
   ((await supabase.from(TABLE).select()).data ?? [])
     .map((day) => daySchema.parse(day))
     .filter((day) => day.owner === userId)
+    .filter((day) => !isNaN(new Date(day.target_day).getTime()))
     .map(
       (day): Day => ({
         ...day,

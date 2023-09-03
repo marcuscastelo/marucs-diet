@@ -8,7 +8,6 @@ import { updateDay } from '@/controllers/days'
 import { Alert } from 'flowbite-react'
 import DayMacros from '../../DayMacros'
 import { Meal } from '@/model/mealModel'
-import { Loaded } from '@/utils/loadable'
 import FoodSearchModal from '@/app/newItem/FoodSearchModal'
 import { ItemGroup } from '@/model/itemGroupModel'
 import { calcDayMacros } from '@/utils/macroMath'
@@ -32,7 +31,7 @@ export default function DayMeals({
   editModalId: string
   day: Day
   refetchDays: () => void
-  days: Loaded<Day[]>
+  days: Day[]
 }) {
   const router = useRouter()
   const today = getToday()

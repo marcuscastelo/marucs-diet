@@ -1,6 +1,4 @@
-import PageLoading from '../../PageLoading'
 import TopBar from './TopBar'
-import { Loadable } from '@/utils/loadable'
 import { Day } from '@/model/dayModel'
 import { listDays } from '@/controllers/days'
 import { revalidatePath } from 'next/cache'
@@ -19,7 +17,6 @@ type PageParams = {
 
 export default async function Page({ params }: PageParams) {
   console.debug(`[DayPage] Rendering day ${params.day}`)
-  // TODO: Remove Loadable and use days directly
 
   const userId = await getUser()
 
@@ -27,11 +24,7 @@ export default async function Page({ params }: PageParams) {
     return <h1>Usuário não encontrado</h1>
   }
 
-  const days: Loadable<Day[]> = {
-    loading: false,
-    errored: false,
-    data: await listDays(userId), // TODO: Get user id from cookies
-  }
+  const days: Day[] = await listDays(userId)
 
   const refetchDays = async () => {
     'use server'
@@ -42,15 +35,7 @@ export default async function Page({ params }: PageParams) {
 
   const EDIT_MODAL_ID = 'edit-modal'
 
-  if (days.loading) {
-    return <PageLoading message="Carregando dias" />
-  }
-
-  if (days.errored) {
-    return <PageLoading message="Erro ao carregar dias" />
-  }
-
-  const day = days.data.find((day) => day.target_day === selectedDay)
+  const day = days.find((day) => day.target_day === selectedDay)
 
   if (!selectedDay) {
     return (
