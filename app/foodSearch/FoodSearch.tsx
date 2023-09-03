@@ -20,6 +20,7 @@ import {
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import { useFoodContext } from '@/context/food.context'
 import { generateId } from '@/utils/idUtils'
+import { FoodSearchTabs, TemplateFilter } from './FoodSearchTabs'
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal'
 const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal'
@@ -50,6 +51,8 @@ export default function FoodSearch({
   const [templates, setTemplates] = useState<Loadable<Template[]>>({
     loading: true,
   })
+
+  const [tabFilter, setTabFilter] = useState<TemplateFilter>(() => () => true)
 
   const [selectedTemplate, setSelectedTemplate] = useState<Template>(
     mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }), // TODO: Properly handle no food selected
@@ -136,15 +139,17 @@ export default function FoodSearch({
     )
   }
 
-  const filteredTemplates = templates.data
-    .filter((consumable) => {
+  const categoryFilteredTemplates = templates.data.filter(tabFilter)
+
+  const searchFilteredTemlates = categoryFilteredTemplates
+    .filter((template) => {
       if (search === '') {
         return true
       }
 
       // Fuzzy search
       const searchLower = search.toLowerCase()
-      const nameLower = consumable.name.toLowerCase()
+      const nameLower = template.name.toLowerCase()
       const searchWords = searchLower.split(' ')
       const nameWords = nameLower.split(' ')
 
@@ -200,11 +205,15 @@ export default function FoodSearch({
         targetName={targetName}
         handleNewItemGroup={handleNewItemGroup}
       />
-      <FoodSearchTabs />
+      <FoodSearchTabs
+        onFilterChange={(filter) => {
+          setTabFilter(() => filter)
+        }}
+      />
       <SearchBar isDesktop={isDesktop} search={search} setSearch={setSearch} />
       <SearchResults
         search={search}
-        filteredTemplates={filteredTemplates}
+        filteredTemplates={searchFilteredTemlates}
         setBarCodeModalVisible={setBarCodeModalVisible}
         setFoodItemEditModalVisible={setFoodItemEditModalVisible}
         setSelectedTemplate={setSelectedTemplate}
@@ -302,20 +311,6 @@ function ExternalFoodItemEditModal({
         }}
       />
     </ModalContextProvider>
-  )
-}
-
-const FoodSearchTabs = () => {
-  const [selectedTab, setSelectedTab] = useState('Todos')
-
-  return (
-    <>
-      <Tabs.Group
-        aria-label="Default tabs"
-        style="default"
-        onActiveTabChange={(tab) => alert(tab)}
-      ></Tabs.Group>
-    </>
   )
 }
 

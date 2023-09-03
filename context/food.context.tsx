@@ -29,6 +29,7 @@ export function FoodContextProvider({
 }) {
   const [foods, setFoods] = useState<Loadable<Food[]>>({ loading: true })
 
+  // TODO: fetch favorite foods and store them locally to switch between tabs
   const handleFetchFoods = useCallback(
     (search?: string) => {
       onFetchFoods(search)
