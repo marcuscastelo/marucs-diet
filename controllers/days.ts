@@ -1,5 +1,6 @@
 import { Day, daySchema } from '@/model/dayModel'
 import { User } from '@/model/userModel'
+import { New, enforceNew } from '@/utils/newDbRecord'
 import supabase from '@/utils/supabase'
 
 const TABLE = 'days_test'
@@ -36,15 +37,16 @@ export const upsertDay = async (
   return daySchema.parse(days?.[0] ?? null)
 }
 
-export const updateDay = async (id: Day['id'], day: Day): Promise<Day> => {
+export const updateDay = async (id: Day['id'], day: New<Day>): Promise<Day> => {
+  const newDay = enforceNew(day)
   const { data, error } = await supabase
     .from(TABLE)
-    .update(day)
+    .update(newDay)
     .eq('id', id)
     .select()
 
   if (error) {
-    console.error('Error while updating day: ', day)
+    console.error('Error while updating day: ', newDay)
     console.error(error)
     throw error
   }

@@ -1,7 +1,7 @@
 'use client'
 
 import { useConfirmModalContext } from '@/context/confirmModal.context'
-import { deleteDay, upsertDay } from '@/controllers/days'
+import { deleteDay, updateDay, upsertDay } from '@/controllers/days'
 import { Day } from '@/model/dayModel'
 
 export default function CopyLastDayButton({
@@ -39,18 +39,23 @@ export default function CopyLastDayButton({
       onClick={async () => {
         if (day !== undefined) {
           showConfirmModal({
-            title: 'Excluir dia',
-            message: 'Tem certeza que deseja excluir este dia?',
+            title: 'Sobrescrever dia',
+            message: 'Tem certeza que deseja SOBRESCREVER este dia?',
             onConfirm: async () => {
-              await deleteDay(day.id)
+              updateDay(day?.id, {
+                ...days.data[lastDayIdx],
+                target_day: selectedDay,
+              }).then(() => {
+                refetchDays()
+              })
             },
           })
+          return
         }
 
         upsertDay({
           ...lastDay,
           target_day: selectedDay,
-          id: day?.id,
         }).then(() => {
           refetchDays()
         })
