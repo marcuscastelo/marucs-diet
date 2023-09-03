@@ -21,10 +21,10 @@ export function MeasureView({
 }) {
   const [dateField, setDateField] = useState<Date>(measure.target_timestamp)
 
-  const heightField123 = useFloatField(measure.height)
-  const waistField123 = useFloatField(measure.waist)
-  const hipField123 = useFloatField(measure.hip)
-  const neckField123 = useFloatField(measure.neck)
+  const heightField = useFloatField(measure.height)
+  const waistField = useFloatField(measure.waist)
+  const hipField = useFloatField(measure.hip)
+  const neckField = useFloatField(measure.neck)
 
   const handleSave = useCallback(
     ({
@@ -81,10 +81,10 @@ export function MeasureView({
 
               handleSave({
                 date,
-                height: heightField123.value,
-                waist: waistField123.value,
-                hip: hipField123.value,
-                neck: neckField123.value,
+                height: heightField.value,
+                waist: waistField.value,
+                hip: hipField.value,
+                neck: neckField.value,
               })
             }}
             // Timezone = GMT-3
@@ -104,7 +104,7 @@ export function MeasureView({
               <div className="flex">
                 <span className="my-auto">Altura:</span>
                 <FloatInput
-                  field={heightField123}
+                  field={heightField}
                   className="input text-center btn-ghost px-0 flex-shrink"
                   style={{ width: '100%' }}
                   onFocus={(event) => event.target.select()}
@@ -112,9 +112,9 @@ export function MeasureView({
                     handleSave({
                       date: dateField,
                       height: value,
-                      waist: waistField123.value,
-                      hip: hipField123.value,
-                      neck: neckField123.value,
+                      waist: waistField.value,
+                      hip: hipField.value,
+                      neck: neckField.value,
                     })
                   }}
                 />
@@ -123,17 +123,17 @@ export function MeasureView({
               <div className="flex">
                 <span className="my-auto">Cintura:</span>
                 <FloatInput
-                  field={waistField123}
+                  field={waistField}
                   className="input text-center btn-ghost px-0 flex-shrink"
                   style={{ width: '100%' }}
                   onFocus={(event) => event.target.select()}
                   onFieldChange={(value) => {
                     handleSave({
                       date: dateField,
-                      height: heightField123.value,
+                      height: heightField.value,
                       waist: value,
-                      hip: hipField123.value,
-                      neck: neckField123.value,
+                      hip: hipField.value,
+                      neck: neckField.value,
                     })
                   }}
                 />
@@ -142,17 +142,17 @@ export function MeasureView({
               <div className="flex">
                 <span className="my-auto">Quadril:</span>
                 <FloatInput
-                  field={hipField123}
+                  field={hipField}
                   className="input text-center btn-ghost px-0 flex-shrink"
                   style={{ width: '100%' }}
                   onFocus={(event) => event.target.select()}
                   onFieldChange={(value) => {
                     handleSave({
                       date: dateField,
-                      height: heightField123.value,
-                      waist: waistField123.value,
+                      height: heightField.value,
+                      waist: waistField.value,
                       hip: value,
-                      neck: neckField123.value,
+                      neck: neckField.value,
                     })
                   }}
                 />
@@ -161,16 +161,16 @@ export function MeasureView({
               <div className="flex">
                 <span className="my-auto">Pescoço:</span>
                 <FloatInput
-                  field={neckField123}
+                  field={neckField}
                   className="input text-center btn-ghost px-0 flex-shrink"
                   style={{ width: '100%' }}
                   onFocus={(event) => event.target.select()}
                   onFieldChange={(value) => {
                     handleSave({
                       date: dateField,
-                      height: heightField123.value,
-                      waist: waistField123.value,
-                      hip: hipField123.value,
+                      height: heightField.value,
+                      waist: waistField.value,
+                      hip: hipField.value,
                       neck: value,
                     })
                   }}
