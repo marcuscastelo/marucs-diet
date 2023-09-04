@@ -9,6 +9,7 @@ const TABLE = 'foods'
 
 export type FoodSearchParams = {
   limit?: number
+  allowedFoods?: number[]
 }
 
 export async function searchFoodById(
@@ -81,7 +82,7 @@ async function internalCachedSearchFoods(
       params?.limit ?? 'none'
     })`,
   )
-  const { limit } = params ?? {}
+  const { limit, allowedFoods } = params ?? {}
   const base = supabase.from(TABLE).select('*')
 
   let query = base
@@ -99,6 +100,11 @@ async function internalCachedSearchFoods(
       default:
         ;((_: never) => _)(operator) // TODO: Create a better function for exhaustive checks
     }
+  }
+
+  if (allowedFoods) {
+    console.debug(`[Food] Limiting search to allowed foods`)
+    query = query.in('id', allowedFoods)
   }
 
   if (limit) {

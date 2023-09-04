@@ -10,6 +10,7 @@ export type TemplateFilter = (template: Template) => boolean
 
 type TabDefinition<T> = {
   title: string
+  // TODO: Remove filters since they are not used (backend query is used instead)
   createFilter: (params: T) => TemplateFilter
 }
 
@@ -39,12 +40,10 @@ const avaliableTabs = {
 export type TabName = keyof typeof avaliableTabs
 
 export function FoodSearchTabs({
-  onFilterChange,
+  onTabChange,
 }: {
-  onFilterChange: (filter: TemplateFilter) => void
+  onTabChange: (title: TabDefinition<unknown>['title']) => void
 }) {
-  const { isFoodFavorite } = useUserContext()
-
   return (
     <>
       <Tabs.Group
@@ -52,12 +51,7 @@ export function FoodSearchTabs({
         style="fullWidth"
         onActiveTabChange={(tabIndex) => {
           const tab = Object.values(avaliableTabs)[tabIndex]
-          onFilterChange(
-            tab.createFilter({
-              checkTemplateIsFavoriteFood: (template) =>
-                template[''] === 'Food' && isFoodFavorite(template.id),
-            }),
-          )
+          onTabChange(tab.title)
         }}
         theme={{
           tablist: {

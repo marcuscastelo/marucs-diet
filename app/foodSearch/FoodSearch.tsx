@@ -52,7 +52,8 @@ export default function FoodSearch({
     loading: true,
   })
 
-  const [tabFilter, setTabFilter] = useState<TemplateFilter>(() => () => true)
+  // TODO: Create DEFAULT_TAB constant
+  const [currentTab, setCurrentTab] = useState<string>('Todos')
 
   const [selectedTemplate, setSelectedTemplate] = useState<Template>(
     mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }), // TODO: Properly handle no food selected
@@ -68,7 +69,9 @@ export default function FoodSearch({
 
   const isDesktop = isClient ? window.innerWidth > 768 : false // TODO: Stop using innerWidth to detect desktop
 
-  const { foods, refetchFoods } = useFoodContext()
+  const { foods, favoriteFoods, refetchFoods } = useFoodContext()
+
+  // const foods = currentTab === 'Favoritos' ? favoriteFoods : allFoods
 
   useEffect(() => {
     if (foods.loading) {
@@ -139,9 +142,7 @@ export default function FoodSearch({
     )
   }
 
-  const categoryFilteredTemplates = templates.data.filter(tabFilter)
-
-  const searchFilteredTemlates = categoryFilteredTemplates
+  const searchFilteredTemlates = templates.data
     .filter((template) => {
       if (search === '') {
         return true
@@ -206,8 +207,8 @@ export default function FoodSearch({
         handleNewItemGroup={handleNewItemGroup}
       />
       <FoodSearchTabs
-        onFilterChange={(filter) => {
-          setTabFilter(() => filter)
+        onTabChange={(filter) => {
+          setCurrentTab(() => filter)
         }}
       />
       <SearchBar isDesktop={isDesktop} search={search} setSearch={setSearch} />
