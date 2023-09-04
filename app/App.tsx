@@ -4,7 +4,11 @@ import ConfirmModal from '@/components/ConfirmModal'
 import { ConfirmModalProvider } from '@/context/confirmModal.context'
 import { DaysContextProvider } from '@/context/days.context'
 import { FoodContextProvider } from '@/context/food.context'
-import { UserContext, UserContextProvider } from '@/context/users.context'
+import {
+  UserContextProvider,
+  useUserContext,
+  useUserId,
+} from '@/context/users.context'
 import { listDays } from '@/controllers/days'
 import { listFoods, searchFoodsByName } from '@/controllers/food'
 import { updateUser } from '@/controllers/users'
@@ -56,14 +60,11 @@ function AppUserProvider({
 
 function AppDaysProvider({ children }: { children: React.ReactNode }) {
   console.debug(`[AppDaysProvider] - Rendering`)
-  // TODO: useUserId() is not working here
-  const userId = useContextSelector(
-    UserContext,
-    (ctx) => ctx && Number(ctx.user.id),
-  )
+
+  const userId = useUserId()
 
   if (!userId) {
-    return <div>UserId not found</div>
+    return <div>UserId is undefined</div>
   }
 
   return (
@@ -92,10 +93,8 @@ function AppConfirmModalProvider({ children }: { children: React.ReactNode }) {
 function AppFoodsProvider({ children }: { children: React.ReactNode }) {
   console.debug(`[AppFoodsProvider] - Rendering`)
 
-  // const { user } = useUserContext()
-  // if (user.loading || user.errored) {
-  //   return <div>User loading or errored aa</div>
-  // }
+  const { user } = useUserContext()
+
   return (
     <FoodContextProvider
       onFetchFoods={async (search?: string) => {
@@ -106,12 +105,24 @@ function AppFoodsProvider({ children }: { children: React.ReactNode }) {
           console.debug(
             `[FoodContextProvider] onFetchFoods - calling searchFoodsByName`,
           )
-          return await searchFoodsByName(search, { limit: 100 })
+          return {
+            foods: await searchFoodsByName(search, { limit: 100 }),
+            favoriteFoods: await searchFoodsByName(search, {
+              limit: 100,
+              allowedFoods: user.favorite_foods,
+            }),
+          }
         } else {
           console.debug(
             `[FoodContextProvider] onFetchFoods - calling listFoods`,
           )
-          return await listFoods({ limit: 100 })
+          return {
+            foods: await listFoods({ limit: 100 }),
+            favoriteFoods: await listFoods({
+              limit: 100,
+              allowedFoods: user.favorite_foods,
+            }),
+          }
         }
       }}
     >
