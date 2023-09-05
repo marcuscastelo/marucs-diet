@@ -8,7 +8,7 @@ import { updateDay } from '@/controllers/days'
 import { Alert } from 'flowbite-react'
 import DayMacros from '../../DayMacros'
 import { Meal } from '@/model/mealModel'
-import FoodSearchModal from '@/app/foodSearch/FoodSearchModal'
+import { TemplateSearchModal } from '@/app/templateSearch/TemplateSearchModal'
 import { ItemGroup } from '@/model/itemGroupModel'
 import { calcDayMacros } from '@/utils/macroMath'
 import ItemGroupEditModal from '@/app/(itemGroup)/ItemGroupEditModal'
@@ -41,7 +41,8 @@ export default function DayMeals({
 
   const [itemGroupEditModalVisible, setItemGroupEditModalVisible] =
     useState(false)
-  const [foodSearchModalVisible, setFoodSearchModalVisible] = useState(false)
+  const [templateSearchModalVisible, setTemplateSearchModalVisible] =
+    useState(false)
 
   type EditSelection =
     | {
@@ -106,7 +107,7 @@ export default function DayMeals({
     setNewItemSelection({ meal })
 
     console.debug('Setting selected meal to', meal)
-    setFoodSearchModalVisible(true)
+    setTemplateSearchModalVisible(true)
   }
 
   const mealEditPropsList = day.meals.map(
@@ -130,14 +131,14 @@ export default function DayMeals({
 
   return (
     <>
-      <ExternalFoodSearchModal
+      <ExternalTemplateSearchModal
         day={day}
         refetchDays={refetchDays}
-        visible={foodSearchModalVisible}
-        setVisible={setFoodSearchModalVisible}
+        visible={templateSearchModalVisible}
+        setVisible={setTemplateSearchModalVisible}
         selectedMeal={newItemSelection.meal}
         unselect={() => {
-          console.debug('FoodSearchModal: Unselecting meal')
+          console.debug('TemplateSearchModal: Unselecting meal')
           setNewItemSelection({
             meal: null,
           })
@@ -211,7 +212,7 @@ export default function DayMeals({
   )
 }
 
-function ExternalFoodSearchModal({
+function ExternalTemplateSearchModal({
   selectedMeal,
   unselect,
   visible,
@@ -268,7 +269,7 @@ function ExternalFoodSearchModal({
   if (!selectedMeal) {
     return (
       debug && (
-        <h1>ERRO ExternalFoodSearchModal: Nenhuma refeição selecionada!</h1>
+        <h1>ERRO ExternalTemplateSearchModal: Nenhuma refeição selecionada!</h1>
       )
     )
   }
@@ -277,7 +278,7 @@ function ExternalFoodSearchModal({
     <ModalContextProvider
       visible={visible}
       // TODO: Implement onClose and onOpen to reduce code duplication
-      setVisible={(visible) => {
+      onSetVisible={(visible) => {
         // TODO: Implement onClose and onOpen to reduce code duplication
         if (!visible) {
           unselect()
@@ -285,7 +286,7 @@ function ExternalFoodSearchModal({
         setVisible(visible)
       }}
     >
-      <FoodSearchModal
+      <TemplateSearchModal
         targetName={selectedMeal.name}
         onFinish={handleFinishSearch}
         onNewItemGroup={handleNewItemGroup}
@@ -326,7 +327,7 @@ function ExternalItemGroupEditModal({
   return (
     <ModalContextProvider
       visible={visible}
-      setVisible={(visible) => {
+      onSetVisible={(visible) => {
         // TODO: Implement onClose and onOpen to reduce code duplication
         if (!visible) {
           unselect()

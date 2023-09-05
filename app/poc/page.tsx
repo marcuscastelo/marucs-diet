@@ -1,5 +1,5 @@
 import UserSelector from '../../components/UserSelector'
-import FoodSearch from '../foodSearch/FoodSearch'
+import { TemplateSearch } from '../templateSearch/TemplateSearch'
 
 export default async function Page() {
   await new Promise((resolve) => setTimeout(resolve, 3000))
@@ -7,7 +7,7 @@ export default async function Page() {
   return (
     <div>
       <UserSelector />
-      <FoodSearch
+      <TemplateSearch
         targetName="foods"
         onNewItemGroup={async () => undefined}
         onFinish={() => undefined}

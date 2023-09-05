@@ -18,7 +18,7 @@ const Modal = ({
   actions,
   hasBackdrop = true,
 }: ModalProps) => {
-  const { visible, setVisible } = useModalContext()
+  const { visible, onSetVisible } = useModalContext()
 
   const modalRef = useRef<HTMLDialogElement>(null)
 
@@ -35,7 +35,7 @@ const Modal = ({
       id={modalId}
       className="modal modal-bottom sm:modal-middle"
       ref={modalRef}
-      onClose={() => visible && setVisible(false)}
+      onClose={() => visible && onSetVisible(false)}
     >
       <div className="modal-box bg-gray-800 text-white">
         {header}

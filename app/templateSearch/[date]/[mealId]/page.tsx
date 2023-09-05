@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import FoodSearch from '../../FoodSearch'
+import { TemplateSearch } from '../../TemplateSearch'
 
 type PageProperties = {
   params: {
@@ -19,7 +19,7 @@ export default function Page({ params }: PageProperties) {
   }
 
   return (
-    <FoodSearch
+    <TemplateSearch
       targetName="Não implementado"
       onNewItemGroup={async () => {
         // TODO: Implement onNewFoodItem
