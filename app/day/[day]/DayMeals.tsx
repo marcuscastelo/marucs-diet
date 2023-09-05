@@ -278,7 +278,7 @@ function ExternalTemplateSearchModal({
     <ModalContextProvider
       visible={visible}
       // TODO: Implement onClose and onOpen to reduce code duplication
-      setVisible={(visible) => {
+      onSetVisible={(visible) => {
         // TODO: Implement onClose and onOpen to reduce code duplication
         if (!visible) {
           unselect()
@@ -327,7 +327,7 @@ function ExternalItemGroupEditModal({
   return (
     <ModalContextProvider
       visible={visible}
-      setVisible={(visible) => {
+      onSetVisible={(visible) => {
         // TODO: Implement onClose and onOpen to reduce code duplication
         if (!visible) {
           unselect()

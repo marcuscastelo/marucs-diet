@@ -10,7 +10,7 @@ export default function ConfirmModal() {
   } = useConfirmModalContext()
 
   return (
-    <ModalContextProvider visible={visible} setVisible={setVisible}>
+    <ModalContextProvider visible={visible} onSetVisible={setVisible}>
       {/* TODO: Move modal-id to ModalContextProvider with a pseudo-random ID generation */}
       <Modal
         modalId={`confirm-modal-${generateId()}`}

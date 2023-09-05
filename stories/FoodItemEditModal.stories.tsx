@@ -20,7 +20,7 @@ const meta: Meta<typeof FoodItemEditModal> = {
     // TODO: Create <MockApp> to provide context to all stories
     (Story) => (
       <ServerApp>
-        <ModalContextProvider visible={true} setVisible={() => undefined}>
+        <ModalContextProvider visible={true} onSetVisible={() => undefined}>
           {Story()}
         </ModalContextProvider>
       </ServerApp>

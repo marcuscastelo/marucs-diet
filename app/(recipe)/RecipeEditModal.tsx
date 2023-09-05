@@ -24,7 +24,7 @@ const RecipeEditModal = ({
   onSaveRecipe,
   onCancel,
 }: RecipeEditModalProps) => {
-  const { visible, setVisible } = useModalContext()
+  const { visible, onSetVisible } = useModalContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
   const [recipe, setRecipe] = useState<Recipe>(
@@ -66,7 +66,7 @@ const RecipeEditModal = ({
       {foodItemEditModalVisible && (
         <ModalContextProvider
           visible={foodItemEditModalVisible}
-          setVisible={(visible) => {
+          onSetVisible={(visible) => {
             // TODO: Implement onClose and onOpen to reduce code duplication
             if (!visible) {
               setSelectedFoodItem(null)
@@ -101,7 +101,7 @@ const RecipeEditModal = ({
         </ModalContextProvider>
       )}
 
-      <ModalContextProvider visible={visible} setVisible={setVisible}>
+      <ModalContextProvider visible={visible} onSetVisible={onSetVisible}>
         <Modal
           modalId={modalId}
           header={
@@ -169,7 +169,7 @@ const RecipeEditModal = ({
                 className="btn"
                 onClick={(e) => {
                   e.preventDefault()
-                  setVisible(false)
+                  onSetVisible(false)
                   onCancel?.()
                 }}
               >
@@ -180,7 +180,7 @@ const RecipeEditModal = ({
                 onClick={(e) => {
                   e.preventDefault()
                   onSaveRecipe(recipe)
-                  setVisible(false)
+                  onSetVisible(false)
                 }}
               >
                 Aplicar
