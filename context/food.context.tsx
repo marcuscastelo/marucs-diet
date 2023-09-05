@@ -56,8 +56,9 @@ export function FoodContextProvider({
   }, [handleFetchFoods])
 
   const context: FoodContext = {
-    foods: unboxLoadingObject(foodStore).foods,
-    favoriteFoods: unboxLoadingObject(foodStore).favoriteFoods,
+    foods: unboxLoadingObject(foodStore, ['favoriteFoods', 'foods']).foods,
+    favoriteFoods: unboxLoadingObject(foodStore, ['favoriteFoods', 'foods'])
+      .favoriteFoods,
     refetchFoods: handleFetchFoods,
   }
 

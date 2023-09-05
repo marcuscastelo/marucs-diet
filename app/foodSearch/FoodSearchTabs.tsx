@@ -9,32 +9,39 @@ import { useUserContext } from '@/context/users.context'
 export type TemplateFilter = (template: Template) => boolean
 
 type TabDefinition<T> = {
+  id: string
   title: string
   // TODO: Remove filters since they are not used (backend query is used instead)
   createFilter: (params: T) => TemplateFilter
 }
 
-const avaliableTabs = {
+export const avaliableTabs = {
   Todos: {
+    id: 'all',
     title: 'Todos',
     createFilter: () => (template: Template) => template[''] === 'Food',
-  } satisfies TabDefinition<unknown>,
+  } as const satisfies TabDefinition<unknown>,
   Favoritos: {
-    title: 'Favoritos (Em breve)',
+    id: 'favorites',
+    title: 'Favoritos',
     createFilter: ({
       checkTemplateIsFavoriteFood,
     }: {
       checkTemplateIsFavoriteFood: TemplateFilter
     }) => checkTemplateIsFavoriteFood,
-  } satisfies TabDefinition<{ checkTemplateIsFavoriteFood: TemplateFilter }>,
+  } as const satisfies TabDefinition<{
+    checkTemplateIsFavoriteFood: TemplateFilter
+  }>,
   Recentes: {
+    id: 'recent',
     title: 'Recentes (Em breve)',
     createFilter: () => (template: Template) => false,
-  } satisfies TabDefinition<unknown>,
+  } as const satisfies TabDefinition<unknown>,
   Receitas: {
+    id: 'recipes',
     title: 'Receitas',
     createFilter: () => (template: Template) => template[''] === 'Recipe',
-  } satisfies TabDefinition<unknown>,
+  } as const satisfies TabDefinition<unknown>,
 } as const satisfies { [key: string]: TabDefinition<any> }
 
 export type TabName = keyof typeof avaliableTabs
@@ -42,7 +49,7 @@ export type TabName = keyof typeof avaliableTabs
 export function FoodSearchTabs({
   onTabChange,
 }: {
-  onTabChange: (title: TabDefinition<unknown>['title']) => void
+  onTabChange: (id: TabDefinition<unknown>['id']) => void
 }) {
   return (
     <>
@@ -51,7 +58,7 @@ export function FoodSearchTabs({
         style="fullWidth"
         onActiveTabChange={(tabIndex) => {
           const tab = Object.values(avaliableTabs)[tabIndex]
-          onTabChange(tab.title)
+          onTabChange(tab.id)
         }}
         theme={{
           tablist: {
