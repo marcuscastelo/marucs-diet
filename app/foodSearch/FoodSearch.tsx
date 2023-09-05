@@ -20,7 +20,7 @@ import {
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import { useFoodContext } from '@/context/food.context'
 import { generateId } from '@/utils/idUtils'
-import { FoodSearchTabs, TemplateFilter } from './FoodSearchTabs'
+import { FoodSearchTabs, TemplateFilter, avaliableTabs } from './FoodSearchTabs'
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal'
 const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal'
@@ -53,7 +53,8 @@ export default function FoodSearch({
   })
 
   // TODO: Create DEFAULT_TAB constant
-  const [currentTab, setCurrentTab] = useState<string>('Todos')
+  const [currentTab, setCurrentTab] =
+    useState<(typeof avaliableTabs)[keyof typeof avaliableTabs]['id']>('all')
 
   const [selectedTemplate, setSelectedTemplate] = useState<Template>(
     mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }), // TODO: Properly handle no food selected
@@ -69,9 +70,9 @@ export default function FoodSearch({
 
   const isDesktop = isClient ? window.innerWidth > 768 : false // TODO: Stop using innerWidth to detect desktop
 
-  const { foods, favoriteFoods, refetchFoods } = useFoodContext()
+  const { foods: allFoods, favoriteFoods, refetchFoods } = useFoodContext()
 
-  // const foods = currentTab === 'Favoritos' ? favoriteFoods : allFoods
+  const foods = currentTab === 'favorites' ? favoriteFoods : allFoods
 
   useEffect(() => {
     if (foods.loading) {
@@ -207,8 +208,8 @@ export default function FoodSearch({
         handleNewItemGroup={handleNewItemGroup}
       />
       <FoodSearchTabs
-        onTabChange={(filter) => {
-          setCurrentTab(() => filter)
+        onTabChange={(id) => {
+          setCurrentTab(() => id)
         }}
       />
       <SearchBar isDesktop={isDesktop} search={search} setSearch={setSearch} />
