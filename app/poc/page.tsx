@@ -1,5 +1,5 @@
 import UserSelector from '../../components/UserSelector'
-import FoodSearch from '../newItem/FoodSearch'
+import FoodSearch from '../foodSearch/FoodSearch'
 
 export default async function Page() {
   await new Promise((resolve) => setTimeout(resolve, 3000))

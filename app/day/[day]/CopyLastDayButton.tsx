@@ -1,7 +1,7 @@
 'use client'
 
 import { useConfirmModalContext } from '@/context/confirmModal.context'
-import { deleteDay, updateDay, upsertDay } from '@/controllers/days'
+import { updateDay, upsertDay } from '@/controllers/days'
 import { Day } from '@/model/dayModel'
 
 export default function CopyLastDayButton({
@@ -16,6 +16,11 @@ export default function CopyLastDayButton({
   refetchDays: () => void
 }) {
   const { show: showConfirmModal } = useConfirmModalContext()
+
+  if (days === undefined) {
+    console.error('days is undefined')
+    return <></>
+  }
 
   const lastDay = days.findLast(
     (day) => Date.parse(day.target_day) < Date.parse(selectedDay),

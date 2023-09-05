@@ -2,7 +2,7 @@
 
 import FoodItemView from '@/app/(foodItem)/FoodItemView'
 import { Food } from '@/model/foodModel'
-import { Alert } from 'flowbite-react'
+import { Alert, Tabs } from 'flowbite-react'
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import BarCodeInsertModal from '@/app/BarCodeInsertModal'
 import { Loadable } from '@/utils/loadable'
@@ -20,6 +20,7 @@ import {
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import { useFoodContext } from '@/context/food.context'
 import { generateId } from '@/utils/idUtils'
+import { FoodSearchTabs, TemplateFilter, avaliableTabs } from './FoodSearchTabs'
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal'
 const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal'
@@ -51,6 +52,10 @@ export default function FoodSearch({
     loading: true,
   })
 
+  // TODO: Create DEFAULT_TAB constant
+  const [currentTab, setCurrentTab] =
+    useState<(typeof avaliableTabs)[keyof typeof avaliableTabs]['id']>('all')
+
   const [selectedTemplate, setSelectedTemplate] = useState<Template>(
     mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }), // TODO: Properly handle no food selected
   )
@@ -65,7 +70,9 @@ export default function FoodSearch({
 
   const isDesktop = isClient ? window.innerWidth > 768 : false // TODO: Stop using innerWidth to detect desktop
 
-  const { foods, refetchFoods } = useFoodContext()
+  const { foods: allFoods, favoriteFoods, refetchFoods } = useFoodContext()
+
+  const foods = currentTab === 'favorites' ? favoriteFoods : allFoods
 
   useEffect(() => {
     if (foods.loading) {
@@ -136,15 +143,15 @@ export default function FoodSearch({
     )
   }
 
-  const filteredConsumables = templates.data
-    .filter((consumable) => {
+  const searchFilteredTemlates = templates.data
+    .filter((template) => {
       if (search === '') {
         return true
       }
 
       // Fuzzy search
       const searchLower = search.toLowerCase()
-      const nameLower = consumable.name.toLowerCase()
+      const nameLower = template.name.toLowerCase()
       const searchWords = searchLower.split(' ')
       const nameWords = nameLower.split(' ')
 
@@ -193,51 +200,25 @@ export default function FoodSearch({
         setFoodItemEditModalVisible={setFoodItemEditModalVisible}
         setSelectedConsumable={setSelectedTemplate}
       />
-      <ModalContextProvider
-        visible={foodItemEditModalVisible}
-        setVisible={setFoodItemEditModalVisible}
-      >
-        <FoodItemEditModal
-          modalId={MEAL_ITEM_ADD_MODAL_ID}
-          targetName={targetName}
-          foodItem={{
-            reference: selectedTemplate.id,
-            name: selectedTemplate.name,
-            macros: selectedTemplate.macros,
-            type: selectedTemplate[''] === 'Food' ? 'food' : 'recipe', // TODO: Refactor
-          }}
-          onApply={async (item) => {
-            if (item.type === 'food') {
-              const newGroup: SimpleItemGroup = {
-                id: generateId(),
-                name: item.name,
-                items: [item],
-                type: 'simple',
-                quantity: item.quantity,
-              }
-              handleNewItemGroup(newGroup)
-            } else {
-              const newGroup: RecipedItemGroup = {
-                id: generateId(),
-                name: item.name,
-                items: [...(selectedTemplate as Recipe).items],
-                type: 'recipe',
-                quantity: item.quantity, // TODO: Implement quantity on recipe item groups (should influence macros)
-                recipe: (selectedTemplate as Recipe).id,
-              }
-              handleNewItemGroup(newGroup)
-            }
-          }}
-        />
-      </ModalContextProvider>
-      <Tabs />
+      <ExternalFoodItemEditModal
+        foodItemEditModalVisible={foodItemEditModalVisible}
+        setFoodItemEditModalVisible={setFoodItemEditModalVisible}
+        selectedTemplate={selectedTemplate}
+        targetName={targetName}
+        handleNewItemGroup={handleNewItemGroup}
+      />
+      <FoodSearchTabs
+        onTabChange={(id) => {
+          setCurrentTab(id)
+        }}
+      />
       <SearchBar isDesktop={isDesktop} search={search} setSearch={setSearch} />
       <SearchResults
         search={search}
-        filteredConsumables={filteredConsumables}
+        filteredTemplates={searchFilteredTemlates}
         setBarCodeModalVisible={setBarCodeModalVisible}
         setFoodItemEditModalVisible={setFoodItemEditModalVisible}
-        setSelectedConsumable={setSelectedTemplate}
+        setSelectedTemplate={setSelectedTemplate}
         typing={typing}
       />
     </>
@@ -281,59 +262,57 @@ const BarCode = ({
   </>
 )
 
-const Tabs = () => {
+function ExternalFoodItemEditModal({
+  foodItemEditModalVisible,
+  setFoodItemEditModalVisible,
+  selectedTemplate,
+  targetName,
+  handleNewItemGroup,
+}: {
+  foodItemEditModalVisible: boolean
+  setFoodItemEditModalVisible: Dispatch<SetStateAction<boolean>>
+  selectedTemplate: Template
+  targetName: string
+  handleNewItemGroup: (newGroup: ItemGroup) => Promise<void>
+}) {
   return (
-    <>
-      <div className="sm:hidden">
-        <label htmlFor="tabs" className="sr-only">
-          Select your country
-        </label>
-        <select
-          id="tabs"
-          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-        >
-          <option>Profile</option>
-          <option>Canada</option>
-          <option>France</option>
-          <option>Germany</option>
-        </select>
-      </div>
-      <ul className="hidden divide-x divide-gray-200 rounded-lg text-center text-sm font-medium text-gray-500 shadow dark:divide-gray-700 dark:text-gray-400 sm:flex">
-        <li className="w-full">
-          <a
-            href="#"
-            className="active inline-block w-full rounded-l-lg rounded-bl-none bg-gray-100 p-4 text-gray-900 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-gray-700 dark:text-white"
-            aria-current="page"
-          >
-            Profile
-          </a>
-        </li>
-        <li className="w-full">
-          <a
-            href="#"
-            className="inline-block w-full bg-white p-4 hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white"
-          >
-            Dashboard
-          </a>
-        </li>
-        <li className="w-full">
-          <a
-            href="#"
-            className="inline-block w-full bg-white p-4 hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white"
-          >
-            Settings
-          </a>
-        </li>
-        <li className="w-full">
-          <a
-            href="#"
-            className="inline-block w-full rounded-r-lg rounded-br-none bg-white p-4 hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white"
-          >
-            Invoice
-          </a>
-        </li>
-      </ul>
-    </>
+    <ModalContextProvider
+      visible={foodItemEditModalVisible}
+      setVisible={setFoodItemEditModalVisible}
+    >
+      <FoodItemEditModal
+        modalId={MEAL_ITEM_ADD_MODAL_ID}
+        targetName={targetName}
+        foodItem={{
+          reference: selectedTemplate.id,
+          name: selectedTemplate.name,
+          macros: selectedTemplate.macros,
+          type: selectedTemplate[''] === 'Food' ? 'food' : 'recipe', // TODO: Refactor
+        }}
+        onApply={async (item) => {
+          if (item.type === 'food') {
+            const newGroup: SimpleItemGroup = {
+              id: generateId(),
+              name: item.name,
+              items: [item],
+              type: 'simple',
+              quantity: item.quantity,
+            }
+            handleNewItemGroup(newGroup)
+          } else {
+            const newGroup: RecipedItemGroup = {
+              id: generateId(),
+              name: item.name,
+              items: [...(selectedTemplate as Recipe).items],
+              type: 'recipe',
+              quantity: item.quantity, // TODO: Implement quantity on recipe item groups (should influence macros)
+              recipe: (selectedTemplate as Recipe).id,
+            }
+            handleNewItemGroup(newGroup)
+          }
+        }}
+      />
+    </ModalContextProvider>
   )
 }
 
@@ -380,15 +359,15 @@ const SearchBar = ({
 const SearchResults = ({
   search,
   typing,
-  filteredConsumables,
-  setSelectedConsumable,
+  filteredTemplates,
+  setSelectedTemplate,
   setBarCodeModalVisible,
   setFoodItemEditModalVisible,
 }: {
   search: string
   typing: boolean
-  filteredConsumables: Template[]
-  setSelectedConsumable: (food: Template) => void
+  filteredTemplates: Template[]
+  setSelectedTemplate: (food: Template) => void
   setBarCodeModalVisible: Dispatch<SetStateAction<boolean>>
   setFoodItemEditModalVisible: Dispatch<SetStateAction<boolean>>
 }) => {
@@ -396,27 +375,27 @@ const SearchResults = ({
 
   return (
     <>
-      {!typing && filteredConsumables.length === 0 && (
+      {!typing && filteredTemplates.length === 0 && (
         <Alert color="warning" className="mt-2">
           Nenhum alimento encontrado para a busca &quot;{search}&quot;.
         </Alert>
       )}
 
       <div className="bg-gray-800 p-1">
-        {filteredConsumables.map((consumable, idx) => (
+        {filteredTemplates.map((template, idx) => (
           <React.Fragment key={idx}>
             <FoodItemView
               foodItem={{
                 id: generateId(),
-                name: consumable.name,
+                name: template.name,
                 quantity: 100,
-                macros: consumable.macros,
-                reference: consumable.id,
-                type: consumable[''] === 'Food' ? 'food' : 'recipe', // TODO: Refactor
+                macros: template.macros,
+                reference: template.id,
+                type: template[''] === 'Food' ? 'food' : 'recipe', // TODO: Refactor
               }}
               className="mt-1"
               onClick={() => {
-                setSelectedConsumable(consumable)
+                setSelectedTemplate(template)
                 setFoodItemEditModalVisible(true)
                 setBarCodeModalVisible(false)
               }}
@@ -425,9 +404,9 @@ const SearchResults = ({
                   name={<FoodItemView.Header.Name />}
                   favorite={
                     <FoodItemView.Header.Favorite
-                      favorite={isFoodFavorite(consumable.id)}
+                      favorite={isFoodFavorite(template.id)}
                       onSetFavorite={(favorite) =>
-                        setFoodAsFavorite(consumable.id, favorite)
+                        setFoodAsFavorite(template.id, favorite)
                       }
                     />
                   }

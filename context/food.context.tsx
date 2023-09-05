@@ -1,11 +1,17 @@
 import { Food } from '@/model/foodModel'
-import { Loadable } from '@/utils/loadable'
+import { Loadable, UnboxedLoadable, unboxLoadingObject } from '@/utils/loadable'
 import { useCallback, useEffect, useState } from 'react'
 import { createContext, useContext } from 'use-context-selector'
 
-export type FoodContext = {
-  foods: Loadable<Food[]>
-  refetchFoods: (search?: string) => void
+type FoodStore = {
+  foods: Food[]
+  favoriteFoods: Food[]
+}
+
+type FoodFetch = (search?: string) => Promise<FoodStore>
+
+export type FoodContext = UnboxedLoadable<FoodStore> & {
+  refetchFoods: (...params: Parameters<FoodFetch>) => void
 }
 
 const FoodContext = createContext<FoodContext | null>(null)
@@ -24,19 +30,22 @@ export function FoodContextProvider({
   onFetchFoods,
   children,
 }: {
-  onFetchFoods: (search?: string) => Promise<Food[]>
+  onFetchFoods: FoodFetch
   children: React.ReactNode
 }) {
-  const [foods, setFoods] = useState<Loadable<Food[]>>({ loading: true })
+  const [foodStore, setFoodStore] = useState<Loadable<FoodStore>>({
+    loading: true,
+  })
 
+  // TODO: fetch favorite foods and store them locally to switch between tabs
   const handleFetchFoods = useCallback(
     (search?: string) => {
       onFetchFoods(search)
-        .then((foods) => {
-          setFoods({ loading: false, errored: false, data: foods })
+        .then((foodStore) => {
+          setFoodStore({ loading: false, errored: false, data: foodStore })
         })
         .catch((error) => {
-          setFoods({ loading: false, errored: true, error })
+          setFoodStore({ loading: false, errored: true, error })
         })
     },
     [onFetchFoods],
@@ -47,7 +56,9 @@ export function FoodContextProvider({
   }, [handleFetchFoods])
 
   const context: FoodContext = {
-    foods,
+    foods: unboxLoadingObject(foodStore, ['favoriteFoods', 'foods']).foods,
+    favoriteFoods: unboxLoadingObject(foodStore, ['favoriteFoods', 'foods'])
+      .favoriteFoods,
     refetchFoods: handleFetchFoods,
   }
 
