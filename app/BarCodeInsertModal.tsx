@@ -13,7 +13,7 @@ export type BarCodeInsertModalProps = {
 }
 
 const BarCodeInsertModal = ({ modalId, onSelect }: BarCodeInsertModalProps) => {
-  const { visible, setVisible } = useModalContext()
+  const { visible, onSetVisible } = useModalContext()
 
   const [barCode, setBarCode] = useState<string>('')
   const [food, setFood] = useState<Food | null>(null)
@@ -49,7 +49,7 @@ const BarCodeInsertModal = ({ modalId, onSelect }: BarCodeInsertModalProps) => {
             className="btn"
             onClick={(e) => {
               e.preventDefault()
-              setVisible(false)
+              onSetVisible(false)
             }}
           >
             Cancelar

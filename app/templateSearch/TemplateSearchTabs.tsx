@@ -1,10 +1,7 @@
 'use client'
 
-import { Food } from '@/model/foodModel'
 import { Tabs } from 'flowbite-react'
-import { useState } from 'react'
-import { Template } from './FoodSearch'
-import { useUserContext } from '@/context/users.context'
+import { Template } from './TemplateSearch'
 
 export type TemplateFilter = (template: Template) => boolean
 
@@ -46,7 +43,7 @@ export const avaliableTabs = {
 
 export type TabName = keyof typeof avaliableTabs
 
-export function FoodSearchTabs({
+export function TemplateSearchTabs({
   onTabChange,
 }: {
   onTabChange: (

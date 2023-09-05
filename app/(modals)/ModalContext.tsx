@@ -5,7 +5,7 @@ import { createContext, useContext } from 'use-context-selector'
 
 type ModalContext = {
   visible: boolean
-  setVisible: Dispatch<SetStateAction<boolean>>
+  onSetVisible: Dispatch<SetStateAction<boolean>>
 }
 
 const ModalContext = createContext<ModalContext | null>(null)
@@ -24,15 +24,15 @@ export function useModalContext() {
 
 export function ModalContextProvider({
   visible,
-  setVisible,
+  onSetVisible,
   children,
 }: {
   visible: boolean
-  setVisible: Dispatch<SetStateAction<boolean>>
+  onSetVisible: Dispatch<SetStateAction<boolean>>
   children: ReactNode
 }) {
   return (
-    <ModalContext.Provider value={{ visible, setVisible }}>
+    <ModalContext.Provider value={{ visible, onSetVisible }}>
       {children}
     </ModalContext.Provider>
   )

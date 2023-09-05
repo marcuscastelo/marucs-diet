@@ -2,10 +2,9 @@
 
 import FoodItemView from '@/app/(foodItem)/FoodItemView'
 import { Food } from '@/model/foodModel'
-import { Alert, Tabs } from 'flowbite-react'
+import { Alert } from 'flowbite-react'
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import BarCodeInsertModal from '@/app/BarCodeInsertModal'
-import { Loadable } from '@/utils/loadable'
 import { Recipe } from '@/model/recipeModel'
 import { mockFood } from '../test/unit/(mock)/mockData'
 import PageLoading from '../PageLoading'
@@ -20,44 +19,39 @@ import {
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import { useFoodContext } from '@/context/food.context'
 import { generateId } from '@/utils/idUtils'
-import { FoodSearchTabs, TemplateFilter, avaliableTabs } from './FoodSearchTabs'
+import { TemplateSearchTabs, avaliableTabs } from './TemplateSearchTabs'
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal'
 const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal'
 
-// TODO: Refactor client-side cache vs server-side cache vs no cache logic on search
-
-export type FoodSearchProps = {
+export type TemplateSearchProps = {
   targetName: string
   onNewItemGroup?: (foodItem: ItemGroup) => Promise<void>
   onFinish?: () => void
 }
 
+// TODO: Create zod model for template?
 export type Template = Food | Recipe
 
 // TODO: Rename to TemplateSearch?
-export default function FoodSearch({
+export function TemplateSearch({
   targetName,
   onNewItemGroup = async () => undefined,
   onFinish = () => undefined,
-}: FoodSearchProps) {
-  const FOOD_LIMIT = 100
-  const TYPE_TIMEOUT = 1000
+}: TemplateSearchProps) {
+  const TEMPLATE_SEARCH_LIMIT = 100
+  const TYPING_TIMEOUT_MS = 1000
 
   const { show: showConfirmModal } = useConfirmModalContext()
 
   const [search, setSearch] = useState<string>('')
-  // TODO: rename all consumables to templates
-  const [templates, setTemplates] = useState<Loadable<Template[]>>({
-    loading: true,
-  })
 
   // TODO: Create DEFAULT_TAB constant
   const [currentTab, setCurrentTab] =
     useState<(typeof avaliableTabs)[keyof typeof avaliableTabs]['id']>('all')
 
   const [selectedTemplate, setSelectedTemplate] = useState<Template>(
-    mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }), // TODO: Properly handle no food selected
+    mockFood({ name: 'BUG: SELECTED TEMPLATE NOT SET' }), // TODO: Properly handle no template selected
   )
 
   const [barCodeModalVisible, setBarCodeModalVisible] = useState(false)
@@ -70,43 +64,16 @@ export default function FoodSearch({
 
   const isDesktop = isClient ? window.innerWidth > 768 : false // TODO: Stop using innerWidth to detect desktop
 
-  const { foods: allFoods, favoriteFoods, refetchFoods } = useFoodContext()
+  const { foods, favoriteFoods, refetchFoods } = useFoodContext()
 
-  const foods = currentTab === 'favorites' ? favoriteFoods : allFoods
-
-  useEffect(() => {
-    if (foods.loading) {
-      setTemplates({ loading: true })
-      return
-    }
-
-    if (foods.errored) {
-      setTemplates({ loading: false, errored: true, error: foods.error })
-      showConfirmModal({
-        title: 'Erro ao carregar alimentos',
-        message: 'Deseja tentar novamente?',
-        onConfirm: () => {
-          refetchFoods()
-        },
-      })
-      return
-    }
-
-    setTemplates({
-      loading: false,
-      errored: false,
-      data: foods.data,
-    })
-
-    // TODO: Add recipes to templates
-  }, [foods, refetchFoods, showConfirmModal])
+  const templates = currentTab === 'favorites' ? favoriteFoods : foods
 
   useEffect(() => {
     setIsClient(true)
   }, [])
 
   useEffect(() => {
-    // TODO: Add proper error handling for all user.errored, days.errored and foods.errored checks
+    // TODO: Add proper error handling for all days.errored and foods.errored checks
     if (typing) {
       return
     }
@@ -120,7 +87,7 @@ export default function FoodSearch({
 
     const timeout = setTimeout(() => {
       setTyping(false)
-    }, TYPE_TIMEOUT)
+    }, TYPING_TIMEOUT_MS)
 
     return () => {
       clearTimeout(timeout)
@@ -171,7 +138,7 @@ export default function FoodSearch({
 
       return true
     })
-    .slice(0, FOOD_LIMIT)
+    .slice(0, TEMPLATE_SEARCH_LIMIT)
 
   const handleNewItemGroup = async (newGroup: ItemGroup) => {
     onNewItemGroup(newGroup)
@@ -198,21 +165,21 @@ export default function FoodSearch({
         barCodeModalVisible={barCodeModalVisible}
         setBarCodeModalVisible={setBarCodeModalVisible}
         setFoodItemEditModalVisible={setFoodItemEditModalVisible}
-        setSelectedConsumable={setSelectedTemplate}
+        setSelectedTemplate={setSelectedTemplate}
       />
       <ExternalFoodItemEditModal
-        foodItemEditModalVisible={foodItemEditModalVisible}
-        setFoodItemEditModalVisible={setFoodItemEditModalVisible}
+        visible={foodItemEditModalVisible}
+        onSetVisible={setFoodItemEditModalVisible}
         selectedTemplate={selectedTemplate}
         targetName={targetName}
-        handleNewItemGroup={handleNewItemGroup}
+        onNewItemGroup={handleNewItemGroup}
       />
-      <FoodSearchTabs
-        onTabChange={(id) => {
-          setCurrentTab(id)
-        }}
+      <TemplateSearchTabs onTabChange={setCurrentTab} />
+      <SearchBar
+        isDesktop={isDesktop}
+        search={search}
+        onSetSearch={setSearch}
       />
-      <SearchBar isDesktop={isDesktop} search={search} setSearch={setSearch} />
       <SearchResults
         search={search}
         filteredTemplates={searchFilteredTemlates}
@@ -225,20 +192,22 @@ export default function FoodSearch({
   )
 }
 
+// TODO: Extract to components
 const BarCode = ({
   barCodeModalVisible,
   setBarCodeModalVisible,
   setFoodItemEditModalVisible,
-  setSelectedConsumable,
+  setSelectedTemplate,
 }: {
   barCodeModalVisible: boolean
   setBarCodeModalVisible: Dispatch<SetStateAction<boolean>>
   setFoodItemEditModalVisible: Dispatch<SetStateAction<boolean>>
-  setSelectedConsumable: (food: Food) => void
+  setSelectedTemplate: (template: Template) => void
 }) => (
   <>
     <div className="mb-2 flex justify-start">
       <button
+        // TODO: Add BarCode icon instead of text
         onClick={() => {
           setBarCodeModalVisible(true)
         }}
@@ -249,12 +218,12 @@ const BarCode = ({
     </div>
     <ModalContextProvider
       visible={barCodeModalVisible}
-      setVisible={setBarCodeModalVisible}
+      onSetVisible={setBarCodeModalVisible}
     >
       <BarCodeInsertModal
         modalId={BAR_CODE_INSERT_MODAL_ID}
-        onSelect={(food) => {
-          setSelectedConsumable(food)
+        onSelect={(template) => {
+          setSelectedTemplate(template)
           setFoodItemEditModalVisible(true)
         }}
       />
@@ -262,24 +231,22 @@ const BarCode = ({
   </>
 )
 
+// TODO: Extract to components
 function ExternalFoodItemEditModal({
-  foodItemEditModalVisible,
-  setFoodItemEditModalVisible,
+  visible,
+  onSetVisible,
   selectedTemplate,
   targetName,
-  handleNewItemGroup,
+  onNewItemGroup,
 }: {
-  foodItemEditModalVisible: boolean
-  setFoodItemEditModalVisible: Dispatch<SetStateAction<boolean>>
+  visible: boolean
+  onSetVisible: Dispatch<SetStateAction<boolean>>
   selectedTemplate: Template
   targetName: string
-  handleNewItemGroup: (newGroup: ItemGroup) => Promise<void>
+  onNewItemGroup: (newGroup: ItemGroup) => Promise<void>
 }) {
   return (
-    <ModalContextProvider
-      visible={foodItemEditModalVisible}
-      setVisible={setFoodItemEditModalVisible}
-    >
+    <ModalContextProvider visible={visible} onSetVisible={onSetVisible}>
       <FoodItemEditModal
         modalId={MEAL_ITEM_ADD_MODAL_ID}
         targetName={targetName}
@@ -287,9 +254,10 @@ function ExternalFoodItemEditModal({
           reference: selectedTemplate.id,
           name: selectedTemplate.name,
           macros: selectedTemplate.macros,
-          type: selectedTemplate[''] === 'Food' ? 'food' : 'recipe', // TODO: Refactor
+          type: selectedTemplate[''] === 'Food' ? 'food' : 'recipe', // TODO: Refactor conversion off template type to group and item types
         }}
         onApply={async (item) => {
+          // TODO: Refactor conversion off template type to group and item types
           if (item.type === 'food') {
             const newGroup: SimpleItemGroup = {
               id: generateId(),
@@ -298,7 +266,7 @@ function ExternalFoodItemEditModal({
               type: 'simple',
               quantity: item.quantity,
             }
-            handleNewItemGroup(newGroup)
+            onNewItemGroup(newGroup)
           } else {
             const newGroup: RecipedItemGroup = {
               id: generateId(),
@@ -308,7 +276,7 @@ function ExternalFoodItemEditModal({
               quantity: item.quantity, // TODO: Implement quantity on recipe item groups (should influence macros)
               recipe: (selectedTemplate as Recipe).id,
             }
-            handleNewItemGroup(newGroup)
+            onNewItemGroup(newGroup)
           }
         }}
       />
@@ -316,14 +284,15 @@ function ExternalFoodItemEditModal({
   )
 }
 
+// TODO: Extract to components
 const SearchBar = ({
   isDesktop,
   search,
-  setSearch,
+  onSetSearch,
 }: {
   isDesktop: boolean
   search: string
-  setSearch: (search: string) => void
+  onSetSearch: (search: string) => void
 }) => (
   <div className="relative">
     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -346,7 +315,7 @@ const SearchBar = ({
     <input
       autoFocus={isDesktop}
       value={search}
-      onChange={(e) => setSearch(e.target.value)}
+      onChange={(e) => onSetSearch(e.target.value)}
       type="search"
       id="default-search"
       className="block w-full border-gray-600 bg-gray-700 p-4 pl-10 text-sm text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500"
@@ -356,6 +325,7 @@ const SearchBar = ({
   </div>
 )
 
+// TODO: Extract to components
 const SearchResults = ({
   search,
   typing,

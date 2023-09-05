@@ -58,7 +58,6 @@ export async function listFoods(params: FoodSearchParams = {}) {
   return await internalCachedSearchFoods({ field: '', value: '' }, params)
 }
 
-// TODO: Favorites on top? other function for that?
 async function internalCachedSearchFoods(
   {
     field,
