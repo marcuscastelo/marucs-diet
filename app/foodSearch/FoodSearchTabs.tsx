@@ -49,7 +49,9 @@ export type TabName = keyof typeof avaliableTabs
 export function FoodSearchTabs({
   onTabChange,
 }: {
-  onTabChange: (id: TabDefinition<unknown>['id']) => void
+  onTabChange: (
+    id: (typeof avaliableTabs)[keyof typeof avaliableTabs]['id'],
+  ) => void
 }) {
   return (
     <>
