@@ -16,7 +16,7 @@ import Modal, { ModalActions } from '../(modals)/Modal'
 import FoodItemListView from '../(foodItem)/FoodItemListView'
 import FoodItemView from '../(foodItem)/FoodItemView'
 import { FoodItem, createFoodItem, foodItemSchema } from '@/model/foodItemModel'
-import FoodSearchModal from '../foodSearch/FoodSearchModal'
+import { TemplateSearchModal } from '../templateSearch/TemplateSearchModal'
 import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
 import RecipeIcon from '../(icons)/RecipeIcon'
 import RecipeEditModal from '../(recipe)/RecipeEditModal'
@@ -79,7 +79,8 @@ const InnerItemGroupEditModal = ({
   const [recipeEditModalVisible, setRecipeEditModalVisible] = useState(false)
   const [foodItemEditModalVisible, setFoodItemEditModalVisible] =
     useState(false)
-  const [foodSearchModalVisible, setFoodSearchModalVisible] = useState(false)
+  const [templateSearchModalVisible, setTemplateSearchModalVisible] =
+    useState(false)
 
   const [recipe, setRecipe] = useState<Loadable<Recipe | null>>({
     loading: true,
@@ -148,9 +149,9 @@ const InnerItemGroupEditModal = ({
         setSelectedFoodItem={setSelectedFoodItem}
         targetMealName={targetMealName}
       />
-      <ExternalFoodSearchModal
-        visible={foodSearchModalVisible}
-        setVisible={setFoodSearchModalVisible}
+      <ExternalTemplateSearchModal
+        visible={templateSearchModalVisible}
+        setVisible={setTemplateSearchModalVisible}
         onRefetch={onRefetch}
       />
       <ModalContextProvider visible={visible} setVisible={setVisible}>
@@ -167,10 +168,10 @@ const InnerItemGroupEditModal = ({
               setFoodAsFavorite={setFoodAsFavorite}
               setSelectedFoodItem={setSelectedFoodItem}
               foodItemEditModalVisible={foodItemEditModalVisible}
-              foodSearchModalVisible={foodSearchModalVisible}
+              templateSearchModalVisible={templateSearchModalVisible}
               recipeEditModalVisible={recipeEditModalVisible}
               setFoodItemEditModalVisible={setFoodItemEditModalVisible}
-              setFoodSearchModalVisible={setFoodSearchModalVisible}
+              setTemplateSearchModalVisible={setTemplateSearchModalVisible}
               setRecipeEditModalVisible={setRecipeEditModalVisible}
             />
           }
@@ -321,7 +322,7 @@ function ExternalFoodItemEditModal({
   )
 }
 
-function ExternalFoodSearchModal({
+function ExternalTemplateSearchModal({
   visible,
   setVisible,
   onRefetch,
@@ -374,7 +375,7 @@ function ExternalFoodSearchModal({
         setVisible(visible)
       }}
     >
-      <FoodSearchModal
+      <TemplateSearchModal
         targetName={group?.name ?? 'ERRO: Grupo de alimentos não especificado'}
         onFinish={handleFinishSearch}
         onNewItemGroup={handleNewItemGroup}
@@ -390,7 +391,7 @@ function Body({
   setFoodAsFavorite,
   setRecipeEditModalVisible,
   setFoodItemEditModalVisible,
-  setFoodSearchModalVisible,
+  setTemplateSearchModalVisible,
 }: {
   recipe: Recipe | null
   setSelectedFoodItem: React.Dispatch<React.SetStateAction<FoodItem | null>>
@@ -400,8 +401,8 @@ function Body({
   setRecipeEditModalVisible: Dispatch<SetStateAction<boolean>>
   foodItemEditModalVisible: boolean
   setFoodItemEditModalVisible: Dispatch<SetStateAction<boolean>>
-  foodSearchModalVisible: boolean
-  setFoodSearchModalVisible: Dispatch<SetStateAction<boolean>>
+  templateSearchModalVisible: boolean
+  setTemplateSearchModalVisible: Dispatch<SetStateAction<boolean>>
 }) {
   const acceptedClipboardSchema = foodItemSchema.or(itemGroupSchema)
 
@@ -560,7 +561,7 @@ function Body({
           <button
             className="mt-3 min-w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
             onClick={() => {
-              setFoodSearchModalVisible(true)
+              setTemplateSearchModalVisible(true)
             }}
           >
             Adicionar item

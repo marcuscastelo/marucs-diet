@@ -7,14 +7,14 @@ import { isSearchCached } from './searchCache'
 
 const TABLE = 'foods'
 
-export type FoodSearchParams = {
+export type TemplateSearchParams = {
   limit?: number
   allowedFoods?: number[]
 }
 
 export async function searchFoodById(
   id: Food['id'],
-  params: FoodSearchParams = {},
+  params: TemplateSearchParams = {},
 ) {
   const [food] = await internalCachedSearchFoods(
     { field: 'id', value: id },
@@ -25,7 +25,7 @@ export async function searchFoodById(
 
 export async function searchFoodsByName(
   name: Required<Food>['name'],
-  params: FoodSearchParams = {},
+  params: TemplateSearchParams = {},
 ) {
   console.debug(`[Food] Searching for food with name ${name}`)
   if (!(await isSearchCached(name))) {
@@ -41,7 +41,7 @@ export async function searchFoodsByName(
 
 export async function searchFoodsByEan(
   ean: Required<Food>['ean'],
-  params: FoodSearchParams = {},
+  params: TemplateSearchParams = {},
 ) {
   console.debug(`[Food] Searching for food with EAN ${ean}`)
   if (!(await isEanCached(ean))) {
@@ -54,7 +54,7 @@ export async function searchFoodsByEan(
   return food
 }
 
-export async function listFoods(params: FoodSearchParams = {}) {
+export async function listFoods(params: TemplateSearchParams = {}) {
   return await internalCachedSearchFoods({ field: '', value: '' }, params)
 }
 
@@ -75,7 +75,7 @@ async function internalCachedSearchFoods(
         value: ''
         operator?: 'eq' | 'ilike'
       },
-  params?: FoodSearchParams,
+  params?: TemplateSearchParams,
 ): Promise<Food[]> {
   console.debug(
     `[Food] Searching for foods with ${field} = ${value} (limit: ${

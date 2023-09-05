@@ -1,17 +1,19 @@
 'use client'
 
 import Modal, { ModalActions } from '../(modals)/Modal'
-import FoodSearch, { FoodSearchProps } from './FoodSearch'
+import { TemplateSearch, TemplateSearchProps } from './TemplateSearch'
 import { useModalContext } from '../(modals)/ModalContext'
 
-const FoodSearchModal = ({ ...props }: FoodSearchProps) => {
+export function TemplateSearchModal({ ...props }: TemplateSearchProps) {
   const { visible, setVisible } = useModalContext()
   return (
     <Modal
-      modalId="foodSearchModal"
+      modalId="template-search-modal"
       header={<h1>Busca de alimentos</h1>}
       body={
-        <div className="max-h-full">{visible && <FoodSearch {...props} />}</div>
+        <div className="max-h-full">
+          {visible && <TemplateSearch {...props} />}
+        </div>
       }
       actions={
         <ModalActions>
@@ -21,5 +23,3 @@ const FoodSearchModal = ({ ...props }: FoodSearchProps) => {
     />
   )
 }
-
-export default FoodSearchModal
