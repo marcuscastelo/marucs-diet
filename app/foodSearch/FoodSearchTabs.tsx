@@ -32,16 +32,16 @@ export const avaliableTabs = {
   } as const satisfies TabDefinition<{
     checkTemplateIsFavoriteFood: TemplateFilter
   }>,
-  Recentes: {
-    id: 'recent',
-    title: 'Recentes (Em breve)',
-    createFilter: () => (template: Template) => false,
-  } as const satisfies TabDefinition<unknown>,
-  Receitas: {
-    id: 'recipes',
-    title: 'Receitas',
-    createFilter: () => (template: Template) => template[''] === 'Recipe',
-  } as const satisfies TabDefinition<unknown>,
+  // Recentes: {
+  //   id: 'recent',
+  //   title: 'Recentes (Em breve)',
+  //   createFilter: () => (template: Template) => false,
+  // } as const satisfies TabDefinition<unknown>,
+  // Receitas: {
+  //   id: 'recipes',
+  //   title: 'Receitas (Em breve)',
+  //   createFilter: () => (template: Template) => template[''] === 'Recipe',
+  // } as const satisfies TabDefinition<unknown>,
 } as const satisfies { [key: string]: TabDefinition<any> }
 
 export type TabName = keyof typeof avaliableTabs
