@@ -36,7 +36,7 @@ export default function Page() {
 
       <ModalContextProvider
         visible={false}
-        setVisible={(...args) => {
+        onSetVisible={(...args) => {
           setShowing(...args)
         }}
       >
@@ -83,7 +83,7 @@ function MyModal({
 
       <ModalContextProvider
         visible={false}
-        setVisible={(a) => {
+        onSetVisible={(a) => {
           setShowing(a)
         }}
       >

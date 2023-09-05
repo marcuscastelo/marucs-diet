@@ -218,7 +218,7 @@ const BarCode = ({
     </div>
     <ModalContextProvider
       visible={barCodeModalVisible}
-      setVisible={setBarCodeModalVisible}
+      onSetVisible={setBarCodeModalVisible}
     >
       <BarCodeInsertModal
         modalId={BAR_CODE_INSERT_MODAL_ID}
@@ -246,7 +246,7 @@ function ExternalFoodItemEditModal({
   onNewItemGroup: (newGroup: ItemGroup) => Promise<void>
 }) {
   return (
-    <ModalContextProvider visible={visible} setVisible={onSetVisible}>
+    <ModalContextProvider visible={visible} onSetVisible={onSetVisible}>
       <FoodItemEditModal
         modalId={MEAL_ITEM_ADD_MODAL_ID}
         targetName={targetName}

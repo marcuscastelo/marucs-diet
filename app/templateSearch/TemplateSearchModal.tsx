@@ -5,7 +5,7 @@ import { TemplateSearch, TemplateSearchProps } from './TemplateSearch'
 import { useModalContext } from '../(modals)/ModalContext'
 
 export function TemplateSearchModal({ ...props }: TemplateSearchProps) {
-  const { visible, setVisible } = useModalContext()
+  const { visible, onSetVisible } = useModalContext()
   return (
     <Modal
       modalId="template-search-modal"
@@ -17,7 +17,7 @@ export function TemplateSearchModal({ ...props }: TemplateSearchProps) {
       }
       actions={
         <ModalActions>
-          <button onClick={() => setVisible(false)}>Fechar</button>
+          <button onClick={() => onSetVisible(false)}>Fechar</button>
         </ModalActions>
       }
     />

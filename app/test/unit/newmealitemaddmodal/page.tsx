@@ -16,7 +16,7 @@ export default function Page() {
         Toggle modal
       </button>
 
-      <ModalContextProvider visible={visible} setVisible={setVisible}>
+      <ModalContextProvider visible={visible} onSetVisible={setVisible}>
         <FoodItemEditModal
           modalId={modalId}
           targetName="Teste"

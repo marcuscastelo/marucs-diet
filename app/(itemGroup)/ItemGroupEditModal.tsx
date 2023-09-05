@@ -73,7 +73,7 @@ const InnerItemGroupEditModal = ({
   onDelete,
   onRefetch,
 }: ItemGroupEditModalProps) => {
-  const { visible, setVisible } = useModalContext()
+  const { visible, onSetVisible } = useModalContext()
   const { group } = useItemGroupEditContext()
 
   const [recipeEditModalVisible, setRecipeEditModalVisible] = useState(false)
@@ -139,11 +139,11 @@ const InnerItemGroupEditModal = ({
           setRecipe({ loading: false, errored: false, data: recipe })
         }
         visible={recipeEditModalVisible}
-        setVisible={setRecipeEditModalVisible}
+        onSetVisible={setRecipeEditModalVisible}
       />
       <ExternalFoodItemEditModal
         visible={foodItemEditModalVisible}
-        setVisible={setFoodItemEditModalVisible}
+        onSetVisible={setFoodItemEditModalVisible}
         impossibleFoodItem={impossibleFoodItem}
         selectedFoodItem={selectedFoodItem}
         setSelectedFoodItem={setSelectedFoodItem}
@@ -151,10 +151,10 @@ const InnerItemGroupEditModal = ({
       />
       <ExternalTemplateSearchModal
         visible={templateSearchModalVisible}
-        setVisible={setTemplateSearchModalVisible}
+        onSetVisible={setTemplateSearchModalVisible}
         onRefetch={onRefetch}
       />
-      <ModalContextProvider visible={visible} setVisible={setVisible}>
+      <ModalContextProvider visible={visible} onSetVisible={onSetVisible}>
         <Modal
           modalId={modalId}
           hasBackdrop={false}
@@ -170,15 +170,15 @@ const InnerItemGroupEditModal = ({
               foodItemEditModalVisible={foodItemEditModalVisible}
               templateSearchModalVisible={templateSearchModalVisible}
               recipeEditModalVisible={recipeEditModalVisible}
-              setFoodItemEditModalVisible={setFoodItemEditModalVisible}
-              setTemplateSearchModalVisible={setTemplateSearchModalVisible}
-              setRecipeEditModalVisible={setRecipeEditModalVisible}
+              onSetFoodItemEditModalVisible={setFoodItemEditModalVisible}
+              onSetTemplateSearchModalVisible={setTemplateSearchModalVisible}
+              onSetRecipeEditModalVisible={setRecipeEditModalVisible}
             />
           }
           actions={
             <Actions
               canApply={canApply}
-              setVisible={setVisible}
+              setVisible={onSetVisible}
               onCancel={onCancel}
               onDelete={onDelete}
             />
@@ -218,16 +218,16 @@ function ExternalRecipeEditModal({
   recipe,
   setRecipe,
   visible,
-  setVisible,
+  onSetVisible,
 }: {
   recipe: Recipe | null
   setRecipe: (recipe: Recipe | null) => void
   visible: boolean
-  setVisible: Dispatch<SetStateAction<boolean>>
+  onSetVisible: Dispatch<SetStateAction<boolean>>
 }) {
   const { group } = useItemGroupEditContext()
   return (
-    <ModalContextProvider visible={visible} setVisible={setVisible}>
+    <ModalContextProvider visible={visible} onSetVisible={onSetVisible}>
       <RecipeEditModal
         modalId={`VERY_UNIQUE_ID_FOR_RECIPE_${group?.id}`} // TODO: Clean all modal IDs on the project
         recipe={recipe}
@@ -242,14 +242,14 @@ function ExternalRecipeEditModal({
 
 function ExternalFoodItemEditModal({
   visible,
-  setVisible,
+  onSetVisible,
   targetMealName,
   selectedFoodItem,
   impossibleFoodItem,
   setSelectedFoodItem,
 }: {
   visible: boolean
-  setVisible: Dispatch<SetStateAction<boolean>>
+  onSetVisible: Dispatch<SetStateAction<boolean>>
   targetMealName: string
   selectedFoodItem: FoodItem | null
   impossibleFoodItem: FoodItem
@@ -260,13 +260,13 @@ function ExternalFoodItemEditModal({
   return (
     <ModalContextProvider
       visible={visible}
-      setVisible={(visible) => {
+      onSetVisible={(visible) => {
         // TODO: Implement onClose and onOpen to reduce code duplication
         if (!visible) {
           setSelectedFoodItem(null)
           // TODO: Refactor all modals so that when they close, they call onCancel() or onClose()
         }
-        setVisible(visible)
+        onSetVisible(visible)
       }}
     >
       <FoodItemEditModal
@@ -296,7 +296,7 @@ function ExternalFoodItemEditModal({
           )
 
           console.debug('newGroup', newGroup)
-          setVisible(false)
+          onSetVisible(false)
           setSelectedFoodItem(null)
           setGroup(newGroup)
         }}
@@ -314,7 +314,7 @@ function ExternalFoodItemEditModal({
           )
 
           console.debug('newGroup', newGroup)
-          setVisible(false)
+          onSetVisible(false)
           setGroup(newGroup)
         }}
       />
@@ -324,11 +324,11 @@ function ExternalFoodItemEditModal({
 
 function ExternalTemplateSearchModal({
   visible,
-  setVisible,
+  onSetVisible,
   onRefetch,
 }: {
   visible: boolean
-  setVisible: Dispatch<SetStateAction<boolean>>
+  onSetVisible: Dispatch<SetStateAction<boolean>>
   onRefetch: () => void
 }) {
   const { group, setGroup } = useItemGroupEditContext()
@@ -359,20 +359,20 @@ function ExternalTemplateSearchModal({
   }
 
   const handleFinishSearch = () => {
-    setVisible(false)
+    onSetVisible(false)
     onRefetch()
   }
 
   return (
     <ModalContextProvider
       visible={visible}
-      setVisible={(visible) => {
+      onSetVisible={(visible) => {
         // TODO: Implement onClose and onOpen to reduce code duplication
         if (!visible) {
           console.debug('setSelectedMeal(null)')
           onRefetch()
         }
-        setVisible(visible)
+        onSetVisible(visible)
       }}
     >
       <TemplateSearchModal
@@ -389,20 +389,20 @@ function Body({
   setSelectedFoodItem,
   isFoodFavorite,
   setFoodAsFavorite,
-  setRecipeEditModalVisible,
-  setFoodItemEditModalVisible,
-  setTemplateSearchModalVisible,
+  onSetRecipeEditModalVisible,
+  onSetFoodItemEditModalVisible,
+  onSetTemplateSearchModalVisible,
 }: {
   recipe: Recipe | null
   setSelectedFoodItem: React.Dispatch<React.SetStateAction<FoodItem | null>>
   isFoodFavorite: (foodId: number) => boolean
   setFoodAsFavorite: (foodId: number, isFavorite: boolean) => void
   recipeEditModalVisible: boolean
-  setRecipeEditModalVisible: Dispatch<SetStateAction<boolean>>
+  onSetRecipeEditModalVisible: Dispatch<SetStateAction<boolean>>
   foodItemEditModalVisible: boolean
-  setFoodItemEditModalVisible: Dispatch<SetStateAction<boolean>>
+  onSetFoodItemEditModalVisible: Dispatch<SetStateAction<boolean>>
   templateSearchModalVisible: boolean
-  setTemplateSearchModalVisible: Dispatch<SetStateAction<boolean>>
+  onSetTemplateSearchModalVisible: Dispatch<SetStateAction<boolean>>
 }) {
   const acceptedClipboardSchema = foodItemSchema.or(itemGroupSchema)
 
@@ -493,7 +493,7 @@ function Body({
                       className="my-auto ml-auto"
                       onClick={() => {
                         // TODO: Create recipe for groups that don't have one
-                        setRecipeEditModalVisible(true)
+                        onSetRecipeEditModalVisible(true)
                       }}
                     >
                       <RecipeIcon />
@@ -533,7 +533,7 @@ function Body({
               //   recipeEditModalRef.current?.showModal()
               // } else {
               setSelectedFoodItem(item)
-              setFoodItemEditModalVisible(true)
+              onSetFoodItemEditModalVisible(true)
               // }
             }}
             makeHeaderFn={(item) => (
@@ -561,7 +561,7 @@ function Body({
           <button
             className="mt-3 min-w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
             onClick={() => {
-              setTemplateSearchModalVisible(true)
+              onSetTemplateSearchModalVisible(true)
             }}
           >
             Adicionar item

@@ -7,14 +7,14 @@ import { isSearchCached } from './searchCache'
 
 const TABLE = 'foods'
 
-export type TemplateSearchParams = {
+export type FoodSearchParams = {
   limit?: number
   allowedFoods?: number[]
 }
 
 export async function searchFoodById(
   id: Food['id'],
-  params: TemplateSearchParams = {},
+  params: FoodSearchParams = {},
 ) {
   const [food] = await internalCachedSearchFoods(
     { field: 'id', value: id },
@@ -25,7 +25,7 @@ export async function searchFoodById(
 
 export async function searchFoodsByName(
   name: Required<Food>['name'],
-  params: TemplateSearchParams = {},
+  params: FoodSearchParams = {},
 ) {
   console.debug(`[Food] Searching for food with name ${name}`)
   if (!(await isSearchCached(name))) {
@@ -41,7 +41,7 @@ export async function searchFoodsByName(
 
 export async function searchFoodsByEan(
   ean: Required<Food>['ean'],
-  params: TemplateSearchParams = {},
+  params: FoodSearchParams = {},
 ) {
   console.debug(`[Food] Searching for food with EAN ${ean}`)
   if (!(await isEanCached(ean))) {
@@ -54,11 +54,10 @@ export async function searchFoodsByEan(
   return food
 }
 
-export async function listFoods(params: TemplateSearchParams = {}) {
+export async function listFoods(params: FoodSearchParams = {}) {
   return await internalCachedSearchFoods({ field: '', value: '' }, params)
 }
 
-// TODO: Favorites on top? other function for that?
 async function internalCachedSearchFoods(
   {
     field,
@@ -75,7 +74,7 @@ async function internalCachedSearchFoods(
         value: ''
         operator?: 'eq' | 'ilike'
       },
-  params?: TemplateSearchParams,
+  params?: FoodSearchParams,
 ): Promise<Food[]> {
   console.debug(
     `[Food] Searching for foods with ${field} = ${value} (limit: ${
