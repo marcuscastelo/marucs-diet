@@ -209,7 +209,7 @@ export default function FoodSearch({
       />
       <FoodSearchTabs
         onTabChange={(id) => {
-          setCurrentTab(() => id)
+          setCurrentTab(id)
         }}
       />
       <SearchBar isDesktop={isDesktop} search={search} setSearch={setSearch} />
