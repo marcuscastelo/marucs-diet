@@ -32,6 +32,7 @@ export type FoodItemEditModalProps = {
   onDelete?: (itemId: FoodItem['id']) => void
 }
 
+// TODO: rename to ItemEditModal (also foodItemEditModalVisible and derivatives)
 const FoodItemEditModal = ({
   modalId,
   targetName,
