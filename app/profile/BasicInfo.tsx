@@ -30,7 +30,7 @@ const USER_FIELD_TRANSLATION: Translation<keyof User> = {
   favorite_foods: 'Alimentos Favoritos',
   id: 'ID',
 }
-export default function BasicInfo({
+export function BasicInfo({
   user,
   onSave,
 }: {

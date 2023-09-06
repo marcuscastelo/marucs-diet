@@ -1,14 +1,14 @@
-import TopBar from './TopBar'
+import { TopBar } from './TopBar'
 import { fetchUser, updateUser } from '@/controllers/users'
-import MacroTarget, { MacroProfile } from '../MacroTargets'
+import { MacroTarget, MacroProfile } from '../MacroTargets'
 import { revalidatePath } from 'next/cache'
-import BasicInfo from './BasicInfo'
+import { BasicInfo } from './BasicInfo'
 import { getUser } from '@/actions/user'
-import WeightProgress from './WeightProgress'
-import WeightEvolution from './weight/WeightEvolution'
+import { MacroEvolution } from './macros/MacroEvolution'
+import { WeightEvolution } from './weight/WeightEvolution'
 import { fetchUserWeights } from '@/controllers/weights'
 import { latestWeight } from '@/utils/weightUtils'
-import MeasuresEvolution from './measure/MeasuresEvolution'
+import { MeasuresEvolution } from './measure/MeasuresEvolution'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -88,7 +88,7 @@ export default async function Page() {
         </div>
         <MeasuresEvolution onSave={handleSave} />
         <WeightEvolution onSave={handleSave} />
-        <WeightProgress />
+        <MacroEvolution />
       </div>
     </>
   )

@@ -1,6 +1,6 @@
 'use client'
 
-import MacroTarget, { MacroProfile } from '@/app/MacroTargets'
+import { MacroTarget, MacroProfile } from '@/app/MacroTargets'
 
 export default function Page() {
   const weight = 100
