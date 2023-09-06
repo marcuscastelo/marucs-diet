@@ -1,9 +1,8 @@
 'use client'
 import { useDaysContext } from '@/context/days.context'
-import Capsule from '../../components/capsule/Capsule'
+import Capsule from '../../../components/capsule/Capsule'
 
 import {
-  AreaChart,
   Area,
   XAxis,
   YAxis,
@@ -15,58 +14,36 @@ import {
 } from 'recharts'
 import { calcCalories, calcDayCalories, calcDayMacros } from '@/utils/macroMath'
 import { useUserContext, useUserId } from '@/context/users.context'
-import { calculateMacroTarget } from '../MacroTargets'
-import { useCallback, useEffect, useState } from 'react'
-import { Loadable } from '@/utils/loadable'
-import { Weight } from '@/model/weightModel'
-import { fetchUserWeights } from '@/controllers/weights'
+import { calculateMacroTarget } from '../../MacroTargets'
 import { latestWeight } from '@/utils/weightUtils'
+import { useWeights } from '@/hooks/weights'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
-// TODO: Rename to MacrosEvolution
-export default function WeightProgress() {
+
+export function MacroEvolution() {
   const userId = useUserId()
 
-  const [weights, setWeights] = useState<Loadable<Weight[]>>({ loading: true })
-
-  const handleRefetchWeights = useCallback(() => {
-    fetchUserWeights(userId).then((weights) =>
-      setWeights({ loading: false, errored: false, data: weights }),
-    )
-  }, [userId])
-
-  useEffect(() => {
-    handleRefetchWeights()
-  }, [handleRefetchWeights])
+  const { weights } = useWeights(userId)
 
   if (weights.loading || weights.errored) {
     return <h1>Carregando...</h1>
   }
 
+  // TODO: plot all weights, not just the latest one
   const weight = latestWeight(weights.data)?.weight
 
   if (!weight) {
-    return <h1>Usuário não possui pesos</h1>
+    return <h1>Usuário não possui pesos. Impossível calcular macros.</h1>
   }
 
   return (
     <div className={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>
       <h5 className={`mx-auto mb-5 text-center text-3xl font-bold`}>
-        Progresso do peso
+        Evolução de Macronutrientes
       </h5>
       <div className="mx-5 lg:mx-20">
-        <Capsule
-          leftContent={<h5 className={`ml-2 p-2 text-xl`}>Peso Atual (kg)</h5>}
-          rightContent={<h5 className={`ml-2 p-2 text-xl`}>{weight}</h5>}
-          className={`mb-2`}
-        />
-        <Capsule
-          leftContent={<h5 className={`ml-2 p-2 text-xl`}>Meta (kg)</h5>}
-          rightContent={<h5 className={`ml-2 p-2 text-xl`}>0</h5>}
-          className={`mb-2`}
-        />
         <AllMacrosChart weight={weight} />
         <CaloriesChart weight={weight} />
         <ProteinChart weight={weight} />
