@@ -4,9 +4,11 @@ import { FoodItem } from '@/model/foodItemModel'
 import { ReactNode } from 'react'
 import { createContext, useContext } from 'use-context-selector'
 
-// TODO: Rename to FoodItemEditContext and provide setFoodItem and saveFoodItem functions
+// TODO: Rename CustomFoodItem to something more meaningful
+type CustomFoodItem = FoodItem & { type: 'food' | 'recipe' }
+
 const FoodItemContext = createContext<{
-  foodItem: FoodItem & { type: 'food' | 'recipe' }
+  foodItem: CustomFoodItem
 } | null>(null)
 
 export function useFoodItemContext() {
@@ -25,7 +27,7 @@ export function FoodItemContextProvider({
   foodItem,
   children,
 }: {
-  foodItem: FoodItem & { type: 'food' | 'recipe' }
+  foodItem: CustomFoodItem
   children: ReactNode
 }) {
   return (
