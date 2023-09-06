@@ -33,7 +33,6 @@ import { ModalContextProvider, useModalContext } from '../(modals)/ModalContext'
 import {
   addInnerItem,
   addInnerItems,
-  convertToGroups,
   deleteInnerItem,
   editInnerItem,
   isRecipedGroupUpToDate,
@@ -145,8 +144,8 @@ const InnerItemGroupEditModal = ({
         visible={foodItemEditModalVisible}
         onSetVisible={setFoodItemEditModalVisible}
         impossibleFoodItem={impossibleFoodItem}
-        selectedFoodItem={selectedFoodItem}
-        setSelectedFoodItem={setSelectedFoodItem}
+        item={selectedFoodItem}
+        onClose={() => setSelectedFoodItem(null)}
         targetMealName={targetMealName}
       />
       <ExternalTemplateSearchModal
@@ -244,29 +243,47 @@ function ExternalFoodItemEditModal({
   visible,
   onSetVisible,
   targetMealName,
-  selectedFoodItem,
+  item,
   impossibleFoodItem,
-  setSelectedFoodItem,
+  onClose,
 }: {
   visible: boolean
   onSetVisible: Dispatch<SetStateAction<boolean>>
   targetMealName: string
-  selectedFoodItem: FoodItem | null
+  item: FoodItem | null
   impossibleFoodItem: FoodItem
-  setSelectedFoodItem: (item: FoodItem | null) => void
+  onClose: () => void
 }) {
   const { group, setGroup } = useItemGroupEditContext()
+
+  const handleCloseWithNoChanges = () => {
+    onSetVisible(false)
+    onClose()
+  }
+
+  const handleCloseWithChanges = (newGroup: ItemGroup) => {
+    if (!group) {
+      console.error('group is null')
+      throw new Error('group is null')
+    }
+
+    onSetVisible(false)
+    setGroup(newGroup)
+    onClose()
+  }
 
   return (
     <ModalContextProvider
       visible={visible}
       onSetVisible={(visible) => {
-        // TODO: Implement onClose and onOpen to reduce code duplication
-        if (!visible) {
-          setSelectedFoodItem(null)
-          // TODO: Refactor all modals so that when they close, they call onCancel() or onClose()
+        if (visible) {
+          console.error('BUG: FoodItemEditModal should not open by itself')
+          throw new Error('BUG: FoodItemEditModal should not open by itself')
         }
-        onSetVisible(visible)
+
+        handleCloseWithNoChanges()
+        // TODO: Implement onClose and onOpen to reduce code duplication: if (visible)
+        // TODO: Refactor all modals so that when they close, they call onCancel() or onClose()
       }}
     >
       <FoodItemEditModal
@@ -281,7 +298,7 @@ function ExternalFoodItemEditModal({
             ? 'text-green-500'
             : 'text-orange-400'
         }
-        foodItem={selectedFoodItem ?? impossibleFoodItem}
+        foodItem={item ?? impossibleFoodItem}
         onApply={async (item) => {
           if (!group) {
             console.error('group is null')
@@ -296,9 +313,7 @@ function ExternalFoodItemEditModal({
           )
 
           console.debug('newGroup', newGroup)
-          onSetVisible(false)
-          setSelectedFoodItem(null)
-          setGroup(newGroup)
+          handleCloseWithChanges(newGroup)
         }}
         onDelete={async (itemId) => {
           if (!group) {
@@ -314,8 +329,7 @@ function ExternalFoodItemEditModal({
           )
 
           console.debug('newGroup', newGroup)
-          onSetVisible(false)
-          setGroup(newGroup)
+          handleCloseWithChanges(newGroup)
         }}
       />
     </ModalContextProvider>
