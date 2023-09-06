@@ -13,7 +13,6 @@ import { listDays } from '@/controllers/days'
 import { listFoods, searchFoodsByName } from '@/controllers/food'
 import { updateUser } from '@/controllers/users'
 import { User } from '@/model/userModel'
-import { useContextSelector } from 'use-context-selector'
 
 export default function App({
   user,
