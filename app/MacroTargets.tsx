@@ -22,7 +22,7 @@ export type MacroRepresentation = {
   calorieMultiplier: number
 }
 
-// TODO: retriggered: should not be exported (move to other module)
+// TODO: calculateMacroTarget should not be exported (move to other module)
 export const calculateMacroTarget = (
   weight: number,
   savedMacroTarget: MacroProfile,
@@ -83,7 +83,7 @@ export type MacroTargetProps = {
   onSaveMacroProfile: (newProfile: MacroProfile) => void
 }
 
-export default function MacroTarget({
+export function MacroTarget({
   weight,
   profile,
   onSaveMacroProfile,
