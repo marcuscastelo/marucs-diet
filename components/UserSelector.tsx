@@ -4,8 +4,6 @@ import UserName from './UserName'
 import { fetchUsers } from '@/controllers/users'
 
 export default async function UserSelector() {
-  // const { availableUsers } = useUserContext()
-
   const availableUsers = await fetchUsers()
 
   return (
@@ -18,14 +16,7 @@ export default async function UserSelector() {
           <UserName />
         </div>
         <div className="text-sm font-medium leading-none text-slate-300">
-          <UserSelectorDropdown
-            // TODO: Change Loadable to a simple list of users
-            availableUsers={{
-              loading: false,
-              errored: false,
-              data: availableUsers,
-            }}
-          />
+          <UserSelectorDropdown availableUsers={availableUsers} />
         </div>
       </div>
       <div className=""></div>
