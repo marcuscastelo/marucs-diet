@@ -14,7 +14,7 @@ import { FloatInput } from '@/components/FloatInput'
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
 
-export default function MeasuresEvolution({ onSave }: { onSave: () => void }) {
+export function MeasuresEvolution({ onSave }: { onSave: () => void }) {
   const userId = useUserId()
 
   const [measures, setMeasures] = useState<Loadable<Measure[]>>({

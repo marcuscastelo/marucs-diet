@@ -26,7 +26,7 @@ import { CapsuleContent } from '@/components/capsule/CapsuleContent'
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
 
-export default function WeightEvolution({ onSave }: { onSave: () => void }) {
+export function WeightEvolution({ onSave }: { onSave: () => void }) {
   const userId = useUserId()
 
   const { weights, refetch: handleRefetchWeights } = useWeights(userId)
