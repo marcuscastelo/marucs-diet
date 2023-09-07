@@ -64,7 +64,7 @@ export const Full: Story = {
   args: {
     modalId: 'teste123',
     hasBackdrop: true,
-    header: <ModalHeader />,
+    header: <ModalHeader title="Mock test" />,
     body: <ModalBody />,
     actions: (
       <ModalActions>
