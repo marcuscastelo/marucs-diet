@@ -9,7 +9,7 @@ export function TemplateSearchModal({ ...props }: TemplateSearchProps) {
   return (
     <Modal
       modalId="template-search-modal"
-      header={<h1>Busca de alimentos</h1>}
+      header={<Modal.Header title="Busca de alimentos" />}
       body={
         <div className="max-h-full">
           {visible && <TemplateSearch {...props} />}

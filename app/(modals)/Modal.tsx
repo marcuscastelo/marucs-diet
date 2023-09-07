@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import React, { ReactNode, useEffect, useRef } from 'react'
 import { useModalContext } from './ModalContext'
+import { BackIcon } from '@/components/BackIcon'
 
 export type ModalProps = {
   modalId: string
@@ -51,11 +52,35 @@ const Modal = ({
   )
 }
 
+Modal.Header = ModalHeader
+Modal.Body = ModalBody
+Modal.Actions = ModalActions
+
 // TODO: ModalHeader => Modal.Header, ModalBody => Modal.Body, ModalActions => Modal.Actions
 
 // TODO: Use Modal.Header & Modal.Body or delete them
-export function ModalHeader() {
-  return <h3 className="text-lg font-bold text-white">Modal header</h3>
+export function ModalHeader({
+  title,
+  backButton = true,
+}: {
+  title: ReactNode
+  backButton?: boolean
+}) {
+  const { onSetVisible } = useModalContext()
+
+  return (
+    <div className="flex gap-2">
+      {backButton && (
+        <button
+          className="btn btn-sm btn-ghost btn-circle"
+          onClick={() => onSetVisible(false)}
+        >
+          <BackIcon />
+        </button>
+      )}
+      <h3 className="text-lg font-bold text-white my-auto">{title}</h3>
+    </div>
+  )
 }
 
 export function ModalBody() {
