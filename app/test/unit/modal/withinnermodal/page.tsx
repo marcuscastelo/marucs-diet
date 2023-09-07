@@ -41,7 +41,6 @@ export default function Page() {
         }}
       >
         <Modal
-          modalId="modal-id"
           body={<MyModal showing={innerShowing} setShowing={setInnerShowing} />}
         />
       </ModalContextProvider>
@@ -87,7 +86,7 @@ function MyModal({
           setShowing(a)
         }}
       >
-        <Modal modalId="modal-id" />
+        <Modal />
       </ModalContextProvider>
     </>
   )

@@ -8,11 +8,10 @@ import BarCodeSearch from './BarCodeSearch'
 import { useModalContext } from './(modals)/ModalContext'
 
 export type BarCodeInsertModalProps = {
-  modalId: string
   onSelect: (apiFood: Food) => void
 }
 
-const BarCodeInsertModal = ({ modalId, onSelect }: BarCodeInsertModalProps) => {
+const BarCodeInsertModal = ({ onSelect }: BarCodeInsertModalProps) => {
   const { visible, onSetVisible } = useModalContext()
 
   const [barCode, setBarCode] = useState<string>('')
@@ -31,7 +30,6 @@ const BarCodeInsertModal = ({ modalId, onSelect }: BarCodeInsertModalProps) => {
 
   return (
     <Modal
-      modalId={modalId}
       header={<Modal.Header title="Pesquisar por código de barras" />}
       body={
         <>

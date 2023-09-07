@@ -11,7 +11,6 @@ import { useConfirmModalContext } from '@/context/confirmModal.context'
 
 export type RecipeEditModalProps = {
   show?: boolean
-  modalId: string
   recipe: Recipe | null
   onSaveRecipe: (recipe: Recipe) => void
   onCancel?: () => void
@@ -19,7 +18,6 @@ export type RecipeEditModalProps = {
 }
 
 const RecipeEditModal = ({
-  modalId,
   recipe: initialRecipe,
   onSaveRecipe,
   onCancel,
@@ -75,7 +73,6 @@ const RecipeEditModal = ({
           }}
         >
           <FoodItemEditModal
-            modalId="RECIPES_EDIT_MODAL:FOOD_ITEM_ADD_MODAL"
             foodItem={selectedFoodItem ?? impossibleFoodItem}
             targetName={recipe?.name ?? 'LOADING RECIPE'}
             onApply={(foodItem) => {
@@ -103,7 +100,6 @@ const RecipeEditModal = ({
 
       <ModalContextProvider visible={visible} onSetVisible={onSetVisible}>
         <Modal
-          modalId={modalId}
           header={
             <h3 className="text-lg font-bold text-white">
               Editando receita

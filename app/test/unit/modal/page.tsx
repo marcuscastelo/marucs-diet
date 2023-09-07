@@ -38,7 +38,7 @@ export default function Page() {
           setShowing(...args)
         }}
       >
-        <Modal modalId="modal-id" />
+        <Modal />
       </ModalContextProvider>
     </>
   )

@@ -22,7 +22,6 @@ import { FloatInput } from '@/components/FloatInput'
 type CustomFoodItem = FoodItem & { type: 'food' | 'recipe' }
 
 export type FoodItemEditModalProps = {
-  modalId: string
   targetName: string
   targetNameColor?: string
   foodItem: Partial<FoodItem> &
@@ -34,7 +33,6 @@ export type FoodItemEditModalProps = {
 
 // TODO: rename to ItemEditModal (also foodItemEditModalVisible and derivatives)
 const FoodItemEditModal = ({
-  modalId,
   targetName,
   targetNameColor = 'text-green-500',
   foodItem: initialFoodItem,
@@ -82,7 +80,6 @@ const FoodItemEditModal = ({
   return (
     <>
       <Modal
-        modalId={modalId}
         header={
           <Header
             foodItem={foodItem}
@@ -374,6 +371,7 @@ function Actions({
         className="btn"
         onClick={(e) => {
           e.preventDefault()
+          e.stopPropagation()
           onCancel?.()
         }}
       >

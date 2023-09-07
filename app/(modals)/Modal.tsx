@@ -5,20 +5,15 @@ import { useModalContext } from './ModalContext'
 import { BackIcon } from '@/components/BackIcon'
 
 export type ModalProps = {
-  modalId: string
   header?: React.ReactNode
   body?: React.ReactNode
   actions?: React.ReactNode
   hasBackdrop?: boolean
 }
 
-const Modal = ({
-  modalId,
-  header,
-  body,
-  actions,
-  hasBackdrop = true,
-}: ModalProps) => {
+let modalId = 1
+
+const Modal = ({ header, body, actions, hasBackdrop = true }: ModalProps) => {
   const { visible, onSetVisible } = useModalContext()
 
   const modalRef = useRef<HTMLDialogElement>(null)
@@ -33,7 +28,7 @@ const Modal = ({
 
   return (
     <dialog
-      id={modalId}
+      id={`modal-${modalId++}`}
       className="modal modal-bottom sm:modal-middle"
       ref={modalRef}
       onClose={(e) => {
