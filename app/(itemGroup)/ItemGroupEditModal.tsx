@@ -374,7 +374,7 @@ function ExternalTemplateSearchModal({
 
   const handleFinishSearch = () => {
     onSetVisible(false)
-    onRefetch()
+    // onRefetch()
   }
 
   return (
@@ -382,10 +382,6 @@ function ExternalTemplateSearchModal({
       visible={visible}
       onSetVisible={(visible) => {
         // TODO: Implement onClose and onOpen to reduce code duplication
-        if (!visible) {
-          console.debug('setSelectedMeal(null)')
-          onRefetch()
-        }
         onSetVisible(visible)
       }}
     >
