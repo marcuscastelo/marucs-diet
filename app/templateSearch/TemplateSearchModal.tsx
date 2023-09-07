@@ -1,11 +1,12 @@
 'use client'
 
-import Modal, { ModalActions } from '../(modals)/Modal'
+import Modal from '../(modals)/Modal'
 import { TemplateSearch, TemplateSearchProps } from './TemplateSearch'
 import { useModalContext } from '../(modals)/ModalContext'
 
 export function TemplateSearchModal({ ...props }: TemplateSearchProps) {
-  const { visible, onSetVisible } = useModalContext()
+  const { visible } = useModalContext()
+  console.debug(`[TemplateSearchModal] Render`)
   return (
     <Modal
       modalId="template-search-modal"

@@ -149,7 +149,7 @@ export function TemplateSearch({
       />
       <ExternalFoodItemEditModal
         visible={foodItemEditModalVisible}
-        onSetVisible={() => undefined}
+        onSetVisible={setFoodItemEditModalVisible}
         selectedTemplate={selectedTemplate}
         targetName={targetName}
         onNewItemGroup={handleNewItemGroup}

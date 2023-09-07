@@ -156,7 +156,7 @@ const InnerItemGroupEditModal = ({
       <ModalContextProvider visible={visible} onSetVisible={onSetVisible}>
         <Modal
           modalId={modalId}
-          hasBackdrop={false}
+          hasBackdrop={true}
           header={
             <Header recipe={recipe.data} targetMealName={targetMealName} />
           }
@@ -383,7 +383,6 @@ function ExternalTemplateSearchModal({
       onSetVisible={(visible) => {
         // TODO: Implement onClose and onOpen to reduce code duplication
         if (!visible) {
-          console.debug('setSelectedMeal(null)')
           onRefetch()
         }
         onSetVisible(visible)

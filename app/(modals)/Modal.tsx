@@ -36,7 +36,12 @@ const Modal = ({
       id={modalId}
       className="modal modal-bottom sm:modal-middle"
       ref={modalRef}
-      onClose={() => visible && onSetVisible(false)}
+      onClose={(e) => {
+        if (visible) {
+          onSetVisible(false)
+          e.stopPropagation()
+        }
+      }}
     >
       <div className="modal-box bg-gray-800 text-white">
         {header}
