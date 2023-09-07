@@ -15,11 +15,6 @@ export function TemplateSearchModal({ ...props }: TemplateSearchProps) {
           {visible && <TemplateSearch {...props} />}
         </div>
       }
-      actions={
-        <ModalActions>
-          <button onClick={() => onSetVisible(false)}>Fechar</button>
-        </ModalActions>
-      }
     />
   )
 }
