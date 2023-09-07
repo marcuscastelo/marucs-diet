@@ -45,6 +45,17 @@ export function isRecipedGroupUpToDate(
   return true
 }
 
+export function updateTotalQuantity(group: ItemGroup) {
+  const newGroup = { ...group }
+
+  newGroup.quantity = newGroup.items.reduce(
+    (acc, item) => acc + item.quantity,
+    0,
+  )
+
+  return newGroup
+}
+
 export function editInnerItem(group: ItemGroup, innerItem: FoodItem) {
   const newGroup = { ...group }
 
@@ -57,7 +68,7 @@ export function editInnerItem(group: ItemGroup, innerItem: FoodItem) {
 
   newGroup.items[index] = { ...innerItem }
 
-  return newGroup
+  return updateTotalQuantity(newGroup)
 }
 
 export function deleteInnerItem(group: ItemGroup, itemId: FoodItem['id']) {
@@ -72,7 +83,7 @@ export function deleteInnerItem(group: ItemGroup, itemId: FoodItem['id']) {
 
   newGroup.items.splice(index, 1)
 
-  return newGroup
+  return updateTotalQuantity(newGroup)
 }
 
 export function addInnerItem(group: ItemGroup, innerItem: FoodItem) {
@@ -87,13 +98,13 @@ export function addInnerItem(group: ItemGroup, innerItem: FoodItem) {
       'Invalid state! This is a bug! Item already exists in group! Not adding!',
     )
 
-    return newGroup
+    return updateTotalQuantity(newGroup)
   }
 
   // If not exists, add
   newGroup.items.push(innerItem)
 
-  return newGroup
+  return updateTotalQuantity(newGroup)
 }
 
 export function addInnerItems(group: ItemGroup, innerItem: FoodItem[]) {
