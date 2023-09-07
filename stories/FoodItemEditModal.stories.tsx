@@ -34,7 +34,6 @@ type Story = StoryObj<typeof FoodItemEditModal>
 export const RootGreen: Story = {
   args: {
     foodItem: mockItem(),
-    modalId: 'teste123',
     onApply: () => undefined,
     targetName: 'Teste',
     targetNameColor: 'text-green-500',
@@ -45,7 +44,6 @@ export const RootGreen: Story = {
 export const RootBlue: Story = {
   args: {
     foodItem: mockItem(),
-    modalId: 'teste123',
     onApply: () => undefined,
     targetName: 'Teste',
     targetNameColor: 'text-blue-500',

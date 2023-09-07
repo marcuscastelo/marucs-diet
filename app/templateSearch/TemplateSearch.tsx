@@ -23,9 +23,6 @@ import { TemplateSearchTabs, avaliableTabs } from './TemplateSearchTabs'
 import { ObjectValues } from '@/utils/typeUtils'
 import { useTyping } from '@/hooks/typing'
 
-const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal'
-const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal'
-
 export type TemplateSearchProps = {
   targetName: string
   onNewItemGroup?: (foodItem: ItemGroup) => Promise<void>
@@ -201,7 +198,6 @@ const BarCode = ({
       onSetVisible={setBarCodeModalVisible}
     >
       <BarCodeInsertModal
-        modalId={BAR_CODE_INSERT_MODAL_ID}
         onSelect={(template) => {
           setSelectedTemplate(template)
           setFoodItemEditModalVisible(true)
@@ -228,7 +224,6 @@ function ExternalFoodItemEditModal({
   return (
     <ModalContextProvider visible={visible} onSetVisible={onSetVisible}>
       <FoodItemEditModal
-        modalId={MEAL_ITEM_ADD_MODAL_ID}
         targetName={targetName}
         foodItem={{
           reference: selectedTemplate.id,

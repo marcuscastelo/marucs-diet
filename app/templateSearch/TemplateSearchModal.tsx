@@ -9,7 +9,6 @@ export function TemplateSearchModal({ ...props }: TemplateSearchProps) {
   console.debug(`[TemplateSearchModal] Render`)
   return (
     <Modal
-      modalId="template-search-modal"
       header={<Modal.Header title="Busca de alimentos" />}
       body={
         <div className="max-h-full">

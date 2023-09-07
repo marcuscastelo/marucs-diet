@@ -22,13 +22,11 @@ import { deepCopy } from '@/utils/deepCopy'
 
 export default function DayMeals({
   selectedDay,
-  editModalId,
   day,
   refetchDays,
   days,
 }: {
   selectedDay: string
-  editModalId: string
   day: Day
   refetchDays: () => void
   days: Day[]
@@ -146,7 +144,6 @@ export default function DayMeals({
       />
       <ExternalItemGroupEditModal
         day={day}
-        editModalId={editModalId}
         refetchDays={refetchDays}
         visible={itemGroupEditModalVisible}
         setVisible={setItemGroupEditModalVisible}
@@ -296,7 +293,6 @@ function ExternalTemplateSearchModal({
 }
 
 function ExternalItemGroupEditModal({
-  editModalId,
   selectedItemGroup,
   visible,
   setVisible,
@@ -305,7 +301,6 @@ function ExternalItemGroupEditModal({
   day,
   refetchDays,
 }: {
-  editModalId: string
   visible: boolean
   setVisible: Dispatch<SetStateAction<boolean>>
   selectedItemGroup: ItemGroup | null
@@ -336,7 +331,6 @@ function ExternalItemGroupEditModal({
       }}
     >
       <ItemGroupEditModal
-        modalId={editModalId}
         group={deepCopy(selectedItemGroup)}
         targetMealName={selectedMeal?.name ?? 'ERROR: No meal selected'}
         onSaveGroup={async (group) => {
