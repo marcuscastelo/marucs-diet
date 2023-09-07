@@ -20,6 +20,8 @@ import { useConfirmModalContext } from '@/context/confirmModal.context'
 import { useFoodContext } from '@/context/food.context'
 import { generateId } from '@/utils/idUtils'
 import { TemplateSearchTabs, avaliableTabs } from './TemplateSearchTabs'
+import { ObjectValues } from '@/utils/typeUtils'
+import { useTyping } from '@/hooks/typing'
 
 const MEAL_ITEM_ADD_MODAL_ID = 'meal-item-add-modal'
 const BAR_CODE_INSERT_MODAL_ID = 'bar-code-insert-modal'
@@ -33,7 +35,6 @@ export type TemplateSearchProps = {
 // TODO: Create zod model for template?
 export type Template = Food | Recipe
 
-// TODO: Rename to TemplateSearch?
 export function TemplateSearch({
   targetName,
   onNewItemGroup = async () => undefined,
@@ -43,12 +44,27 @@ export function TemplateSearch({
   const TYPING_TIMEOUT_MS = 1000
 
   const { show: showConfirmModal } = useConfirmModalContext()
+  const { foods, favoriteFoods, refetchFoods } = useFoodContext()
 
-  const [search, setSearch] = useState<string>('')
+  const [isClient, setIsClient] = useState(false) // TODO: Stop using isClient and typeof window
+  const isDesktop = isClient ? window.innerWidth > 768 : false // TODO: Stop using innerWidth to detect desktop
+  useEffect(() => setIsClient(true), [])
+
+  const [search, setSearch_] = useState<string>('')
+  const { typing, onTyped } = useTyping({
+    delay: TYPING_TIMEOUT_MS,
+    onTypingEnd: () => refetchFoods(search),
+  })
+
+  const setSearch = (search: string) => {
+    setSearch_(search)
+    onTyped()
+  }
 
   // TODO: Create DEFAULT_TAB constant
-  const [currentTab, setCurrentTab] =
-    useState<(typeof avaliableTabs)[keyof typeof avaliableTabs]['id']>('all')
+  type AvailableTab = ObjectValues<typeof avaliableTabs>['id']
+  const [tab, setTab] = useState<AvailableTab>('all')
+  const templates = tab === 'favorites' ? favoriteFoods : foods
 
   const [selectedTemplate, setSelectedTemplate] = useState<Template>(
     mockFood({ name: 'BUG: SELECTED TEMPLATE NOT SET' }), // TODO: Properly handle no template selected
@@ -57,42 +73,6 @@ export function TemplateSearch({
   const [barCodeModalVisible, setBarCodeModalVisible] = useState(false)
   const [foodItemEditModalVisible, setFoodItemEditModalVisible] =
     useState(false)
-
-  const [typing, setTyping] = useState(false)
-
-  const [isClient, setIsClient] = useState(false) // TODO: Stop using isClient and typeof window
-
-  const isDesktop = isClient ? window.innerWidth > 768 : false // TODO: Stop using innerWidth to detect desktop
-
-  const { foods, favoriteFoods, refetchFoods } = useFoodContext()
-
-  const templates = currentTab === 'favorites' ? favoriteFoods : foods
-
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
-
-  useEffect(() => {
-    // TODO: Add proper error handling for all days.errored and foods.errored checks
-    if (typing) {
-      return
-    }
-
-    refetchFoods(search)
-  }, [refetchFoods, search, typing])
-
-  // TODO: Create custom hook for typing "const { typing, startTyping } = useTyping(timeout: number)"
-  useEffect(() => {
-    setTyping(true)
-
-    const timeout = setTimeout(() => {
-      setTyping(false)
-    }, TYPING_TIMEOUT_MS)
-
-    return () => {
-      clearTimeout(timeout)
-    }
-  }, [search])
 
   if (templates.loading) {
     return <PageLoading message="Carregando alimentos e receitas" />
@@ -169,12 +149,12 @@ export function TemplateSearch({
       />
       <ExternalFoodItemEditModal
         visible={foodItemEditModalVisible}
-        onSetVisible={setFoodItemEditModalVisible}
+        onSetVisible={() => undefined}
         selectedTemplate={selectedTemplate}
         targetName={targetName}
         onNewItemGroup={handleNewItemGroup}
       />
-      <TemplateSearchTabs onTabChange={setCurrentTab} />
+      <TemplateSearchTabs onTabChange={setTab} />
       <SearchBar
         isDesktop={isDesktop}
         search={search}
