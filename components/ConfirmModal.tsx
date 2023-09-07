@@ -14,7 +14,7 @@ export default function ConfirmModal() {
       {/* TODO: Move modal-id to ModalContextProvider with a pseudo-random ID generation */}
       <Modal
         modalId={`confirm-modal-${generateId()}`}
-        header={<h1>{title}</h1>}
+        header={<Modal.Header title="Confirmar" />}
         body={<p>{body}</p>}
         actions={
           <ModalActions>

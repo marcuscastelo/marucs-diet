@@ -32,7 +32,7 @@ const BarCodeInsertModal = ({ modalId, onSelect }: BarCodeInsertModalProps) => {
   return (
     <Modal
       modalId={modalId}
-      header={<h1 className="modal-title">Pesquisar por código de barras</h1>}
+      header={<Modal.Header title="Pesquisar por código de barras" />}
       body={
         <>
           {visible && <BarCodeReader id="reader" onScanned={setBarCode} />}
