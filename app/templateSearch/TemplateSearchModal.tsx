@@ -52,7 +52,7 @@ export function TemplateSearchModal({
 
   const handleNewItemGroup = async (newGroup: ItemGroup) => {
     // TODO: await onNewItemGroup?
-    onNewItemGroup?.(newGroup)
+    await onNewItemGroup?.(newGroup)
     // Prompt if user wants to add another item or go back (Yes/No)
     // TODO: Allow modal to show Yes/No instead of Ok/Cancel
 
@@ -65,6 +65,8 @@ export function TemplateSearchModal({
         setFoodItemEditModalVisible(false)
       },
       onCancel: () => {
+        setSelectedTemplate(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }))
+        setFoodItemEditModalVisible(false)
         onFinish?.()
       },
     })

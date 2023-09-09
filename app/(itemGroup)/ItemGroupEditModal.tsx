@@ -368,7 +368,7 @@ function ExternalTemplateSearchModal({
 
   const handleFinishSearch = () => {
     onSetVisible(false)
-    onRefetch()
+    // onRefetch()
   }
 
   return (
