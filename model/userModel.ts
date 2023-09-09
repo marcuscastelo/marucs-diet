@@ -51,6 +51,10 @@ export const userSchema = z.object({
         value ?? { gramsPerKgCarbs: 2, gramsPerKgProtein: 2, gramsPerKgFat: 1 },
     ),
   gender: z.union([z.literal('male'), z.literal('female')]),
+  desired_weight: z.number({
+    required_error: 'Desired weight is required',
+    invalid_type_error: 'Desired weight must be a number',
+  }),
 })
 
 export type User = z.infer<typeof userSchema>

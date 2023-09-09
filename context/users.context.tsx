@@ -40,6 +40,12 @@ export const useUserGender = () =>
     (context) => assertedContext(context).user.gender,
   )
 
+export const useUserDesiredWeight = () =>
+  useContextSelector(
+    UserContext,
+    (context) => assertedContext(context).user.desired_weight,
+  )
+
 export function UserContextProvider({
   children,
   user,
