@@ -1,4 +1,4 @@
-export const getToday = () => dateToDateString(adjustToTimezone(new Date()))
+export const getToday = () => dateToYYYYMMDD(adjustToTimezone(new Date()))
 
 export const adjustToTimezone = (date: Date) => {
   const offset = date.getTimezoneOffset()
@@ -18,10 +18,17 @@ export const stringToDate = (
     return date
   }
 
-  const dateString = dateToDateString(date)
+  const dateString = dateToYYYYMMDD(date)
   return new Date(`${dateString}T00:00:00`)
 }
 
-export const dateToDateString = (date: Date) => date.toISOString().split('T')[0]
+export const dateToYYYYMMDD = (date: Date) => date.toISOString().split('T')[0]
+
+export const dateToDDMM = (date: Date) => {
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+
+  return `${day}/${month}`
+}
 
 export const dateToString = (date: Date) => date.toISOString()
