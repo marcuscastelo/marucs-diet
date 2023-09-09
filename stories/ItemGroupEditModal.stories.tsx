@@ -22,7 +22,6 @@ type Story = StoryObj<typeof ItemGroupEditModal>
 export const Simple: Story = {
   args: {
     show: true,
-    modalId: 'teste123',
     onRefetch: () => undefined,
     onSaveGroup: () => undefined,
     targetMealName: 'Teste',
@@ -36,7 +35,6 @@ export const Simple: Story = {
 export const Recipe: Story = {
   args: {
     show: true,
-    modalId: 'teste123',
     onRefetch: () => undefined,
     onSaveGroup: () => undefined,
     targetMealName: 'Teste',

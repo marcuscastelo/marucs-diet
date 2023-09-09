@@ -33,8 +33,6 @@ export default async function Page({ params }: PageParams) {
 
   const selectedDay = params.day
 
-  const EDIT_MODAL_ID = 'edit-modal'
-
   const day = days.find((day) => day.target_day === selectedDay)
 
   if (!selectedDay) {
@@ -66,7 +64,6 @@ export default async function Page({ params }: PageParams) {
       <TopBar selectedDay={selectedDay} />
       <DayMeals
         day={day}
-        editModalId={EDIT_MODAL_ID}
         selectedDay={selectedDay}
         refetchDays={refetchDays} // TODO: usePathname hook to get current path
         days={days}
