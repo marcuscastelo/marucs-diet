@@ -26,7 +26,6 @@ const USER_FIELD_TRANSLATION: Translation<keyof User> = {
   gender: 'Gênero',
   diet: 'Dieta',
   birthdate: 'Data de Nascimento',
-  macro_profile: 'Perfil de Macronutrientes',
   favorite_foods: 'Alimentos Favoritos',
   id: 'ID',
   desired_weight: 'Peso Alvo',
