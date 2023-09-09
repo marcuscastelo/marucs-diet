@@ -51,10 +51,9 @@ export function TemplateSearchModal({
   )
 
   const handleNewItemGroup = async (newGroup: ItemGroup) => {
-    // TODO: await onNewItemGroup?
     await onNewItemGroup?.(newGroup)
     // Prompt if user wants to add another item or go back (Yes/No)
-    // TODO: Allow modal to show Yes/No instead of Ok/Cancel
+    // TODO: Show Yes/No instead of Ok/Cancel on modal
 
     showConfirmModal({
       title: 'Item adicionado com sucesso',
