@@ -17,6 +17,7 @@ import {
   updateMacroProfile,
 } from '@/controllers/macroProfiles'
 import { latestMacroProfile } from '@/utils/macroProfileUtils'
+import { getToday } from '@/utils/dateUtils'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -65,10 +66,26 @@ export default async function Page() {
     )
   }
 
-  const onSetProfile = async (profile: MacroProfile) => {
+  const onSaveProfile = async (profile: MacroProfile) => {
     'use server'
 
-    await updateMacroProfile(profile.id, profile)
+    if (profile.target_day.getTime() > new Date(getToday()).getTime()) {
+      console.error(
+        `[ProfilePage] Invalid target day ${profile.target_day}: it is in the future`,
+      )
+      throw new Error('Invalid target day')
+    } else if (
+      profile.target_day.getTime() === new Date(getToday()).getTime()
+    ) {
+      // Same day, update
+      await updateMacroProfile(profile.id, profile)
+    } else if (profile.target_day.getTime() < new Date(getToday()).getTime()) {
+      // Past day, insert with new date
+      await insertMacroProfile({
+        ...profile,
+        target_day: new Date(getToday()),
+      })
+    }
     console.log('Updating MacroProfile')
     revalidatePath('/')
   }
@@ -98,8 +115,8 @@ export default async function Page() {
           {weight !== undefined ? (
             <MacroTarget
               weight={weight}
-              profile={macroProfile}
-              onSaveMacroProfile={onSetProfile}
+              profiles={macroProfiles}
+              onSaveMacroProfile={onSaveProfile}
             />
           ) : (
             <h1>Não há pesos registrados, o perfil não pode ser calculado</h1>
