@@ -1,18 +1,13 @@
 'use client'
 
 import { MacroNutrients } from '@/model/macroNutrientsModel'
+import { MacroProfile } from '@/model/macroProfileModel'
 import { calcCalories } from '@/utils/macroMath'
 import { useEffect, useState } from 'react'
 
 const CARBO_CALORIES = 4 as const
 const PROTEIN_CALORIES = 4 as const
 const FAT_CALORIES = 9 as const
-
-export type MacroProfile = {
-  gramsPerKgCarbs: number
-  gramsPerKgProtein: number
-  gramsPerKgFat: number
-}
 
 export type MacroRepresentation = {
   name: string

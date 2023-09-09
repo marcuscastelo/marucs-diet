@@ -17,6 +17,8 @@ import { useUserContext, useUserId } from '@/context/users.context'
 import { calculateMacroTarget } from '../../MacroTargets'
 import { latestWeight } from '@/utils/weightUtils'
 import { useWeights } from '@/hooks/weights'
+import { useMacroProfiles } from '@/hooks/macroProfiles'
+import { latestMacroProfile } from '@/utils/macroProfileUtils'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -57,12 +59,25 @@ export function MacroEvolution() {
 function AllMacrosChart({ weight }: { weight: number }) {
   const { days } = useDaysContext()
   const { user } = useUserContext()
+  const { macroProfiles } = useMacroProfiles(user.id)
 
   if (days.loading || days.errored) {
-    return <h1>Carregando...</h1>
+    return <h1>Carregando dias...</h1>
   }
 
-  const macroTargets = calculateMacroTarget(weight, user.macro_profile)
+  if (macroProfiles.loading || macroProfiles.errored) {
+    return <h1>Carregando perfis de macro...</h1>
+  }
+
+  const macroProfile = latestMacroProfile(macroProfiles.data)
+
+  if (!macroProfile) {
+    return (
+      <h1>Usuário não possui perfis de macro. Impossível calcular macros.</h1>
+    )
+  }
+
+  const macroTargets = calculateMacroTarget(weight, macroProfile)
 
   const proteinDeviance = days.data
     .map((day) => {
@@ -154,12 +169,25 @@ function AllMacrosChart({ weight }: { weight: number }) {
 function CaloriesChart({ weight }: { weight: number }) {
   const { days } = useDaysContext()
   const { user } = useUserContext()
+  const { macroProfiles } = useMacroProfiles(user.id)
 
   if (days.loading || days.errored) {
-    return <h1>Carregando...</h1>
+    return <h1>Carregando dias...</h1>
   }
 
-  const macroTargets = calculateMacroTarget(weight, user.macro_profile)
+  if (macroProfiles.loading || macroProfiles.errored) {
+    return <h1>Carregando perfis de macro...</h1>
+  }
+
+  const macroProfile = latestMacroProfile(macroProfiles.data)
+
+  if (!macroProfile) {
+    return (
+      <h1>Usuário não possui perfis de macro. Impossível calcular macros.</h1>
+    )
+  }
+
+  const macroTargets = calculateMacroTarget(weight, macroProfile)
 
   const data = days.data.map((day) => {
     const dayCalories = calcDayCalories(day)
@@ -202,12 +230,25 @@ function CaloriesChart({ weight }: { weight: number }) {
 function ProteinChart({ weight }: { weight: number }) {
   const { days } = useDaysContext()
   const { user } = useUserContext()
+  const { macroProfiles } = useMacroProfiles(user.id)
 
   if (days.loading || days.errored) {
-    return <h1>Carregando...</h1>
+    return <h1>Carregando dias...</h1>
   }
 
-  const macroTargets = calculateMacroTarget(weight, user.macro_profile)
+  if (macroProfiles.loading || macroProfiles.errored) {
+    return <h1>Carregando perfis de macro...</h1>
+  }
+
+  const macroProfile = latestMacroProfile(macroProfiles.data)
+
+  if (!macroProfile) {
+    return (
+      <h1>Usuário não possui perfis de macro. Impossível calcular macros.</h1>
+    )
+  }
+
+  const macroTargets = calculateMacroTarget(weight, macroProfile)
   const data = days.data.map((day) => {
     const dayMacros = calcDayMacros(day)
     return {
@@ -249,12 +290,25 @@ function ProteinChart({ weight }: { weight: number }) {
 function FatChart({ weight }: { weight: number }) {
   const { days } = useDaysContext()
   const { user } = useUserContext()
+  const { macroProfiles } = useMacroProfiles(user.id)
 
   if (days.loading || days.errored) {
-    return <h1>Carregando...</h1>
+    return <h1>Carregando dias...</h1>
   }
 
-  const macroTargets = calculateMacroTarget(weight, user.macro_profile)
+  if (macroProfiles.loading || macroProfiles.errored) {
+    return <h1>Carregando perfis de macro...</h1>
+  }
+
+  const macroProfile = latestMacroProfile(macroProfiles.data)
+
+  if (!macroProfile) {
+    return (
+      <h1>Usuário não possui perfis de macro. Impossível calcular macros.</h1>
+    )
+  }
+
+  const macroTargets = calculateMacroTarget(weight, macroProfile)
   const data = days.data.map((day) => {
     const dayMacros = calcDayMacros(day)
     return {
@@ -296,12 +350,25 @@ function FatChart({ weight }: { weight: number }) {
 function CarbsChart({ weight }: { weight: number }) {
   const { days } = useDaysContext()
   const { user } = useUserContext()
+  const { macroProfiles } = useMacroProfiles(user.id)
 
   if (days.loading || days.errored) {
     return <h1>Carregando...</h1>
   }
 
-  const macroTargets = calculateMacroTarget(weight, user.macro_profile)
+  if (macroProfiles.loading || macroProfiles.errored) {
+    return <h1>Carregando perfis de macro...</h1>
+  }
+
+  const macroProfile = latestMacroProfile(macroProfiles.data)
+
+  if (!macroProfile) {
+    return (
+      <h1>Usuário não possui perfis de macro. Impossível calcular macros.</h1>
+    )
+  }
+
+  const macroTargets = calculateMacroTarget(weight, macroProfile)
   const data = days.data.map((day) => {
     const dayMacros = calcDayMacros(day)
     return {

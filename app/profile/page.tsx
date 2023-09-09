@@ -1,6 +1,6 @@
 import { TopBar } from './TopBar'
 import { fetchUser, updateUser } from '@/controllers/users'
-import { MacroTarget, MacroProfile } from '../MacroTargets'
+import { MacroTarget } from '../MacroTargets'
 import { revalidatePath } from 'next/cache'
 import { BasicInfo } from './BasicInfo'
 import { getUser } from '@/actions/user'
@@ -10,6 +10,13 @@ import { fetchUserWeights } from '@/controllers/weights'
 import { latestWeight } from '@/utils/weightUtils'
 import { MeasuresEvolution } from './measure/MeasuresEvolution'
 import { User } from '@/model/userModel'
+import { MacroProfile } from '@/model/macroProfileModel'
+import {
+  fetchUserMacroProfiles,
+  insertMacroProfile,
+  updateMacroProfile,
+} from '@/controllers/macroProfiles'
+import { latestMacroProfile } from '@/utils/macroProfileUtils'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -35,25 +42,34 @@ export default async function Page() {
   const weights = await fetchUserWeights(userId)
   const weight = latestWeight(weights)?.weight
 
+  const macroProfiles = await fetchUserMacroProfiles(userId)
+  const macroProfile = latestMacroProfile(macroProfiles)
+
+  if (!macroProfile) {
+    insertMacroProfile({
+      owner: userId,
+      target_day: new Date(Date.now()),
+      gramsPerKgCarbs: 2,
+      gramsPerKgProtein: 2,
+      gramsPerKgFat: 1,
+    }).then(() => {
+      revalidatePath('/')
+    })
+    return (
+      <>
+        <h1>
+          Usuário &apos;{userId}&apos; não possui perfis de macro registrados,
+          criando perfil padrão...
+        </h1>
+      </>
+    )
+  }
+
   const onSetProfile = async (profile: MacroProfile) => {
     'use server'
 
-    const newUser = {
-      ...user,
-      macro_profile: profile,
-    }
-
-    // Only update the user if the profile has changed
-    // TODO: This is a hack to avoid updating the user when the profile is the same
-    if (
-      JSON.stringify(newUser.macro_profile) ===
-      JSON.stringify(user.macro_profile)
-    ) {
-      return
-    }
-
-    await updateUser(newUser.id, newUser)
-    console.log('Updating user')
+    await updateMacroProfile(profile.id, profile)
+    console.log('Updating MacroProfile')
     revalidatePath('/')
   }
 
@@ -82,7 +98,7 @@ export default async function Page() {
           {weight !== undefined ? (
             <MacroTarget
               weight={weight}
-              profile={user.macro_profile}
+              profile={macroProfile}
               onSaveMacroProfile={onSetProfile}
             />
           ) : (
