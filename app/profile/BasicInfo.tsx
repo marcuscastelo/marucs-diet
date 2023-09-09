@@ -36,13 +36,26 @@ export function BasicInfo({
   onSave,
 }: {
   user: User
-  onSave: () => void
+  onSave: (newUser: User) => Promise<User>
 }) {
+  type UnsavedFields = { [key in keyof User]?: boolean }
+
   const [innerData, setInnerData] = useState<User>(user)
+  const [unsavedFields, setUnsavedFields] = useState<UnsavedFields>({})
 
   useEffect(() => {
     setInnerData(user)
   }, [user])
+
+  useEffect(() => {
+    setUnsavedFields(
+      Object.keys(innerData).reduce((acc, key) => {
+        acc[key as keyof UnsavedFields] =
+          innerData[key as keyof UnsavedFields] !== user[key as keyof User]
+        return acc
+      }, {} as UnsavedFields),
+    )
+  }, [innerData, user])
 
   const makeOnBlur = <T extends keyof User>(
     field: T,
@@ -53,12 +66,9 @@ export function BasicInfo({
       const newUser = { ...user }
 
       newUser[field] = convert(event.target.value)
-      // TODO: Only save user profile with save button
+
       // TODO: Move to server onSave(newProfile)
-      const updatedUser = await updateUser(newUser.id, newUser)
-      setInnerData(updatedUser)
-      // TODO: Only save user profile with save button
-      onSave()
+      setInnerData(userSchema.parse(newUser))
     }
   }
 
@@ -105,8 +115,13 @@ export function BasicInfo({
     <Capsule
       leftContent={
         <CapsuleContent>
-          <h5 className={`pl-5 text-xl`}>
-            {USER_FIELD_TRANSLATION[field]} {extra}
+          <h5
+            className={`pl-5 text-xl ${
+              unsavedFields[field] ? 'text-red-500 italic' : ''
+            }`}
+          >
+            {USER_FIELD_TRANSLATION[field]} {extra}{' '}
+            {unsavedFields[field] ? '*' : ''}
           </h5>
         </CapsuleContent>
       }
@@ -144,13 +159,12 @@ export function BasicInfo({
           {makeBasicCapsule('desired_weight', convertDesiredWeight)}
         </div>
       </div>
-      <Link
+      <button
         className={`btn-primary no-animation btn w-full rounded-t-none`}
-        href="/"
-        onClick={() => onSave()}
+        onClick={async () => await onSave(innerData)}
       >
         Salvar
-      </Link>
+      </button>
     </>
   )
 }
