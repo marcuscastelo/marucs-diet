@@ -29,6 +29,7 @@ const USER_FIELD_TRANSLATION: Translation<keyof User> = {
   macro_profile: 'Perfil de Macronutrientes',
   favorite_foods: 'Alimentos Favoritos',
   id: 'ID',
+  desired_weight: 'Peso Alvo',
 }
 export function BasicInfo({
   user,
@@ -75,6 +76,7 @@ export function BasicInfo({
   }
 
   const convertString = (value: string) => value
+  const convertDesiredWeight = (value: string) => Number(value)
   const makeLiteralConverter =
     <T extends z.ZodUnion<any>>(schema: T, defaultValue: z.infer<T>) =>
     (value: string): z.infer<T> => {
@@ -139,6 +141,7 @@ export function BasicInfo({
           {makeBasicCapsule('gender', convertGender)}
           {makeBasicCapsule('diet', convertDiet)}
           {makeBasicCapsule('birthdate', convertString)}
+          {makeBasicCapsule('desired_weight', convertDesiredWeight)}
         </div>
       </div>
       <Link
