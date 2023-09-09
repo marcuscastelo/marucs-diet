@@ -1,8 +1,13 @@
 'use client'
 
+import { useConfirmModalContext } from '@/context/confirmModal.context'
+import { deleteMacroProfile } from '@/controllers/macroProfiles'
 import { MacroNutrients } from '@/model/macroNutrientsModel'
 import { MacroProfile } from '@/model/macroProfileModel'
+import { dateToDateString } from '@/utils/dateUtils'
 import { calcCalories } from '@/utils/macroMath'
+import { latestMacroProfile } from '@/utils/macroProfileUtils'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 const CARBO_CALORIES = 4 as const
@@ -73,16 +78,33 @@ const calculateDifferenceInCarbs = (
 
 export type MacroTargetProps = {
   weight: number
-  profile: MacroProfile
+  profiles: MacroProfile[]
   className?: string
   onSaveMacroProfile: (newProfile: MacroProfile) => void
 }
 
 export function MacroTarget({
   weight,
-  profile,
+  profiles,
   onSaveMacroProfile,
 }: MacroTargetProps) {
+  const router = useRouter()
+  const { show: showConfirmModal } = useConfirmModalContext()
+  const profile = latestMacroProfile(profiles)
+  const oldProfile_ = latestMacroProfile(profiles, 1)
+  const oldProfile = oldProfile_
+    ? {
+        hasOldProfile: true as const,
+        ...oldProfile_,
+      }
+    : ({
+        hasOldProfile: false,
+      } as const)
+
+  if (!profile) {
+    throw new Error('No macro profile found')
+  }
+
   const initialGrams = calculateMacroTarget(weight, profile)
   const initialCalories = calcCalories(initialGrams)
   const [initialCarbsRepr, initialProteinRepr, initialFatRepr] =
@@ -151,6 +173,41 @@ export function MacroTarget({
           disabled={true} // TODO: Enable changing target calories directly (and update macros accordingly)
           required
         />
+      </div>
+      <div className="mx-5 flex flex-col">
+        Perfil atual:{' '}
+        <span className="text-green-400">
+          Desde {dateToDateString(profile.target_day)},{' '}
+          {profile.gramsPerKgCarbs}
+          g/kg de carboidratos, {profile.gramsPerKgProtein}g/kg de proteínas,{' '}
+          {profile.gramsPerKgFat}
+          g/kg de gorduras
+        </span>
+        Tem perfil antigo?{' '}
+        {oldProfile.hasOldProfile ? (
+          'Sim, de ' + dateToDateString(oldProfile.target_day)
+        ) : (
+          <span className="text-red-500">Não</span>
+        )}
+        {oldProfile.hasOldProfile && (
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={async () => {
+              showConfirmModal({
+                title: 'Restaurar perfil antigo',
+                message: `Tem certeza que deseja restaurar o perfil de ${dateToDateString(
+                  oldProfile.target_day,
+                )}? Os dados atuais serão perdidos.`,
+                onConfirm: async () => {
+                  await deleteMacroProfile(profile.id)
+                  router.refresh()
+                },
+              })
+            }}
+          >
+            Restaurar perfil antigo
+          </button>
+        )}
       </div>
       <div className="mx-5 flex flex-col">
         <MacroTargetSetting
