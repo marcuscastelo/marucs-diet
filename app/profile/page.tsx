@@ -9,6 +9,7 @@ import { WeightEvolution } from './weight/WeightEvolution'
 import { fetchUserWeights } from '@/controllers/weights'
 import { latestWeight } from '@/utils/weightUtils'
 import { MeasuresEvolution } from './measure/MeasuresEvolution'
+import { User } from '@/model/userModel'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -69,9 +70,11 @@ export default async function Page() {
       <div className={`mx-1 md:mx-40 lg:mx-auto lg:w-1/3`}>
         <BasicInfo
           user={user}
-          onSave={async () => {
+          onSave={async (newUser: User) => {
             'use server'
+            const updatedUser = await updateUser(newUser.id, newUser)
             revalidatePath('/')
+            return updatedUser
           }}
         />
 
