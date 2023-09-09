@@ -19,7 +19,7 @@ import Datepicker from 'react-tailwindcss-datepicker'
 import { useWeights } from '@/hooks/weights'
 import { useDateField, useField, useFloatField } from '@/hooks/field'
 import { FloatInput } from '@/components/FloatInput'
-import { dateToDateString } from '@/utils/dateUtils'
+import { dateToYYYYMMDD } from '@/utils/dateUtils'
 import { CapsuleContent } from '@/components/capsule/CapsuleContent'
 import {
   calculateWeightProgress,
@@ -164,7 +164,7 @@ function WeightView({
               }
               // Apply timezone offset
               const date = new Date(value.startDate)
-              dateField.setRawValue(dateToDateString(date))
+              dateField.setRawValue(dateToYYYYMMDD(date))
               dateField.finishTyping() // TODO: Trigger finishTyping onBlur of Datepicker or parent div
               await handleSave({
                 dateValue: date,

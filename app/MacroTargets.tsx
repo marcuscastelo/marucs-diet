@@ -4,7 +4,7 @@ import { useConfirmModalContext } from '@/context/confirmModal.context'
 import { deleteMacroProfile } from '@/controllers/macroProfiles'
 import { MacroNutrients } from '@/model/macroNutrientsModel'
 import { MacroProfile } from '@/model/macroProfileModel'
-import { dateToDateString } from '@/utils/dateUtils'
+import { dateToYYYYMMDD } from '@/utils/dateUtils'
 import { calcCalories } from '@/utils/macroMath'
 import { latestMacroProfile } from '@/utils/macroProfileUtils'
 import { useRouter } from 'next/navigation'
@@ -177,15 +177,14 @@ export function MacroTarget({
       <div className="mx-5 flex flex-col">
         Perfil atual:{' '}
         <span className="text-green-400">
-          Desde {dateToDateString(profile.target_day)},{' '}
-          {profile.gramsPerKgCarbs}
+          Desde {dateToYYYYMMDD(profile.target_day)}, {profile.gramsPerKgCarbs}
           g/kg de carboidratos, {profile.gramsPerKgProtein}g/kg de proteínas,{' '}
           {profile.gramsPerKgFat}
           g/kg de gorduras
         </span>
         Tem perfil antigo?{' '}
         {oldProfile.hasOldProfile ? (
-          'Sim, de ' + dateToDateString(oldProfile.target_day)
+          'Sim, de ' + dateToYYYYMMDD(oldProfile.target_day)
         ) : (
           <span className="text-red-500">Não</span>
         )}
@@ -195,7 +194,7 @@ export function MacroTarget({
             onClick={async () => {
               showConfirmModal({
                 title: 'Restaurar perfil antigo',
-                message: `Tem certeza que deseja restaurar o perfil de ${dateToDateString(
+                message: `Tem certeza que deseja restaurar o perfil de ${dateToYYYYMMDD(
                   oldProfile.target_day,
                 )}? Os dados atuais serão perdidos.`,
                 onConfirm: async () => {

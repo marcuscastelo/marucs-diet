@@ -66,6 +66,11 @@ export default async function Page() {
     )
   }
 
+  const handleSave = async () => {
+    'use server'
+    revalidatePath('/')
+  }
+
   const onSaveProfile = async (profile: MacroProfile) => {
     'use server'
 
@@ -87,11 +92,6 @@ export default async function Page() {
       })
     }
     console.log('Updating MacroProfile')
-    revalidatePath('/')
-  }
-
-  const handleSave = async () => {
-    'use server'
     revalidatePath('/')
   }
 
