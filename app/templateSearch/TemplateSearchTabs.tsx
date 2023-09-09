@@ -1,7 +1,7 @@
 'use client'
 
 import { Tabs } from 'flowbite-react'
-import { Template } from './TemplateSearch'
+import { Template } from './TemplateSearchModal'
 
 export type TemplateFilter = (template: Template) => boolean
 

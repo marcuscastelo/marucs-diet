@@ -40,7 +40,6 @@ type Story = StoryObj<typeof Modal>
 
 export const Root: Story = {
   args: {
-    modalId: 'teste123',
     hasBackdrop: true,
     header: (
       <>
@@ -62,7 +61,6 @@ export const Root: Story = {
 
 export const Full: Story = {
   args: {
-    modalId: 'teste123',
     hasBackdrop: true,
     header: <ModalHeader title="Mock test" />,
     body: <ModalBody />,

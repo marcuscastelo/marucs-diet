@@ -13,8 +13,7 @@ export default function ConfirmModal() {
     <ModalContextProvider visible={visible} onSetVisible={setVisible}>
       {/* TODO: Move modal-id to ModalContextProvider with a pseudo-random ID generation */}
       <Modal
-        modalId={`confirm-modal-${generateId()}`}
-        header={<Modal.Header title="Confirmar" />}
+        header={<Modal.Header title="Confirmar" backButton={false} />}
         body={<p>{body}</p>}
         actions={
           <ModalActions>

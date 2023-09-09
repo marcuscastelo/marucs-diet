@@ -19,7 +19,6 @@ export const Root: Story = {
   args: {
     show: true,
     recipe: mockRecipe(),
-    modalId: 'teste123',
     onSaveRecipe: () => undefined,
     onCancel: () => undefined,
     onVisibilityChange: () => undefined,

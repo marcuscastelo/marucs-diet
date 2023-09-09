@@ -46,7 +46,6 @@ import { renegerateId } from '@/utils/idUtils'
 
 export type ItemGroupEditModalProps = {
   show?: boolean
-  modalId: string
   targetMealName: string
   onSaveGroup: (item: ItemGroup) => void
   onCancel?: () => void
@@ -66,7 +65,6 @@ const ItemGroupEditModal = (props: ItemGroupEditModalProps) => {
 }
 
 const InnerItemGroupEditModal = ({
-  modalId,
   targetMealName,
   onCancel,
   onDelete,
@@ -155,8 +153,7 @@ const InnerItemGroupEditModal = ({
       />
       <ModalContextProvider visible={visible} onSetVisible={onSetVisible}>
         <Modal
-          modalId={modalId}
-          hasBackdrop={false}
+          hasBackdrop={true}
           header={
             <Header recipe={recipe.data} targetMealName={targetMealName} />
           }
@@ -224,11 +221,9 @@ function ExternalRecipeEditModal({
   visible: boolean
   onSetVisible: Dispatch<SetStateAction<boolean>>
 }) {
-  const { group } = useItemGroupEditContext()
   return (
     <ModalContextProvider visible={visible} onSetVisible={onSetVisible}>
       <RecipeEditModal
-        modalId={`VERY_UNIQUE_ID_FOR_RECIPE_${group?.id}`} // TODO: Clean all modal IDs on the project
         recipe={recipe}
         onSaveRecipe={async (recipe) => {
           const updatedRecipe = await updateRecipe(recipe.id, recipe)
@@ -287,7 +282,6 @@ function ExternalFoodItemEditModal({
       }}
     >
       <FoodItemEditModal
-        modalId={`VERY_UNIQUE_ID_${group?.id}`} // TODO: Clean all modal IDs on the project
         targetName={
           (group &&
             (isSimpleSingleGroup(group) ? targetMealName : group.name)) ||
@@ -382,6 +376,9 @@ function ExternalTemplateSearchModal({
       visible={visible}
       onSetVisible={(visible) => {
         // TODO: Implement onClose and onOpen to reduce code duplication
+        if (!visible) {
+          onRefetch()
+        }
         onSetVisible(visible)
       }}
     >

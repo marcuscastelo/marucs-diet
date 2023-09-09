@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react'
 import { searchFoodById } from '@/controllers/food'
 import { calcItemCalories } from '@/utils/macroMath'
 import { useUserContext } from '@/context/users.context'
-import { Template } from '../templateSearch/TemplateSearch'
+import { Template } from '../templateSearch/TemplateSearchModal'
 import { searchRecipeById } from '@/controllers/recipes'
 
 export type FoodItemViewProps = {
