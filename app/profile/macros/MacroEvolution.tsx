@@ -18,7 +18,10 @@ import { calculateMacroTarget } from '../../MacroTargets'
 import { latestWeight } from '@/utils/weightUtils'
 import { useWeights } from '@/hooks/weights'
 import { useMacroProfiles } from '@/hooks/macroProfiles'
-import { latestMacroProfile } from '@/utils/macroProfileUtils'
+import {
+  inForceMacroProfile,
+  latestMacroProfile,
+} from '@/utils/macroProfileUtils'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -187,16 +190,21 @@ function CaloriesChart({ weight }: { weight: number }) {
     )
   }
 
-  const macroTargets = calculateMacroTarget(weight, macroProfile)
-
   const data = days.data.map((day) => {
+    const dayDate = new Date(day.target_day)
+
+    const currentMacroProfile = inForceMacroProfile(macroProfiles.data, dayDate)
+    const macroTargets = currentMacroProfile
+      ? calculateMacroTarget(weight, currentMacroProfile)
+      : null
+
     const dayCalories = calcDayCalories(day)
     return {
       name: `${new Date(day.target_day).getDate()}/${new Date(
         day.target_day,
       ).getMonth()}`,
       calories: dayCalories.toFixed(0),
-      targetCalories: calcCalories(macroTargets),
+      targetCalories: macroTargets ? calcCalories(macroTargets) : undefined,
     }
   })
   return (
