@@ -1,6 +1,6 @@
 'use client'
 
-import { useUserId } from '@/context/users.context'
+import { useUserDesiredWeight, useUserId } from '@/context/users.context'
 import {
   deleteWeight,
   fetchUserWeights,
@@ -21,6 +21,7 @@ import { useDateField, useField, useFloatField } from '@/hooks/field'
 import { FloatInput } from '@/components/FloatInput'
 import { dateToDateString } from '@/utils/dateUtils'
 import { CapsuleContent } from '@/components/capsule/CapsuleContent'
+import { calculateWeightProgress, latestWeight } from '@/utils/weightUtils'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -28,6 +29,7 @@ const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
 
 export function WeightEvolution({ onSave }: { onSave: () => void }) {
   const userId = useUserId()
+  const desiredWeight = useUserDesiredWeight()
 
   const { weights, refetch: handleRefetchWeights } = useWeights(userId)
 
@@ -37,11 +39,16 @@ export function WeightEvolution({ onSave }: { onSave: () => void }) {
     return <h1>Carregando...</h1>
   }
 
+  const weightProgress = calculateWeightProgress(weights.data, desiredWeight)
+
+  const weightProgressText =
+    weightProgress === null ? 'Erro' : `${(weightProgress * 100).toFixed(2)}%`
+
   return (
     <>
       <div className={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>
         <h5 className={`mx-auto mb-5 text-center text-3xl font-bold`}>
-          Progresso do peso
+          Progresso do peso ({weightProgressText})
         </h5>
         <div className="mx-5 lg:mx-20 pb-10">
           <FloatInput
@@ -75,7 +82,7 @@ export function WeightEvolution({ onSave }: { onSave: () => void }) {
             Adicionar peso
           </button>
         </div>
-        <WeightChart weights={weights.data} />
+        <WeightChart weights={weights.data} desiredWeight={desiredWeight} />
         <div className="mx-5 lg:mx-20 pb-10">
           {weights.data &&
             [...weights.data]
@@ -209,9 +216,16 @@ function WeightView({
   )
 }
 
-function WeightChart({ weights }: { weights: Weight[] }) {
+function WeightChart({
+  weights,
+  desiredWeight,
+}: {
+  weights: Weight[]
+  desiredWeight: number
+}) {
   type DayWeight = OHLC & {
     movingAverage?: number
+    desiredWeight?: number
   }
 
   const weightsByDay = weights.reduce(
@@ -252,6 +266,7 @@ function WeightChart({ weights }: { weights: Weight[] }) {
 
   data.forEach((_, index) => {
     data[index].movingAverage = movingAverage[index]
+    data[index].desiredWeight = desiredWeight
   })
 
   return (
@@ -265,7 +280,17 @@ function WeightChart({ weights }: { weights: Weight[] }) {
           fill="orange"
           dot={false}
           strokeWidth={3}
-          opacity={0.2}
+          strokeDasharray={'5 5'}
+          opacity={1}
+        />
+        <Line
+          type="monotone"
+          dataKey="desiredWeight"
+          stroke="magenta"
+          fill="magenta"
+          dot={false}
+          strokeWidth={3}
+          opacity={1}
         />
       </CandleStickChart>
       {/* </CandleStickChart */}
