@@ -259,37 +259,41 @@ function MacroTargetSetting({
 
   return (
     <div className="my-2 flex flex-col p-2 outline outline-slate-900">
-      <div className="block flex-1 text-center">
-        <h1 className={`mt-6 text-3xl font-bold ${headerColor}`}>
+      <div className="flex flex-col justify-between sm:flex-row gap-0 sm:gap-5 text-center sm:text-start">
+        <span className={`text-3xl flex-1 font-bold ${headerColor}`}>
           {target.name}
-        </h1>
-        <div className="mt-1 text-center">
+          <span className="hidden sm:inline">:</span>
+        </span>
+        <span className="my-auto flex-1 text-xl">
           {(target.calorieMultiplier * (Number(grams) || 0)).toFixed(0)} kcal
-        </div>
+          <span className="ml-2 text-slate-300 text-lg">({percentage}%)</span>
+        </span>
       </div>
       <div className="mt-5 flex flex-1 flex-shrink flex-col gap-1">
-        <MacroField
+        {/* <MacroField
           fieldName="Porcentagem (%)"
           field={percentage}
           setField={(percentage) => onSetPercentage?.(Number(percentage))}
           unit="%"
           disabled={true}
           className="font-thin italic"
-        />
+        /> */}
 
-        <MacroField
-          fieldName="Gramas (g)"
-          field={grams}
-          setField={(grams) => onSetGrams?.(Number(grams))}
-          unit="g"
-        />
+        <div className="flex flex-col md:flex-row gap-5">
+          <MacroField
+            fieldName="Gramas (g)"
+            field={grams}
+            setField={(grams) => onSetGrams?.(Number(grams))}
+            unit="g"
+          />
 
-        <MacroField
-          fieldName="Proporção (g/kg)"
-          field={gramsPerKg}
-          setField={(gramsPerKg) => onSetGramsPerKg?.(Number(gramsPerKg))}
-          unit="g/kg"
-        />
+          <MacroField
+            fieldName="Proporção (g/kg)"
+            field={gramsPerKg}
+            setField={(gramsPerKg) => onSetGramsPerKg?.(Number(gramsPerKg))}
+            unit="g/kg"
+          />
+        </div>
       </div>
     </div>
   )
@@ -315,11 +319,8 @@ function MacroField({
   }, [field])
 
   return (
-    <div className="flex flex-1 flex-col md:flex-row">
-      <div className="my-auto mr-3 text-center md:w-1/3 md:text-end">
-        <label>{fieldName}</label>
-      </div>
-      <div className="md:w-2/3">
+    <div className="flex flex-1 flex-col">
+      <div className="">
         <input
           value={innerField}
           onChange={(e) => setInnerField(e.target.value)}
@@ -332,6 +333,9 @@ function MacroField({
           placeholder=""
           required
         />
+      </div>
+      <div className="my-auto mr-3 text-center">
+        <label>{fieldName}</label>
       </div>
       {/* <span className="mt-auto">
                 {unit}
