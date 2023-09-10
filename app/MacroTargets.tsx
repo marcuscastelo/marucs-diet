@@ -81,12 +81,14 @@ export type MacroTargetProps = {
   profiles: MacroProfile[]
   className?: string
   onSaveMacroProfile: (newProfile: MacroProfile) => void
+  mode: 'edit' | 'view'
 }
 
 export function MacroTarget({
   weight,
   profiles,
   onSaveMacroProfile,
+  mode,
 }: MacroTargetProps) {
   const router = useRouter()
   const { show: showConfirmModal } = useConfirmModalContext()
@@ -175,37 +177,62 @@ export function MacroTarget({
         />
       </div>
       <div className="mx-5 flex flex-col">
-        Perfil atual:{' '}
-        <span className="text-green-400">
-          Desde {dateToYYYYMMDD(profile.target_day)}, {profile.gramsPerKgCarbs}
-          g/kg de carboidratos, {profile.gramsPerKgProtein}g/kg de proteínas,{' '}
-          {profile.gramsPerKgFat}
-          g/kg de gorduras
-        </span>
-        Tem perfil antigo?{' '}
-        {oldProfile.hasOldProfile ? (
-          'Sim, de ' + dateToYYYYMMDD(oldProfile.target_day)
-        ) : (
-          <span className="text-red-500">Não</span>
-        )}
-        {oldProfile.hasOldProfile && (
-          <button
-            className="btn btn-primary btn-sm"
-            onClick={async () => {
-              showConfirmModal({
-                title: 'Restaurar perfil antigo',
-                message: `Tem certeza que deseja restaurar o perfil de ${dateToYYYYMMDD(
-                  oldProfile.target_day,
-                )}? Os dados atuais serão perdidos.`,
-                onConfirm: async () => {
-                  await deleteMacroProfile(profile.id)
-                  router.refresh()
-                },
-              })
-            }}
-          >
-            Restaurar perfil antigo
-          </button>
+        {mode === 'edit' && (
+          <>
+            Perfil atual:{' '}
+            <span className="text-green-400">
+              Desde {dateToYYYYMMDD(profile.target_day)},{' '}
+              {profile.gramsPerKgCarbs}
+              g/kg de carboidratos, {profile.gramsPerKgProtein}g/kg de
+              proteínas, {profile.gramsPerKgFat}
+              g/kg de gorduras
+            </span>
+            Tem perfil antigo?{' '}
+            {oldProfile.hasOldProfile ? (
+              'Sim, de ' + dateToYYYYMMDD(oldProfile.target_day)
+            ) : (
+              <span className="text-red-500">Não</span>
+            )}
+            {oldProfile.hasOldProfile && (
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={async () => {
+                  showConfirmModal({
+                    title: (
+                      <div className="text-red-500 text-center mb-5 text-xl">
+                        {' '}
+                        Restaurar perfil antigo{' '}
+                      </div>
+                    ),
+                    message: (
+                      <>
+                        <MacroTarget
+                          weight={weight}
+                          profiles={profiles.filter((p) => p.id !== profile.id)}
+                          onSaveMacroProfile={onSaveMacroProfile}
+                          mode="view"
+                        />
+                        <div>
+                          {`Tem certeza que deseja restaurar o perfil de ${dateToYYYYMMDD(
+                            oldProfile.target_day,
+                          )}?`}
+                        </div>
+                        <div className="text-red-500 text-center text-lg font-bold">
+                          ---- Os dados atuais serão perdidos. ----
+                        </div>
+                      </>
+                    ),
+                    onConfirm: async () => {
+                      await deleteMacroProfile(profile.id)
+                      router.refresh()
+                    },
+                  })
+                }}
+              >
+                Restaurar perfil antigo
+              </button>
+            )}
+          </>
         )}
       </div>
       <div className="mx-5 flex flex-col">
@@ -215,6 +242,7 @@ export function MacroTarget({
           onSetGramsPerKg={makeOnSetGramsPerKg('carbs')}
           onSetGrams={makeOnSetGrams('carbs')}
           onSetPercentage={makeOnSetPercentage('carbs')}
+          mode={mode}
         />
 
         <MacroTargetSetting
@@ -223,6 +251,7 @@ export function MacroTarget({
           onSetGramsPerKg={makeOnSetGramsPerKg('protein')}
           onSetGrams={makeOnSetGrams('protein')}
           onSetPercentage={makeOnSetPercentage('protein')}
+          mode={mode}
         />
 
         <MacroTargetSetting
@@ -231,6 +260,7 @@ export function MacroTarget({
           onSetGramsPerKg={makeOnSetGramsPerKg('fat')}
           onSetGrams={makeOnSetGrams('fat')}
           onSetPercentage={makeOnSetPercentage('fat')}
+          mode={mode}
         />
       </div>
     </>
@@ -243,12 +273,14 @@ function MacroTargetSetting({
   onSetPercentage,
   onSetGrams,
   onSetGramsPerKg,
+  mode,
 }: {
   headerColor: string
   target: MacroRepresentation
   onSetPercentage?: (percentage: number) => void
   onSetGrams?: (grams: number) => void
   onSetGramsPerKg?: (gramsPerKg: number) => void
+  mode: 'edit' | 'view'
 }) {
   const emptyIfZeroElse2Decimals = (value: number) =>
     (value && value.toFixed(2)) || ''
@@ -258,7 +290,7 @@ function MacroTargetSetting({
   const gramsPerKg = emptyIfZeroElse2Decimals(target.gramsPerKg)
 
   return (
-    <div className="my-2 flex flex-col p-2 outline outline-slate-900">
+    <div className="my-2 flex flex-col p-2 border-t border-slate-900">
       <div className="flex flex-col justify-between sm:flex-row gap-0 sm:gap-5 text-center sm:text-start">
         <span className={`text-3xl flex-1 font-bold ${headerColor}`}>
           {target.name}
@@ -285,6 +317,7 @@ function MacroTargetSetting({
             field={grams}
             setField={(grams) => onSetGrams?.(Number(grams))}
             unit="g"
+            disabled={mode === 'view'}
           />
 
           <MacroField
@@ -292,6 +325,7 @@ function MacroTargetSetting({
             field={gramsPerKg}
             setField={(gramsPerKg) => onSetGramsPerKg?.(Number(gramsPerKg))}
             unit="g/kg"
+            disabled={mode === 'view'}
           />
         </div>
       </div>
