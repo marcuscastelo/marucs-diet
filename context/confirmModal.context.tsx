@@ -1,10 +1,10 @@
 'use client'
 
-import { Dispatch, SetStateAction, useState } from 'react'
+import { Dispatch, ReactNode, SetStateAction, useState } from 'react'
 import { createContext, useContext } from 'use-context-selector'
 
-type Title = string
-type Body = string
+type Title = ReactNode
+type Body = ReactNode
 
 export type ConfirmModalContext = {
   internals: {
@@ -12,7 +12,7 @@ export type ConfirmModalContext = {
     setVisible: Dispatch<SetStateAction<boolean>>
     title: Title
     setTitle: Dispatch<SetStateAction<Title>>
-    message: Body
+    message: Body // TODO: Rename message to body
     setMessage: Dispatch<SetStateAction<Body>>
     onConfirm: () => void
     onCancel: () => void
@@ -63,9 +63,9 @@ export function ConfirmModalProvider({
   onCancel?: () => void
   children: React.ReactNode
 }) {
-  const [title, setTitle] = useState(initialTitle)
-  const [message, setMessage] = useState(initialMessage)
-  const [visible, setVisible] = useState(initiallyVisible)
+  const [title, setTitle] = useState<Title>(initialTitle)
+  const [message, setMessage] = useState<Body>(initialMessage)
+  const [visible, setVisible] = useState<boolean>(initiallyVisible)
   const [onConfirm, setOnConfirm] = useState<() => void>(() => () => {
     setVisible(false)
     initialOnConfirm()

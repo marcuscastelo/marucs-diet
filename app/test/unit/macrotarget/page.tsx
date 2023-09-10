@@ -21,6 +21,7 @@ export default function Page() {
       weight={weight}
       profiles={initialProfiles}
       onSaveMacroProfile={() => alert('Save profile')}
+      mode="edit"
     />
   )
 }

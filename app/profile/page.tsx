@@ -117,6 +117,7 @@ export default async function Page() {
               weight={weight}
               profiles={macroProfiles}
               onSaveMacroProfile={onSaveProfile}
+              mode="edit"
             />
           ) : (
             <h1>Não há pesos registrados, o perfil não pode ser calculado</h1>
