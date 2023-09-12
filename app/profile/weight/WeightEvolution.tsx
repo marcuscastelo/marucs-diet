@@ -19,9 +19,13 @@ import Datepicker from 'react-tailwindcss-datepicker'
 import { useWeights } from '@/hooks/weights'
 import { useDateField, useField, useFloatField } from '@/hooks/field'
 import { FloatInput } from '@/components/FloatInput'
-import { dateToDateString } from '@/utils/dateUtils'
+import { dateToYYYYMMDD } from '@/utils/dateUtils'
 import { CapsuleContent } from '@/components/capsule/CapsuleContent'
-import { calculateWeightProgress, latestWeight } from '@/utils/weightUtils'
+import {
+  calculateWeightProgress,
+  firstWeight,
+  latestWeight,
+} from '@/utils/weightUtils'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -160,7 +164,7 @@ function WeightView({
               }
               // Apply timezone offset
               const date = new Date(value.startDate)
-              dateField.setRawValue(dateToDateString(date))
+              dateField.setRawValue(dateToYYYYMMDD(date))
               dateField.finishTyping() // TODO: Trigger finishTyping onBlur of Datepicker or parent div
               await handleSave({
                 dateValue: date,
@@ -242,10 +246,10 @@ function WeightChart({
 
   const data: DayWeight[] = Object.entries(weightsByDay)
     .map(([day, weights]) => {
-      const open = weights[0].weight
+      const open = firstWeight(weights)?.weight ?? 0
       const low = Math.min(...weights.map((weight) => weight.weight))
       const high = Math.max(...weights.map((weight) => weight.weight))
-      const close = weights[weights.length - 1].weight
+      const close = latestWeight(weights)?.weight ?? 0
 
       return {
         date: day,

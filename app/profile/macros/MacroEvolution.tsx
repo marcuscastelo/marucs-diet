@@ -17,10 +17,20 @@ import { useUserContext, useUserId } from '@/context/users.context'
 import { calculateMacroTarget } from '../../MacroTargets'
 import { latestWeight } from '@/utils/weightUtils'
 import { useWeights } from '@/hooks/weights'
+import { useMacroProfiles } from '@/hooks/macroProfiles'
+import {
+  inForceMacroProfile,
+  latestMacroProfile,
+} from '@/utils/macroProfileUtils'
+import { Day } from '@/model/dayModel'
+import { MacroProfile } from '@/model/macroProfileModel'
+import { dateToDDMM } from '@/utils/dateUtils'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
+
+const CHART_DATE_ANGLE = -45
 
 export function MacroEvolution() {
   const userId = useUserId()
@@ -54,15 +64,63 @@ export function MacroEvolution() {
   )
 }
 
+function createChartData(
+  weight: number,
+  days: Day[],
+  macroProfiles: MacroProfile[],
+) {
+  const data = days.map((day) => {
+    const dayDate = new Date(day.target_day)
+
+    const currentMacroProfile = inForceMacroProfile(macroProfiles, dayDate)
+    const macroTarget = currentMacroProfile
+      ? calculateMacroTarget(weight, currentMacroProfile)
+      : null
+
+    const dayMacros = calcDayMacros(day)
+    const dayCalories = calcDayCalories(day)
+    return {
+      name: dateToDDMM(dayDate),
+      calories: dayCalories.toFixed(0),
+      targetCalories: macroTarget ? calcCalories(macroTarget) : undefined,
+      protein: dayMacros.protein.toFixed(0),
+      targetProtein: macroTarget?.protein?.toFixed(0),
+      fat: dayMacros.fat.toFixed(0),
+      targetFat: macroTarget?.fat?.toFixed(0),
+      carbs: dayMacros.carbs.toFixed(0),
+      targetCarbs: macroTarget?.carbs?.toFixed(0),
+      targetGrams:
+        (macroTarget?.protein ?? NaN) +
+        (macroTarget?.carbs ?? NaN) +
+        (macroTarget?.fat ?? NaN),
+    }
+  })
+
+  return data
+}
+
 function AllMacrosChart({ weight }: { weight: number }) {
   const { days } = useDaysContext()
   const { user } = useUserContext()
+  const { macroProfiles } = useMacroProfiles(user.id)
 
   if (days.loading || days.errored) {
-    return <h1>Carregando...</h1>
+    return <h1>Carregando dias...</h1>
   }
 
-  const macroTargets = calculateMacroTarget(weight, user.macro_profile)
+  if (macroProfiles.loading || macroProfiles.errored) {
+    return <h1>Carregando perfis de macro...</h1>
+  }
+
+  const macroProfile = latestMacroProfile(macroProfiles.data)
+
+  if (!macroProfile) {
+    return (
+      <h1>Usuário não possui perfis de macro. Impossível calcular macros.</h1>
+    )
+  }
+
+  const macroTargets = calculateMacroTarget(weight, macroProfile)
 
   const proteinDeviance = days.data
     .map((day) => {
@@ -78,18 +136,7 @@ function AllMacrosChart({ weight }: { weight: number }) {
     })
     .reduce((a, b) => a + b, 0)
 
-  const data = days.data.map((day) => {
-    const dayMacros = calcDayMacros(day)
-    return {
-      name: `${new Date(day.target_day).getDate()}/${new Date(
-        day.target_day,
-      ).getMonth()}`,
-      protein: dayMacros.protein.toFixed(0),
-      carbs: dayMacros.carbs.toFixed(0),
-      fat: dayMacros.fat.toFixed(0),
-      targetGrams: macroTargets.protein + macroTargets.carbs + macroTargets.fat,
-    }
-  })
+  const data = createChartData(weight, days.data, macroProfiles.data)
 
   return (
     <div>
@@ -115,7 +162,7 @@ function AllMacrosChart({ weight }: { weight: number }) {
       <ResponsiveContainer width="90%" height={400}>
         <ComposedChart width={0} height={400} data={data} syncId={1}>
           <CartesianGrid strokeDasharray="1 1" />
-          <XAxis dataKey="name" angle={30} />
+          <XAxis dataKey="name" angle={CHART_DATE_ANGLE} />
           <YAxis />
           <Tooltip />
           <Area
@@ -154,30 +201,25 @@ function AllMacrosChart({ weight }: { weight: number }) {
 function CaloriesChart({ weight }: { weight: number }) {
   const { days } = useDaysContext()
   const { user } = useUserContext()
+  const { macroProfiles } = useMacroProfiles(user.id)
 
   if (days.loading || days.errored) {
-    return <h1>Carregando...</h1>
+    return <h1>Carregando dias...</h1>
   }
 
-  const macroTargets = calculateMacroTarget(weight, user.macro_profile)
+  if (macroProfiles.loading || macroProfiles.errored) {
+    return <h1>Carregando perfis de macro...</h1>
+  }
 
-  const data = days.data.map((day) => {
-    const dayCalories = calcDayCalories(day)
-    return {
-      name: `${new Date(day.target_day).getDate()}/${new Date(
-        day.target_day,
-      ).getMonth()}`,
-      calories: dayCalories.toFixed(0),
-      targetCalories: calcCalories(macroTargets),
-    }
-  })
+  const data = createChartData(weight, days.data, macroProfiles.data)
+
   return (
     <div>
       <div className="text-3xl text-center">Calorias</div>
       <ResponsiveContainer width="90%" height={400}>
         <ComposedChart width={0} height={400} data={data} syncId={1}>
           <CartesianGrid strokeDasharray="1 1" />
-          <XAxis dataKey="name" angle={30} />
+          <XAxis dataKey="name" angle={CHART_DATE_ANGLE} />
           <YAxis />
           <Tooltip />
           <Area
@@ -202,29 +244,25 @@ function CaloriesChart({ weight }: { weight: number }) {
 function ProteinChart({ weight }: { weight: number }) {
   const { days } = useDaysContext()
   const { user } = useUserContext()
+  const { macroProfiles } = useMacroProfiles(user.id)
 
   if (days.loading || days.errored) {
-    return <h1>Carregando...</h1>
+    return <h1>Carregando dias...</h1>
   }
 
-  const macroTargets = calculateMacroTarget(weight, user.macro_profile)
-  const data = days.data.map((day) => {
-    const dayMacros = calcDayMacros(day)
-    return {
-      name: `${new Date(day.target_day).getDate()}/${new Date(
-        day.target_day,
-      ).getMonth()}`,
-      protein: dayMacros.protein.toFixed(0),
-      targetProtein: macroTargets.protein.toFixed(0),
-    }
-  })
+  if (macroProfiles.loading || macroProfiles.errored) {
+    return <h1>Carregando perfis de macro...</h1>
+  }
+
+  const data = createChartData(weight, days.data, macroProfiles.data)
+
   return (
     <div>
       <div className="text-3xl text-center">Proteína</div>
       <ResponsiveContainer width="90%" height={400}>
         <ComposedChart width={0} height={400} data={data} syncId={1}>
           <CartesianGrid strokeDasharray="1 1" />
-          <XAxis dataKey="name" angle={30} />
+          <XAxis dataKey="name" angle={CHART_DATE_ANGLE} />
           <YAxis />
           <Tooltip />
           <Area
@@ -249,29 +287,25 @@ function ProteinChart({ weight }: { weight: number }) {
 function FatChart({ weight }: { weight: number }) {
   const { days } = useDaysContext()
   const { user } = useUserContext()
+  const { macroProfiles } = useMacroProfiles(user.id)
 
   if (days.loading || days.errored) {
-    return <h1>Carregando...</h1>
+    return <h1>Carregando dias...</h1>
   }
 
-  const macroTargets = calculateMacroTarget(weight, user.macro_profile)
-  const data = days.data.map((day) => {
-    const dayMacros = calcDayMacros(day)
-    return {
-      name: `${new Date(day.target_day).getDate()}/${new Date(
-        day.target_day,
-      ).getMonth()}`,
-      fat: dayMacros.fat.toFixed(0),
-      targetFat: macroTargets.fat.toFixed(0),
-    }
-  })
+  if (macroProfiles.loading || macroProfiles.errored) {
+    return <h1>Carregando perfis de macro...</h1>
+  }
+
+  const data = createChartData(weight, days.data, macroProfiles.data)
+
   return (
     <div>
       <div className="text-3xl text-center">Gordura</div>
       <ResponsiveContainer width="90%" height={400}>
         <ComposedChart width={0} height={400} data={data} syncId={1}>
           <CartesianGrid strokeDasharray="1 1" />
-          <XAxis dataKey="name" angle={30} />
+          <XAxis dataKey="name" angle={CHART_DATE_ANGLE} />
           <YAxis />
           <Tooltip />
           <Area
@@ -296,29 +330,24 @@ function FatChart({ weight }: { weight: number }) {
 function CarbsChart({ weight }: { weight: number }) {
   const { days } = useDaysContext()
   const { user } = useUserContext()
+  const { macroProfiles } = useMacroProfiles(user.id)
 
   if (days.loading || days.errored) {
     return <h1>Carregando...</h1>
   }
 
-  const macroTargets = calculateMacroTarget(weight, user.macro_profile)
-  const data = days.data.map((day) => {
-    const dayMacros = calcDayMacros(day)
-    return {
-      name: `${new Date(day.target_day).getDate()}/${new Date(
-        day.target_day,
-      ).getMonth()}`,
-      carbs: dayMacros.carbs.toFixed(0),
-      targetCarbs: macroTargets.carbs.toFixed(0),
-    }
-  })
+  if (macroProfiles.loading || macroProfiles.errored) {
+    return <h1>Carregando perfis de macro...</h1>
+  }
+
+  const data = createChartData(weight, days.data, macroProfiles.data)
   return (
     <div>
       <div className="text-3xl text-center">Carboidrato</div>
       <ResponsiveContainer width="90%" height={400}>
         <ComposedChart width={0} height={400} data={data} syncId={1}>
           <CartesianGrid strokeDasharray="1 1" />
-          <XAxis dataKey="name" angle={30} />
+          <XAxis dataKey="name" angle={CHART_DATE_ANGLE} />
           <YAxis />
           <Tooltip />
           <Area

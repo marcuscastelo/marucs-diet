@@ -11,9 +11,8 @@ export default function ConfirmModal() {
 
   return (
     <ModalContextProvider visible={visible} onSetVisible={setVisible}>
-      {/* TODO: Move modal-id to ModalContextProvider with a pseudo-random ID generation */}
       <Modal
-        header={<Modal.Header title="Confirmar" backButton={false} />}
+        header={<Modal.Header title={title} backButton={false} />}
         body={<p>{body}</p>}
         actions={
           <ModalActions>

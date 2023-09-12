@@ -78,7 +78,7 @@ export function ModalHeader({
           <BackIcon />
         </button>
       )}
-      <h3 className="text-lg font-bold text-white my-auto">{title}</h3>
+      <h3 className="text-lg font-bold text-white my-auto w-full">{title}</h3>
     </div>
   )
 }
