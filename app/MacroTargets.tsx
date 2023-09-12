@@ -1,18 +1,18 @@
 'use client'
 
+import { useConfirmModalContext } from '@/context/confirmModal.context'
+import { deleteMacroProfile } from '@/controllers/macroProfiles'
 import { MacroNutrients } from '@/model/macroNutrientsModel'
+import { MacroProfile } from '@/model/macroProfileModel'
+import { dateToYYYYMMDD } from '@/utils/dateUtils'
 import { calcCalories } from '@/utils/macroMath'
+import { latestMacroProfile } from '@/utils/macroProfileUtils'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 const CARBO_CALORIES = 4 as const
 const PROTEIN_CALORIES = 4 as const
 const FAT_CALORIES = 9 as const
-
-export type MacroProfile = {
-  gramsPerKgCarbs: number
-  gramsPerKgProtein: number
-  gramsPerKgFat: number
-}
 
 export type MacroRepresentation = {
   name: string
@@ -78,16 +78,35 @@ const calculateDifferenceInCarbs = (
 
 export type MacroTargetProps = {
   weight: number
-  profile: MacroProfile
+  profiles: MacroProfile[]
   className?: string
   onSaveMacroProfile: (newProfile: MacroProfile) => void
+  mode: 'edit' | 'view'
 }
 
 export function MacroTarget({
   weight,
-  profile,
+  profiles,
   onSaveMacroProfile,
+  mode,
 }: MacroTargetProps) {
+  const router = useRouter()
+  const { show: showConfirmModal } = useConfirmModalContext()
+  const profile = latestMacroProfile(profiles)
+  const oldProfile_ = latestMacroProfile(profiles, 1)
+  const oldProfile = oldProfile_
+    ? {
+        hasOldProfile: true as const,
+        ...oldProfile_,
+      }
+    : ({
+        hasOldProfile: false,
+      } as const)
+
+  if (!profile) {
+    throw new Error('No macro profile found')
+  }
+
   const initialGrams = calculateMacroTarget(weight, profile)
   const initialCalories = calcCalories(initialGrams)
   const [initialCarbsRepr, initialProteinRepr, initialFatRepr] =
@@ -158,12 +177,72 @@ export function MacroTarget({
         />
       </div>
       <div className="mx-5 flex flex-col">
+        {mode === 'edit' && (
+          <>
+            Perfil atual:{' '}
+            <span className="text-green-400">
+              Desde {dateToYYYYMMDD(profile.target_day)},{' '}
+              {profile.gramsPerKgCarbs}
+              g/kg de carboidratos, {profile.gramsPerKgProtein}g/kg de
+              proteínas, {profile.gramsPerKgFat}
+              g/kg de gorduras
+            </span>
+            Tem perfil antigo?{' '}
+            {oldProfile.hasOldProfile ? (
+              'Sim, de ' + dateToYYYYMMDD(oldProfile.target_day)
+            ) : (
+              <span className="text-red-500">Não</span>
+            )}
+            {oldProfile.hasOldProfile && (
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={async () => {
+                  showConfirmModal({
+                    title: (
+                      <div className="text-red-500 text-center mb-5 text-xl">
+                        {' '}
+                        Restaurar perfil antigo{' '}
+                      </div>
+                    ),
+                    message: (
+                      <>
+                        <MacroTarget
+                          weight={weight}
+                          profiles={profiles.filter((p) => p.id !== profile.id)}
+                          onSaveMacroProfile={onSaveMacroProfile}
+                          mode="view"
+                        />
+                        <div>
+                          {`Tem certeza que deseja restaurar o perfil de ${dateToYYYYMMDD(
+                            oldProfile.target_day,
+                          )}?`}
+                        </div>
+                        <div className="text-red-500 text-center text-lg font-bold">
+                          ---- Os dados atuais serão perdidos. ----
+                        </div>
+                      </>
+                    ),
+                    onConfirm: async () => {
+                      await deleteMacroProfile(profile.id)
+                      router.refresh()
+                    },
+                  })
+                }}
+              >
+                Restaurar perfil antigo
+              </button>
+            )}
+          </>
+        )}
+      </div>
+      <div className="mx-5 flex flex-col">
         <MacroTargetSetting
           headerColor="text-green-400"
           target={carbsRepr}
           onSetGramsPerKg={makeOnSetGramsPerKg('carbs')}
           onSetGrams={makeOnSetGrams('carbs')}
           onSetPercentage={makeOnSetPercentage('carbs')}
+          mode={mode}
         />
 
         <MacroTargetSetting
@@ -172,6 +251,7 @@ export function MacroTarget({
           onSetGramsPerKg={makeOnSetGramsPerKg('protein')}
           onSetGrams={makeOnSetGrams('protein')}
           onSetPercentage={makeOnSetPercentage('protein')}
+          mode={mode}
         />
 
         <MacroTargetSetting
@@ -180,6 +260,7 @@ export function MacroTarget({
           onSetGramsPerKg={makeOnSetGramsPerKg('fat')}
           onSetGrams={makeOnSetGrams('fat')}
           onSetPercentage={makeOnSetPercentage('fat')}
+          mode={mode}
         />
       </div>
     </>
@@ -192,12 +273,14 @@ function MacroTargetSetting({
   onSetPercentage,
   onSetGrams,
   onSetGramsPerKg,
+  mode,
 }: {
   headerColor: string
   target: MacroRepresentation
   onSetPercentage?: (percentage: number) => void
   onSetGrams?: (grams: number) => void
   onSetGramsPerKg?: (gramsPerKg: number) => void
+  mode: 'edit' | 'view'
 }) {
   const emptyIfZeroElse2Decimals = (value: number) =>
     (value && value.toFixed(2)) || ''
@@ -207,38 +290,44 @@ function MacroTargetSetting({
   const gramsPerKg = emptyIfZeroElse2Decimals(target.gramsPerKg)
 
   return (
-    <div className="my-2 flex flex-col p-2 outline outline-slate-900">
-      <div className="block flex-1 text-center">
-        <h1 className={`mt-6 text-3xl font-bold ${headerColor}`}>
+    <div className="my-2 flex flex-col p-2 border-t border-slate-900">
+      <div className="flex flex-col justify-between sm:flex-row gap-0 sm:gap-5 text-center sm:text-start">
+        <span className={`text-3xl flex-1 font-bold ${headerColor}`}>
           {target.name}
-        </h1>
-        <div className="mt-1 text-center">
+          <span className="hidden sm:inline">:</span>
+        </span>
+        <span className="my-auto flex-1 text-xl">
           {(target.calorieMultiplier * (Number(grams) || 0)).toFixed(0)} kcal
-        </div>
+          <span className="ml-2 text-slate-300 text-lg">({percentage}%)</span>
+        </span>
       </div>
       <div className="mt-5 flex flex-1 flex-shrink flex-col gap-1">
-        <MacroField
+        {/* <MacroField
           fieldName="Porcentagem (%)"
           field={percentage}
           setField={(percentage) => onSetPercentage?.(Number(percentage))}
           unit="%"
           disabled={true}
           className="font-thin italic"
-        />
+        /> */}
 
-        <MacroField
-          fieldName="Gramas (g)"
-          field={grams}
-          setField={(grams) => onSetGrams?.(Number(grams))}
-          unit="g"
-        />
+        <div className="flex flex-col md:flex-row gap-5">
+          <MacroField
+            fieldName="Gramas (g)"
+            field={grams}
+            setField={(grams) => onSetGrams?.(Number(grams))}
+            unit="g"
+            disabled={mode === 'view'}
+          />
 
-        <MacroField
-          fieldName="Proporção (g/kg)"
-          field={gramsPerKg}
-          setField={(gramsPerKg) => onSetGramsPerKg?.(Number(gramsPerKg))}
-          unit="g/kg"
-        />
+          <MacroField
+            fieldName="Proporção (g/kg)"
+            field={gramsPerKg}
+            setField={(gramsPerKg) => onSetGramsPerKg?.(Number(gramsPerKg))}
+            unit="g/kg"
+            disabled={mode === 'view'}
+          />
+        </div>
       </div>
     </div>
   )
@@ -264,11 +353,8 @@ function MacroField({
   }, [field])
 
   return (
-    <div className="flex flex-1 flex-col md:flex-row">
-      <div className="my-auto mr-3 text-center md:w-1/3 md:text-end">
-        <label>{fieldName}</label>
-      </div>
-      <div className="md:w-2/3">
+    <div className="flex flex-1 flex-col">
+      <div className="">
         <input
           value={innerField}
           onChange={(e) => setInnerField(e.target.value)}
@@ -281,6 +367,9 @@ function MacroField({
           placeholder=""
           required
         />
+      </div>
+      <div className="my-auto mr-3 text-center">
+        <label>{fieldName}</label>
       </div>
       {/* <span className="mt-auto">
                 {unit}

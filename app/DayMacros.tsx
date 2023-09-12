@@ -10,6 +10,9 @@ import { fetchUserWeights } from '@/controllers/weights'
 import { Loadable } from '@/utils/loadable'
 import { Weight } from '@/model/weightModel'
 import { latestWeight } from '@/utils/weightUtils'
+import { useWeights } from '@/hooks/weights'
+import { useMacroProfiles } from '@/hooks/macroProfiles'
+import { latestMacroProfile } from '@/utils/macroProfileUtils'
 
 export default function DayMacros({
   macros,
@@ -20,20 +23,15 @@ export default function DayMacros({
 }) {
   const { user } = useUserContext()
 
-  const [weights, setWeights] = useState<Loadable<Weight[]>>({ loading: true })
-
-  const handleRefetchWeights = useCallback(() => {
-    fetchUserWeights(user.id).then((weights) =>
-      setWeights({ loading: false, errored: false, data: weights }),
-    )
-  }, [user.id])
-
-  useEffect(() => {
-    handleRefetchWeights()
-  }, [handleRefetchWeights])
+  const { weights } = useWeights(user.id)
+  const { macroProfiles } = useMacroProfiles(user.id)
 
   if (weights.loading || weights.errored) {
-    return <h1>Carregando...</h1>
+    return <h1>Carregando pesos...</h1>
+  }
+
+  if (macroProfiles.loading || macroProfiles.errored) {
+    return <h1>Carregando perfis de macro...</h1>
   }
 
   const weight = latestWeight(weights.data)?.weight
@@ -42,7 +40,12 @@ export default function DayMacros({
     return <h1>O usuário não possui pesos registrados</h1>
   }
 
-  const macroProfile = user.macro_profile
+  const macroProfile = latestMacroProfile(macroProfiles.data)
+
+  if (!macroProfile) {
+    return <h1>O usuário não possui perfis de macro registrados</h1>
+  }
+
   const targetMacros = calculateMacroTarget(weight, macroProfile)
 
   const targetCalories = calcCalories(targetMacros)

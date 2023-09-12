@@ -2,7 +2,7 @@
 
 import {
   adjustToTimezone,
-  dateToDateString,
+  dateToYYYYMMDD,
   dateToString,
   stringToDate,
 } from '@/utils/dateUtils'
