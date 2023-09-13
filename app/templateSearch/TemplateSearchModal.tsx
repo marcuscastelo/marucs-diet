@@ -18,11 +18,17 @@ import {
   SimpleItemGroup,
 } from '@/model/itemGroupModel'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
-import { useFoodContext } from '@/context/food.context'
+import { FoodStore, useFoodContext } from '@/context/food.context'
 import { generateId } from '@/utils/idUtils'
-import { TemplateSearchTabs, avaliableTabs } from './TemplateSearchTabs'
+import {
+  AvailableTab,
+  TemplateSearchTabs,
+  avaliableTabs,
+  chooseFoodsFromStore as chooseFoodsFromFoodStore,
+} from './TemplateSearchTabs'
 import { ObjectValues } from '@/utils/typeUtils'
 import { useTyping } from '@/hooks/typing'
+import { Loadable, UnboxedLoadable } from '@/utils/loadable'
 
 export type TemplateSearchModalProps = {
   targetName: string
@@ -127,7 +133,7 @@ export function TemplateSearch({
   const TEMPLATE_SEARCH_LIMIT = 100
   const TYPING_TIMEOUT_MS = 1000
 
-  const { foods, favoriteFoods, refetchFoods } = useFoodContext()
+  const { foods, favoriteFoods, recentFoods, refetchFoods } = useFoodContext()
 
   const [isClient, setIsClient] = useState(false) // TODO: Stop using isClient and typeof window
   const isDesktop = isClient ? window.innerWidth > 768 : false // TODO: Stop using innerWidth to detect desktop
@@ -145,9 +151,12 @@ export function TemplateSearch({
   }
 
   // TODO: Create DEFAULT_TAB constant
-  type AvailableTab = ObjectValues<typeof avaliableTabs>['id']
   const [tab, setTab] = useState<AvailableTab>('all')
-  const templates = tab === 'favorites' ? favoriteFoods : foods
+  const templates = chooseFoodsFromFoodStore(tab, {
+    foods,
+    favoriteFoods,
+    recentFoods,
+  })
 
   if (templates.loading) {
     return <PageLoading message="Carregando alimentos e receitas" />
@@ -165,7 +174,7 @@ export function TemplateSearch({
     )
   }
 
-  const searchFilteredTemlates = templates.data
+  const searchFilteredTemplates = templates.data
     .filter((template) => {
       if (search === '') {
         return true
@@ -207,7 +216,7 @@ export function TemplateSearch({
       />
       <SearchResults
         search={search}
-        filteredTemplates={searchFilteredTemlates}
+        filteredTemplates={searchFilteredTemplates}
         setBarCodeModalVisible={setBarCodeModalVisible}
         setFoodItemEditModalVisible={setFoodItemEditModalVisible}
         setSelectedTemplate={setSelectedTemplate}
