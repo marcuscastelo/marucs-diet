@@ -24,10 +24,21 @@ export type UnboxedLoadable<T extends { [key: string]: unknown }> = {
   [K in keyof T]: Loadable<T[K]>
 }
 
-export function unboxLoadingObject<TObj extends { [key: string]: unknown }>(
+export type BoxedLoadable<
+  TObj extends { [key: string]: Loadable<unknown, unknown, unknown> },
+> = Loadable<{
+  [K in keyof TObj]: TObj[K] extends Loadable<infer TLoaded>
+    ? Loaded<TLoaded>['data']
+    : never
+}>
+
+export function unboxLoadingObject<
+  TObj extends { [key: string]: unknown },
+  TKey extends keyof TObj,
+>(
   loadableObject: Loadable<TObj>,
-  keys: (keyof TObj)[],
-): UnboxedLoadable<TObj> {
+  keys: TKey[],
+): UnboxedLoadable<Pick<TObj, TKey>> {
   if (loadableObject.loading) {
     const ret = keys.reduce((acc, key) => {
       acc[key] = { loading: true }

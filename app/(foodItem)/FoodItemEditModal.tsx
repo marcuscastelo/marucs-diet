@@ -42,7 +42,9 @@ const FoodItemEditModal = ({
 }: FoodItemEditModalProps) => {
   const { visible, onSetVisible } = useModalContext()
 
+  // TODO: Better initial state for foodItem on FoodItemEditModal
   const [foodItem, setFoodItem] = useState<CustomFoodItem>({
+    '': 'FoodItem',
     id: initialFoodItem?.id ?? generateId(),
     name: initialFoodItem?.name ?? 'ERRO: Sem nome',
     quantity: initialFoodItem?.quantity ?? 0,
@@ -294,6 +296,7 @@ function Body({
       <FoodItemView
         foodItem={
           {
+            '': 'FoodItem',
             id,
             name: foodItem.name ?? 'Sem nome (itemData && FoodItemView)',
             quantity: quantityField.value ?? foodItem.quantity,

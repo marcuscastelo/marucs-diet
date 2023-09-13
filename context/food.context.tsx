@@ -3,9 +3,10 @@ import { Loadable, UnboxedLoadable, unboxLoadingObject } from '@/utils/loadable'
 import { useCallback, useEffect, useState } from 'react'
 import { createContext, useContext } from 'use-context-selector'
 
-type FoodStore = {
+export type FoodStore = {
   foods: Food[]
   favoriteFoods: Food[]
+  recentFoods: Food[]
 }
 
 type FoodFetch = (search?: string) => Promise<FoodStore>
@@ -37,7 +38,6 @@ export function FoodContextProvider({
     loading: true,
   })
 
-  // TODO: fetch favorite foods and store them locally to switch between tabs
   const handleFetchFoods = useCallback(
     (search?: string) => {
       onFetchFoods(search)
@@ -56,9 +56,10 @@ export function FoodContextProvider({
   }, [handleFetchFoods])
 
   const context: FoodContext = {
-    foods: unboxLoadingObject(foodStore, ['favoriteFoods', 'foods']).foods,
-    favoriteFoods: unboxLoadingObject(foodStore, ['favoriteFoods', 'foods'])
+    foods: unboxLoadingObject(foodStore, ['foods']).foods,
+    favoriteFoods: unboxLoadingObject(foodStore, ['favoriteFoods'])
       .favoriteFoods,
+    recentFoods: unboxLoadingObject(foodStore, ['recentFoods']).recentFoods,
     refetchFoods: handleFetchFoods,
   }
 
