@@ -8,11 +8,11 @@ export const foodItemSchema = z.object({
   reference: z.number(),
   quantity: z.number(),
   macros: macroNutrientsSchema,
-  // '': z
-  //   .string()
-  //   .nullable()
-  //   .optional()
-  //   .transform(() => 'FoodItem' as const),
+  '': z
+    .string()
+    .nullable()
+    .optional()
+    .transform(() => 'FoodItem' as const),
 })
 
 export type FoodItem = z.infer<typeof foodItemSchema>
@@ -20,19 +20,24 @@ export type FoodItem = z.infer<typeof foodItemSchema>
 export function createFoodItem({
   name,
   reference,
+  quantity = 0,
+  macros = {},
 }: {
   name: string
   reference: number
+  quantity?: number
+  macros?: Partial<FoodItem['macros']>
 }) {
   return foodItemSchema.parse({
-    id: generateId(),
+    '': 'FoodItem',
+    id: generateId(), // TODO: Remove id generation from createFoodItem and use it only in the database
     name,
     reference,
-    quantity: 0,
+    quantity,
     macros: {
-      protein: 0,
-      carbs: 0,
-      fat: 0,
+      protein: macros.protein ?? 0,
+      carbs: macros.carbs ?? 0,
+      fat: macros.fat ?? 0,
     },
   } satisfies FoodItem)
 }
