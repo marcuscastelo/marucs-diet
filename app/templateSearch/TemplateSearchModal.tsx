@@ -11,29 +11,31 @@ import { Recipe } from '@/model/recipeModel'
 import { mockFood } from '../test/unit/(mock)/mockData'
 import PageLoading from '../PageLoading'
 import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
-import { useUserContext } from '@/context/users.context'
+import { useUserContext, useUserId } from '@/context/users.context'
 import {
   ItemGroup,
   RecipedItemGroup,
   SimpleItemGroup,
 } from '@/model/itemGroupModel'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
-import { FoodStore, useFoodContext } from '@/context/food.context'
+import { useFoodContext } from '@/context/food.context'
 import { generateId } from '@/utils/idUtils'
 import {
   AvailableTab,
   TemplateSearchTabs,
-  avaliableTabs,
   chooseFoodsFromStore as chooseFoodsFromFoodStore,
 } from './TemplateSearchTabs'
-import { ObjectValues } from '@/utils/typeUtils'
 import { useTyping } from '@/hooks/typing'
-import { Loadable, UnboxedLoadable } from '@/utils/loadable'
-import { createFoodItem } from '@/model/foodItemModel'
+import { FoodItem, createFoodItem } from '@/model/foodItemModel'
+import { fetchRecentFoodByUserIdAndFoodId } from '@/controllers/recentFood'
+import { createRecentFood } from '@/model/recentFoodModel'
 
 export type TemplateSearchModalProps = {
   targetName: string
-  onNewItemGroup?: (foodItem: ItemGroup) => Promise<void>
+  onNewItemGroup?: (
+    foodItem: ItemGroup,
+    originalAddedItem: FoodItem,
+  ) => Promise<void>
   onFinish?: () => void
 }
 
@@ -45,6 +47,7 @@ export function TemplateSearchModal({
   onNewItemGroup,
   onFinish,
 }: TemplateSearchModalProps) {
+  const userId = useUserId()
   const { visible, onSetVisible } = useModalContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
@@ -57,11 +60,32 @@ export function TemplateSearchModal({
     mockFood({ name: 'BUG: SELECTED TEMPLATE NOT SET' }), // TODO: Properly handle no template selected
   )
 
-  const handleNewItemGroup = async (newGroup: ItemGroup) => {
-    await onNewItemGroup?.(newGroup)
+  const handleNewItemGroup = async (
+    newGroup: ItemGroup,
+    originalAddedItem: FoodItem,
+  ) => {
+    await onNewItemGroup?.(newGroup, originalAddedItem)
+
+    const recentFood = await fetchRecentFoodByUserIdAndFoodId(
+      userId,
+      originalAddedItem.reference,
+    )
+
+    // -------------------- RESTART FROM HERE --------------------
+    // -------------------- RESTART FROM HERE --------------------
+    // -------------------- RESTART FROM HERE --------------------
+    // -------------------- RESTART FROM HERE --------------------
+    // -------------------- RESTART FROM HERE --------------------
+    // -------------------- RESTART FROM HERE --------------------
+    // TODO: update recent food if present (increment quantity and update date, already made in createRecentFood)
+    // TODO: create recent food if not present
+    // -------------------- RESTART FROM HERE --------------------
+    // -------------------- RESTART FROM HERE --------------------
+    // -------------------- RESTART FROM HERE --------------------
+    // -------------------- RESTART FROM HERE --------------------
+
     // Prompt if user wants to add another item or go back (Yes/No)
     // TODO: Show Yes/No instead of Ok/Cancel on modal
-
     showConfirmModal({
       title: 'Item adicionado com sucesso',
       message: 'Deseja adicionar outro item?',
@@ -260,7 +284,10 @@ function ExternalFoodItemEditModal({
   onSetVisible: Dispatch<SetStateAction<boolean>>
   selectedTemplate: Template
   targetName: string
-  onNewItemGroup: (newGroup: ItemGroup) => Promise<void>
+  onNewItemGroup: (
+    newGroup: ItemGroup,
+    originalAddedItem: FoodItem,
+  ) => Promise<void>
 }) {
   return (
     <ModalContextProvider visible={visible} onSetVisible={onSetVisible}>
@@ -282,7 +309,7 @@ function ExternalFoodItemEditModal({
               type: 'simple',
               quantity: item.quantity,
             }
-            onNewItemGroup(newGroup)
+            onNewItemGroup(newGroup, item)
           } else {
             const newGroup: RecipedItemGroup = {
               id: generateId(),
@@ -292,7 +319,7 @@ function ExternalFoodItemEditModal({
               quantity: item.quantity, // TODO: Implement quantity on recipe item groups (should influence macros)
               recipe: (selectedTemplate as Recipe).id,
             }
-            onNewItemGroup(newGroup)
+            onNewItemGroup(newGroup, item)
           }
         }}
       />

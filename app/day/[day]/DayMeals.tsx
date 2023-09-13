@@ -19,6 +19,7 @@ import { getToday } from '@/utils/dateUtils'
 import { ModalContextProvider } from '@/app/(modals)/ModalContext'
 import { useUserContext } from '@/context/users.context'
 import { deepCopy } from '@/utils/deepCopy'
+import { addItemGroupToMeal } from '@/utils/dayEditor'
 
 export default function DayMeals({
   selectedDay,
@@ -230,31 +231,9 @@ function ExternalTemplateSearchModal({
       throw new Error('No meal selected!')
     }
 
-    const oldMeal = { ...selectedMeal }
-
-    const newMeal: Meal = {
-      ...oldMeal,
-      groups: [...oldMeal.groups, newGroup] satisfies Meal['groups'],
-    }
-
-    const oldMeals = [...day.meals]
-
-    const newMeals: Meal[] = [...oldMeals]
-    const changePos = newMeals.findIndex((m) => m.id === oldMeal.id)
-
-    if (changePos === -1) {
-      throw new Error('Meal not found! Searching for id: ' + oldMeal.id)
-    }
-
-    newMeals[changePos] = newMeal
-
-    const newDay: Day = {
-      ...day,
-      meals: newMeals,
-    }
-
-    updateDay(day.id, newDay)
-    refetchDays()
+    addItemGroupToMeal(day, selectedMeal, newGroup, {
+      onFinished: refetchDays,
+    })
   }
 
   const handleFinishSearch = () => {
