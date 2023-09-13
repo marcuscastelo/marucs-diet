@@ -16,10 +16,11 @@ export type RecentFood = z.infer<typeof recentFoodSchema>
 export type RecentFoodCreationParams = Partial<RecentFood> &
   Pick<RecentFood, 'user_id' | 'food_id'>
 
+// TODO: Unit test createRecentFood
 export function createRecentFood(
   recentFood: RecentFoodCreationParams,
 ): New<RecentFood> {
-  return recentFoodSchema.parse({
+  return recentFoodSchema.omit({ id: true }).parse({
     last_used: new Date(),
     times_used: (recentFood.times_used ?? 0) + 1,
     ...recentFood,

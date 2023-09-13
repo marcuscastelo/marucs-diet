@@ -27,7 +27,11 @@ import {
 } from './TemplateSearchTabs'
 import { useTyping } from '@/hooks/typing'
 import { FoodItem, createFoodItem } from '@/model/foodItemModel'
-import { fetchRecentFoodByUserIdAndFoodId } from '@/controllers/recentFood'
+import {
+  fetchRecentFoodByUserIdAndFoodId,
+  insertRecentFood,
+  updateRecentFood,
+} from '@/controllers/recentFood'
 import { createRecentFood } from '@/model/recentFoodModel'
 
 export type TemplateSearchModalProps = {
@@ -71,18 +75,26 @@ export function TemplateSearchModal({
       originalAddedItem.reference,
     )
 
-    // -------------------- RESTART FROM HERE --------------------
-    // -------------------- RESTART FROM HERE --------------------
-    // -------------------- RESTART FROM HERE --------------------
-    // -------------------- RESTART FROM HERE --------------------
-    // -------------------- RESTART FROM HERE --------------------
-    // -------------------- RESTART FROM HERE --------------------
-    // TODO: update recent food if present (increment quantity and update date, already made in createRecentFood)
-    // TODO: create recent food if not present
-    // -------------------- RESTART FROM HERE --------------------
-    // -------------------- RESTART FROM HERE --------------------
-    // -------------------- RESTART FROM HERE --------------------
-    // -------------------- RESTART FROM HERE --------------------
+    if (
+      recentFood &&
+      (recentFood.user_id !== userId ||
+        recentFood.food_id !== originalAddedItem.reference)
+    ) {
+      // TODO: Remove recent food assertion once unit tests are in place
+      throw new Error('BUG: recentFood fetched does not match user and food')
+    }
+
+    const newRecentFood = createRecentFood({
+      ...recentFood,
+      user_id: userId,
+      food_id: originalAddedItem.reference,
+    })
+
+    if (recentFood) {
+      updateRecentFood(recentFood.id, newRecentFood)
+    } else {
+      insertRecentFood(newRecentFood)
+    }
 
     // Prompt if user wants to add another item or go back (Yes/No)
     // TODO: Show Yes/No instead of Ok/Cancel on modal

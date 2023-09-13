@@ -19,8 +19,7 @@ export async function fetchRecentFoodByUserIdAndFoodId(
     throw error
   }
 
-  // TODO: return null if no data found for this user_id and food_id on fetchRecentFoodByUserIdAndFoodId
-  return recentFoodSchema.parse(data?.[0])
+  return recentFoodSchema.array().parse(data).at(0) ?? null
 }
 
 export async function fetchUserRecentFoods(userId: RecentFood['user_id']) {
@@ -28,7 +27,7 @@ export async function fetchUserRecentFoods(userId: RecentFood['user_id']) {
     .from(TABLE)
     .select('*')
     .eq('user_id', userId)
-    .order('last_used', { ascending: true })
+    .order('last_used', { ascending: false })
 
   if (error) {
     console.error(error)
