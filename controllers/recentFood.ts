@@ -1,11 +1,29 @@
 import { RecentFood, recentFoodSchema } from '@/model/recentFoodModel'
-import { User } from '@/model/userModel'
 import { New, enforceNew } from '@/utils/newDbRecord'
 import supabase from '@/utils/supabase'
 
 const TABLE = 'recent_foods'
 
-export async function fetchUserRecentFoods(userId: User['id']) {
+export async function fetchRecentFoodByUserIdAndFoodId(
+  userId: RecentFood['user_id'],
+  foodId: RecentFood['food_id'],
+) {
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select('*')
+    .eq('user_id', userId)
+    .eq('food_id', foodId)
+
+  if (error) {
+    console.error(error)
+    throw error
+  }
+
+  // TODO: return null if no data found for this user_id and food_id on fetchRecentFoodByUserIdAndFoodId
+  return recentFoodSchema.parse(data?.[0])
+}
+
+export async function fetchUserRecentFoods(userId: RecentFood['user_id']) {
   const { data, error } = await supabase
     .from(TABLE)
     .select('*')
