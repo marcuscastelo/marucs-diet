@@ -111,6 +111,7 @@ export default async function Page() {
           }}
         />
 
+        <WeightEvolution onSave={handleSave} />
         <div className={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>
           {weight !== undefined ? (
             <MacroTarget
@@ -123,9 +124,8 @@ export default async function Page() {
             <h1>Não há pesos registrados, o perfil não pode ser calculado</h1>
           )}
         </div>
-        <MeasuresEvolution onSave={handleSave} />
-        <WeightEvolution onSave={handleSave} />
         <MacroEvolution />
+        <MeasuresEvolution onSave={handleSave} />
       </div>
     </>
   )
