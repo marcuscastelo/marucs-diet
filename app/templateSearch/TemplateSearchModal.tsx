@@ -29,6 +29,7 @@ import {
 import { ObjectValues } from '@/utils/typeUtils'
 import { useTyping } from '@/hooks/typing'
 import { Loadable, UnboxedLoadable } from '@/utils/loadable'
+import { createFoodItem } from '@/model/foodItemModel'
 
 export type TemplateSearchModalProps = {
   targetName: string
@@ -371,11 +372,12 @@ const SearchResults = ({
           <React.Fragment key={idx}>
             <FoodItemView
               foodItem={{
-                id: generateId(),
-                name: template.name,
-                quantity: 100,
-                macros: template.macros,
-                reference: template.id,
+                ...createFoodItem({
+                  name: template.name,
+                  quantity: 100,
+                  macros: template.macros,
+                  reference: template.id,
+                }),
                 type: template[''] === 'Food' ? 'food' : 'recipe', // TODO: Refactor
               }}
               className="mt-1"
