@@ -4,6 +4,7 @@ import FoodItemView from '@/app/(foodItem)/FoodItemView'
 import { Alert, Breadcrumb } from 'flowbite-react'
 import { useState } from 'react'
 import { mockFood } from '../(mock)/mockData'
+import { createFoodItem } from '@/model/foodItemModel'
 
 export default function Page() {
   const [search, setSearch] = useState<string>('')
@@ -96,15 +97,14 @@ export default function Page() {
         <div key={idx}>
           <FoodItemView
             key={idx}
-            foodItem={{
-              id: 123,
+            foodItem={createFoodItem({
               name: food.name,
               quantity: 100,
               macros: {
                 ...food.macros,
               },
               reference: food.id,
-            }}
+            })}
           />
         </div>
       ))}

@@ -2,6 +2,7 @@
 
 import FoodItemView from '@/app/(foodItem)/FoodItemView'
 import { listFoods } from '@/controllers/food'
+import { createFoodItem } from '@/model/foodItemModel'
 import { Food } from '@/model/foodModel'
 import { Alert, Breadcrumb } from 'flowbite-react'
 import { useEffect, useState } from 'react'
@@ -101,15 +102,14 @@ export default function Page() {
         <div key={idx}>
           <FoodItemView
             key={idx}
-            foodItem={{
-              id: 123,
+            foodItem={createFoodItem({
               name: food.name,
               quantity: 100,
               macros: {
                 ...food.macros,
               },
               reference: food.id,
-            }}
+            })}
           />
         </div>
       ))}

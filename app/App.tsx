@@ -11,6 +11,7 @@ import {
 } from '@/context/users.context'
 import { listDays } from '@/controllers/days'
 import { listFoods, searchFoodsByName } from '@/controllers/food'
+import { fetchUserRecentFoods } from '@/controllers/recentFood'
 import { updateUser } from '@/controllers/users'
 import { User } from '@/model/userModel'
 
@@ -100,6 +101,22 @@ function AppFoodsProvider({ children }: { children: React.ReactNode }) {
         console.debug(
           `[FoodContextProvider] onFetchFoods - called with search: ${search}`,
         )
+        // TODO: Optimize recentFoods fetching: currently, if recentFood is too old (exceeding fetch limit), it will not be fetched and will not be searchable
+        console.debug(
+          `[FoodContextProvider] onFetchFoods - calling fetchUserRecentFoods`,
+        )
+        const recentFoods = (await fetchUserRecentFoods(user.id)).map(
+          (recentFood) => recentFood.food_id,
+        )
+        console.debug(
+          `[FoodContextProvider] onFetchFoods - fetchUserRecentFoods returned: ${JSON.stringify(
+            recentFoods,
+            null,
+            2,
+          )}
+            `,
+        )
+
         if (search) {
           console.debug(
             `[FoodContextProvider] onFetchFoods - calling searchFoodsByName`,
@@ -109,6 +126,10 @@ function AppFoodsProvider({ children }: { children: React.ReactNode }) {
             favoriteFoods: await searchFoodsByName(search, {
               limit: 100,
               allowedFoods: user.favorite_foods,
+            }),
+            recentFoods: await searchFoodsByName(search, {
+              limit: 100,
+              allowedFoods: recentFoods,
             }),
           }
         } else {
@@ -120,6 +141,10 @@ function AppFoodsProvider({ children }: { children: React.ReactNode }) {
             favoriteFoods: await listFoods({
               limit: 100,
               allowedFoods: user.favorite_foods,
+            }),
+            recentFoods: await listFoods({
+              limit: 100,
+              allowedFoods: recentFoods,
             }),
           }
         }

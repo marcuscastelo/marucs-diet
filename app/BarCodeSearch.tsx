@@ -6,6 +6,8 @@ import { searchFoodsByEan } from '@/controllers/food'
 import { Food } from '@/model/foodModel'
 import { useUserContext } from '@/context/users.context'
 import { generateId } from '@/utils/idUtils'
+import { createFoodItem } from '@/model/foodItemModel'
+import { MacroNutrients } from '@/model/macroNutrientsModel'
 
 export type BarCodeSearchProps = {
   barCode?: string
@@ -94,15 +96,14 @@ export default function BarCodeSearch({
               <p className="font-bold">{currentFood.name}</p>
               <p className="text-sm">
                 <FoodItemView
-                  foodItem={{
-                    id: generateId(),
+                  foodItem={createFoodItem({
                     name: currentFood.name,
                     reference: currentFood.id,
                     quantity: 100,
                     macros: {
                       ...currentFood.macros,
-                    },
-                  }}
+                    } satisfies MacroNutrients,
+                  })}
                   header={
                     <FoodItemView.Header
                       name={<FoodItemView.Header.Name />}

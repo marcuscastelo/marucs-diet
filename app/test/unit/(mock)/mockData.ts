@@ -1,6 +1,6 @@
 import { Day } from '@/model/dayModel'
 import { Food } from '@/model/foodModel'
-import { FoodItem } from '@/model/foodItemModel'
+import { FoodItem, createFoodItem } from '@/model/foodItemModel'
 import { Meal, createMeal } from '@/model/mealModel'
 import { New } from '@/utils/newDbRecord'
 import { Recipe, createRecipe } from '@/model/recipeModel'
@@ -66,14 +66,14 @@ export const mockMeal = (partial?: Partial<New<Meal>>): Meal =>
   } satisfies New<Meal>)
 
 let mockItemQtyPseudoId = 10
-export const mockItem = (partial?: Partial<FoodItem>): FoodItem => ({
-  id: generateId(),
-  name: mockFood().name,
-  reference: mockFood().id,
-  macros: mockFood().macros,
-  quantity: mockItemQtyPseudoId++,
-  ...partial,
-})
+export const mockItem = (partial?: Partial<FoodItem>): FoodItem =>
+  createFoodItem({
+    name: mockFood().name,
+    reference: mockFood().id,
+    macros: mockFood().macros,
+    quantity: mockItemQtyPseudoId++,
+    ...partial,
+  })
 
 export const mockDay = (
   partial: Partial<Day> & Pick<Day, 'owner' | 'target_day'>,

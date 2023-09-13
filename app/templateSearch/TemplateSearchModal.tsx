@@ -11,7 +11,7 @@ import { Recipe } from '@/model/recipeModel'
 import { mockFood } from '../test/unit/(mock)/mockData'
 import PageLoading from '../PageLoading'
 import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
-import { useUserContext } from '@/context/users.context'
+import { useUserContext, useUserId } from '@/context/users.context'
 import {
   ItemGroup,
   RecipedItemGroup,
@@ -20,13 +20,26 @@ import {
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import { useFoodContext } from '@/context/food.context'
 import { generateId } from '@/utils/idUtils'
-import { TemplateSearchTabs, avaliableTabs } from './TemplateSearchTabs'
-import { ObjectValues } from '@/utils/typeUtils'
+import {
+  AvailableTab,
+  TemplateSearchTabs,
+  chooseFoodsFromStore as chooseFoodsFromFoodStore,
+} from './TemplateSearchTabs'
 import { useTyping } from '@/hooks/typing'
+import { FoodItem, createFoodItem } from '@/model/foodItemModel'
+import {
+  fetchRecentFoodByUserIdAndFoodId,
+  insertRecentFood,
+  updateRecentFood,
+} from '@/controllers/recentFood'
+import { createRecentFood } from '@/model/recentFoodModel'
 
 export type TemplateSearchModalProps = {
   targetName: string
-  onNewItemGroup?: (foodItem: ItemGroup) => Promise<void>
+  onNewItemGroup?: (
+    foodItem: ItemGroup,
+    originalAddedItem: FoodItem,
+  ) => Promise<void>
   onFinish?: () => void
 }
 
@@ -38,6 +51,7 @@ export function TemplateSearchModal({
   onNewItemGroup,
   onFinish,
 }: TemplateSearchModalProps) {
+  const userId = useUserId()
   const { visible, onSetVisible } = useModalContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
@@ -50,11 +64,40 @@ export function TemplateSearchModal({
     mockFood({ name: 'BUG: SELECTED TEMPLATE NOT SET' }), // TODO: Properly handle no template selected
   )
 
-  const handleNewItemGroup = async (newGroup: ItemGroup) => {
-    await onNewItemGroup?.(newGroup)
+  const handleNewItemGroup = async (
+    newGroup: ItemGroup,
+    originalAddedItem: FoodItem,
+  ) => {
+    await onNewItemGroup?.(newGroup, originalAddedItem)
+
+    const recentFood = await fetchRecentFoodByUserIdAndFoodId(
+      userId,
+      originalAddedItem.reference,
+    )
+
+    if (
+      recentFood &&
+      (recentFood.user_id !== userId ||
+        recentFood.food_id !== originalAddedItem.reference)
+    ) {
+      // TODO: Remove recent food assertion once unit tests are in place
+      throw new Error('BUG: recentFood fetched does not match user and food')
+    }
+
+    const newRecentFood = createRecentFood({
+      ...recentFood,
+      user_id: userId,
+      food_id: originalAddedItem.reference,
+    })
+
+    if (recentFood) {
+      updateRecentFood(recentFood.id, newRecentFood)
+    } else {
+      insertRecentFood(newRecentFood)
+    }
+
     // Prompt if user wants to add another item or go back (Yes/No)
     // TODO: Show Yes/No instead of Ok/Cancel on modal
-
     showConfirmModal({
       title: 'Item adicionado com sucesso',
       message: 'Deseja adicionar outro item?',
@@ -127,7 +170,7 @@ export function TemplateSearch({
   const TEMPLATE_SEARCH_LIMIT = 100
   const TYPING_TIMEOUT_MS = 1000
 
-  const { foods, favoriteFoods, refetchFoods } = useFoodContext()
+  const { foods, favoriteFoods, recentFoods, refetchFoods } = useFoodContext()
 
   const [isClient, setIsClient] = useState(false) // TODO: Stop using isClient and typeof window
   const isDesktop = isClient ? window.innerWidth > 768 : false // TODO: Stop using innerWidth to detect desktop
@@ -145,9 +188,12 @@ export function TemplateSearch({
   }
 
   // TODO: Create DEFAULT_TAB constant
-  type AvailableTab = ObjectValues<typeof avaliableTabs>['id']
   const [tab, setTab] = useState<AvailableTab>('all')
-  const templates = tab === 'favorites' ? favoriteFoods : foods
+  const templates = chooseFoodsFromFoodStore(tab, {
+    foods,
+    favoriteFoods,
+    recentFoods,
+  })
 
   if (templates.loading) {
     return <PageLoading message="Carregando alimentos e receitas" />
@@ -165,7 +211,7 @@ export function TemplateSearch({
     )
   }
 
-  const searchFilteredTemlates = templates.data
+  const searchFilteredTemplates = templates.data
     .filter((template) => {
       if (search === '') {
         return true
@@ -207,7 +253,7 @@ export function TemplateSearch({
       />
       <SearchResults
         search={search}
-        filteredTemplates={searchFilteredTemlates}
+        filteredTemplates={searchFilteredTemplates}
         setBarCodeModalVisible={setBarCodeModalVisible}
         setFoodItemEditModalVisible={setFoodItemEditModalVisible}
         setSelectedTemplate={setSelectedTemplate}
@@ -250,7 +296,10 @@ function ExternalFoodItemEditModal({
   onSetVisible: Dispatch<SetStateAction<boolean>>
   selectedTemplate: Template
   targetName: string
-  onNewItemGroup: (newGroup: ItemGroup) => Promise<void>
+  onNewItemGroup: (
+    newGroup: ItemGroup,
+    originalAddedItem: FoodItem,
+  ) => Promise<void>
 }) {
   return (
     <ModalContextProvider visible={visible} onSetVisible={onSetVisible}>
@@ -272,7 +321,7 @@ function ExternalFoodItemEditModal({
               type: 'simple',
               quantity: item.quantity,
             }
-            onNewItemGroup(newGroup)
+            onNewItemGroup(newGroup, item)
           } else {
             const newGroup: RecipedItemGroup = {
               id: generateId(),
@@ -282,7 +331,7 @@ function ExternalFoodItemEditModal({
               quantity: item.quantity, // TODO: Implement quantity on recipe item groups (should influence macros)
               recipe: (selectedTemplate as Recipe).id,
             }
-            onNewItemGroup(newGroup)
+            onNewItemGroup(newGroup, item)
           }
         }}
       />
@@ -362,11 +411,12 @@ const SearchResults = ({
           <React.Fragment key={idx}>
             <FoodItemView
               foodItem={{
-                id: generateId(),
-                name: template.name,
-                quantity: 100,
-                macros: template.macros,
-                reference: template.id,
+                ...createFoodItem({
+                  name: template.name,
+                  quantity: 100,
+                  macros: template.macros,
+                  reference: template.id,
+                }),
                 type: template[''] === 'Food' ? 'food' : 'recipe', // TODO: Refactor
               }}
               className="mt-1"
