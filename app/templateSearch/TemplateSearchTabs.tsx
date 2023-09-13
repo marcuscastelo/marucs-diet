@@ -1,47 +1,53 @@
 'use client'
 
 import { Tabs } from 'flowbite-react'
-import { Template } from './TemplateSearchModal'
+import { ObjectValues } from '@/utils/typeUtils'
+import { Loadable, UnboxedLoadable } from '@/utils/loadable'
+import { FoodStore } from '@/context/food.context'
+import { Food } from '@/model/foodModel'
 
-export type TemplateFilter = (template: Template) => boolean
-
-type TabDefinition<T> = {
+type TabDefinition = {
   id: string
   title: string
-  // TODO: Remove filters since they are not used (backend query is used instead)
-  createFilter: (params: T) => TemplateFilter
 }
 
 export const avaliableTabs = {
   Todos: {
     id: 'all',
     title: 'Todos',
-    createFilter: () => (template: Template) => template[''] === 'Food',
-  } as const satisfies TabDefinition<unknown>,
+  } as const satisfies TabDefinition,
   Favoritos: {
     id: 'favorites',
     title: 'Favoritos',
-    createFilter: ({
-      checkTemplateIsFavoriteFood,
-    }: {
-      checkTemplateIsFavoriteFood: TemplateFilter
-    }) => checkTemplateIsFavoriteFood,
-  } as const satisfies TabDefinition<{
-    checkTemplateIsFavoriteFood: TemplateFilter
-  }>,
-  // Recentes: {
-  //   id: 'recent',
-  //   title: 'Recentes (Em breve)',
-  //   createFilter: () => (template: Template) => false,
-  // } as const satisfies TabDefinition<unknown>,
+  } as const satisfies TabDefinition,
+  Recentes: {
+    id: 'recent',
+    title: 'Recentes',
+  } as const satisfies TabDefinition,
   // Receitas: {
   //   id: 'recipes',
   //   title: 'Receitas (Em breve)',
-  //   createFilter: () => (template: Template) => template[''] === 'Recipe',
-  // } as const satisfies TabDefinition<unknown>,
-} as const satisfies { [key: string]: TabDefinition<any> }
+  // } as const satisfies TabDefinition,
+} as const satisfies { [key: string]: TabDefinition }
 
-export type TabName = keyof typeof avaliableTabs
+export type AvailableTab = ObjectValues<typeof avaliableTabs>['id']
+
+export function chooseFoodsFromStore(
+  tab: AvailableTab,
+  store: UnboxedLoadable<FoodStore>,
+): Loadable<Food[]> {
+  switch (tab) {
+    case 'all':
+      return store.foods
+    case 'favorites':
+      return store.favoriteFoods
+    case 'recent':
+      return store.recentFoods
+    default:
+      tab satisfies never
+      throw new Error(`Invalid tab: ${tab}`)
+  }
+}
 
 export function TemplateSearchTabs({
   onTabChange,
