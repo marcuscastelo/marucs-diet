@@ -31,7 +31,7 @@ const prepareData = <T extends OHLC>(data: T[]) => {
   return data.map(({ open, close, ...other }) => {
     return {
       ...other,
-      openClose: [open, close],
+      openClose: [open, close === open ? close + 0.1 : close, open === close],
     }
   })
 }
