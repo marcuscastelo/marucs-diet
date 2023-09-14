@@ -7,7 +7,7 @@ export type CandleStickProps = {
   height: number
   low: number
   high: number
-  openClose: [number, number]
+  openClose: [number, number, boolean]
 }
 
 export const CandleStickShape = (props: CandleStickProps) => {
@@ -19,12 +19,43 @@ export const CandleStickShape = (props: CandleStickProps) => {
     height,
     low,
     high,
-    openClose: [open, close],
+    openClose: [open, fakeClose, equals],
   } = props
-  const isGrowing = open < close
-  const color = open === close ? 'grey' : isGrowing ? 'green' : 'red'
-  const ratio = Math.abs(height / (open - close))
-  console.log(props)
+
+  if (height === 0) {
+    console.error(`Height is 0, this should not happen`)
+  }
+
+  if (open === fakeClose) {
+    console.error(`Open and close are equal, this should not happen`)
+  }
+
+  const candleType = equals
+    ? 'neutral'
+    : open < fakeClose
+    ? 'growing'
+    : 'falling'
+
+  const color =
+    candleType === 'neutral'
+      ? 'gray'
+      : candleType === 'growing'
+      ? 'green'
+      : 'red'
+
+  const ratio = Math.abs(height / open - fakeClose)
+  const rectangleHeight = Math.abs(open - fakeClose)
+
+  const rectangleBase = Math.min(open, fakeClose)
+  const rectangleTop = Math.max(open, fakeClose)
+
+  const topTipHeight = Math.abs(high - rectangleTop)
+  const bottomTipHeight = Math.abs(low - rectangleBase)
+
+  console.debug(`Props: ${JSON.stringify(props)}`)
+  console.debug(
+    `bottomTipHeight: ${bottomTipHeight}, topTipHeight: ${topTipHeight}, ratio: ${ratio}, rectangleHeight: ${rectangleHeight}, rectangleBase: ${rectangleBase}, rectangleTop: ${rectangleTop}`,
+  )
   return (
     <g stroke={color} fill={color} strokeWidth="2">
       <path
@@ -36,38 +67,20 @@ export const CandleStickShape = (props: CandleStickProps) => {
           L ${x},${y}
         `}
       />
-      {/* bottom line */}
-      {isGrowing ? (
-        <path
-          d={`
+
+      <path
+        d={`
             M ${x + width / 2}, ${y + height}
-            v ${(open - low) * ratio}
+            V ${y - topTipHeight * ratio}
           `}
-        />
-      ) : (
-        <path
-          d={`
-            M ${x + width / 2}, ${y}
-            v ${(close - low) * ratio}
-          `}
-        />
-      )}
-      {/* top line */}
-      {isGrowing ? (
-        <path
-          d={`
-            M ${x + width / 2}, ${y}
-            v ${(close - high) * ratio}
-          `}
-        />
-      ) : (
-        <path
-          d={`
+      />
+
+      <path
+        d={`
             M ${x + width / 2}, ${y + height}
-            v ${(open - high) * ratio}
+            V ${y + height + bottomTipHeight * ratio}
           `}
-        />
-      )}
+      />
     </g>
   )
 }
