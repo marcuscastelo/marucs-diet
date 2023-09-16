@@ -150,11 +150,21 @@ const RecipeEditModal = ({
                     showConfirmModal({
                       title: 'Excluir item',
                       message: 'Tem certeza que deseja excluir este item?',
-                      onConfirm: () => {
-                        // handleDeleteItem?.(id)
-                        // TODO: Implement handleDeleteItem for RecipeEditModal
-                        alert('TODO: handleDeleteItem')
-                      },
+                      actions: [
+                        {
+                          text: 'Cancelar',
+                          onClick: () => undefined,
+                        },
+                        {
+                          text: 'Excluir',
+                          primary: true,
+                          onClick: () => {
+                            // handleDeleteItem?.(id)
+                            // TODO: Implement handleDeleteItem for RecipeEditModal
+                            alert('TODO: handleDeleteItem')
+                          },
+                        },
+                      ],
                     })
                   }}
                 >

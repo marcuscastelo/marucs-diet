@@ -20,15 +20,25 @@ export default function DeleteDayButton({
         showConfirmModal({
           title: 'Excluir dia',
           message: 'Tem certeza que deseja excluir este dia?',
-          onConfirm: async () => {
-            if (day) {
-              await deleteDay(day.id)
-              refetchDays()
-            } else {
-              console.error('Day is null')
-              throw new Error('Day is null')
-            }
-          },
+          actions: [
+            {
+              text: 'Cancelar',
+              onClick: () => undefined,
+            },
+            {
+              text: 'Excluir dia',
+              primary: true,
+              onClick: async () => {
+                if (day) {
+                  await deleteDay(day.id)
+                  refetchDays()
+                } else {
+                  console.error('Day is null')
+                  throw new Error('Day is null')
+                }
+              },
+            },
+          ],
         })
       }}
     >

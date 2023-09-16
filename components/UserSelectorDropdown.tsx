@@ -16,12 +16,19 @@ export default function UserSelectorDropdown({
     showConfirmModal({
       title: 'Trocar de usuário',
       message: `Deseja entrar como ${user.name}?`,
-      onConfirm: () => {
-        changeUser(user.id)
-      },
-      onCancel: () => {
-        alert('Cancelado')
-      },
+      actions: [
+        {
+          text: 'Cancelar',
+          onClick: () => undefined,
+        },
+        {
+          primary: true,
+          text: 'Entrar',
+          onClick: () => {
+            changeUser(user.id)
+          },
+        },
+      ],
     })
   }
 
