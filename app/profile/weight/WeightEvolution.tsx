@@ -180,8 +180,6 @@ function WeightView({
             toggleIcon={() => <></>}
             containerClassName="relative w-full text-gray-700 "
             inputClassName="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full dark:bg-slate-700 dark:text-white/80 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed border-none"
-            // containerClassName={`text-md text-center flex-shrink outline overflow-hidden`}
-            // inputClassName={`btn-ghost flex-shrink`}
           />
         </CapsuleContent>
       }
@@ -275,7 +273,6 @@ function WeightChart({
 
   return (
     <>
-      {/*  */}
       <CandleStickChart data={data}>
         <Line
           type="monotone"
@@ -297,22 +294,6 @@ function WeightChart({
           opacity={1}
         />
       </CandleStickChart>
-      {/* </CandleStickChart */}
-      {/* <ComposedChart data={data} className="outline">
-        <XAxis dataKey="date" />
-        <YAxis type="number" allowDecimals={false} />
-        <CartesianGrid opacity={0.1} />
-        <Line
-          type="monotone"
-          dataKey="movingAverage"
-          stroke="orange"
-          fill="orange"
-          dot={false}
-          strokeWidth={3}
-          opacity={0.2}
-        />
-      </ComposedChart> */}
-      {/* </ResponsiveContainer> */}
     </>
   )
 }

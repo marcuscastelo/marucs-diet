@@ -59,8 +59,8 @@ export const updateRecipe = async (
   id: Recipe['id'],
   recipe: New<Recipe>,
 ): Promise<Recipe> => {
-  // TODO: Remove '' and id fields on every update (how to do it in a cleaner way?)
-  delete (recipe as Partial<Recipe>)['']
+  // TODO: Remove __type and id fields on every update (how to do it in a cleaner way?)
+  delete (recipe as Partial<Recipe>).__type
   delete (recipe as Partial<Recipe>).id
   const { data, error } = await supabase
     .from(TABLE)
