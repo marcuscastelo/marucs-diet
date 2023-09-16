@@ -100,17 +100,41 @@ export function TemplateSearchModal({
     // TODO: Show Yes/No instead of Ok/Cancel on modal
     showConfirmModal({
       title: 'Item adicionado com sucesso',
-      message: 'Deseja adicionar outro item?',
-      onConfirm: () => {
-        // TODO: Remove mockFood as default selected food
-        setSelectedTemplate(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }))
-        setFoodItemEditModalVisible(false)
-      },
-      onCancel: () => {
-        setSelectedTemplate(mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }))
-        setFoodItemEditModalVisible(false)
-        onFinish?.()
-      },
+      message: 'Deseja adicionar outro item ou finalizar a inclusão?',
+      actions: [
+        {
+          text: 'Adicionar mais um item',
+          onClick: () => {
+            // TODO: Fix "Add another item" button: it is not refreshing client-side data
+            alert('Funcionalidade desabilitada temporariamente')
+            // Code from "Finalizar" button
+            setSelectedTemplate(
+              mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }),
+            )
+            setFoodItemEditModalVisible(false)
+            onFinish?.()
+            // -- End of "Finalizar" button code
+            return
+            // TODO: Remove mockFood as default selected food
+            setSelectedTemplate(
+              mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }),
+            )
+            setFoodItemEditModalVisible(false)
+          },
+        },
+        {
+          text: 'Finalizar',
+          primary: true,
+          onClick: () => {
+            // TODO: Remove mockFood as default selected food
+            setSelectedTemplate(
+              mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }),
+            )
+            setFoodItemEditModalVisible(false)
+            onFinish?.()
+          },
+        },
+      ],
     })
   }
 

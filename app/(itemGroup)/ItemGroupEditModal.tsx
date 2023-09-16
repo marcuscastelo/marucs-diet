@@ -464,7 +464,13 @@ function Body({
     showConfirmModal({
       title: 'Colar itens',
       message: 'Tem certeza que deseja colar os itens?',
-      onConfirm: handlePasteAfterConfirm,
+      actions: [
+        {
+          text: 'Cancelar',
+          onClick: () => undefined,
+        },
+        { text: 'Colar', primary: true, onClick: handlePasteAfterConfirm },
+      ],
     })
   }, [handlePasteAfterConfirm, showConfirmModal])
 
@@ -611,9 +617,19 @@ function Actions({
               message: `Tem certeza que deseja excluir o grupo ${
                 group?.name ?? 'BUG: group is null' // TODO: Color group name orange and BUG red
               }?`,
-              onConfirm: () => {
-                group && onDelete(group.id)
-              },
+              actions: [
+                {
+                  text: 'Cancelar',
+                  onClick: () => undefined,
+                },
+                {
+                  text: 'Excluir',
+                  primary: true,
+                  onClick: () => {
+                    group && onDelete(group.id)
+                  },
+                },
+              ],
             })
           }}
         >

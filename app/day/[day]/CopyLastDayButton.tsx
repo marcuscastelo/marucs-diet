@@ -46,14 +46,24 @@ export default function CopyLastDayButton({
           showConfirmModal({
             title: 'Sobrescrever dia',
             message: 'Tem certeza que deseja SOBRESCREVER este dia?',
-            onConfirm: async () => {
-              updateDay(day?.id, {
-                ...lastDay,
-                target_day: selectedDay,
-              }).then(() => {
-                refetchDays()
-              })
-            },
+            actions: [
+              {
+                text: 'Cancelar',
+                onClick: () => undefined,
+              },
+              {
+                text: 'Sobrescrever',
+                primary: true,
+                onClick: async () => {
+                  updateDay(day?.id, {
+                    ...lastDay,
+                    target_day: selectedDay,
+                  }).then(() => {
+                    refetchDays()
+                  })
+                },
+              },
+            ],
           })
           return
         }

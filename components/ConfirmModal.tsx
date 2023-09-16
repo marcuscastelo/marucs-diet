@@ -1,12 +1,11 @@
 import Modal, { ModalActions } from '@/app/(modals)/Modal'
 import { ModalContextProvider } from '@/app/(modals)/ModalContext'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
-import { generateId } from '@/utils/idUtils'
 
 export default function ConfirmModal() {
   const {
     visible,
-    internals: { title, message: body, setVisible, onCancel, onConfirm },
+    internals: { title, message: body, setVisible, actions },
   } = useConfirmModalContext()
 
   return (
@@ -16,12 +15,17 @@ export default function ConfirmModal() {
         body={<p>{body}</p>}
         actions={
           <ModalActions>
-            <button className="btn btn-ghost" onClick={onCancel}>
-              Cancelar
-            </button>
-            <button className="btn btn-primary" onClick={onConfirm}>
-              Confirmar
-            </button>
+            {actions.map((action, idx) => (
+              <button
+                key={idx}
+                className={`btn ${
+                  action.primary ? 'btn-primary' : 'btn-ghost'
+                }`}
+                onClick={action.onClick}
+              >
+                {action.text}
+              </button>
+            ))}
           </ModalActions>
         }
       />
