@@ -22,7 +22,7 @@ export default function Page() {
 
   const filteredFoods = foods
     .filter((food) => {
-      if (search === /* TODO: Check if equality is a bug */ '') {
+      if (search === '') {
         return true
       }
 

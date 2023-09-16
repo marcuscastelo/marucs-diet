@@ -10,7 +10,7 @@ export const weigthSchema = z.object({
     .date()
     .or(z.string())
     .transform((v) => new Date(v)),
-  '': z
+  __type: z
     .string()
     .nullable()
     .optional()

@@ -12,7 +12,7 @@ import {
 import { generateId } from '@/utils/idUtils'
 
 export const mockFood = (partial?: Partial<Food>): Food => ({
-  '': 'Food',
+  __type: 'Food',
   id: generateId(),
   name: 'Mocked food',
   macros: {

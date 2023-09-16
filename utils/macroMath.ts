@@ -1,11 +1,11 @@
 import { Day } from '@/model/dayModel'
 import { ItemGroup } from '@/model/itemGroupModel'
-import { FoodItem } from '@/model/foodItemModel'
 import { MacroNutrients } from '@/model/macroNutrientsModel'
 import { Meal } from '@/model/mealModel'
 import { Recipe } from '@/model/recipeModel'
+import { TemplateItem } from '@/model/templateItemModel'
 
-export function calcItemMacros(item: FoodItem): MacroNutrients {
+export function calcItemMacros(item: TemplateItem): MacroNutrients {
   return {
     carbs: (item.macros.carbs * item.quantity) / 100,
     fat: (item.macros.fat * item.quantity) / 100,
@@ -77,7 +77,7 @@ export function calcCalories(macroNutrients: MacroNutrients): number {
   )
 }
 
-export const calcItemCalories = (item: FoodItem) =>
+export const calcItemCalories = (item: TemplateItem) =>
   calcCalories(calcItemMacros(item))
 
 export const calcRecipeCalories = (recipe: Recipe) =>

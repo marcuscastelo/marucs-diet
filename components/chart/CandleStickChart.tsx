@@ -12,7 +12,6 @@ import {
   YAxis,
 } from 'recharts'
 import { CandleStickShape } from './shapes/CandleStickShape'
-import { calculateWeightProgress } from '@/utils/weightUtils'
 
 const colors = [
   '#1f77b4',

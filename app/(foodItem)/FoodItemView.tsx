@@ -9,15 +9,16 @@ import { useEffect, useState } from 'react'
 import { searchFoodById } from '@/controllers/food'
 import { calcItemCalories } from '@/utils/macroMath'
 import { useUserContext } from '@/context/users.context'
-import { Template } from '../templateSearch/TemplateSearchModal'
 import { searchRecipeById } from '@/controllers/recipes'
+import { TemplateItem } from '@/model/templateItemModel'
+import { Template } from '@/model/templateModel'
 
 export type FoodItemViewProps = {
-  foodItem: FoodItem & { type?: 'food' | 'recipe' } // TODO: Replace all & { type: 'food' | 'recipe' } with a real type
+  foodItem: TemplateItem
   header?: React.ReactNode
   nutritionalInfo?: React.ReactNode
   className?: string
-  onClick?: (foodItem: FoodItem) => void
+  onClick?: (foodItem: TemplateItem) => void
 }
 
 export default function FoodItemView({
@@ -42,7 +43,6 @@ export default function FoodItemView({
     >
       <FoodItemContextProvider
         foodItem={{
-          type: 'food', // TODO: Remove this hack
           ...foodItem,
         }}
       >
@@ -88,17 +88,17 @@ function FoodItemName() {
   const [template, setTemplate] = useState<Template | null>(null)
 
   useEffect(() => {
-    if (item.type === 'recipe') {
+    if (item.__type === 'RecipeItem') {
       searchRecipeById(item.reference).then((recipe) => setTemplate(recipe))
     } else {
       searchFoodById(item.reference).then((food) => setTemplate(food))
     }
-  }, [item.type, item.reference])
+  }, [item.__type, item.reference])
 
   const getTemplateNameColor = () => {
-    if (item.type === 'food') {
+    if (item.__type === 'FoodItem') {
       return 'text-white'
-    } else if (item.type === 'recipe') {
+    } else if (item.__type === 'RecipeItem') {
       return 'text-blue-500'
     } else {
       return 'text-red-500'
@@ -127,9 +127,9 @@ function FoodItemName() {
 function FoodItemCopyButton({
   onCopyItem,
 }: {
-  onCopyItem: (foodItem: FoodItem) => void
+  onCopyItem: (foodItem: TemplateItem) => void
 }) {
-  const { foodItem: FoodItem } = useFoodItemContext()
+  const { foodItem } = useFoodItemContext()
 
   return (
     <div
@@ -137,7 +137,7 @@ function FoodItemCopyButton({
       onClick={(e) => {
         e.stopPropagation()
         e.preventDefault()
-        onCopyItem(FoodItem)
+        onCopyItem(foodItem)
       }}
     >
       <CopyIcon />

@@ -299,6 +299,14 @@ function ExternalFoodItemEditModal({
             throw new Error('group is null')
           }
 
+          // TODO: Allow user to edit recipe
+          if (item.__type === 'RecipeItem') {
+            //
+            alert(
+              'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
+            )
+            return
+          }
           const newGroup: ItemGroup = editInnerItem(group, item)
 
           newGroup.quantity = newGroup.items.reduce(
@@ -542,9 +550,17 @@ function Body({
             //   className="mt-4"
             onItemClick={(item) => {
               // TODO: Allow user to edit recipe
+              if (item.__type === 'RecipeItem') {
+                //
+                alert(
+                  'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
+                )
+                return
+              }
               // if (group?.type === 'recipe') {
               //   recipeEditModalRef.current?.showModal()
               // } else {
+
               setSelectedFoodItem(item)
               onSetFoodItemEditModalVisible(true)
               // }

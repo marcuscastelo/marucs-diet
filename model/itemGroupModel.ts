@@ -7,7 +7,7 @@ import { foodItemSchema } from './foodItemModel'
 export const simpleItemGroupSchema = z.object({
   id: z.number(),
   name: z.string(),
-  items: foodItemSchema.array(),
+  items: foodItemSchema.array(), // TODO: Support nested groups and recipes
   quantity: z.number(),
   type: z.literal('simple'),
   recipe: z
@@ -20,7 +20,7 @@ export const simpleItemGroupSchema = z.object({
 export const recipedItemGroup = z.object({
   id: z.number(),
   name: z.string(),
-  items: foodItemSchema.array(),
+  items: foodItemSchema.array(), // TODO: Support nested groups and recipes
   quantity: z.number(),
   type: z.literal('recipe'),
   recipe: z.number(),

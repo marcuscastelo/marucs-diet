@@ -33,6 +33,7 @@ const RecipeEditModal = ({
       }),
   )
 
+  // TODO: rename to setSelectedRecipeItem?
   const [selectedFoodItem, setSelectedFoodItem] = useState<FoodItem | null>(
     null,
   )
@@ -124,7 +125,18 @@ const RecipeEditModal = ({
                 }
                 content={
                   <RecipeEditView.Content
-                    onEditItem={(item) => setSelectedFoodItem(item)}
+                    onEditItem={(item) => {
+                      // TODO: Allow user to edit recipe
+                      if (item.__type === 'RecipeItem') {
+                        //
+                        alert(
+                          'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
+                        )
+                        return
+                      }
+                      // TODO: rename to setSelectedRecipeItem?
+                      setSelectedFoodItem(item)
+                    }}
                   />
                 }
                 actions={
