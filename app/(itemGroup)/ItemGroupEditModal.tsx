@@ -464,7 +464,13 @@ function Body({
     showConfirmModal({
       title: 'Colar itens',
       message: 'Tem certeza que deseja colar os itens?',
-      actions: [{ text: 'Colar', onClick: handlePasteAfterConfirm }],
+      actions: [
+        {
+          text: 'Cancelar',
+          onClick: () => undefined,
+        },
+        { text: 'Colar', onClick: handlePasteAfterConfirm },
+      ],
     })
   }, [handlePasteAfterConfirm, showConfirmModal])
 
