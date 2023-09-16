@@ -119,7 +119,7 @@ function ItemGroupName() {
   const getNameColor = () => {
     if (!itemGroup) return 'text-red-900'
 
-    if (recipe.loading) return 'text-green-500 animate-pulse'
+    if (recipe.loading) return 'text-gray-500 animate-pulse'
     if (recipe.errored) return 'text-red-900'
 
     if (itemGroup.type === 'simple') {
@@ -130,10 +130,10 @@ function ItemGroupName() {
       }
     } else if (itemGroup.type === 'recipe' && recipe.data) {
       if (isRecipedGroupUpToDate(itemGroup, recipe.data)) {
-        return 'text-blue-500'
+        return 'text-yellow-200'
       } else {
         // Strike-through text in red
-        const className = 'text-indigo-600 underline decoration-red-500'
+        const className = 'text-yellow-200 underline decoration-red-500'
         return className
       }
     } else {
