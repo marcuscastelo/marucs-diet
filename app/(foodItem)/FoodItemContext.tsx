@@ -1,14 +1,12 @@
 'use client'
 
-import { FoodItem } from '@/model/foodItemModel'
+import { TemplateItem } from '@/model/templateItemModel'
 import { ReactNode } from 'react'
 import { createContext, useContext } from 'use-context-selector'
 
-// TODO: Rename CustomFoodItem to something more meaningful
-type CustomFoodItem = FoodItem & { type: 'food' | 'recipe' }
-
+// TODO: Rename to TemplateItemContext
 const FoodItemContext = createContext<{
-  foodItem: CustomFoodItem
+  foodItem: TemplateItem
 } | null>(null)
 
 export function useFoodItemContext() {
@@ -23,11 +21,12 @@ export function useFoodItemContext() {
   return context
 }
 
+// TODO: Rename to TemplateItemContext
 export function FoodItemContextProvider({
   foodItem,
   children,
 }: {
-  foodItem: CustomFoodItem
+  foodItem: TemplateItem
   children: ReactNode
 }) {
   return (

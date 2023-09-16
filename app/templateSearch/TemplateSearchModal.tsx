@@ -3,7 +3,6 @@
 import Modal from '../(modals)/Modal'
 import { useModalContext, ModalContextProvider } from '../(modals)/ModalContext'
 import FoodItemView from '@/app/(foodItem)/FoodItemView'
-import { Food } from '@/model/foodModel'
 import { Alert } from 'flowbite-react'
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import BarCodeInsertModal from '@/app/BarCodeInsertModal'
@@ -18,7 +17,7 @@ import {
   SimpleItemGroup,
 } from '@/model/itemGroupModel'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
-import { useFoodContext } from '@/context/food.context'
+import { useFoodContext } from '@/context/template.context'
 import { generateId } from '@/utils/idUtils'
 import {
   AvailableTab,
@@ -26,25 +25,24 @@ import {
   chooseFoodsFromStore as chooseFoodsFromFoodStore,
 } from './TemplateSearchTabs'
 import { useTyping } from '@/hooks/typing'
-import { FoodItem, createFoodItem } from '@/model/foodItemModel'
+import { createFoodItem } from '@/model/foodItemModel'
 import {
   fetchRecentFoodByUserIdAndFoodId,
   insertRecentFood,
   updateRecentFood,
 } from '@/controllers/recentFood'
 import { createRecentFood } from '@/model/recentFoodModel'
+import { Template } from '@/model/templateModel'
+import { TemplateItem } from '@/model/templateItemModel'
 
 export type TemplateSearchModalProps = {
   targetName: string
   onNewItemGroup?: (
     foodItem: ItemGroup,
-    originalAddedItem: FoodItem,
+    originalAddedItem: TemplateItem,
   ) => Promise<void>
   onFinish?: () => void
 }
-
-// TODO: Create zod model for template?
-export type Template = Food | Recipe
 
 export function TemplateSearchModal({
   targetName,
@@ -66,7 +64,7 @@ export function TemplateSearchModal({
 
   const handleNewItemGroup = async (
     newGroup: ItemGroup,
-    originalAddedItem: FoodItem,
+    originalAddedItem: TemplateItem,
   ) => {
     await onNewItemGroup?.(newGroup, originalAddedItem)
 
@@ -167,17 +165,14 @@ export function TemplateSearchModal({
         targetName={targetName}
         onNewItemGroup={handleNewItemGroup}
       />
-      <ModalContextProvider
+      <ExternalBarCodeInsertModal
         visible={barCodeModalVisible}
         onSetVisible={setBarCodeModalVisible}
-      >
-        <BarCodeInsertModal
-          onSelect={(template) => {
-            setSelectedTemplate(template)
-            setFoodItemEditModalVisible(true)
-          }}
-        />
-      </ModalContextProvider>
+        onSelect={(template) => {
+          setSelectedTemplate(template)
+          setFoodItemEditModalVisible(true)
+        }}
+      />
     </>
   )
 }
@@ -194,7 +189,8 @@ export function TemplateSearch({
   const TEMPLATE_SEARCH_LIMIT = 100
   const TYPING_TIMEOUT_MS = 1000
 
-  const { foods, favoriteFoods, recentFoods, refetchFoods } = useFoodContext()
+  const { foods, favoriteFoods, recentFoods, refetchFoods, recipes } =
+    useFoodContext()
 
   const [isClient, setIsClient] = useState(false) // TODO: Stop using isClient and typeof window
   const isDesktop = isClient ? window.innerWidth > 768 : false // TODO: Stop using innerWidth to detect desktop
@@ -203,7 +199,7 @@ export function TemplateSearch({
   const [search, setSearch_] = useState<string>('')
   const { typing, onTyped } = useTyping({
     delay: TYPING_TIMEOUT_MS,
-    onTypingEnd: () => refetchFoods(search),
+    onTypingEnd: () => refetchFoods('all', search), // TODO: Change 'all' to selected tab
   })
 
   const setSearch = (search: string) => {
@@ -217,6 +213,7 @@ export function TemplateSearch({
     foods,
     favoriteFoods,
     recentFoods,
+    recipes,
   })
 
   if (templates.loading) {
@@ -231,6 +228,14 @@ export function TemplateSearch({
           null,
           2,
         )}. Tente novamente.`}
+      />
+    )
+  }
+
+  if (templates.data === null) {
+    return (
+      <PageLoading
+        message={`Erro ao carregar alimentos e receitas: data is null. Tente novamente.`}
       />
     )
   }
@@ -287,7 +292,7 @@ export function TemplateSearch({
   )
 }
 
-// TODO: Extract to components
+// TODO: Extract to components on other files
 const BarCodeButton = ({
   showBarCodeModal,
 }: {
@@ -308,7 +313,7 @@ const BarCodeButton = ({
   </>
 )
 
-// TODO: Extract to components
+// TODO: Extract to components on other files
 function ExternalFoodItemEditModal({
   visible,
   onSetVisible,
@@ -322,7 +327,7 @@ function ExternalFoodItemEditModal({
   targetName: string
   onNewItemGroup: (
     newGroup: ItemGroup,
-    originalAddedItem: FoodItem,
+    originalAddedItem: TemplateItem,
   ) => Promise<void>
 }) {
   return (
@@ -333,11 +338,12 @@ function ExternalFoodItemEditModal({
           reference: selectedTemplate.id,
           name: selectedTemplate.name,
           macros: selectedTemplate.macros,
-          type: selectedTemplate[''] === 'Food' ? 'food' : 'recipe', // TODO: Refactor conversion off template type to group and item types
+          __type:
+            selectedTemplate.__type === 'Food' ? 'FoodItem' : 'RecipeItem', // TODO: Refactor conversion from template type to group/item types
         }}
         onApply={async (item) => {
-          // TODO: Refactor conversion off template type to group and item types
-          if (item.type === 'food') {
+          // TODO: Refactor conversion from template type to group/item types
+          if (item.__type === 'FoodItem') {
             const newGroup: SimpleItemGroup = {
               id: generateId(),
               name: item.name,
@@ -363,7 +369,24 @@ function ExternalFoodItemEditModal({
   )
 }
 
-// TODO: Extract to components
+// TODO: Extract to components on other files
+function ExternalBarCodeInsertModal({
+  visible,
+  onSetVisible,
+  onSelect,
+}: {
+  visible: boolean
+  onSetVisible: Dispatch<SetStateAction<boolean>>
+  onSelect: (template: Template) => void
+}) {
+  return (
+    <ModalContextProvider visible={visible} onSetVisible={onSetVisible}>
+      <BarCodeInsertModal onSelect={onSelect} />
+    </ModalContextProvider>
+  )
+}
+
+// TODO: Extract to components on other files
 const SearchBar = ({
   isDesktop,
   search,
@@ -404,7 +427,7 @@ const SearchBar = ({
   </div>
 )
 
-// TODO: Extract to components
+// TODO: Extract to components on other files
 const SearchResults = ({
   search,
   typing,
@@ -441,7 +464,7 @@ const SearchResults = ({
                   macros: template.macros,
                   reference: template.id,
                 }),
-                type: template[''] === 'Food' ? 'food' : 'recipe', // TODO: Refactor
+                __type: template.__type === 'Food' ? 'FoodItem' : 'RecipeItem', // TODO: Refactor conversion from template type to group/item types
               }}
               className="mt-1"
               onClick={() => {

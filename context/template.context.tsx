@@ -1,17 +1,22 @@
 import { Food } from '@/model/foodModel'
+import { Recipe } from '@/model/recipeModel'
 import { Loadable, UnboxedLoadable, unboxLoadingObject } from '@/utils/loadable'
 import { useCallback, useEffect, useState } from 'react'
 import { createContext, useContext } from 'use-context-selector'
 
-export type FoodStore = {
-  foods: Food[]
-  favoriteFoods: Food[]
-  recentFoods: Food[]
+export type TemplateStore = {
+  foods: Food[] | null
+  favoriteFoods: Food[] | null
+  recentFoods: Food[] | null
+  recipes: Recipe[] | null
 }
 
-type FoodFetch = (search?: string) => Promise<FoodStore>
+type FoodFetch = (
+  selectedTypes: 'all' | readonly (keyof TemplateStore)[],
+  search?: string,
+) => Promise<TemplateStore>
 
-export type FoodContext = UnboxedLoadable<FoodStore> & {
+export type FoodContext = UnboxedLoadable<TemplateStore> & {
   refetchFoods: (...params: Parameters<FoodFetch>) => void
 }
 
@@ -34,13 +39,15 @@ export function FoodContextProvider({
   onFetchFoods: FoodFetch
   children: React.ReactNode
 }) {
-  const [foodStore, setFoodStore] = useState<Loadable<FoodStore>>({
+  const [foodStore, setFoodStore] = useState<Loadable<TemplateStore>>({
     loading: true,
   })
 
-  const handleFetchFoods = useCallback(
-    (search?: string) => {
-      onFetchFoods(search)
+  const handleFetchFoods = useCallback<
+    (...params: Parameters<FoodFetch>) => void
+  >(
+    (selectedTypes, search) => {
+      onFetchFoods(selectedTypes, search)
         .then((foodStore) => {
           setFoodStore({ loading: false, errored: false, data: foodStore })
         })
@@ -52,7 +59,7 @@ export function FoodContextProvider({
   )
 
   useEffect(() => {
-    handleFetchFoods()
+    handleFetchFoods('all')
   }, [handleFetchFoods])
 
   const context: FoodContext = {
@@ -60,6 +67,7 @@ export function FoodContextProvider({
     favoriteFoods: unboxLoadingObject(foodStore, ['favoriteFoods'])
       .favoriteFoods,
     recentFoods: unboxLoadingObject(foodStore, ['recentFoods']).recentFoods,
+    recipes: unboxLoadingObject(foodStore, ['recipes']).recipes,
     refetchFoods: handleFetchFoods,
   }
 

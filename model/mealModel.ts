@@ -7,7 +7,7 @@ export const mealSchema = z.object({
   id: z.number(),
   name: z.string(),
   groups: z.array(itemGroupSchema),
-  '': z
+  __type: z
     .string()
     .nullable()
     .optional()
@@ -28,6 +28,6 @@ export function createMeal({
     id: generateId(),
     name,
     groups,
-    '': 'Meal',
+    __type: 'Meal',
   }
 }

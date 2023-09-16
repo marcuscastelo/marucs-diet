@@ -19,7 +19,7 @@ export const recipeSchema = z.object({
         macros ?? ({ carbs: 0, fat: 0, protein: 0 } satisfies MacroNutrients), // TODO: Remove transform or derive from items
     ),
   prepared_multiplier: z.number().default(1), // TODO: Rename all snake_case to camelCase (also in db)
-  '': z
+  __type: z
     .string()
     .nullable()
     .optional()
@@ -45,7 +45,7 @@ export function createRecipe({
     items,
     macros: calcGroupMacros({ items } as ItemGroup), // TODO: Create a proper calcItemsMacros function for lists of items
     prepared_multiplier: preparedMultiplier,
-    '': 'Recipe',
+    __type: 'Recipe',
   }
 }
 
