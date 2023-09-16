@@ -22,7 +22,7 @@ export const foodSchema = z.object({
     .nullable()
     .transform((val) => val ?? undefined)
     .optional(),
-  '': z
+  __type: z
     .string()
     .nullable()
     .optional()

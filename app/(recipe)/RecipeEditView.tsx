@@ -13,6 +13,7 @@ import FoodItemListView from '../(foodItem)/FoodItemListView'
 import { calcRecipeCalories } from '@/utils/macroMath'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import { generateId } from '@/utils/idUtils'
+import { TemplateItem } from '@/model/templateItemModel'
 
 export type RecipeEditViewProps = {
   recipe: Recipe
@@ -219,7 +220,7 @@ function RecipeEditHeader({
 function RecipeEditContent({
   onEditItem,
 }: {
-  onEditItem: (item: FoodItem) => void
+  onEditItem: (item: TemplateItem) => void
 }) {
   const { recipe } = useRecipeContext()
 

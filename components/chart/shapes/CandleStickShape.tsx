@@ -12,7 +12,6 @@ export type CandleStickProps = {
 
 export const CandleStickShape = (props: CandleStickProps) => {
   const {
-    fill,
     x,
     y,
     width,

@@ -17,16 +17,13 @@ import { useConfirmModalContext } from '@/context/confirmModal.context'
 import { generateId } from '@/utils/idUtils'
 import { useFloatField } from '@/hooks/field'
 import { FloatInput } from '@/components/FloatInput'
-
-// TODO: Rename CustomFoodItem to something more meaningful
-type CustomFoodItem = FoodItem & { type: 'food' | 'recipe' }
+import { TemplateItem } from '@/model/templateItemModel'
 
 export type FoodItemEditModalProps = {
   targetName: string
   targetNameColor?: string
-  foodItem: Partial<FoodItem> &
-    Pick<FoodItem, 'reference' | 'macros'> & { type?: 'food' | 'recipe' }
-  onApply: (item: CustomFoodItem) => void
+  foodItem: Partial<TemplateItem> & Pick<TemplateItem, 'reference' | 'macros'>
+  onApply: (item: TemplateItem) => void
   onCancel?: () => void
   onDelete?: (itemId: FoodItem['id']) => void
 }
@@ -43,14 +40,13 @@ const FoodItemEditModal = ({
   const { visible, onSetVisible } = useModalContext()
 
   // TODO: Better initial state for foodItem on FoodItemEditModal
-  const [foodItem, setFoodItem] = useState<CustomFoodItem>({
-    '': 'FoodItem',
+  const [foodItem, setFoodItem] = useState<TemplateItem>({
+    __type: initialFoodItem?.__type ?? 'FoodItem',
     id: initialFoodItem?.id ?? generateId(),
     name: initialFoodItem?.name ?? 'ERRO: Sem nome',
     quantity: initialFoodItem?.quantity ?? 0,
-    type: initialFoodItem?.type ?? 'food',
     ...initialFoodItem,
-  } satisfies CustomFoodItem)
+  } satisfies TemplateItem)
 
   useEffect(() => {
     setFoodItem((old) => ({
@@ -118,11 +114,11 @@ const FoodItemEditModal = ({
 }
 
 function Header({
-  foodItem,
+  foodItem, // TODO: rename all foodItem to TemplateItem
   targetName,
   targetNameColor,
 }: {
-  foodItem: FoodItem
+  foodItem: TemplateItem
   targetName: string
   targetNameColor: string
 }) {
@@ -154,7 +150,7 @@ function Body({
   visible: boolean
   onQuantityChanged: Dispatch<SetStateAction<number>>
   canApply: boolean
-  foodItem: CustomFoodItem
+  foodItem: TemplateItem
 }) {
   const id = foodItem.id
   const quantityRef = useRef<HTMLInputElement>(null)
@@ -296,14 +292,13 @@ function Body({
       <FoodItemView
         foodItem={
           {
-            '': 'FoodItem',
+            __type: foodItem.__type,
             id,
             name: foodItem.name ?? 'Sem nome (itemData && FoodItemView)',
             quantity: quantityField.value ?? foodItem.quantity,
             reference: foodItem.reference,
             macros: foodItem.macros,
-            type: foodItem.type,
-          } satisfies CustomFoodItem
+          } satisfies TemplateItem
         }
         className="mt-4"
         onClick={() => {
