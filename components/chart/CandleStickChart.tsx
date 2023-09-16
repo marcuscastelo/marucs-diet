@@ -83,9 +83,8 @@ export const CandleStickChart = <T extends OHLC & Record<string, unknown>>({
             domain={[minValue, maxValue]}
             type="number"
             allowDecimals={false}
-            ticks={Array.from(Array(10).keys()).map(
-              (i) =>
-                Math.floor(minValue + (maxValue - minValue) * (i / 10)) + 1,
+            ticks={Array.from({ length: maxValue - minValue }, (_, i) =>
+              Math.floor(i + minValue),
             )}
           />
           <Tooltip
