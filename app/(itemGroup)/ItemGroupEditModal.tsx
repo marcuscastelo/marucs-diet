@@ -469,7 +469,7 @@ function Body({
           text: 'Cancelar',
           onClick: () => undefined,
         },
-        { text: 'Colar', onClick: handlePasteAfterConfirm },
+        { text: 'Colar', primary: true, onClick: handlePasteAfterConfirm },
       ],
     })
   }, [handlePasteAfterConfirm, showConfirmModal])
