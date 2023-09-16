@@ -361,9 +361,19 @@ function Actions({
               showConfirmModal({
                 title: 'Excluir item',
                 message: 'Tem certeza que deseja excluir este item?',
-                onConfirm: () => {
-                  onDelete?.(id)
-                },
+                actions: [
+                  {
+                    text: 'Cancelar',
+                    onClick: () => undefined,
+                  },
+                  {
+                    text: 'Excluir',
+                    primary: true,
+                    onClick: () => {
+                      onDelete?.(id)
+                    },
+                  },
+                ],
               })
           }}
         >

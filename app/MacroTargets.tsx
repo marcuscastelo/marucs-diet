@@ -222,10 +222,20 @@ export function MacroTarget({
                         </div>
                       </>
                     ),
-                    onConfirm: async () => {
-                      await deleteMacroProfile(profile.id)
-                      router.refresh()
-                    },
+                    actions: [
+                      {
+                        text: 'Cancelar',
+                        onClick: () => undefined,
+                      },
+                      {
+                        text: 'Apagar atual e restaurar antigo',
+                        primary: true,
+                        onClick: async () => {
+                          await deleteMacroProfile(profile.id)
+                          router.refresh()
+                        },
+                      },
+                    ],
                   })
                 }}
               >

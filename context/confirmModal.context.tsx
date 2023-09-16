@@ -6,6 +6,12 @@ import { createContext, useContext } from 'use-context-selector'
 type Title = ReactNode
 type Body = ReactNode
 
+type ConfirmAction = {
+  text: string
+  onClick: () => void
+  primary?: boolean
+}
+
 export type ConfirmModalContext = {
   internals: {
     visible: boolean
@@ -14,22 +20,15 @@ export type ConfirmModalContext = {
     setTitle: Dispatch<SetStateAction<Title>>
     message: Body // TODO: Rename message to body
     setMessage: Dispatch<SetStateAction<Body>>
-    onConfirm: () => void
-    onCancel: () => void
-    setOnConfirm: Dispatch<SetStateAction<() => void>>
-    setOnCancel: Dispatch<SetStateAction<() => void>>
+    actions: ConfirmAction[]
   }
   visible: boolean
   show: ({
     title,
     message,
-    onConfirm,
-    onCancel,
+    actions,
   }: Partial<
-    Pick<
-      ConfirmModalContext['internals'],
-      'title' | 'message' | 'onConfirm' | 'onCancel'
-    >
+    Pick<ConfirmModalContext['internals'], 'title' | 'message' | 'actions'>
   >) => void
   close: () => void
 }
@@ -52,28 +51,32 @@ export function ConfirmModalProvider({
   title: initialTitle = 'BUG: No title provided',
   message: initialMessage = 'BUG: No body provided',
   visible: initiallyVisible = false,
-  onConfirm: initialOnConfirm = () => undefined,
-  onCancel: initialOnCancel = () => undefined,
+  actions: initialActions,
   children,
 }: {
   title?: Title
   message?: Body
   visible?: boolean
-  onConfirm?: () => void
-  onCancel?: () => void
+  actions?: ConfirmAction[]
   children: React.ReactNode
 }) {
   const [title, setTitle] = useState<Title>(initialTitle)
   const [message, setMessage] = useState<Body>(initialMessage)
   const [visible, setVisible] = useState<boolean>(initiallyVisible)
-  const [onConfirm, setOnConfirm] = useState<() => void>(() => () => {
-    setVisible(false)
-    initialOnConfirm()
-  })
-  const [onCancel, setOnCancel] = useState<() => void>(() => () => {
-    setVisible(false)
-    initialOnCancel()
-  })
+
+  const [actions, setActions] = useState<ConfirmAction[]>(
+    initialActions ?? [
+      {
+        text: 'Cancelar',
+        onClick: () => setVisible(false),
+      },
+      {
+        text: 'Confirmar',
+        primary: true,
+        onClick: () => setVisible(false),
+      },
+    ],
+  )
 
   const context: ConfirmModalContext = {
     internals: {
@@ -83,30 +86,28 @@ export function ConfirmModalProvider({
       setTitle,
       message,
       setMessage,
-      onConfirm,
-      onCancel,
-      setOnConfirm,
-      setOnCancel,
+      actions,
     },
     visible,
-    show: ({ title, message, onConfirm, onCancel }) => {
+    show: ({ title, message, actions }) => {
       if (title !== undefined) {
         setTitle(title)
       }
       if (message !== undefined) {
         setMessage(message)
       }
-      if (onConfirm !== undefined) {
-        setOnConfirm(() => () => {
-          setVisible(false)
-          onConfirm()
-        })
-      }
-      if (onCancel !== undefined) {
-        setOnCancel(() => () => {
-          setVisible(false)
-          onCancel()
-        })
+      if (actions !== undefined) {
+        setActions(
+          actions.map((action) => {
+            return {
+              ...action,
+              onClick: () => {
+                setVisible(false)
+                action.onClick()
+              },
+            }
+          }),
+        )
       }
       setVisible(true)
     },
