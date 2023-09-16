@@ -27,8 +27,10 @@ export const CandleStickShape = (props: CandleStickProps) => {
   }
 
   if (open === fakeClose) {
-    console.error(`Open and close are equal, this should not happen`)
+    console.error(`Open and fakeClose are equal, this should not happen`)
   }
+
+  const close = equals ? open : fakeClose
 
   const candleType = equals
     ? 'neutral'
@@ -43,18 +45,29 @@ export const CandleStickShape = (props: CandleStickProps) => {
       ? 'green'
       : 'red'
 
-  const ratio = Math.abs(height / open - fakeClose)
-  const rectangleHeight = Math.abs(open - fakeClose)
+  const bodyVariation = Math.abs(open - fakeClose)
+  const ratio = Math.abs(height / bodyVariation)
+  console.debug(
+    `ratio = height / (bodyVariation) = ${height} / (${bodyVariation}) = ${ratio}`,
+  )
 
-  const rectangleBase = Math.min(open, fakeClose)
-  const rectangleTop = Math.max(open, fakeClose)
+  const minBody = Math.min(open, close)
+  const maxBody = Math.max(open, close)
 
-  const topTipHeight = Math.abs(high - rectangleTop)
-  const bottomTipHeight = Math.abs(low - rectangleBase)
+  const topTip = Math.abs(high - maxBody)
+  const bottomTip = Math.abs(low - minBody)
+
+  const rectangleBase = Math.max(y, y + height)
+  const rectangleTop = Math.min(y, y + height)
 
   console.debug(`Props: ${JSON.stringify(props)}`)
   console.debug(
-    `bottomTipHeight: ${bottomTipHeight}, topTipHeight: ${topTipHeight}, ratio: ${ratio}, rectangleHeight: ${rectangleHeight}, rectangleBase: ${rectangleBase}, rectangleTop: ${rectangleTop}`,
+    `bottomTip: ${bottomTip}, \
+    topTip: ${topTip}, \
+    ratio: ${ratio}, \
+    rectangleHeight: ${bodyVariation}, \
+    minBody: ${minBody}, \
+    maxBody: ${maxBody}`,
   )
   return (
     <g stroke={color} fill={color} strokeWidth="2">
@@ -70,15 +83,8 @@ export const CandleStickShape = (props: CandleStickProps) => {
 
       <path
         d={`
-            M ${x + width / 2}, ${y + height}
-            V ${y - topTipHeight * ratio}
-          `}
-      />
-
-      <path
-        d={`
-            M ${x + width / 2}, ${y + height}
-            V ${y + height + bottomTipHeight * ratio}
+            M ${x + width / 2},${rectangleTop - topTip * ratio}
+            V ${rectangleBase + bottomTip * ratio}
           `}
       />
     </g>
