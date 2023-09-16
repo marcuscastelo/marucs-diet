@@ -3,7 +3,7 @@
 import ConfirmModal from '@/components/ConfirmModal'
 import { ConfirmModalProvider } from '@/context/confirmModal.context'
 import { DaysContextProvider } from '@/context/days.context'
-import { FoodContextProvider } from '@/context/food.context'
+import { FoodContextProvider, TemplateStore } from '@/context/template.context'
 import {
   UserContextProvider,
   useUserContext,
@@ -12,7 +12,14 @@ import {
 import { listDays } from '@/controllers/days'
 import { listFoods, searchFoodsByName } from '@/controllers/food'
 import { fetchUserRecentFoods } from '@/controllers/recentFood'
+import {
+  listRecipes,
+  searchRecipeById,
+  searchRecipeByName,
+} from '@/controllers/recipes'
 import { updateUser } from '@/controllers/users'
+import { Food } from '@/model/foodModel'
+import { Template } from '@/model/templateModel'
 import { User } from '@/model/userModel'
 
 export default function App({
@@ -97,7 +104,7 @@ function AppFoodsProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <FoodContextProvider
-      onFetchFoods={async (search?: string) => {
+      onFetchFoods={async (selectedTypes, search?: string) => {
         console.debug(
           `[FoodContextProvider] onFetchFoods - called with search: ${search}`,
         )
@@ -117,37 +124,58 @@ function AppFoodsProvider({ children }: { children: React.ReactNode }) {
             `,
         )
 
-        if (search) {
-          console.debug(
-            `[FoodContextProvider] onFetchFoods - calling searchFoodsByName`,
-          )
-          return {
-            foods: await searchFoodsByName(search, { limit: 100 }),
-            favoriteFoods: await searchFoodsByName(search, {
-              limit: 100,
-              allowedFoods: user.favorite_foods,
-            }),
-            recentFoods: await searchFoodsByName(search, {
-              limit: 100,
-              allowedFoods: recentFoods,
-            }),
-          }
-        } else {
-          console.debug(
-            `[FoodContextProvider] onFetchFoods - calling listFoods`,
-          )
-          return {
-            foods: await listFoods({ limit: 100 }),
-            favoriteFoods: await listFoods({
-              limit: 100,
-              allowedFoods: user.favorite_foods,
-            }),
-            recentFoods: await listFoods({
-              limit: 100,
-              allowedFoods: recentFoods,
-            }),
-          }
+        const FETCH_LIMIT = 100
+        const fetchFunctions = {
+          foods: (search) =>
+            search
+              ? searchFoodsByName(search, { limit: FETCH_LIMIT })
+              : listFoods({ limit: FETCH_LIMIT }),
+          favoriteFoods: (search) =>
+            search
+              ? searchFoodsByName(search, {
+                  limit: FETCH_LIMIT,
+                  allowedFoods: user.favorite_foods,
+                })
+              : listFoods({
+                  limit: FETCH_LIMIT,
+                  allowedFoods: user.favorite_foods,
+                }),
+          recentFoods: (search) =>
+            search
+              ? searchFoodsByName(search, {
+                  limit: FETCH_LIMIT,
+                  allowedFoods: recentFoods,
+                })
+              : listFoods({
+                  limit: FETCH_LIMIT,
+                  allowedFoods: recentFoods,
+                }),
+          recipes: (search) =>
+            search ? searchRecipeByName(user.id, search) : listRecipes(user.id),
+        } satisfies {
+          [key in keyof TemplateStore]: (
+            search: string | undefined,
+          ) => Promise<Template[]>
         }
+
+        return {
+          favoriteFoods:
+            selectedTypes === 'all' || selectedTypes.includes('favoriteFoods')
+              ? await fetchFunctions.favoriteFoods(search)
+              : null,
+          foods:
+            selectedTypes === 'all' || selectedTypes.includes('foods')
+              ? await fetchFunctions.foods(search)
+              : null,
+          recentFoods:
+            selectedTypes === 'all' || selectedTypes.includes('recentFoods')
+              ? await fetchFunctions.recentFoods(search)
+              : null,
+          recipes:
+            selectedTypes === 'all' || selectedTypes.includes('recipes')
+              ? await fetchFunctions.recipes(search)
+              : null,
+        } satisfies TemplateStore
       }}
     >
       {children}

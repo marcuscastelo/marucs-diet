@@ -37,6 +37,24 @@ export const searchRecipeById = async (
   return recipeSchema.parse(recipe ?? null)
 }
 
+export const searchRecipeByName = async (
+  userId: User['id'],
+  name: Recipe['name'],
+): Promise<Recipe[]> => {
+  const { data: recipes, error } = await supabase
+    .from(TABLE)
+    .select()
+    .eq('owner', userId)
+    .eq('name', name)
+
+  if (error) {
+    console.error(error)
+    throw error
+  }
+
+  return recipes.map((recipe) => recipeSchema.parse(recipe))
+}
+
 export const upsertRecipe = async (
   recipe: Partial<New<Recipe>>,
 ): Promise<Recipe | null> => {

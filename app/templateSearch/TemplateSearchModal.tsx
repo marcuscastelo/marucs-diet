@@ -17,7 +17,7 @@ import {
   SimpleItemGroup,
 } from '@/model/itemGroupModel'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
-import { useFoodContext } from '@/context/food.context'
+import { useFoodContext } from '@/context/template.context'
 import { generateId } from '@/utils/idUtils'
 import {
   AvailableTab,
@@ -189,7 +189,8 @@ export function TemplateSearch({
   const TEMPLATE_SEARCH_LIMIT = 100
   const TYPING_TIMEOUT_MS = 1000
 
-  const { foods, favoriteFoods, recentFoods, refetchFoods } = useFoodContext()
+  const { foods, favoriteFoods, recentFoods, refetchFoods, recipes } =
+    useFoodContext()
 
   const [isClient, setIsClient] = useState(false) // TODO: Stop using isClient and typeof window
   const isDesktop = isClient ? window.innerWidth > 768 : false // TODO: Stop using innerWidth to detect desktop
@@ -198,7 +199,7 @@ export function TemplateSearch({
   const [search, setSearch_] = useState<string>('')
   const { typing, onTyped } = useTyping({
     delay: TYPING_TIMEOUT_MS,
-    onTypingEnd: () => refetchFoods(search),
+    onTypingEnd: () => refetchFoods('all', search), // TODO: Change 'all' to selected tab
   })
 
   const setSearch = (search: string) => {
@@ -212,6 +213,7 @@ export function TemplateSearch({
     foods,
     favoriteFoods,
     recentFoods,
+    recipes,
   })
 
   if (templates.loading) {
@@ -226,6 +228,14 @@ export function TemplateSearch({
           null,
           2,
         )}. Tente novamente.`}
+      />
+    )
+  }
+
+  if (templates.data === null) {
+    return (
+      <PageLoading
+        message={`Erro ao carregar alimentos e receitas: data is null. Tente novamente.`}
       />
     )
   }
