@@ -73,14 +73,24 @@ function RecipeEditHeader({
     showConfirmModal({
       title: 'Limpar itens',
       message: 'Tem certeza que deseja limpar os itens?',
-      onConfirm: () => {
-        const newRecipe: Recipe = {
-          ...recipe,
-          items: [],
-        }
+      actions: [
+        {
+          text: 'Cancelar',
+          onClick: () => undefined,
+        },
+        {
+          text: 'Excluir todos os itens',
+          primary: true,
+          onClick: () => {
+            const newRecipe: Recipe = {
+              ...recipe,
+              items: [],
+            }
 
-        onUpdateRecipe(newRecipe)
-      },
+            onUpdateRecipe(newRecipe)
+          },
+        },
+      ],
     })
   }
   // TODO: Remove code duplication between MealEditView and RecipeView

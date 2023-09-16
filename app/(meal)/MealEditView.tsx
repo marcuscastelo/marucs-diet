@@ -126,7 +126,13 @@ function MealEditViewHeader({
     showConfirmModal({
       title: 'Colar itens',
       message: 'Tem certeza que deseja colar os itens?',
-      onConfirm: handlePasteAfterConfirm,
+      actions: [
+        {
+          text: 'Cancelar',
+          onClick: () => undefined,
+        },
+        { text: 'Colar', primary: true, onClick: handlePasteAfterConfirm },
+      ],
     })
   }, [handlePasteAfterConfirm, showConfirmModal])
 
@@ -139,14 +145,24 @@ function MealEditViewHeader({
     showConfirmModal({
       title: 'Limpar itens',
       message: 'Tem certeza que deseja limpar os itens?',
-      onConfirm: () => {
-        const newMeal: Meal = {
-          ...meal,
-          groups: [],
-        }
+      actions: [
+        {
+          text: 'Cancelar',
+          onClick: () => undefined,
+        },
+        {
+          text: 'Excluir todos os itens',
+          primary: true,
+          onClick: () => {
+            const newMeal: Meal = {
+              ...meal,
+              groups: [],
+            }
 
-        onUpdateMeal(newMeal)
-      },
+            onUpdateMeal(newMeal)
+          },
+        },
+      ],
     })
   }
 
