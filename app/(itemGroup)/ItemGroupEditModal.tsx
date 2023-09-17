@@ -307,7 +307,7 @@ function ExternalFoodItemEditModal({
             throw new Error('group is null')
           }
 
-          // TODO: Allow user to edit recipe
+          // TODO: Allow user to edit recipe inside a group
           if (item.__type === 'RecipeItem') {
             //
             alert(
