@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import RecipeEditModal, {
+import {
+  RecipeEditModal,
   RecipeEditModalProps,
 } from '../app/(recipe)/RecipeEditModal'
 import { mockRecipe } from '@/app/test/unit/(mock)/mockData'
@@ -22,6 +23,7 @@ export const Root: Story = {
     onSaveRecipe: () => undefined,
     onCancel: () => undefined,
     onVisibilityChange: () => undefined,
+    onRefetch: () => undefined,
   } satisfies RecipeEditModalProps,
   render: (args) => <RecipeEditModal {...args} />,
 }
