@@ -41,7 +41,7 @@ import { DownloadIcon } from '../(icons)/DownloadIcon'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import useClipboard from '@/hooks/clipboard'
 import PasteIcon from '../(icons)/PasteIcon'
-import { deserialize as deserializeClipboard } from '@/utils/clipboardUtils'
+import { deserializeClipboard } from '@/utils/clipboardUtils'
 import { renegerateId } from '@/utils/idUtils'
 
 export type ItemGroupEditModalProps = {
@@ -226,7 +226,15 @@ function ExternalRecipeEditModal({
       <RecipeEditModal
         recipe={recipe}
         onSaveRecipe={async (recipe) => {
+          console.debug(
+            `[ItemGroupEditModal::ExternalRecipeEditModal] onSaveRecipe:`,
+            recipe,
+          )
           const updatedRecipe = await updateRecipe(recipe.id, recipe)
+          console.debug(
+            `[ItemGroupEditModal::ExternalRecipeEditModal] updatedRecipe:`,
+            updatedRecipe,
+          )
           setRecipe(updatedRecipe)
         }}
       />
@@ -299,7 +307,7 @@ function ExternalFoodItemEditModal({
             throw new Error('group is null')
           }
 
-          // TODO: Allow user to edit recipe
+          // TODO: Allow user to edit recipe inside a group
           if (item.__type === 'RecipeItem') {
             //
             alert(

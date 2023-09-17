@@ -142,7 +142,6 @@ const RecipeEditModal = ({
                 actions={
                   <RecipeEditView.Actions
                     // TODO: Treat recursive recipe
-                    // TODO: Implement onAddItem for RecipeEditModal
                     onNewItem={() => alert('TODO: onAddItem')}
                   />
                 }
