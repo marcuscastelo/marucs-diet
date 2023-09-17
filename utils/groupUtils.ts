@@ -8,6 +8,7 @@ export type GroupConvertible =
   | ItemGroup[]
   | { groups: ItemGroup[] }
   | FoodItem
+  | Recipe
 
 export function isRecipedGroupUpToDate(
   group: RecipedItemGroup,
@@ -43,6 +44,10 @@ export function isRecipedGroupUpToDate(
   }
 
   return true
+}
+
+export function calculateGroupQuantity(groupItems: ItemGroup['items']) {
+  return groupItems.reduce((acc, item) => acc + item.quantity, 0)
 }
 
 export function updateTotalQuantity(group: ItemGroup) {
@@ -122,6 +127,19 @@ export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
     return { ...convertible }
   }
 
+  if ('__type' in convertible && convertible.__type === 'Recipe') {
+    return [
+      {
+        id: generateId(),
+        name: convertible.name,
+        items: [...convertible.items],
+        quantity: calculateGroupQuantity(convertible.items),
+        type: 'recipe',
+        recipe: convertible.id,
+      },
+    ]
+  }
+
   if ('groups' in convertible) {
     return [...convertible.groups]
   }
@@ -143,6 +161,7 @@ export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
     return [{ ...convertible }]
   }
 
+  convertible satisfies never
   console.error('Invalid state! This is a bug! Unhandled convertible type!')
   throw new Error('Invalid state! This is a bug! see console.error')
 }

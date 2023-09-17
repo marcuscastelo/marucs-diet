@@ -10,12 +10,13 @@ import { calcMealCalories } from '@/utils/macroMath'
 import ItemGroupListView from '../(itemGroup)/ItemGroupListView'
 import { ItemGroup, itemGroupSchema } from '@/model/itemGroupModel'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
-import useClipboard from '@/hooks/clipboard'
+import useClipboard, { createClipboardSchemaFilter } from '@/hooks/clipboard'
 import { addInnerGroups } from '@/utils/mealUtils'
-import { deserialize as deserializeClipboard } from '@/utils/clipboardUtils'
+import { deserializeClipboard } from '@/utils/clipboardUtils'
 import { convertToGroups } from '@/utils/groupUtils'
 import { renegerateId } from '@/utils/idUtils'
 import { foodItemSchema } from '@/model/foodItemModel'
+import { recipeSchema } from '@/model/recipeModel'
 
 export type MealEditViewProps = {
   meal: Meal
@@ -65,21 +66,11 @@ function MealEditViewHeader({
   const acceptedClipboardSchema = mealSchema
     .or(itemGroupSchema)
     .or(foodItemSchema)
+    .or(recipeSchema)
   const { meal } = useMealContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
-  const isClipboardValid = (clipboard: string) => {
-    if (!clipboard) return false
-    let parsedClipboard: unknown
-    try {
-      parsedClipboard = JSON.parse(clipboard)
-    } catch (e) {
-      // Error parsing JSON. Probably clipboard is some random text from the user
-      return false
-    }
-
-    return acceptedClipboardSchema.safeParse(parsedClipboard).success
-  }
+  const isClipboardValid = createClipboardSchemaFilter(acceptedClipboardSchema)
 
   const {
     clipboard: clipboardText,
@@ -94,6 +85,7 @@ function MealEditViewHeader({
     [meal, writeToClipboard],
   )
 
+  // TODO: Remove code duplication between MealEditView and RecipeView
   const handlePasteAfterConfirm = useCallback(() => {
     const data = deserializeClipboard(clipboardText, acceptedClipboardSchema)
 
@@ -108,6 +100,7 @@ function MealEditViewHeader({
         items: g.items.map(renegerateId),
       }))
 
+    // TODO: Create RecipeEditor, MealEditor, ItemGroupEditor, FoodItemEditor classes to avoid this code duplication and error proneness
     const newMeal = addInnerGroups(meal, groupsToAdd)
 
     onUpdateMeal(newMeal)
