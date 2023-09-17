@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export function deserialize<T extends z.ZodType>(
+export function deserializeClipboard<T extends z.ZodType>(
   clipboard: string,
   allowedSchema: T,
 ): z.infer<T> | null {

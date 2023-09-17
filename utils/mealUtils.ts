@@ -1,6 +1,7 @@
 import { ItemGroup } from '@/model/itemGroupModel'
 import { Meal } from '@/model/mealModel'
 
+// TODO: Create RecipeEditor, MealEditor, ItemGroupEditor, FoodItemEditor classes to avoid this code duplication and error proneness
 export function editInnerGroup(meal: Meal, innerGroup: ItemGroup) {
   const newMeal = { ...meal }
 

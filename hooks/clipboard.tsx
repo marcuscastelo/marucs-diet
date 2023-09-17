@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { z } from 'zod'
 
 export type ClipboardFilter = (clipboard: string) => boolean
 
@@ -45,5 +46,22 @@ export default function useClipboard(props?: {
     write: handleWrite,
     read: handleRead,
     clear: () => handleWrite(''),
+  }
+}
+
+export function createClipboardSchemaFilter(
+  acceptedClipboardSchema: z.ZodType,
+) {
+  return (clipboard: string) => {
+    if (!clipboard) return false
+    let parsedClipboard: unknown
+    try {
+      parsedClipboard = JSON.parse(clipboard)
+    } catch (e) {
+      // Error parsing JSON. Probably clipboard is some random text from the user
+      return false
+    }
+
+    return acceptedClipboardSchema.safeParse(parsedClipboard).success
   }
 }
