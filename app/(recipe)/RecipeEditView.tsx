@@ -5,15 +5,24 @@
 import { Recipe, recipeSchema } from '@/model/recipeModel'
 import { FoodItem, foodItemSchema } from '@/model/foodItemModel'
 import { RecipeContextProvider, useRecipeContext } from './RecipeContext'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import TrashIcon from '../(icons)/TrashIcon'
 import PasteIcon from '../(icons)/PasteIcon'
 import CopyIcon from '../(icons)/CopyIcon'
 import FoodItemListView from '../(foodItem)/FoodItemListView'
-import { calcRecipeCalories } from '@/utils/macroMath'
+import {
+  calcGroupMacros,
+  calcRecipeCalories,
+  calcRecipeMacros,
+} from '@/utils/macroMath'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
-import { generateId } from '@/utils/idUtils'
+import { generateId, renegerateId } from '@/utils/idUtils'
 import { TemplateItem } from '@/model/templateItemModel'
+import useClipboard, { createClipboardSchemaFilter } from '@/hooks/clipboard'
+import { deserializeClipboard } from '@/utils/clipboardUtils'
+import { convertToGroups } from '@/utils/groupUtils'
+import { mealSchema } from '@/model/mealModel'
+import { itemGroupSchema } from '@/model/itemGroupModel'
 
 export type RecipeEditViewProps = {
   recipe: Recipe
@@ -60,13 +69,81 @@ function RecipeEditHeader({
 }: {
   onUpdateRecipe: (Recipe: Recipe) => void
 }) {
+  const acceptedClipboardSchema = mealSchema
+    .or(itemGroupSchema)
+    .or(foodItemSchema)
+    .or(recipeSchema)
+
   const { recipe } = useRecipeContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
-  // TODO: Show how much of the daily target is this Recipe (e.g. 30% of daily calories) (maybe in a tooltip) (useContext)s
-  const recipeCalories = calcRecipeCalories(recipe)
+  const isClipboardValid = createClipboardSchemaFilter(acceptedClipboardSchema)
 
-  const [clipboardText, setClipboardText] = useState('')
+  const {
+    clipboard: clipboardText,
+    write: writeToClipboard,
+    clear: clearClipboard,
+  } = useClipboard({
+    filter: isClipboardValid,
+  })
+
+  const handleCopy = useCallback(
+    () => writeToClipboard(JSON.stringify(recipe)),
+    [recipe, writeToClipboard],
+  )
+
+  // TODO: Remove code duplication between MealEditView and RecipeView
+  const handlePasteAfterConfirm = useCallback(() => {
+    const data = deserializeClipboard(clipboardText, acceptedClipboardSchema)
+
+    if (!data) {
+      throw new Error('Invalid clipboard data: ' + clipboardText)
+    }
+
+    const groupsToAdd = convertToGroups(data)
+      .map(renegerateId)
+      .map((g) => ({
+        ...g,
+        items: g.items.map(renegerateId),
+      }))
+
+    const itemsToAdd = groupsToAdd.flatMap((g) => g.items)
+
+    const newRecipe: Recipe = {
+      ...recipe,
+      items: [...recipe.items, ...itemsToAdd],
+    }
+
+    // TODO: Create RecipeEditor, MealEditor, ItemGroupEditor, FoodItemEditor classes to avoid this code duplication and error proneness
+    newRecipe.macros = calcRecipeMacros(newRecipe)
+
+    onUpdateRecipe(newRecipe)
+
+    // Clear clipboard
+    clearClipboard()
+  }, [
+    clipboardText,
+    clearClipboard,
+    recipe,
+    onUpdateRecipe,
+    acceptedClipboardSchema,
+  ])
+
+  const handlePaste = useCallback(() => {
+    showConfirmModal({
+      title: 'Colar itens',
+      message: 'Tem certeza que deseja colar os itens?',
+      actions: [
+        {
+          text: 'Cancelar',
+          onClick: () => undefined,
+        },
+        { text: 'Colar', primary: true, onClick: handlePasteAfterConfirm },
+      ],
+    })
+  }, [handlePasteAfterConfirm, showConfirmModal])
+
+  const recipeCalories = calcRecipeCalories(recipe)
 
   const onClearItems = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -94,92 +171,8 @@ function RecipeEditHeader({
       ],
     })
   }
-  // TODO: Remove code duplication between MealEditView and RecipeView
-  const handleCopyRecipe = (e: React.MouseEvent) => {
-    e.preventDefault()
 
-    navigator.clipboard.writeText(JSON.stringify(recipe))
-  }
-  // TODO: Remove code duplication between MealEditView and RecipeView
-  const handlePasteRecipe = (e: React.MouseEvent) => {
-    e.preventDefault()
-
-    try {
-      const parsedRecipe = recipeSchema.safeParse(JSON.parse(clipboardText))
-
-      if (parsedRecipe.success) {
-        const newRecipe: Recipe = {
-          ...recipe,
-          items: [
-            ...recipe.items,
-            ...parsedRecipe.data.items.map((item) => ({
-              ...item,
-              id: generateId(),
-            })),
-          ],
-        }
-
-        onUpdateRecipe(newRecipe)
-
-        // Clear clipboard
-        navigator.clipboard.writeText('')
-
-        return
-      }
-
-      const parsedRecipeItem = foodItemSchema.safeParse(
-        JSON.parse(clipboardText),
-      )
-
-      if (parsedRecipeItem.success) {
-        const newRecipe: Recipe = {
-          ...recipe,
-          items: [
-            ...recipe.items,
-            {
-              ...parsedRecipeItem.data,
-              id: generateId(),
-            },
-          ],
-        }
-
-        onUpdateRecipe(newRecipe)
-
-        // Clear clipboard
-        navigator.clipboard.writeText('')
-
-        return
-      }
-    } catch (e) {
-      alert(`Erro ao colar: ${e}`)
-    }
-
-    // Clear clipboard
-    navigator.clipboard.writeText('')
-  }
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // TODO: Uncaught (in promise) DOMException: Document is not focused.
-      navigator.clipboard
-        .readText()
-        .then((clipText) => setClipboardText(clipText))
-    }, 1000)
-
-    return () => clearInterval(interval)
-  }, [])
-
-  let parsedJson = {} as object // TODO: Create a type for this
-  try {
-    parsedJson = JSON.parse(clipboardText) as object // TODO: Create a type for this
-  } catch (e) {
-    // Do nothing
-  }
-
-  const hasValidPastableOnClipboard =
-    clipboardText &&
-    (recipeSchema.safeParse(parsedJson).success ||
-      foodItemSchema.safeParse(parsedJson).success)
+  const hasValidPastableOnClipboard = isClipboardValid(clipboardText)
 
   return (
     <div className="flex">
@@ -191,7 +184,7 @@ function RecipeEditHeader({
         {!hasValidPastableOnClipboard && recipe.items.length > 0 && (
           <div
             className={`btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105`}
-            onClick={handleCopyRecipe}
+            onClick={handleCopy}
           >
             <CopyIcon />
           </div>
@@ -199,7 +192,7 @@ function RecipeEditHeader({
         {hasValidPastableOnClipboard && (
           <div
             className={`btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105`}
-            onClick={handlePasteRecipe}
+            onClick={handlePaste}
           >
             <PasteIcon />
           </div>
