@@ -19,7 +19,7 @@ import { FoodItem, createFoodItem, foodItemSchema } from '@/model/foodItemModel'
 import { TemplateSearchModal } from '../templateSearch/TemplateSearchModal'
 import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
 import RecipeIcon from '../(icons)/RecipeIcon'
-import RecipeEditModal from '../(recipe)/RecipeEditModal'
+import { RecipeEditModal } from '../(recipe)/RecipeEditModal'
 import { Recipe } from '@/model/recipeModel'
 import { Loadable } from '@/utils/loadable'
 import PageLoading from '../PageLoading'
@@ -137,6 +137,7 @@ const InnerItemGroupEditModal = ({
         }
         visible={recipeEditModalVisible}
         onSetVisible={setRecipeEditModalVisible}
+        onRefetch={onRefetch}
       />
       <ExternalFoodItemEditModal
         visible={foodItemEditModalVisible}
@@ -215,11 +216,13 @@ function ExternalRecipeEditModal({
   setRecipe,
   visible,
   onSetVisible,
+  onRefetch,
 }: {
   recipe: Recipe | null
   setRecipe: (recipe: Recipe | null) => void
   visible: boolean
   onSetVisible: Dispatch<SetStateAction<boolean>>
+  onRefetch: () => void
 }) {
   return (
     <ModalContextProvider visible={visible} onSetVisible={onSetVisible}>
@@ -237,6 +240,7 @@ function ExternalRecipeEditModal({
           )
           setRecipe(updatedRecipe)
         }}
+        onRefetch={onRefetch}
       />
     </ModalContextProvider>
   )
@@ -346,6 +350,7 @@ function ExternalFoodItemEditModal({
   )
 }
 
+// TODO: This component is duplicated between RecipeEditModal and ItemGroupEditModal, must be refactored
 function ExternalTemplateSearchModal({
   visible,
   onSetVisible,
