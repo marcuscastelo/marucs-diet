@@ -18,6 +18,7 @@ import {
 } from '@/controllers/macroProfiles'
 import { latestMacroProfile } from '@/utils/macroProfileUtils'
 import { getToday } from '@/utils/dateUtils'
+import { BottomNavigation } from '@/components/BottomNavigation'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -98,8 +99,6 @@ export default async function Page() {
   console.debug(`[ProfilePage] Rendering profile ${user.name}`)
   return (
     <>
-      <TopBar />
-
       <div className={`mx-1 md:mx-40 lg:mx-auto lg:w-1/3`}>
         <BasicInfo
           user={user}
@@ -127,6 +126,7 @@ export default async function Page() {
         <MacroEvolution />
         <MeasuresEvolution onSave={handleSave} />
       </div>
+      <BottomNavigation />
     </>
   )
 }

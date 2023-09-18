@@ -7,6 +7,7 @@ import { updateUser } from '@/controllers/users'
 import Capsule from '../../components/capsule/Capsule'
 import { z } from 'zod'
 import { CapsuleContent } from '@/components/capsule/CapsuleContent'
+import { UserIcon } from '@/components/UserIcon'
 type Translation<T extends string> = { [key in T]: string }
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -144,6 +145,7 @@ export function BasicInfo({
         className={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE} rounded-b-none pb-6`}
       >
         <h5 className={`mx-auto text-center text-3xl font-bold`}>
+          <UserIcon userId={user.id} className={`w-32 h-32 mx-auto`} />
           {user.name}
         </h5>
 

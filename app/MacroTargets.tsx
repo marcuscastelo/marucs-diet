@@ -204,7 +204,7 @@ export function MacroTarget({
                         Restaurar perfil antigo{' '}
                       </div>
                     ),
-                    message: (
+                    body: (
                       <>
                         <MacroTarget
                           weight={weight}
