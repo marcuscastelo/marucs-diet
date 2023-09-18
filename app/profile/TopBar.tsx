@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import UserSelector from '../../components/UserSelector'
+import { UserSelector } from '../../components/UserSelector'
 
 export function TopBar() {
   return (

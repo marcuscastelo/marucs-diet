@@ -1,4 +1,4 @@
-import UserSelector from '@/components/UserSelector'
+import { UserSelector } from '@/components/UserSelector'
 import DatepickerRouter from '@/components/DatepickerRouter'
 
 export default function TopBar({ selectedDay }: { selectedDay: string }) {

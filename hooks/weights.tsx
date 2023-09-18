@@ -6,6 +6,7 @@ import { Weight } from '@/model/weightModel'
 import { Loadable } from '@/utils/loadable'
 import { useCallback, useEffect, useState } from 'react'
 
+// TODO: Bring useFetch hook to weights hook
 export function useWeights(userId: User['id']) {
   const [weights, setWeights] = useState<Loadable<Weight[]>>({ loading: true })
 
