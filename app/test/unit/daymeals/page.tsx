@@ -8,8 +8,8 @@ export default function DayPage() {
   //         onNewItem: () => {
   //             duplicateLastItemGroup(meal, setMeal);
   //         },
-  //         onEditItem: () => { alert('Editar') },
-  //         onUpdateMeal: () => { alert('Atualizar') },
+  //         onEditItem: () => { alert('Editar') }, // TODO: Change all alerts with ConfirmModal
+  //         onUpdateMeal: () => { alert('Atualizar') }, // TODO: Change all alerts with ConfirmModal
   //     };
   // }
 

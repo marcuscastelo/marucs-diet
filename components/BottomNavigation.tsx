@@ -41,7 +41,7 @@ export function BottomNavigation() {
           active={pathName.startsWith('/settings')}
           label="Configurações"
           icon={SettingsIcon}
-          onClick={() => alert('TODO: Ainda não implementado')}
+          onClick={() => alert('TODO: Ainda não implementado')} // TODO: Change all alerts with ConfirmModal
           position="middle"
         />
         <div className="">

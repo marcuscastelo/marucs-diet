@@ -104,7 +104,7 @@ export function TemplateSearchModal({
           text: 'Adicionar mais um item',
           onClick: () => {
             // TODO: Fix "Add another item" button: it is not refreshing client-side data
-            alert('Funcionalidade desabilitada temporariamente')
+            alert('Funcionalidade desabilitada temporariamente') // TODO: Change all alerts with ConfirmModal
             // Code from "Finalizar" button
             setSelectedTemplate(
               mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }),

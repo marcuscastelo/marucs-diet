@@ -20,7 +20,7 @@ export default function Page() {
     <MacroTarget
       weight={weight}
       profiles={initialProfiles}
-      onSaveMacroProfile={() => alert('Save profile')}
+      onSaveMacroProfile={() => alert('Save profile')} // TODO: Change all alerts with ConfirmModal
       mode="edit"
     />
   )

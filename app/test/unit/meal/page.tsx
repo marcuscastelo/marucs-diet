@@ -14,8 +14,8 @@ export default function MealPage() {
       header={<MealEditView.Header onUpdateMeal={(meal) => setMeal(meal)} />}
       content={
         <MealEditView.Content
-          onEditItemGroup={(group) =>
-            alert(`Mock: Edit group.id = "${group.id}"`)
+          onEditItemGroup={
+            (group) => alert(`Mock: Edit group.id = "${group.id}"`) // TODO: Change all alerts with ConfirmModal
           }
         />
       }

@@ -302,7 +302,7 @@ function Body({
         }
         className="mt-4"
         onClick={() => {
-          // alert('Alimento não editável (ainda)')
+          // alert('Alimento não editável (ainda)') // TODO: Change all alerts with ConfirmModal
         }}
         header={
           <FoodItemView.Header

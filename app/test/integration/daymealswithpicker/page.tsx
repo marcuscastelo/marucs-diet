@@ -27,18 +27,18 @@ export default function Page() {
   // const day1MealProps: MealProps[] = day1.meals.map(meal => {
   //     return {
   //         meal: meal,
-  //         onNewItem: () => {alert('Dia 1: Novo') },
-  //         onEditItem: () => {alert('Dia 1: Editar') },
-  //         onUpdateMeal: () => {alert('Dia 1: Atualizar') },
+  //         onNewItem: () => {alert('Dia 1: Novo') }, // TODO: Change all alerts with ConfirmModal
+  //         onEditItem: () => {alert('Dia 1: Editar') }, // TODO: Change all alerts with ConfirmModal
+  //         onUpdateMeal: () => {alert('Dia 1: Atualizar') }, // TODO: Change all alerts with ConfirmModal
   //     }
   // });
 
   // const day2MealProps: MealProps[] = day2.meals.map(meal => {
   //     return {
   //         meal: meal,
-  //         onNewItem: () => {alert('Dia 2!!!: Novo') },
-  //         onEditItem: () => {alert('Dia 2!!!: Editar') },
-  //         onUpdateMeal: () => {alert('Dia 2!!!: Atualizar') },
+  //         onNewItem: () => {alert('Dia 2!!!: Novo') }, // TODO: Change all alerts with ConfirmModal
+  //         onEditItem: () => {alert('Dia 2!!!: Editar') }, // TODO: Change all alerts with ConfirmModal
+  //         onUpdateMeal: () => {alert('Dia 2!!!: Atualizar') }, // TODO: Change all alerts with ConfirmModal
   //     }
   // });
 
@@ -52,7 +52,7 @@ export default function Page() {
   // const handleDayChange = (newValue: DateValueType) => {
   //     const dateString = newValue?.startDate;
   //     if (!dateString) {
-  //         alert('Data inválida');
+  //         alert('Data inválida'); // TODO: Change all alerts with ConfirmModal
   //         return;
   //     }
   //     const date = stringToDate(dateString);
