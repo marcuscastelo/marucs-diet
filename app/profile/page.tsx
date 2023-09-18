@@ -1,4 +1,3 @@
-import { TopBar } from './TopBar'
 import { fetchUser, updateUser } from '@/controllers/users'
 import { MacroTarget } from '../MacroTargets'
 import { revalidatePath } from 'next/cache'
