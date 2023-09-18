@@ -92,7 +92,7 @@ export function MeasuresEvolution({ onSave }: { onSave: () => void }) {
                 !hipField.value ||
                 !neckField.value
               ) {
-                alert('Medidas inválidas')
+                alert('Medidas inválidas') // TODO: Change all alerts with ConfirmModal
                 return
               }
 

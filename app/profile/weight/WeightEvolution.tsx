@@ -67,7 +67,7 @@ export function WeightEvolution({ onSave }: { onSave: () => void }) {
               const weight = weightField.value
 
               if (weight === undefined) {
-                alert('Peso inválido (undefined)')
+                alert('Peso inválido (undefined)') // TODO: Change all alerts with ConfirmModal
                 return
               }
 
@@ -129,13 +129,13 @@ function WeightView({
     weightValue: number | undefined
   }) => {
     if (weightValue === undefined) {
-      alert('Peso inválido (undefined)')
+      alert('Peso inválido (undefined)') // TODO: Change all alerts with ConfirmModal
       console.error('Weight is undefined')
       return
     }
 
     if (dateValue === undefined) {
-      alert('Data inválida (undefined)')
+      alert('Data inválida (undefined)') // TODO: Change all alerts with ConfirmModal
       console.error('Date is undefined')
       return
     }
@@ -159,7 +159,7 @@ function WeightView({
             }}
             onChange={async (value) => {
               if (!value?.startDate) {
-                alert('Data inválida')
+                alert('Data inválida') // TODO: Change all alerts with ConfirmModal
                 return
               }
               // Apply timezone offset

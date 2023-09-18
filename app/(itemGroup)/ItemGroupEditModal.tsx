@@ -373,7 +373,7 @@ function ExternalTemplateSearchModal({
     if (!isSimpleSingleGroup(newGroup)) {
       // TODO: Handle non-simple groups on onNewFoodItem
       console.error('TODO: Handle non-simple groups')
-      alert('TODO: Handle non-simple groups')
+      alert('TODO: Handle non-simple groups') // TODO: Change all alerts with ConfirmModal
       return
     }
 
@@ -639,7 +639,7 @@ function Actions({
           onClick={(e) => {
             e.preventDefault()
             if (!group || !onDelete) {
-              alert('BUG: group or onDelete is null')
+              alert('BUG: group or onDelete is null') // TODO: Change all alerts with ConfirmModal
             }
             showConfirmModal({
               title: 'Excluir grupo',

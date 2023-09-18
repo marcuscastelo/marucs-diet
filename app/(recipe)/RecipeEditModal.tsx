@@ -177,7 +177,7 @@ function ExternalTemplateSearchModal({
     if (!isSimpleSingleGroup(newGroup)) {
       // TODO: Handle non-simple groups on onNewFoodItem
       console.error('TODO: Handle non-simple groups')
-      alert('TODO: Handle non-simple groups')
+      alert('TODO: Handle non-simple groups') // TODO: Change all alerts with ConfirmModal
       return
     }
 
@@ -311,7 +311,7 @@ function Actions({
                   onClick: () => {
                     // handleDeleteItem?.(id)
                     // TODO: Implement handleDeleteItem for RecipeEditModal
-                    alert('TODO: handleDeleteItem')
+                    alert('TODO: handleDeleteItem') // TODO: Change all alerts with ConfirmModal
                   },
                 },
               ],
