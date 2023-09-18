@@ -1,6 +1,6 @@
 'use client'
 
-import UserSelector from '@/components/UserSelector'
+import { UserSelector } from '@/components/UserSelector'
 import { useUserContext } from '@/context/users.context'
 
 export default function Page() {
