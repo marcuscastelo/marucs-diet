@@ -484,7 +484,7 @@ function Body({
   const handlePaste = useCallback(() => {
     showConfirmModal({
       title: 'Colar itens',
-      message: 'Tem certeza que deseja colar os itens?',
+      body: 'Tem certeza que deseja colar os itens?',
       actions: [
         {
           text: 'Cancelar',
@@ -643,7 +643,7 @@ function Actions({
             }
             showConfirmModal({
               title: 'Excluir grupo',
-              message: `Tem certeza que deseja excluir o grupo ${
+              body: `Tem certeza que deseja excluir o grupo ${
                 group?.name ?? 'BUG: group is null' // TODO: Color group name orange and BUG red
               }?`,
               actions: [

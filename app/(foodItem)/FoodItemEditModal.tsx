@@ -355,7 +355,7 @@ function Actions({
             onDelete &&
               showConfirmModal({
                 title: 'Excluir item',
-                message: 'Tem certeza que deseja excluir este item?',
+                body: 'Tem certeza que deseja excluir este item?',
                 actions: [
                   {
                     text: 'Cancelar',

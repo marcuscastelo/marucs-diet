@@ -46,7 +46,7 @@ export default function CopyLastDayButton({
         if (day !== undefined) {
           showConfirmModal({
             title: 'Sobrescrever dia',
-            message: 'Tem certeza que deseja SOBRESCREVER este dia?',
+            body: 'Tem certeza que deseja SOBRESCREVER este dia?',
             actions: [
               {
                 text: 'Cancelar',

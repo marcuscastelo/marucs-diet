@@ -8,16 +8,17 @@ import { User } from '@/model/userModel'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import { useFetch } from '@/hooks/fetch'
 import { fetchUsers } from '@/controllers/users'
-import { AvaliableUser } from '@/context/users.context'
+import { AvaliableUser, useUserId } from '@/context/users.context'
 import { changeUser } from '@/actions/user'
 
 export function BottomNavigation() {
   const router = useRouter()
   const pathName = usePathname()
+  const userId = useUserId()
+  const { show: showConfirmModal } = useConfirmModalContext()
 
   console.debug('[BottomNavigation] Rendering')
   console.debug('[BottomNavigation] Current path:', pathName)
-  const [userDropdownOpen, setUserDropdownOpen] = useState(false)
 
   return (
     <div className="fixed z-50 w-full h-16 max-w-lg -translate-x-1/2 bg-white border border-gray-200 rounded-full bottom-4 left-1/2 dark:bg-slate-800 dark:border-slate-700">
@@ -44,16 +45,19 @@ export function BottomNavigation() {
           onClick={() => alert('TODO: Ainda não implementado')} // TODO: Change all alerts with ConfirmModal
           position="middle"
         />
-        <div className="">
-          <BottomNavigationTab
-            active={pathName.startsWith('/settings')}
-            label="Usuário"
-            icon={(props) => <UserIcon {...props} />}
-            onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-            position="last"
-          />
-          <UserSelectorDropdown open={userDropdownOpen} />
-        </div>
+        <BottomNavigationTab
+          active={pathName.startsWith('/settings')}
+          label="Usuário"
+          icon={(props) => <UserIcon userId={userId} {...props} />}
+          onClick={() =>
+            showConfirmModal({
+              title: '',
+              body: <UserSelectorDropdown />,
+              actions: [],
+            })
+          }
+          position="last"
+        />
       </div>
     </div>
   )
@@ -193,7 +197,7 @@ function CTAButton() {
   )
 }
 
-const UserSelectorDropdown = ({ open }: { open: boolean }) => {
+const UserSelectorDropdown = () => {
   const { show: showConfirmModal } = useConfirmModalContext()
 
   const { data: availableUsers, fetch } = useFetch(fetchUsers)
@@ -205,7 +209,12 @@ const UserSelectorDropdown = ({ open }: { open: boolean }) => {
   const handleChangeUser = (user: AvaliableUser) => {
     showConfirmModal({
       title: 'Trocar de usuário',
-      message: `Deseja entrar como ${user.name}?`,
+      body: (
+        <div className="flex justify-between">
+          <span>{`Deseja entrar como ${user.name}?`}</span>
+          <UserIcon className="w-16 h-16" userId={user.id} />
+        </div>
+      ),
       actions: [
         {
           text: 'Cancelar',
@@ -227,30 +236,26 @@ const UserSelectorDropdown = ({ open }: { open: boolean }) => {
   }
 
   return (
-    <Dropdown open={open}>
-      <Dropdown.Menu className="absolute no-animation translate-x-10 -translate-y-20 bg-slate-800 ">
-        {availableUsers.data.map((user, idx) => {
-          return (
-            <Dropdown.Item
-              key={idx}
-              onClick={() => {
-                handleChangeUser(user)
-                // Force dropdown to close without having to click outside setting aria
-                // Credit: https://reacthustle.com/blog/how-to-close-daisyui-dropdown-with-one-click
-                const dropdown =
-                  document.activeElement as HTMLAnchorElement | null
-                dropdown?.blur()
-              }}
-            >
-              {user.name}
-            </Dropdown.Item>
-          )
-        })}
-
-        {availableUsers.data.length === 0 && (
-          <Dropdown.Item>Nenhum usuário disponível</Dropdown.Item>
-        )}
-      </Dropdown.Menu>
-    </Dropdown>
+    <div className="flex flex-col gap-1">
+      {availableUsers.data.map((user, idx) => {
+        return (
+          <div
+            className="btn btn-ghost flex justify-between"
+            key={idx}
+            onClick={() => {
+              handleChangeUser(user)
+              // Force dropdown to close without having to click outside setting aria
+              // Credit: https://reacthustle.com/blog/how-to-close-daisyui-dropdown-with-one-click
+              const dropdown =
+                document.activeElement as HTMLAnchorElement | null
+              dropdown?.blur()
+            }}
+          >
+            <UserIcon className="w-10 h-10" userId={user.id} />
+            <div className="text-xl flex-1 text-start">{user.name}</div>
+          </div>
+        )
+      })}
+    </div>
   )
 }

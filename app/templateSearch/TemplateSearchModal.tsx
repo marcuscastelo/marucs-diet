@@ -98,7 +98,7 @@ export function TemplateSearchModal({
     // TODO: Show Yes/No instead of Ok/Cancel on modal
     showConfirmModal({
       title: 'Item adicionado com sucesso',
-      message: 'Deseja adicionar outro item ou finalizar a inclusão?',
+      body: 'Deseja adicionar outro item ou finalizar a inclusão?',
       actions: [
         {
           text: 'Adicionar mais um item',

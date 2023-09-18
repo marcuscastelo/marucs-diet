@@ -1,11 +1,15 @@
 'use client'
 
-import { useUserId } from '@/context/users.context'
+import { User } from '@/model/userModel'
 import Image from 'next/image'
 
-export function UserIcon({ className }: { className?: string }) {
-  const userId = useUserId()
-
+export function UserIcon({
+  userId,
+  className,
+}: {
+  userId: User['id']
+  className?: string
+}) {
   return (
     <div className={className}>
       <Image
