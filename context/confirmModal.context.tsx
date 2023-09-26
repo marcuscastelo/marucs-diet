@@ -18,17 +18,17 @@ export type ConfirmModalContext = {
     setVisible: Dispatch<SetStateAction<boolean>>
     title: Title
     setTitle: Dispatch<SetStateAction<Title>>
-    message: Body // TODO: Rename message to body
-    setMessage: Dispatch<SetStateAction<Body>>
+    body: Body
+    setBody: Dispatch<SetStateAction<Body>>
     actions: ConfirmAction[]
   }
   visible: boolean
   show: ({
     title,
-    message,
+    body,
     actions,
   }: Partial<
-    Pick<ConfirmModalContext['internals'], 'title' | 'message' | 'actions'>
+    Pick<ConfirmModalContext['internals'], 'title' | 'body' | 'actions'>
   >) => void
   close: () => void
 }
@@ -61,7 +61,7 @@ export function ConfirmModalProvider({
   children: React.ReactNode
 }) {
   const [title, setTitle] = useState<Title>(initialTitle)
-  const [message, setMessage] = useState<Body>(initialMessage)
+  const [message, setBody] = useState<Body>(initialMessage)
   const [visible, setVisible] = useState<boolean>(initiallyVisible)
 
   const [actions, setActions] = useState<ConfirmAction[]>(
@@ -84,17 +84,17 @@ export function ConfirmModalProvider({
       setVisible,
       title,
       setTitle,
-      message,
-      setMessage,
+      body: message,
+      setBody,
       actions,
     },
     visible,
-    show: ({ title, message, actions }) => {
+    show: ({ title, body, actions }) => {
       if (title !== undefined) {
         setTitle(title)
       }
-      if (message !== undefined) {
-        setMessage(message)
+      if (body !== undefined) {
+        setBody(body)
       }
       if (actions !== undefined) {
         setActions(

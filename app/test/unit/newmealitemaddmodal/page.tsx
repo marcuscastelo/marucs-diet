@@ -18,7 +18,7 @@ export default function Page() {
         <FoodItemEditModal
           targetName="Teste"
           foodItem={mockItem()}
-          onApply={() => alert('apply')}
+          onApply={() => alert('apply')} // TODO: Change all alerts with ConfirmModal
         />
       </ModalContextProvider>
     </>

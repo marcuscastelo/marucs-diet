@@ -373,7 +373,7 @@ function ExternalTemplateSearchModal({
     if (!isSimpleSingleGroup(newGroup)) {
       // TODO: Handle non-simple groups on onNewFoodItem
       console.error('TODO: Handle non-simple groups')
-      alert('TODO: Handle non-simple groups')
+      alert('TODO: Handle non-simple groups') // TODO: Change all alerts with ConfirmModal
       return
     }
 
@@ -484,7 +484,7 @@ function Body({
   const handlePaste = useCallback(() => {
     showConfirmModal({
       title: 'Colar itens',
-      message: 'Tem certeza que deseja colar os itens?',
+      body: 'Tem certeza que deseja colar os itens?',
       actions: [
         {
           text: 'Cancelar',
@@ -639,11 +639,11 @@ function Actions({
           onClick={(e) => {
             e.preventDefault()
             if (!group || !onDelete) {
-              alert('BUG: group or onDelete is null')
+              alert('BUG: group or onDelete is null') // TODO: Change all alerts with ConfirmModal
             }
             showConfirmModal({
               title: 'Excluir grupo',
-              message: `Tem certeza que deseja excluir o grupo ${
+              body: `Tem certeza que deseja excluir o grupo ${
                 group?.name ?? 'BUG: group is null' // TODO: Color group name orange and BUG red
               }?`,
               actions: [

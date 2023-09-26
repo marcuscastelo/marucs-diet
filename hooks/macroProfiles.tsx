@@ -6,6 +6,7 @@ import { User } from '@/model/userModel'
 import { Loadable } from '@/utils/loadable'
 import { useCallback, useEffect, useState } from 'react'
 
+// TODO: Bring useFetch hook to weights hook
 export function useMacroProfiles(userId: User['id']) {
   const [macroProfiles, setMacroProfiles] = useState<Loadable<MacroProfile[]>>({
     loading: true,

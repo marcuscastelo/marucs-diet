@@ -44,7 +44,7 @@ export default function BarCodeSearch({
       })
       .catch((err) => {
         console.error(err)
-        alert(JSON.stringify(err, null, 2))
+        alert(JSON.stringify(err, null, 2)) // TODO: Change all alerts with ConfirmModal
       })
       .finally(() => {
         if (ignore) {

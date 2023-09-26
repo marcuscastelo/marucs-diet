@@ -19,7 +19,7 @@ export default function DeleteDayButton({
       onClick={() => {
         showConfirmModal({
           title: 'Excluir dia',
-          message: 'Tem certeza que deseja excluir este dia?',
+          body: 'Tem certeza que deseja excluir este dia?',
           actions: [
             {
               text: 'Cancelar',

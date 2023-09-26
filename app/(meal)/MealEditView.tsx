@@ -118,7 +118,7 @@ function MealEditViewHeader({
   const handlePaste = useCallback(() => {
     showConfirmModal({
       title: 'Colar itens',
-      message: 'Tem certeza que deseja colar os itens?',
+      body: 'Tem certeza que deseja colar os itens?',
       actions: [
         {
           text: 'Cancelar',
@@ -137,7 +137,7 @@ function MealEditViewHeader({
 
     showConfirmModal({
       title: 'Limpar itens',
-      message: 'Tem certeza que deseja limpar os itens?',
+      body: 'Tem certeza que deseja limpar os itens?',
       actions: [
         {
           text: 'Cancelar',

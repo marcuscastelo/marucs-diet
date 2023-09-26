@@ -98,13 +98,13 @@ export function TemplateSearchModal({
     // TODO: Show Yes/No instead of Ok/Cancel on modal
     showConfirmModal({
       title: 'Item adicionado com sucesso',
-      message: 'Deseja adicionar outro item ou finalizar a inclusão?',
+      body: 'Deseja adicionar outro item ou finalizar a inclusão?',
       actions: [
         {
           text: 'Adicionar mais um item',
           onClick: () => {
             // TODO: Fix "Add another item" button: it is not refreshing client-side data
-            alert('Funcionalidade desabilitada temporariamente')
+            alert('Funcionalidade desabilitada temporariamente') // TODO: Change all alerts with ConfirmModal
             // Code from "Finalizar" button
             setSelectedTemplate(
               mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }),

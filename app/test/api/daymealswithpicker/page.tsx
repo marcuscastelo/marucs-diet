@@ -29,16 +29,17 @@ export default function Page() {
           meal,
           header: (
             <MealEditView.Header
-              onUpdateMeal={(meal) => alert(`Mock: Update meal ${meal.name}`)}
+              onUpdateMeal={(meal) => alert(`Mock: Update meal ${meal.name}`)} // TODO: Change all alerts with ConfirmModal
             />
           ),
           content: (
             <MealEditView.Content
-              onEditItemGroup={(group) =>
-                alert(`Mock: Edit group.id = "${group.id}"`)
+              onEditItemGroup={
+                (group) => alert(`Mock: Edit group.id = "${group.id}"`) // TODO: Change all alerts with ConfirmModal
               }
             />
           ),
+          // TODO: Change all alerts with ConfirmModal
           actions: (
             <MealEditView.Actions onNewItem={() => alert('Mock: New item')} />
           ),
@@ -98,21 +99,21 @@ export default function Page() {
                 meal,
                 header: (
                   <MealEditView.Header
-                    onUpdateMeal={(meal) =>
-                      alert(`Mock: Update meal ${meal.name}`)
+                    onUpdateMeal={
+                      (meal) => alert(`Mock: Update meal ${meal.name}`) // TODO: Change all alerts with ConfirmModal
                     }
                   />
                 ),
                 content: (
                   <MealEditView.Content
-                    onEditItemGroup={(group) =>
-                      alert(`Mock: Edit group.id = "${group.id}"`)
+                    onEditItemGroup={
+                      (group) => alert(`Mock: Edit group.id = "${group.id}"`) // TODO: Change all alerts with ConfirmModal
                     }
                   />
                 ),
                 actions: (
                   <MealEditView.Actions
-                    onNewItem={() => alert('Mock: New item')}
+                    onNewItem={() => alert('Mock: New item')} // TODO: Change all alerts with ConfirmModal
                   />
                 ),
               }

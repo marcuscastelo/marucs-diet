@@ -29,8 +29,9 @@ export default function CopyLastDayButton({
     return (
       <button
         className="btn-error btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white"
-        onClick={() =>
-          alert(`Não foi possível encontrar um dia anterior a ${selectedDay}`)
+        onClick={
+          () =>
+            alert(`Não foi possível encontrar um dia anterior a ${selectedDay}`) // TODO: Change all alerts with ConfirmModal
         }
       >
         Copiar dia anterior: não encontrado!
@@ -45,7 +46,7 @@ export default function CopyLastDayButton({
         if (day !== undefined) {
           showConfirmModal({
             title: 'Sobrescrever dia',
-            message: 'Tem certeza que deseja SOBRESCREVER este dia?',
+            body: 'Tem certeza que deseja SOBRESCREVER este dia?',
             actions: [
               {
                 text: 'Cancelar',

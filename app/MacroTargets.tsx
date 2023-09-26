@@ -155,7 +155,7 @@ export function MacroTarget({
   const makeOnSetPercentage =
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (macro: 'carbs' | 'protein' | 'fat') => (percentage: number) => {
-      alert('TODO: future feature')
+      alert('TODO: future feature') // TODO: Change all alerts with ConfirmModal
     }
 
   return (
@@ -204,7 +204,7 @@ export function MacroTarget({
                         Restaurar perfil antigo{' '}
                       </div>
                     ),
-                    message: (
+                    body: (
                       <>
                         <MacroTarget
                           weight={weight}

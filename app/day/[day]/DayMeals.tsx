@@ -68,7 +68,7 @@ export default function DayMeals({
 
   const handleEditItemGroup = (meal: Meal, itemGroup: ItemGroup) => {
     if (dayLocked) {
-      alert('Dia bloqueado, não é possível editar')
+      alert('Dia bloqueado, não é possível editar') // TODO: Change all alerts with ConfirmModal
       return
     }
 
@@ -78,7 +78,7 @@ export default function DayMeals({
 
   const handleUpdateMeal = async (day: Day, meal: Meal) => {
     if (dayLocked) {
-      alert('Dia bloqueado, não é possível editar')
+      alert('Dia bloqueado, não é possível editar') // TODO: Change all alerts with ConfirmModal
       return
     }
 
@@ -99,7 +99,7 @@ export default function DayMeals({
   const handleNewItemButton = (meal: Meal) => {
     console.log('New item button clicked')
     if (dayLocked) {
-      alert('Dia bloqueado, não é possível editar')
+      alert('Dia bloqueado, não é possível editar') // TODO: Change all alerts with ConfirmModal
       return
     }
 
