@@ -41,7 +41,7 @@ export function MeasureView({
       neck: number | undefined
     }) => {
       if (!height || !waist || !hip || !neck) {
-        alert('Medidas inválidas')
+        alert('Medidas inválidas') // TODO: Change all alerts with ConfirmModal
         return
       }
 
@@ -71,7 +71,7 @@ export function MeasureView({
             }}
             onChange={async (value) => {
               if (!value?.startDate) {
-                alert('Data inválida')
+                alert('Data inválida') // TODO: Change all alerts with ConfirmModal
                 return
               }
               // Apply timezone offset

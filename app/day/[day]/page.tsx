@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import DayNotFound from './DayNotFound'
 import DayMeals from './DayMeals'
 import { getUser } from '@/actions/user'
+import { BottomNavigation } from '@/components/BottomNavigation'
 
 export const revalidate = 0
 export const dynamic = 'force-dynamic'
@@ -68,6 +69,7 @@ export default async function Page({ params }: PageParams) {
         refetchDays={refetchDays} // TODO: usePathname hook to get current path
         days={days}
       />
+      <BottomNavigation />
     </div>
   )
 }
