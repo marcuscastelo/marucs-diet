@@ -1,4 +1,5 @@
 import { MacroProfile } from '@/model/macroProfileModel'
+import { inForceGeneric } from './generic/inForce'
 
 export function latestMacroProfile(
   macroProfiles: MacroProfile[],
@@ -20,13 +21,5 @@ export function firstMacroProfile(macroProfiles: MacroProfile[]) {
 }
 
 export function inForceMacroProfile(macroProfiles: MacroProfile[], date: Date) {
-  const firstProfileAfterDate = macroProfiles.findLast(
-    (profile) => profile.target_day.getTime() <= date.getTime(),
-  )
-
-  if (!firstProfileAfterDate) {
-    return null
-  }
-
-  return firstProfileAfterDate
+  return inForceGeneric(macroProfiles, 'target_day', date)
 }
