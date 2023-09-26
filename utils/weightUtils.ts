@@ -1,4 +1,5 @@
 import { Weight } from '@/model/weightModel'
+import { inForceGeneric } from './generic/inForce'
 
 export function latestWeight(weights: Weight[]) {
   if (weights.length === 0) {
@@ -45,4 +46,8 @@ export function calculateWeightProgress(
   const totalChange = desiredWeight - first.weight // 100 - 101 = -1
   const percentageChange = change / totalChange // 0 / -1 = 0
   return percentageChange // 0
+}
+
+export function inForceWeight(weights: Weight[], date: Date) {
+  return inForceGeneric(weights, 'target_timestamp', date)
 }

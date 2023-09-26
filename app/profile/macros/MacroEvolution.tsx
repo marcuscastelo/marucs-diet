@@ -15,7 +15,7 @@ import {
 import { calcCalories, calcDayCalories, calcDayMacros } from '@/utils/macroMath'
 import { useUserContext, useUserId } from '@/context/users.context'
 import { calculateMacroTarget } from '../../MacroTargets'
-import { latestWeight } from '@/utils/weightUtils'
+import { inForceWeight } from '@/utils/weightUtils'
 import { useWeights } from '@/hooks/weights'
 import { useMacroProfiles } from '@/hooks/macroProfiles'
 import {
@@ -25,6 +25,7 @@ import {
 import { Day } from '@/model/dayModel'
 import { MacroProfile } from '@/model/macroProfileModel'
 import { dateToDDMM } from '@/utils/dateUtils'
+import { Weight } from '@/model/weightModel'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -41,10 +42,7 @@ export function MacroEvolution() {
     return <h1>Carregando...</h1>
   }
 
-  // TODO: plot all weights, not just the latest one
-  const weight = latestWeight(weights.data)?.weight
-
-  if (!weight) {
+  if (weights.data.length === 0) {
     return <h1>Usuário não possui pesos. Impossível calcular macros.</h1>
   }
 
@@ -54,27 +52,28 @@ export function MacroEvolution() {
         Evolução de Macronutrientes
       </h5>
       <div className="mx-5 lg:mx-20">
-        <AllMacrosChart weight={weight} />
-        <CaloriesChart weight={weight} />
-        <ProteinChart weight={weight} />
-        <FatChart weight={weight} />
-        <CarbsChart weight={weight} />
+        <AllMacrosChart weights={weights.data} />
+        <CaloriesChart weights={weights.data} />
+        <ProteinChart weights={weights.data} />
+        <FatChart weights={weights.data} />
+        <CarbsChart weights={weights.data} />
       </div>
     </div>
   )
 }
 
 function createChartData(
-  weight: number,
+  weights: Weight[],
   days: Day[],
   macroProfiles: MacroProfile[],
 ) {
   const data = days.map((day) => {
     const dayDate = new Date(day.target_day)
 
+    const currentWeight = inForceWeight(weights, dayDate)
     const currentMacroProfile = inForceMacroProfile(macroProfiles, dayDate)
     const macroTarget = currentMacroProfile
-      ? calculateMacroTarget(weight, currentMacroProfile)
+      ? calculateMacroTarget(currentWeight?.weight ?? 0, currentMacroProfile)
       : null
 
     const dayMacros = calcDayMacros(day)
@@ -99,7 +98,7 @@ function createChartData(
   return data
 }
 
-function AllMacrosChart({ weight }: { weight: number }) {
+function AllMacrosChart({ weights }: { weights: Weight[] }) {
   const { days } = useDaysContext()
   const { user } = useUserContext()
   const { macroProfiles } = useMacroProfiles(user.id)
@@ -120,10 +119,13 @@ function AllMacrosChart({ weight }: { weight: number }) {
     )
   }
 
-  const macroTargets = calculateMacroTarget(weight, macroProfile)
-
   const proteinDeviance = days.data
     .map((day) => {
+      const currentWeight = inForceWeight(weights, new Date(day.target_day))
+      const macroTargets = calculateMacroTarget(
+        currentWeight?.weight ?? 0,
+        macroProfile,
+      )
       const dayMacros = calcDayMacros(day)
       return dayMacros.protein - macroTargets.protein
     })
@@ -131,12 +133,17 @@ function AllMacrosChart({ weight }: { weight: number }) {
 
   const fatDeviance = days.data
     .map((day) => {
+      const currentWeight = inForceWeight(weights, new Date(day.target_day))
+      const macroTargets = calculateMacroTarget(
+        currentWeight?.weight ?? 0,
+        macroProfile,
+      )
       const dayMacros = calcDayMacros(day)
       return dayMacros.fat - macroTargets.fat
     })
     .reduce((a, b) => a + b, 0)
 
-  const data = createChartData(weight, days.data, macroProfiles.data)
+  const data = createChartData(weights, days.data, macroProfiles.data)
 
   return (
     <div>
@@ -164,7 +171,57 @@ function AllMacrosChart({ weight }: { weight: number }) {
           <CartesianGrid strokeDasharray="1 1" />
           <XAxis dataKey="name" angle={CHART_DATE_ANGLE} />
           <YAxis />
-          <Tooltip />
+          <Tooltip
+            content={({ payload, label, active }) => {
+              if (!active || !payload) return null
+              const {
+                protein,
+                fat,
+                carbs,
+                targetGrams,
+                calories,
+                targetCalories,
+                targetProtein,
+                targetFat,
+                targetCarbs,
+              } = payload[0].payload
+              return (
+                <div className="bg-slate-700 p-5 opacity-80">
+                  {calories && <h1> Calorias: {calories}kcal </h1>}
+                  {targetCalories && (
+                    <h1> Meta Calorias: {targetCalories}kcal </h1>
+                  )}
+                  {protein && (
+                    <h1>
+                      Proteína: {protein}g / {targetProtein}g
+                    </h1>
+                  )}
+                  {fat && (
+                    <h1>
+                      Gordura: {fat}g / {targetFat}g
+                    </h1>
+                  )}
+                  {carbs && (
+                    <h1>
+                      Carboidrato: {carbs}g /{targetCarbs}g
+                    </h1>
+                  )}
+                  {targetGrams && (
+                    <h1>
+                      {' '}
+                      Total:{' '}
+                      {[carbs, fat, protein]
+                        .map(Number)
+                        .reduce((a, b) => a + b, 0)}
+                      g / {targetGrams}g{' '}
+                    </h1>
+                  )}
+
+                  <h1>{label}</h1>
+                </div>
+              )
+            }}
+          />
           <Area
             type="monotone"
             dataKey="protein"
@@ -198,7 +255,7 @@ function AllMacrosChart({ weight }: { weight: number }) {
   )
 }
 
-function CaloriesChart({ weight }: { weight: number }) {
+function CaloriesChart({ weights }: { weights: Weight[] }) {
   const { days } = useDaysContext()
   const { user } = useUserContext()
   const { macroProfiles } = useMacroProfiles(user.id)
@@ -211,7 +268,7 @@ function CaloriesChart({ weight }: { weight: number }) {
     return <h1>Carregando perfis de macro...</h1>
   }
 
-  const data = createChartData(weight, days.data, macroProfiles.data)
+  const data = createChartData(weights, days.data, macroProfiles.data)
 
   return (
     <div>
@@ -221,7 +278,21 @@ function CaloriesChart({ weight }: { weight: number }) {
           <CartesianGrid strokeDasharray="1 1" />
           <XAxis dataKey="name" angle={CHART_DATE_ANGLE} />
           <YAxis />
-          <Tooltip />
+          <Tooltip
+            content={({ payload, label, active }) => {
+              if (!active || !payload) return null
+              const { calories, targetCalories } = payload[0].payload
+              return (
+                <div className="bg-slate-700 p-5 opacity-80">
+                  {calories && <h1> Calorias: {calories}kcal </h1>}
+                  {targetCalories && (
+                    <h1> Meta Calorias: {targetCalories}kcal </h1>
+                  )}
+                  <h1>{label}</h1>
+                </div>
+              )
+            }}
+          />
           <Area
             type="monotone"
             dataKey="calories"
@@ -241,7 +312,7 @@ function CaloriesChart({ weight }: { weight: number }) {
   )
 }
 
-function ProteinChart({ weight }: { weight: number }) {
+function ProteinChart({ weights }: { weights: Weight[] }) {
   const { days } = useDaysContext()
   const { user } = useUserContext()
   const { macroProfiles } = useMacroProfiles(user.id)
@@ -254,7 +325,7 @@ function ProteinChart({ weight }: { weight: number }) {
     return <h1>Carregando perfis de macro...</h1>
   }
 
-  const data = createChartData(weight, days.data, macroProfiles.data)
+  const data = createChartData(weights, days.data, macroProfiles.data)
 
   return (
     <div>
@@ -264,7 +335,20 @@ function ProteinChart({ weight }: { weight: number }) {
           <CartesianGrid strokeDasharray="1 1" />
           <XAxis dataKey="name" angle={CHART_DATE_ANGLE} />
           <YAxis />
-          <Tooltip />
+          <Tooltip
+            content={({ payload, label, active }) => {
+              if (!active || !payload) return null
+              const { protein, targetProtein } = payload[0].payload
+              return (
+                <div className="bg-slate-700 p-5 opacity-80">
+                  {protein && <h1> Proteína: {protein}g </h1>}
+                  {targetProtein && <h1> Meta Proteína: {targetProtein}g </h1>}
+
+                  <h1>{label}</h1>
+                </div>
+              )
+            }}
+          />
           <Area
             type="monotone"
             dataKey="protein"
@@ -284,7 +368,7 @@ function ProteinChart({ weight }: { weight: number }) {
   )
 }
 
-function FatChart({ weight }: { weight: number }) {
+function FatChart({ weights }: { weights: Weight[] }) {
   const { days } = useDaysContext()
   const { user } = useUserContext()
   const { macroProfiles } = useMacroProfiles(user.id)
@@ -297,7 +381,7 @@ function FatChart({ weight }: { weight: number }) {
     return <h1>Carregando perfis de macro...</h1>
   }
 
-  const data = createChartData(weight, days.data, macroProfiles.data)
+  const data = createChartData(weights, days.data, macroProfiles.data)
 
   return (
     <div>
@@ -307,7 +391,20 @@ function FatChart({ weight }: { weight: number }) {
           <CartesianGrid strokeDasharray="1 1" />
           <XAxis dataKey="name" angle={CHART_DATE_ANGLE} />
           <YAxis />
-          <Tooltip />
+          <Tooltip
+            content={({ payload, label, active }) => {
+              if (!active || !payload) return null
+              const { fat, targetFat } = payload[0].payload
+              return (
+                <div className="bg-slate-700 p-5 opacity-80">
+                  {fat && <h1> Gordura: {fat}g </h1>}
+                  {targetFat && <h1> Meta Gordura: {targetFat}g </h1>}
+
+                  <h1>{label}</h1>
+                </div>
+              )
+            }}
+          />
           <Area
             type="monotone"
             dataKey="fat"
@@ -327,7 +424,7 @@ function FatChart({ weight }: { weight: number }) {
   )
 }
 
-function CarbsChart({ weight }: { weight: number }) {
+function CarbsChart({ weights }: { weights: Weight[] }) {
   const { days } = useDaysContext()
   const { user } = useUserContext()
   const { macroProfiles } = useMacroProfiles(user.id)
@@ -340,7 +437,7 @@ function CarbsChart({ weight }: { weight: number }) {
     return <h1>Carregando perfis de macro...</h1>
   }
 
-  const data = createChartData(weight, days.data, macroProfiles.data)
+  const data = createChartData(weights, days.data, macroProfiles.data)
   return (
     <div>
       <div className="text-3xl text-center">Carboidrato</div>
@@ -349,7 +446,19 @@ function CarbsChart({ weight }: { weight: number }) {
           <CartesianGrid strokeDasharray="1 1" />
           <XAxis dataKey="name" angle={CHART_DATE_ANGLE} />
           <YAxis />
-          <Tooltip />
+          <Tooltip
+            content={({ payload, label, active }) => {
+              if (!active || !payload) return null
+              const { carbs, targetCarbs } = payload[0].payload
+              return (
+                <div className="bg-slate-700 p-5 opacity-80">
+                  {carbs && <h1> Carboidrato: {carbs}g </h1>}
+                  {targetCarbs && <h1> Meta Carboidrato: {targetCarbs}g </h1>}
+                  <h1>{label}</h1>
+                </div>
+              )
+            }}
+          />
           <Area
             type="monotone"
             dataKey="carbs"
