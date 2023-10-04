@@ -43,6 +43,7 @@ import useClipboard from '@/hooks/clipboard'
 import PasteIcon from '../(icons)/PasteIcon'
 import { deserializeClipboard } from '@/utils/clipboardUtils'
 import { renegerateId } from '@/utils/idUtils'
+import { ItemGroupEditor } from '@/utils/data/itemGroupEditor'
 
 export type ItemGroupEditModalProps = {
   show?: boolean
@@ -321,11 +322,6 @@ function ExternalFoodItemEditModal({
           }
           const newGroup: ItemGroup = editInnerItem(group, item)
 
-          newGroup.quantity = newGroup.items.reduce(
-            (acc, curr) => acc + curr.quantity,
-            0,
-          )
-
           console.debug('newGroup', newGroup)
           handleCloseWithChanges(newGroup)
         }}
@@ -336,11 +332,6 @@ function ExternalFoodItemEditModal({
           }
 
           const newGroup: ItemGroup = deleteInnerItem(group, itemId)
-
-          newGroup.quantity = newGroup.items.reduce(
-            (acc, curr) => acc + curr.quantity,
-            0,
-          )
 
           console.debug('newGroup', newGroup)
           handleCloseWithChanges(newGroup)
@@ -540,11 +531,10 @@ function Body({
                           return
                         }
 
-                        const newItems = [...recipe.items]
-
-                        const newGroup: ItemGroup = { ...group }
-
-                        newGroup.items = newItems
+                        const newGroup = new ItemGroupEditor(group)
+                          .clearItems()
+                          .addItems(recipe.items)
+                          .finish()
 
                         setGroup(newGroup)
                       }}
