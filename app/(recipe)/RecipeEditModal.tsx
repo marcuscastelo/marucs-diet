@@ -182,7 +182,7 @@ function ExternalTemplateSearchModal({
     }
 
     const newRecipe = new RecipeEditor(recipe)
-      .addInnerItems(newGroup.items)
+      .addItems(newGroup.items)
       .finish()
 
     console.debug('onNewFoodItem: applying', JSON.stringify(newRecipe, null, 2))
