@@ -50,6 +50,10 @@ export function calculateGroupQuantity(groupItems: ItemGroup['items']) {
   return groupItems.reduce((acc, item) => acc + item.quantity, 0)
 }
 
+// TODO: Replace quantity field with a getter that calculates it
+/**
+ * @deprecated
+ */
 export function updateTotalQuantity(group: ItemGroup) {
   const newGroup = { ...group }
 
@@ -61,6 +65,9 @@ export function updateTotalQuantity(group: ItemGroup) {
   return newGroup
 }
 
+/**
+ * @deprecated Use ItemGroupEditor instead
+ */
 export function editInnerItem(group: ItemGroup, innerItem: FoodItem) {
   const newGroup = { ...group }
 
@@ -76,6 +83,9 @@ export function editInnerItem(group: ItemGroup, innerItem: FoodItem) {
   return updateTotalQuantity(newGroup)
 }
 
+/**
+ * @deprecated Use ItemGroupEditor instead
+ */
 export function deleteInnerItem(group: ItemGroup, itemId: FoodItem['id']) {
   const newGroup = { ...group }
 
@@ -91,6 +101,9 @@ export function deleteInnerItem(group: ItemGroup, itemId: FoodItem['id']) {
   return updateTotalQuantity(newGroup)
 }
 
+/**
+ * @deprecated Use ItemGroupEditor instead
+ */
 export function addInnerItem(group: ItemGroup, innerItem: FoodItem) {
   const newGroup = { ...group }
 
@@ -112,6 +125,9 @@ export function addInnerItem(group: ItemGroup, innerItem: FoodItem) {
   return updateTotalQuantity(newGroup)
 }
 
+/**
+ * @deprecated Use ItemGroupEditor instead
+ */
 export function addInnerItems(group: ItemGroup, innerItem: FoodItem[]) {
   let newGroup = { ...group }
 
