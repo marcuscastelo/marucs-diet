@@ -82,21 +82,25 @@ export function RecipeEditModal({
         onApply={(foodItem) => {
           if (!recipe) return
 
-          // TODO: Simplify RecipeEditModal::ExternalFoodItemEditModal::onApply
-          setRecipe(
-            (recipe) =>
-              recipe && {
-                ...recipe,
-                items: recipe.items.map((item) =>
-                  item.id === foodItem.id
-                    ? {
-                        ...item,
-                        quantity: foodItem.quantity,
-                      }
-                    : item,
-                ),
-              },
-          )
+          const recipeEditor = new RecipeEditor(recipe)
+
+          const newRecipe = recipeEditor
+            .editItem(foodItem.id, (itemEditor) => {
+              itemEditor?.setQuantity(foodItem.quantity)
+            })
+            .finish()
+
+          setRecipe(newRecipe)
+          setSelectedFoodItem(null)
+        }}
+        onDelete={(itemId) => {
+          if (!recipe) return
+
+          const recipeEditor = new RecipeEditor(recipe)
+
+          const newRecipe = recipeEditor.deleteItem(itemId).finish()
+
+          setRecipe(newRecipe)
           setSelectedFoodItem(null)
         }}
       />
@@ -122,7 +126,11 @@ export function RecipeEditModal({
             />
           }
           actions={
-            <Actions onApply={() => onSaveRecipe(recipe)} onCancel={onCancel} />
+            <Actions
+              onApply={() => onSaveRecipe(recipe)}
+              onCancel={onCancel}
+              onDelete={() => alert('TODO: delete recipe')}
+            />
           }
         />
       </ModalContextProvider>
@@ -134,12 +142,14 @@ function ExternalFoodItemEditModal({
   foodItem,
   targetName,
   onApply,
+  onDelete,
   visible,
   onSetVisible,
 }: {
   foodItem: FoodItem
   targetName: string
   onApply: (item: TemplateItem) => void
+  onDelete: (itemId: TemplateItem['id']) => void
   visible: boolean
   onSetVisible: Dispatch<SetStateAction<boolean>>
 }) {
@@ -152,6 +162,7 @@ function ExternalFoodItemEditModal({
         foodItem={foodItem}
         targetName={targetName}
         onApply={onApply}
+        onDelete={onDelete}
       />
     </ModalContextProvider>
   )
@@ -278,9 +289,11 @@ function Body({
 
 function Actions({
   onApply,
+  onDelete,
   onCancel,
 }: {
   onApply: () => void
+  onDelete: () => void
   onCancel?: () => void
 }) {
   const { onSetVisible } = useModalContext()
@@ -288,37 +301,32 @@ function Actions({
 
   return (
     <ModalActions>
-      {/* if there is a button in form, it will close the modal */}
-      {
-        <button
-          className="btn-error btn mr-auto"
-          onClick={(e) => {
-            e.preventDefault()
+      <button
+        className="btn-error btn mr-auto"
+        onClick={(e) => {
+          e.preventDefault()
 
-            showConfirmModal({
-              title: 'Excluir item',
-              body: 'Tem certeza que deseja excluir este item?',
-              actions: [
-                {
-                  text: 'Cancelar',
-                  onClick: () => undefined,
+          showConfirmModal({
+            title: 'Excluir item',
+            body: 'Tem certeza que deseja excluir este item?',
+            actions: [
+              {
+                text: 'Cancelar',
+                onClick: () => undefined,
+              },
+              {
+                text: 'Excluir',
+                primary: true,
+                onClick: () => {
+                  onDelete()
                 },
-                {
-                  text: 'Excluir',
-                  primary: true,
-                  onClick: () => {
-                    // handleDeleteItem?.(id)
-                    // TODO: Implement handleDeleteItem for RecipeEditModal
-                    alert('TODO: handleDeleteItem') // TODO: Change all alerts with ConfirmModal
-                  },
-                },
-              ],
-            })
-          }}
-        >
-          Excluir
-        </button>
-      }
+              },
+            ],
+          })
+        }}
+      >
+        Excluir
+      </button>
       <button
         className="btn"
         onClick={(e) => {
