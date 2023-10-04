@@ -36,39 +36,25 @@ export default async function Page({ params }: PageParams) {
 
   const day = days.find((day) => day.target_day === selectedDay)
 
-  if (!selectedDay) {
-    return (
-      // TODO: Use flowbite-react Alert component
-      <h1 className="mt-2" color="warning">
-        Selecione um dia
-      </h1>
-    )
-  }
-
-  if (!day) {
-    return (
-      <>
-        <TopBar selectedDay={selectedDay} />
-
+  return (
+    <div className="mx-auto sm:w-3/4 md:w-4/5 lg:w-1/2 xl:w-1/3">
+      {/* Top bar with date picker and user icon */}
+      <TopBar selectedDay={selectedDay} />
+      {day !== undefined ? (
+        <DayMeals
+          day={day}
+          selectedDay={selectedDay}
+          refetchDays={refetchDays} // TODO: usePathname hook to get current path
+          days={days}
+        />
+      ) : (
         <DayNotFound
           days={days}
           refetchDays={refetchDays}
           selectedDay={selectedDay}
         />
-      </>
-    )
-  }
+      )}
 
-  return (
-    <div className="mx-auto sm:w-3/4 md:w-4/5 lg:w-1/2 xl:w-1/3">
-      {/* Top bar with date picker and user icon */}
-      <TopBar selectedDay={selectedDay} />
-      <DayMeals
-        day={day}
-        selectedDay={selectedDay}
-        refetchDays={refetchDays} // TODO: usePathname hook to get current path
-        days={days}
-      />
       <BottomNavigation />
     </div>
   )
