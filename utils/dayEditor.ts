@@ -3,6 +3,7 @@ import { Day } from '@/model/dayModel'
 import { ItemGroup } from '@/model/itemGroupModel'
 import { Meal } from '@/model/mealModel'
 
+// TODO: Create DayEditor class (after meal becomes a DB model)
 // TODO: Move updateItemGroupInDay to controllers/day.ts?
 // TODO: Does this function already exist somewhere else? (I think so)
 export async function addItemGroupToMeal(
