@@ -172,6 +172,10 @@ const InnerItemGroupEditModal = ({
   )
 }
 
+// TODO: Unify Header, Content and Actions for each component in the entire app
+/**
+ * @deprecated
+ */
 function Header({
   targetMealName,
   recipe,
@@ -399,6 +403,10 @@ function ExternalTemplateSearchModal({
   )
 }
 
+// TODO: Unify Header, Content and Actions for each component in the entire app
+/**
+ * @deprecated
+ */
 function Body({
   recipe,
   isFoodFavorite,
@@ -608,6 +616,10 @@ function Body({
   )
 }
 
+// TODO: Unify Header, Content and Actions for each component in the entire app
+/**
+ * @deprecated
+ */
 function Actions({
   onDelete,
   onCancel,
