@@ -33,14 +33,16 @@ export function createRecipe({
   name,
   items,
   preparedMultiplier = 1,
+  owner,
 }: {
   name: string
   items: Recipe['items']
   preparedMultiplier?: number
+  owner: Recipe['owner']
 }): Recipe {
   return {
     id: generateId(),
-    owner: 3, // TODO: Get user id
+    owner,
     name,
     items,
     macros: calcGroupMacros({ items } as ItemGroup), // TODO: Create a proper calcItemsMacros function for lists of items
@@ -53,5 +55,6 @@ export function createRecipeFromGroup(group: ItemGroup) {
   return createRecipe({
     name: group.name,
     items: [...group.items],
+    owner: 3, // TODO: Get owner from somewhere (or create new Recipe type for data-only)
   })
 }
