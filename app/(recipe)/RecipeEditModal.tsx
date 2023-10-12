@@ -19,6 +19,7 @@ import {
   useSignal,
   useSignalEffect,
 } from '@preact/signals-react'
+import { RECIPE_TINT_BG } from '@/constants/theme'
 
 export type RecipeEditModalProps = {
   show?: boolean
@@ -111,6 +112,7 @@ export function RecipeEditModal({
 
       <ModalContextProvider visible={visible}>
         <Modal
+          className="border-2 border-cyan-600"
           header={<Header recipe={recipe.value} />}
           // TODO: Add barcode button and handle barcode scan
           body={
