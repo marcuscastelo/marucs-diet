@@ -41,6 +41,7 @@ import {
   useSignalEffect,
 } from '@preact/signals-react'
 import { mockItem } from '../test/unit/(mock)/mockData'
+import { ConvertToRecipeIcon } from '../(icons)/ConvertToRecipeIcon'
 
 type EditSelection = {
   foodItem: FoodItem
@@ -522,6 +523,26 @@ function Body({
               <PasteIcon />
             </div>
           )}
+
+          {group.value.type === 'simple' && (
+            <>
+              <button
+                className="my-auto ml-auto"
+                onClick={() => {
+                  if (group.value === null) {
+                    console.error('group is null')
+                    throw new Error('group is null')
+                  }
+                  group.value = new ItemGroupEditor(group.value)
+                    .setRecipe(2)
+                    .finish()
+                }}
+              >
+                <ConvertToRecipeIcon />
+              </button>
+            </>
+          )}
+
           {group.value.type === 'recipe' && (
             <>
               {recipe && isRecipedGroupUpToDate(group.value, recipe) ? (
