@@ -15,7 +15,7 @@ import { RecipeEditor } from '@/utils/data/recipeEditor'
 
 export type RecipeEditModalProps = {
   show?: boolean
-  recipe: Recipe | null
+  recipe: Recipe | null // TODO: After #159 is done, remove recipe nullability and check if something breaks
   onSaveRecipe: (recipe: Recipe) => void
   onRefetch: () => void
   onCancel?: () => void

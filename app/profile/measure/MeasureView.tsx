@@ -108,7 +108,7 @@ export function MeasureView({
                   className="input text-center btn-ghost px-0 flex-shrink"
                   style={{ width: '100%' }}
                   onFocus={(event) => event.target.select()}
-                  onFieldChange={(value) => {
+                  onFieldCommit={(value) => {
                     handleSave({
                       date: dateField,
                       height: value,
@@ -127,7 +127,7 @@ export function MeasureView({
                   className="input text-center btn-ghost px-0 flex-shrink"
                   style={{ width: '100%' }}
                   onFocus={(event) => event.target.select()}
-                  onFieldChange={(value) => {
+                  onFieldCommit={(value) => {
                     handleSave({
                       date: dateField,
                       height: heightField.value,
@@ -146,7 +146,7 @@ export function MeasureView({
                   className="input text-center btn-ghost px-0 flex-shrink"
                   style={{ width: '100%' }}
                   onFocus={(event) => event.target.select()}
-                  onFieldChange={(value) => {
+                  onFieldCommit={(value) => {
                     handleSave({
                       date: dateField,
                       height: heightField.value,
@@ -165,7 +165,7 @@ export function MeasureView({
                   className="input text-center btn-ghost px-0 flex-shrink"
                   style={{ width: '100%' }}
                   onFocus={(event) => event.target.select()}
-                  onFieldChange={(value) => {
+                  onFieldCommit={(value) => {
                     handleSave({
                       date: dateField,
                       height: heightField.value,
