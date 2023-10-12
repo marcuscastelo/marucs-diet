@@ -5,6 +5,9 @@ import FoodItemEditModal, {
 import { mockItem } from '@/app/test/unit/(mock)/mockData'
 import { ModalContextProvider } from '@/app/(modals)/ModalContext'
 import ServerApp from '@/app/ServerApp'
+import { computed, signal } from '@preact/signals-react'
+
+const visible = signal(true)
 
 const meta: Meta<typeof FoodItemEditModal> = {
   title: 'Components/FoodItemEditModal',
@@ -20,9 +23,7 @@ const meta: Meta<typeof FoodItemEditModal> = {
     // TODO: Create <MockApp> to provide context to all stories
     (Story) => (
       <ServerApp>
-        <ModalContextProvider visible={true} onSetVisible={() => undefined}>
-          {Story()}
-        </ModalContextProvider>
+        <ModalContextProvider visible={visible}>{Story()}</ModalContextProvider>
       </ServerApp>
     ),
   ],
@@ -33,7 +34,7 @@ type Story = StoryObj<typeof FoodItemEditModal>
 
 export const RootGreen: Story = {
   args: {
-    foodItem: mockItem(),
+    foodItem: computed(() => mockItem()),
     onApply: () => undefined,
     targetName: 'Teste',
     targetNameColor: 'text-green-500',
@@ -43,7 +44,7 @@ export const RootGreen: Story = {
 
 export const RootBlue: Story = {
   args: {
-    foodItem: mockItem(),
+    foodItem: computed(() => mockItem()),
     onApply: () => undefined,
     targetName: 'Teste',
     targetNameColor: 'text-blue-500',

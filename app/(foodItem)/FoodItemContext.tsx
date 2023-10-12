@@ -1,12 +1,13 @@
 'use client'
 
 import { TemplateItem } from '@/model/templateItemModel'
+import { ReadonlySignal } from '@preact/signals-react'
 import { ReactNode } from 'react'
 import { createContext, useContext } from 'use-context-selector'
 
 // TODO: Rename to TemplateItemContext
 const FoodItemContext = createContext<{
-  foodItem: TemplateItem
+  foodItem: ReadonlySignal<TemplateItem>
 } | null>(null)
 
 export function useFoodItemContext() {
@@ -26,7 +27,7 @@ export function FoodItemContextProvider({
   foodItem,
   children,
 }: {
-  foodItem: TemplateItem
+  foodItem: ReadonlySignal<TemplateItem>
   children: ReactNode
 }) {
   return (

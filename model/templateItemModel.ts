@@ -7,4 +7,4 @@ export const templateItemSchema = z.discriminatedUnion('__type', [
   recipeItemSchema,
 ])
 
-export type TemplateItem = z.infer<typeof templateItemSchema>
+export type TemplateItem = Readonly<z.infer<typeof templateItemSchema>>

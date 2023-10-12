@@ -5,17 +5,11 @@ import {
   isSimpleSingleGroup,
   itemGroupSchema,
 } from '@/model/itemGroupModel'
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useState,
-} from 'react'
+import { useCallback, useState } from 'react'
 import Modal, { ModalActions } from '../(modals)/Modal'
 import FoodItemListView from '../(foodItem)/FoodItemListView'
 import FoodItemView from '../(foodItem)/FoodItemView'
-import { FoodItem, createFoodItem, foodItemSchema } from '@/model/foodItemModel'
+import { FoodItem, foodItemSchema } from '@/model/foodItemModel'
 import { TemplateSearchModal } from '../templateSearch/TemplateSearchModal'
 import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
 import RecipeIcon from '../(icons)/RecipeIcon'
@@ -30,13 +24,7 @@ import {
 } from './ItemGroupEditContext'
 import { useUserContext } from '@/context/users.context'
 import { ModalContextProvider, useModalContext } from '../(modals)/ModalContext'
-import {
-  addInnerItem,
-  addInnerItems,
-  deleteInnerItem,
-  editInnerItem,
-  isRecipedGroupUpToDate,
-} from '@/utils/groupUtils'
+import { isRecipedGroupUpToDate } from '@/utils/groupUtils'
 import { DownloadIcon } from '../(icons)/DownloadIcon'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import useClipboard from '@/hooks/clipboard'
@@ -44,6 +32,21 @@ import PasteIcon from '../(icons)/PasteIcon'
 import { deserializeClipboard } from '@/utils/clipboardUtils'
 import { renegerateId } from '@/utils/idUtils'
 import { ItemGroupEditor } from '@/utils/data/itemGroupEditor'
+import {
+  ReadonlySignal,
+  Signal,
+  computed,
+  signal,
+  useSignal,
+  useSignalEffect,
+} from '@preact/signals-react'
+import { mockItem } from '../test/unit/(mock)/mockData'
+
+type EditSelection = {
+  foodItem: FoodItem
+} | null
+
+const editSelection = signal<EditSelection>(null)
 
 export type ItemGroupEditModalProps = {
   show?: boolean
@@ -52,7 +55,7 @@ export type ItemGroupEditModalProps = {
   onCancel?: () => void
   onDelete?: (groupId: ItemGroup['id']) => void
   onRefetch: () => void
-} & { group: ItemGroup | null }
+} & { group: ReadonlySignal<ItemGroup | null> }
 
 const ItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   return (
@@ -71,26 +74,24 @@ const InnerItemGroupEditModal = ({
   onDelete,
   onRefetch,
 }: ItemGroupEditModalProps) => {
-  const { visible, onSetVisible } = useModalContext()
+  const { visible } = useModalContext()
   const { group } = useItemGroupEditContext()
 
-  const [recipeEditModalVisible, setRecipeEditModalVisible] = useState(false)
-  const [foodItemEditModalVisible, setFoodItemEditModalVisible] =
-    useState(false)
-  const [templateSearchModalVisible, setTemplateSearchModalVisible] =
-    useState(false)
+  const recipeEditModalVisible = useSignal(false)
+  const foodItemEditModalVisible = useSignal(false)
+  const templateSearchModalVisible = useSignal(false)
 
   const [recipe, setRecipe] = useState<Loadable<Recipe | null>>({
     loading: true,
   })
 
-  useEffect(() => {
-    if (!group || group.type !== 'recipe') {
+  useSignalEffect(() => {
+    if (!group.value || group.value.type !== 'recipe') {
       setRecipe({ loading: false, errored: false, data: null })
       return
     }
     let ignore = false
-    searchRecipeById(group.recipe).then((recipe) => {
+    searchRecipeById(group.value.recipe).then((recipe) => {
       if (ignore) return
       setRecipe({ loading: false, errored: false, data: recipe })
     })
@@ -98,25 +99,17 @@ const InnerItemGroupEditModal = ({
     return () => {
       ignore = true
     }
-  }, [group, group?.recipe])
-
-  const [selectedFoodItem, setSelectedFoodItem] = useState<FoodItem | null>(
-    null,
-  )
-
-  const impossibleFoodItem = createFoodItem({
-    name: 'Erro de implementação: nenhum item selecionado',
-    reference: 0,
   })
 
-  const canApply = (group?.name.length ?? 0) > 0 && selectedFoodItem === null
+  const canApply =
+    (group.value?.name.length ?? 0) > 0 && editSelection.value === null
 
   const { isFoodFavorite, setFoodAsFavorite } = useUserContext()
 
   if (recipe.loading) {
     return (
       <PageLoading
-        message={`Carregando receita atrelada ao grupo ${group?.name}`}
+        message={`Carregando receita atrelada ao grupo ${group.value?.name}`}
       />
     )
   }
@@ -124,7 +117,7 @@ const InnerItemGroupEditModal = ({
   if (recipe.errored) {
     return (
       <PageLoading
-        message={`Erro ao carregar receita atrelada ao grupo ${group?.name}`}
+        message={`Erro ao carregar receita atrelada ao grupo ${group.value?.name}`}
       />
     )
   }
@@ -137,23 +130,18 @@ const InnerItemGroupEditModal = ({
           setRecipe({ loading: false, errored: false, data: recipe })
         }
         visible={recipeEditModalVisible}
-        onSetVisible={setRecipeEditModalVisible}
         onRefetch={onRefetch}
       />
       <ExternalFoodItemEditModal
         visible={foodItemEditModalVisible}
-        onSetVisible={setFoodItemEditModalVisible}
-        impossibleFoodItem={impossibleFoodItem}
-        item={selectedFoodItem}
-        onClose={() => setSelectedFoodItem(null)}
+        onClose={() => (editSelection.value = null)}
         targetMealName={targetMealName}
       />
       <ExternalTemplateSearchModal
         visible={templateSearchModalVisible}
-        onSetVisible={setTemplateSearchModalVisible}
         onRefetch={onRefetch}
       />
-      <ModalContextProvider visible={visible} onSetVisible={onSetVisible}>
+      <ModalContextProvider visible={visible}>
         <Modal
           hasBackdrop={true}
           header={
@@ -164,19 +152,15 @@ const InnerItemGroupEditModal = ({
               recipe={recipe.data}
               isFoodFavorite={isFoodFavorite}
               setFoodAsFavorite={setFoodAsFavorite}
-              setSelectedFoodItem={setSelectedFoodItem}
               foodItemEditModalVisible={foodItemEditModalVisible}
               templateSearchModalVisible={templateSearchModalVisible}
               recipeEditModalVisible={recipeEditModalVisible}
-              onSetFoodItemEditModalVisible={setFoodItemEditModalVisible}
-              onSetTemplateSearchModalVisible={setTemplateSearchModalVisible}
-              onSetRecipeEditModalVisible={setRecipeEditModalVisible}
             />
           }
           actions={
             <Actions
               canApply={canApply}
-              setVisible={onSetVisible}
+              visible={visible}
               onCancel={onCancel}
               onDelete={onDelete}
             />
@@ -205,7 +189,7 @@ function Header({
       Receita: {recipe?.name?.toString() ?? 'Nenhuma'}
       {debug && (
         <code>
-          <pre>{JSON.stringify(group, null, 2)}</pre>
+          <pre>{JSON.stringify(group.value, null, 2)}</pre>
         </code>
       )}
     </>
@@ -216,17 +200,19 @@ function ExternalRecipeEditModal({
   recipe,
   setRecipe,
   visible,
-  onSetVisible,
   onRefetch,
 }: {
   recipe: Recipe | null
   setRecipe: (recipe: Recipe | null) => void
-  visible: boolean
-  onSetVisible: Dispatch<SetStateAction<boolean>>
+  visible: Signal<boolean>
   onRefetch: () => void
 }) {
+  if (recipe === null) {
+    return
+  }
+
   return (
-    <ModalContextProvider visible={visible} onSetVisible={onSetVisible}>
+    <ModalContextProvider visible={visible}>
       <RecipeEditModal
         recipe={recipe}
         onSaveRecipe={async (recipe) => {
@@ -249,65 +235,65 @@ function ExternalRecipeEditModal({
 
 function ExternalFoodItemEditModal({
   visible,
-  onSetVisible,
   targetMealName,
-  item,
-  impossibleFoodItem,
   onClose,
 }: {
-  visible: boolean
-  onSetVisible: Dispatch<SetStateAction<boolean>>
+  visible: Signal<boolean>
   targetMealName: string
-  item: FoodItem | null
-  impossibleFoodItem: FoodItem
   onClose: () => void
 }) {
-  const { group, setGroup } = useItemGroupEditContext()
+  const { group } = useItemGroupEditContext()
 
   const handleCloseWithNoChanges = () => {
-    onSetVisible(false)
+    visible.value = false
     onClose()
   }
 
   const handleCloseWithChanges = (newGroup: ItemGroup) => {
-    if (!group) {
+    if (!group.value) {
       console.error('group is null')
       throw new Error('group is null')
     }
 
-    onSetVisible(false)
-    setGroup(newGroup)
+    console.debug(
+      '[ExternalFoodItemEditModal] handleCloseWithChanges - newGroup: ',
+      newGroup,
+    )
+    group.value = newGroup
+    visible.value = false
     onClose()
   }
 
-  return (
-    <ModalContextProvider
-      visible={visible}
-      onSetVisible={(visible) => {
-        if (visible) {
-          console.error('BUG: FoodItemEditModal should not open by itself')
-          throw new Error('BUG: FoodItemEditModal should not open by itself')
-        }
+  useSignalEffect(() => {
+    if (!visible.value) {
+      handleCloseWithNoChanges()
+    }
+  })
 
-        handleCloseWithNoChanges()
-        // TODO: Implement onClose and onOpen to reduce code duplication: if (visible)
-        // TODO: Refactor all modals so that when they close, they call onCancel() or onClose()
-      }}
-    >
+  return (
+    <ModalContextProvider visible={visible}>
       <FoodItemEditModal
         targetName={
-          (group &&
-            (isSimpleSingleGroup(group) ? targetMealName : group.name)) ||
+          (group.value &&
+            (isSimpleSingleGroup(group.value)
+              ? targetMealName
+              : group.value.name)) ||
           'Erro: Grupo sem nome'
         }
         targetNameColor={
-          group && isSimpleSingleGroup(group)
+          group.value && isSimpleSingleGroup(group.value)
             ? 'text-green-500'
             : 'text-orange-400'
         }
-        foodItem={item ?? impossibleFoodItem}
+        foodItem={computed(() => {
+          console.debug(
+            `[ExternalFoodItemEditModal] <computed> foodItem: `,
+            editSelection.value?.foodItem,
+          )
+          return editSelection.value?.foodItem ?? mockItem()
+        })}
         onApply={async (item) => {
-          if (!group) {
+          if (!group.value) {
             console.error('group is null')
             throw new Error('group is null')
           }
@@ -320,18 +306,27 @@ function ExternalFoodItemEditModal({
             )
             return
           }
-          const newGroup: ItemGroup = editInnerItem(group, item)
+
+          console.debug(
+            `[ExternalFoodItemEditModal] onApply: setting itemId=${item.id} to item=`,
+            item,
+          )
+          const newGroup: ItemGroup = new ItemGroupEditor(group.value)
+            .editItem(item.id, (editor) => editor?.replace(item))
+            .finish()
 
           console.debug('newGroup', newGroup)
           handleCloseWithChanges(newGroup)
         }}
         onDelete={async (itemId) => {
-          if (!group) {
+          if (!group.value) {
             console.error('group is null')
             throw new Error('group is null')
           }
 
-          const newGroup: ItemGroup = deleteInnerItem(group, itemId)
+          const newGroup: ItemGroup = new ItemGroupEditor(group.value)
+            .deleteItem(itemId)
+            .finish()
 
           console.debug('newGroup', newGroup)
           handleCloseWithChanges(newGroup)
@@ -344,19 +339,17 @@ function ExternalFoodItemEditModal({
 // TODO: This component is duplicated between RecipeEditModal and ItemGroupEditModal, must be refactored
 function ExternalTemplateSearchModal({
   visible,
-  onSetVisible,
   onRefetch,
 }: {
-  visible: boolean
-  onSetVisible: Dispatch<SetStateAction<boolean>>
+  visible: Signal<boolean>
   onRefetch: () => void
 }) {
-  const { group, setGroup } = useItemGroupEditContext()
+  const { group } = useItemGroupEditContext()
 
   const handleNewItemGroup = async (newGroup: ItemGroup) => {
     console.debug('onNewItemGroup', newGroup)
 
-    if (!group) {
+    if (!group.value) {
       console.error('group is null')
       throw new Error('group is null')
     }
@@ -368,34 +361,36 @@ function ExternalTemplateSearchModal({
       return
     }
 
-    const finalGroup: ItemGroup = addInnerItem(group, newGroup.items[0])
+    const finalGroup: ItemGroup = new ItemGroupEditor(group.value)
+      .addItem(newGroup.items[0])
+      .finish()
 
     console.debug(
       'onNewFoodItem: applying',
       JSON.stringify(finalGroup, null, 2),
     )
 
-    setGroup(finalGroup)
+    group.value = finalGroup
   }
 
   const handleFinishSearch = () => {
-    onSetVisible(false)
+    visible.value = false
     // onRefetch()
   }
 
+  useSignalEffect(() => {
+    if (!visible.value) {
+      console.debug(`[ExternalTemplateSearchModal] onRefetch`)
+      onRefetch()
+    }
+  })
+
   return (
-    <ModalContextProvider
-      visible={visible}
-      onSetVisible={(visible) => {
-        // TODO: Implement onClose and onOpen to reduce code duplication
-        if (!visible) {
-          onRefetch()
-        }
-        onSetVisible(visible)
-      }}
-    >
+    <ModalContextProvider visible={visible}>
       <TemplateSearchModal
-        targetName={group?.name ?? 'ERRO: Grupo de alimentos não especificado'}
+        targetName={
+          group.value?.name ?? 'ERRO: Grupo de alimentos não especificado'
+        }
         onFinish={handleFinishSearch}
         onNewItemGroup={handleNewItemGroup}
       />
@@ -405,27 +400,22 @@ function ExternalTemplateSearchModal({
 
 function Body({
   recipe,
-  setSelectedFoodItem,
   isFoodFavorite,
   setFoodAsFavorite,
-  onSetRecipeEditModalVisible,
-  onSetFoodItemEditModalVisible,
-  onSetTemplateSearchModalVisible,
+  recipeEditModalVisible,
+  foodItemEditModalVisible,
+  templateSearchModalVisible,
 }: {
   recipe: Recipe | null
-  setSelectedFoodItem: React.Dispatch<React.SetStateAction<FoodItem | null>>
   isFoodFavorite: (foodId: number) => boolean
   setFoodAsFavorite: (foodId: number, isFavorite: boolean) => void
-  recipeEditModalVisible: boolean
-  onSetRecipeEditModalVisible: Dispatch<SetStateAction<boolean>>
-  foodItemEditModalVisible: boolean
-  onSetFoodItemEditModalVisible: Dispatch<SetStateAction<boolean>>
-  templateSearchModalVisible: boolean
-  onSetTemplateSearchModalVisible: Dispatch<SetStateAction<boolean>>
+  recipeEditModalVisible: Signal<boolean>
+  foodItemEditModalVisible: Signal<boolean>
+  templateSearchModalVisible: Signal<boolean>
 }) {
   const acceptedClipboardSchema = foodItemSchema.or(itemGroupSchema)
 
-  const { group, setGroup } = useItemGroupEditContext()
+  const { group } = useItemGroupEditContext()
   const {
     write: writeToClipboard,
     clear: clearClipboard,
@@ -455,22 +445,26 @@ function Body({
       throw new Error('Invalid clipboard data: ' + clipboardText)
     }
 
-    if (!group) {
+    if (!group.value) {
       throw new Error('BUG: group is null')
     }
 
     if ('items' in data) {
       // data is an itemGroup
-      const newGroup = addInnerItems(group, data.items.map(renegerateId))
-      setGroup(newGroup)
+      const newGroup = new ItemGroupEditor(group.value)
+        .addItems(data.items.map(renegerateId))
+        .finish()
+      group.value = newGroup
     } else {
-      const newGroup = addInnerItem(group, renegerateId(data))
-      setGroup(newGroup)
+      const newGroup = new ItemGroupEditor(group.value)
+        .addItem(renegerateId(data))
+        .finish()
+      group.value = newGroup
     }
 
     // Clear clipboard
     clearClipboard()
-  }, [acceptedClipboardSchema, clipboardText, group, setGroup, clearClipboard])
+  }, [acceptedClipboardSchema, clipboardText, group, clearClipboard])
 
   const handlePaste = useCallback(() => {
     showConfirmModal({
@@ -486,120 +480,129 @@ function Body({
     })
   }, [handlePasteAfterConfirm, showConfirmModal])
 
+  if (!group.value) {
+    return <></>
+  }
+
   return (
     <>
-      {group && (
-        <>
-          <div className="text-md mt-4">
-            <div className="flex gap-4">
-              <div className="my-auto flex-1">
-                <input
-                  className="input w-full"
-                  type="text"
-                  onChange={(e) =>
-                    setGroup((g) => g && { ...g, name: e.target.value })
-                  }
-                  onFocus={(e) => e.target.select()}
-                  value={group.name ?? ''}
-                />
-              </div>
-              {hasValidPastableOnClipboard && (
-                <div
-                  className={`btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105`}
-                  onClick={handlePaste}
-                >
-                  <PasteIcon />
-                </div>
-              )}
-              {group.type === 'recipe' && (
-                <>
-                  {recipe && isRecipedGroupUpToDate(group, recipe) ? (
-                    <button
-                      className="my-auto ml-auto"
-                      onClick={() => {
-                        // TODO: Create recipe for groups that don't have one
-                        onSetRecipeEditModalVisible(true)
-                      }}
-                    >
-                      <RecipeIcon />
-                    </button>
-                  ) : (
-                    <button
-                      className="my-auto ml-auto hover:animate-pulse"
-                      onClick={() => {
-                        if (!recipe) {
-                          return
-                        }
-
-                        const newGroup = new ItemGroupEditor(group)
-                          .clearItems()
-                          .addItems(recipe.items)
-                          .finish()
-
-                        setGroup(newGroup)
-                      }}
-                    >
-                      <DownloadIcon />
-                    </button>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-
-          <FoodItemListView
-            foodItems={group.items ?? []}
-            // TODO: Check if this margin was lost
-            //   className="mt-4"
-            onItemClick={(item) => {
-              // TODO: Allow user to edit recipe
-              if (item.__type === 'RecipeItem') {
-                //
-                alert(
-                  'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
-                )
-                return
-              }
-              // if (group?.type === 'recipe') {
-              //   recipeEditModalRef.current?.showModal()
-              // } else {
-
-              setSelectedFoodItem(item)
-              onSetFoodItemEditModalVisible(true)
-              // }
-            }}
-            makeHeaderFn={(item) => (
-              <FoodItemView.Header
-                name={<FoodItemView.Header.Name />}
-                favorite={
-                  <FoodItemView.Header.Favorite
-                    favorite={isFoodFavorite(item.reference)}
-                    onSetFavorite={(favorite) =>
-                      setFoodAsFavorite(item.reference, favorite)
-                    }
-                  />
+      <div className="text-md mt-4">
+        <div className="flex gap-4">
+          <div className="my-auto flex-1">
+            <input
+              className="input w-full"
+              type="text"
+              onChange={(e) => {
+                if (!group.value) {
+                  console.error('group is null')
+                  throw new Error('group is null')
                 }
-                copyButton={
-                  <FoodItemView.Header.CopyButton
-                    onCopyItem={(item) =>
-                      writeToClipboard(JSON.stringify(item))
+                group.value = new ItemGroupEditor(group.value)
+                  .setName(e.target.value)
+                  .finish()
+              }}
+              onFocus={(e) => e.target.select()}
+              value={group.value.name ?? ''}
+            />
+          </div>
+          {hasValidPastableOnClipboard && (
+            <div
+              className={`btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105`}
+              onClick={handlePaste}
+            >
+              <PasteIcon />
+            </div>
+          )}
+          {group.value.type === 'recipe' && (
+            <>
+              {recipe && isRecipedGroupUpToDate(group.value, recipe) ? (
+                <button
+                  className="my-auto ml-auto"
+                  onClick={() => {
+                    // TODO: Create recipe for groups that don't have one
+                    recipeEditModalVisible.value = true
+                  }}
+                >
+                  <RecipeIcon />
+                </button>
+              ) : (
+                <button
+                  className="my-auto ml-auto hover:animate-pulse"
+                  onClick={() => {
+                    if (!recipe) {
+                      return
                     }
-                  />
+
+                    if (!group.value) {
+                      console.error('group is null')
+                      throw new Error('group is null')
+                    }
+
+                    const newGroup = new ItemGroupEditor(group.value)
+                      .clearItems()
+                      .addItems(recipe.items)
+                      .finish()
+
+                    group.value = newGroup
+                  }}
+                >
+                  <DownloadIcon />
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+
+      <FoodItemListView
+        foodItems={computed(() => group.value?.items ?? [])}
+        // TODO: Check if this margin was lost
+        //   className="mt-4"
+        onItemClick={(item) => {
+          // TODO: Allow user to edit recipe
+          if (item.__type === 'RecipeItem') {
+            //
+            alert(
+              'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
+            )
+            return
+          }
+          // if (group?.type === 'recipe') {
+          //   recipeEditModalRef.current?.showModal()
+          // } else {
+
+          editSelection.value = { foodItem: item }
+          foodItemEditModalVisible.value = true
+          // }
+        }}
+        makeHeaderFn={(item) => (
+          <FoodItemView.Header
+            name={<FoodItemView.Header.Name />}
+            favorite={
+              <FoodItemView.Header.Favorite
+                favorite={isFoodFavorite(item.reference)}
+                onSetFavorite={(favorite) =>
+                  setFoodAsFavorite(item.reference, favorite)
                 }
               />
-            )}
+            }
+            copyButton={
+              <FoodItemView.Header.CopyButton
+                onCopyItem={(item) => writeToClipboard(JSON.stringify(item))}
+              />
+            }
           />
+        )}
+      />
 
-          <button
-            className="mt-3 min-w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-            onClick={() => {
-              onSetTemplateSearchModalVisible(true)
-            }}
-          >
-            Adicionar item
-          </button>
-        </>
-      )}
+      <button
+        className="mt-3 min-w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
+        onClick={() => {
+          templateSearchModalVisible.value = true
+        }}
+      >
+        Adicionar item
+      </button>
     </>
   )
 }
@@ -608,12 +611,12 @@ function Actions({
   onDelete,
   onCancel,
   canApply,
-  setVisible,
+  visible,
 }: {
   onDelete?: (groupId: number) => void
   onCancel?: () => void
   canApply: boolean
-  setVisible: Dispatch<SetStateAction<boolean>>
+  visible: Signal<boolean>
 }) {
   // TODO: Make itemGroup not nullable? Reflect changes on all group?. and itemGroup?. and ?? everywhere
   const { group, saveGroup } = useItemGroupEditContext()
@@ -628,13 +631,13 @@ function Actions({
           className="btn-error btn mr-auto"
           onClick={(e) => {
             e.preventDefault()
-            if (!group || !onDelete) {
+            if (!group.value || !onDelete) {
               alert('BUG: group or onDelete is null') // TODO: Change all alerts with ConfirmModal
             }
             showConfirmModal({
               title: 'Excluir grupo',
               body: `Tem certeza que deseja excluir o grupo ${
-                group?.name ?? 'BUG: group is null' // TODO: Color group name orange and BUG red
+                group.value?.name ?? 'BUG: group is null' // TODO: Color group name orange and BUG red
               }?`,
               actions: [
                 {
@@ -645,7 +648,7 @@ function Actions({
                   text: 'Excluir',
                   primary: true,
                   onClick: () => {
-                    group && onDelete(group.id)
+                    group.value && onDelete(group.value.id)
                   },
                 },
               ],
@@ -659,7 +662,7 @@ function Actions({
         className="btn"
         onClick={(e) => {
           e.preventDefault()
-          setVisible(false)
+          visible.value = false
           onCancel?.()
         }}
       >
@@ -667,7 +670,7 @@ function Actions({
       </button>
       <button
         className="btn"
-        disabled={!canApply} // TODO: Rename canAdd to canApply on FoodItemEditModal
+        disabled={!canApply}
         onClick={(e) => {
           e.preventDefault()
           saveGroup()

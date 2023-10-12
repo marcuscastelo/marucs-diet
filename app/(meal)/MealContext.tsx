@@ -1,9 +1,10 @@
 'use client'
 
 import { Meal } from '@/model/mealModel'
+import { ReadonlySignal } from '@preact/signals-react'
 import { createContext, useContext } from 'use-context-selector'
 
-const MealContext = createContext<{ meal: Meal } | null>(null)
+const MealContext = createContext<{ meal: ReadonlySignal<Meal> } | null>(null)
 
 export function useMealContext() {
   const context = useContext(MealContext)
@@ -19,7 +20,7 @@ export function MealContextProvider({
   meal,
   children,
 }: {
-  meal: Meal
+  meal: ReadonlySignal<Meal>
   children: React.ReactNode
 }) {
   return (

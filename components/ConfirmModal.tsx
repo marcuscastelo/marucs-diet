@@ -5,11 +5,11 @@ import { useConfirmModalContext } from '@/context/confirmModal.context'
 export default function ConfirmModal() {
   const {
     visible,
-    internals: { title, body, setVisible, actions },
+    internals: { title, body, actions },
   } = useConfirmModalContext()
 
   return (
-    <ModalContextProvider visible={visible} onSetVisible={setVisible}>
+    <ModalContextProvider visible={visible}>
       <Modal
         header={<Modal.Header title={title} backButton={false} />}
         body={<p>{body}</p>}

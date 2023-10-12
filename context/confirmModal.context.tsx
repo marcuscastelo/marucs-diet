@@ -1,5 +1,6 @@
 'use client'
 
+import { ReadonlySignal, Signal, useSignal } from '@preact/signals-react'
 import { Dispatch, ReactNode, SetStateAction, useState } from 'react'
 import { createContext, useContext } from 'use-context-selector'
 
@@ -14,15 +15,14 @@ type ConfirmAction = {
 
 export type ConfirmModalContext = {
   internals: {
-    visible: boolean
-    setVisible: Dispatch<SetStateAction<boolean>>
+    visible: Signal<boolean>
     title: Title
     setTitle: Dispatch<SetStateAction<Title>>
     body: Body
     setBody: Dispatch<SetStateAction<Body>>
     actions: ConfirmAction[]
   }
-  visible: boolean
+  visible: ReadonlySignal<boolean>
   show: ({
     title,
     body,
@@ -62,18 +62,18 @@ export function ConfirmModalProvider({
 }) {
   const [title, setTitle] = useState<Title>(initialTitle)
   const [message, setBody] = useState<Body>(initialMessage)
-  const [visible, setVisible] = useState<boolean>(initiallyVisible)
+  const visible = useSignal<boolean>(initiallyVisible)
 
   const [actions, setActions] = useState<ConfirmAction[]>(
     initialActions ?? [
       {
         text: 'Cancelar',
-        onClick: () => setVisible(false),
+        onClick: () => (visible.value = false),
       },
       {
         text: 'Confirmar',
         primary: true,
-        onClick: () => setVisible(false),
+        onClick: () => (visible.value = false),
       },
     ],
   )
@@ -81,7 +81,6 @@ export function ConfirmModalProvider({
   const context: ConfirmModalContext = {
     internals: {
       visible,
-      setVisible,
       title,
       setTitle,
       body: message,
@@ -102,17 +101,17 @@ export function ConfirmModalProvider({
             return {
               ...action,
               onClick: () => {
-                setVisible(false)
+                visible.value = false
                 action.onClick()
               },
             }
           }),
         )
       }
-      setVisible(true)
+      visible.value = true
     },
     close: () => {
-      setVisible(false)
+      visible.value = false
     },
   }
 

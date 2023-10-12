@@ -34,6 +34,13 @@ import {
 import { createRecentFood } from '@/model/recentFoodModel'
 import { Template } from '@/model/templateModel'
 import { TemplateItem } from '@/model/templateItemModel'
+import {
+  ReadonlySignal,
+  Signal,
+  computed,
+  useComputed,
+  useSignal,
+} from '@preact/signals-react'
 
 export type TemplateSearchModalProps = {
   targetName: string
@@ -50,15 +57,14 @@ export function TemplateSearchModal({
   onFinish,
 }: TemplateSearchModalProps) {
   const userId = useUserId()
-  const { visible, onSetVisible } = useModalContext()
+  const { visible } = useModalContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
-  const [foodItemEditModalVisible, setFoodItemEditModalVisible] =
-    useState(false)
+  const foodItemEditModalVisible = useSignal(false)
 
-  const [barCodeModalVisible, setBarCodeModalVisible] = useState(false)
+  const barCodeModalVisible = useSignal(false)
 
-  const [selectedTemplate, setSelectedTemplate] = useState<Template>(
+  const selectedTemplate = useSignal<Template>(
     mockFood({ name: 'BUG: SELECTED TEMPLATE NOT SET' }), // TODO: Properly handle no template selected
   )
 
@@ -106,18 +112,18 @@ export function TemplateSearchModal({
             // TODO: Fix "Add another item" button: it is not refreshing client-side data
             alert('Funcionalidade desabilitada temporariamente') // TODO: Change all alerts with ConfirmModal
             // Code from "Finalizar" button
-            setSelectedTemplate(
-              mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }),
-            )
-            setFoodItemEditModalVisible(false)
+            selectedTemplate.value = mockFood({
+              name: 'BUG: SELECTED FOOD NOT SET',
+            })
+            foodItemEditModalVisible.value = false
             onFinish?.()
             // -- End of "Finalizar" button code
             return
             // TODO: Remove mockFood as default selected food
-            setSelectedTemplate(
-              mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }),
-            )
-            setFoodItemEditModalVisible(false)
+            selectedTemplate.value = mockFood({
+              name: 'BUG: SELECTED FOOD NOT SET',
+            })
+            foodItemEditModalVisible.value = false
           },
         },
         {
@@ -125,10 +131,10 @@ export function TemplateSearchModal({
           primary: true,
           onClick: () => {
             // TODO: Remove mockFood as default selected food
-            setSelectedTemplate(
-              mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }),
-            )
-            setFoodItemEditModalVisible(false)
+            selectedTemplate.value = mockFood({
+              name: 'BUG: SELECTED FOOD NOT SET',
+            })
+            foodItemEditModalVisible.value = false
             onFinish?.()
           },
         },
@@ -139,19 +145,18 @@ export function TemplateSearchModal({
   console.debug(`[TemplateSearchModal] Render`)
   return (
     <>
-      <ModalContextProvider
-        visible={visible}
-        onSetVisible={(visible) => onSetVisible(visible)}
-      >
+      <ModalContextProvider visible={visible}>
         <Modal
           header={<Modal.Header title="Busca de alimentos" />}
           body={
             <div className="max-h-full">
-              {visible && (
+              {visible.value && (
                 <TemplateSearch
-                  setBarCodeModalVisible={setBarCodeModalVisible}
-                  setFoodItemEditModalVisible={setFoodItemEditModalVisible}
-                  setSelectedTemplate={setSelectedTemplate}
+                  barCodeModalVisible={barCodeModalVisible}
+                  foodItemEditModalVisible={foodItemEditModalVisible}
+                  setSelectedTemplate={(template) =>
+                    (selectedTemplate.value = template)
+                  }
                 />
               )}
             </div>
@@ -160,17 +165,15 @@ export function TemplateSearchModal({
       </ModalContextProvider>
       <ExternalFoodItemEditModal
         visible={foodItemEditModalVisible}
-        onSetVisible={setFoodItemEditModalVisible}
         selectedTemplate={selectedTemplate}
         targetName={targetName}
         onNewItemGroup={handleNewItemGroup}
       />
       <ExternalBarCodeInsertModal
         visible={barCodeModalVisible}
-        onSetVisible={setBarCodeModalVisible}
         onSelect={(template) => {
-          setSelectedTemplate(template)
-          setFoodItemEditModalVisible(true)
+          selectedTemplate.value = template
+          foodItemEditModalVisible.value = true
         }}
       />
     </>
@@ -178,12 +181,12 @@ export function TemplateSearchModal({
 }
 
 export function TemplateSearch({
-  setBarCodeModalVisible,
-  setFoodItemEditModalVisible,
+  barCodeModalVisible,
+  foodItemEditModalVisible,
   setSelectedTemplate,
 }: {
-  setBarCodeModalVisible: Dispatch<SetStateAction<boolean>>
-  setFoodItemEditModalVisible: Dispatch<SetStateAction<boolean>>
+  barCodeModalVisible: Signal<boolean>
+  foodItemEditModalVisible: Signal<boolean>
   setSelectedTemplate: (food: Template) => void
 }) {
   const TEMPLATE_SEARCH_LIMIT = 100
@@ -208,8 +211,8 @@ export function TemplateSearch({
   }
 
   // TODO: Create DEFAULT_TAB constant
-  const [tab, setTab] = useState<AvailableTab>('all')
-  const templates = chooseFoodsFromFoodStore(tab, {
+  const tab = useSignal<AvailableTab>('all')
+  const templates = chooseFoodsFromFoodStore(tab.value, {
     foods,
     favoriteFoods,
     recentFoods,
@@ -240,41 +243,45 @@ export function TemplateSearch({
     )
   }
 
-  const searchFilteredTemplates = templates.data
-    .filter((template) => {
-      if (search === '') {
-        return true
-      }
+  const searchFilteredTemplates = computed(() =>
+    (templates.data ?? [])
+      .filter((template) => {
+        if (search === '') {
+          return true
+        }
 
-      // Fuzzy search
-      const searchLower = search.toLowerCase()
-      const nameLower = template.name.toLowerCase()
-      const searchWords = searchLower.split(' ')
-      const nameWords = nameLower.split(' ')
+        // Fuzzy search
+        const searchLower = search.toLowerCase()
+        const nameLower = template.name.toLowerCase()
+        const searchWords = searchLower.split(' ')
+        const nameWords = nameLower.split(' ')
 
-      for (const searchWord of searchWords) {
-        let found = false
-        for (const nameWord of nameWords) {
-          if (nameWord.startsWith(searchWord)) {
-            found = true
-            break
+        for (const searchWord of searchWords) {
+          let found = false
+          for (const nameWord of nameWords) {
+            if (nameWord.startsWith(searchWord)) {
+              found = true
+              break
+            }
+          }
+
+          if (!found) {
+            return false
           }
         }
 
-        if (!found) {
-          return false
-        }
-      }
-
-      return true
-    })
-    .slice(0, TEMPLATE_SEARCH_LIMIT)
+        return true
+      })
+      .slice(0, TEMPLATE_SEARCH_LIMIT),
+  )
 
   return (
     <>
-      <BarCodeButton showBarCodeModal={() => setBarCodeModalVisible(true)} />
+      <BarCodeButton
+        showBarCodeModal={() => (barCodeModalVisible.value = true)}
+      />
 
-      <TemplateSearchTabs onTabChange={setTab} />
+      <TemplateSearchTabs onTabChange={(tabValue) => (tab.value = tabValue)} />
       <SearchBar
         isDesktop={isDesktop}
         search={search}
@@ -283,8 +290,8 @@ export function TemplateSearch({
       <SearchResults
         search={search}
         filteredTemplates={searchFilteredTemplates}
-        setBarCodeModalVisible={setBarCodeModalVisible}
-        setFoodItemEditModalVisible={setFoodItemEditModalVisible}
+        barCodeModalVisible={barCodeModalVisible}
+        foodItemEditModalVisible={foodItemEditModalVisible}
         setSelectedTemplate={setSelectedTemplate}
         typing={typing}
       />
@@ -316,14 +323,12 @@ const BarCodeButton = ({
 // TODO: Extract to components on other files
 function ExternalFoodItemEditModal({
   visible,
-  onSetVisible,
   selectedTemplate,
   targetName,
   onNewItemGroup,
 }: {
-  visible: boolean
-  onSetVisible: Dispatch<SetStateAction<boolean>>
-  selectedTemplate: Template
+  visible: Signal<boolean>
+  selectedTemplate: ReadonlySignal<Template>
   targetName: string
   onNewItemGroup: (
     newGroup: ItemGroup,
@@ -331,16 +336,18 @@ function ExternalFoodItemEditModal({
   ) => Promise<void>
 }) {
   return (
-    <ModalContextProvider visible={visible} onSetVisible={onSetVisible}>
+    <ModalContextProvider visible={visible}>
       <FoodItemEditModal
         targetName={targetName}
-        foodItem={{
-          reference: selectedTemplate.id,
-          name: selectedTemplate.name,
-          macros: selectedTemplate.macros,
+        foodItem={computed(() => ({
+          reference: selectedTemplate.value.id,
+          name: selectedTemplate.value.name,
+          macros: selectedTemplate.value.macros,
           __type:
-            selectedTemplate.__type === 'Food' ? 'FoodItem' : 'RecipeItem', // TODO: Refactor conversion from template type to group/item types
-        }}
+            selectedTemplate.value.__type === 'Food'
+              ? 'FoodItem'
+              : 'RecipeItem', // TODO: Refactor conversion from template type to group/item types
+        }))}
         onApply={async (item) => {
           // TODO: Refactor conversion from template type to group/item types
           if (item.__type === 'FoodItem') {
@@ -356,10 +363,10 @@ function ExternalFoodItemEditModal({
             const newGroup: RecipedItemGroup = {
               id: generateId(),
               name: item.name,
-              items: [...(selectedTemplate as Recipe).items],
+              items: [...(selectedTemplate.value as Recipe).items],
               type: 'recipe',
               quantity: item.quantity, // TODO: Implement quantity on recipe item groups (should influence macros)
-              recipe: (selectedTemplate as Recipe).id,
+              recipe: (selectedTemplate.value as Recipe).id,
             }
             onNewItemGroup(newGroup, item)
           }
@@ -372,15 +379,13 @@ function ExternalFoodItemEditModal({
 // TODO: Extract to components on other files
 function ExternalBarCodeInsertModal({
   visible,
-  onSetVisible,
   onSelect,
 }: {
-  visible: boolean
-  onSetVisible: Dispatch<SetStateAction<boolean>>
+  visible: Signal<boolean>
   onSelect: (template: Template) => void
 }) {
   return (
-    <ModalContextProvider visible={visible} onSetVisible={onSetVisible}>
+    <ModalContextProvider visible={visible}>
       <BarCodeInsertModal onSelect={onSelect} />
     </ModalContextProvider>
   )
@@ -433,62 +438,68 @@ const SearchResults = ({
   typing,
   filteredTemplates,
   setSelectedTemplate,
-  setBarCodeModalVisible,
-  setFoodItemEditModalVisible,
+  barCodeModalVisible,
+  foodItemEditModalVisible,
 }: {
   search: string
   typing: boolean
-  filteredTemplates: Template[]
+  filteredTemplates: ReadonlySignal<Template[]>
   setSelectedTemplate: (food: Template) => void
-  setBarCodeModalVisible: Dispatch<SetStateAction<boolean>>
-  setFoodItemEditModalVisible: Dispatch<SetStateAction<boolean>>
+  barCodeModalVisible: Signal<boolean>
+  foodItemEditModalVisible: Signal<boolean>
 }) => {
   const { isFoodFavorite, setFoodAsFavorite } = useUserContext()
 
   return (
     <>
-      {!typing && filteredTemplates.length === 0 && (
+      {!typing && filteredTemplates.value.length === 0 && (
         <Alert color="warning" className="mt-2">
           Nenhum alimento encontrado para a busca &quot;{search}&quot;.
         </Alert>
       )}
 
       <div className="bg-gray-800 p-1">
-        {filteredTemplates.map((template, idx) => (
-          <React.Fragment key={idx}>
-            <FoodItemView
-              foodItem={{
-                ...createFoodItem({
-                  name: template.name,
-                  quantity: 100,
-                  macros: template.macros,
-                  reference: template.id,
-                }),
-                __type: template.__type === 'Food' ? 'FoodItem' : 'RecipeItem', // TODO: Refactor conversion from template type to group/item types
-              }}
-              className="mt-1"
-              onClick={() => {
-                setSelectedTemplate(template)
-                setFoodItemEditModalVisible(true)
-                setBarCodeModalVisible(false)
-              }}
-              header={
-                <FoodItemView.Header
-                  name={<FoodItemView.Header.Name />}
-                  favorite={
-                    <FoodItemView.Header.Favorite
-                      favorite={isFoodFavorite(template.id)}
-                      onSetFavorite={(favorite) =>
-                        setFoodAsFavorite(template.id, favorite)
-                      }
-                    />
-                  }
-                />
-              }
-              nutritionalInfo={<FoodItemView.NutritionalInfo />}
-            />
-          </React.Fragment>
-        ))}
+        {filteredTemplates.value.map((_, idx) => {
+          const template = computed(() => filteredTemplates.value[idx])
+          return (
+            <React.Fragment key={template.value.id}>
+              <FoodItemView
+                foodItem={computed(() => ({
+                  ...createFoodItem({
+                    name: template.value.name,
+                    quantity: 100,
+                    macros: template.value.macros,
+                    reference: template.value.id,
+                  }),
+                  __type:
+                    template.value.__type === 'Food'
+                      ? 'FoodItem'
+                      : 'RecipeItem', // TODO: Refactor conversion from template type to group/item types
+                }))}
+                className="mt-1"
+                onClick={() => {
+                  setSelectedTemplate(template.value)
+                  foodItemEditModalVisible.value = true
+                  barCodeModalVisible.value = false
+                }}
+                header={
+                  <FoodItemView.Header
+                    name={<FoodItemView.Header.Name />}
+                    favorite={
+                      <FoodItemView.Header.Favorite
+                        favorite={isFoodFavorite(template.value.id)}
+                        onSetFavorite={(favorite) =>
+                          setFoodAsFavorite(template.value.id, favorite)
+                        }
+                      />
+                    }
+                  />
+                }
+                nutritionalInfo={<FoodItemView.NutritionalInfo />}
+              />
+            </React.Fragment>
+          )
+        })}
       </div>
     </>
   )

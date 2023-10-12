@@ -12,7 +12,7 @@ export const recentFoodSchema = z.object({
   times_used: z.number(),
 })
 
-export type RecentFood = z.infer<typeof recentFoodSchema>
+export type RecentFood = Readonly<z.infer<typeof recentFoodSchema>>
 export type RecentFoodCreationParams = Partial<RecentFood> &
   Pick<RecentFood, 'user_id' | 'food_id'>
 

@@ -6,4 +6,4 @@ export const macroNutrientsSchema = z.object({
   fat: z.number(),
 })
 
-export type MacroNutrients = z.infer<typeof macroNutrientsSchema>
+export type MacroNutrients = Readonly<z.infer<typeof macroNutrientsSchema>>

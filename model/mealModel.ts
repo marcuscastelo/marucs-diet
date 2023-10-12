@@ -14,7 +14,7 @@ export const mealSchema = z.object({
     .transform(() => 'Meal' as const),
 })
 
-export type Meal = z.infer<typeof mealSchema>
+export type Meal = Readonly<z.infer<typeof mealSchema>>
 
 // TODO: Create factory function for other models
 export function createMeal({

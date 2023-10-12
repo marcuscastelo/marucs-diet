@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react'
 import Datepicker from 'react-tailwindcss-datepicker'
 import { DateValueType } from 'react-tailwindcss-datepicker/dist/types'
 import { useUserContext } from '@/context/users.context'
+import { computed } from '@preact/signals-react'
 
 export default function Page() {
   const [days, setDays] = useState<Day[]>([])
@@ -24,12 +25,15 @@ export default function Page() {
     setDays(days)
 
     const mealProps = days.map((day) => {
-      return day.meals.map((meal): MealEditViewProps => {
+      return day.meals.map((_, idx): MealEditViewProps => {
+        const meal = computed(() => day.meals[idx])
         return {
           meal,
           header: (
             <MealEditView.Header
-              onUpdateMeal={(meal) => alert(`Mock: Update meal ${meal.name}`)} // TODO: Change all alerts with ConfirmModal
+              onUpdateMeal={(newMeal) =>
+                alert(`Mock: Update meal ${newMeal.name}`)
+              } // TODO: Change all alerts with ConfirmModal
             />
           ),
           content: (
@@ -50,12 +54,12 @@ export default function Page() {
   }
 
   const handleDayChange = (newValue: DateValueType) => {
-    if (!newValue?.startDate) {
+    if (newValue?.startDate === undefined || newValue.startDate === '') {
       setSelectedDay('')
       return
     }
 
-    const dateString = newValue?.startDate
+    const dateString = newValue.startDate === null ? '' : newValue.startDate
     const date = stringToDate(dateString)
     setSelectedDay(date.toISOString().split('T')[0]) // TODO: retriggered: use dateUtils when this is understood
   }
@@ -64,14 +68,8 @@ export default function Page() {
     fetchDays(user.id)
   }, [user])
 
-  const hasData = days.some(
-    (day) =>
-      day.target_day === /* TODO: Check if equality is a bug */ selectedDay,
-  )
-  const day = days.find(
-    (day) =>
-      day.target_day === /* TODO: Check if equality is a bug */ selectedDay,
-  )
+  const hasData = days.some((day) => day.target_day === selectedDay)
+  const day = days.find((day) => day.target_day === selectedDay)
 
   return (
     <>
@@ -94,30 +92,33 @@ export default function Page() {
         <>
           <h1> Target day: {day.target_day}</h1>
           <MealEditViewList
-            mealEditPropsList={day.meals.map((meal): MealEditViewProps => {
-              return {
-                meal,
-                header: (
-                  <MealEditView.Header
-                    onUpdateMeal={
-                      (meal) => alert(`Mock: Update meal ${meal.name}`) // TODO: Change all alerts with ConfirmModal
-                    }
-                  />
-                ),
-                content: (
-                  <MealEditView.Content
-                    onEditItemGroup={
-                      (group) => alert(`Mock: Edit group.id = "${group.id}"`) // TODO: Change all alerts with ConfirmModal
-                    }
-                  />
-                ),
-                actions: (
-                  <MealEditView.Actions
-                    onNewItem={() => alert('Mock: New item')} // TODO: Change all alerts with ConfirmModal
-                  />
-                ),
-              }
-            })}
+            mealEditPropsList={computed(() =>
+              day.meals.map((_, idx): MealEditViewProps => {
+                const meal = computed(() => day.meals[idx])
+                return {
+                  meal,
+                  header: (
+                    <MealEditView.Header
+                      onUpdateMeal={
+                        (newMeal) => alert(`Mock: Update meal ${newMeal.name}`) // TODO: Change all alerts with ConfirmModal
+                      }
+                    />
+                  ),
+                  content: (
+                    <MealEditView.Content
+                      onEditItemGroup={
+                        (group) => alert(`Mock: Edit group.id = "${group.id}"`) // TODO: Change all alerts with ConfirmModal
+                      }
+                    />
+                  ),
+                  actions: (
+                    <MealEditView.Actions
+                      onNewItem={() => alert('Mock: New item')} // TODO: Change all alerts with ConfirmModal
+                    />
+                  ),
+                }
+              }),
+            )}
           />
         </>
       )}

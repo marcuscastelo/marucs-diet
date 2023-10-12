@@ -5,75 +5,47 @@ import FoodItemView from './(foodItem)/FoodItemView'
 import { searchFoodsByEan } from '@/controllers/food'
 import { Food } from '@/model/foodModel'
 import { useUserContext } from '@/context/users.context'
-import { generateId } from '@/utils/idUtils'
 import { createFoodItem } from '@/model/foodItemModel'
 import { MacroNutrients } from '@/model/macroNutrientsModel'
+import {
+  Signal,
+  computed,
+  useSignal,
+  useSignalEffect,
+} from '@preact/signals-react'
+import { mockItem } from './test/unit/(mock)/mockData'
 
 export type BarCodeSearchProps = {
-  barCode?: string
-  setBarCode?: (barCode: string) => void
-  onFoodChange?: (food: Food | null) => void
+  barCode: Signal<string>
+  food: Signal<Food | null>
 }
 
-export default function BarCodeSearch({
-  barCode = '',
-  setBarCode,
-  onFoodChange,
-}: BarCodeSearchProps) {
-  const [loading, setLoading] = useState(false)
-  const [innerBarCode, setInnerBarCode] = useState(barCode)
-  const [currentFood, setCurrentFood] = useState<Food | null>(null)
+export default function BarCodeSearch({ barCode, food }: BarCodeSearchProps) {
+  const loading = useSignal(false)
 
   const { isFoodFavorite, setFoodAsFavorite } = useUserContext()
 
   const EAN_LENGTH = 13
 
-  useEffect(() => {
-    if (innerBarCode.length !== EAN_LENGTH) {
+  useSignalEffect(() => {
+    if (barCode.value.length !== EAN_LENGTH) {
       return
     }
 
-    setLoading(true)
-    let ignore = false
-    searchFoodsByEan(innerBarCode)
-      .then((food) => {
-        if (ignore) {
-          return
-        }
-        setCurrentFood(food)
+    loading.value = true
+    searchFoodsByEan(barCode.value)
+      .then((newFood) => {
+        food.value = newFood
       })
       .catch((err) => {
+        food.value = null
         console.error(err)
         alert(JSON.stringify(err, null, 2)) // TODO: Change all alerts with ConfirmModal
       })
       .finally(() => {
-        if (ignore) {
-          return
-        }
-        setLoading(false)
+        loading.value = false
       })
-
-    const timeout = setTimeout(() => {
-      setLoading(false)
-    }, 100000)
-
-    return () => {
-      clearTimeout(timeout)
-      ignore = true
-    }
-  }, [innerBarCode])
-
-  useEffect(() => {
-    setBarCode?.(innerBarCode)
-  }, [innerBarCode, setBarCode])
-
-  useEffect(() => {
-    setInnerBarCode(barCode)
-  }, [barCode])
-
-  useEffect(() => {
-    onFoodChange?.(currentFood)
-  }, [currentFood, onFoodChange])
+  })
 
   return (
     <div>
@@ -84,35 +56,46 @@ export default function BarCodeSearch({
       <div className="w-full text-center">
         <div
           className={`loading loading-lg transition-all ${
-            loading ? 'h-80' : 'h-0'
+            loading.value ? 'h-80' : 'h-0'
           }`}
         />
       </div>
 
-      {currentFood && (
+      {food.value && (
         <div className="mt-3 flex flex-col">
           <div className="flex">
             <div className="flex-1">
-              <p className="font-bold">{currentFood.name}</p>
+              <p className="font-bold">{food.value.name}</p>
               <p className="text-sm">
                 <FoodItemView
-                  foodItem={createFoodItem({
-                    name: currentFood.name,
-                    reference: currentFood.id,
-                    quantity: 100,
-                    macros: {
-                      ...currentFood.macros,
-                    } satisfies MacroNutrients,
-                  })}
+                  foodItem={computed(() =>
+                    createFoodItem({
+                      name: food.value?.name ?? 'food == null',
+                      reference: food.value?.id ?? 0,
+                      quantity: 100,
+                      macros: {
+                        ...(food.value?.macros ?? mockItem().macros),
+                      } satisfies MacroNutrients,
+                    }),
+                  )}
                   header={
                     <FoodItemView.Header
                       name={<FoodItemView.Header.Name />}
                       favorite={
                         <FoodItemView.Header.Favorite
-                          favorite={isFoodFavorite(currentFood.id)}
-                          onSetFavorite={(favorite) =>
-                            setFoodAsFavorite(currentFood.id, favorite)
-                          }
+                          favorite={isFoodFavorite(food.value.id)}
+                          onSetFavorite={(favorite) => {
+                            if (food.value?.id === null) {
+                              alert('food.value?.id === null')
+                              console.error(
+                                'food.value?.id === null',
+                                food.value,
+                              )
+                              throw new Error('food.value?.id === null')
+                            }
+                            food.value &&
+                              setFoodAsFavorite(food.value.id, favorite)
+                          }}
                         />
                       }
                     />
@@ -130,8 +113,8 @@ export default function BarCodeSearch({
           type="number"
           placeholder="Código de barras (Ex: 7891234567890)"
           className={`input-bordered input mt-1 flex-1 border-gray-300 bg-gray-800`}
-          value={innerBarCode}
-          onChange={(e) => setInnerBarCode(e.target.value.slice(0, 13))}
+          value={barCode.value}
+          onChange={(e) => (barCode.value = e.target.value.slice(0, 13))}
         />
       </div>
     </div>

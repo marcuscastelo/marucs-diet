@@ -31,4 +31,4 @@ export const userSchema = z.object({
   }),
 })
 
-export type User = z.infer<typeof userSchema>
+export type User = Readonly<z.infer<typeof userSchema>>

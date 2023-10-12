@@ -3,11 +3,11 @@ import ItemGroupEditModal, {
   ItemGroupEditModalProps,
 } from '../app/(itemGroup)/ItemGroupEditModal'
 import {
-  mockMeal,
   mockRecipedGroup,
   mockSimpleGroup,
 } from '@/app/test/unit/(mock)/mockData'
 import ServerApp from '@/app/ServerApp'
+import { computed } from '@preact/signals-react'
 
 const meta: Meta<typeof ItemGroupEditModal> = {
   title: 'Components/ItemGroupEditModal',
@@ -27,7 +27,7 @@ export const Simple: Story = {
     targetMealName: 'Teste',
     onCancel: () => undefined,
     onDelete: () => undefined,
-    group: mockSimpleGroup(),
+    group: computed(mockSimpleGroup),
   } satisfies ItemGroupEditModalProps,
   render: (args) => <ItemGroupEditModal {...args} />,
 }
@@ -40,7 +40,7 @@ export const Recipe: Story = {
     targetMealName: 'Teste',
     onCancel: () => undefined,
     onDelete: () => undefined,
-    group: mockRecipedGroup(),
+    group: computed(mockRecipedGroup),
   } satisfies ItemGroupEditModalProps,
   render: (args) => <ItemGroupEditModal {...args} />,
 }

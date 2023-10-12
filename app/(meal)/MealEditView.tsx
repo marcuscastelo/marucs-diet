@@ -17,9 +17,15 @@ import { convertToGroups } from '@/utils/groupUtils'
 import { renegerateId } from '@/utils/idUtils'
 import { foodItemSchema } from '@/model/foodItemModel'
 import { recipeSchema } from '@/model/recipeModel'
+import {
+  ReadonlySignal,
+  computed,
+  useSignal,
+  useSignalEffect,
+} from '@preact/signals-react'
 
 export type MealEditViewProps = {
-  meal: Meal
+  meal: ReadonlySignal<Meal>
   header?: React.ReactNode
   content?: React.ReactNode
   actions?: React.ReactNode
@@ -44,7 +50,9 @@ export default function MealEditView({
   className,
 }: MealEditViewProps) {
   return (
-    <div className={`bg-gray-800 p-3 ${className || ''}`}>
+    <div
+      className={`bg-gray-800 p-3 ${className === undefined ? '' : className}`}
+    >
       <MealContextProvider meal={meal}>
         {header}
         {content}
@@ -101,7 +109,7 @@ function MealEditViewHeader({
       }))
 
     // TODO: Create RecipeEditor, MealEditor, ItemGroupEditor, FoodItemEditor classes to avoid this code duplication and error proneness
-    const newMeal = addInnerGroups(meal, groupsToAdd)
+    const newMeal = addInnerGroups(meal.value, groupsToAdd)
 
     onUpdateMeal(newMeal)
 
@@ -130,7 +138,7 @@ function MealEditViewHeader({
   }, [handlePasteAfterConfirm, showConfirmModal])
 
   // TODO: Show how much of the daily target is this meal (e.g. 30% of daily calories) (maybe in a tooltip) (useContext)s
-  const mealCalories = calcMealCalories(meal)
+  const mealCalories = calcMealCalories(meal.value)
 
   const onClearItems = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -147,8 +155,9 @@ function MealEditViewHeader({
           text: 'Excluir todos os itens',
           primary: true,
           onClick: () => {
+            // TODO: Use MealEditor
             const newMeal: Meal = {
-              ...meal,
+              ...meal.value,
               groups: [],
             }
 
@@ -164,12 +173,12 @@ function MealEditViewHeader({
   return (
     <div className="flex">
       <div className="my-2">
-        <h5 className="text-3xl">{meal.name}</h5>
+        <h5 className="text-3xl">{meal.value.name}</h5>
         <p className="italic text-gray-400">{mealCalories.toFixed(0)}kcal</p>
       </div>
       {/* // TODO: Remove code duplication between MealEditView and RecipeView */}
       <div className={`ml-auto flex gap-2`}>
-        {!hasValidPastableOnClipboard && meal.groups.length > 0 && (
+        {!hasValidPastableOnClipboard && meal.value.groups.length > 0 && (
           <div
             className={`btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105`}
             onClick={handleCopy}
@@ -185,7 +194,7 @@ function MealEditViewHeader({
             <PasteIcon />
           </div>
         )}
-        {meal.groups.length > 0 && (
+        {meal.value.groups.length > 0 && (
           <div
             className={`btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105`}
             onClick={onClearItems}
@@ -205,9 +214,13 @@ function MealEditViewContent({
 }) {
   const { meal } = useMealContext()
 
+  useSignalEffect(() => {
+    console.debug(`[MealEditViewContent] meal.value changed:`, meal.value)
+  })
+
   return (
     <ItemGroupListView
-      itemGroups={meal.groups}
+      itemGroups={computed(() => meal.value?.groups ?? [])}
       onItemClick={(...args) => onEditItemGroup(...args)}
     />
   )

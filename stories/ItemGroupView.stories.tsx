@@ -8,6 +8,7 @@ import {
   mockRecipedGroup,
 } from '@/app/test/unit/(mock)/mockData'
 import ServerApp from '@/app/ServerApp'
+import { computed } from '@preact/signals-react'
 
 const meta: Meta<typeof ItemGroupView> = {
   title: 'Components/ItemGroupView',
@@ -21,7 +22,7 @@ const meta: Meta<typeof ItemGroupView> = {
           name={<ItemGroupView.Header.Name />}
           copyButton={
             <ItemGroupView.Header.CopyButton
-              handleCopyItemGroup={() => console.log('copy meal item')}
+              onCopyItemGroup={() => console.log('copy meal item')}
             />
           }
           favorite={<ItemGroupView.Header.Favorite favorite={false} />}
@@ -37,12 +38,12 @@ type Story = StoryObj<typeof ItemGroupView>
 
 export const Simple: Story = {
   args: {
-    itemGroup: mockSimpleGroup(),
+    itemGroup: computed(mockSimpleGroup),
   } satisfies ItemGroupViewProps,
 }
 
 export const Recipe: Story = {
   args: {
-    itemGroup: mockRecipedGroup(),
+    itemGroup: computed(mockRecipedGroup),
   } satisfies ItemGroupViewProps,
 }
