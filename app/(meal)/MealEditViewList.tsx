@@ -1,9 +1,10 @@
 'use client'
 
+import { ReadonlySignal, computed } from '@preact/signals-react'
 import MealEditView, { MealEditViewProps } from './MealEditView'
 
 export type DayMealsProps = {
-  mealEditPropsList: MealEditViewProps[]
+  mealEditPropsList: ReadonlySignal<MealEditViewProps[]>
   className?: string
 }
 
@@ -13,9 +14,16 @@ export default function MealEditViewList({
 }: DayMealsProps) {
   return (
     <div className={className}>
-      {mealEditPropsList.map((mealProps, index) => (
-        <MealEditView key={index} {...mealProps} className="mt-2" />
-      ))}
+      {mealEditPropsList.value.map((_, index) => {
+        const mealPropsSignal = computed(() => mealEditPropsList.value[index])
+        return (
+          <MealEditView
+            key={index}
+            {...mealPropsSignal.value}
+            className="mt-2"
+          />
+        )
+      })}
     </div>
   )
 }

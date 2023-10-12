@@ -13,9 +13,13 @@ import { useUserContext } from '@/context/users.context'
 import { isRecipedGroupUpToDate } from '@/utils/groupUtils'
 import { Loadable } from '@/utils/loadable'
 import { Recipe } from '@/model/recipeModel'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { searchRecipeById } from '@/controllers/recipes'
-import { ReadonlySignal, useSignalEffect } from '@preact/signals-react'
+import {
+  ReadonlySignal,
+  computed,
+  useSignalEffect,
+} from '@preact/signals-react'
 
 export type ItemGroupViewProps = {
   itemGroup: ReadonlySignal<ItemGroup>
@@ -103,10 +107,9 @@ function ItemGroupName() {
   })
 
   useSignalEffect(() => {
-    const ignore = false
+    console.debug(`[ItemGroupName] item changed, fetching API:`, itemGroup)
     if (itemGroup.value?.type === 'recipe') {
       searchRecipeById(itemGroup.value.recipe).then((recipe) => {
-        if (ignore) return
         setRecipe({ loading: false, errored: false, data: recipe })
       })
     } else {
@@ -114,7 +117,7 @@ function ItemGroupName() {
     }
   })
 
-  const getNameColor = () => {
+  const nameColor = computed(() => {
     if (!itemGroup.value) return 'text-red-900'
 
     if (recipe.loading) return 'text-gray-500 animate-pulse'
@@ -137,7 +140,7 @@ function ItemGroupName() {
     } else {
       return 'text-red-400'
     }
-  }
+  })
 
   return (
     <div className="">
@@ -145,7 +148,7 @@ function ItemGroupName() {
         //TODO: ItemGroupView id is random, but it should be an entry on the database (meal too) 
       */}
       {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.ItemGroupView.id}]</h5> */}
-      <h5 className={`mb-2 text-lg font-bold tracking-tight ${getNameColor()}`}>
+      <h5 className={`mb-2 text-lg font-bold tracking-tight ${nameColor}`}>
         {itemGroup.value?.name ?? 'Erro: grupo sem nome'}{' '}
         {debug && (
           <>
