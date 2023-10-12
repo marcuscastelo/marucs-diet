@@ -44,13 +44,14 @@ export class ItemGroupEditor
     return this
   }
 
-  deleteItem(id: number): void {
+  deleteItem(id: number) {
     const index = this.group.items.findIndex((item) => item.id === id)
     if (index === -1) {
       console.warn(`Item with id ${id} not found!`)
-      return
+      return this
     }
     this.group.items.splice(index, 1)
+    return this
   }
 
   clearItems() {
