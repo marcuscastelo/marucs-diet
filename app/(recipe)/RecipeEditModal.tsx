@@ -19,7 +19,6 @@ import {
   useSignal,
   useSignalEffect,
 } from '@preact/signals-react'
-import { RECIPE_TINT_BG } from '@/constants/theme'
 
 export type RecipeEditModalProps = {
   show?: boolean
@@ -81,7 +80,7 @@ export function RecipeEditModal({
         foodItem={computed(() => selectedFoodItem.value ?? impossibleFoodItem)}
         targetName={recipe.value?.name ?? 'LOADING RECIPE'}
         onApply={(foodItem) => {
-          if (!recipe) return
+          if (recipe.value === null) return
 
           const recipeEditor = new RecipeEditor(recipe.value)
 
@@ -113,7 +112,6 @@ export function RecipeEditModal({
       <ModalContextProvider visible={visible}>
         <Modal
           className="border-2 border-cyan-600"
-          header={<Header recipe={recipe.value} />}
           // TODO: Add barcode button and handle barcode scan
           body={
             <Body
@@ -211,20 +209,6 @@ function ExternalTemplateSearchModal({
         onNewItemGroup={handleNewItemGroup}
       />
     </ModalContextProvider>
-  )
-}
-
-function Header({ recipe }: { recipe: Recipe | undefined }) {
-  return (
-    <h3 className="text-lg font-bold text-white">
-      Editando receita
-      <span className="text-blue-500">
-        {' '}
-        &quot;
-        {recipe?.name ?? 'LOADING RECIPE'}
-        &quot;{' '}
-      </span>
-    </h3>
   )
 }
 
