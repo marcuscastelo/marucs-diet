@@ -68,14 +68,8 @@ export default function Page() {
     fetchDays(user.id)
   }, [user])
 
-  const hasData = days.some(
-    (day) =>
-      day.target_day === /* TODO: Check if equality is a bug */ selectedDay,
-  )
-  const day = days.find(
-    (day) =>
-      day.target_day === /* TODO: Check if equality is a bug */ selectedDay,
-  )
+  const hasData = days.some((day) => day.target_day === selectedDay)
+  const day = days.find((day) => day.target_day === selectedDay)
 
   return (
     <>
@@ -98,31 +92,33 @@ export default function Page() {
         <>
           <h1> Target day: {day.target_day}</h1>
           <MealEditViewList
-            mealEditPropsList={day.meals.map((_, idx): MealEditViewProps => {
-              const meal = computed(() => day.meals[idx])
-              return {
-                meal,
-                header: (
-                  <MealEditView.Header
-                    onUpdateMeal={
-                      (newMeal) => alert(`Mock: Update meal ${newMeal.name}`) // TODO: Change all alerts with ConfirmModal
-                    }
-                  />
-                ),
-                content: (
-                  <MealEditView.Content
-                    onEditItemGroup={
-                      (group) => alert(`Mock: Edit group.id = "${group.id}"`) // TODO: Change all alerts with ConfirmModal
-                    }
-                  />
-                ),
-                actions: (
-                  <MealEditView.Actions
-                    onNewItem={() => alert('Mock: New item')} // TODO: Change all alerts with ConfirmModal
-                  />
-                ),
-              }
-            })}
+            mealEditPropsList={computed(() =>
+              day.meals.map((_, idx): MealEditViewProps => {
+                const meal = computed(() => day.meals[idx])
+                return {
+                  meal,
+                  header: (
+                    <MealEditView.Header
+                      onUpdateMeal={
+                        (newMeal) => alert(`Mock: Update meal ${newMeal.name}`) // TODO: Change all alerts with ConfirmModal
+                      }
+                    />
+                  ),
+                  content: (
+                    <MealEditView.Content
+                      onEditItemGroup={
+                        (group) => alert(`Mock: Edit group.id = "${group.id}"`) // TODO: Change all alerts with ConfirmModal
+                      }
+                    />
+                  ),
+                  actions: (
+                    <MealEditView.Actions
+                      onNewItem={() => alert('Mock: New item')} // TODO: Change all alerts with ConfirmModal
+                    />
+                  ),
+                }
+              }),
+            )}
           />
         </>
       )}

@@ -57,7 +57,9 @@ export default function Page() {
           <div key={idx}>
             <div className="text-2xl font-bold">{day.target_day}</div>
             {mealEditPropsList[idx].length > 0 ? (
-              <MealEditViewList mealEditPropsList={mealEditPropsList[idx]} />
+              <MealEditViewList
+                mealEditPropsList={computed(() => mealEditPropsList[idx])}
+              />
             ) : (
               <div>No meals</div>
             )}

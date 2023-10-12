@@ -24,7 +24,7 @@ export default function DayNotFound({
         refetchDays={refetchDays}
       />
       <CopyLastDayButton
-        day={undefined}
+        day={computed(() => undefined)}
         days={computed(() => days)}
         refetchDays={refetchDays}
         selectedDay={selectedDay}
