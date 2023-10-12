@@ -9,10 +9,7 @@ export class ItemEditor extends Editor<FoodItem> {
     return this
   }
 
-  // TODO: Move eslint-disable-next-line to eslint config
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  protected beforeFinish(): void {}
-  // TODO: Move eslint-disable-next-line to eslint config
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  protected afterFinish(): void {}
+  protected override onFinish(): void {
+    // Do nothing
+  }
 }

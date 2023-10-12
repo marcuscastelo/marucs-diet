@@ -3,6 +3,7 @@ import { ItemContainer } from './interfaces/itemContainer'
 import { ItemGroup } from '@/model/itemGroupModel'
 import { Editor } from './editor'
 import { ItemEditor } from './itemEditor'
+import { Mutable } from '../typeUtils'
 
 export class ItemGroupEditor
   extends Editor<ItemGroup>
@@ -53,12 +54,11 @@ export class ItemGroupEditor
     return this
   }
 
-  // TODO: Move eslint-disable-next-line to eslint config
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  protected override beforeFinish(): void {}
-
-  afterFinish(copy: ItemGroup) {
+  protected override onFinish() {
     // TODO: Replace quantity field with a getter that calculates it
-    copy.quantity = copy.items.reduce((acc, item) => acc + item.quantity, 0)
+    this.group.quantity = this.group.items.reduce(
+      (acc, item) => acc + item.quantity,
+      0,
+    )
   }
 }

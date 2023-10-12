@@ -11,18 +11,16 @@ export abstract class Editor<T extends object | undefined | null> {
     this.content = copy
   }
 
-  protected abstract beforeFinish(): void
-  protected abstract afterFinish(contentCopy: T): void
+  protected abstract onFinish(): void
 
   finish() {
-    this.beforeFinish()
+    this.onFinish()
     const copy = deepCopy(this.content)
 
     if (!copy) {
       throw new Error('Error copying recipe!')
     }
 
-    this.afterFinish(copy)
     return copy
   }
 }

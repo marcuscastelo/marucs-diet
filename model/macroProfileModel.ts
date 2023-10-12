@@ -12,4 +12,4 @@ export const macroProfileSchema = z.object({
   gramsPerKgFat: z.number(),
 })
 
-export type MacroProfile = z.infer<typeof macroProfileSchema>
+export type MacroProfile = Readonly<z.infer<typeof macroProfileSchema>>

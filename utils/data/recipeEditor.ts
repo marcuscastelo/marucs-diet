@@ -4,6 +4,7 @@ import { ItemContainer } from './interfaces/itemContainer'
 import { Editor } from './editor'
 import { ItemEditor } from './itemEditor'
 import { calcRecipeMacros } from '../macroMath'
+import { Mutable } from '../typeUtils'
 
 export class RecipeEditor extends Editor<Recipe> implements ItemContainer {
   private readonly recipe = this.content
@@ -57,12 +58,7 @@ export class RecipeEditor extends Editor<Recipe> implements ItemContainer {
     return this
   }
 
-  // TODO: Move eslint-disable-next-line to eslint config
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  protected beforeFinish(): void {}
-  // TODO: Move eslint-disable-next-line to eslint config
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  protected afterFinish(): void {
+  protected override onFinish(): void {
     this.recipe.macros = calcRecipeMacros(this.recipe)
   }
 }
