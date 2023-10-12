@@ -6,8 +6,16 @@ import { BackIcon } from '@/components/BackIcon'
 import { cn } from '@/utils/cn'
 
 export type ModalProps = {
+  // TODO: Unify Header, Content and Actions for each component in the entire app
+  /**
+   * @deprecated
+   */
   header?: React.ReactNode
   body?: React.ReactNode
+  // TODO: Unify Header, Content and Actions for each component in the entire app
+  /**
+   * @deprecated
+   */
   actions?: React.ReactNode
   hasBackdrop?: boolean
   className?: string
@@ -67,6 +75,10 @@ Modal.Actions = ModalActions
 // TODO: ModalHeader => Modal.Header, ModalBody => Modal.Body, ModalActions => Modal.Actions
 
 // TODO: Use Modal.Header & Modal.Body or delete them
+// TODO: Unify Header, Content and Actions for each component in the entire app
+/**
+ * @deprecated
+ */
 export function ModalHeader({
   title,
   backButton = true,
@@ -90,11 +102,17 @@ export function ModalHeader({
     </div>
   )
 }
-
+// TODO: Unify Header, Content and Actions for each component in the entire app
+/**
+ * @deprecated
+ */
 export function ModalBody() {
   return <>Modal body</>
 }
-
+// TODO: Unify Header, Content and Actions for each component in the entire app
+/**
+ * @deprecated
+ */
 export function ModalActions({ children }: { children: React.ReactNode }) {
   return <div className="modal-action">{children}</div>
 }

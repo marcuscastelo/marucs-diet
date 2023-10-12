@@ -26,8 +26,16 @@ import {
 
 export type MealEditViewProps = {
   meal: ReadonlySignal<Meal>
+  // TODO: Unify Header, Content and Actions for each component in the entire app
+  /**
+   * @deprecated
+   */
   header?: React.ReactNode
   content?: React.ReactNode
+  // TODO: Unify Header, Content and Actions for each component in the entire app
+  /**
+   * @deprecated
+   */
   actions?: React.ReactNode
   className?: string
 }

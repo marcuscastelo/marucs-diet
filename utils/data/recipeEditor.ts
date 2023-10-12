@@ -9,6 +9,11 @@ import { Mutable } from '../typeUtils'
 export class RecipeEditor extends Editor<Recipe> implements ItemContainer {
   private readonly recipe = this.content
 
+  setName(name: string) {
+    this.recipe.name = name
+    return this
+  }
+
   setPreparedMultiplier(preparedMultiplier: number) {
     this.recipe.prepared_multiplier = preparedMultiplier
     return this

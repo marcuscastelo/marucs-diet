@@ -298,7 +298,10 @@ function Body({
     </>
   )
 }
-
+// TODO: Unify Header, Content and Actions for each component in the entire app
+/**
+ * @deprecated
+ */
 function Actions({
   id,
   canApply,
