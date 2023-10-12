@@ -37,7 +37,7 @@ const FoodItemEditModal = ({
   onCancel,
   onDelete,
 }: FoodItemEditModalProps) => {
-  const { visibleNew } = useModalContext()
+  const { visible } = useModalContext()
 
   // TODO: Better initial state for foodItem on FoodItemEditModal
   const [foodItem, setFoodItem] = useState<TemplateItem>({
@@ -87,7 +87,7 @@ const FoodItemEditModal = ({
         }
         body={
           <Body
-            visible={visibleNew.value}
+            visible={visible.value}
             onQuantityChanged={setQuantity}
             canApply={canApply}
             foodItem={foodItem}
@@ -98,11 +98,11 @@ const FoodItemEditModal = ({
             id={foodItem.id}
             canApply={canApply}
             onApply={() => {
-              visibleNew.value = false
+              visible.value = false
               onApply(foodItem)
             }}
             onCancel={() => {
-              visibleNew.value = false
+              visible.value = false
               onCancel?.()
             }}
             onDelete={onDelete}

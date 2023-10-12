@@ -34,7 +34,7 @@ export function RecipeEditModal({
   onCancel,
   onRefetch,
 }: RecipeEditModalProps) {
-  const { visibleNew } = useModalContext()
+  const { visible } = useModalContext()
 
   const recipe = useSignal(
     initialRecipe ??
@@ -110,7 +110,7 @@ export function RecipeEditModal({
         recipe={recipe}
       />
 
-      <ModalContextProvider visible={visibleNew}>
+      <ModalContextProvider visible={visible}>
         <Modal
           header={<Header recipe={recipe.value} />}
           // TODO: Add barcode button and handle barcode scan
@@ -278,7 +278,7 @@ function Actions({
   onDelete: () => void
   onCancel?: () => void
 }) {
-  const { visibleNew } = useModalContext()
+  const { visible } = useModalContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
   return (
@@ -313,7 +313,7 @@ function Actions({
         className="btn"
         onClick={(e) => {
           e.preventDefault()
-          visibleNew.value = false
+          visible.value = false
           onCancel?.()
         }}
       >
@@ -324,7 +324,7 @@ function Actions({
         onClick={(e) => {
           e.preventDefault()
           onApply()
-          visibleNew.value = false
+          visible.value = false
         }}
       >
         Aplicar

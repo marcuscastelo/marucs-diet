@@ -14,17 +14,17 @@ export type ModalProps = {
 let modalId = 1
 
 const Modal = ({ header, body, actions, hasBackdrop = true }: ModalProps) => {
-  const { visibleNew } = useModalContext()
+  const { visible } = useModalContext()
 
   const modalRef = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {
-    if (visibleNew.value) {
+    if (visible.value) {
       modalRef.current?.showModal()
     } else {
       modalRef.current?.close()
     }
-  }, [visibleNew.value, modalRef])
+  }, [visible.value, modalRef])
 
   return (
     <dialog
@@ -32,8 +32,8 @@ const Modal = ({ header, body, actions, hasBackdrop = true }: ModalProps) => {
       className="modal modal-bottom sm:modal-middle"
       ref={modalRef}
       onClose={(e) => {
-        if (visibleNew.value) {
-          visibleNew.value = false
+        if (visible.value) {
+          visible.value = false
           e.stopPropagation()
         }
       }}
@@ -66,14 +66,14 @@ export function ModalHeader({
   title: ReactNode
   backButton?: boolean
 }) {
-  const { visibleNew } = useModalContext()
+  const { visible } = useModalContext()
 
   return (
     <div className="flex gap-2">
       {backButton && (
         <button
           className="btn btn-sm btn-ghost btn-circle"
-          onClick={() => (visibleNew.value = false)}
+          onClick={() => (visible.value = false)}
         >
           <BackIcon />
         </button>
