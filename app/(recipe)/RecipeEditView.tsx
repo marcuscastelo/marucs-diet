@@ -25,9 +25,10 @@ import { itemGroupSchema } from '@/model/itemGroupModel'
 import { useFloatField } from '@/hooks/field'
 import { FloatInput } from '@/components/FloatInput'
 import { RecipeEditor } from '@/utils/data/recipeEditor'
+import { Signal } from '@preact/signals-react'
 
 export type RecipeEditViewProps = {
-  recipe: Recipe
+  recipe: Signal<Recipe>
   header?: React.ReactNode
   content?: React.ReactNode
   footer?: React.ReactNode
@@ -51,15 +52,10 @@ export default function RecipeEditView({
   footer: actions,
   className,
 }: RecipeEditViewProps) {
-  const [recipeState, setRecipeState] = useState<Recipe>(recipe)
-
   // TODO: implement setRecipe
   return (
     <div className={`bg-gray-800 p-3 ${className || ''}`}>
-      <RecipeEditContextProvider
-        recipe={recipeState}
-        setRecipe={setRecipeState}
-      >
+      <RecipeEditContextProvider recipe={recipe}>
         {header}
         {content}
         {actions}
@@ -316,7 +312,7 @@ function PreparedQuantity() {
             .setPreparedMultiplier(newMultiplier ?? 1)
             .finish()
 
-          recipe.setValue(newRecipe)
+          recipe.value = newRecipe
         }}
         style={{ width: '100%' }}
       />
@@ -350,7 +346,7 @@ function PreparedMultiplier() {
             .setPreparedMultiplier(newMultiplier ?? 1)
             .finish()
 
-          recipe.setValue(newRecipe)
+          recipe.value = newRecipe
         }}
         style={{ width: '100%' }}
       />
