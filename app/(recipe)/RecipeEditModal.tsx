@@ -12,6 +12,7 @@ import { TemplateItem } from '@/model/templateItemModel'
 import { TemplateSearchModal } from '../templateSearch/TemplateSearchModal'
 import { ItemGroup, isSimpleSingleGroup } from '@/model/itemGroupModel'
 import { RecipeEditor } from '@/utils/data/recipeEditor'
+import { Signal, useSignal } from '@preact/signals-react'
 
 export type RecipeEditModalProps = {
   show?: boolean
@@ -30,7 +31,7 @@ export function RecipeEditModal({
 }: RecipeEditModalProps) {
   const { visible, onSetVisible } = useModalContext()
 
-  const [recipe, setRecipe] = useState<Recipe>(
+  const recipe = useSignal(
     initialRecipe ??
       createRecipe({
         name: 'New Recipe',
@@ -53,10 +54,10 @@ export function RecipeEditModal({
     useState(false)
 
   useEffect(() => {
-    if (initialRecipe) {
-      setRecipe(initialRecipe)
-    }
-  }, [initialRecipe])
+    recipe.value =
+      initialRecipe ??
+      createRecipe({ name: 'Error: Recipe cannot be null!', items: [] })
+  }, [recipe, initialRecipe])
 
   useEffect(() => {
     if (selectedFoodItem) {
@@ -77,11 +78,11 @@ export function RecipeEditModal({
           setFoodItemEditModalVisible(visible)
         }}
         foodItem={selectedFoodItem ?? impossibleFoodItem}
-        targetName={recipe?.name ?? 'LOADING RECIPE'}
+        targetName={recipe.value?.name ?? 'LOADING RECIPE'}
         onApply={(foodItem) => {
           if (!recipe) return
 
-          const recipeEditor = new RecipeEditor(recipe)
+          const recipeEditor = new RecipeEditor(recipe.value)
 
           const newRecipe = recipeEditor
             .editItem(foodItem.id, (itemEditor) => {
@@ -89,17 +90,17 @@ export function RecipeEditModal({
             })
             .finish()
 
-          setRecipe(newRecipe)
+          recipe.value = newRecipe
           setSelectedFoodItem(null)
         }}
         onDelete={(itemId) => {
           if (!recipe) return
 
-          const recipeEditor = new RecipeEditor(recipe)
+          const recipeEditor = new RecipeEditor(recipe.value)
 
           const newRecipe = recipeEditor.deleteItem(itemId).finish()
 
-          setRecipe(newRecipe)
+          recipe.value = newRecipe
           setSelectedFoodItem(null)
         }}
       />
@@ -109,24 +110,22 @@ export function RecipeEditModal({
         onSetVisible={setTemplateSearchModalVisible}
         onRefetch={onRefetch}
         recipe={recipe}
-        setRecipe={setRecipe}
       />
 
       <ModalContextProvider visible={visible} onSetVisible={onSetVisible}>
         <Modal
-          header={<Header recipe={recipe} />}
+          header={<Header recipe={recipe.value} />}
           // TODO: Add barcode button and handle barcode scan
           body={
             <Body
               recipe={recipe}
-              onSetRecipe={setRecipe}
               onSelectFoodItem={setSelectedFoodItem}
               onSearchNewItem={() => setTemplateSearchModalVisible(true)}
             />
           }
           actions={
             <Actions
-              onApply={() => onSaveRecipe(recipe)}
+              onApply={() => onSaveRecipe(recipe.value)}
               onCancel={onCancel}
               onDelete={() => alert('TODO: delete recipe')}
             />
@@ -173,13 +172,11 @@ function ExternalTemplateSearchModal({
   onSetVisible,
   onRefetch,
   recipe,
-  setRecipe,
 }: {
   visible: boolean
   onSetVisible: Dispatch<SetStateAction<boolean>>
   onRefetch: () => void
-  recipe: Recipe
-  setRecipe: Dispatch<SetStateAction<Recipe>>
+  recipe: Signal<Recipe>
 }) {
   const handleNewItemGroup = async (newGroup: ItemGroup) => {
     console.debug('onNewItemGroup', newGroup)
@@ -191,11 +188,13 @@ function ExternalTemplateSearchModal({
       return
     }
 
-    const newRecipe = new RecipeEditor(recipe).addItems(newGroup.items).finish()
+    const newRecipe = new RecipeEditor(recipe.value)
+      .addItems(newGroup.items)
+      .finish()
 
     console.debug('onNewFoodItem: applying', JSON.stringify(newRecipe, null, 2))
 
-    setRecipe(newRecipe)
+    recipe.value = newRecipe
   }
 
   const handleFinishSearch = () => {
@@ -215,7 +214,7 @@ function ExternalTemplateSearchModal({
       }}
     >
       <TemplateSearchModal
-        targetName={recipe?.name ?? 'ERRO: Receita não especificada'}
+        targetName={recipe.value?.name ?? 'ERRO: Receita não especificada'}
         onFinish={handleFinishSearch}
         onNewItemGroup={handleNewItemGroup}
       />
@@ -239,12 +238,10 @@ function Header({ recipe }: { recipe: Recipe | undefined }) {
 
 function Body({
   recipe,
-  onSetRecipe,
   onSelectFoodItem,
   onSearchNewItem,
 }: {
-  recipe: Recipe | undefined
-  onSetRecipe: Dispatch<SetStateAction<Recipe>>
+  recipe: Signal<Recipe>
   onSelectFoodItem: Dispatch<SetStateAction<FoodItem | null>>
   onSearchNewItem: () => void
 }) {
@@ -255,8 +252,9 @@ function Body({
       recipe={recipe}
       header={
         <RecipeEditView.Header
-          onUpdateRecipe={(recipe) => {
-            onSetRecipe(recipe)
+          onUpdateRecipe={(newRecipe) => {
+            console.debug(`[RecipeEditModal] onUpdateRecipe: `, newRecipe)
+            recipe.value = newRecipe
           }}
         />
       }

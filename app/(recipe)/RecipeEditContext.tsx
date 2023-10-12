@@ -1,11 +1,10 @@
 'use client'
 
 import { Recipe } from '@/model/recipeModel'
-import { State } from '@/utils/typeUtils'
-import { Dispatch, SetStateAction } from 'react'
+import { Signal } from '@preact/signals-react'
 import { createContext, useContext } from 'use-context-selector'
 
-const RecipeContext = createContext<{ recipe: State<Recipe> } | null>(null)
+const RecipeContext = createContext<{ recipe: Signal<Recipe> } | null>(null)
 
 export function useRecipeEditContext() {
   const context = useContext(RecipeContext)
@@ -21,20 +20,15 @@ export function useRecipeEditContext() {
 
 export function RecipeEditContextProvider({
   recipe,
-  setRecipe,
   children,
 }: {
-  recipe: Recipe
-  setRecipe: Dispatch<SetStateAction<Recipe>>
+  recipe: Signal<Recipe>
   children: React.ReactNode
 }) {
   return (
     <RecipeContext.Provider
       value={{
-        recipe: {
-          value: recipe,
-          setValue: setRecipe,
-        },
+        recipe,
       }}
     >
       {children}
