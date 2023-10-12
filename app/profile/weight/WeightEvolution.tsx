@@ -1,15 +1,8 @@
 'use client'
 
 import { useUserDesiredWeight, useUserId } from '@/context/users.context'
-import {
-  deleteWeight,
-  fetchUserWeights,
-  insertWeight,
-  updateWeight,
-} from '@/controllers/weights'
+import { deleteWeight, insertWeight, updateWeight } from '@/controllers/weights'
 import { Weight, createWeight } from '@/model/weightModel'
-import { Loadable } from '@/utils/loadable'
-import { useCallback, useEffect, useState } from 'react'
 import Capsule from '../../../components/capsule/Capsule'
 import TrashIcon from '../../(icons)/TrashIcon'
 import { Line } from 'recharts'
@@ -17,7 +10,7 @@ import { CandleStickChart } from '@/components/chart/CandleStickChart'
 import { OHLC } from '@/model/ohlcModel'
 import Datepicker from 'react-tailwindcss-datepicker'
 import { useWeights } from '@/hooks/weights'
-import { useDateField, useField, useFloatField } from '@/hooks/field'
+import { useDateField, useFloatField } from '@/hooks/field'
 import { FloatInput } from '@/components/FloatInput'
 import { dateToYYYYMMDD } from '@/utils/dateUtils'
 import { CapsuleContent } from '@/components/capsule/CapsuleContent'

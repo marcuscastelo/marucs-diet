@@ -38,7 +38,6 @@ export function RecipeEditModal({
       }),
   )
 
-  // TODO: rename to setSelectedRecipeItem?
   const [selectedFoodItem, setSelectedFoodItem] = useState<FoodItem | null>(
     null,
   )
@@ -168,7 +167,7 @@ function ExternalFoodItemEditModal({
   )
 }
 
-// TODO: This component is duplicated between RecipeEditModal and ItemGroupEditModal, must be refactored
+// TODO: This component is duplicated between RecipeEditModal and ItemGroupEditModal, must be refactored (maybe global)
 function ExternalTemplateSearchModal({
   visible,
   onSetVisible,
@@ -263,24 +262,18 @@ function Body({
       }
       content={
         <RecipeEditView.Content
+          onNewItem={() => onSearchNewItem()}
           onEditItem={(item) => {
-            // TODO: Allow user to edit recipe
+            // TODO: Allow user to edit recipe inside recipe
             if (item.__type === 'RecipeItem') {
-              //
               alert(
-                'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
+                'Ainda não é possível editar receitas dentro de receitas! Funcionalidade em desenvolvimento',
               )
               return
             }
 
             onSelectFoodItem(item)
           }}
-        />
-      }
-      actions={
-        <RecipeEditView.Actions
-          // TODO: Treat recursive recipe
-          onNewItem={() => onSearchNewItem()}
         />
       }
     />

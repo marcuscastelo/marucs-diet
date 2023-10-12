@@ -3,9 +3,15 @@ import { Recipe } from '@/model/recipeModel'
 import { ItemContainer } from './interfaces/itemContainer'
 import { Editor } from './editor'
 import { ItemEditor } from './itemEditor'
+import { calcRecipeMacros } from '../macroMath'
 
 export class RecipeEditor extends Editor<Recipe> implements ItemContainer {
   private readonly recipe = this.content
+
+  setPreparedMultiplier(preparedMultiplier: number) {
+    this.recipe.prepared_multiplier = preparedMultiplier
+    return this
+  }
 
   addItem(item: FoodItem) {
     this.recipe.items.push(item)
@@ -46,8 +52,9 @@ export class RecipeEditor extends Editor<Recipe> implements ItemContainer {
     return this
   }
 
-  clearItems(): void {
+  clearItems() {
     this.recipe.items = []
+    return this
   }
 
   // TODO: Move eslint-disable-next-line to eslint config
@@ -55,5 +62,7 @@ export class RecipeEditor extends Editor<Recipe> implements ItemContainer {
   protected beforeFinish(): void {}
   // TODO: Move eslint-disable-next-line to eslint config
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  protected afterFinish(): void {}
+  protected afterFinish(): void {
+    this.recipe.macros = calcRecipeMacros(this.recipe)
+  }
 }
