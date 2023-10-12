@@ -38,6 +38,7 @@ import {
   ReadonlySignal,
   Signal,
   computed,
+  useComputed,
   useSignal,
 } from '@preact/signals-react'
 
@@ -210,8 +211,8 @@ export function TemplateSearch({
   }
 
   // TODO: Create DEFAULT_TAB constant
-  const [tab, setTab] = useState<AvailableTab>('all')
-  const templates = chooseFoodsFromFoodStore(tab, {
+  const tab = useSignal<AvailableTab>('all')
+  const templates = chooseFoodsFromFoodStore(tab.value, {
     foods,
     favoriteFoods,
     recentFoods,
@@ -242,35 +243,37 @@ export function TemplateSearch({
     )
   }
 
-  const searchFilteredTemplates = templates.data
-    .filter((template) => {
-      if (search === '') {
-        return true
-      }
+  const searchFilteredTemplates = computed(() =>
+    (templates.data ?? [])
+      .filter((template) => {
+        if (search === '') {
+          return true
+        }
 
-      // Fuzzy search
-      const searchLower = search.toLowerCase()
-      const nameLower = template.name.toLowerCase()
-      const searchWords = searchLower.split(' ')
-      const nameWords = nameLower.split(' ')
+        // Fuzzy search
+        const searchLower = search.toLowerCase()
+        const nameLower = template.name.toLowerCase()
+        const searchWords = searchLower.split(' ')
+        const nameWords = nameLower.split(' ')
 
-      for (const searchWord of searchWords) {
-        let found = false
-        for (const nameWord of nameWords) {
-          if (nameWord.startsWith(searchWord)) {
-            found = true
-            break
+        for (const searchWord of searchWords) {
+          let found = false
+          for (const nameWord of nameWords) {
+            if (nameWord.startsWith(searchWord)) {
+              found = true
+              break
+            }
+          }
+
+          if (!found) {
+            return false
           }
         }
 
-        if (!found) {
-          return false
-        }
-      }
-
-      return true
-    })
-    .slice(0, TEMPLATE_SEARCH_LIMIT)
+        return true
+      })
+      .slice(0, TEMPLATE_SEARCH_LIMIT),
+  )
 
   return (
     <>
@@ -278,7 +281,7 @@ export function TemplateSearch({
         showBarCodeModal={() => (barCodeModalVisible.value = true)}
       />
 
-      <TemplateSearchTabs onTabChange={setTab} />
+      <TemplateSearchTabs onTabChange={(tabValue) => (tab.value = tabValue)} />
       <SearchBar
         isDesktop={isDesktop}
         search={search}
@@ -440,7 +443,7 @@ const SearchResults = ({
 }: {
   search: string
   typing: boolean
-  filteredTemplates: Template[] // TODO: convert to signal
+  filteredTemplates: ReadonlySignal<Template[]>
   setSelectedTemplate: (food: Template) => void
   barCodeModalVisible: Signal<boolean>
   foodItemEditModalVisible: Signal<boolean>
@@ -449,48 +452,54 @@ const SearchResults = ({
 
   return (
     <>
-      {!typing && filteredTemplates.length === 0 && (
+      {!typing && filteredTemplates.value.length === 0 && (
         <Alert color="warning" className="mt-2">
           Nenhum alimento encontrado para a busca &quot;{search}&quot;.
         </Alert>
       )}
 
       <div className="bg-gray-800 p-1">
-        {filteredTemplates.map((template, idx) => (
-          <React.Fragment key={idx}>
-            <FoodItemView
-              foodItem={computed(() => ({
-                ...createFoodItem({
-                  name: template.name,
-                  quantity: 100,
-                  macros: template.macros,
-                  reference: template.id,
-                }),
-                __type: template.__type === 'Food' ? 'FoodItem' : 'RecipeItem', // TODO: Refactor conversion from template type to group/item types
-              }))}
-              className="mt-1"
-              onClick={() => {
-                setSelectedTemplate(template)
-                foodItemEditModalVisible.value = true
-                barCodeModalVisible.value = false
-              }}
-              header={
-                <FoodItemView.Header
-                  name={<FoodItemView.Header.Name />}
-                  favorite={
-                    <FoodItemView.Header.Favorite
-                      favorite={isFoodFavorite(template.id)}
-                      onSetFavorite={(favorite) =>
-                        setFoodAsFavorite(template.id, favorite)
-                      }
-                    />
-                  }
-                />
-              }
-              nutritionalInfo={<FoodItemView.NutritionalInfo />}
-            />
-          </React.Fragment>
-        ))}
+        {filteredTemplates.value.map((_, idx) => {
+          const template = computed(() => filteredTemplates.value[idx])
+          return (
+            <React.Fragment key={template.value.id}>
+              <FoodItemView
+                foodItem={computed(() => ({
+                  ...createFoodItem({
+                    name: template.value.name,
+                    quantity: 100,
+                    macros: template.value.macros,
+                    reference: template.value.id,
+                  }),
+                  __type:
+                    template.value.__type === 'Food'
+                      ? 'FoodItem'
+                      : 'RecipeItem', // TODO: Refactor conversion from template type to group/item types
+                }))}
+                className="mt-1"
+                onClick={() => {
+                  setSelectedTemplate(template.value)
+                  foodItemEditModalVisible.value = true
+                  barCodeModalVisible.value = false
+                }}
+                header={
+                  <FoodItemView.Header
+                    name={<FoodItemView.Header.Name />}
+                    favorite={
+                      <FoodItemView.Header.Favorite
+                        favorite={isFoodFavorite(template.value.id)}
+                        onSetFavorite={(favorite) =>
+                          setFoodAsFavorite(template.value.id, favorite)
+                        }
+                      />
+                    }
+                  />
+                }
+                nutritionalInfo={<FoodItemView.NutritionalInfo />}
+              />
+            </React.Fragment>
+          )
+        })}
       </div>
     </>
   )
