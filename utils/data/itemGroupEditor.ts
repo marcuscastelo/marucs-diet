@@ -3,13 +3,17 @@ import { ItemContainer } from './interfaces/itemContainer'
 import { ItemGroup } from '@/model/itemGroupModel'
 import { Editor } from './editor'
 import { ItemEditor } from './itemEditor'
-import { Mutable } from '../typeUtils'
 
 export class ItemGroupEditor
   extends Editor<ItemGroup>
   implements ItemContainer
 {
   private readonly group = this.content
+
+  setName(name: string) {
+    this.group.name = name
+    return this
+  }
 
   addItem(item: FoodItem) {
     this.group.items.push(item)

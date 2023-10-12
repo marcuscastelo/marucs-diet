@@ -1,6 +1,6 @@
 'use client'
 
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { FoodItem, createFoodItem } from '@/model/foodItemModel'
 import Modal, { ModalActions } from '../(modals)/Modal'
 import { Recipe, createRecipe } from '@/model/recipeModel'
@@ -13,8 +13,9 @@ import { TemplateSearchModal } from '../templateSearch/TemplateSearchModal'
 import { ItemGroup, isSimpleSingleGroup } from '@/model/itemGroupModel'
 import { RecipeEditor } from '@/utils/data/recipeEditor'
 import {
+  ReadonlySignal,
   Signal,
-  effect,
+  computed,
   useSignal,
   useSignalEffect,
 } from '@preact/signals-react'
@@ -76,7 +77,7 @@ export function RecipeEditModal({
     <>
       <ExternalFoodItemEditModal
         visible={foodItemEditModalVisible}
-        foodItem={selectedFoodItem.value ?? impossibleFoodItem}
+        foodItem={computed(() => selectedFoodItem.value ?? impossibleFoodItem)}
         targetName={recipe.value?.name ?? 'LOADING RECIPE'}
         onApply={(foodItem) => {
           if (!recipe) return
@@ -141,7 +142,7 @@ function ExternalFoodItemEditModal({
   onDelete,
   visible,
 }: {
-  foodItem: FoodItem
+  foodItem: ReadonlySignal<FoodItem>
   targetName: string
   onApply: (item: TemplateItem) => void
   onDelete: (itemId: TemplateItem['id']) => void

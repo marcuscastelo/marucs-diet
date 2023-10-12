@@ -1,17 +1,14 @@
 import { Meal } from '@/model/mealModel'
-import { Dispatch, SetStateAction } from 'react'
+import { Signal } from '@preact/signals-react'
 
-export const duplicateLastItemGroup = (
-  meal: Meal,
-  setMeal: Dispatch<SetStateAction<Meal>>,
-) => {
-  const lastItem = meal.groups[meal.groups.length - 1]
+export const duplicateLastItemGroup = (meal: Signal<Meal>) => {
+  const lastItem = meal.value.groups[meal.value.groups.length - 1]
   const newGroup = {
     ...lastItem,
     id: lastItem.id + 1,
   }
-  setMeal({
-    ...meal,
-    groups: [...meal.groups, newGroup],
-  })
+  meal.value = {
+    ...meal.value,
+    groups: [...meal.peek().groups, newGroup],
+  }
 }

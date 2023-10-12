@@ -3,6 +3,7 @@
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import { updateDay, upsertDay } from '@/controllers/days'
 import { Day } from '@/model/dayModel'
+import { ReadonlySignal } from '@preact/signals-react'
 
 export default function CopyLastDayButton({
   days,
@@ -10,7 +11,7 @@ export default function CopyLastDayButton({
   selectedDay,
   refetchDays,
 }: {
-  days: Day[]
+  days: ReadonlySignal<Day[]>
   day: Day | undefined
   selectedDay: string
   refetchDays: () => void
@@ -22,7 +23,7 @@ export default function CopyLastDayButton({
     return <></>
   }
 
-  const lastDay = days.findLast(
+  const lastDay = days.value.findLast(
     (day) => Date.parse(day.target_day) < Date.parse(selectedDay),
   )
   if (lastDay === undefined) {

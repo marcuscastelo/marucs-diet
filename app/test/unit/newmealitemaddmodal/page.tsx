@@ -3,7 +3,7 @@
 import { mockItem } from '../(mock)/mockData'
 import FoodItemEditModal from '@/app/(foodItem)/FoodItemEditModal'
 import { ModalContextProvider } from '@/app/(modals)/ModalContext'
-import { useSignal } from '@preact/signals-react'
+import { computed, useSignal } from '@preact/signals-react'
 
 export default function Page() {
   const visible = useSignal(false)
@@ -17,7 +17,7 @@ export default function Page() {
       <ModalContextProvider visible={visible}>
         <FoodItemEditModal
           targetName="Teste"
-          foodItem={mockItem()}
+          foodItem={computed(mockItem)}
           onApply={() => alert('apply')} // TODO: Change all alerts with ConfirmModal
         />
       </ModalContextProvider>
