@@ -51,7 +51,7 @@ export function TemplateSearchModal({
   onFinish,
 }: TemplateSearchModalProps) {
   const userId = useUserId()
-  const { visibleNew } = useModalContext()
+  const { visible } = useModalContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
   const foodItemEditModalVisible = useSignal(false)
@@ -139,12 +139,12 @@ export function TemplateSearchModal({
   console.debug(`[TemplateSearchModal] Render`)
   return (
     <>
-      <ModalContextProvider visible={visibleNew}>
+      <ModalContextProvider visible={visible}>
         <Modal
           header={<Modal.Header title="Busca de alimentos" />}
           body={
             <div className="max-h-full">
-              {visibleNew.value && (
+              {visible.value && (
                 <TemplateSearch
                   barCodeModalVisible={barCodeModalVisible}
                   foodItemEditModalVisible={foodItemEditModalVisible}

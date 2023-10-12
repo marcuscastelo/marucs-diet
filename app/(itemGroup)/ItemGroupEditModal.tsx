@@ -77,7 +77,7 @@ const InnerItemGroupEditModal = ({
   onDelete,
   onRefetch,
 }: ItemGroupEditModalProps) => {
-  const { visibleNew } = useModalContext()
+  const { visible } = useModalContext()
   const { group } = useItemGroupEditContext()
 
   const recipeEditModalVisible = useSignal(false)
@@ -154,7 +154,7 @@ const InnerItemGroupEditModal = ({
         visible={templateSearchModalVisible}
         onRefetch={onRefetch}
       />
-      <ModalContextProvider visible={visibleNew}>
+      <ModalContextProvider visible={visible}>
         <Modal
           hasBackdrop={true}
           header={
@@ -174,7 +174,7 @@ const InnerItemGroupEditModal = ({
           actions={
             <Actions
               canApply={canApply}
-              visible={visibleNew}
+              visible={visible}
               onCancel={onCancel}
               onDelete={onDelete}
             />

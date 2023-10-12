@@ -5,7 +5,7 @@ import { ReactNode } from 'react'
 import { createContext, useContext } from 'use-context-selector'
 
 type ModalContext = {
-  visibleNew: Signal<boolean>
+  visible: Signal<boolean>
 }
 
 const ModalContext = createContext<ModalContext | null>(null)
@@ -30,7 +30,7 @@ export function ModalContextProvider({
   children: ReactNode
 }) {
   return (
-    <ModalContext.Provider value={{ visibleNew: visible }}>
+    <ModalContext.Provider value={{ visible }}>
       {children}
     </ModalContext.Provider>
   )
