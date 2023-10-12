@@ -17,7 +17,7 @@ export const weigthSchema = z.object({
     .transform(() => 'Weight' as const),
 })
 
-export type Weight = z.infer<typeof weigthSchema>
+export type Weight = Readonly<z.infer<typeof weigthSchema>>
 
 export function createWeight({
   owner,

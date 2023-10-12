@@ -23,8 +23,12 @@ export const Root: Story = {
     <RecipeEditView
       {...args}
       header={<RecipeEditView.Header onUpdateRecipe={() => undefined} />}
-      content={<RecipeEditView.Content onEditItem={() => undefined} />}
-      footer={<RecipeEditView.Actions onNewItem={() => undefined} />}
+      content={
+        <RecipeEditView.Content
+          onEditItem={() => undefined}
+          onNewItem={() => undefined}
+        />
+      }
     />
   ),
 }

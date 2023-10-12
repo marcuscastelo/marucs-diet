@@ -2,6 +2,7 @@ import { Day, daySchema } from '@/model/dayModel'
 import { User } from '@/model/userModel'
 import { New, enforceNew } from '@/utils/newDbRecord'
 import supabase from '@/utils/supabase'
+import { Mutable } from '@/utils/typeUtils'
 
 const TABLE = 'days_test'
 
@@ -24,12 +25,10 @@ export const listDays = async (userId: User['id']): Promise<Day[]> =>
     })
 
 export const upsertDay = async (
-  day: Partial<Day> & Omit<Day, 'id'>,
+  newDay: Partial<Day> & Omit<Day, 'id'>,
 ): Promise<Day | null> => {
-  if ('id' in day) {
-    console.error('Day should not have an id') // TODO: better error handling
-    delete day.id
-  }
+  const day = enforceNew(newDay)
+
   const { data: days, error } = await supabase.from(TABLE).upsert(day).select()
   if (error) {
     throw error

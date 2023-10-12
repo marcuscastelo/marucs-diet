@@ -87,4 +87,4 @@ export const apiFoodSchema = z.object({
   alimentos: z.array(z.any(), { required_error: 'Foods is required' }),
 })
 
-export type ApiFood = z.infer<typeof apiFoodSchema>
+export type ApiFood = Readonly<z.infer<typeof apiFoodSchema>>

@@ -15,7 +15,7 @@ export const recipeItemSchema = z.object({
     .transform(() => 'RecipeItem' as const),
 })
 
-export type RecipeItem = z.infer<typeof recipeItemSchema>
+export type RecipeItem = Readonly<z.infer<typeof recipeItemSchema>>
 
 export function createRecipeItem({
   name,
