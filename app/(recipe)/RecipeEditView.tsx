@@ -65,7 +65,7 @@ export default function RecipeEditView({
   )
 }
 
-// TODO: Unify Header, Content and Actions into a single component for entire app
+// TODO: Unify Header, Content and Actions for each component in the entire app
 RecipeEditView.Header = RecipeEditHeader
 RecipeEditView.Content = RecipeEditContent
 
@@ -221,6 +221,21 @@ function RecipeEditContent({
 
   return (
     <>
+      <input
+        className="input w-full"
+        type="text"
+        onChange={(e) => {
+          if (recipe.value === null) {
+            console.error('group is null')
+            throw new Error('group is null')
+          }
+          recipe.value = new RecipeEditor(recipe.value)
+            .setName(e.target.value)
+            .finish()
+        }}
+        onFocus={(e) => e.target.select()}
+        value={recipe.value.name ?? ''}
+      />
       <FoodItemListView
         foodItems={computed(() => recipe.value.items)}
         onItemClick={onEditItem}
