@@ -14,15 +14,19 @@ import { TemplateSearchModal } from '../templateSearch/TemplateSearchModal'
 import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
 import RecipeIcon from '../(icons)/RecipeIcon'
 import { RecipeEditModal } from '../(recipe)/RecipeEditModal'
-import { Recipe } from '@/model/recipeModel'
+import { Recipe, createRecipe } from '@/model/recipeModel'
 import { Loadable } from '@/utils/loadable'
 import PageLoading from '../PageLoading'
-import { searchRecipeById, updateRecipe } from '@/controllers/recipes'
+import {
+  searchRecipeById,
+  updateRecipe,
+  upsertRecipe,
+} from '@/controllers/recipes'
 import {
   ItemGroupEditContextProvider,
   useItemGroupEditContext,
 } from './ItemGroupEditContext'
-import { useUserContext } from '@/context/users.context'
+import { useUserContext, useUserId } from '@/context/users.context'
 import { ModalContextProvider, useModalContext } from '../(modals)/ModalContext'
 import { isRecipedGroupUpToDate } from '@/utils/groupUtils'
 import { DownloadIcon } from '../(icons)/DownloadIcon'
@@ -41,6 +45,9 @@ import {
   useSignalEffect,
 } from '@preact/signals-react'
 import { mockItem } from '../test/unit/(mock)/mockData'
+import { ConvertToRecipeIcon } from '../(icons)/ConvertToRecipeIcon'
+import { batch } from 'react-redux'
+import { deepCopy } from '@/utils/deepCopy'
 
 type EditSelection = {
   foodItem: FoodItem
@@ -425,6 +432,8 @@ function Body({
   const acceptedClipboardSchema = foodItemSchema.or(itemGroupSchema)
 
   const { group } = useItemGroupEditContext()
+  const userId = useUserId()
+
   const {
     write: writeToClipboard,
     clear: clearClipboard,
@@ -522,6 +531,48 @@ function Body({
               <PasteIcon />
             </div>
           )}
+
+          {group.value.type === 'simple' && (
+            <>
+              <button
+                className="my-auto ml-auto"
+                onClick={() => {
+                  batch(async () => {
+                    if (group.value === null) {
+                      console.error('group is null')
+                      throw new Error('group is null')
+                    }
+
+                    const newRecipe = createRecipe({
+                      name:
+                        group.value.name ||
+                        'Nova receita (a partir de um grupo)',
+                      items: deepCopy(group.value.items) ?? [],
+                      owner: userId,
+                    })
+
+                    const insertedRecipe = await upsertRecipe(newRecipe)
+
+                    if (insertedRecipe === null) {
+                      alert(
+                        'Falha ao criar receita a partir de grupo (erro ao conversar com banco de dados)',
+                      )
+                      console.error('insertedRecipe is null')
+                      throw new Error('insertedRecipe is null')
+                    }
+
+                    group.value = new ItemGroupEditor(group.value)
+                      .setRecipe(insertedRecipe.id)
+                      .finish()
+                    recipeEditModalVisible.value = true
+                  })
+                }}
+              >
+                <ConvertToRecipeIcon />
+              </button>
+            </>
+          )}
+
           {group.value.type === 'recipe' && (
             <>
               {recipe && isRecipedGroupUpToDate(group.value, recipe) ? (

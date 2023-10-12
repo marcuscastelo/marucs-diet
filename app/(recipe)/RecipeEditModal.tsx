@@ -19,6 +19,7 @@ import {
   useSignal,
   useSignalEffect,
 } from '@preact/signals-react'
+import { useUserId } from '@/context/users.context'
 
 export type RecipeEditModalProps = {
   show?: boolean
@@ -36,12 +37,14 @@ export function RecipeEditModal({
   onRefetch,
 }: RecipeEditModalProps) {
   const { visible } = useModalContext()
+  const userId = useUserId()
 
   const recipe = useSignal(
     initialRecipe ??
       createRecipe({
         name: 'New Recipe',
         items: [],
+        owner: userId,
       }),
   )
 
@@ -58,8 +61,12 @@ export function RecipeEditModal({
   useEffect(() => {
     recipe.value =
       initialRecipe ??
-      createRecipe({ name: 'Error: Recipe cannot be null!', items: [] })
-  }, [recipe, initialRecipe])
+      createRecipe({
+        name: 'Error: Recipe cannot be null!',
+        items: [],
+        owner: userId,
+      })
+  }, [recipe, initialRecipe, userId])
 
   useSignalEffect(() => {
     if (!selectedFoodItem.value) {
