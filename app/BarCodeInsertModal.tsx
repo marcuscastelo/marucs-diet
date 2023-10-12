@@ -1,11 +1,11 @@
 'use client'
 
 import { Food } from '@/model/foodModel'
-import { useState } from 'react'
 import Modal, { ModalActions } from './(modals)/Modal'
 import { BarCodeReader } from './BarCodeReader'
 import BarCodeSearch from './BarCodeSearch'
 import { useModalContext } from './(modals)/ModalContext'
+import { useSignal } from '@preact/signals-react'
 
 export type BarCodeInsertModalProps = {
   onSelect: (apiFood: Food) => void
@@ -14,18 +14,18 @@ export type BarCodeInsertModalProps = {
 const BarCodeInsertModal = ({ onSelect }: BarCodeInsertModalProps) => {
   const { visible } = useModalContext()
 
-  const [barCode, setBarCode] = useState<string>('')
-  const [food, setFood] = useState<Food | null>(null)
+  const barCode = useSignal<string>('')
+  const food = useSignal<Food | null>(null)
 
   const handleSelect = async (e?: React.SyntheticEvent) => {
     e?.preventDefault()
 
-    if (!food) {
+    if (!food.value) {
       console.warn('Ignoring submit because food is null')
       return
     }
 
-    onSelect(food)
+    onSelect(food.value)
   }
 
   return (
@@ -34,13 +34,12 @@ const BarCodeInsertModal = ({ onSelect }: BarCodeInsertModalProps) => {
       body={
         <>
           {visible.value && (
-            <BarCodeReader id="reader" onScanned={setBarCode} />
+            <BarCodeReader
+              id="reader"
+              onScanned={(barCodeValue) => (barCode.value = barCodeValue)}
+            />
           )}
-          <BarCodeSearch
-            barCode={barCode}
-            setBarCode={setBarCode}
-            onFoodChange={setFood}
-          />
+          <BarCodeSearch barCode={barCode} food={food} />
         </>
       }
       actions={
@@ -56,7 +55,7 @@ const BarCodeInsertModal = ({ onSelect }: BarCodeInsertModalProps) => {
           </button>
           <button
             className="btn-primary btn"
-            disabled={!food}
+            disabled={!food.value}
             onClick={handleSelect}
           >
             Aplicar
