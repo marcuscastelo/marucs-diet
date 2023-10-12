@@ -8,7 +8,7 @@ import {
   RecipeEditContextProvider,
   useRecipeEditContext,
 } from './RecipeEditContext'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
 import TrashIcon from '../(icons)/TrashIcon'
 import PasteIcon from '../(icons)/PasteIcon'
 import CopyIcon from '../(icons)/CopyIcon'
@@ -22,10 +22,11 @@ import { deserializeClipboard } from '@/utils/clipboardUtils'
 import { convertToGroups } from '@/utils/groupUtils'
 import { mealSchema } from '@/model/mealModel'
 import { itemGroupSchema } from '@/model/itemGroupModel'
-import { useFloatField, useFloatFieldOld } from '@/hooks/field'
+import { useFloatField } from '@/hooks/field'
 import { FloatInput } from '@/components/FloatInput'
 import { RecipeEditor } from '@/utils/data/recipeEditor'
 import { Signal, computed } from '@preact/signals-react'
+import { cn } from '@/utils/cn'
 
 export type RecipeEditViewProps = {
   recipe: Signal<Recipe>
@@ -54,9 +55,7 @@ export default function RecipeEditView({
 }: RecipeEditViewProps) {
   // TODO: implement setRecipe
   return (
-    <div
-      className={`bg-gray-800 p-3 ${className === undefined ? '' : className}`}
-    >
+    <div className={cn('p-3', className)}>
       <RecipeEditContextProvider recipe={recipe}>
         {header}
         {content}
