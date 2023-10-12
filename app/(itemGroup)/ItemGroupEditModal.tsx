@@ -42,6 +42,7 @@ import {
 } from '@preact/signals-react'
 import { mockItem } from '../test/unit/(mock)/mockData'
 import { ConvertToRecipeIcon } from '../(icons)/ConvertToRecipeIcon'
+import { batch } from 'react-redux'
 
 type EditSelection = {
   foodItem: FoodItem
@@ -529,13 +530,16 @@ function Body({
               <button
                 className="my-auto ml-auto"
                 onClick={() => {
-                  if (group.value === null) {
-                    console.error('group is null')
-                    throw new Error('group is null')
-                  }
-                  group.value = new ItemGroupEditor(group.value)
-                    .setRecipe(2)
-                    .finish()
+                  batch(() => {
+                    if (group.value === null) {
+                      console.error('group is null')
+                      throw new Error('group is null')
+                    }
+                    group.value = new ItemGroupEditor(group.value)
+                      .setRecipe(2)
+                      .finish()
+                    recipeEditModalVisible.value = true
+                  })
                 }}
               >
                 <ConvertToRecipeIcon />
