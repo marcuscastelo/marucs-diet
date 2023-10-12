@@ -21,7 +21,7 @@ export default async function Page({ params }: PageParams) {
 
   const userId = await getUser()
 
-  if (!userId) {
+  if (userId === undefined) {
     return <h1>Usuário não encontrado</h1>
   }
 

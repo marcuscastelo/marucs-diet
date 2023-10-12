@@ -1,13 +1,13 @@
 'use client'
 
 import { ItemGroup } from '@/model/itemGroupModel'
-import { Dispatch, ReactNode, SetStateAction, useEffect, useState } from 'react'
+import { ReadonlySignal, Signal, useSignal } from '@preact/signals-react'
+import { ReactNode, useEffect, useState } from 'react'
 
 import { createContext, useContext } from 'use-context-selector'
 
 const ItemGroupEditContext = createContext<{
-  group: ItemGroup | null
-  setGroup: Dispatch<SetStateAction<ItemGroup | null>>
+  group: Signal<ItemGroup | null>
   saveGroup: () => void
 } | null>(null)
 
@@ -28,21 +28,17 @@ export function ItemGroupEditContextProvider({
   onSaveGroup,
   children,
 }: {
-  group: ItemGroup | null
+  group: ReadonlySignal<ItemGroup | null>
   onSaveGroup: (group: ItemGroup) => void
   children: ReactNode
 }) {
-  const [group, setGroup] = useState<ItemGroup | null>(initialGroup)
+  const group = useSignal<ItemGroup | null>(initialGroup.value)
 
-  const handleSaveGroup = () => group && onSaveGroup(group)
-
-  useEffect(() => {
-    setGroup(initialGroup)
-  }, [initialGroup])
+  const handleSaveGroup = () => group.value && onSaveGroup(group.value)
 
   return (
     <ItemGroupEditContext.Provider
-      value={{ group, setGroup, saveGroup: handleSaveGroup }}
+      value={{ group, saveGroup: handleSaveGroup }}
     >
       {children}
     </ItemGroupEditContext.Provider>

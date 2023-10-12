@@ -3,6 +3,7 @@
 import { Day } from '@/model/dayModel'
 import CreateBlankDayButton from './CreateBlankDayButton'
 import CopyLastDayButton from './CopyLastDayButton'
+import { computed } from '@preact/signals-react'
 
 export default function DayNotFound({
   selectedDay,
@@ -24,7 +25,7 @@ export default function DayNotFound({
       />
       <CopyLastDayButton
         day={undefined}
-        days={days}
+        days={computed(() => days)}
         refetchDays={refetchDays}
         selectedDay={selectedDay}
       />

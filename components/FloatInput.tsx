@@ -20,35 +20,28 @@ export function FloatInput({
   >,
   'value' | 'onChange'
 >) {
-  const { rawValue, setRawValue, finishTyping } = field
-
-  const commit = (newValue: string) => {
-    const nextValue = field.transform.toValue(newValue)
-    onFieldCommit?.(nextValue)
-  }
+  const { rawValue, value } = field
 
   const handleOnBlur: FocusEventHandler<HTMLInputElement> = (e) => {
-    // TODO: Avoid duplicating `finishTyping` logic here
-    finishTyping()
     onBlur?.(e)
 
     if (commitOn === 'blur') {
-      commit(e.target.value)
+      onFieldCommit?.(value.value)
     }
   }
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRawValue(e.target.value)
+    rawValue.value = e.target.value
 
     if (commitOn === 'change') {
-      commit(e.target.value)
+      onFieldCommit?.(value.value)
     }
   }
 
   return (
     <input
       {...props}
-      value={rawValue}
+      value={rawValue.value}
       onChange={handleOnChange}
       onBlur={handleOnBlur}
     />

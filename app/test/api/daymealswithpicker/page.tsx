@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react'
 import Datepicker from 'react-tailwindcss-datepicker'
 import { DateValueType } from 'react-tailwindcss-datepicker/dist/types'
 import { useUserContext } from '@/context/users.context'
+import { computed } from '@preact/signals-react'
 
 export default function Page() {
   const [days, setDays] = useState<Day[]>([])
@@ -24,12 +25,15 @@ export default function Page() {
     setDays(days)
 
     const mealProps = days.map((day) => {
-      return day.meals.map((meal): MealEditViewProps => {
+      return day.meals.map((_, idx): MealEditViewProps => {
+        const meal = computed(() => day.meals[idx])
         return {
           meal,
           header: (
             <MealEditView.Header
-              onUpdateMeal={(meal) => alert(`Mock: Update meal ${meal.name}`)} // TODO: Change all alerts with ConfirmModal
+              onUpdateMeal={(newMeal) =>
+                alert(`Mock: Update meal ${newMeal.name}`)
+              } // TODO: Change all alerts with ConfirmModal
             />
           ),
           content: (
@@ -50,12 +54,12 @@ export default function Page() {
   }
 
   const handleDayChange = (newValue: DateValueType) => {
-    if (!newValue?.startDate) {
+    if (newValue?.startDate === undefined || newValue.startDate === '') {
       setSelectedDay('')
       return
     }
 
-    const dateString = newValue?.startDate
+    const dateString = newValue.startDate === null ? '' : newValue.startDate
     const date = stringToDate(dateString)
     setSelectedDay(date.toISOString().split('T')[0]) // TODO: retriggered: use dateUtils when this is understood
   }
@@ -94,13 +98,14 @@ export default function Page() {
         <>
           <h1> Target day: {day.target_day}</h1>
           <MealEditViewList
-            mealEditPropsList={day.meals.map((meal): MealEditViewProps => {
+            mealEditPropsList={day.meals.map((_, idx): MealEditViewProps => {
+              const meal = computed(() => day.meals[idx])
               return {
                 meal,
                 header: (
                   <MealEditView.Header
                     onUpdateMeal={
-                      (meal) => alert(`Mock: Update meal ${meal.name}`) // TODO: Change all alerts with ConfirmModal
+                      (newMeal) => alert(`Mock: Update meal ${newMeal.name}`) // TODO: Change all alerts with ConfirmModal
                     }
                   />
                 ),

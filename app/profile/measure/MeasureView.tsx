@@ -7,7 +7,7 @@ import Datepicker from 'react-tailwindcss-datepicker'
 import { Measure } from '@/model/measureModel'
 import { deleteMeasure, updateMeasure } from '@/controllers/measures'
 import { CapsuleContent } from '@/components/capsule/CapsuleContent'
-import { useFloatField } from '@/hooks/field'
+import { useFloatFieldOld } from '@/hooks/field'
 import { FloatInput } from '@/components/FloatInput'
 
 export function MeasureView({
@@ -21,10 +21,10 @@ export function MeasureView({
 }) {
   const [dateField, setDateField] = useState<Date>(measure.target_timestamp)
 
-  const heightField = useFloatField(measure.height)
-  const waistField = useFloatField(measure.waist)
-  const hipField = useFloatField(measure.hip)
-  const neckField = useFloatField(measure.neck)
+  const heightField = useFloatFieldOld(measure.height)
+  const waistField = useFloatFieldOld(measure.waist)
+  const hipField = useFloatFieldOld(measure.hip)
+  const neckField = useFloatFieldOld(measure.neck)
 
   const handleSave = useCallback(
     ({
@@ -81,10 +81,10 @@ export function MeasureView({
 
               handleSave({
                 date,
-                height: heightField.value,
-                waist: waistField.value,
-                hip: hipField.value,
-                neck: neckField.value,
+                height: heightField.value.value,
+                waist: waistField.value.value,
+                hip: hipField.value.value,
+                neck: neckField.value.value,
               })
             }}
             // Timezone = GMT-3
@@ -112,9 +112,9 @@ export function MeasureView({
                     handleSave({
                       date: dateField,
                       height: value,
-                      waist: waistField.value,
-                      hip: hipField.value,
-                      neck: neckField.value,
+                      waist: waistField.value.value,
+                      hip: hipField.value.value,
+                      neck: neckField.value.value,
                     })
                   }}
                 />
@@ -130,10 +130,10 @@ export function MeasureView({
                   onFieldCommit={(value) => {
                     handleSave({
                       date: dateField,
-                      height: heightField.value,
+                      height: heightField.value.value,
                       waist: value,
-                      hip: hipField.value,
-                      neck: neckField.value,
+                      hip: hipField.value.value,
+                      neck: neckField.value.value,
                     })
                   }}
                 />
@@ -149,10 +149,10 @@ export function MeasureView({
                   onFieldCommit={(value) => {
                     handleSave({
                       date: dateField,
-                      height: heightField.value,
-                      waist: waistField.value,
+                      height: heightField.value.value,
+                      waist: waistField.value.value,
                       hip: value,
-                      neck: neckField.value,
+                      neck: neckField.value.value,
                     })
                   }}
                 />
@@ -168,9 +168,9 @@ export function MeasureView({
                   onFieldCommit={(value) => {
                     handleSave({
                       date: dateField,
-                      height: heightField.value,
-                      waist: waistField.value,
-                      hip: hipField.value,
+                      height: heightField.value.value,
+                      waist: waistField.value.value,
+                      hip: hipField.value.value,
                       neck: value,
                     })
                   }}

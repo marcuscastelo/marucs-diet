@@ -6,6 +6,12 @@ import {
   dateToString,
   stringToDate,
 } from '@/utils/dateUtils'
+import {
+  ReadonlySignal,
+  computed,
+  useSignal,
+  useSignalEffect,
+} from '@preact/signals-react'
 import { SetStateAction, useCallback, useState } from 'react'
 
 // TODO: Unit test all FieldTransforms
@@ -46,88 +52,74 @@ export const createDateTransform = (): FieldTransform<Date> => ({
   },
 })
 
-// Any T except string
 export function useField<T>({
-  initialValue,
+  inputSignal,
   transform,
 }: {
-  initialValue?: T
+  inputSignal: ReadonlySignal<T | undefined>
   transform: FieldTransform<T>
 }) {
-  const [rawValue, setRawValue] = useState<string>(
-    initialValue === undefined ? '' : transform.toRaw(initialValue),
+  const rawValue = useSignal(
+    inputSignal.value === undefined ? '' : transform.toRaw(inputSignal.value),
   )
 
-  const [value, setValue] = useState<T | undefined>(initialValue)
+  useSignalEffect(() => {
+    if (inputSignal.value === undefined) {
+      rawValue.value = ''
+    } else {
+      rawValue.value = transform.toRaw(inputSignal.value)
+    }
+  })
 
-  const handleSetValue = useCallback(
-    (actionOrValue: T | SetStateAction<T | undefined>) => {
-      if (actionOrValue instanceof Function) {
-        setValue((oldValue) => {
-          const newValue = actionOrValue(oldValue)
-          const newRawValue =
-            newValue !== undefined ? transform.toRaw(newValue) : ''
-          const newValueFromRawValue = transform.toValue(newRawValue)
-          const newRawValueFromNewValue = transform.toRaw(newValueFromRawValue)
-          setRawValue(newRawValueFromNewValue)
-          return newValueFromRawValue
-        })
-        return
-      }
-
-      const newValue = actionOrValue
-
-      const newRawValue =
-        newValue === undefined ? '' : transform.toRaw(newValue)
-
-      const newValueFromRawValue = transform.toValue(newRawValue)
-      setValue(newValueFromRawValue)
-      const newRawValueFromNewValue = transform.toRaw(newValueFromRawValue)
-      setRawValue(newRawValueFromNewValue)
-    },
-    [transform],
-  )
-
-  const handleFinishTyping = useCallback(() => {
-    console.debug(`[useField] updateValue: ${rawValue}`)
-
-    const newValue = transform.toValue(rawValue)
-    const newRawValue = transform.toRaw(newValue)
-
-    console.debug(`[useField] newValue: ${newValue}`)
-    setValue(transform.toValue(rawValue))
-
-    console.debug(`[useField] newRawValue: ${newRawValue}`)
-    setRawValue(transform.toRaw(transform.toValue(rawValue)))
-  }, [rawValue, transform])
+  const value = computed(() => {
+    const raw = rawValue.value
+    return raw === '' ? undefined : transform.toValue(raw)
+  })
 
   return {
     rawValue,
-    setRawValue,
     value,
-    setValue: handleSetValue,
-    finishTyping: handleFinishTyping,
     transform,
   }
 }
 
-export const useFloatField = (
+/**
+ * @deprecated Use useFloatField instead
+ */
+export const useFloatFieldOld = (
   initialValue: number | undefined = undefined,
+  extras?: {
+    decimalPlaces?: number
+    defaultValue?: number
+  },
+) => {
+  const adapterSignal = useSignal(initialValue)
+  return useField<number>({
+    inputSignal: adapterSignal,
+    transform: createFloatTransform(
+      extras?.decimalPlaces,
+      extras?.defaultValue,
+    ),
+  })
+}
+
+export const useFloatField = (
+  inputSignal: ReadonlySignal<number | undefined>,
   extras?: {
     decimalPlaces?: number
     defaultValue?: number
   },
 ) =>
   useField<number>({
-    initialValue,
+    inputSignal,
     transform: createFloatTransform(
       extras?.decimalPlaces,
       extras?.defaultValue,
     ),
   })
 
-export const useDateField = (initialValue: Date | undefined = undefined) =>
+export const useDateField = (inputSignal: ReadonlySignal<Date | undefined>) =>
   useField<Date>({
-    initialValue,
+    inputSignal,
     transform: createDateTransform(),
   })

@@ -4,6 +4,7 @@ import FoodItemView from '@/app/(foodItem)/FoodItemView'
 import { listFoods } from '@/controllers/food'
 import { createFoodItem } from '@/model/foodItemModel'
 import { Food } from '@/model/foodModel'
+import { computed } from '@preact/signals-react'
 import { Alert, Breadcrumb } from 'flowbite-react'
 import { useEffect, useState } from 'react'
 
@@ -102,14 +103,16 @@ export default function Page() {
         <div key={idx}>
           <FoodItemView
             key={idx}
-            foodItem={createFoodItem({
-              name: food.name,
-              quantity: 100,
-              macros: {
-                ...food.macros,
-              },
-              reference: food.id,
-            })}
+            foodItem={computed(() =>
+              createFoodItem({
+                name: food.name,
+                quantity: 100,
+                macros: {
+                  ...food.macros,
+                },
+                reference: food.id,
+              }),
+            )}
           />
         </div>
       ))}

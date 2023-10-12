@@ -22,10 +22,10 @@ import { deserializeClipboard } from '@/utils/clipboardUtils'
 import { convertToGroups } from '@/utils/groupUtils'
 import { mealSchema } from '@/model/mealModel'
 import { itemGroupSchema } from '@/model/itemGroupModel'
-import { useFloatField } from '@/hooks/field'
+import { useFloatField, useFloatFieldOld } from '@/hooks/field'
 import { FloatInput } from '@/components/FloatInput'
 import { RecipeEditor } from '@/utils/data/recipeEditor'
-import { Signal } from '@preact/signals-react'
+import { Signal, computed } from '@preact/signals-react'
 
 export type RecipeEditViewProps = {
   recipe: Signal<Recipe>
@@ -54,7 +54,9 @@ export default function RecipeEditView({
 }: RecipeEditViewProps) {
   // TODO: implement setRecipe
   return (
-    <div className={`bg-gray-800 p-3 ${className || ''}`}>
+    <div
+      className={`bg-gray-800 p-3 ${className === undefined ? '' : className}`}
+    >
       <RecipeEditContextProvider recipe={recipe}>
         {header}
         {content}
@@ -221,7 +223,7 @@ function RecipeEditContent({
   return (
     <>
       <FoodItemListView
-        foodItems={recipe.value.items}
+        foodItems={computed(() => recipe.value.items)}
         onItemClick={onEditItem}
       />
       <AddNewItemButton onClick={onNewItem} />
@@ -257,17 +259,15 @@ function AddNewItemButton({ onClick }: { onClick: () => void }) {
 function RawQuantity() {
   const { recipe } = useRecipeEditContext()
 
-  const rawQuantiy = recipe.value.items.reduce((acc, item) => {
-    return acc + item.quantity
-  }, 0)
+  const rawQuantiy = computed(() =>
+    recipe.value.items.reduce((acc, item) => {
+      return acc + item.quantity
+    }, 0),
+  )
 
   const rawQuantityField = useFloatField(rawQuantiy, {
     decimalPlaces: 0,
   })
-
-  useEffect(() => {
-    rawQuantityField.setValue(rawQuantiy)
-  }, [rawQuantiy, rawQuantityField])
 
   return (
     <div className="flex gap-2">
@@ -288,15 +288,13 @@ function PreparedQuantity() {
     return acc + item.quantity
   }, 0)
 
-  const preparedQuantity = rawQuantiy * recipe.value.prepared_multiplier
+  const preparedQuantity = computed(
+    () => rawQuantiy * recipe.value.prepared_multiplier,
+  )
 
   const preparedQuantityField = useFloatField(preparedQuantity, {
     decimalPlaces: 0,
   })
-
-  useEffect(() => {
-    preparedQuantityField.setValue(preparedQuantity)
-  }, [preparedQuantity, preparedQuantityField])
 
   return (
     <div className="flex gap-2">
@@ -323,16 +321,11 @@ function PreparedQuantity() {
 function PreparedMultiplier() {
   const { recipe } = useRecipeEditContext()
 
-  const preparedMultiplierField = useFloatField(
-    recipe.value.prepared_multiplier,
-    {
-      decimalPlaces: 2,
-    },
-  )
+  const preparedMultiplier = computed(() => recipe.value.prepared_multiplier)
 
-  useEffect(() => {
-    preparedMultiplierField.setValue(recipe.value.prepared_multiplier)
-  }, [recipe.value.prepared_multiplier, preparedMultiplierField])
+  const preparedMultiplierField = useFloatField(preparedMultiplier, {
+    decimalPlaces: 2,
+  })
 
   return (
     <div className="flex gap-2">

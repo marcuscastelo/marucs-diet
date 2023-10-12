@@ -10,7 +10,7 @@ import { CandleStickChart } from '@/components/chart/CandleStickChart'
 import { OHLC } from '@/model/ohlcModel'
 import Datepicker from 'react-tailwindcss-datepicker'
 import { useWeights } from '@/hooks/weights'
-import { useDateField, useFloatField } from '@/hooks/field'
+import { useDateField, useFloatField, useFloatFieldOld } from '@/hooks/field'
 import { FloatInput } from '@/components/FloatInput'
 import { dateToYYYYMMDD } from '@/utils/dateUtils'
 import { CapsuleContent } from '@/components/capsule/CapsuleContent'
@@ -19,6 +19,7 @@ import {
   firstWeight,
   latestWeight,
 } from '@/utils/weightUtils'
+import { computed } from '@preact/signals-react'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -30,7 +31,7 @@ export function WeightEvolution({ onSave }: { onSave: () => void }) {
 
   const { weights, refetch: handleRefetchWeights } = useWeights(userId)
 
-  const weightField = useFloatField()
+  const weightField = useFloatFieldOld()
 
   if (weights.loading || weights.errored) {
     return <h1>Carregando...</h1>
@@ -57,7 +58,7 @@ export function WeightEvolution({ onSave }: { onSave: () => void }) {
           <button
             className="btn btn-primary no-animation w-full"
             onClick={async () => {
-              const weight = weightField.value
+              const weight = weightField.value.value
 
               if (weight === undefined) {
                 alert('Peso inválido (undefined)') // TODO: Change all alerts with ConfirmModal
@@ -73,7 +74,7 @@ export function WeightEvolution({ onSave }: { onSave: () => void }) {
               )
               handleRefetchWeights()
               onSave()
-              weightField.setRawValue('')
+              weightField.rawValue.value = ''
             }}
           >
             Adicionar peso
@@ -111,8 +112,11 @@ function WeightView({
   onRefetchWeights: () => void
   onSave: () => void
 }) {
-  const dateField = useDateField(weight.target_timestamp)
-  const weightField = useFloatField(weight.weight)
+  const targetTimestampSignal = computed(() => weight.target_timestamp)
+  const dateField = useDateField(targetTimestampSignal)
+
+  const weightSignal = computed(() => weight.weight)
+  const weightField = useFloatField(weightSignal)
 
   const handleSave = async ({
     dateValue,
@@ -147,8 +151,8 @@ function WeightView({
         <CapsuleContent>
           <Datepicker
             value={{
-              startDate: dateField.rawValue,
-              endDate: dateField.rawValue,
+              startDate: dateField.rawValue.value,
+              endDate: dateField.rawValue.value,
             }}
             onChange={async (value) => {
               if (!value?.startDate) {
@@ -157,11 +161,10 @@ function WeightView({
               }
               // Apply timezone offset
               const date = new Date(value.startDate)
-              dateField.setRawValue(dateToYYYYMMDD(date))
-              dateField.finishTyping() // TODO: Trigger finishTyping onBlur of Datepicker or parent div
+              dateField.rawValue.value = dateToYYYYMMDD(date)
               await handleSave({
                 dateValue: date,
-                weightValue: weightField.value,
+                weightValue: weightField.value.value,
               })
               onRefetchWeights()
             }}
@@ -186,7 +189,7 @@ function WeightView({
               onFocus={(event) => event.target.select()}
               onFieldCommit={async (value) => {
                 await handleSave({
-                  dateValue: dateField.value,
+                  dateValue: dateField.value.value,
                   weightValue: value,
                 })
                 onRefetchWeights()

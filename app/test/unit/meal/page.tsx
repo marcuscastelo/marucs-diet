@@ -2,16 +2,20 @@
 
 import { mockMeal } from '../(mock)/mockData'
 import MealEditView from '@/app/(meal)/MealEditView'
-import { useState } from 'react'
 import { duplicateLastItemGroup } from '../(mock)/mockActions'
+import { useSignal } from '@preact/signals-react'
 
 export default function MealPage() {
-  const [meal, setMeal] = useState(mockMeal())
+  const meal = useSignal(mockMeal())
 
   return (
     <MealEditView
       meal={meal}
-      header={<MealEditView.Header onUpdateMeal={(meal) => setMeal(meal)} />}
+      header={
+        <MealEditView.Header
+          onUpdateMeal={(newMeal) => (meal.value = newMeal)}
+        />
+      }
       content={
         <MealEditView.Content
           onEditItemGroup={
@@ -20,9 +24,7 @@ export default function MealPage() {
         />
       }
       actions={
-        <MealEditView.Actions
-          onNewItem={() => duplicateLastItemGroup(meal, setMeal)}
-        />
+        <MealEditView.Actions onNewItem={() => duplicateLastItemGroup(meal)} />
       }
     />
   )

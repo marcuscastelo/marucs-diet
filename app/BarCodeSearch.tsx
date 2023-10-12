@@ -5,9 +5,10 @@ import FoodItemView from './(foodItem)/FoodItemView'
 import { searchFoodsByEan } from '@/controllers/food'
 import { Food } from '@/model/foodModel'
 import { useUserContext } from '@/context/users.context'
-import { generateId } from '@/utils/idUtils'
 import { createFoodItem } from '@/model/foodItemModel'
 import { MacroNutrients } from '@/model/macroNutrientsModel'
+import { computed, useSignal, useSignalEffect } from '@preact/signals-react'
+import { mockItem } from './test/unit/(mock)/mockData'
 
 export type BarCodeSearchProps = {
   barCode?: string
@@ -22,7 +23,7 @@ export default function BarCodeSearch({
 }: BarCodeSearchProps) {
   const [loading, setLoading] = useState(false)
   const [innerBarCode, setInnerBarCode] = useState(barCode)
-  const [currentFood, setCurrentFood] = useState<Food | null>(null)
+  const currentFood = useSignal<Food | null>(null)
 
   const { isFoodFavorite, setFoodAsFavorite } = useUserContext()
 
@@ -40,7 +41,7 @@ export default function BarCodeSearch({
         if (ignore) {
           return
         }
-        setCurrentFood(food)
+        currentFood.value = food
       })
       .catch((err) => {
         console.error(err)
@@ -61,7 +62,7 @@ export default function BarCodeSearch({
       clearTimeout(timeout)
       ignore = true
     }
-  }, [innerBarCode])
+  }, [currentFood, currentFood.value, innerBarCode])
 
   useEffect(() => {
     setBarCode?.(innerBarCode)
@@ -71,9 +72,9 @@ export default function BarCodeSearch({
     setInnerBarCode(barCode)
   }, [barCode])
 
-  useEffect(() => {
-    onFoodChange?.(currentFood)
-  }, [currentFood, onFoodChange])
+  useSignalEffect(() => {
+    onFoodChange?.(currentFood.value)
+  })
 
   return (
     <div>
@@ -89,30 +90,43 @@ export default function BarCodeSearch({
         />
       </div>
 
-      {currentFood && (
+      {currentFood.value && (
         <div className="mt-3 flex flex-col">
           <div className="flex">
             <div className="flex-1">
-              <p className="font-bold">{currentFood.name}</p>
+              <p className="font-bold">{currentFood.value.name}</p>
               <p className="text-sm">
                 <FoodItemView
-                  foodItem={createFoodItem({
-                    name: currentFood.name,
-                    reference: currentFood.id,
-                    quantity: 100,
-                    macros: {
-                      ...currentFood.macros,
-                    } satisfies MacroNutrients,
-                  })}
+                  foodItem={computed(() =>
+                    createFoodItem({
+                      name: currentFood.value?.name ?? 'currentFood == null',
+                      reference: currentFood.value?.id ?? 0,
+                      quantity: 100,
+                      macros: {
+                        ...(currentFood.value?.macros ?? mockItem().macros),
+                      } satisfies MacroNutrients,
+                    }),
+                  )}
                   header={
                     <FoodItemView.Header
                       name={<FoodItemView.Header.Name />}
                       favorite={
                         <FoodItemView.Header.Favorite
-                          favorite={isFoodFavorite(currentFood.id)}
-                          onSetFavorite={(favorite) =>
-                            setFoodAsFavorite(currentFood.id, favorite)
-                          }
+                          favorite={isFoodFavorite(currentFood.value.id)}
+                          onSetFavorite={(favorite) => {
+                            if (currentFood.value?.id === null) {
+                              alert('currentFood.value?.id === null')
+                              console.error(
+                                'currentFood.value?.id === null',
+                                currentFood.value,
+                              )
+                              throw new Error('currentFood.value?.id === null')
+                            }
+                            setFoodAsFavorite(
+                              currentFood.value?.id ?? 0,
+                              favorite,
+                            )
+                          }}
                         />
                       }
                     />

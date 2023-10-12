@@ -1,20 +1,23 @@
 'use client'
 
-import { FoodItem } from '@/model/foodItemModel'
 import MacroNutrientsView from '../MacroNutrientsView'
 import { MacroNutrients } from '@/model/macroNutrientsModel'
 import { FoodItemContextProvider, useFoodItemContext } from './FoodItemContext'
 import CopyIcon from '../(icons)/CopyIcon'
-import { useEffect, useState } from 'react'
 import { searchFoodById } from '@/controllers/food'
 import { calcItemCalories } from '@/utils/macroMath'
 import { useUserContext } from '@/context/users.context'
 import { searchRecipeById } from '@/controllers/recipes'
 import { TemplateItem } from '@/model/templateItemModel'
 import { Template } from '@/model/templateModel'
+import {
+  ReadonlySignal,
+  useSignal,
+  useSignalEffect,
+} from '@preact/signals-react'
 
 export type FoodItemViewProps = {
-  foodItem: TemplateItem
+  foodItem: ReadonlySignal<TemplateItem>
   header?: React.ReactNode
   nutritionalInfo?: React.ReactNode
   className?: string
@@ -29,7 +32,7 @@ export default function FoodItemView({
   onClick,
 }: FoodItemViewProps) {
   const handleClick = (e: React.MouseEvent) => {
-    onClick?.(foodItem)
+    onClick?.(foodItem.value)
     e.stopPropagation()
     e.preventDefault()
   }
@@ -41,11 +44,7 @@ export default function FoodItemView({
       }`}
       onClick={handleClick}
     >
-      <FoodItemContextProvider
-        foodItem={{
-          ...foodItem,
-        }}
-      >
+      <FoodItemContextProvider foodItem={foodItem}>
         {header}
         {nutritionalInfo}
       </FoodItemContextProvider>
@@ -85,20 +84,25 @@ function FoodItemName() {
 
   const { debug } = useUserContext()
 
-  const [template, setTemplate] = useState<Template | null>(null)
+  const template = useSignal<Template | null>(null)
 
-  useEffect(() => {
-    if (item.__type === 'RecipeItem') {
-      searchRecipeById(item.reference).then((recipe) => setTemplate(recipe))
+  useSignalEffect(() => {
+    console.debug(`[FoodItemName] item changed, fetching API:`, item)
+    if (item.value?.__type === 'RecipeItem') {
+      searchRecipeById(item.value.reference).then(
+        (recipe) => (template.value = recipe),
+      )
     } else {
-      searchFoodById(item.reference).then((food) => setTemplate(food))
+      searchFoodById(item.value.reference).then(
+        (food) => (template.value = food),
+      )
     }
-  }, [item.__type, item.reference])
+  })
 
   const getTemplateNameColor = () => {
-    if (item.__type === 'FoodItem') {
+    if (item.value?.__type === 'FoodItem') {
       return 'text-white'
-    } else if (item.__type === 'RecipeItem') {
+    } else if (item.value.__type === 'RecipeItem') {
       return 'text-blue-500'
     } else {
       return 'text-red-500'
@@ -112,11 +116,13 @@ function FoodItemName() {
       <h5
         className={`mb-2 text-lg font-bold tracking-tight ${getTemplateNameColor()}`}
       >
-        {template?.name ?? 'food not found'}{' '}
+        {template.value?.name ?? 'food not found'}{' '}
         {debug && (
           <>
-            <div className="text-sm text-gray-400">[ID: {item?.id}]</div>
-            <div className="text-sm text-gray-400">[ID: {template?.id}]</div>
+            <div className="text-sm text-gray-400">[ID: {item.value?.id}]</div>
+            <div className="text-sm text-gray-400">
+              [ID: {template.value?.id}]
+            </div>
           </>
         )}
       </h5>
@@ -137,7 +143,7 @@ function FoodItemCopyButton({
       onClick={(e) => {
         e.stopPropagation()
         e.preventDefault()
-        onCopyItem(foodItem)
+        onCopyItem(foodItem.value)
       }}
     >
       <CopyIcon />
@@ -174,19 +180,19 @@ function FoodItemNutritionalInfo() {
   const { foodItem: item } = useFoodItemContext()
 
   const multipliedMacros: MacroNutrients = {
-    carbs: (item.macros.carbs * item.quantity) / 100,
-    protein: (item.macros.protein * item.quantity) / 100,
-    fat: (item.macros.fat * item.quantity) / 100,
+    carbs: (item.value.macros.carbs * item.value.quantity) / 100,
+    protein: (item.value.macros.protein * item.value.quantity) / 100,
+    fat: (item.value.macros.fat * item.value.quantity) / 100,
   }
 
   return (
     <div className="flex">
       <MacroNutrientsView {...multipliedMacros} />
       <div className="ml-auto">
-        <span className="text-white"> {item.quantity}g </span>|
+        <span className="text-white"> {item.value.quantity}g </span>|
         <span className="text-white">
           {' '}
-          {calcItemCalories(item).toFixed(0)}
+          {calcItemCalories(item.value).toFixed(0)}
           kcal{' '}
         </span>
       </div>

@@ -15,9 +15,10 @@ import { Loadable } from '@/utils/loadable'
 import { Recipe } from '@/model/recipeModel'
 import { useEffect, useState } from 'react'
 import { searchRecipeById } from '@/controllers/recipes'
+import { ReadonlySignal, useSignalEffect } from '@preact/signals-react'
 
 export type ItemGroupViewProps = {
-  itemGroup: ItemGroup
+  itemGroup: ReadonlySignal<ItemGroup>
   header?: React.ReactNode
   nutritionalInfo?: React.ReactNode
   className?: string
@@ -32,7 +33,7 @@ export default function ItemGroupView({
   onClick,
 }: ItemGroupViewProps) {
   const handleClick = (e: React.MouseEvent) => {
-    onClick?.(itemGroup)
+    onClick?.(itemGroup.value)
     e.stopPropagation()
     e.preventDefault()
   }
@@ -101,35 +102,32 @@ function ItemGroupName() {
     loading: true,
   })
 
-  useEffect(() => {
-    let ignore = false
-    if (itemGroup?.type === 'recipe') {
-      searchRecipeById(itemGroup.recipe).then((recipe) => {
+  useSignalEffect(() => {
+    const ignore = false
+    if (itemGroup.value?.type === 'recipe') {
+      searchRecipeById(itemGroup.value.recipe).then((recipe) => {
         if (ignore) return
         setRecipe({ loading: false, errored: false, data: recipe })
       })
     } else {
       setRecipe({ loading: false, errored: false, data: null })
     }
-    return () => {
-      ignore = true
-    }
-  }, [itemGroup])
+  })
 
   const getNameColor = () => {
-    if (!itemGroup) return 'text-red-900'
+    if (!itemGroup.value) return 'text-red-900'
 
     if (recipe.loading) return 'text-gray-500 animate-pulse'
     if (recipe.errored) return 'text-red-900'
 
-    if (itemGroup.type === 'simple') {
-      if (isSimpleSingleGroup(itemGroup)) {
+    if (itemGroup.value.type === 'simple') {
+      if (isSimpleSingleGroup(itemGroup.value)) {
         return 'text-white'
       } else {
         return 'text-orange-400'
       }
-    } else if (itemGroup.type === 'recipe' && recipe.data) {
-      if (isRecipedGroupUpToDate(itemGroup, recipe.data)) {
+    } else if (itemGroup.value.type === 'recipe' && recipe.data) {
+      if (isRecipedGroupUpToDate(itemGroup.value, recipe.data)) {
         return 'text-yellow-200'
       } else {
         // Strike-through text in red
@@ -148,10 +146,12 @@ function ItemGroupName() {
       */}
       {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.ItemGroupView.id}]</h5> */}
       <h5 className={`mb-2 text-lg font-bold tracking-tight ${getNameColor()}`}>
-        {itemGroup?.name ?? 'Erro: grupo sem nome'}{' '}
+        {itemGroup.value?.name ?? 'Erro: grupo sem nome'}{' '}
         {debug && (
           <>
-            <div className="text-sm text-gray-400">[ID: {itemGroup?.id}]</div>
+            <div className="text-sm text-gray-400">
+              [ID: {itemGroup.value?.id}]
+            </div>
           </>
         )}
       </h5>
@@ -172,7 +172,7 @@ function ItemGroupCopyButton({
       onClick={(e) => {
         e.stopPropagation()
         e.preventDefault()
-        itemGroup && onCopyItemGroup(itemGroup)
+        itemGroup.value && onCopyItemGroup(itemGroup.value)
       }}
     >
       <CopyIcon />
@@ -208,8 +208,8 @@ function ItemGroupFavorite({
 function ItemGroupViewNutritionalInfo() {
   const { group: itemGroup } = useItemGroupEditContext()
 
-  const multipliedMacros: MacroNutrients = (itemGroup &&
-    calcGroupMacros(itemGroup)) || {
+  const multipliedMacros: MacroNutrients = (itemGroup.value &&
+    calcGroupMacros(itemGroup.value)) ?? {
     carbs: -666,
     protein: -666,
     fat: -666,
@@ -219,10 +219,14 @@ function ItemGroupViewNutritionalInfo() {
     <div className="flex">
       <MacroNutrientsView {...multipliedMacros} />
       <div className="ml-auto">
-        <span className="text-white"> {itemGroup?.quantity ?? -666}g </span>|
         <span className="text-white">
           {' '}
-          {itemGroup && calcGroupCalories(itemGroup).toFixed(0)}
+          {itemGroup.value?.quantity ?? -666}g{' '}
+        </span>
+        |
+        <span className="text-white">
+          {' '}
+          {itemGroup.value && calcGroupCalories(itemGroup.value).toFixed(0)}
           kcal{' '}
         </span>
       </div>
