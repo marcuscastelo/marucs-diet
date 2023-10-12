@@ -117,6 +117,8 @@ function FoodItemName() {
     }
   })
 
+  const name = computed(() => template.value?.name ?? 'food not found')
+
   return (
     <div className="">
       {/* //TODO: FoodItem id is random, but it should be an entry on the database (meal too) */}
@@ -124,7 +126,7 @@ function FoodItemName() {
       <h5
         className={`mb-2 text-lg font-bold tracking-tight ${templateNameColor.value}`}
       >
-        {template.value?.name ?? 'food not found'}{' '}
+        {name}{' '}
         {debug && (
           <>
             <div className="text-sm text-gray-400">[ID: {item.value?.id}]</div>
