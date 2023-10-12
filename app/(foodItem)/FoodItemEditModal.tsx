@@ -50,15 +50,6 @@ const FoodItemEditModal = ({
     ...initialFoodItem.value,
   } satisfies TemplateItem)
 
-  const quantity = computed(() => foodItem.value.quantity.toString())
-  const setQuantity = (quantity: FoodItem['quantity']) => {
-    // TODO: FoodItemEditor
-    foodItem.value = {
-      ...foodItem.peek(),
-      quantity,
-    }
-  }
-
   useSignalEffect(() => {
     foodItem.value = {
       ...foodItem.peek(),
@@ -66,7 +57,7 @@ const FoodItemEditModal = ({
     }
   })
 
-  const canApply = quantity.value !== '' && Number(quantity.value) > 0
+  const canApply = foodItem.value.quantity > 0
 
   return (
     <>
@@ -78,21 +69,18 @@ const FoodItemEditModal = ({
             targetNameColor={targetNameColor}
           />
         }
-        body={
-          <Body
-            visible={visible}
-            onQuantityChanged={setQuantity}
-            canApply={canApply}
-            foodItem={foodItem}
-          />
-        }
+        body={<Body canApply={canApply} foodItem={foodItem} />}
         actions={
           <Actions
             id={foodItem.value.id}
             canApply={canApply}
             onApply={() => {
-              visible.value = false
+              console.debug(
+                `[FoodItemEditModal] onApply - calling onApply with foodItem.value=`,
+                foodItem.value,
+              )
               onApply(foodItem.value)
+              visible.value = false
             }}
             onCancel={() => {
               visible.value = false
@@ -135,15 +123,11 @@ function Header({
 }
 
 function Body({
-  visible,
-  onQuantityChanged,
   canApply,
   foodItem,
 }: {
-  visible: Signal<boolean>
-  onQuantityChanged: (quantity: number) => void
   canApply: boolean
-  foodItem: ReadonlySignal<TemplateItem>
+  foodItem: Signal<TemplateItem>
 }) {
   const id = foodItem.value.id
   const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(false)
@@ -155,7 +139,10 @@ function Body({
   })
 
   useSignalEffect(() => {
-    onQuantityChanged(quantityField.value.value ?? 0)
+    foodItem.value = {
+      ...foodItem.peek(),
+      quantity: quantityField.value.value ?? 0,
+    }
   })
 
   const { isFoodFavorite, setFoodAsFavorite } = useUserContext()

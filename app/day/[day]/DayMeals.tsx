@@ -1,6 +1,5 @@
 'use client'
 
-import { Dispatch, SetStateAction, useState } from 'react'
 import MealEditViewList from '../../(meal)/MealEditViewList'
 import { Day } from '@/model/dayModel'
 import MealEditView, { MealEditViewProps } from '../../(meal)/MealEditView'
@@ -20,12 +19,14 @@ import { ModalContextProvider } from '@/app/(modals)/ModalContext'
 import { useUserContext } from '@/context/users.context'
 import { addItemGroupToMeal } from '@/utils/dayEditor'
 import {
+  ReadonlySignal,
   Signal,
   computed,
   signal,
   useSignal,
   useSignalEffect,
 } from '@preact/signals-react'
+import { use, useEffect } from 'react'
 
 type EditSelection = {
   meal: Meal
@@ -42,9 +43,9 @@ const newItemSelection = signal<NewItemSelection>(null)
 
 export default function DayMeals({
   selectedDay,
-  day,
+  day: daySSR,
   refetchDays,
-  days,
+  days: daysSSR,
 }: {
   selectedDay: string
   day: Day
@@ -54,6 +55,23 @@ export default function DayMeals({
   const router = useRouter()
   const today = getToday()
   const showingToday = today === selectedDay
+
+  const day = useSignal(daySSR)
+  const days = useSignal(daysSSR)
+
+  useEffect(() => {
+    console.debug(
+      `[DayMeals] <ssr-change> Setting day to ${JSON.stringify(daySSR)}`,
+    )
+    day.value = daySSR
+  }, [daySSR, day])
+
+  useEffect(() => {
+    // console.debug(
+    //   `[DayMeals] <ssr-change> Setting days to ${JSON.stringify(daysSSR)}`,
+    // )
+    days.value = daysSSR
+  }, [daysSSR, days])
 
   const dayLocked = useSignal(!showingToday)
 
@@ -104,27 +122,36 @@ export default function DayMeals({
     templateSearchModalVisible.value = true
   }
 
-  const mealEditPropsList = day.meals.map((_, idx): MealEditViewProps => {
-    const meal = computed(() => day.meals[idx])
-    return {
-      meal,
-      header: (
-        <MealEditView.Header
-          onUpdateMeal={(meal) => handleUpdateMeal(day, meal)}
-        />
-      ),
-      content: (
-        <MealEditView.Content
-          onEditItemGroup={(item) => handleEditItemGroup(meal.value, item)}
-        />
-      ),
-      actions: (
-        <MealEditView.Actions
-          onNewItem={() => handleNewItemButton(meal.value)}
-        />
-      ),
-    }
-  })
+  const mealEditPropsList = computed(() =>
+    day.value.meals.map((_, idx): MealEditViewProps => {
+      const meal = computed(() => {
+        const result = day.value.meals[idx]
+        console.debug(
+          `[DayMeals] <computed> Getting meal idx=${idx}, result:`,
+          result,
+        )
+        return result
+      })
+      return {
+        meal,
+        header: (
+          <MealEditView.Header
+            onUpdateMeal={(meal) => handleUpdateMeal(day.value, meal)}
+          />
+        ),
+        content: (
+          <MealEditView.Content
+            onEditItemGroup={(item) => handleEditItemGroup(meal.value, item)}
+          />
+        ),
+        actions: (
+          <MealEditView.Actions
+            onNewItem={() => handleNewItemButton(meal.value)}
+          />
+        ),
+      }
+    }),
+  )
 
   return (
     <>
@@ -140,7 +167,7 @@ export default function DayMeals({
       />
       <DayMacros
         className="mt-3 border-b-2 border-gray-800 pb-4"
-        macros={calcDayMacros(day)}
+        macros={calcDayMacros(day.value)}
       />
       {!showingToday && (
         <>
@@ -181,7 +208,7 @@ export default function DayMeals({
       />
       <CopyLastDayButton
         day={day}
-        days={computed(() => days)}
+        days={days}
         selectedDay={selectedDay}
         refetchDays={refetchDays}
       />
@@ -196,7 +223,7 @@ function ExternalTemplateSearchModal({
   refetchDays,
 }: {
   visible: Signal<boolean>
-  day: Day
+  day: ReadonlySignal<Day>
   refetchDays: () => void
 }) {
   const { debug } = useUserContext()
@@ -205,7 +232,7 @@ function ExternalTemplateSearchModal({
       throw new Error('No meal selected!')
     }
 
-    addItemGroupToMeal(day, newItemSelection.value.meal, newGroup, {
+    addItemGroupToMeal(day.value, newItemSelection.value.meal, newGroup, {
       onFinished: refetchDays,
     })
   }
@@ -247,7 +274,7 @@ function ExternalItemGroupEditModal({
   refetchDays,
 }: {
   visible: Signal<boolean>
-  day: Day
+  day: ReadonlySignal<Day>
   refetchDays: () => void
 }) {
   const { debug } = useUserContext()
@@ -279,9 +306,9 @@ function ExternalItemGroupEditModal({
               group,
             )}`,
           )
-          await updateDay(day.id, {
-            ...day,
-            meals: day.meals.map((meal) => {
+          await updateDay(day.value.id, {
+            ...day.value,
+            meals: day.value.meals.map((meal) => {
               if (!editSelection.value) {
                 throw new Error('No meal selected!')
               }
@@ -321,7 +348,7 @@ function ExternalItemGroupEditModal({
           visible.value = false
         }}
         onDelete={async (id: ItemGroup['id']) => {
-          const oldMeals = [...day.meals]
+          const oldMeals = [...day.value.meals]
 
           // TODO: Use DayEditor
           const newMeals: Meal[] = oldMeals.map((meal) => {
@@ -340,11 +367,9 @@ function ExternalItemGroupEditModal({
             }
           })
 
-          const newDay = { ...day }
+          const newDay = { ...day.value, meals: newMeals }
 
-          newDay.meals = newMeals
-
-          await updateDay(day.id, newDay)
+          await updateDay(day.value.id, newDay)
 
           refetchDays() // TODO: Vai dar uma merda
           editSelection.value = null

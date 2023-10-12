@@ -14,11 +14,11 @@ export default function ItemGroupListView({
   return (
     <>
       {itemGroups.value.map((_, idx) => {
-        const item = computed(() => itemGroups.value[idx])
+        const group = computed(() => itemGroups.value[idx])
         return (
-          <div key={item.value.id} className="mt-2">
+          <div key={group.value.id} className="mt-2">
             <ItemGroupView
-              itemGroup={item}
+              itemGroup={group}
               onClick={onItemClick}
               header={
                 <ItemGroupView.Header

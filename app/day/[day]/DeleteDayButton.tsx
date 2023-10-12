@@ -3,12 +3,13 @@
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import { deleteDay } from '@/controllers/days'
 import { Day } from '@/model/dayModel'
+import { ReadonlySignal } from '@preact/signals-react'
 
 export default function DeleteDayButton({
   day,
   refetchDays,
 }: {
-  day: Day | null | undefined
+  day: ReadonlySignal<Day | null | undefined>
   refetchDays: () => void
 }) {
   const { show: showConfirmModal } = useConfirmModalContext()
@@ -29,8 +30,8 @@ export default function DeleteDayButton({
               text: 'Excluir dia',
               primary: true,
               onClick: async () => {
-                if (day) {
-                  await deleteDay(day.id)
+                if (day.value) {
+                  await deleteDay(day.value.id)
                   refetchDays()
                 } else {
                   console.error('Day is null')

@@ -12,13 +12,13 @@ export default function CopyLastDayButton({
   refetchDays,
 }: {
   days: ReadonlySignal<Day[]>
-  day: Day | undefined
+  day: ReadonlySignal<Day | undefined>
   selectedDay: string
   refetchDays: () => void
 }) {
   const { show: showConfirmModal } = useConfirmModalContext()
 
-  if (days === undefined) {
+  if (days.value === undefined) {
     console.error('days is undefined')
     return <></>
   }
@@ -44,7 +44,8 @@ export default function CopyLastDayButton({
     <button
       className="btn-primary btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white"
       onClick={async () => {
-        if (day !== undefined) {
+        const dayValue = day.value
+        if (dayValue !== undefined) {
           showConfirmModal({
             title: 'Sobrescrever dia',
             body: 'Tem certeza que deseja SOBRESCREVER este dia?',
@@ -57,7 +58,7 @@ export default function CopyLastDayButton({
                 text: 'Sobrescrever',
                 primary: true,
                 onClick: async () => {
-                  updateDay(day?.id, {
+                  updateDay(dayValue.id, {
                     ...lastDay,
                     target_day: selectedDay,
                   }).then(() => {

@@ -9,7 +9,7 @@ import { useCallback, useState } from 'react'
 import Modal, { ModalActions } from '../(modals)/Modal'
 import FoodItemListView from '../(foodItem)/FoodItemListView'
 import FoodItemView from '../(foodItem)/FoodItemView'
-import { FoodItem, createFoodItem, foodItemSchema } from '@/model/foodItemModel'
+import { FoodItem, foodItemSchema } from '@/model/foodItemModel'
 import { TemplateSearchModal } from '../templateSearch/TemplateSearchModal'
 import FoodItemEditModal from '../(foodItem)/FoodItemEditModal'
 import RecipeIcon from '../(icons)/RecipeIcon'
@@ -255,8 +255,12 @@ function ExternalFoodItemEditModal({
       throw new Error('group is null')
     }
 
-    visible.value = false
+    console.debug(
+      '[ExternalFoodItemEditModal] handleCloseWithChanges - newGroup: ',
+      newGroup,
+    )
     group.value = newGroup
+    visible.value = false
     onClose()
   }
 
@@ -283,7 +287,7 @@ function ExternalFoodItemEditModal({
         }
         foodItem={computed(() => {
           console.debug(
-            `[ExternalFoodItemEditModal] <computing> foodItem: `,
+            `[ExternalFoodItemEditModal] <computed> foodItem: `,
             editSelection.value?.foodItem,
           )
           return editSelection.value?.foodItem ?? mockItem()
@@ -302,6 +306,11 @@ function ExternalFoodItemEditModal({
             )
             return
           }
+
+          console.debug(
+            `[ExternalFoodItemEditModal] onApply: setting itemId=${item.id} to item=`,
+            item,
+          )
           const newGroup: ItemGroup = new ItemGroupEditor(group.value)
             .editItem(item.id, (editor) => editor?.replace(item))
             .finish()
@@ -661,7 +670,7 @@ function Actions({
       </button>
       <button
         className="btn"
-        disabled={!canApply} // TODO: Rename canAdd to canApply on FoodItemEditModal
+        disabled={!canApply}
         onClick={(e) => {
           e.preventDefault()
           saveGroup()

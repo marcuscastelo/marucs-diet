@@ -12,6 +12,7 @@ import { TemplateItem } from '@/model/templateItemModel'
 import { Template } from '@/model/templateModel'
 import {
   ReadonlySignal,
+  computed,
   useSignal,
   useSignalEffect,
 } from '@preact/signals-react'
@@ -87,19 +88,26 @@ function FoodItemName() {
   const template = useSignal<Template | null>(null)
 
   useSignalEffect(() => {
-    console.debug(`[FoodItemName] item changed, fetching API:`, item)
-    if (item.value?.__type === 'RecipeItem') {
-      searchRecipeById(item.value.reference).then(
+    console.debug(`[FoodItemName] item changed, fetching API:`, item.value)
+
+    const itemValue = item.value
+    if (itemValue === undefined) {
+      console.warn(`[FoodItemName] item is undefined!!`)
+      return // TODO: Remove serverActions: causing bugs with signals
+    }
+
+    if (itemValue.__type === 'RecipeItem') {
+      searchRecipeById(itemValue.reference).then(
         (recipe) => (template.value = recipe),
       )
     } else {
-      searchFoodById(item.value.reference).then(
+      searchFoodById(itemValue.reference).then(
         (food) => (template.value = food),
       )
     }
   })
 
-  const getTemplateNameColor = () => {
+  const templateNameColor = computed(() => {
     if (item.value?.__type === 'FoodItem') {
       return 'text-white'
     } else if (item.value.__type === 'RecipeItem') {
@@ -107,14 +115,14 @@ function FoodItemName() {
     } else {
       return 'text-red-500'
     }
-  }
+  })
 
   return (
     <div className="">
       {/* //TODO: FoodItem id is random, but it should be an entry on the database (meal too) */}
       {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.FoodItem.id}]</h5> */}
       <h5
-        className={`mb-2 text-lg font-bold tracking-tight ${getTemplateNameColor()}`}
+        className={`mb-2 text-lg font-bold tracking-tight ${templateNameColor.value}`}
       >
         {template.value?.name ?? 'food not found'}{' '}
         {debug && (

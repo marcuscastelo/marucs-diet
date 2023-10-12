@@ -1,8 +1,13 @@
 'use client'
 
 import { ItemGroup } from '@/model/itemGroupModel'
-import { ReadonlySignal, Signal, useSignal } from '@preact/signals-react'
-import { ReactNode, useEffect, useState } from 'react'
+import {
+  ReadonlySignal,
+  Signal,
+  useSignal,
+  useSignalEffect,
+} from '@preact/signals-react'
+import { ReactNode } from 'react'
 
 import { createContext, useContext } from 'use-context-selector'
 
@@ -33,6 +38,10 @@ export function ItemGroupEditContextProvider({
   children: ReactNode
 }) {
   const group = useSignal<ItemGroup | null>(initialGroup.value)
+
+  useSignalEffect(() => {
+    group.value = initialGroup.value
+  })
 
   const handleSaveGroup = () => group.value && onSaveGroup(group.value)
 

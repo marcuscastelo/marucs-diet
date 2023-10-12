@@ -17,7 +17,12 @@ import { convertToGroups } from '@/utils/groupUtils'
 import { renegerateId } from '@/utils/idUtils'
 import { foodItemSchema } from '@/model/foodItemModel'
 import { recipeSchema } from '@/model/recipeModel'
-import { ReadonlySignal, computed } from '@preact/signals-react'
+import {
+  ReadonlySignal,
+  computed,
+  useSignal,
+  useSignalEffect,
+} from '@preact/signals-react'
 
 export type MealEditViewProps = {
   meal: ReadonlySignal<Meal>
@@ -208,6 +213,10 @@ function MealEditViewContent({
   onEditItemGroup: (item: ItemGroup) => void
 }) {
   const { meal } = useMealContext()
+
+  useSignalEffect(() => {
+    console.debug(`[MealEditViewContent] meal.value changed:`, meal.value)
+  })
 
   return (
     <ItemGroupListView
