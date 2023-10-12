@@ -109,5 +109,6 @@ export const mockRecipe = (partial?: Partial<Recipe>): Recipe =>
   createRecipe({
     name: 'Receita de teste',
     items: [mockItem()],
+    owner: 3, // TODO: Get owner from somewhere (or create new Recipe type for data-only)
     ...partial,
   })

@@ -3,6 +3,7 @@ import { ItemContainer } from './interfaces/itemContainer'
 import { ItemGroup } from '@/model/itemGroupModel'
 import { Editor } from './editor'
 import { ItemEditor } from './itemEditor'
+import { Recipe } from '@/model/recipeModel'
 
 export class ItemGroupEditor
   extends Editor<ItemGroup>
@@ -12,6 +13,12 @@ export class ItemGroupEditor
 
   setName(name: string) {
     this.group.name = name
+    return this
+  }
+
+  setRecipe(recipe: Recipe['id']) {
+    this.group.type = 'recipe'
+    this.group.recipe = recipe
     return this
   }
 
