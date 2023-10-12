@@ -184,7 +184,7 @@ function WeightView({
               className="input text-center btn-ghost px-0 flex-shrink"
               style={{ width: '100%' }}
               onFocus={(event) => event.target.select()}
-              onFieldChange={async (value) => {
+              onFieldCommit={async (value) => {
                 await handleSave({
                   dateValue: dateField.value,
                   weightValue: value,

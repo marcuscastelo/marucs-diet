@@ -8,7 +8,7 @@ import {
   RecipeEditContextProvider,
   useRecipeEditContext,
 } from './RecipeEditContext'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import TrashIcon from '../(icons)/TrashIcon'
 import PasteIcon from '../(icons)/PasteIcon'
 import CopyIcon from '../(icons)/CopyIcon'
@@ -229,11 +229,19 @@ function RecipeEditContent({
         onItemClick={onEditItem}
       />
       <AddNewItemButton onClick={onNewItem} />
-      <div className="flex justify-between mt-2">
-        <RawQuantity />
-        <PreparedQuantity />
-        <PreparedMultiplier />
-        {recipe.value.prepared_multiplier}
+      <div className="flex justify-between gap-2 mt-2">
+        <div className="flex flex-col">
+          <RawQuantity />
+          <div className="text-gray-400 ml-1">Peso (cru)</div>
+        </div>
+        <div className="flex flex-col">
+          <PreparedQuantity />
+          <div className="text-gray-400 ml-1">Peso (pronto)</div>
+        </div>
+        <div className="flex flex-col">
+          <PreparedMultiplier />
+          <div className="text-gray-400 ml-1">Mult.</div>
+        </div>
       </div>
     </>
   )
@@ -257,10 +265,22 @@ function RawQuantity() {
     return acc + item.quantity
   }, 0)
 
+  const rawQuantityField = useFloatField(rawQuantiy, {
+    decimalPlaces: 0,
+  })
+
+  useEffect(() => {
+    rawQuantityField.setValue(rawQuantiy)
+  }, [rawQuantiy, rawQuantityField])
+
   return (
     <div className="flex gap-2">
-      <div className="text-gray-400">Cru:</div>
-      <div className="text-white">{rawQuantiy}g</div>
+      <FloatInput
+        field={rawQuantityField}
+        disabled
+        className="input px-0 pl-5 text-md"
+        style={{ width: '100%' }}
+      />
     </div>
   )
 }
@@ -274,10 +294,32 @@ function PreparedQuantity() {
 
   const preparedQuantity = rawQuantiy * recipe.value.prepared_multiplier
 
+  const preparedQuantityField = useFloatField(preparedQuantity, {
+    decimalPlaces: 0,
+  })
+
+  useEffect(() => {
+    preparedQuantityField.setValue(preparedQuantity)
+  }, [preparedQuantity, preparedQuantityField])
+
   return (
     <div className="flex gap-2">
-      <div className="text-gray-400">Feito:</div>
-      <div className="text-white">{preparedQuantity}g</div>
+      <FloatInput
+        field={preparedQuantityField}
+        commitOn="change"
+        className="input px-0 pl-5 text-md"
+        onFocus={(event) => event.target.select()}
+        onFieldCommit={(newPreparedQuantity) => {
+          const newMultiplier = (newPreparedQuantity ?? rawQuantiy) / rawQuantiy
+
+          const newRecipe = new RecipeEditor(recipe.value)
+            .setPreparedMultiplier(newMultiplier ?? 1)
+            .finish()
+
+          recipe.setValue(newRecipe)
+        }}
+        style={{ width: '100%' }}
+      />
     </div>
   )
 }
@@ -287,16 +329,23 @@ function PreparedMultiplier() {
 
   const preparedMultiplierField = useFloatField(
     recipe.value.prepared_multiplier,
+    {
+      decimalPlaces: 2,
+    },
   )
+
+  useEffect(() => {
+    preparedMultiplierField.setValue(recipe.value.prepared_multiplier)
+  }, [recipe.value.prepared_multiplier, preparedMultiplierField])
 
   return (
     <div className="flex gap-2">
-      <div className="text-gray-400">Proporçao:</div>
       <FloatInput
         field={preparedMultiplierField}
-        className="input px-0 pl-5 text-xl mb-3"
+        commitOn="change"
+        className="input px-0 pl-5 text-md"
         onFocus={(event) => event.target.select()}
-        onFieldChange={(newMultiplier) => {
+        onFieldCommit={(newMultiplier) => {
           const newRecipe = new RecipeEditor(recipe.value)
             .setPreparedMultiplier(newMultiplier ?? 1)
             .finish()

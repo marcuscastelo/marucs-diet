@@ -225,6 +225,10 @@ function ExternalRecipeEditModal({
   onSetVisible: Dispatch<SetStateAction<boolean>>
   onRefetch: () => void
 }) {
+  if (recipe === null) {
+    return
+  }
+
   return (
     <ModalContextProvider visible={visible} onSetVisible={onSetVisible}>
       <RecipeEditModal

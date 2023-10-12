@@ -244,7 +244,7 @@ function Body({
           <FloatInput
             field={quantityField}
             style={{ width: '100%' }}
-            onFieldChange={(value) =>
+            onFieldCommit={(value) =>
               value === undefined && quantityField.setValue(foodItem.quantity)
             }
             tabIndex={-1}
