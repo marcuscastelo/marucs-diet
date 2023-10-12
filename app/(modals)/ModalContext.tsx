@@ -1,11 +1,11 @@
 'use client'
 
-import { Dispatch, ReactNode, SetStateAction } from 'react'
+import { Signal } from '@preact/signals-react'
+import { ReactNode } from 'react'
 import { createContext, useContext } from 'use-context-selector'
 
 type ModalContext = {
-  visible: boolean
-  onSetVisible: Dispatch<SetStateAction<boolean>>
+  visibleNew: Signal<boolean>
 }
 
 const ModalContext = createContext<ModalContext | null>(null)
@@ -24,15 +24,13 @@ export function useModalContext() {
 
 export function ModalContextProvider({
   visible,
-  onSetVisible,
   children,
 }: {
-  visible: boolean
-  onSetVisible: Dispatch<SetStateAction<boolean>>
+  visible: Signal<boolean>
   children: ReactNode
 }) {
   return (
-    <ModalContext.Provider value={{ visible, onSetVisible }}>
+    <ModalContext.Provider value={{ visibleNew: visible }}>
       {children}
     </ModalContext.Provider>
   )

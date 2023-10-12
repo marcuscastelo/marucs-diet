@@ -1,20 +1,20 @@
 'use client'
 
-import { useState } from 'react'
 import { mockItem } from '../(mock)/mockData'
 import FoodItemEditModal from '@/app/(foodItem)/FoodItemEditModal'
 import { ModalContextProvider } from '@/app/(modals)/ModalContext'
+import { useSignal } from '@preact/signals-react'
 
 export default function Page() {
-  const [visible, setVisible] = useState(false)
+  const visible = useSignal(false)
 
   return (
     <>
-      <button className="btn" onClick={() => setVisible((v) => !v)}>
+      <button className="btn" onClick={() => (visible.value = !visible.value)}>
         Toggle modal
       </button>
 
-      <ModalContextProvider visible={visible} onSetVisible={setVisible}>
+      <ModalContextProvider visible={visible}>
         <FoodItemEditModal
           targetName="Teste"
           foodItem={mockItem()}

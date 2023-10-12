@@ -7,26 +7,27 @@ import Modal, {
 } from '@/app/(modals)/Modal'
 import { ModalContextProvider } from '@/app/(modals)/ModalContext'
 import { useState } from 'react'
+import { useSignal } from '@preact/signals-react'
 
 const meta: Meta<typeof Modal> = {
   title: 'Components/Modal',
   component: Modal,
   decorators: [
     (Story) => {
-      const [visible, setVisible] = useState(false)
+      const visible = useSignal(false)
       return (
         <>
-          Visible: {visible ? 'true' : 'false'}
+          Visible: {visible.value ? 'true' : 'false'}
           <button
             className="btn"
             onClick={(e) => {
               e.preventDefault()
-              setVisible((v) => !v)
+              visible.value = !visible.value
             }}
           >
             Toggle Modal
           </button>
-          <ModalContextProvider visible={visible} onSetVisible={setVisible}>
+          <ModalContextProvider visible={visible}>
             {Story()}
           </ModalContextProvider>
         </>

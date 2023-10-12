@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import Capsule from '../../../components/capsule/Capsule'
 import TrashIcon from '../../(icons)/TrashIcon'
 import Datepicker from 'react-tailwindcss-datepicker'

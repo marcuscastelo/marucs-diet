@@ -1,9 +1,7 @@
 'use client'
 
 import { User, userSchema } from '@/model/userModel'
-import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { updateUser } from '@/controllers/users'
 import Capsule from '../../components/capsule/Capsule'
 import { z } from 'zod'
 import { CapsuleContent } from '@/components/capsule/CapsuleContent'
