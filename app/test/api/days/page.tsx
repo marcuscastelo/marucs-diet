@@ -7,6 +7,7 @@ import { Day } from '@/model/dayModel'
 import { User } from '@/model/userModel'
 import { Suspense, useEffect, useState } from 'react'
 import { useUserContext } from '@/context/users.context'
+import { computed } from '@preact/signals-react'
 
 export default function Page() {
   const [days, setDays] = useState<Day[]>([])
@@ -19,7 +20,8 @@ export default function Page() {
     setDays(days)
 
     const mealProps = days.map((day) => {
-      return day.meals.map((meal): MealEditViewProps => {
+      return day.meals.map((_, idx): MealEditViewProps => {
+        const meal = computed(() => day.meals[idx])
         return {
           meal,
           header: (
@@ -55,7 +57,9 @@ export default function Page() {
           <div key={idx}>
             <div className="text-2xl font-bold">{day.target_day}</div>
             {mealEditPropsList[idx].length > 0 ? (
-              <MealEditViewList mealEditPropsList={mealEditPropsList[idx]} />
+              <MealEditViewList
+                mealEditPropsList={computed(() => mealEditPropsList[idx])}
+              />
             ) : (
               <div>No meals</div>
             )}

@@ -4,6 +4,7 @@ import RecipeEditView, {
 } from '../app/(recipe)/RecipeEditView'
 import { mockRecipe } from '@/app/test/unit/(mock)/mockData'
 import ServerApp from '@/app/ServerApp'
+import { signal } from '@preact/signals-react'
 
 const meta: Meta<typeof RecipeEditView> = {
   title: 'Components/RecipeEditView',
@@ -14,17 +15,23 @@ const meta: Meta<typeof RecipeEditView> = {
 export default meta
 type Story = StoryObj<typeof RecipeEditView>
 
+const recipe = signal(mockRecipe())
+
 export const Root: Story = {
   args: {
-    recipe: mockRecipe(),
+    recipe,
   } satisfies RecipeEditViewProps,
 
   render: (args) => (
     <RecipeEditView
       {...args}
       header={<RecipeEditView.Header onUpdateRecipe={() => undefined} />}
-      content={<RecipeEditView.Content onEditItem={() => undefined} />}
-      actions={<RecipeEditView.Actions onNewItem={() => undefined} />}
+      content={
+        <RecipeEditView.Content
+          onEditItem={() => undefined}
+          onNewItem={() => undefined}
+        />
+      }
     />
   ),
 }

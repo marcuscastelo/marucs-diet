@@ -1,11 +1,12 @@
 'use client'
 
 import { Recipe } from '@/model/recipeModel'
+import { Signal } from '@preact/signals-react'
 import { createContext, useContext } from 'use-context-selector'
 
-const RecipeContext = createContext<{ recipe: Recipe } | null>(null)
+const RecipeContext = createContext<{ recipe: Signal<Recipe> } | null>(null)
 
-export function useRecipeContext() {
+export function useRecipeEditContext() {
   const context = useContext(RecipeContext)
 
   if (!context) {
@@ -17,15 +18,19 @@ export function useRecipeContext() {
   return context
 }
 
-export function RecipeContextProvider({
+export function RecipeEditContextProvider({
   recipe,
   children,
 }: {
-  recipe: Recipe
+  recipe: Signal<Recipe>
   children: React.ReactNode
 }) {
   return (
-    <RecipeContext.Provider value={{ recipe }}>
+    <RecipeContext.Provider
+      value={{
+        recipe,
+      }}
+    >
       {children}
     </RecipeContext.Provider>
   )

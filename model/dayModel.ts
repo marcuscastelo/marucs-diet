@@ -8,4 +8,4 @@ export const daySchema = z.object({
   meals: z.array(mealSchema),
 })
 
-export type Day = z.infer<typeof daySchema>
+export type Day = Readonly<z.infer<typeof daySchema>>

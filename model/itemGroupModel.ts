@@ -31,11 +31,11 @@ export const itemGroupSchema = z.discriminatedUnion('type', [
   recipedItemGroup,
 ])
 
-export type SimpleItemGroup = z.infer<typeof simpleItemGroupSchema>
+export type SimpleItemGroup = Readonly<z.infer<typeof simpleItemGroupSchema>>
 
-export type RecipedItemGroup = z.infer<typeof recipedItemGroup>
+export type RecipedItemGroup = Readonly<z.infer<typeof recipedItemGroup>>
 
-export type ItemGroup = z.infer<typeof itemGroupSchema>
+export type ItemGroup = Readonly<z.infer<typeof itemGroupSchema>>
 
 export function isSimpleSingleGroup(
   group: ItemGroup,

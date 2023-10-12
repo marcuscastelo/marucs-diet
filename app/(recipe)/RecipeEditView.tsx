@@ -3,32 +3,35 @@
 // TODO: Unify Recipe and Recipe components into a single component?
 
 import { Recipe, recipeSchema } from '@/model/recipeModel'
-import { FoodItem, foodItemSchema } from '@/model/foodItemModel'
-import { RecipeContextProvider, useRecipeContext } from './RecipeContext'
+import { foodItemSchema } from '@/model/foodItemModel'
+import {
+  RecipeEditContextProvider,
+  useRecipeEditContext,
+} from './RecipeEditContext'
 import { useCallback, useEffect, useState } from 'react'
 import TrashIcon from '../(icons)/TrashIcon'
 import PasteIcon from '../(icons)/PasteIcon'
 import CopyIcon from '../(icons)/CopyIcon'
 import FoodItemListView from '../(foodItem)/FoodItemListView'
-import {
-  calcGroupMacros,
-  calcRecipeCalories,
-  calcRecipeMacros,
-} from '@/utils/macroMath'
+import { calcRecipeCalories } from '@/utils/macroMath'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
-import { generateId, renegerateId } from '@/utils/idUtils'
+import { renegerateId } from '@/utils/idUtils'
 import { TemplateItem } from '@/model/templateItemModel'
 import useClipboard, { createClipboardSchemaFilter } from '@/hooks/clipboard'
 import { deserializeClipboard } from '@/utils/clipboardUtils'
 import { convertToGroups } from '@/utils/groupUtils'
 import { mealSchema } from '@/model/mealModel'
 import { itemGroupSchema } from '@/model/itemGroupModel'
+import { useFloatField, useFloatFieldOld } from '@/hooks/field'
+import { FloatInput } from '@/components/FloatInput'
+import { RecipeEditor } from '@/utils/data/recipeEditor'
+import { Signal, computed } from '@preact/signals-react'
 
 export type RecipeEditViewProps = {
-  recipe: Recipe
+  recipe: Signal<Recipe>
   header?: React.ReactNode
   content?: React.ReactNode
-  actions?: React.ReactNode
+  footer?: React.ReactNode
   className?: string
 }
 
@@ -46,23 +49,26 @@ export default function RecipeEditView({
   recipe,
   header,
   content,
-  actions,
+  footer: actions,
   className,
 }: RecipeEditViewProps) {
+  // TODO: implement setRecipe
   return (
-    <div className={`bg-gray-800 p-3 ${className || ''}`}>
-      <RecipeContextProvider recipe={recipe}>
+    <div
+      className={`bg-gray-800 p-3 ${className === undefined ? '' : className}`}
+    >
+      <RecipeEditContextProvider recipe={recipe}>
         {header}
         {content}
         {actions}
-      </RecipeContextProvider>
+      </RecipeEditContextProvider>
     </div>
   )
 }
 
+// TODO: Unify Header, Content and Actions into a single component for entire app
 RecipeEditView.Header = RecipeEditHeader
 RecipeEditView.Content = RecipeEditContent
-RecipeEditView.Actions = RecipeEditActions
 
 function RecipeEditHeader({
   onUpdateRecipe,
@@ -74,7 +80,7 @@ function RecipeEditHeader({
     .or(foodItemSchema)
     .or(recipeSchema)
 
-  const { recipe } = useRecipeContext()
+  const { recipe } = useRecipeEditContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
   const isClipboardValid = createClipboardSchemaFilter(acceptedClipboardSchema)
@@ -109,13 +115,9 @@ function RecipeEditHeader({
 
     const itemsToAdd = groupsToAdd.flatMap((g) => g.items)
 
-    const newRecipe: Recipe = {
-      ...recipe,
-      items: [...recipe.items, ...itemsToAdd],
-    }
-
-    // TODO: Create RecipeEditor, MealEditor, ItemGroupEditor, FoodItemEditor classes to avoid this code duplication and error proneness
-    newRecipe.macros = calcRecipeMacros(newRecipe)
+    const newRecipe = new RecipeEditor(recipe.value)
+      .addItems(itemsToAdd)
+      .finish()
 
     onUpdateRecipe(newRecipe)
 
@@ -143,7 +145,7 @@ function RecipeEditHeader({
     })
   }, [handlePasteAfterConfirm, showConfirmModal])
 
-  const recipeCalories = calcRecipeCalories(recipe)
+  const recipeCalories = calcRecipeCalories(recipe.value)
 
   const onClearItems = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -160,10 +162,9 @@ function RecipeEditHeader({
           text: 'Excluir todos os itens',
           primary: true,
           onClick: () => {
-            const newRecipe: Recipe = {
-              ...recipe,
-              items: [],
-            }
+            const newRecipe = new RecipeEditor(recipe.value)
+              .clearItems()
+              .finish()
 
             onUpdateRecipe(newRecipe)
           },
@@ -177,11 +178,11 @@ function RecipeEditHeader({
   return (
     <div className="flex">
       <div className="my-2">
-        <h5 className="text-3xl text-blue-500">{recipe.name}</h5>
+        <h5 className="text-3xl text-blue-500">{recipe.value.name}</h5>
         <p className="italic text-gray-400">{recipeCalories.toFixed(0)}kcal</p>
       </div>
       <div className={`ml-auto flex gap-2`}>
-        {!hasValidPastableOnClipboard && recipe.items.length > 0 && (
+        {!hasValidPastableOnClipboard && recipe.value.items.length > 0 && (
           <div
             className={`btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105`}
             onClick={handleCopy}
@@ -197,7 +198,7 @@ function RecipeEditHeader({
             <PasteIcon />
           </div>
         )}
-        {recipe.items.length > 0 && (
+        {recipe.value.items.length > 0 && (
           <div
             className={`btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105`}
             onClick={onClearItems}
@@ -212,21 +213,136 @@ function RecipeEditHeader({
 
 function RecipeEditContent({
   onEditItem,
+  onNewItem,
 }: {
   onEditItem: (item: TemplateItem) => void
+  onNewItem: () => void
 }) {
-  const { recipe } = useRecipeContext()
+  const { recipe } = useRecipeEditContext()
 
-  return <FoodItemListView foodItems={recipe.items} onItemClick={onEditItem} />
+  return (
+    <>
+      <FoodItemListView
+        foodItems={computed(() => recipe.value.items)}
+        onItemClick={onEditItem}
+      />
+      <AddNewItemButton onClick={onNewItem} />
+      <div className="flex justify-between gap-2 mt-2">
+        <div className="flex flex-col">
+          <RawQuantity />
+          <div className="text-gray-400 ml-1">Peso (cru)</div>
+        </div>
+        <div className="flex flex-col">
+          <PreparedQuantity />
+          <div className="text-gray-400 ml-1">Peso (pronto)</div>
+        </div>
+        <div className="flex flex-col">
+          <PreparedMultiplier />
+          <div className="text-gray-400 ml-1">Mult.</div>
+        </div>
+      </div>
+    </>
+  )
 }
 
-function RecipeEditActions({ onNewItem }: { onNewItem: () => void }) {
+function AddNewItemButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       className="mt-3 min-w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-      onClick={onNewItem}
+      onClick={onClick}
     >
       Adicionar item
     </button>
+  )
+}
+
+function RawQuantity() {
+  const { recipe } = useRecipeEditContext()
+
+  const rawQuantiy = computed(() =>
+    recipe.value.items.reduce((acc, item) => {
+      return acc + item.quantity
+    }, 0),
+  )
+
+  const rawQuantityField = useFloatField(rawQuantiy, {
+    decimalPlaces: 0,
+  })
+
+  return (
+    <div className="flex gap-2">
+      <FloatInput
+        field={rawQuantityField}
+        disabled
+        className="input px-0 pl-5 text-md"
+        style={{ width: '100%' }}
+      />
+    </div>
+  )
+}
+
+function PreparedQuantity() {
+  const { recipe } = useRecipeEditContext()
+
+  const rawQuantiy = recipe.value.items.reduce((acc, item) => {
+    return acc + item.quantity
+  }, 0)
+
+  const preparedQuantity = computed(
+    () => rawQuantiy * recipe.value.prepared_multiplier,
+  )
+
+  const preparedQuantityField = useFloatField(preparedQuantity, {
+    decimalPlaces: 0,
+  })
+
+  return (
+    <div className="flex gap-2">
+      <FloatInput
+        field={preparedQuantityField}
+        commitOn="change"
+        className="input px-0 pl-5 text-md"
+        onFocus={(event) => event.target.select()}
+        onFieldCommit={(newPreparedQuantity) => {
+          const newMultiplier = (newPreparedQuantity ?? rawQuantiy) / rawQuantiy
+
+          const newRecipe = new RecipeEditor(recipe.value)
+            .setPreparedMultiplier(newMultiplier ?? 1)
+            .finish()
+
+          recipe.value = newRecipe
+        }}
+        style={{ width: '100%' }}
+      />
+    </div>
+  )
+}
+
+function PreparedMultiplier() {
+  const { recipe } = useRecipeEditContext()
+
+  const preparedMultiplier = computed(() => recipe.value.prepared_multiplier)
+
+  const preparedMultiplierField = useFloatField(preparedMultiplier, {
+    decimalPlaces: 2,
+  })
+
+  return (
+    <div className="flex gap-2">
+      <FloatInput
+        field={preparedMultiplierField}
+        commitOn="change"
+        className="input px-0 pl-5 text-md"
+        onFocus={(event) => event.target.select()}
+        onFieldCommit={(newMultiplier) => {
+          const newRecipe = new RecipeEditor(recipe.value)
+            .setPreparedMultiplier(newMultiplier ?? 1)
+            .finish()
+
+          recipe.value = newRecipe
+        }}
+        style={{ width: '100%' }}
+      />
+    </div>
   )
 }

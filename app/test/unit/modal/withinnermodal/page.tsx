@@ -2,11 +2,11 @@
 
 import Modal from '@/app/(modals)/Modal'
 import { ModalContextProvider } from '@/app/(modals)/ModalContext'
-import { Dispatch, SetStateAction, useState } from 'react'
+import { Signal, useSignal } from '@preact/signals-react'
 
 export default function Page() {
-  const [showing, setShowing] = useState(false)
-  const [innerShowing, setInnerShowing] = useState(false)
+  const showing = useSignal(false)
+  const innerShowing = useSignal(false)
 
   return (
     <>
@@ -18,7 +18,7 @@ export default function Page() {
         className="btn"
         onClick={(e) => {
           e.preventDefault()
-          setShowing(true)
+          showing.value = true
         }}
       >
         Show Modal
@@ -28,33 +28,20 @@ export default function Page() {
         className="btn"
         onClick={(e) => {
           e.preventDefault()
-          setShowing(false)
+          showing.value = false
         }}
       >
         Close Modal
       </button>
 
-      <ModalContextProvider
-        visible={false}
-        onSetVisible={(...args) => {
-          setShowing(...args)
-        }}
-      >
-        <Modal
-          body={<MyModal showing={innerShowing} setShowing={setInnerShowing} />}
-        />
+      <ModalContextProvider visible={showing}>
+        <Modal body={<MyModal showing={innerShowing} />} />
       </ModalContextProvider>
     </>
   )
 }
 
-function MyModal({
-  showing,
-  setShowing,
-}: {
-  showing: boolean
-  setShowing: Dispatch<SetStateAction<boolean>>
-}) {
+function MyModal({ showing }: { showing: Signal<boolean> }) {
   return (
     <>
       <span>isShowing: {showing ? 'true' : 'false'}</span>
@@ -64,7 +51,7 @@ function MyModal({
         className="btn"
         onClick={(e) => {
           e.preventDefault()
-          setShowing(true)
+          showing.value = true
         }}
       >
         Show Modal
@@ -74,18 +61,13 @@ function MyModal({
         className="btn"
         onClick={(e) => {
           e.preventDefault()
-          setShowing(false)
+          showing.value = false
         }}
       >
         Close Modal
       </button>
 
-      <ModalContextProvider
-        visible={false}
-        onSetVisible={(a) => {
-          setShowing(a)
-        }}
-      >
+      <ModalContextProvider visible={showing}>
         <Modal />
       </ModalContextProvider>
     </>

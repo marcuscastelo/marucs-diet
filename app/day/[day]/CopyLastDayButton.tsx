@@ -3,6 +3,7 @@
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import { updateDay, upsertDay } from '@/controllers/days'
 import { Day } from '@/model/dayModel'
+import { ReadonlySignal } from '@preact/signals-react'
 
 export default function CopyLastDayButton({
   days,
@@ -10,19 +11,19 @@ export default function CopyLastDayButton({
   selectedDay,
   refetchDays,
 }: {
-  days: Day[]
-  day: Day | undefined
+  days: ReadonlySignal<Day[]>
+  day: ReadonlySignal<Day | undefined>
   selectedDay: string
   refetchDays: () => void
 }) {
   const { show: showConfirmModal } = useConfirmModalContext()
 
-  if (days === undefined) {
+  if (days.value === undefined) {
     console.error('days is undefined')
     return <></>
   }
 
-  const lastDay = days.findLast(
+  const lastDay = days.value.findLast(
     (day) => Date.parse(day.target_day) < Date.parse(selectedDay),
   )
   if (lastDay === undefined) {
@@ -43,7 +44,8 @@ export default function CopyLastDayButton({
     <button
       className="btn-primary btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white"
       onClick={async () => {
-        if (day !== undefined) {
+        const dayValue = day.value
+        if (dayValue !== undefined) {
           showConfirmModal({
             title: 'Sobrescrever dia',
             body: 'Tem certeza que deseja SOBRESCREVER este dia?',
@@ -56,7 +58,7 @@ export default function CopyLastDayButton({
                 text: 'Sobrescrever',
                 primary: true,
                 onClick: async () => {
-                  updateDay(day?.id, {
+                  updateDay(dayValue.id, {
                     ...lastDay,
                     target_day: selectedDay,
                   }).then(() => {

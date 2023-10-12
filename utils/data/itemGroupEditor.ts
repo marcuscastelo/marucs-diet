@@ -10,6 +10,11 @@ export class ItemGroupEditor
 {
   private readonly group = this.content
 
+  setName(name: string) {
+    this.group.name = name
+    return this
+  }
+
   addItem(item: FoodItem) {
     this.group.items.push(item)
     return this
@@ -39,13 +44,14 @@ export class ItemGroupEditor
     return this
   }
 
-  deleteItem(id: number): void {
+  deleteItem(id: number) {
     const index = this.group.items.findIndex((item) => item.id === id)
     if (index === -1) {
       console.warn(`Item with id ${id} not found!`)
-      return
+      return this
     }
     this.group.items.splice(index, 1)
+    return this
   }
 
   clearItems() {
@@ -53,12 +59,11 @@ export class ItemGroupEditor
     return this
   }
 
-  // TODO: Move eslint-disable-next-line to eslint config
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  protected override beforeFinish(): void {}
-
-  afterFinish(copy: ItemGroup) {
+  protected override onFinish() {
     // TODO: Replace quantity field with a getter that calculates it
-    copy.quantity = copy.items.reduce((acc, item) => acc + item.quantity, 0)
+    this.group.quantity = this.group.items.reduce(
+      (acc, item) => acc + item.quantity,
+      0,
+    )
   }
 }

@@ -15,4 +15,4 @@ export const TemplateSchema = z.discriminatedUnion('__type', [
     .merge(recipeSchema),
 ])
 
-export type Template = z.infer<typeof TemplateSchema>
+export type Template = Readonly<z.infer<typeof TemplateSchema>>

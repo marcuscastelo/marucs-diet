@@ -24,7 +24,7 @@ export const measureSchema = z.object({
     .transform(() => 'Measure' as const),
 })
 
-export type Measure = z.infer<typeof measureSchema>
+export type Measure = Readonly<z.infer<typeof measureSchema>>
 
 export function createMeasure({
   owner,

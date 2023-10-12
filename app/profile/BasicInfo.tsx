@@ -1,13 +1,12 @@
 'use client'
 
 import { User, userSchema } from '@/model/userModel'
-import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { updateUser } from '@/controllers/users'
 import Capsule from '../../components/capsule/Capsule'
 import { z } from 'zod'
 import { CapsuleContent } from '@/components/capsule/CapsuleContent'
 import { UserIcon } from '@/components/UserIcon'
+import { Mutable } from '@/utils/typeUtils'
 type Translation<T extends string> = { [key in T]: string }
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -38,7 +37,7 @@ export function BasicInfo({
   user: User
   onSave: (newUser: User) => Promise<User>
 }) {
-  type UnsavedFields = { [key in keyof User]?: boolean }
+  type UnsavedFields = { [key in keyof Mutable<User>]?: boolean }
 
   const [innerData, setInnerData] = useState<User>(user)
   const [unsavedFields, setUnsavedFields] = useState<UnsavedFields>({})

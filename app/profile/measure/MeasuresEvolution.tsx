@@ -7,7 +7,7 @@ import { Measure, createMeasure } from '@/model/measureModel'
 import { fetchUserMeasures, insertMeasure } from '@/controllers/measures'
 import { MeasureChart } from './MeasureChart'
 import { MeasureView } from './MeasureView'
-import { useFloatField } from '@/hooks/field'
+import { useFloatFieldOld } from '@/hooks/field'
 import { FloatInput } from '@/components/FloatInput'
 
 // TODO: Centralize theme constants
@@ -20,10 +20,10 @@ export function MeasuresEvolution({ onSave }: { onSave: () => void }) {
   const [measures, setMeasures] = useState<Loadable<Measure[]>>({
     loading: true,
   })
-  const heightField = useFloatField()
-  const waistField = useFloatField()
-  const hipField = useFloatField()
-  const neckField = useFloatField()
+  const heightField = useFloatFieldOld()
+  const waistField = useFloatFieldOld()
+  const hipField = useFloatFieldOld()
+  const neckField = useFloatFieldOld()
 
   const handleRefetchMeasures = useCallback(() => {
     fetchUserMeasures(userId).then((measures) =>
@@ -99,10 +99,10 @@ export function MeasuresEvolution({ onSave }: { onSave: () => void }) {
               await insertMeasure(
                 createMeasure({
                   owner: userId,
-                  height: heightField.value,
-                  waist: waistField.value,
-                  hip: hipField.value,
-                  neck: neckField.value,
+                  height: heightField.value.value ?? 0,
+                  waist: waistField.value.value ?? 0,
+                  hip: hipField.value.value ?? 0,
+                  neck: neckField.value.value ?? 0,
                   target_timestamp: new Date(Date.now()),
                 }),
               )

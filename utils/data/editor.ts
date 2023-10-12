@@ -1,7 +1,8 @@
 import { deepCopy } from '../deepCopy'
+import { Mutable } from '../typeUtils'
 
 export abstract class Editor<T extends object | undefined | null> {
-  protected readonly content: T
+  protected readonly content: Mutable<T>
   constructor(content: T) {
     const copy = deepCopy(content)
     if (!copy) {
@@ -10,18 +11,25 @@ export abstract class Editor<T extends object | undefined | null> {
     this.content = copy
   }
 
-  protected abstract beforeFinish(): void
-  protected abstract afterFinish(contentCopy: T): void
+  replace(content: T) {
+    const copy = deepCopy(content)
+    if (!copy) {
+      throw new Error('Error copying recipe!')
+    }
+    Object.assign(this.content, copy)
+    return this
+  }
+
+  protected abstract onFinish(): void
 
   finish() {
-    this.beforeFinish()
+    this.onFinish()
     const copy = deepCopy(this.content)
 
     if (!copy) {
       throw new Error('Error copying recipe!')
     }
 
-    this.afterFinish(copy)
     return copy
   }
 }

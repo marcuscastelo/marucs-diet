@@ -1,16 +1,18 @@
 'use client'
 
 import { useFloatField } from '@/hooks/field'
-import { FocusEventHandler, useEffect } from 'react'
+import { FocusEventHandler } from 'react'
 
 export function FloatInput({
   field,
-  onFieldChange,
+  commitOn = 'blur',
+  onFieldCommit,
   onBlur,
   ...props
 }: {
   field: ReturnType<typeof useFloatField>
-  onFieldChange?: (value: number | undefined) => void
+  commitOn?: 'blur' | 'change' /* | 'timeout' */
+  onFieldCommit?: (value: number | undefined) => void
 } & Omit<
   React.DetailedHTMLProps<
     React.InputHTMLAttributes<HTMLInputElement>,
@@ -18,22 +20,29 @@ export function FloatInput({
   >,
   'value' | 'onChange'
 >) {
-  const { rawValue, setRawValue, finishTyping } = field
+  const { rawValue, value } = field
 
   const handleOnBlur: FocusEventHandler<HTMLInputElement> = (e) => {
-    finishTyping()
     onBlur?.(e)
 
-    // TODO: Avoid duplicating `finishTyping` logic here
-    const nextValue = field.transform.toValue(e.target.value)
-    onFieldChange?.(nextValue)
+    if (commitOn === 'blur') {
+      onFieldCommit?.(value.value)
+    }
+  }
+
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    rawValue.value = e.target.value
+
+    if (commitOn === 'change') {
+      onFieldCommit?.(value.value)
+    }
   }
 
   return (
     <input
       {...props}
-      value={rawValue}
-      onChange={(e) => setRawValue(e.target.value)}
+      value={rawValue.value}
+      onChange={handleOnChange}
       onBlur={handleOnBlur}
     />
   )

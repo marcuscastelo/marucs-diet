@@ -2,28 +2,32 @@
 
 import { FoodItem } from '@/model/foodItemModel'
 import FoodItemView, { FoodItemViewProps } from './FoodItemView'
+import { ReadonlySignal, computed } from '@preact/signals-react'
 
 export default function FoodItemListView({
   foodItems,
   onItemClick,
   makeHeaderFn = () => <DefaultHeader />,
 }: {
-  foodItems: FoodItem[]
+  foodItems: ReadonlySignal<FoodItem[]>
   onItemClick: FoodItemViewProps['onClick']
   makeHeaderFn?: (item: FoodItem) => FoodItemViewProps['header']
 }) {
   return (
     <>
-      {foodItems.map((item) => (
-        <div key={item.id} className="mt-2">
-          <FoodItemView
-            foodItem={item}
-            onClick={onItemClick}
-            header={makeHeaderFn(item)}
-            nutritionalInfo={<FoodItemView.NutritionalInfo />}
-          />
-        </div>
-      ))}
+      {foodItems.value.map((_, idx) => {
+        const item = computed(() => foodItems.value[idx])
+        return (
+          <div key={item.value.id} className="mt-2">
+            <FoodItemView
+              foodItem={item}
+              onClick={onItemClick}
+              header={makeHeaderFn(item.value)}
+              nutritionalInfo={<FoodItemView.NutritionalInfo />}
+            />
+          </div>
+        )
+      })}
     </>
   )
 }

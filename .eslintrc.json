@@ -3,5 +3,13 @@
     "next/core-web-vitals",
     "@rocketseat/eslint-config/react",
     "plugin:storybook/recommended"
-  ]
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "rules": {
+    "@typescript-eslint/strict-boolean-expressions": 1, // TODO: Change strict-boolean-expressions to error
+    "@typescript-eslint/no-unnecessary-type-assertion": 1 // TODO: Change no-unnecessary-type-assertion to error
+  }
 }

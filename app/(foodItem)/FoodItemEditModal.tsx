@@ -1,13 +1,6 @@
 'use client'
 
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
+import { useState } from 'react'
 import FoodItemView from './FoodItemView'
 import { FoodItem } from '@/model/foodItemModel'
 import Modal, { ModalActions } from '../(modals)/Modal'
@@ -18,11 +11,20 @@ import { generateId } from '@/utils/idUtils'
 import { useFloatField } from '@/hooks/field'
 import { FloatInput } from '@/components/FloatInput'
 import { TemplateItem } from '@/model/templateItemModel'
+import {
+  ReadonlySignal,
+  Signal,
+  computed,
+  useSignal,
+  useSignalEffect,
+} from '@preact/signals-react'
 
 export type FoodItemEditModalProps = {
   targetName: string
   targetNameColor?: string
-  foodItem: Partial<TemplateItem> & Pick<TemplateItem, 'reference' | 'macros'>
+  foodItem: ReadonlySignal<
+    Partial<TemplateItem> & Pick<TemplateItem, 'reference' | 'macros'>
+  >
   onApply: (item: TemplateItem) => void
   onCancel?: () => void
   onDelete?: (itemId: FoodItem['id']) => void
@@ -37,43 +39,25 @@ const FoodItemEditModal = ({
   onCancel,
   onDelete,
 }: FoodItemEditModalProps) => {
-  const { visible, onSetVisible } = useModalContext()
+  const { visible } = useModalContext()
 
   // TODO: Better initial state for foodItem on FoodItemEditModal
-  const [foodItem, setFoodItem] = useState<TemplateItem>({
-    __type: initialFoodItem?.__type ?? 'FoodItem',
-    id: initialFoodItem?.id ?? generateId(),
-    name: initialFoodItem?.name ?? 'ERRO: Sem nome',
-    quantity: initialFoodItem?.quantity ?? 0,
-    ...initialFoodItem,
+  const foodItem = useSignal<TemplateItem>({
+    __type: initialFoodItem.value?.__type ?? 'FoodItem',
+    id: initialFoodItem.value?.id ?? generateId(),
+    name: initialFoodItem.value?.name ?? 'ERRO: Sem nome',
+    quantity: initialFoodItem.value?.quantity ?? 0,
+    ...initialFoodItem.value,
   } satisfies TemplateItem)
 
-  useEffect(() => {
-    setFoodItem((old) => ({
-      ...old,
-      ...initialFoodItem,
-    }))
-  }, [initialFoodItem])
+  useSignalEffect(() => {
+    foodItem.value = {
+      ...foodItem.peek(),
+      ...initialFoodItem.value,
+    }
+  })
 
-  const quantity = foodItem.quantity.toString()
-  const setQuantity: Dispatch<SetStateAction<number>> = useCallback(
-    (value: SetStateAction<number>) => {
-      if (typeof value === 'function') {
-        setFoodItem((old) => ({
-          ...old,
-          quantity: value(old.quantity),
-        }))
-      } else {
-        setFoodItem((old) => ({
-          ...old,
-          quantity: value,
-        }))
-      }
-    },
-    [],
-  )
-
-  const canApply = quantity !== '' && Number(quantity) > 0
+  const canApply = foodItem.value.quantity > 0
 
   return (
     <>
@@ -85,24 +69,21 @@ const FoodItemEditModal = ({
             targetNameColor={targetNameColor}
           />
         }
-        body={
-          <Body
-            visible={visible}
-            onQuantityChanged={setQuantity}
-            canApply={canApply}
-            foodItem={foodItem}
-          />
-        }
+        body={<Body canApply={canApply} foodItem={foodItem} />}
         actions={
           <Actions
-            id={foodItem.id}
+            id={foodItem.value.id}
             canApply={canApply}
             onApply={() => {
-              onSetVisible(false)
-              onApply(foodItem)
+              console.debug(
+                `[FoodItemEditModal] onApply - calling onApply with foodItem.value=`,
+                foodItem.value,
+              )
+              onApply(foodItem.value)
+              visible.value = false
             }}
             onCancel={() => {
-              onSetVisible(false)
+              visible.value = false
               onCancel?.()
             }}
             onDelete={onDelete}
@@ -118,7 +99,7 @@ function Header({
   targetName,
   targetNameColor,
 }: {
-  foodItem: TemplateItem
+  foodItem: Signal<TemplateItem>
   targetName: string
   targetNameColor: string
 }) {
@@ -127,7 +108,7 @@ function Header({
     <>
       {debug && (
         <code className="text-xs text-gray-400">
-          <pre>{JSON.stringify(foodItem, null, 2)}</pre>
+          <pre>{JSON.stringify(foodItem.value, null, 2)}</pre>
         </code>
       )}
       <h3 className="text-lg font-bold text-white">
@@ -142,47 +123,27 @@ function Header({
 }
 
 function Body({
-  visible,
-  onQuantityChanged,
   canApply,
   foodItem,
 }: {
-  visible: boolean
-  onQuantityChanged: Dispatch<SetStateAction<number>>
   canApply: boolean
-  foodItem: TemplateItem
+  foodItem: Signal<TemplateItem>
 }) {
-  const id = foodItem.id
-  const quantityRef = useRef<HTMLInputElement>(null)
-  const dummyRef = useRef<HTMLDivElement>(null)
+  const id = foodItem.value.id
   const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(false)
 
-  const quantityField = useFloatField(foodItem.quantity || undefined, {
+  const quantitySignal = computed(() => foodItem.value.quantity || undefined)
+  const quantityField = useFloatField(quantitySignal, {
     decimalPlaces: 0,
-    defaultValue: foodItem.quantity,
+    defaultValue: foodItem.value.quantity,
   })
 
-  useEffect(() => {
-    if (!visible) {
-      setQuantityFieldDisabled(true)
-      return
+  useSignalEffect(() => {
+    foodItem.value = {
+      ...foodItem.peek(),
+      quantity: quantityField.value.value ?? 0,
     }
-    const timeout = setTimeout(() => {
-      quantityRef.current?.blur()
-      quantityField.setValue(foodItem.quantity)
-      setQuantityFieldDisabled(false)
-    }, 100)
-
-    return () => {
-      clearTimeout(timeout)
-    }
-    // TODO: Find a way to include foodItem.quantity in the deps array
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible, foodItem.quantity])
-
-  useEffect(() => {
-    onQuantityChanged(quantityField.value ?? 0)
-  }, [quantityField.value, onQuantityChanged])
+  })
 
   const { isFoodFavorite, setFoodAsFavorite } = useUserContext()
 
@@ -190,9 +151,15 @@ function Body({
   const [currentHoldInterval, setCurrentHoldInterval] =
     useState<NodeJS.Timeout>()
 
-  const increment = () => quantityField.setValue((old) => (old ?? 0) + 1)
+  const increment = () =>
+    (quantityField.rawValue.value = (
+      (quantityField.value.value ?? 0) + 1
+    ).toString())
   const decrement = () =>
-    quantityField.setValue((old) => Math.max(0, (old ?? 0) - 1))
+    (quantityField.rawValue.value = Math.max(
+      0,
+      (quantityField.value.value ?? 0) - 1,
+    ).toString())
 
   const holdRepeatStart = (action: () => void) => {
     setCurrentHoldTimeout(
@@ -218,7 +185,6 @@ function Body({
 
   return (
     <>
-      <div className="dummy" ref={dummyRef}></div>
       <p className="mt-1 text-gray-400">Atalhos</p>
       {[
         [10, 20, 30, 40, 50],
@@ -232,7 +198,7 @@ function Body({
             <div
               key={`shortcuts-row-${rowIndex}-button-${index}}`}
               className="btn-primary btn-sm btn flex-1"
-              onClick={() => quantityField.setValue(value)}
+              onClick={() => (quantityField.rawValue.value = value.toString())}
             >
               {value}g
             </div>
@@ -244,17 +210,18 @@ function Body({
           <FloatInput
             field={quantityField}
             style={{ width: '100%' }}
-            onFieldChange={(value) =>
-              value === undefined && quantityField.setValue(foodItem.quantity)
+            onFieldCommit={(value) =>
+              value === undefined &&
+              (quantityField.rawValue.value =
+                foodItem.value.quantity.toString())
             }
             tabIndex={-1}
             onFocus={(event) => {
               event.target.select()
-              if (quantityField.value === 0) {
-                quantityField.setRawValue('')
+              if (quantityField.value.value === 0) {
+                quantityField.rawValue.value = ''
               }
             }}
-            ref={quantityRef}
             disabled={quantityFieldDisabled}
             type="number"
             placeholder="Quantidade (gramas)"
@@ -290,16 +257,18 @@ function Body({
       </div>
 
       <FoodItemView
-        foodItem={
-          {
-            __type: foodItem.__type,
-            id,
-            name: foodItem.name ?? 'Sem nome (itemData && FoodItemView)',
-            quantity: quantityField.value ?? foodItem.quantity,
-            reference: foodItem.reference,
-            macros: foodItem.macros,
-          } satisfies TemplateItem
-        }
+        foodItem={computed(
+          () =>
+            ({
+              __type: foodItem.value.__type,
+              id,
+              name:
+                foodItem.value.name ?? 'Sem nome (itemData && FoodItemView)',
+              quantity: quantityField.value.value ?? foodItem.value.quantity,
+              reference: foodItem.value.reference,
+              macros: foodItem.value.macros,
+            }) satisfies TemplateItem,
+        )}
         className="mt-4"
         onClick={() => {
           // alert('Alimento não editável (ainda)') // TODO: Change all alerts with ConfirmModal
@@ -311,12 +280,13 @@ function Body({
               <FoodItemView.Header.Favorite
                 favorite={
                   // TODO: [Feature] Add recipe favorite
-                  (foodItem && isFoodFavorite(foodItem.reference)) || false
+                  (foodItem && isFoodFavorite(foodItem.value.reference)) ||
+                  false
                 }
                 onSetFavorite={(favorite) =>
                   foodItem &&
                   // TODO: [Feature] Add recipe favorite
-                  setFoodAsFavorite(foodItem.reference, favorite)
+                  setFoodAsFavorite(foodItem.value.reference, favorite)
                 }
               />
             }
