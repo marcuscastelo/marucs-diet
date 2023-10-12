@@ -160,9 +160,9 @@ function ItemGroupName() {
 }
 
 function ItemGroupCopyButton({
-  handleCopyItemGroup: handleCopyItemGroupView,
+  onCopyItemGroup,
 }: {
-  handleCopyItemGroup: (ItemGroupView: ItemGroup) => void
+  onCopyItemGroup: (itemGroup: ItemGroup) => void
 }) {
   const { group: itemGroup } = useItemGroupEditContext()
 
@@ -172,7 +172,7 @@ function ItemGroupCopyButton({
       onClick={(e) => {
         e.stopPropagation()
         e.preventDefault()
-        itemGroup && handleCopyItemGroupView(itemGroup)
+        itemGroup && onCopyItemGroup(itemGroup)
       }}
     >
       <CopyIcon />

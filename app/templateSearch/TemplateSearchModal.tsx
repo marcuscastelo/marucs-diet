@@ -34,6 +34,7 @@ import {
 import { createRecentFood } from '@/model/recentFoodModel'
 import { Template } from '@/model/templateModel'
 import { TemplateItem } from '@/model/templateItemModel'
+import { Signal, useSignal } from '@preact/signals-react'
 
 export type TemplateSearchModalProps = {
   targetName: string
@@ -50,13 +51,12 @@ export function TemplateSearchModal({
   onFinish,
 }: TemplateSearchModalProps) {
   const userId = useUserId()
-  const { visible, onSetVisible } = useModalContext()
+  const { visibleNew } = useModalContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
-  const [foodItemEditModalVisible, setFoodItemEditModalVisible] =
-    useState(false)
+  const foodItemEditModalVisible = useSignal(false)
 
-  const [barCodeModalVisible, setBarCodeModalVisible] = useState(false)
+  const barCodeModalVisible = useSignal(false)
 
   const [selectedTemplate, setSelectedTemplate] = useState<Template>(
     mockFood({ name: 'BUG: SELECTED TEMPLATE NOT SET' }), // TODO: Properly handle no template selected
@@ -109,7 +109,7 @@ export function TemplateSearchModal({
             setSelectedTemplate(
               mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }),
             )
-            setFoodItemEditModalVisible(false)
+            foodItemEditModalVisible.value = false
             onFinish?.()
             // -- End of "Finalizar" button code
             return
@@ -117,7 +117,7 @@ export function TemplateSearchModal({
             setSelectedTemplate(
               mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }),
             )
-            setFoodItemEditModalVisible(false)
+            foodItemEditModalVisible.value = false
           },
         },
         {
@@ -128,7 +128,7 @@ export function TemplateSearchModal({
             setSelectedTemplate(
               mockFood({ name: 'BUG: SELECTED FOOD NOT SET' }),
             )
-            setFoodItemEditModalVisible(false)
+            foodItemEditModalVisible.value = false
             onFinish?.()
           },
         },
@@ -139,18 +139,15 @@ export function TemplateSearchModal({
   console.debug(`[TemplateSearchModal] Render`)
   return (
     <>
-      <ModalContextProvider
-        visible={visible}
-        onSetVisible={(visible) => onSetVisible(visible)}
-      >
+      <ModalContextProvider visible={visibleNew}>
         <Modal
           header={<Modal.Header title="Busca de alimentos" />}
           body={
             <div className="max-h-full">
-              {visible && (
+              {visibleNew.value && (
                 <TemplateSearch
-                  setBarCodeModalVisible={setBarCodeModalVisible}
-                  setFoodItemEditModalVisible={setFoodItemEditModalVisible}
+                  barCodeModalVisible={barCodeModalVisible}
+                  foodItemEditModalVisible={foodItemEditModalVisible}
                   setSelectedTemplate={setSelectedTemplate}
                 />
               )}
@@ -160,17 +157,15 @@ export function TemplateSearchModal({
       </ModalContextProvider>
       <ExternalFoodItemEditModal
         visible={foodItemEditModalVisible}
-        onSetVisible={setFoodItemEditModalVisible}
         selectedTemplate={selectedTemplate}
         targetName={targetName}
         onNewItemGroup={handleNewItemGroup}
       />
       <ExternalBarCodeInsertModal
         visible={barCodeModalVisible}
-        onSetVisible={setBarCodeModalVisible}
         onSelect={(template) => {
           setSelectedTemplate(template)
-          setFoodItemEditModalVisible(true)
+          foodItemEditModalVisible.value = true
         }}
       />
     </>
@@ -178,12 +173,12 @@ export function TemplateSearchModal({
 }
 
 export function TemplateSearch({
-  setBarCodeModalVisible,
-  setFoodItemEditModalVisible,
+  barCodeModalVisible,
+  foodItemEditModalVisible,
   setSelectedTemplate,
 }: {
-  setBarCodeModalVisible: Dispatch<SetStateAction<boolean>>
-  setFoodItemEditModalVisible: Dispatch<SetStateAction<boolean>>
+  barCodeModalVisible: Signal<boolean>
+  foodItemEditModalVisible: Signal<boolean>
   setSelectedTemplate: (food: Template) => void
 }) {
   const TEMPLATE_SEARCH_LIMIT = 100
@@ -272,7 +267,9 @@ export function TemplateSearch({
 
   return (
     <>
-      <BarCodeButton showBarCodeModal={() => setBarCodeModalVisible(true)} />
+      <BarCodeButton
+        showBarCodeModal={() => (barCodeModalVisible.value = true)}
+      />
 
       <TemplateSearchTabs onTabChange={setTab} />
       <SearchBar
@@ -283,8 +280,8 @@ export function TemplateSearch({
       <SearchResults
         search={search}
         filteredTemplates={searchFilteredTemplates}
-        setBarCodeModalVisible={setBarCodeModalVisible}
-        setFoodItemEditModalVisible={setFoodItemEditModalVisible}
+        barCodeModalVisible={barCodeModalVisible}
+        foodItemEditModalVisible={foodItemEditModalVisible}
         setSelectedTemplate={setSelectedTemplate}
         typing={typing}
       />
@@ -316,13 +313,11 @@ const BarCodeButton = ({
 // TODO: Extract to components on other files
 function ExternalFoodItemEditModal({
   visible,
-  onSetVisible,
   selectedTemplate,
   targetName,
   onNewItemGroup,
 }: {
-  visible: boolean
-  onSetVisible: Dispatch<SetStateAction<boolean>>
+  visible: Signal<boolean>
   selectedTemplate: Template
   targetName: string
   onNewItemGroup: (
@@ -331,7 +326,7 @@ function ExternalFoodItemEditModal({
   ) => Promise<void>
 }) {
   return (
-    <ModalContextProvider visible={visible} onSetVisible={onSetVisible}>
+    <ModalContextProvider visible={visible}>
       <FoodItemEditModal
         targetName={targetName}
         foodItem={{
@@ -372,15 +367,13 @@ function ExternalFoodItemEditModal({
 // TODO: Extract to components on other files
 function ExternalBarCodeInsertModal({
   visible,
-  onSetVisible,
   onSelect,
 }: {
-  visible: boolean
-  onSetVisible: Dispatch<SetStateAction<boolean>>
+  visible: Signal<boolean>
   onSelect: (template: Template) => void
 }) {
   return (
-    <ModalContextProvider visible={visible} onSetVisible={onSetVisible}>
+    <ModalContextProvider visible={visible}>
       <BarCodeInsertModal onSelect={onSelect} />
     </ModalContextProvider>
   )
@@ -433,15 +426,15 @@ const SearchResults = ({
   typing,
   filteredTemplates,
   setSelectedTemplate,
-  setBarCodeModalVisible,
-  setFoodItemEditModalVisible,
+  barCodeModalVisible,
+  foodItemEditModalVisible,
 }: {
   search: string
   typing: boolean
   filteredTemplates: Template[]
   setSelectedTemplate: (food: Template) => void
-  setBarCodeModalVisible: Dispatch<SetStateAction<boolean>>
-  setFoodItemEditModalVisible: Dispatch<SetStateAction<boolean>>
+  barCodeModalVisible: Signal<boolean>
+  foodItemEditModalVisible: Signal<boolean>
 }) => {
   const { isFoodFavorite, setFoodAsFavorite } = useUserContext()
 
@@ -469,8 +462,8 @@ const SearchResults = ({
               className="mt-1"
               onClick={() => {
                 setSelectedTemplate(template)
-                setFoodItemEditModalVisible(true)
-                setBarCodeModalVisible(false)
+                foodItemEditModalVisible.value = true
+                barCodeModalVisible.value = false
               }}
               header={
                 <FoodItemView.Header

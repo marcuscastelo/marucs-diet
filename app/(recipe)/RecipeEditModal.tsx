@@ -12,7 +12,12 @@ import { TemplateItem } from '@/model/templateItemModel'
 import { TemplateSearchModal } from '../templateSearch/TemplateSearchModal'
 import { ItemGroup, isSimpleSingleGroup } from '@/model/itemGroupModel'
 import { RecipeEditor } from '@/utils/data/recipeEditor'
-import { Signal, useSignal } from '@preact/signals-react'
+import {
+  Signal,
+  effect,
+  useSignal,
+  useSignalEffect,
+} from '@preact/signals-react'
 
 export type RecipeEditModalProps = {
   show?: boolean
@@ -29,7 +34,7 @@ export function RecipeEditModal({
   onCancel,
   onRefetch,
 }: RecipeEditModalProps) {
-  const { visible, onSetVisible } = useModalContext()
+  const { visibleNew } = useModalContext()
 
   const recipe = useSignal(
     initialRecipe ??
@@ -39,19 +44,15 @@ export function RecipeEditModal({
       }),
   )
 
-  const [selectedFoodItem, setSelectedFoodItem] = useState<FoodItem | null>(
-    null,
-  )
+  const selectedFoodItem = useSignal<FoodItem | null>(null)
 
   const impossibleFoodItem = createFoodItem({
     name: 'IMPOSSIBLE FOOD ITEM',
     reference: 0,
   })
 
-  const [foodItemEditModalVisible, setFoodItemEditModalVisible] =
-    useState(false)
-  const [templateSearchModalVisible, setTemplateSearchModalVisible] =
-    useState(false)
+  const foodItemEditModalVisible = useSignal(false)
+  const templateSearchModalVisible = useSignal(false)
 
   useEffect(() => {
     recipe.value =
@@ -59,25 +60,23 @@ export function RecipeEditModal({
       createRecipe({ name: 'Error: Recipe cannot be null!', items: [] })
   }, [recipe, initialRecipe])
 
-  useEffect(() => {
-    if (selectedFoodItem) {
-      setFoodItemEditModalVisible(true)
-    } else {
-      setFoodItemEditModalVisible(false)
+  useSignalEffect(() => {
+    if (!selectedFoodItem.value) {
+      foodItemEditModalVisible.value = false
     }
-  }, [selectedFoodItem])
+  })
+
+  useSignalEffect(() => {
+    if (!foodItemEditModalVisible.value) {
+      selectedFoodItem.value = null
+    }
+  })
 
   return (
     <>
       <ExternalFoodItemEditModal
         visible={foodItemEditModalVisible}
-        onSetVisible={(visible) => {
-          if (!visible) {
-            setSelectedFoodItem(null)
-          }
-          setFoodItemEditModalVisible(visible)
-        }}
-        foodItem={selectedFoodItem ?? impossibleFoodItem}
+        foodItem={selectedFoodItem.value ?? impossibleFoodItem}
         targetName={recipe.value?.name ?? 'LOADING RECIPE'}
         onApply={(foodItem) => {
           if (!recipe) return
@@ -91,7 +90,7 @@ export function RecipeEditModal({
             .finish()
 
           recipe.value = newRecipe
-          setSelectedFoodItem(null)
+          selectedFoodItem.value = null
         }}
         onDelete={(itemId) => {
           if (!recipe) return
@@ -101,26 +100,25 @@ export function RecipeEditModal({
           const newRecipe = recipeEditor.deleteItem(itemId).finish()
 
           recipe.value = newRecipe
-          setSelectedFoodItem(null)
+          selectedFoodItem.value = null
         }}
       />
 
       <ExternalTemplateSearchModal
         visible={templateSearchModalVisible}
-        onSetVisible={setTemplateSearchModalVisible}
         onRefetch={onRefetch}
         recipe={recipe}
       />
 
-      <ModalContextProvider visible={visible} onSetVisible={onSetVisible}>
+      <ModalContextProvider visible={visibleNew}>
         <Modal
           header={<Header recipe={recipe.value} />}
           // TODO: Add barcode button and handle barcode scan
           body={
             <Body
               recipe={recipe}
-              onSelectFoodItem={setSelectedFoodItem}
-              onSearchNewItem={() => setTemplateSearchModalVisible(true)}
+              selectedFoodItem={selectedFoodItem}
+              onSearchNewItem={() => (templateSearchModalVisible.value = true)}
             />
           }
           actions={
@@ -142,20 +140,18 @@ function ExternalFoodItemEditModal({
   onApply,
   onDelete,
   visible,
-  onSetVisible,
 }: {
   foodItem: FoodItem
   targetName: string
   onApply: (item: TemplateItem) => void
   onDelete: (itemId: TemplateItem['id']) => void
-  visible: boolean
-  onSetVisible: Dispatch<SetStateAction<boolean>>
+  visible: Signal<boolean>
 }) {
   // TODO: Determine whether to early return from modals in general or just remove all ifs
   if (!visible) return
 
   return (
-    <ModalContextProvider visible={visible} onSetVisible={onSetVisible}>
+    <ModalContextProvider visible={visible}>
       <FoodItemEditModal
         foodItem={foodItem}
         targetName={targetName}
@@ -169,12 +165,10 @@ function ExternalFoodItemEditModal({
 // TODO: This component is duplicated between RecipeEditModal and ItemGroupEditModal, must be refactored (maybe global)
 function ExternalTemplateSearchModal({
   visible,
-  onSetVisible,
   onRefetch,
   recipe,
 }: {
-  visible: boolean
-  onSetVisible: Dispatch<SetStateAction<boolean>>
+  visible: Signal<boolean>
   onRefetch: () => void
   recipe: Signal<Recipe>
 }) {
@@ -198,21 +192,18 @@ function ExternalTemplateSearchModal({
   }
 
   const handleFinishSearch = () => {
-    onSetVisible(false)
+    visible.value = false
     // onRefetch()
   }
 
+  useSignalEffect(() => {
+    if (!visible.value) {
+      onRefetch()
+    }
+  })
+
   return (
-    <ModalContextProvider
-      visible={visible}
-      onSetVisible={(visible) => {
-        // TODO: Implement onClose and onOpen to reduce code duplication
-        if (!visible) {
-          onRefetch()
-        }
-        onSetVisible(visible)
-      }}
-    >
+    <ModalContextProvider visible={visible}>
       <TemplateSearchModal
         targetName={recipe.value?.name ?? 'ERRO: Receita não especificada'}
         onFinish={handleFinishSearch}
@@ -238,11 +229,11 @@ function Header({ recipe }: { recipe: Recipe | undefined }) {
 
 function Body({
   recipe,
-  onSelectFoodItem,
+  selectedFoodItem,
   onSearchNewItem,
 }: {
   recipe: Signal<Recipe>
-  onSelectFoodItem: Dispatch<SetStateAction<FoodItem | null>>
+  selectedFoodItem: Signal<FoodItem | null>
   onSearchNewItem: () => void
 }) {
   if (!recipe) return null
@@ -270,7 +261,7 @@ function Body({
               return
             }
 
-            onSelectFoodItem(item)
+            selectedFoodItem.value = item
           }}
         />
       }
@@ -287,7 +278,7 @@ function Actions({
   onDelete: () => void
   onCancel?: () => void
 }) {
-  const { onSetVisible } = useModalContext()
+  const { visibleNew } = useModalContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
   return (
@@ -322,7 +313,7 @@ function Actions({
         className="btn"
         onClick={(e) => {
           e.preventDefault()
-          onSetVisible(false)
+          visibleNew.value = false
           onCancel?.()
         }}
       >
@@ -333,7 +324,7 @@ function Actions({
         onClick={(e) => {
           e.preventDefault()
           onApply()
-          onSetVisible(false)
+          visibleNew.value = false
         }}
       >
         Aplicar

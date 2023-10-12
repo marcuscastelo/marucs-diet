@@ -12,7 +12,7 @@ export type BarCodeInsertModalProps = {
 }
 
 const BarCodeInsertModal = ({ onSelect }: BarCodeInsertModalProps) => {
-  const { visible, onSetVisible } = useModalContext()
+  const { visibleNew } = useModalContext()
 
   const [barCode, setBarCode] = useState<string>('')
   const [food, setFood] = useState<Food | null>(null)
@@ -33,7 +33,9 @@ const BarCodeInsertModal = ({ onSelect }: BarCodeInsertModalProps) => {
       header={<Modal.Header title="Pesquisar por código de barras" />}
       body={
         <>
-          {visible && <BarCodeReader id="reader" onScanned={setBarCode} />}
+          {visibleNew.value && (
+            <BarCodeReader id="reader" onScanned={setBarCode} />
+          )}
           <BarCodeSearch
             barCode={barCode}
             setBarCode={setBarCode}
@@ -47,7 +49,7 @@ const BarCodeInsertModal = ({ onSelect }: BarCodeInsertModalProps) => {
             className="btn"
             onClick={(e) => {
               e.preventDefault()
-              onSetVisible(false)
+              visibleNew.value = false
             }}
           >
             Cancelar
