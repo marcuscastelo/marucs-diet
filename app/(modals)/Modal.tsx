@@ -3,17 +3,25 @@
 import React, { ReactNode, useEffect, useRef } from 'react'
 import { useModalContext } from './ModalContext'
 import { BackIcon } from '@/components/BackIcon'
+import { cn } from '@/utils/cn'
 
 export type ModalProps = {
   header?: React.ReactNode
   body?: React.ReactNode
   actions?: React.ReactNode
   hasBackdrop?: boolean
+  className?: string
 }
 
 let modalId = 1
 
-const Modal = ({ header, body, actions, hasBackdrop = true }: ModalProps) => {
+const Modal = ({
+  header,
+  body,
+  actions,
+  hasBackdrop = true,
+  className = '',
+}: ModalProps) => {
   const { visible } = useModalContext()
 
   const modalRef = useRef<HTMLDialogElement>(null)
@@ -38,7 +46,7 @@ const Modal = ({ header, body, actions, hasBackdrop = true }: ModalProps) => {
         }
       }}
     >
-      <div className="modal-box bg-gray-800 text-white">
+      <div className={cn('modal-box bg-gray-800 text-white', className)}>
         {header}
         {body}
         {actions}

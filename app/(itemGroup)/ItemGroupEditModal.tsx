@@ -143,6 +143,7 @@ const InnerItemGroupEditModal = ({
       />
       <ModalContextProvider visible={visible}>
         <Modal
+          className="border-2 border-orange-800"
           hasBackdrop={true}
           header={
             <Header recipe={recipe.data} targetMealName={targetMealName} />

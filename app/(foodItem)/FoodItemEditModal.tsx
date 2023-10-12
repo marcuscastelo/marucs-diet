@@ -62,6 +62,7 @@ const FoodItemEditModal = ({
   return (
     <>
       <Modal
+        className="border-2 border-white"
         header={
           <Header
             foodItem={foodItem}
