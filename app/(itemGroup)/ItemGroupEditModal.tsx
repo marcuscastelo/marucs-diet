@@ -24,13 +24,7 @@ import {
 } from './ItemGroupEditContext'
 import { useUserContext } from '@/context/users.context'
 import { ModalContextProvider, useModalContext } from '../(modals)/ModalContext'
-import {
-  addInnerItem,
-  addInnerItems,
-  deleteInnerItem,
-  editInnerItem,
-  isRecipedGroupUpToDate,
-} from '@/utils/groupUtils'
+import { isRecipedGroupUpToDate } from '@/utils/groupUtils'
 import { DownloadIcon } from '../(icons)/DownloadIcon'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import useClipboard from '@/hooks/clipboard'
@@ -308,7 +302,9 @@ function ExternalFoodItemEditModal({
             )
             return
           }
-          const newGroup: ItemGroup = editInnerItem(group.value, item)
+          const newGroup: ItemGroup = new ItemGroupEditor(group.value)
+            .editItem(item.id, (editor) => editor?.replace(item))
+            .finish()
 
           console.debug('newGroup', newGroup)
           handleCloseWithChanges(newGroup)
@@ -319,7 +315,9 @@ function ExternalFoodItemEditModal({
             throw new Error('group is null')
           }
 
-          const newGroup: ItemGroup = deleteInnerItem(group.value, itemId)
+          const newGroup: ItemGroup = new ItemGroupEditor(group.value)
+            .deleteItem(itemId)
+            .finish()
 
           console.debug('newGroup', newGroup)
           handleCloseWithChanges(newGroup)
@@ -354,7 +352,9 @@ function ExternalTemplateSearchModal({
       return
     }
 
-    const finalGroup: ItemGroup = addInnerItem(group.value, newGroup.items[0])
+    const finalGroup: ItemGroup = new ItemGroupEditor(group.value)
+      .addItem(newGroup.items[0])
+      .finish()
 
     console.debug(
       'onNewFoodItem: applying',
@@ -370,7 +370,7 @@ function ExternalTemplateSearchModal({
   }
 
   useSignalEffect(() => {
-    if (!visible) {
+    if (!visible.value) {
       console.debug(`[ExternalTemplateSearchModal] onRefetch`)
       onRefetch()
     }
@@ -442,10 +442,14 @@ function Body({
 
     if ('items' in data) {
       // data is an itemGroup
-      const newGroup = addInnerItems(group.value, data.items.map(renegerateId))
+      const newGroup = new ItemGroupEditor(group.value)
+        .addItems(data.items.map(renegerateId))
+        .finish()
       group.value = newGroup
     } else {
-      const newGroup = addInnerItem(group.value, renegerateId(data))
+      const newGroup = new ItemGroupEditor(group.value)
+        .addItem(renegerateId(data))
+        .finish()
       group.value = newGroup
     }
 

@@ -94,8 +94,6 @@ export function RecipeEditModal({
           selectedFoodItem.value = null
         }}
         onDelete={(itemId) => {
-          if (!recipe) return
-
           const recipeEditor = new RecipeEditor(recipe.value)
 
           const newRecipe = recipeEditor.deleteItem(itemId).finish()
@@ -237,8 +235,6 @@ function Body({
   selectedFoodItem: Signal<FoodItem | null>
   onSearchNewItem: () => void
 }) {
-  if (!recipe) return null
-
   return (
     <RecipeEditView
       recipe={recipe}

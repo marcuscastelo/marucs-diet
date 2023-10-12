@@ -10,6 +10,7 @@ export type GroupConvertible =
   | FoodItem
   | Recipe
 
+// TODO: Move isRecipedGroupUpToDate to somewhere else
 export function isRecipedGroupUpToDate(
   group: RecipedItemGroup,
   groupRecipe: Recipe,
