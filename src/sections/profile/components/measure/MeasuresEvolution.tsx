@@ -8,7 +8,7 @@ import { fetchUserMeasures, insertMeasure } from '@/controllers/measures'
 import { MeasureChart } from '@/sections/profile/components/measure/MeasureChart'
 import { MeasureView } from '@/sections/profile/components/measure/MeasureView'
 import { useFloatFieldOld } from '@/hooks/field'
-import { FloatInput } from '@/components/FloatInput'
+import { FloatInput } from '@/sections/common/components/FloatInput'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'

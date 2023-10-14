@@ -1,6 +1,6 @@
 import { Recipe, recipeSchema } from '@/model/recipeModel'
 import { User } from '@/model/userModel'
-import { New, enforceNew } from '@/utils/newDbRecord'
+import { DbReady, enforceDbReady } from '@/utils/newDbRecord'
 import supabase from '@/utils/supabase'
 import { Mutable } from '@/utils/typeUtils'
 
@@ -58,12 +58,12 @@ export const searchRecipeByName = async (
 }
 
 export const upsertRecipe = async (
-  newRecipe: Partial<New<Recipe>>,
+  newRecipe: Partial<DbReady<Recipe>>,
 ): Promise<Recipe | null> => {
   // TODO: Remove macros field from recipe type, it should be calculated from items only locally
   delete (newRecipe as Partial<Mutable<Recipe>>).macros
 
-  const recipe = enforceNew(newRecipe)
+  const recipe = enforceDbReady(newRecipe)
 
   const { data: recipes, error } = await supabase
     .from(TABLE)
@@ -80,9 +80,9 @@ export const upsertRecipe = async (
 
 export const updateRecipe = async (
   id: Recipe['id'],
-  newRecipe: New<Recipe>,
+  newRecipe: DbReady<Recipe>,
 ): Promise<Recipe> => {
-  const recipe = enforceNew(newRecipe)
+  const recipe = enforceDbReady(newRecipe)
 
   // TODO: Remove macros field from recipe type, it should be calculated from items only locally
   delete (recipe as Partial<Mutable<Recipe>>).macros

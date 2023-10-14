@@ -3,17 +3,17 @@
 import { useUserDesiredWeight, useUserId } from '@/context/users.context'
 import { deleteWeight, insertWeight, updateWeight } from '@/controllers/weights'
 import { Weight, createWeight } from '@/model/weightModel'
-import Capsule from '@/components/capsule/Capsule'
+import Capsule from '@/src/sections/common/components/capsule/Capsule'
 import TrashIcon from '@/app/(icons)/TrashIcon'
 import { Line } from 'recharts'
-import { CandleStickChart } from '@/components/chart/CandleStickChart'
+import { CandleStickChart } from '@/sections/common/components/chart/CandleStickChart'
 import { OHLC } from '@/model/ohlcModel'
 import Datepicker from 'react-tailwindcss-datepicker'
 import { useWeights } from '@/hooks/weights'
 import { useDateField, useFloatField, useFloatFieldOld } from '@/hooks/field'
-import { FloatInput } from '@/components/FloatInput'
+import { FloatInput } from '@/sections/common/components/FloatInput'
 import { dateToYYYYMMDD } from '@/utils/dateUtils'
-import { CapsuleContent } from '@/components/capsule/CapsuleContent'
+import { CapsuleContent } from '@/src/sections/common/components/capsule/CapsuleContent'
 import {
   calculateWeightProgress,
   firstWeight,

@@ -1,6 +1,6 @@
 import { Measure, measureSchema } from '@/model/measureModel'
 import { User } from '@/model/userModel'
-import { New, enforceNew } from '@/utils/newDbRecord'
+import { DbReady, enforceDbReady } from '@/utils/newDbRecord'
 import supabase from '@/utils/supabase'
 
 const TABLE = 'body_measures'
@@ -20,8 +20,8 @@ export async function fetchUserMeasures(userId: User['id']) {
   return measureSchema.array().parse(data)
 }
 
-export async function insertMeasure(newMeasure: New<Measure>) {
-  const measure = enforceNew(newMeasure)
+export async function insertMeasure(newMeasure: DbReady<Measure>) {
+  const measure = enforceDbReady(newMeasure)
   const { data, error } = await supabase.from(TABLE).insert(measure).select()
 
   if (error) {
@@ -34,9 +34,9 @@ export async function insertMeasure(newMeasure: New<Measure>) {
 
 export async function updateMeasure(
   measureId: Measure['id'],
-  newMeasure: New<Measure>,
+  newMeasure: DbReady<Measure>,
 ) {
-  const measure = enforceNew(newMeasure)
+  const measure = enforceDbReady(newMeasure)
   const { data, error } = await supabase
     .from(TABLE)
     .update(measure)

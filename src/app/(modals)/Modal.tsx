@@ -2,7 +2,7 @@
 
 import React, { ReactNode, useEffect, useRef } from 'react'
 import { useModalContext } from '@/app/(modals)/ModalContext'
-import { BackIcon } from '@/components/BackIcon'
+import { BackIcon } from '@/sections/common/components/BackIcon'
 import { cn } from '@/utils/cn'
 
 export type ModalProps = {

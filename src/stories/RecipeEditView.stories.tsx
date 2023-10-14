@@ -2,7 +2,6 @@ import type { Meta, StoryObj } from '@storybook/react'
 import RecipeEditView, {
   RecipeEditViewProps,
 } from '@/app/(recipe)/RecipeEditView'
-import { mockRecipe } from '@/app/test/unit/(mock)/mockData'
 import ServerApp from '@/app/ServerApp'
 import { signal } from '@preact/signals-react'
 
@@ -15,7 +14,8 @@ const meta: Meta<typeof RecipeEditView> = {
 export default meta
 type Story = StoryObj<typeof RecipeEditView>
 
-const recipe = signal(mockRecipe())
+// TODO: fix stories after hexagonal refactor
+const recipe = signal(null as any)
 
 export const Root: Story = {
   args: {

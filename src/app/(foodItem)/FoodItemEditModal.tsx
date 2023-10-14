@@ -9,7 +9,7 @@ import { useModalContext } from '@/app/(modals)/ModalContext'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import { generateId } from '@/utils/idUtils'
 import { useFloatField } from '@/hooks/field'
-import { FloatInput } from '@/components/FloatInput'
+import { FloatInput } from '@/sections/common/components/FloatInput'
 import { TemplateItem } from '@/model/templateItemModel'
 import {
   ReadonlySignal,

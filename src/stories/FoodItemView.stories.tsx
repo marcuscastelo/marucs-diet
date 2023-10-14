@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import FoodItemView, { FoodItemViewProps } from '@/app/(foodItem)/FoodItemView'
-import { mockItem } from '@/app/test/unit/(mock)/mockData'
 import ServerApp from '@/app/ServerApp'
 import { computed } from '@preact/signals-react'
+import { createFoodItem } from '../model/foodItemModel'
 
 const meta: Meta<typeof FoodItemView> = {
   title: 'Components/FoodItemView',
@@ -15,7 +15,9 @@ type Story = StoryObj<typeof FoodItemView>
 
 export const Root: Story = {
   args: {
-    foodItem: computed(mockItem),
+    foodItem: computed(() =>
+      createFoodItem({ name: 'Mock item', reference: 1 }),
+    ),
   } satisfies FoodItemViewProps,
 
   render: (args) => (

@@ -1,4 +1,4 @@
-import { New } from '@/utils/newDbRecord'
+import { DbReady } from '@/utils/newDbRecord'
 import { z } from 'zod'
 
 export const recentFoodSchema = z.object({
@@ -19,10 +19,10 @@ export type RecentFoodCreationParams = Partial<RecentFood> &
 // TODO: Unit test createRecentFood
 export function createRecentFood(
   recentFood: RecentFoodCreationParams,
-): New<RecentFood> {
+): DbReady<RecentFood> {
   return recentFoodSchema.omit({ id: true }).parse({
     last_used: new Date(),
     times_used: (recentFood.times_used ?? 0) + 1,
     ...recentFood,
-  } satisfies New<RecentFood>)
+  } satisfies DbReady<RecentFood>)
 }

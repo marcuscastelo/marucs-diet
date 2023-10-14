@@ -1,5 +1,5 @@
 import { RecentFood, recentFoodSchema } from '@/model/recentFoodModel'
-import { New, enforceNew } from '@/utils/newDbRecord'
+import { DbReady, enforceDbReady } from '@/utils/newDbRecord'
 import supabase from '@/utils/supabase'
 
 const TABLE = 'recent_foods'
@@ -37,8 +37,8 @@ export async function fetchUserRecentFoods(userId: RecentFood['user_id']) {
   return recentFoodSchema.array().parse(data)
 }
 
-export async function insertRecentFood(newRecentFood: New<RecentFood>) {
-  const recentFood = enforceNew(newRecentFood)
+export async function insertRecentFood(newRecentFood: DbReady<RecentFood>) {
+  const recentFood = enforceDbReady(newRecentFood)
   const { data, error } = await supabase.from(TABLE).insert(recentFood).select()
 
   if (error) {
@@ -51,9 +51,9 @@ export async function insertRecentFood(newRecentFood: New<RecentFood>) {
 
 export async function updateRecentFood(
   recentFoodId: RecentFood['id'],
-  newRecentFood: New<RecentFood>,
+  newRecentFood: DbReady<RecentFood>,
 ) {
-  const recentFood = enforceNew(newRecentFood)
+  const recentFood = enforceDbReady(newRecentFood)
   const { data, error } = await supabase
     .from(TABLE)
     .update(recentFood)

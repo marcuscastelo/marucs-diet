@@ -2,11 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import ItemGroupView, {
   ItemGroupViewProps,
 } from '@/app/(itemGroup)/ItemGroupView'
-import {
-  mockSimpleGroup,
-  mockMeal,
-  mockRecipedGroup,
-} from '@/app/test/unit/(mock)/mockData'
+
 import ServerApp from '@/app/ServerApp'
 import { computed } from '@preact/signals-react'
 
@@ -36,14 +32,16 @@ const meta: Meta<typeof ItemGroupView> = {
 export default meta
 type Story = StoryObj<typeof ItemGroupView>
 
+// TODO: fix stories after hexagonal refactor
 export const Simple: Story = {
   args: {
-    itemGroup: computed(mockSimpleGroup),
+    itemGroup: computed(() => null as any),
   } satisfies ItemGroupViewProps,
 }
 
+// TODO: fix stories after hexagonal refactor
 export const Recipe: Story = {
   args: {
-    itemGroup: computed(mockRecipedGroup),
+    itemGroup: computed(() => null as any),
   } satisfies ItemGroupViewProps,
 }

@@ -1,14 +1,14 @@
 'use client'
 
 import { useCallback, useState } from 'react'
-import Capsule from '@/components/capsule/Capsule'
+import Capsule from '@/src/sections/common/components/capsule/Capsule'
 import TrashIcon from '@/app/(icons)/TrashIcon'
 import Datepicker from 'react-tailwindcss-datepicker'
 import { Measure } from '@/model/measureModel'
 import { deleteMeasure, updateMeasure } from '@/controllers/measures'
-import { CapsuleContent } from '@/components/capsule/CapsuleContent'
+import { CapsuleContent } from '@/src/sections/common/components/capsule/CapsuleContent'
 import { useFloatFieldOld } from '@/hooks/field'
-import { FloatInput } from '@/components/FloatInput'
+import { FloatInput } from '@/sections/common/components/FloatInput'
 
 export function MeasureView({
   measure,

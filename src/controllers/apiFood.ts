@@ -1,12 +1,12 @@
 import { ApiFood } from '@/model/apiFoodModel'
 import { Food, foodSchema } from '@/model/foodModel'
 import { INTERNAL_API } from '@/utils/api'
-import { New } from '@/utils/newDbRecord'
+import { DbReady } from '@/utils/newDbRecord'
 import { insertFood } from '@/controllers/food'
 import { markSearchAsCached } from '@/controllers/searchCache'
 
 // TODO: retriggered: pensar num lugar melhor pra isso
-export function convertApi2Food(food: ApiFood): New<Food> {
+export function convertApi2Food(food: ApiFood): DbReady<Food> {
   return {
     name: food.nome,
     source: {

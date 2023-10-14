@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { New } from '@/utils/newDbRecord'
+import { DbReady } from '@/utils/newDbRecord'
 import { z } from 'zod'
 
 export const weigthSchema = z.object({
@@ -23,7 +23,7 @@ export function createWeight({
   owner,
   weight,
   target_timestamp,
-}: New<Weight>): New<Weight> {
+}: DbReady<Weight>): DbReady<Weight> {
   return {
     owner,
     weight,

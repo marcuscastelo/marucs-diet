@@ -13,7 +13,6 @@ import {
   useSignal,
   useSignalEffect,
 } from '@preact/signals-react'
-import { mockItem } from '@/app/test/unit/(mock)/mockData'
 
 export type BarCodeSearchProps = {
   barCode: Signal<string>
@@ -74,7 +73,11 @@ export default function BarCodeSearch({ barCode, food }: BarCodeSearchProps) {
                       reference: food.value?.id ?? 0,
                       quantity: 100,
                       macros: {
-                        ...(food.value?.macros ?? mockItem().macros),
+                        ...(food.value?.macros ??
+                          createFoodItem({
+                            name: food.value?.name ?? 'food == null',
+                            reference: food.value?.id ?? 0,
+                          }).macros),
                       } satisfies MacroNutrients,
                     }),
                   )}

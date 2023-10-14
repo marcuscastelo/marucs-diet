@@ -2,10 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import ItemGroupEditModal, {
   ItemGroupEditModalProps,
 } from '@/app/(itemGroup)/ItemGroupEditModal'
-import {
-  mockRecipedGroup,
-  mockSimpleGroup,
-} from '@/app/test/unit/(mock)/mockData'
+
 import ServerApp from '@/app/ServerApp'
 import { computed } from '@preact/signals-react'
 
@@ -27,7 +24,8 @@ export const Simple: Story = {
     targetMealName: 'Teste',
     onCancel: () => undefined,
     onDelete: () => undefined,
-    group: computed(mockSimpleGroup),
+    // TODO: fix stories after hexagonal refactor
+    group: computed(() => null),
   } satisfies ItemGroupEditModalProps,
   render: (args) => <ItemGroupEditModal {...args} />,
 }
@@ -40,7 +38,8 @@ export const Recipe: Story = {
     targetMealName: 'Teste',
     onCancel: () => undefined,
     onDelete: () => undefined,
-    group: computed(mockRecipedGroup),
+    // TODO: fix stories after hexagonal refactor
+    group: computed(() => null),
   } satisfies ItemGroupEditModalProps,
   render: (args) => <ItemGroupEditModal {...args} />,
 }

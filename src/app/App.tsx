@@ -1,6 +1,6 @@
 'use client'
 
-import ConfirmModal from '@/components/ConfirmModal'
+import ConfirmModal from '@/sections/common/components/ConfirmModal'
 import { ConfirmModalProvider } from '@/context/confirmModal.context'
 import { DaysContextProvider } from '@/context/days.context'
 import { FoodContextProvider, TemplateStore } from '@/context/template.context'

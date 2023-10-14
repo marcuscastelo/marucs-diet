@@ -6,7 +6,7 @@ import { Day } from '@/model/dayModel'
 import { listDays } from '@/controllers/days'
 import { revalidatePath } from 'next/cache'
 import { getUser } from '@/actions/user'
-import { BottomNavigation } from '@/components/BottomNavigation'
+import { BottomNavigation } from '@/sections/common/components/BottomNavigation'
 
 export const revalidate = 0
 export const dynamic = 'force-dynamic'
@@ -55,7 +55,6 @@ export default async function Page({ params }: PageParams) {
           selectedDay={selectedDay}
         />
       )}
-
       <BottomNavigation />
     </div>
   )

@@ -1,6 +1,6 @@
 import { User } from '@/model/userModel'
 import { Weight, weigthSchema as weightSchema } from '@/model/weightModel'
-import { New, enforceNew } from '@/utils/newDbRecord'
+import { DbReady, enforceDbReady } from '@/utils/newDbRecord'
 import supabase from '@/utils/supabase'
 
 const TABLE = 'weights'
@@ -20,8 +20,8 @@ export async function fetchUserWeights(userId: User['id']) {
   return weightSchema.array().parse(data)
 }
 
-export async function insertWeight(newWeight: New<Weight>) {
-  const weight = enforceNew(newWeight)
+export async function insertWeight(newWeight: DbReady<Weight>) {
+  const weight = enforceDbReady(newWeight)
   const { data, error } = await supabase.from(TABLE).insert(weight).select()
 
   if (error) {
@@ -34,9 +34,9 @@ export async function insertWeight(newWeight: New<Weight>) {
 
 export async function updateWeight(
   weightId: Weight['id'],
-  newWeight: New<Weight>,
+  newWeight: DbReady<Weight>,
 ) {
-  const weight = enforceNew(newWeight)
+  const weight = enforceDbReady(newWeight)
   const { data, error } = await supabase
     .from(TABLE)
     .update(weight)
