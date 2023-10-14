@@ -3,17 +3,22 @@ import { Loadable } from '@/legacy/utils/loadable'
 import { Day } from '@/modules/day/domain/day'
 import { User } from '@/modules/user/domain/user'
 import { createContext, useContext } from 'use-context-selector'
+import { DbReady } from '@/src/legacy/utils/newDbRecord'
+import { DayRepository } from '@/src/modules/day/domain/dayRepository'
 
-export type DaysContextProps = {
+export type DayContextProps = {
   days: Loadable<Day[]>
   refetchDays: () => void
+  insertDay: (day: DbReady<Day>) => void
+  updateDay: (dayId: Day['id'], day: DbReady<Day>) => void
+  deleteDay: (dayId: Day['id']) => void
 }
 
-const DaysContext = createContext<DaysContextProps | null>(null)
+const DayContext = createContext<DayContextProps | null>(null)
 
 // TODO: Use context selectors to avoid unnecessary re-renders
-export function useDaysContext() {
-  const context = useContext(DaysContext)
+export function useDayContext() {
+  const context = useContext(DayContext)
 
   if (!context) {
     throw new Error('useDaysContext must be used within a DaysContextProvider')
@@ -22,36 +27,62 @@ export function useDaysContext() {
   return context
 }
 
-export function DaysContextProvider({
-  userId,
-  onFetchDays,
+export function DayContextProvider({
   children,
+  userId,
+  repository,
 }: {
-  userId: User['id']
-  onFetchDays: (userId: User['id']) => Promise<Day[]>
   children: React.ReactNode
+  userId: User['id']
+  repository: DayRepository
 }) {
+  // TODO: Convert all states to signals
   const [days, setDays] = useState<Loadable<Day[]>>({ loading: true })
 
   const handleFetchDays = useCallback(() => {
     setDays({ loading: true })
-    onFetchDays(userId)
+    repository
+      .fetchUserDays(userId)
       .then((days) => {
         setDays({ loading: false, errored: false, data: days })
       })
       .catch((error) => {
         setDays({ loading: false, errored: true, error })
       })
-  }, [userId, onFetchDays])
+  }, [userId, repository])
+
+  const handleInsertDay = useCallback(
+    (day: DbReady<Day>) => {
+      repository.insertDay(day).then(() => handleFetchDays())
+    },
+    [handleFetchDays, repository],
+  )
+
+  const handleUpdateDay = useCallback(
+    (dayId: Day['id'], day: DbReady<Day>) => {
+      repository.updateDay(dayId, day).then(() => handleFetchDays())
+    },
+    [handleFetchDays, repository],
+  )
+
+  const handleDeleteDay = useCallback(
+    (dayId: Day['id']) => {
+      repository.deleteDay(dayId).then(() => handleFetchDays())
+    },
+    [handleFetchDays, repository],
+  )
 
   useEffect(() => {
     handleFetchDays()
   }, [handleFetchDays])
 
-  const context: DaysContextProps = {
+  const context: DayContextProps = {
     days,
     refetchDays: handleFetchDays,
+    insertDay: handleInsertDay,
+    updateDay: handleUpdateDay,
+    deleteDay: handleDeleteDay,
   }
 
-  return <DaysContext.Provider value={context}>{children}</DaysContext.Provider>
+  return <DayContext.Provider value={context}>{children}</DayContext.Provider>
 }

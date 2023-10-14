@@ -1,18 +1,17 @@
 'use client'
 
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { deleteDay } from '@/legacy/controllers/days'
 import { Day } from '@/modules/day/domain/day'
 import { ReadonlySignal } from '@preact/signals-react'
+import { useDayContext } from '@/src/sections/day/context/DaysContext'
 
 export default function DeleteDayButton({
   day,
-  refetchDays,
 }: {
   day: ReadonlySignal<Day | null | undefined>
-  refetchDays: () => void
 }) {
   const { show: showConfirmModal } = useConfirmModalContext()
+  const { deleteDay } = useDayContext()
 
   return (
     <button
@@ -31,8 +30,7 @@ export default function DeleteDayButton({
               primary: true,
               onClick: async () => {
                 if (day.value) {
-                  await deleteDay(day.value.id)
-                  refetchDays()
+                  deleteDay(day.value.id)
                 } else {
                   console.error('Day is null')
                   throw new Error('Day is null')

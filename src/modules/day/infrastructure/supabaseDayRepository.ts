@@ -2,12 +2,22 @@ import { Day, daySchema } from '@/modules/day/domain/day'
 import { User } from '@/modules/user/domain/user'
 import { DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
 import supabase from '@/legacy/utils/supabase'
-import { Mutable } from '@/legacy/utils/typeUtils'
+import { DayRepository } from '@/src/modules/day/domain/dayRepository'
 
+// TODO: Delete old days table and rename days_test to days
 const TABLE = 'days_test'
 
+export function createSupabaseDayRepository(): DayRepository {
+  return {
+    fetchUserDays,
+    insertDay: upsertDay,
+    updateDay,
+    deleteDay,
+  }
+}
+
 // TODO: better error handling
-export const listDays = async (userId: User['id']): Promise<Day[]> =>
+const fetchUserDays = async (userId: User['id']): Promise<Day[]> =>
   ((await supabase.from(TABLE).select()).data ?? [])
     .map((day) => daySchema.parse(day))
     .filter((day) => day.owner === userId)
@@ -24,7 +34,8 @@ export const listDays = async (userId: User['id']): Promise<Day[]> =>
       return aDate.getTime() - bDate.getTime()
     })
 
-export const upsertDay = async (
+// TODO: Change upserts to inserts on the entire app
+const upsertDay = async (
   newDay: Partial<DbReady<Day>>,
 ): Promise<Day | null> => {
   const day = enforceDbReady(newDay)
@@ -36,10 +47,7 @@ export const upsertDay = async (
   return daySchema.parse(days?.[0] ?? null)
 }
 
-export const updateDay = async (
-  id: Day['id'],
-  day: DbReady<Day>,
-): Promise<Day> => {
+const updateDay = async (id: Day['id'], day: DbReady<Day>): Promise<Day> => {
   const newDay = enforceDbReady(day)
   const { data, error } = await supabase
     .from(TABLE)
@@ -56,7 +64,7 @@ export const updateDay = async (
   return daySchema.parse(data?.[0] ?? null)
 }
 
-export const deleteDay = async (id: Day['id']): Promise<void> => {
+const deleteDay = async (id: Day['id']): Promise<void> => {
   const { error } = await supabase.from(TABLE).delete().eq('id', id).select()
 
   if (error) {

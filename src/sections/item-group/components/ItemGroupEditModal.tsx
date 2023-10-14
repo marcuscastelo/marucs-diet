@@ -380,7 +380,7 @@ function ExternalTemplateSearchModal({
     }
 
     if (!isSimpleSingleGroup(newGroup)) {
-      // TODO: Handle non-simple groups on onNewFoodItem
+      // TODO: Handle non-simple groups on handleNewItemGroup
       console.error('TODO: Handle non-simple groups')
       alert('TODO: Handle non-simple groups') // TODO: Change all alerts with ConfirmModal
       return

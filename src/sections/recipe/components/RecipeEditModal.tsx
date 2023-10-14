@@ -205,7 +205,6 @@ function ExternalTemplateSearchModal({
 
   const handleFinishSearch = () => {
     visible.value = false
-    // onRefetch()
   }
 
   useSignalEffect(() => {

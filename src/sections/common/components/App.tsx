@@ -2,7 +2,7 @@
 
 import ConfirmModal from '@/sections/common/components/ConfirmModal'
 import { ConfirmModalProvider } from '@/sections/common/context/ConfirmModalContext'
-import { DaysContextProvider } from '@/sections/day/context/DaysContext'
+import { DayContextProvider } from '@/sections/day/context/DaysContext'
 import {
   FoodContextProvider,
   TemplateStore,
@@ -12,7 +12,6 @@ import {
   useUserContext,
   useUserId,
 } from '@/sections/user/context/UserContext'
-import { listDays } from '@/legacy/controllers/days'
 import { listFoods, searchFoodsByName } from '@/legacy/controllers/food'
 import { fetchUserRecentFoods } from '@/legacy/controllers/recentFood'
 import { listRecipes, searchRecipeByName } from '@/legacy/controllers/recipes'
@@ -21,6 +20,7 @@ import { Template } from '@/modules/template/domain/template'
 import { User } from '@/modules/user/domain/user'
 import { WeightContextProvider } from '@/src/sections/weight/context/WeightContext'
 import { createSupabaseWeightRepository } from '@/src/modules/weight/infrastructure/supabaseWeightRepository'
+import { createSupabaseDayRepository } from '@/src/modules/day/infrastructure/supabaseDayRepository'
 
 export default function App({
   user,
@@ -34,11 +34,11 @@ export default function App({
   return (
     <AppUserProvider user={user} onSaveUser={onSaveUser}>
       <AppWeightProvider userId={user.id}>
-        <AppDaysProvider>
+        <AppDayProvider>
           <AppConfirmModalProvider>
             <AppFoodsProvider>{children}</AppFoodsProvider>
           </AppConfirmModalProvider>
-        </AppDaysProvider>
+        </AppDayProvider>
       </AppWeightProvider>
     </AppUserProvider>
   )
@@ -67,7 +67,7 @@ function AppUserProvider({
   )
 }
 
-function AppDaysProvider({ children }: { children: React.ReactNode }) {
+function AppDayProvider({ children }: { children: React.ReactNode }) {
   console.debug(`[AppDaysProvider] - Rendering`)
 
   const userId = useUserId()
@@ -76,15 +76,12 @@ function AppDaysProvider({ children }: { children: React.ReactNode }) {
     return <div>UserId is undefined</div>
   }
 
+  const dayRepository = createSupabaseDayRepository()
+
   return (
-    <DaysContextProvider
-      userId={userId}
-      onFetchDays={async () => {
-        return await listDays(userId)
-      }}
-    >
+    <DayContextProvider userId={userId} repository={dayRepository}>
       {children}
-    </DaysContextProvider>
+    </DayContextProvider>
   )
 }
 

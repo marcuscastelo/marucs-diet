@@ -1,27 +1,22 @@
 'use client'
 
 import { useUserContext } from '@/sections/user/context/UserContext'
-import { upsertDay } from '@/legacy/controllers/days'
 import { createDay } from '@/modules/day/domain/day'
+import { useDayContext } from '@/src/sections/day/context/DaysContext'
 
 export default function CreateBlankDayButton({
   selectedDay,
-  refetchDays,
 }: {
   selectedDay: string
-  refetchDays: () => void
 }) {
   const { user } = useUserContext()
+  const { insertDay } = useDayContext()
 
   return (
     <button
       className="btn-primary btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white"
       onClick={() => {
-        upsertDay(createDay({ owner: user.id, target_day: selectedDay })).then(
-          () => {
-            refetchDays()
-          },
-        )
+        insertDay(createDay({ owner: user.id, target_day: selectedDay }))
       }}
     >
       Criar dia do zero
