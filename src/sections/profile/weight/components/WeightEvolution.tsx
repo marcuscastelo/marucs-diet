@@ -9,7 +9,7 @@ import {
   insertWeight,
   updateWeight,
 } from '@/legacy/controllers/weights'
-import { Weight, createWeight } from '@/legacy/model/weightModel'
+import { Weight, createWeight } from '@/modules/weight/domain/weight'
 import Capsule from '@/sections/common/components/capsule/Capsule'
 import TrashIcon from '@/sections/common/components/icons/TrashIcon'
 import { Line } from 'recharts'

@@ -1,5 +1,5 @@
-import { Food } from '@/legacy/model/foodModel'
-import { Recipe } from '@/legacy/model/recipeModel'
+import { Food } from '@/modules/food/domain/food'
+import { Recipe } from '@/modules/recipe/domain/recipe'
 import {
   Loadable,
   UnboxedLoadable,

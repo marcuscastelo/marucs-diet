@@ -1,5 +1,5 @@
-import { Day, daySchema } from '@/legacy/model/dayModel'
-import { User } from '@/legacy/model/userModel'
+import { Day, daySchema } from '@/modules/day/domain/day'
+import { User } from '@/modules/user/domain/user'
 import { DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
 import supabase from '@/legacy/utils/supabase'
 import { Mutable } from '@/legacy/utils/typeUtils'

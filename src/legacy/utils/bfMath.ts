@@ -1,6 +1,6 @@
-import { Measure } from '@/legacy/model/measureModel'
-import { User } from '@/legacy/model/userModel'
-import { Weight } from '@/legacy/model/weightModel'
+import { Measure } from '@/modules/measure/domain/measure'
+import { User } from '@/modules/user/domain/user'
+import { Weight } from '@/modules/weight/domain/weight'
 import { z } from 'zod'
 
 export type BodyFatInput<T extends User['gender']> = {

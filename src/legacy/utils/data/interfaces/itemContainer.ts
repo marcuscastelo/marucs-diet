@@ -1,4 +1,4 @@
-import { FoodItem } from '@/legacy/model/foodItemModel'
+import { FoodItem } from '@/modules/food-item/domain/foodItem'
 import { ItemEditor } from '@/legacy/utils/data/itemEditor'
 
 export interface ItemContainer {

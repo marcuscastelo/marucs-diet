@@ -1,5 +1,5 @@
-import { FoodItem } from '@/legacy/model/foodItemModel'
-import { Recipe } from '@/legacy/model/recipeModel'
+import { FoodItem } from '@/modules/food-item/domain/foodItem'
+import { Recipe } from '@/modules/recipe/domain/recipe'
 import { ItemContainer } from '@/legacy/utils/data/interfaces/itemContainer'
 import { Editor } from '@/legacy/utils/data/editor'
 import { ItemEditor } from '@/legacy/utils/data/itemEditor'

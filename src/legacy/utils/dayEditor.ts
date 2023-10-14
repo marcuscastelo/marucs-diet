@@ -1,7 +1,7 @@
 import { updateDay } from '@/legacy/controllers/days'
-import { Day } from '@/legacy/model/dayModel'
-import { ItemGroup } from '@/legacy/model/itemGroupModel'
-import { Meal } from '@/legacy/model/mealModel'
+import { Day } from '@/modules/day/domain/day'
+import { ItemGroup } from '@/modules/item-group/domain/itemGroup'
+import { Meal } from '@/modules/meal/domain/meal'
 
 // TODO: Create DayEditor class (after meal becomes a DB model) and deprecate this function (and others)
 // TODO: Move updateItemGroupInDay to controllers/day.ts?

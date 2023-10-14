@@ -1,9 +1,9 @@
-import { Day } from '@/legacy/model/dayModel'
-import { ItemGroup } from '@/legacy/model/itemGroupModel'
-import { MacroNutrients } from '@/legacy/model/macroNutrientsModel'
-import { Meal } from '@/legacy/model/mealModel'
-import { Recipe } from '@/legacy/model/recipeModel'
-import { TemplateItem } from '@/legacy/model/templateItemModel'
+import { Day } from '@/modules/day/domain/day'
+import { ItemGroup } from '@/modules/item-group/domain/itemGroup'
+import { MacroNutrients } from '@/modules/macro-nutrients/domain/macroNutrients'
+import { Meal } from '@/modules/meal/domain/meal'
+import { Recipe } from '@/modules/recipe/domain/recipe'
+import { TemplateItem } from '@/modules/template-item/domain/templateItem'
 
 export function calcItemMacros(item: TemplateItem): MacroNutrients {
   return {

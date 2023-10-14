@@ -18,7 +18,7 @@ import {
   calcDayMacros,
 } from '@/legacy/utils/macroMath'
 import { useUserContext, useUserId } from '@/sections/user/context/UserContext'
-import { calculateMacroTarget } from '@/sections/macros/components/MacroTargets'
+import { calculateMacroTarget } from '@/src/sections/macro-nutrients/components/MacroTargets'
 import { inForceWeight } from '@/legacy/utils/weightUtils'
 import { useWeights } from '@/sections/profile/weight/hooks/useWeights'
 import { useMacroProfiles } from '@/sections/profile/macros/hooks/useMacroProfiles'
@@ -26,10 +26,10 @@ import {
   inForceMacroProfile,
   latestMacroProfile,
 } from '@/legacy/utils/macroProfileUtils'
-import { Day } from '@/legacy/model/dayModel'
-import { MacroProfile } from '@/legacy/model/macroProfileModel'
+import { Day } from '@/modules/day/domain/day'
+import { MacroProfile } from '@/modules/macro-profile/domain/macroProfile'
 import { dateToDDMM } from '@/legacy/utils/dateUtils'
-import { Weight } from '@/legacy/model/weightModel'
+import { Weight } from '@/modules/weight/domain/weight'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'

@@ -1,6 +1,6 @@
 'use client'
 
-import { Meal, mealSchema } from '@/legacy/model/mealModel'
+import { Meal, mealSchema } from '@/modules/meal/domain/meal'
 import {
   MealContextProvider,
   useMealContext,
@@ -10,8 +10,11 @@ import TrashIcon from '@/sections/common/components/icons/TrashIcon'
 import PasteIcon from '@/sections/common/components/icons/PasteIcon'
 import CopyIcon from '@/sections/common/components/icons/CopyIcon'
 import { calcMealCalories } from '@/legacy/utils/macroMath'
-import ItemGroupListView from '@/sections/template/group/components/ItemGroupListView'
-import { ItemGroup, itemGroupSchema } from '@/legacy/model/itemGroupModel'
+import ItemGroupListView from '@/src/sections/item-group/components/ItemGroupListView'
+import {
+  ItemGroup,
+  itemGroupSchema,
+} from '@/modules/item-group/domain/itemGroup'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import useClipboard, {
   createClipboardSchemaFilter,
@@ -20,8 +23,8 @@ import { addInnerGroups } from '@/legacy/utils/mealUtils'
 import { deserializeClipboard } from '@/legacy/utils/clipboardUtils'
 import { convertToGroups } from '@/legacy/utils/groupUtils'
 import { regenerateId } from '@/legacy/utils/idUtils'
-import { foodItemSchema } from '@/legacy/model/foodItemModel'
-import { recipeSchema } from '@/legacy/model/recipeModel'
+import { foodItemSchema } from '@/modules/food-item/domain/foodItem'
+import { recipeSchema } from '@/modules/recipe/domain/recipe'
 import {
   ReadonlySignal,
   computed,

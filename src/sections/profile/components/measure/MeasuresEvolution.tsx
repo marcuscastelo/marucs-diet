@@ -3,7 +3,7 @@
 import { useUserId } from '@/sections/user/context/UserContext'
 import { Loadable } from '@/legacy/utils/loadable'
 import { useCallback, useEffect, useState } from 'react'
-import { Measure, createMeasure } from '@/legacy/model/measureModel'
+import { Measure, createMeasure } from '@/modules/measure/domain/measure'
 import { fetchUserMeasures, insertMeasure } from '@/legacy/controllers/measures'
 import { MeasureChart } from '@/sections/profile/components/measure/MeasureChart'
 import { MeasureView } from '@/sections/profile/components/measure/MeasureView'

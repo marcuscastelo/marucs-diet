@@ -3,14 +3,14 @@ import { WeightEvolution } from '@/sections/profile/weight/components/WeightEvol
 import { MeasuresEvolution } from '@/sections/profile/components/measure/MeasuresEvolution'
 
 import { fetchUser, updateUser } from '@/legacy/controllers/users'
-import { MacroTarget } from '@/sections/macros/components/MacroTargets'
+import { MacroTarget } from '@/src/sections/macro-nutrients/components/MacroTargets'
 import { revalidatePath } from 'next/cache'
 import { getUser } from '@/legacy/actions/user'
 import { MacroEvolution } from '@/sections/profile/macros/components/MacroEvolution'
 import { fetchUserWeights } from '@/legacy/controllers/weights'
 import { latestWeight } from '@/legacy/utils/weightUtils'
-import { User } from '@/legacy/model/userModel'
-import { MacroProfile } from '@/legacy/model/macroProfileModel'
+import { User } from '@/modules/user/domain/user'
+import { MacroProfile } from '@/modules/macro-profile/domain/macroProfile'
 import {
   fetchUserMacroProfiles,
   insertMacroProfile,

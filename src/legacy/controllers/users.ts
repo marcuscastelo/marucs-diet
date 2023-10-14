@@ -1,4 +1,4 @@
-import { User, userSchema } from '@/legacy/model/userModel'
+import { User, userSchema } from '@/modules/user/domain/user'
 import supabase from '@/legacy/utils/supabase'
 
 const TABLE = 'users'

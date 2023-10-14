@@ -2,7 +2,7 @@
 
 import { useUserContext } from '@/sections/user/context/UserContext'
 import { upsertDay } from '@/legacy/controllers/days'
-import { createDay } from '@/legacy/model/dayModel'
+import { createDay } from '@/modules/day/domain/day'
 
 export default function CreateBlankDayButton({
   selectedDay,
