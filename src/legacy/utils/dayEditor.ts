@@ -1,4 +1,3 @@
-import { updateDay } from '@/legacy/controllers/days'
 import { Day } from '@/modules/day/domain/day'
 import { ItemGroup } from '@/modules/item-group/domain/itemGroup'
 import { Meal } from '@/modules/meal/domain/meal'
@@ -6,14 +5,10 @@ import { Meal } from '@/modules/meal/domain/meal'
 // TODO: Create DayEditor class (after meal becomes a DB model) and deprecate this function (and others)
 // TODO: Move updateItemGroupInDay to controllers/day.ts?
 // TODO: Does this function already exist somewhere else? (I think so)
-export async function addItemGroupToMeal(
-  day: Day,
-  meal: Meal,
-  newGroup: ItemGroup,
-  callbacks: {
-    onFinished?: () => void
-  },
-) {
+/**
+ * @deprecated
+ */
+export function addItemGroupToMeal(day: Day, meal: Meal, newGroup: ItemGroup) {
   const oldMeal = { ...meal }
   const newMeal: Meal = {
     ...oldMeal,
@@ -36,6 +31,5 @@ export async function addItemGroupToMeal(
     meals: newMeals,
   }
 
-  await updateDay(day.id, newDay)
-  await callbacks.onFinished?.()
+  return newDay
 }

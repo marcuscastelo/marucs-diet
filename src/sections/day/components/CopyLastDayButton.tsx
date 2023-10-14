@@ -1,22 +1,26 @@
 'use client'
 
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { updateDay, upsertDay } from '@/legacy/controllers/days'
 import { Day } from '@/modules/day/domain/day'
-import { ReadonlySignal } from '@preact/signals-react'
+import { ReadonlySignal, computed } from '@preact/signals-react'
+import { useDayContext } from '@/src/sections/day/context/DaysContext'
 
 export default function CopyLastDayButton({
-  days,
   day,
   selectedDay,
-  refetchDays,
 }: {
-  days: ReadonlySignal<Day[]>
   day: ReadonlySignal<Day | undefined>
   selectedDay: string
-  refetchDays: () => void
 }) {
   const { show: showConfirmModal } = useConfirmModalContext()
+  const { days: daysState, insertDay, updateDay } = useDayContext()
+
+  if (daysState.loading || daysState.errored) {
+    return <></>
+  }
+
+  // TODO: Convert all states to signals
+  const days = computed(() => daysState.data)
 
   if (days.value === undefined) {
     console.error('days is undefined')
@@ -61,8 +65,6 @@ export default function CopyLastDayButton({
                   updateDay(dayValue.id, {
                     ...lastDay,
                     target_day: selectedDay,
-                  }).then(() => {
-                    refetchDays()
                   })
                 },
               },
@@ -71,11 +73,9 @@ export default function CopyLastDayButton({
           return
         }
 
-        upsertDay({
+        insertDay({
           ...lastDay,
           target_day: selectedDay,
-        }).then(() => {
-          refetchDays()
         })
       }}
     >

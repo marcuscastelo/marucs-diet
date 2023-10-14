@@ -10,6 +10,7 @@ export function UserIcon({
   userId: User['id']
   className?: string
 }) {
+  // TODO: validateDOMNesting(...): <div> cannot appear as a descendant of <p>.
   return (
     <div className={className}>
       <Image

@@ -1,5 +1,5 @@
 'use client'
-import { useDaysContext } from '@/sections/day/context/DaysContext'
+import { useDayContext } from '@/sections/day/context/DaysContext'
 import Capsule from '@/sections/common/components/capsule/Capsule'
 
 import {
@@ -103,7 +103,7 @@ function createChartData(
 }
 
 function AllMacrosChart({ weights }: { weights: Weight[] }) {
-  const { days } = useDaysContext()
+  const { days } = useDayContext()
   const { user } = useUserContext()
   const { macroProfiles } = useMacroProfiles(user.id)
 
@@ -260,7 +260,7 @@ function AllMacrosChart({ weights }: { weights: Weight[] }) {
 }
 
 function CaloriesChart({ weights }: { weights: Weight[] }) {
-  const { days } = useDaysContext()
+  const { days } = useDayContext()
   const { user } = useUserContext()
   const { macroProfiles } = useMacroProfiles(user.id)
 
@@ -317,7 +317,7 @@ function CaloriesChart({ weights }: { weights: Weight[] }) {
 }
 
 function ProteinChart({ weights }: { weights: Weight[] }) {
-  const { days } = useDaysContext()
+  const { days } = useDayContext()
   const { user } = useUserContext()
   const { macroProfiles } = useMacroProfiles(user.id)
 
@@ -373,7 +373,7 @@ function ProteinChart({ weights }: { weights: Weight[] }) {
 }
 
 function FatChart({ weights }: { weights: Weight[] }) {
-  const { days } = useDaysContext()
+  const { days } = useDayContext()
   const { user } = useUserContext()
   const { macroProfiles } = useMacroProfiles(user.id)
 
@@ -429,7 +429,7 @@ function FatChart({ weights }: { weights: Weight[] }) {
 }
 
 function CarbsChart({ weights }: { weights: Weight[] }) {
-  const { days } = useDaysContext()
+  const { days } = useDayContext()
   const { user } = useUserContext()
   const { macroProfiles } = useMacroProfiles(user.id)
 
