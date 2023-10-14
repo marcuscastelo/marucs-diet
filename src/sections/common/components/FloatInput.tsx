@@ -1,6 +1,6 @@
 'use client'
 
-import { useFloatField } from '@/hooks/field'
+import { useFloatField } from '@/sections/common/hooks/useField'
 import { FocusEventHandler } from 'react'
 
 export function FloatInput({

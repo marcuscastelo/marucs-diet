@@ -7,7 +7,7 @@ import Datepicker from 'react-tailwindcss-datepicker'
 import { Measure } from '@/model/measureModel'
 import { deleteMeasure, updateMeasure } from '@/controllers/measures'
 import { CapsuleContent } from '@/src/sections/common/components/capsule/CapsuleContent'
-import { useFloatFieldOld } from '@/hooks/field'
+import { useFloatFieldOld } from '@/sections/common/hooks/useField'
 import { FloatInput } from '@/sections/common/components/FloatInput'
 
 export function MeasureView({

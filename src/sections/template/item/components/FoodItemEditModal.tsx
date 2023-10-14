@@ -8,7 +8,7 @@ import { useUserContext } from '@/sections/user/context/UserContext'
 import { useModalContext } from '@/src/sections/common/context/ModalContext'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { generateId } from '@/utils/idUtils'
-import { useFloatField } from '@/hooks/field'
+import { useFloatField } from '@/sections/common/hooks/useField'
 import { FloatInput } from '@/sections/common/components/FloatInput'
 import { TemplateItem } from '@/model/templateItemModel'
 import {

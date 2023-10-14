@@ -7,8 +7,8 @@ import { CSSProperties } from 'react'
 import { calcCalories } from '@/utils/macroMath'
 import { useUserContext } from '@/sections/user/context/UserContext'
 import { latestWeight } from '@/utils/weightUtils'
-import { useWeights } from '@/hooks/weights'
-import { useMacroProfiles } from '@/hooks/macroProfiles'
+import { useWeights } from '@/sections/profile/weight/hooks/useWeights'
+import { useMacroProfiles } from '@/sections/profile/macros/hooks/useMacroProfiles'
 import { latestMacroProfile } from '@/utils/macroProfileUtils'
 
 export default function DayMacros({

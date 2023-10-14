@@ -36,7 +36,7 @@ import {
 import { isRecipedGroupUpToDate } from '@/utils/groupUtils'
 import { DownloadIcon } from '@/src/sections/common/components/icons/DownloadIcon'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import useClipboard from '@/hooks/clipboard'
+import useClipboard from '@/sections/common/hooks/useClipboard'
 import PasteIcon from '@/src/sections/common/components/icons/PasteIcon'
 import { deserializeClipboard } from '@/utils/clipboardUtils'
 import { regenerateId } from '@/utils/idUtils'
@@ -52,7 +52,7 @@ import {
 import { ConvertToRecipeIcon } from '@/src/sections/common/components/icons/ConvertToRecipeIcon'
 import { batch } from 'react-redux'
 import { deepCopy } from '@/utils/deepCopy'
-import { useFloatField } from '@/hooks/field'
+import { useFloatField } from '@/sections/common/hooks/useField'
 import { FloatInput } from '@/sections/common/components/FloatInput'
 
 type EditSelection = {

@@ -26,7 +26,7 @@ import {
   TemplateSearchTabs,
   chooseFoodsFromStore as chooseFoodsFromFoodStore,
 } from '@/sections/search/components/TemplateSearchTabs'
-import { useTyping } from '@/hooks/typing'
+import { useTyping } from '@/sections/common/hooks/useTyping'
 import { createFoodItem } from '@/model/foodItemModel'
 import {
   fetchRecentFoodByUserIdAndFoodId,

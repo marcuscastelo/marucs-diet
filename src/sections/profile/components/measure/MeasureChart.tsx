@@ -12,7 +12,7 @@ import {
 import { Measure } from '@/model/measureModel'
 import { BodyFatInput, calculateBodyFat } from '@/utils/bfMath'
 import { useUserGender, useUserId } from '@/sections/user/context/UserContext'
-import { useWeights } from '@/hooks/weights'
+import { useWeights } from '@/sections/profile/weight/hooks/useWeights'
 type DayAverage = Omit<Measure, '__type' | 'id' | 'owner' | 'target_timestamp'>
 type DayMeasures = {
   date: string

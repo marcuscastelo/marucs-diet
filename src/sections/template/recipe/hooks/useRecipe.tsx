@@ -2,7 +2,7 @@
 
 import { Recipe } from '@/model/recipeModel'
 import { useEffect } from 'react'
-import { useFetch } from '@/hooks/fetch'
+import { useFetch } from '@/sections/common/hooks/useFetch'
 import { searchRecipeById } from '@/controllers/recipes'
 
 export function useRecipe(recipeId: Recipe['id']) {
