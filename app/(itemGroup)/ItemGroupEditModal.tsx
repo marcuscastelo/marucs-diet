@@ -2,8 +2,10 @@
 
 import {
   ItemGroup,
+  RecipedItemGroup,
   isSimpleSingleGroup,
   itemGroupSchema,
+  recipedItemGroup,
 } from '@/model/itemGroupModel'
 import { useCallback, useState } from 'react'
 import Modal, { ModalActions } from '../(modals)/Modal'
@@ -48,6 +50,9 @@ import { mockItem } from '../test/unit/(mock)/mockData'
 import { ConvertToRecipeIcon } from '../(icons)/ConvertToRecipeIcon'
 import { batch } from 'react-redux'
 import { deepCopy } from '@/utils/deepCopy'
+import { useRecipe } from '@/hooks/recipe'
+import { useFloatField } from '@/hooks/field'
+import { FloatInput } from '@/components/FloatInput'
 
 type EditSelection = {
   foodItem: FoodItem
@@ -526,7 +531,16 @@ function Body({
           {hasValidPastableOnClipboard && (
             <div
               className={`btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105`}
-              onClick={handlePaste}
+              onClick={() => {
+                if (isRecipeTooComplex(recipe)) {
+                  alert(
+                    'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
+                  )
+                  return
+                }
+
+                handlePaste()
+              }}
             >
               <PasteIcon />
             </div>
@@ -631,6 +645,13 @@ function Body({
           //   recipeEditModalRef.current?.showModal()
           // } else {
 
+          if (isRecipeTooComplex(recipe)) {
+            alert(
+              'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
+            )
+            return
+          }
+
           editSelection.value = { foodItem: item }
           foodItemEditModalVisible.value = true
           // }
@@ -663,6 +684,13 @@ function Body({
       >
         Adicionar item
       </button>
+      {group.value.type === 'recipe' && group.value.recipe !== null && (
+        <PreparedQuantity
+          // TODO: Remove as unknown as Signal<RecipedItemGroup>
+          recipedGroup={group as unknown as Signal<RecipedItemGroup | null>}
+          recipe={recipe}
+        />
+      )}
     </>
   )
 }
@@ -744,6 +772,76 @@ function Actions({
       </button>
     </ModalActions>
   )
+}
+
+function PreparedQuantity({
+  recipedGroup,
+  recipe,
+}: {
+  recipedGroup: Signal<RecipedItemGroup | null>
+  recipe: Recipe | null
+}) {
+  const rawQuantiy = computed(
+    () =>
+      recipedGroup.value?.items.reduce((acc, item) => {
+        return acc + item.quantity
+      }, 0),
+  )
+
+  const initialPreparedQuantity = computed(
+    () => (rawQuantiy.value ?? 0) * (recipe?.prepared_multiplier ?? 1),
+  )
+
+  const preparedQuantity = useSignal(initialPreparedQuantity.value)
+
+  useSignalEffect(() => {
+    preparedQuantity.value = initialPreparedQuantity.value
+  })
+
+  const preparedQuantityField = useFloatField(preparedQuantity, {
+    decimalPlaces: 0,
+  })
+
+  return (
+    <div className="flex gap-2">
+      <FloatInput
+        field={preparedQuantityField}
+        commitOn="change"
+        className="input px-0 pl-5 text-md"
+        onFocus={(event) => event.target.select()}
+        onFieldCommit={(newPreparedQuantity) => {
+          console.debug(
+            `[PreparedQuantity] onFieldCommit: `,
+            newPreparedQuantity,
+          )
+
+          const newRawQuantity =
+            (newPreparedQuantity ?? 0) / (recipe?.prepared_multiplier ?? 1)
+
+          const mult = newRawQuantity / (rawQuantiy.value ?? 1)
+
+          const newItems =
+            recipedGroup.value?.items.map((item) => {
+              return {
+                ...item,
+                quantity: item.quantity * mult,
+              }
+            }) ?? []
+
+          const newGroup =
+            recipedGroup.value &&
+            new ItemGroupEditor(recipedGroup.value).setItems(newItems).finish()
+
+          recipedGroup.value = recipedItemGroup.parse(newGroup)
+        }}
+        style={{ width: '100%' }}
+      />
+    </div>
+  )
+}
+
+function isRecipeTooComplex(recipe: Recipe | null) {
+  return recipe !== null && recipe.prepared_multiplier !== 1
 }
 
 export default ItemGroupEditModal
