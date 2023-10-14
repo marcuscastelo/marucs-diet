@@ -1,8 +1,8 @@
 'use client'
 
 import { fetchUserWeights } from '@/legacy/controllers/weights'
-import { User } from '@/legacy/model/userModel'
-import { Weight } from '@/legacy/model/weightModel'
+import { User } from '@/modules/user/domain/user'
+import { Weight } from '@/modules/weight/domain/weight'
 import { Loadable } from '@/legacy/utils/loadable'
 import { useCallback, useEffect, useState } from 'react'
 

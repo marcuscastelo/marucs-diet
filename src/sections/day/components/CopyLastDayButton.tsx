@@ -2,7 +2,7 @@
 
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { updateDay, upsertDay } from '@/legacy/controllers/days'
-import { Day } from '@/legacy/model/dayModel'
+import { Day } from '@/modules/day/domain/day'
 import { ReadonlySignal } from '@preact/signals-react'
 
 export default function CopyLastDayButton({

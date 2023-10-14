@@ -1,8 +1,8 @@
-import { User } from '@/legacy/model/userModel'
+import { User } from '@/modules/user/domain/user'
 import {
   Weight,
   weigthSchema as weightSchema,
-} from '@/legacy/model/weightModel'
+} from '@/modules/weight/domain/weight'
 import { DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
 import supabase from '@/legacy/utils/supabase'
 

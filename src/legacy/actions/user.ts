@@ -2,7 +2,7 @@
 
 import { COOKIES } from '@/legacy/constants/cookies'
 import { createUserIdCookie } from '@/legacy/cookies/userId'
-import { User } from '@/legacy/model/userModel'
+import { User } from '@/modules/user/domain/user'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/dist/client/components/headers'
 

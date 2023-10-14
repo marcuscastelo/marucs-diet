@@ -1,6 +1,6 @@
 'use client'
 
-import { User } from '@/legacy/model/userModel'
+import { User } from '@/modules/user/domain/user'
 import Image from 'next/image'
 
 export function UserIcon({

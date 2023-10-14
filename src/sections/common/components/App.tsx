@@ -17,8 +17,8 @@ import { listFoods, searchFoodsByName } from '@/legacy/controllers/food'
 import { fetchUserRecentFoods } from '@/legacy/controllers/recentFood'
 import { listRecipes, searchRecipeByName } from '@/legacy/controllers/recipes'
 import { updateUser } from '@/legacy/controllers/users'
-import { Template } from '@/legacy/model/templateModel'
-import { User } from '@/legacy/model/userModel'
+import { Template } from '@/modules/template/domain/template'
+import { User } from '@/modules/user/domain/user'
 
 export default function App({
   user,

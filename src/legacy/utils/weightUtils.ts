@@ -1,4 +1,4 @@
-import { Weight } from '@/legacy/model/weightModel'
+import { Weight } from '@/modules/weight/domain/weight'
 import { inForceGeneric } from '@/legacy/utils/generic/inForce'
 
 export function latestWeight(weights: Weight[]) {

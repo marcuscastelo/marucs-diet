@@ -1,8 +1,8 @@
 'use client'
 
-import { MacroNutrients } from '@/legacy/model/macroNutrientsModel'
+import { MacroNutrients } from '@/modules/macro-nutrients/domain/macroNutrients'
 import { Progress } from 'flowbite-react'
-import { calculateMacroTarget } from '@/sections/macros/components/MacroTargets'
+import { calculateMacroTarget } from '@/src/sections/macro-nutrients/components/MacroTargets'
 import { CSSProperties } from 'react'
 import { calcCalories } from '@/legacy/utils/macroMath'
 import { useUserContext } from '@/sections/user/context/UserContext'

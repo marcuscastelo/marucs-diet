@@ -9,7 +9,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { Measure } from '@/legacy/model/measureModel'
+import { Measure } from '@/modules/measure/domain/measure'
 import { BodyFatInput, calculateBodyFat } from '@/legacy/utils/bfMath'
 import { useUserGender, useUserId } from '@/sections/user/context/UserContext'
 import { useWeights } from '@/sections/profile/weight/hooks/useWeights'

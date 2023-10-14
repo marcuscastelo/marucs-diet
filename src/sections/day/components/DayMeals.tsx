@@ -1,18 +1,18 @@
 'use client'
 
 import MealEditViewList from '@/sections/meal/components/MealEditViewList'
-import { Day } from '@/legacy/model/dayModel'
+import { Day } from '@/modules/day/domain/day'
 import MealEditView, {
   MealEditViewProps,
 } from '@/sections/meal/components/MealEditView'
 import { updateDay } from '@/legacy/controllers/days'
 import { Alert } from 'flowbite-react'
 import DayMacros from '@/sections/day/components/DayMacros'
-import { Meal } from '@/legacy/model/mealModel'
+import { Meal } from '@/modules/meal/domain/meal'
 import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
-import { ItemGroup } from '@/legacy/model/itemGroupModel'
+import { ItemGroup } from '@/modules/item-group/domain/itemGroup'
 import { calcDayMacros } from '@/legacy/utils/macroMath'
-import ItemGroupEditModal from '@/sections/template/group/components/ItemGroupEditModal'
+import ItemGroupEditModal from '@/sections/item-group/components/ItemGroupEditModal'
 import CopyLastDayButton from '@/sections/day/components/CopyLastDayButton'
 import DeleteDayButton from '@/sections/day/components/DeleteDayButton'
 import { useRouter } from 'next/navigation'
