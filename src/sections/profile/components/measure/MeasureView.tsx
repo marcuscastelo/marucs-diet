@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from 'react'
 import Capsule from '@/src/sections/common/components/capsule/Capsule'
-import TrashIcon from '@/app/(icons)/TrashIcon'
+import TrashIcon from '@/src/sections/common/components/icons/TrashIcon'
 import Datepicker from 'react-tailwindcss-datepicker'
 import { Measure } from '@/model/measureModel'
 import { deleteMeasure, updateMeasure } from '@/controllers/measures'

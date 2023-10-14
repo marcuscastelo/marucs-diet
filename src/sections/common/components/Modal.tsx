@@ -1,7 +1,7 @@
 'use client'
 
 import React, { ReactNode, useEffect, useRef } from 'react'
-import { useModalContext } from '@/app/(modals)/ModalContext'
+import { useModalContext } from '@/src/sections/common/context/ModalContext'
 import { BackIcon } from '@/sections/common/components/BackIcon'
 import { cn } from '@/utils/cn'
 

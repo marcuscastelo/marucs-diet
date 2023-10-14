@@ -1,7 +1,9 @@
 'use client'
 
 import { FoodItem } from '@/model/foodItemModel'
-import FoodItemView, { FoodItemViewProps } from '@/app/(foodItem)/FoodItemView'
+import FoodItemView, {
+  FoodItemViewProps,
+} from '@/sections/food/item/components/FoodItemView'
 import { ReadonlySignal, computed } from '@preact/signals-react'
 
 export default function FoodItemListView({

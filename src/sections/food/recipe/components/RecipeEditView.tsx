@@ -7,12 +7,12 @@ import { foodItemSchema } from '@/model/foodItemModel'
 import {
   RecipeEditContextProvider,
   useRecipeEditContext,
-} from '@/app/(recipe)/RecipeEditContext'
+} from '@/sections/food/recipe/context/RecipeEditContext'
 import { useCallback } from 'react'
-import TrashIcon from '@/app/(icons)/TrashIcon'
-import PasteIcon from '@/app/(icons)/PasteIcon'
-import CopyIcon from '@/app/(icons)/CopyIcon'
-import FoodItemListView from '@/app/(foodItem)/FoodItemListView'
+import TrashIcon from '@/src/sections/common/components/icons/TrashIcon'
+import PasteIcon from '@/src/sections/common/components/icons/PasteIcon'
+import CopyIcon from '@/src/sections/common/components/icons/CopyIcon'
+import FoodItemListView from '@/sections/food/item/components/FoodItemListView'
 import { calcRecipeCalories } from '@/utils/macroMath'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import { regenerateId } from '@/utils/idUtils'

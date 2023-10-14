@@ -1,17 +1,17 @@
 'use client'
 
-import Modal from '@/app/(modals)/Modal'
+import Modal from '@/sections/common/components/Modal'
 import {
   useModalContext,
   ModalContextProvider,
-} from '@/app/(modals)/ModalContext'
-import FoodItemView from '@/app/(foodItem)/FoodItemView'
+} from '@/src/sections/common/context/ModalContext'
+import FoodItemView from '@/sections/food/item/components/FoodItemView'
 import { Alert } from 'flowbite-react'
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import BarCodeInsertModal from '@/sections/search/barcode/components/BarCodeInsertModal'
 import { Recipe } from '@/model/recipeModel'
-import PageLoading from '@/app/PageLoading'
-import FoodItemEditModal from '@/app/(foodItem)/FoodItemEditModal'
+import PageLoading from '@/sections/common/components/PageLoading'
+import FoodItemEditModal from '@/sections/food/item/components/FoodItemEditModal'
 import { useUserContext, useUserId } from '@/context/users.context'
 import {
   ItemGroup,

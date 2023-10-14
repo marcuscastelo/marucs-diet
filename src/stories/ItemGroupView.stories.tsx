@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import ItemGroupView, {
   ItemGroupViewProps,
-} from '@/app/(itemGroup)/ItemGroupView'
+} from '@/sections/food/group/components/ItemGroupView'
 
-import ServerApp from '@/app/ServerApp'
+import ServerApp from '@/sections/common/components/ServerApp'
 import { computed } from '@preact/signals-react'
 
 const meta: Meta<typeof ItemGroupView> = {

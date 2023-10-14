@@ -1,7 +1,9 @@
 'use client'
 
 import { ReadonlySignal, computed } from '@preact/signals-react'
-import MealEditView, { MealEditViewProps } from '@/app/(meal)/MealEditView'
+import MealEditView, {
+  MealEditViewProps,
+} from '@/sections/meal/components/MealEditView'
 
 export type DayMealsProps = {
   mealEditPropsList: ReadonlySignal<MealEditViewProps[]>

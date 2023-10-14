@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import FoodItemView from '@/app/(foodItem)/FoodItemView'
+import FoodItemView from '@/sections/food/item/components/FoodItemView'
 import { searchFoodsByEan } from '@/controllers/food'
 import { Food } from '@/model/foodModel'
 import { useUserContext } from '@/context/users.context'

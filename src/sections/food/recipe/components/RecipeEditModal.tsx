@@ -2,14 +2,14 @@
 
 import { useEffect } from 'react'
 import { FoodItem, createFoodItem } from '@/model/foodItemModel'
-import Modal, { ModalActions } from '@/app/(modals)/Modal'
+import Modal, { ModalActions } from '@/sections/common/components/Modal'
 import { Recipe, createRecipe } from '@/model/recipeModel'
-import RecipeEditView from '@/app/(recipe)/RecipeEditView'
-import FoodItemEditModal from '@/app/(foodItem)/FoodItemEditModal'
+import RecipeEditView from '@/sections/food/recipe/components/RecipeEditView'
+import FoodItemEditModal from '@/sections/food/item/components/FoodItemEditModal'
 import {
   ModalContextProvider,
   useModalContext,
-} from '@/app/(modals)/ModalContext'
+} from '@/src/sections/common/context/ModalContext'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import { TemplateItem } from '@/model/templateItemModel'
 import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'

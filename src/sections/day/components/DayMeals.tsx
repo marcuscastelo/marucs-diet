@@ -1,21 +1,23 @@
 'use client'
 
-import MealEditViewList from '@/app/(meal)/MealEditViewList'
+import MealEditViewList from '@/sections/meal/components/MealEditViewList'
 import { Day } from '@/model/dayModel'
-import MealEditView, { MealEditViewProps } from '@/app/(meal)/MealEditView'
+import MealEditView, {
+  MealEditViewProps,
+} from '@/sections/meal/components/MealEditView'
 import { updateDay } from '@/controllers/days'
 import { Alert } from 'flowbite-react'
-import DayMacros from '@/app/DayMacros'
+import DayMacros from '@/sections/day/components/DayMacros'
 import { Meal } from '@/model/mealModel'
 import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
 import { ItemGroup } from '@/model/itemGroupModel'
 import { calcDayMacros } from '@/utils/macroMath'
-import ItemGroupEditModal from '@/app/(itemGroup)/ItemGroupEditModal'
+import ItemGroupEditModal from '@/sections/food/group/components/ItemGroupEditModal'
 import CopyLastDayButton from '@/sections/day/components/CopyLastDayButton'
 import DeleteDayButton from '@/sections/day/components/DeleteDayButton'
 import { useRouter } from 'next/navigation'
 import { getToday } from '@/utils/dateUtils'
-import { ModalContextProvider } from '@/app/(modals)/ModalContext'
+import { ModalContextProvider } from '@/src/sections/common/context/ModalContext'
 import { useUserContext } from '@/context/users.context'
 import { addItemGroupToMeal } from '@/utils/dayEditor'
 import {

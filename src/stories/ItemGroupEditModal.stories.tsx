@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import ItemGroupEditModal, {
   ItemGroupEditModalProps,
-} from '@/app/(itemGroup)/ItemGroupEditModal'
+} from '@/sections/food/group/components/ItemGroupEditModal'
 
-import ServerApp from '@/app/ServerApp'
+import ServerApp from '@/sections/common/components/ServerApp'
 import { computed } from '@preact/signals-react'
 
 const meta: Meta<typeof ItemGroupEditModal> = {

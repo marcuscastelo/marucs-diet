@@ -4,8 +4,8 @@ import Modal, {
   ModalActions,
   ModalBody,
   ModalHeader,
-} from '@/app/(modals)/Modal'
-import { ModalContextProvider } from '@/app/(modals)/ModalContext'
+} from '@/sections/common/components/Modal'
+import { ModalContextProvider } from '@/src/sections/common/context/ModalContext'
 import { useState } from 'react'
 import { useSignal } from '@preact/signals-react'
 
