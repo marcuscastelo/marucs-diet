@@ -30,6 +30,7 @@ import {
 import { useEffect } from 'react'
 import { useDayContext } from '@/src/sections/day/context/DaysContext'
 import DayNotFound from '@/src/sections/day/components/DayNotFound'
+import { useMealContext } from '@/src/sections/meal/context/MealContext'
 
 type EditSelection = {
   meal: Meal
@@ -50,7 +51,8 @@ export default function DayMeals({ selectedDay }: { selectedDay: string }) {
   const showingToday = today === selectedDay
 
   // TODO: Convert all states to signals
-  const { days, updateDay } = useDayContext()
+  const { days } = useDayContext()
+  const { updateMeal } = useMealContext()
 
   const day = computed(() => {
     if (days.value.loading || days.value.errored) {
@@ -80,17 +82,7 @@ export default function DayMeals({ selectedDay }: { selectedDay: string }) {
       return
     }
 
-    // TODO: Use DayEditor
-    updateDay(day.id, {
-      ...day,
-      meals: day.meals.map((m) => {
-        if (m.id !== meal.id) {
-          return m
-        }
-
-        return meal
-      }),
-    })
+    updateMeal(day.id, meal.id, meal)
   }
 
   const handleNewItemButton = (meal: Meal) => {
