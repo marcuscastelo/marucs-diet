@@ -1,9 +1,10 @@
-import TopBar from '@/app/day/[day]/TopBar'
+import TopBar from '@/sections/day/components/TopBar'
+import DayNotFound from '@/sections/day/components/DayNotFound'
+import DayMeals from '@/sections/day/components/DayMeals'
+
 import { Day } from '@/model/dayModel'
 import { listDays } from '@/controllers/days'
 import { revalidatePath } from 'next/cache'
-import DayNotFound from '@/app/day/[day]/DayNotFound'
-import DayMeals from '@/app/day/[day]/DayMeals'
 import { getUser } from '@/actions/user'
 import { BottomNavigation } from '@/components/BottomNavigation'
 
