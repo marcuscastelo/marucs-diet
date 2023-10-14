@@ -17,7 +17,7 @@ export function createSupabaseDayRepository(): DayRepository {
 }
 
 // TODO: better error handling
-const fetchUserDays = async (userId: User['id']): Promise<Day[]> =>
+const fetchUserDays = async (userId: User['id']): Promise<readonly Day[]> =>
   ((await supabase.from(TABLE).select()).data ?? [])
     .map((day) => daySchema.parse(day))
     .filter((day) => day.owner === userId)

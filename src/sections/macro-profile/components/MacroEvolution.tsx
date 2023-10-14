@@ -67,9 +67,9 @@ export function MacroEvolution() {
 }
 
 function createChartData(
-  weights: Weight[],
-  days: Day[],
-  macroProfiles: MacroProfile[],
+  weights: readonly Weight[],
+  days: readonly Day[],
+  macroProfiles: readonly MacroProfile[],
 ) {
   const data = days.map((day) => {
     const dayDate = new Date(day.target_day)
@@ -102,7 +102,7 @@ function createChartData(
   return data
 }
 
-function AllMacrosChart({ weights }: { weights: Weight[] }) {
+function AllMacrosChart({ weights }: { weights: readonly Weight[] }) {
   const { days } = useDayContext()
   const { user } = useUserContext()
   const { macroProfiles } = useMacroProfiles(user.id)
@@ -259,7 +259,7 @@ function AllMacrosChart({ weights }: { weights: Weight[] }) {
   )
 }
 
-function CaloriesChart({ weights }: { weights: Weight[] }) {
+function CaloriesChart({ weights }: { weights: readonly Weight[] }) {
   const { days } = useDayContext()
   const { user } = useUserContext()
   const { macroProfiles } = useMacroProfiles(user.id)
@@ -316,7 +316,7 @@ function CaloriesChart({ weights }: { weights: Weight[] }) {
   )
 }
 
-function ProteinChart({ weights }: { weights: Weight[] }) {
+function ProteinChart({ weights }: { weights: readonly Weight[] }) {
   const { days } = useDayContext()
   const { user } = useUserContext()
   const { macroProfiles } = useMacroProfiles(user.id)
@@ -372,7 +372,7 @@ function ProteinChart({ weights }: { weights: Weight[] }) {
   )
 }
 
-function FatChart({ weights }: { weights: Weight[] }) {
+function FatChart({ weights }: { weights: readonly Weight[] }) {
   const { days } = useDayContext()
   const { user } = useUserContext()
   const { macroProfiles } = useMacroProfiles(user.id)
@@ -428,7 +428,7 @@ function FatChart({ weights }: { weights: Weight[] }) {
   )
 }
 
-function CarbsChart({ weights }: { weights: Weight[] }) {
+function CarbsChart({ weights }: { weights: readonly Weight[] }) {
   const { days } = useDayContext()
   const { user } = useUserContext()
   const { macroProfiles } = useMacroProfiles(user.id)

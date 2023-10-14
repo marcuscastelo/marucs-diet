@@ -52,7 +52,7 @@ export default function DayMeals({ selectedDay }: { selectedDay: string }) {
   // TODO: Convert all states to signals
   const { days: dayState, updateDay } = useDayContext()
 
-  const days = useSignal<Day[]>([])
+  const days = useSignal<readonly Day[]>([])
 
   const day = computed(() =>
     days.value.find((day) => day.target_day === selectedDay),

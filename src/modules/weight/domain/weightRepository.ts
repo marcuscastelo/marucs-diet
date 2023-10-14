@@ -3,7 +3,7 @@ import { User } from '@/modules/user/domain/user'
 import { DbReady } from '@/src/legacy/utils/newDbRecord'
 
 export interface WeightRepository {
-  fetchUserWeights(userId: User['id']): Promise<Weight[]>
+  fetchUserWeights(userId: User['id']): Promise<readonly Weight[]>
   insertWeight(newWeight: DbReady<Weight>): Promise<Weight>
   updateWeight(
     weightId: Weight['id'],
