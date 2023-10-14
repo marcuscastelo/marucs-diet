@@ -2,13 +2,23 @@ import { User } from '@/modules/user/domain/user'
 import {
   Weight,
   weigthSchema as weightSchema,
-} from '@/modules/weight/domain/weight'
+} from '@/src/modules/weight/domain/weight'
 import { DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
 import supabase from '@/legacy/utils/supabase'
+import { WeightRepository } from '@/src/modules/weight/domain/weightRepository'
 
 const TABLE = 'weights'
 
-export async function fetchUserWeights(userId: User['id']) {
+export function createSupabaseWeightRepository(): WeightRepository {
+  return {
+    fetchUserWeights,
+    insertWeight,
+    updateWeight,
+    deleteWeight,
+  }
+}
+
+async function fetchUserWeights(userId: User['id']) {
   const { data, error } = await supabase
     .from(TABLE)
     .select('*')
@@ -23,7 +33,7 @@ export async function fetchUserWeights(userId: User['id']) {
   return weightSchema.array().parse(data)
 }
 
-export async function insertWeight(newWeight: DbReady<Weight>) {
+async function insertWeight(newWeight: DbReady<Weight>) {
   const weight = enforceDbReady(newWeight)
   const { data, error } = await supabase.from(TABLE).insert(weight).select()
 
@@ -35,7 +45,7 @@ export async function insertWeight(newWeight: DbReady<Weight>) {
   return weightSchema.parse(data?.[0])
 }
 
-export async function updateWeight(
+async function updateWeight(
   weightId: Weight['id'],
   newWeight: DbReady<Weight>,
 ) {
@@ -54,7 +64,7 @@ export async function updateWeight(
   return weightSchema.parse(data?.[0])
 }
 
-export async function deleteWeight(id: Weight['id']) {
+async function deleteWeight(id: Weight['id']) {
   const { error } = await supabase.from(TABLE).delete().eq('id', id)
 
   if (error) {

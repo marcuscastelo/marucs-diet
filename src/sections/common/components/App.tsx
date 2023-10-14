@@ -19,6 +19,8 @@ import { listRecipes, searchRecipeByName } from '@/legacy/controllers/recipes'
 import { updateUser } from '@/legacy/controllers/users'
 import { Template } from '@/modules/template/domain/template'
 import { User } from '@/modules/user/domain/user'
+import { WeightContextProvider } from '@/src/sections/weight/context/WeightContext'
+import { createSupabaseWeightRepository } from '@/src/modules/weight/infrastructure/supabaseWeightRepository'
 
 export default function App({
   user,
@@ -31,11 +33,13 @@ export default function App({
 }) {
   return (
     <AppUserProvider user={user} onSaveUser={onSaveUser}>
-      <AppDaysProvider>
-        <AppConfirmModalProvider>
-          <AppFoodsProvider>{children}</AppFoodsProvider>
-        </AppConfirmModalProvider>
-      </AppDaysProvider>
+      <AppWeightProvider userId={user.id}>
+        <AppDaysProvider>
+          <AppConfirmModalProvider>
+            <AppFoodsProvider>{children}</AppFoodsProvider>
+          </AppConfirmModalProvider>
+        </AppDaysProvider>
+      </AppWeightProvider>
     </AppUserProvider>
   )
 }
@@ -178,5 +182,23 @@ function AppFoodsProvider({ children }: { children: React.ReactNode }) {
     >
       {children}
     </FoodContextProvider>
+  )
+}
+
+function AppWeightProvider({
+  children,
+  userId,
+}: {
+  children: React.ReactNode
+  userId: User['id']
+}) {
+  console.debug(`[AppConfirmModalProvider] - Rendering`)
+
+  const repository = createSupabaseWeightRepository()
+
+  return (
+    <WeightContextProvider repository={repository} userId={userId}>
+      {children}
+    </WeightContextProvider>
   )
 }

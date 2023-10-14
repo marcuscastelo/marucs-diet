@@ -4,11 +4,7 @@ import {
   useUserDesiredWeight,
   useUserId,
 } from '@/sections/user/context/UserContext'
-import {
-  deleteWeight,
-  insertWeight,
-  updateWeight,
-} from '@/legacy/controllers/weights'
+
 import { Weight, createWeight } from '@/modules/weight/domain/weight'
 import Capsule from '@/sections/common/components/capsule/Capsule'
 import TrashIcon from '@/sections/common/components/icons/TrashIcon'
@@ -16,7 +12,6 @@ import { Line } from 'recharts'
 import { CandleStickChart } from '@/sections/common/components/chart/CandleStickChart'
 import { OHLC } from '@/legacy/model/ohlcModel'
 import Datepicker from 'react-tailwindcss-datepicker'
-import { useWeights } from '@/sections/profile/weight/hooks/useWeights'
 import {
   useDateField,
   useFloatField,
@@ -31,6 +26,7 @@ import {
   latestWeight,
 } from '@/legacy/utils/weightUtils'
 import { computed } from '@preact/signals-react'
+import { useWeightContext } from '@/src/sections/weight/context/WeightContext'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -40,7 +36,7 @@ export function WeightEvolution({ onSave }: { onSave: () => void }) {
   const userId = useUserId()
   const desiredWeight = useUserDesiredWeight()
 
-  const { weights, refetch: handleRefetchWeights } = useWeights(userId)
+  const { weights, insertWeight } = useWeightContext()
 
   const weightField = useFloatFieldOld()
 
@@ -76,14 +72,13 @@ export function WeightEvolution({ onSave }: { onSave: () => void }) {
                 return
               }
 
-              await insertWeight(
+              insertWeight(
                 createWeight({
                   owner: userId,
                   weight,
                   target_timestamp: new Date(Date.now()),
                 }),
               )
-              handleRefetchWeights()
               onSave()
               weightField.rawValue.value = ''
             }}
@@ -99,12 +94,7 @@ export function WeightEvolution({ onSave }: { onSave: () => void }) {
               .slice(0, 10)
               .map((weight) => {
                 return (
-                  <WeightView
-                    key={weight.id}
-                    weight={weight}
-                    onRefetchWeights={handleRefetchWeights}
-                    onSave={onSave}
-                  />
+                  <WeightView key={weight.id} weight={weight} onSave={onSave} />
                 )
               })}
           {weights.data.length === 0 && 'Não há pesos registrados'}
@@ -116,20 +106,20 @@ export function WeightEvolution({ onSave }: { onSave: () => void }) {
 
 function WeightView({
   weight,
-  onRefetchWeights,
   onSave,
 }: {
   weight: Weight
-  onRefetchWeights: () => void
   onSave: () => void
 }) {
+  const { updateWeight, deleteWeight } = useWeightContext()
+
   const targetTimestampSignal = computed(() => weight.target_timestamp)
   const dateField = useDateField(targetTimestampSignal)
 
   const weightSignal = computed(() => weight.weight)
   const weightField = useFloatField(weightSignal)
 
-  const handleSave = async ({
+  const handleSave = ({
     dateValue,
     weightValue,
   }: {
@@ -148,7 +138,7 @@ function WeightView({
       return
     }
 
-    await updateWeight(weight.id, {
+    updateWeight(weight.id, {
       ...weight,
       weight: weightValue,
       target_timestamp: dateValue,
@@ -173,11 +163,10 @@ function WeightView({
               // Apply timezone offset
               const date = new Date(value.startDate)
               dateField.rawValue.value = dateToYYYYMMDD(date)
-              await handleSave({
+              handleSave({
                 dateValue: date,
                 weightValue: weightField.value.value,
               })
-              onRefetchWeights()
             }}
             // Timezone = GMT-3
             displayFormat="DD/MM/YYYY HH:mm"
@@ -199,11 +188,10 @@ function WeightView({
               style={{ width: '100%' }}
               onFocus={(event) => event.target.select()}
               onFieldCommit={async (value) => {
-                await handleSave({
+                handleSave({
                   dateValue: dateField.value.value,
                   weightValue: value,
                 })
-                onRefetchWeights()
               }}
             />
             <span className="my-auto flex-1 hidden sm:block">kg</span>
@@ -211,8 +199,7 @@ function WeightView({
           <button
             className="btn btn-ghost my-auto"
             onClick={async () => {
-              await deleteWeight(weight.id)
-              onRefetchWeights()
+              deleteWeight(weight.id)
               onSave()
             }}
           >
