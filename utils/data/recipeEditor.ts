@@ -5,6 +5,7 @@ import { Editor } from './editor'
 import { ItemEditor } from './itemEditor'
 import { calcRecipeMacros } from '../macroMath'
 import { Mutable } from '../typeUtils'
+import { deepCopy } from '../deepCopy'
 
 export class RecipeEditor extends Editor<Recipe> implements ItemContainer {
   private readonly recipe = this.content
@@ -45,6 +46,27 @@ export class RecipeEditor extends Editor<Recipe> implements ItemContainer {
       const index = this.recipe.items.findIndex((item) => item.id === id)
       this.recipe.items.splice(index, 1, newItem)
     }
+    return this
+  }
+
+  editItems(
+    callback: (
+      id: number,
+      editor: Omit<ItemEditor, 'finish'> | undefined,
+    ) => void,
+  ) {
+    for (const item of this.recipe.items) {
+      const editor = new ItemEditor(item)
+      callback(item.id, editor)
+      const newItem = editor.finish()
+      const index = this.recipe.items.findIndex((i) => i.id === item.id)
+      this.recipe.items.splice(index, 1, newItem)
+    }
+    return this
+  }
+
+  setItems(items: FoodItem[]) {
+    this.recipe.items = deepCopy(items) as Mutable<FoodItem>[]
     return this
   }
 

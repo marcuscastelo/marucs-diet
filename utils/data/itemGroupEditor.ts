@@ -4,6 +4,8 @@ import { ItemGroup } from '@/model/itemGroupModel'
 import { Editor } from './editor'
 import { ItemEditor } from './itemEditor'
 import { Recipe } from '@/model/recipeModel'
+import { deepCopy } from '../deepCopy'
+import { Mutable } from '../typeUtils'
 
 export class ItemGroupEditor
   extends Editor<ItemGroup>
@@ -48,6 +50,27 @@ export class ItemGroupEditor
       const index = this.group.items.findIndex((item) => item.id === id)
       this.group.items.splice(index, 1, newItem)
     }
+    return this
+  }
+
+  editItems(
+    callback: (
+      id: number,
+      editor: Omit<ItemEditor, 'finish'> | undefined,
+    ) => void,
+  ) {
+    for (const item of this.group.items) {
+      const editor = new ItemEditor(item)
+      callback(item.id, editor)
+      const newItem = editor.finish()
+      const index = this.group.items.findIndex((i) => i.id === item.id)
+      this.group.items.splice(index, 1, newItem)
+    }
+    return this
+  }
+
+  setItems(items: FoodItem[]) {
+    this.group.items = deepCopy(items) as Mutable<FoodItem>[]
     return this
   }
 
