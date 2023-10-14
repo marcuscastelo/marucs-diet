@@ -1,6 +1,6 @@
 import Modal, { ModalActions } from '@/sections/common/components/Modal'
 import { ModalContextProvider } from '@/src/sections/common/context/ModalContext'
-import { useConfirmModalContext } from '@/context/confirmModal.context'
+import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 
 export default function ConfirmModal() {
   const {

@@ -6,10 +6,10 @@ import CopyIcon from '@/src/sections/common/components/icons/CopyIcon'
 import {
   ItemGroupEditContextProvider,
   useItemGroupEditContext,
-} from '@/sections/food/group/context/ItemGroupEditContext'
+} from '@/src/sections/template/group/context/ItemGroupEditContext'
 import { ItemGroup, isSimpleSingleGroup } from '@/model/itemGroupModel'
 import { calcGroupCalories, calcGroupMacros } from '@/utils/macroMath'
-import { useUserContext } from '@/context/users.context'
+import { useUserContext } from '@/sections/user/context/UserContext'
 import { isRecipedGroupUpToDate } from '@/utils/groupUtils'
 import { Loadable } from '@/utils/loadable'
 import { Recipe } from '@/model/recipeModel'

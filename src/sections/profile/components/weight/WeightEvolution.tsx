@@ -1,6 +1,9 @@
 'use client'
 
-import { useUserDesiredWeight, useUserId } from '@/context/users.context'
+import {
+  useUserDesiredWeight,
+  useUserId,
+} from '@/sections/user/context/UserContext'
 import { deleteWeight, insertWeight, updateWeight } from '@/controllers/weights'
 import { Weight, createWeight } from '@/model/weightModel'
 import Capsule from '@/src/sections/common/components/capsule/Capsule'

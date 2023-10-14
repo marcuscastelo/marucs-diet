@@ -3,7 +3,7 @@
 import { ItemGroup } from '@/model/itemGroupModel'
 import ItemGroupView, {
   ItemGroupViewProps,
-} from '@/sections/food/group/components/ItemGroupView'
+} from '@/src/sections/template/group/components/ItemGroupView'
 import { ReadonlySignal, computed } from '@preact/signals-react'
 
 export default function ItemGroupListView({

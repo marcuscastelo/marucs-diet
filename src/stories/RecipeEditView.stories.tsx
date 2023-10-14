@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import RecipeEditView, {
   RecipeEditViewProps,
-} from '@/sections/food/recipe/components/RecipeEditView'
+} from '@/src/sections/template/recipe/components/RecipeEditView'
 import ServerApp from '@/sections/common/components/ServerApp'
 import { signal } from '@preact/signals-react'
 

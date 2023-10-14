@@ -4,13 +4,13 @@ import { useEffect } from 'react'
 import { FoodItem, createFoodItem } from '@/model/foodItemModel'
 import Modal, { ModalActions } from '@/sections/common/components/Modal'
 import { Recipe, createRecipe } from '@/model/recipeModel'
-import RecipeEditView from '@/sections/food/recipe/components/RecipeEditView'
-import FoodItemEditModal from '@/sections/food/item/components/FoodItemEditModal'
+import RecipeEditView from '@/src/sections/template/recipe/components/RecipeEditView'
+import FoodItemEditModal from '@/src/sections/template/item/components/FoodItemEditModal'
 import {
   ModalContextProvider,
   useModalContext,
 } from '@/src/sections/common/context/ModalContext'
-import { useConfirmModalContext } from '@/context/confirmModal.context'
+import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { TemplateItem } from '@/model/templateItemModel'
 import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
 import { ItemGroup, isSimpleSingleGroup } from '@/model/itemGroupModel'
@@ -22,7 +22,7 @@ import {
   useSignal,
   useSignalEffect,
 } from '@preact/signals-react'
-import { useUserId } from '@/context/users.context'
+import { useUserId } from '@/sections/user/context/UserContext'
 
 export type RecipeEditModalProps = {
   show?: boolean

@@ -7,14 +7,14 @@ import { foodItemSchema } from '@/model/foodItemModel'
 import {
   RecipeEditContextProvider,
   useRecipeEditContext,
-} from '@/sections/food/recipe/context/RecipeEditContext'
+} from '@/src/sections/template/recipe/context/RecipeEditContext'
 import { useCallback } from 'react'
 import TrashIcon from '@/src/sections/common/components/icons/TrashIcon'
 import PasteIcon from '@/src/sections/common/components/icons/PasteIcon'
 import CopyIcon from '@/src/sections/common/components/icons/CopyIcon'
-import FoodItemListView from '@/sections/food/item/components/FoodItemListView'
+import FoodItemListView from '@/src/sections/template/item/components/FoodItemListView'
 import { calcRecipeCalories } from '@/utils/macroMath'
-import { useConfirmModalContext } from '@/context/confirmModal.context'
+import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { regenerateId } from '@/utils/idUtils'
 import { TemplateItem } from '@/model/templateItemModel'
 import useClipboard, { createClipboardSchemaFilter } from '@/hooks/clipboard'

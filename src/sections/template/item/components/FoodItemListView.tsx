@@ -3,7 +3,7 @@
 import { FoodItem } from '@/model/foodItemModel'
 import FoodItemView, {
   FoodItemViewProps,
-} from '@/sections/food/item/components/FoodItemView'
+} from '@/src/sections/template/item/components/FoodItemView'
 import { ReadonlySignal, computed } from '@preact/signals-react'
 
 export default function FoodItemListView({
