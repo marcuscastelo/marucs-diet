@@ -1,6 +1,6 @@
 'use client'
 
-import { Meal } from '@/model/mealModel'
+import { Meal } from '@/legacy/model/mealModel'
 import { ReadonlySignal } from '@preact/signals-react'
 import { createContext, useContext } from 'use-context-selector'
 

@@ -12,13 +12,13 @@ import {
   useUserContext,
   useUserId,
 } from '@/sections/user/context/UserContext'
-import { listDays } from '@/controllers/days'
-import { listFoods, searchFoodsByName } from '@/controllers/food'
-import { fetchUserRecentFoods } from '@/controllers/recentFood'
-import { listRecipes, searchRecipeByName } from '@/controllers/recipes'
-import { updateUser } from '@/controllers/users'
-import { Template } from '@/model/templateModel'
-import { User } from '@/model/userModel'
+import { listDays } from '@/legacy/controllers/days'
+import { listFoods, searchFoodsByName } from '@/legacy/controllers/food'
+import { fetchUserRecentFoods } from '@/legacy/controllers/recentFood'
+import { listRecipes, searchRecipeByName } from '@/legacy/controllers/recipes'
+import { updateUser } from '@/legacy/controllers/users'
+import { Template } from '@/legacy/model/templateModel'
+import { User } from '@/legacy/model/userModel'
 
 export default function App({
   user,

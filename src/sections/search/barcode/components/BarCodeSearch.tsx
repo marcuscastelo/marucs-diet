@@ -1,12 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import FoodItemView from '@/src/sections/template/item/components/FoodItemView'
-import { searchFoodsByEan } from '@/controllers/food'
-import { Food } from '@/model/foodModel'
+import FoodItemView from '@/sections/template/item/components/FoodItemView'
+import { searchFoodsByEan } from '@/legacy/controllers/food'
+import { Food } from '@/legacy/model/foodModel'
 import { useUserContext } from '@/sections/user/context/UserContext'
-import { createFoodItem } from '@/model/foodItemModel'
-import { MacroNutrients } from '@/model/macroNutrientsModel'
+import { createFoodItem } from '@/legacy/model/foodItemModel'
+import { MacroNutrients } from '@/legacy/model/macroNutrientsModel'
 import {
   Signal,
   computed,

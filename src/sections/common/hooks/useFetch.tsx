@@ -1,6 +1,6 @@
 'use client'
 
-import { Loadable } from '@/utils/loadable'
+import { Loadable } from '@/legacy/utils/loadable'
 import { useCallback, useState } from 'react'
 
 export type FetchFunc<T, P extends Array<any>> = (...params: P) => Promise<T>

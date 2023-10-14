@@ -1,5 +1,5 @@
-import { User } from '@/model/userModel'
-import { Food } from '@/model/foodModel'
+import { User } from '@/legacy/model/userModel'
+import { Food } from '@/legacy/model/foodModel'
 import {
   createContext,
   useContext,

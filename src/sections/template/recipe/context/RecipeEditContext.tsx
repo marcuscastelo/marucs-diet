@@ -1,6 +1,6 @@
 'use client'
 
-import { Recipe } from '@/model/recipeModel'
+import { Recipe } from '@/legacy/model/recipeModel'
 import { Signal } from '@preact/signals-react'
 import { createContext, useContext } from 'use-context-selector'
 

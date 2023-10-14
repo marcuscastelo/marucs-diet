@@ -4,45 +4,45 @@ import Modal from '@/sections/common/components/Modal'
 import {
   useModalContext,
   ModalContextProvider,
-} from '@/src/sections/common/context/ModalContext'
-import FoodItemView from '@/src/sections/template/item/components/FoodItemView'
+} from '@/sections/common/context/ModalContext'
+import FoodItemView from '@/sections/template/item/components/FoodItemView'
 import { Alert } from 'flowbite-react'
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import BarCodeInsertModal from '@/sections/search/barcode/components/BarCodeInsertModal'
-import { Recipe } from '@/model/recipeModel'
+import { Recipe } from '@/legacy/model/recipeModel'
 import PageLoading from '@/sections/common/components/PageLoading'
-import FoodItemEditModal from '@/src/sections/template/item/components/FoodItemEditModal'
+import FoodItemEditModal from '@/sections/template/item/components/FoodItemEditModal'
 import { useUserContext, useUserId } from '@/sections/user/context/UserContext'
 import {
   ItemGroup,
   RecipedItemGroup,
   SimpleItemGroup,
-} from '@/model/itemGroupModel'
+} from '@/legacy/model/itemGroupModel'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { useFoodContext } from '@/sections/template/context/TemplateContext'
-import { addId, generateId } from '@/utils/idUtils'
+import { addId, generateId } from '@/legacy/utils/idUtils'
 import {
   AvailableTab,
   TemplateSearchTabs,
   chooseFoodsFromStore as chooseFoodsFromFoodStore,
 } from '@/sections/search/components/TemplateSearchTabs'
 import { useTyping } from '@/sections/common/hooks/useTyping'
-import { createFoodItem } from '@/model/foodItemModel'
+import { createFoodItem } from '@/legacy/model/foodItemModel'
 import {
   fetchRecentFoodByUserIdAndFoodId,
   insertRecentFood,
   updateRecentFood,
-} from '@/controllers/recentFood'
-import { createRecentFood } from '@/model/recentFoodModel'
-import { Template } from '@/model/templateModel'
-import { TemplateItem } from '@/model/templateItemModel'
+} from '@/legacy/controllers/recentFood'
+import { createRecentFood } from '@/legacy/model/recentFoodModel'
+import { Template } from '@/legacy/model/templateModel'
+import { TemplateItem } from '@/legacy/model/templateItemModel'
 import {
   ReadonlySignal,
   Signal,
   computed,
   useSignal,
 } from '@preact/signals-react'
-import { createFood } from '@/src/model/foodModel'
+import { createFood } from '@/legacy/model/foodModel'
 
 export type TemplateSearchModalProps = {
   targetName: string

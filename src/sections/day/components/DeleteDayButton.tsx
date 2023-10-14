@@ -1,8 +1,8 @@
 'use client'
 
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { deleteDay } from '@/controllers/days'
-import { Day } from '@/model/dayModel'
+import { deleteDay } from '@/legacy/controllers/days'
+import { Day } from '@/legacy/model/dayModel'
 import { ReadonlySignal } from '@preact/signals-react'
 
 export default function DeleteDayButton({

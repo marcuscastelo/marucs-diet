@@ -2,22 +2,22 @@ import { BasicInfo } from '@/sections/profile/components/BasicInfo'
 import { WeightEvolution } from '@/sections/profile/weight/components/WeightEvolution'
 import { MeasuresEvolution } from '@/sections/profile/components/measure/MeasuresEvolution'
 
-import { fetchUser, updateUser } from '@/controllers/users'
+import { fetchUser, updateUser } from '@/legacy/controllers/users'
 import { MacroTarget } from '@/sections/macros/components/MacroTargets'
 import { revalidatePath } from 'next/cache'
-import { getUser } from '@/actions/user'
-import { MacroEvolution } from '@/src/sections/profile/macros/components/MacroEvolution'
-import { fetchUserWeights } from '@/controllers/weights'
-import { latestWeight } from '@/utils/weightUtils'
-import { User } from '@/model/userModel'
-import { MacroProfile } from '@/model/macroProfileModel'
+import { getUser } from '@/legacy/actions/user'
+import { MacroEvolution } from '@/sections/profile/macros/components/MacroEvolution'
+import { fetchUserWeights } from '@/legacy/controllers/weights'
+import { latestWeight } from '@/legacy/utils/weightUtils'
+import { User } from '@/legacy/model/userModel'
+import { MacroProfile } from '@/legacy/model/macroProfileModel'
 import {
   fetchUserMacroProfiles,
   insertMacroProfile,
   updateMacroProfile,
-} from '@/controllers/macroProfiles'
-import { latestMacroProfile } from '@/utils/macroProfileUtils'
-import { getToday } from '@/utils/dateUtils'
+} from '@/legacy/controllers/macroProfiles'
+import { latestMacroProfile } from '@/legacy/utils/macroProfileUtils'
+import { getToday } from '@/legacy/utils/dateUtils'
 import { BottomNavigation } from '@/sections/common/components/BottomNavigation'
 
 // TODO: Centralize theme constants

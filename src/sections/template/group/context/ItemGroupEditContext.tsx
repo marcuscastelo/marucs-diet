@@ -1,6 +1,6 @@
 'use client'
 
-import { ItemGroup } from '@/model/itemGroupModel'
+import { ItemGroup } from '@/legacy/model/itemGroupModel'
 import {
   ReadonlySignal,
   Signal,

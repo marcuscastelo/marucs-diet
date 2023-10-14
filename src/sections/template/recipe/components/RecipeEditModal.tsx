@@ -1,20 +1,20 @@
 'use client'
 
 import { useEffect } from 'react'
-import { FoodItem, createFoodItem } from '@/model/foodItemModel'
+import { FoodItem, createFoodItem } from '@/legacy/model/foodItemModel'
 import Modal, { ModalActions } from '@/sections/common/components/Modal'
-import { Recipe, createRecipe } from '@/model/recipeModel'
-import RecipeEditView from '@/src/sections/template/recipe/components/RecipeEditView'
-import FoodItemEditModal from '@/src/sections/template/item/components/FoodItemEditModal'
+import { Recipe, createRecipe } from '@/legacy/model/recipeModel'
+import RecipeEditView from '@/sections/template/recipe/components/RecipeEditView'
+import FoodItemEditModal from '@/sections/template/item/components/FoodItemEditModal'
 import {
   ModalContextProvider,
   useModalContext,
-} from '@/src/sections/common/context/ModalContext'
+} from '@/sections/common/context/ModalContext'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { TemplateItem } from '@/model/templateItemModel'
+import { TemplateItem } from '@/legacy/model/templateItemModel'
 import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
-import { ItemGroup, isSimpleSingleGroup } from '@/model/itemGroupModel'
-import { RecipeEditor } from '@/utils/data/recipeEditor'
+import { ItemGroup, isSimpleSingleGroup } from '@/legacy/model/itemGroupModel'
+import { RecipeEditor } from '@/legacy/utils/data/recipeEditor'
 import {
   ReadonlySignal,
   Signal,

@@ -1,10 +1,10 @@
 'use client'
 
-import { Food } from '@/model/foodModel'
+import { Food } from '@/legacy/model/foodModel'
 import Modal, { ModalActions } from '@/sections/common/components/Modal'
 import { BarCodeReader } from '@/sections/search/barcode/components/BarCodeReader'
 import BarCodeSearch from '@/sections/search/barcode/components/BarCodeSearch'
-import { useModalContext } from '@/src/sections/common/context/ModalContext'
+import { useModalContext } from '@/sections/common/context/ModalContext'
 import { useSignal } from '@preact/signals-react'
 
 export type BarCodeInsertModalProps = {

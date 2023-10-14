@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import ItemGroupView, {
   ItemGroupViewProps,
-} from '@/src/sections/template/group/components/ItemGroupView'
+} from '@/sections/template/group/components/ItemGroupView'
 
 import ServerApp from '@/sections/common/components/ServerApp'
 import { computed } from '@preact/signals-react'

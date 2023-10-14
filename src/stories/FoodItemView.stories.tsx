@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import FoodItemView, {
   FoodItemViewProps,
-} from '@/src/sections/template/item/components/FoodItemView'
+} from '@/sections/template/item/components/FoodItemView'
 import ServerApp from '@/sections/common/components/ServerApp'
 import { computed } from '@preact/signals-react'
-import { createFoodItem } from '../model/foodItemModel'
+import { createFoodItem } from '@/legacy/model/foodItemModel'
 
 const meta: Meta<typeof FoodItemView> = {
   title: 'Components/FoodItemView',

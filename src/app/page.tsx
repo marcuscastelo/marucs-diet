@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { getToday } from '@/utils/dateUtils'
+import { getToday } from '@/legacy/utils/dateUtils'
 
 export default function Page() {
   const router = useRouter()

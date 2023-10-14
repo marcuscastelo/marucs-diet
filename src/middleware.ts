@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { COOKIES } from '@/constants/cookies'
-import { createUserIdCookie } from '@/cookies/userId'
+import { COOKIES } from '@/legacy/constants/cookies'
+import { createUserIdCookie } from '@/legacy/cookies/userId'
 
 // This function can be marked `async` if using `await` inside
 export function middleware(request: NextRequest) {

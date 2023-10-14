@@ -1,27 +1,27 @@
 'use client'
 
-import { Meal, mealSchema } from '@/model/mealModel'
+import { Meal, mealSchema } from '@/legacy/model/mealModel'
 import {
   MealContextProvider,
   useMealContext,
 } from '@/sections/meal/context/MealContext'
 import { useCallback } from 'react'
-import TrashIcon from '@/src/sections/common/components/icons/TrashIcon'
-import PasteIcon from '@/src/sections/common/components/icons/PasteIcon'
-import CopyIcon from '@/src/sections/common/components/icons/CopyIcon'
-import { calcMealCalories } from '@/utils/macroMath'
-import ItemGroupListView from '@/src/sections/template/group/components/ItemGroupListView'
-import { ItemGroup, itemGroupSchema } from '@/model/itemGroupModel'
+import TrashIcon from '@/sections/common/components/icons/TrashIcon'
+import PasteIcon from '@/sections/common/components/icons/PasteIcon'
+import CopyIcon from '@/sections/common/components/icons/CopyIcon'
+import { calcMealCalories } from '@/legacy/utils/macroMath'
+import ItemGroupListView from '@/sections/template/group/components/ItemGroupListView'
+import { ItemGroup, itemGroupSchema } from '@/legacy/model/itemGroupModel'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import useClipboard, {
   createClipboardSchemaFilter,
 } from '@/sections/common/hooks/useClipboard'
-import { addInnerGroups } from '@/utils/mealUtils'
-import { deserializeClipboard } from '@/utils/clipboardUtils'
-import { convertToGroups } from '@/utils/groupUtils'
-import { regenerateId } from '@/utils/idUtils'
-import { foodItemSchema } from '@/model/foodItemModel'
-import { recipeSchema } from '@/model/recipeModel'
+import { addInnerGroups } from '@/legacy/utils/mealUtils'
+import { deserializeClipboard } from '@/legacy/utils/clipboardUtils'
+import { convertToGroups } from '@/legacy/utils/groupUtils'
+import { regenerateId } from '@/legacy/utils/idUtils'
+import { foodItemSchema } from '@/legacy/model/foodItemModel'
+import { recipeSchema } from '@/legacy/model/recipeModel'
 import {
   ReadonlySignal,
   computed,

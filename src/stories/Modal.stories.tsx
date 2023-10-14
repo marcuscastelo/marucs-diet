@@ -5,7 +5,7 @@ import Modal, {
   ModalBody,
   ModalHeader,
 } from '@/sections/common/components/Modal'
-import { ModalContextProvider } from '@/src/sections/common/context/ModalContext'
+import { ModalContextProvider } from '@/sections/common/context/ModalContext'
 import { useState } from 'react'
 import { useSignal } from '@preact/signals-react'
 

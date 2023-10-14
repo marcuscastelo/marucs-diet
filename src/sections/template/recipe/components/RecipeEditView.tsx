@@ -2,33 +2,33 @@
 
 // TODO: Unify Recipe and Recipe components into a single component?
 
-import { Recipe, recipeSchema } from '@/model/recipeModel'
-import { foodItemSchema } from '@/model/foodItemModel'
+import { Recipe, recipeSchema } from '@/legacy/model/recipeModel'
+import { foodItemSchema } from '@/legacy/model/foodItemModel'
 import {
   RecipeEditContextProvider,
   useRecipeEditContext,
-} from '@/src/sections/template/recipe/context/RecipeEditContext'
+} from '@/sections/template/recipe/context/RecipeEditContext'
 import { useCallback } from 'react'
-import TrashIcon from '@/src/sections/common/components/icons/TrashIcon'
-import PasteIcon from '@/src/sections/common/components/icons/PasteIcon'
-import CopyIcon from '@/src/sections/common/components/icons/CopyIcon'
-import FoodItemListView from '@/src/sections/template/item/components/FoodItemListView'
-import { calcRecipeCalories } from '@/utils/macroMath'
+import TrashIcon from '@/sections/common/components/icons/TrashIcon'
+import PasteIcon from '@/sections/common/components/icons/PasteIcon'
+import CopyIcon from '@/sections/common/components/icons/CopyIcon'
+import FoodItemListView from '@/sections/template/item/components/FoodItemListView'
+import { calcRecipeCalories } from '@/legacy/utils/macroMath'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { regenerateId } from '@/utils/idUtils'
-import { TemplateItem } from '@/model/templateItemModel'
+import { regenerateId } from '@/legacy/utils/idUtils'
+import { TemplateItem } from '@/legacy/model/templateItemModel'
 import useClipboard, {
   createClipboardSchemaFilter,
 } from '@/sections/common/hooks/useClipboard'
-import { deserializeClipboard } from '@/utils/clipboardUtils'
-import { convertToGroups } from '@/utils/groupUtils'
-import { mealSchema } from '@/model/mealModel'
-import { itemGroupSchema } from '@/model/itemGroupModel'
+import { deserializeClipboard } from '@/legacy/utils/clipboardUtils'
+import { convertToGroups } from '@/legacy/utils/groupUtils'
+import { mealSchema } from '@/legacy/model/mealModel'
+import { itemGroupSchema } from '@/legacy/model/itemGroupModel'
 import { useFloatField } from '@/sections/common/hooks/useField'
 import { FloatInput } from '@/sections/common/components/FloatInput'
-import { RecipeEditor } from '@/utils/data/recipeEditor'
+import { RecipeEditor } from '@/legacy/utils/data/recipeEditor'
 import { Signal, computed } from '@preact/signals-react'
-import { cn } from '@/utils/cn'
+import { cn } from '@/legacy/utils/cn'
 
 export type RecipeEditViewProps = {
   recipe: Signal<Recipe>

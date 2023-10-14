@@ -1,6 +1,6 @@
 'use client'
 import { useDaysContext } from '@/sections/day/context/DaysContext'
-import Capsule from '@/src/sections/common/components/capsule/Capsule'
+import Capsule from '@/sections/common/components/capsule/Capsule'
 
 import {
   Area,
@@ -12,20 +12,24 @@ import {
   ComposedChart,
   Line,
 } from 'recharts'
-import { calcCalories, calcDayCalories, calcDayMacros } from '@/utils/macroMath'
+import {
+  calcCalories,
+  calcDayCalories,
+  calcDayMacros,
+} from '@/legacy/utils/macroMath'
 import { useUserContext, useUserId } from '@/sections/user/context/UserContext'
 import { calculateMacroTarget } from '@/sections/macros/components/MacroTargets'
-import { inForceWeight } from '@/utils/weightUtils'
+import { inForceWeight } from '@/legacy/utils/weightUtils'
 import { useWeights } from '@/sections/profile/weight/hooks/useWeights'
 import { useMacroProfiles } from '@/sections/profile/macros/hooks/useMacroProfiles'
 import {
   inForceMacroProfile,
   latestMacroProfile,
-} from '@/utils/macroProfileUtils'
-import { Day } from '@/model/dayModel'
-import { MacroProfile } from '@/model/macroProfileModel'
-import { dateToDDMM } from '@/utils/dateUtils'
-import { Weight } from '@/model/weightModel'
+} from '@/legacy/utils/macroProfileUtils'
+import { Day } from '@/legacy/model/dayModel'
+import { MacroProfile } from '@/legacy/model/macroProfileModel'
+import { dateToDDMM } from '@/legacy/utils/dateUtils'
+import { Weight } from '@/legacy/model/weightModel'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
