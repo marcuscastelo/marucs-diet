@@ -7,9 +7,9 @@ import { CSSProperties } from 'react'
 import { calcCalories } from '@/legacy/utils/macroMath'
 import { useUserContext } from '@/sections/user/context/UserContext'
 import { latestWeight } from '@/legacy/utils/weightUtils'
-import { useWeights } from '@/sections/profile/weight/hooks/useWeights'
-import { useMacroProfiles } from '@/sections/profile/macros/hooks/useMacroProfiles'
+import { useMacroProfiles } from '@/sections/macro-profile/hooks/useMacroProfiles'
 import { latestMacroProfile } from '@/legacy/utils/macroProfileUtils'
+import { useWeightContext } from '@/src/sections/weight/context/WeightContext'
 
 export default function DayMacros({
   macros,
@@ -20,7 +20,7 @@ export default function DayMacros({
 }) {
   const { user } = useUserContext()
 
-  const { weights } = useWeights(user.id)
+  const { weights } = useWeightContext()
   const { macroProfiles } = useMacroProfiles(user.id)
 
   if (weights.loading || weights.errored) {
