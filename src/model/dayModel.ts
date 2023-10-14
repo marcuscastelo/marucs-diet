@@ -1,0 +1,11 @@
+import { z } from 'zod'
+import { mealSchema } from '@/model/mealModel'
+
+export const daySchema = z.object({
+  id: z.number(),
+  target_day: z.string(), // TODO: retriggered: use supabase date type
+  owner: z.number(),
+  meals: z.array(mealSchema),
+})
+
+export type Day = Readonly<z.infer<typeof daySchema>>
