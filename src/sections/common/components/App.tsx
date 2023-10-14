@@ -1,24 +1,22 @@
 'use client'
 
 import ConfirmModal from '@/sections/common/components/ConfirmModal'
-import { ConfirmModalProvider } from '@/context/confirmModal.context'
-import { DaysContextProvider } from '@/context/days.context'
-import { FoodContextProvider, TemplateStore } from '@/context/template.context'
+import { ConfirmModalProvider } from '@/sections/common/context/ConfirmModalContext'
+import { DaysContextProvider } from '@/sections/day/context/DaysContext'
+import {
+  FoodContextProvider,
+  TemplateStore,
+} from '@/sections/template/context/TemplateContext'
 import {
   UserContextProvider,
   useUserContext,
   useUserId,
-} from '@/context/users.context'
+} from '@/sections/user/context/UserContext'
 import { listDays } from '@/controllers/days'
 import { listFoods, searchFoodsByName } from '@/controllers/food'
 import { fetchUserRecentFoods } from '@/controllers/recentFood'
-import {
-  listRecipes,
-  searchRecipeById,
-  searchRecipeByName,
-} from '@/controllers/recipes'
+import { listRecipes, searchRecipeByName } from '@/controllers/recipes'
 import { updateUser } from '@/controllers/users'
-import { Food } from '@/model/foodModel'
 import { Template } from '@/model/templateModel'
 import { User } from '@/model/userModel'
 

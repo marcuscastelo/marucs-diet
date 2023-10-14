@@ -1,6 +1,6 @@
 'use client'
 
-import { useConfirmModalContext } from '@/context/confirmModal.context'
+import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { deleteDay } from '@/controllers/days'
 import { Day } from '@/model/dayModel'
 import { ReadonlySignal } from '@preact/signals-react'

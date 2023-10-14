@@ -3,10 +3,10 @@
 import { usePathname, useRouter } from 'next/navigation'
 import { ReactNode, useEffect } from 'react'
 import { UserIcon } from '@/sections/common/components/UserIcon'
-import { useConfirmModalContext } from '@/context/confirmModal.context'
+import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { useFetch } from '@/hooks/fetch'
 import { fetchUsers } from '@/controllers/users'
-import { AvaliableUser, useUserId } from '@/context/users.context'
+import { AvaliableUser, useUserId } from '@/sections/user/context/UserContext'
 import { changeUser } from '@/actions/user'
 
 export function BottomNavigation() {

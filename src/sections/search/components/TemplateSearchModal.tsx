@@ -5,21 +5,21 @@ import {
   useModalContext,
   ModalContextProvider,
 } from '@/src/sections/common/context/ModalContext'
-import FoodItemView from '@/sections/food/item/components/FoodItemView'
+import FoodItemView from '@/src/sections/template/item/components/FoodItemView'
 import { Alert } from 'flowbite-react'
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import BarCodeInsertModal from '@/sections/search/barcode/components/BarCodeInsertModal'
 import { Recipe } from '@/model/recipeModel'
 import PageLoading from '@/sections/common/components/PageLoading'
-import FoodItemEditModal from '@/sections/food/item/components/FoodItemEditModal'
-import { useUserContext, useUserId } from '@/context/users.context'
+import FoodItemEditModal from '@/src/sections/template/item/components/FoodItemEditModal'
+import { useUserContext, useUserId } from '@/sections/user/context/UserContext'
 import {
   ItemGroup,
   RecipedItemGroup,
   SimpleItemGroup,
 } from '@/model/itemGroupModel'
-import { useConfirmModalContext } from '@/context/confirmModal.context'
-import { useFoodContext } from '@/context/template.context'
+import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
+import { useFoodContext } from '@/sections/template/context/TemplateContext'
 import { addId, generateId } from '@/utils/idUtils'
 import {
   AvailableTab,

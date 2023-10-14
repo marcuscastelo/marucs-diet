@@ -1,10 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import FoodItemView from '@/sections/food/item/components/FoodItemView'
+import FoodItemView from '@/src/sections/template/item/components/FoodItemView'
 import { searchFoodsByEan } from '@/controllers/food'
 import { Food } from '@/model/foodModel'
-import { useUserContext } from '@/context/users.context'
+import { useUserContext } from '@/sections/user/context/UserContext'
 import { createFoodItem } from '@/model/foodItemModel'
 import { MacroNutrients } from '@/model/macroNutrientsModel'
 import {

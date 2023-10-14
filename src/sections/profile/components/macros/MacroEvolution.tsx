@@ -1,5 +1,5 @@
 'use client'
-import { useDaysContext } from '@/context/days.context'
+import { useDaysContext } from '@/sections/day/context/DaysContext'
 import Capsule from '@/src/sections/common/components/capsule/Capsule'
 
 import {
@@ -13,7 +13,7 @@ import {
   Line,
 } from 'recharts'
 import { calcCalories, calcDayCalories, calcDayMacros } from '@/utils/macroMath'
-import { useUserContext, useUserId } from '@/context/users.context'
+import { useUserContext, useUserId } from '@/sections/user/context/UserContext'
 import { calculateMacroTarget } from '@/sections/macros/components/MacroTargets'
 import { inForceWeight } from '@/utils/weightUtils'
 import { useWeights } from '@/hooks/weights'

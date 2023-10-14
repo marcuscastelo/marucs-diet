@@ -1,6 +1,6 @@
 'use client'
 
-import { useConfirmModalContext } from '@/context/confirmModal.context'
+import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { deleteMacroProfile } from '@/controllers/macroProfiles'
 import { MacroNutrients } from '@/model/macroNutrientsModel'
 import { MacroProfile } from '@/model/macroProfileModel'

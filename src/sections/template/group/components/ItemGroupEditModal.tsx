@@ -9,13 +9,13 @@ import {
 } from '@/model/itemGroupModel'
 import { useCallback, useState } from 'react'
 import Modal, { ModalActions } from '@/sections/common/components/Modal'
-import FoodItemListView from '@/sections/food/item/components/FoodItemListView'
-import FoodItemView from '@/sections/food/item/components/FoodItemView'
+import FoodItemListView from '@/src/sections/template/item/components/FoodItemListView'
+import FoodItemView from '@/src/sections/template/item/components/FoodItemView'
 import { FoodItem, createFoodItem, foodItemSchema } from '@/model/foodItemModel'
 import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
-import FoodItemEditModal from '@/sections/food/item/components/FoodItemEditModal'
+import FoodItemEditModal from '@/src/sections/template/item/components/FoodItemEditModal'
 import RecipeIcon from '@/sections/common/components/icons/RecipeIcon'
-import { RecipeEditModal } from '@/sections/food/recipe/components/RecipeEditModal'
+import { RecipeEditModal } from '@/src/sections/template/recipe/components/RecipeEditModal'
 import { Recipe, createRecipe } from '@/model/recipeModel'
 import { Loadable } from '@/utils/loadable'
 import PageLoading from '@/sections/common/components/PageLoading'
@@ -27,15 +27,15 @@ import {
 import {
   ItemGroupEditContextProvider,
   useItemGroupEditContext,
-} from '@/sections/food/group/context/ItemGroupEditContext'
-import { useUserContext, useUserId } from '@/context/users.context'
+} from '@/src/sections/template/group/context/ItemGroupEditContext'
+import { useUserContext, useUserId } from '@/sections/user/context/UserContext'
 import {
   ModalContextProvider,
   useModalContext,
 } from '@/src/sections/common/context/ModalContext'
 import { isRecipedGroupUpToDate } from '@/utils/groupUtils'
 import { DownloadIcon } from '@/src/sections/common/components/icons/DownloadIcon'
-import { useConfirmModalContext } from '@/context/confirmModal.context'
+import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import useClipboard from '@/hooks/clipboard'
 import PasteIcon from '@/src/sections/common/components/icons/PasteIcon'
 import { deserializeClipboard } from '@/utils/clipboardUtils'

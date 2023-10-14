@@ -5,11 +5,11 @@ import { MacroNutrients } from '@/model/macroNutrientsModel'
 import {
   FoodItemContextProvider,
   useFoodItemContext,
-} from '@/sections/food/item/context/FoodItemContext'
+} from '@/src/sections/template/item/context/FoodItemContext'
 import CopyIcon from '@/src/sections/common/components/icons/CopyIcon'
 import { searchFoodById } from '@/controllers/food'
 import { calcItemCalories } from '@/utils/macroMath'
-import { useUserContext } from '@/context/users.context'
+import { useUserContext } from '@/sections/user/context/UserContext'
 import { searchRecipeById } from '@/controllers/recipes'
 import { TemplateItem } from '@/model/templateItemModel'
 import { Template } from '@/model/templateModel'

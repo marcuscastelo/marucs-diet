@@ -3,7 +3,7 @@
 import { Tabs } from 'flowbite-react'
 import { ObjectValues } from '@/utils/typeUtils'
 import { Loadable, UnboxedLoadable } from '@/utils/loadable'
-import { TemplateStore } from '@/context/template.context'
+import { TemplateStore } from '@/sections/template/context/TemplateContext'
 import { Template } from '@/model/templateModel'
 
 type TabDefinition = {

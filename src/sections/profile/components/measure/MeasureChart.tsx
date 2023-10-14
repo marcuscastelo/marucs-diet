@@ -11,7 +11,7 @@ import {
 } from 'recharts'
 import { Measure } from '@/model/measureModel'
 import { BodyFatInput, calculateBodyFat } from '@/utils/bfMath'
-import { useUserGender, useUserId } from '@/context/users.context'
+import { useUserGender, useUserId } from '@/sections/user/context/UserContext'
 import { useWeights } from '@/hooks/weights'
 type DayAverage = Omit<Measure, '__type' | 'id' | 'owner' | 'target_timestamp'>
 type DayMeasures = {

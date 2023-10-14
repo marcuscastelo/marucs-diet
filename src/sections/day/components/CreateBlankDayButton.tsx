@@ -1,6 +1,6 @@
 'use client'
 
-import { useUserContext } from '@/context/users.context'
+import { useUserContext } from '@/sections/user/context/UserContext'
 import { upsertDay } from '@/controllers/days'
 import { createDay } from '@/src/model/dayModel'
 
