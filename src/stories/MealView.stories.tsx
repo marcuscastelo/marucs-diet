@@ -15,7 +15,7 @@ type Story = StoryObj<typeof MealEditView>
 export const Root: Story = {
   args: {
     // TODO: fix stories after hexagonal refactor
-    meal: computed(() => null as any), // TODO: display group with 3 (orange), group with 1 (white), and recipe (blue)
+    meal: null as any, // TODO: display group with 3 (orange), group with 1 (white), and recipe (blue)
   },
   render: (args) => (
     <MealEditView
