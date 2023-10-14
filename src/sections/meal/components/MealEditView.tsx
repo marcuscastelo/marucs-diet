@@ -2,8 +2,8 @@
 
 import { Meal, mealSchema } from '@/modules/meal/domain/meal'
 import {
-  MealContextProvider,
-  useMealContext,
+  MealContextProviderOld,
+  useMealContextOld,
 } from '@/sections/meal/context/MealContext'
 import { useCallback } from 'react'
 import TrashIcon from '@/sections/common/components/icons/TrashIcon'
@@ -68,11 +68,11 @@ export default function MealEditView({
     <div
       className={`bg-gray-800 p-3 ${className === undefined ? '' : className}`}
     >
-      <MealContextProvider meal={meal}>
+      <MealContextProviderOld meal={meal}>
         {header}
         {content}
         {actions}
-      </MealContextProvider>
+      </MealContextProviderOld>
     </div>
   )
 }
@@ -90,7 +90,7 @@ function MealEditViewHeader({
     .or(itemGroupSchema)
     .or(foodItemSchema)
     .or(recipeSchema)
-  const { meal } = useMealContext()
+  const { meal } = useMealContextOld()
   const { show: showConfirmModal } = useConfirmModalContext()
 
   const isClipboardValid = createClipboardSchemaFilter(acceptedClipboardSchema)
@@ -227,7 +227,7 @@ function MealEditViewContent({
 }: {
   onEditItemGroup: (item: ItemGroup) => void
 }) {
-  const { meal } = useMealContext()
+  const { meal } = useMealContextOld()
 
   useSignalEffect(() => {
     console.debug(`[MealEditViewContent] meal.value changed:`, meal.value)

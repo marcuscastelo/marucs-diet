@@ -216,7 +216,7 @@ function WeightChart({
   weights,
   desiredWeight,
 }: {
-  weights: Weight[]
+  weights: readonly Weight[]
   desiredWeight: number
 }) {
   type DayWeight = OHLC & {
@@ -236,7 +236,7 @@ function WeightChart({
     {} as { [day: string]: Weight[] },
   )
 
-  const data: DayWeight[] = Object.entries(weightsByDay)
+  const data: readonly DayWeight[] = Object.entries(weightsByDay)
     .map(([day, weights]) => {
       const open = firstWeight(weights)?.weight ?? 0
       const low = Math.min(...weights.map((weight) => weight.weight))

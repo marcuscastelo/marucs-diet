@@ -1,21 +1,21 @@
 import { Weight } from '@/modules/weight/domain/weight'
 import { inForceGeneric } from '@/legacy/utils/generic/inForce'
 
-export function latestWeight(weights: Weight[]) {
+export function latestWeight(weights: readonly Weight[]) {
   if (weights.length === 0) {
     return null
   }
   return weights[weights.length - 1]
 }
 
-export function firstWeight(weights: Weight[]) {
+export function firstWeight(weights: readonly Weight[]) {
   if (weights.length === 0) {
     return null
   }
   return weights[0]
 }
 
-export function calculateWeightChange(weights: Weight[]) {
+export function calculateWeightChange(weights: readonly Weight[]) {
   const first = firstWeight(weights)
   if (first === null) {
     return null
@@ -30,7 +30,7 @@ export function calculateWeightChange(weights: Weight[]) {
 }
 
 export function calculateWeightProgress(
-  weights: Weight[],
+  weights: readonly Weight[],
   desiredWeight: number,
 ) {
   const change = calculateWeightChange(weights)
@@ -48,6 +48,6 @@ export function calculateWeightProgress(
   return percentageChange // 0
 }
 
-export function inForceWeight(weights: Weight[], date: Date) {
+export function inForceWeight(weights: readonly Weight[], date: Date) {
   return inForceGeneric(weights, 'target_timestamp', date)
 }

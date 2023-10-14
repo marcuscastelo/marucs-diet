@@ -2,7 +2,10 @@
 
 import ConfirmModal from '@/sections/common/components/ConfirmModal'
 import { ConfirmModalProvider } from '@/sections/common/context/ConfirmModalContext'
-import { DayContextProvider } from '@/sections/day/context/DaysContext'
+import {
+  DayContextProvider,
+  useDayContext,
+} from '@/sections/day/context/DaysContext'
 import {
   FoodContextProvider,
   TemplateStore,
@@ -21,6 +24,8 @@ import { User } from '@/modules/user/domain/user'
 import { WeightContextProvider } from '@/src/sections/weight/context/WeightContext'
 import { createSupabaseWeightRepository } from '@/src/modules/weight/infrastructure/supabaseWeightRepository'
 import { createSupabaseDayRepository } from '@/src/modules/day/infrastructure/supabaseDayRepository'
+import { MealContextProvider } from '@/src/sections/meal/context/MealContext'
+import { createDerivedMealRepository } from '@/src/modules/meal/infrastructure/derivedMealRepository'
 
 export default function App({
   user,
@@ -35,9 +40,11 @@ export default function App({
     <AppUserProvider user={user} onSaveUser={onSaveUser}>
       <AppWeightProvider userId={user.id}>
         <AppDayProvider>
-          <AppConfirmModalProvider>
-            <AppFoodsProvider>{children}</AppFoodsProvider>
-          </AppConfirmModalProvider>
+          <AppHackyMealProvider>
+            <AppConfirmModalProvider>
+              <AppFoodsProvider>{children}</AppFoodsProvider>
+            </AppConfirmModalProvider>
+          </AppHackyMealProvider>
         </AppDayProvider>
       </AppWeightProvider>
     </AppUserProvider>
@@ -82,6 +89,26 @@ function AppDayProvider({ children }: { children: React.ReactNode }) {
     <DayContextProvider userId={userId} repository={dayRepository}>
       {children}
     </DayContextProvider>
+  )
+}
+
+// TODO: Remove this hacky provider when Meal is an entity in the DB
+function AppHackyMealProvider({ children }: { children: React.ReactNode }) {
+  console.debug(`[AppDaysProvider] - Rendering`)
+
+  const { days } = useDayContext()
+  const dayRepository = createSupabaseDayRepository()
+
+  if (days.loading || days.errored) {
+    return <>Loading days...</>
+  }
+
+  const mealRepository = createDerivedMealRepository(days.data, dayRepository)
+
+  return (
+    <MealContextProvider repository={mealRepository}>
+      {children}
+    </MealContextProvider>
   )
 }
 

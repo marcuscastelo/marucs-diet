@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { createContext, useContext } from 'use-context-selector'
 
 export type WeightContextProps = {
-  weights: Loadable<Weight[]>
+  weights: Loadable<readonly Weight[]>
   refetchWeights: () => void
   insertWeight: (weight: DbReady<Weight>) => void
   updateWeight: (weightId: Weight['id'], weight: DbReady<Weight>) => void
@@ -41,7 +41,9 @@ export function WeightContextProvider({
   userId: User['id']
   repository: WeightRepository
 }) {
-  const [weights, setWeights] = useState<Loadable<Weight[]>>({ loading: true })
+  const [weights, setWeights] = useState<Loadable<readonly Weight[]>>({
+    loading: true,
+  })
 
   const handleFetch = useCallback(() => {
     repository

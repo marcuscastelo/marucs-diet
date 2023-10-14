@@ -26,7 +26,7 @@ const colors = [
   '#17becf',
 ]
 
-const prepareData = <T extends OHLC>(data: T[]) => {
+const prepareData = <T extends OHLC>(data: readonly T[]) => {
   return data.map(({ open, close, ...other }) => {
     return {
       ...other,
@@ -39,7 +39,7 @@ export const CandleStickChart = <T extends OHLC & Record<string, unknown>>({
   data: rawData,
   children,
 }: {
-  data: T[]
+  data: readonly T[]
   children?: React.ReactNode
 }) => {
   const data = prepareData(rawData)

@@ -7,7 +7,7 @@ import { DbReady } from '@/src/legacy/utils/newDbRecord'
 import { DayRepository } from '@/src/modules/day/domain/dayRepository'
 
 export type DayContextProps = {
-  days: Loadable<Day[]>
+  days: Loadable<readonly Day[]>
   refetchDays: () => void
   insertDay: (day: DbReady<Day>) => void
   updateDay: (dayId: Day['id'], day: DbReady<Day>) => void
@@ -37,7 +37,7 @@ export function DayContextProvider({
   repository: DayRepository
 }) {
   // TODO: Convert all states to signals
-  const [days, setDays] = useState<Loadable<Day[]>>({ loading: true })
+  const [days, setDays] = useState<Loadable<readonly Day[]>>({ loading: true })
 
   const handleFetchDays = useCallback(() => {
     setDays({ loading: true })
