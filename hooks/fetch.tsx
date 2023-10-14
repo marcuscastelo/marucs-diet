@@ -20,5 +20,5 @@ export function useFetch<T, P extends Array<any>>(fetchFunc: FetchFunc<T, P>) {
   return {
     data,
     fetch: handleFetch,
-  }
+  } as const
 }
