@@ -1,5 +1,5 @@
 import DatepickerRouter from '@/components/DatepickerRouter'
-
+// TODO: make day/TopBar a common component
 export default function TopBar({ selectedDay }: { selectedDay: string }) {
   return (
     <>

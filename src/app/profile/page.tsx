@@ -1,13 +1,14 @@
+import { BasicInfo } from '@/sections/profile/components/BasicInfo'
+import { WeightEvolution } from '@/sections/profile/components/weight/WeightEvolution'
+import { MeasuresEvolution } from '@/sections/profile/components/measure/MeasuresEvolution'
+
 import { fetchUser, updateUser } from '@/controllers/users'
 import { MacroTarget } from '@/app/MacroTargets'
 import { revalidatePath } from 'next/cache'
-import { BasicInfo } from '@/app/profile/BasicInfo'
 import { getUser } from '@/actions/user'
-import { MacroEvolution } from '@/app/profile/macros/MacroEvolution'
-import { WeightEvolution } from '@/app/profile/weight/WeightEvolution'
+import { MacroEvolution } from '@/src/sections/profile/components/macros/MacroEvolution'
 import { fetchUserWeights } from '@/controllers/weights'
 import { latestWeight } from '@/utils/weightUtils'
-import { MeasuresEvolution } from '@/app/profile/measure/MeasuresEvolution'
 import { User } from '@/model/userModel'
 import { MacroProfile } from '@/model/macroProfileModel'
 import {

@@ -1,8 +1,8 @@
 'use client'
 
 import { Day } from '@/model/dayModel'
-import CreateBlankDayButton from '@/app/day/[day]/CreateBlankDayButton'
-import CopyLastDayButton from '@/app/day/[day]/CopyLastDayButton'
+import CreateBlankDayButton from '@/sections/day/components/CreateBlankDayButton'
+import CopyLastDayButton from '@/sections/day/components/CopyLastDayButton'
 import { computed } from '@preact/signals-react'
 
 export default function DayNotFound({
