@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import RecipeEditView, {
   RecipeEditViewProps,
-} from '@/app/(recipe)/RecipeEditView'
-import ServerApp from '@/app/ServerApp'
+} from '@/sections/food/recipe/components/RecipeEditView'
+import ServerApp from '@/sections/common/components/ServerApp'
 import { signal } from '@preact/signals-react'
 
 const meta: Meta<typeof RecipeEditView> = {

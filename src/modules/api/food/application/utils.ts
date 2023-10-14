@@ -6,7 +6,7 @@ import {
   EXTERNAL_API_FOOD_PARAMS,
   EXTERNAL_API_HOST,
   EXTERNAL_API_REFERER,
-} from '@/app/api/apiSecrets'
+} from '@/modules/api/apiSecrets'
 
 export const searchFoodNameInternal = async (food: string) => {
   const url = `${EXTERNAL_API_BASE_URL}/${EXTERNAL_API_FOOD_ENDPOINT}`

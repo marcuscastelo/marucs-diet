@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import FoodItemEditModal, {
   FoodItemEditModalProps,
-} from '@/app/(foodItem)/FoodItemEditModal'
-import { ModalContextProvider } from '@/app/(modals)/ModalContext'
-import ServerApp from '@/app/ServerApp'
+} from '@/sections/food/item/components/FoodItemEditModal'
+import { ModalContextProvider } from '@/src/sections/common/context/ModalContext'
+import ServerApp from '@/sections/common/components/ServerApp'
 import { computed, signal } from '@preact/signals-react'
 import { createFoodItem } from '../model/foodItemModel'
 

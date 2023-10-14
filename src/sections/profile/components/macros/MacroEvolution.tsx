@@ -14,7 +14,7 @@ import {
 } from 'recharts'
 import { calcCalories, calcDayCalories, calcDayMacros } from '@/utils/macroMath'
 import { useUserContext, useUserId } from '@/context/users.context'
-import { calculateMacroTarget } from '@/app/MacroTargets'
+import { calculateMacroTarget } from '@/sections/macros/components/MacroTargets'
 import { inForceWeight } from '@/utils/weightUtils'
 import { useWeights } from '@/hooks/weights'
 import { useMacroProfiles } from '@/hooks/macroProfiles'

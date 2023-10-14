@@ -1,12 +1,12 @@
 'use client'
 
-import MacroNutrientsView from '@/app/MacroNutrientsView'
+import MacroNutrientsView from '@/sections/macros/components/MacroNutrientsView'
 import { MacroNutrients } from '@/model/macroNutrientsModel'
 import {
   FoodItemContextProvider,
   useFoodItemContext,
-} from '@/app/(foodItem)/FoodItemContext'
-import CopyIcon from '@/app/(icons)/CopyIcon'
+} from '@/sections/food/item/context/FoodItemContext'
+import CopyIcon from '@/src/sections/common/components/icons/CopyIcon'
 import { searchFoodById } from '@/controllers/food'
 import { calcItemCalories } from '@/utils/macroMath'
 import { useUserContext } from '@/context/users.context'

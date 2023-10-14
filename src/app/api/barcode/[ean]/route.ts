@@ -9,7 +9,7 @@ import {
   EXTERNAL_API_EAN_ENDPOINT,
   EXTERNAL_API_HOST,
   EXTERNAL_API_REFERER,
-} from '@/app/api/apiSecrets'
+} from '@/modules/api/apiSecrets'
 
 // TODO: rename all barcodes to EAN?
 const searchBarCodeInternal = async (barcode: string) => {

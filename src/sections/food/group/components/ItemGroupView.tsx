@@ -1,12 +1,12 @@
 'use client'
 
-import MacroNutrientsView from '@/app/MacroNutrientsView'
+import MacroNutrientsView from '@/sections/macros/components/MacroNutrientsView'
 import { MacroNutrients } from '@/model/macroNutrientsModel'
-import CopyIcon from '@/app/(icons)/CopyIcon'
+import CopyIcon from '@/src/sections/common/components/icons/CopyIcon'
 import {
   ItemGroupEditContextProvider,
   useItemGroupEditContext,
-} from '@/app/(itemGroup)/ItemGroupEditContext'
+} from '@/sections/food/group/context/ItemGroupEditContext'
 import { ItemGroup, isSimpleSingleGroup } from '@/model/itemGroupModel'
 import { calcGroupCalories, calcGroupMacros } from '@/utils/macroMath'
 import { useUserContext } from '@/context/users.context'

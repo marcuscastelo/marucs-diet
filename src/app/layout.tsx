@@ -1,7 +1,7 @@
 import '@/styles/globals.css'
 import { Inter } from 'next/font/google'
 
-import ServerApp from '@/app/ServerApp'
+import ServerApp from '@/sections/common/components/ServerApp'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {

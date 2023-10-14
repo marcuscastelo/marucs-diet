@@ -8,17 +8,17 @@ import {
   recipedItemGroup,
 } from '@/model/itemGroupModel'
 import { useCallback, useState } from 'react'
-import Modal, { ModalActions } from '@/app/(modals)/Modal'
-import FoodItemListView from '@/app/(foodItem)/FoodItemListView'
-import FoodItemView from '@/app/(foodItem)/FoodItemView'
+import Modal, { ModalActions } from '@/sections/common/components/Modal'
+import FoodItemListView from '@/sections/food/item/components/FoodItemListView'
+import FoodItemView from '@/sections/food/item/components/FoodItemView'
 import { FoodItem, createFoodItem, foodItemSchema } from '@/model/foodItemModel'
 import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
-import FoodItemEditModal from '@/app/(foodItem)/FoodItemEditModal'
-import RecipeIcon from '@/app/(icons)/RecipeIcon'
-import { RecipeEditModal } from '@/app/(recipe)/RecipeEditModal'
+import FoodItemEditModal from '@/sections/food/item/components/FoodItemEditModal'
+import RecipeIcon from '@/sections/common/components/icons/RecipeIcon'
+import { RecipeEditModal } from '@/sections/food/recipe/components/RecipeEditModal'
 import { Recipe, createRecipe } from '@/model/recipeModel'
 import { Loadable } from '@/utils/loadable'
-import PageLoading from '@/app/PageLoading'
+import PageLoading from '@/sections/common/components/PageLoading'
 import {
   searchRecipeById,
   updateRecipe,
@@ -27,17 +27,17 @@ import {
 import {
   ItemGroupEditContextProvider,
   useItemGroupEditContext,
-} from '@/app/(itemGroup)/ItemGroupEditContext'
+} from '@/sections/food/group/context/ItemGroupEditContext'
 import { useUserContext, useUserId } from '@/context/users.context'
 import {
   ModalContextProvider,
   useModalContext,
-} from '@/app/(modals)/ModalContext'
+} from '@/src/sections/common/context/ModalContext'
 import { isRecipedGroupUpToDate } from '@/utils/groupUtils'
-import { DownloadIcon } from '@/app/(icons)/DownloadIcon'
+import { DownloadIcon } from '@/src/sections/common/components/icons/DownloadIcon'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import useClipboard from '@/hooks/clipboard'
-import PasteIcon from '@/app/(icons)/PasteIcon'
+import PasteIcon from '@/src/sections/common/components/icons/PasteIcon'
 import { deserializeClipboard } from '@/utils/clipboardUtils'
 import { regenerateId } from '@/utils/idUtils'
 import { ItemGroupEditor } from '@/utils/data/itemGroupEditor'
@@ -49,10 +49,9 @@ import {
   useSignal,
   useSignalEffect,
 } from '@preact/signals-react'
-import { ConvertToRecipeIcon } from '@/app/(icons)/ConvertToRecipeIcon'
+import { ConvertToRecipeIcon } from '@/src/sections/common/components/icons/ConvertToRecipeIcon'
 import { batch } from 'react-redux'
 import { deepCopy } from '@/utils/deepCopy'
-import { useRecipe } from '@/hooks/recipe'
 import { useFloatField } from '@/hooks/field'
 import { FloatInput } from '@/sections/common/components/FloatInput'
 

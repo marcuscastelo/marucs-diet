@@ -1,13 +1,16 @@
 'use client'
 
 import { Meal, mealSchema } from '@/model/mealModel'
-import { MealContextProvider, useMealContext } from '@/app/(meal)/MealContext'
+import {
+  MealContextProvider,
+  useMealContext,
+} from '@/sections/meal/context/MealContext'
 import { useCallback } from 'react'
-import TrashIcon from '@/app/(icons)/TrashIcon'
-import PasteIcon from '@/app/(icons)/PasteIcon'
-import CopyIcon from '@/app/(icons)/CopyIcon'
+import TrashIcon from '@/src/sections/common/components/icons/TrashIcon'
+import PasteIcon from '@/src/sections/common/components/icons/PasteIcon'
+import CopyIcon from '@/src/sections/common/components/icons/CopyIcon'
 import { calcMealCalories } from '@/utils/macroMath'
-import ItemGroupListView from '@/app/(itemGroup)/ItemGroupListView'
+import ItemGroupListView from '@/sections/food/group/components/ItemGroupListView'
 import { ItemGroup, itemGroupSchema } from '@/model/itemGroupModel'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import useClipboard, { createClipboardSchemaFilter } from '@/hooks/clipboard'

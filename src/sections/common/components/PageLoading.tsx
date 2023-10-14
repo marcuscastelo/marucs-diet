@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import LoadingRing from '@/app/LoadingRing'
+import LoadingRing from '@/sections/common/components/LoadingRing'
 
 export type PageLoadingProps = {
   message: string

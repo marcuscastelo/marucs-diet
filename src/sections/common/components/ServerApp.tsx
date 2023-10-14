@@ -1,5 +1,5 @@
 import { fetchUser } from '@/controllers/users'
-import App from '@/app/App'
+import App from '@/sections/common/components/App'
 import { getUser } from '@/actions/user'
 import { revalidatePath } from 'next/cache'
 

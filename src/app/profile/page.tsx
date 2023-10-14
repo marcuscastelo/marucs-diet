@@ -3,7 +3,7 @@ import { WeightEvolution } from '@/sections/profile/components/weight/WeightEvol
 import { MeasuresEvolution } from '@/sections/profile/components/measure/MeasuresEvolution'
 
 import { fetchUser, updateUser } from '@/controllers/users'
-import { MacroTarget } from '@/app/MacroTargets'
+import { MacroTarget } from '@/sections/macros/components/MacroTargets'
 import { revalidatePath } from 'next/cache'
 import { getUser } from '@/actions/user'
 import { MacroEvolution } from '@/src/sections/profile/components/macros/MacroEvolution'
