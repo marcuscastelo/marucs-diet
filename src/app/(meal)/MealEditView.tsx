@@ -14,7 +14,7 @@ import useClipboard, { createClipboardSchemaFilter } from '@/hooks/clipboard'
 import { addInnerGroups } from '@/utils/mealUtils'
 import { deserializeClipboard } from '@/utils/clipboardUtils'
 import { convertToGroups } from '@/utils/groupUtils'
-import { renegerateId } from '@/utils/idUtils'
+import { regenerateId } from '@/utils/idUtils'
 import { foodItemSchema } from '@/model/foodItemModel'
 import { recipeSchema } from '@/model/recipeModel'
 import {
@@ -109,10 +109,10 @@ function MealEditViewHeader({
     }
 
     const groupsToAdd = convertToGroups(data)
-      .map(renegerateId)
+      .map(regenerateId)
       .map((g) => ({
         ...g,
-        items: g.items.map(renegerateId),
+        items: g.items.map(regenerateId),
       }))
 
     // TODO: Create RecipeEditor, MealEditor, ItemGroupEditor, FoodItemEditor classes to avoid this code duplication and error proneness

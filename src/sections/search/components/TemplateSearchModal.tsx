@@ -10,7 +10,6 @@ import { Alert } from 'flowbite-react'
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import BarCodeInsertModal from '@/sections/search/barcode/components/BarCodeInsertModal'
 import { Recipe } from '@/model/recipeModel'
-import { mockFood } from '@/app/test/unit/(mock)/mockData'
 import PageLoading from '@/app/PageLoading'
 import FoodItemEditModal from '@/app/(foodItem)/FoodItemEditModal'
 import { useUserContext, useUserId } from '@/context/users.context'
@@ -21,7 +20,7 @@ import {
 } from '@/model/itemGroupModel'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import { useFoodContext } from '@/context/template.context'
-import { generateId } from '@/utils/idUtils'
+import { addId, generateId } from '@/utils/idUtils'
 import {
   AvailableTab,
   TemplateSearchTabs,
@@ -41,9 +40,9 @@ import {
   ReadonlySignal,
   Signal,
   computed,
-  useComputed,
   useSignal,
 } from '@preact/signals-react'
+import { createFood } from '@/src/model/foodModel'
 
 export type TemplateSearchModalProps = {
   targetName: string
@@ -68,7 +67,7 @@ export function TemplateSearchModal({
   const barCodeModalVisible = useSignal(false)
 
   const selectedTemplate = useSignal<Template>(
-    mockFood({ name: 'BUG: SELECTED TEMPLATE NOT SET' }), // TODO: Properly handle no template selected
+    addId(createFood({ name: 'BUG: SELECTED TEMPLATE NOT SET' })), // TODO: Properly handle no template selected
   )
 
   const handleNewItemGroup = async (
@@ -115,17 +114,21 @@ export function TemplateSearchModal({
             // TODO: Fix "Add another item" button: it is not refreshing client-side data
             alert('Funcionalidade desabilitada temporariamente') // TODO: Change all alerts with ConfirmModal
             // Code from "Finalizar" button
-            selectedTemplate.value = mockFood({
-              name: 'BUG: SELECTED FOOD NOT SET',
-            })
+            selectedTemplate.value = addId(
+              createFood({
+                name: 'BUG: SELECTED FOOD NOT SET',
+              }),
+            )
             foodItemEditModalVisible.value = false
             onFinish?.()
             // -- End of "Finalizar" button code
             return
-            // TODO: Remove mockFood as default selected food
-            selectedTemplate.value = mockFood({
-              name: 'BUG: SELECTED FOOD NOT SET',
-            })
+            // TODO: Remove createFood as default selected food
+            selectedTemplate.value = addId(
+              createFood({
+                name: 'BUG: SELECTED FOOD NOT SET',
+              }),
+            )
             foodItemEditModalVisible.value = false
           },
         },
@@ -133,10 +136,12 @@ export function TemplateSearchModal({
           text: 'Finalizar',
           primary: true,
           onClick: () => {
-            // TODO: Remove mockFood as default selected food
-            selectedTemplate.value = mockFood({
-              name: 'BUG: SELECTED FOOD NOT SET',
-            })
+            // TODO: Remove createFood as default selected food
+            selectedTemplate.value = addId(
+              createFood({
+                name: 'BUG: SELECTED FOOD NOT SET',
+              }),
+            )
             foodItemEditModalVisible.value = false
             onFinish?.()
           },

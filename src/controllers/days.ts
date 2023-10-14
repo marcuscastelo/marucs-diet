@@ -1,6 +1,6 @@
 import { Day, daySchema } from '@/model/dayModel'
 import { User } from '@/model/userModel'
-import { New, enforceNew } from '@/utils/newDbRecord'
+import { DbReady, enforceDbReady } from '@/utils/newDbRecord'
 import supabase from '@/utils/supabase'
 import { Mutable } from '@/utils/typeUtils'
 
@@ -25,9 +25,9 @@ export const listDays = async (userId: User['id']): Promise<Day[]> =>
     })
 
 export const upsertDay = async (
-  newDay: Partial<Day> & Omit<Day, 'id'>,
+  newDay: Partial<DbReady<Day>>,
 ): Promise<Day | null> => {
-  const day = enforceNew(newDay)
+  const day = enforceDbReady(newDay)
 
   const { data: days, error } = await supabase.from(TABLE).upsert(day).select()
   if (error) {
@@ -36,8 +36,11 @@ export const upsertDay = async (
   return daySchema.parse(days?.[0] ?? null)
 }
 
-export const updateDay = async (id: Day['id'], day: New<Day>): Promise<Day> => {
-  const newDay = enforceNew(day)
+export const updateDay = async (
+  id: Day['id'],
+  day: DbReady<Day>,
+): Promise<Day> => {
+  const newDay = enforceDbReady(day)
   const { data, error } = await supabase
     .from(TABLE)
     .update(newDay)

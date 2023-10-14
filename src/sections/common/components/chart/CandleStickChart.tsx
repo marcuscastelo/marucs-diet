@@ -11,7 +11,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { CandleStickShape } from '@/components/chart/shapes/CandleStickShape'
+import { CandleStickShape } from '@/sections/common/components/chart/shapes/CandleStickShape'
 
 const colors = [
   '#1f77b4',

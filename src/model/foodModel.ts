@@ -1,5 +1,6 @@
 import { macroNutrientsSchema } from '@/model/macroNutrientsModel'
 import { z } from 'zod'
+import { DbReady, New, enforceDbReady, enforceNew } from '../utils/newDbRecord'
 export const foodSchema = z.object({
   id: z.number(),
   source: z
@@ -30,3 +31,19 @@ export const foodSchema = z.object({
 })
 
 export type Food = Readonly<z.infer<typeof foodSchema>>
+
+// TODO: Make createFood function more than a mock
+export function createFood({ name }: { name: string }): New<Food> {
+  return enforceNew(
+    foodSchema.parse({
+      __type: 'Food',
+      id: 0,
+      name,
+      macros: {
+        protein: 1234,
+        carbs: 4321,
+        fat: 666,
+      },
+    } satisfies Food),
+  )
+}

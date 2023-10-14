@@ -1,5 +1,5 @@
 import { Food, foodSchema } from '@/model/foodModel'
-import { New, enforceNew } from '@/utils/newDbRecord'
+import { DbReady, enforceDbReady } from '@/utils/newDbRecord'
 import supabase from '@/utils/supabase'
 import { isEanCached } from '@/controllers/eanCache'
 import {
@@ -124,8 +124,8 @@ async function internalCachedSearchFoods(
   return foodSchema.array().parse(data ?? [])
 }
 
-export async function insertFood(newFood: New<Food>): Promise<Food> {
-  const food = enforceNew(newFood)
+export async function insertFood(newFood: DbReady<Food>): Promise<Food> {
+  const food = enforceDbReady(newFood)
 
   const { data, error } = await supabase.from(TABLE).insert(food).select('*')
   if (error) {

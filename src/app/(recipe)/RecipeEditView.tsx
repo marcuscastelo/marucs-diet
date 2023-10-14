@@ -15,7 +15,7 @@ import CopyIcon from '@/app/(icons)/CopyIcon'
 import FoodItemListView from '@/app/(foodItem)/FoodItemListView'
 import { calcRecipeCalories } from '@/utils/macroMath'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
-import { renegerateId } from '@/utils/idUtils'
+import { regenerateId } from '@/utils/idUtils'
 import { TemplateItem } from '@/model/templateItemModel'
 import useClipboard, { createClipboardSchemaFilter } from '@/hooks/clipboard'
 import { deserializeClipboard } from '@/utils/clipboardUtils'
@@ -23,7 +23,7 @@ import { convertToGroups } from '@/utils/groupUtils'
 import { mealSchema } from '@/model/mealModel'
 import { itemGroupSchema } from '@/model/itemGroupModel'
 import { useFloatField } from '@/hooks/field'
-import { FloatInput } from '@/components/FloatInput'
+import { FloatInput } from '@/sections/common/components/FloatInput'
 import { RecipeEditor } from '@/utils/data/recipeEditor'
 import { Signal, computed } from '@preact/signals-react'
 import { cn } from '@/utils/cn'
@@ -106,10 +106,10 @@ function RecipeEditHeader({
     }
 
     const groupsToAdd = convertToGroups(data)
-      .map(renegerateId)
+      .map(regenerateId)
       .map((g) => ({
         ...g,
-        items: g.items.map(renegerateId),
+        items: g.items.map(regenerateId),
       }))
 
     const itemsToAdd = groupsToAdd.flatMap((g) => g.items)

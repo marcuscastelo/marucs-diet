@@ -2,10 +2,10 @@ import type { Meta, StoryObj } from '@storybook/react'
 import FoodItemEditModal, {
   FoodItemEditModalProps,
 } from '@/app/(foodItem)/FoodItemEditModal'
-import { mockItem } from '@/app/test/unit/(mock)/mockData'
 import { ModalContextProvider } from '@/app/(modals)/ModalContext'
 import ServerApp from '@/app/ServerApp'
 import { computed, signal } from '@preact/signals-react'
+import { createFoodItem } from '../model/foodItemModel'
 
 const visible = signal(true)
 
@@ -34,7 +34,9 @@ type Story = StoryObj<typeof FoodItemEditModal>
 
 export const RootGreen: Story = {
   args: {
-    foodItem: computed(() => mockItem()),
+    foodItem: computed(() =>
+      createFoodItem({ name: 'Mock item', reference: 1 }),
+    ),
     onApply: () => undefined,
     targetName: 'Teste',
     targetNameColor: 'text-green-500',
@@ -44,7 +46,9 @@ export const RootGreen: Story = {
 
 export const RootBlue: Story = {
   args: {
-    foodItem: computed(() => mockItem()),
+    foodItem: computed(() =>
+      createFoodItem({ name: 'Mock item', reference: 1 }),
+    ),
     onApply: () => undefined,
     targetName: 'Teste',
     targetNameColor: 'text-blue-500',

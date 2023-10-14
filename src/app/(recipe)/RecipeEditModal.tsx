@@ -12,7 +12,7 @@ import {
 } from '@/app/(modals)/ModalContext'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import { TemplateItem } from '@/model/templateItemModel'
-import { TemplateSearchModal } from '@/app/templateSearch/TemplateSearchModal'
+import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
 import { ItemGroup, isSimpleSingleGroup } from '@/model/itemGroupModel'
 import { RecipeEditor } from '@/utils/data/recipeEditor'
 import {

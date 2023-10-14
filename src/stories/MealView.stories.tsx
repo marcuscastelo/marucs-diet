@@ -1,6 +1,5 @@
 import MealEditView from '@/app/(meal)/MealEditView'
 import ServerApp from '@/app/ServerApp'
-import { mockMeal } from '@/app/test/unit/(mock)/mockData'
 import { computed } from '@preact/signals-react'
 import { Meta, StoryObj } from '@storybook/react'
 
@@ -15,7 +14,8 @@ type Story = StoryObj<typeof MealEditView>
 
 export const Root: Story = {
   args: {
-    meal: computed(mockMeal), // TODO: display group with 3 (orange), group with 1 (white), and recipe (blue)
+    // TODO: fix stories after hexagonal refactor
+    meal: computed(() => null as any), // TODO: display group with 3 (orange), group with 1 (white), and recipe (blue)
   },
   render: (args) => (
     <MealEditView

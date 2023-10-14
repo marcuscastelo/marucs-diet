@@ -1,8 +1,8 @@
 'use client'
 
 import { usePathname, useRouter } from 'next/navigation'
-import { ReactNode, useEffect, useState } from 'react'
-import { UserIcon } from '@/components/UserIcon'
+import { ReactNode, useEffect } from 'react'
+import { UserIcon } from '@/sections/common/components/UserIcon'
 import { useConfirmModalContext } from '@/context/confirmModal.context'
 import { useFetch } from '@/hooks/fetch'
 import { fetchUsers } from '@/controllers/users'

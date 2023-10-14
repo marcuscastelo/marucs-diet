@@ -2,10 +2,10 @@
 
 import { User, userSchema } from '@/model/userModel'
 import { useEffect, useState } from 'react'
-import Capsule from '@/components/capsule/Capsule'
+import Capsule from '@/src/sections/common/components/capsule/Capsule'
 import { z } from 'zod'
-import { CapsuleContent } from '@/components/capsule/CapsuleContent'
-import { UserIcon } from '@/components/UserIcon'
+import { CapsuleContent } from '@/src/sections/common/components/capsule/CapsuleContent'
+import { UserIcon } from '@/sections/common/components/UserIcon'
 import { Mutable } from '@/utils/typeUtils'
 type Translation<T extends string> = { [key in T]: string }
 // TODO: Centralize theme constants

@@ -11,8 +11,8 @@ import { useCallback, useState } from 'react'
 import Modal, { ModalActions } from '@/app/(modals)/Modal'
 import FoodItemListView from '@/app/(foodItem)/FoodItemListView'
 import FoodItemView from '@/app/(foodItem)/FoodItemView'
-import { FoodItem, foodItemSchema } from '@/model/foodItemModel'
-import { TemplateSearchModal } from '@/app/templateSearch/TemplateSearchModal'
+import { FoodItem, createFoodItem, foodItemSchema } from '@/model/foodItemModel'
+import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
 import FoodItemEditModal from '@/app/(foodItem)/FoodItemEditModal'
 import RecipeIcon from '@/app/(icons)/RecipeIcon'
 import { RecipeEditModal } from '@/app/(recipe)/RecipeEditModal'
@@ -39,7 +39,7 @@ import { useConfirmModalContext } from '@/context/confirmModal.context'
 import useClipboard from '@/hooks/clipboard'
 import PasteIcon from '@/app/(icons)/PasteIcon'
 import { deserializeClipboard } from '@/utils/clipboardUtils'
-import { renegerateId } from '@/utils/idUtils'
+import { regenerateId } from '@/utils/idUtils'
 import { ItemGroupEditor } from '@/utils/data/itemGroupEditor'
 import {
   ReadonlySignal,
@@ -49,13 +49,12 @@ import {
   useSignal,
   useSignalEffect,
 } from '@preact/signals-react'
-import { mockItem } from '@/app/test/unit/(mock)/mockData'
 import { ConvertToRecipeIcon } from '@/app/(icons)/ConvertToRecipeIcon'
 import { batch } from 'react-redux'
 import { deepCopy } from '@/utils/deepCopy'
 import { useRecipe } from '@/hooks/recipe'
 import { useFloatField } from '@/hooks/field'
-import { FloatInput } from '@/components/FloatInput'
+import { FloatInput } from '@/sections/common/components/FloatInput'
 
 type EditSelection = {
   foodItem: FoodItem
@@ -310,7 +309,10 @@ function ExternalFoodItemEditModal({
             `[ExternalFoodItemEditModal] <computed> foodItem: `,
             editSelection.value?.foodItem,
           )
-          return editSelection.value?.foodItem ?? mockItem()
+          return (
+            editSelection.value?.foodItem ??
+            createFoodItem({ name: 'Bug: selection was null', reference: 0 })
+          )
         })}
         onApply={async (item) => {
           if (!group.value) {
@@ -478,12 +480,12 @@ function Body({
     if ('items' in data) {
       // data is an itemGroup
       const newGroup = new ItemGroupEditor(group.value)
-        .addItems(data.items.map(renegerateId))
+        .addItems(data.items.map(regenerateId))
         .finish()
       group.value = newGroup
     } else {
       const newGroup = new ItemGroupEditor(group.value)
-        .addItem(renegerateId(data))
+        .addItem(regenerateId(data))
         .finish()
       group.value = newGroup
     }

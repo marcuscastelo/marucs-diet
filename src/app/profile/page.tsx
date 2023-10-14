@@ -18,7 +18,7 @@ import {
 } from '@/controllers/macroProfiles'
 import { latestMacroProfile } from '@/utils/macroProfileUtils'
 import { getToday } from '@/utils/dateUtils'
-import { BottomNavigation } from '@/components/BottomNavigation'
+import { BottomNavigation } from '@/sections/common/components/BottomNavigation'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'

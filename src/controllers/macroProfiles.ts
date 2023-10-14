@@ -1,6 +1,6 @@
 import { MacroProfile, macroProfileSchema } from '@/model/macroProfileModel'
 import { User } from '@/model/userModel'
-import { New, enforceNew } from '@/utils/newDbRecord'
+import { DbReady, enforceDbReady } from '@/utils/newDbRecord'
 import supabase from '@/utils/supabase'
 
 const TABLE = 'macro_profiles'
@@ -20,8 +20,10 @@ export async function fetchUserMacroProfiles(userId: User['id']) {
   return macroProfileSchema.array().parse(data)
 }
 
-export async function insertMacroProfile(newMacroProfile: New<MacroProfile>) {
-  const macroProfile = enforceNew(newMacroProfile)
+export async function insertMacroProfile(
+  newMacroProfile: DbReady<MacroProfile>,
+) {
+  const macroProfile = enforceDbReady(newMacroProfile)
   const { data, error } = await supabase
     .from(TABLE)
     .insert(macroProfile)
@@ -37,9 +39,9 @@ export async function insertMacroProfile(newMacroProfile: New<MacroProfile>) {
 
 export async function updateMacroProfile(
   profileId: MacroProfile['id'],
-  newMacroProfile: New<MacroProfile>,
+  newMacroProfile: DbReady<MacroProfile>,
 ) {
-  const macroProfile = enforceNew(newMacroProfile)
+  const macroProfile = enforceDbReady(newMacroProfile)
   const { data, error } = await supabase
     .from(TABLE)
     .update(macroProfile)

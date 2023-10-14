@@ -3,7 +3,6 @@ import {
   RecipeEditModal,
   RecipeEditModalProps,
 } from '@/app/(recipe)/RecipeEditModal'
-import { mockRecipe } from '@/app/test/unit/(mock)/mockData'
 import ServerApp from '@/app/ServerApp'
 
 const meta: Meta<typeof RecipeEditModal> = {
@@ -19,7 +18,8 @@ type Story = StoryObj<typeof RecipeEditModal>
 export const Root: Story = {
   args: {
     show: true,
-    recipe: mockRecipe(),
+    // TODO: fix stories after hexagonal refactor
+    recipe: null as any,
     onSaveRecipe: () => undefined,
     onCancel: () => undefined,
     onVisibilityChange: () => undefined,
