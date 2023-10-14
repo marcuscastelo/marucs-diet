@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import {
   RecipeEditModal,
   RecipeEditModalProps,
-} from '@/src/sections/template/recipe/components/RecipeEditModal'
+} from '@/sections/template/recipe/components/RecipeEditModal'
 import ServerApp from '@/sections/common/components/ServerApp'
 
 const meta: Meta<typeof RecipeEditModal> = {

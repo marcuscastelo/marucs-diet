@@ -3,7 +3,7 @@
 import { DateValueType } from 'react-tailwindcss-datepicker/dist/types'
 import Datepicker from 'react-tailwindcss-datepicker'
 import { useRouter } from 'next/navigation'
-import { stringToDate } from '@/utils/dateUtils'
+import { stringToDate } from '@/legacy/utils/dateUtils'
 
 export default function DatepickerRouter({
   selectedDay,

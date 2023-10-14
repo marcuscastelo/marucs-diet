@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Loadable } from '@/utils/loadable'
-import { Day } from '@/model/dayModel'
-import { User } from '@/model/userModel'
+import { Loadable } from '@/legacy/utils/loadable'
+import { Day } from '@/legacy/model/dayModel'
+import { User } from '@/legacy/model/userModel'
 import { createContext, useContext } from 'use-context-selector'
 
 export type DaysContextProps = {

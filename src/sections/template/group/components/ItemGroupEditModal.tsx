@@ -6,41 +6,45 @@ import {
   isSimpleSingleGroup,
   itemGroupSchema,
   recipedItemGroup,
-} from '@/model/itemGroupModel'
+} from '@/legacy/model/itemGroupModel'
 import { useCallback, useState } from 'react'
 import Modal, { ModalActions } from '@/sections/common/components/Modal'
-import FoodItemListView from '@/src/sections/template/item/components/FoodItemListView'
-import FoodItemView from '@/src/sections/template/item/components/FoodItemView'
-import { FoodItem, createFoodItem, foodItemSchema } from '@/model/foodItemModel'
+import FoodItemListView from '@/sections/template/item/components/FoodItemListView'
+import FoodItemView from '@/sections/template/item/components/FoodItemView'
+import {
+  FoodItem,
+  createFoodItem,
+  foodItemSchema,
+} from '@/legacy/model/foodItemModel'
 import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
-import FoodItemEditModal from '@/src/sections/template/item/components/FoodItemEditModal'
+import FoodItemEditModal from '@/sections/template/item/components/FoodItemEditModal'
 import RecipeIcon from '@/sections/common/components/icons/RecipeIcon'
-import { RecipeEditModal } from '@/src/sections/template/recipe/components/RecipeEditModal'
-import { Recipe, createRecipe } from '@/model/recipeModel'
-import { Loadable } from '@/utils/loadable'
+import { RecipeEditModal } from '@/sections/template/recipe/components/RecipeEditModal'
+import { Recipe, createRecipe } from '@/legacy/model/recipeModel'
+import { Loadable } from '@/legacy/utils/loadable'
 import PageLoading from '@/sections/common/components/PageLoading'
 import {
   searchRecipeById,
   updateRecipe,
   upsertRecipe,
-} from '@/controllers/recipes'
+} from '@/legacy/controllers/recipes'
 import {
   ItemGroupEditContextProvider,
   useItemGroupEditContext,
-} from '@/src/sections/template/group/context/ItemGroupEditContext'
+} from '@/sections/template/group/context/ItemGroupEditContext'
 import { useUserContext, useUserId } from '@/sections/user/context/UserContext'
 import {
   ModalContextProvider,
   useModalContext,
-} from '@/src/sections/common/context/ModalContext'
-import { isRecipedGroupUpToDate } from '@/utils/groupUtils'
-import { DownloadIcon } from '@/src/sections/common/components/icons/DownloadIcon'
+} from '@/sections/common/context/ModalContext'
+import { isRecipedGroupUpToDate } from '@/legacy/utils/groupUtils'
+import { DownloadIcon } from '@/sections/common/components/icons/DownloadIcon'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import useClipboard from '@/sections/common/hooks/useClipboard'
-import PasteIcon from '@/src/sections/common/components/icons/PasteIcon'
-import { deserializeClipboard } from '@/utils/clipboardUtils'
-import { regenerateId } from '@/utils/idUtils'
-import { ItemGroupEditor } from '@/utils/data/itemGroupEditor'
+import PasteIcon from '@/sections/common/components/icons/PasteIcon'
+import { deserializeClipboard } from '@/legacy/utils/clipboardUtils'
+import { regenerateId } from '@/legacy/utils/idUtils'
+import { ItemGroupEditor } from '@/legacy/utils/data/itemGroupEditor'
 import {
   ReadonlySignal,
   Signal,
@@ -49,9 +53,9 @@ import {
   useSignal,
   useSignalEffect,
 } from '@preact/signals-react'
-import { ConvertToRecipeIcon } from '@/src/sections/common/components/icons/ConvertToRecipeIcon'
+import { ConvertToRecipeIcon } from '@/sections/common/components/icons/ConvertToRecipeIcon'
 import { batch } from 'react-redux'
-import { deepCopy } from '@/utils/deepCopy'
+import { deepCopy } from '@/legacy/utils/deepCopy'
 import { useFloatField } from '@/sections/common/hooks/useField'
 import { FloatInput } from '@/sections/common/components/FloatInput'
 

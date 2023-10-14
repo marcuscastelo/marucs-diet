@@ -4,13 +4,17 @@ import {
   useUserDesiredWeight,
   useUserId,
 } from '@/sections/user/context/UserContext'
-import { deleteWeight, insertWeight, updateWeight } from '@/controllers/weights'
-import { Weight, createWeight } from '@/model/weightModel'
-import Capsule from '@/src/sections/common/components/capsule/Capsule'
-import TrashIcon from '@/src/sections/common/components/icons/TrashIcon'
+import {
+  deleteWeight,
+  insertWeight,
+  updateWeight,
+} from '@/legacy/controllers/weights'
+import { Weight, createWeight } from '@/legacy/model/weightModel'
+import Capsule from '@/sections/common/components/capsule/Capsule'
+import TrashIcon from '@/sections/common/components/icons/TrashIcon'
 import { Line } from 'recharts'
 import { CandleStickChart } from '@/sections/common/components/chart/CandleStickChart'
-import { OHLC } from '@/model/ohlcModel'
+import { OHLC } from '@/legacy/model/ohlcModel'
 import Datepicker from 'react-tailwindcss-datepicker'
 import { useWeights } from '@/sections/profile/weight/hooks/useWeights'
 import {
@@ -19,13 +23,13 @@ import {
   useFloatFieldOld,
 } from '@/sections/common/hooks/useField'
 import { FloatInput } from '@/sections/common/components/FloatInput'
-import { dateToYYYYMMDD } from '@/utils/dateUtils'
-import { CapsuleContent } from '@/src/sections/common/components/capsule/CapsuleContent'
+import { dateToYYYYMMDD } from '@/legacy/utils/dateUtils'
+import { CapsuleContent } from '@/sections/common/components/capsule/CapsuleContent'
 import {
   calculateWeightProgress,
   firstWeight,
   latestWeight,
-} from '@/utils/weightUtils'
+} from '@/legacy/utils/weightUtils'
 import { computed } from '@preact/signals-react'
 
 // TODO: Centralize theme constants

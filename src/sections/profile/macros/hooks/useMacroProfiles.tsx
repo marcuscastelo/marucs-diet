@@ -1,9 +1,9 @@
 'use client'
 
-import { fetchUserMacroProfiles } from '@/controllers/macroProfiles'
-import { MacroProfile } from '@/model/macroProfileModel'
-import { User } from '@/model/userModel'
-import { Loadable } from '@/utils/loadable'
+import { fetchUserMacroProfiles } from '@/legacy/controllers/macroProfiles'
+import { MacroProfile } from '@/legacy/model/macroProfileModel'
+import { User } from '@/legacy/model/userModel'
+import { Loadable } from '@/legacy/utils/loadable'
 import { useCallback, useEffect, useState } from 'react'
 
 // TODO: Bring useFetch hook to weights hook

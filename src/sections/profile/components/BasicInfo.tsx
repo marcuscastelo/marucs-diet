@@ -1,12 +1,12 @@
 'use client'
 
-import { User, userSchema } from '@/model/userModel'
+import { User, userSchema } from '@/legacy/model/userModel'
 import { useEffect, useState } from 'react'
-import Capsule from '@/src/sections/common/components/capsule/Capsule'
+import Capsule from '@/sections/common/components/capsule/Capsule'
 import { z } from 'zod'
-import { CapsuleContent } from '@/src/sections/common/components/capsule/CapsuleContent'
+import { CapsuleContent } from '@/sections/common/components/capsule/CapsuleContent'
 import { UserIcon } from '@/sections/common/components/UserIcon'
-import { Mutable } from '@/utils/typeUtils'
+import { Mutable } from '@/legacy/utils/typeUtils'
 type Translation<T extends string> = { [key in T]: string }
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'

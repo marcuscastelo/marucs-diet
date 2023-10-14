@@ -1,16 +1,16 @@
 'use client'
 
 import { useState } from 'react'
-import FoodItemView from '@/src/sections/template/item/components/FoodItemView'
-import { FoodItem } from '@/model/foodItemModel'
+import FoodItemView from '@/sections/template/item/components/FoodItemView'
+import { FoodItem } from '@/legacy/model/foodItemModel'
 import Modal, { ModalActions } from '@/sections/common/components/Modal'
 import { useUserContext } from '@/sections/user/context/UserContext'
-import { useModalContext } from '@/src/sections/common/context/ModalContext'
+import { useModalContext } from '@/sections/common/context/ModalContext'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { generateId } from '@/utils/idUtils'
+import { generateId } from '@/legacy/utils/idUtils'
 import { useFloatField } from '@/sections/common/hooks/useField'
 import { FloatInput } from '@/sections/common/components/FloatInput'
-import { TemplateItem } from '@/model/templateItemModel'
+import { TemplateItem } from '@/legacy/model/templateItemModel'
 import {
   ReadonlySignal,
   Signal,

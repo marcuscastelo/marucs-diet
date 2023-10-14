@@ -1,8 +1,8 @@
 'use client'
 
 import { useUserContext } from '@/sections/user/context/UserContext'
-import { upsertDay } from '@/controllers/days'
-import { createDay } from '@/src/model/dayModel'
+import { upsertDay } from '@/legacy/controllers/days'
+import { createDay } from '@/legacy/model/dayModel'
 
 export default function CreateBlankDayButton({
   selectedDay,

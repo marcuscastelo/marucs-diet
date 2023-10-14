@@ -1,6 +1,10 @@
-import { Food } from '@/model/foodModel'
-import { Recipe } from '@/model/recipeModel'
-import { Loadable, UnboxedLoadable, unboxLoadingObject } from '@/utils/loadable'
+import { Food } from '@/legacy/model/foodModel'
+import { Recipe } from '@/legacy/model/recipeModel'
+import {
+  Loadable,
+  UnboxedLoadable,
+  unboxLoadingObject,
+} from '@/legacy/utils/loadable'
 import { useCallback, useEffect, useState } from 'react'
 import { createContext, useContext } from 'use-context-selector'
 

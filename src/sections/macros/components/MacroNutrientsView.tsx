@@ -1,6 +1,6 @@
 'use client'
 
-import { MacroNutrients } from '@/model/macroNutrientsModel'
+import { MacroNutrients } from '@/legacy/model/macroNutrientsModel'
 
 export default function MacroNutrientsView(props: MacroNutrients) {
   return (

@@ -1,9 +1,9 @@
 'use client'
 
-import { ItemGroup } from '@/model/itemGroupModel'
+import { ItemGroup } from '@/legacy/model/itemGroupModel'
 import ItemGroupView, {
   ItemGroupViewProps,
-} from '@/src/sections/template/group/components/ItemGroupView'
+} from '@/sections/template/group/components/ItemGroupView'
 import { ReadonlySignal, computed } from '@preact/signals-react'
 
 export default function ItemGroupListView({

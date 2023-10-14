@@ -1,20 +1,20 @@
 'use client'
 
 import MacroNutrientsView from '@/sections/macros/components/MacroNutrientsView'
-import { MacroNutrients } from '@/model/macroNutrientsModel'
-import CopyIcon from '@/src/sections/common/components/icons/CopyIcon'
+import { MacroNutrients } from '@/legacy/model/macroNutrientsModel'
+import CopyIcon from '@/sections/common/components/icons/CopyIcon'
 import {
   ItemGroupEditContextProvider,
   useItemGroupEditContext,
-} from '@/src/sections/template/group/context/ItemGroupEditContext'
-import { ItemGroup, isSimpleSingleGroup } from '@/model/itemGroupModel'
-import { calcGroupCalories, calcGroupMacros } from '@/utils/macroMath'
+} from '@/sections/template/group/context/ItemGroupEditContext'
+import { ItemGroup, isSimpleSingleGroup } from '@/legacy/model/itemGroupModel'
+import { calcGroupCalories, calcGroupMacros } from '@/legacy/utils/macroMath'
 import { useUserContext } from '@/sections/user/context/UserContext'
-import { isRecipedGroupUpToDate } from '@/utils/groupUtils'
-import { Loadable } from '@/utils/loadable'
-import { Recipe } from '@/model/recipeModel'
+import { isRecipedGroupUpToDate } from '@/legacy/utils/groupUtils'
+import { Loadable } from '@/legacy/utils/loadable'
+import { Recipe } from '@/legacy/model/recipeModel'
 import { useState } from 'react'
-import { searchRecipeById } from '@/controllers/recipes'
+import { searchRecipeById } from '@/legacy/controllers/recipes'
 import {
   ReadonlySignal,
   computed,

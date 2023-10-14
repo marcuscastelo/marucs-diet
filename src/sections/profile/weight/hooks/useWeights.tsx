@@ -1,9 +1,9 @@
 'use client'
 
-import { fetchUserWeights } from '@/controllers/weights'
-import { User } from '@/model/userModel'
-import { Weight } from '@/model/weightModel'
-import { Loadable } from '@/utils/loadable'
+import { fetchUserWeights } from '@/legacy/controllers/weights'
+import { User } from '@/legacy/model/userModel'
+import { Weight } from '@/legacy/model/weightModel'
+import { Loadable } from '@/legacy/utils/loadable'
 import { useCallback, useEffect, useState } from 'react'
 
 // TODO: Bring useFetch hook to weights hook

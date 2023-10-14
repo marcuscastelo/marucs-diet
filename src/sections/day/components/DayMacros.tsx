@@ -1,15 +1,15 @@
 'use client'
 
-import { MacroNutrients } from '@/model/macroNutrientsModel'
+import { MacroNutrients } from '@/legacy/model/macroNutrientsModel'
 import { Progress } from 'flowbite-react'
 import { calculateMacroTarget } from '@/sections/macros/components/MacroTargets'
 import { CSSProperties } from 'react'
-import { calcCalories } from '@/utils/macroMath'
+import { calcCalories } from '@/legacy/utils/macroMath'
 import { useUserContext } from '@/sections/user/context/UserContext'
-import { latestWeight } from '@/utils/weightUtils'
+import { latestWeight } from '@/legacy/utils/weightUtils'
 import { useWeights } from '@/sections/profile/weight/hooks/useWeights'
 import { useMacroProfiles } from '@/sections/profile/macros/hooks/useMacroProfiles'
-import { latestMacroProfile } from '@/utils/macroProfileUtils'
+import { latestMacroProfile } from '@/legacy/utils/macroProfileUtils'
 
 export default function DayMacros({
   macros,

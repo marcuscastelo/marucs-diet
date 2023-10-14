@@ -1,11 +1,11 @@
 'use client'
 
 import { Tabs } from 'flowbite-react'
-import { ObjectValues } from '@/utils/typeUtils'
-import { Loadable, UnboxedLoadable } from '@/utils/loadable'
+import { ObjectValues } from '@/legacy/utils/typeUtils'
+import { Loadable, UnboxedLoadable } from '@/legacy/utils/loadable'
 import { TemplateStore } from '@/sections/template/context/TemplateContext'
-import { Food } from '@/model/foodModel'
-import { Template } from '@/model/templateModel'
+import { Food } from '@/legacy/model/foodModel'
+import { Template } from '@/legacy/model/templateModel'
 
 type TabDefinition = {
   id: string

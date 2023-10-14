@@ -1,25 +1,25 @@
 'use client'
 
 import MealEditViewList from '@/sections/meal/components/MealEditViewList'
-import { Day } from '@/model/dayModel'
+import { Day } from '@/legacy/model/dayModel'
 import MealEditView, {
   MealEditViewProps,
 } from '@/sections/meal/components/MealEditView'
-import { updateDay } from '@/controllers/days'
+import { updateDay } from '@/legacy/controllers/days'
 import { Alert } from 'flowbite-react'
 import DayMacros from '@/sections/day/components/DayMacros'
-import { Meal } from '@/model/mealModel'
+import { Meal } from '@/legacy/model/mealModel'
 import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
-import { ItemGroup } from '@/model/itemGroupModel'
-import { calcDayMacros } from '@/utils/macroMath'
-import ItemGroupEditModal from '@/src/sections/template/group/components/ItemGroupEditModal'
+import { ItemGroup } from '@/legacy/model/itemGroupModel'
+import { calcDayMacros } from '@/legacy/utils/macroMath'
+import ItemGroupEditModal from '@/sections/template/group/components/ItemGroupEditModal'
 import CopyLastDayButton from '@/sections/day/components/CopyLastDayButton'
 import DeleteDayButton from '@/sections/day/components/DeleteDayButton'
 import { useRouter } from 'next/navigation'
-import { getToday } from '@/utils/dateUtils'
-import { ModalContextProvider } from '@/src/sections/common/context/ModalContext'
+import { getToday } from '@/legacy/utils/dateUtils'
+import { ModalContextProvider } from '@/sections/common/context/ModalContext'
 import { useUserContext } from '@/sections/user/context/UserContext'
-import { addItemGroupToMeal } from '@/utils/dayEditor'
+import { addItemGroupToMeal } from '@/legacy/utils/dayEditor'
 import {
   ReadonlySignal,
   Signal,

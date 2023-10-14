@@ -1,9 +1,9 @@
 'use client'
 
 import React, { ReactNode, useEffect, useRef } from 'react'
-import { useModalContext } from '@/src/sections/common/context/ModalContext'
+import { useModalContext } from '@/sections/common/context/ModalContext'
 import { BackIcon } from '@/sections/common/components/BackIcon'
-import { cn } from '@/utils/cn'
+import { cn } from '@/legacy/utils/cn'
 
 export type ModalProps = {
   // TODO: Unify Header, Content and Actions for each component in the entire app

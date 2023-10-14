@@ -1,18 +1,18 @@
 'use client'
 
 import MacroNutrientsView from '@/sections/macros/components/MacroNutrientsView'
-import { MacroNutrients } from '@/model/macroNutrientsModel'
+import { MacroNutrients } from '@/legacy/model/macroNutrientsModel'
 import {
   FoodItemContextProvider,
   useFoodItemContext,
-} from '@/src/sections/template/item/context/FoodItemContext'
-import CopyIcon from '@/src/sections/common/components/icons/CopyIcon'
-import { searchFoodById } from '@/controllers/food'
-import { calcItemCalories } from '@/utils/macroMath'
+} from '@/sections/template/item/context/FoodItemContext'
+import CopyIcon from '@/sections/common/components/icons/CopyIcon'
+import { searchFoodById } from '@/legacy/controllers/food'
+import { calcItemCalories } from '@/legacy/utils/macroMath'
 import { useUserContext } from '@/sections/user/context/UserContext'
-import { searchRecipeById } from '@/controllers/recipes'
-import { TemplateItem } from '@/model/templateItemModel'
-import { Template } from '@/model/templateModel'
+import { searchRecipeById } from '@/legacy/controllers/recipes'
+import { TemplateItem } from '@/legacy/model/templateItemModel'
+import { Template } from '@/legacy/model/templateModel'
 import {
   ReadonlySignal,
   computed,

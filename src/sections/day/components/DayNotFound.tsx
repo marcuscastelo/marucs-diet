@@ -1,6 +1,6 @@
 'use client'
 
-import { Day } from '@/model/dayModel'
+import { Day } from '@/legacy/model/dayModel'
 import CreateBlankDayButton from '@/sections/day/components/CreateBlankDayButton'
 import CopyLastDayButton from '@/sections/day/components/CopyLastDayButton'
 import { computed } from '@preact/signals-react'

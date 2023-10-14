@@ -1,6 +1,6 @@
 'use client'
 
-import { getToday } from '@/utils/dateUtils'
+import { getToday } from '@/legacy/utils/dateUtils'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 

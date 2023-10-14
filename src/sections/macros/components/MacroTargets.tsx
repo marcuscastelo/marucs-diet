@@ -1,12 +1,12 @@
 'use client'
 
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { deleteMacroProfile } from '@/controllers/macroProfiles'
-import { MacroNutrients } from '@/model/macroNutrientsModel'
-import { MacroProfile } from '@/model/macroProfileModel'
-import { dateToYYYYMMDD } from '@/utils/dateUtils'
-import { calcCalories } from '@/utils/macroMath'
-import { latestMacroProfile } from '@/utils/macroProfileUtils'
+import { deleteMacroProfile } from '@/legacy/controllers/macroProfiles'
+import { MacroNutrients } from '@/legacy/model/macroNutrientsModel'
+import { MacroProfile } from '@/legacy/model/macroProfileModel'
+import { dateToYYYYMMDD } from '@/legacy/utils/dateUtils'
+import { calcCalories } from '@/legacy/utils/macroMath'
+import { latestMacroProfile } from '@/legacy/utils/macroProfileUtils'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 

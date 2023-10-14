@@ -9,8 +9,8 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { Measure } from '@/model/measureModel'
-import { BodyFatInput, calculateBodyFat } from '@/utils/bfMath'
+import { Measure } from '@/legacy/model/measureModel'
+import { BodyFatInput, calculateBodyFat } from '@/legacy/utils/bfMath'
 import { useUserGender, useUserId } from '@/sections/user/context/UserContext'
 import { useWeights } from '@/sections/profile/weight/hooks/useWeights'
 type DayAverage = Omit<Measure, '__type' | 'id' | 'owner' | 'target_timestamp'>

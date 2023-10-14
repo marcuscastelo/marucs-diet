@@ -1,6 +1,6 @@
-import { fetchUser } from '@/controllers/users'
+import { fetchUser } from '@/legacy/controllers/users'
 import App from '@/sections/common/components/App'
-import { getUser } from '@/actions/user'
+import { getUser } from '@/legacy/actions/user'
 import { revalidatePath } from 'next/cache'
 
 export default async function ServerApp({

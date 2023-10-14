@@ -5,9 +5,9 @@ import { ReactNode, useEffect } from 'react'
 import { UserIcon } from '@/sections/common/components/UserIcon'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { useFetch } from '@/sections/common/hooks/useFetch'
-import { fetchUsers } from '@/controllers/users'
+import { fetchUsers } from '@/legacy/controllers/users'
 import { AvaliableUser, useUserId } from '@/sections/user/context/UserContext'
-import { changeUser } from '@/actions/user'
+import { changeUser } from '@/legacy/actions/user'
 
 export function BottomNavigation() {
   const router = useRouter()

@@ -1,6 +1,6 @@
 'use client'
 
-import { OHLC } from '@/model/ohlcModel'
+import { OHLC } from '@/legacy/model/ohlcModel'
 import {
   Bar,
   CartesianGrid,

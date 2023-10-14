@@ -2,10 +2,10 @@ import TopBar from '@/sections/day/components/TopBar'
 import DayNotFound from '@/sections/day/components/DayNotFound'
 import DayMeals from '@/sections/day/components/DayMeals'
 
-import { Day } from '@/model/dayModel'
-import { listDays } from '@/controllers/days'
+import { Day } from '@/legacy/model/dayModel'
+import { listDays } from '@/legacy/controllers/days'
 import { revalidatePath } from 'next/cache'
-import { getUser } from '@/actions/user'
+import { getUser } from '@/legacy/actions/user'
 import { BottomNavigation } from '@/sections/common/components/BottomNavigation'
 
 export const revalidate = 0
