@@ -13,7 +13,9 @@ import { calcMealCalories } from '@/utils/macroMath'
 import ItemGroupListView from '@/src/sections/template/group/components/ItemGroupListView'
 import { ItemGroup, itemGroupSchema } from '@/model/itemGroupModel'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import useClipboard, { createClipboardSchemaFilter } from '@/hooks/clipboard'
+import useClipboard, {
+  createClipboardSchemaFilter,
+} from '@/sections/common/hooks/useClipboard'
 import { addInnerGroups } from '@/utils/mealUtils'
 import { deserializeClipboard } from '@/utils/clipboardUtils'
 import { convertToGroups } from '@/utils/groupUtils'

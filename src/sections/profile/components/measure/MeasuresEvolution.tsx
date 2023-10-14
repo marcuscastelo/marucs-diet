@@ -7,7 +7,7 @@ import { Measure, createMeasure } from '@/model/measureModel'
 import { fetchUserMeasures, insertMeasure } from '@/controllers/measures'
 import { MeasureChart } from '@/sections/profile/components/measure/MeasureChart'
 import { MeasureView } from '@/sections/profile/components/measure/MeasureView'
-import { useFloatFieldOld } from '@/hooks/field'
+import { useFloatFieldOld } from '@/sections/common/hooks/useField'
 import { FloatInput } from '@/sections/common/components/FloatInput'
 
 // TODO: Centralize theme constants

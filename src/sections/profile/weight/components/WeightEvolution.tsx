@@ -12,8 +12,12 @@ import { Line } from 'recharts'
 import { CandleStickChart } from '@/sections/common/components/chart/CandleStickChart'
 import { OHLC } from '@/model/ohlcModel'
 import Datepicker from 'react-tailwindcss-datepicker'
-import { useWeights } from '@/hooks/weights'
-import { useDateField, useFloatField, useFloatFieldOld } from '@/hooks/field'
+import { useWeights } from '@/sections/profile/weight/hooks/useWeights'
+import {
+  useDateField,
+  useFloatField,
+  useFloatFieldOld,
+} from '@/sections/common/hooks/useField'
 import { FloatInput } from '@/sections/common/components/FloatInput'
 import { dateToYYYYMMDD } from '@/utils/dateUtils'
 import { CapsuleContent } from '@/src/sections/common/components/capsule/CapsuleContent'

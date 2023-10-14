@@ -16,8 +16,8 @@ import { calcCalories, calcDayCalories, calcDayMacros } from '@/utils/macroMath'
 import { useUserContext, useUserId } from '@/sections/user/context/UserContext'
 import { calculateMacroTarget } from '@/sections/macros/components/MacroTargets'
 import { inForceWeight } from '@/utils/weightUtils'
-import { useWeights } from '@/hooks/weights'
-import { useMacroProfiles } from '@/hooks/macroProfiles'
+import { useWeights } from '@/sections/profile/weight/hooks/useWeights'
+import { useMacroProfiles } from '@/sections/profile/macros/hooks/useMacroProfiles'
 import {
   inForceMacroProfile,
   latestMacroProfile,
