@@ -9,6 +9,13 @@ export interface ItemContainer {
     id: FoodItem['id'],
     callback: (editor: Omit<ItemEditor, 'finish'> | undefined) => void,
   ): void
+  editItems(
+    callback: (
+      id: number,
+      editor: Omit<ItemEditor, 'finish'> | undefined,
+    ) => void,
+  ): void
+  setItems(items: FoodItem[]): void
   deleteItem(id: FoodItem['id']): void
   clearItems(): void
 }
