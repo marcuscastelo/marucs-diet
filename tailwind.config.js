@@ -8,9 +8,7 @@ module.exports = {
   content: [
     './node_modules/flowbite-react/**/*.js',
     './node_modules/react-tailwindcss-datepicker/dist/index.esm.js',
-    './pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './components/**/*.{js,ts,jsx,tsx,mdx}',
-    './app/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     screens: {
