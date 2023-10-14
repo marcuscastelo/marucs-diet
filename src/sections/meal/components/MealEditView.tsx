@@ -32,7 +32,7 @@ import {
 } from '@preact/signals-react'
 
 export type MealEditViewProps = {
-  meal: ReadonlySignal<Meal>
+  meal: Meal
   // TODO: Unify Header, Content and Actions for each component in the entire app
   /**
    * @deprecated
@@ -64,11 +64,14 @@ export default function MealEditView({
   actions,
   className,
 }: MealEditViewProps) {
+  // TODO: Delete fake signal
+  const mealSignal = computed(() => meal)
+
   return (
     <div
       className={`bg-gray-800 p-3 ${className === undefined ? '' : className}`}
     >
-      <MealContextProviderOld meal={meal}>
+      <MealContextProviderOld meal={mealSignal}>
         {header}
         {content}
         {actions}

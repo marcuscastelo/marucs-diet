@@ -26,6 +26,7 @@ import { createSupabaseWeightRepository } from '@/src/modules/weight/infrastruct
 import { createSupabaseDayRepository } from '@/src/modules/day/infrastructure/supabaseDayRepository'
 import { MealContextProvider } from '@/src/sections/meal/context/MealContext'
 import { createDerivedMealRepository } from '@/src/modules/meal/infrastructure/derivedMealRepository'
+import { computed } from '@preact/signals-react'
 
 export default function App({
   user,
@@ -36,6 +37,8 @@ export default function App({
   onSaveUser: () => void
   children: React.ReactNode
 }) {
+  console.debug(`[App] - Rendering`)
+
   return (
     <AppUserProvider user={user} onSaveUser={onSaveUser}>
       <AppWeightProvider userId={user.id}>
@@ -94,16 +97,17 @@ function AppDayProvider({ children }: { children: React.ReactNode }) {
 
 // TODO: Remove this hacky provider when Meal is an entity in the DB
 function AppHackyMealProvider({ children }: { children: React.ReactNode }) {
-  console.debug(`[AppDaysProvider] - Rendering`)
+  console.debug(`[AppHackyMealProvider] - Rendering`)
 
   const { days } = useDayContext()
   const dayRepository = createSupabaseDayRepository()
 
-  if (days.loading || days.errored) {
-    return <>Loading days...</>
-  }
-
-  const mealRepository = createDerivedMealRepository(days.data, dayRepository)
+  const mealRepository = computed(() => {
+    if (days.value.loading || days.value.errored) {
+      return null
+    }
+    return createDerivedMealRepository(days.value.data, dayRepository)
+  })
 
   return (
     <MealContextProvider repository={mealRepository}>
@@ -216,7 +220,7 @@ function AppWeightProvider({
   children: React.ReactNode
   userId: User['id']
 }) {
-  console.debug(`[AppConfirmModalProvider] - Rendering`)
+  console.debug(`[AppWeightProvider] - Rendering`)
 
   const repository = createSupabaseWeightRepository()
 

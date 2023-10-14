@@ -33,16 +33,17 @@ export function MealContextProvider({
   repository,
 }: {
   children: React.ReactNode
-  repository: MealRepository
+  repository: ReadonlySignal<MealRepository | null>
 }) {
+  console.debug(`[MealContextProvider] - Rendering`)
+
   const [meals, setMeals] = useState<Loadable<readonly Meal[]>>({
     loading: true,
   })
 
   const handleFetchMeals = (dayId: Day['id']) => {
-    setMeals({ loading: true })
-    repository
-      .fetchDayMeals(dayId)
+    repository.value
+      ?.fetchDayMeals(dayId)
       .then((meals) => {
         setMeals({ loading: false, errored: false, data: meals })
       })
@@ -52,7 +53,9 @@ export function MealContextProvider({
   }
 
   const handleInsertMeal = (dayId: Day['id'], meal: Meal) => {
-    repository.insertMeal(dayId, meal).then(() => handleFetchMeals(dayId))
+    repository.value
+      ?.insertMeal(dayId, meal)
+      .then(() => handleFetchMeals(dayId))
   }
 
   const handleUpdateMeal = (
@@ -60,13 +63,15 @@ export function MealContextProvider({
     mealId: Meal['id'],
     meal: Meal,
   ) => {
-    repository
-      .updateMeal(dayId, mealId, meal)
+    repository.value
+      ?.updateMeal(dayId, mealId, meal)
       .then(() => handleFetchMeals(dayId))
   }
 
   const handleDeleteMeal = (dayId: Day['id'], mealId: Meal['id']) => {
-    repository.deleteMeal(dayId, mealId).then(() => handleFetchMeals(dayId))
+    repository.value
+      ?.deleteMeal(dayId, mealId)
+      .then(() => handleFetchMeals(dayId))
   }
 
   return (
