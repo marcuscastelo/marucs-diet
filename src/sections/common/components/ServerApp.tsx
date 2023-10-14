@@ -8,6 +8,8 @@ export default async function ServerApp({
 }: {
   children: React.ReactNode
 }) {
+  console.debug(`[ServerApp] - Rendering`)
+
   const userId = await getUser()
 
   if (!userId) {

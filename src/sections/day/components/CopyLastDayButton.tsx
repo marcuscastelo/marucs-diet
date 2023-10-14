@@ -13,21 +13,18 @@ export default function CopyLastDayButton({
   selectedDay: string
 }) {
   const { show: showConfirmModal } = useConfirmModalContext()
-  const { days: daysState, insertDay, updateDay } = useDayContext()
+  const { days, insertDay, updateDay } = useDayContext()
 
-  if (daysState.loading || daysState.errored) {
+  if (days.value.loading || days.value.errored) {
     return <></>
   }
-
-  // TODO: Convert all states to signals
-  const days = computed(() => daysState.data)
 
   if (days.value === undefined) {
     console.error('days is undefined')
     return <></>
   }
 
-  const lastDay = days.value.findLast(
+  const lastDay = days.value.data.findLast(
     (day) => Date.parse(day.target_day) < Date.parse(selectedDay),
   )
   if (lastDay === undefined) {

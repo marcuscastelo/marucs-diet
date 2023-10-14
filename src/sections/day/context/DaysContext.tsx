@@ -5,9 +5,10 @@ import { User } from '@/modules/user/domain/user'
 import { createContext, useContext } from 'use-context-selector'
 import { DbReady } from '@/src/legacy/utils/newDbRecord'
 import { DayRepository } from '@/src/modules/day/domain/dayRepository'
+import { ReadonlySignal, useSignal } from '@preact/signals-react'
 
 export type DayContextProps = {
-  days: Loadable<readonly Day[]>
+  days: ReadonlySignal<Loadable<readonly Day[]>>
   refetchDays: () => void
   insertDay: (day: DbReady<Day>) => void
   updateDay: (dayId: Day['id'], day: DbReady<Day>) => void
@@ -37,19 +38,18 @@ export function DayContextProvider({
   repository: DayRepository
 }) {
   // TODO: Convert all states to signals
-  const [days, setDays] = useState<Loadable<readonly Day[]>>({ loading: true })
+  const days = useSignal<Loadable<readonly Day[]>>({ loading: true })
 
   const handleFetchDays = useCallback(() => {
-    setDays({ loading: true })
     repository
       .fetchUserDays(userId)
-      .then((days) => {
-        setDays({ loading: false, errored: false, data: days })
+      .then((newDays) => {
+        days.value = { loading: false, errored: false, data: newDays }
       })
       .catch((error) => {
-        setDays({ loading: false, errored: true, error })
+        days.value = { loading: false, errored: true, error }
       })
-  }, [userId, repository])
+  }, [days, userId, repository])
 
   const handleInsertDay = useCallback(
     (day: DbReady<Day>) => {

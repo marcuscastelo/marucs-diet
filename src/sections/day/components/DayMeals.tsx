@@ -50,22 +50,14 @@ export default function DayMeals({ selectedDay }: { selectedDay: string }) {
   const showingToday = today === selectedDay
 
   // TODO: Convert all states to signals
-  const { days: dayState, updateDay } = useDayContext()
+  const { days, updateDay } = useDayContext()
 
-  const days = useSignal<readonly Day[]>([])
-
-  const day = computed(() =>
-    days.value.find((day) => day.target_day === selectedDay),
-  )
-
-  useEffect(() => {
-    if (dayState.loading || dayState.errored) {
-      console.debug(`[DayMeals] <ssr-change> DayState =`, dayState)
-      return
+  const day = computed(() => {
+    if (days.value.loading || days.value.errored) {
+      return undefined
     }
-
-    days.value = dayState.data
-  }, [dayState, days])
+    return days.value.data.find((day) => day.target_day === selectedDay)
+  })
 
   const dayLocked = useSignal(!showingToday)
 
@@ -116,19 +108,7 @@ export default function DayMeals({ selectedDay }: { selectedDay: string }) {
 
   const mealEditPropsList = computed(
     () =>
-      day.value?.meals.map((_, idx): MealEditViewProps => {
-        const meal = computed(() => {
-          if (day.value === undefined) {
-            console.error('Day is undefined!')
-            throw new Error('Day is undefined!')
-          }
-          const result = day.value.meals[idx]
-          console.debug(
-            `[DayMeals] <computed> Getting meal idx=${idx}, result:`,
-            result,
-          )
-          return result
-        })
+      day.value?.meals.map((meal): MealEditViewProps => {
         return {
           meal,
           header: (
@@ -144,17 +124,19 @@ export default function DayMeals({ selectedDay }: { selectedDay: string }) {
           ),
           content: (
             <MealEditView.Content
-              onEditItemGroup={(item) => handleEditItemGroup(meal.value, item)}
+              onEditItemGroup={(item) => handleEditItemGroup(meal, item)}
             />
           ),
           actions: (
-            <MealEditView.Actions
-              onNewItem={() => handleNewItemButton(meal.value)}
-            />
+            <MealEditView.Actions onNewItem={() => handleNewItemButton(meal)} />
           ),
         }
       }) ?? [],
   )
+
+  if (days.value.loading || days.value.errored) {
+    return <>Loading days...</>
+  }
 
   if (day.value === undefined) {
     console.debug(`[DayMeals] Day ${selectedDay} not found!`)
