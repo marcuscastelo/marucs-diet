@@ -27,10 +27,11 @@ import {
   useSignal,
   useSignalEffect,
 } from '@preact/signals-react'
-import { useEffect } from 'react'
 import { useDayContext } from '@/src/sections/day/context/DaysContext'
 import DayNotFound from '@/src/sections/day/components/DayNotFound'
 import { useMealContext } from '@/src/sections/meal/context/MealContext'
+import { useItemGroupContext } from '@/src/sections/item-group/context/ItemGroupContext'
+import { deleteInnerGroup } from '@/src/legacy/utils/mealUtils'
 
 type EditSelection = {
   meal: Meal
@@ -208,19 +209,13 @@ function ExternalTemplateSearchModal({
   day: ReadonlySignal<Day>
 }) {
   const { debug } = useUserContext()
-  const { updateDay } = useDayContext()
+  const { insertItemGroup } = useItemGroupContext()
   const handleNewItemGroup = async (newGroup: ItemGroup) => {
-    if (!newItemSelection.value) {
+    if (newItemSelection.value === null) {
       throw new Error('No meal selected!')
     }
 
-    const newDay = addItemGroupToMeal(
-      day.value,
-      newItemSelection.value.meal,
-      newGroup,
-    )
-
-    updateDay(day.value.id, newDay)
+    insertItemGroup(day.value.id, newItemSelection.value.meal.id, newGroup)
   }
 
   useSignalEffect(() => {
@@ -260,7 +255,7 @@ function ExternalItemGroupEditModal({
   visible: Signal<boolean>
   day: ReadonlySignal<Day>
 }) {
-  const { updateDay } = useDayContext()
+  const { updateItemGroup, deleteItemGroup } = useItemGroupContext()
   const { debug } = useUserContext()
 
   useSignalEffect(() => {
@@ -290,69 +285,27 @@ function ExternalItemGroupEditModal({
               group,
             )}`,
           )
-          updateDay(day.value.id, {
-            ...day.value,
-            meals: day.value.meals.map((meal) => {
-              if (!editSelection.value) {
-                throw new Error('No meal selected!')
-              }
-              if (meal.id !== editSelection.value.meal.id) {
-                return meal
-              }
-              console.debug('Found meal to update, meal name: ', meal.name)
-              const groups = meal.groups
-              const changePos = groups.findIndex((i) => i.id === group.id)
+          if (!editSelection.value) {
+            throw new Error('No meal selected!')
+          }
 
-              console.debug('Index of group to update: ', changePos)
-
-              if (changePos === -1) {
-                throw new Error(
-                  'Group not found! Searching for id: ' + group.id,
-                )
-              }
-
-              console.debug(
-                'Found group to update, group name: ',
-                groups[changePos].name,
-              )
-              groups[changePos] = group
-
-              console.debug('Updated groups: ', JSON.stringify(groups, null, 2))
-
-              return {
-                ...meal,
-                groups,
-              }
-            }),
-          })
+          updateItemGroup(
+            day.value.id,
+            editSelection.value.meal.id,
+            group.id, // TODO: Get id from selection instead of group parameter (avoid bugs if id is changed)
+            group,
+          )
 
           // TODO: Analyze if these commands are troublesome
           editSelection.value = null
           visible.value = false
         }}
         onDelete={async (id: ItemGroup['id']) => {
-          const oldMeals = [...day.value.meals]
+          if (!editSelection.value) {
+            throw new Error('No meal selected!')
+          }
 
-          // TODO: Use DayEditor
-          const newMeals: Meal[] = oldMeals.map((meal) => {
-            if (meal.id !== editSelection.value?.meal.id) {
-              return meal
-            }
-
-            const items = meal.groups
-            const changePos = items.findIndex((i) => i.id === id)
-
-            items.splice(changePos, 1)
-
-            return {
-              ...meal,
-              groups: items,
-            }
-          })
-
-          const newDay = { ...day.value, meals: newMeals }
-
-          updateDay(day.value.id, newDay)
+          deleteItemGroup(day.value.id, editSelection.value.meal.id, id)
 
           editSelection.value = null
           visible.value = false

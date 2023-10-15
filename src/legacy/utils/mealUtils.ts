@@ -2,6 +2,9 @@ import { ItemGroup } from '@/modules/item-group/domain/itemGroup'
 import { Meal } from '@/modules/meal/domain/meal'
 
 // TODO: Create RecipeEditor, MealEditor, ItemGroupEditor, FoodItemEditor classes to avoid this code duplication and error proneness
+/**
+ * @deprecated
+ */
 export function editInnerGroup(meal: Meal, innerGroup: ItemGroup) {
   const newMeal = { ...meal }
 
@@ -16,7 +19,9 @@ export function editInnerGroup(meal: Meal, innerGroup: ItemGroup) {
 
   return newMeal
 }
-
+/**
+ * @deprecated
+ */
 export function deleteInnerGroup(meal: Meal, groupId: ItemGroup['id']) {
   const newMeal = { ...meal }
 
@@ -31,7 +36,9 @@ export function deleteInnerGroup(meal: Meal, groupId: ItemGroup['id']) {
 
   return newMeal
 }
-
+/**
+ * @deprecated
+ */
 export function addInnerGroup(meal: Meal, innerGroup: ItemGroup) {
   const newMeal = { ...meal }
 
@@ -53,6 +60,9 @@ export function addInnerGroup(meal: Meal, innerGroup: ItemGroup) {
   return newMeal
 }
 
+/**
+ * @deprecated
+ */
 export function addInnerGroups(meal: Meal, innerGroups: ItemGroup[]) {
   let newMeal = { ...meal }
 

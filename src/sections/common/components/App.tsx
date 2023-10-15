@@ -26,7 +26,11 @@ import { createSupabaseWeightRepository } from '@/src/modules/weight/infrastruct
 import { createSupabaseDayRepository } from '@/src/modules/day/infrastructure/supabaseDayRepository'
 import { MealContextProvider } from '@/src/sections/meal/context/MealContext'
 import { createDerivedMealRepository } from '@/src/modules/meal/infrastructure/derivedMealRepository'
-import { computed } from '@preact/signals-react'
+import { ReadonlySignal, computed } from '@preact/signals-react'
+import { createDerivedItemGroupRepository } from '@/src/modules/item-group/infrastructure/tests/e2e/derivedItemGroupRepository'
+import { ItemGroupContextProvider } from '@/src/sections/item-group/context/ItemGroupContext'
+import { MealRepository } from '@/src/modules/meal/domain/mealRepository'
+import { DayRepository } from '@/src/modules/day/domain/dayRepository'
 
 export default function App({
   user,
@@ -44,9 +48,11 @@ export default function App({
       <AppWeightProvider userId={user.id}>
         <AppDayProvider>
           <AppHackyMealProvider>
-            <AppConfirmModalProvider>
-              <AppFoodsProvider>{children}</AppFoodsProvider>
-            </AppConfirmModalProvider>
+            <AppHackyItemGroupProvider>
+              <AppConfirmModalProvider>
+                <AppFoodsProvider>{children}</AppFoodsProvider>
+              </AppConfirmModalProvider>
+            </AppHackyItemGroupProvider>
           </AppHackyMealProvider>
         </AppDayProvider>
       </AppWeightProvider>
@@ -113,6 +119,45 @@ function AppHackyMealProvider({ children }: { children: React.ReactNode }) {
     <MealContextProvider repository={mealRepository}>
       {children}
     </MealContextProvider>
+  )
+}
+
+// TODO: Remove this hacky provider when ItemGroup is an entity in the DB
+function AppHackyItemGroupProvider({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  console.debug(`[AppHackyItemGroupProvider] - Rendering`)
+
+  const { days } = useDayContext()
+  const dayRepository = createSupabaseDayRepository()
+  const mealRepository = computed(() => {
+    if (days.value.loading || days.value.errored) {
+      return null
+    }
+    return createDerivedMealRepository(days.value.data, dayRepository)
+  })
+
+  const itemGroupRepository = computed(() => {
+    if (days.value.loading || days.value.errored) {
+      return null
+    }
+
+    if (mealRepository.value === null) {
+      return null
+    }
+
+    return createDerivedItemGroupRepository(
+      days.value.data,
+      mealRepository.value,
+    )
+  })
+
+  return (
+    <ItemGroupContextProvider repository={itemGroupRepository}>
+      {children}
+    </ItemGroupContextProvider>
   )
 }
 
