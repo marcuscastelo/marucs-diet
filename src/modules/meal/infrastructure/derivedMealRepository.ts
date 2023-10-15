@@ -15,6 +15,11 @@ export function createDerivedMealRepository(
       return day.meals
     },
     updateMeal: async (dayId, mealId, newMeal) => {
+      console.debug(
+        `[derivedMealRepository] updateMeal(${dayId}, ${mealId}) => ${JSON.stringify(
+          newMeal,
+        )}`,
+      )
       const day = localDays.find((day) => day.id === dayId)
       if (!day) {
         throw new Error(`Day ${dayId} not found`)

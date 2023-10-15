@@ -60,6 +60,7 @@ export function DayContextProvider({
 
   const handleUpdateDay = useCallback(
     (dayId: Day['id'], day: DbReady<Day>) => {
+      console.debug(`[DayContextProvider] - Updating day ${dayId} => `, day)
       repository.updateDay(dayId, day).then(() => handleFetchDays())
     },
     [handleFetchDays, repository],
