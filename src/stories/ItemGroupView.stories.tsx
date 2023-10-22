@@ -15,16 +15,17 @@ const meta: Meta<typeof ItemGroupView> = {
       {...args}
       header={
         <ItemGroupView.Header
-          name={<ItemGroupView.Header.Name />}
+          name={<ItemGroupView.Header.Name group={args.itemGroup} />}
           copyButton={
             <ItemGroupView.Header.CopyButton
+              group={args.itemGroup}
               onCopyItemGroup={() => console.log('copy meal item')}
             />
           }
           favorite={<ItemGroupView.Header.Favorite favorite={false} />}
         />
       }
-      nutritionalInfo={<ItemGroupView.NutritionalInfo />}
+      nutritionalInfo={<ItemGroupView.NutritionalInfo group={args.itemGroup} />}
     />
   ),
 }

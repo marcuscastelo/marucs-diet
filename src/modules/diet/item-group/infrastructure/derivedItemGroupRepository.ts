@@ -1,14 +1,17 @@
 import { DayDiet } from '@/src/modules/diet/day-diet/domain/day'
 import { ItemGroupRepository } from '@/src/modules/diet/item-group/domain/itemGroupRepository'
 import { MealRepository } from '@/src/modules/diet/meal/domain/mealRepository'
+import { ReadonlySignal } from '@preact/signals-react'
 
 export function createDerivedItemGroupRepository(
-  localDays: readonly DayDiet[],
-  mealRepository: Omit<MealRepository, 'fetchDayMeals'>,
+  localDays: ReadonlySignal<readonly DayDiet[]>,
+  mealRepository: MealRepository,
 ): ItemGroupRepository {
   return {
     fetchMealItemGroups: async (dayId, mealId) => {
-      const day = localDays.find((day) => day.id === dayId)
+      await mealRepository.fetchDayMeals(dayId)
+
+      const day = localDays.value.find((day) => day.id === dayId)
       if (!day) {
         throw new Error(`Day ${dayId} not found`)
       }
@@ -21,7 +24,7 @@ export function createDerivedItemGroupRepository(
       return meal.groups
     },
     updateItemGroup: async (dayId, mealId, itemGroupId, newItemGroup) => {
-      const day = localDays.find((day) => day.id === dayId)
+      const day = localDays.value.find((day) => day.id === dayId)
       if (!day) {
         throw new Error(`Day ${dayId} not found`)
       }
@@ -43,7 +46,7 @@ export function createDerivedItemGroupRepository(
       )?.groups.find((itemGroup) => itemGroup.id === itemGroupId)
     },
     insertItemGroup: async (dayId, mealId, newItemGroup) => {
-      const day = localDays.find((day) => day.id === dayId)
+      const day = localDays.value.find((day) => day.id === dayId)
       if (!day) {
         throw new Error(`Day ${dayId} not found`)
       }
@@ -63,7 +66,7 @@ export function createDerivedItemGroupRepository(
       )?.groups.find((itemGroup) => itemGroup.id === newItemGroup.id)
     },
     deleteItemGroup: async (dayId, mealId, itemGroupId) => {
-      const day = localDays.find((day) => day.id === dayId)
+      const day = localDays.value.find((day) => day.id === dayId)
       if (!day) {
         throw new Error(`Day ${dayId} not found`)
       }

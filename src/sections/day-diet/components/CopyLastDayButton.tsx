@@ -24,7 +24,7 @@ export default function CopyLastDayButton({
     return <></>
   }
 
-  const lastDay = days.value.data.findLast(
+  const lastDay = days.value.data.value.findLast(
     (day) => Date.parse(day.target_day) < Date.parse(selectedDay),
   )
   if (lastDay === undefined) {

@@ -54,10 +54,19 @@ export default function DayMeals({ selectedDay }: { selectedDay: string }) {
   const { updateMeal } = useMealContext()
 
   const day = computed(() => {
+    console.debug(`[DayMeals] <computed> days changed, recalculating...`)
     if (days.value.loading || days.value.errored) {
+      console.debug(`[DayMeals] <computed> days loading or errored: `, days)
       return undefined
     }
-    return days.value.data.find((day) => day.target_day === selectedDay)
+
+    console.debug(`[DayMeals] <computed> Searching for day ${selectedDay}`)
+    const result = days.value.data.value.find(
+      (day) => day.target_day === selectedDay,
+    )
+    console.debug(`[DayMeals] <computed> All days: `, days.value.data.value)
+    console.debug(`[DayMeals] <computed> Search Result: `, result)
+    return result
   })
 
   const dayLocked = useSignal(!showingToday)
@@ -100,6 +109,10 @@ export default function DayMeals({ selectedDay }: { selectedDay: string }) {
   const mealEditPropsList = computed(
     () =>
       day.value?.meals.map((meal): MealEditViewProps => {
+        console.debug(
+          `[DayMeals] <computed> meal changed, recalculating mealEditPropsList...`,
+        )
+        console.debug(`[DayMeals] <computed> meal: `, meal)
         return {
           meal,
           header: (
