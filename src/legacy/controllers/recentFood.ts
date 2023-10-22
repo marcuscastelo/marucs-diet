@@ -1,4 +1,7 @@
-import { RecentFood, recentFoodSchema } from '@/legacy/model/recentFoodModel'
+import {
+  RecentFood,
+  recentFoodSchema,
+} from '@/modules/recent-food/domain/recentFood'
 import { DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
 import supabase from '@/legacy/utils/supabase'
 

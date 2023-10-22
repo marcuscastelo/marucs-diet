@@ -1,9 +1,9 @@
-import { Day } from '@/legacy/model/dayModel'
-import { ItemGroup } from '@/legacy/model/itemGroupModel'
-import { MacroNutrients } from '@/legacy/model/macroNutrientsModel'
-import { Meal } from '@/legacy/model/mealModel'
-import { Recipe } from '@/legacy/model/recipeModel'
-import { TemplateItem } from '@/legacy/model/templateItemModel'
+import { DayDiet } from '@/modules/diet/day-diet/domain/day'
+import { ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
+import { MacroNutrients } from '@/src/modules/diet/macro-nutrients/domain/macroNutrients'
+import { Meal } from '@/src/modules/diet/meal/domain/meal'
+import { Recipe } from '@/src/modules/diet/recipe/domain/recipe'
+import { TemplateItem } from '@/src/modules/diet/template-item/domain/templateItem'
 
 export function calcItemMacros(item: TemplateItem): MacroNutrients {
   return {
@@ -55,7 +55,7 @@ export function calcMealMacros(meal: Meal): MacroNutrients {
   )
 }
 
-export function calcDayMacros(day: Day): MacroNutrients {
+export function calcDayMacros(day: DayDiet): MacroNutrients {
   return day.meals.reduce(
     (acc, meal) => {
       const mealMacros = calcMealMacros(meal)
@@ -89,4 +89,5 @@ export const calcGroupCalories = (group: ItemGroup) =>
 export const calcMealCalories = (meal: Meal) =>
   calcCalories(calcMealMacros(meal))
 
-export const calcDayCalories = (day: Day) => calcCalories(calcDayMacros(day))
+export const calcDayCalories = (day: DayDiet) =>
+  calcCalories(calcDayMacros(day))

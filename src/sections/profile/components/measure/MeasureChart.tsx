@@ -9,10 +9,10 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { Measure } from '@/legacy/model/measureModel'
+import { Measure } from '@/modules/measure/domain/measure'
 import { BodyFatInput, calculateBodyFat } from '@/legacy/utils/bfMath'
 import { useUserGender, useUserId } from '@/sections/user/context/UserContext'
-import { useWeights } from '@/sections/profile/weight/hooks/useWeights'
+import { useWeightContext } from '@/src/sections/weight/context/WeightContext'
 type DayAverage = Omit<Measure, '__type' | 'id' | 'owner' | 'target_timestamp'>
 type DayMeasures = {
   date: string
@@ -21,10 +21,9 @@ type DayMeasures = {
 }
 
 export function MeasureChart({ measures }: { measures: Measure[] }) {
-  const userId = useUserId()
   const userGender = useUserGender()
 
-  const { weights } = useWeights(userId)
+  const { weights } = useWeightContext()
 
   if (weights.loading || weights.errored) {
     return <h1>Carregando pesos...</h1>

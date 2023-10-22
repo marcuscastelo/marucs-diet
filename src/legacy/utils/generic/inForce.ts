@@ -3,7 +3,7 @@ export type InForce<TObj, TKey extends keyof TObj> = {
 }
 
 export function inForceGeneric<TObj extends object, TKey extends keyof TObj>(
-  array: (TObj & InForce<TObj, TKey>)[],
+  array: readonly (TObj & InForce<TObj, TKey>)[],
   key: TKey,
   date: Date,
 ) {

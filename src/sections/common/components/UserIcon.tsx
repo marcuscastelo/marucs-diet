@@ -1,6 +1,6 @@
 'use client'
 
-import { User } from '@/legacy/model/userModel'
+import { User } from '@/modules/user/domain/user'
 import Image from 'next/image'
 
 export function UserIcon({
@@ -10,6 +10,7 @@ export function UserIcon({
   userId: User['id']
   className?: string
 }) {
+  // TODO: validateDOMNesting(...): <div> cannot appear as a descendant of <p>.
   return (
     <div className={className}>
       <Image

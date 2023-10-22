@@ -13,14 +13,14 @@ export default function DatepickerRouter({
   const router = useRouter()
   const handleDayChange = (newValue: DateValueType) => {
     if (!newValue?.startDate) {
-      router.push('/day')
+      router.push('/diet')
       return
     }
 
     const dateString = newValue.startDate
     const date = stringToDate(dateString)
     const dayString = date.toISOString().split('T')[0] // TODO: retriggered: use dateUtils when this is understood
-    router.push(`/day/${dayString}`)
+    router.push(`/diet/${dayString}`)
   }
 
   return (

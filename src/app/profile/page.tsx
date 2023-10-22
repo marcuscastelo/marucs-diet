@@ -1,16 +1,15 @@
 import { BasicInfo } from '@/sections/profile/components/BasicInfo'
-import { WeightEvolution } from '@/sections/profile/weight/components/WeightEvolution'
+import { WeightEvolution } from '@/sections/weight/components/WeightEvolution'
 import { MeasuresEvolution } from '@/sections/profile/components/measure/MeasuresEvolution'
 
 import { fetchUser, updateUser } from '@/legacy/controllers/users'
-import { MacroTarget } from '@/sections/macros/components/MacroTargets'
+import { MacroTarget } from '@/src/sections/macro-nutrients/components/MacroTargets'
 import { revalidatePath } from 'next/cache'
 import { getUser } from '@/legacy/actions/user'
-import { MacroEvolution } from '@/sections/profile/macros/components/MacroEvolution'
-import { fetchUserWeights } from '@/legacy/controllers/weights'
+import { MacroEvolution } from '@/sections/macro-profile/components/MacroEvolution'
 import { latestWeight } from '@/legacy/utils/weightUtils'
-import { User } from '@/legacy/model/userModel'
-import { MacroProfile } from '@/legacy/model/macroProfileModel'
+import { User } from '@/modules/user/domain/user'
+import { MacroProfile } from '@/src/modules/diet/macro-profile/domain/macroProfile'
 import {
   fetchUserMacroProfiles,
   insertMacroProfile,
@@ -19,6 +18,7 @@ import {
 import { latestMacroProfile } from '@/legacy/utils/macroProfileUtils'
 import { getToday } from '@/legacy/utils/dateUtils'
 import { BottomNavigation } from '@/sections/common/components/BottomNavigation'
+import { createSupabaseWeightRepository } from '@/src/modules/weight/infrastructure/supabaseWeightRepository'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -41,7 +41,8 @@ export default async function Page() {
     return <h1>Usuário {userId} não encontrado</h1>
   }
 
-  const weights = await fetchUserWeights(userId)
+  const weightRepository = createSupabaseWeightRepository()
+  const weights = await weightRepository.fetchUserWeights(userId)
   const weight = latestWeight(weights)?.weight
 
   const macroProfiles = await fetchUserMacroProfiles(userId)

@@ -1,6 +1,6 @@
 'use client'
 
-import { User, userSchema } from '@/legacy/model/userModel'
+import { User, userSchema } from '@/modules/user/domain/user'
 import { useEffect, useState } from 'react'
 import Capsule from '@/sections/common/components/capsule/Capsule'
 import { z } from 'zod'
