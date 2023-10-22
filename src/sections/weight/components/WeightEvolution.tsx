@@ -86,7 +86,12 @@ export function WeightEvolution({ onSave }: { onSave: () => void }) {
             Adicionar peso
           </button>
         </div>
-        <WeightChart weights={weights.data} desiredWeight={desiredWeight} />
+        {/* // TODO: Create combo box to select weight chart variant (7 days or all time)  */}
+        <WeightChart
+          weights={weights.data}
+          desiredWeight={desiredWeight}
+          type="all-time"
+        />
         <div className="mx-5 lg:mx-20 pb-10">
           {weights.data &&
             [...weights.data]
@@ -215,18 +220,28 @@ function WeightView({
 function WeightChart({
   weights,
   desiredWeight,
+  type,
 }: {
   weights: readonly Weight[]
   desiredWeight: number
+  type: 'last-7-days' | 'all-time'
 }) {
-  type DayWeight = OHLC & {
+  type TickWeight = OHLC & {
     movingAverage?: number
     desiredWeight?: number
   }
 
   const weightsByDay = weights.reduce(
     (acc, weight) => {
-      const day = weight.target_timestamp.toLocaleDateString()
+      const week = (() => {
+        const date = new Date(weight.target_timestamp)
+        const month = date.toLocaleString('default', { month: 'short' })
+        const weekNumber = Math.min(4, Math.ceil(date.getDate() / 7))
+        return `${month} (${weekNumber}/4)`
+      })()
+      const day_ = weight.target_timestamp.toLocaleDateString()
+
+      const day = type === 'last-7-days' ? day_ : week
       if (!acc[day]) {
         acc[day] = []
       }
@@ -236,7 +251,7 @@ function WeightChart({
     {} as { [day: string]: Weight[] },
   )
 
-  const data: readonly DayWeight[] = Object.entries(weightsByDay)
+  const data: readonly TickWeight[] = Object.entries(weightsByDay)
     .map(([day, weights]) => {
       const open = firstWeight(weights)?.weight ?? 0
       const low = Math.min(...weights.map((weight) => weight.weight))
