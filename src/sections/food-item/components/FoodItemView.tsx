@@ -1,7 +1,7 @@
 'use client'
 
 import MacroNutrientsView from '@/src/sections/macro-nutrients/components/MacroNutrientsView'
-import { MacroNutrients } from '@/modules/macro-nutrients/domain/macroNutrients'
+import { MacroNutrients } from '@/src/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   FoodItemContextProvider,
   useFoodItemContext,
@@ -11,8 +11,8 @@ import { searchFoodById } from '@/legacy/controllers/food'
 import { calcItemCalories } from '@/legacy/utils/macroMath'
 import { useUserContext } from '@/sections/user/context/UserContext'
 import { searchRecipeById } from '@/legacy/controllers/recipes'
-import { TemplateItem } from '@/modules/template-item/domain/templateItem'
-import { Template } from '@/modules/template/domain/template'
+import { TemplateItem } from '@/src/modules/diet/template-item/domain/templateItem'
+import { Template } from '@/src/modules/diet/template/domain/template'
 import {
   ReadonlySignal,
   computed,

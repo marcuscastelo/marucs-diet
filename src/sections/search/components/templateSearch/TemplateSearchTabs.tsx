@@ -4,8 +4,8 @@ import { Tabs } from 'flowbite-react'
 import { ObjectValues } from '@/legacy/utils/typeUtils'
 import { Loadable, UnboxedLoadable } from '@/legacy/utils/loadable'
 import { TemplateStore } from '@/sections/template/context/TemplateContext'
-import { Food } from '@/modules/food/domain/food'
-import { Template } from '@/modules/template/domain/template'
+import { Food } from '@/modules/diet/food/domain/food'
+import { Template } from '@/src/modules/diet/template/domain/template'
 
 type TabDefinition = {
   id: string

@@ -1,6 +1,6 @@
 'use client'
 
-import { Food } from '@/modules/food/domain/food'
+import { Food } from '@/modules/diet/food/domain/food'
 import Modal, { ModalActions } from '@/sections/common/components/Modal'
 import { BarCodeReader } from '@/src/sections/barcode/components/BarCodeReader'
 import BarCodeSearch from '@/src/sections/barcode/components/BarCodeSearch'

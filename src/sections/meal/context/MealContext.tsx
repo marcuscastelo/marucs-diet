@@ -1,9 +1,9 @@
 'use client'
 
-import { Meal } from '@/modules/meal/domain/meal'
+import { Meal } from '@/src/modules/diet/meal/domain/meal'
 import { Loadable } from '@/src/legacy/utils/loadable'
-import { Day } from '@/src/modules/day/domain/day'
-import { MealRepository } from '@/src/modules/meal/domain/mealRepository'
+import { Day } from '@/src/modules/diet/day/domain/day'
+import { MealRepository } from '@/src/modules/diet/meal/domain/mealRepository'
 import { ReadonlySignal } from '@preact/signals-react'
 import { useState } from 'react'
 import { createContext, useContext } from 'use-context-selector'

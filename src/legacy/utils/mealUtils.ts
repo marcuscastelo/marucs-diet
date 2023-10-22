@@ -1,5 +1,5 @@
-import { ItemGroup } from '@/modules/item-group/domain/itemGroup'
-import { Meal } from '@/modules/meal/domain/meal'
+import { ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
+import { Meal } from '@/src/modules/diet/meal/domain/meal'
 
 // TODO: Create RecipeEditor, MealEditor, ItemGroupEditor, FoodItemEditor classes to avoid this code duplication and error proneness
 /**

@@ -1,5 +1,5 @@
 import { User } from '@/modules/user/domain/user'
-import { Food } from '@/modules/food/domain/food'
+import { Food } from '@/modules/diet/food/domain/food'
 import {
   createContext,
   useContext,

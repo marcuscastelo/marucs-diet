@@ -1,6 +1,6 @@
 'use client'
 
-import { TemplateItem } from '@/modules/template-item/domain/templateItem'
+import { TemplateItem } from '@/src/modules/diet/template-item/domain/templateItem'
 import { ReadonlySignal } from '@preact/signals-react'
 import { ReactNode } from 'react'
 import { createContext, useContext } from 'use-context-selector'

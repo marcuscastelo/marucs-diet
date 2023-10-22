@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react'
 import FoodItemView from '@/sections/food-item/components/FoodItemView'
 import { searchFoodsByEan } from '@/legacy/controllers/food'
-import { Food } from '@/modules/food/domain/food'
+import { Food } from '@/modules/diet/food/domain/food'
 import { useUserContext } from '@/sections/user/context/UserContext'
-import { createFoodItem } from '@/modules/food-item/domain/foodItem'
-import { MacroNutrients } from '@/modules/macro-nutrients/domain/macroNutrients'
+import { createFoodItem } from '@/src/modules/diet/food-item/domain/foodItem'
+import { MacroNutrients } from '@/src/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   Signal,
   computed,

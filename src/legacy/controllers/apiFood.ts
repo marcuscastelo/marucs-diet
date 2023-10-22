@@ -1,5 +1,5 @@
 import { ApiFood } from '@/legacy/model/apiFoodModel'
-import { Food, foodSchema } from '@/modules/food/domain/food'
+import { Food, foodSchema } from '@/modules/diet/food/domain/food'
 import { INTERNAL_API } from '@/legacy/utils/api'
 import { DbReady } from '@/legacy/utils/newDbRecord'
 import { insertFood } from '@/legacy/controllers/food'

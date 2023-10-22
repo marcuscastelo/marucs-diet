@@ -1,7 +1,7 @@
 'use client'
 
 import { fetchUserMacroProfiles } from '@/legacy/controllers/macroProfiles'
-import { MacroProfile } from '@/modules/macro-profile/domain/macroProfile'
+import { MacroProfile } from '@/src/modules/diet/macro-profile/domain/macroProfile'
 import { User } from '@/modules/user/domain/user'
 import { Loadable } from '@/legacy/utils/loadable'
 import { useCallback, useEffect, useState } from 'react'

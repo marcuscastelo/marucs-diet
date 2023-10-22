@@ -1,4 +1,4 @@
-import { Recipe, recipeSchema } from '@/modules/recipe/domain/recipe'
+import { Recipe, recipeSchema } from '@/src/modules/diet/recipe/domain/recipe'
 import { User } from '@/modules/user/domain/user'
 import { DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
 import supabase from '@/legacy/utils/supabase'

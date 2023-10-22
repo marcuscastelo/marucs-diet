@@ -1,7 +1,7 @@
 'use client'
 
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { Day } from '@/modules/day/domain/day'
+import { Day } from '@/modules/diet/day/domain/day'
 import { ReadonlySignal, computed } from '@preact/signals-react'
 import { useDayContext } from '@/src/sections/day/context/DaysContext'
 

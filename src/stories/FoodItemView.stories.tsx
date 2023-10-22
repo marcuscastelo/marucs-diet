@@ -4,7 +4,7 @@ import FoodItemView, {
 } from '@/sections/food-item/components/FoodItemView'
 import ServerApp from '@/sections/common/components/ServerApp'
 import { computed } from '@preact/signals-react'
-import { createFoodItem } from '@/modules/food-item/domain/foodItem'
+import { createFoodItem } from '@/src/modules/diet/food-item/domain/foodItem'
 
 const meta: Meta<typeof FoodItemView> = {
   title: 'Components/FoodItemView',

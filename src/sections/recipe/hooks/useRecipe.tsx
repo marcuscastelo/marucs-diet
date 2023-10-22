@@ -1,6 +1,6 @@
 'use client'
 
-import { Recipe } from '@/modules/recipe/domain/recipe'
+import { Recipe } from '@/src/modules/diet/recipe/domain/recipe'
 import { useEffect } from 'react'
 import { useFetch } from '@/sections/common/hooks/useFetch'
 import { searchRecipeById } from '@/legacy/controllers/recipes'

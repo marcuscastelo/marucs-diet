@@ -1,6 +1,6 @@
 'use client'
 
-import { ItemGroup } from '@/modules/item-group/domain/itemGroup'
+import { ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
 import {
   ReadonlySignal,
   Signal,

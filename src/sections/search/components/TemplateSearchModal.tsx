@@ -9,7 +9,7 @@ import FoodItemView from '@/sections/food-item/components/FoodItemView'
 import { Alert } from 'flowbite-react'
 import React, { useEffect, useState } from 'react'
 import BarCodeInsertModal from '@/src/sections/barcode/components/BarCodeInsertModal'
-import { Recipe } from '@/modules/recipe/domain/recipe'
+import { Recipe } from '@/src/modules/diet/recipe/domain/recipe'
 import PageLoading from '@/sections/common/components/PageLoading'
 import FoodItemEditModal from '@/sections/food-item/components/FoodItemEditModal'
 import { useUserContext, useUserId } from '@/sections/user/context/UserContext'
@@ -17,7 +17,7 @@ import {
   ItemGroup,
   RecipedItemGroup,
   SimpleItemGroup,
-} from '@/modules/item-group/domain/itemGroup'
+} from '@/modules/diet/item-group/domain/itemGroup'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { useFoodContext } from '@/sections/template/context/TemplateContext'
 import { addId, generateId } from '@/legacy/utils/idUtils'
@@ -27,22 +27,22 @@ import {
   chooseFoodsFromStore as chooseFoodsFromFoodStore,
 } from '@/sections/search/components/TemplateSearchTabs'
 import { useTyping } from '@/sections/common/hooks/useTyping'
-import { createFoodItem } from '@/modules/food-item/domain/foodItem'
+import { createFoodItem } from '@/src/modules/diet/food-item/domain/foodItem'
 import {
   fetchRecentFoodByUserIdAndFoodId,
   insertRecentFood,
   updateRecentFood,
 } from '@/legacy/controllers/recentFood'
 import { createRecentFood } from '@/modules/recent-food/domain/recentFood'
-import { Template } from '@/modules/template/domain/template'
-import { TemplateItem } from '@/modules/template-item/domain/templateItem'
+import { Template } from '@/src/modules/diet/template/domain/template'
+import { TemplateItem } from '@/src/modules/diet/template-item/domain/templateItem'
 import {
   ReadonlySignal,
   Signal,
   computed,
   useSignal,
 } from '@preact/signals-react'
-import { createFood } from '@/modules/food/domain/food'
+import { createFood } from '@/modules/diet/food/domain/food'
 
 export type TemplateSearchModalProps = {
   targetName: string

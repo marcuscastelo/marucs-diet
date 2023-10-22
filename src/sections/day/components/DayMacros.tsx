@@ -1,6 +1,6 @@
 'use client'
 
-import { MacroNutrients } from '@/modules/macro-nutrients/domain/macroNutrients'
+import { MacroNutrients } from '@/src/modules/diet/macro-nutrients/domain/macroNutrients'
 import { Progress } from 'flowbite-react'
 import { calculateMacroTarget } from '@/src/sections/macro-nutrients/components/MacroTargets'
 import { CSSProperties } from 'react'

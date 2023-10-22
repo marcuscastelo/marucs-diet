@@ -9,7 +9,7 @@ import { getUser } from '@/legacy/actions/user'
 import { MacroEvolution } from '@/sections/macro-profile/components/MacroEvolution'
 import { latestWeight } from '@/legacy/utils/weightUtils'
 import { User } from '@/modules/user/domain/user'
-import { MacroProfile } from '@/modules/macro-profile/domain/macroProfile'
+import { MacroProfile } from '@/src/modules/diet/macro-profile/domain/macroProfile'
 import {
   fetchUserMacroProfiles,
   insertMacroProfile,
