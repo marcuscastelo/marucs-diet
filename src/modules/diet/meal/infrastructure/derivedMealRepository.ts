@@ -1,9 +1,9 @@
-import { Day } from '@/src/modules/diet/day/domain/day'
-import { DayRepository } from '@/src/modules/diet/day/domain/dayRepository'
+import { DayDiet } from '@/src/modules/diet/day-diet/domain/day'
+import { DayRepository } from '@/src/modules/diet/day-diet/domain/dayRepository'
 import { MealRepository } from '@/src/modules/diet/meal/domain/mealRepository'
 
 export function createDerivedMealRepository(
-  localDays: readonly Day[],
+  localDays: readonly DayDiet[],
   dayRepository: Omit<DayRepository, 'fetchUserDays'>,
 ): MealRepository {
   return {

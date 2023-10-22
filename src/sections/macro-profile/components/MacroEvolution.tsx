@@ -1,5 +1,5 @@
 'use client'
-import { useDayContext } from '@/sections/day/context/DaysContext'
+import { useDayContext } from '@/sections/day-diet/context/DaysContext'
 import Capsule from '@/sections/common/components/capsule/Capsule'
 
 import {
@@ -25,7 +25,7 @@ import {
   inForceMacroProfile,
   latestMacroProfile,
 } from '@/legacy/utils/macroProfileUtils'
-import { Day } from '@/modules/diet/day/domain/day'
+import { DayDiet } from '@/modules/diet/day-diet/domain/day'
 import { MacroProfile } from '@/src/modules/diet/macro-profile/domain/macroProfile'
 import { dateToDDMM } from '@/legacy/utils/dateUtils'
 import { Weight } from '@/modules/weight/domain/weight'
@@ -68,7 +68,7 @@ export function MacroEvolution() {
 
 function createChartData(
   weights: readonly Weight[],
-  days: readonly Day[],
+  days: readonly DayDiet[],
   macroProfiles: readonly MacroProfile[],
 ) {
   const data = days.map((day) => {

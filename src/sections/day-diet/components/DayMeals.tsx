@@ -1,24 +1,23 @@
 'use client'
 
 import MealEditViewList from '@/sections/meal/components/MealEditViewList'
-import { Day, createDay } from '@/modules/diet/day/domain/day'
+import { DayDiet } from '@/modules/diet/day-diet/domain/day'
 import MealEditView, {
   MealEditViewProps,
 } from '@/sections/meal/components/MealEditView'
 import { Alert } from 'flowbite-react'
-import DayMacros from '@/sections/day/components/DayMacros'
+import DayMacros from '@/sections/day-diet/components/DayMacros'
 import { Meal } from '@/src/modules/diet/meal/domain/meal'
 import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
 import { ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
 import { calcDayMacros } from '@/legacy/utils/macroMath'
 import ItemGroupEditModal from '@/sections/item-group/components/ItemGroupEditModal'
-import CopyLastDayButton from '@/sections/day/components/CopyLastDayButton'
-import DeleteDayButton from '@/sections/day/components/DeleteDayButton'
+import CopyLastDayButton from '@/sections/day-diet/components/CopyLastDayButton'
+import DeleteDayButton from '@/sections/day-diet/components/DeleteDayButton'
 import { useRouter } from 'next/navigation'
 import { getToday } from '@/legacy/utils/dateUtils'
 import { ModalContextProvider } from '@/sections/common/context/ModalContext'
-import { useUserContext, useUserId } from '@/sections/user/context/UserContext'
-import { addItemGroupToMeal } from '@/legacy/utils/dayEditor'
+import { useUserContext } from '@/sections/user/context/UserContext'
 import {
   ReadonlySignal,
   Signal,
@@ -27,11 +26,10 @@ import {
   useSignal,
   useSignalEffect,
 } from '@preact/signals-react'
-import { useDayContext } from '@/src/sections/day/context/DaysContext'
-import DayNotFound from '@/src/sections/day/components/DayNotFound'
+import { useDayContext } from '@/src/sections/day-diet/context/DaysContext'
+import DayNotFound from '@/src/sections/day-diet/components/DayNotFound'
 import { useMealContext } from '@/src/sections/meal/context/MealContext'
 import { useItemGroupContext } from '@/src/sections/item-group/context/ItemGroupContext'
-import { deleteInnerGroup } from '@/src/legacy/utils/mealUtils'
 
 type EditSelection = {
   meal: Meal
@@ -77,7 +75,7 @@ export default function DayMeals({ selectedDay }: { selectedDay: string }) {
     itemGroupEditModalVisible.value = true
   }
 
-  const handleUpdateMeal = async (day: Day, meal: Meal) => {
+  const handleUpdateMeal = async (day: DayDiet, meal: Meal) => {
     if (dayLocked.value) {
       alert('Dia bloqueado, não é possível editar') // TODO: Change all alerts with ConfirmModal
       return
@@ -171,7 +169,7 @@ export default function DayMeals({ selectedDay }: { selectedDay: string }) {
                 <a
                   className="font-bold text-blue-500 hover:cursor-pointer "
                   onClick={() => {
-                    router.push('/day/' + today)
+                    router.push('/diet/' + today)
                   }}
                 >
                   Mostrar refeições de hoje
@@ -206,7 +204,7 @@ function ExternalTemplateSearchModal({
   day,
 }: {
   visible: Signal<boolean>
-  day: ReadonlySignal<Day>
+  day: ReadonlySignal<DayDiet>
 }) {
   const { debug } = useUserContext()
   const { insertItemGroup } = useItemGroupContext()
@@ -253,7 +251,7 @@ function ExternalItemGroupEditModal({
   day,
 }: {
   visible: Signal<boolean>
-  day: ReadonlySignal<Day>
+  day: ReadonlySignal<DayDiet>
 }) {
   const { updateItemGroup, deleteItemGroup } = useItemGroupContext()
   const { debug } = useUserContext()

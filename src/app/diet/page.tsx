@@ -12,7 +12,7 @@ export default function Page() {
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      router.replace(`/day/${today}`)
+      router.replace(`/diet/${today}`)
     }, 10)
 
     return () => {
