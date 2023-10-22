@@ -3,6 +3,7 @@ import { User } from '@/modules/user/domain/user'
 import { DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
 import supabase from '@/legacy/utils/supabase'
 import { DayRepository } from '@/src/modules/diet/day-diet/domain/dayRepository'
+import { ReadonlySignal, signal } from '@preact/signals-react'
 
 // TODO: Delete old days table and rename days_test to days
 const TABLE = 'days_test'
@@ -16,9 +17,20 @@ export function createSupabaseDayRepository(): DayRepository {
   }
 }
 
+const userDays = signal<readonly DayDiet[]>([])
+
 // TODO: better error handling
-const fetchUserDays = async (userId: User['id']): Promise<readonly DayDiet[]> =>
-  ((await supabase.from(TABLE).select()).data ?? [])
+async function fetchUserDays(
+  userId: User['id'],
+): Promise<ReadonlySignal<readonly DayDiet[]>> {
+  // TODO: filter userId in query
+  console.debug(`[supabaseDayRepository] fetchUserDays(${userId})`)
+  const { data, error } = await supabase.from(TABLE).select()
+  if (error) {
+    throw error
+  }
+
+  const days = data
     .map((day) => dayDietSchema.parse(day))
     .filter((day) => day.owner === userId)
     .filter((day) => !isNaN(new Date(day.target_day).getTime()))
@@ -33,6 +45,14 @@ const fetchUserDays = async (userId: User['id']): Promise<readonly DayDiet[]> =>
       const bDate = new Date(b.target_day)
       return aDate.getTime() - bDate.getTime()
     })
+
+  console.debug(
+    `[supabaseDayRepository] fetchUserDays returned ${days.length} days`,
+  )
+  userDays.value = days
+
+  return userDays
+}
 
 // TODO: Change upserts to inserts on the entire app
 const upsertDay = async (

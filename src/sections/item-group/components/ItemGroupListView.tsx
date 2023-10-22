@@ -13,6 +13,7 @@ export default function ItemGroupListView({
   itemGroups: ReadonlySignal<ItemGroup[]>
   onItemClick: ItemGroupViewProps['onClick']
 }) {
+  console.debug(`[ItemGroupListView] - Rendering`)
   return (
     <>
       {itemGroups.value.map((_, idx) => {
@@ -24,18 +25,19 @@ export default function ItemGroupListView({
               onClick={onItemClick}
               header={
                 <ItemGroupView.Header
-                  name={<ItemGroupView.Header.Name />}
+                  name={<ItemGroupView.Header.Name group={group} />}
                   copyButton={
                     <ItemGroupView.Header.CopyButton
+                      group={group}
                       onCopyItemGroup={(group) => {
-                        // TOOD: Replace with clipboard hook (here and in FoodItemView, if applicable)
+                        // TODO: Replace with clipboard hook (here and in FoodItemView, if applicable)
                         navigator.clipboard.writeText(JSON.stringify(group))
                       }}
                     />
                   }
                 />
               }
-              nutritionalInfo={<ItemGroupView.NutritionalInfo />}
+              nutritionalInfo={<ItemGroupView.NutritionalInfo group={group} />}
             />
           </div>
         )

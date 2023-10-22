@@ -4,10 +4,6 @@ import MacroNutrientsView from '@/src/sections/macro-nutrients/components/MacroN
 import { MacroNutrients } from '@/src/modules/diet/macro-nutrients/domain/macroNutrients'
 import CopyIcon from '@/sections/common/components/icons/CopyIcon'
 import {
-  ItemGroupEditContextProvider,
-  useItemGroupEditContext,
-} from '@/sections/item-group/context/ItemGroupEditContext'
-import {
   ItemGroup,
   isSimpleSingleGroup,
 } from '@/modules/diet/item-group/domain/itemGroup'
@@ -44,6 +40,7 @@ export default function ItemGroupView({
     e.stopPropagation()
     e.preventDefault()
   }
+  console.debug(`[ItemGroupView] - Rendering`)
 
   return (
     <div
@@ -52,16 +49,8 @@ export default function ItemGroupView({
       }`}
       onClick={handleClick}
     >
-      <ItemGroupEditContextProvider
-        group={itemGroup}
-        onSaveGroup={() => {
-          throw new Error('ItemGroupView should not be editable')
-          // TODO: Create a context (ItemGroupContextProvider) for non-edit purposes
-        }}
-      >
-        {header}
-        {nutritionalInfo}
-      </ItemGroupEditContextProvider>
+      {header}
+      {nutritionalInfo}
     </div>
   )
 }
@@ -100,9 +89,11 @@ ItemGroupHeader.Name = ItemGroupName
 ItemGroupHeader.CopyButton = ItemGroupCopyButton
 ItemGroupHeader.Favorite = ItemGroupFavorite
 
-function ItemGroupName() {
-  const { group: itemGroup } = useItemGroupEditContext()
-
+function ItemGroupName({
+  group: itemGroup,
+}: {
+  group: ReadonlySignal<ItemGroup>
+}) {
   const { debug } = useUserContext()
 
   const [recipe, setRecipe] = useState<Loadable<Recipe | null>>({
@@ -167,11 +158,11 @@ function ItemGroupName() {
 
 function ItemGroupCopyButton({
   onCopyItemGroup,
+  group: itemGroup,
 }: {
   onCopyItemGroup: (itemGroup: ItemGroup) => void
+  group: ReadonlySignal<ItemGroup>
 }) {
-  const { group: itemGroup } = useItemGroupEditContext()
-
   return (
     <div
       className={`btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105`}
@@ -211,8 +202,13 @@ function ItemGroupFavorite({
   )
 }
 
-function ItemGroupViewNutritionalInfo() {
-  const { group: itemGroup } = useItemGroupEditContext()
+function ItemGroupViewNutritionalInfo({
+  group: itemGroup,
+}: {
+  group: ReadonlySignal<ItemGroup>
+}) {
+  console.debug(`[ItemGroupViewNutritionalInfo] - Rendering`)
+  console.debug(`[ItemGroupViewNutritionalInfo] - itemGroup:`, itemGroup)
 
   const multipliedMacros: MacroNutrients = (itemGroup.value &&
     calcGroupMacros(itemGroup.value)) ?? {

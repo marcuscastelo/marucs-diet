@@ -40,6 +40,10 @@ export function ItemGroupEditContextProvider({
   const group = useSignal<ItemGroup | null>(initialGroup.value)
 
   useSignalEffect(() => {
+    console.debug(
+      `[ItemGroupEditContextProvider] <signalEffect> - initialGroup changed to `,
+      initialGroup.value,
+    )
     group.value = initialGroup.value
   })
 

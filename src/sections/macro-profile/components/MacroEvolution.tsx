@@ -123,7 +123,7 @@ function AllMacrosChart({ weights }: { weights: readonly Weight[] }) {
     )
   }
 
-  const proteinDeviance = days.value.data
+  const proteinDeviance = days.value.data.value
     .map((day) => {
       const currentWeight = inForceWeight(weights, new Date(day.target_day))
       const macroTargets = calculateMacroTarget(
@@ -135,7 +135,7 @@ function AllMacrosChart({ weights }: { weights: readonly Weight[] }) {
     })
     .reduce((a, b) => a + b, 0)
 
-  const fatDeviance = days.value.data
+  const fatDeviance = days.value.data.value
     .map((day) => {
       const currentWeight = inForceWeight(weights, new Date(day.target_day))
       const macroTargets = calculateMacroTarget(
@@ -147,7 +147,11 @@ function AllMacrosChart({ weights }: { weights: readonly Weight[] }) {
     })
     .reduce((a, b) => a + b, 0)
 
-  const data = createChartData(weights, days.value.data, macroProfiles.data)
+  const data = createChartData(
+    weights,
+    days.value.data.value,
+    macroProfiles.data,
+  )
 
   return (
     <div>
@@ -272,7 +276,11 @@ function CaloriesChart({ weights }: { weights: readonly Weight[] }) {
     return <h1>Carregando perfis de macro...</h1>
   }
 
-  const data = createChartData(weights, days.value.data, macroProfiles.data)
+  const data = createChartData(
+    weights,
+    days.value.data.value,
+    macroProfiles.data,
+  )
 
   return (
     <div>
@@ -329,7 +337,11 @@ function ProteinChart({ weights }: { weights: readonly Weight[] }) {
     return <h1>Carregando perfis de macro...</h1>
   }
 
-  const data = createChartData(weights, days.value.data, macroProfiles.data)
+  const data = createChartData(
+    weights,
+    days.value.data.value,
+    macroProfiles.data,
+  )
 
   return (
     <div>
@@ -385,7 +397,11 @@ function FatChart({ weights }: { weights: readonly Weight[] }) {
     return <h1>Carregando perfis de macro...</h1>
   }
 
-  const data = createChartData(weights, days.value.data, macroProfiles.data)
+  const data = createChartData(
+    weights,
+    days.value.data.value,
+    macroProfiles.data,
+  )
 
   return (
     <div>
@@ -441,7 +457,11 @@ function CarbsChart({ weights }: { weights: readonly Weight[] }) {
     return <h1>Carregando perfis de macro...</h1>
   }
 
-  const data = createChartData(weights, days.value.data, macroProfiles.data)
+  const data = createChartData(
+    weights,
+    days.value.data.value,
+    macroProfiles.data,
+  )
   return (
     <div>
       <div className="text-3xl text-center">Carboidrato</div>

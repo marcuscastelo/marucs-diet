@@ -8,7 +8,7 @@ import { DayRepository } from '@/src/modules/diet/day-diet/domain/dayRepository'
 import { ReadonlySignal, useSignal } from '@preact/signals-react'
 
 export type DayContextProps = {
-  days: ReadonlySignal<Loadable<readonly DayDiet[]>>
+  days: ReadonlySignal<Loadable<ReadonlySignal<readonly DayDiet[]>>>
   refetchDays: () => void
   insertDay: (day: DbReady<DayDiet>) => void
   updateDay: (dayId: DayDiet['id'], day: DbReady<DayDiet>) => void
@@ -38,7 +38,9 @@ export function DayContextProvider({
   repository: DayRepository
 }) {
   // TODO: Convert all states to signals
-  const days = useSignal<Loadable<readonly DayDiet[]>>({ loading: true })
+  const days = useSignal<Loadable<ReadonlySignal<readonly DayDiet[]>>>({
+    loading: true,
+  })
 
   const handleFetchDays = useCallback(() => {
     repository

@@ -66,6 +66,7 @@ export default function MealEditView({
 }: MealEditViewProps) {
   // TODO: Delete fake signal
   const mealSignal = computed(() => meal)
+  console.debug(`[MealEditView] - Rendering`)
 
   return (
     <div
@@ -231,6 +232,8 @@ function MealEditViewContent({
   onEditItemGroup: (item: ItemGroup) => void
 }) {
   const { meal } = useMealContextOld()
+  console.debug(`[MealEditViewContent] - Rendering`)
+  console.debug(`[MealEditViewContent] - meal.value:`, meal.value)
 
   useSignalEffect(() => {
     console.debug(`[MealEditViewContent] meal.value changed:`, meal.value)
