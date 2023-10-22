@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import ItemGroupEditModal, {
   ItemGroupEditModalProps,
-} from '@/sections/template/group/components/ItemGroupEditModal'
+} from '@/sections/item-group/components/ItemGroupEditModal'
 
 import ServerApp from '@/sections/common/components/ServerApp'
 import { computed } from '@preact/signals-react'

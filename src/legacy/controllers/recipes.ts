@@ -1,5 +1,5 @@
-import { Recipe, recipeSchema } from '@/legacy/model/recipeModel'
-import { User } from '@/legacy/model/userModel'
+import { Recipe, recipeSchema } from '@/src/modules/diet/recipe/domain/recipe'
+import { User } from '@/modules/user/domain/user'
 import { DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
 import supabase from '@/legacy/utils/supabase'
 import { Mutable } from '@/legacy/utils/typeUtils'

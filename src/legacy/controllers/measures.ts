@@ -1,5 +1,5 @@
-import { Measure, measureSchema } from '@/legacy/model/measureModel'
-import { User } from '@/legacy/model/userModel'
+import { Measure, measureSchema } from '@/modules/measure/domain/measure'
+import { User } from '@/modules/user/domain/user'
 import { DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
 import supabase from '@/legacy/utils/supabase'
 

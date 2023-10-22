@@ -1,17 +1,20 @@
 'use client'
 
-import { Meal, mealSchema } from '@/legacy/model/mealModel'
+import { Meal, mealSchema } from '@/src/modules/diet/meal/domain/meal'
 import {
-  MealContextProvider,
-  useMealContext,
+  MealContextProviderOld,
+  useMealContextOld,
 } from '@/sections/meal/context/MealContext'
 import { useCallback } from 'react'
 import TrashIcon from '@/sections/common/components/icons/TrashIcon'
 import PasteIcon from '@/sections/common/components/icons/PasteIcon'
 import CopyIcon from '@/sections/common/components/icons/CopyIcon'
 import { calcMealCalories } from '@/legacy/utils/macroMath'
-import ItemGroupListView from '@/sections/template/group/components/ItemGroupListView'
-import { ItemGroup, itemGroupSchema } from '@/legacy/model/itemGroupModel'
+import ItemGroupListView from '@/src/sections/item-group/components/ItemGroupListView'
+import {
+  ItemGroup,
+  itemGroupSchema,
+} from '@/modules/diet/item-group/domain/itemGroup'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import useClipboard, {
   createClipboardSchemaFilter,
@@ -20,8 +23,8 @@ import { addInnerGroups } from '@/legacy/utils/mealUtils'
 import { deserializeClipboard } from '@/legacy/utils/clipboardUtils'
 import { convertToGroups } from '@/legacy/utils/groupUtils'
 import { regenerateId } from '@/legacy/utils/idUtils'
-import { foodItemSchema } from '@/legacy/model/foodItemModel'
-import { recipeSchema } from '@/legacy/model/recipeModel'
+import { foodItemSchema } from '@/src/modules/diet/food-item/domain/foodItem'
+import { recipeSchema } from '@/src/modules/diet/recipe/domain/recipe'
 import {
   ReadonlySignal,
   computed,
@@ -29,7 +32,7 @@ import {
 } from '@preact/signals-react'
 
 export type MealEditViewProps = {
-  meal: ReadonlySignal<Meal>
+  meal: Meal
   // TODO: Unify Header, Content and Actions for each component in the entire app
   /**
    * @deprecated
@@ -61,15 +64,19 @@ export default function MealEditView({
   actions,
   className,
 }: MealEditViewProps) {
+  // TODO: Delete fake signal
+  const mealSignal = computed(() => meal)
+  console.debug(`[MealEditView] - Rendering`)
+
   return (
     <div
       className={`bg-gray-800 p-3 ${className === undefined ? '' : className}`}
     >
-      <MealContextProvider meal={meal}>
+      <MealContextProviderOld meal={mealSignal}>
         {header}
         {content}
         {actions}
-      </MealContextProvider>
+      </MealContextProviderOld>
     </div>
   )
 }
@@ -87,7 +94,7 @@ function MealEditViewHeader({
     .or(itemGroupSchema)
     .or(foodItemSchema)
     .or(recipeSchema)
-  const { meal } = useMealContext()
+  const { meal } = useMealContextOld()
   const { show: showConfirmModal } = useConfirmModalContext()
 
   const isClipboardValid = createClipboardSchemaFilter(acceptedClipboardSchema)
@@ -224,7 +231,9 @@ function MealEditViewContent({
 }: {
   onEditItemGroup: (item: ItemGroup) => void
 }) {
-  const { meal } = useMealContext()
+  const { meal } = useMealContextOld()
+  console.debug(`[MealEditViewContent] - Rendering`)
+  console.debug(`[MealEditViewContent] - meal.value:`, meal.value)
 
   useSignalEffect(() => {
     console.debug(`[MealEditViewContent] meal.value changed:`, meal.value)

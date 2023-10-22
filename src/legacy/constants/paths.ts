@@ -1,7 +1,8 @@
+// TODO: Use paths constant (should be constructible from day id)
 export const paths = {
   HOME: '/',
-  TODAY: '/day',
-  DAY: '/day/[dayId]',
+  TODAY: '/diet',
+  DAY: '/diet/[dayId]',
 } as const
 
 export type PathName = keyof typeof paths

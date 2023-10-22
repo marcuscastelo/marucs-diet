@@ -9,7 +9,8 @@
     "project": "./tsconfig.json"
   },
   "rules": {
-    "@typescript-eslint/strict-boolean-expressions": 1, // TODO: Change strict-boolean-expressions to error
-    "@typescript-eslint/no-unnecessary-type-assertion": 1 // TODO: Change no-unnecessary-type-assertion to error
+    "@typescript-eslint/prefer-readonly-parameter-types": 0, // TODO: Change prefer-readonly-parameter-types to error
+    "@typescript-eslint/strict-boolean-expressions": "warn", // TODO: Change strict-boolean-expressions to error
+    "@typescript-eslint/no-unnecessary-type-assertion": "warn" // TODO: Change no-unnecessary-type-assertion to error
   }
 }

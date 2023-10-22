@@ -1,4 +1,4 @@
-import { Food, foodSchema } from '@/legacy/model/foodModel'
+import { Food, foodSchema } from '@/modules/diet/food/domain/food'
 import { DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
 import supabase from '@/legacy/utils/supabase'
 import { isEanCached } from '@/legacy/controllers/eanCache'
