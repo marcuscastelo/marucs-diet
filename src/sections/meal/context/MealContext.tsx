@@ -2,7 +2,7 @@
 
 import { Meal } from '@/src/modules/diet/meal/domain/meal'
 import { Loadable } from '@/src/legacy/utils/loadable'
-import { Day } from '@/src/modules/diet/day/domain/day'
+import { DayDiet } from '@/src/modules/diet/day-diet/domain/day'
 import { MealRepository } from '@/src/modules/diet/meal/domain/mealRepository'
 import { ReadonlySignal } from '@preact/signals-react'
 import { useState } from 'react'
@@ -10,10 +10,10 @@ import { createContext, useContext } from 'use-context-selector'
 
 export type MealContextProps = {
   meals: Loadable<readonly Meal[]>
-  refetchMeals: (dayId: Day['id']) => void
-  insertMeal: (dayId: Day['id'], meal: Meal) => void
-  updateMeal: (dayId: Day['id'], mealId: Meal['id'], meal: Meal) => void
-  deleteMeal: (dayId: Day['id'], mealId: Meal['id']) => void
+  refetchMeals: (dayId: DayDiet['id']) => void
+  insertMeal: (dayId: DayDiet['id'], meal: Meal) => void
+  updateMeal: (dayId: DayDiet['id'], mealId: Meal['id'], meal: Meal) => void
+  deleteMeal: (dayId: DayDiet['id'], mealId: Meal['id']) => void
 }
 
 const MealContext = createContext<MealContextProps | null>(null)
@@ -41,7 +41,7 @@ export function MealContextProvider({
     loading: true,
   })
 
-  const handleFetchMeals = (dayId: Day['id']) => {
+  const handleFetchMeals = (dayId: DayDiet['id']) => {
     repository.value
       ?.fetchDayMeals(dayId)
       .then((meals) => {
@@ -52,14 +52,14 @@ export function MealContextProvider({
       })
   }
 
-  const handleInsertMeal = (dayId: Day['id'], meal: Meal) => {
+  const handleInsertMeal = (dayId: DayDiet['id'], meal: Meal) => {
     repository.value
       ?.insertMeal(dayId, meal)
       .then(() => handleFetchMeals(dayId))
   }
 
   const handleUpdateMeal = (
-    dayId: Day['id'],
+    dayId: DayDiet['id'],
     mealId: Meal['id'],
     meal: Meal,
   ) => {
@@ -68,7 +68,7 @@ export function MealContextProvider({
       .then(() => handleFetchMeals(dayId))
   }
 
-  const handleDeleteMeal = (dayId: Day['id'], mealId: Meal['id']) => {
+  const handleDeleteMeal = (dayId: DayDiet['id'], mealId: Meal['id']) => {
     repository.value
       ?.deleteMeal(dayId, mealId)
       .then(() => handleFetchMeals(dayId))

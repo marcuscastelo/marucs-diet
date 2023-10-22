@@ -1,7 +1,7 @@
 'use client'
 
 import { Loadable } from '@/src/legacy/utils/loadable'
-import { Day } from '@/src/modules/diet/day/domain/day'
+import { DayDiet } from '@/src/modules/diet/day-diet/domain/day'
 import { ItemGroup } from '@/src/modules/diet/item-group/domain/itemGroup'
 import { ItemGroupRepository } from '@/src/modules/diet/item-group/domain/itemGroupRepository'
 import { Meal } from '@/src/modules/diet/meal/domain/meal'
@@ -11,20 +11,20 @@ import { createContext, useContext } from 'use-context-selector'
 
 export type ItemGroupContextProps = {
   groups: Loadable<readonly ItemGroup[]>
-  refetchItemGroups: (dayId: Day['id'], mealId: Meal['id']) => void
+  refetchItemGroups: (dayId: DayDiet['id'], mealId: Meal['id']) => void
   insertItemGroup: (
-    dayId: Day['id'],
+    dayId: DayDiet['id'],
     mealId: Meal['id'],
     itemGroup: ItemGroup,
   ) => void
   updateItemGroup: (
-    dayId: Day['id'],
+    dayId: DayDiet['id'],
     mealId: Meal['id'],
     itemGroupId: ItemGroup['id'],
     newItemGroup: ItemGroup,
   ) => void
   deleteItemGroup: (
-    dayId: Day['id'],
+    dayId: DayDiet['id'],
     mealId: Meal['id'],
     itemGroupId: ItemGroup['id'],
   ) => void
@@ -57,7 +57,7 @@ export function ItemGroupContextProvider({
     loading: true,
   })
 
-  const handleFetchItemGroups = (dayId: Day['id'], mealId: Meal['id']) => {
+  const handleFetchItemGroups = (dayId: DayDiet['id'], mealId: Meal['id']) => {
     repository.value
       ?.fetchMealItemGroups(dayId, mealId)
       .then((items) => {
@@ -69,7 +69,7 @@ export function ItemGroupContextProvider({
   }
 
   const handleInsertItemGroup = (
-    dayId: Day['id'],
+    dayId: DayDiet['id'],
     mealId: Meal['id'],
     itemGroup: ItemGroup,
   ) => {
@@ -79,7 +79,7 @@ export function ItemGroupContextProvider({
   }
 
   const handleUpdateItemGroup = (
-    dayId: Day['id'],
+    dayId: DayDiet['id'],
     mealId: Meal['id'],
     itemGroupId: ItemGroup['id'],
     newItemGroup: ItemGroup,
@@ -90,7 +90,7 @@ export function ItemGroupContextProvider({
   }
 
   const handleDeleteItemGroup = (
-    dayId: Day['id'],
+    dayId: DayDiet['id'],
     mealId: Meal['id'],
     itemGroupId: ItemGroup['id'],
   ) => {

@@ -1,15 +1,15 @@
 'use client'
 
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { Day } from '@/modules/diet/day/domain/day'
+import { DayDiet } from '@/modules/diet/day-diet/domain/day'
 import { ReadonlySignal, computed } from '@preact/signals-react'
-import { useDayContext } from '@/src/sections/day/context/DaysContext'
+import { useDayContext } from '@/src/sections/day-diet/context/DaysContext'
 
 export default function CopyLastDayButton({
   day,
   selectedDay,
 }: {
-  day: ReadonlySignal<Day | undefined>
+  day: ReadonlySignal<DayDiet | undefined>
   selectedDay: string
 }) {
   const { show: showConfirmModal } = useConfirmModalContext()

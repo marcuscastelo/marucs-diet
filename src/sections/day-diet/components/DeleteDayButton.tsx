@@ -1,14 +1,14 @@
 'use client'
 
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { Day } from '@/modules/diet/day/domain/day'
+import { DayDiet } from '@/modules/diet/day-diet/domain/day'
 import { ReadonlySignal } from '@preact/signals-react'
-import { useDayContext } from '@/src/sections/day/context/DaysContext'
+import { useDayContext } from '@/src/sections/day-diet/context/DaysContext'
 
 export default function DeleteDayButton({
   day,
 }: {
-  day: ReadonlySignal<Day | null | undefined>
+  day: ReadonlySignal<DayDiet | null | undefined>
 }) {
   const { show: showConfirmModal } = useConfirmModalContext()
   const { deleteDay } = useDayContext()

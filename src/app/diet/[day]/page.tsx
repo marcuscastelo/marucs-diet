@@ -1,7 +1,7 @@
 'use client'
 
-import TopBar from '@/sections/day/components/TopBar'
-import DayMeals from '@/sections/day/components/DayMeals'
+import TopBar from '@/sections/day-diet/components/TopBar'
+import DayMeals from '@/sections/day-diet/components/DayMeals'
 
 import { BottomNavigation } from '@/sections/common/components/BottomNavigation'
 

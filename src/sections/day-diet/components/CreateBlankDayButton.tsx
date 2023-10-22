@@ -1,8 +1,8 @@
 'use client'
 
 import { useUserContext } from '@/sections/user/context/UserContext'
-import { createDay } from '@/modules/diet/day/domain/day'
-import { useDayContext } from '@/src/sections/day/context/DaysContext'
+import { createDay } from '@/modules/diet/day-diet/domain/day'
+import { useDayContext } from '@/src/sections/day-diet/context/DaysContext'
 
 export default function CreateBlankDayButton({
   selectedDay,

@@ -5,7 +5,7 @@ import { ConfirmModalProvider } from '@/sections/common/context/ConfirmModalCont
 import {
   DayContextProvider,
   useDayContext,
-} from '@/sections/day/context/DaysContext'
+} from '@/sections/day-diet/context/DaysContext'
 import {
   FoodContextProvider,
   TemplateStore,
@@ -23,14 +23,14 @@ import { Template } from '@/src/modules/diet/template/domain/template'
 import { User } from '@/modules/user/domain/user'
 import { WeightContextProvider } from '@/src/sections/weight/context/WeightContext'
 import { createSupabaseWeightRepository } from '@/src/modules/weight/infrastructure/supabaseWeightRepository'
-import { createSupabaseDayRepository } from '@/src/modules/diet/day/infrastructure/supabaseDayRepository'
+import { createSupabaseDayRepository } from '@/src/modules/diet/day-diet/infrastructure/supabaseDayRepository'
 import { MealContextProvider } from '@/src/sections/meal/context/MealContext'
 import { createDerivedMealRepository } from '@/src/modules/diet/meal/infrastructure/derivedMealRepository'
 import { ReadonlySignal, computed } from '@preact/signals-react'
 import { createDerivedItemGroupRepository } from '@/src/modules/diet/item-group/infrastructure/derivedItemGroupRepository'
 import { ItemGroupContextProvider } from '@/src/sections/item-group/context/ItemGroupContext'
 import { MealRepository } from '@/src/modules/diet/meal/domain/mealRepository'
-import { DayRepository } from '@/src/modules/diet/day/domain/dayRepository'
+import { DayRepository } from '@/src/modules/diet/day-diet/domain/dayRepository'
 
 export default function App({
   user,

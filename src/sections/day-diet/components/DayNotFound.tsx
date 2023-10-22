@@ -1,7 +1,7 @@
 'use client'
 
-import CreateBlankDayButton from '@/sections/day/components/CreateBlankDayButton'
-import CopyLastDayButton from '@/sections/day/components/CopyLastDayButton'
+import CreateBlankDayButton from '@/sections/day-diet/components/CreateBlankDayButton'
+import CopyLastDayButton from '@/sections/day-diet/components/CopyLastDayButton'
 import { computed } from '@preact/signals-react'
 
 export default function DayNotFound({ selectedDay }: { selectedDay: string }) {
