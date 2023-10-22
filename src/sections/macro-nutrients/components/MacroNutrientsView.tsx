@@ -1,6 +1,6 @@
 'use client'
 
-import { MacroNutrients } from '@/modules/macro-nutrients/domain/macroNutrients'
+import { MacroNutrients } from '@/src/modules/diet/macro-nutrients/domain/macroNutrients'
 
 export default function MacroNutrientsView(props: MacroNutrients) {
   return (

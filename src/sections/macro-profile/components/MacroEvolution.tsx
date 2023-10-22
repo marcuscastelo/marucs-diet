@@ -25,8 +25,8 @@ import {
   inForceMacroProfile,
   latestMacroProfile,
 } from '@/legacy/utils/macroProfileUtils'
-import { Day } from '@/modules/day/domain/day'
-import { MacroProfile } from '@/modules/macro-profile/domain/macroProfile'
+import { Day } from '@/modules/diet/day/domain/day'
+import { MacroProfile } from '@/src/modules/diet/macro-profile/domain/macroProfile'
 import { dateToDDMM } from '@/legacy/utils/dateUtils'
 import { Weight } from '@/modules/weight/domain/weight'
 import { useWeightContext } from '@/src/sections/weight/context/WeightContext'

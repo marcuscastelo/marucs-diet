@@ -1,15 +1,15 @@
 'use client'
 
 import MealEditViewList from '@/sections/meal/components/MealEditViewList'
-import { Day, createDay } from '@/modules/day/domain/day'
+import { Day, createDay } from '@/modules/diet/day/domain/day'
 import MealEditView, {
   MealEditViewProps,
 } from '@/sections/meal/components/MealEditView'
 import { Alert } from 'flowbite-react'
 import DayMacros from '@/sections/day/components/DayMacros'
-import { Meal } from '@/modules/meal/domain/meal'
+import { Meal } from '@/src/modules/diet/meal/domain/meal'
 import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
-import { ItemGroup } from '@/modules/item-group/domain/itemGroup'
+import { ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
 import { calcDayMacros } from '@/legacy/utils/macroMath'
 import ItemGroupEditModal from '@/sections/item-group/components/ItemGroupEditModal'
 import CopyLastDayButton from '@/sections/day/components/CopyLastDayButton'

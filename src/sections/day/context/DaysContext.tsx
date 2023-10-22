@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Loadable } from '@/legacy/utils/loadable'
-import { Day } from '@/modules/day/domain/day'
+import { Day } from '@/modules/diet/day/domain/day'
 import { User } from '@/modules/user/domain/user'
 import { createContext, useContext } from 'use-context-selector'
 import { DbReady } from '@/src/legacy/utils/newDbRecord'
-import { DayRepository } from '@/src/modules/day/domain/dayRepository'
+import { DayRepository } from '@/src/modules/diet/day/domain/dayRepository'
 import { ReadonlySignal, useSignal } from '@preact/signals-react'
 
 export type DayContextProps = {

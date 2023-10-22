@@ -5,7 +5,7 @@ import FoodItemEditModal, {
 import { ModalContextProvider } from '@/sections/common/context/ModalContext'
 import ServerApp from '@/sections/common/components/ServerApp'
 import { computed, signal } from '@preact/signals-react'
-import { createFoodItem } from '@/modules/food-item/domain/foodItem'
+import { createFoodItem } from '@/src/modules/diet/food-item/domain/foodItem'
 
 const visible = signal(true)
 

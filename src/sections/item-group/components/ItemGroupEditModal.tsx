@@ -6,7 +6,7 @@ import {
   isSimpleSingleGroup,
   itemGroupSchema,
   recipedItemGroup,
-} from '@/modules/item-group/domain/itemGroup'
+} from '@/modules/diet/item-group/domain/itemGroup'
 import { useCallback, useState } from 'react'
 import Modal, { ModalActions } from '@/sections/common/components/Modal'
 import FoodItemListView from '@/sections/food-item/components/FoodItemListView'
@@ -15,12 +15,12 @@ import {
   FoodItem,
   createFoodItem,
   foodItemSchema,
-} from '@/modules/food-item/domain/foodItem'
+} from '@/src/modules/diet/food-item/domain/foodItem'
 import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
 import FoodItemEditModal from '@/sections/food-item/components/FoodItemEditModal'
 import RecipeIcon from '@/sections/common/components/icons/RecipeIcon'
 import { RecipeEditModal } from '@/sections/recipe/components/RecipeEditModal'
-import { Recipe, createRecipe } from '@/modules/recipe/domain/recipe'
+import { Recipe, createRecipe } from '@/src/modules/diet/recipe/domain/recipe'
 import { Loadable } from '@/legacy/utils/loadable'
 import PageLoading from '@/sections/common/components/PageLoading'
 import {

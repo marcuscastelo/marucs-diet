@@ -1,7 +1,7 @@
 'use client'
 
 import { useUserContext } from '@/sections/user/context/UserContext'
-import { createDay } from '@/modules/day/domain/day'
+import { createDay } from '@/modules/diet/day/domain/day'
 import { useDayContext } from '@/src/sections/day/context/DaysContext'
 
 export default function CreateBlankDayButton({

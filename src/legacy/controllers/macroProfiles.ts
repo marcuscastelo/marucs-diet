@@ -1,7 +1,7 @@
 import {
   MacroProfile,
   macroProfileSchema,
-} from '@/modules/macro-profile/domain/macroProfile'
+} from '@/src/modules/diet/macro-profile/domain/macroProfile'
 import { User } from '@/modules/user/domain/user'
 import { DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
 import supabase from '@/legacy/utils/supabase'

@@ -1,6 +1,6 @@
 'use client'
 
-import { Meal, mealSchema } from '@/modules/meal/domain/meal'
+import { Meal, mealSchema } from '@/src/modules/diet/meal/domain/meal'
 import {
   MealContextProviderOld,
   useMealContextOld,
@@ -14,7 +14,7 @@ import ItemGroupListView from '@/src/sections/item-group/components/ItemGroupLis
 import {
   ItemGroup,
   itemGroupSchema,
-} from '@/modules/item-group/domain/itemGroup'
+} from '@/modules/diet/item-group/domain/itemGroup'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import useClipboard, {
   createClipboardSchemaFilter,
@@ -23,8 +23,8 @@ import { addInnerGroups } from '@/legacy/utils/mealUtils'
 import { deserializeClipboard } from '@/legacy/utils/clipboardUtils'
 import { convertToGroups } from '@/legacy/utils/groupUtils'
 import { regenerateId } from '@/legacy/utils/idUtils'
-import { foodItemSchema } from '@/modules/food-item/domain/foodItem'
-import { recipeSchema } from '@/modules/recipe/domain/recipe'
+import { foodItemSchema } from '@/src/modules/diet/food-item/domain/foodItem'
+import { recipeSchema } from '@/src/modules/diet/recipe/domain/recipe'
 import {
   ReadonlySignal,
   computed,

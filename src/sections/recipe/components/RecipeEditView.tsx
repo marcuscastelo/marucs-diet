@@ -2,8 +2,8 @@
 
 // TODO: Unify Recipe and Recipe components into a single component?
 
-import { Recipe, recipeSchema } from '@/modules/recipe/domain/recipe'
-import { foodItemSchema } from '@/modules/food-item/domain/foodItem'
+import { Recipe, recipeSchema } from '@/src/modules/diet/recipe/domain/recipe'
+import { foodItemSchema } from '@/src/modules/diet/food-item/domain/foodItem'
 import {
   RecipeEditContextProvider,
   useRecipeEditContext,
@@ -16,14 +16,14 @@ import FoodItemListView from '@/sections/food-item/components/FoodItemListView'
 import { calcRecipeCalories } from '@/legacy/utils/macroMath'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { regenerateId } from '@/legacy/utils/idUtils'
-import { TemplateItem } from '@/modules/template-item/domain/templateItem'
+import { TemplateItem } from '@/src/modules/diet/template-item/domain/templateItem'
 import useClipboard, {
   createClipboardSchemaFilter,
 } from '@/sections/common/hooks/useClipboard'
 import { deserializeClipboard } from '@/legacy/utils/clipboardUtils'
 import { convertToGroups } from '@/legacy/utils/groupUtils'
-import { mealSchema } from '@/modules/meal/domain/meal'
-import { itemGroupSchema } from '@/modules/item-group/domain/itemGroup'
+import { mealSchema } from '@/src/modules/diet/meal/domain/meal'
+import { itemGroupSchema } from '@/modules/diet/item-group/domain/itemGroup'
 import { useFloatField } from '@/sections/common/hooks/useField'
 import { FloatInput } from '@/sections/common/components/FloatInput'
 import { RecipeEditor } from '@/legacy/utils/data/recipeEditor'

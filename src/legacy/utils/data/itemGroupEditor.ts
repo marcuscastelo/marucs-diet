@@ -1,9 +1,9 @@
-import { FoodItem } from '@/modules/food-item/domain/foodItem'
+import { FoodItem } from '@/src/modules/diet/food-item/domain/foodItem'
 import { ItemContainer } from '@/legacy/utils/data/interfaces/itemContainer'
-import { ItemGroup } from '@/modules/item-group/domain/itemGroup'
+import { ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
 import { Editor } from '@/legacy/utils/data/editor'
 import { ItemEditor } from '@/legacy/utils/data/itemEditor'
-import { Recipe } from '@/modules/recipe/domain/recipe'
+import { Recipe } from '@/src/modules/diet/recipe/domain/recipe'
 import { deepCopy } from '@/legacy/utils/deepCopy'
 import { Mutable } from '@/legacy/utils/typeUtils'
 

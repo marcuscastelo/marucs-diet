@@ -1,6 +1,6 @@
 'use client'
 
-import { Recipe } from '@/modules/recipe/domain/recipe'
+import { Recipe } from '@/src/modules/diet/recipe/domain/recipe'
 import { Signal } from '@preact/signals-react'
 import { createContext, useContext } from 'use-context-selector'
 

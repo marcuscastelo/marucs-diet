@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import FoodItemView from '@/sections/food-item/components/FoodItemView'
-import { FoodItem } from '@/modules/food-item/domain/foodItem'
+import { FoodItem } from '@/src/modules/diet/food-item/domain/foodItem'
 import Modal, { ModalActions } from '@/sections/common/components/Modal'
 import { useUserContext } from '@/sections/user/context/UserContext'
 import { useModalContext } from '@/sections/common/context/ModalContext'
@@ -10,7 +10,7 @@ import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalCo
 import { generateId } from '@/legacy/utils/idUtils'
 import { useFloatField } from '@/sections/common/hooks/useField'
 import { FloatInput } from '@/sections/common/components/FloatInput'
-import { TemplateItem } from '@/modules/template-item/domain/templateItem'
+import { TemplateItem } from '@/src/modules/diet/template-item/domain/templateItem'
 import {
   ReadonlySignal,
   Signal,

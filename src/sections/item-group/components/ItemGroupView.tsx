@@ -1,7 +1,7 @@
 'use client'
 
 import MacroNutrientsView from '@/src/sections/macro-nutrients/components/MacroNutrientsView'
-import { MacroNutrients } from '@/modules/macro-nutrients/domain/macroNutrients'
+import { MacroNutrients } from '@/src/modules/diet/macro-nutrients/domain/macroNutrients'
 import CopyIcon from '@/sections/common/components/icons/CopyIcon'
 import {
   ItemGroupEditContextProvider,
@@ -10,12 +10,12 @@ import {
 import {
   ItemGroup,
   isSimpleSingleGroup,
-} from '@/modules/item-group/domain/itemGroup'
+} from '@/modules/diet/item-group/domain/itemGroup'
 import { calcGroupCalories, calcGroupMacros } from '@/legacy/utils/macroMath'
 import { useUserContext } from '@/sections/user/context/UserContext'
 import { isRecipedGroupUpToDate } from '@/legacy/utils/groupUtils'
 import { Loadable } from '@/legacy/utils/loadable'
-import { Recipe } from '@/modules/recipe/domain/recipe'
+import { Recipe } from '@/src/modules/diet/recipe/domain/recipe'
 import { useState } from 'react'
 import { searchRecipeById } from '@/legacy/controllers/recipes'
 import {
