@@ -2,32 +2,30 @@ import { ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
 import { foodItemSchema } from '@/src/modules/diet/food-item/domain/foodItem'
 
 import { z } from 'zod'
-import {
-  MacroNutrients,
-  macroNutrientsSchema,
-} from '@/src/modules/diet/macro-nutrients/domain/macroNutrients'
+import { macroNutrientsSchema } from '@/src/modules/diet/macro-nutrients/domain/macroNutrients'
 import { calcGroupMacros } from '@/legacy/utils/macroMath'
 import { generateId } from '@/legacy/utils/idUtils'
 
-export const recipeSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  owner: z.number(),
-  items: z.array(foodItemSchema), // TODO: Think of a way to avoid id reuse on each item and bugs
-  macros: macroNutrientsSchema
-    .nullable()
-    .optional()
-    .transform(
-      (macros) =>
-        macros ?? ({ carbs: 0, fat: 0, protein: 0 } satisfies MacroNutrients), // TODO: Remove transform or derive from items
-    ),
-  prepared_multiplier: z.number().default(1), // TODO: Rename all snake_case to camelCase (also in db)
-  __type: z
-    .string()
-    .nullable()
-    .optional()
-    .transform(() => 'Recipe' as const),
-})
+export const recipeSchema = z
+  .object({
+    id: z.number(),
+    name: z.string(),
+    owner: z.number(),
+    items: z.array(foodItemSchema), // TODO: Think of a way to avoid id reuse on each item and bugs
+    macros: macroNutrientsSchema.nullable().optional().default(null),
+    prepared_multiplier: z.number().default(1), // TODO: Rename all snake_case to camelCase (also in db)
+    __type: z
+      .string()
+      .nullable()
+      .optional()
+      .transform(() => 'Recipe' as const),
+  })
+  .transform((recipe) => {
+    if (recipe.macros === null) {
+      recipe.macros = calcGroupMacros({ items: recipe.items } as ItemGroup)
+    }
+    return recipe
+  })
 
 export type Recipe = Readonly<z.infer<typeof recipeSchema>>
 
