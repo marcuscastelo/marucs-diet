@@ -7,7 +7,7 @@ import {
   itemGroupSchema,
   recipedItemGroup,
 } from '@/modules/diet/item-group/domain/itemGroup'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Modal, { ModalActions } from '@/sections/common/components/Modal'
 import FoodItemListView from '@/sections/food-item/components/FoodItemListView'
 import FoodItemView from '@/sections/food-item/components/FoodItemView'
@@ -20,10 +20,15 @@ import { TemplateSearchModal } from '@/sections/search/components/TemplateSearch
 import FoodItemEditModal from '@/sections/food-item/components/FoodItemEditModal'
 import RecipeIcon from '@/sections/common/components/icons/RecipeIcon'
 import { RecipeEditModal } from '@/sections/recipe/components/RecipeEditModal'
-import { Recipe, createRecipe } from '@/src/modules/diet/recipe/domain/recipe'
-import { Loadable } from '@/legacy/utils/loadable'
+import {
+  Recipe,
+  createRecipe,
+  recipeSchema,
+} from '@/src/modules/diet/recipe/domain/recipe'
+import { Loadable, Loaded } from '@/legacy/utils/loadable'
 import PageLoading from '@/sections/common/components/PageLoading'
 import {
+  deleteRecipe,
   searchRecipeById,
   updateRecipe,
   upsertRecipe,
@@ -93,29 +98,60 @@ const InnerItemGroupEditModal = ({
 }: ItemGroupEditModalProps) => {
   const { visible } = useModalContext()
   const { group } = useItemGroupEditContext()
-
+  const { show: showConfirmModal } = useConfirmModalContext()
   const recipeEditModalVisible = useSignal(false)
   const foodItemEditModalVisible = useSignal(false)
   const templateSearchModalVisible = useSignal(false)
 
-  const [recipe, setRecipe] = useState<Loadable<Recipe | null>>({
+  const recipeSignal = useSignal<Loadable<Recipe | null>>({
     loading: true,
   })
 
   useSignalEffect(() => {
     if (!group.value || group.value.type !== 'recipe') {
-      setRecipe({ loading: false, errored: false, data: null })
+      recipeSignal.value = { loading: false, errored: false, data: null }
       return
     }
-    let ignore = false
-    searchRecipeById(group.value.recipe).then((recipe) => {
-      if (ignore) return
-      setRecipe({ loading: false, errored: false, data: recipe })
-    })
 
-    return () => {
-      ignore = true
+    const handleRecipeNotFound = () => {
+      showConfirmModal({
+        title: 'Receita não encontrada',
+        body: 'A receita atrelada a esse grupo não foi encontrada. Deseja desvincular o grupo da receita?',
+        actions: [
+          {
+            text: 'Cancelar',
+            onClick: () => undefined,
+          },
+          {
+            text: 'Desvincular',
+            primary: true,
+            onClick: () => {
+              if (!group.value) {
+                console.warn('group is null, cannot unlink recipe')
+                return
+              }
+
+              group.value = new ItemGroupEditor(group.value)
+                .setRecipe(undefined)
+                .finish()
+            },
+          },
+        ],
+      })
     }
+
+    searchRecipeById(group.value.recipe)
+      .then((recipe) => {
+        recipeSignal.value = { loading: false, errored: false, data: recipe }
+        if (recipe === null) {
+          setTimeout(() => {
+            handleRecipeNotFound()
+          }, 1000)
+        }
+      })
+      .catch((e) => {
+        recipeSignal.value = { loading: false, errored: true, error: e }
+      })
   })
 
   const canApply =
@@ -123,7 +159,7 @@ const InnerItemGroupEditModal = ({
 
   const { isFoodFavorite, setFoodAsFavorite } = useUserContext()
 
-  if (recipe.loading) {
+  if (recipeSignal.value.loading) {
     return (
       <PageLoading
         message={`Carregando receita atrelada ao grupo ${group.value?.name}`}
@@ -131,10 +167,11 @@ const InnerItemGroupEditModal = ({
     )
   }
 
-  if (recipe.errored) {
+  if (recipeSignal.value.errored) {
     return (
       <PageLoading
-        message={`Erro ao carregar receita atrelada ao grupo ${group.value?.name}`}
+        message={`Erro ao carregar receita atrelada ao grupo ${group.value
+          ?.name}: ${JSON.stringify(recipeSignal.value.error)}`}
       />
     )
   }
@@ -142,9 +179,13 @@ const InnerItemGroupEditModal = ({
   return (
     <>
       <ExternalRecipeEditModal
-        recipe={recipe.data}
+        recipe={recipeSignal.value.data}
         setRecipe={(recipe) =>
-          setRecipe({ loading: false, errored: false, data: recipe })
+          (recipeSignal.value = {
+            loading: false,
+            errored: false,
+            data: recipe,
+          })
         }
         visible={recipeEditModalVisible}
         onRefetch={onRefetch}
@@ -163,11 +204,19 @@ const InnerItemGroupEditModal = ({
           className="border-2 border-orange-800"
           hasBackdrop={true}
           header={
-            <Header recipe={recipe.data} targetMealName={targetMealName} />
+            <Header
+              recipe={recipeSignal.value.data}
+              targetMealName={targetMealName}
+            />
           }
           body={
             <Body
-              recipe={recipe.data}
+              recipe={computed(() =>
+                recipeSignal.value.loading === false &&
+                recipeSignal.value.errored === false
+                  ? recipeSignal.value.data
+                  : null,
+              )}
               isFoodFavorite={isFoodFavorite}
               setFoodAsFavorite={setFoodAsFavorite}
               foodItemEditModalVisible={foodItemEditModalVisible}
@@ -250,6 +299,16 @@ function ExternalRecipeEditModal({
           setRecipe(updatedRecipe)
         }}
         onRefetch={onRefetch}
+        onDelete={async (recipeId) => {
+          console.debug(
+            `[ItemGroupEditModal::ExternalRecipeEditModal] onDelete:`,
+            recipeId,
+          )
+
+          await deleteRecipe(recipeId)
+
+          setRecipe(null)
+        }}
       />
     </ModalContextProvider>
   )
@@ -435,7 +494,7 @@ function Body({
   foodItemEditModalVisible,
   templateSearchModalVisible,
 }: {
-  recipe: Recipe | null
+  recipe: ReadonlySignal<Recipe | null>
   isFoodFavorite: (foodId: number) => boolean
   setFoodAsFavorite: (foodId: number, isFavorite: boolean) => void
   recipeEditModalVisible: Signal<boolean>
@@ -540,7 +599,7 @@ function Body({
             <div
               className={`btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105`}
               onClick={() => {
-                if (isRecipeTooComplex(recipe)) {
+                if (isRecipeTooComplex(recipe.value)) {
                   alert(
                     'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
                   )
@@ -586,6 +645,7 @@ function Body({
                     group.value = new ItemGroupEditor(group.value)
                       .setRecipe(insertedRecipe.id)
                       .finish()
+
                     recipeEditModalVisible.value = true
                   })
                 }}
@@ -597,39 +657,43 @@ function Body({
 
           {group.value.type === 'recipe' && (
             <>
-              {recipe && isRecipedGroupUpToDate(group.value, recipe) ? (
-                <button
-                  className="my-auto ml-auto"
-                  onClick={() => {
-                    // TODO: Create recipe for groups that don't have one
-                    recipeEditModalVisible.value = true
-                  }}
-                >
-                  <RecipeIcon />
-                </button>
+              {recipe.value !== null ? (
+                isRecipedGroupUpToDate(group.value, recipe.value) ? (
+                  <button
+                    className="my-auto ml-auto"
+                    onClick={() => {
+                      // TODO: Create recipe for groups that don't have one
+                      recipeEditModalVisible.value = true
+                    }}
+                  >
+                    <RecipeIcon />
+                  </button>
+                ) : (
+                  <button
+                    className="my-auto ml-auto hover:animate-pulse"
+                    onClick={() => {
+                      if (recipe.value === null) {
+                        return
+                      }
+
+                      if (group.value === null) {
+                        console.error('group is null')
+                        throw new Error('group is null')
+                      }
+
+                      const newGroup = new ItemGroupEditor(group.value)
+                        .clearItems()
+                        .addItems(recipe.value.items)
+                        .finish()
+
+                      group.value = newGroup
+                    }}
+                  >
+                    <DownloadIcon />
+                  </button>
+                )
               ) : (
-                <button
-                  className="my-auto ml-auto hover:animate-pulse"
-                  onClick={() => {
-                    if (!recipe) {
-                      return
-                    }
-
-                    if (!group.value) {
-                      console.error('group is null')
-                      throw new Error('group is null')
-                    }
-
-                    const newGroup = new ItemGroupEditor(group.value)
-                      .clearItems()
-                      .addItems(recipe.items)
-                      .finish()
-
-                    group.value = newGroup
-                  }}
-                >
-                  <DownloadIcon />
-                </button>
+                <>Receita não encontrada</>
               )}
             </>
           )}
@@ -653,7 +717,7 @@ function Body({
           //   recipeEditModalRef.current?.showModal()
           // } else {
 
-          if (isRecipeTooComplex(recipe)) {
+          if (isRecipeTooComplex(recipe.value)) {
             alert(
               'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
             )
@@ -696,7 +760,7 @@ function Body({
         <PreparedQuantity
           // TODO: Remove as unknown as Signal<RecipedItemGroup>
           recipedGroup={group as unknown as Signal<RecipedItemGroup | null>}
-          recipe={recipe}
+          recipe={recipe.value}
         />
       )}
     </>
