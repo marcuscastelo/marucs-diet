@@ -116,7 +116,11 @@ function FoodItemName() {
     } else if (item.value.__type === 'RecipeItem') {
       return 'text-blue-500'
     } else {
-      return 'text-red-500'
+      console.error(
+        `[FoodItemName] item is not a FoodItem or RecipeItem! Item:`,
+        item.value,
+      )
+      return 'text-red-500 bg-red-100'
     }
   })
 

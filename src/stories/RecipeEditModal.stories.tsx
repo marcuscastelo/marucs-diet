@@ -24,6 +24,7 @@ export const Root: Story = {
     onCancel: () => undefined,
     onVisibilityChange: () => undefined,
     onRefetch: () => undefined,
+    onDelete: () => undefined,
   } satisfies RecipeEditModalProps,
   render: (args) => <RecipeEditModal {...args} />,
 }
