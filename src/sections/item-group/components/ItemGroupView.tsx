@@ -112,10 +112,16 @@ function ItemGroupName({
   })
 
   const nameColor = computed(() => {
-    if (!itemGroup.value) return 'text-red-900'
+    if (itemGroup.value === null) {
+      console.error(`[ItemGroupName] item is null!!`)
+      return 'text-red-900 bg-red-200'
+    }
 
     if (recipe.loading) return 'text-gray-500 animate-pulse'
-    if (recipe.errored) return 'text-red-900'
+    if (recipe.errored) {
+      console.error(`[ItemGroupName] recipe errored!!`)
+      return 'text-red-900 bg-red-200 bg-opacity-50'
+    }
 
     if (itemGroup.value.type === 'simple') {
       if (isSimpleSingleGroup(itemGroup.value)) {
@@ -132,6 +138,10 @@ function ItemGroupName({
         return className
       }
     } else {
+      console.error(
+        `[ItemGroupName] item is not simple or recipe!! Item:`,
+        itemGroup.value,
+      )
       return 'text-red-400'
     }
   })

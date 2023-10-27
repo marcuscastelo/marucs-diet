@@ -18,7 +18,12 @@ export class ItemGroupEditor
     return this
   }
 
-  setRecipe(recipe: Recipe['id']) {
+  setRecipe(recipe: Recipe['id'] | undefined) {
+    if (recipe === undefined) {
+      this.group.type = 'simple'
+      this.group.recipe = undefined
+      return this
+    }
     this.group.type = 'recipe'
     this.group.recipe = recipe
     return this
