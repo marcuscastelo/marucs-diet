@@ -36,12 +36,14 @@ export type RecipeEditModalProps = {
   onSaveRecipe: (recipe: Recipe) => void
   onRefetch: () => void
   onCancel?: () => void
+  onDelete: (recipeId: Recipe['id']) => void
   onVisibilityChange?: (isShowing: boolean) => void
 }
 
 export function RecipeEditModal({
   recipe: initialRecipe,
   onSaveRecipe,
+  onDelete,
   onCancel,
   onRefetch,
 }: RecipeEditModalProps) {
@@ -140,7 +142,7 @@ export function RecipeEditModal({
             <Actions
               onApply={() => onSaveRecipe(recipe.value)}
               onCancel={onCancel}
-              onDelete={() => alert('TODO: delete recipe')}
+              onDelete={() => onDelete(recipe.value.id)}
             />
           }
         />

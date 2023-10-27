@@ -24,19 +24,17 @@ export const listRecipes = async (userId: User['id']): Promise<Recipe[]> => {
 export const searchRecipeById = async (
   id: Recipe['id'],
 ): Promise<Recipe | null> => {
-  const { data: recipe, error } = await supabase
+  const { data: recipes, error } = await supabase
     .from(TABLE)
     .select()
     .eq('id', id)
-    .limit(1) // TODO: Cause warning when more than one recipe is found for the same id
-    .single()
 
   if (error) {
     console.error(error)
     throw error
   }
 
-  return recipeSchema.parse(recipe ?? null)
+  return recipeSchema.array().parse(recipes ?? [])[0] ?? null
 }
 
 export const searchRecipeByName = async (
@@ -92,6 +90,21 @@ export const updateRecipe = async (
   const { data, error } = await supabase
     .from(TABLE)
     .update(recipe)
+    .eq('id', id)
+    .select()
+
+  if (error) {
+    console.error(error)
+    throw error
+  }
+
+  return recipeSchema.parse(data?.[0] ?? null)
+}
+
+export const deleteRecipe = async (id: Recipe['id']): Promise<Recipe> => {
+  const { data, error } = await supabase
+    .from(TABLE)
+    .delete()
     .eq('id', id)
     .select()
 
