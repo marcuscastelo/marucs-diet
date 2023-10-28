@@ -20,13 +20,14 @@ export function FloatInput({
   >,
   'value' | 'onChange'
 >) {
-  const { rawValue, value } = field
+  const { rawValue, value, transform } = field
 
   const handleOnBlur: FocusEventHandler<HTMLInputElement> = (e) => {
     onBlur?.(e)
 
     if (commitOn === 'blur') {
       onFieldCommit?.(value.value)
+      rawValue.value = transform.toRaw(value.value ?? 0)
     }
   }
 
