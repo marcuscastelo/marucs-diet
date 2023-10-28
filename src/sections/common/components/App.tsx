@@ -17,20 +17,18 @@ import {
 } from '@/sections/user/context/UserContext'
 import { listFoods, searchFoodsByName } from '@/legacy/controllers/food'
 import { fetchUserRecentFoods } from '@/legacy/controllers/recentFood'
-import { listRecipes, searchRecipeByName } from '@/legacy/controllers/recipes'
+import { createSupabaseRecipeRepository } from '@/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 import { updateUser } from '@/legacy/controllers/users'
 import { Template } from '@/src/modules/diet/template/domain/template'
 import { User } from '@/modules/user/domain/user'
 import { WeightContextProvider } from '@/src/sections/weight/context/WeightContext'
-import { createSupabaseWeightRepository } from '@/src/modules/weight/infrastructure/supabaseWeightRepository'
 import { createSupabaseDayRepository } from '@/src/modules/diet/day-diet/infrastructure/supabaseDayRepository'
 import { MealContextProvider } from '@/src/sections/meal/context/MealContext'
 import { createDerivedMealRepository } from '@/src/modules/diet/meal/infrastructure/derivedMealRepository'
-import { ReadonlySignal, computed } from '@preact/signals-react'
+import { computed } from '@preact/signals-react'
 import { createDerivedItemGroupRepository } from '@/src/modules/diet/item-group/infrastructure/derivedItemGroupRepository'
 import { ItemGroupContextProvider } from '@/src/sections/item-group/context/ItemGroupContext'
-import { MealRepository } from '@/src/modules/diet/meal/domain/mealRepository'
-import { DayRepository } from '@/src/modules/diet/day-diet/domain/dayRepository'
+import { createSupabaseWeightRepository } from '@/src/modules/weight/infrastructure/supabaseWeightRepository'
 
 export default function App({
   user,
@@ -83,6 +81,9 @@ function AppUserProvider({
   )
 }
 
+/**
+ * @deprecated Should be replaced by use cases
+ */
 function AppDayProvider({ children }: { children: React.ReactNode }) {
   console.debug(`[AppDaysProvider] - Rendering`)
 
@@ -102,6 +103,9 @@ function AppDayProvider({ children }: { children: React.ReactNode }) {
 }
 
 // TODO: Remove this hacky provider when Meal is an entity in the DB
+/**
+ * @deprecated Should be replaced by use cases
+ */
 function AppHackyMealProvider({ children }: { children: React.ReactNode }) {
   console.debug(`[AppHackyMealProvider] - Rendering`)
 
@@ -123,6 +127,9 @@ function AppHackyMealProvider({ children }: { children: React.ReactNode }) {
 }
 
 // TODO: Remove this hacky provider when ItemGroup is an entity in the DB
+/**
+ * @deprecated Should be replaced by use cases
+ */
 function AppHackyItemGroupProvider({
   children,
 }: {
@@ -172,6 +179,9 @@ function AppConfirmModalProvider({ children }: { children: React.ReactNode }) {
   )
 }
 
+/**
+ * @deprecated Should be replaced by use cases
+ */
 function AppFoodsProvider({ children }: { children: React.ReactNode }) {
   console.debug(`[AppFoodsProvider] - Rendering`)
 
@@ -198,6 +208,9 @@ function AppFoodsProvider({ children }: { children: React.ReactNode }) {
           )}
             `,
         )
+
+        const { fetchUserRecipes, fetchRecipeByName } =
+          createSupabaseRecipeRepository()
 
         const FETCH_LIMIT = 100
         const fetchFunctions = {
@@ -226,11 +239,13 @@ function AppFoodsProvider({ children }: { children: React.ReactNode }) {
                   allowedFoods: recentFoods,
                 }),
           recipes: (search) =>
-            search ? searchRecipeByName(user.id, search) : listRecipes(user.id),
+            search
+              ? fetchRecipeByName(user.id, search)
+              : fetchUserRecipes(user.id),
         } satisfies {
           [key in keyof TemplateStore]: (
             search: string | undefined,
-          ) => Promise<Template[]>
+          ) => Promise<readonly Template[]>
         }
 
         return {
@@ -258,6 +273,9 @@ function AppFoodsProvider({ children }: { children: React.ReactNode }) {
   )
 }
 
+/**
+ * @deprecated Should be replaced by use cases
+ */
 function AppWeightProvider({
   children,
   userId,

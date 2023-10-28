@@ -35,7 +35,7 @@ export type AvailableTab = ObjectValues<typeof avaliableTabs>['id']
 export function chooseFoodsFromStore(
   tab: AvailableTab,
   store: UnboxedLoadable<TemplateStore>,
-): Loadable<Template[] | null> {
+): Loadable<readonly Template[] | null> {
   switch (tab) {
     case 'all':
       return store.foods

@@ -3,10 +3,16 @@
 import { Recipe } from '@/src/modules/diet/recipe/domain/recipe'
 import { useEffect } from 'react'
 import { useFetch } from '@/sections/common/hooks/useFetch'
-import { searchRecipeById } from '@/legacy/controllers/recipes'
+import { createSupabaseRecipeRepository } from '@/src/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 
+// TODO: Use repository pattern through use cases instead of directly using repositories
+const recipeRepository = createSupabaseRecipeRepository()
+
+/**
+ * @deprecated Should be replaced by use cases
+ */
 export function useRecipe(recipeId: Recipe['id']) {
-  const { data, fetch } = useFetch(searchRecipeById)
+  const { data, fetch } = useFetch(recipeRepository.fetchRecipeById)
 
   useEffect(() => {
     fetch(recipeId)

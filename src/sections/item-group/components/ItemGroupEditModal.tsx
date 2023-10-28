@@ -20,19 +20,10 @@ import { TemplateSearchModal } from '@/sections/search/components/TemplateSearch
 import FoodItemEditModal from '@/sections/food-item/components/FoodItemEditModal'
 import RecipeIcon from '@/sections/common/components/icons/RecipeIcon'
 import { RecipeEditModal } from '@/sections/recipe/components/RecipeEditModal'
-import {
-  Recipe,
-  createRecipe,
-  recipeSchema,
-} from '@/src/modules/diet/recipe/domain/recipe'
-import { Loadable, Loaded } from '@/legacy/utils/loadable'
+import { Recipe, createRecipe } from '@/src/modules/diet/recipe/domain/recipe'
+import { Loadable } from '@/legacy/utils/loadable'
 import PageLoading from '@/sections/common/components/PageLoading'
-import {
-  deleteRecipe,
-  searchRecipeById,
-  updateRecipe,
-  upsertRecipe,
-} from '@/legacy/controllers/recipes'
+
 import {
   ItemGroupEditContextProvider,
   useItemGroupEditContext,
@@ -63,6 +54,10 @@ import { batch } from 'react-redux'
 import { deepCopy } from '@/legacy/utils/deepCopy'
 import { useFloatField } from '@/sections/common/hooks/useField'
 import { FloatInput } from '@/sections/common/components/FloatInput'
+import { createSupabaseRecipeRepository } from '@/src/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
+
+// TODO: Use repository pattern through use cases instead of directly using repositories
+const recipeRepository = createSupabaseRecipeRepository()
 
 type EditSelection = {
   foodItem: FoodItem
@@ -140,7 +135,8 @@ const InnerItemGroupEditModal = ({
       })
     }
 
-    searchRecipeById(group.value.recipe)
+    recipeRepository
+      .fetchRecipeById(group.value.recipe)
       .then((recipe) => {
         recipeSignal.value = { loading: false, errored: false, data: recipe }
         if (recipe === null) {
@@ -291,7 +287,10 @@ function ExternalRecipeEditModal({
             `[ItemGroupEditModal::ExternalRecipeEditModal] onSaveRecipe:`,
             recipe,
           )
-          const updatedRecipe = await updateRecipe(recipe.id, recipe)
+          const updatedRecipe = await recipeRepository.updateRecipe(
+            recipe.id,
+            recipe,
+          )
           console.debug(
             `[ItemGroupEditModal::ExternalRecipeEditModal] updatedRecipe:`,
             updatedRecipe,
@@ -305,7 +304,7 @@ function ExternalRecipeEditModal({
             recipeId,
           )
 
-          await deleteRecipe(recipeId)
+          await recipeRepository.deleteRecipe(recipeId)
 
           setRecipe(null)
         }}
@@ -542,7 +541,7 @@ function Body({
     if ('items' in data) {
       // data is an itemGroup
       const newGroup = new ItemGroupEditor(group.value)
-        .addItems(data.items.map(regenerateId))
+        .addItems(data.items.map((item) => regenerateId(item)))
         .finish()
       group.value = newGroup
     } else {
@@ -632,7 +631,8 @@ function Body({
                       owner: userId,
                     })
 
-                    const insertedRecipe = await upsertRecipe(newRecipe)
+                    const insertedRecipe =
+                      await recipeRepository.insertRecipe(newRecipe)
 
                     if (insertedRecipe === null) {
                       alert(

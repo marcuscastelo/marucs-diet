@@ -10,7 +10,6 @@ import CopyIcon from '@/sections/common/components/icons/CopyIcon'
 import { searchFoodById } from '@/legacy/controllers/food'
 import { calcItemCalories } from '@/legacy/utils/macroMath'
 import { useUserContext } from '@/sections/user/context/UserContext'
-import { searchRecipeById } from '@/legacy/controllers/recipes'
 import { TemplateItem } from '@/src/modules/diet/template-item/domain/templateItem'
 import { Template } from '@/src/modules/diet/template/domain/template'
 import {
@@ -19,6 +18,7 @@ import {
   useSignal,
   useSignalEffect,
 } from '@preact/signals-react'
+import { createSupabaseRecipeRepository } from '@/src/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 
 export type FoodItemViewProps = {
   foodItem: ReadonlySignal<TemplateItem>
@@ -27,6 +27,9 @@ export type FoodItemViewProps = {
   className?: string
   onClick?: (foodItem: TemplateItem) => void
 }
+
+// TODO: Use repository pattern through use cases instead of directly using repositories
+const recipeRepository = createSupabaseRecipeRepository()
 
 export default function FoodItemView({
   foodItem,
@@ -100,9 +103,9 @@ function FoodItemName() {
     }
 
     if (itemValue.__type === 'RecipeItem') {
-      searchRecipeById(itemValue.reference).then(
-        (recipe) => (template.value = recipe),
-      )
+      recipeRepository
+        .fetchRecipeById(itemValue.reference)
+        .then((recipe) => (template.value = recipe))
     } else {
       searchFoodById(itemValue.reference).then(
         (food) => (template.value = food),

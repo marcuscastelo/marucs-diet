@@ -34,7 +34,7 @@ export class ItemGroupEditor
     return this
   }
 
-  addItems(items: FoodItem[]) {
+  addItems(items: readonly FoodItem[]) {
     this.group.items.push(...items)
     return this
   }
