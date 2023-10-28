@@ -9,10 +9,10 @@ import { useCallback, useEffect, useState } from 'react'
 import { createContext, useContext } from 'use-context-selector'
 
 export type TemplateStore = {
-  foods: Food[] | null
-  favoriteFoods: Food[] | null
-  recentFoods: Food[] | null
-  recipes: Recipe[] | null
+  foods: readonly Food[] | null
+  favoriteFoods: readonly Food[] | null
+  recentFoods: readonly Food[] | null
+  recipes: readonly Recipe[] | null
 }
 
 type FoodFetch = (

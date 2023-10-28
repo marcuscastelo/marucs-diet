@@ -13,12 +13,15 @@ import { isRecipedGroupUpToDate } from '@/legacy/utils/groupUtils'
 import { Loadable } from '@/legacy/utils/loadable'
 import { Recipe } from '@/src/modules/diet/recipe/domain/recipe'
 import { useState } from 'react'
-import { searchRecipeById } from '@/legacy/controllers/recipes'
 import {
   ReadonlySignal,
   computed,
   useSignalEffect,
 } from '@preact/signals-react'
+import { createSupabaseRecipeRepository } from '@/src/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
+
+// TODO: Use repository pattern through use cases instead of directly using repositories
+const recipeRepository = createSupabaseRecipeRepository()
 
 export type ItemGroupViewProps = {
   itemGroup: ReadonlySignal<ItemGroup>
@@ -103,9 +106,11 @@ function ItemGroupName({
   useSignalEffect(() => {
     console.debug(`[ItemGroupName] item changed, fetching API:`, itemGroup)
     if (itemGroup.value?.type === 'recipe') {
-      searchRecipeById(itemGroup.value.recipe).then((recipe) => {
-        setRecipe({ loading: false, errored: false, data: recipe })
-      })
+      recipeRepository
+        .fetchRecipeById(itemGroup.value.recipe)
+        .then((recipe) => {
+          setRecipe({ loading: false, errored: false, data: recipe })
+        })
     } else {
       setRecipe({ loading: false, errored: false, data: null })
     }

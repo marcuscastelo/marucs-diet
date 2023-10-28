@@ -11,7 +11,7 @@ export default function FoodItemListView({
   onItemClick,
   makeHeaderFn = () => <DefaultHeader />,
 }: {
-  foodItems: ReadonlySignal<FoodItem[]>
+  foodItems: ReadonlySignal<readonly FoodItem[]>
   onItemClick: FoodItemViewProps['onClick']
   makeHeaderFn?: (item: FoodItem) => FoodItemViewProps['header']
 }) {
