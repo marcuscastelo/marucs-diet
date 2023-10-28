@@ -1,4 +1,10 @@
+/**
+ * @deprecated use DAO instead
+ */
 export type DbReady<T> = Omit<T, 'id' | '__type'>
+/**
+ * @deprecated use DAO instead
+ */
 export type New<T> = Omit<T, 'id'>
 
 export function enforceDbReady<T extends { id: unknown; __type: unknown }>(

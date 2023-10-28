@@ -121,10 +121,10 @@ function MealEditViewHeader({
     }
 
     const groupsToAdd = convertToGroups(data)
-      .map(regenerateId)
+      .map((group) => regenerateId(group))
       .map((g) => ({
         ...g,
-        items: g.items.map(regenerateId),
+        items: g.items.map((item) => regenerateId(item)),
       }))
 
     // TODO: Create RecipeEditor, MealEditor, ItemGroupEditor, FoodItemEditor classes to avoid this code duplication and error proneness
