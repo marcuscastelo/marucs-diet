@@ -12,11 +12,7 @@ import { Line } from 'recharts'
 import { CandleStickChart } from '@/sections/common/components/chart/CandleStickChart'
 import { OHLC } from '@/legacy/model/ohlcModel'
 import Datepicker from 'react-tailwindcss-datepicker'
-import {
-  useDateField,
-  useFloatField,
-  useFloatFieldOld,
-} from '@/sections/common/hooks/useField'
+import { useDateField, useFloatField } from '@/sections/common/hooks/useField'
 import { FloatInput } from '@/sections/common/components/FloatInput'
 import { dateToYYYYMMDD } from '@/legacy/utils/dateUtils'
 import { CapsuleContent } from '@/sections/common/components/capsule/CapsuleContent'
@@ -38,7 +34,9 @@ export function WeightEvolution({ onSave }: { onSave: () => void }) {
 
   const { weights, insertWeight } = useWeightContext()
 
-  const weightField = useFloatFieldOld()
+  const weightField = useFloatField(undefined, {
+    maxValue: 200,
+  })
 
   if (weights.loading || weights.errored) {
     return <h1>Carregando...</h1>
@@ -93,15 +91,14 @@ export function WeightEvolution({ onSave }: { onSave: () => void }) {
           type="all-time"
         />
         <div className="mx-5 lg:mx-20 pb-10">
-          {weights.data &&
-            [...weights.data]
-              .reverse()
-              .slice(0, 10)
-              .map((weight) => {
-                return (
-                  <WeightView key={weight.id} weight={weight} onSave={onSave} />
-                )
-              })}
+          {[...weights.data]
+            .reverse()
+            .slice(0, 10)
+            .map((weight) => {
+              return (
+                <WeightView key={weight.id} weight={weight} onSave={onSave} />
+              )
+            })}
           {weights.data.length === 0 && 'Não há pesos registrados'}
         </div>
       </div>
