@@ -5,6 +5,9 @@ import { useCallback, useState } from 'react'
 
 export type FetchFunc<T, P extends Array<any>> = (...params: P) => Promise<T>
 
+/**
+ * @deprecated Should be replaced by use cases
+ */
 export function useFetch<T, P extends Array<any>>(fetchFunc: FetchFunc<T, P>) {
   const [data, setData] = useState<Loadable<T>>({ loading: true })
 

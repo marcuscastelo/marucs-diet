@@ -63,7 +63,7 @@ export function addInnerGroup(meal: Meal, innerGroup: ItemGroup) {
 /**
  * @deprecated
  */
-export function addInnerGroups(meal: Meal, innerGroups: ItemGroup[]) {
+export function addInnerGroups(meal: Meal, innerGroups: readonly ItemGroup[]) {
   let newMeal = { ...meal }
 
   innerGroups.forEach((innerGroup) => {

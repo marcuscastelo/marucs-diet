@@ -13,8 +13,10 @@ export function calcItemMacros(item: TemplateItem): MacroNutrients {
   }
 }
 
-export function calcRecipeMacros(recipe: Recipe): MacroNutrients {
-  return recipe.items.reduce(
+export function calcItemContainerMacros<
+  T extends { items: readonly TemplateItem[] },
+>(container: T): MacroNutrients {
+  return container.items.reduce(
     (acc, item) => {
       const itemMacros = calcItemMacros(item)
       return {
@@ -23,22 +25,22 @@ export function calcRecipeMacros(recipe: Recipe): MacroNutrients {
         protein: acc.protein + itemMacros.protein,
       }
     },
-    { carbs: 0, fat: 0, protein: 0 },
+    { carbs: 0, fat: 0, protein: 0 } satisfies MacroNutrients,
   )
 }
 
+/**
+ * @deprecated should already be in recipe.macros
+ */
+export function calcRecipeMacros(recipe: Recipe): MacroNutrients {
+  return calcItemContainerMacros(recipe)
+}
+
+/**
+ * @deprecated should already be in group.macros (check)
+ */
 export function calcGroupMacros(group: ItemGroup): MacroNutrients {
-  return group.items.reduce(
-    (acc, item) => {
-      const itemMacros = calcItemMacros(item)
-      return {
-        carbs: acc.carbs + itemMacros.carbs,
-        fat: acc.fat + itemMacros.fat,
-        protein: acc.protein + itemMacros.protein,
-      }
-    },
-    { carbs: 0, fat: 0, protein: 0 },
-  )
+  return calcItemContainerMacros(group)
 }
 
 export function calcMealMacros(meal: Meal): MacroNutrients {

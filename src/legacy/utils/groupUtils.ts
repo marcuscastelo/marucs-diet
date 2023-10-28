@@ -50,8 +50,10 @@ export function isRecipedGroupUpToDate(
   return true
 }
 
-export function calculateGroupQuantity(groupItems: ItemGroup['items']) {
-  return groupItems.reduce((acc, item) => acc + item.quantity, 0)
+export function calculateGroupQuantity(groupItems: ItemGroup['items']): number {
+  return groupItems
+    .map((item) => item.quantity)
+    .reduce((acc: number, quantity) => acc + quantity, 0)
 }
 
 // TODO: Replace quantity field with a getter that calculates it
@@ -61,83 +63,9 @@ export function calculateGroupQuantity(groupItems: ItemGroup['items']) {
 export function updateTotalQuantity(group: ItemGroup) {
   const newGroup = { ...group }
 
-  newGroup.quantity = newGroup.items.reduce(
-    (acc, item) => acc + item.quantity,
-    0,
-  )
-
-  return newGroup
-}
-
-/**
- * @deprecated Use ItemGroupEditor instead
- */
-export function editInnerItem(group: ItemGroup, innerItem: FoodItem) {
-  const newGroup = { ...group }
-
-  const index = newGroup.items.findIndex((item) => item.id === innerItem.id)
-
-  if (index === -1) {
-    console.error('Invalid state! This is a bug! Item not found in group!')
-    throw new Error('Invalid state! This is a bug! see console.error')
-  }
-
-  newGroup.items[index] = { ...innerItem }
-
-  return updateTotalQuantity(newGroup)
-}
-
-/**
- * @deprecated Use ItemGroupEditor instead
- */
-export function deleteInnerItem(group: ItemGroup, itemId: FoodItem['id']) {
-  const newGroup = { ...group }
-
-  const index = newGroup.items.findIndex((item) => item.id === itemId)
-
-  if (index === -1) {
-    console.error('Invalid state! This is a bug! Item not found in group!')
-    throw new Error('Invalid state! This is a bug! see console.error')
-  }
-
-  newGroup.items.splice(index, 1)
-
-  return updateTotalQuantity(newGroup)
-}
-
-/**
- * @deprecated Use ItemGroupEditor instead
- */
-export function addInnerItem(group: ItemGroup, innerItem: FoodItem) {
-  const newGroup = { ...group }
-
-  // Check if same ID already exists
-  const index = newGroup.items.findIndex((item) => item.id === innerItem.id)
-
-  // If already exists, warn and return
-  if (index !== -1) {
-    console.warn(
-      'Invalid state! This is a bug! Item already exists in group! Not adding!',
-    )
-
-    return updateTotalQuantity(newGroup)
-  }
-
-  // If not exists, add
-  newGroup.items.push(innerItem)
-
-  return updateTotalQuantity(newGroup)
-}
-
-/**
- * @deprecated Use ItemGroupEditor instead
- */
-export function addInnerItems(group: ItemGroup, innerItem: FoodItem[]) {
-  let newGroup = { ...group }
-
-  innerItem.forEach((item) => {
-    newGroup = addInnerItem(newGroup, item)
-  })
+  newGroup.quantity = newGroup.items
+    .map((item) => item.quantity)
+    .reduce((acc, quantity) => acc + quantity, 0)
 
   return newGroup
 }
