@@ -4,7 +4,6 @@
 
 import {
   adjustToTimezone,
-  dateToYYYYMMDD,
   dateToString,
   stringToDate,
 } from '@/legacy/utils/dateUtils'
@@ -14,7 +13,6 @@ import {
   useSignal,
   useSignalEffect,
 } from '@preact/signals-react'
-import { SetStateAction, useCallback, useState } from 'react'
 
 // TODO: Unit test all FieldTransforms
 export type FieldTransform<T> = {
@@ -25,8 +23,10 @@ export type FieldTransform<T> = {
 export const createFloatTransform = (
   decimalPlaces?: number,
   defaultValue?: number,
+  maxValue?: number,
 ): FieldTransform<number> => ({
-  toRaw: (value: number) => value.toFixed(decimalPlaces ?? 2),
+  toRaw: (value: number) =>
+    Math.min(value, maxValue ?? value).toFixed(decimalPlaces ?? 2),
   toValue: (value: string) => {
     const noCommas = value.replace(/,/g, '.')
     const noMultipleDots = noCommas.replace(/\.(?=.*\.)/g, '')
@@ -40,9 +40,9 @@ export const createFloatTransform = (
     )
 
     if (isNaN(fixedOrNan)) {
-      return defaultValue ?? 0
+      return Math.min(maxValue ?? defaultValue ?? 0, defaultValue ?? 0)
     }
-    return fixedOrNan
+    return Math.min(maxValue ?? fixedOrNan, fixedOrNan)
   },
 })
 
@@ -106,17 +106,19 @@ export const useFloatFieldOld = (
 }
 
 export const useFloatField = (
-  inputSignal: ReadonlySignal<number | undefined>,
+  inputSignal?: ReadonlySignal<number | undefined>,
   extras?: {
     decimalPlaces?: number
     defaultValue?: number
+    maxValue?: number
   },
 ) =>
   useField<number>({
-    inputSignal,
+    inputSignal: inputSignal ?? computed(() => undefined),
     transform: createFloatTransform(
       extras?.decimalPlaces,
       extras?.defaultValue,
+      extras?.maxValue,
     ),
   })
 
