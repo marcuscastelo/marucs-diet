@@ -80,9 +80,7 @@ export function RecipeEditModal({
   }, [recipe, initialRecipe, userId])
 
   useSignalEffect(() => {
-    if (!selectedFoodItem.value) {
-      foodItemEditModalVisible.value = false
-    }
+    foodItemEditModalVisible.value = selectedFoodItem.value !== null
   })
 
   useSignalEffect(() => {
