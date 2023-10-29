@@ -5,12 +5,11 @@ import { DayDiet } from '@/src/modules/diet/day-diet/domain/day'
 import { ItemGroup } from '@/src/modules/diet/item-group/domain/itemGroup'
 import { ItemGroupRepository } from '@/src/modules/diet/item-group/domain/itemGroupRepository'
 import { Meal } from '@/src/modules/diet/meal/domain/meal'
-import { ReadonlySignal } from '@preact/signals-react'
-import { useState } from 'react'
+import { ReadonlySignal, useSignal } from '@preact/signals-react'
 import { createContext, useContext } from 'use-context-selector'
 
 export type ItemGroupContextProps = {
-  groups: Loadable<readonly ItemGroup[]>
+  groups: ReadonlySignal<Loadable<readonly ItemGroup[]>>
   refetchItemGroups: (dayId: DayDiet['id'], mealId: Meal['id']) => void
   insertItemGroup: (
     dayId: DayDiet['id'],
@@ -32,6 +31,9 @@ export type ItemGroupContextProps = {
 
 const ItemGroupContext = createContext<ItemGroupContextProps | null>(null)
 
+/**
+ * @deprecated Should be replaced by use cases
+ */
 export function useItemGroupContext() {
   const context = useContext(ItemGroupContext)
 
@@ -44,6 +46,9 @@ export function useItemGroupContext() {
   return context
 }
 
+/**
+ * @deprecated Should be replaced by use cases
+ */
 export function ItemGroupContextProvider({
   children,
   repository,
@@ -53,18 +58,18 @@ export function ItemGroupContextProvider({
 }) {
   console.debug(`[ItemGroupContextProvider] - Rendering`)
 
-  const [items, setItems] = useState<Loadable<readonly ItemGroup[]>>({
+  const items = useSignal<Loadable<readonly ItemGroup[]>>({
     loading: true,
   })
 
   const handleFetchItemGroups = (dayId: DayDiet['id'], mealId: Meal['id']) => {
     repository.value
       ?.fetchMealItemGroups(dayId, mealId)
-      .then((items) => {
-        setItems({ loading: false, errored: false, data: items })
+      .then((foundItems) => {
+        items.value = { loading: false, errored: false, data: foundItems }
       })
       .catch((error) => {
-        setItems({ loading: false, errored: true, error })
+        items.value = { loading: false, errored: true, error }
       })
   }
 

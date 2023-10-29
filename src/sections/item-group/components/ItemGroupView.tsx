@@ -12,10 +12,10 @@ import { useUserContext } from '@/sections/user/context/UserContext'
 import { isRecipedGroupUpToDate } from '@/legacy/utils/groupUtils'
 import { Loadable } from '@/legacy/utils/loadable'
 import { Recipe } from '@/src/modules/diet/recipe/domain/recipe'
-import { useState } from 'react'
 import {
   ReadonlySignal,
   computed,
+  useSignal,
   useSignalEffect,
 } from '@preact/signals-react'
 import { createSupabaseRecipeRepository } from '@/src/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
@@ -99,7 +99,7 @@ function ItemGroupName({
 }) {
   const { debug } = useUserContext()
 
-  const [recipe, setRecipe] = useState<Loadable<Recipe | null>>({
+  const recipe = useSignal<Loadable<Recipe | null>>({
     loading: true,
   })
 
@@ -108,11 +108,11 @@ function ItemGroupName({
     if (itemGroup.value?.type === 'recipe') {
       recipeRepository
         .fetchRecipeById(itemGroup.value.recipe)
-        .then((recipe) => {
-          setRecipe({ loading: false, errored: false, data: recipe })
+        .then((foundRecipe) => {
+          recipe.value = { loading: false, errored: false, data: foundRecipe }
         })
     } else {
-      setRecipe({ loading: false, errored: false, data: null })
+      recipe.value = { loading: false, errored: false, data: null }
     }
   })
 
@@ -122,8 +122,8 @@ function ItemGroupName({
       return 'text-red-900 bg-red-200'
     }
 
-    if (recipe.loading) return 'text-gray-500 animate-pulse'
-    if (recipe.errored) {
+    if (recipe.value.loading) return 'text-gray-500 animate-pulse'
+    if (recipe.value.errored) {
       console.error(`[ItemGroupName] recipe errored!!`)
       return 'text-red-900 bg-red-200 bg-opacity-50'
     }
@@ -134,8 +134,8 @@ function ItemGroupName({
       } else {
         return 'text-orange-400'
       }
-    } else if (itemGroup.value.type === 'recipe' && recipe.data) {
-      if (isRecipedGroupUpToDate(itemGroup.value, recipe.data)) {
+    } else if (itemGroup.value.type === 'recipe' && recipe.value.data) {
+      if (isRecipedGroupUpToDate(itemGroup.value, recipe.value.data)) {
         return 'text-yellow-200'
       } else {
         // Strike-through text in red
@@ -184,7 +184,7 @@ function ItemGroupCopyButton({
       onClick={(e) => {
         e.stopPropagation()
         e.preventDefault()
-        itemGroup.value && onCopyItemGroup(itemGroup.value)
+        onCopyItemGroup(itemGroup.value)
       }}
     >
       <CopyIcon />
@@ -225,8 +225,7 @@ function ItemGroupViewNutritionalInfo({
   console.debug(`[ItemGroupViewNutritionalInfo] - Rendering`)
   console.debug(`[ItemGroupViewNutritionalInfo] - itemGroup:`, itemGroup)
 
-  const multipliedMacros: MacroNutrients = (itemGroup.value &&
-    calcGroupMacros(itemGroup.value)) ?? {
+  const multipliedMacros: MacroNutrients = calcGroupMacros(itemGroup.value) ?? {
     carbs: -666,
     protein: -666,
     fat: -666,
@@ -243,7 +242,7 @@ function ItemGroupViewNutritionalInfo({
         |
         <span className="text-white">
           {' '}
-          {itemGroup.value && calcGroupCalories(itemGroup.value).toFixed(0)}
+          {calcGroupCalories(itemGroup.value).toFixed(0)}
           kcal{' '}
         </span>
       </div>

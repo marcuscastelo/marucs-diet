@@ -17,6 +17,7 @@ const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
 export function MeasuresEvolution({ onSave }: { onSave: () => void }) {
   const userId = useUserId()
 
+  // TODO: Remove `measures` state and use use cases instead
   const [measures, setMeasures] = useState<Loadable<Measure[]>>({
     loading: true,
   })

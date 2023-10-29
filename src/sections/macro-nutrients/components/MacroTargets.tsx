@@ -8,7 +8,7 @@ import { dateToYYYYMMDD } from '@/legacy/utils/dateUtils'
 import { calcCalories } from '@/legacy/utils/macroMath'
 import { latestMacroProfile } from '@/legacy/utils/macroProfileUtils'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useSignal, useSignalEffect } from '@preact/signals-react'
 
 const CARBO_CALORIES = 4 as const
 const PROTEIN_CALORIES = 4 as const
@@ -112,28 +112,24 @@ export function MacroTarget({
   const [initialCarbsRepr, initialProteinRepr, initialFatRepr] =
     calculateMacroRepresentation(profile, weight)
 
-  const [targetCalories, setTargetCalories] = useState(
-    initialCalories.toString(),
-  )
+  const targetCalories = useSignal(initialCalories.toString())
 
-  const [carbsRepr, setCarbsRepr] =
-    useState<MacroRepresentation>(initialCarbsRepr)
-  const [proteinRepr, setProteinRepr] =
-    useState<MacroRepresentation>(initialProteinRepr)
-  const [fatRepr, setFatRepr] = useState<MacroRepresentation>(initialFatRepr)
+  const carbsRepr = useSignal<MacroRepresentation>(initialCarbsRepr)
+  const proteinRepr = useSignal<MacroRepresentation>(initialProteinRepr)
+  const fatRepr = useSignal<MacroRepresentation>(initialFatRepr)
 
-  useEffect(() => {
-    const [carbsRepr, proteinRepr, fatRepr] = calculateMacroRepresentation(
-      profile,
-      weight,
-    )
-    setCarbsRepr(carbsRepr)
-    setProteinRepr(proteinRepr)
-    setFatRepr(fatRepr)
+  useSignalEffect(() => {
+    const [newCarbsRepr, newProteinRepr, newFatRepr] =
+      calculateMacroRepresentation(profile, weight)
+    carbsRepr.value = newCarbsRepr
+    proteinRepr.value = newProteinRepr
+    fatRepr.value = newFatRepr
 
-    const targetCalories = calcCalories(calculateMacroTarget(weight, profile))
-    setTargetCalories(targetCalories.toString())
-  }, [profile, weight])
+    const newTargetCalories = calcCalories(
+      calculateMacroTarget(weight, profile),
+    ).toString()
+    targetCalories.value = newTargetCalories
+  })
 
   const makeOnSetGramsPerKg =
     (macro: 'carbs' | 'protein' | 'fat') => (gramsPerKg: number) =>
@@ -165,8 +161,8 @@ export function MacroTarget({
       </h1>
       <div className="mx-5">
         <input
-          value={targetCalories}
-          onChange={(e) => setTargetCalories(e.target.value)}
+          value={targetCalories.value}
+          onChange={(e) => (targetCalories.value = e.target.value)}
           type="search"
           id="default-search"
           className="input-bordered input text-center font-bold"
@@ -248,7 +244,7 @@ export function MacroTarget({
       <div className="mx-5 flex flex-col">
         <MacroTargetSetting
           headerColor="text-green-400"
-          target={carbsRepr}
+          target={carbsRepr.value}
           onSetGramsPerKg={makeOnSetGramsPerKg('carbs')}
           onSetGrams={makeOnSetGrams('carbs')}
           onSetPercentage={makeOnSetPercentage('carbs')}
@@ -257,7 +253,7 @@ export function MacroTarget({
 
         <MacroTargetSetting
           headerColor="text-red-500"
-          target={proteinRepr}
+          target={proteinRepr.value}
           onSetGramsPerKg={makeOnSetGramsPerKg('protein')}
           onSetGrams={makeOnSetGrams('protein')}
           onSetPercentage={makeOnSetPercentage('protein')}
@@ -266,7 +262,7 @@ export function MacroTarget({
 
         <MacroTargetSetting
           headerColor="text-yellow-500"
-          target={fatRepr}
+          target={fatRepr.value}
           onSetGramsPerKg={makeOnSetGramsPerKg('fat')}
           onSetGrams={makeOnSetGrams('fat')}
           onSetPercentage={makeOnSetPercentage('fat')}
@@ -356,19 +352,19 @@ function MacroField({
   disabled?: boolean
   className?: string
 }) {
-  const [innerField, setInnerField] = useState(field)
+  const innerField = useSignal(field)
 
-  useEffect(() => {
-    setInnerField(field)
-  }, [field])
+  useSignalEffect(() => {
+    innerField.value = field
+  })
 
   return (
     <div className="flex flex-1 flex-col">
       <div className="">
         <input
-          value={innerField}
-          onChange={(e) => setInnerField(e.target.value)}
-          onBlur={() => setField(innerField)}
+          value={innerField.value}
+          onChange={(e) => (innerField.value = e.target.value)}
+          onBlur={() => setField(innerField.value)}
           type="number"
           // className={`block text-center w-full p-2 pl-10 text-md bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 ${className || ''}`}
           className="input-bordered input text-center font-bold"
