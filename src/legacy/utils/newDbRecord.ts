@@ -3,7 +3,7 @@
  */
 export type DbReady<T> = Omit<T, 'id' | '__type'>
 /**
- * @deprecated use DAO instead
+ * @deprecated use DAO instead (or zod schema for new objects (z.refine))
  */
 export type New<T> = Omit<T, 'id'>
 

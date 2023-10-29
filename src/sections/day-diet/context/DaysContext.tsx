@@ -1,18 +1,19 @@
 import { useCallback, useEffect } from 'react'
 import { Loadable } from '@/legacy/utils/loadable'
-import { DayDiet } from '@/modules/diet/day-diet/domain/day'
+import { DayDiet, DayIndex } from '@/modules/diet/day-diet/domain/dayDiet'
 import { User } from '@/modules/user/domain/user'
 import { createContext, useContext } from 'use-context-selector'
 import { DbReady } from '@/src/legacy/utils/newDbRecord'
-import { DayRepository } from '@/src/modules/diet/day-diet/domain/dayRepository'
+import { DayRepository } from '@/src/modules/diet/day-diet/domain/dayDietRepository'
 import { ReadonlySignal, useSignal } from '@preact/signals-react'
 
 export type DayContextProps = {
+  /**
+   * @deprecated Use `dayIndexes` instead
+   */
   days: ReadonlySignal<Loadable<ReadonlySignal<readonly DayDiet[]>>>
-  refetchDays: () => void
-  insertDay: (day: DbReady<DayDiet>) => void
-  updateDay: (dayId: DayDiet['id'], day: DbReady<DayDiet>) => void
-  deleteDay: (dayId: DayDiet['id']) => void
+  dayIndexes: ReadonlySignal<Loadable<ReadonlySignal<readonly DayIndex[]>>>
+  repository: DayRepository
 }
 
 const DayContext = createContext<DayContextProps | null>(null)
@@ -37,43 +38,41 @@ export function DayContextProvider({
   userId: User['id']
   repository: DayRepository
 }) {
-  // TODO: Convert all states to signals
   const days = useSignal<Loadable<ReadonlySignal<readonly DayDiet[]>>>({
+    loading: true,
+  })
+
+  const dayIndexes = useSignal<Loadable<ReadonlySignal<readonly DayIndex[]>>>({
     loading: true,
   })
 
   const handleFetchDays = useCallback(() => {
     repository
-      .fetchUserDays(userId)
+      .fetchAllUserDayDiets(userId)
       .then((newDays) => {
         days.value = { loading: false, errored: false, data: newDays }
       })
       .catch((error) => {
         days.value = { loading: false, errored: true, error }
       })
-  }, [days, userId, repository])
 
-  const handleInsertDay = useCallback(
-    (day: DbReady<DayDiet>) => {
-      repository.insertDay(day).then(() => handleFetchDays())
-    },
-    [handleFetchDays, repository],
-  )
-
-  const handleUpdateDay = useCallback(
-    (dayId: DayDiet['id'], day: DbReady<DayDiet>) => {
-      console.debug(`[DayContextProvider] - Updating day ${dayId} => `, day)
-      repository.updateDay(dayId, day).then(() => handleFetchDays())
-    },
-    [handleFetchDays, repository],
-  )
-
-  const handleDeleteDay = useCallback(
-    (dayId: DayDiet['id']) => {
-      repository.deleteDay(dayId).then(() => handleFetchDays())
-    },
-    [handleFetchDays, repository],
-  )
+    repository
+      .fetchAllUserDayIndexes(userId)
+      .then((newDayIndexes) => {
+        console.debug(
+          `[DayContextProvider] - Fetched day indexes for ${userId}:`,
+          newDayIndexes,
+        )
+        dayIndexes.value = {
+          loading: false,
+          errored: false,
+          data: newDayIndexes,
+        }
+      })
+      .catch((error) => {
+        dayIndexes.value = { loading: false, errored: true, error }
+      })
+  }, [days, dayIndexes, userId, repository])
 
   useEffect(() => {
     handleFetchDays()
@@ -81,10 +80,8 @@ export function DayContextProvider({
 
   const context: DayContextProps = {
     days,
-    refetchDays: handleFetchDays,
-    insertDay: handleInsertDay,
-    updateDay: handleUpdateDay,
-    deleteDay: handleDeleteDay,
+    dayIndexes,
+    repository,
   }
 
   return <DayContext.Provider value={context}>{children}</DayContext.Provider>

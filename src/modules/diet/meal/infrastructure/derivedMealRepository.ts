@@ -1,5 +1,5 @@
-import { DayDiet } from '@/src/modules/diet/day-diet/domain/day'
-import { DayRepository } from '@/src/modules/diet/day-diet/domain/dayRepository'
+import { DayDiet } from '@/src/modules/diet/day-diet/domain/dayDiet'
+import { DayRepository } from '@/src/modules/diet/day-diet/domain/dayDietRepository'
 import { MealRepository } from '@/src/modules/diet/meal/domain/mealRepository'
 import { ReadonlySignal } from '@preact/signals-react'
 
@@ -14,7 +14,7 @@ export function createDerivedMealRepository(
         throw new Error(`Day ${dayId} not found`)
       }
 
-      await dayRepository.fetchUserDays(day?.owner)
+      await dayRepository.fetchAllUserDayDiets(day?.owner)
       const updatedDay = localDays.value.find((day) => day.id === dayId)
       if (!updatedDay) {
         throw new Error(`Day ${dayId} not found`)
@@ -38,7 +38,7 @@ export function createDerivedMealRepository(
         meals: day.meals.map((meal) => (meal.id === mealId ? newMeal : meal)),
       }
 
-      return (await dayRepository.updateDay(dayId, newDay)).meals.find(
+      return (await dayRepository.updateDayDiet(dayId, newDay)).meals.find(
         (meal) => meal.id === mealId,
       )
     },
@@ -53,7 +53,7 @@ export function createDerivedMealRepository(
         meals: [...day.meals, newMeal],
       }
 
-      return (await dayRepository.updateDay(dayId, newDay)).meals.find(
+      return (await dayRepository.updateDayDiet(dayId, newDay)).meals.find(
         (meal) => meal.id === newMeal.id,
       )
     },
@@ -68,7 +68,7 @@ export function createDerivedMealRepository(
         meals: day.meals.filter((meal) => meal.id !== mealId),
       }
 
-      await dayRepository.updateDay(dayId, newDay)
+      await dayRepository.updateDayDiet(dayId, newDay)
     },
   }
 }

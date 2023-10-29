@@ -1,4 +1,4 @@
-import { DayDiet } from '@/modules/diet/day-diet/domain/day'
+import { DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
 import { ItemGroup } from '@/src/modules/diet/item-group/domain/itemGroup'
 import { Meal } from '@/src/modules/diet/meal/domain/meal'
 

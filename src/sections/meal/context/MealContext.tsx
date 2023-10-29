@@ -2,7 +2,7 @@
 
 import { Meal } from '@/src/modules/diet/meal/domain/meal'
 import { Loadable } from '@/src/legacy/utils/loadable'
-import { DayDiet } from '@/src/modules/diet/day-diet/domain/day'
+import { DayDiet } from '@/src/modules/diet/day-diet/domain/dayDiet'
 import { MealRepository } from '@/src/modules/diet/meal/domain/mealRepository'
 import { ReadonlySignal, useSignal } from '@preact/signals-react'
 import { createContext, useContext } from 'use-context-selector'
