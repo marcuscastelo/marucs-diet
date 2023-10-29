@@ -1,10 +1,16 @@
 import { User } from '@/src/modules/user/domain/user'
-import {
-  loadUserIdFromLocalStorage,
-  saveUserIdToLocalStorage,
-} from '@/src/modules/user/infrastructure/localStorageUserRepository'
 import { createSupabaseUserRepository } from '@/src/modules/user/infrastructure/supabaseUserRepository'
-import { computed, signal } from '@preact/signals-react'
+// import { computed, signal } from '@preact/signals-react'
+
+function signal<T>(a: T) {
+  return { value: a }
+}
+
+function computed<R, T extends (...params: any) => R>(a: T) {
+  return { value: a() } as { value: ReturnType<T> }
+}
+
+export const DEFAULT_USER_ID = 3
 
 const userRepository = createSupabaseUserRepository()
 
@@ -14,15 +20,18 @@ const currentUser_ = signal<User | null>(null)
 export const users = computed(() => users_.value)
 export const currentUser = computed(() => currentUser_.value)
 
-export const currentUserId = signal<number>(loadUserIdFromLocalStorage() ?? 3)
+export const currentUserId = signal<number | null>(null)
 
 export async function fetchUsers(): Promise<void> {
   const users = await userRepository.fetchUsers()
   users_.value = users
 }
 
-export async function fetchUser(userId: User['id']): Promise<User | null> {
-  const user = await userRepository.fetchUser(userId)
+export async function fetchCurrentUser(): Promise<User | null> {
+  if (currentUserId.value === null) {
+    throw new Error('User not initialized')
+  }
+  const user = await userRepository.fetchUser(currentUserId.value)
   currentUser_.value = user
   return user
 }
@@ -46,7 +55,19 @@ export async function deleteUser(userId: User['id']): Promise<void> {
   fetchUsers()
 }
 
+export function initializeUser(): void {
+  // if (currentUserId.value !== null) {
+  //   throw new Error('User already initialized')
+  // }
+  // const userId = loadUserIdFromLocalStorage()
+  // if (userId === null) {
+  //   changeToUser(DEFAULT_USER_ID)
+  // } else {
+  //   changeToUser(userId)
+  // }
+}
+
 export function changeToUser(userId: User['id']): void {
-  currentUserId.value = userId
-  saveUserIdToLocalStorage(userId)
+  // currentUserId.value = userId
+  // saveUserIdToLocalStorage(userId)
 }
