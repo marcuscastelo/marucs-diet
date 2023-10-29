@@ -3,7 +3,7 @@
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
 import { ReadonlySignal } from '@preact/signals-react'
-import { useDayContext } from '@/src/sections/day-diet/context/DaysContext'
+import { deleteDayDiet } from '@/src/modules/diet/day-diet/application/dayDiet'
 
 export default function DeleteDayButton({
   day,
@@ -11,9 +11,6 @@ export default function DeleteDayButton({
   day: ReadonlySignal<DayDiet | null | undefined>
 }) {
   const { show: showConfirmModal } = useConfirmModalContext()
-  const {
-    repository: { deleteDayDiet },
-  } = useDayContext()
 
   return (
     <button

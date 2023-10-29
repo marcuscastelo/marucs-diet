@@ -1,8 +1,10 @@
 'use client'
 
 import { useUserContext } from '@/sections/user/context/UserContext'
-import { createDayDiet } from '@/modules/diet/day-diet/application/dayDiet'
-import { useDayContext } from '@/src/sections/day-diet/context/DaysContext'
+import {
+  createDayDiet,
+  insertDayDiet,
+} from '@/modules/diet/day-diet/application/dayDiet'
 import { createMeal } from '@/src/modules/diet/meal/domain/meal'
 
 // TODO: Make meal names editable and persistent by user
@@ -20,9 +22,6 @@ export default function CreateBlankDayButton({
   selectedDay: string
 }) {
   const { user } = useUserContext()
-  const {
-    repository: { insertDayDiet },
-  } = useDayContext()
 
   return (
     <button

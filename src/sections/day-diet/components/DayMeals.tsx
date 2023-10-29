@@ -17,7 +17,7 @@ import DeleteDayButton from '@/sections/day-diet/components/DeleteDayButton'
 import { useRouter } from 'next/navigation'
 import { getToday } from '@/legacy/utils/dateUtils'
 import { ModalContextProvider } from '@/sections/common/context/ModalContext'
-import { useUserContext } from '@/sections/user/context/UserContext'
+import { useUserContext, useUserId } from '@/sections/user/context/UserContext'
 import {
   ReadonlySignal,
   Signal,
@@ -26,11 +26,15 @@ import {
   useSignal,
   useSignalEffect,
 } from '@preact/signals-react'
-import { useDayContext } from '@/src/sections/day-diet/context/DaysContext'
 import DayNotFound from '@/src/sections/day-diet/components/DayNotFound'
 import { useMealContext } from '@/src/sections/meal/context/MealContext'
 import { useItemGroupContext } from '@/src/sections/item-group/context/ItemGroupContext'
-import PageLoading from '@/src/sections/common/components/PageLoading'
+import {
+  currentDayDiet,
+  fetchDayDiets,
+  targetDay,
+} from '@/src/modules/diet/day-diet/application/dayDiet'
+import { useEffect } from 'react'
 
 type EditSelection = {
   meal: Meal
@@ -45,67 +49,22 @@ const editSelection = signal<EditSelection>(null)
 
 const newItemSelection = signal<NewItemSelection>(null)
 
-const currentDayDiet = signal<DayDiet | null>(null)
-
 export default function DayMeals({ selectedDay }: { selectedDay: string }) {
   const router = useRouter()
   const today = getToday()
+  const userId = useUserId()
   const showingToday = today === selectedDay
-
-  const {
-    dayIndexes,
-    days: dayDiets,
-    repository: dayRepository,
-  } = useDayContext()
   const { updateMeal } = useMealContext()
-
-  useSignalEffect(() => {
-    console.debug(`[DayMeals] <computed> days changed, recalculating...`)
-    if (dayIndexes.value.loading || dayIndexes.value.errored) {
-      console.debug(
-        `[DayMeals] <computed> dayIndexes loading or errored: `,
-        dayIndexes,
-      )
-      return
-    }
-
-    if (dayDiets.value.loading || dayDiets.value.errored) {
-      console.debug(
-        `[DayMeals] <computed> dayDiets loading or errored: `,
-        dayDiets,
-      )
-      return
-    }
-
-    console.debug(`[DayMeals] <computed> Searching for day ${selectedDay}`)
-    const resultIndex = dayIndexes.value.data.value.find(
-      (dayIndex) => dayIndex.target_day === selectedDay,
-    )
-    console.debug(
-      `[DayMeals] <computed> All dayIndexes: `,
-      dayIndexes.value.data.value,
-    )
-    console.debug(`[DayMeals] <computed> Search Result: `, resultIndex)
-
-    if (resultIndex === undefined) {
-      console.debug(`[DayMeals] <computed> Day ${selectedDay} not found!`)
-      return
-    }
-
-    dayRepository
-      .fetchDayDiet(resultIndex.id)
-      .then((dayDiet) => {
-        currentDayDiet.value = dayDiet
-      })
-      .catch((error) => {
-        console.error(`[DayMeals] <computed> Error fetching dayDiet: `, error)
-      })
-  })
 
   const dayLocked = useSignal(!showingToday)
 
   const itemGroupEditModalVisible = useSignal(false)
   const templateSearchModalVisible = useSignal(false)
+
+  useEffect(() => {
+    fetchDayDiets(userId)
+    targetDay.value = selectedDay
+  }, [selectedDay, userId])
 
   const handleEditItemGroup = (meal: Meal, itemGroup: ItemGroup) => {
     if (dayLocked.value) {
@@ -170,20 +129,6 @@ export default function DayMeals({ selectedDay }: { selectedDay: string }) {
         }
       }) ?? [],
   )
-
-  if (dayIndexes.value.loading) {
-    return <PageLoading message="Carregando dias" />
-  }
-
-  if (dayIndexes.value.errored) {
-    return (
-      <PageLoading
-        message={`Erro ao carregar dias: ${JSON.stringify(
-          dayIndexes.value.error,
-        )}`}
-      />
-    )
-  }
 
   if (currentDayDiet.value === null) {
     console.debug(`[DayMeals] Day ${selectedDay} not found!`)

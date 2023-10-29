@@ -1,5 +1,4 @@
 'use client'
-import { useDayContext } from '@/sections/day-diet/context/DaysContext'
 import Capsule from '@/sections/common/components/capsule/Capsule'
 
 import {
@@ -30,6 +29,7 @@ import { MacroProfile } from '@/src/modules/diet/macro-profile/domain/macroProfi
 import { dateToDDMM } from '@/legacy/utils/dateUtils'
 import { Weight } from '@/modules/weight/domain/weight'
 import { useWeightContext } from '@/src/sections/weight/context/WeightContext'
+import { dayDiets } from '@/src/modules/diet/day-diet/application/dayDiet'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -103,13 +103,8 @@ function createChartData(
 }
 
 function AllMacrosChart({ weights }: { weights: readonly Weight[] }) {
-  const { days } = useDayContext()
   const { user } = useUserContext()
   const { macroProfiles } = useMacroProfiles(user.id)
-
-  if (days.value.loading || days.value.errored) {
-    return <h1>Carregando dias...</h1>
-  }
 
   if (macroProfiles.value.loading || macroProfiles.value.errored) {
     return <h1>Carregando perfis de macro...</h1>
@@ -123,7 +118,7 @@ function AllMacrosChart({ weights }: { weights: readonly Weight[] }) {
     )
   }
 
-  const proteinDeviance = days.value.data.value
+  const proteinDeviance = dayDiets.value
     .map((day) => {
       const currentWeight = inForceWeight(weights, new Date(day.target_day))
       const macroTargets = calculateMacroTarget(
@@ -135,7 +130,7 @@ function AllMacrosChart({ weights }: { weights: readonly Weight[] }) {
     })
     .reduce((a, b) => a + b, 0)
 
-  const fatDeviance = days.value.data.value
+  const fatDeviance = dayDiets.value
     .map((day) => {
       const currentWeight = inForceWeight(weights, new Date(day.target_day))
       const macroTargets = calculateMacroTarget(
@@ -149,7 +144,7 @@ function AllMacrosChart({ weights }: { weights: readonly Weight[] }) {
 
   const data = createChartData(
     weights,
-    days.value.data.value,
+    dayDiets.value,
     macroProfiles.value.data,
   )
 
@@ -264,13 +259,8 @@ function AllMacrosChart({ weights }: { weights: readonly Weight[] }) {
 }
 
 function CaloriesChart({ weights }: { weights: readonly Weight[] }) {
-  const { days } = useDayContext()
   const { user } = useUserContext()
   const { macroProfiles } = useMacroProfiles(user.id)
-
-  if (days.value.loading || days.value.errored) {
-    return <h1>Carregando dias...</h1>
-  }
 
   if (macroProfiles.value.loading || macroProfiles.value.errored) {
     return <h1>Carregando perfis de macro...</h1>
@@ -278,7 +268,7 @@ function CaloriesChart({ weights }: { weights: readonly Weight[] }) {
 
   const data = createChartData(
     weights,
-    days.value.data.value,
+    dayDiets.value,
     macroProfiles.value.data,
   )
 
@@ -325,13 +315,8 @@ function CaloriesChart({ weights }: { weights: readonly Weight[] }) {
 }
 
 function ProteinChart({ weights }: { weights: readonly Weight[] }) {
-  const { days } = useDayContext()
   const { user } = useUserContext()
   const { macroProfiles } = useMacroProfiles(user.id)
-
-  if (days.value.loading || days.value.errored) {
-    return <h1>Carregando dias...</h1>
-  }
 
   if (macroProfiles.value.loading || macroProfiles.value.errored) {
     return <h1>Carregando perfis de macro...</h1>
@@ -339,7 +324,7 @@ function ProteinChart({ weights }: { weights: readonly Weight[] }) {
 
   const data = createChartData(
     weights,
-    days.value.data.value,
+    dayDiets.value,
     macroProfiles.value.data,
   )
 
@@ -385,13 +370,8 @@ function ProteinChart({ weights }: { weights: readonly Weight[] }) {
 }
 
 function FatChart({ weights }: { weights: readonly Weight[] }) {
-  const { days } = useDayContext()
   const { user } = useUserContext()
   const { macroProfiles } = useMacroProfiles(user.id)
-
-  if (days.value.loading || days.value.errored) {
-    return <h1>Carregando dias...</h1>
-  }
 
   if (macroProfiles.value.loading || macroProfiles.value.errored) {
     return <h1>Carregando perfis de macro...</h1>
@@ -399,7 +379,7 @@ function FatChart({ weights }: { weights: readonly Weight[] }) {
 
   const data = createChartData(
     weights,
-    days.value.data.value,
+    dayDiets.value,
     macroProfiles.value.data,
   )
 
@@ -445,13 +425,8 @@ function FatChart({ weights }: { weights: readonly Weight[] }) {
 }
 
 function CarbsChart({ weights }: { weights: readonly Weight[] }) {
-  const { days } = useDayContext()
   const { user } = useUserContext()
   const { macroProfiles } = useMacroProfiles(user.id)
-
-  if (days.value.loading || days.value.errored) {
-    return <h1>Carregando...</h1>
-  }
 
   if (macroProfiles.value.loading || macroProfiles.value.errored) {
     return <h1>Carregando perfis de macro...</h1>
@@ -459,7 +434,7 @@ function CarbsChart({ weights }: { weights: readonly Weight[] }) {
 
   const data = createChartData(
     weights,
-    days.value.data.value,
+    dayDiets.value,
     macroProfiles.value.data,
   )
   return (
