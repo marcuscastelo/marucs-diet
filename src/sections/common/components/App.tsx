@@ -2,10 +2,7 @@
 
 import ConfirmModal from '@/sections/common/components/ConfirmModal'
 import { ConfirmModalProvider } from '@/sections/common/context/ConfirmModalContext'
-import {
-  DayContextProvider,
-  useDayContext,
-} from '@/sections/day-diet/context/DaysContext'
+
 import {
   FoodContextProvider,
   TemplateStore,
@@ -29,6 +26,7 @@ import { computed } from '@preact/signals-react'
 import { createDerivedItemGroupRepository } from '@/src/modules/diet/item-group/infrastructure/derivedItemGroupRepository'
 import { ItemGroupContextProvider } from '@/src/sections/item-group/context/ItemGroupContext'
 import { createSupabaseWeightRepository } from '@/src/modules/weight/infrastructure/supabaseWeightRepository'
+import { dayDiets } from '@/src/modules/diet/day-diet/application/dayDiet'
 
 export default function App({
   user,
@@ -44,15 +42,13 @@ export default function App({
   return (
     <AppUserProvider user={user} onSaveUser={onSaveUser}>
       <AppWeightProvider userId={user.id}>
-        <AppDayProvider>
-          <AppHackyMealProvider>
-            <AppHackyItemGroupProvider>
-              <AppConfirmModalProvider>
-                <AppFoodsProvider>{children}</AppFoodsProvider>
-              </AppConfirmModalProvider>
-            </AppHackyItemGroupProvider>
-          </AppHackyMealProvider>
-        </AppDayProvider>
+        <AppHackyMealProvider>
+          <AppHackyItemGroupProvider>
+            <AppConfirmModalProvider>
+              <AppFoodsProvider>{children}</AppFoodsProvider>
+            </AppConfirmModalProvider>
+          </AppHackyItemGroupProvider>
+        </AppHackyMealProvider>
       </AppWeightProvider>
     </AppUserProvider>
   )
@@ -81,27 +77,6 @@ function AppUserProvider({
   )
 }
 
-/**
- * @deprecated Should be replaced by use cases
- */
-function AppDayProvider({ children }: { children: React.ReactNode }) {
-  console.debug(`[AppDaysProvider] - Rendering`)
-
-  const userId = useUserId()
-
-  if (!userId) {
-    return <div>UserId is undefined</div>
-  }
-
-  const dayRepository = createSupabaseDayRepository()
-
-  return (
-    <DayContextProvider userId={userId} repository={dayRepository}>
-      {children}
-    </DayContextProvider>
-  )
-}
-
 // TODO: Remove this hacky provider when Meal is an entity in the DB
 /**
  * @deprecated Should be replaced by use cases
@@ -109,14 +84,10 @@ function AppDayProvider({ children }: { children: React.ReactNode }) {
 function AppHackyMealProvider({ children }: { children: React.ReactNode }) {
   console.debug(`[AppHackyMealProvider] - Rendering`)
 
-  const { days } = useDayContext()
   const dayRepository = createSupabaseDayRepository()
 
   const mealRepository = computed(() => {
-    if (days.value.loading || days.value.errored) {
-      return null
-    }
-    return createDerivedMealRepository(days.value.data, dayRepository)
+    return createDerivedMealRepository(dayDiets, dayRepository)
   })
 
   return (
@@ -137,28 +108,17 @@ function AppHackyItemGroupProvider({
 }) {
   console.debug(`[AppHackyItemGroupProvider] - Rendering`)
 
-  const { days } = useDayContext()
   const dayRepository = createSupabaseDayRepository()
   const mealRepository = computed(() => {
-    if (days.value.loading || days.value.errored) {
-      return null
-    }
-    return createDerivedMealRepository(days.value.data, dayRepository)
+    return createDerivedMealRepository(dayDiets, dayRepository)
   })
 
   const itemGroupRepository = computed(() => {
-    if (days.value.loading || days.value.errored) {
-      return null
-    }
-
     if (mealRepository.value === null) {
       return null
     }
 
-    return createDerivedItemGroupRepository(
-      days.value.data,
-      mealRepository.value,
-    )
+    return createDerivedItemGroupRepository(dayDiets, mealRepository.value)
   })
 
   return (
