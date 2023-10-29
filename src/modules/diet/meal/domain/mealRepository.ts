@@ -1,4 +1,4 @@
-import { DayDiet } from '@/modules/diet/day-diet/domain/day'
+import { DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
 import { DbReady } from '@/src/legacy/utils/newDbRecord'
 import { Meal } from '@/src/modules/diet/meal/domain/meal'
 

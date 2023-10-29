@@ -1,4 +1,4 @@
-import { DayDiet } from '@/modules/diet/day-diet/domain/day'
+import { DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
 import { ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
 import { MacroNutrients } from '@/src/modules/diet/macro-nutrients/domain/macroNutrients'
 import { Meal } from '@/src/modules/diet/meal/domain/meal'
