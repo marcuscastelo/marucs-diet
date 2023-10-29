@@ -4,10 +4,12 @@ import { usePathname, useRouter } from 'next/navigation'
 import { ReactNode, useEffect } from 'react'
 import { UserIcon } from '@/sections/common/components/UserIcon'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { useFetch } from '@/sections/common/hooks/useFetch'
-import { fetchUsers } from '@/legacy/controllers/users'
 import { AvaliableUser, useUserId } from '@/sections/user/context/UserContext'
-import { changeUser } from '@/legacy/actions/user'
+import {
+  changeToUser,
+  fetchUsers,
+  users,
+} from '@/src/modules/user/application/user'
 
 export function BottomNavigation() {
   const router = useRouter()
@@ -198,11 +200,9 @@ function CTAButton() {
 const UserSelectorDropdown = () => {
   const { show: showConfirmModal } = useConfirmModalContext()
 
-  const { data: availableUsers, fetch } = useFetch(fetchUsers)
-
   useEffect(() => {
-    fetch()
-  }, [fetch])
+    fetchUsers()
+  }, [])
 
   const handleChangeUser = (user: AvaliableUser) => {
     showConfirmModal({
@@ -222,20 +222,16 @@ const UserSelectorDropdown = () => {
           primary: true,
           text: 'Entrar',
           onClick: () => {
-            changeUser(user.id)
+            changeToUser(user.id)
           },
         },
       ],
     })
   }
 
-  if (availableUsers.value.loading || availableUsers.value.errored) {
-    return <>Loading available users...</>
-  }
-
   return (
     <div className="flex flex-col gap-1">
-      {availableUsers.value.data.map((user, idx) => {
+      {users.value.map((user, idx) => {
         return (
           <div
             className="btn btn-ghost flex justify-between"
