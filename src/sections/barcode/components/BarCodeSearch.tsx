@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import FoodItemView from '@/sections/food-item/components/FoodItemView'
 import { searchFoodsByEan } from '@/legacy/controllers/food'
 import { Food } from '@/modules/diet/food/domain/food'
