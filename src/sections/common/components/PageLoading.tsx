@@ -15,7 +15,7 @@ export default function PageLoading({ message }: PageLoadingProps) {
     setInterval(() => {
       const dots = label.value.match(/\./g)?.length ?? 0
       if (dots < 3) {
-        label.value = label.peek() + '.'
+        label.value = label.value + '.'
       } else {
         label.value = message
       }
