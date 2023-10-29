@@ -1,7 +1,7 @@
 'use client'
 
 import { Loadable } from '@/src/legacy/utils/loadable'
-import { DayDiet } from '@/src/modules/diet/day-diet/domain/day'
+import { DayDiet } from '@/src/modules/diet/day-diet/domain/dayDiet'
 import { ItemGroup } from '@/src/modules/diet/item-group/domain/itemGroup'
 import { ItemGroupRepository } from '@/src/modules/diet/item-group/domain/itemGroupRepository'
 import { Meal } from '@/src/modules/diet/meal/domain/meal'

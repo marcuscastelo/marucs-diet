@@ -1,7 +1,7 @@
 'use client'
 
 import MealEditViewList from '@/sections/meal/components/MealEditViewList'
-import { DayDiet } from '@/modules/diet/day-diet/domain/day'
+import { DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
 import MealEditView, {
   MealEditViewProps,
 } from '@/sections/meal/components/MealEditView'
@@ -17,7 +17,7 @@ import DeleteDayButton from '@/sections/day-diet/components/DeleteDayButton'
 import { useRouter } from 'next/navigation'
 import { getToday } from '@/legacy/utils/dateUtils'
 import { ModalContextProvider } from '@/sections/common/context/ModalContext'
-import { useUserContext } from '@/sections/user/context/UserContext'
+import { useUserContext, useUserId } from '@/sections/user/context/UserContext'
 import {
   ReadonlySignal,
   Signal,
@@ -26,10 +26,15 @@ import {
   useSignal,
   useSignalEffect,
 } from '@preact/signals-react'
-import { useDayContext } from '@/src/sections/day-diet/context/DaysContext'
 import DayNotFound from '@/src/sections/day-diet/components/DayNotFound'
 import { useMealContext } from '@/src/sections/meal/context/MealContext'
 import { useItemGroupContext } from '@/src/sections/item-group/context/ItemGroupContext'
+import {
+  currentDayDiet,
+  fetchDayDiets,
+  targetDay,
+} from '@/src/modules/diet/day-diet/application/dayDiet'
+import { useEffect } from 'react'
 
 type EditSelection = {
   meal: Meal
@@ -47,32 +52,19 @@ const newItemSelection = signal<NewItemSelection>(null)
 export default function DayMeals({ selectedDay }: { selectedDay: string }) {
   const router = useRouter()
   const today = getToday()
+  const userId = useUserId()
   const showingToday = today === selectedDay
-
-  // TODO: Convert all states to signals
-  const { days } = useDayContext()
   const { updateMeal } = useMealContext()
-
-  const day = computed(() => {
-    console.debug(`[DayMeals] <computed> days changed, recalculating...`)
-    if (days.value.loading || days.value.errored) {
-      console.debug(`[DayMeals] <computed> days loading or errored: `, days)
-      return undefined
-    }
-
-    console.debug(`[DayMeals] <computed> Searching for day ${selectedDay}`)
-    const result = days.value.data.value.find(
-      (day) => day.target_day === selectedDay,
-    )
-    console.debug(`[DayMeals] <computed> All days: `, days.value.data.value)
-    console.debug(`[DayMeals] <computed> Search Result: `, result)
-    return result
-  })
 
   const dayLocked = useSignal(!showingToday)
 
   const itemGroupEditModalVisible = useSignal(false)
   const templateSearchModalVisible = useSignal(false)
+
+  useEffect(() => {
+    fetchDayDiets(userId)
+    targetDay.value = selectedDay
+  }, [selectedDay, userId])
 
   const handleEditItemGroup = (meal: Meal, itemGroup: ItemGroup) => {
     if (dayLocked.value) {
@@ -108,7 +100,7 @@ export default function DayMeals({ selectedDay }: { selectedDay: string }) {
 
   const mealEditPropsList = computed(
     () =>
-      day.value?.meals.map((meal): MealEditViewProps => {
+      currentDayDiet.value?.meals.map((meal): MealEditViewProps => {
         console.debug(
           `[DayMeals] <computed> meal changed, recalculating mealEditPropsList...`,
         )
@@ -118,11 +110,11 @@ export default function DayMeals({ selectedDay }: { selectedDay: string }) {
           header: (
             <MealEditView.Header
               onUpdateMeal={(meal) => {
-                if (day.value === undefined) {
-                  console.error('Day is undefined!')
-                  throw new Error('Day is undefined!')
+                if (currentDayDiet.value === null) {
+                  console.error('currentDayDiet is null!')
+                  throw new Error('currentDayDiet is null!')
                 }
-                handleUpdateMeal(day.value, meal)
+                handleUpdateMeal(currentDayDiet.value, meal)
               }}
             />
           ),
@@ -138,36 +130,32 @@ export default function DayMeals({ selectedDay }: { selectedDay: string }) {
       }) ?? [],
   )
 
-  if (days.value.loading || days.value.errored) {
-    return <>Loading days...</>
-  }
-
-  if (day.value === undefined) {
+  if (currentDayDiet.value === null) {
     console.debug(`[DayMeals] Day ${selectedDay} not found!`)
     return <DayNotFound selectedDay={selectedDay} />
   }
 
-  const neverUndDay = computed(() => {
-    if (day.value === undefined) {
+  const neverNullDayDiey = computed(() => {
+    if (currentDayDiet.value === null) {
       console.error('Day is undefined!')
       throw new Error('Day is undefined!')
     }
-    return day.value
+    return currentDayDiet.value
   })
 
   return (
     <>
       <ExternalTemplateSearchModal
-        day={neverUndDay}
+        day={neverNullDayDiey}
         visible={templateSearchModalVisible}
       />
       <ExternalItemGroupEditModal
-        day={neverUndDay}
+        day={neverNullDayDiey}
         visible={itemGroupEditModalVisible}
       />
       <DayMacros
         className="mt-3 border-b-2 border-gray-800 pb-4"
-        macros={calcDayMacros(day.value)}
+        macros={calcDayMacros(currentDayDiet.value)}
       />
       {!showingToday && (
         <>
@@ -206,8 +194,8 @@ export default function DayMeals({ selectedDay }: { selectedDay: string }) {
         className="mt-5"
         mealEditPropsList={mealEditPropsList}
       />
-      <CopyLastDayButton day={day} selectedDay={selectedDay} />
-      <DeleteDayButton day={day} />
+      <CopyLastDayButton day={neverNullDayDiey} selectedDay={selectedDay} />
+      <DeleteDayButton day={neverNullDayDiey} />
     </>
   )
 }

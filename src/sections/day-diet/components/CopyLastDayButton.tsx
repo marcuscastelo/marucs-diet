@@ -1,9 +1,13 @@
 'use client'
 
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { DayDiet } from '@/modules/diet/day-diet/domain/day'
-import { ReadonlySignal, computed } from '@preact/signals-react'
-import { useDayContext } from '@/src/sections/day-diet/context/DaysContext'
+import { DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
+import { ReadonlySignal } from '@preact/signals-react'
+import {
+  dayDiets,
+  insertDayDiet,
+  updateDayDiet,
+} from '@/src/modules/diet/day-diet/application/dayDiet'
 
 export default function CopyLastDayButton({
   day,
@@ -13,18 +17,14 @@ export default function CopyLastDayButton({
   selectedDay: string
 }) {
   const { show: showConfirmModal } = useConfirmModalContext()
-  const { days, insertDay, updateDay } = useDayContext()
 
-  if (days.value.loading || days.value.errored) {
-    return <></>
-  }
-
-  if (days.value === undefined) {
+  if (dayDiets.value === undefined) {
     console.error('days is undefined')
     return <></>
   }
 
-  const lastDay = days.value.data.value.findLast(
+  // TODO: Create signal for last day instead of fetching all days
+  const lastDay = dayDiets.value.findLast(
     (day) => Date.parse(day.target_day) < Date.parse(selectedDay),
   )
   if (lastDay === undefined) {
@@ -59,7 +59,7 @@ export default function CopyLastDayButton({
                 text: 'Sobrescrever',
                 primary: true,
                 onClick: async () => {
-                  updateDay(dayValue.id, {
+                  updateDayDiet(dayValue.id, {
                     ...lastDay,
                     target_day: selectedDay,
                   })
@@ -70,7 +70,7 @@ export default function CopyLastDayButton({
           return
         }
 
-        insertDay({
+        insertDayDiet({
           ...lastDay,
           target_day: selectedDay,
         })
