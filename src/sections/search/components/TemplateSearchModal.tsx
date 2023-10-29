@@ -207,14 +207,14 @@ export function TemplateSearch({
   const isDesktop = isClient ? window.innerWidth > 768 : false // TODO: Stop using innerWidth to detect desktop
   useEffect(() => setIsClient(true), [])
 
-  const [search, setSearch_] = useState<string>('')
+  const search = useSignal<string>('')
   const { typing, onTyped } = useTyping({
     delay: TYPING_TIMEOUT_MS,
-    onTypingEnd: () => refetchFoods('all', search), // TODO: Change 'all' to selected tab
+    onTypingEnd: () => refetchFoods('all', search.value), // TODO: Change 'all' to selected tab
   })
 
-  const setSearch = (search: string) => {
-    setSearch_(search)
+  const setSearch = (newSearch: string) => {
+    search.value = newSearch
     onTyped()
   }
 
@@ -254,12 +254,12 @@ export function TemplateSearch({
   const searchFilteredTemplates = computed(() =>
     (templates.data ?? [])
       .filter((template) => {
-        if (search === '') {
+        if (search.value === '') {
           return true
         }
 
         // Fuzzy search
-        const searchLower = search.toLowerCase()
+        const searchLower = search.value.toLowerCase()
         const nameLower = template.name.toLowerCase()
         const searchWords = searchLower.split(' ')
         const nameWords = nameLower.split(' ')
@@ -292,11 +292,11 @@ export function TemplateSearch({
       <TemplateSearchTabs onTabChange={(tabValue) => (tab.value = tabValue)} />
       <SearchBar
         isDesktop={isDesktop}
-        search={search}
+        search={search.value}
         onSetSearch={setSearch}
       />
       <SearchResults
-        search={search}
+        search={search.value}
         filteredTemplates={searchFilteredTemplates}
         barCodeModalVisible={barCodeModalVisible}
         foodItemEditModalVisible={foodItemEditModalVisible}

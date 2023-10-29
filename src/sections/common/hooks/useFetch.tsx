@@ -1,7 +1,7 @@
 'use client'
 
 import { Loadable } from '@/legacy/utils/loadable'
-import { useSignal } from '@preact/signals-react'
+import { ReadonlySignal, useSignal } from '@preact/signals-react'
 import { useCallback } from 'react'
 
 export type FetchFunc<T, I, P extends Array<I>> = (...params: P) => Promise<T>
@@ -25,7 +25,7 @@ export function useFetch<T, I, P extends Array<I>>(
   )
 
   return {
-    data,
+    data: data as ReadonlySignal<Loadable<T>>,
     fetch: handleFetch,
   } as const
 }
