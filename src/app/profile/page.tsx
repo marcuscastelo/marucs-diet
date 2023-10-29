@@ -1,24 +1,30 @@
+'use client'
+
 import { BasicInfo } from '@/sections/profile/components/BasicInfo'
 import { WeightEvolution } from '@/sections/weight/components/WeightEvolution'
 import { MeasuresEvolution } from '@/sections/profile/components/measure/MeasuresEvolution'
 
-import { fetchUser, updateUser } from '@/legacy/controllers/users'
 import { MacroTarget } from '@/src/sections/macro-nutrients/components/MacroTargets'
 import { revalidatePath } from 'next/cache'
-import { getUser } from '@/legacy/actions/user'
 import { MacroEvolution } from '@/sections/macro-profile/components/MacroEvolution'
 import { latestWeight } from '@/legacy/utils/weightUtils'
 import { User } from '@/modules/user/domain/user'
 import { MacroProfile } from '@/src/modules/diet/macro-profile/domain/macroProfile'
 import {
-  fetchUserMacroProfiles,
   insertMacroProfile,
   updateMacroProfile,
 } from '@/legacy/controllers/macroProfiles'
 import { latestMacroProfile } from '@/legacy/utils/macroProfileUtils'
 import { getToday } from '@/legacy/utils/dateUtils'
 import { BottomNavigation } from '@/sections/common/components/BottomNavigation'
-import { createSupabaseWeightRepository } from '@/src/modules/weight/infrastructure/supabaseWeightRepository'
+import {
+  currentUser,
+  currentUserId,
+  updateUser,
+} from '@/src/modules/user/application/user'
+import { useWeightContext } from '@/src/sections/weight/context/WeightContext'
+import { useMacroProfiles } from '@/src/sections/macro-profile/hooks/useMacroProfiles'
+import PageLoading from '@/src/sections/common/components/PageLoading'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -28,29 +34,34 @@ export const revalidate = 1
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
 
-export default async function Page() {
-  const userId = await getUser()
+export default function Page() {
+  const { weights } = useWeightContext()
+  const { macroProfiles } = useMacroProfiles(currentUserId.value ?? 3)
 
-  if (!userId) {
-    return <h1>Usuário não encontrado</h1>
+  if (currentUserId.value === null) {
+    console.error('[ProfilePage] User not defined')
+    throw new Error('User not defined')
   }
 
-  const user = await fetchUser(userId)
-
-  if (!user) {
-    return <h1>Usuário {userId} não encontrado</h1>
+  if (weights.loading || weights.errored) {
+    return <PageLoading message="Carregando pesos" />
   }
 
-  const weightRepository = createSupabaseWeightRepository()
-  const weights = await weightRepository.fetchUserWeights(userId)
-  const weight = latestWeight(weights)?.weight
+  if (macroProfiles.loading || macroProfiles.errored) {
+    return <PageLoading message="Carregando perfis de macro" />
+  }
 
-  const macroProfiles = await fetchUserMacroProfiles(userId)
-  const macroProfile = latestMacroProfile(macroProfiles)
+  const weight = latestWeight(weights.data)?.weight
+
+  const macroProfile = latestMacroProfile(macroProfiles.data)
 
   if (!macroProfile) {
+    if (currentUserId.value === null) {
+      console.error('[ProfilePage] User not defined')
+      throw new Error('User not defined')
+    }
     insertMacroProfile({
-      owner: userId,
+      owner: currentUserId.value,
       target_day: new Date(Date.now()),
       gramsPerKgCarbs: 2,
       gramsPerKgProtein: 2,
@@ -61,21 +72,18 @@ export default async function Page() {
     return (
       <>
         <h1>
-          Usuário &apos;{userId}&apos; não possui perfis de macro registrados,
-          criando perfil padrão...
+          Usuário &apos;{currentUserId}&apos; não possui perfis de macro
+          registrados, criando perfil padrão...
         </h1>
       </>
     )
   }
 
   const handleSave = async () => {
-    'use server'
-    revalidatePath('/')
+    alert('TODO: handleSave Ainda não implementado')
   }
 
   const onSaveProfile = async (profile: MacroProfile) => {
-    'use server'
-
     if (profile.target_day.getTime() > new Date(getToday()).getTime()) {
       console.error(
         `[ProfilePage] Invalid target day ${profile.target_day}: it is in the future`,
@@ -94,19 +102,23 @@ export default async function Page() {
       })
     }
     console.log('Updating MacroProfile')
-    revalidatePath('/')
+    alert('TODO: onSaveProfile Ainda não implementado')
   }
 
-  console.debug(`[ProfilePage] Rendering profile ${user.name}`)
+  console.debug(`[ProfilePage] Rendering profile`)
+
+  if (currentUser.value === null) {
+    return <div>Usuário não encontrado para o id {currentUserId.value}</div>
+  }
+
   return (
     <>
       <div className={`mx-1 md:mx-40 lg:mx-auto lg:w-1/3`}>
         <BasicInfo
-          user={user}
+          user={currentUser.value}
           onSave={async (newUser: User) => {
-            'use server'
             const updatedUser = await updateUser(newUser.id, newUser)
-            revalidatePath('/')
+            alert('TODO: onSave Ainda não implementado')
             return updatedUser
           }}
         />
@@ -116,7 +128,7 @@ export default async function Page() {
           {weight !== undefined ? (
             <MacroTarget
               weight={weight}
-              profiles={macroProfiles}
+              profiles={macroProfiles.data}
               onSaveMacroProfile={onSaveProfile}
               mode="edit"
             />

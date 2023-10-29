@@ -15,7 +15,6 @@ import {
 import { listFoods, searchFoodsByName } from '@/legacy/controllers/food'
 import { fetchUserRecentFoods } from '@/legacy/controllers/recentFood'
 import { createSupabaseRecipeRepository } from '@/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
-import { updateUser } from '@/legacy/controllers/users'
 import { Template } from '@/src/modules/diet/template/domain/template'
 import { User } from '@/modules/user/domain/user'
 import { WeightContextProvider } from '@/src/sections/weight/context/WeightContext'
@@ -27,21 +26,22 @@ import { createDerivedItemGroupRepository } from '@/src/modules/diet/item-group/
 import { ItemGroupContextProvider } from '@/src/sections/item-group/context/ItemGroupContext'
 import { createSupabaseWeightRepository } from '@/src/modules/weight/infrastructure/supabaseWeightRepository'
 import { dayDiets } from '@/src/modules/diet/day-diet/application/dayDiet'
+import { useEffect } from 'react'
+import {
+  currentUser,
+  currentUserId,
+  fetchUser,
+  updateUser,
+} from '@/src/modules/user/application/user'
 
-export default function App({
-  user,
-  onSaveUser,
-  children,
-}: {
-  user: User
-  onSaveUser: () => void
-  children: React.ReactNode
-}) {
+export default function App({ children }: { children: React.ReactNode }) {
   console.debug(`[App] - Rendering`)
 
+  const userId = currentUserId.value ?? 3
+
   return (
-    <AppUserProvider user={user} onSaveUser={onSaveUser}>
-      <AppWeightProvider userId={user.id}>
+    <AppUserProvider userId={userId} onSaveUser={() => undefined}>
+      <AppWeightProvider userId={userId}>
         <AppHackyMealProvider>
           <AppHackyItemGroupProvider>
             <AppConfirmModalProvider>
@@ -54,19 +54,29 @@ export default function App({
   )
 }
 
+// TODO: Stop fetching user on server side and remove this provider
 function AppUserProvider({
-  user,
+  userId,
   onSaveUser,
   children,
 }: {
-  user: User
+  userId: User['id']
   onSaveUser: () => void
   children: React.ReactNode
 }) {
   console.debug(`[AppUserProvider] - Rendering`)
+
+  useEffect(() => {
+    fetchUser(userId)
+  }, [userId])
+
+  if (currentUser.value === null) {
+    return <div>Usuário não definido</div>
+  }
+
   return (
     <UserContextProvider
-      user={user}
+      user={currentUser.value}
       onSaveUser={async (user) => {
         await updateUser(user.id, user)
         onSaveUser()

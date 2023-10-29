@@ -1,7 +1,7 @@
 import '@/styles/globals.css'
 import { Inter } from 'next/font/google'
 
-import ServerApp from '@/sections/common/components/ServerApp'
+import App from '@/src/sections/common/components/App'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
@@ -22,7 +22,7 @@ export default async function RootLayout({
         <meta name="description" content="App de dieta" />
       </head>
       <body className={inter.className + ' dark'}>
-        <ServerApp>{children}</ServerApp>
+        <App>{children}</App>
       </body>
     </html>
   )
