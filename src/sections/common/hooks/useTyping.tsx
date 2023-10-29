@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useSignal } from '@preact/signals-react'
+import { useCallback } from 'react'
 
 export function useTyping({
   onTypingStart,
@@ -9,34 +10,26 @@ export function useTyping({
   onTypingEnd?: () => void
   delay?: number
 }) {
-  const [typing, setTyping] = useState(false)
-  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null)
+  const typing = useSignal(false)
+  const timeoutId = useSignal<NodeJS.Timeout | null>(null)
 
   const handleTypingStart = useCallback(() => {
-    setTyping(true)
+    typing.value = true
     onTypingStart?.()
-  }, [onTypingStart])
+  }, [onTypingStart, typing])
 
   const handleTypingEnd = useCallback(() => {
-    setTyping(false)
+    typing.value = false
     onTypingEnd?.()
-  }, [onTypingEnd])
+  }, [onTypingEnd, typing])
 
   const handleTyping = useCallback(() => {
-    if (timeoutId) clearTimeout(timeoutId)
+    if (timeoutId.value) clearTimeout(timeoutId.value)
     handleTypingStart()
-    setTimeoutId(
-      setTimeout(() => {
-        handleTypingEnd()
-      }, delay),
-    )
+    timeoutId.value = setTimeout(() => {
+      handleTypingEnd()
+    }, delay)
   }, [timeoutId, delay, handleTypingEnd, handleTypingStart])
-
-  useEffect(() => {
-    return () => {
-      if (timeoutId) clearTimeout(timeoutId)
-    }
-  }, [timeoutId])
 
   return {
     typing,
