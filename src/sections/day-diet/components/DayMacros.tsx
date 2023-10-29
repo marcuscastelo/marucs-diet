@@ -23,7 +23,7 @@ export default function DayMacros({
   const { weights } = useWeightContext()
   const { macroProfiles } = useMacroProfiles(user.id)
 
-  if (weights.loading || weights.errored) {
+  if (weights.value.loading || weights.value.errored) {
     return <h1>Carregando pesos...</h1>
   }
 
@@ -31,7 +31,7 @@ export default function DayMacros({
     return <h1>Carregando perfis de macro...</h1>
   }
 
-  const weight = latestWeight(weights.data)?.weight
+  const weight = latestWeight(weights.value.data)?.weight
 
   if (weight === undefined) {
     return <h1>O usuário não possui pesos registrados</h1>
