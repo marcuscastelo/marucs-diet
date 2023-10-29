@@ -4,12 +4,11 @@ import { Meal } from '@/src/modules/diet/meal/domain/meal'
 import { Loadable } from '@/src/legacy/utils/loadable'
 import { DayDiet } from '@/src/modules/diet/day-diet/domain/day'
 import { MealRepository } from '@/src/modules/diet/meal/domain/mealRepository'
-import { ReadonlySignal } from '@preact/signals-react'
-import { useState } from 'react'
+import { ReadonlySignal, useSignal } from '@preact/signals-react'
 import { createContext, useContext } from 'use-context-selector'
 
 export type MealContextProps = {
-  meals: Loadable<readonly Meal[]>
+  meals: ReadonlySignal<Loadable<readonly Meal[]>>
   refetchMeals: (dayId: DayDiet['id']) => void
   insertMeal: (dayId: DayDiet['id'], meal: Meal) => void
   updateMeal: (dayId: DayDiet['id'], mealId: Meal['id'], meal: Meal) => void
@@ -37,18 +36,18 @@ export function MealContextProvider({
 }) {
   console.debug(`[MealContextProvider] - Rendering`)
 
-  const [meals, setMeals] = useState<Loadable<readonly Meal[]>>({
+  const meals = useSignal<Loadable<readonly Meal[]>>({
     loading: true,
   })
 
   const handleFetchMeals = (dayId: DayDiet['id']) => {
     repository.value
       ?.fetchDayMeals(dayId)
-      .then((meals) => {
-        setMeals({ loading: false, errored: false, data: meals })
+      .then((foundMeals) => {
+        meals.value = { loading: false, errored: false, data: foundMeals }
       })
       .catch((error) => {
-        setMeals({ loading: false, errored: true, error })
+        meals.value = { loading: false, errored: true, error }
       })
   }
 
@@ -77,7 +76,7 @@ export function MealContextProvider({
   return (
     <MealContext.Provider
       value={{
-        meals,
+        meals: meals as ReadonlySignal<Loadable<readonly Meal[]>>,
         refetchMeals: handleFetchMeals,
         insertMeal: handleInsertMeal,
         updateMeal: handleUpdateMeal,
