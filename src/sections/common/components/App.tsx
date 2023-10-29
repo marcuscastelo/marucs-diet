@@ -248,7 +248,7 @@ function AppWeightProvider({
   const repository = createSupabaseWeightRepository()
 
   return (
-    <WeightContextProvider repository={repository} userId={userId}>
+    <WeightContextProvider repository={repository}>
       {children}
     </WeightContextProvider>
   )
