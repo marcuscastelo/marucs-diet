@@ -1,4 +1,4 @@
-import { useSignal } from '@preact/signals-react'
+import { ReadonlySignal, useSignal } from '@preact/signals-react'
 import { useCallback } from 'react'
 
 export function useTyping({
@@ -32,7 +32,7 @@ export function useTyping({
   }, [timeoutId, delay, handleTypingEnd, handleTypingStart])
 
   return {
-    typing,
+    typing: typing as ReadonlySignal<boolean>,
     onTyped: handleTyping,
   }
 }

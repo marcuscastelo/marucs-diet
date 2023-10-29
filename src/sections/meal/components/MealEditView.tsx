@@ -114,7 +114,10 @@ function MealEditViewHeader({
 
   // TODO: Remove code duplication between MealEditView and RecipeView
   const handlePasteAfterConfirm = useCallback(() => {
-    const data = deserializeClipboard(clipboardText, acceptedClipboardSchema)
+    const data = deserializeClipboard(
+      clipboardText.value,
+      acceptedClipboardSchema,
+    )
 
     if (!data) {
       throw new Error('Invalid clipboard data: ' + clipboardText)
@@ -187,7 +190,7 @@ function MealEditViewHeader({
     })
   }
 
-  const hasValidPastableOnClipboard = isClipboardValid(clipboardText)
+  const hasValidPastableOnClipboard = isClipboardValid(clipboardText.value)
 
   return (
     <div className="flex">

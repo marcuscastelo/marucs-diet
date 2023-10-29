@@ -525,10 +525,13 @@ function Body({
   })
   const { show: showConfirmModal } = useConfirmModalContext()
 
-  const hasValidPastableOnClipboard = clipboardText.length > 0
+  const hasValidPastableOnClipboard = clipboardText.value.length > 0
 
   const handlePasteAfterConfirm = useCallback(() => {
-    const data = deserializeClipboard(clipboardText, acceptedClipboardSchema)
+    const data = deserializeClipboard(
+      clipboardText.value,
+      acceptedClipboardSchema,
+    )
 
     if (!data) {
       throw new Error('Invalid clipboard data: ' + clipboardText)

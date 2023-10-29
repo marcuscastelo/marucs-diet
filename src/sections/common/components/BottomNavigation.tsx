@@ -229,13 +229,13 @@ const UserSelectorDropdown = () => {
     })
   }
 
-  if (availableUsers.loading || availableUsers.errored) {
+  if (availableUsers.value.loading || availableUsers.value.errored) {
     return <>Loading available users...</>
   }
 
   return (
     <div className="flex flex-col gap-1">
-      {availableUsers.data.map((user, idx) => {
+      {availableUsers.value.data.map((user, idx) => {
         return (
           <div
             className="btn btn-ghost flex justify-between"

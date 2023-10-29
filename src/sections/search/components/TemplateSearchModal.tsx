@@ -450,7 +450,7 @@ const SearchResults = ({
   foodItemEditModalVisible,
 }: {
   search: string
-  typing: boolean
+  typing: ReadonlySignal<boolean>
   filteredTemplates: ReadonlySignal<Template[]>
   setSelectedTemplate: (food: Template) => void
   barCodeModalVisible: Signal<boolean>
@@ -460,7 +460,7 @@ const SearchResults = ({
 
   return (
     <>
-      {!typing && filteredTemplates.value.length === 0 && (
+      {!typing.value && filteredTemplates.value.length === 0 && (
         <Alert color="warning" className="mt-2">
           Nenhum alimento encontrado para a busca &quot;{search}&quot;.
         </Alert>
