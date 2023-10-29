@@ -7,6 +7,7 @@ import {
 } from '@/legacy/utils/loadable'
 import { useCallback, useEffect, useState } from 'react'
 import { createContext, useContext } from 'use-context-selector'
+import { useSignal } from '@preact/signals-react'
 
 export type TemplateStore = {
   foods: readonly Food[] | null
@@ -43,7 +44,7 @@ export function FoodContextProvider({
   onFetchFoods: FoodFetch
   children: React.ReactNode
 }) {
-  const [foodStore, setFoodStore] = useState<Loadable<TemplateStore>>({
+  const foodStore = useSignal<Loadable<TemplateStore>>({
     loading: true,
   })
 
@@ -52,14 +53,18 @@ export function FoodContextProvider({
   >(
     (selectedTypes, search) => {
       onFetchFoods(selectedTypes, search)
-        .then((foodStore) => {
-          setFoodStore({ loading: false, errored: false, data: foodStore })
+        .then((newFoodStore) => {
+          foodStore.value = {
+            loading: false,
+            errored: false,
+            data: newFoodStore,
+          }
         })
         .catch((error) => {
-          setFoodStore({ loading: false, errored: true, error })
+          foodStore.value = { loading: false, errored: true, error }
         })
     },
-    [onFetchFoods],
+    [onFetchFoods, foodStore],
   )
 
   useEffect(() => {
@@ -67,11 +72,12 @@ export function FoodContextProvider({
   }, [handleFetchFoods])
 
   const context: FoodContext = {
-    foods: unboxLoadingObject(foodStore, ['foods']).foods,
-    favoriteFoods: unboxLoadingObject(foodStore, ['favoriteFoods'])
+    foods: unboxLoadingObject(foodStore.value, ['foods']).foods,
+    favoriteFoods: unboxLoadingObject(foodStore.value, ['favoriteFoods'])
       .favoriteFoods,
-    recentFoods: unboxLoadingObject(foodStore, ['recentFoods']).recentFoods,
-    recipes: unboxLoadingObject(foodStore, ['recipes']).recipes,
+    recentFoods: unboxLoadingObject(foodStore.value, ['recentFoods'])
+      .recentFoods,
+    recipes: unboxLoadingObject(foodStore.value, ['recipes']).recipes,
     refetchFoods: handleFetchFoods,
   }
 
