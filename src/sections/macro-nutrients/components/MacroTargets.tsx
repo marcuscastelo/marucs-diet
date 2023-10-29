@@ -8,7 +8,6 @@ import { dateToYYYYMMDD } from '@/legacy/utils/dateUtils'
 import { calcCalories } from '@/legacy/utils/macroMath'
 import { latestMacroProfile } from '@/legacy/utils/macroProfileUtils'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
 import { useSignal, useSignalEffect } from '@preact/signals-react'
 
 const CARBO_CALORIES = 4 as const
