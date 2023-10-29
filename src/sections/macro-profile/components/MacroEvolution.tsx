@@ -42,11 +42,11 @@ export function MacroEvolution() {
 
   const { weights } = useWeightContext()
 
-  if (weights.loading || weights.errored) {
+  if (weights.value.loading || weights.value.errored) {
     return <h1>Carregando...</h1>
   }
 
-  if (weights.data.length === 0) {
+  if (weights.value.data.length === 0) {
     return <h1>Usuário não possui pesos. Impossível calcular macros.</h1>
   }
 
@@ -56,11 +56,11 @@ export function MacroEvolution() {
         Evolução de Macronutrientes
       </h5>
       <div className="mx-5 lg:mx-20">
-        <AllMacrosChart weights={weights.data} />
-        <CaloriesChart weights={weights.data} />
-        <ProteinChart weights={weights.data} />
-        <FatChart weights={weights.data} />
-        <CarbsChart weights={weights.data} />
+        <AllMacrosChart weights={weights.value.data} />
+        <CaloriesChart weights={weights.value.data} />
+        <ProteinChart weights={weights.value.data} />
+        <FatChart weights={weights.value.data} />
+        <CarbsChart weights={weights.value.data} />
       </div>
     </div>
   )

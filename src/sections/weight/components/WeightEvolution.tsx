@@ -38,11 +38,14 @@ export function WeightEvolution({ onSave }: { onSave: () => void }) {
     maxValue: 200,
   })
 
-  if (weights.loading || weights.errored) {
+  if (weights.value.loading || weights.value.errored) {
     return <h1>Carregando...</h1>
   }
 
-  const weightProgress = calculateWeightProgress(weights.data, desiredWeight)
+  const weightProgress = calculateWeightProgress(
+    weights.value.data,
+    desiredWeight,
+  )
 
   const weightProgressText =
     weightProgress === null ? 'Erro' : `${(weightProgress * 100).toFixed(2)}%`
@@ -86,12 +89,12 @@ export function WeightEvolution({ onSave }: { onSave: () => void }) {
         </div>
         {/* // TODO: Create combo box to select weight chart variant (7 days or all time)  */}
         <WeightChart
-          weights={weights.data}
+          weights={weights.value.data}
           desiredWeight={desiredWeight}
           type="all-time"
         />
         <div className="mx-5 lg:mx-20 pb-10">
-          {[...weights.data]
+          {[...weights.value.data]
             .reverse()
             .slice(0, 10)
             .map((weight) => {
@@ -99,7 +102,7 @@ export function WeightEvolution({ onSave }: { onSave: () => void }) {
                 <WeightView key={weight.id} weight={weight} onSave={onSave} />
               )
             })}
-          {weights.data.length === 0 && 'Não há pesos registrados'}
+          {weights.value.data.length === 0 && 'Não há pesos registrados'}
         </div>
       </div>
     </>
