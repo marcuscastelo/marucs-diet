@@ -1,6 +1,7 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useSignal } from '@preact/signals-react'
+import { useCallback, useEffect } from 'react'
 import { z } from 'zod'
 
 export type ClipboardFilter = (clipboard: string) => boolean
@@ -11,27 +12,32 @@ export default function useClipboard(props?: {
 }) {
   const filter = props?.filter
   const periodicRead = props?.periodicRead ?? true
-  const [clipboard, setClipboard] = useState('')
+  const clipboard = useSignal('')
 
-  const handleWrite = useCallback((text: string) => {
-    window.navigator.clipboard.writeText(text).then(() => setClipboard(text))
-  }, [])
+  const handleWrite = useCallback(
+    (text: string) => {
+      window.navigator.clipboard
+        .writeText(text)
+        .then(() => (clipboard.value = text))
+    },
+    [clipboard],
+  )
 
   const handleRead = useCallback(() => {
     window.navigator.clipboard
       .readText()
       .then((newClipboard) => {
         if (filter && !filter(newClipboard)) {
-          setClipboard('')
+          clipboard.value = ''
           return
         }
 
-        setClipboard(newClipboard)
+        clipboard.value = newClipboard
       })
       .catch(() => {
         // Do nothing. This is expected when the DOM is not focused
       })
-  }, [filter])
+  }, [filter, clipboard])
 
   // Update clipboard periodically
   useEffect(() => {

@@ -25,9 +25,11 @@ export function MeasureChart({ measures }: { measures: Measure[] }) {
 
   const { weights } = useWeightContext()
 
-  if (weights.loading || weights.errored) {
+  if (weights.value.loading || weights.value.errored) {
     return <h1>Carregando pesos...</h1>
   }
+
+  const weightsData = weights.value.data
 
   const measuresByDay = measures.reduce(
     (acc, measure) => {
@@ -59,7 +61,7 @@ export function MeasureChart({ measures }: { measures: Measure[] }) {
         measures.reduce((acc, measure) => acc + measure.neck, 0) /
         measures.length
 
-      const weightsOfTheDay = weights.data.filter(
+      const weightsOfTheDay = weightsData.filter(
         (weight) =>
           weight.target_timestamp.toLocaleDateString() === day && weight.weight,
       )

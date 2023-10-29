@@ -1,12 +1,12 @@
 'use client'
 
 import { User, userSchema } from '@/modules/user/domain/user'
-import { useEffect, useState } from 'react'
 import Capsule from '@/sections/common/components/capsule/Capsule'
 import { z } from 'zod'
 import { CapsuleContent } from '@/sections/common/components/capsule/CapsuleContent'
 import { UserIcon } from '@/sections/common/components/UserIcon'
 import { Mutable } from '@/legacy/utils/typeUtils'
+import { useSignal, useSignalEffect } from '@preact/signals-react'
 type Translation<T extends string> = { [key in T]: string }
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -39,22 +39,20 @@ export function BasicInfo({
 }) {
   type UnsavedFields = { [key in keyof Mutable<User>]?: boolean }
 
-  const [innerData, setInnerData] = useState<User>(user)
-  const [unsavedFields, setUnsavedFields] = useState<UnsavedFields>({})
+  const innerData = useSignal<User>(user)
+  const unsavedFields = useSignal<UnsavedFields>({})
 
-  useEffect(() => {
-    setInnerData(user)
-  }, [user])
+  useSignalEffect(() => {
+    innerData.value = user
+  })
 
-  useEffect(() => {
-    setUnsavedFields(
-      Object.keys(innerData).reduce((acc, key) => {
-        acc[key as keyof UnsavedFields] =
-          innerData[key as keyof UnsavedFields] !== user[key as keyof User]
-        return acc
-      }, {} as UnsavedFields),
-    )
-  }, [innerData, user])
+  useSignalEffect(() => {
+    unsavedFields.value = Object.keys(innerData).reduce((acc, key) => {
+      acc[key as keyof UnsavedFields] =
+        innerData.value[key as keyof UnsavedFields] !== user[key as keyof User]
+      return acc
+    }, {} as UnsavedFields)
+  })
 
   const makeOnBlur = <T extends keyof User>(
     field: T,
@@ -67,7 +65,7 @@ export function BasicInfo({
       newUser[field] = convert(event.target.value)
 
       // TODO: Move to server onSave(newProfile)
-      setInnerData(userSchema.parse(newUser))
+      innerData.value = userSchema.parse(newUser)
     }
   }
 
@@ -80,7 +78,7 @@ export function BasicInfo({
       const newUser = { ...user }
 
       newUser[field] = convert(event.target.value) as unknown as User[T]
-      setInnerData(newUser)
+      innerData.value = newUser
     }
   }
 
@@ -116,11 +114,11 @@ export function BasicInfo({
         <CapsuleContent>
           <h5
             className={`pl-5 text-xl ${
-              unsavedFields[field] ? 'text-red-500 italic' : ''
+              unsavedFields.value[field] ? 'text-red-500 italic' : ''
             }`}
           >
             {USER_FIELD_TRANSLATION[field]} {extra}{' '}
-            {unsavedFields[field] ? '*' : ''}
+            {unsavedFields.value[field] ? '*' : ''}
           </h5>
         </CapsuleContent>
       }
@@ -128,7 +126,7 @@ export function BasicInfo({
         <CapsuleContent>
           <input
             className={`btn-ghost input px-0 pl-5 text-xl`}
-            value={innerData[field].toString()}
+            value={innerData.value[field].toString()}
             onChange={makeOnChange(field, convertString)}
             onBlur={makeOnBlur(field, convert)}
             style={{ width: '100%' }}
@@ -161,7 +159,7 @@ export function BasicInfo({
       </div>
       <button
         className={`btn-primary no-animation btn w-full rounded-t-none`}
-        onClick={async () => await onSave(innerData)}
+        onClick={async () => await onSave(innerData.value)}
       >
         Salvar
       </button>

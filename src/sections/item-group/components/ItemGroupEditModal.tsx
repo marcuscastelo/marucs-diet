@@ -7,7 +7,7 @@ import {
   itemGroupSchema,
   recipedItemGroup,
 } from '@/modules/diet/item-group/domain/itemGroup'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
 import Modal, { ModalActions } from '@/sections/common/components/Modal'
 import FoodItemListView from '@/sections/food-item/components/FoodItemListView'
 import FoodItemView from '@/sections/food-item/components/FoodItemView'
@@ -525,10 +525,13 @@ function Body({
   })
   const { show: showConfirmModal } = useConfirmModalContext()
 
-  const hasValidPastableOnClipboard = clipboardText.length > 0
+  const hasValidPastableOnClipboard = clipboardText.value.length > 0
 
   const handlePasteAfterConfirm = useCallback(() => {
-    const data = deserializeClipboard(clipboardText, acceptedClipboardSchema)
+    const data = deserializeClipboard(
+      clipboardText.value,
+      acceptedClipboardSchema,
+    )
 
     if (!data) {
       throw new Error('Invalid clipboard data: ' + clipboardText)

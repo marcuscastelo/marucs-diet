@@ -42,11 +42,11 @@ export function MacroEvolution() {
 
   const { weights } = useWeightContext()
 
-  if (weights.loading || weights.errored) {
+  if (weights.value.loading || weights.value.errored) {
     return <h1>Carregando...</h1>
   }
 
-  if (weights.data.length === 0) {
+  if (weights.value.data.length === 0) {
     return <h1>Usuário não possui pesos. Impossível calcular macros.</h1>
   }
 
@@ -56,11 +56,11 @@ export function MacroEvolution() {
         Evolução de Macronutrientes
       </h5>
       <div className="mx-5 lg:mx-20">
-        <AllMacrosChart weights={weights.data} />
-        <CaloriesChart weights={weights.data} />
-        <ProteinChart weights={weights.data} />
-        <FatChart weights={weights.data} />
-        <CarbsChart weights={weights.data} />
+        <AllMacrosChart weights={weights.value.data} />
+        <CaloriesChart weights={weights.value.data} />
+        <ProteinChart weights={weights.value.data} />
+        <FatChart weights={weights.value.data} />
+        <CarbsChart weights={weights.value.data} />
       </div>
     </div>
   )
@@ -111,11 +111,11 @@ function AllMacrosChart({ weights }: { weights: readonly Weight[] }) {
     return <h1>Carregando dias...</h1>
   }
 
-  if (macroProfiles.loading || macroProfiles.errored) {
+  if (macroProfiles.value.loading || macroProfiles.value.errored) {
     return <h1>Carregando perfis de macro...</h1>
   }
 
-  const macroProfile = latestMacroProfile(macroProfiles.data)
+  const macroProfile = latestMacroProfile(macroProfiles.value.data)
 
   if (!macroProfile) {
     return (
@@ -150,7 +150,7 @@ function AllMacrosChart({ weights }: { weights: readonly Weight[] }) {
   const data = createChartData(
     weights,
     days.value.data.value,
-    macroProfiles.data,
+    macroProfiles.value.data,
   )
 
   return (
@@ -272,14 +272,14 @@ function CaloriesChart({ weights }: { weights: readonly Weight[] }) {
     return <h1>Carregando dias...</h1>
   }
 
-  if (macroProfiles.loading || macroProfiles.errored) {
+  if (macroProfiles.value.loading || macroProfiles.value.errored) {
     return <h1>Carregando perfis de macro...</h1>
   }
 
   const data = createChartData(
     weights,
     days.value.data.value,
-    macroProfiles.data,
+    macroProfiles.value.data,
   )
 
   return (
@@ -333,14 +333,14 @@ function ProteinChart({ weights }: { weights: readonly Weight[] }) {
     return <h1>Carregando dias...</h1>
   }
 
-  if (macroProfiles.loading || macroProfiles.errored) {
+  if (macroProfiles.value.loading || macroProfiles.value.errored) {
     return <h1>Carregando perfis de macro...</h1>
   }
 
   const data = createChartData(
     weights,
     days.value.data.value,
-    macroProfiles.data,
+    macroProfiles.value.data,
   )
 
   return (
@@ -393,14 +393,14 @@ function FatChart({ weights }: { weights: readonly Weight[] }) {
     return <h1>Carregando dias...</h1>
   }
 
-  if (macroProfiles.loading || macroProfiles.errored) {
+  if (macroProfiles.value.loading || macroProfiles.value.errored) {
     return <h1>Carregando perfis de macro...</h1>
   }
 
   const data = createChartData(
     weights,
     days.value.data.value,
-    macroProfiles.data,
+    macroProfiles.value.data,
   )
 
   return (
@@ -453,14 +453,14 @@ function CarbsChart({ weights }: { weights: readonly Weight[] }) {
     return <h1>Carregando...</h1>
   }
 
-  if (macroProfiles.loading || macroProfiles.errored) {
+  if (macroProfiles.value.loading || macroProfiles.value.errored) {
     return <h1>Carregando perfis de macro...</h1>
   }
 
   const data = createChartData(
     weights,
     days.value.data.value,
-    macroProfiles.data,
+    macroProfiles.value.data,
   )
   return (
     <div>

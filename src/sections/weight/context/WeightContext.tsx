@@ -3,11 +3,12 @@ import { DbReady } from '@/src/legacy/utils/newDbRecord'
 import { User } from '@/src/modules/user/domain/user'
 import { Weight } from '@/src/modules/weight/domain/weight'
 import { WeightRepository } from '@/src/modules/weight/domain/weightRepository'
-import { useCallback, useEffect, useState } from 'react'
+import { ReadonlySignal, useSignal } from '@preact/signals-react'
+import { useCallback, useEffect } from 'react'
 import { createContext, useContext } from 'use-context-selector'
 
 export type WeightContextProps = {
-  weights: Loadable<readonly Weight[]>
+  weights: ReadonlySignal<Loadable<readonly Weight[]>>
   refetchWeights: () => void
   insertWeight: (weight: DbReady<Weight>) => void
   updateWeight: (weightId: Weight['id'], weight: DbReady<Weight>) => void
@@ -41,17 +42,20 @@ export function WeightContextProvider({
   userId: User['id']
   repository: WeightRepository
 }) {
-  const [weights, setWeights] = useState<Loadable<readonly Weight[]>>({
+  const weights = useSignal<Loadable<readonly Weight[]>>({
     loading: true,
   })
 
   const handleFetch = useCallback(() => {
-    repository
-      .fetchUserWeights(userId)
-      .then((weights) =>
-        setWeights({ loading: false, errored: false, data: weights }),
-      )
-  }, [repository, userId])
+    repository.fetchUserWeights(userId).then(
+      (newWeights) =>
+        (weights.value = {
+          loading: false,
+          errored: false,
+          data: newWeights,
+        }),
+    )
+  }, [repository, userId, weights])
 
   const handleInsert = useCallback(
     (weight: DbReady<Weight>) => {

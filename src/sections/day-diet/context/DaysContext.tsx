@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect } from 'react'
 import { Loadable } from '@/legacy/utils/loadable'
 import { DayDiet } from '@/modules/diet/day-diet/domain/day'
 import { User } from '@/modules/user/domain/user'
