@@ -43,17 +43,17 @@ export default function Page() {
     throw new Error('User not defined')
   }
 
-  if (weights.loading || weights.errored) {
+  if (weights.value.loading || weights.value.errored) {
     return <PageLoading message="Carregando pesos" />
   }
 
-  if (macroProfiles.loading || macroProfiles.errored) {
+  if (macroProfiles.value.loading || macroProfiles.value.errored) {
     return <PageLoading message="Carregando perfis de macro" />
   }
 
-  const weight = latestWeight(weights.data)?.weight
+  const weight = latestWeight(weights.value.data)?.weight
 
-  const macroProfile = latestMacroProfile(macroProfiles.data)
+  const macroProfile = latestMacroProfile(macroProfiles.value.data)
 
   if (!macroProfile) {
     if (currentUserId.value === null) {
@@ -72,7 +72,7 @@ export default function Page() {
     return (
       <>
         <h1>
-          Usuário &apos;{currentUserId}&apos; não possui perfis de macro
+          Usuário &apos;{currentUserId.value}&apos; não possui perfis de macro
           registrados, criando perfil padrão...
         </h1>
       </>
@@ -128,7 +128,7 @@ export default function Page() {
           {weight !== undefined ? (
             <MacroTarget
               weight={weight}
-              profiles={macroProfiles.data}
+              profiles={macroProfiles.value.data}
               onSaveMacroProfile={onSaveProfile}
               mode="edit"
             />
