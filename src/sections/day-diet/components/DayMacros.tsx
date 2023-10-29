@@ -27,17 +27,17 @@ export default function DayMacros({
     return <h1>Carregando pesos...</h1>
   }
 
-  if (macroProfiles.loading || macroProfiles.errored) {
+  if (macroProfiles.value.loading || macroProfiles.value.errored) {
     return <h1>Carregando perfis de macro...</h1>
   }
 
   const weight = latestWeight(weights.data)?.weight
 
-  if (!weight) {
+  if (weight === undefined) {
     return <h1>O usuário não possui pesos registrados</h1>
   }
 
-  const macroProfile = latestMacroProfile(macroProfiles.data)
+  const macroProfile = latestMacroProfile(macroProfiles.value.data)
 
   if (!macroProfile) {
     return <h1>O usuário não possui perfis de macro registrados</h1>

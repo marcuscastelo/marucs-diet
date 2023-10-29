@@ -4,28 +4,39 @@ import { fetchUserMacroProfiles } from '@/legacy/controllers/macroProfiles'
 import { MacroProfile } from '@/src/modules/diet/macro-profile/domain/macroProfile'
 import { User } from '@/modules/user/domain/user'
 import { Loadable } from '@/legacy/utils/loadable'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect } from 'react'
+import { ReadonlySignal, useSignal } from '@preact/signals-react'
 
-// TODO: Bring useFetch hook to weights hook
+// TODO: Bring useFetch hook to useMacroProfiles hook
 export function useMacroProfiles(userId: User['id']) {
-  const [macroProfiles, setMacroProfiles] = useState<Loadable<MacroProfile[]>>({
+  const macroProfiles = useSignal<Loadable<MacroProfile[]>>({
     loading: true,
   })
 
   const handleRefetch = useCallback(() => {
-    fetchUserMacroProfiles(userId).then((macroProfiles) =>
-      setMacroProfiles({ loading: false, errored: false, data: macroProfiles }),
+    fetchUserMacroProfiles(userId).then(
+      (foundMacroProfiles) =>
+        (macroProfiles.value = {
+          loading: false,
+          errored: false,
+          data: foundMacroProfiles,
+        }),
     )
-  }, [userId])
+  }, [userId, macroProfiles])
 
   useEffect(() => {
-    fetchUserMacroProfiles(userId).then((macroProfiles) =>
-      setMacroProfiles({ loading: false, errored: false, data: macroProfiles }),
+    fetchUserMacroProfiles(userId).then(
+      (foundMacroProfiles) =>
+        (macroProfiles.value = {
+          loading: false,
+          errored: false,
+          data: foundMacroProfiles,
+        }),
     )
-  }, [userId])
+  }, [userId, macroProfiles])
 
   return {
-    macroProfiles,
+    macroProfiles: macroProfiles as ReadonlySignal<Loadable<MacroProfile[]>>,
     refetch: handleRefetch,
   }
 }
