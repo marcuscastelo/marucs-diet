@@ -1,5 +1,9 @@
 import { Loadable } from '@/src/legacy/utils/loadable'
 import { DbReady } from '@/src/legacy/utils/newDbRecord'
+import {
+  DEFAULT_USER_ID,
+  currentUserId,
+} from '@/src/modules/user/application/user'
 import { User } from '@/src/modules/user/domain/user'
 import { Weight } from '@/src/modules/weight/domain/weight'
 import { WeightRepository } from '@/src/modules/weight/domain/weightRepository'
@@ -35,16 +39,16 @@ export function useWeightContext() {
 
 export function WeightContextProvider({
   children,
-  userId,
   repository,
 }: {
   children: React.ReactNode
-  userId: User['id']
   repository: WeightRepository
 }) {
   const weights = useSignal<Loadable<readonly Weight[]>>({
     loading: true,
   })
+
+  const userId = currentUserId.value ?? DEFAULT_USER_ID
 
   const handleFetch = useCallback(() => {
     repository.fetchUserWeights(userId).then(
@@ -89,6 +93,10 @@ export function WeightContextProvider({
   useEffect(() => {
     handleFetch()
   }, [handleFetch])
+
+  if (currentUserId.value === null) {
+    return <div>Usuário não definido</div>
+  }
 
   return (
     <WeightContext.Provider value={context}>{children}</WeightContext.Provider>
