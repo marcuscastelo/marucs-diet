@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import FoodItemView from '@/sections/food-item/components/FoodItemView'
 import { FoodItem } from '@/src/modules/diet/food-item/domain/foodItem'
 import Modal, { ModalActions } from '@/sections/common/components/Modal'
@@ -131,7 +130,6 @@ function Body({
   foodItem: Signal<TemplateItem>
 }) {
   const id = foodItem.value.id
-  const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(false)
 
   const quantitySignal = computed(() => foodItem.value.quantity || undefined)
   const quantityField = useFloatField(quantitySignal, {
@@ -148,9 +146,8 @@ function Body({
 
   const { isFoodFavorite, setFoodAsFavorite } = useUserContext()
 
-  const [currentHoldTimeout, setCurrentHoldTimeout] = useState<NodeJS.Timeout>()
-  const [currentHoldInterval, setCurrentHoldInterval] =
-    useState<NodeJS.Timeout>()
+  const currentHoldTimeout = useSignal<NodeJS.Timeout | null>(null)
+  const currentHoldInterval = useSignal<NodeJS.Timeout | null>(null)
 
   const increment = () =>
     (quantityField.rawValue.value = (
@@ -163,24 +160,20 @@ function Body({
     ).toString())
 
   const holdRepeatStart = (action: () => void) => {
-    setCurrentHoldTimeout(
-      setTimeout(() => {
-        setCurrentHoldInterval(
-          setInterval(() => {
-            action()
-          }, 100),
-        )
-      }, 500),
-    )
+    currentHoldTimeout.value = setTimeout(() => {
+      currentHoldInterval.value = setInterval(() => {
+        action()
+      }, 100)
+    }, 500)
   }
 
   const holdRepeatStop = () => {
-    if (currentHoldTimeout) {
-      clearTimeout(currentHoldTimeout)
+    if (currentHoldTimeout.value !== null) {
+      clearTimeout(currentHoldTimeout.value)
     }
 
-    if (currentHoldInterval) {
-      clearInterval(currentHoldInterval)
+    if (currentHoldInterval.value !== null) {
+      clearInterval(currentHoldInterval.value)
     }
   }
 
@@ -223,7 +216,6 @@ function Body({
                 quantityField.rawValue.value = ''
               }
             }}
-            disabled={quantityFieldDisabled}
             type="number"
             placeholder="Quantidade (gramas)"
             className={`input-bordered  input mt-1  border-gray-300 bg-gray-800 ${
