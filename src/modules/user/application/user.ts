@@ -65,7 +65,7 @@ export function initializeUser (): void {
   // }
 }
 
-export function changeToUser (userId: User['id']): void {
+export function changeToUser (_userId: User['id']): void {
   // currentUserId.value = userId
   // saveUserIdToLocalStorage(userId)
 }
@@ -75,7 +75,7 @@ export function isFoodFavorite (foodId: number): boolean {
   return currentUser()?.favorite_foods.includes(foodId) ?? false
 }
 
-export function setFoodAsFavorite (foodId: number, isFavorite: boolean): void {
+export function setFoodAsFavorite (_foodId: number, _isFavorite: boolean): void {
   // if (currentUser.value === null) {
   //   throw new Error('User not initialized')
   // }

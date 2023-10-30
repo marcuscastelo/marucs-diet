@@ -1,5 +1,5 @@
-import axios from 'axios'
+// import axios from 'axios'
 
-export const INTERNAL_API = axios.create({
-  baseURL: '/api/',
-})
+// export const INTERNAL_API = axios.create({
+//   baseURL: '/api/'
+// })

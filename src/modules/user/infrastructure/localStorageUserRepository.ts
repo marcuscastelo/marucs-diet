@@ -1,10 +1,10 @@
-import { User } from '@/modules/user/domain/user'
+import { type User } from '@/modules/user/domain/user'
 
-export function saveUserIdToLocalStorage(userId: User['id']) {
+export function saveUserIdToLocalStorage (_userId: User['id']) {
   // localStorage.setItem('currentUserId', String(userId))
 }
 
-export function loadUserIdFromLocalStorage() {
+export function loadUserIdFromLocalStorage () {
   return 3
   // const userId = localStorage.getItem('currentUserId')
   // return userId !== null ? Number(userId) : null
