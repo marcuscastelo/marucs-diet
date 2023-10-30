@@ -7,7 +7,7 @@ import {
   dayDiets,
   insertDayDiet,
   updateDayDiet,
-} from '@/src/modules/diet/day-diet/application/dayDiet'
+} from '@/modules/diet/day-diet/application/dayDiet'
 
 export default function CopyLastDayButton({
   day,

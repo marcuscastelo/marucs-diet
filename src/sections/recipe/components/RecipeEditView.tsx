@@ -2,13 +2,13 @@
 
 // TODO: Unify Recipe and Recipe components into a single component?
 
-import { Recipe, recipeSchema } from '@/src/modules/diet/recipe/domain/recipe'
-import { foodItemSchema } from '@/src/modules/diet/food-item/domain/foodItem'
+import { Recipe, recipeSchema } from '@/modules/diet/recipe/domain/recipe'
+import { foodItemSchema } from '@/modules/diet/food-item/domain/foodItem'
 import {
   RecipeEditContextProvider,
   useRecipeEditContext,
 } from '@/sections/recipe/context/RecipeEditContext'
-import { useCallback } from 'react'
+import { MouseEvent, ReactNode, useCallback } from 'react'
 import TrashIcon from '@/sections/common/components/icons/TrashIcon'
 import PasteIcon from '@/sections/common/components/icons/PasteIcon'
 import CopyIcon from '@/sections/common/components/icons/CopyIcon'
@@ -16,13 +16,13 @@ import FoodItemListView from '@/sections/food-item/components/FoodItemListView'
 import { calcRecipeCalories } from '@/legacy/utils/macroMath'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { regenerateId } from '@/legacy/utils/idUtils'
-import { TemplateItem } from '@/src/modules/diet/template-item/domain/templateItem'
+import { TemplateItem } from '@/modules/diet/template-item/domain/templateItem'
 import useClipboard, {
   createClipboardSchemaFilter,
 } from '@/sections/common/hooks/useClipboard'
 import { deserializeClipboard } from '@/legacy/utils/clipboardUtils'
 import { convertToGroups } from '@/legacy/utils/groupUtils'
-import { mealSchema } from '@/src/modules/diet/meal/domain/meal'
+import { mealSchema } from '@/modules/diet/meal/domain/meal'
 import { itemGroupSchema } from '@/modules/diet/item-group/domain/itemGroup'
 import { useFloatField } from '@/sections/common/hooks/useField'
 import { FloatInput } from '@/sections/common/components/FloatInput'
@@ -32,9 +32,9 @@ import { cn } from '@/legacy/utils/cn'
 
 export type RecipeEditViewProps = {
   recipe: Signal<Recipe>
-  header?: React.ReactNode
-  content?: React.ReactNode
-  footer?: React.ReactNode
+  header?: ReactNode
+  content?: ReactNode
+  footer?: ReactNode
   className?: string
 }
 
@@ -151,7 +151,7 @@ function RecipeEditHeader({
 
   const recipeCalories = calcRecipeCalories(recipe.value)
 
-  const onClearItems = (e: React.MouseEvent) => {
+  const onClearItems = (e: MouseEvent) => {
     e.preventDefault()
 
     showConfirmModal({

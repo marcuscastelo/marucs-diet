@@ -1,6 +1,6 @@
-import { DayDiet } from '@/src/modules/diet/day-diet/domain/dayDiet'
-import { ItemGroupRepository } from '@/src/modules/diet/item-group/domain/itemGroupRepository'
-import { MealRepository } from '@/src/modules/diet/meal/domain/mealRepository'
+import { DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
+import { ItemGroupRepository } from '@/modules/diet/item-group/domain/itemGroupRepository'
+import { MealRepository } from '@/modules/diet/meal/domain/mealRepository'
 import { ReadonlySignal } from '@preact/signals-react'
 
 export function createDerivedItemGroupRepository(

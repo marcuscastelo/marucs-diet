@@ -1,15 +1,14 @@
 'use client'
 
 import FoodItemView from '@/sections/food-item/components/FoodItemView'
-import { FoodItem } from '@/src/modules/diet/food-item/domain/foodItem'
+import { FoodItem } from '@/modules/diet/food-item/domain/foodItem'
 import Modal, { ModalActions } from '@/sections/common/components/Modal'
-import { useUserContext } from '@/sections/user/context/UserContext'
 import { useModalContext } from '@/sections/common/context/ModalContext'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { generateId } from '@/legacy/utils/idUtils'
 import { useFloatField } from '@/sections/common/hooks/useField'
 import { FloatInput } from '@/sections/common/components/FloatInput'
-import { TemplateItem } from '@/src/modules/diet/template-item/domain/templateItem'
+import { TemplateItem } from '@/modules/diet/template-item/domain/templateItem'
 import {
   ReadonlySignal,
   Signal,
@@ -17,6 +16,10 @@ import {
   useSignal,
   useSignalEffect,
 } from '@preact/signals-react'
+import {
+  isFoodFavorite,
+  setFoodAsFavorite,
+} from '@/modules/user/application/user'
 
 export type FoodItemEditModalProps = {
   targetName: string
@@ -103,14 +106,8 @@ function Header({
   targetName: string
   targetNameColor: string
 }) {
-  const { debug } = useUserContext()
   return (
     <>
-      {debug && (
-        <code className="text-xs text-gray-400">
-          <pre>{JSON.stringify(foodItem.value, null, 2)}</pre>
-        </code>
-      )}
       <h3 className="text-lg font-bold text-white">
         Editando item em
         <span className={targetNameColor}>
@@ -143,8 +140,6 @@ function Body({
       quantity: quantityField.value.value ?? 0,
     }
   })
-
-  const { isFoodFavorite, setFoodAsFavorite } = useUserContext()
 
   const currentHoldTimeout = useSignal<NodeJS.Timeout | null>(null)
   const currentHoldInterval = useSignal<NodeJS.Timeout | null>(null)

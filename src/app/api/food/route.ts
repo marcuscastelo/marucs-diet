@@ -1,9 +1,9 @@
 // This is the route file for the food search API.
-import { NextRequest, NextResponse } from 'next/server'
-import { searchFoodNameInternal } from '@/legacy/api/food/application/utils'
 
-export async function GET(request: NextRequest) {
-  return NextResponse.json(
-    await searchFoodNameInternal(request.nextUrl.searchParams.get('q') ?? ''),
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  return Response.json(
+    JSON.stringify('oi'),
+    // await searchFoodNameInternal(searchParams.get('q') ?? ''),
   )
 }

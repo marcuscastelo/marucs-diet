@@ -1,32 +1,32 @@
 'use client'
 
-import MacroNutrientsView from '@/src/sections/macro-nutrients/components/MacroNutrientsView'
-import { MacroNutrients } from '@/src/modules/diet/macro-nutrients/domain/macroNutrients'
+import MacroNutrientsView from '@/sections/macro-nutrients/components/MacroNutrientsView'
+import { MacroNutrients } from '@/modules/diet/macro-nutrients/domain/macroNutrients'
 import CopyIcon from '@/sections/common/components/icons/CopyIcon'
 import {
   ItemGroup,
   isSimpleSingleGroup,
 } from '@/modules/diet/item-group/domain/itemGroup'
 import { calcGroupCalories, calcGroupMacros } from '@/legacy/utils/macroMath'
-import { useUserContext } from '@/sections/user/context/UserContext'
 import { isRecipedGroupUpToDate } from '@/legacy/utils/groupUtils'
 import { Loadable } from '@/legacy/utils/loadable'
-import { Recipe } from '@/src/modules/diet/recipe/domain/recipe'
+import { Recipe } from '@/modules/diet/recipe/domain/recipe'
 import {
   ReadonlySignal,
   computed,
   useSignal,
   useSignalEffect,
 } from '@preact/signals-react'
-import { createSupabaseRecipeRepository } from '@/src/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
+import { createSupabaseRecipeRepository } from '@/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
+import { MouseEvent, ReactNode } from 'react'
 
 // TODO: Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
 
 export type ItemGroupViewProps = {
   itemGroup: ReadonlySignal<ItemGroup>
-  header?: React.ReactNode
-  nutritionalInfo?: React.ReactNode
+  header?: ReactNode
+  nutritionalInfo?: ReactNode
   className?: string
   onClick?: (itemGroup: ItemGroup) => void
 }
@@ -38,7 +38,7 @@ export default function ItemGroupView({
   className,
   onClick,
 }: ItemGroupViewProps) {
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = (e: MouseEvent) => {
     onClick?.(itemGroup.value)
     e.stopPropagation()
     e.preventDefault()
@@ -62,9 +62,9 @@ ItemGroupView.Header = ItemGroupHeader
 ItemGroupView.NutritionalInfo = ItemGroupViewNutritionalInfo
 
 export type ItemGroupViewHeaderProps = {
-  name?: React.ReactNode
-  favorite?: React.ReactNode
-  copyButton?: React.ReactNode
+  name?: ReactNode
+  favorite?: ReactNode
+  copyButton?: ReactNode
 }
 
 function ItemGroupHeader({
@@ -97,8 +97,6 @@ function ItemGroupName({
 }: {
   group: ReadonlySignal<ItemGroup>
 }) {
-  const { debug } = useUserContext()
-
   const recipe = useSignal<Loadable<Recipe | null>>({
     loading: true,
   })
@@ -159,13 +157,6 @@ function ItemGroupName({
       {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.ItemGroupView.id}]</h5> */}
       <h5 className={`mb-2 text-lg font-bold tracking-tight ${nameColor}`}>
         {itemGroup.value?.name ?? 'Erro: grupo sem nome'}{' '}
-        {debug && (
-          <>
-            <div className="text-sm text-gray-400">
-              [ID: {itemGroup.value?.id}]
-            </div>
-          </>
-        )}
       </h5>
     </div>
   )
@@ -199,7 +190,7 @@ function ItemGroupFavorite({
   favorite: boolean
   setFavorite?: (favorite: boolean) => void
 }) {
-  const toggleFavorite = (e: React.MouseEvent) => {
+  const toggleFavorite = (e: MouseEvent) => {
     setFavorite?.(!favorite)
     e.stopPropagation()
     e.preventDefault()

@@ -1,6 +1,6 @@
 import { Weight } from '@/modules/weight/domain/weight'
 import { User } from '@/modules/user/domain/user'
-import { DbReady } from '@/src/legacy/utils/newDbRecord'
+import { DbReady } from '@/legacy/utils/newDbRecord'
 
 export interface WeightRepository {
   fetchUserWeights(userId: User['id']): Promise<readonly Weight[]>

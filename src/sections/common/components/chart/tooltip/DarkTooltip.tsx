@@ -9,10 +9,10 @@
 //   content,
 //   ...props
 // }: {
-//   children?: React.ReactNode
+//   children?: ReactNode
 //   content: (
 //     props: TooltipProps<string | number | (string | number)[], string | number>,
-//   ) => React.ReactNode
+//   ) => ReactNode
 //   props?: ComponentProps<typeof Tooltip>
 // }) {
 //   return (

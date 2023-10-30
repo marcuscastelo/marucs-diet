@@ -1,12 +1,14 @@
 'use client'
 
+import { ReactNode } from 'react'
+
 export default function Capsule({
   leftContent,
   rightContent,
   className,
 }: {
-  leftContent: React.ReactNode
-  rightContent: React.ReactNode
+  leftContent: ReactNode
+  rightContent: ReactNode
   className?: string
 }) {
   return (

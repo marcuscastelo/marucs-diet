@@ -12,6 +12,7 @@ import {
   YAxis,
 } from 'recharts'
 import { CandleStickShape } from '@/sections/common/components/chart/shapes/CandleStickShape'
+import { ReactNode } from 'react'
 
 const colors = [
   '#1f77b4',
@@ -40,7 +41,7 @@ export const CandleStickChart = <T extends OHLC & Record<string, unknown>>({
   children,
 }: {
   data: readonly T[]
-  children?: React.ReactNode
+  children?: ReactNode
 }) => {
   const data = prepareData(rawData)
   data.forEach(console.log)

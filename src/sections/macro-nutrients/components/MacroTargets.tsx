@@ -2,8 +2,8 @@
 
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { deleteMacroProfile } from '@/legacy/controllers/macroProfiles'
-import { MacroNutrients } from '@/src/modules/diet/macro-nutrients/domain/macroNutrients'
-import { MacroProfile } from '@/src/modules/diet/macro-profile/domain/macroProfile'
+import { MacroNutrients } from '@/modules/diet/macro-nutrients/domain/macroNutrients'
+import { MacroProfile } from '@/modules/diet/macro-profile/domain/macroProfile'
 import { dateToYYYYMMDD } from '@/legacy/utils/dateUtils'
 import { calcCalories } from '@/legacy/utils/macroMath'
 import { latestMacroProfile } from '@/legacy/utils/macroProfileUtils'

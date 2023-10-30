@@ -1,11 +1,11 @@
 import { Food } from '@/modules/diet/food/domain/food'
-import { Recipe } from '@/src/modules/diet/recipe/domain/recipe'
+import { Recipe } from '@/modules/diet/recipe/domain/recipe'
 import {
   Loadable,
   UnboxedLoadable,
   unboxLoadingObject,
 } from '@/legacy/utils/loadable'
-import { useCallback, useEffect } from 'react'
+import { ReactNode, useCallback, useEffect } from 'react'
 import { createContext, useContext } from 'use-context-selector'
 import { useSignal } from '@preact/signals-react'
 
@@ -42,7 +42,7 @@ export function FoodContextProvider({
   children,
 }: {
   onFetchFoods: FoodFetch
-  children: React.ReactNode
+  children: ReactNode
 }) {
   const foodStore = useSignal<Loadable<TemplateStore>>({
     loading: true,

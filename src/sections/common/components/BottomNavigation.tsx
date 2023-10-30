@@ -4,21 +4,26 @@ import { usePathname, useRouter } from 'next/navigation'
 import { ReactNode, useEffect } from 'react'
 import { UserIcon } from '@/sections/common/components/UserIcon'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { AvaliableUser, useUserId } from '@/sections/user/context/UserContext'
 import {
   changeToUser,
+  currentUserId,
   fetchUsers,
   users,
-} from '@/src/modules/user/application/user'
+} from '@/modules/user/application/user'
+import { User } from '@/modules/user/domain/user'
 
 export function BottomNavigation() {
   const router = useRouter()
   const pathName = usePathname()
-  const userId = useUserId()
+  const userId = currentUserId.value
   const { show: showConfirmModal } = useConfirmModalContext()
 
   console.debug('[BottomNavigation] Rendering')
   console.debug('[BottomNavigation] Current path:', pathName)
+
+  if (userId === null) {
+    return <>user is null</>
+  }
 
   return (
     <div className="fixed z-50 w-full h-16 max-w-lg -translate-x-1/2 bg-white border border-gray-200 rounded-full bottom-4 left-1/2 dark:bg-slate-800 dark:border-slate-700">
@@ -204,7 +209,7 @@ const UserSelectorDropdown = () => {
     fetchUsers()
   }, [])
 
-  const handleChangeUser = (user: AvaliableUser) => {
+  const handleChangeUser = (user: User) => {
     showConfirmModal({
       title: 'Trocar de usuário',
       body: (

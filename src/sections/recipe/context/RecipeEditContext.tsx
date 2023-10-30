@@ -1,7 +1,8 @@
 'use client'
 
-import { Recipe } from '@/src/modules/diet/recipe/domain/recipe'
+import { Recipe } from '@/modules/diet/recipe/domain/recipe'
 import { Signal } from '@preact/signals-react'
+import { ReactNode } from 'react'
 import { createContext, useContext } from 'use-context-selector'
 
 const RecipeContext = createContext<{ recipe: Signal<Recipe> } | null>(null)
@@ -23,7 +24,7 @@ export function RecipeEditContextProvider({
   children,
 }: {
   recipe: Signal<Recipe>
-  children: React.ReactNode
+  children: ReactNode
 }) {
   return (
     <RecipeContext.Provider

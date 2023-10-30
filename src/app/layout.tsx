@@ -1,19 +1,17 @@
 import '@/styles/globals.css'
+import { App } from '@/sections/common/components/App'
+import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import { ReactNode } from 'react'
 
-import ServerApp from '@/sections/common/components/ServerApp'
 const inter = Inter({ subsets: ['latin'] })
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Marucs Diet',
   description: 'Diet webapp',
 }
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
@@ -22,7 +20,9 @@ export default async function RootLayout({
         <meta name="description" content="App de dieta" />
       </head>
       <body className={inter.className + ' dark'}>
-        <ServerApp>{children}</ServerApp>
+        <App>
+          <h1>aaaa</h1>
+        </App>
       </body>
     </html>
   )

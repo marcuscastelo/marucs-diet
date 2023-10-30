@@ -7,7 +7,7 @@ import {
 import { User } from '@/modules/user/domain/user'
 import { DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
 import supabase from '@/legacy/utils/supabase'
-import { DayRepository } from '@/src/modules/diet/day-diet/domain/dayDietRepository'
+import { DayRepository } from '@/modules/diet/day-diet/domain/dayDietRepository'
 import { ReadonlySignal, signal } from '@preact/signals-react'
 
 // TODO: Delete old days table and rename days_test to days

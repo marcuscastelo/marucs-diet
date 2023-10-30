@@ -2,8 +2,8 @@ import {
   ItemGroup,
   RecipedItemGroup,
 } from '@/modules/diet/item-group/domain/itemGroup'
-import { FoodItem } from '@/src/modules/diet/food-item/domain/foodItem'
-import { Recipe } from '@/src/modules/diet/recipe/domain/recipe'
+import { FoodItem } from '@/modules/diet/food-item/domain/foodItem'
+import { Recipe } from '@/modules/diet/recipe/domain/recipe'
 import { generateId } from '@/legacy/utils/idUtils'
 
 export type GroupConvertible =

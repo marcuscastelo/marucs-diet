@@ -1,6 +1,6 @@
 import { DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
-import { ItemGroup } from '@/src/modules/diet/item-group/domain/itemGroup'
-import { Meal } from '@/src/modules/diet/meal/domain/meal'
+import { ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
+import { Meal } from '@/modules/diet/meal/domain/meal'
 
 // TODO: Make item group not a subcollection of day
 export interface ItemGroupRepository {

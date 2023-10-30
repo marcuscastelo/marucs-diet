@@ -1,8 +1,9 @@
-import { DayDiet } from '@/src/modules/diet/day-diet/domain/dayDiet'
-import { DayRepository } from '@/src/modules/diet/day-diet/domain/dayDietRepository'
-import { MealRepository } from '@/src/modules/diet/meal/domain/mealRepository'
+import { DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
+import { DayRepository } from '@/modules/diet/day-diet/domain/dayDietRepository'
+import { MealRepository } from '@/modules/diet/meal/domain/mealRepository'
 import { ReadonlySignal } from '@preact/signals-react'
 
+// TODO: Replace localDays with localDay
 export function createDerivedMealRepository(
   localDays: ReadonlySignal<readonly DayDiet[]>,
   dayRepository: DayRepository,
