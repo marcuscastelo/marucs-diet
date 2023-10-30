@@ -23,6 +23,7 @@
 
     "allowJs": true,
     "checkJs": false,
+    "forceConsistentCasingInFileNames": true,
 
     "paths": {
       "@/*": ["./src/*"]
