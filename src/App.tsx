@@ -1,10 +1,13 @@
 import { BottomNavigation } from '@/sections/common/components/BottomNavigation'
+import { ConfirmModalProvider } from '@/sections/common/context/ConfirmModalContext'
 
 function App () {
   return (
     <>
-      <h1 class='text-lg'>Oi</h1>
-      <BottomNavigation />
+      <ConfirmModalProvider>
+        <h1 class='text-lg'>Oi</h1>
+        <BottomNavigation />
+      </ConfirmModalProvider>
     </>
   )
 }

@@ -1,5 +1,3 @@
-'use client'
-
 import { UserIcon } from '@/sections/common/components/UserIcon'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import {
