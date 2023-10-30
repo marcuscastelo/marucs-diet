@@ -1,6 +1,6 @@
 'use client'
 
-import { FoodItem } from '@/src/modules/diet/food-item/domain/foodItem'
+import { FoodItem } from '@/modules/diet/food-item/domain/foodItem'
 import FoodItemView, {
   FoodItemViewProps,
 } from '@/sections/food-item/components/FoodItemView'

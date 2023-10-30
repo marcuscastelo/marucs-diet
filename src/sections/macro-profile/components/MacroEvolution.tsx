@@ -16,8 +16,7 @@ import {
   calcDayCalories,
   calcDayMacros,
 } from '@/legacy/utils/macroMath'
-import { useUserContext, useUserId } from '@/sections/user/context/UserContext'
-import { calculateMacroTarget } from '@/src/sections/macro-nutrients/components/MacroTargets'
+import { calculateMacroTarget } from '@/sections/macro-nutrients/components/MacroTargets'
 import { inForceWeight } from '@/legacy/utils/weightUtils'
 import { useMacroProfiles } from '@/sections/macro-profile/hooks/useMacroProfiles'
 import {
@@ -25,11 +24,12 @@ import {
   latestMacroProfile,
 } from '@/legacy/utils/macroProfileUtils'
 import { DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
-import { MacroProfile } from '@/src/modules/diet/macro-profile/domain/macroProfile'
+import { MacroProfile } from '@/modules/diet/macro-profile/domain/macroProfile'
 import { dateToDDMM } from '@/legacy/utils/dateUtils'
 import { Weight } from '@/modules/weight/domain/weight'
-import { useWeightContext } from '@/src/sections/weight/context/WeightContext'
-import { dayDiets } from '@/src/modules/diet/day-diet/application/dayDiet'
+import { dayDiets } from '@/modules/diet/day-diet/application/dayDiet'
+import { currentUser } from '@/modules/user/application/user'
+import { userWeights } from '@/modules/weight/application/weight'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -38,15 +38,12 @@ const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
 const CHART_DATE_ANGLE = -45
 
 export function MacroEvolution() {
-  const userId = useUserId()
-
-  const { weights } = useWeightContext()
-
-  if (weights.value.loading || weights.value.errored) {
-    return <h1>Carregando...</h1>
+  const user = currentUser.value
+  if (user === null) {
+    throw new Error(`User is null`)
   }
 
-  if (weights.value.data.length === 0) {
+  if (userWeights.value.length === 0) {
     return <h1>Usuário não possui pesos. Impossível calcular macros.</h1>
   }
 
@@ -56,11 +53,11 @@ export function MacroEvolution() {
         Evolução de Macronutrientes
       </h5>
       <div className="mx-5 lg:mx-20">
-        <AllMacrosChart weights={weights.value.data} />
-        <CaloriesChart weights={weights.value.data} />
-        <ProteinChart weights={weights.value.data} />
-        <FatChart weights={weights.value.data} />
-        <CarbsChart weights={weights.value.data} />
+        <AllMacrosChart weights={userWeights.value} />
+        <CaloriesChart weights={userWeights.value} />
+        <ProteinChart weights={userWeights.value} />
+        <FatChart weights={userWeights.value} />
+        <CarbsChart weights={userWeights.value} />
       </div>
     </div>
   )
@@ -103,7 +100,10 @@ function createChartData(
 }
 
 function AllMacrosChart({ weights }: { weights: readonly Weight[] }) {
-  const { user } = useUserContext()
+  const user = currentUser.value
+  if (user === null) {
+    throw new Error(`User is null`)
+  }
   const { macroProfiles } = useMacroProfiles(user.id)
 
   if (macroProfiles.value.loading || macroProfiles.value.errored) {
@@ -259,7 +259,10 @@ function AllMacrosChart({ weights }: { weights: readonly Weight[] }) {
 }
 
 function CaloriesChart({ weights }: { weights: readonly Weight[] }) {
-  const { user } = useUserContext()
+  const user = currentUser.value
+  if (user === null) {
+    throw new Error(`User is null`)
+  }
   const { macroProfiles } = useMacroProfiles(user.id)
 
   if (macroProfiles.value.loading || macroProfiles.value.errored) {
@@ -315,7 +318,10 @@ function CaloriesChart({ weights }: { weights: readonly Weight[] }) {
 }
 
 function ProteinChart({ weights }: { weights: readonly Weight[] }) {
-  const { user } = useUserContext()
+  const user = currentUser.value
+  if (user === null) {
+    throw new Error(`User is null`)
+  }
   const { macroProfiles } = useMacroProfiles(user.id)
 
   if (macroProfiles.value.loading || macroProfiles.value.errored) {
@@ -370,7 +376,10 @@ function ProteinChart({ weights }: { weights: readonly Weight[] }) {
 }
 
 function FatChart({ weights }: { weights: readonly Weight[] }) {
-  const { user } = useUserContext()
+  const user = currentUser.value
+  if (user === null) {
+    throw new Error(`User is null`)
+  }
   const { macroProfiles } = useMacroProfiles(user.id)
 
   if (macroProfiles.value.loading || macroProfiles.value.errored) {
@@ -425,7 +434,10 @@ function FatChart({ weights }: { weights: readonly Weight[] }) {
 }
 
 function CarbsChart({ weights }: { weights: readonly Weight[] }) {
-  const { user } = useUserContext()
+  const user = currentUser.value
+  if (user === null) {
+    throw new Error(`User is null`)
+  }
   const { macroProfiles } = useMacroProfiles(user.id)
 
   if (macroProfiles.value.loading || macroProfiles.value.errored) {

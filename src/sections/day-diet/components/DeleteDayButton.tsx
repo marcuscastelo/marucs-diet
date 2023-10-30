@@ -3,7 +3,7 @@
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
 import { ReadonlySignal } from '@preact/signals-react'
-import { deleteDayDiet } from '@/src/modules/diet/day-diet/application/dayDiet'
+import { deleteDayDiet } from '@/modules/diet/day-diet/application/dayDiet'
 
 export default function DeleteDayButton({
   day,

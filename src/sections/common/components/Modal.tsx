@@ -1,6 +1,6 @@
 'use client'
 
-import React, { ReactNode, useEffect, useRef } from 'react'
+import { ReactNode, useEffect, useRef } from 'react'
 import { useModalContext } from '@/sections/common/context/ModalContext'
 import { BackIcon } from '@/sections/common/components/BackIcon'
 import { cn } from '@/legacy/utils/cn'
@@ -10,13 +10,13 @@ export type ModalProps = {
   /**
    * @deprecated
    */
-  header?: React.ReactNode
-  body?: React.ReactNode
+  header?: ReactNode
+  body?: ReactNode
   // TODO: Unify Header, Content and Actions for each component in the entire app
   /**
    * @deprecated
    */
-  actions?: React.ReactNode
+  actions?: ReactNode
   hasBackdrop?: boolean
   className?: string
 }
@@ -113,7 +113,7 @@ export function ModalBody() {
 /**
  * @deprecated
  */
-export function ModalActions({ children }: { children: React.ReactNode }) {
+export function ModalActions({ children }: { children: ReactNode }) {
   return <div className="modal-action">{children}</div>
 }
 

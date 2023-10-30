@@ -1,7 +1,7 @@
 'use client'
 
-import MacroNutrientsView from '@/src/sections/macro-nutrients/components/MacroNutrientsView'
-import { MacroNutrients } from '@/src/modules/diet/macro-nutrients/domain/macroNutrients'
+import MacroNutrientsView from '@/sections/macro-nutrients/components/MacroNutrientsView'
+import { MacroNutrients } from '@/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   FoodItemContextProvider,
   useFoodItemContext,
@@ -9,21 +9,21 @@ import {
 import CopyIcon from '@/sections/common/components/icons/CopyIcon'
 import { searchFoodById } from '@/legacy/controllers/food'
 import { calcItemCalories } from '@/legacy/utils/macroMath'
-import { useUserContext } from '@/sections/user/context/UserContext'
-import { TemplateItem } from '@/src/modules/diet/template-item/domain/templateItem'
-import { Template } from '@/src/modules/diet/template/domain/template'
+import { TemplateItem } from '@/modules/diet/template-item/domain/templateItem'
+import { Template } from '@/modules/diet/template/domain/template'
 import {
   ReadonlySignal,
   computed,
   useSignal,
   useSignalEffect,
 } from '@preact/signals-react'
-import { createSupabaseRecipeRepository } from '@/src/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
+import { createSupabaseRecipeRepository } from '@/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
+import { MouseEvent, ReactNode } from 'react'
 
 export type FoodItemViewProps = {
   foodItem: ReadonlySignal<TemplateItem>
-  header?: React.ReactNode
-  nutritionalInfo?: React.ReactNode
+  header?: ReactNode
+  nutritionalInfo?: ReactNode
   className?: string
   onClick?: (foodItem: TemplateItem) => void
 }
@@ -38,7 +38,7 @@ export default function FoodItemView({
   className,
   onClick,
 }: FoodItemViewProps) {
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = (e: MouseEvent) => {
     onClick?.(foodItem.value)
     e.stopPropagation()
     e.preventDefault()
@@ -63,9 +63,9 @@ FoodItemView.Header = FoodItemHeader
 FoodItemView.NutritionalInfo = FoodItemNutritionalInfo
 
 export type FoodItemHeaderProps = {
-  name?: React.ReactNode
-  favorite?: React.ReactNode
-  copyButton?: React.ReactNode
+  name?: ReactNode
+  favorite?: ReactNode
+  copyButton?: ReactNode
 }
 
 function FoodItemHeader({ name, favorite, copyButton }: FoodItemHeaderProps) {
@@ -88,8 +88,6 @@ FoodItemHeader.Favorite = FoodItemFavorite
 
 function FoodItemName() {
   const { foodItem: item } = useFoodItemContext()
-
-  const { debug } = useUserContext()
 
   const template = useSignal<Template | null>(null)
 
@@ -137,14 +135,6 @@ function FoodItemName() {
         className={`mb-2 text-lg font-bold tracking-tight ${templateNameColor.value}`}
       >
         {name}{' '}
-        {debug && (
-          <>
-            <div className="text-sm text-gray-400">[ID: {item.value?.id}]</div>
-            <div className="text-sm text-gray-400">
-              [ID: {template.value?.id}]
-            </div>
-          </>
-        )}
       </h5>
     </div>
   )
@@ -178,7 +168,7 @@ function FoodItemFavorite({
   favorite: boolean
   onSetFavorite?: (favorite: boolean) => void
 }) {
-  const toggleFavorite = (e: React.MouseEvent) => {
+  const toggleFavorite = (e: MouseEvent) => {
     setFavorite?.(!favorite)
     e.stopPropagation()
     e.preventDefault()

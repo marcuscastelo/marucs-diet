@@ -1,7 +1,12 @@
 'use client'
 
 import { useFloatField } from '@/sections/common/hooks/useField'
-import { FocusEventHandler } from 'react'
+import {
+  ChangeEvent,
+  DetailedHTMLProps,
+  FocusEventHandler,
+  InputHTMLAttributes,
+} from 'react'
 
 export function FloatInput({
   field,
@@ -14,10 +19,7 @@ export function FloatInput({
   commitOn?: 'blur' | 'change' /* | 'timeout' */
   onFieldCommit?: (value: number | undefined) => void
 } & Omit<
-  React.DetailedHTMLProps<
-    React.InputHTMLAttributes<HTMLInputElement>,
-    HTMLInputElement
-  >,
+  DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>,
   'value' | 'onChange'
 >) {
   const { rawValue, value, transform } = field
@@ -31,7 +33,7 @@ export function FloatInput({
     }
   }
 
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
     rawValue.value = e.target.value
 
     if (commitOn === 'change') {

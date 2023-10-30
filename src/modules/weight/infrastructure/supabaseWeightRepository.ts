@@ -2,10 +2,10 @@ import { User } from '@/modules/user/domain/user'
 import {
   Weight,
   weigthSchema as weightSchema,
-} from '@/src/modules/weight/domain/weight'
+} from '@/modules/weight/domain/weight'
 import { DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
 import supabase from '@/legacy/utils/supabase'
-import { WeightRepository } from '@/src/modules/weight/domain/weightRepository'
+import { WeightRepository } from '@/modules/weight/domain/weightRepository'
 
 const TABLE = 'weights'
 

@@ -15,12 +15,12 @@ import {
   FoodItem,
   createFoodItem,
   foodItemSchema,
-} from '@/src/modules/diet/food-item/domain/foodItem'
+} from '@/modules/diet/food-item/domain/foodItem'
 import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
 import FoodItemEditModal from '@/sections/food-item/components/FoodItemEditModal'
 import RecipeIcon from '@/sections/common/components/icons/RecipeIcon'
 import { RecipeEditModal } from '@/sections/recipe/components/RecipeEditModal'
-import { Recipe, createRecipe } from '@/src/modules/diet/recipe/domain/recipe'
+import { Recipe, createRecipe } from '@/modules/diet/recipe/domain/recipe'
 import { Loadable } from '@/legacy/utils/loadable'
 import PageLoading from '@/sections/common/components/PageLoading'
 
@@ -28,7 +28,6 @@ import {
   ItemGroupEditContextProvider,
   useItemGroupEditContext,
 } from '@/sections/item-group/context/ItemGroupEditContext'
-import { useUserContext, useUserId } from '@/sections/user/context/UserContext'
 import {
   ModalContextProvider,
   useModalContext,
@@ -48,13 +47,18 @@ import {
   signal,
   useSignal,
   useSignalEffect,
+  batch,
 } from '@preact/signals-react'
 import { ConvertToRecipeIcon } from '@/sections/common/components/icons/ConvertToRecipeIcon'
-import { batch } from 'react-redux'
 import { deepCopy } from '@/legacy/utils/deepCopy'
 import { useFloatField } from '@/sections/common/hooks/useField'
 import { FloatInput } from '@/sections/common/components/FloatInput'
-import { createSupabaseRecipeRepository } from '@/src/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
+import { createSupabaseRecipeRepository } from '@/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
+import {
+  currentUserId,
+  isFoodFavorite,
+  setFoodAsFavorite,
+} from '@/modules/user/application/user'
 
 // TODO: Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
@@ -153,8 +157,6 @@ const InnerItemGroupEditModal = ({
   const canApply =
     (group.value?.name.length ?? 0) > 0 && editSelection.value === null
 
-  const { isFoodFavorite, setFoodAsFavorite } = useUserContext()
-
   if (recipeSignal.value.loading) {
     return (
       <PageLoading
@@ -245,8 +247,6 @@ function Header({
   targetMealName: string
   recipe: Recipe | null
 }) {
-  const { debug } = useUserContext()
-  const { group } = useItemGroupEditContext()
   return (
     <>
       <h3 className="text-lg font-bold text-white">
@@ -254,11 +254,6 @@ function Header({
         <span className="text-green-500"> &quot;{targetMealName}&quot; </span>
       </h3>
       Receita: {recipe?.name?.toString() ?? 'Nenhuma'}
-      {debug && (
-        <code>
-          <pre>{JSON.stringify(group.value, null, 2)}</pre>
-        </code>
-      )}
     </>
   )
 }
@@ -503,7 +498,6 @@ function Body({
   const acceptedClipboardSchema = foodItemSchema.or(itemGroupSchema)
 
   const { group } = useItemGroupEditContext()
-  const userId = useUserId()
 
   const {
     write: writeToClipboard,
@@ -626,12 +620,17 @@ function Body({
                       throw new Error('group is null')
                     }
 
+                    if (currentUserId.value === null) {
+                      console.error('currentUserId is null')
+                      throw new Error('currentUserId is null')
+                    }
+
                     const newRecipe = createRecipe({
                       name:
                         group.value.name ||
                         'Nova receita (a partir de um grupo)',
                       items: deepCopy(group.value.items) ?? [],
-                      owner: userId,
+                      owner: currentUserId.value,
                     })
 
                     const insertedRecipe =

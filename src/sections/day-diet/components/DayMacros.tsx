@@ -1,15 +1,15 @@
 'use client'
 
-import { MacroNutrients } from '@/src/modules/diet/macro-nutrients/domain/macroNutrients'
+import { MacroNutrients } from '@/modules/diet/macro-nutrients/domain/macroNutrients'
 import { Progress } from 'flowbite-react'
-import { calculateMacroTarget } from '@/src/sections/macro-nutrients/components/MacroTargets'
+import { calculateMacroTarget } from '@/sections/macro-nutrients/components/MacroTargets'
 import { CSSProperties } from 'react'
 import { calcCalories } from '@/legacy/utils/macroMath'
-import { useUserContext } from '@/sections/user/context/UserContext'
 import { latestWeight } from '@/legacy/utils/weightUtils'
 import { useMacroProfiles } from '@/sections/macro-profile/hooks/useMacroProfiles'
 import { latestMacroProfile } from '@/legacy/utils/macroProfileUtils'
-import { useWeightContext } from '@/src/sections/weight/context/WeightContext'
+import { currentUser } from '@/modules/user/application/user'
+import { userWeights } from '@/modules/weight/application/weight'
 
 export default function DayMacros({
   macros,
@@ -18,20 +18,18 @@ export default function DayMacros({
   macros: MacroNutrients
   className?: string
 }) {
-  const { user } = useUserContext()
-
-  const { weights } = useWeightContext()
-  const { macroProfiles } = useMacroProfiles(user.id)
-
-  if (weights.value.loading || weights.value.errored) {
-    return <h1>Carregando pesos...</h1>
+  const user = currentUser.value
+  if (user === null) {
+    throw new Error(`User is null`)
   }
+
+  const { macroProfiles } = useMacroProfiles(user.id)
 
   if (macroProfiles.value.loading || macroProfiles.value.errored) {
     return <h1>Carregando perfis de macro...</h1>
   }
 
-  const weight = latestWeight(weights.value.data)?.weight
+  const weight = latestWeight(userWeights.value)?.weight
 
   if (weight === undefined) {
     return <h1>O usuário não possui pesos registrados</h1>

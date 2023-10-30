@@ -7,7 +7,7 @@ import MealEditView, {
 } from '@/sections/meal/components/MealEditView'
 import { Alert } from 'flowbite-react'
 import DayMacros from '@/sections/day-diet/components/DayMacros'
-import { Meal } from '@/src/modules/diet/meal/domain/meal'
+import { Meal } from '@/modules/diet/meal/domain/meal'
 import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
 import { ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
 import { calcDayMacros } from '@/legacy/utils/macroMath'
@@ -17,7 +17,6 @@ import DeleteDayButton from '@/sections/day-diet/components/DeleteDayButton'
 import { useRouter } from 'next/navigation'
 import { getToday } from '@/legacy/utils/dateUtils'
 import { ModalContextProvider } from '@/sections/common/context/ModalContext'
-import { useUserContext, useUserId } from '@/sections/user/context/UserContext'
 import {
   ReadonlySignal,
   Signal,
@@ -26,15 +25,20 @@ import {
   useSignal,
   useSignalEffect,
 } from '@preact/signals-react'
-import DayNotFound from '@/src/sections/day-diet/components/DayNotFound'
-import { useMealContext } from '@/src/sections/meal/context/MealContext'
-import { useItemGroupContext } from '@/src/sections/item-group/context/ItemGroupContext'
+import DayNotFound from '@/sections/day-diet/components/DayNotFound'
 import {
   currentDayDiet,
   fetchDayDiets,
   targetDay,
-} from '@/src/modules/diet/day-diet/application/dayDiet'
+} from '@/modules/diet/day-diet/application/dayDiet'
 import { useEffect } from 'react'
+import { currentUserId } from '@/modules/user/application/user'
+import { updateMeal } from '@/modules/diet/meal/application/meal'
+import {
+  deleteItemGroup,
+  insertItemGroup,
+  updateItemGroup,
+} from '@/modules/diet/item-group/application/itemGroup'
 
 type EditSelection = {
   meal: Meal
@@ -52,9 +56,8 @@ const newItemSelection = signal<NewItemSelection>(null)
 export default function DayMeals({ selectedDay }: { selectedDay: string }) {
   const router = useRouter()
   const today = getToday()
-  const userId = useUserId()
+  const userId = currentUserId.value
   const showingToday = today === selectedDay
-  const { updateMeal } = useMealContext()
 
   const dayLocked = useSignal(!showingToday)
 
@@ -62,6 +65,9 @@ export default function DayMeals({ selectedDay }: { selectedDay: string }) {
   const templateSearchModalVisible = useSignal(false)
 
   useEffect(() => {
+    if (userId === null) {
+      throw new Error('User is null')
+    }
     fetchDayDiets(userId)
     targetDay.value = selectedDay
   }, [selectedDay, userId])
@@ -207,8 +213,6 @@ function ExternalTemplateSearchModal({
   visible: Signal<boolean>
   day: ReadonlySignal<DayDiet>
 }) {
-  const { debug } = useUserContext()
-  const { insertItemGroup } = useItemGroupContext()
   const handleNewItemGroup = async (newGroup: ItemGroup) => {
     if (newItemSelection.value === null) {
       throw new Error('No meal selected!')
@@ -229,11 +233,7 @@ function ExternalTemplateSearchModal({
   }
 
   if (!newItemSelection.value) {
-    return (
-      debug && (
-        <h1>ERRO ExternalTemplateSearchModal: Nenhuma refeição selecionada!</h1>
-      )
-    )
+    return <></>
   }
 
   return (
@@ -254,9 +254,6 @@ function ExternalItemGroupEditModal({
   visible: Signal<boolean>
   day: ReadonlySignal<DayDiet>
 }) {
-  const { updateItemGroup, deleteItemGroup } = useItemGroupContext()
-  const { debug } = useUserContext()
-
   useSignalEffect(() => {
     if (!visible.value) {
       editSelection.value = null
@@ -264,11 +261,7 @@ function ExternalItemGroupEditModal({
   })
 
   if (editSelection.value === null) {
-    return (
-      debug && (
-        <h1>ERRO ExternalItemGroupEditModal: Nenhuma refeição selecionada!</h1>
-      )
-    )
+    return <></>
   }
 
   return (

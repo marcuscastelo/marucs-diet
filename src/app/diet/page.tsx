@@ -8,8 +8,6 @@ export default function Page() {
   const router = useRouter()
   const today = getToday()
 
-  ;([1, 2, 3] as const).includes(4)
-
   useEffect(() => {
     const timeout = setTimeout(() => {
       router.replace(`/diet/${today}`)

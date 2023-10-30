@@ -1,6 +1,6 @@
 import { DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
-import { DbReady } from '@/src/legacy/utils/newDbRecord'
-import { Meal } from '@/src/modules/diet/meal/domain/meal'
+import { DbReady } from '@/legacy/utils/newDbRecord'
+import { Meal } from '@/modules/diet/meal/domain/meal'
 
 // TODO: Make meal not a subcollection of day
 export interface MealRepository {

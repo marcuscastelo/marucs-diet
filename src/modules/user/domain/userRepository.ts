@@ -1,5 +1,5 @@
 import { User } from '@/modules/user/domain/user'
-import { DbReady } from '@/src/legacy/utils/newDbRecord'
+import { DbReady } from '@/legacy/utils/newDbRecord'
 
 export interface UserRepository {
   fetchUsers(): Promise<readonly User[]>

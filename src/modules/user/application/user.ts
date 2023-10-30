@@ -1,26 +1,26 @@
-import { User } from '@/src/modules/user/domain/user'
-import { createSupabaseUserRepository } from '@/src/modules/user/infrastructure/supabaseUserRepository'
-// import { computed, signal } from '@preact/signals-react'
-
-function signal<T>(a: T) {
-  return { value: a }
-}
-
-function computed<R, T extends (...params: any) => R>(a: T) {
-  return { value: a() } as { value: ReturnType<T> }
-}
+import { User } from '@/modules/user/domain/user'
+import { createSupabaseUserRepository } from '@/modules/user/infrastructure/supabaseUserRepository'
+import { computed, signal } from '@preact/signals-react'
 
 export const DEFAULT_USER_ID = 3
 
 const userRepository = createSupabaseUserRepository()
 
 const users_ = signal<readonly User[]>([])
-const currentUser_ = signal<User | null>(null)
+const currentUser_ = signal<User | null>({
+  id: DEFAULT_USER_ID,
+  name: 'Default User',
+  birthdate: '1990-01-01',
+  desired_weight: 70,
+  diet: 'normo',
+  favorite_foods: [],
+  gender: 'male',
+})
 
 export const users = computed(() => users_.value)
 export const currentUser = computed(() => currentUser_.value)
 
-export const currentUserId = signal<number | null>(null)
+export const currentUserId = signal<number | null>(3)
 
 export async function fetchUsers(): Promise<void> {
   const users = await userRepository.fetchUsers()
@@ -70,4 +70,30 @@ export function initializeUser(): void {
 export function changeToUser(userId: User['id']): void {
   // currentUserId.value = userId
   // saveUserIdToLocalStorage(userId)
+}
+
+// TODO: Create module for favorites
+export function isFoodFavorite(foodId: number): boolean {
+  return currentUser.value?.favorite_foods.includes(foodId) ?? false
+}
+
+export function setFoodAsFavorite(foodId: number, isFavorite: boolean): void {
+  // if (currentUser.value === null) {
+  //   throw new Error('User not initialized')
+  // }
+  // const favoriteFoods = currentUser.value.favorite_foods
+  // if (isFavorite) {
+  //   if (!favoriteFoods.includes(foodId)) {
+  //     favoriteFoods.push(foodId)
+  //   }
+  // } else {
+  //   const index = favoriteFoods.indexOf(foodId)
+  //   if (index !== -1) {
+  //     favoriteFoods.splice(index, 1)
+  //   }
+  // }
+  // updateUser(currentUser.value.id, {
+  //   ...currentUser.value,
+  //   favorite_foods: favoriteFoods,
+  // })
 }

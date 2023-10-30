@@ -1,6 +1,5 @@
 'use client'
 
-import { useUserId } from '@/sections/user/context/UserContext'
 import { Loadable } from '@/legacy/utils/loadable'
 import { useCallback, useEffect, useState } from 'react'
 import { Measure, createMeasure } from '@/modules/measure/domain/measure'
@@ -9,13 +8,14 @@ import { MeasureChart } from '@/sections/profile/components/measure/MeasureChart
 import { MeasureView } from '@/sections/profile/components/measure/MeasureView'
 import { useFloatFieldOld } from '@/sections/common/hooks/useField'
 import { FloatInput } from '@/sections/common/components/FloatInput'
+import { currentUserId } from '@/modules/user/application/user'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
 
 export function MeasuresEvolution({ onSave }: { onSave: () => void }) {
-  const userId = useUserId()
+  const userId = currentUserId.value
 
   // TODO: Remove `measures` state and use use cases instead
   const [measures, setMeasures] = useState<Loadable<Measure[]>>({
@@ -27,6 +27,9 @@ export function MeasuresEvolution({ onSave }: { onSave: () => void }) {
   const neckField = useFloatFieldOld()
 
   const handleRefetchMeasures = useCallback(() => {
+    if (userId === null) {
+      throw new Error('User is null')
+    }
     fetchUserMeasures(userId).then((measures) =>
       setMeasures({ loading: false, errored: false, data: measures }),
     )
@@ -96,7 +99,9 @@ export function MeasuresEvolution({ onSave }: { onSave: () => void }) {
                 alert('Medidas inválidas') // TODO: Change all alerts with ConfirmModal
                 return
               }
-
+              if (userId === null) {
+                throw new Error('User is null')
+              }
               await insertMeasure(
                 createMeasure({
                   owner: userId,

@@ -1,7 +1,5 @@
 // This is the route file for the barcode API
 
-import { NextRequest, NextResponse } from 'next/server'
-
 import axios from 'axios'
 import {
   EXTERNAL_API_AUTHORIZATION,
@@ -13,6 +11,8 @@ import {
 
 // TODO: rename all barcodes to EAN?
 const searchBarCodeInternal = async (barcode: string) => {
+  return JSON.stringify('oi')
+
   const url = `${EXTERNAL_API_BASE_URL}/${EXTERNAL_API_EAN_ENDPOINT}/${barcode}`
   const response = await axios.get(url, {
     headers: {
@@ -32,9 +32,9 @@ const searchBarCodeInternal = async (barcode: string) => {
 }
 
 // TODO: merge this with the food search by name (using query params like ?name= or ?ean=)
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { ean: string } },
-) {
-  return NextResponse.json(await searchBarCodeInternal(params.ean))
+export async function GET(request: Request) {
+  return Response.json(
+    // await searchBarCodeInternal(params.ean))
+    JSON.stringify('oi'),
+  )
 }

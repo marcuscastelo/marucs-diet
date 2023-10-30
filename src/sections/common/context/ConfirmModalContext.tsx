@@ -1,7 +1,7 @@
 'use client'
 
 import { ReadonlySignal, Signal, useSignal } from '@preact/signals-react'
-import { Dispatch, ReactNode, SetStateAction, useState } from 'react'
+import { Dispatch, ReactNode, SetStateAction } from 'react'
 import { createContext, useContext } from 'use-context-selector'
 
 type Title = ReactNode
@@ -58,13 +58,15 @@ export function ConfirmModalProvider({
   message?: Body
   visible?: boolean
   actions?: ConfirmAction[]
-  children: React.ReactNode
+  children: ReactNode
 }) {
-  const [title, setTitle] = useState<Title>(initialTitle)
-  const [message, setBody] = useState<Body>(initialMessage)
+  console.debug(`[ConfirmModalProvider] - Rendering`)
+
+  const [title, setTitle] = ['', (a: any) => undefined] // useState<Title>(initialTitle)
+  const [message, setBody] = ['', (a: any) => undefined] // useState<Body>(initialMessage)
   const visible = useSignal<boolean>(initiallyVisible)
 
-  const [actions, setActions] = useState<ConfirmAction[]>(
+  const actions = useSignal<ConfirmAction[]>(
     initialActions ?? [
       {
         text: 'Cancelar',
@@ -85,28 +87,26 @@ export function ConfirmModalProvider({
       setTitle,
       body: message,
       setBody,
-      actions,
+      actions: actions.value, // TODO: Propagate signal
     },
-    visible,
-    show: ({ title, body, actions }) => {
+    visible: visible as ReadonlySignal<boolean>,
+    show: ({ title, body, actions: newActions }) => {
       if (title !== undefined) {
         setTitle(title)
       }
       if (body !== undefined) {
         setBody(body)
       }
-      if (actions !== undefined) {
-        setActions(
-          actions.map((action) => {
-            return {
-              ...action,
-              onClick: () => {
-                visible.value = false
-                action.onClick()
-              },
-            }
-          }),
-        )
+      if (newActions !== undefined) {
+        actions.value = newActions.map((action) => {
+          return {
+            ...action,
+            onClick: () => {
+              visible.value = false
+              action.onClick()
+            },
+          }
+        })
       }
       visible.value = true
     },

@@ -7,12 +7,11 @@ import {
 } from '@/sections/common/context/ModalContext'
 import FoodItemView from '@/sections/food-item/components/FoodItemView'
 import { Alert } from 'flowbite-react'
-import React, { useEffect, useState } from 'react'
-import BarCodeInsertModal from '@/src/sections/barcode/components/BarCodeInsertModal'
-import { Recipe } from '@/src/modules/diet/recipe/domain/recipe'
+import React, { Fragment, useEffect, useState } from 'react'
+import BarCodeInsertModal from '@/sections/barcode/components/BarCodeInsertModal'
+import { Recipe } from '@/modules/diet/recipe/domain/recipe'
 import PageLoading from '@/sections/common/components/PageLoading'
 import FoodItemEditModal from '@/sections/food-item/components/FoodItemEditModal'
-import { useUserContext, useUserId } from '@/sections/user/context/UserContext'
 import {
   ItemGroup,
   RecipedItemGroup,
@@ -27,15 +26,15 @@ import {
   chooseFoodsFromStore as chooseFoodsFromFoodStore,
 } from '@/sections/search/components/TemplateSearchTabs'
 import { useTyping } from '@/sections/common/hooks/useTyping'
-import { createFoodItem } from '@/src/modules/diet/food-item/domain/foodItem'
+import { createFoodItem } from '@/modules/diet/food-item/domain/foodItem'
 import {
   fetchRecentFoodByUserIdAndFoodId,
   insertRecentFood,
   updateRecentFood,
 } from '@/legacy/controllers/recentFood'
 import { createRecentFood } from '@/modules/recent-food/domain/recentFood'
-import { Template } from '@/src/modules/diet/template/domain/template'
-import { TemplateItem } from '@/src/modules/diet/template-item/domain/templateItem'
+import { Template } from '@/modules/diet/template/domain/template'
+import { TemplateItem } from '@/modules/diet/template-item/domain/templateItem'
 import {
   ReadonlySignal,
   Signal,
@@ -43,6 +42,11 @@ import {
   useSignal,
 } from '@preact/signals-react'
 import { createFood } from '@/modules/diet/food/domain/food'
+import {
+  currentUserId,
+  isFoodFavorite,
+  setFoodAsFavorite,
+} from '@/modules/user/application/user'
 
 export type TemplateSearchModalProps = {
   targetName: string
@@ -58,7 +62,7 @@ export function TemplateSearchModal({
   onNewItemGroup,
   onFinish,
 }: TemplateSearchModalProps) {
-  const userId = useUserId()
+  const userId = currentUserId.value
   const { visible } = useModalContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
@@ -75,6 +79,10 @@ export function TemplateSearchModal({
     originalAddedItem: TemplateItem,
   ) => {
     await onNewItemGroup?.(newGroup, originalAddedItem)
+
+    if (userId === null) {
+      throw new Error('User is null')
+    }
 
     const recentFood = await fetchRecentFoodByUserIdAndFoodId(
       userId,
@@ -456,8 +464,6 @@ const SearchResults = ({
   barCodeModalVisible: Signal<boolean>
   foodItemEditModalVisible: Signal<boolean>
 }) => {
-  const { isFoodFavorite, setFoodAsFavorite } = useUserContext()
-
   return (
     <>
       {!typing.value && filteredTemplates.value.length === 0 && (
@@ -470,7 +476,7 @@ const SearchResults = ({
         {filteredTemplates.value.map((_, idx) => {
           const template = computed(() => filteredTemplates.value[idx])
           return (
-            <React.Fragment key={template.value.id}>
+            <Fragment key={template.value.id}>
               <FoodItemView
                 foodItem={computed(() => ({
                   ...createFoodItem({
@@ -505,7 +511,7 @@ const SearchResults = ({
                 }
                 nutritionalInfo={<FoodItemView.NutritionalInfo />}
               />
-            </React.Fragment>
+            </Fragment>
           )
         })}
       </div>

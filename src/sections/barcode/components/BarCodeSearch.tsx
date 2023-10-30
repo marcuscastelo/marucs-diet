@@ -3,15 +3,18 @@
 import FoodItemView from '@/sections/food-item/components/FoodItemView'
 import { searchFoodsByEan } from '@/legacy/controllers/food'
 import { Food } from '@/modules/diet/food/domain/food'
-import { useUserContext } from '@/sections/user/context/UserContext'
-import { createFoodItem } from '@/src/modules/diet/food-item/domain/foodItem'
-import { MacroNutrients } from '@/src/modules/diet/macro-nutrients/domain/macroNutrients'
+import { createFoodItem } from '@/modules/diet/food-item/domain/foodItem'
+import { MacroNutrients } from '@/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   Signal,
   computed,
   useSignal,
   useSignalEffect,
 } from '@preact/signals-react'
+import {
+  isFoodFavorite,
+  setFoodAsFavorite,
+} from '@/modules/user/application/user'
 
 export type BarCodeSearchProps = {
   barCode: Signal<string>
@@ -20,8 +23,6 @@ export type BarCodeSearchProps = {
 
 export default function BarCodeSearch({ barCode, food }: BarCodeSearchProps) {
   const loading = useSignal(false)
-
-  const { isFoodFavorite, setFoodAsFavorite } = useUserContext()
 
   const EAN_LENGTH = 13
 

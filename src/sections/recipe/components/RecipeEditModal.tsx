@@ -4,9 +4,9 @@ import { useEffect } from 'react'
 import {
   FoodItem,
   createFoodItem,
-} from '@/src/modules/diet/food-item/domain/foodItem'
+} from '@/modules/diet/food-item/domain/foodItem'
 import Modal, { ModalActions } from '@/sections/common/components/Modal'
-import { Recipe, createRecipe } from '@/src/modules/diet/recipe/domain/recipe'
+import { Recipe, createRecipe } from '@/modules/diet/recipe/domain/recipe'
 import RecipeEditView from '@/sections/recipe/components/RecipeEditView'
 import FoodItemEditModal from '@/sections/food-item/components/FoodItemEditModal'
 import {
@@ -14,7 +14,7 @@ import {
   useModalContext,
 } from '@/sections/common/context/ModalContext'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { TemplateItem } from '@/src/modules/diet/template-item/domain/templateItem'
+import { TemplateItem } from '@/modules/diet/template-item/domain/templateItem'
 import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
 import {
   ItemGroup,
@@ -28,7 +28,7 @@ import {
   useSignal,
   useSignalEffect,
 } from '@preact/signals-react'
-import { useUserId } from '@/sections/user/context/UserContext'
+import { currentUserId } from '@/modules/user/application/user'
 
 export type RecipeEditModalProps = {
   show?: boolean
@@ -48,7 +48,11 @@ export function RecipeEditModal({
   onRefetch,
 }: RecipeEditModalProps) {
   const { visible } = useModalContext()
-  const userId = useUserId()
+  const userId = currentUserId.value
+
+  if (userId === null) {
+    throw new Error('User is null')
+  }
 
   const recipe = useSignal(
     initialRecipe ??

@@ -1,4 +1,4 @@
-import { MacroProfile } from '@/src/modules/diet/macro-profile/domain/macroProfile'
+import { MacroProfile } from '@/modules/diet/macro-profile/domain/macroProfile'
 import { inForceGeneric } from '@/legacy/utils/generic/inForce'
 
 export function latestMacroProfile(

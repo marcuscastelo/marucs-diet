@@ -1,12 +1,12 @@
 import { New, enforceNew } from '@/legacy/utils/newDbRecord'
-import { getToday } from '@/src/legacy/utils/dateUtils'
+import { getToday } from '@/legacy/utils/dateUtils'
 import {
   DayDiet,
   DayIndex,
   dayDietSchema,
-} from '@/src/modules/diet/day-diet/domain/dayDiet'
-import { createSupabaseDayRepository } from '@/src/modules/diet/day-diet/infrastructure/supabaseDayRepository'
-import { User } from '@/src/modules/user/domain/user'
+} from '@/modules/diet/day-diet/domain/dayDiet'
+import { createSupabaseDayRepository } from '@/modules/diet/day-diet/infrastructure/supabaseDayRepository'
+import { User } from '@/modules/user/domain/user'
 import { computed, effect, signal } from '@preact/signals-react'
 
 const dayRepository = createSupabaseDayRepository()

@@ -1,6 +1,6 @@
 import { DayDiet, DayIndex } from '@/modules/diet/day-diet/domain/dayDiet'
 import { User } from '@/modules/user/domain/user'
-import { DbReady } from '@/src/legacy/utils/newDbRecord'
+import { DbReady } from '@/legacy/utils/newDbRecord'
 import { ReadonlySignal } from '@preact/signals-react'
 
 export interface DayRepository {

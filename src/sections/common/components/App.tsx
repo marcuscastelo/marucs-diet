@@ -7,115 +7,27 @@ import {
   FoodContextProvider,
   TemplateStore,
 } from '@/sections/template/context/TemplateContext'
-import {
-  UserContextProvider,
-  useUserContext,
-} from '@/sections/user/context/UserContext'
+
 import { listFoods, searchFoodsByName } from '@/legacy/controllers/food'
 import { fetchUserRecentFoods } from '@/legacy/controllers/recentFood'
 import { createSupabaseRecipeRepository } from '@/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
-import { Template } from '@/src/modules/diet/template/domain/template'
-import { WeightContextProvider } from '@/src/sections/weight/context/WeightContext'
-import { createSupabaseDayRepository } from '@/src/modules/diet/day-diet/infrastructure/supabaseDayRepository'
-import { MealContextProvider } from '@/src/sections/meal/context/MealContext'
-import { createDerivedMealRepository } from '@/src/modules/diet/meal/infrastructure/derivedMealRepository'
-import { computed } from '@preact/signals-react'
-import { createDerivedItemGroupRepository } from '@/src/modules/diet/item-group/infrastructure/derivedItemGroupRepository'
-import { ItemGroupContextProvider } from '@/src/sections/item-group/context/ItemGroupContext'
-import { createSupabaseWeightRepository } from '@/src/modules/weight/infrastructure/supabaseWeightRepository'
-import { dayDiets } from '@/src/modules/diet/day-diet/application/dayDiet'
-import { currentUser, updateUser } from '@/src/modules/user/application/user'
+import { Template } from '@/modules/diet/template/domain/template'
+import { ReactNode, Suspense } from 'react'
+import { currentUser } from '@/modules/user/application/user'
 
-export default function App({ children }: { children: React.ReactNode }) {
+export function App({ children }: { children: ReactNode }) {
   console.debug(`[App] - Rendering`)
 
   return (
-    <AppUserProvider>
-      <AppWeightProvider>
-        <AppHackyMealProvider>
-          <AppHackyItemGroupProvider>
-            <AppConfirmModalProvider>
-              <AppFoodsProvider>{children}</AppFoodsProvider>
-            </AppConfirmModalProvider>
-          </AppHackyItemGroupProvider>
-        </AppHackyMealProvider>
-      </AppWeightProvider>
-    </AppUserProvider>
+    <Suspense>
+      <AppConfirmModalProvider>
+        <AppFoodsProvider>{children}</AppFoodsProvider>
+      </AppConfirmModalProvider>
+    </Suspense>
   )
 }
 
-// TODO: Stop fetching user on server side and remove this provider
-function AppUserProvider({ children }: { children: React.ReactNode }) {
-  console.debug(`[AppUserProvider] - Rendering`)
-
-  if (currentUser.value === null) {
-    return <div>Usuário não definido</div>
-  }
-
-  return (
-    <UserContextProvider
-      user={currentUser.value}
-      onSaveUser={async (user) => {
-        await updateUser(user.id, user)
-      }}
-    >
-      {children}
-    </UserContextProvider>
-  )
-}
-
-// TODO: Remove this hacky provider when Meal is an entity in the DB
-/**
- * @deprecated Should be replaced by use cases
- */
-function AppHackyMealProvider({ children }: { children: React.ReactNode }) {
-  console.debug(`[AppHackyMealProvider] - Rendering`)
-
-  const dayRepository = createSupabaseDayRepository()
-
-  const mealRepository = computed(() => {
-    return createDerivedMealRepository(dayDiets, dayRepository)
-  })
-
-  return (
-    <MealContextProvider repository={mealRepository}>
-      {children}
-    </MealContextProvider>
-  )
-}
-
-// TODO: Remove this hacky provider when ItemGroup is an entity in the DB
-/**
- * @deprecated Should be replaced by use cases
- */
-function AppHackyItemGroupProvider({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  console.debug(`[AppHackyItemGroupProvider] - Rendering`)
-
-  const dayRepository = createSupabaseDayRepository()
-  const mealRepository = computed(() => {
-    return createDerivedMealRepository(dayDiets, dayRepository)
-  })
-
-  const itemGroupRepository = computed(() => {
-    if (mealRepository.value === null) {
-      return null
-    }
-
-    return createDerivedItemGroupRepository(dayDiets, mealRepository.value)
-  })
-
-  return (
-    <ItemGroupContextProvider repository={itemGroupRepository}>
-      {children}
-    </ItemGroupContextProvider>
-  )
-}
-
-function AppConfirmModalProvider({ children }: { children: React.ReactNode }) {
+function AppConfirmModalProvider({ children }: { children: ReactNode }) {
   console.debug(`[AppConfirmModalProvider] - Rendering`)
 
   return (
@@ -129,10 +41,13 @@ function AppConfirmModalProvider({ children }: { children: React.ReactNode }) {
 /**
  * @deprecated Should be replaced by use cases
  */
-function AppFoodsProvider({ children }: { children: React.ReactNode }) {
+function AppFoodsProvider({ children }: { children: ReactNode }) {
   console.debug(`[AppFoodsProvider] - Rendering`)
 
-  const { user } = useUserContext()
+  const user = currentUser.value
+  if (user === null) {
+    throw new Error(`User is null`)
+  }
 
   return (
     <FoodContextProvider
@@ -217,20 +132,5 @@ function AppFoodsProvider({ children }: { children: React.ReactNode }) {
     >
       {children}
     </FoodContextProvider>
-  )
-}
-
-/**
- * @deprecated Should be replaced by use cases
- */
-function AppWeightProvider({ children }: { children: React.ReactNode }) {
-  console.debug(`[AppWeightProvider] - Rendering`)
-
-  const repository = createSupabaseWeightRepository()
-
-  return (
-    <WeightContextProvider repository={repository}>
-      {children}
-    </WeightContextProvider>
   )
 }

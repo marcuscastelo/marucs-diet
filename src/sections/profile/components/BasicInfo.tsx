@@ -7,6 +7,7 @@ import { CapsuleContent } from '@/sections/common/components/capsule/CapsuleCont
 import { UserIcon } from '@/sections/common/components/UserIcon'
 import { Mutable } from '@/legacy/utils/typeUtils'
 import { useSignal, useSignalEffect } from '@preact/signals-react'
+import { ChangeEvent } from 'react'
 type Translation<T extends string> = { [key in T]: string }
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -58,7 +59,7 @@ export function BasicInfo({
     field: T,
     convert: (value: string) => User[T],
   ) => {
-    return async (event: React.ChangeEvent<HTMLInputElement>) => {
+    return async (event: ChangeEvent<HTMLInputElement>) => {
       event.preventDefault()
       const newUser = { ...user }
 
@@ -73,7 +74,7 @@ export function BasicInfo({
     field: T,
     convert: (value: string) => string,
   ) => {
-    return (event: React.ChangeEvent<HTMLInputElement>) => {
+    return (event: ChangeEvent<HTMLInputElement>) => {
       event.preventDefault()
       const newUser = { ...user }
 

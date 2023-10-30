@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { mealSchema } from '@/src/modules/diet/meal/domain/meal'
+import { mealSchema } from '@/modules/diet/meal/domain/meal'
 
 export const dayDietSchema = z.object({
   id: z.number(),

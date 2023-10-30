@@ -11,8 +11,8 @@ import {
 } from 'recharts'
 import { Measure } from '@/modules/measure/domain/measure'
 import { BodyFatInput, calculateBodyFat } from '@/legacy/utils/bfMath'
-import { useUserGender, useUserId } from '@/sections/user/context/UserContext'
-import { useWeightContext } from '@/src/sections/weight/context/WeightContext'
+import { userWeights } from '@/modules/weight/application/weight'
+import { currentUser } from '@/modules/user/application/user'
 type DayAverage = Omit<Measure, '__type' | 'id' | 'owner' | 'target_timestamp'>
 type DayMeasures = {
   date: string
@@ -21,15 +21,7 @@ type DayMeasures = {
 }
 
 export function MeasureChart({ measures }: { measures: Measure[] }) {
-  const userGender = useUserGender()
-
-  const { weights } = useWeightContext()
-
-  if (weights.value.loading || weights.value.errored) {
-    return <h1>Carregando pesos...</h1>
-  }
-
-  const weightsData = weights.value.data
+  const weightsData = userWeights.value
 
   const measuresByDay = measures.reduce(
     (acc, measure) => {
@@ -70,9 +62,14 @@ export function MeasureChart({ measures }: { measures: Measure[] }) {
         weightsOfTheDay.reduce((acc, weight) => acc + weight.weight, 0) /
         weightsOfTheDay.length
 
+      if (currentUser.value === null) {
+        console.log('currentUser.value === null')
+        throw new Error('currentUser.value === null')
+      }
+
       const dayBf = parseFloat(
         calculateBodyFat({
-          gender: userGender,
+          gender: currentUser.value?.gender,
           height: heightAverage,
           waist: waistAverage,
           hip: hipAverage,

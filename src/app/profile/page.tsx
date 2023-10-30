@@ -4,12 +4,11 @@ import { BasicInfo } from '@/sections/profile/components/BasicInfo'
 import { WeightEvolution } from '@/sections/weight/components/WeightEvolution'
 import { MeasuresEvolution } from '@/sections/profile/components/measure/MeasuresEvolution'
 
-import { MacroTarget } from '@/src/sections/macro-nutrients/components/MacroTargets'
-import { revalidatePath } from 'next/cache'
+import { MacroTarget } from '@/sections/macro-nutrients/components/MacroTargets'
 import { MacroEvolution } from '@/sections/macro-profile/components/MacroEvolution'
 import { latestWeight } from '@/legacy/utils/weightUtils'
 import { User } from '@/modules/user/domain/user'
-import { MacroProfile } from '@/src/modules/diet/macro-profile/domain/macroProfile'
+import { MacroProfile } from '@/modules/diet/macro-profile/domain/macroProfile'
 import {
   insertMacroProfile,
   updateMacroProfile,
@@ -21,21 +20,16 @@ import {
   currentUser,
   currentUserId,
   updateUser,
-} from '@/src/modules/user/application/user'
-import { useWeightContext } from '@/src/sections/weight/context/WeightContext'
-import { useMacroProfiles } from '@/src/sections/macro-profile/hooks/useMacroProfiles'
-import PageLoading from '@/src/sections/common/components/PageLoading'
+} from '@/modules/user/application/user'
+import { useMacroProfiles } from '@/sections/macro-profile/hooks/useMacroProfiles'
+import PageLoading from '@/sections/common/components/PageLoading'
+import { userWeights } from '@/modules/weight/application/weight'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
 
-export const revalidate = 1
-export const dynamic = 'force-dynamic'
-export const fetchCache = 'force-no-store'
-
 export default function Page() {
-  const { weights } = useWeightContext()
   const { macroProfiles } = useMacroProfiles(currentUserId.value ?? 3)
 
   if (currentUserId.value === null) {
@@ -43,15 +37,11 @@ export default function Page() {
     throw new Error('User not defined')
   }
 
-  if (weights.value.loading || weights.value.errored) {
-    return <PageLoading message="Carregando pesos" />
-  }
-
   if (macroProfiles.value.loading || macroProfiles.value.errored) {
     return <PageLoading message="Carregando perfis de macro" />
   }
 
-  const weight = latestWeight(weights.value.data)?.weight
+  const weight = latestWeight(userWeights.value)?.weight
 
   const macroProfile = latestMacroProfile(macroProfiles.value.data)
 
@@ -67,7 +57,7 @@ export default function Page() {
       gramsPerKgProtein: 2,
       gramsPerKgFat: 1,
     }).then(() => {
-      revalidatePath('/')
+      // revalidatePath('/')
     })
     return (
       <>

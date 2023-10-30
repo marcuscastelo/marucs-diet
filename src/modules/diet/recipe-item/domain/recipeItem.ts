@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { macroNutrientsSchema } from '@/src/modules/diet/macro-nutrients/domain/macroNutrients'
+import { macroNutrientsSchema } from '@/modules/diet/macro-nutrients/domain/macroNutrients'
 import { generateId } from '@/legacy/utils/idUtils'
 
 export const recipeItemSchema = z.object({

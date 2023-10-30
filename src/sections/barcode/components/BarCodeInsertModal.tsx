@@ -6,6 +6,7 @@ import { BarCodeReader } from '@/sections/barcode/components/BarCodeReader'
 import BarCodeSearch from '@/sections/barcode/components/BarCodeSearch'
 import { useModalContext } from '@/sections/common/context/ModalContext'
 import { useSignal } from '@preact/signals-react'
+import { SyntheticEvent } from 'react'
 
 export type BarCodeInsertModalProps = {
   onSelect: (apiFood: Food) => void
@@ -17,7 +18,7 @@ const BarCodeInsertModal = ({ onSelect }: BarCodeInsertModalProps) => {
   const barCode = useSignal<string>('')
   const food = useSignal<Food | null>(null)
 
-  const handleSelect = async (e?: React.SyntheticEvent) => {
+  const handleSelect = async (e?: SyntheticEvent) => {
     e?.preventDefault()
 
     if (!food.value) {

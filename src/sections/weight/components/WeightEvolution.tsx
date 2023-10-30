@@ -1,10 +1,5 @@
 'use client'
 
-import {
-  useUserDesiredWeight,
-  useUserId,
-} from '@/sections/user/context/UserContext'
-
 import { Weight, createWeight } from '@/modules/weight/domain/weight'
 import Capsule from '@/sections/common/components/capsule/Capsule'
 import TrashIcon from '@/sections/common/components/icons/TrashIcon'
@@ -22,28 +17,28 @@ import {
   latestWeight,
 } from '@/legacy/utils/weightUtils'
 import { computed } from '@preact/signals-react'
-import { useWeightContext } from '@/src/sections/weight/context/WeightContext'
+import { currentUser, currentUserId } from '@/modules/user/application/user'
+import {
+  deleteWeight,
+  insertWeight,
+  updateWeight,
+  userWeights,
+} from '@/modules/weight/application/weight'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
 
 export function WeightEvolution({ onSave }: { onSave: () => void }) {
-  const userId = useUserId()
-  const desiredWeight = useUserDesiredWeight()
-
-  const { weights, insertWeight } = useWeightContext()
+  const userId = currentUserId.value
+  const desiredWeight = currentUser.value?.desired_weight ?? 0
 
   const weightField = useFloatField(undefined, {
     maxValue: 200,
   })
 
-  if (weights.value.loading || weights.value.errored) {
-    return <h1>Carregando...</h1>
-  }
-
   const weightProgress = calculateWeightProgress(
-    weights.value.data,
+    userWeights.value,
     desiredWeight,
   )
 
@@ -73,6 +68,11 @@ export function WeightEvolution({ onSave }: { onSave: () => void }) {
                 return
               }
 
+              if (userId === null) {
+                alert('Usuário é nulo') // TODO: Change all alerts with ConfirmModal
+                return
+              }
+
               insertWeight(
                 createWeight({
                   owner: userId,
@@ -89,12 +89,12 @@ export function WeightEvolution({ onSave }: { onSave: () => void }) {
         </div>
         {/* // TODO: Create combo box to select weight chart variant (7 days or all time)  */}
         <WeightChart
-          weights={weights.value.data}
+          weights={userWeights.value}
           desiredWeight={desiredWeight}
           type="all-time"
         />
         <div className="mx-5 lg:mx-20 pb-10">
-          {[...weights.value.data]
+          {[...userWeights.value]
             .reverse()
             .slice(0, 10)
             .map((weight) => {
@@ -102,7 +102,7 @@ export function WeightEvolution({ onSave }: { onSave: () => void }) {
                 <WeightView key={weight.id} weight={weight} onSave={onSave} />
               )
             })}
-          {weights.value.data.length === 0 && 'Não há pesos registrados'}
+          {userWeights.value.length === 0 && 'Não há pesos registrados'}
         </div>
       </div>
     </>
@@ -116,8 +116,6 @@ function WeightView({
   weight: Weight
   onSave: () => void
 }) {
-  const { updateWeight, deleteWeight } = useWeightContext()
-
   const targetTimestampSignal = computed(() => weight.target_timestamp)
   const dateField = useDateField(targetTimestampSignal)
 
