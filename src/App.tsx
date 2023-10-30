@@ -1,4 +1,4 @@
-import { BottomNavigation } from '@/sections/common/components/BottomNavigation'
+import { BackIcon } from '@/sections/common/components/BackIcon'
 import { ConfirmModalProvider } from '@/sections/common/context/ConfirmModalContext'
 
 function App () {
@@ -6,7 +6,7 @@ function App () {
     <>
       <ConfirmModalProvider>
         <h1 class='text-lg'>Oi</h1>
-        <BottomNavigation />
+        <BackIcon />
       </ConfirmModalProvider>
     </>
   )
