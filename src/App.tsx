@@ -1,10 +1,12 @@
 import { BackIcon } from '@/sections/common/components/BackIcon'
 import ConfirmModal from '@/sections/common/components/ConfirmModal'
+import { FloatInput } from '@/sections/common/components/FloatInput'
 import LoadingRing from '@/sections/common/components/LoadingRing'
 import Modal, { ModalHeader } from '@/sections/common/components/Modal'
 import PageLoading from '@/sections/common/components/PageLoading'
 import { ConfirmModalProvider, useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { ModalContextProvider } from '@/sections/common/context/ModalContext'
+import { useFloatField } from '@/sections/common/hooks/useField'
 import { createEffect, createSignal } from 'solid-js'
 
 function App () {
@@ -15,13 +17,23 @@ function App () {
         <h1 class='text-lg'>Oi</h1>
         <button class="btn">Hello daisyUI</button>
         <BackIcon />
-        <LoadingRing />
-        <PageLoading message='Carregando bugigangas'/>
-
+        <TestField />
         <TestModal />
         <TestConfirmModal />
+        <LoadingRing />
+        <PageLoading message='Carregando bugigangas'/>
       </ConfirmModalProvider>
     </>
+  )
+}
+
+function TestField () {
+  const testField = useFloatField(() => 0, {
+    decimalPlaces: 2
+  })
+
+  return (
+    <FloatInput field={testField}/>
   )
 }
 
