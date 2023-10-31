@@ -1,5 +1,6 @@
 import { BackIcon } from '@/sections/common/components/BackIcon'
 import ConfirmModal from '@/sections/common/components/ConfirmModal'
+import LoadingRing from '@/sections/common/components/LoadingRing'
 import Modal, { ModalHeader } from '@/sections/common/components/Modal'
 import { ConfirmModalProvider, useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { ModalContextProvider } from '@/sections/common/context/ModalContext'
@@ -13,6 +14,8 @@ function App () {
         <h1 class='text-lg'>Oi</h1>
         <button class="btn">Hello daisyUI</button>
         <BackIcon />
+        <LoadingRing />
+
         <TestModal />
         <TestConfirmModal />
       </ConfirmModalProvider>
