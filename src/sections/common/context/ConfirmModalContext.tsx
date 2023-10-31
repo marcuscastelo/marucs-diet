@@ -1,4 +1,4 @@
-import { type JSXElement, type Accessor, createContext, useContext, createSignal } from 'solid-js'
+import { type JSXElement, type Accessor, createContext, useContext, createSignal, type Setter } from 'solid-js'
 
 type Title = JSXElement
 type Body = JSXElement
@@ -12,6 +12,7 @@ interface ConfirmAction {
 export interface ConfirmModalContext {
   internals: {
     visible: Accessor<boolean>
+    setVisible: Setter<boolean>
     title: Accessor<Title>
     body: Accessor<Body>
     actions: Accessor<ConfirmAction[]>
@@ -68,6 +69,7 @@ export function ConfirmModalProvider (props: {
   const context: ConfirmModalContext = {
     internals: {
       visible,
+      setVisible,
       title,
       body,
       actions // TODO: Propagate signal
