@@ -10,11 +10,11 @@ export const stringToDate = (
   day: string | Date,
   extras?: {
     keepTime?: boolean
-  },
+  }
 ) => {
   const date = new Date(day)
 
-  if (extras?.keepTime) {
+  if (extras?.keepTime === undefined || extras.keepTime) {
     return date
   }
 
