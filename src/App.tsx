@@ -2,6 +2,7 @@ import { BackIcon } from '@/sections/common/components/BackIcon'
 import ConfirmModal from '@/sections/common/components/ConfirmModal'
 import LoadingRing from '@/sections/common/components/LoadingRing'
 import Modal, { ModalHeader } from '@/sections/common/components/Modal'
+import PageLoading from '@/sections/common/components/PageLoading'
 import { ConfirmModalProvider, useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { ModalContextProvider } from '@/sections/common/context/ModalContext'
 import { createEffect, createSignal } from 'solid-js'
@@ -15,6 +16,7 @@ function App () {
         <button class="btn">Hello daisyUI</button>
         <BackIcon />
         <LoadingRing />
+        <PageLoading message='Carregando bugigangas'/>
 
         <TestModal />
         <TestConfirmModal />
