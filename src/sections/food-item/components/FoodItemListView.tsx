@@ -9,7 +9,7 @@ import {
 } from '@/sections/food-item/components/FoodItemView'
 import { mergeProps, type Accessor } from 'solid-js'
 
-export default function FoodItemListView (_props: {
+export function FoodItemListView (_props: {
   foodItems: Accessor<readonly FoodItem[]>
   onItemClick: FoodItemViewProps['onClick']
   makeHeaderFn?: (item: FoodItem) => FoodItemViewProps['header']

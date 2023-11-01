@@ -16,12 +16,12 @@ export interface ModalProps {
    */
   actions?: JSXElement
   hasBackdrop?: boolean
-  className?: string
+  class?: string
 }
 
 let modalId = 1
 
-const Modal = (_props: ModalProps) => {
+export const Modal = (_props: ModalProps) => {
   const props = mergeProps({ hasBackdrop: true, className: '' }, _props)
   const { visible, setVisible } = useModalContext()
 
@@ -53,7 +53,7 @@ const Modal = (_props: ModalProps) => {
       onClose={handleClose}
       onCancel={handleClose}
     >
-      <div class={cn('modal-box bg-gray-800 text-white', props.className)}>
+      <div class={cn('modal-box bg-gray-800 text-white', props.class)}>
         {props.header}
         {props.body}
         {props.actions}
@@ -109,5 +109,3 @@ export function ModalBody () {
 export function ModalActions (props: { children: JSXElement }) {
   return <div class="modal-action">{props.children}</div>
 }
-
-export default Modal

@@ -1,4 +1,4 @@
-import Modal, { ModalActions, ModalHeader } from '@/sections/common/components/Modal'
+import { Modal, ModalActions, ModalHeader } from '@/sections/common/components/Modal'
 import { ModalContextProvider } from '@/sections/common/context/ModalContext'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { For } from 'solid-js'
