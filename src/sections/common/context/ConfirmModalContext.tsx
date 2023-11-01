@@ -3,13 +3,13 @@ import { type JSXElement, type Accessor, createContext, useContext, createSignal
 type Title = JSXElement
 type Body = JSXElement
 
-interface ConfirmAction {
+type ConfirmAction = {
   text: string
   onClick: () => void
   primary?: boolean
 }
 
-export interface ConfirmModalContext {
+export type ConfirmModalContext = {
   internals: {
     visible: Accessor<boolean>
     setVisible: Setter<boolean>

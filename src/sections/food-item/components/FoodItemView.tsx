@@ -16,7 +16,7 @@ import { type JSXElement, type Accessor, createSignal, createEffect } from 'soli
 // TODO: Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
 
-export interface FoodItemViewProps {
+export type FoodItemViewProps = {
   foodItem: Accessor<TemplateItem>
   header?: JSXElement
   nutritionalInfo?: JSXElement
@@ -45,7 +45,7 @@ export function FoodItemView (props: FoodItemViewProps) {
   )
 }
 
-export interface FoodItemHeaderProps {
+export type FoodItemHeaderProps = {
   name?: JSXElement
   favorite?: JSXElement
   copyButton?: JSXElement

@@ -15,7 +15,7 @@ import { type JSXElement, type Accessor, createSignal, createEffect } from 'soli
 // TODO: Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
 
-export interface ItemGroupViewProps {
+export type ItemGroupViewProps = {
   itemGroup: Accessor<ItemGroup>
   header?: JSXElement
   nutritionalInfo?: JSXElement
@@ -44,7 +44,7 @@ export default function ItemGroupView (props: ItemGroupViewProps) {
   )
 }
 
-export interface ItemGroupViewHeaderProps {
+export type ItemGroupViewHeaderProps = {
   name?: JSXElement
   copyButton?: JSXElement
 }

@@ -10,7 +10,7 @@ import {
 } from '@/modules/user/application/user'
 import { type Accessor, createSignal, createEffect, type Setter, Show } from 'solid-js'
 
-export interface BarCodeSearchProps {
+export type BarCodeSearchProps = {
   barCode: Accessor<string>
   setBarCode: Setter<string>
   food: Accessor<Food | null>

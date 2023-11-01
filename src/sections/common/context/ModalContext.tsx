@@ -1,6 +1,6 @@
 import { type JSXElement, createContext, useContext, createSignal, createEffect, type Accessor, type Setter } from 'solid-js'
 
-interface ModalContext {
+type ModalContext = {
   visible: Accessor<boolean>
   setVisible: (value: boolean) => void
 }

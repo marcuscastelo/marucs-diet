@@ -1,8 +1,8 @@
-import { z } from 'zod'
+import { type z } from 'zod'
 
-export function deserializeClipboard<T extends z.ZodType>(
+export function deserializeClipboard<T extends z.ZodType> (
   clipboard: string,
-  allowedSchema: T,
+  allowedSchema: T
 ): z.infer<T> | null {
   const parsed = JSON.parse(clipboard)
   const result = allowedSchema.safeParse(parsed)

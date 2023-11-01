@@ -14,7 +14,7 @@ import {
 } from '@/modules/user/application/user'
 import { mergeProps, type Accessor, createSignal, createEffect, untrack, type Setter, For } from 'solid-js'
 
-export interface FoodItemEditModalProps {
+export type FoodItemEditModalProps = {
   targetName: string
   targetNameColor?: string
   foodItem: Accessor<

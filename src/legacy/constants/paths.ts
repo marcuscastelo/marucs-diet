@@ -2,7 +2,7 @@
 export const paths = {
   HOME: '/',
   TODAY: '/diet',
-  DAY: '/diet/[dayId]',
+  DAY: '/diet/[dayId]'
 } as const
 
 export type PathName = keyof typeof paths

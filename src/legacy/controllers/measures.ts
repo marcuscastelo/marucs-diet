@@ -1,11 +1,11 @@
-import { Measure, measureSchema } from '@/modules/measure/domain/measure'
-import { User } from '@/modules/user/domain/user'
-import { DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
+import { type Measure, measureSchema } from '@/modules/measure/domain/measure'
+import { type User } from '@/modules/user/domain/user'
+import { type DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
 import supabase from '@/legacy/utils/supabase'
 
 const TABLE = 'body_measures'
 
-export async function fetchUserMeasures(userId: User['id']) {
+export async function fetchUserMeasures (userId: User['id']) {
   const { data, error } = await supabase
     .from(TABLE)
     .select('*')
@@ -20,7 +20,7 @@ export async function fetchUserMeasures(userId: User['id']) {
   return measureSchema.array().parse(data)
 }
 
-export async function insertMeasure(newMeasure: DbReady<Measure>) {
+export async function insertMeasure (newMeasure: DbReady<Measure>) {
   const measure = enforceDbReady(newMeasure)
   const { data, error } = await supabase.from(TABLE).insert(measure).select()
 
@@ -32,9 +32,9 @@ export async function insertMeasure(newMeasure: DbReady<Measure>) {
   return measureSchema.parse(data?.[0])
 }
 
-export async function updateMeasure(
+export async function updateMeasure (
   measureId: Measure['id'],
-  newMeasure: DbReady<Measure>,
+  newMeasure: DbReady<Measure>
 ) {
   const measure = enforceDbReady(newMeasure)
   const { data, error } = await supabase
@@ -51,7 +51,7 @@ export async function updateMeasure(
   return measureSchema.parse(data?.[0])
 }
 
-export async function deleteMeasure(id: Measure['id']) {
+export async function deleteMeasure (id: Measure['id']) {
   const { error } = await supabase.from(TABLE).delete().eq('id', id)
 
   if (error) {
