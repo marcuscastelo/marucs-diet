@@ -1,4 +1,4 @@
-const TrashIcon = () => (
+export const TrashIcon = () => (
   <svg
     class="bi bi-trash"
     xmlns="http://www.w3.org/2000/svg"
@@ -19,5 +19,3 @@ const TrashIcon = () => (
      />{' '}
   </svg>
 )
-
-export default TrashIcon

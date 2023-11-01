@@ -1,6 +1,6 @@
 import MacroNutrientsView from '@/sections/macro-nutrients/components/MacroNutrientsView'
 import { type MacroNutrients } from '@/modules/diet/macro-nutrients/domain/macroNutrients'
-import CopyIcon from '@/sections/common/components/icons/CopyIcon'
+import { CopyIcon } from '@/sections/common/components/icons/CopyIcon'
 import {
   type ItemGroup,
   isSimpleSingleGroup

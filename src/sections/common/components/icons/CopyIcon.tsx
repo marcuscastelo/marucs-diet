@@ -1,4 +1,4 @@
-const CopyIcon = () => (
+export const CopyIcon = () => (
   <svg
     version="1.1"
     id="Layer_1"
@@ -18,5 +18,3 @@ const CopyIcon = () => (
     </g>
   </svg>
 )
-
-export default CopyIcon

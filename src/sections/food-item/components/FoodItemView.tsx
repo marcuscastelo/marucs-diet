@@ -4,7 +4,7 @@ import {
   FoodItemContextProvider,
   useFoodItemContext
 } from '@/sections/food-item/context/FoodItemContext'
-import CopyIcon from '@/sections/common/components/icons/CopyIcon'
+import { CopyIcon } from '@/sections/common/components/icons/CopyIcon'
 import { searchFoodById } from '@/legacy/controllers/food'
 import { calcItemCalories } from '@/legacy/utils/macroMath'
 import { type TemplateItem } from '@/modules/diet/template-item/domain/templateItem'
