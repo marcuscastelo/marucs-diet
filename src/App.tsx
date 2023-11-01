@@ -8,6 +8,7 @@ import PageLoading from '@/sections/common/components/PageLoading'
 import { ConfirmModalProvider, useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { ModalContextProvider } from '@/sections/common/context/ModalContext'
 import { useFloatField } from '@/sections/common/hooks/useField'
+import MacroNutrientsView from '@/sections/macro-nutrients/components/MacroNutrientsView'
 import { createEffect, createSignal } from 'solid-js'
 
 function App () {
@@ -19,6 +20,7 @@ function App () {
 
         <h1 class='text-lg'>Oi</h1>
         <button class="btn">Hello daisyUI</button>
+        <MacroNutrientsView carbs={10} protein={10} fat={10} />
         <DatePicker/>
         <BackIcon />
         <TestField />
