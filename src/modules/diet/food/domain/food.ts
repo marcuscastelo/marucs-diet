@@ -1,12 +1,12 @@
 import { macroNutrientsSchema } from '@/modules/diet/macro-nutrients/domain/macroNutrients'
 import { z } from 'zod'
-import { New, enforceNew } from '@/legacy/utils/newDbRecord'
+import { type New, enforceNew } from '@/legacy/utils/newDbRecord'
 export const foodSchema = z.object({
   id: z.number(),
   source: z
     .object({
       type: z.literal('api'),
-      id: z.string(),
+      id: z.string()
     })
     .nullable()
     .transform((val) => val ?? undefined)
@@ -27,13 +27,13 @@ export const foodSchema = z.object({
     .string()
     .nullable()
     .optional()
-    .transform(() => 'Food' as const),
+    .transform(() => 'Food' as const)
 })
 
 export type Food = Readonly<z.infer<typeof foodSchema>>
 
 // TODO: Make createFood function more than a mock
-export function createFood({ name }: { name: string }): New<Food> {
+export function createFood ({ name }: { name: string }): New<Food> {
   return enforceNew(
     foodSchema.parse({
       __type: 'Food',
@@ -42,8 +42,8 @@ export function createFood({ name }: { name: string }): New<Food> {
       macros: {
         protein: 1234,
         carbs: 4321,
-        fat: 666,
-      },
-    } satisfies Food),
+        fat: 666
+      }
+    } satisfies Food)
   )
 }

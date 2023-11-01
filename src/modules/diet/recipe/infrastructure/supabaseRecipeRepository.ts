@@ -1,24 +1,24 @@
-import { Recipe } from '@/modules/diet/recipe/domain/recipe'
-import { User } from '@/modules/user/domain/user'
-import { DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
+import { type Recipe } from '@/modules/diet/recipe/domain/recipe'
+import { type User } from '@/modules/user/domain/user'
+import { type DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
 import supabase from '@/legacy/utils/supabase'
-import { Mutable } from '@/legacy/utils/typeUtils'
-import { RecipeRepository } from '@/modules/diet/recipe/domain/recipeRepository'
+import { type Mutable } from '@/legacy/utils/typeUtils'
+import { type RecipeRepository } from '@/modules/diet/recipe/domain/recipeRepository'
 import {
   createRecipeFromDAO,
-  recipeDAOSchema,
+  recipeDAOSchema
 } from '@/modules/diet/recipe/infrastructure/recipeDAO'
 
 const TABLE = 'recipes'
 
-export function createSupabaseRecipeRepository(): RecipeRepository {
+export function createSupabaseRecipeRepository (): RecipeRepository {
   return {
     fetchUserRecipes,
     fetchRecipeById,
     fetchRecipeByName,
     insertRecipe: upsertRecipe,
     updateRecipe,
-    deleteRecipe,
+    deleteRecipe
   }
 }
 
@@ -29,7 +29,7 @@ const fetchUserRecipes = async (userId: User['id']): Promise<Recipe[]> => {
     .select()
     .eq('owner', userId)
 
-  if (error) {
+  if (error !== null) {
     console.error(error)
     throw error
   }
@@ -43,7 +43,7 @@ const fetchUserRecipes = async (userId: User['id']): Promise<Recipe[]> => {
 const fetchRecipeById = async (id: Recipe['id']): Promise<Recipe | null> => {
   const { data, error } = await supabase.from(TABLE).select().eq('id', id)
 
-  if (error) {
+  if (error !== null) {
     console.error(error)
     throw error
   }
@@ -56,7 +56,7 @@ const fetchRecipeById = async (id: Recipe['id']): Promise<Recipe | null> => {
 
 const fetchRecipeByName = async (
   userId: User['id'],
-  name: Recipe['name'],
+  name: Recipe['name']
 ): Promise<Recipe[]> => {
   const { data, error } = await supabase
     .from(TABLE)
@@ -64,7 +64,7 @@ const fetchRecipeByName = async (
     .eq('owner', userId)
     .eq('name', name)
 
-  if (error) {
+  if (error !== null) {
     console.error(error)
     throw error
   }
@@ -76,7 +76,7 @@ const fetchRecipeByName = async (
 }
 
 const upsertRecipe = async (
-  newRecipe: DbReady<Recipe>,
+  newRecipe: DbReady<Recipe>
 ): Promise<Recipe | null> => {
   // TODO: Remove macros field from recipe type, it should be calculated from items only locally
   delete (newRecipe as Partial<Mutable<Recipe>>).macros
@@ -85,7 +85,7 @@ const upsertRecipe = async (
 
   const { data, error } = await supabase.from(TABLE).upsert(recipe).select()
 
-  if (error) {
+  if (error !== null) {
     console.error(error)
     throw error
   }
@@ -98,7 +98,7 @@ const upsertRecipe = async (
 
 const updateRecipe = async (
   id: Recipe['id'],
-  newRecipe: DbReady<Recipe>,
+  newRecipe: DbReady<Recipe>
 ): Promise<Recipe> => {
   const recipe = enforceDbReady(newRecipe)
 
@@ -113,7 +113,7 @@ const updateRecipe = async (
     .eq('id', id)
     .select()
 
-  if (error) {
+  if (error !== null) {
     console.error(error)
     throw error
   }
@@ -131,7 +131,7 @@ const deleteRecipe = async (id: Recipe['id']): Promise<Recipe> => {
     .eq('id', id)
     .select()
 
-  if (error) {
+  if (error !== null) {
     console.error(error)
     throw error
   }

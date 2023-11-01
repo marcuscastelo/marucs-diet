@@ -8,7 +8,7 @@ import PageLoading from '@/sections/common/components/PageLoading'
 import { ConfirmModalProvider, useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { ModalContextProvider } from '@/sections/common/context/ModalContext'
 import { useFloatField } from '@/sections/common/hooks/useField'
-import MacroNutrientsView from '@/sections/macro-nutrients/components/MacroNutrientsView'
+import FoodItemView, { FoodItemCopyButton, FoodItemFavorite, FoodItemHeader, FoodItemName, FoodItemNutritionalInfo } from '@/sections/food-item/components/FoodItemView'
 import { createEffect, createSignal } from 'solid-js'
 
 function App () {
@@ -20,7 +20,34 @@ function App () {
 
         <h1 class='text-lg'>Oi</h1>
         <button class="btn">Hello daisyUI</button>
-        <MacroNutrientsView carbs={10} protein={10} fat={10} />
+        <FoodItemView
+          foodItem={() => ({
+            __type: 'FoodItem',
+            id: 1,
+            macros: {
+              carbs: 10,
+              protein: 12,
+              fat: 10
+            },
+            name: 'Teste',
+            quantity: 100,
+            reference: 31606
+          })}
+          header={
+            <FoodItemHeader
+              name={<FoodItemName/>}
+              copyButton={<FoodItemCopyButton
+              onCopyItem={(item) => { console.debug(item) }}/>}
+              favorite={<FoodItemFavorite
+                favorite={true}
+                onSetFavorite={(favorite) => { console.debug(favorite) }}
+              />}
+            />
+          }
+          nutritionalInfo={
+            <FoodItemNutritionalInfo/>
+          }
+          />
         <DatePicker/>
         <BackIcon />
         <TestField />

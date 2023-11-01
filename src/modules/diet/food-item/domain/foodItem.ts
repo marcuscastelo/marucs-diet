@@ -12,17 +12,17 @@ export const foodItemSchema = z.object({
     .string()
     .nullable()
     .optional()
-    .transform(() => 'FoodItem' as const),
+    .transform(() => 'FoodItem' as const)
 })
 
 // TODO: Rename to Item
 export type FoodItem = Readonly<z.infer<typeof foodItemSchema>>
 
-export function createFoodItem({
+export function createFoodItem ({
   name,
   reference,
   quantity = 0,
-  macros = {},
+  macros = {}
 }: {
   name: string
   reference: number
@@ -38,7 +38,7 @@ export function createFoodItem({
     macros: {
       protein: macros.protein ?? 0,
       carbs: macros.carbs ?? 0,
-      fat: macros.fat ?? 0,
-    },
+      fat: macros.fat ?? 0
+    }
   } satisfies FoodItem)
 }

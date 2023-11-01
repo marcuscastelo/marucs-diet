@@ -1,5 +1,5 @@
 import supabase from '@/legacy/utils/supabase'
-import { CachedEan } from '@/legacy/model/cachedEan'
+import { type CachedEan } from '@/legacy/model/cachedEan'
 
 const TABLE = 'foods'
 
@@ -10,7 +10,7 @@ export const isEanCached = async (ean: CachedEan['ean']) => {
     .from(TABLE)
     .select()
     .eq('ean', ean.toLowerCase())
-  if (foodsWithEan.error) {
+  if (foodsWithEan.error !== null) {
     console.error(foodsWithEan.error)
     throw foodsWithEan.error
   }
