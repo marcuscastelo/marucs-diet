@@ -68,7 +68,7 @@ function App () {
         <h1>FoodItemListView</h1>
         <FoodItemListView
           foodItems={() => group().items}
-          onItemClick={(item) => { setFoodItemEditModalVisible(true) }}
+          onItemClick={() => { setFoodItemEditModalVisible(true) }}
         />
         <h1>ItemGroupView</h1>
         <ItemGroupView
