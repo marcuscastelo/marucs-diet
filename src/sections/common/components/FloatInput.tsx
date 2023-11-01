@@ -36,6 +36,7 @@ export function FloatInput (props: {
 
   return (
     <input
+      {...props}
       value={props.field.rawValue()}
       onChange={handleOnChange}
       onBlur={handleOnBlur}

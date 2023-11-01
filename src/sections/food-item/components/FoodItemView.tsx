@@ -20,7 +20,7 @@ export interface FoodItemViewProps {
   foodItem: Accessor<TemplateItem>
   header?: JSXElement
   nutritionalInfo?: JSXElement
-  className?: string
+  class?: string
   onClick?: (foodItem: TemplateItem) => void
 }
 
@@ -33,7 +33,7 @@ export function FoodItemView (props: FoodItemViewProps) {
 
   return (
     <div
-      class={`meal-item block rounded-lg border border-gray-700 bg-gray-700 p-3 shadow hover:cursor-pointer hover:bg-gray-700 ${props.className ?? ''
+      class={`meal-item block rounded-lg border border-gray-700 bg-gray-700 p-3 shadow hover:cursor-pointer hover:bg-gray-700 ${props.class ?? ''
         }`}
       onClick={handleClick}
     >
