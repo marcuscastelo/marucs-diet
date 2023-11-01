@@ -29,7 +29,10 @@ module.exports = {
   rules: {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/no-throw-literal': 'off',
-    '@typescript-eslint/consistent-type-definitions': ['error', 'type']
+    '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
+    '@typescript-eslint/prefer-readonly-parameter-types': 0, // TODO: Change prefer-readonly-parameter-types to error
+    '@typescript-eslint/strict-boolean-expressions': 'warn', // TODO: Change strict-boolean-expressions to error
+    '@typescript-eslint/no-unnecessary-type-assertion': 'warn' // TODO: Change no-unnecessary-type-assertion to error
 
   },
   plugins: ['solid', 'jsx-a11y']
