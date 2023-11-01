@@ -1,6 +1,8 @@
 import { type FoodItem } from '@/modules/diet/food-item/domain/foodItem'
+import { type Food } from '@/modules/diet/food/domain/food'
 import { type ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
 import { BarCodeReader } from '@/sections/barcode/components/BarCodeReader'
+import BarCodeSearch from '@/sections/barcode/components/BarCodeSearch'
 import { BackIcon } from '@/sections/common/components/BackIcon'
 import ConfirmModal from '@/sections/common/components/ConfirmModal'
 import { DatePicker } from '@/sections/common/components/Datepicker'
@@ -47,6 +49,8 @@ function App () {
     })
   })
 
+  const [barCode, setBarCode] = createSignal('')
+  const [food, setFood] = createSignal<Food | null>(null)
   return (
     <>
       <ConfirmModalProvider>
@@ -86,9 +90,8 @@ function App () {
           }
         />
 
-        <BarCodeReader id='123' onScanned={(barcode) => {
-          alert(barcode)
-        }}/>
+        <BarCodeReader id='123' onScanned={setBarCode}/>
+        <BarCodeSearch barCode={barCode} setBarCode={setBarCode} food={food} setFood={setFood} />
         <DatePicker />
         <BackIcon />
         <TestField />
