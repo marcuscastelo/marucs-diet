@@ -17,7 +17,7 @@ export async function fetchRecentFoodByUserIdAndFoodId (
     .eq('user_id', userId)
     .eq('food_id', foodId)
 
-  if (error) {
+  if (error !== null) {
     console.error(error)
     throw error
   }
@@ -32,7 +32,7 @@ export async function fetchUserRecentFoods (userId: RecentFood['user_id']) {
     .eq('user_id', userId)
     .order('last_used', { ascending: false })
 
-  if (error) {
+  if (error !== null) {
     console.error(error)
     throw error
   }
@@ -44,7 +44,7 @@ export async function insertRecentFood (newRecentFood: DbReady<RecentFood>) {
   const recentFood = enforceDbReady(newRecentFood)
   const { data, error } = await supabase.from(TABLE).insert(recentFood).select()
 
-  if (error) {
+  if (error !== null) {
     console.error(error)
     throw error
   }
@@ -63,7 +63,7 @@ export async function updateRecentFood (
     .eq('id', recentFoodId)
     .select()
 
-  if (error) {
+  if (error !== null) {
     console.error(error)
     throw error
   }
@@ -74,7 +74,7 @@ export async function updateRecentFood (
 export async function deleteRecentFood (id: RecentFood['id']) {
   const { error } = await supabase.from(TABLE).delete().eq('id', id)
 
-  if (error) {
+  if (error !== null) {
     console.error(error)
     throw error
   }
