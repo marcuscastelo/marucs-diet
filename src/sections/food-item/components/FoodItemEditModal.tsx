@@ -1,5 +1,3 @@
-'use client'
-
 import { FoodItemFavorite, FoodItemHeader, FoodItemName, FoodItemNutritionalInfo, FoodItemView } from '@/sections/food-item/components/FoodItemView'
 import { type FoodItem } from '@/modules/diet/food-item/domain/foodItem'
 import { Modal, ModalActions } from '@/sections/common/components/Modal'
