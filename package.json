@@ -11,11 +11,13 @@
   "dependencies": {
     "@solidjs/router": "^0.8.3",
     "@supabase/supabase-js": "^2.38.4",
+    "apexcharts": "^3.44.0",
     "axios": "^1.6.0",
     "clsx": "^2.0.0",
     "daisyui": "^3.9.3",
     "flowbite": "^1.8.1",
     "html5-qrcode": "^2.3.8",
+    "solid-apexcharts": "^0.3.2",
     "solid-js": "^1.7.8",
     "tailwind-merge": "^2.0.0",
     "tw-elements": "^1.0.0",
