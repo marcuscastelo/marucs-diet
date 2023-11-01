@@ -3,7 +3,7 @@ import { BackIcon } from '@/sections/common/components/BackIcon'
 import { cn } from '@/legacy/utils/cn'
 import { mergeProps, type JSXElement, createEffect } from 'solid-js'
 
-export interface ModalProps {
+export type ModalProps = {
   // TODO: Unify Header, Content and Actions for each component in the entire app
   /**
    * @deprecated

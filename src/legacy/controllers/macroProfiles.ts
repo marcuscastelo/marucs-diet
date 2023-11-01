@@ -1,14 +1,14 @@
 import {
-  MacroProfile,
-  macroProfileSchema,
+  type MacroProfile,
+  macroProfileSchema
 } from '@/modules/diet/macro-profile/domain/macroProfile'
-import { User } from '@/modules/user/domain/user'
-import { DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
+import { type User } from '@/modules/user/domain/user'
+import { type DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
 import supabase from '@/legacy/utils/supabase'
 
 const TABLE = 'macro_profiles'
 
-export async function fetchUserMacroProfiles(userId: User['id']) {
+export async function fetchUserMacroProfiles (userId: User['id']) {
   const { data, error } = await supabase
     .from(TABLE)
     .select('*')
@@ -23,8 +23,8 @@ export async function fetchUserMacroProfiles(userId: User['id']) {
   return macroProfileSchema.array().parse(data)
 }
 
-export async function insertMacroProfile(
-  newMacroProfile: DbReady<MacroProfile>,
+export async function insertMacroProfile (
+  newMacroProfile: DbReady<MacroProfile>
 ) {
   const macroProfile = enforceDbReady(newMacroProfile)
   const { data, error } = await supabase
@@ -40,9 +40,9 @@ export async function insertMacroProfile(
   return macroProfileSchema.parse(data?.[0])
 }
 
-export async function updateMacroProfile(
+export async function updateMacroProfile (
   profileId: MacroProfile['id'],
-  newMacroProfile: DbReady<MacroProfile>,
+  newMacroProfile: DbReady<MacroProfile>
 ) {
   const macroProfile = enforceDbReady(newMacroProfile)
   const { data, error } = await supabase
@@ -59,7 +59,7 @@ export async function updateMacroProfile(
   return macroProfileSchema.parse(data?.[0])
 }
 
-export async function deleteMacroProfile(id: MacroProfile['id']) {
+export async function deleteMacroProfile (id: MacroProfile['id']) {
   const { error } = await supabase.from(TABLE).delete().eq('id', id)
 
   if (error) {

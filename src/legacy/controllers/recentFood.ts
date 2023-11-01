@@ -1,15 +1,15 @@
 import {
-  RecentFood,
-  recentFoodSchema,
+  type RecentFood,
+  recentFoodSchema
 } from '@/modules/recent-food/domain/recentFood'
-import { DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
+import { type DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
 import supabase from '@/legacy/utils/supabase'
 
 const TABLE = 'recent_foods'
 
-export async function fetchRecentFoodByUserIdAndFoodId(
+export async function fetchRecentFoodByUserIdAndFoodId (
   userId: RecentFood['user_id'],
-  foodId: RecentFood['food_id'],
+  foodId: RecentFood['food_id']
 ) {
   const { data, error } = await supabase
     .from(TABLE)
@@ -25,7 +25,7 @@ export async function fetchRecentFoodByUserIdAndFoodId(
   return recentFoodSchema.array().parse(data).at(0) ?? null
 }
 
-export async function fetchUserRecentFoods(userId: RecentFood['user_id']) {
+export async function fetchUserRecentFoods (userId: RecentFood['user_id']) {
   const { data, error } = await supabase
     .from(TABLE)
     .select('*')
@@ -40,7 +40,7 @@ export async function fetchUserRecentFoods(userId: RecentFood['user_id']) {
   return recentFoodSchema.array().parse(data)
 }
 
-export async function insertRecentFood(newRecentFood: DbReady<RecentFood>) {
+export async function insertRecentFood (newRecentFood: DbReady<RecentFood>) {
   const recentFood = enforceDbReady(newRecentFood)
   const { data, error } = await supabase.from(TABLE).insert(recentFood).select()
 
@@ -52,9 +52,9 @@ export async function insertRecentFood(newRecentFood: DbReady<RecentFood>) {
   return recentFoodSchema.parse(data?.[0])
 }
 
-export async function updateRecentFood(
+export async function updateRecentFood (
   recentFoodId: RecentFood['id'],
-  newRecentFood: DbReady<RecentFood>,
+  newRecentFood: DbReady<RecentFood>
 ) {
   const recentFood = enforceDbReady(newRecentFood)
   const { data, error } = await supabase
@@ -71,7 +71,7 @@ export async function updateRecentFood(
   return recentFoodSchema.parse(data?.[0])
 }
 
-export async function deleteRecentFood(id: RecentFood['id']) {
+export async function deleteRecentFood (id: RecentFood['id']) {
   const { error } = await supabase.from(TABLE).delete().eq('id', id)
 
   if (error) {

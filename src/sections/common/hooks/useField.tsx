@@ -8,7 +8,7 @@ import {
 import { createSignal, type Accessor, createEffect } from 'solid-js'
 
 // TODO: Unit test all FieldTransforms
-export interface FieldTransform<T> {
+export type FieldTransform<T> = {
   toRaw: (value: T) => string
   toValue: (value: string) => T
 }

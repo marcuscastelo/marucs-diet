@@ -10,7 +10,7 @@ import { isSearchCached } from '@/legacy/controllers/searchCache'
 
 const TABLE = 'foods'
 
-export interface FoodSearchParams {
+export type FoodSearchParams = {
   limit?: number
   allowedFoods?: number[]
 }

@@ -1,4 +1,4 @@
-export interface Identifiable { id: number }
+export type Identifiable = { id: number }
 
 export function generateId (): number {
   return Math.round(Math.random() * 1000000)
