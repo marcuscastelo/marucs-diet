@@ -1,3 +1,4 @@
+import { listFoods } from '@/legacy/controllers/food'
 import { type FoodItem } from '@/modules/diet/food-item/domain/foodItem'
 import { type ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
 import { BackIcon } from '@/sections/common/components/BackIcon'
@@ -13,11 +14,13 @@ import { useFloatField } from '@/sections/common/hooks/useField'
 import FoodItemEditModal from '@/sections/food-item/components/FoodItemEditModal'
 import { FoodItemListView } from '@/sections/food-item/components/FoodItemListView'
 import ItemGroupView, { ItemGroupCopyButton, ItemGroupHeader, ItemGroupName, ItemGroupViewNutritionalInfo } from '@/sections/item-group/components/ItemGroupView'
-import { TemplateSearchTabs } from '@/sections/search/components/TemplateSearchTabs'
+import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
+import { FoodContextProvider } from '@/sections/template/context/TemplateContext'
 import { createEffect, createSignal, untrack } from 'solid-js'
 
 function App () {
   const [foodItemEditModalVisible, setFoodItemEditModalVisible] = createSignal(false)
+  const [templateSearchModalVisible, setTemplateSearchModalVisible] = createSignal(false)
 
   const [item] = createSignal<FoodItem>({
     __type: 'FoodItem',
@@ -51,53 +54,74 @@ function App () {
   // const [food, setFood] = createSignal<Food | null>(null)
   return (
     <>
-      <ConfirmModalProvider>
-        {/* <DatepickerRouter selectedDay='2023-10-30' /> */}
-        <ConfirmModal />
-        <TemplateSearchTabs onTabChange={() => undefined}/>
-        <ModalContextProvider
-          visible={foodItemEditModalVisible}
-          setVisible={setFoodItemEditModalVisible}
-        >
-          <FoodItemEditModal
-            foodItem={item}
-            targetName='Teste'
-            onApply={(item) => { console.debug(item) }
-            } />
-        </ModalContextProvider>
-        <h1 class='text-lg'>Oi</h1>
-        <button class="btn">Hello daisyUI</button>
+      <FoodContextProvider onFetchFoods={async () => ({
+        foods: await listFoods(),
+        favoriteFoods: [],
+        recentFoods: [],
+        recipes: []
+      })}>
+        <ConfirmModalProvider>
+          {/* <DatepickerRouter selectedDay='2023-10-30' /> */}
+          <ConfirmModal />
 
-        <h1>FoodItemListView</h1>
-        <FoodItemListView
-          foodItems={() => group().items}
-          onItemClick={() => { setFoodItemEditModalVisible(true) }}
-        />
-        <h1>ItemGroupView</h1>
-        <ItemGroupView
-          itemGroup={group}
-          header={
-            <ItemGroupHeader
-              name={<ItemGroupName group={group} />}
-              copyButton={<ItemGroupCopyButton group={group}
-                onCopyItemGroup={(item) => { console.debug(item) }} />}
+          <ModalContextProvider
+            visible={templateSearchModalVisible}
+            setVisible={setTemplateSearchModalVisible}
+          >
+            <TemplateSearchModal
+              targetName='Teste'
+              onFinish={() => { console.debug(item) }}
+              onNewItemGroup={() => { console.debug() }}
             />
-          }
-          nutritionalInfo={
-            <ItemGroupViewNutritionalInfo group={group} />
-          }
-        />
+          </ModalContextProvider>
 
-        {/* <BarCodeReader id='123' onScanned={setBarCode}/>
+          <ModalContextProvider
+            visible={foodItemEditModalVisible}
+            setVisible={setFoodItemEditModalVisible}
+          >
+            <FoodItemEditModal
+              foodItem={item}
+              targetName='Teste'
+              onApply={(item) => { console.debug(item) }
+              } />
+          </ModalContextProvider>
+          <h1 class='text-lg'>Oi</h1>
+          <button
+          class="btn"
+          onClick={() => { setTemplateSearchModalVisible(true) }}
+          >setTemplateSearchModalVisible</button>
+
+          <h1>FoodItemListView</h1>
+          <FoodItemListView
+            foodItems={() => group().items}
+            onItemClick={() => { setFoodItemEditModalVisible(true) }}
+          />
+          <h1>ItemGroupView</h1>
+          <ItemGroupView
+            itemGroup={group}
+            header={
+              <ItemGroupHeader
+                name={<ItemGroupName group={group} />}
+                copyButton={<ItemGroupCopyButton group={group}
+                  onCopyItemGroup={(item) => { console.debug(item) }} />}
+              />
+            }
+            nutritionalInfo={
+              <ItemGroupViewNutritionalInfo group={group} />
+            }
+          />
+
+          {/* <BarCodeReader id='123' onScanned={setBarCode}/>
         <BarCodeSearch barCode={barCode} setBarCode={setBarCode} food={food} setFood={setFood} /> */}
-        <DatePicker />
-        <BackIcon />
-        <TestField />
-        <TestModal />
-        <TestConfirmModal />
-        <LoadingRing />
-        <PageLoading message='Carregando bugigangas' />
-      </ConfirmModalProvider>
+          <DatePicker />
+          <BackIcon />
+          <TestField />
+          <TestModal />
+          <TestConfirmModal />
+          <LoadingRing />
+          <PageLoading message='Carregando bugigangas' />
+        </ConfirmModalProvider>
+      </FoodContextProvider>
     </>
   )
 }

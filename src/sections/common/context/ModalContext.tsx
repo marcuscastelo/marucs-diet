@@ -2,7 +2,7 @@ import { type JSXElement, createContext, useContext, createSignal, createEffect,
 
 type ModalContext = {
   visible: Accessor<boolean>
-  setVisible: (value: boolean) => void
+  setVisible: Setter<boolean>
 }
 
 const modalContext = createContext<ModalContext | null>(null)

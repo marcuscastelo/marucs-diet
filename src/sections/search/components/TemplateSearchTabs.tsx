@@ -59,16 +59,16 @@ export function TemplateSearchTabs (props: {
   const [selectedTab, setSelectedTab] = createSignal<AvailableTab>('all')
 
   return (
-    <ul class="hidden text-sm font-medium text-center text-gray-500 divide-x divide-gray-200 rounded-lg shadow sm:flex dark:divide-gray-700 dark:text-gray-400">
+    <ul class="hidden text-sm font-medium text-center text-gray-500 divide-x divide-gray-700 rounded-lg shadow sm:flex dark:divide-gray-700 dark:text-gray-400">
       <For each={Object.keys(avaliableTabs)}>
         {(tabKey) => (
           <li class="w-full">
             <a
               href="#"
               class={
-                cn('flex items-center justify-center p-4 text-sm font-medium first:ml-0 disabled:cursor-not-allowed disabled:text-gray-400 disabled:dark:text-gray-500 focus:outline-none',
+                cn('flex min-h-full items-center justify-center p-4 text-sm font-medium first:ml-0 disabled:cursor-not-allowed disabled:text-gray-400 disabled:dark:text-gray-500 focus:outline-none',
                   {
-                    'text-gray-900 bg-gray-200 dark:bg-gray-700 dark:text-gray-300': selectedTab() === avaliableTabs[tabKey as keyof typeof avaliableTabs].id
+                    'text-gray-100 bg-gray-600 dark:bg-gray-700 dark:text-gray-300': selectedTab() === avaliableTabs[tabKey as keyof typeof avaliableTabs].id
                   })
               }
               aria-current="page"
