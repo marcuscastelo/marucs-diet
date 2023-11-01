@@ -1,5 +1,6 @@
 import { BackIcon } from '@/sections/common/components/BackIcon'
 import ConfirmModal from '@/sections/common/components/ConfirmModal'
+import { DatePicker } from '@/sections/common/components/Datepicker'
 import { FloatInput } from '@/sections/common/components/FloatInput'
 import LoadingRing from '@/sections/common/components/LoadingRing'
 import Modal, { ModalHeader } from '@/sections/common/components/Modal'
@@ -13,15 +14,18 @@ function App () {
   return (
     <>
       <ConfirmModalProvider>
+        {/* <DatepickerRouter selectedDay='2023-10-30' /> */}
         <ConfirmModal />
+
         <h1 class='text-lg'>Oi</h1>
         <button class="btn">Hello daisyUI</button>
+        <DatePicker/>
         <BackIcon />
         <TestField />
         <TestModal />
         <TestConfirmModal />
         <LoadingRing />
-        <PageLoading message='Carregando bugigangas'/>
+        <PageLoading message='Carregando bugigangas' />
       </ConfirmModalProvider>
     </>
   )
@@ -33,7 +37,7 @@ function TestField () {
   })
 
   return (
-    <FloatInput field={testField}/>
+    <FloatInput field={testField} />
   )
 }
 
@@ -48,7 +52,7 @@ function TestModal () {
     <ModalContextProvider visible={visible} setVisible={setVisible}>
       <Modal
         header={
-          <ModalHeader title="adf"/>
+          <ModalHeader title="adf" />
         }
         body={
           <h1>asdfasdf</h1>
@@ -63,7 +67,7 @@ function TestModal () {
 
 function TestConfirmModal () {
   const { show } = useConfirmModalContext()
-  return (<button onClick={ () => {
+  return (<button onClick={() => {
     show({
       title: 'Teste123',
       body: 'Teste123',
@@ -75,7 +79,7 @@ function TestConfirmModal () {
         }
       ]
     })
-  } } > Open confirm modal </button>)
+  }} > Open confirm modal </button>)
 }
 
 export default App
