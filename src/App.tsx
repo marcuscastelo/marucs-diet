@@ -8,6 +8,7 @@ import { FloatInput } from '@/sections/common/components/FloatInput'
 import LoadingRing from '@/sections/common/components/LoadingRing'
 import { Modal, ModalHeader } from '@/sections/common/components/Modal'
 import PageLoading from '@/sections/common/components/PageLoading'
+import { TestChart } from '@/sections/common/components/charts/TestChart'
 import { ConfirmModalProvider, useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { ModalContextProvider } from '@/sections/common/context/ModalContext'
 import { useFloatField } from '@/sections/common/hooks/useField'
@@ -54,6 +55,7 @@ function App () {
   // const [food, setFood] = createSignal<Food | null>(null)
   return (
     <>
+      <TestChart />
       <FoodContextProvider onFetchFoods={async () => ({
         foods: await listFoods(),
         favoriteFoods: [],
@@ -87,8 +89,8 @@ function App () {
           </ModalContextProvider>
           <h1 class='text-lg'>Oi</h1>
           <button
-          class="btn"
-          onClick={() => { setTemplateSearchModalVisible(true) }}
+            class="btn"
+            onClick={() => { setTemplateSearchModalVisible(true) }}
           >setTemplateSearchModalVisible</button>
 
           <h1>FoodItemListView</h1>
