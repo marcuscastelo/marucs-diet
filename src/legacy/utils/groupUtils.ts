@@ -1,9 +1,9 @@
 import {
-  ItemGroup,
-  RecipedItemGroup,
+  type ItemGroup,
+  type RecipedItemGroup
 } from '@/modules/diet/item-group/domain/itemGroup'
-import { FoodItem } from '@/modules/diet/food-item/domain/foodItem'
-import { Recipe } from '@/modules/diet/recipe/domain/recipe'
+import { type FoodItem } from '@/modules/diet/food-item/domain/foodItem'
+import { type Recipe } from '@/modules/diet/recipe/domain/recipe'
 import { generateId } from '@/legacy/utils/idUtils'
 
 export type GroupConvertible =
@@ -14,13 +14,13 @@ export type GroupConvertible =
   | Recipe
 
 // TODO: Move isRecipedGroupUpToDate to somewhere else
-export function isRecipedGroupUpToDate(
+export function isRecipedGroupUpToDate (
   group: RecipedItemGroup,
-  groupRecipe: Recipe,
+  groupRecipe: Recipe
 ) {
   if (groupRecipe.id !== group.recipe) {
     console.error(
-      'Invalid state! This is a bug! Group recipe is not the same as the recipe in the group!',
+      'Invalid state! This is a bug! Group recipe is not the same as the recipe in the group!'
     )
     throw new Error('Invalid state! This is a bug! see console.error')
   }
@@ -50,7 +50,7 @@ export function isRecipedGroupUpToDate(
   return true
 }
 
-export function calculateGroupQuantity(groupItems: ItemGroup['items']): number {
+export function calculateGroupQuantity (groupItems: ItemGroup['items']): number {
   return groupItems
     .map((item) => item.quantity)
     .reduce((acc: number, quantity) => acc + quantity, 0)
@@ -60,7 +60,7 @@ export function calculateGroupQuantity(groupItems: ItemGroup['items']): number {
 /**
  * @deprecated
  */
-export function updateTotalQuantity(group: ItemGroup) {
+export function updateTotalQuantity (group: ItemGroup) {
   const newGroup = { ...group }
 
   newGroup.quantity = newGroup.items
@@ -70,7 +70,7 @@ export function updateTotalQuantity(group: ItemGroup) {
   return newGroup
 }
 
-export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
+export function convertToGroups (convertible: GroupConvertible): ItemGroup[] {
   if (Array.isArray(convertible)) {
     return { ...convertible }
   }
@@ -83,8 +83,8 @@ export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
         items: [...convertible.items],
         quantity: calculateGroupQuantity(convertible.items),
         type: 'recipe',
-        recipe: convertible.id,
-      },
+        recipe: convertible.id
+      }
     ]
   }
 
@@ -100,8 +100,8 @@ export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
         name: convertible.name,
         items: [{ ...convertible } satisfies FoodItem],
         quantity: convertible.quantity,
-        type: 'simple',
-      } satisfies ItemGroup,
+        type: 'simple'
+      } satisfies ItemGroup
     ]
   }
 
