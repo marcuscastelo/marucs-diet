@@ -13,6 +13,7 @@ import { useFloatField } from '@/sections/common/hooks/useField'
 import FoodItemEditModal from '@/sections/food-item/components/FoodItemEditModal'
 import { FoodItemListView } from '@/sections/food-item/components/FoodItemListView'
 import ItemGroupView, { ItemGroupCopyButton, ItemGroupHeader, ItemGroupName, ItemGroupViewNutritionalInfo } from '@/sections/item-group/components/ItemGroupView'
+import { TemplateSearchTabs } from '@/sections/search/components/TemplateSearchTabs'
 import { createEffect, createSignal, untrack } from 'solid-js'
 
 function App () {
@@ -53,7 +54,7 @@ function App () {
       <ConfirmModalProvider>
         {/* <DatepickerRouter selectedDay='2023-10-30' /> */}
         <ConfirmModal />
-
+        <TemplateSearchTabs onTabChange={() => undefined}/>
         <ModalContextProvider
           visible={foodItemEditModalVisible}
           setVisible={setFoodItemEditModalVisible}
