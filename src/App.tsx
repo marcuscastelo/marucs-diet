@@ -1,5 +1,6 @@
 import { type FoodItem } from '@/modules/diet/food-item/domain/foodItem'
 import { type ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
+import { BarCodeReader } from '@/sections/barcode/components/BarCodeReader'
 import { BackIcon } from '@/sections/common/components/BackIcon'
 import ConfirmModal from '@/sections/common/components/ConfirmModal'
 import { DatePicker } from '@/sections/common/components/Datepicker'
@@ -84,6 +85,10 @@ function App () {
             <ItemGroupViewNutritionalInfo group={group} />
           }
         />
+
+        <BarCodeReader id='123' onScanned={(barcode) => {
+          alert(barcode)
+        }}/>
         <DatePicker />
         <BackIcon />
         <TestField />
