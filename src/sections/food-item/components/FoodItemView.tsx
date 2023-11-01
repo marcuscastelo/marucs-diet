@@ -16,13 +16,15 @@ import { type JSXElement, type Accessor, createSignal, createEffect } from 'soli
 // TODO: Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
 
-export default function FoodItemView (props: {
+export interface FoodItemViewProps {
   foodItem: Accessor<TemplateItem>
   header?: JSXElement
   nutritionalInfo?: JSXElement
   className?: string
   onClick?: (foodItem: TemplateItem) => void
-}) {
+}
+
+export function FoodItemView (props: FoodItemViewProps) {
   const handleClick = (e: MouseEvent) => {
     props.onClick?.(props.foodItem())
     e.stopPropagation()
@@ -66,7 +68,7 @@ export function FoodItemHeader (props: FoodItemHeaderProps) {
 export function FoodItemName () {
   const { foodItem: item } = useFoodItemContext()
 
-  const [template_, setTemplate] = createSignal<Template | null>(null)
+  const [template, setTemplate] = createSignal<Template | null>(null)
 
   createEffect(() => {
     console.debug('[FoodItemName] item changed, fetching API:', item())
@@ -109,7 +111,7 @@ export function FoodItemName () {
     }
   }
 
-  const name = () => template_()?.name ?? 'food not found'
+  const name = () => template()?.name ?? 'food not found'
 
   return (
     <div class="">

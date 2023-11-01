@@ -1,3 +1,4 @@
+import { type ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
 import { BackIcon } from '@/sections/common/components/BackIcon'
 import ConfirmModal from '@/sections/common/components/ConfirmModal'
 import { DatePicker } from '@/sections/common/components/Datepicker'
@@ -8,10 +9,28 @@ import PageLoading from '@/sections/common/components/PageLoading'
 import { ConfirmModalProvider, useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { ModalContextProvider } from '@/sections/common/context/ModalContext'
 import { useFloatField } from '@/sections/common/hooks/useField'
-import FoodItemView, { FoodItemCopyButton, FoodItemFavorite, FoodItemHeader, FoodItemName, FoodItemNutritionalInfo } from '@/sections/food-item/components/FoodItemView'
+import ItemGroupView, { ItemGroupCopyButton, ItemGroupHeader, ItemGroupName, ItemGroupViewNutritionalInfo } from '@/sections/item-group/components/ItemGroupView'
 import { createEffect, createSignal } from 'solid-js'
 
 function App () {
+  const group = () => ({
+    id: 1,
+    name: 'Teste',
+    quantity: 100,
+    type: 'simple',
+    items: [{
+      __type: 'FoodItem',
+      id: 1,
+      macros: {
+        carbs: 10,
+        protein: 12,
+        fat: 10
+      },
+      name: 'Teste',
+      quantity: 100,
+      reference: 31606
+    }]
+  } satisfies ItemGroup)
   return (
     <>
       <ConfirmModalProvider>
@@ -20,32 +39,17 @@ function App () {
 
         <h1 class='text-lg'>Oi</h1>
         <button class="btn">Hello daisyUI</button>
-        <FoodItemView
-          foodItem={() => ({
-            __type: 'FoodItem',
-            id: 1,
-            macros: {
-              carbs: 10,
-              protein: 12,
-              fat: 10
-            },
-            name: 'Teste',
-            quantity: 100,
-            reference: 31606
-          })}
+        <ItemGroupView
+          itemGroup={group}
           header={
-            <FoodItemHeader
-              name={<FoodItemName/>}
-              copyButton={<FoodItemCopyButton
-              onCopyItem={(item) => { console.debug(item) }}/>}
-              favorite={<FoodItemFavorite
-                favorite={true}
-                onSetFavorite={(favorite) => { console.debug(favorite) }}
-              />}
+            <ItemGroupHeader
+              name={<ItemGroupName group={group}/>}
+              copyButton={<ItemGroupCopyButton group={group}
+              onCopyItemGroup={(item) => { console.debug(item) }}/>}
             />
           }
           nutritionalInfo={
-            <FoodItemNutritionalInfo/>
+            <ItemGroupViewNutritionalInfo group={group}/>
           }
           />
         <DatePicker/>
