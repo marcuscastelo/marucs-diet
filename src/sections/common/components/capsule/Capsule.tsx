@@ -3,12 +3,12 @@ import { type JSXElement } from 'solid-js'
 export default function Capsule (props: {
   leftContent: JSXElement
   rightContent: JSXElement
-  className?: string
+  class?: string
 }) {
   return (
     <div
       class={`flex flex-col sm:flex-row gap-2 sm:gap-0 overflow-visible mt-10 sm:mt-0 ${
-        props.className ?? ''
+        props.class ?? ''
       }`}
     >
       <div

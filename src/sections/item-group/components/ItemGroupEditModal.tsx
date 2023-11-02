@@ -68,7 +68,7 @@ export type ItemGroupEditModalProps = {
   setGroup: Setter<ItemGroup | null>
 }
 
-const ItemGroupEditModal = (props: ItemGroupEditModalProps) => {
+export const ItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   return (
     <ItemGroupEditContextProvider
       group={props.group}
@@ -928,5 +928,3 @@ function PreparedQuantity (props: {
 function isRecipeTooComplex (recipe: Recipe | null) {
   return recipe !== null && recipe.prepared_multiplier !== 1
 }
-
-export default ItemGroupEditModal
