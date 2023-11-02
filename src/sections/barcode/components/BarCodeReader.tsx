@@ -1,16 +1,24 @@
+import { LoadingRing } from '@/sections/common/components/LoadingRing'
+import { PageLoading } from '@/sections/common/components/PageLoading'
 import {
   Html5Qrcode,
   type Html5QrcodeFullConfig,
   type Html5QrcodeResult,
   Html5QrcodeSupportedFormats
 } from 'html5-qrcode'
-import { onCleanup, onMount } from 'solid-js'
+import { Show, createEffect, createSignal, onCleanup } from 'solid-js'
 
 export function BarCodeReader (props: {
   id: string
+  enabled: boolean
   onScanned: (barcode: string) => void
 }) {
-  onMount(() => {
+  const [loadingScanner, setLoadingScanner] = createSignal(true)
+
+  createEffect(() => {
+    if (!props.enabled) return
+    setLoadingScanner(true)
+
     function onScanSuccess (
       decodedText: string,
       decodedResult: Html5QrcodeResult
@@ -72,7 +80,10 @@ export function BarCodeReader (props: {
         onScanSuccess,
         undefined
       )
-      .then(() => true)
+      .then(() => {
+        setLoadingScanner(false)
+        return true
+      })
       .catch((err) => {
         console.error('Error starting scanner', err)
         return false
@@ -94,6 +105,9 @@ export function BarCodeReader (props: {
   })
   return (
     <>
+      <Show when={loadingScanner()}>
+        <LoadingRing/>
+      </Show>
       <div id={props.id} class="mx-auto w-full" />
     </>
   )
