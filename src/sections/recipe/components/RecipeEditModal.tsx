@@ -5,7 +5,7 @@ import {
 import { Modal, ModalActions } from '@/sections/common/components/Modal'
 import { type Recipe, createRecipe } from '@/modules/diet/recipe/domain/recipe'
 import RecipeEditView, { RecipeEditContent, RecipeEditHeader } from '@/sections/recipe/components/RecipeEditView'
-import FoodItemEditModal from '@/sections/food-item/components/FoodItemEditModal'
+import { FoodItemEditModal } from '@/sections/food-item/components/FoodItemEditModal'
 import {
   ModalContextProvider,
   useModalContext

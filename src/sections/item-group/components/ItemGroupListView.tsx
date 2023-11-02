@@ -1,5 +1,6 @@
 import { type ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
-import ItemGroupView, {
+import {
+  ItemGroupView,
   ItemGroupCopyButton,
   ItemGroupHeader,
   ItemGroupName,
@@ -8,7 +9,7 @@ import ItemGroupView, {
 } from '@/sections/item-group/components/ItemGroupView'
 import { type Accessor } from 'solid-js'
 
-export default function ItemGroupListView (props: {
+export function ItemGroupListView (props: {
   itemGroups: Accessor<ItemGroup[]>
   onItemClick: ItemGroupViewProps['onClick']
 }) {

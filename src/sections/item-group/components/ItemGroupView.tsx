@@ -23,7 +23,7 @@ export type ItemGroupViewProps = {
   onClick?: (itemGroup: ItemGroup) => void
 }
 
-export default function ItemGroupView (props: ItemGroupViewProps) {
+export function ItemGroupView (props: ItemGroupViewProps) {
   const handleClick = (e: MouseEvent) => {
     props.onClick?.(props.itemGroup())
     e.stopPropagation()

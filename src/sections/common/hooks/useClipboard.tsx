@@ -3,7 +3,7 @@ import { type z } from 'zod'
 
 export type ClipboardFilter = (clipboard: string) => boolean
 
-export default function useClipboard (props?: {
+export function useClipboard (props?: {
   filter?: ClipboardFilter
   periodicRead?: boolean
 }) {
