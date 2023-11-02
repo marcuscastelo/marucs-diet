@@ -3,7 +3,7 @@ import { Modal, ModalActions, ModalHeader } from '@/sections/common/components/M
 import { BarCodeReader } from '@/sections/barcode/components/BarCodeReader'
 import BarCodeSearch from '@/sections/barcode/components/BarCodeSearch'
 import { useModalContext } from '@/sections/common/context/ModalContext'
-import { Show, createSignal, onMount } from 'solid-js'
+import { createSignal, onMount } from 'solid-js'
 
 export type BarCodeInsertModalProps = {
   onSelect: (apiFood: Food) => void

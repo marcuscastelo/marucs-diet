@@ -1,5 +1,4 @@
 import { LoadingRing } from '@/sections/common/components/LoadingRing'
-import { PageLoading } from '@/sections/common/components/PageLoading'
 import {
   Html5Qrcode,
   type Html5QrcodeFullConfig,
