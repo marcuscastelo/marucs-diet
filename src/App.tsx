@@ -1,6 +1,7 @@
 import { listFoods } from '@/legacy/controllers/food'
 import { type FoodItem } from '@/modules/diet/food-item/domain/foodItem'
 import { type ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
+import { type Meal } from '@/modules/diet/meal/domain/meal'
 import { BackIcon } from '@/sections/common/components/BackIcon'
 import { ConfirmModal } from '@/sections/common/components/ConfirmModal'
 import { DatePicker } from '@/sections/common/components/Datepicker'
@@ -16,6 +17,7 @@ import { FoodItemEditModal } from '@/sections/food-item/components/FoodItemEditM
 import { FoodItemListView } from '@/sections/food-item/components/FoodItemListView'
 import ItemGroupEditModal from '@/sections/item-group/components/ItemGroupEditModal'
 import { ItemGroupView, ItemGroupCopyButton, ItemGroupHeader, ItemGroupName, ItemGroupViewNutritionalInfo } from '@/sections/item-group/components/ItemGroupView'
+import MealEditView, { MealEditViewActions, MealEditViewContent, MealEditViewHeader } from '@/sections/meal/components/MealEditView'
 import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
 import { FoodContextProvider } from '@/sections/template/context/TemplateContext'
 import { createEffect, createSignal, untrack } from 'solid-js'
@@ -53,6 +55,20 @@ function App () {
     })
   })
 
+  const [meal, setMeal] = createSignal<Meal>({
+    id: 1,
+    name: 'Teste',
+    groups: [],
+    __type: 'Meal'
+  } satisfies Meal)
+
+  createEffect(() => {
+    setMeal({
+      ...untrack(meal),
+      groups: [group()]
+    })
+  })
+
   // const [barCode, setBarCode] = createSignal('')
   // const [food, setFood] = createSignal<Food | null>(null)
   return (
@@ -87,7 +103,10 @@ function App () {
               group={group}
               setGroup={(group: ItemGroup | ((prev: ItemGroup | null) => ItemGroup)) => setGroup(group)}
               onRefetch={() => { console.debug('refetch') }}
-              onSaveGroup={(group) => { setGroup(group) }}
+              onSaveGroup={(group) => {
+                setGroup(group)
+                setItemGroupEditModalVisible(false)
+              }}
               targetMealName='Teste'
               onCancel={() => { console.debug('cancel') }}
               onDelete={() => { console.debug('delete') }}
@@ -110,10 +129,35 @@ function App () {
             onClick={() => { setTemplateSearchModalVisible(true) }}
           >setTemplateSearchModalVisible</button>
 
-<button
+          <button
             class="btn"
             onClick={() => { setItemGroupEditModalVisible(true) }}
           >setItemGroupEditModalVisible</button>
+
+          <h1>MealEditView</h1>
+          <MealEditView
+            meal={meal()}
+            header={
+              <MealEditViewHeader
+                onUpdateMeal={(meal) => { setMeal(meal) }}
+              />
+            }
+            content={
+              <MealEditViewContent
+                onEditItemGroup={(group) => {
+                  setGroup(group)
+                  setItemGroupEditModalVisible(true)
+                }}
+              />
+            }
+            actions={
+              <MealEditViewActions
+                onNewItem={() => {
+                  setTemplateSearchModalVisible(true)
+                }}
+              />
+            }
+          />
 
           <h1>FoodItemListView</h1>
           <FoodItemListView
@@ -127,12 +171,13 @@ function App () {
               <ItemGroupHeader
                 name={<ItemGroupName group={group} />}
                 copyButton={<ItemGroupCopyButton group={group}
-                  onCopyItemGroup={(item) => { console.debug(item) }} />}
+                onCopyItemGroup={(item) => { console.debug(item) }} />}
               />
             }
             nutritionalInfo={
               <ItemGroupViewNutritionalInfo group={group} />
             }
+            onClick={() => { setItemGroupEditModalVisible(true) }}
           />
 
           {/* <BarCodeReader id='123' onScanned={setBarCode}/>
