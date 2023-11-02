@@ -3,11 +3,13 @@ import { Modal, ModalActions, ModalHeader } from '@/sections/common/components/M
 import { BarCodeReader } from '@/sections/barcode/components/BarCodeReader'
 import BarCodeSearch from '@/sections/barcode/components/BarCodeSearch'
 import { useModalContext } from '@/sections/common/context/ModalContext'
-import { Show, createSignal } from 'solid-js'
+import { Show, createSignal, onMount } from 'solid-js'
 
 export type BarCodeInsertModalProps = {
   onSelect: (apiFood: Food) => void
 }
+
+let currentId = 1
 
 const BarCodeInsertModal = (props: BarCodeInsertModalProps) => {
   const { visible, setVisible } = useModalContext()
@@ -30,6 +32,10 @@ const BarCodeInsertModal = (props: BarCodeInsertModalProps) => {
     props.onSelect(food_)
   }
 
+  onMount(() => {
+    setVisible(false)
+  })
+
   return (
     <Modal
       header={<ModalHeader title="Pesquisar por código de barras" />}
@@ -38,12 +44,11 @@ const BarCodeInsertModal = (props: BarCodeInsertModalProps) => {
           {/*
             // TODO: Apply Show when visible for all modals?
           */}
-          <Show when={visible} >
-            <BarCodeReader
-              id="reader"
-              onScanned={setBarCode}
-            />
-          </Show>
+          <BarCodeReader
+            enabled={visible()}
+            id={`barcode-reader-${currentId++}`}
+            onScanned={setBarCode}
+          />
           <BarCodeSearch barCode={barCode} setBarCode={setBarCode} food={food} setFood={setFood} />
         </>
       }

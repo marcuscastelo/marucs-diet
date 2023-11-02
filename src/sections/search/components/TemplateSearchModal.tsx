@@ -169,7 +169,7 @@ export function TemplateSearchModal (props: TemplateSearchModalProps) {
       </ModalContextProvider>
       <ExternalFoodItemEditModal
         visible={foodItemEditModalVisible}
-        setVisible={setVisible}
+        setVisible={setFoodItemEditModalVisible}
         selectedTemplate={selectedTemplate}
         setSelectedTemplate={setSelectedTemplate}
         targetName={props.targetName}
@@ -177,7 +177,7 @@ export function TemplateSearchModal (props: TemplateSearchModalProps) {
       />
       <ExternalBarCodeInsertModal
         visible={barCodeModalVisible}
-        setVisible={setVisible}
+        setVisible={setBarCodeModalVisible}
         onSelect={(template) => {
           setSelectedTemplate(template)
           setFoodItemEditModalVisible(true)
@@ -270,7 +270,10 @@ export function TemplateSearch (props: {
   return (
     <>
       <BarCodeButton
-        showBarCodeModal={() => props.setBarCodeModalVisible(true)}
+        showBarCodeModal={() => {
+          console.debug('[TemplateSearchModal] showBarCodeModal')
+          props.setBarCodeModalVisible(true)
+        }}
       />
 
       <TemplateSearchTabs onTabChange={setTab} />

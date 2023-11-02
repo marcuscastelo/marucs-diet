@@ -11,15 +11,15 @@ export const mealSchema = z.object({
     .string()
     .nullable()
     .optional()
-    .transform(() => 'Meal' as const),
+    .transform(() => 'Meal' as const)
 })
 
 export type Meal = Readonly<z.infer<typeof mealSchema>>
 
 // TODO: Create factory function for other models
-export function createMeal({
+export function createMeal ({
   name,
-  groups,
+  groups
 }: {
   name: string
   groups: Meal['groups']
@@ -28,6 +28,6 @@ export function createMeal({
     id: generateId(),
     name,
     groups,
-    __type: 'Meal',
+    __type: 'Meal'
   }
 }

@@ -14,6 +14,7 @@ import { ModalContextProvider } from '@/sections/common/context/ModalContext'
 import { useFloatField } from '@/sections/common/hooks/useField'
 import { FoodItemEditModal } from '@/sections/food-item/components/FoodItemEditModal'
 import { FoodItemListView } from '@/sections/food-item/components/FoodItemListView'
+import ItemGroupEditModal from '@/sections/item-group/components/ItemGroupEditModal'
 import { ItemGroupView, ItemGroupCopyButton, ItemGroupHeader, ItemGroupName, ItemGroupViewNutritionalInfo } from '@/sections/item-group/components/ItemGroupView'
 import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
 import { FoodContextProvider } from '@/sections/template/context/TemplateContext'
@@ -21,6 +22,7 @@ import { createEffect, createSignal, untrack } from 'solid-js'
 
 function App () {
   const [foodItemEditModalVisible, setFoodItemEditModalVisible] = createSignal(false)
+  const [itemGroupEditModalVisible, setItemGroupEditModalVisible] = createSignal(false)
   const [templateSearchModalVisible, setTemplateSearchModalVisible] = createSignal(false)
 
   const [item] = createSignal<FoodItem>({
@@ -78,6 +80,21 @@ function App () {
           </ModalContextProvider>
 
           <ModalContextProvider
+            visible={itemGroupEditModalVisible}
+            setVisible={setItemGroupEditModalVisible}
+          >
+            <ItemGroupEditModal
+              group={group}
+              setGroup={(group: ItemGroup | ((prev: ItemGroup | null) => ItemGroup)) => setGroup(group)}
+              onRefetch={() => { console.debug('refetch') }}
+              onSaveGroup={(group) => { setGroup(group) }}
+              targetMealName='Teste'
+              onCancel={() => { console.debug('cancel') }}
+              onDelete={() => { console.debug('delete') }}
+            />
+          </ModalContextProvider>
+
+          <ModalContextProvider
             visible={foodItemEditModalVisible}
             setVisible={setFoodItemEditModalVisible}
           >
@@ -92,6 +109,11 @@ function App () {
             class="btn"
             onClick={() => { setTemplateSearchModalVisible(true) }}
           >setTemplateSearchModalVisible</button>
+
+<button
+            class="btn"
+            onClick={() => { setItemGroupEditModalVisible(true) }}
+          >setItemGroupEditModalVisible</button>
 
           <h1>FoodItemListView</h1>
           <FoodItemListView

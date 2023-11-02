@@ -7,7 +7,7 @@ import {
   FoodItemNutritionalInfo,
   type FoodItemViewProps
 } from '@/sections/food-item/components/FoodItemView'
-import { mergeProps, type Accessor } from 'solid-js'
+import { mergeProps, type Accessor, For } from 'solid-js'
 
 export function FoodItemListView (_props: {
   foodItems: Accessor<readonly FoodItem[]>
@@ -17,8 +17,9 @@ export function FoodItemListView (_props: {
   const props = mergeProps({ makeHeaderFn: () => <DefaultHeader /> }, _props)
   return (
     <>
-      {props.foodItems().map((_, idx) => {
-        const item = () => props.foodItems()[idx]
+      <For each={props.foodItems()}>
+      {((_, idx) => {
+        const item = () => props.foodItems()[idx()]
         return (
           <div class="mt-2">
             <FoodItemView
@@ -30,6 +31,7 @@ export function FoodItemListView (_props: {
           </div>
         )
       })}
+      </For>
     </>
   )
 }
