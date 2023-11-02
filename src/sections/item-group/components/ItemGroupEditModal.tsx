@@ -134,6 +134,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
       .then((recipe) => {
         setRecipeSignal({ loading: false, errored: false, data: recipe })
         if (recipe === null) {
+          console.warn('Recipe not found, showing modal to unlink recipe')
           setTimeout(() => {
             handleRecipeNotFound()
           }, 1000)
