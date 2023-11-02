@@ -3,7 +3,7 @@ import { ModalContextProvider } from '@/sections/common/context/ModalContext'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { For } from 'solid-js'
 
-export default function ConfirmModal () {
+export function ConfirmModal () {
   const {
     internals: { visible, setVisible, title, body, actions }
   } = useConfirmModalContext()

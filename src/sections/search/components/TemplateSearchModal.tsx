@@ -6,7 +6,7 @@ import {
 import { FoodItemFavorite, FoodItemHeader, FoodItemName, FoodItemNutritionalInfo, FoodItemView } from '@/sections/food-item/components/FoodItemView'
 import BarCodeInsertModal from '@/sections/barcode/components/BarCodeInsertModal'
 import { type Recipe } from '@/modules/diet/recipe/domain/recipe'
-import FoodItemEditModal from '@/sections/food-item/components/FoodItemEditModal'
+import { FoodItemEditModal } from '@/sections/food-item/components/FoodItemEditModal'
 import {
   type ItemGroup,
   type RecipedItemGroup,

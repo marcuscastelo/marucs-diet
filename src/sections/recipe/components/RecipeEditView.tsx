@@ -14,7 +14,8 @@ import { calcRecipeCalories } from '@/legacy/utils/macroMath'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { regenerateId } from '@/legacy/utils/idUtils'
 import { type TemplateItem } from '@/modules/diet/template-item/domain/templateItem'
-import useClipboard, {
+import {
+  useClipboard,
   createClipboardSchemaFilter
 } from '@/sections/common/hooks/useClipboard'
 import { deserializeClipboard } from '@/legacy/utils/clipboardUtils'

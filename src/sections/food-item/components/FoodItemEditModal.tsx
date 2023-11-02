@@ -26,7 +26,7 @@ export type FoodItemEditModalProps = {
 }
 
 // TODO: rename to ItemEditModal (also foodItemEditModalVisible and derivatives)
-const FoodItemEditModal = (_props: FoodItemEditModalProps) => {
+export const FoodItemEditModal = (_props: FoodItemEditModalProps) => {
   const props = mergeProps({ targetNameColor: 'text-green-500' }, _props)
   const { setVisible } = useModalContext()
 
@@ -342,5 +342,3 @@ function Actions (props: {
     </ModalActions>
   )
 }
-
-export default FoodItemEditModal
