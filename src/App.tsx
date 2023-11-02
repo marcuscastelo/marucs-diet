@@ -1,4 +1,5 @@
 import { listFoods } from '@/legacy/controllers/food'
+import { type DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
 import { type FoodItem } from '@/modules/diet/food-item/domain/foodItem'
 import { type ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
 import { type Meal } from '@/modules/diet/meal/domain/meal'
@@ -18,6 +19,7 @@ import { FoodItemListView } from '@/sections/food-item/components/FoodItemListVi
 import ItemGroupEditModal from '@/sections/item-group/components/ItemGroupEditModal'
 import { ItemGroupView, ItemGroupCopyButton, ItemGroupHeader, ItemGroupName, ItemGroupViewNutritionalInfo } from '@/sections/item-group/components/ItemGroupView'
 import MealEditView, { MealEditViewActions, MealEditViewContent, MealEditViewHeader } from '@/sections/meal/components/MealEditView'
+import MealEditViewList from '@/sections/meal/components/MealEditViewList'
 import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
 import { FoodContextProvider } from '@/sections/template/context/TemplateContext'
 import { createEffect, createSignal, untrack } from 'solid-js'
@@ -66,6 +68,21 @@ function App () {
     setMeal({
       ...untrack(meal),
       groups: [group()]
+    })
+  })
+
+  const [dayDiet, setDayDiet] = createSignal<DayDiet>({
+    __type: 'DayDiet',
+    id: 1,
+    meals: [],
+    owner: 3,
+    target_day: '2023-11-02'
+  })
+
+  createEffect(() => {
+    setDayDiet({
+      ...untrack(dayDiet),
+      meals: [meal()]
     })
   })
 
@@ -134,29 +151,25 @@ function App () {
             onClick={() => { setItemGroupEditModalVisible(true) }}
           >setItemGroupEditModalVisible</button>
 
-          <h1>MealEditView</h1>
-          <MealEditView
-            meal={meal()}
-            header={
-              <MealEditViewHeader
+          <h1>MealEditViewList</h1>
+          <MealEditViewList
+            mealEditPropsList={() => [{
+              meal: meal(),
+              header: (<MealEditViewHeader
                 onUpdateMeal={(meal) => { setMeal(meal) }}
-              />
-            }
-            content={
-              <MealEditViewContent
+              />),
+              content: (<MealEditViewContent
                 onEditItemGroup={(group) => {
                   setGroup(group)
                   setItemGroupEditModalVisible(true)
                 }}
-              />
-            }
-            actions={
-              <MealEditViewActions
+              />),
+              actions: (<MealEditViewActions
                 onNewItem={() => {
                   setTemplateSearchModalVisible(true)
                 }}
-              />
-            }
+              />)
+            }]}
           />
 
           <h1>FoodItemListView</h1>
@@ -171,7 +184,7 @@ function App () {
               <ItemGroupHeader
                 name={<ItemGroupName group={group} />}
                 copyButton={<ItemGroupCopyButton group={group}
-                onCopyItemGroup={(item) => { console.debug(item) }} />}
+                  onCopyItemGroup={(item) => { console.debug(item) }} />}
               />
             }
             nutritionalInfo={
