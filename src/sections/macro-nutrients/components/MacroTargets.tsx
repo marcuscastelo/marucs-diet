@@ -62,16 +62,16 @@ const calculateMacroRepresentation = (
 }
 
 // TODO: Enable changing target calories directly (and update macros accordingly)
-const calculateDifferenceInCarbs = (
-  targetCalories: number,
-  weight: number,
-  currentProfile: MacroProfile
-): number => {
-  const currentCalories = calcCalories(
-    calculateMacroTarget(weight, currentProfile)
-  )
-  return (targetCalories - currentCalories) / CARBO_CALORIES
-}
+// const calculateDifferenceInCarbs = (
+//   targetCalories: number,
+//   weight: number,
+//   currentProfile: MacroProfile
+// ): number => {
+//   const currentCalories = calcCalories(
+//     calculateMacroTarget(weight, currentProfile)
+//   )
+//   return (targetCalories - currentCalories) / CARBO_CALORIES
+// }
 
 export type MacroTargetProps = {
   weight: number
@@ -94,7 +94,7 @@ export function MacroTarget (props: MacroTargetProps) {
         hasOldProfile: false
       } as const)
 
-  if (!profile) {
+  if (profile === null) {
     throw new Error('No macro profile found')
   }
 
@@ -144,7 +144,7 @@ export function MacroTarget (props: MacroTargetProps) {
   const makeOnSetPercentage =
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (macro: 'carbs' | 'protein' | 'fat') => (percentage: number) => {
-      alert('TODO: future feature') // TODO: Change all alerts with ConfirmModal
+      alert(`TODO: set percentage ${percentage} for ${macro} macro`)
     }
 
   return (

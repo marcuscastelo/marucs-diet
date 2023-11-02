@@ -7,7 +7,7 @@ export const DEFAULT_USER_ID = 3
 const userRepository = createSupabaseUserRepository()
 
 export const [users, setUsers] = createSignal<readonly User[]>([])
-const [currentUser, setCurrentUser] = createSignal<User | null>({
+export const [currentUser, setCurrentUser] = createSignal<User | null>({
   id: DEFAULT_USER_ID,
   name: 'Default User',
   birthdate: '1990-01-01',

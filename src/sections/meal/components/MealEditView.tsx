@@ -49,7 +49,7 @@ export type MealEditViewProps = {
 
 const [mealSignal, setMealSignal] = createSignal<Meal | null>(null)
 
-export default function MealEditView (props: MealEditViewProps) {
+export function MealEditView (props: MealEditViewProps) {
   // TODO: Delete fake signal
   console.debug('[MealEditView] - Rendering')
 

@@ -1,4 +1,5 @@
-import MealEditView, {
+import {
+  MealEditView,
   type MealEditViewProps
 } from '@/sections/meal/components/MealEditView'
 import { For, type Accessor } from 'solid-js'
@@ -8,7 +9,7 @@ export type DayMealsProps = {
   className?: string
 }
 
-export default function MealEditViewList (props: DayMealsProps) {
+export function MealEditViewList (props: DayMealsProps) {
   return (
     <div class={props.className}>
       <For each={props.mealEditPropsList()}>
