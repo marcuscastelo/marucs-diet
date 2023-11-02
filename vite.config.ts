@@ -3,12 +3,26 @@ import solid from 'vite-plugin-solid'
 import tsconfigPaths from 'vite-tsconfig-paths'
 // @ts-expect-error eslint is not typed
 import eslint from 'vite-plugin-eslint'
+import devtools from 'solid-devtools/vite'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
   return {
-    plugins: [solid(), eslint(), tsconfigPaths()],
+    plugins: [
+      devtools({
+        autoname: true, // e.g. enable autoname
+        locator: {
+          targetIDE: 'vscode-insiders',
+          componentLocation: true,
+          jsxLocation: true,
+          key: 'Alt'
+        }
+      }),
+      solid(),
+      eslint(),
+      tsconfigPaths()
+    ],
     define: {
       __APP_ENV__: JSON.stringify(env.APP_ENV)
     }

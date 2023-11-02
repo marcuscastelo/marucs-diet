@@ -49,5 +49,5 @@ export function TestChart () {
 
   // options and series can be a store or signal
 
-  return <SolidApexCharts width="1000" type="candlestick" options={options()} series={series().list} />
+  return <SolidApexCharts type="candlestick" options={options()} series={series().list} />
 }
