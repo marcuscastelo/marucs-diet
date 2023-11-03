@@ -5,7 +5,6 @@ import { TrashIcon } from '@/sections/common/components/icons/TrashIcon'
 import { type OHLC } from '@/legacy/model/ohlcModel'
 import { useDateField, useFloatField } from '@/sections/common/hooks/useField'
 import { FloatInput } from '@/sections/common/components/FloatInput'
-import { dateToYYYYMMDD } from '@/legacy/utils/dateUtils'
 import { CapsuleContent } from '@/sections/common/components/capsule/CapsuleContent'
 import {
   calculateWeightProgress,
