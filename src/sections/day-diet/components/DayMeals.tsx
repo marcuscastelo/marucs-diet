@@ -95,7 +95,7 @@ export default function DayMeals (props: { selectedDay: string }) {
           <ExternalTemplateSearchModal
             day={neverNullDayDiey}
             visible={templateSearchModalVisible}
-            setVisible={setItemGroupEditModalVisible}
+            setVisible={setTemplateSearchModalVisible}
           />
           <ExternalItemGroupEditModal
             day={neverNullDayDiey}

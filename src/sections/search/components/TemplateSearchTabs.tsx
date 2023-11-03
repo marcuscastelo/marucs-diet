@@ -59,7 +59,7 @@ export function TemplateSearchTabs (props: {
   const [selectedTab, setSelectedTab] = createSignal<AvailableTab>('all')
 
   return (
-    <ul class="hidden text-sm font-medium text-center text-gray-500 divide-x divide-gray-700 rounded-lg shadow sm:flex dark:divide-gray-700 dark:text-gray-400">
+    <ul class="flex text-sm font-medium text-center text-gray-500 divide-x divide-gray-700 rounded-lg shadow  dark:divide-gray-700 dark:text-gray-400">
       <For each={Object.keys(avaliableTabs)}>
         {(tabKey) => (
           <li class="w-full">
