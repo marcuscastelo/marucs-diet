@@ -1,6 +1,7 @@
 import { cn } from '@/legacy/utils/cn'
 import { type JSXElement, mergeProps } from 'solid-js'
 
+// https://flowbite.com/docs/components/alerts/
 export function Alert (props_: {
   color?: 'blue' | 'green' | 'yellow' | 'red' | 'gray'
   class?: string

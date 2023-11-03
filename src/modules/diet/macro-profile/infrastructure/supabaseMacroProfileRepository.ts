@@ -5,17 +5,27 @@ import {
 import { type User } from '@/modules/user/domain/user'
 import { type DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
 import supabase from '@/legacy/utils/supabase'
+import { type MacroProfileRepository } from '@/modules/diet/macro-profile/domain/macroProfileRepository'
 
 const TABLE = 'macro_profiles'
 
-export async function fetchUserMacroProfiles (userId: User['id']) {
+export function createSupabaseMacroProfileRepository (): MacroProfileRepository {
+  return {
+    fetchUserMacroProfiles,
+    insertMacroProfile,
+    updateMacroProfile,
+    deleteMacroProfile
+  }
+}
+
+async function fetchUserMacroProfiles (userId: User['id']) {
   const { data, error } = await supabase
     .from(TABLE)
     .select('*')
     .eq('owner', userId)
     .order('target_day', { ascending: true })
 
-  if (error) {
+  if (error !== null) {
     console.error(error)
     throw error
   }
@@ -23,7 +33,7 @@ export async function fetchUserMacroProfiles (userId: User['id']) {
   return macroProfileSchema.array().parse(data)
 }
 
-export async function insertMacroProfile (
+async function insertMacroProfile (
   newMacroProfile: DbReady<MacroProfile>
 ) {
   const macroProfile = enforceDbReady(newMacroProfile)
@@ -32,7 +42,7 @@ export async function insertMacroProfile (
     .insert(macroProfile)
     .select()
 
-  if (error) {
+  if (error !== null) {
     console.error(error)
     throw error
   }
@@ -40,7 +50,7 @@ export async function insertMacroProfile (
   return macroProfileSchema.parse(data?.[0])
 }
 
-export async function updateMacroProfile (
+async function updateMacroProfile (
   profileId: MacroProfile['id'],
   newMacroProfile: DbReady<MacroProfile>
 ) {
@@ -51,7 +61,7 @@ export async function updateMacroProfile (
     .eq('id', profileId)
     .select()
 
-  if (error) {
+  if (error !== null) {
     console.error(error)
     throw error
   }
@@ -59,10 +69,10 @@ export async function updateMacroProfile (
   return macroProfileSchema.parse(data?.[0])
 }
 
-export async function deleteMacroProfile (id: MacroProfile['id']) {
+async function deleteMacroProfile (id: MacroProfile['id']) {
   const { error } = await supabase.from(TABLE).delete().eq('id', id)
 
-  if (error) {
+  if (error !== null) {
     console.error(error)
     throw error
   }
