@@ -75,7 +75,7 @@ const calculateMacroRepresentation = (
 
 export type MacroTargetProps = {
   weight: number
-  profiles: MacroProfile[]
+  profiles: readonly MacroProfile[]
   className?: string
   onSaveMacroProfile: (newProfile: MacroProfile) => void
   mode: 'edit' | 'view'
