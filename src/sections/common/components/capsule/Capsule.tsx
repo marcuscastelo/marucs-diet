@@ -1,6 +1,6 @@
 import { type JSXElement } from 'solid-js'
 
-export default function Capsule (props: {
+export function Capsule (props: {
   leftContent: JSXElement
   rightContent: JSXElement
   class?: string

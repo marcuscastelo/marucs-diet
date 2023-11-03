@@ -1,4 +1,4 @@
-import Capsule from '@/sections/common/components/capsule/Capsule'
+import { Capsule } from '@/sections/common/components/capsule/Capsule'
 
 import {
   calcCalories,

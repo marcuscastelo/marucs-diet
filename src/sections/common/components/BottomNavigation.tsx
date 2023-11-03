@@ -8,13 +8,16 @@ import {
 } from '@/modules/user/application/user'
 import { type User } from '@/modules/user/domain/user'
 import { For, type JSXElement } from 'solid-js'
+import { useLocation, useNavigate } from '@solidjs/router'
 
 export function BottomNavigation () {
-  const pathName = 'test'
+  const navigate = useNavigate()
+  const location = useLocation()
+  const pathname = location.pathname
   const { show: showConfirmModal } = useConfirmModalContext()
 
   console.debug('[BottomNavigation] Rendering')
-  console.debug('[BottomNavigation] Current path:', pathName)
+  console.debug('[BottomNavigation] Current path:', pathname)
 
   const selector = <UserSelectorDropdown />
 
@@ -22,22 +25,22 @@ export function BottomNavigation () {
     <div class="fixed z-50 w-full h-16 max-w-lg -translate-x-1/2 bg-white border border-gray-200 rounded-full bottom-4 left-1/2 dark:bg-slate-800 dark:border-slate-700">
       <div class="grid h-full max-w-lg grid-cols-5 mx-auto pt-1">
         <BottomNavigationTab
-          active={pathName.startsWith('/diet')}
+          active={pathname === '/'}
           label="Home"
           icon={HomeIcon}
-          onClick={() => { alert('/') }}
+          onClick={() => { navigate('/') }}
           position="first"
         />
         <BottomNavigationTab
-          active={pathName.startsWith('/profile')}
+          active={pathname.startsWith('/profile')}
           label="Perfil"
           icon={ProfileIcon}
-          onClick={() => { alert('/profile') }}
+          onClick={() => { navigate('/profile') }}
           position="middle"
         />
         <CTAButton />
         <BottomNavigationTab
-          active={pathName.startsWith('/settings')}
+          active={pathname.startsWith('/settings')}
           label="Configurações"
           icon={SettingsIcon}
           onClick={() => { alert('TODO: Ainda não implementado') }} // TODO: Change all alerts with ConfirmModal
@@ -53,8 +56,7 @@ export function BottomNavigation () {
               body: selector,
               actions: []
             })
-          }
-          }
+          }}
           position="last"
         />
       </div>

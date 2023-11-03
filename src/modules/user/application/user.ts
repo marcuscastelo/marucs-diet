@@ -1,24 +1,22 @@
 import { type User } from '@/modules/user/domain/user'
 import { loadUserIdFromLocalStorage, saveUserIdToLocalStorage } from '@/modules/user/infrastructure/localStorageUserRepository'
 import { createSupabaseUserRepository } from '@/modules/user/infrastructure/supabaseUserRepository'
-import { createSignal } from 'solid-js'
+import { createEffect, createSignal } from 'solid-js'
 
 export const DEFAULT_USER_ID = 3
 
 const userRepository = createSupabaseUserRepository()
 
 export const [users, setUsers] = createSignal<readonly User[]>([])
-export const [currentUser, setCurrentUser] = createSignal<User | null>({
-  id: DEFAULT_USER_ID,
-  name: 'Default User',
-  birthdate: '1990-01-01',
-  desired_weight: 70,
-  diet: 'normo',
-  favorite_foods: [],
-  gender: 'male'
-})
+export const [currentUser, setCurrentUser] = createSignal<User | null>(null)
 
 export const [currentUserId, setCurrentUserId] = createSignal<number>(loadUserIdFromLocalStorage())
+
+createEffect(() => {
+  if (currentUserId() !== null) {
+    fetchCurrentUser().catch(console.error)
+  }
+})
 
 export async function fetchUsers (): Promise<void> {
   const users = await userRepository.fetchUsers()
