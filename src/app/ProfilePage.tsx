@@ -15,7 +15,7 @@ import {
   updateUser
 } from '@/modules/user/application/user'
 import { userWeights } from '@/modules/weight/application/weight'
-import { insertMacroProfile, latestMacroProfile, updateMacroProfile, userMacroProfiles } from '@/modules/diet/macro-profile/application/macroProfile'
+import { insertMacroProfile, updateMacroProfile, userMacroProfiles } from '@/modules/diet/macro-profile/application/macroProfile'
 import { Show } from 'solid-js'
 
 // TODO: Centralize theme constants

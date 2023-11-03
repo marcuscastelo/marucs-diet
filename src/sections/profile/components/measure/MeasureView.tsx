@@ -12,7 +12,7 @@ export function MeasureView (props: {
   onRefetchMeasures: () => void
   onSave: () => void
 }) {
-  const [dateFieldValue, setDateFieldValue] = createSignal<Date>(props.measure.target_timestamp)
+  const [dateFieldValue] = createSignal<Date>(props.measure.target_timestamp)
 
   const heightField = useFloatFieldOld(props.measure.height)
   const waistField = useFloatFieldOld(props.measure.waist)
