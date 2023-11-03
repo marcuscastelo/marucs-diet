@@ -26,7 +26,7 @@ createEffect(() => {
     return
   }
 
-  fetchCurrentDay(dayIndex.id)
+  fetchDayAsCurrent(dayIndex.id)
 })
 
 export function createDayDiet ({
@@ -54,12 +54,21 @@ export async function fetchDayIndexes (userId: User['id']) {
   setDayIndexes(dayIndexes())
 }
 
-export function fetchCurrentDay (dayId: DayDiet['id']) {
+export function fetchDayAsCurrent (dayId: DayDiet['id']) {
   dayRepository.fetchDayDiet(dayId).then((dayDiet) => {
     setCurrentDayDiet(dayDiet)
   }).catch((error) => {
     console.error(error)
   })
+}
+
+export function refetchCurrentDayDiet () {
+  const currentDayDiet_ = currentDayDiet()
+  if (currentDayDiet_ === null) {
+    return
+  }
+
+  fetchDayAsCurrent(currentDayDiet_.id)
 }
 
 // TODO: Stop fetching all day diets

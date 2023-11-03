@@ -1,4 +1,4 @@
-import { dayDiets } from '@/modules/diet/day-diet/application/dayDiet'
+import { dayDiets, refetchCurrentDayDiet } from '@/modules/diet/day-diet/application/dayDiet'
 import { type DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
 import { createSupabaseDayRepository } from '@/modules/diet/day-diet/infrastructure/supabaseDayRepository'
 import { type ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
@@ -18,7 +18,9 @@ export async function insertItemGroup (
   mealId: Meal['id'],
   newItemGroup: ItemGroup
 ) {
-  return await itemGroupRepository.insertItemGroup(dayId, mealId, newItemGroup)
+  const result = await itemGroupRepository.insertItemGroup(dayId, mealId, newItemGroup)
+  refetchCurrentDayDiet()
+  return result
 }
 
 export async function updateItemGroup (
@@ -27,12 +29,15 @@ export async function updateItemGroup (
   itemGroupId: ItemGroup['id'],
   newItemGroup: ItemGroup
 ) {
-  return await itemGroupRepository.updateItemGroup(
+  console.debug('[itemGroup] updateItemGroup', dayId, mealId, itemGroupId, newItemGroup)
+  const result = await itemGroupRepository.updateItemGroup(
     dayId,
     mealId,
     itemGroupId,
     newItemGroup
   )
+  refetchCurrentDayDiet()
+  return result
 }
 
 export async function deleteItemGroup (
@@ -41,4 +46,5 @@ export async function deleteItemGroup (
   itemGroupId: ItemGroup['id']
 ) {
   await itemGroupRepository.deleteItemGroup(dayId, mealId, itemGroupId)
+  refetchCurrentDayDiet()
 }
