@@ -1,24 +1,24 @@
-import { User } from '@/modules/user/domain/user'
+import { type User } from '@/modules/user/domain/user'
 import {
-  Weight,
-  weigthSchema as weightSchema,
+  type Weight,
+  weigthSchema as weightSchema
 } from '@/modules/weight/domain/weight'
-import { DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
+import { type DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
 import supabase from '@/legacy/utils/supabase'
-import { WeightRepository } from '@/modules/weight/domain/weightRepository'
+import { type WeightRepository } from '@/modules/weight/domain/weightRepository'
 
 const TABLE = 'weights'
 
-export function createSupabaseWeightRepository(): WeightRepository {
+export function createSupabaseWeightRepository (): WeightRepository {
   return {
     fetchUserWeights,
     insertWeight,
     updateWeight,
-    deleteWeight,
+    deleteWeight
   }
 }
 
-async function fetchUserWeights(userId: User['id']) {
+async function fetchUserWeights (userId: User['id']) {
   const { data, error } = await supabase
     .from(TABLE)
     .select('*')
@@ -33,7 +33,7 @@ async function fetchUserWeights(userId: User['id']) {
   return weightSchema.array().parse(data)
 }
 
-async function insertWeight(newWeight: DbReady<Weight>) {
+async function insertWeight (newWeight: DbReady<Weight>) {
   const weight = enforceDbReady(newWeight)
   const { data, error } = await supabase.from(TABLE).insert(weight).select()
 
@@ -45,9 +45,9 @@ async function insertWeight(newWeight: DbReady<Weight>) {
   return weightSchema.parse(data?.[0])
 }
 
-async function updateWeight(
+async function updateWeight (
   weightId: Weight['id'],
-  newWeight: DbReady<Weight>,
+  newWeight: DbReady<Weight>
 ) {
   const weight = enforceDbReady(newWeight)
   const { data, error } = await supabase
@@ -64,7 +64,7 @@ async function updateWeight(
   return weightSchema.parse(data?.[0])
 }
 
-async function deleteWeight(id: Weight['id']) {
+async function deleteWeight (id: Weight['id']) {
   const { error } = await supabase.from(TABLE).delete().eq('id', id)
 
   if (error) {
