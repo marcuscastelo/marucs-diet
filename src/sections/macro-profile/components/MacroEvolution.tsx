@@ -7,10 +7,8 @@ import {
 } from '@/legacy/utils/macroMath'
 import { calculateMacroTarget } from '@/sections/macro-nutrients/components/MacroTargets'
 import { inForceWeight } from '@/legacy/utils/weightUtils'
-import { useMacroProfiles } from '@/sections/macro-profile/hooks/useMacroProfiles'
 import {
-  inForceMacroProfile,
-  latestMacroProfile
+  inForceMacroProfile
 } from '@/legacy/utils/macroProfileUtils'
 import { type DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
 import { type MacroProfile } from '@/modules/diet/macro-profile/domain/macroProfile'
@@ -19,7 +17,7 @@ import { type Weight } from '@/modules/weight/domain/weight'
 import { dayDiets } from '@/modules/diet/day-diet/application/dayDiet'
 import { currentUser } from '@/modules/user/application/user'
 import { userWeights } from '@/modules/weight/application/weight'
-import { type Loadable } from '@/legacy/utils/loadable'
+import { userMacroProfiles } from '@/modules/diet/macro-profile/application/macroProfile'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -44,21 +42,6 @@ export function MacroEvolution () {
         <CarbsChart weights={userWeights()} />
       </div>
     </div>
-  )
-}
-
-function createChartDataFromLoadable (
-  weights: readonly Weight[],
-  days: readonly DayDiet[],
-  macroProfiles: Loadable<readonly MacroProfile[]>
-) {
-  if (macroProfiles.loading || macroProfiles.errored) {
-    return []
-  }
-  return createChartData(
-    weights,
-    days,
-    macroProfiles.data
   )
 }
 
@@ -103,16 +86,6 @@ function AllMacrosChart (props: { weights: readonly Weight[] }) {
   if (user === null) {
     throw new Error('User is null')
   }
-  const { macroProfiles } = useMacroProfiles(user.id)
-
-  const macroProfile = () => {
-    const macroProfiles_ = macroProfiles()
-    if (macroProfiles_.loading || macroProfiles_.errored) {
-      return null
-    }
-    return latestMacroProfile(macroProfiles_.data)
-  }
-  macroProfile()
 
   // const proteinDeviance = dayDiets()
   //   .map((day) => {
@@ -138,10 +111,10 @@ function AllMacrosChart (props: { weights: readonly Weight[] }) {
   //   })
   //   .reduce((a, b) => a + b, 0)
 
-  const data = () => createChartDataFromLoadable(
+  const data = () => createChartData(
     props.weights,
     dayDiets(),
-    macroProfiles()
+    userMacroProfiles()
   )
   data()
 
@@ -262,12 +235,11 @@ function CaloriesChart (props: { weights: readonly Weight[] }) {
   if (user === null) {
     throw new Error('User is null')
   }
-  const { macroProfiles } = useMacroProfiles(user.id)
 
-  const data = () => createChartDataFromLoadable(
+  const data = () => createChartData(
     props.weights,
     dayDiets(),
-    macroProfiles()
+    userMacroProfiles()
   )
   data()
 
@@ -318,12 +290,11 @@ function ProteinChart (props: { weights: readonly Weight[] }) {
   if (user === null) {
     throw new Error('User is null')
   }
-  const { macroProfiles } = useMacroProfiles(user.id)
 
-  const data = () => createChartDataFromLoadable(
+  const data = () => createChartData(
     props.weights,
     dayDiets(),
-    macroProfiles()
+    userMacroProfiles()
   )
   data()
 
@@ -373,12 +344,11 @@ function FatChart (props: { weights: readonly Weight[] }) {
   if (user === null) {
     throw new Error('User is null')
   }
-  const { macroProfiles } = useMacroProfiles(user.id)
 
-  const data = () => createChartDataFromLoadable(
+  const data = () => createChartData(
     props.weights,
     dayDiets(),
-    macroProfiles()
+    userMacroProfiles()
   )
   data()
 
@@ -428,12 +398,11 @@ function CarbsChart (props: { weights: readonly Weight[] }) {
   if (user === null) {
     throw new Error('User is null')
   }
-  const { macroProfiles } = useMacroProfiles(user.id)
 
-  const data = () => createChartDataFromLoadable(
+  const data = () => createChartData(
     props.weights,
     dayDiets(),
-    macroProfiles()
+    userMacroProfiles()
   )
   data()
 

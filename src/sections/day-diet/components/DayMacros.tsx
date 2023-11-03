@@ -2,32 +2,21 @@ import { type MacroNutrients } from '@/modules/diet/macro-nutrients/domain/macro
 import { calculateMacroTarget } from '@/sections/macro-nutrients/components/MacroTargets'
 import { calcCalories } from '@/legacy/utils/macroMath'
 import { latestWeight } from '@/legacy/utils/weightUtils'
-import { useMacroProfiles } from '@/sections/macro-profile/hooks/useMacroProfiles'
-import { latestMacroProfile } from '@/legacy/utils/macroProfileUtils'
 import { userWeights } from '@/modules/weight/application/weight'
 import { Show } from 'solid-js'
-import { currentUserId } from '@/modules/user/application/user'
+import { Progress } from '@/sections/common/components/Progress'
+import { latestMacroProfile } from '@/modules/diet/macro-profile/application/macroProfile'
 
 export default function DayMacros (props: {
   macros: MacroNutrients
   class?: string
 }) {
   // TODO: Refactor hook to use currentUser() instead of userId (probably delete hook and use use cases)
-  const { macroProfiles } = useMacroProfiles(currentUserId())
 
   const weight = () => latestWeight(userWeights())?.weight ?? null
 
-  const macroProfile = () => {
-    const macroProfiles_ = macroProfiles()
-
-    if (macroProfiles_.loading) return null
-    if (macroProfiles_.errored) return null
-
-    return latestMacroProfile(macroProfiles_.data)
-  }
-
   const macroSignals = () => {
-    const macroProfile_ = macroProfile()
+    const macroProfile_ = latestMacroProfile()
     const weight_ = weight()
     if (macroProfile_ === null) return null
     if (weight_ === null) return null
@@ -41,7 +30,7 @@ export default function DayMacros (props: {
   return (
     <Show
       when={macroSignals()}
-      fallback={<>Sem macros</>}
+      fallback={<>Sem macros: {JSON.stringify(macroSignals())}</>}
     >
       {(macroSignals) => (
         <>
@@ -112,9 +101,9 @@ function Macros (props: {
   // TODO: Add Progress component
   return (
     <div class={`mx-2 ${props.class}`}>
-      {/* <Progress
+      <Progress
         class=""
-        size="sm"
+        sizeClass="h-1.5"
         textLabelPosition="outside"
         color="green"
         textLabel={`Carboidrato (${Math.round(props.macros.carbs * 100) / 100}/${Math.round(props.targetMacros.carbs * 100) / 100
@@ -124,7 +113,7 @@ function Macros (props: {
       />
       <Progress
         class=""
-        size="sm"
+        sizeClass="h-1.5"
         textLabelPosition="outside"
         color="red"
         textLabel={`Proteína (${Math.round(props.macros.protein * 100) / 100}/${Math.round(props.targetMacros.protein * 100) / 100
@@ -134,14 +123,14 @@ function Macros (props: {
       />
       <Progress
         class=""
-        size="sm"
+        sizeClass="h-1.5"
         textLabelPosition="outside"
         color="yellow"
         textLabel={`Gordura (${Math.round(props.macros.fat * 100) / 100}/${Math.round(props.targetMacros.fat * 100) / 100
           }g)`}
         labelText={true}
         progress={(100 * props.macros.fat) / props.targetMacros.fat}
-      /> */}
+      />
     </div>
   )
 }

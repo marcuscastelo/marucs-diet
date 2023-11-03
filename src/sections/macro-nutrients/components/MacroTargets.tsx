@@ -1,11 +1,11 @@
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { deleteMacroProfile } from '@/legacy/controllers/macroProfiles'
 import { type MacroNutrients } from '@/modules/diet/macro-nutrients/domain/macroNutrients'
 import { type MacroProfile } from '@/modules/diet/macro-profile/domain/macroProfile'
 import { dateToYYYYMMDD } from '@/legacy/utils/dateUtils'
 import { calcCalories } from '@/legacy/utils/macroMath'
-import { latestMacroProfile } from '@/legacy/utils/macroProfileUtils'
+import { getLatestMacroProfile } from '@/legacy/utils/macroProfileUtils'
 import { createEffect, createSignal } from 'solid-js'
+import { deleteMacroProfile } from '@/modules/diet/macro-profile/application/macroProfile'
 
 const CARBO_CALORIES = 4 as const
 const PROTEIN_CALORIES = 4 as const
@@ -83,8 +83,8 @@ export type MacroTargetProps = {
 
 export function MacroTarget (props: MacroTargetProps) {
   const { show: showConfirmModal } = useConfirmModalContext()
-  const profile = latestMacroProfile(props.profiles)
-  const oldProfile_ = latestMacroProfile(props.profiles, 1)
+  const profile = getLatestMacroProfile(props.profiles)
+  const oldProfile_ = getLatestMacroProfile(props.profiles, 1)
   const oldProfile = oldProfile_
     ? {
         hasOldProfile: true as const,

@@ -1,12 +1,19 @@
 import { type DbReady } from '@/legacy/utils/newDbRecord'
+import { currentUserId } from '@/modules/user/application/user'
 import { type Weight } from '@/modules/weight/domain/weight'
 import { createSupabaseWeightRepository } from '@/modules/weight/infrastructure/supabaseWeightRepository'
-import { createSignal } from 'solid-js'
+import { createEffect, createSignal } from 'solid-js'
 
 const weightRepository = createSupabaseWeightRepository()
 
 const [userWeights_, setUserWeights] = createSignal<readonly Weight[]>([])
 export const userWeights = () => userWeights_()
+
+createEffect(() => {
+  fetchUserWeights(currentUserId()).catch(() => {
+    console.error('Failed to fetch user weights')
+  })
+})
 
 export async function fetchUserWeights (userId: number) {
   const weights = await weightRepository.fetchUserWeights(userId)
