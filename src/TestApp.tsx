@@ -18,8 +18,6 @@ import { FoodItemEditModal } from '@/sections/food-item/components/FoodItemEditM
 import { FoodItemListView } from '@/sections/food-item/components/FoodItemListView'
 import { ItemGroupEditModal } from '@/sections/item-group/components/ItemGroupEditModal'
 import { ItemGroupView, ItemGroupCopyButton, ItemGroupHeader, ItemGroupName, ItemGroupViewNutritionalInfo } from '@/sections/item-group/components/ItemGroupView'
-import { MealEditViewActions, MealEditViewContent, MealEditViewHeader } from '@/sections/meal/components/MealEditView'
-import { MealEditViewList } from '@/sections/meal/components/MealEditViewList'
 import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
 import { FoodContextProvider } from '@/sections/template/context/TemplateContext'
 import { createEffect, createSignal, untrack } from 'solid-js'
@@ -151,8 +149,8 @@ function App () {
             onClick={() => { setItemGroupEditModalVisible(true) }}
           >setItemGroupEditModalVisible</button>
 
-          <h1>MealEditViewList</h1>
-          <MealEditViewList
+          <h1>MealEditViewList: deletado</h1>
+          {/* <MealEditViewList
             mealEditPropsList={() => [{
               meal: meal(),
               header: (<MealEditViewHeader
@@ -170,7 +168,7 @@ function App () {
                 }}
               />)
             }]}
-          />
+          /> */}
 
           <h1>FoodItemListView</h1>
           <FoodItemListView

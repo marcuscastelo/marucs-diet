@@ -3,8 +3,7 @@ import {
   MealEditView,
   MealEditViewActions,
   MealEditViewContent,
-  MealEditViewHeader,
-  type MealEditViewProps
+  MealEditViewHeader
 } from '@/sections/meal/components/MealEditView'
 import DayMacros from '@/sections/day-diet/components/DayMacros'
 import { type Meal } from '@/modules/diet/meal/domain/meal'
