@@ -19,7 +19,7 @@ import DayNotFound from '@/sections/day-diet/components/DayNotFound'
 import {
   currentDayDiet,
   fetchDayDiets,
-  setTaretDay as setTargetDay
+  setTargetDay
 } from '@/modules/diet/day-diet/application/dayDiet'
 import { currentUserId } from '@/modules/user/application/user'
 import { updateMeal } from '@/modules/diet/meal/application/meal'

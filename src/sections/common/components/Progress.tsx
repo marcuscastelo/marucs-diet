@@ -3,18 +3,6 @@
 import { cn } from '@/legacy/utils/cn'
 import { Show, mergeProps } from 'solid-js'
 
-// Usage:
-// <Progress
-//         class=""
-//         size="sm"
-//         textLabelPosition="outside"
-//         color="red"
-//         textLabel={`Proteína (${Math.round(props.macros.protein * 100) / 100}/${Math.round(props.targetMacros.protein * 100) / 100
-//           }g)`}
-//         labelText={true}
-//         progress={(100 * props.macros.protein) / props.targetMacros.protein}
-//       />
-
 export function Progress (props_: {
   class?: string
   sizeClass?: `h-${string}`

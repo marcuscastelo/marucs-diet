@@ -1,5 +1,6 @@
 import { listFoods, searchFoodsByName } from '@/legacy/controllers/food'
 import { fetchUserRecentFoods } from '@/legacy/controllers/recentFood'
+import { targetDay } from '@/modules/diet/day-diet/application/dayDiet'
 import { createSupabaseRecipeRepository } from '@/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 import { type Template } from '@/modules/diet/template/domain/template'
 import { currentUser } from '@/modules/user/application/user'
@@ -12,14 +13,12 @@ import { FoodContextProvider, type TemplateStore } from '@/sections/template/con
 import { type JSXElement } from 'solid-js'
 
 export default function App () {
-  const selectedDay = '2023-11-02'
-
   return (
     <div class="mx-auto sm:w-3/4 md:w-4/5 lg:w-1/2 xl:w-1/3">
       {/* Top bar with date picker and user icon */}
       <Providers>
-        <TopBar selectedDay={selectedDay} />
-        <DayMeals selectedDay={selectedDay} />
+        <TopBar selectedDay={targetDay()} />
+        <DayMeals selectedDay={targetDay()} />
         <BottomNavigation />
       </Providers>
     </div>
