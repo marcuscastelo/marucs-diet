@@ -65,7 +65,7 @@ export type ItemGroupEditModalProps = {
   onDelete?: (groupId: ItemGroup['id']) => void
   onRefetch: () => void
   group: Accessor<ItemGroup | null>
-  setGroup: Setter<ItemGroup | null>
+  setGroup: (group: ItemGroup | null) => void
 }
 
 export const ItemGroupEditModal = (props: ItemGroupEditModalProps) => {

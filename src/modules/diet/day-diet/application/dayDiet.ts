@@ -15,7 +15,7 @@ export const [dayIndexes, setDayIndexes] = createSignal<readonly DayIndex[]>([])
 export const [dayDiets, setDayDiets] = createSignal<readonly DayDiet[]>([])
 export const [currentDayDiet, setCurrentDayDiet] = createSignal<DayDiet | null>(null)
 
-export const [targetDay] = createSignal<string>(getToday())
+export const [targetDay, setTaretDay] = createSignal<string>(getToday())
 createEffect(() => {
   const dayIndex = dayIndexes().find(
     (dayIndex) => dayIndex.target_day === targetDay()

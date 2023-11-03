@@ -118,7 +118,7 @@ function App () {
           >
             <ItemGroupEditModal
               group={group}
-              setGroup={(group: ItemGroup | ((prev: ItemGroup | null) => ItemGroup)) => setGroup(group)}
+              setGroup={(group: ItemGroup | null) => group !== null && setGroup(group)}
               onRefetch={() => { console.debug('refetch') }}
               onSaveGroup={(group) => {
                 setGroup(group)

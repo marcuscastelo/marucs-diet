@@ -6,12 +6,12 @@ import { For, type Accessor } from 'solid-js'
 
 export type DayMealsProps = {
   mealEditPropsList: Accessor<MealEditViewProps[]>
-  className?: string
+  class?: string
 }
 
 export function MealEditViewList (props: DayMealsProps) {
   return (
-    <div class={props.className}>
+    <div class={props.class}>
       <For each={props.mealEditPropsList()}>
         {(_, index) => {
           const mealPropsSignal = () => props.mealEditPropsList()[index()]

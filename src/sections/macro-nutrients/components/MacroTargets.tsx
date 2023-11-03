@@ -224,6 +224,7 @@ export function MacroTarget (props: MacroTargetProps) {
                         onClick: () => {
                           deleteMacroProfile(profile.id).then(() => {
                             // router.refresh()
+                            // TODO: refresh page? probably not
                             alert('TODO: refresh page? probably not')
                           }).catch((e) => {
                             alert('TODO: show error: ' + JSON.stringify(e, null, 2))

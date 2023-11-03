@@ -7,7 +7,7 @@ import {
 } from '@/modules/diet/day-diet/application/dayDiet'
 import { Show, type Accessor } from 'solid-js'
 
-export default function CopyLastDayButton (props: {
+export function CopyLastDayButton (props: {
   day: Accessor<DayDiet | undefined> // TODO: Rename all 'day' to 'dayDiet' on entire project
   selectedDay: string
 }) {
