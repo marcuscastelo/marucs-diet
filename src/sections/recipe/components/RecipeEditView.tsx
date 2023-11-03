@@ -247,7 +247,7 @@ function AddNewItemButton (props: { onClick: () => void }) {
   return (
     <button
       class="mt-3 min-w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-      onClick={props.onClick}
+      onClick={() => { props.onClick() }}
     >
       Adicionar item
     </button>
