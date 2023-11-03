@@ -17,6 +17,8 @@ export function BottomNavigation () {
   console.debug('[BottomNavigation] Rendering')
   console.debug('[BottomNavigation] Current path:', pathName)
 
+  const selector = <UserSelectorDropdown />
+
   return (
     <div class="fixed z-50 w-full h-16 max-w-lg -translate-x-1/2 bg-white border border-gray-200 rounded-full bottom-4 left-1/2 dark:bg-slate-800 dark:border-slate-700">
       <div class="grid h-full max-w-lg grid-cols-5 mx-auto">
@@ -43,20 +45,21 @@ export function BottomNavigation () {
           position="middle"
         />
         <Show when={userId} keyed={true} fallback={<>userId is null!</>}>
-          { (userId) => (<BottomNavigationTab
-            active={pathName.startsWith('/settings')}
-            label="Usuário"
-            icon={(props) => <UserIcon userId={userId} {...props} />}
-            onClick={() => {
-              showConfirmModal({
-                title: '',
-                body: <UserSelectorDropdown />,
-                actions: []
-              })
-            }
-            }
-            position="last"
-          />)}
+          {(userId) => (
+            <BottomNavigationTab
+              active={false}
+              label="Usuário"
+              icon={(props) => <UserIcon userId={userId} {...props} />}
+              onClick={() => {
+                showConfirmModal({
+                  title: '',
+                  body: selector,
+                  actions: []
+                })
+              }
+              }
+              position="last"
+            />)}
         </Show>
       </div>
     </div>
@@ -87,14 +90,13 @@ function BottomNavigationTab (props: {
         data-tooltip-target={`tooltip-${props.label}`}
         type="button"
         class={`${getRound()} inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-slate-900 group`}
-        onClick={() => props.onClick}
+        onClick={() => { props.onClick() }}
       >
         {props.icon({
-          className: `${
-            props.active
-              ? 'text-blue-600 dark:text-blue-500'
-              : 'text-gray-500 dark:text-gray-400'
-          } w-6 h-6 mb-1  group-hover:text-blue-600 dark:group-hover:text-blue-500`
+          className: `${props.active
+            ? 'text-blue-600 dark:text-blue-500'
+            : 'text-gray-500 dark:text-gray-400'
+            } w-6 h-6 mb-1  group-hover:text-blue-600 dark:group-hover:text-blue-500`
         })}
         <span class="sr-only">{props.label}</span>
       </button>
@@ -225,26 +227,24 @@ const UserSelectorDropdown = () => {
 
   return (
     <div class="flex flex-col gap-1">
-        <For each={users()}>
-            {(user) => {
-              return (
-                <div
-                  class="btn btn-ghost flex justify-between"
+      <For each={users()}>
+        {(user) => (
+          <div
+            class="btn btn-ghost flex justify-between"
 
-                  onClick={() => {
-                    handleChangeUser(user)
-                    // Force dropdown to close without having to click outside setting aria
-                    // Credit: https://reacthustle.com/blog/how-to-close-daisyui-dropdown-with-one-click
-                    const dropdown =
-                      document.activeElement as HTMLAnchorElement | null
-                    dropdown?.blur()
-                  }}
-                >
-                  <UserIcon class="w-10 h-10" userId={user.id} />
-                  <div class="text-xl flex-1 text-start">{user.name}</div>
-                </div>
-              )
+            onClick={() => {
+              handleChangeUser(user)
+              // Force dropdown to close without having to click outside setting aria
+              // Credit: https://reacthustle.com/blog/how-to-close-daisyui-dropdown-with-one-click
+              const dropdown =
+                document.activeElement as HTMLAnchorElement | null
+              dropdown?.blur()
             }}
+          >
+            <UserIcon class="w-10 h-10" userId={user.id} />
+            <div class="text-xl flex-1 text-start">{user.name}</div>
+          </div>
+        )}
       </For>
     </div>
   )
