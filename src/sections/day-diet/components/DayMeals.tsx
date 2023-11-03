@@ -1,6 +1,6 @@
-import { MealEditViewList } from '@/sections/meal/components/MealEditViewList'
 import { type DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
 import {
+  MealEditView,
   MealEditViewActions,
   MealEditViewContent,
   MealEditViewHeader,
@@ -29,7 +29,7 @@ import {
   insertItemGroup,
   updateItemGroup
 } from '@/modules/diet/item-group/application/itemGroup'
-import { type Accessor, type Setter, Show, createEffect, createSignal, untrack } from 'solid-js'
+import { type Accessor, type Setter, Show, createEffect, createSignal, untrack, For } from 'solid-js'
 import { Alert } from '@/sections/common/components/Alert'
 
 type EditSelection = {
@@ -96,41 +96,6 @@ export default function DayMeals (props: { selectedDay: string }) {
     setTemplateSearchModalVisible(true)
   }
 
-  const mealEditPropsList =
-    () =>
-      currentDayDiet()?.meals.map((meal): MealEditViewProps => {
-        console.debug(
-          '[DayMeals] <computed> meal changed, recalculating mealEditPropsList...'
-        )
-        console.debug('[DayMeals] <computed> meal: ', meal)
-        return {
-          meal,
-          header: (
-            <MealEditViewHeader
-              onUpdateMeal={(meal) => {
-                const currentDayDiet_ = currentDayDiet()
-                if (currentDayDiet_ === null) {
-                  console.error('currentDayDiet is null!')
-                  throw new Error('currentDayDiet is null!')
-                }
-                handleUpdateMeal(currentDayDiet_, meal).catch((e) => {
-                  console.error(e)
-                  alert('Erro ao atualizar refeição')
-                })
-              }}
-            />
-          ),
-          content: (
-            <MealEditViewContent
-              onEditItemGroup={(item) => { handleEditItemGroup(meal, item) }}
-            />
-          ),
-          actions: (
-            <MealEditViewActions onNewItem={() => { handleNewItemButton(meal) }} />
-          )
-        }
-      }) ?? []
-
   return (
     <Show
       when={currentDayDiet()}
@@ -155,47 +120,75 @@ export default function DayMeals (props: { selectedDay: string }) {
             macros={calcDayMacros(neverNullDayDiey())}
           />
           <Show when={!showingToday()}>
-          {(_) => (
-            <>
-              <Alert class="mt-2" color="yellow">
-                Mostrando refeições do dia {props.selectedDay}!
-              </Alert>
-              <Show when={dayLocked()}>
-              {(_) => (
-                <>
-                  <Alert class="mt-2 outline" color="blue">
-                    Hoje é dia <b>{today}</b>{' '}
-                    <a
-                      class="font-bold text-blue-500 hover:cursor-pointer "
-                      onClick={() => {
-                        // TODO: Implement redirect to today
-                        alert('TODO: Implementar redirecionamento para o dia de hoje')
-                        // router.push('/diet/' + today)
-                      }}
-                    >
-                      Mostrar refeições de hoje
-                    </a>{' '}
-                    ou{' '}
-                    <a
-                      class="font-bold text-red-600 hover:cursor-pointer "
-                      onClick={() => {
-                        setDayExplicitlyUnlocked(true)
-                      }}
-                    >
-                      {' '}
-                      Desbloquear dia {props.selectedDay}
-                    </a>
-                  </Alert>
-                </>
-              )}
-              </Show>
-            </>
-          )}
+            {(_) => (
+              <>
+                <Alert class="mt-2" color="yellow">
+                  Mostrando refeições do dia {props.selectedDay}!
+                </Alert>
+                <Show when={dayLocked()}>
+                  {(_) => (
+                    <>
+                      <Alert class="mt-2 outline" color="blue">
+                        Hoje é dia <b>{today}</b>{' '}
+                        <a
+                          class="font-bold text-blue-500 hover:cursor-pointer "
+                          onClick={() => {
+                            // TODO: Implement redirect to today
+                            alert('TODO: Implementar redirecionamento para o dia de hoje')
+                            // router.push('/diet/' + today)
+                          }}
+                        >
+                          Mostrar refeições de hoje
+                        </a>{' '}
+                        ou{' '}
+                        <a
+                          class="font-bold text-red-600 hover:cursor-pointer "
+                          onClick={() => {
+                            setDayExplicitlyUnlocked(true)
+                          }}
+                        >
+                          {' '}
+                          Desbloquear dia {props.selectedDay}
+                        </a>
+                      </Alert>
+                    </>
+                  )}
+                </Show>
+              </>
+            )}
           </Show>
-          <MealEditViewList
-            class="mt-5"
-            mealEditPropsList={mealEditPropsList}
-          />
+          <For each={neverNullDayDiey().meals}>
+            {(meal) => (
+              <MealEditView
+                class='mt-5'
+                meal={meal}
+                header={
+                  <MealEditViewHeader
+                    onUpdateMeal={(meal) => {
+                      const currentDayDiet_ = currentDayDiet()
+                      if (currentDayDiet_ === null) {
+                        console.error('currentDayDiet is null!')
+                        throw new Error('currentDayDiet is null!')
+                      }
+                      handleUpdateMeal(currentDayDiet_, meal).catch((e) => {
+                        console.error(e)
+                        alert('Erro ao atualizar refeição')
+                      })
+                    }}
+                  />
+                }
+                content={
+                  <MealEditViewContent
+                    onEditItemGroup={(item) => { handleEditItemGroup(meal, item) }}
+                  />
+                }
+                actions={
+                  <MealEditViewActions onNewItem={() => { handleNewItemButton(meal) }} />
+                }
+              />
+            )}
+          </For>
+
           <CopyLastDayButton day={neverNullDayDiey} selectedDay={props.selectedDay} />
           <DeleteDayButton day={neverNullDayDiey} />
         </>
