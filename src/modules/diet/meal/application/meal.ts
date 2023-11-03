@@ -24,5 +24,5 @@ export async function updateMeal (
 ) {
   await mealRepository.updateMeal(dayId, mealId, newMeal)
   // TODO: Replace imperative fetching with signals
-  fetchDayDiets(currentUserId() ?? 3)
+  fetchDayDiets(currentUserId())
 }

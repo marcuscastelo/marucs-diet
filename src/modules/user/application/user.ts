@@ -1,4 +1,5 @@
 import { type User } from '@/modules/user/domain/user'
+import { loadUserIdFromLocalStorage, saveUserIdToLocalStorage } from '@/modules/user/infrastructure/localStorageUserRepository'
 import { createSupabaseUserRepository } from '@/modules/user/infrastructure/supabaseUserRepository'
 import { createSignal } from 'solid-js'
 
@@ -17,7 +18,7 @@ export const [currentUser, setCurrentUser] = createSignal<User | null>({
   gender: 'male'
 })
 
-export const [currentUserId, setCurrentUserId] = createSignal<number | null>(3)
+export const [currentUserId, setCurrentUserId] = createSignal<number>(loadUserIdFromLocalStorage())
 
 export async function fetchUsers (): Promise<void> {
   const users = await userRepository.fetchUsers()
@@ -25,11 +26,7 @@ export async function fetchUsers (): Promise<void> {
 }
 
 export async function fetchCurrentUser (): Promise<User | null> {
-  const id = currentUserId()
-  if (id === null) {
-    throw new Error('User not initialized')
-  }
-  const user = await userRepository.fetchUser(id)
+  const user = await userRepository.fetchUser(currentUserId())
   setCurrentUser(user)
   return user
 }
@@ -53,21 +50,9 @@ export async function deleteUser (userId: User['id']): Promise<void> {
   await fetchUsers()
 }
 
-export function initializeUser (): void {
-  // if (currentUserId.value !== null) {
-  //   throw new Error('User already initialized')
-  // }
-  // const userId = loadUserIdFromLocalStorage()
-  // if (userId === null) {
-  //   changeToUser(DEFAULT_USER_ID)
-  // } else {
-  //   changeToUser(userId)
-  // }
-}
-
-export function changeToUser (_userId: User['id']): void {
-  // currentUserId.value = userId
-  // saveUserIdToLocalStorage(userId)
+export function changeToUser (userId: User['id']): void {
+  setCurrentUserId(userId)
+  saveUserIdToLocalStorage(userId)
 }
 
 // TODO: Create module for favorites

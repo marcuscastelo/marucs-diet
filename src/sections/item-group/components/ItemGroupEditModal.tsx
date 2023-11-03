@@ -600,18 +600,12 @@ function Body (props: {
                             throw new Error('group is null')
                           }
 
-                          const currentUserId_ = currentUserId()
-                          if (currentUserId_ === null) {
-                            console.error('currentUserId is null')
-                            throw new Error('currentUserId is null')
-                          }
-
                           const newRecipe = createRecipe({
                             name:
                               group_.name ||
                               'Nova receita (a partir de um grupo)',
                             items: deepCopy(group_.items) ?? [],
-                            owner: currentUserId_
+                            owner: currentUserId()
                           })
 
                           const insertedRecipe =

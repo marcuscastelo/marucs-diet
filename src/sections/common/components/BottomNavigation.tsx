@@ -7,11 +7,10 @@ import {
   users
 } from '@/modules/user/application/user'
 import { type User } from '@/modules/user/domain/user'
-import { For, Show, type JSXElement } from 'solid-js'
+import { For, type JSXElement } from 'solid-js'
 
 export function BottomNavigation () {
   const pathName = 'test'
-  const userId = currentUserId()
   const { show: showConfirmModal } = useConfirmModalContext()
 
   console.debug('[BottomNavigation] Rendering')
@@ -21,7 +20,7 @@ export function BottomNavigation () {
 
   return (
     <div class="fixed z-50 w-full h-16 max-w-lg -translate-x-1/2 bg-white border border-gray-200 rounded-full bottom-4 left-1/2 dark:bg-slate-800 dark:border-slate-700">
-      <div class="grid h-full max-w-lg grid-cols-5 mx-auto">
+      <div class="grid h-full max-w-lg grid-cols-5 mx-auto pt-1">
         <BottomNavigationTab
           active={pathName.startsWith('/diet')}
           label="Home"
@@ -44,30 +43,27 @@ export function BottomNavigation () {
           onClick={() => { alert('TODO: Ainda não implementado') }} // TODO: Change all alerts with ConfirmModal
           position="middle"
         />
-        <Show when={userId} keyed={true} fallback={<>userId is null!</>}>
-          {(userId) => (
-            <BottomNavigationTab
-              active={false}
-              label="Usuário"
-              icon={(props) => <UserIcon userId={userId} {...props} />}
-              onClick={() => {
-                showConfirmModal({
-                  title: '',
-                  body: selector,
-                  actions: []
-                })
-              }
-              }
-              position="last"
-            />)}
-        </Show>
+        <BottomNavigationTab
+          active={false}
+          label="Usuário"
+          icon={(props) => <UserIcon userId={currentUserId()} {...props} />}
+          onClick={() => {
+            showConfirmModal({
+              title: '',
+              body: selector,
+              actions: []
+            })
+          }
+          }
+          position="last"
+        />
       </div>
     </div>
   )
 }
 
 function BottomNavigationTab (props: {
-  icon: ({ className }: { className?: string }) => JSXElement
+  icon: (iconProps: { class?: string }) => JSXElement
   label: string
   active: boolean
   onClick: () => void
@@ -93,10 +89,10 @@ function BottomNavigationTab (props: {
         onClick={() => { props.onClick() }}
       >
         {props.icon({
-          className: `${props.active
+          class: `${props.active
             ? 'text-blue-600 dark:text-blue-500'
             : 'text-gray-500 dark:text-gray-400'
-            } w-6 h-6 mb-1  group-hover:text-blue-600 dark:group-hover:text-blue-500`
+            } w-8 h-8 mb-1  group-hover:text-blue-600 dark:group-hover:text-blue-500`
         })}
         <span class="sr-only">{props.label}</span>
       </button>
@@ -112,9 +108,9 @@ function BottomNavigationTab (props: {
   )
 }
 
-const HomeIcon = (props: { className?: string }) => (
+const HomeIcon = (props: { class?: string }) => (
   <svg
-    class={props.className}
+    class={props.class}
     aria-hidden="true"
     xmlns="http://www.w3.org/2000/svg"
     fill="currentColor"
@@ -124,9 +120,9 @@ const HomeIcon = (props: { className?: string }) => (
   </svg>
 )
 
-const ProfileIcon = (props: { className?: string }) => (
+const ProfileIcon = (props: { class?: string }) => (
   <svg
-    class={props.className}
+    class={props.class}
     aria-hidden="true"
     xmlns="http://www.w3.org/2000/svg"
     fill="currentColor"
@@ -136,9 +132,9 @@ const ProfileIcon = (props: { className?: string }) => (
   </svg>
 )
 
-const SettingsIcon = (props: { className?: string }) => (
+const SettingsIcon = (props: { class?: string }) => (
   <svg
-    class={props.className}
+    class={props.class}
     aria-hidden="true"
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
