@@ -6,8 +6,7 @@ export default {
   darkMode: 'class',
   content: [
     './src/**/*.{js,jsx,ts,tsx}',
-    './node_modules/flowbite/**/*.js', // configure the Flowbite JS source template paths
-    './node_modules/tw-elements/dist/js/**/*.js'
+    './node_modules/flowbite/**/*.js' // configure the Flowbite JS source template paths
   ],
   theme: {
     screens: {
@@ -26,7 +25,6 @@ export default {
   },
   plugins: [
     require('flowbite/plugin'),
-    require('daisyui'),
-    require('tw-elements/dist/plugin.cjs')
+    require('daisyui')
   ]
 }
