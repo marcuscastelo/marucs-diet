@@ -17,11 +17,8 @@ import { getToday } from '@/legacy/utils/dateUtils'
 import { ModalContextProvider } from '@/sections/common/context/ModalContext'
 import DayNotFound from '@/sections/day-diet/components/DayNotFound'
 import {
-  currentDayDiet,
-  fetchDayDiets,
-  setTargetDay
+  currentDayDiet
 } from '@/modules/diet/day-diet/application/dayDiet'
-import { currentUserId } from '@/modules/user/application/user'
 import { updateMeal } from '@/modules/diet/meal/application/meal'
 import {
   deleteItemGroup,
@@ -53,11 +50,6 @@ export default function DayMeals (props: { selectedDay: string }) {
 
   const [itemGroupEditModalVisible, setItemGroupEditModalVisible] = createSignal(false)
   const [templateSearchModalVisible, setTemplateSearchModalVisible] = createSignal(false)
-
-  createEffect(() => {
-    fetchDayDiets(currentUserId())
-    setTargetDay(props.selectedDay)
-  })
 
   const handleEditItemGroup = (meal: Meal, itemGroup: ItemGroup) => {
     if (dayLocked()) {
@@ -203,12 +195,7 @@ function ExternalTemplateSearchModal (props: {
       throw new Error('No meal selected!')
     }
 
-    insertItemGroup(props.day().id, newItemSelection_.meal.id, newGroup).catch(
-      (e) => {
-        console.error(e)
-        alert('Erro ao inserir grupo de item')
-      }
-    )
+    insertItemGroup(props.day().id, newItemSelection_.meal.id, newGroup)
   }
 
   createEffect(() => {
@@ -279,22 +266,14 @@ function ExternalItemGroupEditModal (props: {
                 editSelection().meal.id,
                 group.id, // TODO: Get id from selection instead of group parameter (avoid bugs if id is changed)
                 group
-              ).catch((e) => {
-                console.error(e)
-                alert('Erro ao atualizar grupo de item')
-              })
+              )
 
               // TODO: Analyze if these commands are troublesome
               setEditSelection(null)
               props.setVisible(false)
             }}
             onDelete={(id: ItemGroup['id']) => {
-              deleteItemGroup(props.day().id, editSelection().meal.id, id).catch(
-                (e) => {
-                  console.error(e)
-                  alert('Erro ao deletar grupo de item')
-                }
-              )
+              deleteItemGroup(props.day().id, editSelection().meal.id, id)
 
               setEditSelection(null)
               props.setVisible(false)

@@ -13,17 +13,4 @@ export const dayDietSchema = z.object({
     .transform(() => 'DayDiet' as const)
 })
 
-export const dayIndexSchema = dayDietSchema
-  .omit({
-    meals: true
-  })
-  .extend({
-    __type: z
-      .string()
-      .nullable()
-      .optional()
-      .transform(() => 'DayIndex' as const)
-  })
-
 export type DayDiet = Readonly<z.infer<typeof dayDietSchema>>
-export type DayIndex = Readonly<z.infer<typeof dayIndexSchema>>

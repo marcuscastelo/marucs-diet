@@ -38,7 +38,7 @@ export class ItemGroupEditor
     return this
   }
 
-  findItem (id: number) {
+  findItem (id: FoodItem['id']) {
     return this.group.items.find((item) => item.id === id)
   }
 

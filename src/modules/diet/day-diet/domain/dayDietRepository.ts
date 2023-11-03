@@ -1,12 +1,12 @@
-import { type DayDiet, type DayIndex } from '@/modules/diet/day-diet/domain/dayDiet'
+import { type DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
 import { type User } from '@/modules/user/domain/user'
 import { type DbReady } from '@/legacy/utils/newDbRecord'
 import { type Accessor } from 'solid-js'
 
 export type DayRepository = {
-  fetchAllUserDayIndexes: (
-    userId: User['id'],
-  ) => Promise<Accessor<readonly DayIndex[]>>
+  // fetchAllUserDayIndexes: (
+  //   userId: User['id'],
+  // ) => Promise<Accessor<readonly DayIndex[]>>
   fetchAllUserDayDiets: (
     userId: User['id'],
   ) => Promise<Accessor<readonly DayDiet[]>>

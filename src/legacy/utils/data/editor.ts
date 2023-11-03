@@ -5,7 +5,7 @@ export abstract class Editor<T extends object | undefined | null> {
   protected readonly content: Mutable<T>
   constructor (content: T) {
     const copy = deepCopy(content)
-    if (!copy) {
+    if (copy === null) {
       throw new Error('Error copying recipe!')
     }
     this.content = copy
@@ -13,7 +13,7 @@ export abstract class Editor<T extends object | undefined | null> {
 
   replace (content: T) {
     const copy = deepCopy(content)
-    if (!copy) {
+    if (copy === null) {
       throw new Error('Error copying recipe!')
     }
     Object.assign(this.content, copy)
@@ -26,7 +26,7 @@ export abstract class Editor<T extends object | undefined | null> {
     this.onFinish()
     const copy = deepCopy(this.content)
 
-    if (!copy) {
+    if (copy === null) {
       throw new Error('Error copying recipe!')
     }
 
