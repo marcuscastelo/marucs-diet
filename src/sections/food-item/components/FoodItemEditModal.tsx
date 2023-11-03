@@ -121,10 +121,11 @@ function Body (props: {
   })
 
   createEffect(() => {
-    props.setFoodItem({
-      ...untrack(props.foodItem),
-      quantity: quantityField.value() ?? 0
-    })
+    props.setFoodItem(
+      {
+        ...untrack(props.foodItem),
+        quantity: quantityField.value() ?? 0
+      })
   })
 
   const [currentHoldTimeout, setCurrentHoldTimeout] = createSignal<NodeJS.Timeout | null>(null)
@@ -189,11 +190,11 @@ function Body (props: {
           <FloatInput
             field={quantityField}
             style={{ width: '100%' }}
-            onFieldCommit={(value) =>
-              value === undefined &&
-              quantityField.setRawValue(
-                props.foodItem().quantity.toString())
-            }
+            onFieldCommit={(value) => {
+              if (value === undefined) {
+                quantityField.setRawValue(props.foodItem().quantity.toString())
+              }
+            }}
             tabIndex={-1}
             onFocus={(event) => {
               event.target.select()

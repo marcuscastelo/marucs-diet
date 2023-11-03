@@ -169,15 +169,15 @@ export function FoodItemFavorite (props: {
 export function FoodItemNutritionalInfo () {
   const { foodItem: item } = useFoodItemContext()
 
-  const multipliedMacros: MacroNutrients = {
+  const multipliedMacros = (): MacroNutrients => ({
     carbs: (item().macros.carbs * item().quantity) / 100,
     protein: (item().macros.protein * item().quantity) / 100,
     fat: (item().macros.fat * item().quantity) / 100
-  }
+  })
 
   return (
     <div class="flex">
-      <MacroNutrientsView {...multipliedMacros} />
+      <MacroNutrientsView {...multipliedMacros()} />
       <div class="ml-auto">
         <span class="text-white"> {item().quantity}g </span>|
         <span class="text-white">
