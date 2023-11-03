@@ -172,7 +172,7 @@ export function MealEditViewHeader (props: {
     })
   }
 
-  const hasValidPastableOnClipboard = isClipboardValid(clipboardText())
+  const hasValidPastableOnClipboard = () => isClipboardValid(clipboardText())
 
   return (
     <Show when={meal()}>
@@ -184,15 +184,16 @@ export function MealEditViewHeader (props: {
       </div>
       {/* // TODO: Remove code duplication between MealEditView and RecipeView */}
       <div class={'ml-auto flex gap-2'}>
-        {!hasValidPastableOnClipboard && (mealSignal()?.groups.length ?? 0) > 0 && (
+
+        {!hasValidPastableOnClipboard() && (mealSignal()?.groups.length ?? 0) > 0 && (
           <div
-            class={'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'}
-            onClick={handleCopy}
+          class={'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'}
+          onClick={handleCopy}
           >
             <CopyIcon />
           </div>
         )}
-        {hasValidPastableOnClipboard && (
+        {hasValidPastableOnClipboard() && (
           <div
             class={'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'}
             onClick={handlePaste}
