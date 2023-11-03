@@ -1,50 +1,65 @@
-import { dayDiets, refetchCurrentDayDiet } from '@/modules/diet/day-diet/application/dayDiet'
+import { DayDietEditor } from '@/legacy/utils/data/dayDietEditor'
+import { currentDayDiet, updateDayDiet } from '@/modules/diet/day-diet/application/dayDiet'
 import { type DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
-import { createSupabaseDayRepository } from '@/modules/diet/day-diet/infrastructure/supabaseDayRepository'
 import { type ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
-import { createDerivedItemGroupRepository } from '@/modules/diet/item-group/infrastructure/derivedItemGroupRepository'
 import { type Meal } from '@/modules/diet/meal/domain/meal'
-import { createDerivedMealRepository } from '@/modules/diet/meal/infrastructure/derivedMealRepository'
 
-const dayRepository = createSupabaseDayRepository()
-const mealRepository = createDerivedMealRepository(dayDiets, dayRepository)
-const itemGroupRepository = createDerivedItemGroupRepository(
-  dayDiets,
-  mealRepository
-)
-
-export async function insertItemGroup (
-  dayId: DayDiet['id'],
+export function insertItemGroup (
+  _dayId: DayDiet['id'], // TODO: Remove dayId from functions that don't need it
   mealId: Meal['id'],
   newItemGroup: ItemGroup
 ) {
-  const result = await itemGroupRepository.insertItemGroup(dayId, mealId, newItemGroup)
-  refetchCurrentDayDiet()
-  return result
+  const currentDayDiet_ = currentDayDiet()
+  if (currentDayDiet_ === null) {
+    throw new Error('[meal::application] Current day diet is null')
+  }
+
+  const newDay = new DayDietEditor(currentDayDiet_)
+    .editMeal(mealId, (mealEditor) => {
+      mealEditor?.addGroup(newItemGroup)
+    })
+    .finish()
+
+  updateDayDiet(currentDayDiet_.id, newDay)
 }
 
-export async function updateItemGroup (
-  dayId: DayDiet['id'],
+export function updateItemGroup (
+  _dayId: DayDiet['id'], // TODO: Remove dayId from functions that don't need it
   mealId: Meal['id'],
   itemGroupId: ItemGroup['id'],
   newItemGroup: ItemGroup
 ) {
-  console.debug('[itemGroup] updateItemGroup', dayId, mealId, itemGroupId, newItemGroup)
-  const result = await itemGroupRepository.updateItemGroup(
-    dayId,
-    mealId,
-    itemGroupId,
-    newItemGroup
-  )
-  refetchCurrentDayDiet()
-  return result
+  const currentDayDiet_ = currentDayDiet()
+  if (currentDayDiet_ === null) {
+    throw new Error('[meal::application] Current day diet is null')
+  }
+
+  const newDay = new DayDietEditor(currentDayDiet_)
+    .editMeal(mealId, (mealEditor) => {
+      mealEditor?.editGroup(itemGroupId, (groupEditor) => {
+        groupEditor?.replace(newItemGroup)
+      })
+    })
+    .finish()
+
+  updateDayDiet(currentDayDiet_.id, newDay)
 }
 
-export async function deleteItemGroup (
-  dayId: DayDiet['id'],
+export function deleteItemGroup (
+  _dayId: DayDiet['id'], // TODO: Remove dayId from functions that don't need it
   mealId: Meal['id'],
   itemGroupId: ItemGroup['id']
 ) {
-  await itemGroupRepository.deleteItemGroup(dayId, mealId, itemGroupId)
-  refetchCurrentDayDiet()
+  const currentDayDiet_ = currentDayDiet()
+  if (currentDayDiet_ === null) {
+    throw new Error('[meal::application] Current day diet is null')
+  }
+
+  const newDay = new DayDietEditor(currentDayDiet_)
+    .editMeal(mealId, (mealEditor) => {
+      mealEditor?.deleteGroup(itemGroupId)
+    })
+    .finish()
+
+  updateDayDiet(currentDayDiet_.id, newDay)
 }

@@ -70,7 +70,7 @@ export class RecipeEditor extends Editor<Recipe> implements ItemContainer {
     return this
   }
 
-  deleteItem (id: number) {
+  deleteItem (id: FoodItem['id']) {
     const index = this.recipe.items.findIndex((item) => item.id === id)
     if (index === -1) {
       console.warn(`Item with id ${id} not found!`)

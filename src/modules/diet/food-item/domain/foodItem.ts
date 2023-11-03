@@ -7,6 +7,9 @@ export const foodItemSchema = z.object({
   name: z.string(),
   reference: z.number(),
   quantity: z.number(),
+  /**
+   * @deprecated Should be derived from the quantity and the reference
+   */
   macros: macroNutrientsSchema,
   __type: z
     .string()
