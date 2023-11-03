@@ -20,7 +20,7 @@ export function ConfirmModal () {
               <button
 
                 class={`btn ${
-                  (action.primary === undefined || action.primary) ? 'btn-primary' : 'btn-ghost'
+                  (action.primary !== undefined && action.primary) ? 'btn-primary' : 'btn-ghost'
                 }`}
                 onClick={action.onClick}
               >
