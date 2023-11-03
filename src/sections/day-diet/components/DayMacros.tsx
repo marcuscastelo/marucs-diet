@@ -10,7 +10,7 @@ import { currentUserId } from '@/modules/user/application/user'
 
 export default function DayMacros (props: {
   macros: MacroNutrients
-  className?: string
+  class?: string
 }) {
   // TODO: Refactor hook to use currentUser() instead of userId (probably delete hook and use use cases)
   const { macroProfiles } = useMacroProfiles(currentUserId() ?? 3)
@@ -46,7 +46,7 @@ export default function DayMacros (props: {
       {(macroSignals) => (
         <>
 
-          <div class={`flex pt-3 ${props.className} flex-col xs:flex-row `}>
+          <div class={`flex pt-3 ${props.class} flex-col xs:flex-row `}>
             <div class="flex-shrink">
               <Calories
                 class="w-full"

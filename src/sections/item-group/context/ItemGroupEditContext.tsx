@@ -23,7 +23,7 @@ export function useItemGroupEditContext () {
 
 export function ItemGroupEditContextProvider (props: {
   group: Accessor<ItemGroup | null>
-  setGroup: Setter<ItemGroup | null>
+  setGroup: (group: ItemGroup | null) => void
   onSaveGroup: (group: ItemGroup) => void
   children: JSXElement
 }) {

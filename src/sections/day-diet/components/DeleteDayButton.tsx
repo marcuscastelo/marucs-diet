@@ -3,7 +3,7 @@ import { type DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
 import { deleteDayDiet } from '@/modules/diet/day-diet/application/dayDiet'
 import { type Accessor } from 'solid-js'
 
-export default function DeleteDayButton (props: {
+export function DeleteDayButton (props: {
   day: Accessor<DayDiet | null | undefined>
 }) {
   const { show: showConfirmModal } = useConfirmModalContext()

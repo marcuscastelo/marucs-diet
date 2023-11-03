@@ -1,5 +1,5 @@
-import CreateBlankDayButton from '@/sections/day-diet/components/CreateBlankDayButton'
-import CopyLastDayButton from '@/sections/day-diet/components/CopyLastDayButton'
+import { CreateBlankDayButton } from '@/sections/day-diet/components/CreateBlankDayButton'
+import { CopyLastDayButton } from '@/sections/day-diet/components/CopyLastDayButton'
 
 export default function DayNotFound (props: { selectedDay: string }) {
   return (
