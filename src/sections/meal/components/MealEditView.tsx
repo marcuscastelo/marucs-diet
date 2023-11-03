@@ -19,7 +19,8 @@ import { convertToGroups } from '@/legacy/utils/groupUtils'
 import { regenerateId } from '@/legacy/utils/idUtils'
 import { foodItemSchema } from '@/modules/diet/food-item/domain/foodItem'
 import { recipeSchema } from '@/modules/diet/recipe/domain/recipe'
-import { createEffect, createSignal, Show, type JSXElement } from 'solid-js'
+import { createEffect, Show, type JSXElement } from 'solid-js'
+import { MealContextProvider, useMealContext } from '@/sections/meal/context/MealContext'
 
 export type MealEditViewProps = {
   meal: Meal
@@ -47,16 +48,9 @@ export type MealEditViewProps = {
 //   return result.
 // }
 
-const [mealSignal, setMealSignal] = createSignal<Meal | null>(null)
-
 export function MealEditView (props: MealEditViewProps) {
-  // TODO: Delete fake signal
-  console.debug('[MealEditView] - Rendering')
-
-  createEffect(() => {
-    setMealSignal(props.meal)
-  })
   return (
+    <MealContextProvider meal={() => props.meal}>
     <div
       class={`bg-gray-800 p-3 ${props.class ?? ''}`} // TODO: use cn on all classes that use props.class
     >
@@ -64,6 +58,7 @@ export function MealEditView (props: MealEditViewProps) {
       {props.content}
       {props.actions}
     </div>
+    </MealContextProvider>
   )
 }
 
@@ -75,6 +70,7 @@ export function MealEditViewHeader (props: {
     .or(foodItemSchema)
     .or(recipeSchema)
   const { show: showConfirmModal } = useConfirmModalContext()
+  const { meal } = useMealContext()
 
   const isClipboardValid = createClipboardSchemaFilter(acceptedClipboardSchema)
 
@@ -87,7 +83,7 @@ export function MealEditViewHeader (props: {
   })
 
   const handleCopy =
-    () => { writeToClipboard(JSON.stringify(mealSignal())) }
+    () => { writeToClipboard(JSON.stringify(meal())) }
 
   // TODO: Remove code duplication between MealEditView and RecipeView
   const handlePasteAfterConfirm = () => {
@@ -100,7 +96,7 @@ export function MealEditViewHeader (props: {
       throw new Error('Invalid clipboard data: ' + clipboardText())
     }
 
-    const meal_ = mealSignal()
+    const meal_ = meal()
     if (meal_ === null) {
       throw new Error('mealSignal is null!')
     }
@@ -137,7 +133,7 @@ export function MealEditViewHeader (props: {
 
   // TODO: Show how much of the daily target is this meal (e.g. 30% of daily calories) (maybe in a tooltip) (useContext)s
   const mealCalories = () => {
-    const meal_ = mealSignal()
+    const meal_ = meal()
     if (meal_ === null) {
       return 0
     }
@@ -159,7 +155,7 @@ export function MealEditViewHeader (props: {
           text: 'Excluir todos os itens',
           primary: true,
           onClick: () => {
-            const meal_ = mealSignal()
+            const meal_ = meal()
             if (meal_ === null) {
               throw new Error('meal_ is null!')
             }
@@ -179,7 +175,7 @@ export function MealEditViewHeader (props: {
   const hasValidPastableOnClipboard = isClipboardValid(clipboardText())
 
   return (
-    <Show when={mealSignal()}>
+    <Show when={meal()}>
       {(mealSignal) => (
     <div class="flex">
       <div class="my-2">
@@ -222,16 +218,18 @@ export function MealEditViewHeader (props: {
 export function MealEditViewContent (props: {
   onEditItemGroup: (item: ItemGroup) => void
 }) {
+  const { meal } = useMealContext()
+
   console.debug('[MealEditViewContent] - Rendering')
-  console.debug('[MealEditViewContent] - meal.value:', mealSignal())
+  console.debug('[MealEditViewContent] - meal.value:', meal())
 
   createEffect(() => {
-    console.debug('[MealEditViewContent] meal.value changed:', mealSignal())
+    console.debug('[MealEditViewContent] meal.value changed:', meal())
   })
 
   return (
     <ItemGroupListView
-      itemGroups={() => mealSignal()?.groups ?? []}
+      itemGroups={() => meal()?.groups ?? []}
       onItemClick={(...args) => { props.onEditItemGroup(...args) }}
     />
   )
@@ -241,7 +239,7 @@ export function MealEditViewActions (props: { onNewItem: () => void }) {
   return (
     <button
       class="mt-3 min-w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-      onClick={props.onNewItem}
+      onClick={() => { props.onNewItem() }}
     >
       Adicionar item
     </button>
