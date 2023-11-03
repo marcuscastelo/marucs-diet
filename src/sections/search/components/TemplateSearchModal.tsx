@@ -50,7 +50,6 @@ export type TemplateSearchModalProps = {
 }
 
 export function TemplateSearchModal (props: TemplateSearchModalProps) {
-  const userId = currentUserId()
   const { visible, setVisible } = useModalContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
@@ -68,18 +67,14 @@ export function TemplateSearchModal (props: TemplateSearchModalProps) {
   ) => {
     props.onNewItemGroup?.(newGroup, originalAddedItem)
 
-    if (userId === null) {
-      throw new Error('User is null')
-    }
-
     const recentFood = await fetchRecentFoodByUserIdAndFoodId(
-      userId,
+      currentUserId(),
       originalAddedItem.reference
     )
 
     if (
       recentFood !== null &&
-      (recentFood.user_id !== userId ||
+      (recentFood.user_id !== currentUserId() ||
         recentFood.food_id !== originalAddedItem.reference)
     ) {
       // TODO: Remove recent food assertion once unit tests are in place
@@ -88,7 +83,7 @@ export function TemplateSearchModal (props: TemplateSearchModalProps) {
 
     const newRecentFood = createRecentFood({
       ...recentFood,
-      user_id: userId,
+      user_id: currentUserId(),
       food_id: originalAddedItem.reference
     })
 

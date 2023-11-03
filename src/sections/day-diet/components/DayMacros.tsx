@@ -13,7 +13,7 @@ export default function DayMacros (props: {
   class?: string
 }) {
   // TODO: Refactor hook to use currentUser() instead of userId (probably delete hook and use use cases)
-  const { macroProfiles } = useMacroProfiles(currentUserId() ?? 3)
+  const { macroProfiles } = useMacroProfiles(currentUserId())
 
   const weight = () => latestWeight(userWeights())?.weight ?? null
 

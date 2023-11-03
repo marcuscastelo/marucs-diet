@@ -55,11 +55,7 @@ export default function DayMeals (props: { selectedDay: string }) {
   const [templateSearchModalVisible, setTemplateSearchModalVisible] = createSignal(false)
 
   createEffect(() => {
-    const userId = currentUserId()
-    if (userId === null) {
-      throw new Error('User is null')
-    }
-    fetchDayDiets(userId)
+    fetchDayDiets(currentUserId())
     setTargetDay(props.selectedDay)
   })
 
