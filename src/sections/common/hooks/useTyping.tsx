@@ -18,7 +18,7 @@ export function useTyping ({
   }
 
   const handleTypingEnd = () => {
-    setTyping(true)
+    setTyping(false)
     onTypingEnd?.()
   }
 
