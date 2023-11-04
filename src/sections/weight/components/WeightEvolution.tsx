@@ -50,6 +50,12 @@ export function WeightEvolution (props: { onSave: () => void }) {
           Progresso do peso ({weightProgressText()})
         </h5>
         <div class="mx-5 lg:mx-20 pb-10">
+          {/* // TODO: Create combo box to select weight chart variant (7 days or all time)  */}
+          <WeightChart
+            weights={userWeights()}
+            desiredWeight={desiredWeight()}
+            type="all-time"
+          />
           <FloatInput
             field={weightField}
             class="input px-0 pl-5 text-xl mb-3"
@@ -72,16 +78,18 @@ export function WeightEvolution (props: { onSave: () => void }) {
                 return
               }
 
+              const afterInsert = () => {
+                props.onSave()
+                weightField.setRawValue('')
+              }
+
               insertWeight(
                 createWeight({
                   owner: userId,
                   weight,
                   target_timestamp: new Date(Date.now())
                 })
-              ).then(() => {
-                props.onSave()
-                weightField.setRawValue('')
-              }).catch((error) => {
+              ).then(afterInsert).catch((error) => {
                 console.error(error)
                 alert('Erro ao inserir') // TODO: Change all alerts with ConfirmModal
               })
@@ -90,12 +98,7 @@ export function WeightEvolution (props: { onSave: () => void }) {
             Adicionar peso
           </button>
         </div>
-        {/* // TODO: Create combo box to select weight chart variant (7 days or all time)  */}
-        <WeightChart
-          weights={userWeights()}
-          desiredWeight={desiredWeight()}
-          type="all-time"
-        />
+
         <div class="mx-5 lg:mx-20 pb-10">
           <For each={[...userWeights()]
             .reverse()
@@ -229,26 +232,25 @@ function WeightChart (props: {
     desiredWeight?: number
   }
 
-  const weightsByDay = createMemo(() => props.weights.reduce<Record<string, Weight[]>>(
-    (acc, weight) => {
-      const week = (() => {
-        const date = new Date(weight.target_timestamp)
-        const month = date.toLocaleString('default', { month: 'short' })
-        const weekNumber = Math.min(4, Math.ceil(date.getDate() / 7))
-        return `${month} (${weekNumber}/4)`
-      })()
-      const day_ = weight.target_timestamp.toLocaleDateString().slice(0, 5)
+  const reduceFunc = (acc: Record<string, Weight[]>, weight: Weight) => {
+    const week = (() => {
+      const date = new Date(weight.target_timestamp)
+      const month = date.toLocaleString('default', { month: 'short' })
+      const weekNumber = Math.min(4, Math.ceil(date.getDate() / 7))
+      return `${month} (${weekNumber}/4)`
+    })()
+    const day_ = weight.target_timestamp.toLocaleDateString().slice(0, 5)
 
-      const day = props.type === 'last-30-days' ? day_ : week
-      if (!acc[day]) {
-        acc[day] = []
-      }
-      acc[day].push(weight)
+    const day = props.type === 'last-30-days' ? day_ : week
+    if (!acc[day]) {
+      acc[day] = []
+    }
+    acc[day].push(weight)
 
-      return acc
-    },
-    {}
-  ))
+    return acc
+  }
+
+  const weightsByDay = createMemo(() => props.weights.reduce<Record<string, Weight[]>>(reduceFunc, {}))
 
   const data = createMemo((): readonly TickWeight[] => Object.entries(weightsByDay())
     .map(([day, weights]) => {
@@ -376,30 +378,7 @@ function WeightChart (props: {
 
   return (
     <>
-
-      <SolidApexCharts type="candlestick" options={options()} series={series().list} />
-
-      {/* <CandleStickChart data={polishedData}>
-        <Line
-          type="monotone"
-          dataKey="movingAverage"
-          stroke="orange"
-          fill="orange"
-          dot={false}
-          strokeWidth={3}
-          strokeDasharray={'5 5'}
-          opacity={1}
-        />
-        <Line
-          type="monotone"
-          dataKey="desiredWeight"
-          stroke="magenta"
-          fill="magenta"
-          dot={false}
-          strokeWidth={3}
-          opacity={1}
-        />
-      </CandleStickChart> */}
+      <SolidApexCharts type="candlestick" options={options()} series={series().list} height={600} />
     </>
   )
 }
