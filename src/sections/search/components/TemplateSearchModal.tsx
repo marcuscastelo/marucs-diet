@@ -22,6 +22,7 @@ import { useTyping } from '@/sections/common/hooks/useTyping'
 import { createFoodItem } from '@/modules/diet/food-item/domain/foodItem'
 import {
   fetchRecentFoodByUserIdAndFoodId,
+  fetchUserRecentFoods,
   insertRecentFood,
   updateRecentFood
 } from '@/legacy/controllers/recentFood'
@@ -31,6 +32,7 @@ import { type TemplateItem } from '@/modules/diet/template-item/domain/templateI
 
 import { createFood } from '@/modules/diet/food/domain/food'
 import {
+  currentUser,
   currentUserId,
   isFoodFavorite,
   setFoodAsFavorite
@@ -38,6 +40,7 @@ import {
 import { type Accessor, Show, createSignal, type Setter, For, createResource, Suspense } from 'solid-js'
 import { Alert } from '@/sections/common/components/Alert'
 import { listFoods, searchFoodsByName } from '@/legacy/controllers/food'
+import { PageLoading } from '@/sections/common/components/PageLoading'
 
 export type TemplateSearchModalProps = {
   targetName: string
@@ -182,18 +185,32 @@ export function TemplateSearchModal (props: TemplateSearchModalProps) {
 }
 
 const [search, setSearch_] = createSignal<string>('')
+const [tab, setTab] = createSignal<AvailableTab>('all')
 
-const fetchFunc = async (
-  //   {
-  //   , tab }: {
-  //   search: string
-  //   tab: AvailableTab
-  // }
-) => {
+const fetchFunc = async () => {
+  const getAllowedFoods = async () => {
+    switch (tab()) {
+      case 'favorites':
+        return currentUser()?.favorite_foods ?? []
+      case 'recent':
+        return (await fetchUserRecentFoods(currentUserId())).map(food => food.food_id)
+      default:
+        return undefined // Allow any food
+    }
+  }
+
+  const limit =
+    tab() === 'favorites'
+      ? undefined // Show all favorites
+      : 50 // Show 50 results
+
+  const allowedFoods = await getAllowedFoods()
+  console.debug('[TemplateSearchModal] fetchFunc', { tab: tab(), search: search(), limit, allowedFoods })
+
   if (search() === '') {
-    return await listFoods({ limit: 10 })
+    return await listFoods({ limit, allowedFoods })
   } else {
-    return await searchFoodsByName(search(), { limit: 10 })
+    return await searchFoodsByName(search(), { limit, allowedFoods })
   }
 }
 
@@ -209,8 +226,7 @@ export function TemplateSearch (props: {
   // TODO: Determine if user is on desktop or mobile to set autofocus
   const isDesktop = false
 
-  const [tab, setTab] = createSignal<AvailableTab>('all')
-  const [templatesResource, { refetch }] = createResource(fetchFunc)
+  const [templates, { refetch }] = createResource(tab, fetchFunc)
 
   const { typing, onTyped } = useTyping({
     delay: TYPING_TIMEOUT_MS,
@@ -276,10 +292,14 @@ export function TemplateSearch (props: {
         onSetSearch={setSearch}
       />
 
-      <Suspense fallback={<div>{templatesResource.state}</div>}>
+      <Suspense fallback={
+        <PageLoading
+          message={`Status: ${templates.state}: ${templates.error}`}
+        />
+      }>
         <SearchResults
           search={search()}
-          filteredTemplates={templatesResource() ?? []}
+          filteredTemplates={templates() ?? []}
           barCodeModalVisible={props.barCodeModalVisible}
           setBarCodeModalVisible={props.setBarCodeModalVisible}
           foodItemEditModalVisible={props.foodItemEditModalVisible}

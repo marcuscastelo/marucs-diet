@@ -85,7 +85,11 @@ async function internalCachedSearchFoods (
     })`
   )
   const { limit, allowedFoods } = params ?? {}
-  const base = supabase.from(TABLE).select('*')
+  const base = supabase
+    .from(TABLE)
+    .select('*')
+    .not('name', 'eq', '')
+    .order('name', { ascending: true })
 
   let query = base
 
