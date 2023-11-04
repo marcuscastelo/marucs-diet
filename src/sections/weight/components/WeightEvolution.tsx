@@ -18,6 +18,8 @@ import {
   updateWeight,
   userWeights
 } from '@/modules/weight/application/weight'
+import Datepicker from '@/sections/datepicker/components/Datepicker'
+import { dateToYYYYMMDD } from '@/legacy/utils/dateUtils'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -151,23 +153,23 @@ function WeightView (props: {
     <Capsule
       leftContent={
         <CapsuleContent>
-          // TODO: Datepicker without router
-          {/* <Datepicker
+          <Datepicker
             value={{
-              startDate: dateField.rawValue.value,
-              endDate: dateField.rawValue.value
+              startDate: dateField.rawValue(),
+              endDate: dateField.rawValue()
             }}
-            onChange={async (value) => {
+            onChange={(value) => {
+              // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
               if (!value?.startDate) {
                 alert('Data inválida') // TODO: Change all alerts with ConfirmModal
                 return
               }
               // Apply timezone offset
               const date = new Date(value.startDate)
-              dateField.rawValue.value = dateToYYYYMMDD(date)
+              dateField.setRawValue(dateToYYYYMMDD(date))
               handleSave({
                 dateValue: date,
-                weightValue: weightField.value.value
+                weightValue: weightField.value()
               })
             }}
             // Timezone = GMT-3
@@ -178,7 +180,7 @@ function WeightView (props: {
             toggleIcon={() => <></>}
             containerClassName="relative w-full text-gray-700 "
             inputClassName="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full dark:bg-slate-700 dark:text-white/80 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed border-none"
-          /> */}
+          />
         </CapsuleContent>
       }
       rightContent={
