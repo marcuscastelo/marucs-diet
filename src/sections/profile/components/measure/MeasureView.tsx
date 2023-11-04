@@ -6,13 +6,14 @@ import { CapsuleContent } from '@/sections/common/components/capsule/CapsuleCont
 import { useFloatFieldOld } from '@/sections/common/hooks/useField'
 import { FloatInput } from '@/sections/common/components/FloatInput'
 import { createSignal } from 'solid-js'
+import Datepicker from '@/sections/datepicker/components/Datepicker'
 
 export function MeasureView (props: {
   measure: Measure
   onRefetchMeasures: () => void
   onSave: () => void
 }) {
-  const [dateFieldValue] = createSignal<Date>(props.measure.target_timestamp)
+  const [dateFieldValue, setDateFieldValue] = createSignal<Date>(props.measure.target_timestamp)
 
   const heightField = useFloatFieldOld(props.measure.height)
   const waistField = useFloatFieldOld(props.measure.waist)
@@ -58,13 +59,13 @@ export function MeasureView (props: {
     <Capsule
       leftContent={
         <CapsuleContent>
-          // TODO: Datepicker without router
-          {/* <DatePicker
+          <Datepicker
             value={{
-              startDate: dateField,
-              endDate: dateField
+              startDate: dateFieldValue(),
+              endDate: dateFieldValue()
             }}
-            onChange={async (value) => {
+            onChange={(value) => {
+              // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
               if (!value?.startDate) {
                 alert('Data inválida') // TODO: Change all alerts with ConfirmModal
                 return
@@ -72,14 +73,14 @@ export function MeasureView (props: {
               // Apply timezone offset
               const date = new Date(value.startDate)
               date.setHours(date.getHours() + 3)
-              setDateField(date)
+              setDateFieldValue(date)
 
               handleSave({
                 date,
-                height: heightField.value.value,
-                waist: waistField.value.value,
-                hip: hipField.value.value,
-                neck: neckField.value.value
+                height: heightField.value(),
+                waist: waistField.value(),
+                hip: hipField.value(),
+                neck: neckField.value()
               })
             }}
             // Timezone = GMT-3
@@ -89,7 +90,7 @@ export function MeasureView (props: {
             readOnly={true}
             containerClassName="relative w-full text-gray-700"
             inputClassName="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full dark:bg-slate-700 dark:text-white/80 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed border-none"
-          /> */}
+          />
         </CapsuleContent>
       }
       rightContent={
