@@ -1,11 +1,11 @@
 import { listFoods } from '@/legacy/controllers/food'
+import { setTargetDay, targetDay } from '@/modules/diet/day-diet/application/dayDiet'
 import { type DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
 import { type FoodItem } from '@/modules/diet/food-item/domain/foodItem'
 import { type ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
 import { type Meal } from '@/modules/diet/meal/domain/meal'
 import { BackIcon } from '@/sections/common/components/BackIcon'
 import { ConfirmModal } from '@/sections/common/components/ConfirmModal'
-import { DatePicker } from '@/sections/common/components/Datepicker'
 import { FloatInput } from '@/sections/common/components/FloatInput'
 import { LoadingRing } from '@/sections/common/components/LoadingRing'
 import { Modal, ModalHeader } from '@/sections/common/components/Modal'
@@ -14,6 +14,7 @@ import { TestChart } from '@/sections/common/components/charts/TestChart'
 import { ConfirmModalProvider, useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { ModalContextProvider } from '@/sections/common/context/ModalContext'
 import { useFloatField } from '@/sections/common/hooks/useField'
+import Datepicker from '@/sections/datepicker/components/Datepicker'
 import { FoodItemEditModal } from '@/sections/food-item/components/FoodItemEditModal'
 import { FoodItemListView } from '@/sections/food-item/components/FoodItemListView'
 import { ItemGroupEditModal } from '@/sections/item-group/components/ItemGroupEditModal'
@@ -22,7 +23,7 @@ import { TemplateSearchModal } from '@/sections/search/components/TemplateSearch
 import { FoodContextProvider } from '@/sections/template/context/TemplateContext'
 import { createEffect, createSignal, untrack } from 'solid-js'
 
-function App () {
+export function TestApp () {
   const [foodItemEditModalVisible, setFoodItemEditModalVisible] = createSignal(false)
   const [itemGroupEditModalVisible, setItemGroupEditModalVisible] = createSignal(false)
   const [templateSearchModalVisible, setTemplateSearchModalVisible] = createSignal(false)
@@ -192,7 +193,19 @@ function App () {
 
           {/* <BarCodeReader id='123' onScanned={setBarCode}/>
         <BarCodeSearch barCode={barCode} setBarCode={setBarCode} food={food} setFood={setFood} /> */}
-          <DatePicker />
+          <Datepicker
+            asSingle={true}
+            useRange={false}
+            readOnly={true}
+            displayFormat="DD/MM/YYYY"
+            value={{
+              startDate: targetDay(),
+              endDate: targetDay()
+            }}
+            onChange={(value) => {
+              setTargetDay(value?.startDate as string)
+            } }
+          />
           <BackIcon />
           <TestField />
           <TestModal />
@@ -255,5 +268,3 @@ function TestConfirmModal () {
     })
   }} > Open confirm modal </button>)
 }
-
-export default App

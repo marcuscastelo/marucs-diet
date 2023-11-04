@@ -1,3 +1,4 @@
+import { TestApp } from '@/TestApp'
 import DietPage from '@/app/DietPage'
 import { ProfilePage } from '@/app/ProfilePage'
 import { listFoods, searchFoodsByName } from '@/legacy/controllers/food'
@@ -18,6 +19,7 @@ export default function App () {
     <Routes>
       <Route path="/" component={DietPage} />
       <Route path="/profile" component={ProfilePage} />
+      <Route path="/test" component={TestApp} />
     </Routes>
     </Providers>
 
