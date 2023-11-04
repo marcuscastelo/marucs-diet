@@ -40,7 +40,7 @@ export function Progress (props_: {
 
     // Yellow
     'bg-yellow-600': props.color === 'yellow',
-    'dark:bg-yellow-500': props.color === 'yellow',
+    'dark:bg-yellow-400': props.color === 'yellow',
 
     // Gray
     'bg-gray-600': props.color === 'gray',
@@ -64,7 +64,7 @@ export function Progress (props_: {
       <Show when={props.textLabelPosition === 'outside'}>
         <div class="flex justify-between mt-1">
           <span class={
-            cn('text-base font-medium text-blue-700 dark:text-white',
+            cn('text-base text-md font-medium text-blue-700 dark:text-white',
               over100Classes())}>{props.textLabel}</span>
         </div>
       </Show>
