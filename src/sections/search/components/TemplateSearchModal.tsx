@@ -15,6 +15,7 @@ import {
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { addId, generateId } from '@/legacy/utils/idUtils'
 import {
+  type AvailableTab,
   TemplateSearchTabs
 } from '@/sections/search/components/TemplateSearchTabs'
 import { useTyping } from '@/sections/common/hooks/useTyping'
@@ -36,7 +37,7 @@ import {
 } from '@/modules/user/application/user'
 import { type Accessor, Show, createSignal, type Setter, For, createResource, Suspense } from 'solid-js'
 import { Alert } from '@/sections/common/components/Alert'
-import { listFoods } from '@/legacy/controllers/food'
+import { listFoods, searchFoodsByName } from '@/legacy/controllers/food'
 
 export type TemplateSearchModalProps = {
   targetName: string
@@ -180,6 +181,22 @@ export function TemplateSearchModal (props: TemplateSearchModalProps) {
   )
 }
 
+const [search, setSearch_] = createSignal<string>('')
+
+const fetchFunc = async (
+  //   {
+  //   , tab }: {
+  //   search: string
+  //   tab: AvailableTab
+  // }
+) => {
+  if (search() === '') {
+    return await listFoods({ limit: 10 })
+  } else {
+    return await searchFoodsByName(search(), { limit: 10 })
+  }
+}
+
 export function TemplateSearch (props: {
   barCodeModalVisible: Accessor<boolean>
   setBarCodeModalVisible: Setter<boolean>
@@ -192,15 +209,16 @@ export function TemplateSearch (props: {
   // TODO: Determine if user is on desktop or mobile to set autofocus
   const isDesktop = false
 
-  const [search, setSearch_] = createSignal<string>('')
-
-  const [templatesResource] = createResource(async () => await listFoods())
+  const [tab, setTab] = createSignal<AvailableTab>('all')
+  const [templatesResource, { refetch }] = createResource(fetchFunc)
 
   const { typing, onTyped } = useTyping({
     delay: TYPING_TIMEOUT_MS,
     onTypingEnd: () => {
       // refetchFoods('all', search())
       // TODO: Implement refetchFoods'
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      refetch()
       console.error('TODO: Implement refetchFoods')
     } // TODO: Change 'all' to selected tab
   })
@@ -211,8 +229,6 @@ export function TemplateSearch (props: {
   }
 
   // TODO: Create DEFAULT_TAB constant
-  // const [_tab, setTab] = createSignal<AvailableTab>('all')
-  const setTab = () => {}
   // const searchFilteredTemplates = () =>
   //   (loadedTemplatesOrNull() ?? [])
   //     .filter((template) => {
@@ -260,24 +276,17 @@ export function TemplateSearch (props: {
         onSetSearch={setSearch}
       />
 
-      <Suspense fallback={<div>Loading...</div>}>
-        <Show
-          when={templatesResource()}
-          fallback={<div>Erro: {JSON.stringify(templatesResource())}</div>}
-        >
-          {(templatesResource) => (
-            <SearchResults
-              search={search()}
-              filteredTemplates={templatesResource()}
-              barCodeModalVisible={props.barCodeModalVisible}
-              setBarCodeModalVisible={props.setBarCodeModalVisible}
-              foodItemEditModalVisible={props.foodItemEditModalVisible}
-              setFoodItemEditModalVisible={props.setFoodItemEditModalVisible}
-              setSelectedTemplate={props.setSelectedTemplate}
-              typing={typing}
-            />
-          )}
-        </Show>
+      <Suspense fallback={<div>{templatesResource.state}</div>}>
+        <SearchResults
+          search={search()}
+          filteredTemplates={templatesResource() ?? []}
+          barCodeModalVisible={props.barCodeModalVisible}
+          setBarCodeModalVisible={props.setBarCodeModalVisible}
+          foodItemEditModalVisible={props.foodItemEditModalVisible}
+          setFoodItemEditModalVisible={props.setFoodItemEditModalVisible}
+          setSelectedTemplate={props.setSelectedTemplate}
+          typing={typing}
+        />
       </Suspense>
     </>
   )
@@ -401,7 +410,7 @@ const SearchBar = (props: {
     <input
       autofocus={props.isDesktop}
       value={props.search}
-      onChange={(e) => { props.onSetSearch(e.target.value) }}
+      onInput={(e) => { props.onSetSearch(e.target.value) }}
       type="search"
       id="default-search"
       class="block w-full border-gray-600 bg-gray-700 p-4 pl-10 text-sm text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500"
