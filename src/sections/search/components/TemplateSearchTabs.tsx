@@ -1,7 +1,4 @@
 import { type ObjectValues } from '@/legacy/utils/typeUtils'
-import { type Loadable } from '@/legacy/utils/loadable'
-import { type TemplateStore } from '@/sections/template/context/TemplateContext'
-import { type Template } from '@/modules/diet/template/domain/template'
 import { For, createSignal } from 'solid-js'
 import { cn } from '@/legacy/utils/cn'
 
@@ -30,25 +27,6 @@ export const avaliableTabs = {
 } as const satisfies Record<string, TabDefinition>
 
 export type AvailableTab = ObjectValues<typeof avaliableTabs>['id']
-
-export function chooseFoodsFromStore (
-  tab: AvailableTab,
-  store: Record<keyof TemplateStore, Loadable<readonly Template[] | null>>
-): Loadable<readonly Template[] | null> {
-  switch (tab) {
-    case 'all':
-      return store.foods
-    case 'favorites':
-      return store.favoriteFoods
-    case 'recent':
-      return store.recentFoods
-    case 'recipes':
-      return store.recipes
-    default:
-      tab satisfies never
-      return { loading: false, errored: true, error: new Error('Invalid tab') }
-  }
-}
 
 export function TemplateSearchTabs (props: {
   onTabChange: (
