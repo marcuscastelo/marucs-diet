@@ -13,12 +13,9 @@ import {
   type SimpleItemGroup
 } from '@/modules/diet/item-group/domain/itemGroup'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { useFoodContext } from '@/sections/template/context/TemplateContext'
 import { addId, generateId } from '@/legacy/utils/idUtils'
 import {
-  type AvailableTab,
-  TemplateSearchTabs,
-  chooseFoodsFromStore as chooseFoodsFromFoodStore
+  TemplateSearchTabs
 } from '@/sections/search/components/TemplateSearchTabs'
 import { useTyping } from '@/sections/common/hooks/useTyping'
 import { createFoodItem } from '@/modules/diet/food-item/domain/foodItem'
@@ -37,8 +34,9 @@ import {
   isFoodFavorite,
   setFoodAsFavorite
 } from '@/modules/user/application/user'
-import { type Accessor, Show, createSignal, type Setter, For } from 'solid-js'
+import { type Accessor, Show, createSignal, type Setter, For, createResource, Suspense } from 'solid-js'
 import { Alert } from '@/sections/common/components/Alert'
+import { listFoods } from '@/legacy/controllers/food'
 
 export type TemplateSearchModalProps = {
   targetName: string
@@ -189,19 +187,22 @@ export function TemplateSearch (props: {
   setFoodItemEditModalVisible: Setter<boolean>
   setSelectedTemplate: (food: Template) => void
 }) {
-  const TEMPLATE_SEARCH_LIMIT = 100
   const TYPING_TIMEOUT_MS = 1000
-
-  const { foods, favoriteFoods, recentFoods, refetchFoods, recipes } =
-    useFoodContext()
 
   // TODO: Determine if user is on desktop or mobile to set autofocus
   const isDesktop = false
 
   const [search, setSearch_] = createSignal<string>('')
+
+  const [templatesResource] = createResource(async () => await listFoods())
+
   const { typing, onTyped } = useTyping({
     delay: TYPING_TIMEOUT_MS,
-    onTypingEnd: () => { refetchFoods('all', search()) } // TODO: Change 'all' to selected tab
+    onTypingEnd: () => {
+      // refetchFoods('all', search())
+      // TODO: Implement refetchFoods'
+      console.error('TODO: Implement refetchFoods')
+    } // TODO: Change 'all' to selected tab
   })
 
   const setSearch = (newSearch: string) => {
@@ -210,57 +211,38 @@ export function TemplateSearch (props: {
   }
 
   // TODO: Create DEFAULT_TAB constant
-  const [tab, setTab] = createSignal<AvailableTab>('all')
-  const templates = () => chooseFoodsFromFoodStore(tab(), {
-    foods: foods(),
-    favoriteFoods: favoriteFoods(),
-    recentFoods: recentFoods(),
-    recipes: recipes()
-  })
+  // const [_tab, setTab] = createSignal<AvailableTab>('all')
+  const setTab = () => {}
+  // const searchFilteredTemplates = () =>
+  //   (loadedTemplatesOrNull() ?? [])
+  //     .filter((template) => {
+  //       if (search() === '') {
+  //         return true
+  //       }
 
-  const loadedTemplatesOrNull = () => {
-    const templates_ = templates()
-    if (templates_.loading) {
-      return null
-    }
+  //       // Fuzzy search
+  //       const searchLower = search().toLowerCase()
+  //       const nameLower = template.name.toLowerCase()
+  //       const searchWords = searchLower.split(' ')
+  //       const nameWords = nameLower.split(' ')
 
-    if (templates_.errored) {
-      return null
-    }
+  //       for (const searchWord of searchWords) {
+  //         let found = false
+  //         for (const nameWord of nameWords) {
+  //           if (nameWord.startsWith(searchWord)) {
+  //             found = true
+  //             break
+  //           }
+  //         }
 
-    return templates_.data
-  }
+  //         if (!found) {
+  //           return false
+  //         }
+  //       }
 
-  const searchFilteredTemplates = () =>
-    (loadedTemplatesOrNull() ?? [])
-      .filter((template) => {
-        if (search() === '') {
-          return true
-        }
-
-        // Fuzzy search
-        const searchLower = search().toLowerCase()
-        const nameLower = template.name.toLowerCase()
-        const searchWords = searchLower.split(' ')
-        const nameWords = nameLower.split(' ')
-
-        for (const searchWord of searchWords) {
-          let found = false
-          for (const nameWord of nameWords) {
-            if (nameWord.startsWith(searchWord)) {
-              found = true
-              break
-            }
-          }
-
-          if (!found) {
-            return false
-          }
-        }
-
-        return true
-      })
-      .slice(0, TEMPLATE_SEARCH_LIMIT)
+  //       return true
+  //     })
+  //     .slice(0, TEMPLATE_SEARCH_LIMIT)
 
   return (
     <>
@@ -277,16 +259,26 @@ export function TemplateSearch (props: {
         search={search()}
         onSetSearch={setSearch}
       />
-      <SearchResults
-        search={search()}
-        filteredTemplates={searchFilteredTemplates}
-        barCodeModalVisible={props.barCodeModalVisible}
-        setBarCodeModalVisible={props.setBarCodeModalVisible}
-        foodItemEditModalVisible={props.foodItemEditModalVisible}
-        setFoodItemEditModalVisible={props.setFoodItemEditModalVisible}
-        setSelectedTemplate={props.setSelectedTemplate}
-        typing={typing}
-      />
+
+      <Suspense fallback={<div>Loading...</div>}>
+        <Show
+          when={templatesResource()}
+          fallback={<div>Erro: {JSON.stringify(templatesResource())}</div>}
+        >
+          {(templatesResource) => (
+            <SearchResults
+              search={search()}
+              filteredTemplates={templatesResource()}
+              barCodeModalVisible={props.barCodeModalVisible}
+              setBarCodeModalVisible={props.setBarCodeModalVisible}
+              foodItemEditModalVisible={props.foodItemEditModalVisible}
+              setFoodItemEditModalVisible={props.setFoodItemEditModalVisible}
+              setSelectedTemplate={props.setSelectedTemplate}
+              typing={typing}
+            />
+          )}
+        </Show>
+      </Suspense>
     </>
   )
 }
@@ -423,7 +415,7 @@ const SearchBar = (props: {
 const SearchResults = (props: {
   search: string
   typing: Accessor<boolean>
-  filteredTemplates: Accessor<Template[]>
+  filteredTemplates: Template[]
   setSelectedTemplate: (food: Template) => void
   barCodeModalVisible: Accessor<boolean>
   setBarCodeModalVisible: Setter<boolean>
@@ -432,54 +424,54 @@ const SearchResults = (props: {
 }) => {
   return (
     <>
-      {!props.typing() && props.filteredTemplates().length === 0 && (
+      {!props.typing() && props.filteredTemplates.length === 0 && (
         <Alert color="yellow" class="mt-2">
           Nenhum alimento encontrado para a busca &quot;{props.search}&quot;.
         </Alert>
       )}
 
       <div class="bg-gray-800 p-1">
-        <For each={props.filteredTemplates()}>
-        {((_, idx) => {
-          const template = () => props.filteredTemplates()[idx()]
-          return (
-            <>
-              <FoodItemView
-                foodItem={() => ({
-                  ...createFoodItem({
-                    name: template().name,
-                    quantity: 100,
-                    macros: template().macros,
-                    reference: template().id
-                  }),
-                  __type:
-                    template().__type === 'Food'
-                      ? 'FoodItem'
-                      : 'RecipeItem' // TODO: Refactor conversion from template type to group/item types
-                })}
-                class="mt-1"
-                onClick={() => {
-                  props.setSelectedTemplate(template())
-                  props.setFoodItemEditModalVisible(true)
-                  props.setBarCodeModalVisible(false)
-                }}
-                header={
-                  <FoodItemHeader
-                    name={<FoodItemName />}
-                    favorite={
-                      <FoodItemFavorite
-                        favorite={isFoodFavorite(template().id)}
-                        onSetFavorite={(favorite) => { setFoodAsFavorite(template().id, favorite) }
-                        }
-                      />
-                    }
-                  />
-                }
-                nutritionalInfo={<FoodItemNutritionalInfo />}
-              />
-            </>
-          )
-        })}
+        <For each={props.filteredTemplates}>
+          {((_, idx) => {
+            const template = () => props.filteredTemplates[idx()]
+            return (
+              <>
+                <FoodItemView
+                  foodItem={() => ({
+                    ...createFoodItem({
+                      name: template().name,
+                      quantity: 100,
+                      macros: template().macros,
+                      reference: template().id
+                    }),
+                    __type:
+                      template().__type === 'Food'
+                        ? 'FoodItem'
+                        : 'RecipeItem' // TODO: Refactor conversion from template type to group/item types
+                  })}
+                  class="mt-1"
+                  onClick={() => {
+                    props.setSelectedTemplate(template())
+                    props.setFoodItemEditModalVisible(true)
+                    props.setBarCodeModalVisible(false)
+                  }}
+                  header={
+                    <FoodItemHeader
+                      name={<FoodItemName />}
+                      favorite={
+                        <FoodItemFavorite
+                          favorite={isFoodFavorite(template().id)}
+                          onSetFavorite={(favorite) => { setFoodAsFavorite(template().id, favorite) }
+                          }
+                        />
+                      }
+                    />
+                  }
+                  nutritionalInfo={<FoodItemNutritionalInfo />}
+                />
+              </>
+            )
+          })}
         </For>
       </div>
     </>
