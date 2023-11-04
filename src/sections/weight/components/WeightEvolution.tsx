@@ -1,4 +1,4 @@
-import { For } from 'solid-js'
+import { For, createEffect, createMemo } from 'solid-js'
 import { type Weight, createWeight } from '@/modules/weight/domain/weight'
 import { Capsule } from '@/sections/common/components/capsule/Capsule'
 import { TrashIcon } from '@/sections/common/components/icons/TrashIcon'
@@ -20,6 +20,9 @@ import {
 } from '@/modules/weight/application/weight'
 import Datepicker from '@/sections/datepicker/components/Datepicker'
 import { dateToYYYYMMDD } from '@/legacy/utils/dateUtils'
+import { SolidApexCharts } from 'solid-apexcharts'
+import ptBrLocale from '@/assets/locales/apex/pt-br.json'
+import { type ApexOptions } from 'apexcharts'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -141,9 +144,7 @@ function WeightView (props: {
       ...props.weight,
       weight: weightValue,
       target_timestamp: dateValue
-    }).then(() => {
-      props.onSave()
-    }).catch((error) => {
+    }).then(props.onSave).catch((error) => {
       console.error(error)
       alert('Erro ao salvar') // TODO: Change all alerts with ConfirmModal
     })
@@ -203,9 +204,7 @@ function WeightView (props: {
           <button
             class="btn btn-ghost my-auto"
             onClick={() => {
-              deleteWeight(props.weight.id).then(() => {
-                props.onSave()
-              }).catch((error) => {
+              deleteWeight(props.weight.id).then(props.onSave).catch((error) => {
                 console.error(error)
                 alert('Erro ao deletar') // TODO: Change all alerts with ConfirmModal
               })
@@ -223,14 +222,14 @@ function WeightView (props: {
 function WeightChart (props: {
   weights: readonly Weight[]
   desiredWeight: number
-  type: 'last-7-days' | 'all-time'
+  type: 'last-30-days' | 'all-time'
 }) {
   type TickWeight = OHLC & {
     movingAverage?: number
     desiredWeight?: number
   }
 
-  const weightsByDay = props.weights.reduce<Record<string, Weight[]>>(
+  const weightsByDay = createMemo(() => props.weights.reduce<Record<string, Weight[]>>(
     (acc, weight) => {
       const week = (() => {
         const date = new Date(weight.target_timestamp)
@@ -238,19 +237,20 @@ function WeightChart (props: {
         const weekNumber = Math.min(4, Math.ceil(date.getDate() / 7))
         return `${month} (${weekNumber}/4)`
       })()
-      const day_ = weight.target_timestamp.toLocaleDateString()
+      const day_ = weight.target_timestamp.toLocaleDateString().slice(0, 5)
 
-      const day = props.type === 'last-7-days' ? day_ : week
+      const day = props.type === 'last-30-days' ? day_ : week
       if (!acc[day]) {
         acc[day] = []
       }
       acc[day].push(weight)
+
       return acc
     },
     {}
-  )
+  ))
 
-  const data: readonly TickWeight[] = Object.entries(weightsByDay)
+  const data = createMemo((): readonly TickWeight[] => Object.entries(weightsByDay())
     .map(([day, weights]) => {
       const open = firstWeight(weights)?.weight ?? 0
       const low = Math.min(...weights.map((weight) => weight.weight))
@@ -265,24 +265,121 @@ function WeightChart (props: {
         low
       }
     })
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()))
 
-  const movingAverage = data.map((_, index) => {
-    const weights = data.slice(Math.max(0, index - 7), index + 1) // 7 days
+  const movingAverage = createMemo(() => data().map((_, index) => {
+    const weights = data().slice(Math.max(0, index - 7), index + 1) // 7 days
     const avgWeight =
       weights.reduce((acc, weight) => acc + weight.low, 0) / weights.length
     return avgWeight
-  })
+  }))
 
-  data.forEach((_, index) => {
-    data[index].movingAverage = movingAverage[index]
-    data[index].desiredWeight = props.desiredWeight
+  const polishedData = createMemo(() => data().map((weight, index) => {
+    return {
+      ...weight,
+      movingAverage: movingAverage()[index],
+      desiredWeight: props.desiredWeight
+    }
+  }))
+
+  const max = createMemo(() => polishedData().reduce((acc, weight) => Math.max(acc, Math.max(weight.desiredWeight, weight.high)), -Infinity))
+  const min = createMemo(() => polishedData().reduce((acc, weight) => Math.min(acc, Math.min(weight.desiredWeight, weight.low)), Infinity))
+
+  const options = () => ({
+    theme: {
+      mode: 'dark'
+    },
+    xaxis: {
+      type: 'category',
+      range: props.type === 'last-30-days' ? 30 : undefined
+    },
+    yaxis: {
+      decimalsInFloat: 0,
+      min: min() - 1,
+      max: max() + 1,
+      tickAmount: Math.min((max() - min()) / 2, 20)
+    },
+    stroke: {
+      width: 3,
+      curve: 'straight'
+    },
+    dataLabels: {
+      enabled: false
+    },
+    chart: {
+      id: 'solidchart-example',
+      locales: [ptBrLocale],
+      defaultLocale: 'pt-br',
+      background: '#1E293B',
+      events: {
+        beforeZoom: function (ctx) {
+          // we need to clear the range as we only need it on the iniital load.
+          ctx.w.config.xaxis.range = undefined
+        }
+
+      },
+      zoom: {
+        autoScaleYaxis: true
+      },
+      animations: {
+        enabled: true
+      },
+      toolbar: {
+        tools: {
+          download: false,
+          selection: false,
+          zoom: true,
+          zoomin: false,
+          zoomout: false,
+          pan: true,
+          reset: true
+        },
+        autoSelected: 'pan'
+      }
+    }
+  } satisfies ApexOptions)
+
+  const series = createMemo(() => ({
+    list: [
+      {
+        name: 'Pesos',
+        type: 'candlestick',
+        data: polishedData().map((weight) => ({
+          x: weight.date,
+          y: [weight.open, weight.high, weight.low, weight.close]
+        }))
+      },
+      {
+        name: 'Média',
+        type: 'line',
+        color: '#FFA50055',
+        data: polishedData().map((weight) => ({
+          x: weight.date,
+          y: [weight.movingAverage]
+        }))
+      },
+      {
+        name: 'Peso desejado',
+        type: 'line',
+        color: '#FF00FF',
+        data: polishedData().map((weight) => ({
+          x: weight.date,
+          y: [weight.desiredWeight]
+        }))
+      }
+    ] satisfies ApexOptions['series']
+  }))
+
+  createEffect(() => {
+    console.log('polishedData', polishedData())
   })
 
   return (
     <>
-      //TODO: Add CandleStickChart
-      {/* <CandleStickChart data={data}>
+
+      <SolidApexCharts type="candlestick" options={options()} series={series().list} />
+
+      {/* <CandleStickChart data={polishedData}>
         <Line
           type="monotone"
           dataKey="movingAverage"
