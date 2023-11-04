@@ -22,7 +22,7 @@ export function middleware(request: NextRequest) {
     return res
   }
 
-  return NextResponse.next()
+  return NextResponse.redirect('https://marucs-diet-temp.vercel.app/')
 }
 
 // See "Matching Paths" below to learn more
