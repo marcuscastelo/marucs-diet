@@ -1,12 +1,13 @@
-import { createEffect } from 'solid-js'
+import { type Accessor, createEffect } from 'solid-js'
 
 export default function useOnClickOutside (
-  ref: HTMLDivElement | undefined,
+  ref: Accessor<HTMLDivElement | undefined>,
   handler: (e?: MouseEvent | TouchEvent) => void
 ) {
   createEffect(() => {
     const listener = (event: MouseEvent | TouchEvent) => {
-      if (!ref || ref.contains(event.target as Node)) {
+      if (ref()?.contains(event.target as Node)) {
+        console.error('ref is not defined or event target is not a Node')
         return
       }
 

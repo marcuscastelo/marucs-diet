@@ -38,7 +38,9 @@ const Datepicker = (_props: DatepickerType) => {
   const [inputRef, setInputRef] = createSignal(undefined as HTMLInputElement | undefined)
 
   // Custom Hooks use
-  useOnClickOutside(containerRef, () => {
+  useOnClickOutside(() => containerRef, () => {
+    console.debug('[Datepicker] Detected click outside')
+
     const container = containerRef
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (container) {
@@ -48,6 +50,7 @@ const Datepicker = (_props: DatepickerType) => {
 
   // Functions
   const hideDatepicker = () => {
+    console.debug('[Datepicker] Hiding datepicker')
     const div = calendarContainerRef
     const arrow = arrowRef
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
