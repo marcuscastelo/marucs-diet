@@ -1,27 +1,43 @@
 import { z } from 'zod'
 
 export const EXTERNAL_API_BASE_URL = z
-  .string()
-  .parse(process.env.EXTERNAL_API_BASE_URL)
+  .string({
+    description: 'VITE_EXTERNAL_API_BASE_URL',
+  })
+  .parse(import.meta.env.VITE_EXTERNAL_API_BASE_URL)
 
 export const EXTERNAL_API_EAN_ENDPOINT = z
-  .string()
-  .parse(process.env.EXTERNAL_API_EAN_ENDPOINT)
+  .string({
+    description: 'VITE_EXTERNAL_API_EAN_ENDPOINT',
+  })
+  .parse(import.meta.env.VITE_EXTERNAL_API_EAN_ENDPOINT)
 
 export const EXTERNAL_API_FOOD_ENDPOINT = z
-  .string()
-  .parse(process.env.EXTERNAL_API_FOOD_ENDPOINT)
+  .string({
+    description: 'VITE_EXTERNAL_API_FOOD_ENDPOINT',
+  })
+  .parse(import.meta.env.VITE_EXTERNAL_API_FOOD_ENDPOINT)
 
 export const EXTERNAL_API_AUTHORIZATION = z
-  .string()
-  .parse(process.env.EXTERNAL_API_AUTHORIZATION)
+  .string({
+    description: 'VITE_EXTERNAL_API_AUTHORIZATION',
+  })
+  .parse(import.meta.env.VITE_EXTERNAL_API_AUTHORIZATION)
 
-export const EXTERNAL_API_HOST = z.string().parse(process.env.EXTERNAL_API_HOST)
+export const EXTERNAL_API_HOST = z
+  .string({
+    description: 'VITE_EXTERNAL_API_HOST',
+  })
+  .parse(import.meta.env.VITE_EXTERNAL_API_HOST)
 
 export const EXTERNAL_API_REFERER = z
-  .string()
-  .parse(process.env.EXTERNAL_API_REFERER)
+  .string({
+    description: 'VITE_EXTERNAL_API_REFERER',
+  })
+  .parse(import.meta.env.VITE_EXTERNAL_API_REFERER)
 
 export const EXTERNAL_API_FOOD_PARAMS = z
-  .string()
-  .parse(process.env.EXTERNAL_API_FOOD_PARAMS)
+  .string({
+    description: 'VITE_EXTERNAL_API_FOOD_PARAMS',
+  })
+  .parse(import.meta.env.VITE_EXTERNAL_API_FOOD_PARAMS)

@@ -1,11 +1,15 @@
-import { type ApiFood } from '@/legacy/model/apiFoodModel'
 import { type Food, foodSchema } from '@/modules/diet/food/domain/food'
-import { INTERNAL_API } from '@/legacy/utils/api'
 import { type DbReady } from '@/legacy/utils/newDbRecord'
-import { insertFood } from '@/legacy/controllers/food'
 import { markSearchAsCached } from '@/legacy/controllers/searchCache'
+import { type ApiFood } from '@/modules/diet/food/infrastructure/api/domain/apiFoodModel'
+import { createApiFoodRepository } from '@/modules/diet/food/infrastructure/api/infrastructure/apiFoodRepository'
+import { createSupabaseFoodRepository } from '@/modules/diet/food/infrastructure/supabaseFoodRepository'
 
-// TODO: retriggered: pensar num lugar melhor pra isso
+// TODO: Depency injection for repositories on all application files
+const apiFoodRepository = createApiFoodRepository()
+const foodRepository = createSupabaseFoodRepository()
+
+// TODO: Move `convertApi2Food` to a more appropriate place
 export function convertApi2Food(food: ApiFood): DbReady<Food> {
   return {
     name: food.nome,
@@ -23,21 +27,20 @@ export function convertApi2Food(food: ApiFood): DbReady<Food> {
 }
 
 export async function importFoodFromApiByEan(ean: string): Promise<Food> {
-  const apiFood = (await INTERNAL_API.get(`barcode/${ean}`)).data as ApiFood
+  const apiFood = await apiFoodRepository.fetchApiFoodByEan(ean)
   const food = convertApi2Food(apiFood)
-  const insertedFood = await insertFood(food)
+  const insertedFood = await foodRepository.insertFood(food)
   return foodSchema.parse(insertedFood)
 }
 
 export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
   console.debug(`[ApiFood] Importing foods with name "${name}"`)
-  const apiFoods = (await INTERNAL_API.get('food', { params: { q: name } }))
-    .data.alimentos as ApiFood[]
+  const apiFoods = await apiFoodRepository.fetchApiFoodsByName(name)
 
   console.debug(`[ApiFood] Found ${apiFoods.length} foods`)
   const foodsToInsert = apiFoods.map(convertApi2Food)
 
-  const insertPromises = foodsToInsert.map(insertFood)
+  const insertPromises = foodsToInsert.map(foodRepository.insertFood)
 
   const insertionResults = await Promise.allSettled(insertPromises)
   console.debug(
@@ -58,12 +61,13 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
     await markSearchAsCached(name)
   }
 
-  const insertedFoods: Food[] = insertionResults.map((result) =>
-    result.status === 'fulfilled' ? result.value : (null as unknown as Food),
+  const insertedFoods: ReadonlyArray<Food | null> = insertionResults.map(
+    (result) =>
+      result.status === 'fulfilled' ? result.value : (null as unknown as Food),
   )
   console.debug(
     `[ApiFood] Returning ${insertedFoods.length}/${apiFoods.length} foods`,
   )
 
-  return insertedFoods.map((food) => foodSchema.parse(food))
+  return foodSchema.array().parse(insertedFoods)
 }

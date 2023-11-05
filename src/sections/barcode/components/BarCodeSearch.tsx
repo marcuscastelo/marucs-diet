@@ -5,7 +5,6 @@ import {
   FoodItemNutritionalInfo,
   FoodItemView,
 } from '@/sections/food-item/components/FoodItemView'
-import { searchFoodsByEan } from '@/legacy/controllers/food'
 import { type Food } from '@/modules/diet/food/domain/food'
 import { createFoodItem } from '@/modules/diet/food-item/domain/foodItem'
 import { type MacroNutrients } from '@/modules/diet/macro-nutrients/domain/macroNutrients'
@@ -21,6 +20,7 @@ import {
   type Setter,
   Show,
 } from 'solid-js'
+import { fetchFoodByEan } from '@/modules/diet/food/application/food'
 
 export type BarCodeSearchProps = {
   barCode: Accessor<string>
@@ -40,7 +40,7 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
     }
 
     setLoading(true)
-    searchFoodsByEan(props.barCode())
+    fetchFoodByEan(props.barCode())
       .then((newFood) => {
         props.setFood(newFood)
       })

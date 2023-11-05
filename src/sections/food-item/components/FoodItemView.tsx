@@ -5,7 +5,6 @@ import {
   useFoodItemContext,
 } from '@/sections/food-item/context/FoodItemContext'
 import { CopyIcon } from '@/sections/common/components/icons/CopyIcon'
-import { searchFoodById } from '@/legacy/controllers/food'
 import { calcItemCalories } from '@/legacy/utils/macroMath'
 import { type TemplateItem } from '@/modules/diet/template-item/domain/templateItem'
 import { type Template } from '@/modules/diet/template/domain/template'
@@ -18,6 +17,7 @@ import {
   createEffect,
 } from 'solid-js'
 import { cn } from '@/legacy/utils/cn'
+import { fetchFoodById } from '@/modules/diet/food/application/food'
 
 // TODO: Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
@@ -95,7 +95,7 @@ export function FoodItemName() {
           setTemplate(null)
         })
     } else {
-      searchFoodById(itemValue.reference)
+      fetchFoodById(itemValue.reference)
         .then(setTemplate)
         .catch((err) => {
           console.error('[FoodItemName] Error fetching food:', err)
