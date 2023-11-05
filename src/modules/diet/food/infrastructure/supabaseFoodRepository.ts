@@ -79,6 +79,7 @@ async function internalCachedSearchFoods(
     .from(TABLE)
     .select('*')
     .not('name', 'eq', '')
+    .not('name', 'eq', '.')
     .order('name', { ascending: true })
 
   let query = base
