@@ -1,7 +1,7 @@
-import { targetDay } from '@/modules/diet/day-diet/application/dayDiet'
-import { BottomNavigation } from '@/sections/common/components/BottomNavigation'
-import DayMeals from '@/sections/day-diet/components/DayMeals'
-import TopBar from '@/sections/day-diet/components/TopBar'
+import { targetDay } from '~/modules/diet/day-diet/application/dayDiet'
+import { BottomNavigation } from '~/sections/common/components/BottomNavigation'
+import DayMeals from '~/sections/day-diet/components/DayMeals'
+import TopBar from '~/sections/day-diet/components/TopBar'
 
 export default function DietPage() {
   return (
