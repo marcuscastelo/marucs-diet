@@ -8,15 +8,18 @@ export type FoodSearchParams = {
 
 export type FoodRepository = {
   fetchFoods: (params: FoodSearchParams) => Promise<readonly Food[]>
-  fetchFoodById: (id: Food['id'], params: FoodSearchParams) => Promise<Food>
+  fetchFoodById: (
+    id: Food['id'],
+    params: Omit<FoodSearchParams, 'limit'>,
+  ) => Promise<Food>
   fetchFoodsByName: (
     name: Required<Food>['name'],
     params: FoodSearchParams,
   ) => Promise<readonly Food[]>
   fetchFoodByEan: (
     ean: Required<Food>['ean'],
-    params: FoodSearchParams,
-  ) => Promise<Food>
+    params: Omit<FoodSearchParams, 'limit'>,
+  ) => Promise<Food | null>
 
   insertFood: (newFood: DbReady<Food>) => Promise<Food | null>
 }
