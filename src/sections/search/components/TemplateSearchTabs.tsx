@@ -1,5 +1,5 @@
 import { type ObjectValues } from '@/legacy/utils/typeUtils'
-import { For, createSignal } from 'solid-js'
+import { type Accessor, For, type Setter } from 'solid-js'
 import { cn } from '@/legacy/utils/cn'
 
 type TabDefinition = {
@@ -29,13 +29,9 @@ export const avaliableTabs = {
 export type AvailableTab = ObjectValues<typeof avaliableTabs>['id']
 
 export function TemplateSearchTabs (props: {
-  onTabChange: (
-    id: (typeof avaliableTabs)[keyof typeof avaliableTabs]['id'],
-  ) => void
+  tab: Accessor<AvailableTab>
+  setTab: Setter<AvailableTab>
 }) {
-  // TODO: (TemplateSearchTabs) Remove internal state and use props instead
-  const [selectedTab, setSelectedTab] = createSignal<AvailableTab>('all')
-
   return (
     <ul class="flex text-sm font-medium text-center text-gray-500 divide-x divide-gray-700 rounded-lg shadow  dark:divide-gray-700 dark:text-gray-400">
       <For each={Object.keys(avaliableTabs)}>
@@ -46,13 +42,12 @@ export function TemplateSearchTabs (props: {
               class={
                 cn('flex min-h-full items-center justify-center p-4 text-sm font-medium first:ml-0 disabled:cursor-not-allowed disabled:text-gray-400 disabled:dark:text-gray-500 focus:outline-none',
                   {
-                    'text-gray-100 bg-gray-600 dark:bg-gray-700 dark:text-gray-300': selectedTab() === avaliableTabs[tabKey as keyof typeof avaliableTabs].id
+                    'text-gray-100 bg-gray-600 dark:bg-gray-700 dark:text-gray-300': props.tab() === avaliableTabs[tabKey as keyof typeof avaliableTabs].id
                   })
               }
               aria-current="page"
               onClick={() => {
-                setSelectedTab(avaliableTabs[tabKey as keyof typeof avaliableTabs].id)
-                props.onTabChange(avaliableTabs[tabKey as keyof typeof avaliableTabs].id)
+                props.setTab(avaliableTabs[tabKey as keyof typeof avaliableTabs].id)
               }}
             >
               {avaliableTabs[tabKey as keyof typeof avaliableTabs].title}
