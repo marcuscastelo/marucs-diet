@@ -1,7 +1,7 @@
-import { type Measure, measureSchema } from '@/modules/measure/domain/measure'
-import { type User } from '@/modules/user/domain/user'
-import { type DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
-import supabase from '@/legacy/utils/supabase'
+import { type Measure, measureSchema } from '~/modules/measure/domain/measure'
+import { type User } from '~/modules/user/domain/user'
+import { type DbReady, enforceDbReady } from '~/legacy/utils/newDbRecord'
+import supabase from '~/legacy/utils/supabase'
 
 const TABLE = 'body_measures'
 

@@ -1,28 +1,28 @@
 import {
   type FoodItem,
   createFoodItem,
-} from '@/modules/diet/food-item/domain/foodItem'
-import { Modal, ModalActions } from '@/sections/common/components/Modal'
-import { type Recipe, createRecipe } from '@/modules/diet/recipe/domain/recipe'
+} from '~/modules/diet/food-item/domain/foodItem'
+import { Modal, ModalActions } from '~/sections/common/components/Modal'
+import { type Recipe, createRecipe } from '~/modules/diet/recipe/domain/recipe'
 import RecipeEditView, {
   RecipeEditContent,
   RecipeEditHeader,
-} from '@/sections/recipe/components/RecipeEditView'
-import { FoodItemEditModal } from '@/sections/food-item/components/FoodItemEditModal'
+} from '~/sections/recipe/components/RecipeEditView'
+import { FoodItemEditModal } from '~/sections/food-item/components/FoodItemEditModal'
 import {
   ModalContextProvider,
   useModalContext,
-} from '@/sections/common/context/ModalContext'
-import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { type TemplateItem } from '@/modules/diet/template-item/domain/templateItem'
-import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
+} from '~/sections/common/context/ModalContext'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import {
   type ItemGroup,
   isSimpleSingleGroup,
-} from '@/modules/diet/item-group/domain/itemGroup'
-import { RecipeEditor } from '@/legacy/utils/data/recipeEditor'
+} from '~/modules/diet/item-group/domain/itemGroup'
+import { RecipeEditor } from '~/legacy/utils/data/recipeEditor'
 
-import { currentUserId } from '@/modules/user/application/user'
+import { currentUserId } from '~/modules/user/application/user'
 import {
   type Accessor,
   createEffect,

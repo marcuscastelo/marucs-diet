@@ -1,9 +1,9 @@
-import { Editor } from '@/legacy/utils/data/editor'
-import { MealEditor } from '@/legacy/utils/data/mealEditor'
-import { deepCopy } from '@/legacy/utils/deepCopy'
-import { type Mutable } from '@/legacy/utils/typeUtils'
-import { type DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
-import { type Meal } from '@/modules/diet/meal/domain/meal'
+import { Editor } from '~/legacy/utils/data/editor'
+import { MealEditor } from '~/legacy/utils/data/mealEditor'
+import { deepCopy } from '~/legacy/utils/deepCopy'
+import { type Mutable } from '~/legacy/utils/typeUtils'
+import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import { type Meal } from '~/modules/diet/meal/domain/meal'
 
 export class DayDietEditor extends Editor<DayDiet> {
   private readonly dayDiet = this.content

@@ -1,4 +1,4 @@
-import { type useFloatField } from '@/sections/common/hooks/useField'
+import { type useFloatField } from '~/sections/common/hooks/useField'
 import type JSX from 'solid-js/jsx-runtime'
 export function FloatInput(
   props: {

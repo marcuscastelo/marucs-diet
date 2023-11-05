@@ -1,11 +1,11 @@
-import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { type MacroNutrients } from '@/modules/diet/macro-nutrients/domain/macroNutrients'
-import { type MacroProfile } from '@/modules/diet/macro-profile/domain/macroProfile'
-import { dateToYYYYMMDD } from '@/legacy/utils/dateUtils'
-import { calcCalories } from '@/legacy/utils/macroMath'
-import { getLatestMacroProfile } from '@/legacy/utils/macroProfileUtils'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { type MacroProfile } from '~/modules/diet/macro-profile/domain/macroProfile'
+import { dateToYYYYMMDD } from '~/legacy/utils/dateUtils'
+import { calcCalories } from '~/legacy/utils/macroMath'
+import { getLatestMacroProfile } from '~/legacy/utils/macroProfileUtils'
 import { createEffect, createSignal } from 'solid-js'
-import { deleteMacroProfile } from '@/modules/diet/macro-profile/application/macroProfile'
+import { deleteMacroProfile } from '~/modules/diet/macro-profile/application/macroProfile'
 
 const CARBO_CALORIES = 4 as const
 const PROTEIN_CALORIES = 4 as const

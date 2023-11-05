@@ -1,7 +1,7 @@
-import { type User, userSchema } from '@/modules/user/domain/user'
-import supabase from '@/legacy/utils/supabase'
-import { type UserRepository } from '@/modules/user/domain/userRepository'
-import { type DbReady } from '@/legacy/utils/newDbRecord'
+import { type User, userSchema } from '~/modules/user/domain/user'
+import supabase from '~/legacy/utils/supabase'
+import { type UserRepository } from '~/modules/user/domain/userRepository'
+import { type DbReady } from '~/legacy/utils/newDbRecord'
 
 const TABLE = 'users'
 

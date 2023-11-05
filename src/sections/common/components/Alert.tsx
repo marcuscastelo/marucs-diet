@@ -1,4 +1,4 @@
-import { cn } from '@/legacy/utils/cn'
+import { cn } from '~/legacy/utils/cn'
 import { type JSXElement, mergeProps } from 'solid-js'
 
 // https://flowbite.com/docs/components/alerts/

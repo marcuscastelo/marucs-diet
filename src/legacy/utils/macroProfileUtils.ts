@@ -1,5 +1,5 @@
-import { type MacroProfile } from '@/modules/diet/macro-profile/domain/macroProfile'
-import { inForceGeneric } from '@/legacy/utils/generic/inForce'
+import { type MacroProfile } from '~/modules/diet/macro-profile/domain/macroProfile'
+import { inForceGeneric } from '~/legacy/utils/generic/inForce'
 
 export function getLatestMacroProfile(
   macroProfiles: readonly MacroProfile[],

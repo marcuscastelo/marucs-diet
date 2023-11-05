@@ -6,12 +6,12 @@ import {
   EXTERNAL_API_FOOD_PARAMS,
   EXTERNAL_API_HOST,
   EXTERNAL_API_REFERER,
-} from '@/modules/diet/api/constants/apiSecrets'
+} from '~/modules/diet/api/constants/apiSecrets'
 import {
   apiFoodSchema,
   type ApiFood,
-} from '@/modules/diet/food/infrastructure/api/domain/apiFoodModel'
-import { type ApiFoodRepository } from '@/modules/diet/food/infrastructure/api/domain/apiFoodRepository'
+} from '~/modules/diet/food/infrastructure/api/domain/apiFoodModel'
+import { type ApiFoodRepository } from '~/modules/diet/food/infrastructure/api/domain/apiFoodRepository'
 
 import axios from 'axios'
 

@@ -1,10 +1,10 @@
-import { type ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
-import { foodItemSchema } from '@/modules/diet/food-item/domain/foodItem'
+import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { foodItemSchema } from '~/modules/diet/food-item/domain/foodItem'
 
 import { z } from 'zod'
-import { macroNutrientsSchema } from '@/modules/diet/macro-nutrients/domain/macroNutrients'
-import { calcGroupMacros } from '@/legacy/utils/macroMath'
-import { generateId } from '@/legacy/utils/idUtils'
+import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { calcGroupMacros } from '~/legacy/utils/macroMath'
+import { generateId } from '~/legacy/utils/idUtils'
 
 export const recipeSchema = z.object({
   id: z.number(),

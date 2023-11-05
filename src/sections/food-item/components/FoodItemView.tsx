@@ -1,23 +1,23 @@
-import MacroNutrientsView from '@/sections/macro-nutrients/components/MacroNutrientsView'
-import { type MacroNutrients } from '@/modules/diet/macro-nutrients/domain/macroNutrients'
+import MacroNutrientsView from '~/sections/macro-nutrients/components/MacroNutrientsView'
+import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   FoodItemContextProvider,
   useFoodItemContext,
-} from '@/sections/food-item/context/FoodItemContext'
-import { CopyIcon } from '@/sections/common/components/icons/CopyIcon'
-import { calcItemCalories } from '@/legacy/utils/macroMath'
-import { type TemplateItem } from '@/modules/diet/template-item/domain/templateItem'
-import { type Template } from '@/modules/diet/template/domain/template'
+} from '~/sections/food-item/context/FoodItemContext'
+import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
+import { calcItemCalories } from '~/legacy/utils/macroMath'
+import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import { type Template } from '~/modules/diet/template/domain/template'
 
-import { createSupabaseRecipeRepository } from '@/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
+import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 import {
   type JSXElement,
   type Accessor,
   createSignal,
   createEffect,
 } from 'solid-js'
-import { cn } from '@/legacy/utils/cn'
-import { fetchFoodById } from '@/modules/diet/food/application/food'
+import { cn } from '~/legacy/utils/cn'
+import { fetchFoodById } from '~/modules/diet/food/application/food'
 
 // TODO: Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()

@@ -1,11 +1,11 @@
 import {
   type MacroProfile,
   macroProfileSchema,
-} from '@/modules/diet/macro-profile/domain/macroProfile'
-import { type User } from '@/modules/user/domain/user'
-import { type DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
-import supabase from '@/legacy/utils/supabase'
-import { type MacroProfileRepository } from '@/modules/diet/macro-profile/domain/macroProfileRepository'
+} from '~/modules/diet/macro-profile/domain/macroProfile'
+import { type User } from '~/modules/user/domain/user'
+import { type DbReady, enforceDbReady } from '~/legacy/utils/newDbRecord'
+import supabase from '~/legacy/utils/supabase'
+import { type MacroProfileRepository } from '~/modules/diet/macro-profile/domain/macroProfileRepository'
 
 const TABLE = 'macro_profiles'
 

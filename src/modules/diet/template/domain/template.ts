@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import { foodSchema } from '@/modules/diet/food/domain/food'
-import { recipeSchema } from '@/modules/diet/recipe/domain/recipe'
+import { foodSchema } from '~/modules/diet/food/domain/food'
+import { recipeSchema } from '~/modules/diet/recipe/domain/recipe'
 
 export const TemplateSchema = z.discriminatedUnion('__type', [
   z

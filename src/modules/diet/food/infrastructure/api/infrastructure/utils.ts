@@ -6,7 +6,7 @@
 //   EXTERNAL_API_FOOD_PARAMS,
 //   EXTERNAL_API_HOST,
 //   EXTERNAL_API_REFERER
-// } from '@/legacy/api/apiSecrets'
+// } from '~/legacy/api/apiSecrets'
 
 // export const searchFoodNameInternal = async (food: string) => {
 //   return JSON.stringify('oi')

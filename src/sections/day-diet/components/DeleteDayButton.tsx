@@ -1,6 +1,6 @@
-import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { type DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
-import { deleteDayDiet } from '@/modules/diet/day-diet/application/dayDiet'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import { deleteDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
 import { type Accessor } from 'solid-js'
 
 export function DeleteDayButton(props: {

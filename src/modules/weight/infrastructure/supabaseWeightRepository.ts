@@ -1,11 +1,11 @@
-import { type User } from '@/modules/user/domain/user'
+import { type User } from '~/modules/user/domain/user'
 import {
   type Weight,
   weigthSchema as weightSchema,
-} from '@/modules/weight/domain/weight'
-import { type DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
-import supabase from '@/legacy/utils/supabase'
-import { type WeightRepository } from '@/modules/weight/domain/weightRepository'
+} from '~/modules/weight/domain/weight'
+import { type DbReady, enforceDbReady } from '~/legacy/utils/newDbRecord'
+import supabase from '~/legacy/utils/supabase'
+import { type WeightRepository } from '~/modules/weight/domain/weightRepository'
 
 const TABLE = 'weights'
 

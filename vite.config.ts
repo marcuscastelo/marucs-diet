@@ -19,7 +19,9 @@ export default defineConfig(({ mode }) => {
           key: 'Alt',
         },
       }),
-      solid(),
+      solid({
+        ssr: false,
+      }),
       eslint(),
       tsconfigPaths(),
     ],

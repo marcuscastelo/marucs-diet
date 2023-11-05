@@ -1,4 +1,4 @@
-import { type Loadable } from '@/legacy/utils/loadable'
+import { type Loadable } from '~/legacy/utils/loadable'
 import { createSignal } from 'solid-js'
 
 export type FetchFunc<T, I, P extends I[]> = (...params: P) => Promise<T>

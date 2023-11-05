@@ -1,10 +1,10 @@
-import { stringToDate } from '@/legacy/utils/dateUtils'
+import { stringToDate } from '~/legacy/utils/dateUtils'
 import {
   setTargetDay,
   targetDay,
-} from '@/modules/diet/day-diet/application/dayDiet'
-import Datepicker from '@/sections/datepicker/components/Datepicker'
-import { type DateValueType } from '@/sections/datepicker/types'
+} from '~/modules/diet/day-diet/application/dayDiet'
+import Datepicker from '~/sections/datepicker/components/Datepicker'
+import { type DateValueType } from '~/sections/datepicker/types'
 
 export function TargetDayPicker() {
   const handleDayChange = (newValue: DateValueType) => {

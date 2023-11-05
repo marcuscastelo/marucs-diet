@@ -26,7 +26,7 @@ import Months from './Months'
 import Week from './Week'
 import Years from './Years'
 
-import { type DateType } from '@/sections/datepicker/types'
+import { type DateType } from '~/sections/datepicker/types'
 import { createEffect, createSignal, useContext } from 'solid-js'
 
 type Props = {

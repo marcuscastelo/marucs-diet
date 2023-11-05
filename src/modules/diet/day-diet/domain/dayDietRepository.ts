@@ -1,6 +1,6 @@
-import { type DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
-import { type User } from '@/modules/user/domain/user'
-import { type DbReady } from '@/legacy/utils/newDbRecord'
+import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import { type User } from '~/modules/user/domain/user'
+import { type DbReady } from '~/legacy/utils/newDbRecord'
 import { type Accessor } from 'solid-js'
 
 export type DayRepository = {

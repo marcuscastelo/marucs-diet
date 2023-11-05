@@ -1,28 +1,28 @@
-import { type DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
+import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import {
   MealEditView,
   MealEditViewActions,
   MealEditViewContent,
   MealEditViewHeader,
-} from '@/sections/meal/components/MealEditView'
-import DayMacros from '@/sections/day-diet/components/DayMacros'
-import { type Meal } from '@/modules/diet/meal/domain/meal'
-import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
-import { type ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
-import { calcDayMacros } from '@/legacy/utils/macroMath'
-import { ItemGroupEditModal } from '@/sections/item-group/components/ItemGroupEditModal'
-import { CopyLastDayButton } from '@/sections/day-diet/components/CopyLastDayButton'
-import { DeleteDayButton } from '@/sections/day-diet/components/DeleteDayButton'
-import { getToday } from '@/legacy/utils/dateUtils'
-import { ModalContextProvider } from '@/sections/common/context/ModalContext'
-import DayNotFound from '@/sections/day-diet/components/DayNotFound'
-import { currentDayDiet } from '@/modules/diet/day-diet/application/dayDiet'
-import { updateMeal } from '@/modules/diet/meal/application/meal'
+} from '~/sections/meal/components/MealEditView'
+import DayMacros from '~/sections/day-diet/components/DayMacros'
+import { type Meal } from '~/modules/diet/meal/domain/meal'
+import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
+import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { calcDayMacros } from '~/legacy/utils/macroMath'
+import { ItemGroupEditModal } from '~/sections/item-group/components/ItemGroupEditModal'
+import { CopyLastDayButton } from '~/sections/day-diet/components/CopyLastDayButton'
+import { DeleteDayButton } from '~/sections/day-diet/components/DeleteDayButton'
+import { getToday } from '~/legacy/utils/dateUtils'
+import { ModalContextProvider } from '~/sections/common/context/ModalContext'
+import DayNotFound from '~/sections/day-diet/components/DayNotFound'
+import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
+import { updateMeal } from '~/modules/diet/meal/application/meal'
 import {
   deleteItemGroup,
   insertItemGroup,
   updateItemGroup,
-} from '@/modules/diet/item-group/application/itemGroup'
+} from '~/modules/diet/item-group/application/itemGroup'
 import {
   type Accessor,
   type Setter,
@@ -32,7 +32,7 @@ import {
   untrack,
   For,
 } from 'solid-js'
-import { Alert } from '@/sections/common/components/Alert'
+import { Alert } from '~/sections/common/components/Alert'
 
 type EditSelection = {
   meal: Meal

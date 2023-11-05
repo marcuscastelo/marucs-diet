@@ -1,4 +1,4 @@
-import { type TemplateItem } from '@/modules/diet/template-item/domain/templateItem'
+import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import {
   type Accessor,
   type JSXElement,

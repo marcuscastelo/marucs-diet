@@ -1,4 +1,4 @@
-import { type COLORS } from '@/sections/datepicker/constants'
+import { type COLORS } from '~/sections/datepicker/constants'
 import { type JSXElement } from 'solid-js'
 
 export type Period = {

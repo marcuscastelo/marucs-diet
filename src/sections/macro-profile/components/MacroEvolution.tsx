@@ -1,21 +1,21 @@
-import { Capsule } from '@/sections/common/components/capsule/Capsule'
+import { Capsule } from '~/sections/common/components/capsule/Capsule'
 
 import {
   calcCalories,
   calcDayCalories,
   calcDayMacros,
-} from '@/legacy/utils/macroMath'
-import { calculateMacroTarget } from '@/sections/macro-nutrients/components/MacroTargets'
-import { inForceWeight } from '@/legacy/utils/weightUtils'
-import { inForceMacroProfile } from '@/legacy/utils/macroProfileUtils'
-import { type DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
-import { type MacroProfile } from '@/modules/diet/macro-profile/domain/macroProfile'
-import { dateToDDMM } from '@/legacy/utils/dateUtils'
-import { type Weight } from '@/modules/weight/domain/weight'
-import { dayDiets } from '@/modules/diet/day-diet/application/dayDiet'
-import { currentUser } from '@/modules/user/application/user'
-import { userWeights } from '@/modules/weight/application/weight'
-import { userMacroProfiles } from '@/modules/diet/macro-profile/application/macroProfile'
+} from '~/legacy/utils/macroMath'
+import { calculateMacroTarget } from '~/sections/macro-nutrients/components/MacroTargets'
+import { inForceWeight } from '~/legacy/utils/weightUtils'
+import { inForceMacroProfile } from '~/legacy/utils/macroProfileUtils'
+import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import { type MacroProfile } from '~/modules/diet/macro-profile/domain/macroProfile'
+import { dateToDDMM } from '~/legacy/utils/dateUtils'
+import { type Weight } from '~/modules/weight/domain/weight'
+import { dayDiets } from '~/modules/diet/day-diet/application/dayDiet'
+import { currentUser } from '~/modules/user/application/user'
+import { userWeights } from '~/modules/weight/application/weight'
+import { userMacroProfiles } from '~/modules/diet/macro-profile/application/macroProfile'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'

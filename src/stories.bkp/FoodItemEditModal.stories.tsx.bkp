@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import FoodItemEditModal, {
   FoodItemEditModalProps,
-} from '@/sections/food-item/components/FoodItemEditModal'
-import { ModalContextProvider } from '@/sections/common/context/ModalContext'
-import ServerApp from '@/sections/common/components/ServerApp'
+} from '~/sections/food-item/components/FoodItemEditModal'
+import { ModalContextProvider } from '~/sections/common/context/ModalContext'
+import ServerApp from '~/sections/common/components/ServerApp'
 import { computed, signal } from '@preact/signals-core'
-import { createFoodItem } from '@/modules/diet/food-item/domain/foodItem'
+import { createFoodItem } from '~/modules/diet/food-item/domain/foodItem'
 
 const visible = signal(true)
 

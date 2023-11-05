@@ -1,5 +1,5 @@
-import { type DbReady } from '@/legacy/utils/newDbRecord'
-import { type Food } from '@/modules/diet/food/domain/food'
+import { type DbReady } from '~/legacy/utils/newDbRecord'
+import { type Food } from '~/modules/diet/food/domain/food'
 
 export type FoodSearchParams = {
   limit?: number

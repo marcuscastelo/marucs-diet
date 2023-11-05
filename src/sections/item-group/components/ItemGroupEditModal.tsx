@@ -4,53 +4,53 @@ import {
   isSimpleSingleGroup,
   itemGroupSchema,
   recipedItemGroupSchema,
-} from '@/modules/diet/item-group/domain/itemGroup'
-import { Modal, ModalActions } from '@/sections/common/components/Modal'
-import { FoodItemListView } from '@/sections/food-item/components/FoodItemListView'
+} from '~/modules/diet/item-group/domain/itemGroup'
+import { Modal, ModalActions } from '~/sections/common/components/Modal'
+import { FoodItemListView } from '~/sections/food-item/components/FoodItemListView'
 import {
   FoodItemCopyButton,
   FoodItemFavorite,
   FoodItemHeader,
   FoodItemName,
-} from '@/sections/food-item/components/FoodItemView'
+} from '~/sections/food-item/components/FoodItemView'
 import {
   type FoodItem,
   createFoodItem,
   foodItemSchema,
-} from '@/modules/diet/food-item/domain/foodItem'
-import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
-import { FoodItemEditModal } from '@/sections/food-item/components/FoodItemEditModal'
-import { RecipeIcon } from '@/sections/common/components/icons/RecipeIcon'
-import { RecipeEditModal } from '@/sections/recipe/components/RecipeEditModal'
-import { type Recipe, createRecipe } from '@/modules/diet/recipe/domain/recipe'
-import { type Loadable } from '@/legacy/utils/loadable'
+} from '~/modules/diet/food-item/domain/foodItem'
+import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
+import { FoodItemEditModal } from '~/sections/food-item/components/FoodItemEditModal'
+import { RecipeIcon } from '~/sections/common/components/icons/RecipeIcon'
+import { RecipeEditModal } from '~/sections/recipe/components/RecipeEditModal'
+import { type Recipe, createRecipe } from '~/modules/diet/recipe/domain/recipe'
+import { type Loadable } from '~/legacy/utils/loadable'
 
 import {
   ItemGroupEditContextProvider,
   useItemGroupEditContext,
-} from '@/sections/item-group/context/ItemGroupEditContext'
+} from '~/sections/item-group/context/ItemGroupEditContext'
 import {
   ModalContextProvider,
   useModalContext,
-} from '@/sections/common/context/ModalContext'
-import { isRecipedGroupUpToDate } from '@/legacy/utils/groupUtils'
-import { DownloadIcon } from '@/sections/common/components/icons/DownloadIcon'
-import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { useClipboard } from '@/sections/common/hooks/useClipboard'
-import { PasteIcon } from '@/sections/common/components/icons/PasteIcon'
-import { deserializeClipboard } from '@/legacy/utils/clipboardUtils'
-import { regenerateId } from '@/legacy/utils/idUtils'
-import { ItemGroupEditor } from '@/legacy/utils/data/itemGroupEditor'
-import { ConvertToRecipeIcon } from '@/sections/common/components/icons/ConvertToRecipeIcon'
-import { deepCopy } from '@/legacy/utils/deepCopy'
-import { useFloatField } from '@/sections/common/hooks/useField'
-import { FloatInput } from '@/sections/common/components/FloatInput'
-import { createSupabaseRecipeRepository } from '@/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
+} from '~/sections/common/context/ModalContext'
+import { isRecipedGroupUpToDate } from '~/legacy/utils/groupUtils'
+import { DownloadIcon } from '~/sections/common/components/icons/DownloadIcon'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { useClipboard } from '~/sections/common/hooks/useClipboard'
+import { PasteIcon } from '~/sections/common/components/icons/PasteIcon'
+import { deserializeClipboard } from '~/legacy/utils/clipboardUtils'
+import { regenerateId } from '~/legacy/utils/idUtils'
+import { ItemGroupEditor } from '~/legacy/utils/data/itemGroupEditor'
+import { ConvertToRecipeIcon } from '~/sections/common/components/icons/ConvertToRecipeIcon'
+import { deepCopy } from '~/legacy/utils/deepCopy'
+import { useFloatField } from '~/sections/common/hooks/useField'
+import { FloatInput } from '~/sections/common/components/FloatInput'
+import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 import {
   currentUserId,
   isFoodFavorite,
   setFoodAsFavorite,
-} from '@/modules/user/application/user'
+} from '~/modules/user/application/user'
 import {
   type Accessor,
   createSignal,

@@ -1,5 +1,5 @@
-import MealEditView from '@/sections/meal/components/MealEditView'
-import ServerApp from '@/sections/common/components/ServerApp'
+import MealEditView from '~/sections/meal/components/MealEditView'
+import ServerApp from '~/sections/common/components/ServerApp'
 import { computed } from '@preact/signals-core'
 import { Meta, StoryObj } from '@storybook/react'
 

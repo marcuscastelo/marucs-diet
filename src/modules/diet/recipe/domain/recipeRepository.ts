@@ -1,6 +1,6 @@
-import { type User } from '@/modules/user/domain/user'
-import { type DbReady } from '@/legacy/utils/newDbRecord'
-import { type Recipe } from '@/modules/diet/recipe/domain/recipe'
+import { type User } from '~/modules/user/domain/user'
+import { type DbReady } from '~/legacy/utils/newDbRecord'
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 
 export type RecipeRepository = {
   fetchUserRecipes: (userId: User['id']) => Promise<readonly Recipe[]>

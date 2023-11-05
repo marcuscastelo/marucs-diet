@@ -1,9 +1,9 @@
 import {
   createDayDiet,
   insertDayDiet,
-} from '@/modules/diet/day-diet/application/dayDiet'
-import { createMeal } from '@/modules/diet/meal/domain/meal'
-import { currentUser } from '@/modules/user/application/user'
+} from '~/modules/diet/day-diet/application/dayDiet'
+import { createMeal } from '~/modules/diet/meal/domain/meal'
+import { currentUser } from '~/modules/user/application/user'
 import { Show } from 'solid-js'
 
 // TODO: Make meal names editable and persistent by user

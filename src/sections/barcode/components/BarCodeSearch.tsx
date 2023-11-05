@@ -4,15 +4,15 @@ import {
   FoodItemName,
   FoodItemNutritionalInfo,
   FoodItemView,
-} from '@/sections/food-item/components/FoodItemView'
-import { type Food } from '@/modules/diet/food/domain/food'
-import { createFoodItem } from '@/modules/diet/food-item/domain/foodItem'
-import { type MacroNutrients } from '@/modules/diet/macro-nutrients/domain/macroNutrients'
+} from '~/sections/food-item/components/FoodItemView'
+import { type Food } from '~/modules/diet/food/domain/food'
+import { createFoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 
 import {
   isFoodFavorite,
   setFoodAsFavorite,
-} from '@/modules/user/application/user'
+} from '~/modules/user/application/user'
 import {
   type Accessor,
   createSignal,
@@ -20,7 +20,7 @@ import {
   type Setter,
   Show,
 } from 'solid-js'
-import { fetchFoodByEan } from '@/modules/diet/food/application/food'
+import { fetchFoodByEan } from '~/modules/diet/food/application/food'
 
 export type BarCodeSearchProps = {
   barCode: Accessor<string>

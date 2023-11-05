@@ -4,20 +4,20 @@ import {
   FoodItemName,
   FoodItemNutritionalInfo,
   FoodItemView,
-} from '@/sections/food-item/components/FoodItemView'
-import { type FoodItem } from '@/modules/diet/food-item/domain/foodItem'
-import { Modal, ModalActions } from '@/sections/common/components/Modal'
-import { useModalContext } from '@/sections/common/context/ModalContext'
-import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { generateId } from '@/legacy/utils/idUtils'
-import { useFloatField } from '@/sections/common/hooks/useField'
-import { FloatInput } from '@/sections/common/components/FloatInput'
-import { type TemplateItem } from '@/modules/diet/template-item/domain/templateItem'
+} from '~/sections/food-item/components/FoodItemView'
+import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { Modal, ModalActions } from '~/sections/common/components/Modal'
+import { useModalContext } from '~/sections/common/context/ModalContext'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { generateId } from '~/legacy/utils/idUtils'
+import { useFloatField } from '~/sections/common/hooks/useField'
+import { FloatInput } from '~/sections/common/components/FloatInput'
+import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 
 import {
   isFoodFavorite,
   setFoodAsFavorite,
-} from '@/modules/user/application/user'
+} from '~/modules/user/application/user'
 import {
   mergeProps,
   type Accessor,

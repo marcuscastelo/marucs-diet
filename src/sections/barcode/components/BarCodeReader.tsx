@@ -1,4 +1,4 @@
-import { LoadingRing } from '@/sections/common/components/LoadingRing'
+import { LoadingRing } from '~/sections/common/components/LoadingRing'
 import {
   Html5Qrcode,
   type Html5QrcodeFullConfig,

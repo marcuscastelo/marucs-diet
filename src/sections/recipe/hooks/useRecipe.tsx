@@ -1,6 +1,6 @@
-import { type Recipe } from '@/modules/diet/recipe/domain/recipe'
-import { useFetch } from '@/sections/common/hooks/useFetch'
-import { createSupabaseRecipeRepository } from '@/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import { useFetch } from '~/sections/common/hooks/useFetch'
+import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 import { type Accessor, createEffect } from 'solid-js'
 
 // TODO: Use repository pattern through use cases instead of directly using repositories
