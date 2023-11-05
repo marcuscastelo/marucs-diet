@@ -18,10 +18,13 @@ export function createSupabaseFoodRepository(): FoodRepository {
   }
 }
 
-async function fetchFoodById(id: Food['id'], params: FoodSearchParams = {}) {
+async function fetchFoodById(
+  id: Food['id'],
+  params: Omit<FoodSearchParams, 'limit'> = {},
+) {
   const [food] = await internalCachedSearchFoods(
     { field: 'id', value: id },
-    params,
+    { ...params, limit: 1 },
   )
   return food
 }
@@ -38,13 +41,13 @@ async function fetchFoodsByName(
 
 async function fetchFoodByEan(
   ean: Required<Food>['ean'],
-  params: FoodSearchParams = {},
+  params: Omit<FoodSearchParams, 'limit'> = {},
 ) {
-  const [food] = await internalCachedSearchFoods(
+  const foods = await internalCachedSearchFoods(
     { field: 'ean', value: ean },
-    params,
+    { ...params, limit: 1 },
   )
-  return food
+  return foods[0] ?? null
 }
 
 async function fetchFoods(params: FoodSearchParams = {}) {
@@ -68,7 +71,7 @@ async function internalCachedSearchFoods(
         operator?: 'eq' | 'ilike'
       },
   params?: FoodSearchParams,
-): Promise<Food[]> {
+): Promise<readonly Food[]> {
   console.debug(
     `[Food] Searching for foods with ${field} = ${value} (limit: ${
       params?.limit ?? 'none'
