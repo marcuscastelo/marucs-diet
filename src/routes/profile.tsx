@@ -1,29 +1,29 @@
-import { BasicInfo } from '@/sections/profile/components/BasicInfo'
-import { WeightEvolution } from '@/sections/weight/components/WeightEvolution'
-import { MeasuresEvolution } from '@/sections/profile/components/measure/MeasuresEvolution'
+import { BasicInfo } from '~/sections/profile/components/BasicInfo'
+import { WeightEvolution } from '~/sections/weight/components/WeightEvolution'
+import { MeasuresEvolution } from '~/sections/profile/components/measure/MeasuresEvolution'
 
-import { MacroTarget } from '@/sections/macro-nutrients/components/MacroTargets'
-import { MacroEvolution } from '@/sections/macro-profile/components/MacroEvolution'
-import { latestWeight } from '@/legacy/utils/weightUtils'
-import { type User } from '@/modules/user/domain/user'
-import { type MacroProfile } from '@/modules/diet/macro-profile/domain/macroProfile'
+import { MacroTarget } from '~/sections/macro-nutrients/components/MacroTargets'
+import { MacroEvolution } from '~/sections/macro-profile/components/MacroEvolution'
+import { latestWeight } from '~/legacy/utils/weightUtils'
+import { type User } from '~/modules/user/domain/user'
+import { type MacroProfile } from '~/modules/diet/macro-profile/domain/macroProfile'
 
-import { getToday } from '@/legacy/utils/dateUtils'
-import { BottomNavigation } from '@/sections/common/components/BottomNavigation'
-import { currentUser, updateUser } from '@/modules/user/application/user'
-import { userWeights } from '@/modules/weight/application/weight'
+import { getToday } from '~/legacy/utils/dateUtils'
+import { BottomNavigation } from '~/sections/common/components/BottomNavigation'
+import { currentUser, updateUser } from '~/modules/user/application/user'
+import { userWeights } from '~/modules/weight/application/weight'
 import {
   insertMacroProfile,
   updateMacroProfile,
   userMacroProfiles,
-} from '@/modules/diet/macro-profile/application/macroProfile'
+} from '~/modules/diet/macro-profile/application/macroProfile'
 import { Show } from 'solid-js'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
 
-export function ProfilePage() {
+export default function Page() {
   // TODO: latestWeight should be a signal
   const weight = () => latestWeight(userWeights())?.weight
 
