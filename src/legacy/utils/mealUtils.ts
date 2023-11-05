@@ -5,7 +5,7 @@ import { type Meal } from '@/modules/diet/meal/domain/meal'
 /**
  * @deprecated
  */
-export function editInnerGroup (meal: Meal, innerGroup: ItemGroup) {
+export function editInnerGroup(meal: Meal, innerGroup: ItemGroup) {
   const newMeal = { ...meal }
 
   const index = newMeal.groups.findIndex((group) => group.id === innerGroup.id)
@@ -22,7 +22,7 @@ export function editInnerGroup (meal: Meal, innerGroup: ItemGroup) {
 /**
  * @deprecated
  */
-export function deleteInnerGroup (meal: Meal, groupId: ItemGroup['id']) {
+export function deleteInnerGroup(meal: Meal, groupId: ItemGroup['id']) {
   const newMeal = { ...meal }
 
   const index = newMeal.groups.findIndex((group) => group.id === groupId)
@@ -39,7 +39,7 @@ export function deleteInnerGroup (meal: Meal, groupId: ItemGroup['id']) {
 /**
  * @deprecated
  */
-export function addInnerGroup (meal: Meal, innerGroup: ItemGroup) {
+export function addInnerGroup(meal: Meal, innerGroup: ItemGroup) {
   const newMeal = { ...meal }
 
   // Check if same ID already exists
@@ -48,7 +48,7 @@ export function addInnerGroup (meal: Meal, innerGroup: ItemGroup) {
   // If already exists, warn and return
   if (index !== -1) {
     console.warn(
-      'Invalid state! This is a bug! Group already exists in meal! Not adding!'
+      'Invalid state! This is a bug! Group already exists in meal! Not adding!',
     )
 
     return newMeal
@@ -63,7 +63,7 @@ export function addInnerGroup (meal: Meal, innerGroup: ItemGroup) {
 /**
  * @deprecated
  */
-export function addInnerGroups (meal: Meal, innerGroups: readonly ItemGroup[]) {
+export function addInnerGroups(meal: Meal, innerGroups: readonly ItemGroup[]) {
   let newMeal = { ...meal }
 
   innerGroups.forEach((innerGroup) => {

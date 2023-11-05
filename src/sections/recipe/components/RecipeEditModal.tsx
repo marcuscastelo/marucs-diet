@@ -1,26 +1,35 @@
 import {
   type FoodItem,
-  createFoodItem
+  createFoodItem,
 } from '@/modules/diet/food-item/domain/foodItem'
 import { Modal, ModalActions } from '@/sections/common/components/Modal'
 import { type Recipe, createRecipe } from '@/modules/diet/recipe/domain/recipe'
-import RecipeEditView, { RecipeEditContent, RecipeEditHeader } from '@/sections/recipe/components/RecipeEditView'
+import RecipeEditView, {
+  RecipeEditContent,
+  RecipeEditHeader,
+} from '@/sections/recipe/components/RecipeEditView'
 import { FoodItemEditModal } from '@/sections/food-item/components/FoodItemEditModal'
 import {
   ModalContextProvider,
-  useModalContext
+  useModalContext,
 } from '@/sections/common/context/ModalContext'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import { type TemplateItem } from '@/modules/diet/template-item/domain/templateItem'
 import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
 import {
   type ItemGroup,
-  isSimpleSingleGroup
+  isSimpleSingleGroup,
 } from '@/modules/diet/item-group/domain/itemGroup'
 import { RecipeEditor } from '@/legacy/utils/data/recipeEditor'
 
 import { currentUserId } from '@/modules/user/application/user'
-import { type Accessor, createEffect, createSignal, type Setter, Show } from 'solid-js'
+import {
+  type Accessor,
+  createEffect,
+  createSignal,
+  type Setter,
+  Show,
+} from 'solid-js'
 
 export type RecipeEditModalProps = {
   show?: boolean
@@ -32,7 +41,7 @@ export type RecipeEditModalProps = {
   onVisibilityChange?: (isShowing: boolean) => void
 }
 
-export function RecipeEditModal (props: RecipeEditModalProps) {
+export function RecipeEditModal(props: RecipeEditModalProps) {
   const { visible, setVisible } = useModalContext()
   const userId = currentUserId()
 
@@ -45,28 +54,32 @@ export function RecipeEditModal (props: RecipeEditModalProps) {
       createRecipe({
         name: 'New Recipe',
         items: [],
-        owner: userId
-      })
+        owner: userId,
+      }),
   )
 
-  const [selectedFoodItem, setSelectedFoodItem] = createSignal<FoodItem | null>(null)
+  const [selectedFoodItem, setSelectedFoodItem] = createSignal<FoodItem | null>(
+    null,
+  )
 
   const impossibleFoodItem = createFoodItem({
     name: 'IMPOSSIBLE FOOD ITEM',
-    reference: 0
+    reference: 0,
   })
 
-  const [foodItemEditModalVisible, setFoodItemEditModalVisible] = createSignal(false)
-  const [templateSearchModalVisible, setTemplateSearchModalVisible] = createSignal(false)
+  const [foodItemEditModalVisible, setFoodItemEditModalVisible] =
+    createSignal(false)
+  const [templateSearchModalVisible, setTemplateSearchModalVisible] =
+    createSignal(false)
 
   createEffect(() => {
     setRecipe(
       props.recipe ??
-      createRecipe({
-        name: 'Error: Recipe cannot be null!',
-        items: [],
-        owner: userId
-      })
+        createRecipe({
+          name: 'Error: Recipe cannot be null!',
+          items: [],
+          owner: userId,
+        }),
     )
   })
 
@@ -135,9 +148,13 @@ export function RecipeEditModal (props: RecipeEditModalProps) {
           }
           actions={
             <Actions
-              onApply={() => { props.onSaveRecipe(recipe()) }}
+              onApply={() => {
+                props.onSaveRecipe(recipe())
+              }}
               onCancel={props.onCancel}
-              onDelete={() => { props.onDelete(recipe().id) }}
+              onDelete={() => {
+                props.onDelete(recipe().id)
+              }}
             />
           }
         />
@@ -146,7 +163,7 @@ export function RecipeEditModal (props: RecipeEditModalProps) {
   )
 }
 
-function ExternalFoodItemEditModal (props: {
+function ExternalFoodItemEditModal(props: {
   foodItem: Accessor<FoodItem>
   targetName: string
   onApply: (item: TemplateItem) => void
@@ -157,7 +174,10 @@ function ExternalFoodItemEditModal (props: {
   // TODO: Determine whether to use <Show when/> for modals in general or just remove all Shows
   return (
     <Show when={props.visible()}>
-      <ModalContextProvider visible={props.visible} setVisible={props.setVisible}>
+      <ModalContextProvider
+        visible={props.visible}
+        setVisible={props.setVisible}
+      >
         <FoodItemEditModal
           foodItem={props.foodItem}
           targetName={props.targetName}
@@ -170,7 +190,7 @@ function ExternalFoodItemEditModal (props: {
 }
 
 // TODO: This component is duplicated between RecipeEditModal and ItemGroupEditModal, must be refactored (maybe global)
-function ExternalTemplateSearchModal (props: {
+function ExternalTemplateSearchModal(props: {
   visible: Accessor<boolean>
   setVisible: Setter<boolean>
   onRefetch: () => void
@@ -218,7 +238,7 @@ function ExternalTemplateSearchModal (props: {
   )
 }
 
-function Body (props: {
+function Body(props: {
   recipe: Accessor<Recipe>
   setRecipe: Setter<Recipe>
   selectedFoodItem: Accessor<FoodItem | null>
@@ -239,12 +259,14 @@ function Body (props: {
       }
       content={
         <RecipeEditContent
-          onNewItem={() => { props.onSearchNewItem() }}
+          onNewItem={() => {
+            props.onSearchNewItem()
+          }}
           onEditItem={(item) => {
             // TODO: Allow user to edit recipe inside recipe
             if (item.__type === 'RecipeItem') {
               alert(
-                'Ainda não é possível editar receitas dentro de receitas! Funcionalidade em desenvolvimento'
+                'Ainda não é possível editar receitas dentro de receitas! Funcionalidade em desenvolvimento',
               )
               return
             }
@@ -257,7 +279,7 @@ function Body (props: {
   )
 }
 
-function Actions (props: {
+function Actions(props: {
   onApply: () => void
   onDelete: () => void
   onCancel?: () => void
@@ -278,16 +300,16 @@ function Actions (props: {
             actions: [
               {
                 text: 'Cancelar',
-                onClick: () => undefined
+                onClick: () => undefined,
               },
               {
                 text: 'Excluir',
                 primary: true,
                 onClick: () => {
                   props.onDelete()
-                }
-              }
-            ]
+                },
+              },
+            ],
           })
         }}
       >

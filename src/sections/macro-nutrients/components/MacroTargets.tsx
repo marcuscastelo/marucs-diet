@@ -22,16 +22,16 @@ export type MacroRepresentation = {
 // TODO: calculateMacroTarget should not be exported (move to other module)
 export const calculateMacroTarget = (
   weight: number,
-  savedMacroTarget: MacroProfile
+  savedMacroTarget: MacroProfile,
 ): MacroNutrients => ({
   carbs: weight * savedMacroTarget.gramsPerKgCarbs,
   protein: weight * savedMacroTarget.gramsPerKgProtein,
-  fat: weight * savedMacroTarget.gramsPerKgFat
+  fat: weight * savedMacroTarget.gramsPerKgFat,
 })
 
 const calculateMacroRepresentation = (
   profile: MacroProfile,
-  weight: number
+  weight: number,
 ): MacroRepresentation[] => {
   const targetGrams = calculateMacroTarget(weight, profile)
   const calories = calcCalories(targetGrams)
@@ -42,22 +42,22 @@ const calculateMacroRepresentation = (
       percentage: (targetGrams.carbs * 4) / calories,
       grams: targetGrams.carbs,
       gramsPerKg: profile.gramsPerKgCarbs,
-      calorieMultiplier: CARBO_CALORIES
+      calorieMultiplier: CARBO_CALORIES,
     },
     {
       name: 'Proteínas',
       percentage: (targetGrams.protein * 4) / calories,
       grams: targetGrams.protein,
       gramsPerKg: profile.gramsPerKgProtein,
-      calorieMultiplier: PROTEIN_CALORIES
+      calorieMultiplier: PROTEIN_CALORIES,
     },
     {
       name: 'Gorduras',
       percentage: (targetGrams.fat * 9) / calories,
       grams: targetGrams.fat,
       gramsPerKg: profile.gramsPerKgFat,
-      calorieMultiplier: FAT_CALORIES
-    }
+      calorieMultiplier: FAT_CALORIES,
+    },
   ]
 }
 
@@ -81,17 +81,17 @@ export type MacroTargetProps = {
   mode: 'edit' | 'view'
 }
 
-export function MacroTarget (props: MacroTargetProps) {
+export function MacroTarget(props: MacroTargetProps) {
   const { show: showConfirmModal } = useConfirmModalContext()
   const profile = getLatestMacroProfile(props.profiles)
   const oldProfile_ = getLatestMacroProfile(props.profiles, 1)
   const oldProfile = oldProfile_
     ? {
         hasOldProfile: true as const,
-        ...oldProfile_
+        ...oldProfile_,
       }
     : ({
-        hasOldProfile: false
+        hasOldProfile: false,
       } as const)
 
   if (profile === null) {
@@ -103,11 +103,16 @@ export function MacroTarget (props: MacroTargetProps) {
   const [initialCarbsRepr, initialProteinRepr, initialFatRepr] =
     calculateMacroRepresentation(profile, props.weight)
 
-  const [targetCalories, setTargetCalories] = createSignal(initialCalories.toString())
+  const [targetCalories, setTargetCalories] = createSignal(
+    initialCalories.toString(),
+  )
 
-  const [carbsRepr, setCarbsRepr] = createSignal<MacroRepresentation>(initialCarbsRepr)
-  const [proteinRepr, setProteinRepr] = createSignal<MacroRepresentation>(initialProteinRepr)
-  const [fatRepr, setFatRepr] = createSignal<MacroRepresentation>(initialFatRepr)
+  const [carbsRepr, setCarbsRepr] =
+    createSignal<MacroRepresentation>(initialCarbsRepr)
+  const [proteinRepr, setProteinRepr] =
+    createSignal<MacroRepresentation>(initialProteinRepr)
+  const [fatRepr, setFatRepr] =
+    createSignal<MacroRepresentation>(initialFatRepr)
 
   createEffect(() => {
     const [newCarbsRepr, newProteinRepr, newFatRepr] =
@@ -117,7 +122,7 @@ export function MacroTarget (props: MacroTargetProps) {
     setFatRepr(newFatRepr)
 
     const newTargetCalories = calcCalories(
-      calculateMacroTarget(props.weight, profile)
+      calculateMacroTarget(props.weight, profile),
     ).toString()
     setTargetCalories(newTargetCalories)
   })
@@ -127,7 +132,7 @@ export function MacroTarget (props: MacroTargetProps) {
       props.onSaveMacroProfile({
         ...profile,
         [`gramsPerKg${macro.charAt(0).toUpperCase() + macro.slice(1)}`]:
-          gramsPerKg
+          gramsPerKg,
       })
     }
 
@@ -136,7 +141,7 @@ export function MacroTarget (props: MacroTargetProps) {
       props.onSaveMacroProfile({
         ...profile,
         [`gramsPerKg${macro.charAt(0).toUpperCase() + macro.slice(1)}`]:
-          grams / props.weight
+          grams / props.weight,
       })
     }
 
@@ -149,9 +154,7 @@ export function MacroTarget (props: MacroTargetProps) {
 
   return (
     <>
-      <h1 class="mb-6 text-center text-3xl font-bold">
-        Meta calórica diária
-      </h1>
+      <h1 class="mb-6 text-center text-3xl font-bold">Meta calórica diária</h1>
       <div class="mx-5">
         <input
           value={targetCalories()}
@@ -177,13 +180,11 @@ export function MacroTarget (props: MacroTargetProps) {
               g/kg de gorduras
             </span>
             Tem perfil antigo?{' '}
-            {oldProfile.hasOldProfile
-              ? (
-                  'Sim, de ' + dateToYYYYMMDD(oldProfile.target_day)
-                )
-              : (
+            {oldProfile.hasOldProfile ? (
+              'Sim, de ' + dateToYYYYMMDD(oldProfile.target_day)
+            ) : (
               <span class="text-red-500">Não</span>
-                )}
+            )}
             {oldProfile.hasOldProfile && (
               <button
                 class="btn btn-primary btn-sm"
@@ -199,13 +200,15 @@ export function MacroTarget (props: MacroTargetProps) {
                       <>
                         <MacroTarget
                           weight={props.weight}
-                          profiles={props.profiles.filter((p) => p.id !== profile.id)}
+                          profiles={props.profiles.filter(
+                            (p) => p.id !== profile.id,
+                          )}
                           onSaveMacroProfile={props.onSaveMacroProfile}
                           mode="view"
                         />
                         <div>
                           {`Tem certeza que deseja restaurar o perfil de ${dateToYYYYMMDD(
-                            oldProfile.target_day
+                            oldProfile.target_day,
                           )}?`}
                         </div>
                         <div class="text-red-500 text-center text-lg font-bold">
@@ -216,22 +219,27 @@ export function MacroTarget (props: MacroTargetProps) {
                     actions: [
                       {
                         text: 'Cancelar',
-                        onClick: () => undefined
+                        onClick: () => undefined,
                       },
                       {
                         text: 'Apagar atual e restaurar antigo',
                         primary: true,
                         onClick: () => {
-                          deleteMacroProfile(profile.id).then(() => {
-                            // router.refresh()
-                            // TODO: refresh page? probably not
-                            alert('TODO: refresh page? probably not')
-                          }).catch((e) => {
-                            alert('TODO: show error: ' + JSON.stringify(e, null, 2))
-                          })
-                        }
-                      }
-                    ]
+                          deleteMacroProfile(profile.id)
+                            .then(() => {
+                              // router.refresh()
+                              // TODO: refresh page? probably not
+                              alert('TODO: refresh page? probably not')
+                            })
+                            .catch((e) => {
+                              alert(
+                                'TODO: show error: ' +
+                                  JSON.stringify(e, null, 2),
+                              )
+                            })
+                        },
+                      },
+                    ],
                   })
                 }}
               >
@@ -273,7 +281,7 @@ export function MacroTarget (props: MacroTargetProps) {
   )
 }
 
-function MacroTargetSetting (props: {
+function MacroTargetSetting(props: {
   headerColor: string
   target: MacroRepresentation
   onSetPercentage?: (percentage: number) => void
@@ -296,10 +304,11 @@ function MacroTargetSetting (props: {
           <span class="hidden sm:inline">:</span>
         </span>
         <span class="my-auto flex-1 text-xl">
-
           {
             // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-          (props.target.calorieMultiplier * (Number(grams) || 0)).toFixed(0)} kcal
+            (props.target.calorieMultiplier * (Number(grams) || 0)).toFixed(0)
+          }{' '}
+          kcal
           <span class="ml-2 text-slate-300 text-lg">({percentage}%)</span>
         </span>
       </div>
@@ -325,7 +334,9 @@ function MacroTargetSetting (props: {
           <MacroField
             fieldName="Proporção (g/kg)"
             field={gramsPerKg}
-            setField={(gramsPerKg) => props.onSetGramsPerKg?.(Number(gramsPerKg))}
+            setField={(gramsPerKg) =>
+              props.onSetGramsPerKg?.(Number(gramsPerKg))
+            }
             unit="g/kg"
             disabled={props.mode === 'view'}
           />
@@ -335,7 +346,7 @@ function MacroTargetSetting (props: {
   )
 }
 
-function MacroField (props: {
+function MacroField(props: {
   fieldName: string
   field: string
   setField: (field: string) => void
@@ -355,7 +366,9 @@ function MacroField (props: {
         <input
           value={innerField()}
           onChange={(e) => setInnerField(e.target.value)}
-          onBlur={() => { props.setField(innerField()) }}
+          onBlur={() => {
+            props.setField(innerField())
+          }}
           type="number"
           // className={`block text-center w-full p-2 pl-10 text-md bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 ${className || ''}`}
           class="input-bordered input text-center font-bold"

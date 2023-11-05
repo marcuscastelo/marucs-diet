@@ -9,22 +9,22 @@ export const recipeDAOSchema = z.object({
   name: z.string(),
   owner: z.number(),
   items: z.array(foodItemSchema),
-  prepared_multiplier: z.number()
+  prepared_multiplier: z.number(),
 })
 
 export type RecipeDAO = z.infer<typeof recipeDAOSchema>
 
-export function createRecipeDAO (recipe: Recipe): RecipeDAO {
+export function createRecipeDAO(recipe: Recipe): RecipeDAO {
   return recipeDAOSchema.parse({
     id: recipe.id,
     name: recipe.name,
     owner: recipe.owner,
     items: [...recipe.items],
-    prepared_multiplier: recipe.prepared_multiplier
+    prepared_multiplier: recipe.prepared_multiplier,
   } satisfies RecipeDAO)
 }
 
-export function createRecipeFromDAO (recipeDAO: RecipeDAO): Recipe {
+export function createRecipeFromDAO(recipeDAO: RecipeDAO): Recipe {
   return recipeSchema.parse({
     id: recipeDAO.id,
     name: recipeDAO.name,
@@ -32,6 +32,6 @@ export function createRecipeFromDAO (recipeDAO: RecipeDAO): Recipe {
     items: [...recipeDAO.items],
     macros: calcItemContainerMacros(recipeDAO),
     prepared_multiplier: recipeDAO.prepared_multiplier,
-    __type: 'Recipe'
+    __type: 'Recipe',
   })
 }

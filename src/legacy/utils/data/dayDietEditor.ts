@@ -5,27 +5,26 @@ import { type Mutable } from '@/legacy/utils/typeUtils'
 import { type DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
 import { type Meal } from '@/modules/diet/meal/domain/meal'
 
-export class DayDietEditor
-  extends Editor<DayDiet> {
+export class DayDietEditor extends Editor<DayDiet> {
   private readonly dayDiet = this.content
 
-  addMeal (meal: Meal) {
+  addMeal(meal: Meal) {
     this.dayDiet.meals.push(deepCopy(meal) as Mutable<Meal>)
     return this
   }
 
-  addMeals (meals: readonly Meal[]) {
-    this.dayDiet.meals.push(...meals.map(deepCopy) as Array<Mutable<Meal>>)
+  addMeals(meals: readonly Meal[]) {
+    this.dayDiet.meals.push(...(meals.map(deepCopy) as Array<Mutable<Meal>>))
     return this
   }
 
-  findMeal (id: Meal['id']) {
+  findMeal(id: Meal['id']) {
     return this.dayDiet.meals.find((item) => item.id === id)
   }
 
-  editMeal (
+  editMeal(
     id: Meal['id'],
-    callback: (editor: Omit<MealEditor, 'finish'> | undefined) => void
+    callback: (editor: Omit<MealEditor, 'finish'> | undefined) => void,
   ) {
     const meal = this.findMeal(id)
     const editor = meal !== undefined ? new MealEditor(meal) : undefined
@@ -54,12 +53,12 @@ export class DayDietEditor
   //   return this
   // }
 
-  setMeals (meals: Meal[]) {
+  setMeals(meals: Meal[]) {
     this.dayDiet.meals = deepCopy(meals) as Array<Mutable<Meal>>
     return this
   }
 
-  deleteMeal (id: Meal['id']) {
+  deleteMeal(id: Meal['id']) {
     const index = this.dayDiet.meals.findIndex((meal) => meal.id === id)
     if (index === -1) {
       console.warn(`Item with id ${id} not found!`)
@@ -69,10 +68,10 @@ export class DayDietEditor
     return this
   }
 
-  clearMeals () {
+  clearMeals() {
     this.dayDiet.meals = []
     return this
   }
 
-  protected override onFinish () {}
+  protected override onFinish() {}
 }

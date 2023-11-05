@@ -6,12 +6,12 @@ import { calcMealCalories } from '@/legacy/utils/macroMath'
 import { ItemGroupListView } from '@/sections/item-group/components/ItemGroupListView'
 import {
   type ItemGroup,
-  itemGroupSchema
+  itemGroupSchema,
 } from '@/modules/diet/item-group/domain/itemGroup'
 import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
 import {
   useClipboard,
-  createClipboardSchemaFilter
+  createClipboardSchemaFilter,
 } from '@/sections/common/hooks/useClipboard'
 import { addInnerGroups } from '@/legacy/utils/mealUtils'
 import { deserializeClipboard } from '@/legacy/utils/clipboardUtils'
@@ -20,7 +20,10 @@ import { regenerateId } from '@/legacy/utils/idUtils'
 import { foodItemSchema } from '@/modules/diet/food-item/domain/foodItem'
 import { recipeSchema } from '@/modules/diet/recipe/domain/recipe'
 import { createEffect, Show, type JSXElement } from 'solid-js'
-import { MealContextProvider, useMealContext } from '@/sections/meal/context/MealContext'
+import {
+  MealContextProvider,
+  useMealContext,
+} from '@/sections/meal/context/MealContext'
 
 export type MealEditViewProps = {
   meal: Meal
@@ -48,21 +51,21 @@ export type MealEditViewProps = {
 //   return result.
 // }
 
-export function MealEditView (props: MealEditViewProps) {
+export function MealEditView(props: MealEditViewProps) {
   return (
     <MealContextProvider meal={() => props.meal}>
-    <div
-      class={`bg-gray-800 p-3 ${props.class ?? ''}`} // TODO: use cn on all classes that use props.class
-    >
-      {props.header}
-      {props.content}
-      {props.actions}
-    </div>
+      <div
+        class={`bg-gray-800 p-3 ${props.class ?? ''}`} // TODO: use cn on all classes that use props.class
+      >
+        {props.header}
+        {props.content}
+        {props.actions}
+      </div>
     </MealContextProvider>
   )
 }
 
-export function MealEditViewHeader (props: {
+export function MealEditViewHeader(props: {
   onUpdateMeal: (meal: Meal) => void
 }) {
   const acceptedClipboardSchema = mealSchema
@@ -77,20 +80,18 @@ export function MealEditViewHeader (props: {
   const {
     clipboard: clipboardText,
     write: writeToClipboard,
-    clear: clearClipboard
+    clear: clearClipboard,
   } = useClipboard({
-    filter: isClipboardValid
+    filter: isClipboardValid,
   })
 
-  const handleCopy =
-    () => { writeToClipboard(JSON.stringify(meal())) }
+  const handleCopy = () => {
+    writeToClipboard(JSON.stringify(meal()))
+  }
 
   // TODO: Remove code duplication between MealEditView and RecipeView
   const handlePasteAfterConfirm = () => {
-    const data = deserializeClipboard(
-      clipboardText(),
-      acceptedClipboardSchema
-    )
+    const data = deserializeClipboard(clipboardText(), acceptedClipboardSchema)
 
     if (data === null) {
       throw new Error('Invalid clipboard data: ' + clipboardText())
@@ -105,7 +106,7 @@ export function MealEditViewHeader (props: {
       .map((group) => regenerateId(group))
       .map((g) => ({
         ...g,
-        items: g.items.map((item) => regenerateId(item))
+        items: g.items.map((item) => regenerateId(item)),
       }))
 
     // TODO: Create RecipeEditor, MealEditor, ItemGroupEditor, FoodItemEditor classes to avoid this code duplication and error proneness
@@ -124,10 +125,10 @@ export function MealEditViewHeader (props: {
       actions: [
         {
           text: 'Cancelar',
-          onClick: () => undefined
+          onClick: () => undefined,
         },
-        { text: 'Colar', primary: true, onClick: handlePasteAfterConfirm }
-      ]
+        { text: 'Colar', primary: true, onClick: handlePasteAfterConfirm },
+      ],
     })
   }
 
@@ -149,7 +150,7 @@ export function MealEditViewHeader (props: {
       actions: [
         {
           text: 'Cancelar',
-          onClick: () => undefined
+          onClick: () => undefined,
         },
         {
           text: 'Excluir todos os itens',
@@ -162,13 +163,13 @@ export function MealEditViewHeader (props: {
             // TODO: Use MealEditor
             const newMeal: Meal = {
               ...meal_,
-              groups: []
+              groups: [],
             }
 
             props.onUpdateMeal(newMeal)
-          }
-        }
-      ]
+          },
+        },
+      ],
     })
   }
 
@@ -177,46 +178,52 @@ export function MealEditViewHeader (props: {
   return (
     <Show when={meal()}>
       {(mealSignal) => (
-    <div class="flex">
-      <div class="my-2">
-        <h5 class="text-3xl">{mealSignal()?.name}</h5>
-        <p class="italic text-gray-400">{mealCalories().toFixed(0)}kcal</p>
-      </div>
-      {/* // TODO: Remove code duplication between MealEditView and RecipeView */}
-      <div class={'ml-auto flex gap-2'}>
-
-        {!hasValidPastableOnClipboard() && (mealSignal()?.groups.length ?? 0) > 0 && (
-          <div
-          class={'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'}
-          onClick={handleCopy}
-          >
-            <CopyIcon />
+        <div class="flex">
+          <div class="my-2">
+            <h5 class="text-3xl">{mealSignal()?.name}</h5>
+            <p class="italic text-gray-400">{mealCalories().toFixed(0)}kcal</p>
           </div>
-        )}
-        {hasValidPastableOnClipboard() && (
-          <div
-            class={'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'}
-            onClick={handlePaste}
-          >
-            <PasteIcon />
+          {/* // TODO: Remove code duplication between MealEditView and RecipeView */}
+          <div class={'ml-auto flex gap-2'}>
+            {!hasValidPastableOnClipboard() &&
+              (mealSignal()?.groups.length ?? 0) > 0 && (
+                <div
+                  class={
+                    'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'
+                  }
+                  onClick={handleCopy}
+                >
+                  <CopyIcon />
+                </div>
+              )}
+            {hasValidPastableOnClipboard() && (
+              <div
+                class={
+                  'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'
+                }
+                onClick={handlePaste}
+              >
+                <PasteIcon />
+              </div>
+            )}
+            {(mealSignal()?.groups.length ?? 0) > 0 && (
+              <div
+                class={
+                  'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'
+                }
+                onClick={onClearItems}
+              >
+                <TrashIcon />
+              </div>
+            )}
           </div>
-        )}
-        {(mealSignal()?.groups.length ?? 0) > 0 && (
-          <div
-            class={'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'}
-            onClick={onClearItems}
-          >
-            <TrashIcon />
-          </div>
-        )}
-      </div>
-    </div>
+        </div>
       )}
-      </Show>
+    </Show>
   )
 }
 
-export function MealEditViewContent (props: {
+export function MealEditViewContent(props: {
   onEditItemGroup: (item: ItemGroup) => void
 }) {
   const { meal } = useMealContext()
@@ -231,16 +238,20 @@ export function MealEditViewContent (props: {
   return (
     <ItemGroupListView
       itemGroups={() => meal()?.groups ?? []}
-      onItemClick={(...args) => { props.onEditItemGroup(...args) }}
+      onItemClick={(...args) => {
+        props.onEditItemGroup(...args)
+      }}
     />
   )
 }
 
-export function MealEditViewActions (props: { onNewItem: () => void }) {
+export function MealEditViewActions(props: { onNewItem: () => void }) {
   return (
     <button
       class="mt-3 min-w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-      onClick={() => { props.onNewItem() }}
+      onClick={() => {
+        props.onNewItem()
+      }}
     >
       Adicionar item
     </button>

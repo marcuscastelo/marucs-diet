@@ -1,26 +1,34 @@
 import { type Recipe } from '@/modules/diet/recipe/domain/recipe'
-import { type Accessor, type JSXElement, type Setter, createContext, useContext, createSignal, createEffect } from 'solid-js'
+import {
+  type Accessor,
+  type JSXElement,
+  type Setter,
+  createContext,
+  useContext,
+  createSignal,
+  createEffect,
+} from 'solid-js'
 
 export type RecipeContext = {
   recipe: Accessor<Recipe>
   setRecipe: Setter<Recipe>
 }
 
-const recipeContext = createContext< RecipeContext | null>(null)
+const recipeContext = createContext<RecipeContext | null>(null)
 
-export function useRecipeEditContext () {
+export function useRecipeEditContext() {
   const context = useContext(recipeContext)
 
   if (context === null) {
     throw new Error(
-      'useRecipeContext must be used within a RecipeContextProvider'
+      'useRecipeContext must be used within a RecipeContextProvider',
     )
   }
 
   return context
 }
 
-export function RecipeEditContextProvider (props: {
+export function RecipeEditContextProvider(props: {
   recipe: Accessor<Recipe>
   setRecipe: Setter<Recipe>
   children: JSXElement
@@ -40,7 +48,7 @@ export function RecipeEditContextProvider (props: {
     <recipeContext.Provider
       value={{
         recipe: innerRecipe,
-        setRecipe: setInnerRecipe
+        setRecipe: setInnerRecipe,
       }}
     >
       {props.children}

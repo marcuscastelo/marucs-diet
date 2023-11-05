@@ -10,19 +10,20 @@ import { type MacroProfile } from '@/modules/diet/macro-profile/domain/macroProf
 
 import { getToday } from '@/legacy/utils/dateUtils'
 import { BottomNavigation } from '@/sections/common/components/BottomNavigation'
-import {
-  currentUser,
-  updateUser
-} from '@/modules/user/application/user'
+import { currentUser, updateUser } from '@/modules/user/application/user'
 import { userWeights } from '@/modules/weight/application/weight'
-import { insertMacroProfile, updateMacroProfile, userMacroProfiles } from '@/modules/diet/macro-profile/application/macroProfile'
+import {
+  insertMacroProfile,
+  updateMacroProfile,
+  userMacroProfiles,
+} from '@/modules/diet/macro-profile/application/macroProfile'
 import { Show } from 'solid-js'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
 
-export function ProfilePage () {
+export function ProfilePage() {
   // TODO: latestWeight should be a signal
   const weight = () => latestWeight(userWeights())?.weight
 
@@ -57,7 +58,7 @@ export function ProfilePage () {
   const onSaveProfile = async (profile: MacroProfile) => {
     if (profile.target_day.getTime() > new Date(getToday()).getTime()) {
       console.error(
-        `[ProfilePage] Invalid target day ${profile.target_day.toString()}: it is in the future`
+        `[ProfilePage] Invalid target day ${profile.target_day.toString()}: it is in the future`,
       )
       throw new Error('Invalid target day')
     } else if (
@@ -69,7 +70,7 @@ export function ProfilePage () {
       // Past day, insert with new date
       await insertMacroProfile({
         ...profile,
-        target_day: new Date(getToday())
+        target_day: new Date(getToday()),
       })
     }
     console.log('Updating MacroProfile')
@@ -92,46 +93,47 @@ export function ProfilePage () {
               }}
             />
 
-            <WeightEvolution onSave={ () => {
-              handleSave().catch(
-                (error) => {
+            <WeightEvolution
+              onSave={() => {
+                handleSave().catch((error) => {
                   console.error(error)
                   alert('Erro ao salvar peso') // TODO: Change all alerts with ConfirmModal
-                }
-              )
-            }
-            } />
+                })
+              }}
+            />
             <div class={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>
               <Show
-              when={weight()}
-              fallback={<h1>Não há pesos registrados, o perfil não pode ser calculado</h1>}
+                when={weight()}
+                fallback={
+                  <h1>
+                    Não há pesos registrados, o perfil não pode ser calculado
+                  </h1>
+                }
               >
                 {(weight) => (
                   <MacroTarget
                     weight={weight()}
                     profiles={userMacroProfiles()}
-                    onSaveMacroProfile={ (profile) => {
-                      onSaveProfile(profile).catch(
-                        (error) => {
-                          console.error(error)
-                          alert('Erro ao salvar perfil') // TODO: Change all alerts with ConfirmModal
-                        })
+                    onSaveMacroProfile={(profile) => {
+                      onSaveProfile(profile).catch((error) => {
+                        console.error(error)
+                        alert('Erro ao salvar perfil') // TODO: Change all alerts with ConfirmModal
+                      })
                     }}
                     mode="edit"
                   />
                 )}
               </Show>
-
             </div>
             <MacroEvolution />
-            <MeasuresEvolution onSave={ () => {
-              handleSave().catch(
-                (error) => {
+            <MeasuresEvolution
+              onSave={() => {
+                handleSave().catch((error) => {
                   console.error(error)
                   alert('Erro ao salvar medidas') // TODO: Change all alerts with ConfirmModal
-                }
-              )
-            }} />
+                })
+              }}
+            />
           </div>
           <BottomNavigation />
         </>

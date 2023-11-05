@@ -17,7 +17,7 @@ export const recipeSchema = z.object({
     .string()
     .nullable()
     .optional()
-    .transform(() => 'Recipe' as const)
+    .transform(() => 'Recipe' as const),
 })
 
 export type Recipe = Readonly<z.infer<typeof recipeSchema>>
@@ -26,11 +26,11 @@ export type Recipe = Readonly<z.infer<typeof recipeSchema>>
 /**
  * @deprecated should be in another file
  */
-export function createRecipe ({
+export function createRecipe({
   name,
   items,
   preparedMultiplier = 1,
-  owner
+  owner,
 }: {
   name: string
   items: Recipe['items']
@@ -45,14 +45,14 @@ export function createRecipe ({
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     macros: calcGroupMacros({ items } as ItemGroup), // TODO: Create a proper calcItemsMacros function for lists of items
     prepared_multiplier: preparedMultiplier,
-    __type: 'Recipe'
+    __type: 'Recipe',
   }
 }
 
-export function createRecipeFromGroup (group: ItemGroup) {
+export function createRecipeFromGroup(group: ItemGroup) {
   return createRecipe({
     name: group.name,
     items: [...group.items],
-    owner: 3 // TODO: Get owner from somewhere (or create new Recipe type for data-only)
+    owner: 3, // TODO: Get owner from somewhere (or create new Recipe type for data-only)
   })
 }

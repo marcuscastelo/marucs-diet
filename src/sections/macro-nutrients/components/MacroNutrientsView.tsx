@@ -1,6 +1,6 @@
 import { type MacroNutrients } from '@/modules/diet/macro-nutrients/domain/macroNutrients'
 
-export default function MacroNutrientsView (props: MacroNutrients) {
+export default function MacroNutrientsView(props: MacroNutrients) {
   return (
     <>
       <span class="mr-1 text-green-400">

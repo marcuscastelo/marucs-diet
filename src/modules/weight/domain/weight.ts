@@ -14,19 +14,19 @@ export const weigthSchema = z.object({
     .string()
     .nullable()
     .optional()
-    .transform(() => 'Weight' as const)
+    .transform(() => 'Weight' as const),
 })
 
 export type Weight = Readonly<z.infer<typeof weigthSchema>>
 
-export function createWeight ({
+export function createWeight({
   owner,
   weight,
-  target_timestamp: targetTimestamp
+  target_timestamp: targetTimestamp,
 }: DbReady<Weight>): DbReady<Weight> {
   return {
     owner,
     weight,
-    target_timestamp: targetTimestamp
+    target_timestamp: targetTimestamp,
   }
 }

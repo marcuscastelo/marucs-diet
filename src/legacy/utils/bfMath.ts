@@ -12,19 +12,19 @@ export type BodyFatInput<T extends User['gender']> = {
   height: Measure['height']
 }
 
-export function calculateBodyFat<T extends User['gender']> (
-  input: BodyFatInput<T>
+export function calculateBodyFat<T extends User['gender']>(
+  input: BodyFatInput<T>,
 ) {
   if (input.gender === 'male') {
     return calculateMaleBodyFat({
       ...input,
-      gender: 'male'
+      gender: 'male',
     })
   } else {
     return calculateFemaleBodyFat({
       ...input,
       gender: 'female',
-      hip: z.number().parse(input.hip)
+      hip: z.number().parse(input.hip),
     })
   }
 }
@@ -35,7 +35,7 @@ BFP =
 1.0324 - 0.19077×log10(waist-neck) + 0.15456×log10(height)
 - 450
  */
-function calculateMaleBodyFat (input: BodyFatInput<'male'>) {
+function calculateMaleBodyFat(input: BodyFatInput<'male'>) {
   const k1 = 1.0324
   const k2 = 0.19077
   const l2 = Math.log10(input.waist - input.neck)
@@ -51,7 +51,7 @@ BFP =
 1.29579 - 0.35004×log10(waist+hip-neck) + 0.22100×log10(height)
 - 450
 */
-function calculateFemaleBodyFat (input: BodyFatInput<'female'>) {
+function calculateFemaleBodyFat(input: BodyFatInput<'female'>) {
   const k1 = 1.29579
   const k2 = 0.35004
   const l2 = Math.log10(input.waist + input.hip - input.neck)

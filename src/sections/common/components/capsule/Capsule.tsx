@@ -1,6 +1,6 @@
 import { type JSXElement } from 'solid-js'
 
-export function Capsule (props: {
+export function Capsule(props: {
   leftContent: JSXElement
   rightContent: JSXElement
   class?: string
@@ -12,12 +12,16 @@ export function Capsule (props: {
       }`}
     >
       <div
-        class={'flex flex-1 flex-col justify-around bg-slate-700 text-left rounded-3xl sm:rounded-r-none'}
+        class={
+          'flex flex-1 flex-col justify-around bg-slate-700 text-left rounded-3xl sm:rounded-r-none'
+        }
       >
         {props.leftContent}
       </div>
       <div
-        class={'flex flex-1 flex-col justify-around bg-slate-900 text-left rounded-3xl sm:rounded-l-none'}
+        class={
+          'flex flex-1 flex-col justify-around bg-slate-900 text-left rounded-3xl sm:rounded-l-none'
+        }
       >
         {props.rightContent}
       </div>

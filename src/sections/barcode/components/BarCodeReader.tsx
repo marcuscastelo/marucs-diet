@@ -3,11 +3,11 @@ import {
   Html5Qrcode,
   type Html5QrcodeFullConfig,
   type Html5QrcodeResult,
-  Html5QrcodeSupportedFormats
+  Html5QrcodeSupportedFormats,
 } from 'html5-qrcode'
 import { Show, createEffect, createSignal, onCleanup } from 'solid-js'
 
-export function BarCodeReader (props: {
+export function BarCodeReader(props: {
   id: string
   enabled: boolean
   onScanned: (barcode: string) => void
@@ -18,16 +18,16 @@ export function BarCodeReader (props: {
     if (!props.enabled) return
     setLoadingScanner(true)
 
-    function onScanSuccess (
+    function onScanSuccess(
       decodedText: string,
-      decodedResult: Html5QrcodeResult
+      decodedResult: Html5QrcodeResult,
     ) {
       if (
         decodedResult.result.format?.format !==
         Html5QrcodeSupportedFormats.EAN_13
       ) {
         console.warn(
-          `Atenção: Formato de código de barras não suportado: ${decodedResult.result.format?.format}`
+          `Atenção: Formato de código de barras não suportado: ${decodedResult.result.format?.format}`,
         )
         console.warn(`Código de barras lido: ${decodedText}`)
       }
@@ -37,14 +37,14 @@ export function BarCodeReader (props: {
 
     const qrboxFunction = function (
       viewfinderWidth: number,
-      viewfinderHeight: number
+      viewfinderHeight: number,
     ) {
       const minEdgePercentage = 0.7 // 70%
       const minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight)
       const qrboxSize = Math.floor(minEdgeSize * minEdgePercentage)
       return {
         width: qrboxSize,
-        height: (qrboxSize * 2) / 3
+        height: (qrboxSize * 2) / 3,
       }
     }
 
@@ -65,10 +65,10 @@ export function BarCodeReader (props: {
         Html5QrcodeSupportedFormats.RSS_EXPANDED,
         Html5QrcodeSupportedFormats.UPC_A,
         Html5QrcodeSupportedFormats.UPC_E,
-        Html5QrcodeSupportedFormats.UPC_EAN_EXTENSION
+        Html5QrcodeSupportedFormats.UPC_EAN_EXTENSION,
       ],
       verbose: false,
-      useBarCodeDetectorIfSupported: true
+      useBarCodeDetectorIfSupported: true,
     }
 
     const html5QrcodeScanner = new Html5Qrcode(props.id, config)
@@ -77,7 +77,7 @@ export function BarCodeReader (props: {
         { facingMode: 'environment' },
         { fps: 10, qrbox: qrboxFunction },
         onScanSuccess,
-        undefined
+        undefined,
       )
       .then(() => {
         setLoadingScanner(false)
@@ -91,11 +91,9 @@ export function BarCodeReader (props: {
     onCleanup(() => {
       didStart
         .then(async () => {
-          await html5QrcodeScanner.stop().catch(
-            (err) => {
-              console.error('Error stopping scanner', err)
-            }
-          )
+          await html5QrcodeScanner.stop().catch((err) => {
+            console.error('Error stopping scanner', err)
+          })
         })
         .catch(() => {
           console.log('Error stopping scanner')
@@ -105,7 +103,7 @@ export function BarCodeReader (props: {
   return (
     <>
       <Show when={loadingScanner()}>
-        <LoadingRing/>
+        <LoadingRing />
       </Show>
       <div id={props.id} class="mx-auto w-full" />
     </>

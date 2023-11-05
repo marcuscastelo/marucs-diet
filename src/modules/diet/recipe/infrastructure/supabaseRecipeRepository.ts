@@ -6,19 +6,19 @@ import { type Mutable } from '@/legacy/utils/typeUtils'
 import { type RecipeRepository } from '@/modules/diet/recipe/domain/recipeRepository'
 import {
   createRecipeFromDAO,
-  recipeDAOSchema
+  recipeDAOSchema,
 } from '@/modules/diet/recipe/infrastructure/recipeDAO'
 
 const TABLE = 'recipes'
 
-export function createSupabaseRecipeRepository (): RecipeRepository {
+export function createSupabaseRecipeRepository(): RecipeRepository {
   return {
     fetchUserRecipes,
     fetchRecipeById,
     fetchUserRecipeByName,
     insertRecipe: upsertRecipe,
     updateRecipe,
-    deleteRecipe
+    deleteRecipe,
   }
 }
 
@@ -56,7 +56,7 @@ const fetchRecipeById = async (id: Recipe['id']): Promise<Recipe | null> => {
 
 const fetchUserRecipeByName = async (
   userId: User['id'],
-  name: Recipe['name']
+  name: Recipe['name'],
 ): Promise<Recipe[]> => {
   const { data, error } = await supabase
     .from(TABLE)
@@ -76,7 +76,7 @@ const fetchUserRecipeByName = async (
 }
 
 const upsertRecipe = async (
-  newRecipe: DbReady<Recipe>
+  newRecipe: DbReady<Recipe>,
 ): Promise<Recipe | null> => {
   // TODO: Remove macros field from recipe type, it should be calculated from items only locally
   delete (newRecipe as Partial<Mutable<Recipe>>).macros
@@ -98,7 +98,7 @@ const upsertRecipe = async (
 
 const updateRecipe = async (
   id: Recipe['id'],
-  newRecipe: DbReady<Recipe>
+  newRecipe: DbReady<Recipe>,
 ): Promise<Recipe> => {
   const recipe = enforceDbReady(newRecipe)
 

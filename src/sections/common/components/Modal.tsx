@@ -25,10 +25,12 @@ export const Modal = (_props: ModalProps) => {
   const props = mergeProps({ hasBackdrop: true, className: '' }, _props)
   const { visible, setVisible } = useModalContext()
 
-  const handleClose = (e: Event & {
-    currentTarget: HTMLDialogElement
-    target: Element
-  }) => {
+  const handleClose = (
+    e: Event & {
+      currentTarget: HTMLDialogElement
+      target: Element
+    },
+  ) => {
     console.debug('[Modal] handleClose')
     setVisible(false)
     e.stopPropagation()
@@ -74,7 +76,7 @@ export const Modal = (_props: ModalProps) => {
 /**
  * @deprecated
  */
-export function ModalHeader (_props: {
+export function ModalHeader(_props: {
   title: JSXElement
   backButton?: boolean
 }) {
@@ -86,7 +88,9 @@ export function ModalHeader (_props: {
       {props.backButton && (
         <button
           class="btn btn-sm btn-ghost btn-circle"
-          onClick={() => { setVisible(false) }}
+          onClick={() => {
+            setVisible(false)
+          }}
         >
           <BackIcon />
         </button>
@@ -99,13 +103,13 @@ export function ModalHeader (_props: {
 /**
  * @deprecated
  */
-export function ModalBody () {
+export function ModalBody() {
   return <>Modal body</>
 }
 // TODO: Unify Header, Content and Actions for each component in the entire app
 /**
  * @deprecated
  */
-export function ModalActions (props: { children: JSXElement }) {
+export function ModalActions(props: { children: JSXElement }) {
   return <div class="modal-action">{props.children}</div>
 }

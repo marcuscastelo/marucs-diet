@@ -3,15 +3,20 @@ import {
   type RecipedItemGroup,
   isSimpleSingleGroup,
   itemGroupSchema,
-  recipedItemGroupSchema
+  recipedItemGroupSchema,
 } from '@/modules/diet/item-group/domain/itemGroup'
 import { Modal, ModalActions } from '@/sections/common/components/Modal'
 import { FoodItemListView } from '@/sections/food-item/components/FoodItemListView'
-import { FoodItemCopyButton, FoodItemFavorite, FoodItemHeader, FoodItemName } from '@/sections/food-item/components/FoodItemView'
+import {
+  FoodItemCopyButton,
+  FoodItemFavorite,
+  FoodItemHeader,
+  FoodItemName,
+} from '@/sections/food-item/components/FoodItemView'
 import {
   type FoodItem,
   createFoodItem,
-  foodItemSchema
+  foodItemSchema,
 } from '@/modules/diet/food-item/domain/foodItem'
 import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
 import { FoodItemEditModal } from '@/sections/food-item/components/FoodItemEditModal'
@@ -22,11 +27,11 @@ import { type Loadable } from '@/legacy/utils/loadable'
 
 import {
   ItemGroupEditContextProvider,
-  useItemGroupEditContext
+  useItemGroupEditContext,
 } from '@/sections/item-group/context/ItemGroupEditContext'
 import {
   ModalContextProvider,
-  useModalContext
+  useModalContext,
 } from '@/sections/common/context/ModalContext'
 import { isRecipedGroupUpToDate } from '@/legacy/utils/groupUtils'
 import { DownloadIcon } from '@/sections/common/components/icons/DownloadIcon'
@@ -44,9 +49,15 @@ import { createSupabaseRecipeRepository } from '@/modules/diet/recipe/infrastruc
 import {
   currentUserId,
   isFoodFavorite,
-  setFoodAsFavorite
+  setFoodAsFavorite,
 } from '@/modules/user/application/user'
-import { type Accessor, createSignal, type Setter, createEffect, Show } from 'solid-js'
+import {
+  type Accessor,
+  createSignal,
+  type Setter,
+  createEffect,
+  Show,
+} from 'solid-js'
 
 // TODO: Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
@@ -84,13 +95,18 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   const { visible, setVisible } = useModalContext()
   const { group, setGroup } = useItemGroupEditContext()
   const { show: showConfirmModal } = useConfirmModalContext()
-  const [recipeEditModalVisible, setRecipeEditModalVisible] = createSignal(false)
-  const [foodItemEditModalVisible, setFoodItemEditModalVisible] = createSignal(false)
-  const [templateSearchModalVisible, setTemplateSearchModalVisible] = createSignal(false)
+  const [recipeEditModalVisible, setRecipeEditModalVisible] =
+    createSignal(false)
+  const [foodItemEditModalVisible, setFoodItemEditModalVisible] =
+    createSignal(false)
+  const [templateSearchModalVisible, setTemplateSearchModalVisible] =
+    createSignal(false)
 
-  const [recipeSignal, setRecipeSignal] = createSignal<Loadable<Recipe | null>>({
-    loading: true
-  })
+  const [recipeSignal, setRecipeSignal] = createSignal<Loadable<Recipe | null>>(
+    {
+      loading: true,
+    },
+  )
 
   createEffect(() => {
     const group_ = group()
@@ -106,7 +122,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
         actions: [
           {
             text: 'Cancelar',
-            onClick: () => undefined
+            onClick: () => undefined,
           },
           {
             text: 'Desvincular',
@@ -119,13 +135,11 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
               }
 
               setGroup(
-                new ItemGroupEditor(group_)
-                  .setRecipe(undefined)
-                  .finish()
+                new ItemGroupEditor(group_).setRecipe(undefined).finish(),
               )
-            }
-          }
-        ]
+            },
+          },
+        ],
       })
     }
 
@@ -145,24 +159,24 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
       })
   })
 
-  const canApply =
-    (group()?.name.length ?? 0) > 0 && editSelection() === null
+  const canApply = (group()?.name.length ?? 0) > 0 && editSelection() === null
 
   return (
-    <Show when={(() => {
-      const recipe_ = recipeSignal()
-      return !recipe_.loading && !recipe_.errored && recipe_
-    })()}>
+    <Show
+      when={(() => {
+        const recipe_ = recipeSignal()
+        return !recipe_.loading && !recipe_.errored && recipe_
+      })()}
+    >
       {(recipeSignal) => (
         <>
-
           <ExternalRecipeEditModal
             recipe={recipeSignal().data}
             setRecipe={(recipe) =>
               setRecipeSignal({
                 loading: false,
                 errored: false,
-                data: recipe
+                data: recipe,
               })
             }
             visible={recipeEditModalVisible}
@@ -194,7 +208,9 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
                 <Body
                   recipe={() => {
                     const recipe_ = recipeSignal()
-                    return !recipe_.loading && !recipe_.errored ? recipe_.data : null
+                    return !recipe_.loading && !recipe_.errored
+                      ? recipe_.data
+                      : null
                   }}
                   isFoodFavorite={isFoodFavorite}
                   setFoodAsFavorite={setFoodAsFavorite}
@@ -227,10 +243,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
 /**
  * @deprecated
  */
-function Header (props: {
-  targetMealName: string
-  recipe: Recipe | null
-}) {
+function Header(props: { targetMealName: string; recipe: Recipe | null }) {
   return (
     <>
       <h3 class="text-lg font-bold text-white">
@@ -242,7 +255,7 @@ function Header (props: {
   )
 }
 
-function ExternalRecipeEditModal (props: {
+function ExternalRecipeEditModal(props: {
   recipe: Recipe | null
   setRecipe: (recipe: Recipe | null) => void
   visible: Accessor<boolean>
@@ -252,22 +265,25 @@ function ExternalRecipeEditModal (props: {
   return (
     <Show when={props.recipe}>
       {(recipe) => (
-        <ModalContextProvider visible={props.visible} setVisible={props.setVisible}>
+        <ModalContextProvider
+          visible={props.visible}
+          setVisible={props.setVisible}
+        >
           <RecipeEditModal
             recipe={recipe()}
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             onSaveRecipe={async (recipe) => {
               console.debug(
                 '[ItemGroupEditModal::ExternalRecipeEditModal] onSaveRecipe:',
-                recipe
+                recipe,
               )
               const updatedRecipe = await recipeRepository.updateRecipe(
                 recipe.id,
-                recipe
+                recipe,
               )
               console.debug(
                 '[ItemGroupEditModal::ExternalRecipeEditModal] updatedRecipe:',
-                updatedRecipe
+                updatedRecipe,
               )
               props.setRecipe(updatedRecipe)
             }}
@@ -276,7 +292,7 @@ function ExternalRecipeEditModal (props: {
             onDelete={async (recipeId) => {
               console.debug(
                 '[ItemGroupEditModal::ExternalRecipeEditModal] onDelete:',
-                recipeId
+                recipeId,
               )
 
               await recipeRepository.deleteRecipe(recipeId)
@@ -290,7 +306,7 @@ function ExternalRecipeEditModal (props: {
   )
 }
 
-function ExternalFoodItemEditModal (props: {
+function ExternalFoodItemEditModal(props: {
   visible: Accessor<boolean>
   setVisible: Setter<boolean>
   targetMealName: string
@@ -311,7 +327,7 @@ function ExternalFoodItemEditModal (props: {
 
     console.debug(
       '[ExternalFoodItemEditModal] handleCloseWithChanges - newGroup: ',
-      newGroup
+      newGroup,
     )
     setGroup(newGroup)
     props.setVisible(false)
@@ -329,24 +345,25 @@ function ExternalFoodItemEditModal (props: {
       <FoodItemEditModal
         targetName={(() => {
           const group_ = group()
-          return (group_ &&
-            (isSimpleSingleGroup(group_)
-              ? props.targetMealName
-              // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-              : group_.name)) ||
+          return (
+            (group_ &&
+              (isSimpleSingleGroup(group_)
+                ? props.targetMealName
+                : // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+                  group_.name)) ||
             'Erro: Grupo sem nome'
+          )
         })()}
         targetNameColor={(() => {
           const group_ = group()
           return group_ !== null && isSimpleSingleGroup(group_)
             ? 'text-green-500'
             : 'text-orange-400'
-        })()
-        }
+        })()}
         foodItem={() => {
           console.debug(
             '[ExternalFoodItemEditModal] <computed> foodItem: ',
-            editSelection()?.foodItem
+            editSelection()?.foodItem,
           )
           return (
             editSelection()?.foodItem ??
@@ -364,14 +381,14 @@ function ExternalFoodItemEditModal (props: {
           if (item.__type === 'RecipeItem') {
             //
             alert(
-              'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento'
+              'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
             )
             return
           }
 
           console.debug(
             `[ExternalFoodItemEditModal] onApply: setting itemId=${item.id} to item=`,
-            item
+            item,
           )
           const newGroup: ItemGroup = new ItemGroupEditor(group_)
             .editItem(item.id, (editor) => editor?.replace(item))
@@ -400,7 +417,7 @@ function ExternalFoodItemEditModal (props: {
 }
 
 // TODO: This component is duplicated between RecipeEditModal and ItemGroupEditModal, must be refactored
-function ExternalTemplateSearchModal (props: {
+function ExternalTemplateSearchModal(props: {
   visible: Accessor<boolean>
   setVisible: Setter<boolean>
   onRefetch: () => void
@@ -429,7 +446,7 @@ function ExternalTemplateSearchModal (props: {
 
     console.debug(
       'onNewFoodItem: applying',
-      JSON.stringify(finalGroup, null, 2)
+      JSON.stringify(finalGroup, null, 2),
     )
 
     setGroup(finalGroup)
@@ -464,7 +481,7 @@ function ExternalTemplateSearchModal (props: {
 /**
  * @deprecated
  */
-function Body (props: {
+function Body(props: {
   recipe: Accessor<Recipe | null>
   isFoodFavorite: (foodId: number) => boolean
   setFoodAsFavorite: (foodId: number, isFavorite: boolean) => void
@@ -482,7 +499,7 @@ function Body (props: {
   const {
     write: writeToClipboard,
     clear: clearClipboard,
-    clipboard: clipboardText
+    clipboard: clipboardText,
   } = useClipboard({
     filter: (clipboard) => {
       if (clipboard === '') return false
@@ -495,17 +512,14 @@ function Body (props: {
       }
 
       return acceptedClipboardSchema.safeParse(parsedClipboard).success
-    }
+    },
   })
   const { show: showConfirmModal } = useConfirmModalContext()
 
   const hasValidPastableOnClipboard = () => clipboardText().length > 0
 
   const handlePasteAfterConfirm = () => {
-    const data = deserializeClipboard(
-      clipboardText(),
-      acceptedClipboardSchema
-    )
+    const data = deserializeClipboard(clipboardText(), acceptedClipboardSchema)
 
     if (data === null) {
       throw new Error('Invalid clipboard data: ' + clipboardText())
@@ -539,10 +553,10 @@ function Body (props: {
       actions: [
         {
           text: 'Cancelar',
-          onClick: () => undefined
+          onClick: () => undefined,
         },
-        { text: 'Colar', primary: true, onClick: handlePasteAfterConfirm }
-      ]
+        { text: 'Colar', primary: true, onClick: handlePasteAfterConfirm },
+      ],
     })
   }
 
@@ -560,21 +574,25 @@ function Body (props: {
                     setGroup(
                       new ItemGroupEditor(group())
                         .setName(e.target.value)
-                        .finish()
+                        .finish(),
                     )
                   }}
-                  onFocus={(e) => { e.target.select() }}
+                  onFocus={(e) => {
+                    e.target.select()
+                  }}
                   value={group().name}
                 />
               </div>
               <Show when={hasValidPastableOnClipboard()}>
                 {(_) => (
                   <div
-                    class={'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'}
+                    class={
+                      'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'
+                    }
                     onClick={() => {
                       if (isRecipeTooComplex(props.recipe())) {
                         alert(
-                          'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas'
+                          'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
                         )
                         return
                       }
@@ -605,7 +623,7 @@ function Body (props: {
                               group_.name ||
                               'Nova receita (a partir de um grupo)',
                             items: deepCopy(group_.items) ?? [],
-                            owner: currentUserId()
+                            owner: currentUserId(),
                           })
 
                           const insertedRecipe =
@@ -613,7 +631,7 @@ function Body (props: {
 
                           if (insertedRecipe === null) {
                             alert(
-                              'Falha ao criar receita a partir de grupo (erro ao conversar com banco de dados)'
+                              'Falha ao criar receita a partir de grupo (erro ao conversar com banco de dados)',
                             )
                             console.error('insertedRecipe is null')
                             throw new Error('insertedRecipe is null')
@@ -622,7 +640,7 @@ function Body (props: {
                           setGroup(
                             new ItemGroupEditor(group_)
                               .setRecipe(insertedRecipe.id)
-                              .finish()
+                              .finish(),
                           )
 
                           props.setRecipeEditModalVisible(true)
@@ -631,10 +649,10 @@ function Body (props: {
                         exec().catch((err) => {
                           console.error(
                             '[ItemGroupEditModal] Error creating recipe from group:',
-                            err
+                            err,
                           )
                           alert(
-                            'Falha ao criar receita a partir de grupo (erro interno)'
+                            'Falha ao criar receita a partir de grupo (erro interno)',
                           )
                         })
                       }}
@@ -645,16 +663,20 @@ function Body (props: {
                 )}
               </Show>
 
-              <Show when={(() => {
-                const group_ = group()
-                return group_.type === 'recipe' && group_
-              })()}>
+              <Show
+                when={(() => {
+                  const group_ = group()
+                  return group_.type === 'recipe' && group_
+                })()}
+              >
                 {(group) => (
                   <>
                     <Show when={props.recipe()}>
                       {(recipe) => (
                         <>
-                          <Show when={isRecipedGroupUpToDate(group(), recipe())}>
+                          <Show
+                            when={isRecipedGroupUpToDate(group(), recipe())}
+                          >
                             {(_) => (
                               <button
                                 class="my-auto ml-auto"
@@ -668,7 +690,9 @@ function Body (props: {
                             )}
                           </Show>
 
-                          <Show when={!isRecipedGroupUpToDate(group(), recipe())}>
+                          <Show
+                            when={!isRecipedGroupUpToDate(group(), recipe())}
+                          >
                             {(_) => (
                               <button
                                 class="my-auto ml-auto hover:animate-pulse"
@@ -693,15 +717,13 @@ function Body (props: {
                                 <DownloadIcon />
                               </button>
                             )}
-                            </Show>
+                          </Show>
                         </>
                       )}
                     </Show>
 
                     <Show when={props.recipe() === null}>
-                      {(_) => (
-                        <>Receita não encontrada</>
-                      )}
+                      {(_) => <>Receita não encontrada</>}
                     </Show>
                   </>
                 )}
@@ -718,7 +740,7 @@ function Body (props: {
               if (item.__type === 'RecipeItem') {
                 //
                 alert(
-                  'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento'
+                  'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
                 )
                 return
               }
@@ -728,7 +750,7 @@ function Body (props: {
 
               if (isRecipeTooComplex(props.recipe())) {
                 alert(
-                  'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas'
+                  'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
                 )
                 return
               }
@@ -743,13 +765,16 @@ function Body (props: {
                 favorite={
                   <FoodItemFavorite
                     favorite={props.isFoodFavorite(item.reference)}
-                    onSetFavorite={(favorite) => { props.setFoodAsFavorite(item.reference, favorite) }
-                    }
+                    onSetFavorite={(favorite) => {
+                      props.setFoodAsFavorite(item.reference, favorite)
+                    }}
                   />
                 }
                 copyButton={
                   <FoodItemCopyButton
-                    onCopyItem={(item) => { writeToClipboard(JSON.stringify(item)) }}
+                    onCopyItem={(item) => {
+                      writeToClipboard(JSON.stringify(item))
+                    }}
                   />
                 }
               />
@@ -767,8 +792,12 @@ function Body (props: {
           {group().type === 'recipe' && group().recipe !== null && (
             <PreparedQuantity
               // TODO: Remove as unknown as Accessor<RecipedItemGroup>
-              recipedGroup={group as unknown as Accessor<RecipedItemGroup | null>}
-              setRecipedGroup={setGroup as unknown as Setter<RecipedItemGroup | null>}
+              recipedGroup={
+                group as unknown as Accessor<RecipedItemGroup | null>
+              }
+              setRecipedGroup={
+                setGroup as unknown as Setter<RecipedItemGroup | null>
+              }
               recipe={props.recipe()}
             />
           )}
@@ -782,7 +811,7 @@ function Body (props: {
 /**
  * @deprecated
  */
-function Actions (props: {
+function Actions(props: {
   onDelete?: (groupId: number) => void
   onCancel?: () => void
   canApply: boolean
@@ -798,38 +827,39 @@ function Actions (props: {
     <ModalActions>
       {/* if there is a button in form, it will close the modal */}
       <Show when={props.onDelete}>
-      {(onDelete) => (
-        <button
-          class="btn-error btn mr-auto"
-          onClick={(e) => {
-            e.preventDefault()
-            if (group() === null) {
-              alert('BUG: group or onDelete is null') // TODO: Change all alerts with ConfirmModal
-            }
-            showConfirmModal({
-              title: 'Excluir grupo',
-              body: `Tem certeza que deseja excluir o grupo ${group()?.name ?? 'BUG: group is null' // TODO: Color group name orange and BUG red
+        {(onDelete) => (
+          <button
+            class="btn-error btn mr-auto"
+            onClick={(e) => {
+              e.preventDefault()
+              if (group() === null) {
+                alert('BUG: group or onDelete is null') // TODO: Change all alerts with ConfirmModal
+              }
+              showConfirmModal({
+                title: 'Excluir grupo',
+                body: `Tem certeza que deseja excluir o grupo ${
+                  group()?.name ?? 'BUG: group is null' // TODO: Color group name orange and BUG red
                 }?`,
-              actions: [
-                {
-                  text: 'Cancelar',
-                  onClick: () => undefined
-                },
-                {
-                  text: 'Excluir',
-                  primary: true,
-                  onClick: () => {
-                    const group_ = group()
-                    group_ !== null && onDelete()(group_.id)
-                  }
-                }
-              ]
-            })
-          }}
-        >
-          Excluir
-        </button>
-      )}
+                actions: [
+                  {
+                    text: 'Cancelar',
+                    onClick: () => undefined,
+                  },
+                  {
+                    text: 'Excluir',
+                    primary: true,
+                    onClick: () => {
+                      const group_ = group()
+                      group_ !== null && onDelete()(group_.id)
+                    },
+                  },
+                ],
+              })
+            }}
+          >
+            Excluir
+          </button>
+        )}
       </Show>
       <button
         class="btn"
@@ -851,33 +881,33 @@ function Actions (props: {
       >
         Aplicar
       </button>
-
     </ModalActions>
   )
 }
 
-function PreparedQuantity (props: {
+function PreparedQuantity(props: {
   recipedGroup: Accessor<RecipedItemGroup | null>
   setRecipedGroup: Setter<RecipedItemGroup | null>
   recipe: Recipe | null
 }) {
-  const rawQuantiy =
-    () =>
-      props.recipedGroup()?.items.reduce((acc, item) => {
-        return acc + item.quantity
-      }, 0)
+  const rawQuantiy = () =>
+    props.recipedGroup()?.items.reduce((acc, item) => {
+      return acc + item.quantity
+    }, 0)
 
-  const initialPreparedQuantity =
-    () => (rawQuantiy() ?? 0) * (props.recipe?.prepared_multiplier ?? 1)
+  const initialPreparedQuantity = () =>
+    (rawQuantiy() ?? 0) * (props.recipe?.prepared_multiplier ?? 1)
 
-  const [preparedQuantity, setPreparedQuantity] = createSignal(initialPreparedQuantity())
+  const [preparedQuantity, setPreparedQuantity] = createSignal(
+    initialPreparedQuantity(),
+  )
 
   createEffect(() => {
     setPreparedQuantity(initialPreparedQuantity())
   })
 
   const preparedQuantityField = useFloatField(preparedQuantity, {
-    decimalPlaces: 0
+    decimalPlaces: 0,
   })
 
   return (
@@ -886,15 +916,18 @@ function PreparedQuantity (props: {
         field={preparedQuantityField}
         commitOn="change"
         class="input px-0 pl-5 text-md"
-        onFocus={(event) => { event.target.select() }}
+        onFocus={(event) => {
+          event.target.select()
+        }}
         onFieldCommit={(newPreparedQuantity) => {
           console.debug(
             '[PreparedQuantity] onFieldCommit: ',
-            newPreparedQuantity
+            newPreparedQuantity,
           )
 
           const newRawQuantity =
-            (newPreparedQuantity ?? 0) / (props.recipe?.prepared_multiplier ?? 1)
+            (newPreparedQuantity ?? 0) /
+            (props.recipe?.prepared_multiplier ?? 1)
 
           const mult = newRawQuantity / (rawQuantiy() ?? 1)
 
@@ -902,13 +935,13 @@ function PreparedQuantity (props: {
             props.recipedGroup()?.items.map((item) => {
               return {
                 ...item,
-                quantity: item.quantity * mult
+                quantity: item.quantity * mult,
               }
             }) ?? []
 
           const recipedGroup_ = props.recipedGroup()
           const newGroup =
-          recipedGroup_ !== null &&
+            recipedGroup_ !== null &&
             new ItemGroupEditor(recipedGroup_).setItems(newItems).finish()
 
           props.setRecipedGroup(recipedItemGroupSchema.parse(newGroup))
@@ -919,6 +952,6 @@ function PreparedQuantity (props: {
   )
 }
 
-function isRecipeTooComplex (recipe: Recipe | null) {
+function isRecipeTooComplex(recipe: Recipe | null) {
   return recipe !== null && recipe.prepared_multiplier !== 1
 }

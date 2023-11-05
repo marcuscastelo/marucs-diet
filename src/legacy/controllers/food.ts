@@ -4,7 +4,7 @@ import supabase from '@/legacy/utils/supabase'
 import { isEanCached } from '@/legacy/controllers/eanCache'
 import {
   importFoodFromApiByEan,
-  importFoodsFromApiByName
+  importFoodsFromApiByName,
 } from '@/legacy/controllers/apiFood'
 import { isSearchCached } from '@/legacy/controllers/searchCache'
 
@@ -15,20 +15,20 @@ export type FoodSearchParams = {
   allowedFoods?: number[]
 }
 
-export async function searchFoodById (
+export async function searchFoodById(
   id: Food['id'],
-  params: FoodSearchParams = {}
+  params: FoodSearchParams = {},
 ) {
   const [food] = await internalCachedSearchFoods(
     { field: 'id', value: id },
-    params
+    params,
   )
   return food
 }
 
-export async function searchFoodsByName (
+export async function searchFoodsByName(
   name: Required<Food>['name'],
-  params: FoodSearchParams = {}
+  params: FoodSearchParams = {},
 ) {
   console.debug(`[Food] Searching for food with name ${name}`)
   if (!(await isSearchCached(name))) {
@@ -38,13 +38,13 @@ export async function searchFoodsByName (
   console.debug(`[Food] Food with name ${name} cached, searching`)
   return await internalCachedSearchFoods(
     { field: 'name', value: name, operator: 'ilike' },
-    params
+    params,
   )
 }
 
-export async function searchFoodsByEan (
+export async function searchFoodsByEan(
   ean: Required<Food>['ean'],
-  params: FoodSearchParams = {}
+  params: FoodSearchParams = {},
 ) {
   console.debug(`[Food] Searching for food with EAN ${ean}`)
   if (!(await isEanCached(ean))) {
@@ -52,37 +52,37 @@ export async function searchFoodsByEan (
   }
   const [food] = await internalCachedSearchFoods(
     { field: 'ean', value: ean },
-    params
+    params,
   )
   return food
 }
 
-export async function listFoods (params: FoodSearchParams = {}) {
+export async function listFoods(params: FoodSearchParams = {}) {
   return await internalCachedSearchFoods({ field: '', value: '' }, params)
 }
 
-async function internalCachedSearchFoods (
+async function internalCachedSearchFoods(
   {
     field,
     value,
-    operator = 'eq'
+    operator = 'eq',
   }:
-  | {
-    field: keyof Food
-    value: Food['ean' | 'id' | 'name']
-    operator?: 'eq' | 'ilike'
-  }
-  | {
-    field: ''
-    value: ''
-    operator?: 'eq' | 'ilike'
-  },
-  params?: FoodSearchParams
+    | {
+        field: keyof Food
+        value: Food['ean' | 'id' | 'name']
+        operator?: 'eq' | 'ilike'
+      }
+    | {
+        field: ''
+        value: ''
+        operator?: 'eq' | 'ilike'
+      },
+  params?: FoodSearchParams,
 ): Promise<Food[]> {
   console.debug(
     `[Food] Searching for foods with ${field} = ${value} (limit: ${
       params?.limit ?? 'none'
-    })`
+    })`,
   )
   const { limit, allowedFoods } = params ?? {}
   const base = supabase
@@ -104,7 +104,7 @@ async function internalCachedSearchFoods (
         query = query.ilike(field, `%${value}%`)
         break
       default:
-        ((_: never) => _)(operator) // TODO: Create a better function for exhaustive checks
+        ;((_: never) => _)(operator) // TODO: Create a better function for exhaustive checks
     }
   }
 
@@ -128,7 +128,7 @@ async function internalCachedSearchFoods (
   return foodSchema.array().parse(data ?? [])
 }
 
-export async function insertFood (newFood: DbReady<Food>): Promise<Food> {
+export async function insertFood(newFood: DbReady<Food>): Promise<Food> {
   const food = enforceDbReady(newFood)
 
   const { data, error } = await supabase.from(TABLE).insert(food).select('*')

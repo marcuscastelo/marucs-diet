@@ -5,7 +5,7 @@ export type PageLoadingProps = {
   message: string
 }
 
-export function PageLoading (props: PageLoadingProps) {
+export function PageLoading(props: PageLoadingProps) {
   const [label, setLabel] = createSignal(props.message)
   const [tooSlow, setTooSlow] = createSignal(false)
 

@@ -1,9 +1,9 @@
 import { createSignal } from 'solid-js'
 
-export function useTyping ({
+export function useTyping({
   onTypingStart,
   onTypingEnd,
-  delay = 500
+  delay = 500,
 }: {
   onTypingStart?: () => void
   onTypingEnd?: () => void
@@ -26,13 +26,15 @@ export function useTyping ({
     const timeoutId_ = timeoutId()
     if (timeoutId_ !== null) clearTimeout(timeoutId_)
     handleTypingStart()
-    setTimeoutId(setTimeout(() => {
-      handleTypingEnd()
-    }, delay))
+    setTimeoutId(
+      setTimeout(() => {
+        handleTypingEnd()
+      }, delay),
+    )
   }
 
   return {
     typing,
-    onTyped: handleTyping
+    onTyped: handleTyping,
   }
 }

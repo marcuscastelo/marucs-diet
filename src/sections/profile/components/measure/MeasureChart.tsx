@@ -9,74 +9,76 @@ type DayMeasures = {
   dayBf: number
 }
 
-export function MeasureChart (props: { measures: Measure[] }) {
-  const measuresByDay = () => props.measures.reduce<Record<string, Measure[]>>(
-    (acc, measure) => {
+export function MeasureChart(props: { measures: Measure[] }) {
+  const measuresByDay = () =>
+    props.measures.reduce<Record<string, Measure[]>>((acc, measure) => {
       const day = measure.target_timestamp.toLocaleDateString()
       if (!acc[day]) {
         acc[day] = []
       }
       acc[day].push(measure)
       return acc
-    },
-    {}
-  )
+    }, {})
 
-  const data = (): DayMeasures[] => Object.entries(measuresByDay())
-    .map(([day, measures]) => {
-      const heightAverage =
-        measures.reduce((acc, measure) => acc + measure.height, 0) /
-        measures.length
+  const data = (): DayMeasures[] =>
+    Object.entries(measuresByDay())
+      .map(([day, measures]) => {
+        const heightAverage =
+          measures.reduce((acc, measure) => acc + measure.height, 0) /
+          measures.length
 
-      const waistAverage =
-        measures.reduce((acc, measure) => acc + measure.waist, 0) /
-        measures.length
+        const waistAverage =
+          measures.reduce((acc, measure) => acc + measure.waist, 0) /
+          measures.length
 
-      const hipAverage =
-        measures.reduce((acc, measure) => acc + (measure.hip ?? 0), 0) /
-        measures.filter((measure) => measure.hip).length
+        const hipAverage =
+          measures.reduce((acc, measure) => acc + (measure.hip ?? 0), 0) /
+          measures.filter((measure) => measure.hip).length
 
-      const neckAverage =
-        measures.reduce((acc, measure) => acc + measure.neck, 0) /
-        measures.length
+        const neckAverage =
+          measures.reduce((acc, measure) => acc + measure.neck, 0) /
+          measures.length
 
-      const weightsOfTheDay = () => userWeights().filter(
-        (weight) =>
-          weight.target_timestamp.toLocaleDateString() === day && weight.weight
-      )
+        const weightsOfTheDay = () =>
+          userWeights().filter(
+            (weight) =>
+              weight.target_timestamp.toLocaleDateString() === day &&
+              weight.weight,
+          )
 
-      const weightAverage = () =>
-        weightsOfTheDay().reduce((acc, weight) => acc + weight.weight, 0) /
-        weightsOfTheDay().length
+        const weightAverage = () =>
+          weightsOfTheDay().reduce((acc, weight) => acc + weight.weight, 0) /
+          weightsOfTheDay().length
 
-      if (currentUser() === null) {
-        console.log('currentUser.value === null')
-        throw new Error('currentUser.value === null')
-      }
+        if (currentUser() === null) {
+          console.log('currentUser.value === null')
+          throw new Error('currentUser.value === null')
+        }
 
-      const dayBf = () => parseFloat(
-        calculateBodyFat({
-          gender: currentUser()?.gender ?? 'female',
-          height: heightAverage,
-          waist: waistAverage,
-          hip: hipAverage,
-          neck: neckAverage,
-          weight: weightAverage()
-        } satisfies BodyFatInput<'male' | 'female'>).toFixed(2)
-      )
+        const dayBf = () =>
+          parseFloat(
+            calculateBodyFat({
+              gender: currentUser()?.gender ?? 'female',
+              height: heightAverage,
+              waist: waistAverage,
+              hip: hipAverage,
+              neck: neckAverage,
+              weight: weightAverage(),
+            } satisfies BodyFatInput<'male' | 'female'>).toFixed(2),
+          )
 
-      return {
-        date: day,
-        dayBf: dayBf(),
-        dayAverage: {
-          height: heightAverage,
-          waist: waistAverage,
-          hip: hipAverage,
-          neck: neckAverage
-        } satisfies DayAverage
-      } satisfies DayMeasures
-    })
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        return {
+          date: day,
+          dayBf: dayBf(),
+          dayAverage: {
+            height: heightAverage,
+            waist: waistAverage,
+            hip: hipAverage,
+            neck: neckAverage,
+          } satisfies DayAverage,
+        } satisfies DayMeasures
+      })
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
   return (
     <>
@@ -119,7 +121,7 @@ export function MeasureChart (props: { measures: Measure[] }) {
   )
 }
 
-function ChartFor (props: {
+function ChartFor(props: {
   title: string
   data: DayMeasures[]
   acessor: (day: DayMeasures) => number

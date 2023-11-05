@@ -3,14 +3,19 @@ import { type MacroNutrients } from '@/modules/diet/macro-nutrients/domain/macro
 import { CopyIcon } from '@/sections/common/components/icons/CopyIcon'
 import {
   type ItemGroup,
-  isSimpleSingleGroup
+  isSimpleSingleGroup,
 } from '@/modules/diet/item-group/domain/itemGroup'
 import { calcGroupCalories, calcGroupMacros } from '@/legacy/utils/macroMath'
 import { isRecipedGroupUpToDate } from '@/legacy/utils/groupUtils'
 import { type Loadable } from '@/legacy/utils/loadable'
 import { type Recipe } from '@/modules/diet/recipe/domain/recipe'
 import { createSupabaseRecipeRepository } from '@/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
-import { type JSXElement, type Accessor, createSignal, createEffect } from 'solid-js'
+import {
+  type JSXElement,
+  type Accessor,
+  createSignal,
+  createEffect,
+} from 'solid-js'
 
 // TODO: Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
@@ -23,7 +28,7 @@ export type ItemGroupViewProps = {
   onClick?: (itemGroup: ItemGroup) => void
 }
 
-export function ItemGroupView (props: ItemGroupViewProps) {
+export function ItemGroupView(props: ItemGroupViewProps) {
   const handleClick = (e: MouseEvent) => {
     props.onClick?.(props.itemGroup())
     e.stopPropagation()
@@ -49,7 +54,7 @@ export type ItemGroupViewHeaderProps = {
   copyButton?: JSXElement
 }
 
-export function ItemGroupHeader (props: ItemGroupViewHeaderProps) {
+export function ItemGroupHeader(props: ItemGroupViewHeaderProps) {
   return (
     <div class="flex">
       {/* //TODO: ItemGroupView id is random, but it should be an entry on the database (meal too) */}
@@ -65,11 +70,9 @@ export function ItemGroupHeader (props: ItemGroupViewHeaderProps) {
   )
 }
 
-export function ItemGroupName (props: {
-  group: Accessor<ItemGroup>
-}) {
+export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
   const [recipe, setRecipe] = createSignal<Loadable<Recipe | null>>({
-    loading: true
+    loading: true,
   })
 
   createEffect(() => {
@@ -80,7 +83,8 @@ export function ItemGroupName (props: {
         .fetchRecipeById(group.recipe)
         .then((foundRecipe) => {
           setRecipe({ loading: false, errored: false, data: foundRecipe })
-        }).catch((err) => {
+        })
+        .catch((err) => {
           console.error('[ItemGroupName] Error fetching recipe:', err)
           setRecipe({ loading: false, errored: true, error: err })
         })
@@ -121,7 +125,7 @@ export function ItemGroupName (props: {
     } else {
       console.error(
         '[ItemGroupName] item is not simple or recipe!! Item:',
-        group_
+        group_,
       )
       return 'text-red-400'
     }
@@ -140,7 +144,7 @@ export function ItemGroupName (props: {
   )
 }
 
-export function ItemGroupCopyButton (props: {
+export function ItemGroupCopyButton(props: {
   onCopyItemGroup: (itemGroup: ItemGroup) => void
   group: Accessor<ItemGroup>
 }) {
@@ -158,7 +162,7 @@ export function ItemGroupCopyButton (props: {
   )
 }
 
-export function ItemGroupViewNutritionalInfo (props: {
+export function ItemGroupViewNutritionalInfo(props: {
   group: Accessor<ItemGroup>
 }) {
   console.debug('[ItemGroupViewNutritionalInfo] - Rendering')
@@ -167,21 +171,19 @@ export function ItemGroupViewNutritionalInfo (props: {
     console.debug('[ItemGroupViewNutritionalInfo] - itemGroup:', props.group)
   })
 
-  const multipliedMacros = () => calcGroupMacros(props.group()) ?? {
-    carbs: -666,
-    protein: -666,
-    fat: -666
-  } satisfies MacroNutrients
+  const multipliedMacros = () =>
+    calcGroupMacros(props.group()) ??
+    ({
+      carbs: -666,
+      protein: -666,
+      fat: -666,
+    } satisfies MacroNutrients)
 
   return (
     <div class="flex">
       <MacroNutrientsView {...multipliedMacros()} />
       <div class="ml-auto">
-        <span class="text-white">
-          {' '}
-          {props.group()?.quantity ?? -666}g{' '}
-        </span>
-        |
+        <span class="text-white"> {props.group()?.quantity ?? -666}g </span>|
         <span class="text-white">
           {' '}
           {calcGroupCalories(props.group()).toFixed(0)}

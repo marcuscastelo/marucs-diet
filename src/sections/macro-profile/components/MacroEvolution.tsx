@@ -3,13 +3,11 @@ import { Capsule } from '@/sections/common/components/capsule/Capsule'
 import {
   calcCalories,
   calcDayCalories,
-  calcDayMacros
+  calcDayMacros,
 } from '@/legacy/utils/macroMath'
 import { calculateMacroTarget } from '@/sections/macro-nutrients/components/MacroTargets'
 import { inForceWeight } from '@/legacy/utils/weightUtils'
-import {
-  inForceMacroProfile
-} from '@/legacy/utils/macroProfileUtils'
+import { inForceMacroProfile } from '@/legacy/utils/macroProfileUtils'
 import { type DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
 import { type MacroProfile } from '@/modules/diet/macro-profile/domain/macroProfile'
 import { dateToDDMM } from '@/legacy/utils/dateUtils'
@@ -23,7 +21,7 @@ import { userMacroProfiles } from '@/modules/diet/macro-profile/application/macr
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
 
-export function MacroEvolution () {
+export function MacroEvolution() {
   const user = currentUser()
   if (user === null) {
     throw new Error('User is null')
@@ -45,10 +43,10 @@ export function MacroEvolution () {
   )
 }
 
-function createChartData (
+function createChartData(
   weights: readonly Weight[],
   days: readonly DayDiet[],
-  macroProfiles: readonly MacroProfile[]
+  macroProfiles: readonly MacroProfile[],
 ) {
   const data = days.map((day) => {
     const dayDate = new Date(day.target_day)
@@ -74,14 +72,14 @@ function createChartData (
       targetGrams:
         (macroTarget?.protein ?? NaN) +
         (macroTarget?.carbs ?? NaN) +
-        (macroTarget?.fat ?? NaN)
+        (macroTarget?.fat ?? NaN),
     }
   })
 
   return data
 }
 
-function AllMacrosChart (props: { weights: readonly Weight[] }) {
+function AllMacrosChart(props: { weights: readonly Weight[] }) {
   const user = currentUser()
   if (user === null) {
     throw new Error('User is null')
@@ -111,20 +109,15 @@ function AllMacrosChart (props: { weights: readonly Weight[] }) {
   //   })
   //   .reduce((a, b) => a + b, 0)
 
-  const data = () => createChartData(
-    props.weights,
-    dayDiets(),
-    userMacroProfiles()
-  )
+  const data = () =>
+    createChartData(props.weights, dayDiets(), userMacroProfiles())
   data()
 
   return (
     <div>
       <div class="text-3xl text-center">Geral</div>
       <Capsule
-        leftContent={
-          <h5 class={'ml-2 p-2 text-xl'}>Desvio de Proteína (g)</h5>
-        }
+        leftContent={<h5 class={'ml-2 p-2 text-xl'}>Desvio de Proteína (g)</h5>}
         rightContent={
           <h5 class={'ml-2 p-2 text-xl'}>TODO</h5>
           // <h5 class={'ml-2 p-2 text-xl'}>{proteinDeviance.toFixed(0)}</h5>
@@ -132,9 +125,7 @@ function AllMacrosChart (props: { weights: readonly Weight[] }) {
         class={'mb-2'}
       />
       <Capsule
-        leftContent={
-          <h5 class={'ml-2 p-2 text-xl'}>Desvio de Gordura (g)</h5>
-        }
+        leftContent={<h5 class={'ml-2 p-2 text-xl'}>Desvio de Gordura (g)</h5>}
         rightContent={
           <h5 class={'ml-2 p-2 text-xl'}>TODO</h5>
           // <h5 class={'ml-2 p-2 text-xl'}>{fatDeviance.toFixed(0)}</h5>
@@ -230,17 +221,14 @@ function AllMacrosChart (props: { weights: readonly Weight[] }) {
   )
 }
 
-function CaloriesChart (props: { weights: readonly Weight[] }) {
+function CaloriesChart(props: { weights: readonly Weight[] }) {
   const user = currentUser()
   if (user === null) {
     throw new Error('User is null')
   }
 
-  const data = () => createChartData(
-    props.weights,
-    dayDiets(),
-    userMacroProfiles()
-  )
+  const data = () =>
+    createChartData(props.weights, dayDiets(), userMacroProfiles())
   data()
 
   return (
@@ -285,17 +273,14 @@ function CaloriesChart (props: { weights: readonly Weight[] }) {
   )
 }
 
-function ProteinChart (props: { weights: readonly Weight[] }) {
+function ProteinChart(props: { weights: readonly Weight[] }) {
   const user = currentUser()
   if (user === null) {
     throw new Error('User is null')
   }
 
-  const data = () => createChartData(
-    props.weights,
-    dayDiets(),
-    userMacroProfiles()
-  )
+  const data = () =>
+    createChartData(props.weights, dayDiets(), userMacroProfiles())
   data()
 
   return (
@@ -339,17 +324,14 @@ function ProteinChart (props: { weights: readonly Weight[] }) {
   )
 }
 
-function FatChart (props: { weights: readonly Weight[] }) {
+function FatChart(props: { weights: readonly Weight[] }) {
   const user = currentUser()
   if (user === null) {
     throw new Error('User is null')
   }
 
-  const data = () => createChartData(
-    props.weights,
-    dayDiets(),
-    userMacroProfiles()
-  )
+  const data = () =>
+    createChartData(props.weights, dayDiets(), userMacroProfiles())
   data()
 
   return (
@@ -393,17 +375,14 @@ function FatChart (props: { weights: readonly Weight[] }) {
   )
 }
 
-function CarbsChart (props: { weights: readonly Weight[] }) {
+function CarbsChart(props: { weights: readonly Weight[] }) {
   const user = currentUser()
   if (user === null) {
     throw new Error('User is null')
   }
 
-  const data = () => createChartData(
-    props.weights,
-    dayDiets(),
-    userMacroProfiles()
-  )
+  const data = () =>
+    createChartData(props.weights, dayDiets(), userMacroProfiles())
   data()
 
   return (

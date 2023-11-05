@@ -1,7 +1,7 @@
 import { CreateBlankDayButton } from '@/sections/day-diet/components/CreateBlankDayButton'
 import { CopyLastDayButton } from '@/sections/day-diet/components/CopyLastDayButton'
 
-export default function DayNotFound (props: { selectedDay: string }) {
+export default function DayNotFound(props: { selectedDay: string }) {
   return (
     <>
       <h1 class="mt-2" color="warning">

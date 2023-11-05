@@ -8,52 +8,55 @@ import { FloatInput } from '@/sections/common/components/FloatInput'
 import { createSignal } from 'solid-js'
 import Datepicker from '@/sections/datepicker/components/Datepicker'
 
-export function MeasureView (props: {
+export function MeasureView(props: {
   measure: Measure
   onRefetchMeasures: () => void
   onSave: () => void
 }) {
-  const [dateFieldValue, setDateFieldValue] = createSignal<Date>(props.measure.target_timestamp)
+  const [dateFieldValue, setDateFieldValue] = createSignal<Date>(
+    props.measure.target_timestamp,
+  )
 
   const heightField = useFloatFieldOld(props.measure.height)
   const waistField = useFloatFieldOld(props.measure.waist)
   const hipField = useFloatFieldOld(props.measure.hip)
   const neckField = useFloatFieldOld(props.measure.neck)
 
-  const handleSave =
-    ({
-      date,
+  const handleSave = ({
+    date,
+    height,
+    waist,
+    hip,
+    neck,
+  }: {
+    date: Date
+    height: number | undefined
+    waist: number | undefined
+    hip: number | undefined
+    neck: number | undefined
+  }) => {
+    if (!height || !waist || !hip || !neck) {
+      alert('Medidas inválidas') // TODO: Change all alerts with ConfirmModal
+      return
+    }
+
+    updateMeasure(props.measure.id, {
+      ...props.measure,
       height,
       waist,
       hip,
-      neck
-    }: {
-      date: Date
-      height: number | undefined
-      waist: number | undefined
-      hip: number | undefined
-      neck: number | undefined
-    }) => {
-      if (!height || !waist || !hip || !neck) {
-        alert('Medidas inválidas') // TODO: Change all alerts with ConfirmModal
-        return
-      }
-
-      updateMeasure(props.measure.id, {
-        ...props.measure,
-        height,
-        waist,
-        hip,
-        neck,
-        target_timestamp: date
-      }).then(() => {
+      neck,
+      target_timestamp: date,
+    })
+      .then(() => {
         props.onSave()
         props.onRefetchMeasures()
-      }).catch((error) => {
+      })
+      .catch((error) => {
         console.error(error)
         alert('Erro ao salvar') // TODO: Change all alerts with ConfirmModal
       })
-    }
+  }
 
   return (
     <Capsule
@@ -62,7 +65,7 @@ export function MeasureView (props: {
           <Datepicker
             value={{
               startDate: dateFieldValue(),
-              endDate: dateFieldValue()
+              endDate: dateFieldValue(),
             }}
             onChange={(value) => {
               // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
@@ -80,7 +83,7 @@ export function MeasureView (props: {
                 height: heightField.value(),
                 waist: waistField.value(),
                 hip: hipField.value(),
-                neck: neckField.value()
+                neck: neckField.value(),
               })
             }}
             // Timezone = GMT-3
@@ -103,14 +106,16 @@ export function MeasureView (props: {
                   field={heightField}
                   class="input text-center btn-ghost px-0 flex-shrink"
                   style={{ width: '100%' }}
-                  onFocus={(event) => { event.target.select() }}
+                  onFocus={(event) => {
+                    event.target.select()
+                  }}
                   onFieldCommit={(value) => {
                     handleSave({
                       date: dateFieldValue(),
                       height: value,
                       waist: waistField.value(),
                       hip: hipField.value(),
-                      neck: neckField.value()
+                      neck: neckField.value(),
                     })
                   }}
                 />
@@ -122,14 +127,16 @@ export function MeasureView (props: {
                   field={waistField}
                   class="input text-center btn-ghost px-0 flex-shrink"
                   style={{ width: '100%' }}
-                  onFocus={(event) => { event.target.select() }}
+                  onFocus={(event) => {
+                    event.target.select()
+                  }}
                   onFieldCommit={(value) => {
                     handleSave({
                       date: dateFieldValue(),
                       height: heightField.value(),
                       waist: value,
                       hip: hipField.value(),
-                      neck: neckField.value()
+                      neck: neckField.value(),
                     })
                   }}
                 />
@@ -141,14 +148,16 @@ export function MeasureView (props: {
                   field={hipField}
                   class="input text-center btn-ghost px-0 flex-shrink"
                   style={{ width: '100%' }}
-                  onFocus={(event) => { event.target.select() }}
+                  onFocus={(event) => {
+                    event.target.select()
+                  }}
                   onFieldCommit={(value) => {
                     handleSave({
                       date: dateFieldValue(),
                       height: heightField.value(),
                       waist: waistField.value(),
                       hip: value,
-                      neck: neckField.value()
+                      neck: neckField.value(),
                     })
                   }}
                 />
@@ -160,14 +169,16 @@ export function MeasureView (props: {
                   field={neckField}
                   class="input text-center btn-ghost px-0 flex-shrink"
                   style={{ width: '100%' }}
-                  onFocus={(event) => { event.target.select() }}
+                  onFocus={(event) => {
+                    event.target.select()
+                  }}
                   onFieldCommit={(value) => {
                     handleSave({
                       date: dateFieldValue(),
                       height: heightField.value(),
                       waist: waistField.value(),
                       hip: hipField.value(),
-                      neck: value
+                      neck: value,
                     })
                   }}
                 />
@@ -178,13 +189,15 @@ export function MeasureView (props: {
           <button
             class="btn btn-ghost my-auto"
             onClick={() => {
-              deleteMeasure(props.measure.id).then(() => {
-                props.onRefetchMeasures()
-                props.onSave()
-              }).catch((error) => {
-                console.error(error)
-                alert('Erro ao deletar') // TODO: Change all alerts with ConfirmModal
-              })
+              deleteMeasure(props.measure.id)
+                .then(() => {
+                  props.onRefetchMeasures()
+                  props.onSave()
+                })
+                .catch((error) => {
+                  console.error(error)
+                  alert('Erro ao deletar') // TODO: Change all alerts with ConfirmModal
+                })
             }}
           >
             <TrashIcon />

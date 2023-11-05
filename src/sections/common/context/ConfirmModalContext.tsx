@@ -1,4 +1,11 @@
-import { type JSXElement, type Accessor, createContext, useContext, createSignal, type Setter } from 'solid-js'
+import {
+  type JSXElement,
+  type Accessor,
+  createContext,
+  useContext,
+  createSignal,
+  type Setter,
+} from 'solid-js'
 
 type Title = JSXElement
 type Body = JSXElement
@@ -21,7 +28,7 @@ export type ConfirmModalContext = {
   show: ({
     title,
     body,
-    actions
+    actions,
   }: {
     title?: Title
     body?: Body
@@ -32,21 +39,19 @@ export type ConfirmModalContext = {
 
 const confirmModalContext = createContext<ConfirmModalContext | null>(null)
 
-export function useConfirmModalContext () {
+export function useConfirmModalContext() {
   // TODO: Implement useContextSelector
 
   const context = useContext(confirmModalContext)
   if (context === null) {
     throw new Error(
-      'useConfirmModalContext must be used within a ConfirmModalProvider'
+      'useConfirmModalContext must be used within a ConfirmModalProvider',
     )
   }
   return context
 }
 
-export function ConfirmModalProvider (props: {
-  children: JSXElement
-}) {
+export function ConfirmModalProvider(props: { children: JSXElement }) {
   console.debug('[ConfirmModalProvider] - Rendering')
 
   const [title, setTitle] = createSignal<Title>('')
@@ -56,15 +61,14 @@ export function ConfirmModalProvider (props: {
   const [actions, setActions] = createSignal<ConfirmAction[]>([
     {
       text: 'Cancelar',
-      onClick: () => (setVisible(false))
+      onClick: () => setVisible(false),
     },
     {
       text: 'Confirmar',
       primary: true,
-      onClick: () => (setVisible(false))
-    }
-  ]
-  )
+      onClick: () => setVisible(false),
+    },
+  ])
 
   const context: ConfirmModalContext = {
     internals: {
@@ -72,7 +76,7 @@ export function ConfirmModalProvider (props: {
       setVisible,
       title,
       body,
-      actions // TODO: Propagate signal
+      actions, // TODO: Propagate signal
     },
     visible,
     show: ({ title, body, actions: newActions }) => {
@@ -83,21 +87,23 @@ export function ConfirmModalProvider (props: {
         setBody(body)
       }
       if (newActions !== undefined) {
-        setActions(newActions.map((action) => {
-          return {
-            ...action,
-            onClick: () => {
-              setVisible(false)
-              action.onClick()
+        setActions(
+          newActions.map((action) => {
+            return {
+              ...action,
+              onClick: () => {
+                setVisible(false)
+                action.onClick()
+              },
             }
-          }
-        }))
+          }),
+        )
       }
       setVisible(true)
     },
     close: () => {
       setVisible(false)
-    }
+    },
   }
 
   return (

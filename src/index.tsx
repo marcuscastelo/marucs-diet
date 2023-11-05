@@ -9,9 +9,12 @@ import { Router } from '@solidjs/router'
 
 const root = document.getElementById('root')
 
-render(() =>
-<Router>
-    <App />
-  </Router>
-// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-, root!)
+render(
+  () => (
+    <Router>
+      <App />
+    </Router>
+  ),
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  root!,
+)

@@ -1,5 +1,12 @@
 import { type ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
-import { createContext, type Accessor, type Setter, useContext, createSignal, type JSXElement } from 'solid-js'
+import {
+  createContext,
+  type Accessor,
+  type Setter,
+  useContext,
+  createSignal,
+  type JSXElement,
+} from 'solid-js'
 
 export type ItemGroupEditContext = {
   group: Accessor<ItemGroup | null>
@@ -9,19 +16,19 @@ export type ItemGroupEditContext = {
 
 const itemGroupEditContext = createContext<ItemGroupEditContext | null>(null)
 
-export function useItemGroupEditContext () {
+export function useItemGroupEditContext() {
   const context = useContext(itemGroupEditContext)
 
   if (context === null) {
     throw new Error(
-      'useItemGroupContext must be used within a ItemGroupContextProvider'
+      'useItemGroupContext must be used within a ItemGroupContextProvider',
     )
   }
 
   return context
 }
 
-export function ItemGroupEditContextProvider (props: {
+export function ItemGroupEditContextProvider(props: {
   group: Accessor<ItemGroup | null>
   setGroup: (group: ItemGroup | null) => void
   onSaveGroup: (group: ItemGroup) => void
@@ -32,7 +39,7 @@ export function ItemGroupEditContextProvider (props: {
   createContext(() => {
     console.debug(
       '[ItemGroupEditContextProvider] <signalEffect> - initialGroup changed to ',
-      props.group()
+      props.group(),
     )
     setGroup(props.group())
   })

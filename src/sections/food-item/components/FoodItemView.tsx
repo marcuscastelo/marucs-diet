@@ -2,7 +2,7 @@ import MacroNutrientsView from '@/sections/macro-nutrients/components/MacroNutri
 import { type MacroNutrients } from '@/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   FoodItemContextProvider,
-  useFoodItemContext
+  useFoodItemContext,
 } from '@/sections/food-item/context/FoodItemContext'
 import { CopyIcon } from '@/sections/common/components/icons/CopyIcon'
 import { searchFoodById } from '@/legacy/controllers/food'
@@ -11,7 +11,12 @@ import { type TemplateItem } from '@/modules/diet/template-item/domain/templateI
 import { type Template } from '@/modules/diet/template/domain/template'
 
 import { createSupabaseRecipeRepository } from '@/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
-import { type JSXElement, type Accessor, createSignal, createEffect } from 'solid-js'
+import {
+  type JSXElement,
+  type Accessor,
+  createSignal,
+  createEffect,
+} from 'solid-js'
 import { cn } from '@/legacy/utils/cn'
 
 // TODO: Use repository pattern through use cases instead of directly using repositories
@@ -25,7 +30,7 @@ export type FoodItemViewProps = {
   onClick?: (foodItem: TemplateItem) => void
 }
 
-export function FoodItemView (props: FoodItemViewProps) {
+export function FoodItemView(props: FoodItemViewProps) {
   const handleClick = (e: MouseEvent) => {
     props.onClick?.(props.foodItem())
     e.stopPropagation()
@@ -34,8 +39,9 @@ export function FoodItemView (props: FoodItemViewProps) {
 
   return (
     <div
-      class={`meal-item block rounded-lg border border-gray-700 bg-gray-700 p-3 shadow hover:cursor-pointer hover:bg-gray-700 ${props.class ?? ''
-        }`}
+      class={`meal-item block rounded-lg border border-gray-700 bg-gray-700 p-3 shadow hover:cursor-pointer hover:bg-gray-700 ${
+        props.class ?? ''
+      }`}
       onClick={handleClick}
     >
       <FoodItemContextProvider foodItem={props.foodItem}>
@@ -52,7 +58,7 @@ export type FoodItemHeaderProps = {
   copyButton?: JSXElement
 }
 
-export function FoodItemHeader (props: FoodItemHeaderProps) {
+export function FoodItemHeader(props: FoodItemHeaderProps) {
   return (
     <div class="flex">
       {/* //TODO: FoodItem id is random, but it should be an entry on the database (meal too) */}
@@ -66,7 +72,7 @@ export function FoodItemHeader (props: FoodItemHeaderProps) {
   )
 }
 
-export function FoodItemName () {
+export function FoodItemName() {
   const { foodItem: item } = useFoodItemContext()
 
   const [template, setTemplate] = createSignal<Template | null>(null)
@@ -106,7 +112,7 @@ export function FoodItemName () {
     } else {
       console.error(
         '[FoodItemName] item is not a FoodItem or RecipeItem! Item:',
-        item()
+        item(),
       )
       return 'text-red-500 bg-red-100'
     }
@@ -127,7 +133,7 @@ export function FoodItemName () {
   )
 }
 
-export function FoodItemCopyButton (props: {
+export function FoodItemCopyButton(props: {
   onCopyItem: (foodItem: TemplateItem) => void
 }) {
   const { foodItem } = useFoodItemContext()
@@ -146,7 +152,7 @@ export function FoodItemCopyButton (props: {
   )
 }
 
-export function FoodItemFavorite (props: {
+export function FoodItemFavorite(props: {
   favorite: boolean
   onSetFavorite?: (favorite: boolean) => void
 }) {
@@ -158,11 +164,9 @@ export function FoodItemFavorite (props: {
 
   return (
     <div
-      class={
-        cn('ml-auto mt-1 text-3xl text-orange-400 active:scale-105', {
-          'hover:text-blue-200': props.onSetFavorite !== undefined
-        })
-      }
+      class={cn('ml-auto mt-1 text-3xl text-orange-400 active:scale-105', {
+        'hover:text-blue-200': props.onSetFavorite !== undefined,
+      })}
       onClick={toggleFavorite}
     >
       {props.favorite ? '★' : '☆'}
@@ -170,13 +174,13 @@ export function FoodItemFavorite (props: {
   )
 }
 
-export function FoodItemNutritionalInfo () {
+export function FoodItemNutritionalInfo() {
   const { foodItem: item } = useFoodItemContext()
 
   const multipliedMacros = (): MacroNutrients => ({
     carbs: (item().macros.carbs * item().quantity) / 100,
     protein: (item().macros.protein * item().quantity) / 100,
-    fat: (item().macros.fat * item().quantity) / 100
+    fat: (item().macros.fat * item().quantity) / 100,
   })
 
   return (

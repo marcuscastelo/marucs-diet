@@ -9,14 +9,14 @@ import { CapsuleContent } from '@/sections/common/components/capsule/CapsuleCont
 import {
   calculateWeightProgress,
   firstWeight,
-  latestWeight
+  latestWeight,
 } from '@/legacy/utils/weightUtils'
 import { currentUser, currentUserId } from '@/modules/user/application/user'
 import {
   deleteWeight,
   insertWeight,
   updateWeight,
-  userWeights
+  userWeights,
 } from '@/modules/weight/application/weight'
 import Datepicker from '@/sections/datepicker/components/Datepicker'
 import { dateToYYYYMMDD } from '@/legacy/utils/dateUtils'
@@ -28,20 +28,20 @@ import { type ApexOptions } from 'apexcharts'
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
 
-export function WeightEvolution (props: { onSave: () => void }) {
+export function WeightEvolution(props: { onSave: () => void }) {
   const desiredWeight = () => currentUser()?.desired_weight ?? 0
 
   const weightField = useFloatField(undefined, {
-    maxValue: 200
+    maxValue: 200,
   })
 
-  const weightProgress = () => calculateWeightProgress(
-    userWeights(),
-    desiredWeight()
-  )
+  const weightProgress = () =>
+    calculateWeightProgress(userWeights(), desiredWeight())
 
   const weightProgressText = () =>
-    weightProgress === null ? 'Erro' : `${((weightProgress() ?? 0) * 100).toFixed(2)}%`
+    weightProgress === null
+      ? 'Erro'
+      : `${((weightProgress() ?? 0) * 100).toFixed(2)}%`
 
   return (
     <>
@@ -59,7 +59,9 @@ export function WeightEvolution (props: { onSave: () => void }) {
           <FloatInput
             field={weightField}
             class="input px-0 pl-5 text-xl mb-3"
-            onFocus={(event) => { event.target.select() }}
+            onFocus={(event) => {
+              event.target.select()
+            }}
             style={{ width: '100%' }}
           />
           <button
@@ -87,12 +89,14 @@ export function WeightEvolution (props: { onSave: () => void }) {
                 createWeight({
                   owner: userId,
                   weight,
-                  target_timestamp: new Date(Date.now())
+                  target_timestamp: new Date(Date.now()),
+                }),
+              )
+                .then(afterInsert)
+                .catch((error) => {
+                  console.error(error)
+                  alert('Erro ao inserir') // TODO: Change all alerts with ConfirmModal
                 })
-              ).then(afterInsert).catch((error) => {
-                console.error(error)
-                alert('Erro ao inserir') // TODO: Change all alerts with ConfirmModal
-              })
             }}
           >
             Adicionar peso
@@ -100,13 +104,11 @@ export function WeightEvolution (props: { onSave: () => void }) {
         </div>
 
         <div class="mx-5 lg:mx-20 pb-10">
-          <For each={[...userWeights()]
-            .reverse()
-            .slice(0, 10)}>{(weight) => {
-              return (
-                <WeightView weight={weight} onSave={props.onSave} />
-              )
-            }}</For>
+          <For each={[...userWeights()].reverse().slice(0, 10)}>
+            {(weight) => {
+              return <WeightView weight={weight} onSave={props.onSave} />
+            }}
+          </For>
           {userWeights().length === 0 && 'Não há pesos registrados'}
         </div>
       </div>
@@ -114,10 +116,7 @@ export function WeightEvolution (props: { onSave: () => void }) {
   )
 }
 
-function WeightView (props: {
-  weight: Weight
-  onSave: () => void
-}) {
+function WeightView(props: { weight: Weight; onSave: () => void }) {
   const targetTimestampSignal = () => props.weight.target_timestamp
   const dateField = useDateField(targetTimestampSignal)
 
@@ -126,7 +125,7 @@ function WeightView (props: {
 
   const handleSave = ({
     dateValue,
-    weightValue
+    weightValue,
   }: {
     dateValue: Date | undefined
     weightValue: number | undefined
@@ -146,11 +145,13 @@ function WeightView (props: {
     updateWeight(props.weight.id, {
       ...props.weight,
       weight: weightValue,
-      target_timestamp: dateValue
-    }).then(props.onSave).catch((error) => {
-      console.error(error)
-      alert('Erro ao salvar') // TODO: Change all alerts with ConfirmModal
+      target_timestamp: dateValue,
     })
+      .then(props.onSave)
+      .catch((error) => {
+        console.error(error)
+        alert('Erro ao salvar') // TODO: Change all alerts with ConfirmModal
+      })
   }
 
   return (
@@ -160,7 +161,7 @@ function WeightView (props: {
           <Datepicker
             value={{
               startDate: dateField.rawValue(),
-              endDate: dateField.rawValue()
+              endDate: dateField.rawValue(),
             }}
             onChange={(value) => {
               // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
@@ -173,7 +174,7 @@ function WeightView (props: {
               dateField.setRawValue(dateToYYYYMMDD(date))
               handleSave({
                 dateValue: date,
-                weightValue: weightField.value()
+                weightValue: weightField.value(),
               })
             }}
             // Timezone = GMT-3
@@ -194,11 +195,13 @@ function WeightView (props: {
               field={weightField}
               class="input text-center btn-ghost px-0 flex-shrink"
               style={{ width: '100%' }}
-              onFocus={(event) => { event.target.select() }}
+              onFocus={(event) => {
+                event.target.select()
+              }}
               onFieldCommit={(value) => {
                 handleSave({
                   dateValue: dateField.value(),
-                  weightValue: value
+                  weightValue: value,
                 })
               }}
             />
@@ -207,10 +210,12 @@ function WeightView (props: {
           <button
             class="btn btn-ghost my-auto"
             onClick={() => {
-              deleteWeight(props.weight.id).then(props.onSave).catch((error) => {
-                console.error(error)
-                alert('Erro ao deletar') // TODO: Change all alerts with ConfirmModal
-              })
+              deleteWeight(props.weight.id)
+                .then(props.onSave)
+                .catch((error) => {
+                  console.error(error)
+                  alert('Erro ao deletar') // TODO: Change all alerts with ConfirmModal
+                })
             }}
           >
             <TrashIcon />
@@ -222,7 +227,7 @@ function WeightView (props: {
   )
 }
 
-function WeightChart (props: {
+function WeightChart(props: {
   weights: readonly Weight[]
   desiredWeight: number
   type: 'last-30-days' | 'all-time'
@@ -250,96 +255,116 @@ function WeightChart (props: {
     return acc
   }
 
-  const weightsByDay = createMemo(() => props.weights.reduce<Record<string, Weight[]>>(reduceFunc, {}))
+  const weightsByDay = createMemo(() =>
+    props.weights.reduce<Record<string, Weight[]>>(reduceFunc, {}),
+  )
 
-  const data = createMemo((): readonly TickWeight[] => Object.entries(weightsByDay())
-    .map(([day, weights]) => {
-      const open = firstWeight(weights)?.weight ?? 0
-      const low = Math.min(...weights.map((weight) => weight.weight))
-      const high = Math.max(...weights.map((weight) => weight.weight))
-      const close = latestWeight(weights)?.weight ?? 0
+  const data = createMemo((): readonly TickWeight[] =>
+    Object.entries(weightsByDay())
+      .map(([day, weights]) => {
+        const open = firstWeight(weights)?.weight ?? 0
+        const low = Math.min(...weights.map((weight) => weight.weight))
+        const high = Math.max(...weights.map((weight) => weight.weight))
+        const close = latestWeight(weights)?.weight ?? 0
 
-      return {
-        date: day,
-        open,
-        close,
-        high,
-        low
-      }
-    })
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()))
-
-  const movingAverage = createMemo(() => data().map((_, index) => {
-    const weights = data().slice(Math.max(0, index - 7), index + 1) // 7 days
-    const avgWeight =
-      weights.reduce((acc, weight) => acc + weight.low, 0) / weights.length
-    return avgWeight
-  }))
-
-  const polishedData = createMemo(() => data().map((weight, index) => {
-    return {
-      ...weight,
-      movingAverage: movingAverage()[index],
-      desiredWeight: props.desiredWeight
-    }
-  }))
-
-  const max = createMemo(() => polishedData().reduce((acc, weight) => Math.max(acc, Math.max(weight.desiredWeight, weight.high)), -Infinity))
-  const min = createMemo(() => polishedData().reduce((acc, weight) => Math.min(acc, Math.min(weight.desiredWeight, weight.low)), Infinity))
-
-  const options = () => ({
-    theme: {
-      mode: 'dark'
-    },
-    xaxis: {
-      type: 'category',
-      range: props.type === 'last-30-days' ? 30 : undefined
-    },
-    yaxis: {
-      decimalsInFloat: 0,
-      min: min() - 1,
-      max: max() + 1,
-      tickAmount: Math.min((max() - min()) / 2, 20)
-    },
-    stroke: {
-      width: 3,
-      curve: 'straight'
-    },
-    dataLabels: {
-      enabled: false
-    },
-    chart: {
-      id: 'solidchart-example',
-      locales: [ptBrLocale],
-      defaultLocale: 'pt-br',
-      background: '#1E293B',
-      events: {
-        beforeZoom: function (ctx) {
-          // we need to clear the range as we only need it on the iniital load.
-          ctx.w.config.xaxis.range = undefined
+        return {
+          date: day,
+          open,
+          close,
+          high,
+          low,
         }
+      })
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
+  )
 
-      },
-      zoom: {
-        autoScaleYaxis: true
-      },
-      animations: {
-        enabled: true
-      },
-      toolbar: {
-        tools: {
-          download: false,
-          selection: false,
-          zoom: true,
-          zoomin: false,
-          zoomout: false,
-          pan: true,
-          reset: true
-        },
-        autoSelected: 'pan'
+  const movingAverage = createMemo(() =>
+    data().map((_, index) => {
+      const weights = data().slice(Math.max(0, index - 7), index + 1) // 7 days
+      const avgWeight =
+        weights.reduce((acc, weight) => acc + weight.low, 0) / weights.length
+      return avgWeight
+    }),
+  )
+
+  const polishedData = createMemo(() =>
+    data().map((weight, index) => {
+      return {
+        ...weight,
+        movingAverage: movingAverage()[index],
+        desiredWeight: props.desiredWeight,
       }
-    }
-  } satisfies ApexOptions)
+    }),
+  )
+
+  const max = createMemo(() =>
+    polishedData().reduce(
+      (acc, weight) =>
+        Math.max(acc, Math.max(weight.desiredWeight, weight.high)),
+      -Infinity,
+    ),
+  )
+  const min = createMemo(() =>
+    polishedData().reduce(
+      (acc, weight) =>
+        Math.min(acc, Math.min(weight.desiredWeight, weight.low)),
+      Infinity,
+    ),
+  )
+
+  const options = () =>
+    ({
+      theme: {
+        mode: 'dark',
+      },
+      xaxis: {
+        type: 'category',
+        range: props.type === 'last-30-days' ? 30 : undefined,
+      },
+      yaxis: {
+        decimalsInFloat: 0,
+        min: min() - 1,
+        max: max() + 1,
+        tickAmount: Math.min((max() - min()) / 2, 20),
+      },
+      stroke: {
+        width: 3,
+        curve: 'straight',
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      chart: {
+        id: 'solidchart-example',
+        locales: [ptBrLocale],
+        defaultLocale: 'pt-br',
+        background: '#1E293B',
+        events: {
+          beforeZoom: function (ctx) {
+            // we need to clear the range as we only need it on the iniital load.
+            ctx.w.config.xaxis.range = undefined
+          },
+        },
+        zoom: {
+          autoScaleYaxis: true,
+        },
+        animations: {
+          enabled: true,
+        },
+        toolbar: {
+          tools: {
+            download: false,
+            selection: false,
+            zoom: true,
+            zoomin: false,
+            zoomout: false,
+            pan: true,
+            reset: true,
+          },
+          autoSelected: 'pan',
+        },
+      },
+    }) satisfies ApexOptions
 
   const series = createMemo(() => ({
     list: [
@@ -348,8 +373,8 @@ function WeightChart (props: {
         type: 'candlestick',
         data: polishedData().map((weight) => ({
           x: weight.date,
-          y: [weight.open, weight.high, weight.low, weight.close]
-        }))
+          y: [weight.open, weight.high, weight.low, weight.close],
+        })),
       },
       {
         name: 'Média',
@@ -357,8 +382,8 @@ function WeightChart (props: {
         color: '#FFA50055',
         data: polishedData().map((weight) => ({
           x: weight.date,
-          y: [weight.movingAverage]
-        }))
+          y: [weight.movingAverage],
+        })),
       },
       {
         name: 'Peso desejado',
@@ -366,10 +391,10 @@ function WeightChart (props: {
         color: '#FF00FF',
         data: polishedData().map((weight) => ({
           x: weight.date,
-          y: [weight.desiredWeight]
-        }))
-      }
-    ] satisfies ApexOptions['series']
+          y: [weight.desiredWeight],
+        })),
+      },
+    ] satisfies ApexOptions['series'],
   }))
 
   createEffect(() => {
@@ -378,7 +403,12 @@ function WeightChart (props: {
 
   return (
     <>
-      <SolidApexCharts type="candlestick" options={options()} series={series().list} height={600} />
+      <SolidApexCharts
+        type="candlestick"
+        options={options()}
+        series={series().list}
+        height={600}
+      />
     </>
   )
 }

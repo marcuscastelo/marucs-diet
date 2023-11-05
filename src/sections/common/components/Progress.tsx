@@ -3,24 +3,35 @@
 import { cn } from '@/legacy/utils/cn'
 import { Show, mergeProps } from 'solid-js'
 
-export function Progress (props_: {
+export function Progress(props_: {
   class?: string
   sizeClass?: `h-${string}`
   textLabelPosition?: 'outside' | 'inside'
-  color?: 'red' | 'green' | 'blue' | 'yellow' | 'gray' | 'indigo' | 'purple' | 'pink'
+  color?:
+    | 'red'
+    | 'green'
+    | 'blue'
+    | 'yellow'
+    | 'gray'
+    | 'indigo'
+    | 'purple'
+    | 'pink'
   textLabel?: string
   labelText?: boolean
   progress?: number
 }) {
-  const props = mergeProps({
-    class: '',
-    sizeClass: 'h-1.5',
-    textLabelPosition: 'outside',
-    color: 'blue',
-    textLabel: '',
-    labelText: false,
-    progress: 50
-  }, props_)
+  const props = mergeProps(
+    {
+      class: '',
+      sizeClass: 'h-1.5',
+      textLabelPosition: 'outside',
+      color: 'blue',
+      textLabel: '',
+      labelText: false,
+      progress: 50,
+    },
+    props_,
+  )
 
   const progressOver100 = () => props.progress > 100
   const progress = () => Math.max(0, Math.min(100, props.progress))
@@ -52,42 +63,45 @@ export function Progress (props_: {
 
     // Purple
     'bg-purple-600': props.color === 'purple',
-    'dark:bg-purple-500': props.color === 'purple'
+    'dark:bg-purple-500': props.color === 'purple',
   })
 
   const over100Classes = () => ({
-    'text-rose-600 dark:text-red-500 animate-pulse font-extrabold uppercase': progressOver100()
+    'text-rose-600 dark:text-red-500 animate-pulse font-extrabold uppercase':
+      progressOver100(),
   })
 
   return (
     <>
       <Show when={props.textLabelPosition === 'outside'}>
         <div class="flex justify-between mt-1">
-          <span class={
-            cn('text-base text-md font-medium text-blue-700 dark:text-white',
-              over100Classes())}>{props.textLabel}</span>
+          <span
+            class={cn(
+              'text-base text-md font-medium text-blue-700 dark:text-white',
+              over100Classes(),
+            )}
+          >
+            {props.textLabel}
+          </span>
         </div>
       </Show>
       <div
-        class={
-          cn(
-            'w-full bg-gray-200 rounded-full dark:bg-gray-700',
-            props.sizeClass,
-            props.class
-          )
-        }>
+        class={cn(
+          'w-full bg-gray-200 rounded-full dark:bg-gray-700',
+          props.sizeClass,
+          props.class,
+        )}
+      >
         <div
-          class={
-            cn(
-              'bg-blue-600 rounded-full dark:bg-blue-500',
-              props.sizeClass,
-              colorInnerClasses(),
-              over100Classes()
-            )
-          }
+          class={cn(
+            'bg-blue-600 rounded-full dark:bg-blue-500',
+            props.sizeClass,
+            colorInnerClasses(),
+            over100Classes(),
+          )}
           style={{ width: `${progress()}%` }}
         >
-          <Show when={props.textLabelPosition === 'inside'} >
+          <Show when={props.textLabelPosition === 'inside'}>
             <div class={cn(over100Classes)} />
             {props.textLabel}
           </Show>

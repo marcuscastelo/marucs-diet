@@ -5,11 +5,11 @@ import {
   ItemGroupHeader,
   ItemGroupName,
   ItemGroupViewNutritionalInfo,
-  type ItemGroupViewProps
+  type ItemGroupViewProps,
 } from '@/sections/item-group/components/ItemGroupView'
 import { type Accessor } from 'solid-js'
 
-export function ItemGroupListView (props: {
+export function ItemGroupListView(props: {
   itemGroups: Accessor<ItemGroup[]>
   onItemClick: ItemGroupViewProps['onClick']
 }) {
@@ -31,9 +31,14 @@ export function ItemGroupListView (props: {
                       group={group}
                       onCopyItemGroup={(group) => {
                         // TODO: Replace with clipboard hook (here and in FoodItemView, if applicable)
-                        navigator.clipboard.writeText(JSON.stringify(group)).catch((err) => {
-                          console.error('Failed to copy item group to clipboard', err)
-                        })
+                        navigator.clipboard
+                          .writeText(JSON.stringify(group))
+                          .catch((err) => {
+                            console.error(
+                              'Failed to copy item group to clipboard',
+                              err,
+                            )
+                          })
                       }}
                     />
                   }

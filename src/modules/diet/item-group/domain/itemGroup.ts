@@ -14,7 +14,7 @@ export const simpleItemGroupSchema = z.object({
     .number()
     .nullable()
     .optional()
-    .transform((recipe) => recipe ?? undefined)
+    .transform((recipe) => recipe ?? undefined),
 })
 
 export const recipedItemGroupSchema = z.object({
@@ -23,12 +23,12 @@ export const recipedItemGroupSchema = z.object({
   items: foodItemSchema.array().readonly(), // TODO: Support nested groups and recipes
   quantity: z.number(),
   type: z.literal('recipe'),
-  recipe: z.number()
+  recipe: z.number(),
 })
 
 export const itemGroupSchema = z.discriminatedUnion('type', [
   simpleItemGroupSchema,
-  recipedItemGroupSchema
+  recipedItemGroupSchema,
 ])
 
 export type SimpleItemGroup = Readonly<z.infer<typeof simpleItemGroupSchema>>
@@ -37,8 +37,8 @@ export type RecipedItemGroup = Readonly<z.infer<typeof recipedItemGroupSchema>>
 
 export type ItemGroup = Readonly<z.infer<typeof itemGroupSchema>>
 
-export function isSimpleSingleGroup (
-  group: ItemGroup
+export function isSimpleSingleGroup(
+  group: ItemGroup,
 ): group is SimpleItemGroup {
   return group.type === 'simple' && group.items.length === 1
 }

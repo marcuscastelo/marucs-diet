@@ -21,19 +21,19 @@ export const measureSchema = z.object({
     .string()
     .nullable()
     .optional()
-    .transform(() => 'Measure' as const)
+    .transform(() => 'Measure' as const),
 })
 
 // TODO: rename to BodyMeasure
 export type Measure = Readonly<z.infer<typeof measureSchema>>
 
-export function createMeasure ({
+export function createMeasure({
   owner,
   height,
   waist,
   hip,
   neck,
-  target_timestamp: targetTimestamp
+  target_timestamp: targetTimestamp,
 }: DbReady<Measure>): DbReady<Measure> {
   return {
     owner,
@@ -41,6 +41,6 @@ export function createMeasure ({
     waist,
     hip,
     neck,
-    target_timestamp: targetTimestamp
+    target_timestamp: targetTimestamp,
   }
 }
