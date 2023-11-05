@@ -54,12 +54,15 @@ import {
   createEffect,
 } from 'solid-js'
 import { Alert } from '@/sections/common/components/Alert'
-import { listFoods, searchFoodsByName } from '@/legacy/controllers/food'
 import { PageLoading } from '@/sections/common/components/PageLoading'
 import {
   fetchUserRecipeByName,
   fetchUserRecipes,
 } from '@/modules/diet/recipe/application/recipe'
+import {
+  fetchFoods,
+  fetchFoodsByName,
+} from '@/modules/diet/food/application/food'
 
 export type TemplateSearchModalProps = {
   targetName: string
@@ -212,7 +215,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
 const [search, setSearch_] = createSignal<string>('')
 const [tab, setTab] = createSignal<AvailableTab>('all')
 
-const fetchFoods = async (): Promise<readonly Food[]> => {
+const fetchFoodsForModal = async (): Promise<readonly Food[]> => {
   const getAllowedFoods = async () => {
     switch (tab()) {
       case 'favorites':
@@ -240,9 +243,9 @@ const fetchFoods = async (): Promise<readonly Food[]> => {
   })
 
   if (search() === '') {
-    return await listFoods({ limit, allowedFoods })
+    return await fetchFoods({ limit, allowedFoods })
   } else {
-    return await searchFoodsByName(search(), { limit, allowedFoods })
+    return await fetchFoodsByName(search(), { limit, allowedFoods })
   }
 }
 
@@ -257,7 +260,7 @@ const fetchRecipes = async (): Promise<readonly Recipe[]> => {
 const fetchFunc = async () => {
   const tab_ = tab()
   if (tab_ !== 'recipes') {
-    return await fetchFoods()
+    return await fetchFoodsForModal()
   } else if (tab_ === 'recipes') {
     return await fetchRecipes()
   } else {

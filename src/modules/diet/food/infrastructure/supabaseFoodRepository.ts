@@ -1,24 +1,24 @@
 import { type Food, foodSchema } from '@/modules/diet/food/domain/food'
 import { type DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
 import supabase from '@/legacy/utils/supabase'
-import { isEanCached } from '@/legacy/controllers/eanCache'
 import {
-  importFoodFromApiByEan,
-  importFoodsFromApiByName,
-} from '@/legacy/controllers/apiFood'
-import { isSearchCached } from '@/legacy/controllers/searchCache'
+  type FoodRepository,
+  type FoodSearchParams,
+} from '@/modules/diet/food/domain/foodRepository'
 
 const TABLE = 'foods'
 
-export type FoodSearchParams = {
-  limit?: number
-  allowedFoods?: number[]
+export function createSupabaseFoodRepository(): FoodRepository {
+  return {
+    fetchFoods,
+    fetchFoodById,
+    fetchFoodsByName,
+    fetchFoodByEan,
+    insertFood,
+  }
 }
 
-export async function searchFoodById(
-  id: Food['id'],
-  params: FoodSearchParams = {},
-) {
+async function fetchFoodById(id: Food['id'], params: FoodSearchParams = {}) {
   const [food] = await internalCachedSearchFoods(
     { field: 'id', value: id },
     params,
@@ -26,30 +26,20 @@ export async function searchFoodById(
   return food
 }
 
-export async function searchFoodsByName(
+async function fetchFoodsByName(
   name: Required<Food>['name'],
   params: FoodSearchParams = {},
 ) {
-  console.debug(`[Food] Searching for food with name ${name}`)
-  if (!(await isSearchCached(name))) {
-    console.debug(`[Food] Food with name ${name} not cached, importing`)
-    await importFoodsFromApiByName(name)
-  }
-  console.debug(`[Food] Food with name ${name} cached, searching`)
   return await internalCachedSearchFoods(
     { field: 'name', value: name, operator: 'ilike' },
     params,
   )
 }
 
-export async function searchFoodsByEan(
+async function fetchFoodByEan(
   ean: Required<Food>['ean'],
   params: FoodSearchParams = {},
 ) {
-  console.debug(`[Food] Searching for food with EAN ${ean}`)
-  if (!(await isEanCached(ean))) {
-    await importFoodFromApiByEan(ean)
-  }
   const [food] = await internalCachedSearchFoods(
     { field: 'ean', value: ean },
     params,
@@ -57,7 +47,7 @@ export async function searchFoodsByEan(
   return food
 }
 
-export async function listFoods(params: FoodSearchParams = {}) {
+async function fetchFoods(params: FoodSearchParams = {}) {
   return await internalCachedSearchFoods({ field: '', value: '' }, params)
 }
 
@@ -128,7 +118,7 @@ async function internalCachedSearchFoods(
   return foodSchema.array().parse(data ?? [])
 }
 
-export async function insertFood(newFood: DbReady<Food>): Promise<Food> {
+async function insertFood(newFood: DbReady<Food>): Promise<Food> {
   const food = enforceDbReady(newFood)
 
   const { data, error } = await supabase.from(TABLE).insert(food).select('*')
