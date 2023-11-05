@@ -9,7 +9,7 @@ const recipeRepository = createSupabaseRecipeRepository()
 /**
  * @deprecated Should be replaced by use cases
  */
-export function useRecipe (recipeId: Accessor<Recipe['id']>) {
+export function useRecipe(recipeId: Accessor<Recipe['id']>) {
   const { data, fetch } = useFetch(recipeRepository.fetchRecipeById)
 
   createEffect(() => {
@@ -18,6 +18,6 @@ export function useRecipe (recipeId: Accessor<Recipe['id']>) {
 
   return {
     recipe: data,
-    refetch: fetch
+    refetch: fetch,
   }
 }

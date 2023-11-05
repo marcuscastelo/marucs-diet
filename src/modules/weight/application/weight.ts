@@ -15,13 +15,13 @@ createEffect(() => {
   })
 })
 
-export async function fetchUserWeights (userId: number) {
+export async function fetchUserWeights(userId: number) {
   const weights = await weightRepository.fetchUserWeights(userId)
   setUserWeights(weights)
   return weights
 }
 
-export async function insertWeight (newWeight: DbReady<Weight>) {
+export async function insertWeight(newWeight: DbReady<Weight>) {
   const weight = await weightRepository.insertWeight(newWeight)
   if (weight.owner === userWeights_()[0].owner) {
     await fetchUserWeights(weight.owner)
@@ -29,7 +29,7 @@ export async function insertWeight (newWeight: DbReady<Weight>) {
   return weight
 }
 
-export async function updateWeight (weightId: Weight['id'], newWeight: Weight) {
+export async function updateWeight(weightId: Weight['id'], newWeight: Weight) {
   const weight = await weightRepository.updateWeight(weightId, newWeight)
   if (weight.owner === userWeights_()[0].owner) {
     await fetchUserWeights(weight.owner)
@@ -37,7 +37,7 @@ export async function updateWeight (weightId: Weight['id'], newWeight: Weight) {
   return weight
 }
 
-export async function deleteWeight (weightId: Weight['id']) {
+export async function deleteWeight(weightId: Weight['id']) {
   await weightRepository.deleteWeight(weightId)
   if (userWeights_().length > 0) {
     await fetchUserWeights(userWeights_()[0].owner)

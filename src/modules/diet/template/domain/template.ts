@@ -5,14 +5,14 @@ import { recipeSchema } from '@/modules/diet/recipe/domain/recipe'
 export const TemplateSchema = z.discriminatedUnion('__type', [
   z
     .object({
-      __type: z.literal('food')
+      __type: z.literal('food'),
     })
     .merge(foodSchema),
   z
     .object({
-      __type: z.literal('recipe')
+      __type: z.literal('recipe'),
     })
-    .merge(recipeSchema)
+    .merge(recipeSchema),
 ])
 
 export type Template = Readonly<z.infer<typeof TemplateSchema>>

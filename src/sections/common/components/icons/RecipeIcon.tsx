@@ -14,7 +14,7 @@ export const RecipeIcon = () => (
       id="SVGRepo_tracerCarrier"
       stroke-linecap="round"
       stroke-linejoin="round"
-     />
+    />
     <g id="SVGRepo_iconCarrier">
       {' '}
       <g>

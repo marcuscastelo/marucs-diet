@@ -4,7 +4,7 @@ import { type Recipe, recipeSchema } from '@/modules/diet/recipe/domain/recipe'
 import { foodItemSchema } from '@/modules/diet/food-item/domain/foodItem'
 import {
   RecipeEditContextProvider,
-  useRecipeEditContext
+  useRecipeEditContext,
 } from '@/sections/recipe/context/RecipeEditContext'
 import { TrashIcon } from '@/sections/common/components/icons/TrashIcon'
 import { PasteIcon } from '@/sections/common/components/icons/PasteIcon'
@@ -16,7 +16,7 @@ import { regenerateId } from '@/legacy/utils/idUtils'
 import { type TemplateItem } from '@/modules/diet/template-item/domain/templateItem'
 import {
   useClipboard,
-  createClipboardSchemaFilter
+  createClipboardSchemaFilter,
 } from '@/sections/common/hooks/useClipboard'
 import { deserializeClipboard } from '@/legacy/utils/clipboardUtils'
 import { convertToGroups } from '@/legacy/utils/groupUtils'
@@ -47,11 +47,14 @@ export type RecipeEditViewProps = {
 //   return result
 // }
 
-export default function RecipeEditView (props: RecipeEditViewProps) {
+export default function RecipeEditView(props: RecipeEditViewProps) {
   // TODO: implement setRecipe
   return (
     <div class={cn('p-3', props.className)}>
-      <RecipeEditContextProvider recipe={props.recipe} setRecipe={props.setRecipe}>
+      <RecipeEditContextProvider
+        recipe={props.recipe}
+        setRecipe={props.setRecipe}
+      >
         {props.header}
         {props.content}
         {props.footer}
@@ -61,7 +64,7 @@ export default function RecipeEditView (props: RecipeEditViewProps) {
 }
 
 // TODO: Unify Header, Content and Actions for each component in the entire app
-export function RecipeEditHeader (props: {
+export function RecipeEditHeader(props: {
   onUpdateRecipe: (Recipe: Recipe) => void
 }) {
   const acceptedClipboardSchema = mealSchema
@@ -77,20 +80,18 @@ export function RecipeEditHeader (props: {
   const {
     clipboard: clipboardText,
     write: writeToClipboard,
-    clear: clearClipboard
+    clear: clearClipboard,
   } = useClipboard({
-    filter: isClipboardValid
+    filter: isClipboardValid,
   })
 
-  const handleCopy =
-    () => { writeToClipboard(JSON.stringify(recipe)) }
+  const handleCopy = () => {
+    writeToClipboard(JSON.stringify(recipe))
+  }
 
   // TODO: Remove code duplication between MealEditView and RecipeView
   const handlePasteAfterConfirm = () => {
-    const data = deserializeClipboard(
-      clipboardText(),
-      acceptedClipboardSchema
-    )
+    const data = deserializeClipboard(clipboardText(), acceptedClipboardSchema)
 
     if (data === null) {
       throw new Error('Invalid clipboard data: ' + clipboardText())
@@ -100,14 +101,12 @@ export function RecipeEditHeader (props: {
       .map((group) => regenerateId(group))
       .map((g) => ({
         ...g,
-        items: g.items.map((item) => regenerateId(item))
+        items: g.items.map((item) => regenerateId(item)),
       }))
 
     const itemsToAdd = groupsToAdd.flatMap((g) => g.items)
 
-    const newRecipe = new RecipeEditor(recipe())
-      .addItems(itemsToAdd)
-      .finish()
+    const newRecipe = new RecipeEditor(recipe()).addItems(itemsToAdd).finish()
 
     props.onUpdateRecipe(newRecipe)
 
@@ -122,10 +121,10 @@ export function RecipeEditHeader (props: {
       actions: [
         {
           text: 'Cancelar',
-          onClick: () => undefined
+          onClick: () => undefined,
         },
-        { text: 'Colar', primary: true, onClick: handlePasteAfterConfirm }
-      ]
+        { text: 'Colar', primary: true, onClick: handlePasteAfterConfirm },
+      ],
     })
   }
 
@@ -140,20 +139,18 @@ export function RecipeEditHeader (props: {
       actions: [
         {
           text: 'Cancelar',
-          onClick: () => undefined
+          onClick: () => undefined,
         },
         {
           text: 'Excluir todos os itens',
           primary: true,
           onClick: () => {
-            const newRecipe = new RecipeEditor(recipe())
-              .clearItems()
-              .finish()
+            const newRecipe = new RecipeEditor(recipe()).clearItems().finish()
 
             props.onUpdateRecipe(newRecipe)
-          }
-        }
-      ]
+          },
+        },
+      ],
     })
   }
 
@@ -195,7 +192,7 @@ export function RecipeEditHeader (props: {
   )
 }
 
-export function RecipeEditContent (props: {
+export function RecipeEditContent(props: {
   onEditItem: (item: TemplateItem) => void
   onNewItem: () => void
 }) {
@@ -211,13 +208,11 @@ export function RecipeEditContent (props: {
             console.error('group is null')
             throw new Error('group is null')
           }
-          setRecipe(
-            new RecipeEditor(recipe())
-              .setName(e.target.value)
-              .finish()
-          )
+          setRecipe(new RecipeEditor(recipe()).setName(e.target.value).finish())
         }}
-        onFocus={(e) => { e.target.select() }}
+        onFocus={(e) => {
+          e.target.select()
+        }}
         value={recipe().name ?? ''}
       />
       <FoodItemListView
@@ -243,18 +238,20 @@ export function RecipeEditContent (props: {
   )
 }
 
-function AddNewItemButton (props: { onClick: () => void }) {
+function AddNewItemButton(props: { onClick: () => void }) {
   return (
     <button
       class="mt-3 min-w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-      onClick={() => { props.onClick() }}
+      onClick={() => {
+        props.onClick()
+      }}
     >
       Adicionar item
     </button>
   )
 }
 
-function RawQuantity () {
+function RawQuantity() {
   const { recipe } = useRecipeEditContext()
 
   const rawQuantiy = () =>
@@ -263,7 +260,7 @@ function RawQuantity () {
     }, 0)
 
   const rawQuantityField = useFloatField(rawQuantiy, {
-    decimalPlaces: 0
+    decimalPlaces: 0,
   })
 
   return (
@@ -279,18 +276,17 @@ function RawQuantity () {
 }
 
 // TODO: Deduplicate PreparedQuantity between RecipeEditView and ItemGroupEditModal
-function PreparedQuantity () {
+function PreparedQuantity() {
   const { recipe, setRecipe } = useRecipeEditContext()
 
   const rawQuantiy = recipe().items.reduce((acc, item) => {
     return acc + item.quantity
   }, 0)
 
-  const preparedQuantity =
-    () => rawQuantiy * recipe().prepared_multiplier
+  const preparedQuantity = () => rawQuantiy * recipe().prepared_multiplier
 
   const preparedQuantityField = useFloatField(preparedQuantity, {
-    decimalPlaces: 0
+    decimalPlaces: 0,
   })
 
   return (
@@ -299,7 +295,9 @@ function PreparedQuantity () {
         field={preparedQuantityField}
         commitOn="change"
         class="input px-0 pl-5 text-md"
-        onFocus={(event) => { event.target.select() }}
+        onFocus={(event) => {
+          event.target.select()
+        }}
         onFieldCommit={(newPreparedQuantity) => {
           const newMultiplier = (newPreparedQuantity ?? rawQuantiy) / rawQuantiy
 
@@ -315,13 +313,13 @@ function PreparedQuantity () {
   )
 }
 
-function PreparedMultiplier () {
+function PreparedMultiplier() {
   const { recipe, setRecipe } = useRecipeEditContext()
 
   const preparedMultiplier = () => recipe().prepared_multiplier
 
   const preparedMultiplierField = useFloatField(preparedMultiplier, {
-    decimalPlaces: 2
+    decimalPlaces: 2,
   })
 
   return (
@@ -330,7 +328,9 @@ function PreparedMultiplier () {
         field={preparedMultiplierField}
         commitOn="change"
         class="input px-0 pl-5 text-md"
-        onFocus={(event) => { event.target.select() }}
+        onFocus={(event) => {
+          event.target.select()
+        }}
         onFieldCommit={(newMultiplier) => {
           const newRecipe = new RecipeEditor(recipe())
             .setPreparedMultiplier(newMultiplier ?? 1)

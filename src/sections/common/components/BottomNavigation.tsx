@@ -4,13 +4,13 @@ import {
   changeToUser,
   currentUserId,
   fetchUsers,
-  users
+  users,
 } from '@/modules/user/application/user'
 import { type User } from '@/modules/user/domain/user'
 import { For, type JSXElement } from 'solid-js'
 import { useLocation, useNavigate } from '@solidjs/router'
 
-export function BottomNavigation () {
+export function BottomNavigation() {
   const navigate = useNavigate()
   const location = useLocation()
   const pathname = location.pathname
@@ -28,14 +28,18 @@ export function BottomNavigation () {
           active={pathname === '/'}
           label="Home"
           icon={HomeIcon}
-          onClick={() => { navigate('/') }}
+          onClick={() => {
+            navigate('/')
+          }}
           position="first"
         />
         <BottomNavigationTab
           active={pathname.startsWith('/profile')}
           label="Perfil"
           icon={ProfileIcon}
-          onClick={() => { navigate('/profile') }}
+          onClick={() => {
+            navigate('/profile')
+          }}
           position="middle"
         />
         <CTAButton />
@@ -43,7 +47,9 @@ export function BottomNavigation () {
           active={pathname.startsWith('/settings')}
           label="Configurações"
           icon={SettingsIcon}
-          onClick={() => { alert('TODO: Ainda não implementado') }} // TODO: Change all alerts with ConfirmModal
+          onClick={() => {
+            alert('TODO: Ainda não implementado')
+          }} // TODO: Change all alerts with ConfirmModal
           position="middle"
         />
         <BottomNavigationTab
@@ -54,7 +60,7 @@ export function BottomNavigation () {
             showConfirmModal({
               title: '',
               body: selector,
-              actions: []
+              actions: [],
             })
           }}
           position="last"
@@ -64,14 +70,14 @@ export function BottomNavigation () {
   )
 }
 
-function BottomNavigationTab (props: {
+function BottomNavigationTab(props: {
   icon: (iconProps: { class?: string }) => JSXElement
   label: string
   active: boolean
   onClick: () => void
   position: 'first' | 'middle' | 'last'
 }) {
-  function getRound () {
+  function getRound() {
     switch (props.position) {
       case 'first':
         return 'rounded-l-full'
@@ -88,13 +94,16 @@ function BottomNavigationTab (props: {
         data-tooltip-target={`tooltip-${props.label}`}
         type="button"
         class={`${getRound()} inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-slate-900 group`}
-        onClick={() => { props.onClick() }}
+        onClick={() => {
+          props.onClick()
+        }}
       >
         {props.icon({
-          class: `${props.active
-            ? 'text-blue-600 dark:text-blue-500'
-            : 'text-gray-500 dark:text-gray-400'
-            } w-8 h-8 mb-1  group-hover:text-blue-600 dark:group-hover:text-blue-500`
+          class: `${
+            props.active
+              ? 'text-blue-600 dark:text-blue-500'
+              : 'text-gray-500 dark:text-gray-400'
+          } w-8 h-8 mb-1  group-hover:text-blue-600 dark:group-hover:text-blue-500`,
         })}
         <span class="sr-only">{props.label}</span>
       </button>
@@ -152,7 +161,7 @@ const SettingsIcon = (props: { class?: string }) => (
   </svg>
 )
 
-function CTAButton () {
+function CTAButton() {
   return (
     <>
       <div class="flex items-center justify-center">
@@ -210,16 +219,16 @@ const UserSelectorDropdown = () => {
       actions: [
         {
           text: 'Cancelar',
-          onClick: () => undefined
+          onClick: () => undefined,
         },
         {
           primary: true,
           text: 'Entrar',
           onClick: () => {
             changeToUser(user.id)
-          }
-        }
-      ]
+          },
+        },
+      ],
     })
   }
 
@@ -229,7 +238,6 @@ const UserSelectorDropdown = () => {
         {(user) => (
           <div
             class="btn btn-ghost flex justify-between"
-
             onClick={() => {
               handleChangeUser(user)
               // Force dropdown to close without having to click outside setting aria

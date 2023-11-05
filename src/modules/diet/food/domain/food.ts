@@ -6,7 +6,7 @@ export const foodSchema = z.object({
   source: z
     .object({
       type: z.literal('api'),
-      id: z.string()
+      id: z.string(),
     })
     .nullable()
     .transform((val) => val ?? undefined)
@@ -27,13 +27,13 @@ export const foodSchema = z.object({
     .string()
     .nullable()
     .optional()
-    .transform(() => 'Food' as const)
+    .transform(() => 'Food' as const),
 })
 
 export type Food = Readonly<z.infer<typeof foodSchema>>
 
 // TODO: Make createFood function more than a mock
-export function createFood ({ name }: { name: string }): New<Food> {
+export function createFood({ name }: { name: string }): New<Food> {
   return enforceNew(
     foodSchema.parse({
       __type: 'Food',
@@ -42,8 +42,8 @@ export function createFood ({ name }: { name: string }): New<Food> {
       macros: {
         protein: 1234,
         carbs: 4321,
-        fat: 666
-      }
-    } satisfies Food)
+        fat: 666,
+      },
+    } satisfies Food),
   )
 }

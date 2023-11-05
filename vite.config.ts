@@ -16,15 +16,15 @@ export default defineConfig(({ mode }) => {
           targetIDE: 'vscode-insiders',
           componentLocation: true,
           jsxLocation: true,
-          key: 'Alt'
-        }
+          key: 'Alt',
+        },
       }),
       solid(),
       eslint(),
-      tsconfigPaths()
+      tsconfigPaths(),
     ],
     define: {
-      __APP_ENV__: JSON.stringify(env.APP_ENV)
-    }
+      __APP_ENV__: JSON.stringify(env.APP_ENV),
+    },
   }
 })

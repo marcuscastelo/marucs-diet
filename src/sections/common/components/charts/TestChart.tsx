@@ -2,10 +2,10 @@ import { SolidApexCharts } from 'solid-apexcharts'
 import { createSignal } from 'solid-js'
 import ptBrLocale from '@/assets/locales/apex/pt-br.json'
 
-export function TestChart () {
+export function TestChart() {
   const [options] = createSignal<ApexCharts.ApexOptions>({
     theme: {
-      mode: 'dark'
+      mode: 'dark',
     },
     chart: {
       id: 'solidchart-example',
@@ -20,10 +20,10 @@ export function TestChart () {
           zoomin: false,
           zoomout: false,
           pan: false,
-          reset: true
-        }
-      }
-    }
+          reset: true,
+        },
+      },
+    },
   })
   const [series] = createSignal({
     list: [
@@ -32,22 +32,28 @@ export function TestChart () {
         data: [
           {
             x: 'Teste1',
-            y: [51.98, 56.29, 51.59, 53.85]
+            y: [51.98, 56.29, 51.59, 53.85],
           },
           {
             x: 'Teste3',
-            y: [53.66, 54.99, 51.35, 52.95]
+            y: [53.66, 54.99, 51.35, 52.95],
           },
           {
             x: 'Teste',
-            y: [52.76, 57.35, 52.15, 57.03]
-          }
-        ]
-      }
-    ]
+            y: [52.76, 57.35, 52.15, 57.03],
+          },
+        ],
+      },
+    ],
   })
 
   // options and series can be a store or signal
 
-  return <SolidApexCharts type="candlestick" options={options()} series={series().list} />
+  return (
+    <SolidApexCharts
+      type="candlestick"
+      options={options()}
+      series={series().list}
+    />
+  )
 }

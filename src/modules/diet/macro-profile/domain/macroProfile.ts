@@ -9,7 +9,7 @@ export const macroProfileSchema = z.object({
     .transform((v) => new Date(v)),
   gramsPerKgCarbs: z.number(),
   gramsPerKgProtein: z.number(),
-  gramsPerKgFat: z.number()
+  gramsPerKgFat: z.number(),
 })
 
 export type MacroProfile = Readonly<z.infer<typeof macroProfileSchema>>

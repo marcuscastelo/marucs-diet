@@ -3,7 +3,7 @@ import { type z } from 'zod'
 
 export type ClipboardFilter = (clipboard: string) => boolean
 
-export function useClipboard (props?: {
+export function useClipboard(props?: {
   filter?: ClipboardFilter
   periodicRead?: boolean
 }) {
@@ -11,15 +11,14 @@ export function useClipboard (props?: {
   const periodicRead = () => props?.periodicRead ?? true
   const [clipboard, setClipboard] = createSignal('')
 
-  const handleWrite =
-    (text: string) => {
-      window.navigator.clipboard
-        .writeText(text)
-        .then(() => setClipboard(text))
-        .catch(() => {
-          // Do nothing. This is expected when the DOM is not focused
-        })
-    }
+  const handleWrite = (text: string) => {
+    window.navigator.clipboard
+      .writeText(text)
+      .then(() => setClipboard(text))
+      .catch(() => {
+        // Do nothing. This is expected when the DOM is not focused
+      })
+  }
 
   const handleRead = () => {
     window.navigator.clipboard
@@ -42,19 +41,23 @@ export function useClipboard (props?: {
     if (!periodicRead()) return
 
     const interval = setInterval(handleRead, 1000)
-    return () => { clearInterval(interval) }
+    return () => {
+      clearInterval(interval)
+    }
   })
 
   return {
     clipboard,
     write: handleWrite,
     read: handleRead,
-    clear: () => { handleWrite('') }
+    clear: () => {
+      handleWrite('')
+    },
   }
 }
 
-export function createClipboardSchemaFilter (
-  acceptedClipboardSchema: z.ZodType
+export function createClipboardSchemaFilter(
+  acceptedClipboardSchema: z.ZodType,
 ) {
   return (clipboard: string) => {
     if (clipboard === '') return false

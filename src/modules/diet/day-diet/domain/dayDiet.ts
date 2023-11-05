@@ -10,7 +10,7 @@ export const dayDietSchema = z.object({
     .string()
     .nullable()
     .optional()
-    .transform(() => 'DayDiet' as const)
+    .transform(() => 'DayDiet' as const),
 })
 
 export type DayDiet = Readonly<z.infer<typeof dayDietSchema>>

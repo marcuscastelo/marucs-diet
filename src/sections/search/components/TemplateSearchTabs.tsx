@@ -10,25 +10,25 @@ type TabDefinition = {
 export const avaliableTabs = {
   Todos: {
     id: 'all',
-    title: 'Todos'
+    title: 'Todos',
   } as const satisfies TabDefinition,
   Favoritos: {
     id: 'favorites',
-    title: 'Favoritos'
+    title: 'Favoritos',
   } as const satisfies TabDefinition,
   Recentes: {
     id: 'recent',
-    title: 'Recentes'
+    title: 'Recentes',
   } as const satisfies TabDefinition,
   Receitas: {
     id: 'recipes',
-    title: 'Receitas (WIP)'
-  } as const satisfies TabDefinition
+    title: 'Receitas (WIP)',
+  } as const satisfies TabDefinition,
 } as const satisfies Record<string, TabDefinition>
 
 export type AvailableTab = ObjectValues<typeof avaliableTabs>['id']
 
-export function TemplateSearchTabs (props: {
+export function TemplateSearchTabs(props: {
   tab: Accessor<AvailableTab>
   setTab: Setter<AvailableTab>
 }) {
@@ -39,15 +39,19 @@ export function TemplateSearchTabs (props: {
           <li class="w-full">
             <a
               href="#"
-              class={
-                cn('flex min-h-full items-center justify-center p-4 text-sm font-medium first:ml-0 disabled:cursor-not-allowed disabled:text-gray-400 disabled:dark:text-gray-500 focus:outline-none',
-                  {
-                    'text-gray-100 bg-gray-600 dark:bg-gray-700 dark:text-gray-300': props.tab() === avaliableTabs[tabKey as keyof typeof avaliableTabs].id
-                  })
-              }
+              class={cn(
+                'flex min-h-full items-center justify-center p-4 text-sm font-medium first:ml-0 disabled:cursor-not-allowed disabled:text-gray-400 disabled:dark:text-gray-500 focus:outline-none',
+                {
+                  'text-gray-100 bg-gray-600 dark:bg-gray-700 dark:text-gray-300':
+                    props.tab() ===
+                    avaliableTabs[tabKey as keyof typeof avaliableTabs].id,
+                },
+              )}
               aria-current="page"
               onClick={() => {
-                props.setTab(avaliableTabs[tabKey as keyof typeof avaliableTabs].id)
+                props.setTab(
+                  avaliableTabs[tabKey as keyof typeof avaliableTabs].id,
+                )
               }}
             >
               {avaliableTabs[tabKey as keyof typeof avaliableTabs].title}

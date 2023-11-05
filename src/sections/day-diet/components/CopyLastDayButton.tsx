@@ -3,27 +3,32 @@ import { type DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
 import {
   dayDiets,
   insertDayDiet,
-  updateDayDiet
+  updateDayDiet,
 } from '@/modules/diet/day-diet/application/dayDiet'
 import { Show, type Accessor } from 'solid-js'
 
-export function CopyLastDayButton (props: {
+export function CopyLastDayButton(props: {
   day: Accessor<DayDiet | undefined> // TODO: Rename all 'day' to 'dayDiet' on entire project
   selectedDay: string
 }) {
   const { show: showConfirmModal } = useConfirmModalContext()
 
   // TODO: Create signal for last day instead of fetching all days
-  const lastDay = () => [...dayDiets()].reverse().find(
-    (day) => Date.parse(day.target_day) < Date.parse(props.selectedDay)
-  )
+  const lastDay = () =>
+    [...dayDiets()]
+      .reverse()
+      .find((day) => Date.parse(day.target_day) < Date.parse(props.selectedDay))
   return (
     <>
       <Show when={lastDay() === undefined}>
         <button
           class="btn-error btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white"
           onClick={
-            () => { alert(`Não foi possível encontrar um dia anterior a ${props.selectedDay}`) } // TODO: Change all alerts with ConfirmModal
+            () => {
+              alert(
+                `Não foi possível encontrar um dia anterior a ${props.selectedDay}`,
+              )
+            } // TODO: Change all alerts with ConfirmModal
           }
         >
           Copiar dia anterior: não encontrado!
@@ -43,7 +48,7 @@ export function CopyLastDayButton (props: {
                   actions: [
                     {
                       text: 'Cancelar',
-                      onClick: () => undefined
+                      onClick: () => undefined,
                     },
                     {
                       text: 'Sobrescrever',
@@ -51,18 +56,18 @@ export function CopyLastDayButton (props: {
                       onClick: () => {
                         updateDayDiet(day_.id, {
                           ...lastDay(),
-                          target_day: props.selectedDay
+                          target_day: props.selectedDay,
                         })
-                      }
-                    }
-                  ]
+                      },
+                    },
+                  ],
                 })
                 return
               }
 
               insertDayDiet({
                 ...lastDay(),
-                target_day: props.selectedDay
+                target_day: props.selectedDay,
               })
             }}
           >

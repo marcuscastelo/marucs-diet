@@ -6,25 +6,23 @@ import { ConfirmModalProvider } from '@/sections/common/context/ConfirmModalCont
 import { Route, Routes } from '@solidjs/router'
 import { type JSXElement } from 'solid-js'
 
-export default function App () {
+export default function App() {
   return (
     <Providers>
-
-    <Routes>
-      <Route path="/" component={DietPage} />
-      <Route path="/profile" component={ProfilePage} />
-      <Route path="/test" component={TestApp} />
-    </Routes>
+      <Routes>
+        <Route path="/" component={DietPage} />
+        <Route path="/profile" component={ProfilePage} />
+        <Route path="/test" component={TestApp} />
+      </Routes>
     </Providers>
-
   )
 }
 
-function Providers (props: { children: JSXElement }) {
+function Providers(props: { children: JSXElement }) {
   return (
     <ConfirmModalProvider>
       <ConfirmModal />
-        {props.children}
+      {props.children}
     </ConfirmModalProvider>
   )
 }

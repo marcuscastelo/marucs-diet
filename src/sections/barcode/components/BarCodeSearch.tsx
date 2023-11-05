@@ -1,4 +1,10 @@
-import { FoodItemFavorite, FoodItemHeader, FoodItemName, FoodItemNutritionalInfo, FoodItemView } from '@/sections/food-item/components/FoodItemView'
+import {
+  FoodItemFavorite,
+  FoodItemHeader,
+  FoodItemName,
+  FoodItemNutritionalInfo,
+  FoodItemView,
+} from '@/sections/food-item/components/FoodItemView'
 import { searchFoodsByEan } from '@/legacy/controllers/food'
 import { type Food } from '@/modules/diet/food/domain/food'
 import { createFoodItem } from '@/modules/diet/food-item/domain/foodItem'
@@ -6,9 +12,15 @@ import { type MacroNutrients } from '@/modules/diet/macro-nutrients/domain/macro
 
 import {
   isFoodFavorite,
-  setFoodAsFavorite
+  setFoodAsFavorite,
 } from '@/modules/user/application/user'
-import { type Accessor, createSignal, createEffect, type Setter, Show } from 'solid-js'
+import {
+  type Accessor,
+  createSignal,
+  createEffect,
+  type Setter,
+  Show,
+} from 'solid-js'
 
 export type BarCodeSearchProps = {
   barCode: Accessor<string>
@@ -17,7 +29,7 @@ export type BarCodeSearchProps = {
   setFood: Setter<Food | null>
 }
 
-export default function BarCodeSearch (props: BarCodeSearchProps) {
+export default function BarCodeSearch(props: BarCodeSearchProps) {
   const [loading, setLoading] = createSignal(false)
 
   const EAN_LENGTH = 13
@@ -57,47 +69,47 @@ export default function BarCodeSearch (props: BarCodeSearchProps) {
       </div>
 
       <Show when={props.food()}>
-      {(food) => (
-        <div class="mt-3 flex flex-col">
-          <div class="flex">
-            <div class="flex-1">
-              <p class="font-bold">{food().name}</p>
-              <p class="text-sm">
-                <FoodItemView
-                  foodItem={() =>
-                    createFoodItem({
-                      name: food().name,
-                      reference: food().id,
-                      quantity: 100,
-                      macros: {
-                        ...(food().macros ??
-                          createFoodItem({
-                            name: food().name,
-                            reference: food().id
-                          }).macros)
-                      } satisfies MacroNutrients
-                    })
-                  }
-                  header={
-                    <FoodItemHeader
-                      name={<FoodItemName />}
-                      favorite={
-                        <FoodItemFavorite
-                          favorite={isFoodFavorite(food().id)}
-                          onSetFavorite={(favorite) => {
-                            setFoodAsFavorite(food().id, favorite)
-                          }}
-                        />
-                      }
-                    />
-                  }
-                  nutritionalInfo={<FoodItemNutritionalInfo />}
-                />
-              </p>
+        {(food) => (
+          <div class="mt-3 flex flex-col">
+            <div class="flex">
+              <div class="flex-1">
+                <p class="font-bold">{food().name}</p>
+                <p class="text-sm">
+                  <FoodItemView
+                    foodItem={() =>
+                      createFoodItem({
+                        name: food().name,
+                        reference: food().id,
+                        quantity: 100,
+                        macros: {
+                          ...(food().macros ??
+                            createFoodItem({
+                              name: food().name,
+                              reference: food().id,
+                            }).macros),
+                        } satisfies MacroNutrients,
+                      })
+                    }
+                    header={
+                      <FoodItemHeader
+                        name={<FoodItemName />}
+                        favorite={
+                          <FoodItemFavorite
+                            favorite={isFoodFavorite(food().id)}
+                            onSetFavorite={(favorite) => {
+                              setFoodAsFavorite(food().id, favorite)
+                            }}
+                          />
+                        }
+                      />
+                    }
+                    nutritionalInfo={<FoodItemNutritionalInfo />}
+                  />
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
       </Show>
 
       <div class="mt-3 flex">

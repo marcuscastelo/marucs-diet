@@ -12,10 +12,10 @@ import { currentUserId } from '@/modules/user/application/user'
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
 
-export function MeasuresEvolution (props: { onSave: () => void }) {
+export function MeasuresEvolution(props: { onSave: () => void }) {
   // TODO: Remove `measures` state and use use cases instead
   const [measures, setMeasures] = createSignal<Loadable<Measure[]>>({
-    loading: true
+    loading: true,
   })
   const heightField = useFloatFieldOld()
   const waistField = useFloatFieldOld()
@@ -27,12 +27,14 @@ export function MeasuresEvolution (props: { onSave: () => void }) {
     if (userId === null) {
       throw new Error('User is null')
     }
-    fetchUserMeasures(userId).then((measures) =>
-      setMeasures({ loading: false, errored: false, data: measures })
-    ).catch((error) => {
-      console.error(error)
-      setMeasures({ loading: false, errored: true, error })
-    })
+    fetchUserMeasures(userId)
+      .then((measures) =>
+        setMeasures({ loading: false, errored: false, data: measures }),
+      )
+      .catch((error) => {
+        console.error(error)
+        setMeasures({ loading: false, errored: true, error })
+      })
   }
 
   createEffect(() => {
@@ -60,7 +62,9 @@ export function MeasuresEvolution (props: { onSave: () => void }) {
               field={heightField}
               class="input px-0 pl-5 text-xl"
               style={{ width: '100%' }}
-              onFocus={(event) => { event.target.select() }}
+              onFocus={(event) => {
+                event.target.select()
+              }}
             />
           </div>
           <div class="flex mb-3">
@@ -69,7 +73,9 @@ export function MeasuresEvolution (props: { onSave: () => void }) {
               field={waistField}
               class="input px-0 pl-5 text-xl"
               style={{ width: '100%' }}
-              onFocus={(event) => { event.target.select() }}
+              onFocus={(event) => {
+                event.target.select()
+              }}
             />
           </div>
           <div class="flex mb-3">
@@ -78,7 +84,9 @@ export function MeasuresEvolution (props: { onSave: () => void }) {
               field={hipField}
               class="input px-0 pl-5 text-xl"
               style={{ width: '100%' }}
-              onFocus={(event) => { event.target.select() }}
+              onFocus={(event) => {
+                event.target.select()
+              }}
             />
           </div>
           <div class="flex mb-3">
@@ -87,7 +95,9 @@ export function MeasuresEvolution (props: { onSave: () => void }) {
               field={neckField}
               class="input px-0 pl-5 text-xl"
               style={{ width: '100%' }}
-              onFocus={(event) => { event.target.select() }}
+              onFocus={(event) => {
+                event.target.select()
+              }}
             />
           </div>
 
@@ -114,15 +124,17 @@ export function MeasuresEvolution (props: { onSave: () => void }) {
                   waist: waistField.value() ?? 0,
                   hip: hipField.value() ?? 0,
                   neck: neckField.value() ?? 0,
-                  target_timestamp: new Date(Date.now())
+                  target_timestamp: new Date(Date.now()),
+                }),
+              )
+                .then(() => {
+                  handleRefetchMeasures()
+                  props.onSave()
                 })
-              ).then(() => {
-                handleRefetchMeasures()
-                props.onSave()
-              }).catch((error) => {
-                console.error(error)
-                alert('Erro ao salvar') // TODO: Change all alerts with ConfirmModal
-              })
+                .catch((error) => {
+                  console.error(error)
+                  alert('Erro ao salvar') // TODO: Change all alerts with ConfirmModal
+                })
             }}
           >
             Adicionar peso
@@ -137,8 +149,7 @@ export function MeasuresEvolution (props: { onSave: () => void }) {
                 onRefetchMeasures={handleRefetchMeasures}
                 onSave={props.onSave}
               />
-            )
-            }
+            )}
           </For>
           {loadedMeasures().length === 0 && 'Não há pesos registrados'}
         </div>

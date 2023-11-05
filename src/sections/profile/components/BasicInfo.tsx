@@ -15,7 +15,7 @@ const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
 const DIET_TRANSLATION: Translation<User['diet']> = {
   cut: 'Cutting',
   normo: 'Normocalórica',
-  bulk: 'Bulking'
+  bulk: 'Bulking',
 }
 
 // TODO: Create module for translations
@@ -26,9 +26,9 @@ const USER_FIELD_TRANSLATION: Translation<keyof User> = {
   birthdate: 'Data de Nascimento',
   favorite_foods: 'Alimentos Favoritos',
   id: 'ID',
-  desired_weight: 'Peso Alvo'
+  desired_weight: 'Peso Alvo',
 }
-export function BasicInfo (props: {
+export function BasicInfo(props: {
   user: Accessor<User>
   onSave: (newUser: User) => Promise<User>
 }) {
@@ -44,23 +44,29 @@ export function BasicInfo (props: {
   createEffect(() => {
     const reduceFunc = (acc: UnsavedFields, key: string) => {
       acc[key as keyof UnsavedFields] =
-      innerData()[key as keyof UnsavedFields] !== props.user()[key as keyof User]
+        innerData()[key as keyof UnsavedFields] !==
+        props.user()[key as keyof User]
       return acc
     }
 
     setUnsavedFields(
-      Object.keys(innerData).reduce<UnsavedFields>(reduceFunc, {} satisfies UnsavedFields)
+      Object.keys(innerData).reduce<UnsavedFields>(
+        reduceFunc,
+        {} satisfies UnsavedFields,
+      ),
     )
   })
 
   const makeOnBlur = <T extends keyof User>(
     field: T,
-    convert: (value: string) => User[T]
+    convert: (value: string) => User[T],
   ) => {
-    return (event: FocusEvent & {
-      currentTarget: HTMLInputElement
-      target: HTMLInputElement
-    }) => {
+    return (
+      event: FocusEvent & {
+        currentTarget: HTMLInputElement
+        target: HTMLInputElement
+      },
+    ) => {
       event.preventDefault()
       const newUser: Mutable<User> = { ...props.user() }
 
@@ -73,12 +79,14 @@ export function BasicInfo (props: {
 
   const makeOnChange = <T extends keyof User>(
     field: T,
-    convert: (value: string) => string
+    convert: (value: string) => string,
   ) => {
-    return (event: Event & {
-      currentTarget: HTMLInputElement
-      target: HTMLInputElement
-    }) => {
+    return (
+      event: Event & {
+        currentTarget: HTMLInputElement
+        target: HTMLInputElement
+      },
+    ) => {
       event.preventDefault()
       const newUser: Mutable<User> = { ...props.user() }
 
@@ -91,28 +99,28 @@ export function BasicInfo (props: {
   const convertDesiredWeight = (value: string) => Number(value)
   const makeLiteralConverter =
     <T extends z.ZodUnion<any>>(schema: T, defaultValue: z.infer<T>) =>
-      (value: string): z.infer<T> => {
-        const result = schema.safeParse(value)
-        if (!result.success) {
-          return defaultValue
-        }
-        return result.data
+    (value: string): z.infer<T> => {
+      const result = schema.safeParse(value)
+      if (!result.success) {
+        return defaultValue
       }
+      return result.data
+    }
 
   const convertGender = makeLiteralConverter(
     userSchema._def.shape().gender,
-    'male'
+    'male',
   )
 
   const convertDiet = (value: string): User['diet'] =>
     (Object.keys(DIET_TRANSLATION) as Array<User['diet']>).find(
-      (key) => key === value
+      (key) => key === value,
     ) ?? 'normo'
 
   const makeBasicCapsule = <T extends keyof User>(
     field: T,
     convert: (value: string) => User[T],
-    extra?: string
+    extra?: string,
   ) => (
     <Capsule
       leftContent={
@@ -140,20 +148,16 @@ export function BasicInfo (props: {
       }
       class={'mb-2'}
     />
-    )
+  )
   return (
     <>
-      <div
-        class={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE} rounded-b-none pb-6`}
-      >
+      <div class={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE} rounded-b-none pb-6`}>
         <h5 class={'mx-auto text-center text-3xl font-bold'}>
           <UserIcon userId={props.user().id} class={'w-32 h-32 mx-auto'} />
           {props.user.name}
         </h5>
 
-        <div class={'mb-1 mt-3 text-center text-lg italic'}>
-          Informações
-        </div>
+        <div class={'mb-1 mt-3 text-center text-lg italic'}>Informações</div>
         <div class={'mx-5 lg:mx-20'}>
           {makeBasicCapsule('name', convertString)}
           {makeBasicCapsule('gender', convertGender)}
@@ -164,7 +168,9 @@ export function BasicInfo (props: {
       </div>
       <button
         class={'btn-primary no-animation btn w-full rounded-t-none'}
-        onClick={() => { props.onSave(innerData()).catch(console.error) }}
+        onClick={() => {
+          props.onSave(innerData()).catch(console.error)
+        }}
       >
         Salvar
       </button>

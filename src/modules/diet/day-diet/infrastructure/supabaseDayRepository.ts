@@ -1,6 +1,6 @@
 import {
   type DayDiet,
-  dayDietSchema
+  dayDietSchema,
 } from '@/modules/diet/day-diet/domain/dayDiet'
 import { type User } from '@/modules/user/domain/user'
 import { type DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
@@ -11,14 +11,14 @@ import { type Accessor, createSignal } from 'solid-js'
 // TODO: Delete old days table and rename days_test to days
 const TABLE = 'days_test'
 
-export function createSupabaseDayRepository (): DayRepository {
+export function createSupabaseDayRepository(): DayRepository {
   return {
     // fetchAllUserDayIndexes: fetchUserDayIndexes,
     fetchAllUserDayDiets: fetchUserDays,
     fetchDayDiet,
     insertDayDiet: upsertDay,
     updateDayDiet: updateDay,
-    deleteDayDiet: deleteDay
+    deleteDayDiet: deleteDay,
   }
 }
 
@@ -29,10 +29,10 @@ const [userDays, setUserDays] = createSignal<readonly DayDiet[]>([])
 // const [userDayIndexes, setUserDayIndexes] = createSignal<readonly DayIndex[]>([])
 
 // TODO: better error handling
-async function fetchDayDiet (_dayId: DayDiet['id']): Promise<DayDiet | null> {
-//   // TODO: filter userId in query
-//   console.debug(`[supabaseDayRepository] fetchDayDiet(${dayId})`)
-//   const { data, error } = await supabase.from(TABLE).select().eq('id', dayId)
+async function fetchDayDiet(_dayId: DayDiet['id']): Promise<DayDiet | null> {
+  //   // TODO: filter userId in query
+  //   console.debug(`[supabaseDayRepository] fetchDayDiet(${dayId})`)
+  //   const { data, error } = await supabase.from(TABLE).select().eq('id', dayId)
 
   //   if (error !== null) {
   //     throw error
@@ -74,8 +74,8 @@ async function fetchDayDiet (_dayId: DayDiet['id']): Promise<DayDiet | null> {
 }
 
 // TODO: better error handling
-async function fetchUserDays (
-  userId: User['id']
+async function fetchUserDays(
+  userId: User['id'],
 ): Promise<Accessor<readonly DayDiet[]>> {
   // TODO: filter userId in query
   console.debug(`[supabaseDayRepository] fetchUserDays(${userId})`)
@@ -91,8 +91,8 @@ async function fetchUserDays (
     .map(
       (day): DayDiet => ({
         ...day,
-        target_day: day.target_day.split(' ')[0]
-      })
+        target_day: day.target_day.split(' ')[0],
+      }),
     )
     .sort((a, b) => {
       const aDate = new Date(a.target_day)
@@ -101,7 +101,7 @@ async function fetchUserDays (
     })
 
   console.debug(
-    `[supabaseDayRepository] fetchUserDays returned ${days.length} days`
+    `[supabaseDayRepository] fetchUserDays returned ${days.length} days`,
   )
   setUserDays(days)
 
@@ -122,7 +122,7 @@ const upsertDay = async (newDay: DbReady<DayDiet>): Promise<DayDiet | null> => {
 
 const updateDay = async (
   id: DayDiet['id'],
-  day: DbReady<DayDiet>
+  day: DbReady<DayDiet>,
 ): Promise<DayDiet> => {
   const newDay = enforceDbReady(day)
   const { data, error } = await supabase
@@ -150,7 +150,7 @@ const deleteDay = async (id: DayDiet['id']): Promise<void> => {
   const userId = userDays().find((day) => day.id === id)?.owner
   if (userId === undefined) {
     throw new Error(
-      `Invalid state: userId not found for day ${id} on local cache`
+      `Invalid state: userId not found for day ${id} on local cache`,
     )
   }
 }

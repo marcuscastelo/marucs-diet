@@ -7,8 +7,8 @@ export type DbReady<T> = Omit<T, 'id' | '__type'>
  */
 export type New<T> = Omit<T, 'id'>
 
-export function enforceDbReady<T extends { id: unknown, __type: unknown }> (
-  object: DbReady<T>
+export function enforceDbReady<T extends { id: unknown; __type: unknown }>(
+  object: DbReady<T>,
 ): DbReady<T> {
   const copy = { ...object }
   delete (copy as Partial<T>).id
@@ -17,7 +17,7 @@ export function enforceDbReady<T extends { id: unknown, __type: unknown }> (
   return copy
 }
 
-export function enforceNew<T extends { id: unknown }> (object: New<T>): New<T> {
+export function enforceNew<T extends { id: unknown }>(object: New<T>): New<T> {
   const copy = { ...object }
   delete (copy as Partial<T>).id
 

@@ -3,7 +3,7 @@ import { type Mutable } from '@/legacy/utils/typeUtils'
 
 export abstract class Editor<T extends object | undefined | null> {
   protected readonly content: Mutable<T>
-  constructor (content: T) {
+  constructor(content: T) {
     const copy = deepCopy(content)
     if (copy === null) {
       throw new Error('Error copying recipe!')
@@ -11,7 +11,7 @@ export abstract class Editor<T extends object | undefined | null> {
     this.content = copy
   }
 
-  replace (content: T) {
+  replace(content: T) {
     const copy = deepCopy(content)
     if (copy === null) {
       throw new Error('Error copying recipe!')
@@ -20,9 +20,9 @@ export abstract class Editor<T extends object | undefined | null> {
     return this
   }
 
-  protected abstract onFinish (): void
+  protected abstract onFinish(): void
 
-  finish () {
+  finish() {
     this.onFinish()
     const copy = deepCopy(this.content)
 

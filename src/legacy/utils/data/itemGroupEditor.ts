@@ -9,15 +9,16 @@ import { type Mutable } from '@/legacy/utils/typeUtils'
 
 export class ItemGroupEditor
   extends Editor<ItemGroup>
-  implements ItemContainer {
+  implements ItemContainer
+{
   private readonly group = this.content
 
-  setName (name: string) {
+  setName(name: string) {
     this.group.name = name
     return this
   }
 
-  setRecipe (recipe: Recipe['id'] | undefined) {
+  setRecipe(recipe: Recipe['id'] | undefined) {
     if (recipe === undefined) {
       this.group.type = 'simple'
       this.group.recipe = undefined
@@ -28,23 +29,23 @@ export class ItemGroupEditor
     return this
   }
 
-  addItem (item: FoodItem) {
+  addItem(item: FoodItem) {
     this.group.items.push(item)
     return this
   }
 
-  addItems (items: readonly FoodItem[]) {
+  addItems(items: readonly FoodItem[]) {
     this.group.items.push(...items)
     return this
   }
 
-  findItem (id: FoodItem['id']) {
+  findItem(id: FoodItem['id']) {
     return this.group.items.find((item) => item.id === id)
   }
 
-  editItem (
+  editItem(
     id: number,
-    callback: (editor: Omit<ItemEditor, 'finish'> | undefined) => void
+    callback: (editor: Omit<ItemEditor, 'finish'> | undefined) => void,
   ) {
     const item = this.findItem(id)
     const editor = item && new ItemEditor(item)
@@ -57,11 +58,11 @@ export class ItemGroupEditor
     return this
   }
 
-  editItems (
+  editItems(
     callback: (
       id: number,
       editor: Omit<ItemEditor, 'finish'> | undefined,
-    ) => void
+    ) => void,
   ) {
     for (const item of this.group.items) {
       const editor = new ItemEditor(item)
@@ -73,12 +74,12 @@ export class ItemGroupEditor
     return this
   }
 
-  setItems (items: FoodItem[]) {
+  setItems(items: FoodItem[]) {
     this.group.items = deepCopy(items) as Array<Mutable<FoodItem>>
     return this
   }
 
-  deleteItem (id: number) {
+  deleteItem(id: number) {
     const index = this.group.items.findIndex((item) => item.id === id)
     if (index === -1) {
       console.warn(`Item with id ${id} not found!`)
@@ -88,16 +89,16 @@ export class ItemGroupEditor
     return this
   }
 
-  clearItems () {
+  clearItems() {
     this.group.items = []
     return this
   }
 
-  protected override onFinish () {
+  protected override onFinish() {
     // TODO: Replace quantity field with a getter that calculates it
     this.group.quantity = this.group.items.reduce(
       (acc, item) => acc + item.quantity,
-      0
+      0,
     )
   }
 }

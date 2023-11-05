@@ -1,9 +1,12 @@
 import { stringToDate } from '@/legacy/utils/dateUtils'
-import { setTargetDay, targetDay } from '@/modules/diet/day-diet/application/dayDiet'
+import {
+  setTargetDay,
+  targetDay,
+} from '@/modules/diet/day-diet/application/dayDiet'
 import Datepicker from '@/sections/datepicker/components/Datepicker'
 import { type DateValueType } from '@/sections/datepicker/types'
 
-export function TargetDayPicker () {
+export function TargetDayPicker() {
   const handleDayChange = (newValue: DateValueType) => {
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (!newValue?.startDate) {
@@ -24,7 +27,7 @@ export function TargetDayPicker () {
       displayFormat="DD/MM/YYYY"
       value={{
         startDate: targetDay(),
-        endDate: targetDay()
+        endDate: targetDay(),
       }}
       onChange={handleDayChange}
     />
