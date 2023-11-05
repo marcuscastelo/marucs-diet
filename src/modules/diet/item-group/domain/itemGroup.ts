@@ -8,7 +8,7 @@ export const simpleItemGroupSchema = z.object({
   id: z.number(),
   name: z.string(),
   items: foodItemSchema.array(), // TODO: Support nested groups and recipes
-  quantity: z.number(),
+  quantity: z.number(), // TODO: Replace quantity field with a getter that calculates it
   type: z.literal('simple'),
   recipe: z
     .number()
@@ -21,7 +21,7 @@ export const recipedItemGroupSchema = z.object({
   id: z.number(),
   name: z.string(),
   items: foodItemSchema.array().readonly(), // TODO: Support nested groups and recipes
-  quantity: z.number(),
+  quantity: z.number(), // TODO: Replace quantity field with a getter that calculates it
   type: z.literal('recipe'),
   recipe: z.number(),
 })

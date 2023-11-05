@@ -13,7 +13,6 @@ import {
   useClipboard,
   createClipboardSchemaFilter,
 } from '@/sections/common/hooks/useClipboard'
-import { addInnerGroups } from '@/legacy/utils/mealUtils'
 import { deserializeClipboard } from '@/legacy/utils/clipboardUtils'
 import { convertToGroups } from '@/legacy/utils/groupUtils'
 import { regenerateId } from '@/legacy/utils/idUtils'
@@ -24,6 +23,7 @@ import {
   MealContextProvider,
   useMealContext,
 } from '@/sections/meal/context/MealContext'
+import { MealEditor } from '@/legacy/utils/data/mealEditor'
 
 export type MealEditViewProps = {
   meal: Meal
@@ -109,8 +109,7 @@ export function MealEditViewHeader(props: {
         items: g.items.map((item) => regenerateId(item)),
       }))
 
-    // TODO: Create RecipeEditor, MealEditor, ItemGroupEditor, FoodItemEditor classes to avoid this code duplication and error proneness
-    const newMeal = addInnerGroups(meal_, groupsToAdd)
+    const newMeal = new MealEditor(meal_).addGroups(groupsToAdd).finish()
 
     props.onUpdateMeal(newMeal)
 
@@ -160,11 +159,8 @@ export function MealEditViewHeader(props: {
             if (meal_ === null) {
               throw new Error('meal_ is null!')
             }
-            // TODO: Use MealEditor
-            const newMeal: Meal = {
-              ...meal_,
-              groups: [],
-            }
+
+            const newMeal = new MealEditor(meal_).clearGroups().finish()
 
             props.onUpdateMeal(newMeal)
           },
