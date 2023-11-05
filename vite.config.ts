@@ -4,6 +4,7 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 // @ts-expect-error eslint is not typed
 import eslint from 'vite-plugin-eslint'
 import devtools from 'solid-devtools/vite'
+import vercel from 'solid-start-vercel'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
@@ -21,6 +22,7 @@ export default defineConfig(({ mode }) => {
       }),
       solid({
         ssr: false,
+        adapter: vercel(),
       }),
       eslint(),
       tsconfigPaths(),
