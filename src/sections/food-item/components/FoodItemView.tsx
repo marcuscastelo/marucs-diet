@@ -12,6 +12,7 @@ import { type Template } from '@/modules/diet/template/domain/template'
 
 import { createSupabaseRecipeRepository } from '@/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 import { type JSXElement, type Accessor, createSignal, createEffect } from 'solid-js'
+import { cn } from '@/legacy/utils/cn'
 
 // TODO: Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
@@ -133,7 +134,7 @@ export function FoodItemCopyButton (props: {
 
   return (
     <div
-      class={'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'}
+      class={'btn btn-ghost ml-auto mt-1 px-2 text-white hover:scale-105'}
       onClick={(e) => {
         e.stopPropagation()
         e.preventDefault()
@@ -157,8 +158,11 @@ export function FoodItemFavorite (props: {
 
   return (
     <div
-      class={`ml-auto text-3xl text-orange-400 ${props.onSetFavorite !== undefined ? 'hover:text-blue-200' : ''
-        }`}
+      class={
+        cn('ml-auto mt-1 text-3xl text-orange-400 active:scale-105', {
+          'hover:text-blue-200': props.onSetFavorite !== undefined
+        })
+      }
       onClick={toggleFavorite}
     >
       {props.favorite ? '★' : '☆'}

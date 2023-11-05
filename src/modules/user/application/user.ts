@@ -58,23 +58,27 @@ export function isFoodFavorite (foodId: number): boolean {
   return currentUser()?.favorite_foods.includes(foodId) ?? false
 }
 
-export function setFoodAsFavorite (_foodId: number, _isFavorite: boolean): void {
-  // if (currentUser.value === null) {
-  //   throw new Error('User not initialized')
-  // }
-  // const favoriteFoods = currentUser.value.favorite_foods
-  // if (isFavorite) {
-  //   if (!favoriteFoods.includes(foodId)) {
-  //     favoriteFoods.push(foodId)
-  //   }
-  // } else {
-  //   const index = favoriteFoods.indexOf(foodId)
-  //   if (index !== -1) {
-  //     favoriteFoods.splice(index, 1)
-  //   }
-  // }
-  // updateUser(currentUser.value.id, {
-  //   ...currentUser.value,
-  //   favorite_foods: favoriteFoods,
-  // })
+export function setFoodAsFavorite (foodId: number, favorite: boolean): void {
+  const currentUser_ = currentUser()
+  if (currentUser_ === null) {
+    throw new Error('User not initialized')
+  }
+  const favoriteFoods = currentUser_.favorite_foods
+  if (favorite) {
+    if (!favoriteFoods.includes(foodId)) {
+      favoriteFoods.push(foodId)
+    }
+  } else {
+    const index = favoriteFoods.indexOf(foodId)
+    if (index !== -1) {
+      favoriteFoods.splice(index, 1)
+    }
+  }
+
+  updateUser(currentUser_.id, {
+    ...currentUser_,
+    favorite_foods: favoriteFoods
+  })
+    .then(fetchCurrentUser)
+    .catch(console.error)
 }
