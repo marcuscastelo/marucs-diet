@@ -242,11 +242,39 @@ const fetchFoodsForModal = async (): Promise<readonly Food[]> => {
     allowedFoods,
   })
 
+  let foods: readonly Food[]
   if (search() === '') {
-    return await fetchFoods({ limit, allowedFoods })
+    foods = await fetchFoods({ limit, allowedFoods })
   } else {
-    return await fetchFoodsByName(search(), { limit, allowedFoods })
+    foods = await fetchFoodsByName(search(), { limit, allowedFoods })
   }
+  if (tab() === 'recent') {
+    foods = foods.toSorted((a, b) => {
+      const correctOrder = allowedFoods
+      if (correctOrder === undefined) {
+        return 0
+      }
+
+      const aIndex = correctOrder.indexOf(a.id)
+      const bIndex = correctOrder.indexOf(b.id)
+
+      if (aIndex === -1 && bIndex === -1) {
+        return 0
+      } else if (aIndex === -1) {
+        return 1
+      } else if (bIndex === -1) {
+        return -1
+      } else {
+        return aIndex - bIndex
+      }
+    })
+    console.debug('Allowed foods', allowedFoods)
+    console.debug(
+      'Sorted foods',
+      foods.map((food) => food.id),
+    )
+  }
+  return foods
 }
 
 const fetchRecipes = async (): Promise<readonly Recipe[]> => {
@@ -277,30 +305,27 @@ export function TemplateSearch(props: {
   setFoodItemEditModalVisible: Setter<boolean>
   setSelectedTemplate: (food: Template) => void
 }) {
-  const TYPING_TIMEOUT_MS = 1000
+  const TYPING_TIMEOUT_MS = 2000
 
   // TODO: Determine if user is on desktop or mobile to set autofocus
   const isDesktop = false
 
+  const { typing, onTyped } = useTyping({
+    delay: TYPING_TIMEOUT_MS,
+    onTypingEnd: () => {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      refetch()
+    }, // TODO: Change 'all' to selected tab
+  })
+
   const [templates, { refetch }] = createResource(
     () => ({
-      search: search(),
+      search: !typing() && search(),
       tab: tab(),
       userId: currentUserId(),
     }),
     fetchFunc,
   )
-
-  const { typing, onTyped } = useTyping({
-    delay: TYPING_TIMEOUT_MS,
-    onTypingEnd: () => {
-      // refetchFoods('all', search())
-      // TODO: Implement refetchFoods'
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      refetch()
-      console.error('TODO: Implement refetchFoods')
-    }, // TODO: Change 'all' to selected tab
-  })
 
   const setSearch = (newSearch: string) => {
     setSearch_(newSearch)
@@ -359,6 +384,10 @@ export function TemplateSearch(props: {
         search={search()}
         onSetSearch={setSearch}
       />
+
+      <Show when={typing()}>
+        <>...</>
+      </Show>
 
       <Suspense
         fallback={

@@ -31,7 +31,8 @@ async function fetchApiFoodsByName(
   name: Required<ApiFood>['nome'],
 ): Promise<readonly ApiFood[]> {
   const url = `${EXTERNAL_API_BASE_URL}/${EXTERNAL_API_FOOD_ENDPOINT}`
-  const response = await axios.get(url, {
+
+  const config = {
     headers: {
       accept: 'application/json, text/plain, */*',
       'accept-encoding': 'gzip',
@@ -46,7 +47,20 @@ async function fetchApiFoodsByName(
       ...(JSON.parse(EXTERNAL_API_FOOD_PARAMS) as object),
       search: name,
     },
-  })
+  }
+
+  console.debug(`[ApiFood] Fetching foods with name from url ${url}`, config)
+  let response
+  try {
+    response = await axios.get(url, config)
+  } catch (error) {
+    console.error(`[ApiFood] Error fetching foods with name from url ${url}`, {
+      error,
+    })
+    throw error
+  }
+
+  console.debug(`[ApiFood] Response from url ${url}`, response.data)
 
   return apiFoodSchema.array().parse(response.data.alimentos)
 }

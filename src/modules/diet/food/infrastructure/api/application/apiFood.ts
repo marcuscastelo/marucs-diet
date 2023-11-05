@@ -4,9 +4,9 @@ import { markSearchAsCached } from '~/legacy/controllers/searchCache'
 import { type ApiFood } from '~/modules/diet/food/infrastructure/api/domain/apiFoodModel'
 import { createApiFoodRepository } from '~/modules/diet/food/infrastructure/api/infrastructure/apiFoodRepository'
 import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
+import axios from 'axios'
 
 // TODO: Depency injection for repositories on all application files
-const apiFoodRepository = createApiFoodRepository()
 const foodRepository = createSupabaseFoodRepository()
 
 // TODO: Move `convertApi2Food` to a more appropriate place
@@ -27,7 +27,8 @@ export function convertApi2Food(food: ApiFood): DbReady<Food> {
 }
 
 export async function importFoodFromApiByEan(ean: string): Promise<Food> {
-  const apiFood = await apiFoodRepository.fetchApiFoodByEan(ean)
+  const apiFood = (await axios.get(`/api/food/ean/${ean}`))
+    .data as unknown as ApiFood
   const food = convertApi2Food(apiFood)
   const insertedFood = await foodRepository.insertFood(food)
   return foodSchema.parse(insertedFood)
@@ -35,7 +36,8 @@ export async function importFoodFromApiByEan(ean: string): Promise<Food> {
 
 export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
   console.debug(`[ApiFood] Importing foods with name "${name}"`)
-  const apiFoods = await apiFoodRepository.fetchApiFoodsByName(name)
+  const apiFoods = (await axios.get(`/api/food/name/${name}`))
+    .data as unknown as ApiFood[]
 
   console.debug(`[ApiFood] Found ${apiFoods.length} foods`)
   const foodsToInsert = apiFoods.map(convertApi2Food)

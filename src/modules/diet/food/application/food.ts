@@ -1,6 +1,7 @@
+import axios from 'axios'
 import { isEanCached } from '~/legacy/controllers/eanCache'
 import { isSearchCached } from '~/legacy/controllers/searchCache'
-import { type Food } from '~/modules/diet/food/domain/food'
+import { createFood, type Food } from '~/modules/diet/food/domain/food'
 import { type FoodSearchParams } from '~/modules/diet/food/domain/foodRepository'
 import {
   importFoodFromApiByEan,
@@ -29,7 +30,6 @@ export async function fetchFoodsByName(
     console.debug(`[Food] Food with name ${name} not cached, importing`)
     await importFoodsFromApiByName(name)
   }
-
   // TODO: When importing a food, avoid second fetch for performance
   return await foodRepository.fetchFoodsByName(name, params)
 }
@@ -42,7 +42,6 @@ export async function fetchFoodByEan(
     console.debug(`[Food] Food with EAN ${ean} not cached, importing`)
     await importFoodFromApiByEan(ean)
   }
-
   // TODO: When importing a food, avoid second fetch for performance
   return await foodRepository.fetchFoodByEan(ean, params)
 }
