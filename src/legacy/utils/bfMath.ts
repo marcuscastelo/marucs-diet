@@ -1,6 +1,6 @@
-import { type Measure } from '@/modules/measure/domain/measure'
-import { type User } from '@/modules/user/domain/user'
-import { type Weight } from '@/modules/weight/domain/weight'
+import { type Measure } from '~/modules/measure/domain/measure'
+import { type User } from '~/modules/user/domain/user'
+import { type Weight } from '~/modules/weight/domain/weight'
 import { z } from 'zod'
 
 export type BodyFatInput<T extends User['gender']> = {

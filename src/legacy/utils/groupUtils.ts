@@ -1,10 +1,10 @@
 import {
   type ItemGroup,
   type RecipedItemGroup,
-} from '@/modules/diet/item-group/domain/itemGroup'
-import { type FoodItem } from '@/modules/diet/food-item/domain/foodItem'
-import { type Recipe } from '@/modules/diet/recipe/domain/recipe'
-import { generateId } from '@/legacy/utils/idUtils'
+} from '~/modules/diet/item-group/domain/itemGroup'
+import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import { generateId } from '~/legacy/utils/idUtils'
 
 export type GroupConvertible =
   | ItemGroup

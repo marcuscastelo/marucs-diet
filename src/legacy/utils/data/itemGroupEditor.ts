@@ -1,11 +1,11 @@
-import { type FoodItem } from '@/modules/diet/food-item/domain/foodItem'
-import { type ItemContainer } from '@/legacy/utils/data/interfaces/itemContainer'
-import { type ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
-import { Editor } from '@/legacy/utils/data/editor'
-import { ItemEditor } from '@/legacy/utils/data/itemEditor'
-import { type Recipe } from '@/modules/diet/recipe/domain/recipe'
-import { deepCopy } from '@/legacy/utils/deepCopy'
-import { type Mutable } from '@/legacy/utils/typeUtils'
+import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { type ItemContainer } from '~/legacy/utils/data/interfaces/itemContainer'
+import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { Editor } from '~/legacy/utils/data/editor'
+import { ItemEditor } from '~/legacy/utils/data/itemEditor'
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import { deepCopy } from '~/legacy/utils/deepCopy'
+import { type Mutable } from '~/legacy/utils/typeUtils'
 
 export class ItemGroupEditor
   extends Editor<ItemGroup>

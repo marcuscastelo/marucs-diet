@@ -1,6 +1,6 @@
-import { type ObjectValues } from '@/legacy/utils/typeUtils'
+import { type ObjectValues } from '~/legacy/utils/typeUtils'
 import { type Accessor, For, type Setter } from 'solid-js'
-import { cn } from '@/legacy/utils/cn'
+import { cn } from '~/legacy/utils/cn'
 
 type TabDefinition = {
   id: string

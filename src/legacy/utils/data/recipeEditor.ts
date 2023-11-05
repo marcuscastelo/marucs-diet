@@ -1,11 +1,11 @@
-import { type FoodItem } from '@/modules/diet/food-item/domain/foodItem'
-import { type Recipe } from '@/modules/diet/recipe/domain/recipe'
-import { type ItemContainer } from '@/legacy/utils/data/interfaces/itemContainer'
-import { Editor } from '@/legacy/utils/data/editor'
-import { ItemEditor } from '@/legacy/utils/data/itemEditor'
-import { calcRecipeMacros } from '@/legacy/utils/macroMath'
-import { type Mutable } from '@/legacy/utils/typeUtils'
-import { deepCopy } from '@/legacy/utils/deepCopy'
+import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import { type ItemContainer } from '~/legacy/utils/data/interfaces/itemContainer'
+import { Editor } from '~/legacy/utils/data/editor'
+import { ItemEditor } from '~/legacy/utils/data/itemEditor'
+import { calcRecipeMacros } from '~/legacy/utils/macroMath'
+import { type Mutable } from '~/legacy/utils/typeUtils'
+import { deepCopy } from '~/legacy/utils/deepCopy'
 
 export class RecipeEditor extends Editor<Recipe> implements ItemContainer {
   private readonly recipe = this.content

@@ -1,5 +1,5 @@
-import { deepCopy } from '@/legacy/utils/deepCopy'
-import { type Mutable } from '@/legacy/utils/typeUtils'
+import { deepCopy } from '~/legacy/utils/deepCopy'
+import { type Mutable } from '~/legacy/utils/typeUtils'
 
 export abstract class Editor<T extends object | undefined | null> {
   protected readonly content: Mutable<T>

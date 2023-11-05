@@ -1,13 +1,13 @@
-import { type Recipe } from '@/modules/diet/recipe/domain/recipe'
-import { type User } from '@/modules/user/domain/user'
-import { type DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
-import supabase from '@/legacy/utils/supabase'
-import { type Mutable } from '@/legacy/utils/typeUtils'
-import { type RecipeRepository } from '@/modules/diet/recipe/domain/recipeRepository'
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import { type User } from '~/modules/user/domain/user'
+import { type DbReady, enforceDbReady } from '~/legacy/utils/newDbRecord'
+import supabase from '~/legacy/utils/supabase'
+import { type Mutable } from '~/legacy/utils/typeUtils'
+import { type RecipeRepository } from '~/modules/diet/recipe/domain/recipeRepository'
 import {
   createRecipeFromDAO,
   recipeDAOSchema,
-} from '@/modules/diet/recipe/infrastructure/recipeDAO'
+} from '~/modules/diet/recipe/infrastructure/recipeDAO'
 
 const TABLE = 'recipes'
 

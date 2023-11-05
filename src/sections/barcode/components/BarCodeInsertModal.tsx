@@ -1,12 +1,12 @@
-import { type Food } from '@/modules/diet/food/domain/food'
+import { type Food } from '~/modules/diet/food/domain/food'
 import {
   Modal,
   ModalActions,
   ModalHeader,
-} from '@/sections/common/components/Modal'
-import { BarCodeReader } from '@/sections/barcode/components/BarCodeReader'
-import BarCodeSearch from '@/sections/barcode/components/BarCodeSearch'
-import { useModalContext } from '@/sections/common/context/ModalContext'
+} from '~/sections/common/components/Modal'
+import { BarCodeReader } from '~/sections/barcode/components/BarCodeReader'
+import BarCodeSearch from '~/sections/barcode/components/BarCodeSearch'
+import { useModalContext } from '~/sections/common/context/ModalContext'
 import { createSignal, onMount } from 'solid-js'
 
 export type BarCodeInsertModalProps = {

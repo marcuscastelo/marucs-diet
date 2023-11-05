@@ -1,13 +1,13 @@
-import { type New, enforceNew } from '@/legacy/utils/newDbRecord'
-import { getToday } from '@/legacy/utils/dateUtils'
+import { type New, enforceNew } from '~/legacy/utils/newDbRecord'
+import { getToday } from '~/legacy/utils/dateUtils'
 import {
   type DayDiet,
   dayDietSchema,
-} from '@/modules/diet/day-diet/domain/dayDiet'
-import { createSupabaseDayRepository } from '@/modules/diet/day-diet/infrastructure/supabaseDayRepository'
-import { type User } from '@/modules/user/domain/user'
+} from '~/modules/diet/day-diet/domain/dayDiet'
+import { createSupabaseDayRepository } from '~/modules/diet/day-diet/infrastructure/supabaseDayRepository'
+import { type User } from '~/modules/user/domain/user'
 import { createEffect, createSignal } from 'solid-js'
-import { currentUserId } from '@/modules/user/application/user'
+import { currentUserId } from '~/modules/user/application/user'
 
 export function createDayDiet({
   target_day: targetDay,

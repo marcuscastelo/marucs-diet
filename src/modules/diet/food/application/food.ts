@@ -1,12 +1,12 @@
-import { isEanCached } from '@/legacy/controllers/eanCache'
-import { isSearchCached } from '@/legacy/controllers/searchCache'
-import { type Food } from '@/modules/diet/food/domain/food'
-import { type FoodSearchParams } from '@/modules/diet/food/domain/foodRepository'
+import { isEanCached } from '~/legacy/controllers/eanCache'
+import { isSearchCached } from '~/legacy/controllers/searchCache'
+import { type Food } from '~/modules/diet/food/domain/food'
+import { type FoodSearchParams } from '~/modules/diet/food/domain/foodRepository'
 import {
   importFoodFromApiByEan,
   importFoodsFromApiByName,
-} from '@/modules/diet/food/infrastructure/api/application/apiFood'
-import { createSupabaseFoodRepository } from '@/modules/diet/food/infrastructure/supabaseFoodRepository'
+} from '~/modules/diet/food/infrastructure/api/application/apiFood'
+import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
 
 const foodRepository = createSupabaseFoodRepository()
 

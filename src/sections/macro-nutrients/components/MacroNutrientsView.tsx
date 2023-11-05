@@ -1,4 +1,4 @@
-import { type MacroNutrients } from '@/modules/diet/macro-nutrients/domain/macroNutrients'
+import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 
 export default function MacroNutrientsView(props: MacroNutrients) {
   return (

@@ -1,11 +1,11 @@
 import {
   type DayDiet,
   dayDietSchema,
-} from '@/modules/diet/day-diet/domain/dayDiet'
-import { type User } from '@/modules/user/domain/user'
-import { type DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
-import supabase from '@/legacy/utils/supabase'
-import { type DayRepository } from '@/modules/diet/day-diet/domain/dayDietRepository'
+} from '~/modules/diet/day-diet/domain/dayDiet'
+import { type User } from '~/modules/user/domain/user'
+import { type DbReady, enforceDbReady } from '~/legacy/utils/newDbRecord'
+import supabase from '~/legacy/utils/supabase'
+import { type DayRepository } from '~/modules/diet/day-diet/domain/dayDietRepository'
 import { type Accessor, createSignal } from 'solid-js'
 
 // TODO: Delete old days table and rename days_test to days

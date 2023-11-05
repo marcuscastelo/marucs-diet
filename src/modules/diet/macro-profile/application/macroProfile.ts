@@ -1,8 +1,8 @@
-import { getLatestMacroProfile } from '@/legacy/utils/macroProfileUtils'
-import { type DbReady } from '@/legacy/utils/newDbRecord'
-import { type MacroProfile } from '@/modules/diet/macro-profile/domain/macroProfile'
-import { createSupabaseMacroProfileRepository } from '@/modules/diet/macro-profile/infrastructure/supabaseMacroProfileRepository'
-import { currentUserId } from '@/modules/user/application/user'
+import { getLatestMacroProfile } from '~/legacy/utils/macroProfileUtils'
+import { type DbReady } from '~/legacy/utils/newDbRecord'
+import { type MacroProfile } from '~/modules/diet/macro-profile/domain/macroProfile'
+import { createSupabaseMacroProfileRepository } from '~/modules/diet/macro-profile/infrastructure/supabaseMacroProfileRepository'
+import { currentUserId } from '~/modules/user/application/user'
 import { createEffect, createSignal } from 'solid-js'
 
 const macroProfileRepository = createSupabaseMacroProfileRepository()

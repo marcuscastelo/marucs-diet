@@ -1,27 +1,27 @@
 import { For, createEffect, createMemo } from 'solid-js'
-import { type Weight, createWeight } from '@/modules/weight/domain/weight'
-import { Capsule } from '@/sections/common/components/capsule/Capsule'
-import { TrashIcon } from '@/sections/common/components/icons/TrashIcon'
-import { type OHLC } from '@/legacy/model/ohlcModel'
-import { useDateField, useFloatField } from '@/sections/common/hooks/useField'
-import { FloatInput } from '@/sections/common/components/FloatInput'
-import { CapsuleContent } from '@/sections/common/components/capsule/CapsuleContent'
+import { type Weight, createWeight } from '~/modules/weight/domain/weight'
+import { Capsule } from '~/sections/common/components/capsule/Capsule'
+import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
+import { type OHLC } from '~/legacy/model/ohlcModel'
+import { useDateField, useFloatField } from '~/sections/common/hooks/useField'
+import { FloatInput } from '~/sections/common/components/FloatInput'
+import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
 import {
   calculateWeightProgress,
   firstWeight,
   latestWeight,
-} from '@/legacy/utils/weightUtils'
-import { currentUser, currentUserId } from '@/modules/user/application/user'
+} from '~/legacy/utils/weightUtils'
+import { currentUser, currentUserId } from '~/modules/user/application/user'
 import {
   deleteWeight,
   insertWeight,
   updateWeight,
   userWeights,
-} from '@/modules/weight/application/weight'
-import Datepicker from '@/sections/datepicker/components/Datepicker'
-import { dateToYYYYMMDD } from '@/legacy/utils/dateUtils'
+} from '~/modules/weight/application/weight'
+import Datepicker from '~/sections/datepicker/components/Datepicker'
+import { dateToYYYYMMDD } from '~/legacy/utils/dateUtils'
 import { SolidApexCharts } from 'solid-apexcharts'
-import ptBrLocale from '@/assets/locales/apex/pt-br.json'
+import ptBrLocale from '~/assets/locales/apex/pt-br.json'
 import { type ApexOptions } from 'apexcharts'
 
 // TODO: Centralize theme constants

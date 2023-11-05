@@ -1,4 +1,4 @@
-import { type FoodItem } from '@/modules/diet/food-item/domain/foodItem'
+import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
 import {
   FoodItemView,
   FoodItemCopyButton,
@@ -6,7 +6,7 @@ import {
   FoodItemName,
   FoodItemNutritionalInfo,
   type FoodItemViewProps,
-} from '@/sections/food-item/components/FoodItemView'
+} from '~/sections/food-item/components/FoodItemView'
 import { mergeProps, type Accessor, For } from 'solid-js'
 
 export function FoodItemListView(_props: {

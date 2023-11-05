@@ -1,4 +1,4 @@
-import { type ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
+import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import {
   ItemGroupView,
   ItemGroupCopyButton,
@@ -6,7 +6,7 @@ import {
   ItemGroupName,
   ItemGroupViewNutritionalInfo,
   type ItemGroupViewProps,
-} from '@/sections/item-group/components/ItemGroupView'
+} from '~/sections/item-group/components/ItemGroupView'
 import { type Accessor } from 'solid-js'
 
 export function ItemGroupListView(props: {

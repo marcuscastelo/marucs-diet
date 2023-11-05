@@ -1,4 +1,4 @@
-import { LoadingRing } from '@/sections/common/components/LoadingRing'
+import { LoadingRing } from '~/sections/common/components/LoadingRing'
 import { createEffect, createSignal, onCleanup } from 'solid-js'
 
 export type PageLoadingProps = {

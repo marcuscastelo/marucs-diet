@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { foodItemSchema } from '@/modules/diet/food-item/domain/foodItem'
+import { foodItemSchema } from '~/modules/diet/food-item/domain/foodItem'
 
 // TODO: Add support for nested groups and recipes (recursive schema: https://github.com/colinhacks/zod#recursive-types)
 // TODO: In the future, it seems like discriminated unions will deprecated (https://github.com/colinhacks/zod/issues/2106)

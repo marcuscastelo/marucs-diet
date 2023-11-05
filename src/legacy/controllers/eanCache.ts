@@ -1,5 +1,5 @@
-import supabase from '@/legacy/utils/supabase'
-import { type CachedEan } from '@/legacy/model/cachedEan'
+import supabase from '~/legacy/utils/supabase'
+import { type CachedEan } from '~/legacy/model/cachedEan'
 
 const TABLE = 'foods'
 

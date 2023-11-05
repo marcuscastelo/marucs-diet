@@ -1,10 +1,10 @@
-import { type Food, foodSchema } from '@/modules/diet/food/domain/food'
-import { type DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
-import supabase from '@/legacy/utils/supabase'
+import { type Food, foodSchema } from '~/modules/diet/food/domain/food'
+import { type DbReady, enforceDbReady } from '~/legacy/utils/newDbRecord'
+import supabase from '~/legacy/utils/supabase'
 import {
   type FoodRepository,
   type FoodSearchParams,
-} from '@/modules/diet/food/domain/foodRepository'
+} from '~/modules/diet/food/domain/foodRepository'
 
 const TABLE = 'foods'
 

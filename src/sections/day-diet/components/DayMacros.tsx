@@ -1,11 +1,11 @@
-import { type MacroNutrients } from '@/modules/diet/macro-nutrients/domain/macroNutrients'
-import { calculateMacroTarget } from '@/sections/macro-nutrients/components/MacroTargets'
-import { calcCalories } from '@/legacy/utils/macroMath'
-import { latestWeight } from '@/legacy/utils/weightUtils'
-import { userWeights } from '@/modules/weight/application/weight'
+import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { calculateMacroTarget } from '~/sections/macro-nutrients/components/MacroTargets'
+import { calcCalories } from '~/legacy/utils/macroMath'
+import { latestWeight } from '~/legacy/utils/weightUtils'
+import { userWeights } from '~/modules/weight/application/weight'
 import { Show } from 'solid-js'
-import { Progress } from '@/sections/common/components/Progress'
-import { latestMacroProfile } from '@/modules/diet/macro-profile/application/macroProfile'
+import { Progress } from '~/sections/common/components/Progress'
+import { latestMacroProfile } from '~/modules/diet/macro-profile/application/macroProfile'
 
 export default function DayMacros(props: {
   macros: MacroNutrients

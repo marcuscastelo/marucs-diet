@@ -1,4 +1,4 @@
-import { type Recipe } from '@/modules/diet/recipe/domain/recipe'
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import {
   type Accessor,
   type JSXElement,

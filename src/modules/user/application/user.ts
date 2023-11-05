@@ -1,9 +1,9 @@
-import { type User } from '@/modules/user/domain/user'
+import { type User } from '~/modules/user/domain/user'
 import {
   loadUserIdFromLocalStorage,
   saveUserIdToLocalStorage,
-} from '@/modules/user/infrastructure/localStorageUserRepository'
-import { createSupabaseUserRepository } from '@/modules/user/infrastructure/supabaseUserRepository'
+} from '~/modules/user/infrastructure/localStorageUserRepository'
+import { createSupabaseUserRepository } from '~/modules/user/infrastructure/supabaseUserRepository'
 import { createEffect, createSignal } from 'solid-js'
 
 export const DEFAULT_USER_ID = 3

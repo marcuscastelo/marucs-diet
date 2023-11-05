@@ -1,4 +1,4 @@
-import { TargetDayPicker } from '@/sections/common/components/TargetDayPicker'
+import { TargetDayPicker } from '~/sections/common/components/TargetDayPicker'
 import { createEffect } from 'solid-js'
 
 // TODO: make day/TopBar a common component

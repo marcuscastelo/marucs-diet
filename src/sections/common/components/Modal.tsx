@@ -1,6 +1,6 @@
-import { useModalContext } from '@/sections/common/context/ModalContext'
-import { BackIcon } from '@/sections/common/components/BackIcon'
-import { cn } from '@/legacy/utils/cn'
+import { useModalContext } from '~/sections/common/context/ModalContext'
+import { BackIcon } from '~/sections/common/components/BackIcon'
+import { cn } from '~/legacy/utils/cn'
 import { mergeProps, type JSXElement, createEffect } from 'solid-js'
 
 export type ModalProps = {

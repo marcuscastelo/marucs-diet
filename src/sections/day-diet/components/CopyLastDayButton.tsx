@@ -1,10 +1,10 @@
-import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { type DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import {
   dayDiets,
   insertDayDiet,
   updateDayDiet,
-} from '@/modules/diet/day-diet/application/dayDiet'
+} from '~/modules/diet/day-diet/application/dayDiet'
 import { Show, type Accessor } from 'solid-js'
 
 export function CopyLastDayButton(props: {

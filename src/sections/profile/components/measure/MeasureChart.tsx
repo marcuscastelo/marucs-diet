@@ -1,7 +1,7 @@
-import { type Measure } from '@/modules/measure/domain/measure'
-import { type BodyFatInput, calculateBodyFat } from '@/legacy/utils/bfMath'
-import { currentUser } from '@/modules/user/application/user'
-import { userWeights } from '@/modules/weight/application/weight'
+import { type Measure } from '~/modules/measure/domain/measure'
+import { type BodyFatInput, calculateBodyFat } from '~/legacy/utils/bfMath'
+import { currentUser } from '~/modules/user/application/user'
+import { userWeights } from '~/modules/weight/application/weight'
 type DayAverage = Omit<Measure, '__type' | 'id' | 'owner' | 'target_timestamp'>
 type DayMeasures = {
   date: string

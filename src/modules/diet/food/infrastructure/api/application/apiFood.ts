@@ -1,9 +1,9 @@
-import { type Food, foodSchema } from '@/modules/diet/food/domain/food'
-import { type DbReady } from '@/legacy/utils/newDbRecord'
-import { markSearchAsCached } from '@/legacy/controllers/searchCache'
-import { type ApiFood } from '@/modules/diet/food/infrastructure/api/domain/apiFoodModel'
-import { createApiFoodRepository } from '@/modules/diet/food/infrastructure/api/infrastructure/apiFoodRepository'
-import { createSupabaseFoodRepository } from '@/modules/diet/food/infrastructure/supabaseFoodRepository'
+import { type Food, foodSchema } from '~/modules/diet/food/domain/food'
+import { type DbReady } from '~/legacy/utils/newDbRecord'
+import { markSearchAsCached } from '~/legacy/controllers/searchCache'
+import { type ApiFood } from '~/modules/diet/food/infrastructure/api/domain/apiFoodModel'
+import { createApiFoodRepository } from '~/modules/diet/food/infrastructure/api/infrastructure/apiFoodRepository'
+import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
 
 // TODO: Depency injection for repositories on all application files
 const apiFoodRepository = createApiFoodRepository()

@@ -1,15 +1,15 @@
-import MacroNutrientsView from '@/sections/macro-nutrients/components/MacroNutrientsView'
-import { type MacroNutrients } from '@/modules/diet/macro-nutrients/domain/macroNutrients'
-import { CopyIcon } from '@/sections/common/components/icons/CopyIcon'
+import MacroNutrientsView from '~/sections/macro-nutrients/components/MacroNutrientsView'
+import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
 import {
   type ItemGroup,
   isSimpleSingleGroup,
-} from '@/modules/diet/item-group/domain/itemGroup'
-import { calcGroupCalories, calcGroupMacros } from '@/legacy/utils/macroMath'
-import { isRecipedGroupUpToDate } from '@/legacy/utils/groupUtils'
-import { type Loadable } from '@/legacy/utils/loadable'
-import { type Recipe } from '@/modules/diet/recipe/domain/recipe'
-import { createSupabaseRecipeRepository } from '@/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
+} from '~/modules/diet/item-group/domain/itemGroup'
+import { calcGroupCalories, calcGroupMacros } from '~/legacy/utils/macroMath'
+import { isRecipedGroupUpToDate } from '~/legacy/utils/groupUtils'
+import { type Loadable } from '~/legacy/utils/loadable'
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 import {
   type JSXElement,
   type Accessor,

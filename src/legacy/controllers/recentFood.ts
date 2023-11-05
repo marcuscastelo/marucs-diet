@@ -1,9 +1,9 @@
 import {
   type RecentFood,
   recentFoodSchema,
-} from '@/modules/recent-food/domain/recentFood'
-import { type DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
-import supabase from '@/legacy/utils/supabase'
+} from '~/modules/recent-food/domain/recentFood'
+import { type DbReady, enforceDbReady } from '~/legacy/utils/newDbRecord'
+import supabase from '~/legacy/utils/supabase'
 
 const TABLE = 'recent_foods'
 

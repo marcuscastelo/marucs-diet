@@ -1,5 +1,5 @@
-import { createSupabaseRecipeRepository } from '@/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
-import { type User } from '@/modules/user/domain/user'
+import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
+import { type User } from '~/modules/user/domain/user'
 
 const recipeRepository = createSupabaseRecipeRepository()
 

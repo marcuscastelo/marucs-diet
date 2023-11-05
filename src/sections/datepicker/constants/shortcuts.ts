@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
 
-import { formatDate, previousMonth } from '@/sections/datepicker/helpers'
-import { type ShortcutsItem } from '@/sections/datepicker/types'
+import { formatDate, previousMonth } from '~/sections/datepicker/helpers'
+import { type ShortcutsItem } from '~/sections/datepicker/types'
 
 const DEFAULT_SHORTCUTS: {
   [key in string]: ShortcutsItem | ShortcutsItem[];

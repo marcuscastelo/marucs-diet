@@ -1,9 +1,9 @@
-import { type User, userSchema } from '@/modules/user/domain/user'
-import { Capsule } from '@/sections/common/components/capsule/Capsule'
+import { type User, userSchema } from '~/modules/user/domain/user'
+import { Capsule } from '~/sections/common/components/capsule/Capsule'
 import { type z } from 'zod'
-import { CapsuleContent } from '@/sections/common/components/capsule/CapsuleContent'
-import { UserIcon } from '@/sections/common/components/UserIcon'
-import { type Mutable } from '@/legacy/utils/typeUtils'
+import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
+import { UserIcon } from '~/sections/common/components/UserIcon'
+import { type Mutable } from '~/legacy/utils/typeUtils'
 import { type Accessor, createEffect, createSignal } from 'solid-js'
 type Translation<T extends string> = { [key in T]: string }
 // TODO: Centralize theme constants

@@ -1,5 +1,5 @@
-import { generateId } from '@/legacy/utils/idUtils'
-import { itemGroupSchema } from '@/modules/diet/item-group/domain/itemGroup'
+import { generateId } from '~/legacy/utils/idUtils'
+import { itemGroupSchema } from '~/modules/diet/item-group/domain/itemGroup'
 
 import { z } from 'zod'
 

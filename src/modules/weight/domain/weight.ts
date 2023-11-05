@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { type DbReady } from '@/legacy/utils/newDbRecord'
+import { type DbReady } from '~/legacy/utils/newDbRecord'
 import { z } from 'zod'
 
 export const weigthSchema = z.object({

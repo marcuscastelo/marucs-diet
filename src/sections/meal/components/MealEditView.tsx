@@ -1,29 +1,29 @@
-import { type Meal, mealSchema } from '@/modules/diet/meal/domain/meal'
-import { TrashIcon } from '@/sections/common/components/icons/TrashIcon'
-import { PasteIcon } from '@/sections/common/components/icons/PasteIcon'
-import { CopyIcon } from '@/sections/common/components/icons/CopyIcon'
-import { calcMealCalories } from '@/legacy/utils/macroMath'
-import { ItemGroupListView } from '@/sections/item-group/components/ItemGroupListView'
+import { type Meal, mealSchema } from '~/modules/diet/meal/domain/meal'
+import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
+import { PasteIcon } from '~/sections/common/components/icons/PasteIcon'
+import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
+import { calcMealCalories } from '~/legacy/utils/macroMath'
+import { ItemGroupListView } from '~/sections/item-group/components/ItemGroupListView'
 import {
   type ItemGroup,
   itemGroupSchema,
-} from '@/modules/diet/item-group/domain/itemGroup'
-import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
+} from '~/modules/diet/item-group/domain/itemGroup'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import {
   useClipboard,
   createClipboardSchemaFilter,
-} from '@/sections/common/hooks/useClipboard'
-import { deserializeClipboard } from '@/legacy/utils/clipboardUtils'
-import { convertToGroups } from '@/legacy/utils/groupUtils'
-import { regenerateId } from '@/legacy/utils/idUtils'
-import { foodItemSchema } from '@/modules/diet/food-item/domain/foodItem'
-import { recipeSchema } from '@/modules/diet/recipe/domain/recipe'
+} from '~/sections/common/hooks/useClipboard'
+import { deserializeClipboard } from '~/legacy/utils/clipboardUtils'
+import { convertToGroups } from '~/legacy/utils/groupUtils'
+import { regenerateId } from '~/legacy/utils/idUtils'
+import { foodItemSchema } from '~/modules/diet/food-item/domain/foodItem'
+import { recipeSchema } from '~/modules/diet/recipe/domain/recipe'
 import { createEffect, Show, type JSXElement } from 'solid-js'
 import {
   MealContextProvider,
   useMealContext,
-} from '@/sections/meal/context/MealContext'
-import { MealEditor } from '@/legacy/utils/data/mealEditor'
+} from '~/sections/meal/context/MealContext'
+import { MealEditor } from '~/legacy/utils/data/mealEditor'
 
 export type MealEditViewProps = {
   meal: Meal

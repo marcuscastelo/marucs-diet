@@ -1,5 +1,5 @@
-import { type FoodItem } from '@/modules/diet/food-item/domain/foodItem'
-import { type ItemEditor } from '@/legacy/utils/data/itemEditor'
+import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { type ItemEditor } from '~/legacy/utils/data/itemEditor'
 
 export type ItemContainer = {
   addItem: (item: FoodItem) => void

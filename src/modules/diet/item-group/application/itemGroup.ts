@@ -1,11 +1,11 @@
-import { DayDietEditor } from '@/legacy/utils/data/dayDietEditor'
+import { DayDietEditor } from '~/legacy/utils/data/dayDietEditor'
 import {
   currentDayDiet,
   updateDayDiet,
-} from '@/modules/diet/day-diet/application/dayDiet'
-import { type DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
-import { type ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
-import { type Meal } from '@/modules/diet/meal/domain/meal'
+} from '~/modules/diet/day-diet/application/dayDiet'
+import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { type Meal } from '~/modules/diet/meal/domain/meal'
 
 export function insertItemGroup(
   _dayId: DayDiet['id'], // TODO: Remove dayId from functions that don't need it

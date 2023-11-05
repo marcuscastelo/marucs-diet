@@ -1,8 +1,8 @@
 import {
   type CachedSearch,
   cachedSearchSchema,
-} from '@/legacy/model/cachedSearch'
-import supabase from '@/legacy/utils/supabase'
+} from '~/legacy/model/cachedSearch'
+import supabase from '~/legacy/utils/supabase'
 
 const TABLE = 'cached_searches'
 

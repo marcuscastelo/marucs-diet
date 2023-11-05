@@ -1,12 +1,12 @@
-import { UserIcon } from '@/sections/common/components/UserIcon'
-import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
+import { UserIcon } from '~/sections/common/components/UserIcon'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import {
   changeToUser,
   currentUserId,
   fetchUsers,
   users,
-} from '@/modules/user/application/user'
-import { type User } from '@/modules/user/domain/user'
+} from '~/modules/user/application/user'
+import { type User } from '~/modules/user/domain/user'
 import { For, type JSXElement } from 'solid-js'
 import { useLocation, useNavigate } from '@solidjs/router'
 

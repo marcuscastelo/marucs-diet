@@ -4,8 +4,8 @@ import Modal, {
   ModalActions,
   ModalBody,
   ModalHeader,
-} from '@/sections/common/components/Modal'
-import { ModalContextProvider } from '@/sections/common/context/ModalContext'
+} from '~/sections/common/components/Modal'
+import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { useSignal } from '@preact/signals-core'
 
 const meta: Meta<typeof Modal> = {

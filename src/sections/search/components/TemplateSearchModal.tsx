@@ -1,48 +1,48 @@
-import { Modal, ModalHeader } from '@/sections/common/components/Modal'
+import { Modal, ModalHeader } from '~/sections/common/components/Modal'
 import {
   useModalContext,
   ModalContextProvider,
-} from '@/sections/common/context/ModalContext'
+} from '~/sections/common/context/ModalContext'
 import {
   FoodItemFavorite,
   FoodItemHeader,
   FoodItemName,
   FoodItemNutritionalInfo,
   FoodItemView,
-} from '@/sections/food-item/components/FoodItemView'
-import BarCodeInsertModal from '@/sections/barcode/components/BarCodeInsertModal'
-import { type Recipe } from '@/modules/diet/recipe/domain/recipe'
-import { FoodItemEditModal } from '@/sections/food-item/components/FoodItemEditModal'
+} from '~/sections/food-item/components/FoodItemView'
+import BarCodeInsertModal from '~/sections/barcode/components/BarCodeInsertModal'
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import { FoodItemEditModal } from '~/sections/food-item/components/FoodItemEditModal'
 import {
   type ItemGroup,
   type RecipedItemGroup,
   type SimpleItemGroup,
-} from '@/modules/diet/item-group/domain/itemGroup'
-import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { addId, generateId } from '@/legacy/utils/idUtils'
+} from '~/modules/diet/item-group/domain/itemGroup'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { addId, generateId } from '~/legacy/utils/idUtils'
 import {
   type AvailableTab,
   TemplateSearchTabs,
-} from '@/sections/search/components/TemplateSearchTabs'
-import { useTyping } from '@/sections/common/hooks/useTyping'
-import { createFoodItem } from '@/modules/diet/food-item/domain/foodItem'
+} from '~/sections/search/components/TemplateSearchTabs'
+import { useTyping } from '~/sections/common/hooks/useTyping'
+import { createFoodItem } from '~/modules/diet/food-item/domain/foodItem'
 import {
   fetchRecentFoodByUserIdAndFoodId,
   fetchUserRecentFoods,
   insertRecentFood,
   updateRecentFood,
-} from '@/legacy/controllers/recentFood'
-import { createRecentFood } from '@/modules/recent-food/domain/recentFood'
-import { type Template } from '@/modules/diet/template/domain/template'
-import { type TemplateItem } from '@/modules/diet/template-item/domain/templateItem'
+} from '~/legacy/controllers/recentFood'
+import { createRecentFood } from '~/modules/recent-food/domain/recentFood'
+import { type Template } from '~/modules/diet/template/domain/template'
+import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 
-import { type Food, createFood } from '@/modules/diet/food/domain/food'
+import { type Food, createFood } from '~/modules/diet/food/domain/food'
 import {
   currentUser,
   currentUserId,
   isFoodFavorite,
   setFoodAsFavorite,
-} from '@/modules/user/application/user'
+} from '~/modules/user/application/user'
 import {
   type Accessor,
   Show,
@@ -53,16 +53,16 @@ import {
   Suspense,
   createEffect,
 } from 'solid-js'
-import { Alert } from '@/sections/common/components/Alert'
-import { PageLoading } from '@/sections/common/components/PageLoading'
+import { Alert } from '~/sections/common/components/Alert'
+import { PageLoading } from '~/sections/common/components/PageLoading'
 import {
   fetchUserRecipeByName,
   fetchUserRecipes,
-} from '@/modules/diet/recipe/application/recipe'
+} from '~/modules/diet/recipe/application/recipe'
 import {
   fetchFoods,
   fetchFoodsByName,
-} from '@/modules/diet/food/application/food'
+} from '~/modules/diet/food/application/food'
 
 export type TemplateSearchModalProps = {
   targetName: string

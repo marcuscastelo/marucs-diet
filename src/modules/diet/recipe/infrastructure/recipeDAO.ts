@@ -1,6 +1,6 @@
-import { calcItemContainerMacros } from '@/legacy/utils/macroMath'
-import { foodItemSchema } from '@/modules/diet/food-item/domain/foodItem'
-import { type Recipe, recipeSchema } from '@/modules/diet/recipe/domain/recipe'
+import { calcItemContainerMacros } from '~/legacy/utils/macroMath'
+import { foodItemSchema } from '~/modules/diet/food-item/domain/foodItem'
+import { type Recipe, recipeSchema } from '~/modules/diet/recipe/domain/recipe'
 
 import { z } from 'zod'
 

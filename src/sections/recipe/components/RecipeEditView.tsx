@@ -1,31 +1,31 @@
 // TODO: Unify Recipe and Recipe components into a single component?
 
-import { type Recipe, recipeSchema } from '@/modules/diet/recipe/domain/recipe'
-import { foodItemSchema } from '@/modules/diet/food-item/domain/foodItem'
+import { type Recipe, recipeSchema } from '~/modules/diet/recipe/domain/recipe'
+import { foodItemSchema } from '~/modules/diet/food-item/domain/foodItem'
 import {
   RecipeEditContextProvider,
   useRecipeEditContext,
-} from '@/sections/recipe/context/RecipeEditContext'
-import { TrashIcon } from '@/sections/common/components/icons/TrashIcon'
-import { PasteIcon } from '@/sections/common/components/icons/PasteIcon'
-import { CopyIcon } from '@/sections/common/components/icons/CopyIcon'
-import { FoodItemListView } from '@/sections/food-item/components/FoodItemListView'
-import { calcRecipeCalories } from '@/legacy/utils/macroMath'
-import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { regenerateId } from '@/legacy/utils/idUtils'
-import { type TemplateItem } from '@/modules/diet/template-item/domain/templateItem'
+} from '~/sections/recipe/context/RecipeEditContext'
+import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
+import { PasteIcon } from '~/sections/common/components/icons/PasteIcon'
+import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
+import { FoodItemListView } from '~/sections/food-item/components/FoodItemListView'
+import { calcRecipeCalories } from '~/legacy/utils/macroMath'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { regenerateId } from '~/legacy/utils/idUtils'
+import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import {
   useClipboard,
   createClipboardSchemaFilter,
-} from '@/sections/common/hooks/useClipboard'
-import { deserializeClipboard } from '@/legacy/utils/clipboardUtils'
-import { convertToGroups } from '@/legacy/utils/groupUtils'
-import { mealSchema } from '@/modules/diet/meal/domain/meal'
-import { itemGroupSchema } from '@/modules/diet/item-group/domain/itemGroup'
-import { useFloatField } from '@/sections/common/hooks/useField'
-import { FloatInput } from '@/sections/common/components/FloatInput'
-import { RecipeEditor } from '@/legacy/utils/data/recipeEditor'
-import { cn } from '@/legacy/utils/cn'
+} from '~/sections/common/hooks/useClipboard'
+import { deserializeClipboard } from '~/legacy/utils/clipboardUtils'
+import { convertToGroups } from '~/legacy/utils/groupUtils'
+import { mealSchema } from '~/modules/diet/meal/domain/meal'
+import { itemGroupSchema } from '~/modules/diet/item-group/domain/itemGroup'
+import { useFloatField } from '~/sections/common/hooks/useField'
+import { FloatInput } from '~/sections/common/components/FloatInput'
+import { RecipeEditor } from '~/legacy/utils/data/recipeEditor'
+import { cn } from '~/legacy/utils/cn'
 import { type JSXElement, type Accessor, type Setter } from 'solid-js'
 
 export type RecipeEditViewProps = {

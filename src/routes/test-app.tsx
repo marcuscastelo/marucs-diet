@@ -1,39 +1,39 @@
 import {
   setTargetDay,
   targetDay,
-} from '@/modules/diet/day-diet/application/dayDiet'
-import { type DayDiet } from '@/modules/diet/day-diet/domain/dayDiet'
-import { type FoodItem } from '@/modules/diet/food-item/domain/foodItem'
-import { type ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
-import { type Meal } from '@/modules/diet/meal/domain/meal'
-import { BackIcon } from '@/sections/common/components/BackIcon'
-import { ConfirmModal } from '@/sections/common/components/ConfirmModal'
-import { FloatInput } from '@/sections/common/components/FloatInput'
-import { LoadingRing } from '@/sections/common/components/LoadingRing'
-import { Modal, ModalHeader } from '@/sections/common/components/Modal'
-import { PageLoading } from '@/sections/common/components/PageLoading'
-import { TestChart } from '@/sections/common/components/charts/TestChart'
+} from '~/modules/diet/day-diet/application/dayDiet'
+import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { type Meal } from '~/modules/diet/meal/domain/meal'
+import { BackIcon } from '~/sections/common/components/BackIcon'
+import { ConfirmModal } from '~/sections/common/components/ConfirmModal'
+import { FloatInput } from '~/sections/common/components/FloatInput'
+import { LoadingRing } from '~/sections/common/components/LoadingRing'
+import { Modal, ModalHeader } from '~/sections/common/components/Modal'
+import { PageLoading } from '~/sections/common/components/PageLoading'
+import { TestChart } from '~/sections/common/components/charts/TestChart'
 import {
   ConfirmModalProvider,
   useConfirmModalContext,
-} from '@/sections/common/context/ConfirmModalContext'
-import { ModalContextProvider } from '@/sections/common/context/ModalContext'
-import { useFloatField } from '@/sections/common/hooks/useField'
-import Datepicker from '@/sections/datepicker/components/Datepicker'
-import { FoodItemEditModal } from '@/sections/food-item/components/FoodItemEditModal'
-import { FoodItemListView } from '@/sections/food-item/components/FoodItemListView'
-import { ItemGroupEditModal } from '@/sections/item-group/components/ItemGroupEditModal'
+} from '~/sections/common/context/ConfirmModalContext'
+import { ModalContextProvider } from '~/sections/common/context/ModalContext'
+import { useFloatField } from '~/sections/common/hooks/useField'
+import Datepicker from '~/sections/datepicker/components/Datepicker'
+import { FoodItemEditModal } from '~/sections/food-item/components/FoodItemEditModal'
+import { FoodItemListView } from '~/sections/food-item/components/FoodItemListView'
+import { ItemGroupEditModal } from '~/sections/item-group/components/ItemGroupEditModal'
 import {
   ItemGroupView,
   ItemGroupCopyButton,
   ItemGroupHeader,
   ItemGroupName,
   ItemGroupViewNutritionalInfo,
-} from '@/sections/item-group/components/ItemGroupView'
-import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
+} from '~/sections/item-group/components/ItemGroupView'
+import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { createEffect, createSignal, untrack } from 'solid-js'
 
-export function TestApp() {
+export default function TestApp() {
   const [foodItemEditModalVisible, setFoodItemEditModalVisible] =
     createSignal(false)
   const [itemGroupEditModalVisible, setItemGroupEditModalVisible] =

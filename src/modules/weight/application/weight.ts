@@ -1,7 +1,7 @@
-import { type DbReady } from '@/legacy/utils/newDbRecord'
-import { currentUserId } from '@/modules/user/application/user'
-import { type Weight } from '@/modules/weight/domain/weight'
-import { createSupabaseWeightRepository } from '@/modules/weight/infrastructure/supabaseWeightRepository'
+import { type DbReady } from '~/legacy/utils/newDbRecord'
+import { currentUserId } from '~/modules/user/application/user'
+import { type Weight } from '~/modules/weight/domain/weight'
+import { createSupabaseWeightRepository } from '~/modules/weight/infrastructure/supabaseWeightRepository'
 import { createEffect, createSignal } from 'solid-js'
 
 const weightRepository = createSupabaseWeightRepository()

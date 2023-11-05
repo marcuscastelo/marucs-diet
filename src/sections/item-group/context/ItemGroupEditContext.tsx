@@ -1,4 +1,4 @@
-import { type ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
+import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import {
   createContext,
   type Accessor,
