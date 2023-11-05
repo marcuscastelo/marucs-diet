@@ -30,17 +30,18 @@ import { createRecentFood } from '@/modules/recent-food/domain/recentFood'
 import { type Template } from '@/modules/diet/template/domain/template'
 import { type TemplateItem } from '@/modules/diet/template-item/domain/templateItem'
 
-import { createFood } from '@/modules/diet/food/domain/food'
+import { type Food, createFood } from '@/modules/diet/food/domain/food'
 import {
   currentUser,
   currentUserId,
   isFoodFavorite,
   setFoodAsFavorite
 } from '@/modules/user/application/user'
-import { type Accessor, Show, createSignal, type Setter, For, createResource, Suspense } from 'solid-js'
+import { type Accessor, Show, createSignal, type Setter, For, createResource, Suspense, createEffect } from 'solid-js'
 import { Alert } from '@/sections/common/components/Alert'
 import { listFoods, searchFoodsByName } from '@/legacy/controllers/food'
 import { PageLoading } from '@/sections/common/components/PageLoading'
+import { fetchUserRecipeByName, fetchUserRecipes } from '@/modules/diet/recipe/application/recipe'
 
 export type TemplateSearchModalProps = {
   targetName: string
@@ -158,6 +159,7 @@ export function TemplateSearchModal (props: TemplateSearchModalProps) {
                   foodItemEditModalVisible={foodItemEditModalVisible}
                   setFoodItemEditModalVisible={setFoodItemEditModalVisible}
                   setSelectedTemplate={setSelectedTemplate}
+                  modalVisible={visible}
                 />
               </Show>
             </div>
@@ -187,7 +189,7 @@ export function TemplateSearchModal (props: TemplateSearchModalProps) {
 const [search, setSearch_] = createSignal<string>('')
 const [tab, setTab] = createSignal<AvailableTab>('all')
 
-const fetchFunc = async () => {
+const fetchFoods = async (): Promise<readonly Food[]> => {
   const getAllowedFoods = async () => {
     switch (tab()) {
       case 'favorites':
@@ -214,7 +216,28 @@ const fetchFunc = async () => {
   }
 }
 
+const fetchRecipes = async (): Promise<readonly Recipe[]> => {
+  if (search() === '') {
+    return await fetchUserRecipes(currentUserId())
+  } else {
+    return await fetchUserRecipeByName(currentUserId(), search())
+  }
+}
+
+const fetchFunc = async () => {
+  const tab_ = tab()
+  if (tab_ !== 'recipes') {
+    return await fetchFoods()
+  } else if (tab_ === 'recipes') {
+    return await fetchRecipes()
+  } else {
+    tab_ satisfies never
+    throw new Error('BUG: Invalid tab selected: ' + tab())
+  }
+}
+
 export function TemplateSearch (props: {
+  modalVisible: Accessor<boolean>
   barCodeModalVisible: Accessor<boolean>
   setBarCodeModalVisible: Setter<boolean>
   foodItemEditModalVisible: Accessor<boolean>
@@ -226,7 +249,11 @@ export function TemplateSearch (props: {
   // TODO: Determine if user is on desktop or mobile to set autofocus
   const isDesktop = false
 
-  const [templates, { refetch }] = createResource(tab, fetchFunc)
+  const [templates, { refetch }] = createResource(() => ({
+    search: search(),
+    tab: tab(),
+    userId: currentUserId()
+  }), fetchFunc)
 
   const { typing, onTyped } = useTyping({
     delay: TYPING_TIMEOUT_MS,
@@ -243,6 +270,11 @@ export function TemplateSearch (props: {
     setSearch_(newSearch)
     onTyped()
   }
+
+  createEffect(() => {
+    props.modalVisible()
+    setTab('all')
+  })
 
   // TODO: Create DEFAULT_TAB constant
   // const searchFilteredTemplates = () =>
@@ -285,7 +317,7 @@ export function TemplateSearch (props: {
         }}
       />
 
-      <TemplateSearchTabs onTabChange={setTab} />
+      <TemplateSearchTabs tab={tab} setTab={setTab}/>
       <SearchBar
         isDesktop={isDesktop}
         search={search()}
@@ -444,7 +476,7 @@ const SearchBar = (props: {
 const SearchResults = (props: {
   search: string
   typing: Accessor<boolean>
-  filteredTemplates: Template[]
+  filteredTemplates: readonly Template[]
   setSelectedTemplate: (food: Template) => void
   barCodeModalVisible: Accessor<boolean>
   setBarCodeModalVisible: Setter<boolean>

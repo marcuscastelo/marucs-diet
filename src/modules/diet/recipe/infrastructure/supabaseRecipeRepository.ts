@@ -15,7 +15,7 @@ export function createSupabaseRecipeRepository (): RecipeRepository {
   return {
     fetchUserRecipes,
     fetchRecipeById,
-    fetchRecipeByName,
+    fetchUserRecipeByName,
     insertRecipe: upsertRecipe,
     updateRecipe,
     deleteRecipe
@@ -54,7 +54,7 @@ const fetchRecipeById = async (id: Recipe['id']): Promise<Recipe | null> => {
   return recipes[0] ?? null
 }
 
-const fetchRecipeByName = async (
+const fetchUserRecipeByName = async (
   userId: User['id'],
   name: Recipe['name']
 ): Promise<Recipe[]> => {
