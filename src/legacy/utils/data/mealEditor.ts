@@ -74,7 +74,7 @@ export class MealEditor extends Editor<Meal> {
     return this
   }
 
-  clearItems() {
+  clearGroups() {
     this.meal.groups = []
     return this
   }

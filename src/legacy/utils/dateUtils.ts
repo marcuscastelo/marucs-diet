@@ -5,7 +5,7 @@ export const adjustToTimezone = (date: Date) => {
   return new Date(date.getTime() - offset * 60000)
 }
 
-// TODO: retriggered: | Date is correct?
+// TODO: | Date is correct?
 export const stringToDate = (
   day: string | Date,
   extras?: {
