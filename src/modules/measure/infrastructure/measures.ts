@@ -2,17 +2,27 @@ import { type Measure, measureSchema } from '~/modules/measure/domain/measure'
 import { type User } from '~/modules/user/domain/user'
 import { type DbReady, enforceDbReady } from '~/legacy/utils/newDbRecord'
 import supabase from '~/legacy/utils/supabase'
+import { type MeasureRepository } from '~/modules/measure/domain/measureRepository'
 
 const TABLE = 'body_measures'
 
-export async function fetchUserMeasures(userId: User['id']) {
+export function createSupabaseMeasureRepository(): MeasureRepository {
+  return {
+    fetchUserMeasures,
+    insertMeasure,
+    updateMeasure,
+    deleteMeasure,
+  }
+}
+
+async function fetchUserMeasures(userId: User['id']) {
   const { data, error } = await supabase
     .from(TABLE)
     .select('*')
     .eq('owner', userId)
     .order('target_timestamp', { ascending: true })
 
-  if (error) {
+  if (error !== null) {
     console.error(error)
     throw error
   }
@@ -20,11 +30,11 @@ export async function fetchUserMeasures(userId: User['id']) {
   return measureSchema.array().parse(data)
 }
 
-export async function insertMeasure(newMeasure: DbReady<Measure>) {
+async function insertMeasure(newMeasure: DbReady<Measure>) {
   const measure = enforceDbReady(newMeasure)
   const { data, error } = await supabase.from(TABLE).insert(measure).select()
 
-  if (error) {
+  if (error !== null) {
     console.error(error)
     throw error
   }
@@ -32,7 +42,7 @@ export async function insertMeasure(newMeasure: DbReady<Measure>) {
   return measureSchema.parse(data?.[0])
 }
 
-export async function updateMeasure(
+async function updateMeasure(
   measureId: Measure['id'],
   newMeasure: DbReady<Measure>,
 ) {
@@ -43,7 +53,7 @@ export async function updateMeasure(
     .eq('id', measureId)
     .select()
 
-  if (error) {
+  if (error !== null) {
     console.error(error)
     throw error
   }
@@ -51,10 +61,10 @@ export async function updateMeasure(
   return measureSchema.parse(data?.[0])
 }
 
-export async function deleteMeasure(id: Measure['id']) {
+async function deleteMeasure(id: Measure['id']) {
   const { error } = await supabase.from(TABLE).delete().eq('id', id)
 
-  if (error) {
+  if (error !== null) {
     console.error(error)
     throw error
   }

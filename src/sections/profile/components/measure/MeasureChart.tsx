@@ -9,7 +9,7 @@ type DayMeasures = {
   dayBf: number
 }
 
-export function MeasureChart(props: { measures: Measure[] }) {
+export function MeasureChart(props: { measures: readonly Measure[] }) {
   const measuresByDay = () =>
     props.measures.reduce<Record<string, Measure[]>>((acc, measure) => {
       const day = measure.target_timestamp.toLocaleDateString()

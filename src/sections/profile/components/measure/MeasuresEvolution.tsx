@@ -1,12 +1,15 @@
 import { type Loadable } from '~/legacy/utils/loadable'
 import { type Measure, createMeasure } from '~/modules/measure/domain/measure'
-import { fetchUserMeasures, insertMeasure } from '~/legacy/controllers/measures'
 import { MeasureChart } from '~/sections/profile/components/measure/MeasureChart'
 import { MeasureView } from '~/sections/profile/components/measure/MeasureView'
 import { useFloatFieldOld } from '~/sections/common/hooks/useField'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { For, createEffect, createSignal } from 'solid-js'
 import { currentUserId } from '~/modules/user/application/user'
+import {
+  fetchUserMeasures,
+  insertMeasure,
+} from '~/modules/measure/application/measure'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -14,7 +17,7 @@ const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
 
 export function MeasuresEvolution(props: { onSave: () => void }) {
   // TODO: Remove `measures` state and use use cases instead
-  const [measures, setMeasures] = createSignal<Loadable<Measure[]>>({
+  const [measures, setMeasures] = createSignal<Loadable<readonly Measure[]>>({
     loading: true,
   })
   const heightField = useFloatFieldOld()
@@ -105,10 +108,10 @@ export function MeasuresEvolution(props: { onSave: () => void }) {
             class="btn btn-primary no-animation w-full"
             onClick={() => {
               if (
-                !heightField.value ||
-                !waistField.value ||
-                !hipField.value ||
-                !neckField.value
+                heightField.value() === undefined ||
+                waistField.value() === undefined ||
+                hipField.value() === undefined ||
+                neckField.value() === undefined
               ) {
                 alert('Medidas inválidas') // TODO: Change all alerts with ConfirmModal
                 return
@@ -116,6 +119,11 @@ export function MeasuresEvolution(props: { onSave: () => void }) {
               const userId = currentUserId()
               if (userId === null) {
                 throw new Error('User is null')
+              }
+
+              const afterInsert = () => {
+                handleRefetchMeasures()
+                props.onSave()
               }
               insertMeasure(
                 createMeasure({
@@ -127,10 +135,7 @@ export function MeasuresEvolution(props: { onSave: () => void }) {
                   target_timestamp: new Date(Date.now()),
                 }),
               )
-                .then(() => {
-                  handleRefetchMeasures()
-                  props.onSave()
-                })
+                .then(afterInsert)
                 .catch((error) => {
                   console.error(error)
                   alert('Erro ao salvar') // TODO: Change all alerts with ConfirmModal
