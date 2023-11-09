@@ -19,3 +19,7 @@ export async function updateMeasure(
 ) {
   return await measureRepository.updateMeasure(measureId, newMeasure)
 }
+
+export async function deleteMeasure(measureId: Measure['id']) {
+  await measureRepository.deleteMeasure(measureId)
+}

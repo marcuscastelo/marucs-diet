@@ -1,12 +1,15 @@
 import { Capsule } from '~/sections/common/components/capsule/Capsule'
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import { type Measure } from '~/modules/measure/domain/measure'
-import { deleteMeasure, updateMeasure } from '~/legacy/controllers/measures'
 import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
 import { useFloatFieldOld } from '~/sections/common/hooks/useField'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { createSignal } from 'solid-js'
 import Datepicker from '~/sections/datepicker/components/Datepicker'
+import {
+  deleteMeasure,
+  updateMeasure,
+} from '~/modules/measure/application/measure'
 
 export function MeasureView(props: {
   measure: Measure

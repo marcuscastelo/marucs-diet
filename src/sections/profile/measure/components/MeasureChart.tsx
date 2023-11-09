@@ -2,6 +2,12 @@ import { type Measure } from '~/modules/measure/domain/measure'
 import { type BodyFatInput, calculateBodyFat } from '~/legacy/utils/bfMath'
 import { currentUser } from '~/modules/user/application/user'
 import { userWeights } from '~/modules/weight/application/weight'
+import { SolidApexCharts } from 'solid-apexcharts'
+import ptBrLocale from '~/assets/locales/apex/pt-br.json'
+import { type ApexOptions } from 'apexcharts'
+import { createMemo } from 'solid-js'
+import { dateToYYYYMMDD } from '~/legacy/utils/dateUtils'
+
 type DayAverage = Omit<Measure, '__type' | 'id' | 'owner' | 'target_timestamp'>
 type DayMeasures = {
   date: string
@@ -12,7 +18,7 @@ type DayMeasures = {
 export function MeasureChart(props: { measures: readonly Measure[] }) {
   const measuresByDay = () =>
     props.measures.reduce<Record<string, Measure[]>>((acc, measure) => {
-      const day = measure.target_timestamp.toLocaleDateString()
+      const day = dateToYYYYMMDD(measure.target_timestamp)
       if (!acc[day]) {
         acc[day] = []
       }
@@ -84,35 +90,35 @@ export function MeasureChart(props: { measures: readonly Measure[] }) {
     <>
       <ChartFor
         title="Altura"
-        acessor={(day) => day.dayAverage.height}
+        accessor={(day) => day.dayAverage.height}
         data={data()}
         dataKey="dayAverage.height"
         color="magenta"
       />
       <ChartFor
         title="Cintura"
-        acessor={(day) => day.dayAverage.waist}
+        accessor={(day) => day.dayAverage.waist}
         data={data()}
         dataKey="dayAverage.waist"
         color="blue"
       />
       <ChartFor
         title="Quadril"
-        acessor={(day) => day.dayAverage.hip ?? -1}
+        accessor={(day) => day.dayAverage.hip ?? -1}
         data={data()}
         dataKey="dayAverage.hip"
         color="green"
       />
       <ChartFor
         title="Pescoço"
-        acessor={(day) => day.dayAverage.neck}
+        accessor={(day) => day.dayAverage.neck}
         data={data()}
         dataKey="dayAverage.neck"
         color="red"
       />
       <ChartFor
         title="BF"
-        acessor={(day) => day.dayBf}
+        accessor={(day) => day.dayBf}
         data={data()}
         dataKey="dayBf"
         color="orange"
@@ -124,14 +130,82 @@ export function MeasureChart(props: { measures: readonly Measure[] }) {
 function ChartFor(props: {
   title: string
   data: DayMeasures[]
-  acessor: (day: DayMeasures) => number
+  accessor: (day: DayMeasures) => number
   dataKey: string
   color: string
 }) {
+  const options = () =>
+    ({
+      theme: {
+        mode: 'dark',
+      },
+      xaxis: {
+        type: 'datetime',
+      },
+      yaxis: {
+        decimalsInFloat: 0,
+      },
+      stroke: {
+        width: 3,
+        curve: 'straight',
+      },
+      dataLabels: {
+        enabled: true,
+        style: {
+          colors: ['#444'],
+        },
+      },
+      chart: {
+        id: 'solidchart-example',
+        locales: [ptBrLocale],
+        defaultLocale: 'pt-br',
+        background: '#1E293B',
+        zoom: {
+          autoScaleYaxis: true,
+        },
+        animations: {
+          enabled: true,
+        },
+        toolbar: {
+          tools: {
+            download: false,
+            selection: false,
+            zoom: true,
+            zoomin: false,
+            zoomout: false,
+            pan: true,
+            reset: true,
+          },
+          autoSelected: 'pan',
+        },
+      },
+    }) satisfies ApexOptions
+
+  const series = createMemo(() => ({
+    list: [
+      {
+        name: props.title,
+        type: 'line',
+        color: '#876',
+        data: props.data.map((day) => ({
+          x: day.date,
+          y: props.accessor(day),
+        })),
+      },
+    ] satisfies ApexOptions['series'],
+  }))
+
   return (
     <>
       <h1 class="text-3xl text-center">{props.title}</h1>
-      //TODO: Add new charts
+      <>
+        <SolidApexCharts
+          type="candlestick"
+          options={options()}
+          series={series().list}
+          height={200}
+        />
+      </>
       {/* <ResponsiveContainer width="95%" height={100}>
         <ComposedChart data={props.data} syncId={'measure-chart'}>
           <XAxis dataKey="date" />
