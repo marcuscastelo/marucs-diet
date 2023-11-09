@@ -1,6 +1,6 @@
 import { BasicInfo } from '~/sections/profile/components/BasicInfo'
 import { WeightEvolution } from '~/sections/weight/components/WeightEvolution'
-import { MeasuresEvolution } from '~/sections/profile/components/measure/MeasuresEvolution'
+import { MeasuresEvolution } from '~/sections/profile/measure/components/MeasuresEvolution'
 
 import { MacroTarget } from '~/sections/macro-nutrients/components/MacroTargets'
 import { MacroEvolution } from '~/sections/macro-profile/components/MacroEvolution'
