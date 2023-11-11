@@ -47,7 +47,7 @@ export function BasicInfo(props: {
     }
 
     setUnsavedFields(
-      Object.keys(innerData).reduce<UnsavedFields>(
+      Object.keys(innerData()).reduce<UnsavedFields>(
         reduceFunc,
         {} satisfies UnsavedFields,
       ),
