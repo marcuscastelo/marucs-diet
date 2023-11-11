@@ -2,28 +2,29 @@ import { Capsule } from '~/sections/common/components/capsule/Capsule'
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import { type Measure } from '~/modules/measure/domain/measure'
 import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
-import { useFloatFieldOld } from '~/sections/common/hooks/useField'
+import { useFloatField } from '~/sections/common/hooks/useField'
 import { FloatInput } from '~/sections/common/components/FloatInput'
-import { createSignal } from 'solid-js'
 import Datepicker from '~/sections/datepicker/components/Datepicker'
 import {
   deleteMeasure,
   updateMeasure,
 } from '~/modules/measure/application/measure'
+import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 
 export function MeasureView(props: {
   measure: Measure
   onRefetchMeasures: () => void
   onSave: () => void
 }) {
-  const [dateFieldValue, setDateFieldValue] = createSignal<Date>(
-    props.measure.target_timestamp,
+  // TODO: Replace this with useDateField
+  const [dateFieldValue, setDateFieldValue] = createMirrorSignal(
+    () => props.measure.target_timestamp,
   )
 
-  const heightField = useFloatFieldOld(props.measure.height)
-  const waistField = useFloatFieldOld(props.measure.waist)
-  const hipField = useFloatFieldOld(props.measure.hip)
-  const neckField = useFloatFieldOld(props.measure.neck)
+  const heightField = useFloatField(() => props.measure.height)
+  const waistField = useFloatField(() => props.measure.waist)
+  const hipField = useFloatField(() => props.measure.hip)
+  const neckField = useFloatField(() => props.measure.neck)
 
   const handleSave = ({
     date,
@@ -38,9 +39,19 @@ export function MeasureView(props: {
     hip: number | undefined
     neck: number | undefined
   }) => {
-    if (!height || !waist || !hip || !neck) {
+    if (
+      height === undefined ||
+      waist === undefined ||
+      hip === undefined ||
+      neck === undefined
+    ) {
       alert('Medidas inválidas') // TODO: Change all alerts with ConfirmModal
       return
+    }
+
+    const afterUpdate = () => {
+      props.onSave()
+      props.onRefetchMeasures()
     }
 
     updateMeasure(props.measure.id, {
@@ -51,10 +62,7 @@ export function MeasureView(props: {
       neck,
       target_timestamp: date,
     })
-      .then(() => {
-        props.onSave()
-        props.onRefetchMeasures()
-      })
+      .then(afterUpdate)
       .catch((error) => {
         console.error(error)
         alert('Erro ao salvar') // TODO: Change all alerts with ConfirmModal
@@ -192,11 +200,12 @@ export function MeasureView(props: {
           <button
             class="btn btn-ghost my-auto"
             onClick={() => {
+              const afterDelete = () => {
+                props.onRefetchMeasures()
+                props.onSave()
+              }
               deleteMeasure(props.measure.id)
-                .then(() => {
-                  props.onRefetchMeasures()
-                  props.onSave()
-                })
+                .then(afterDelete)
                 .catch((error) => {
                   console.error(error)
                   alert('Erro ao deletar') // TODO: Change all alerts with ConfirmModal

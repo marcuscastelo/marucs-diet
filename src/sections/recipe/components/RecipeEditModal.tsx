@@ -30,6 +30,7 @@ import {
   type Setter,
   Show,
 } from 'solid-js'
+import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 
 export type RecipeEditModalProps = {
   show?: boolean
@@ -49,8 +50,9 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
     throw new Error('User is null')
   }
 
-  const [recipe, setRecipe] = createSignal(
-    props.recipe ??
+  const [recipe, setRecipe] = createMirrorSignal(
+    () =>
+      props.recipe ??
       createRecipe({
         name: 'New Recipe',
         items: [],
@@ -71,17 +73,6 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
     createSignal(false)
   const [templateSearchModalVisible, setTemplateSearchModalVisible] =
     createSignal(false)
-
-  createEffect(() => {
-    setRecipe(
-      props.recipe ??
-        createRecipe({
-          name: 'Error: Recipe cannot be null!',
-          items: [],
-          owner: userId,
-        }),
-    )
-  })
 
   createEffect(() => {
     // TODO: Replace foodItemEditModalVisible with a derived signal

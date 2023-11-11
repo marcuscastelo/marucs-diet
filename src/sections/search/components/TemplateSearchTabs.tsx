@@ -7,7 +7,7 @@ type TabDefinition = {
   title: string
 }
 
-export const avaliableTabs = {
+export const availableTabs = {
   Todos: {
     id: 'all',
     title: 'Todos',
@@ -26,7 +26,7 @@ export const avaliableTabs = {
   } as const satisfies TabDefinition,
 } as const satisfies Record<string, TabDefinition>
 
-export type AvailableTab = ObjectValues<typeof avaliableTabs>['id']
+export type AvailableTab = ObjectValues<typeof availableTabs>['id']
 
 export function TemplateSearchTabs(props: {
   tab: Accessor<AvailableTab>
@@ -34,7 +34,7 @@ export function TemplateSearchTabs(props: {
 }) {
   return (
     <ul class="flex text-sm font-medium text-center text-gray-500 divide-x divide-gray-700 rounded-lg shadow  dark:divide-gray-700 dark:text-gray-400">
-      <For each={Object.keys(avaliableTabs)}>
+      <For each={Object.keys(availableTabs)}>
         {(tabKey) => (
           <li class="w-full">
             <a
@@ -44,17 +44,17 @@ export function TemplateSearchTabs(props: {
                 {
                   'text-gray-100 bg-gray-600 dark:bg-gray-700 dark:text-gray-300':
                     props.tab() ===
-                    avaliableTabs[tabKey as keyof typeof avaliableTabs].id,
+                    availableTabs[tabKey as keyof typeof availableTabs].id,
                 },
               )}
               aria-current="page"
               onClick={() => {
                 props.setTab(
-                  avaliableTabs[tabKey as keyof typeof avaliableTabs].id,
+                  availableTabs[tabKey as keyof typeof availableTabs].id,
                 )
               }}
             >
-              {avaliableTabs[tabKey as keyof typeof avaliableTabs].title}
+              {availableTabs[tabKey as keyof typeof availableTabs].title}
             </a>
           </li>
         )}

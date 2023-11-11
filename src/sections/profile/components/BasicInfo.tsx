@@ -5,6 +5,7 @@ import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleCont
 import { UserIcon } from '~/sections/common/components/UserIcon'
 import { type Mutable } from '~/legacy/utils/typeUtils'
 import { type Accessor, createEffect, createSignal } from 'solid-js'
+import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 type Translation<T extends string> = { [key in T]: string }
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -34,12 +35,8 @@ export function BasicInfo(props: {
 }) {
   type UnsavedFields = { [key in keyof Mutable<User>]?: boolean }
 
-  const [innerData, setInnerData] = createSignal<User>(props.user())
+  const [innerData, setInnerData] = createMirrorSignal<User>(() => props.user())
   const [unsavedFields, setUnsavedFields] = createSignal<UnsavedFields>({})
-
-  createEffect(() => {
-    setInnerData(props.user())
-  })
 
   createEffect(() => {
     const reduceFunc = (acc: UnsavedFields, key: string) => {
@@ -68,7 +65,7 @@ export function BasicInfo(props: {
       },
     ) => {
       event.preventDefault()
-      const newUser: Mutable<User> = { ...props.user() }
+      const newUser: Mutable<User> = { ...innerData() }
 
       newUser[field] = convert(event.target.value)
 
@@ -88,7 +85,7 @@ export function BasicInfo(props: {
       },
     ) => {
       event.preventDefault()
-      const newUser: Mutable<User> = { ...props.user() }
+      const newUser: Mutable<User> = { ...innerData() }
 
       newUser[field] = convert(event.target.value) as unknown as User[T]
       setInnerData(newUser)
@@ -127,11 +124,11 @@ export function BasicInfo(props: {
         <CapsuleContent>
           <h5
             class={`pl-5 text-xl ${
-              unsavedFields()[field] ? 'text-red-500 italic' : ''
+              unsavedFields()[field] === true ? 'text-red-500 italic' : ''
             }`}
           >
             {USER_FIELD_TRANSLATION[field]} {extra}{' '}
-            {unsavedFields()[field] ? '*' : ''}
+            {unsavedFields()[field] === true ? '*' : ''}
           </h5>
         </CapsuleContent>
       }

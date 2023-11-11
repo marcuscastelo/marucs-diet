@@ -254,12 +254,12 @@ function AddNewItemButton(props: { onClick: () => void }) {
 function RawQuantity() {
   const { recipe } = useRecipeEditContext()
 
-  const rawQuantiy = () =>
+  const rawQuantity = () =>
     recipe().items.reduce((acc, item) => {
       return acc + item.quantity
     }, 0)
 
-  const rawQuantityField = useFloatField(rawQuantiy, {
+  const rawQuantityField = useFloatField(rawQuantity, {
     decimalPlaces: 0,
   })
 
@@ -279,11 +279,11 @@ function RawQuantity() {
 function PreparedQuantity() {
   const { recipe, setRecipe } = useRecipeEditContext()
 
-  const rawQuantiy = recipe().items.reduce((acc, item) => {
+  const rawQuantity = recipe().items.reduce((acc, item) => {
     return acc + item.quantity
   }, 0)
 
-  const preparedQuantity = () => rawQuantiy * recipe().prepared_multiplier
+  const preparedQuantity = () => rawQuantity * recipe().prepared_multiplier
 
   const preparedQuantityField = useFloatField(preparedQuantity, {
     decimalPlaces: 0,
@@ -299,7 +299,8 @@ function PreparedQuantity() {
           event.target.select()
         }}
         onFieldCommit={(newPreparedQuantity) => {
-          const newMultiplier = (newPreparedQuantity ?? rawQuantiy) / rawQuantiy
+          const newMultiplier =
+            (newPreparedQuantity ?? rawQuantity) / rawQuantity
 
           const newRecipe = new RecipeEditor(recipe())
             .setPreparedMultiplier(newMultiplier ?? 1)

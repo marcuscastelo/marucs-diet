@@ -1,8 +1,5 @@
 import { type User } from '~/modules/user/domain/user'
-import {
-  type Weight,
-  weigthSchema as weightSchema,
-} from '~/modules/weight/domain/weight'
+import { type Weight, weightSchema } from '~/modules/weight/domain/weight'
 import { type DbReady, enforceDbReady } from '~/legacy/utils/newDbRecord'
 import supabase from '~/legacy/utils/supabase'
 import { type WeightRepository } from '~/modules/weight/domain/weightRepository'
@@ -25,7 +22,7 @@ async function fetchUserWeights(userId: User['id']) {
     .eq('owner', userId)
     .order('target_timestamp', { ascending: true })
 
-  if (error) {
+  if (error !== null) {
     console.error(error)
     throw error
   }
@@ -37,7 +34,7 @@ async function insertWeight(newWeight: DbReady<Weight>) {
   const weight = enforceDbReady(newWeight)
   const { data, error } = await supabase.from(TABLE).insert(weight).select()
 
-  if (error) {
+  if (error !== null) {
     console.error(error)
     throw error
   }
@@ -56,7 +53,7 @@ async function updateWeight(
     .eq('id', weightId)
     .select()
 
-  if (error) {
+  if (error !== null) {
     console.error(error)
     throw error
   }
@@ -67,7 +64,7 @@ async function updateWeight(
 async function deleteWeight(id: Weight['id']) {
   const { error } = await supabase.from(TABLE).delete().eq('id', id)
 
-  if (error) {
+  if (error !== null) {
     console.error(error)
     throw error
   }
