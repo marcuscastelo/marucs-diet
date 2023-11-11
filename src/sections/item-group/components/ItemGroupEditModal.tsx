@@ -272,34 +272,45 @@ function ExternalRecipeEditModal(props: {
         >
           <RecipeEditModal
             recipe={recipe()}
-            // TODO: Convert onSaveRecipe and onDelete to sync callback
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            onSaveRecipe={async (recipe) => {
+            onSaveRecipe={(recipe) => {
               console.debug(
                 '[ItemGroupEditModal::ExternalRecipeEditModal] onSaveRecipe:',
                 recipe,
               )
-              const updatedRecipe = await recipeRepository.updateRecipe(
-                recipe.id,
-                recipe,
-              )
-              console.debug(
-                '[ItemGroupEditModal::ExternalRecipeEditModal] updatedRecipe:',
-                updatedRecipe,
-              )
-              props.setRecipe(updatedRecipe)
+              recipeRepository
+                .updateRecipe(recipe.id, recipe)
+                .then(props.setRecipe)
+                .catch((e) => {
+                  console.error(
+                    '[ItemGroupEditModal::ExternalRecipeEditModal] Error updating recipe:',
+                    e,
+                  )
+                  alert('Erro ao salvar receita')
+                })
             }}
             onRefetch={props.onRefetch}
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            onDelete={async (recipeId) => {
+            onDelete={(recipeId) => {
               console.debug(
                 '[ItemGroupEditModal::ExternalRecipeEditModal] onDelete:',
                 recipeId,
               )
 
-              await recipeRepository.deleteRecipe(recipeId)
+              const afterDelete = () => {
+                props.setRecipe(null)
+              }
 
-              props.setRecipe(null)
+              recipeRepository
+                .deleteRecipe(recipeId)
+                .then(afterDelete)
+                .catch((e) => {
+                  console.error(
+                    '[ItemGroupEditModal::ExternalRecipeEditModal] Error deleting recipe:',
+                    e,
+                  )
+                  alert('Erro ao deletar receita')
+                })
             }}
           />
         </ModalContextProvider>

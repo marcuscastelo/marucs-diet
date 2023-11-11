@@ -1,11 +1,14 @@
 export const getToday = () => dateToYYYYMMDD(adjustToTimezone(new Date()))
 
 export const adjustToTimezone = (date: Date) => {
-  const offset = date.getTimezoneOffset()
-  return new Date(date.getTime() - offset * 60000)
+  const offset = date.getTimezoneOffset() / 60
+  const hours = date.getHours()
+  const newDate = new Date(date)
+  newDate.setHours(hours + offset)
+  return newDate
 }
 
-// TODO: | Date is correct?
+// TODO: Is | Date correct?
 export const stringToDate = (
   day: string | Date,
   extras?: {

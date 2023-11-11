@@ -14,7 +14,6 @@ import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 export function MeasureView(props: {
   measure: Measure
   onRefetchMeasures: () => void
-  onSave: () => void
 }) {
   // TODO: Replace this with useDateField
   const [dateFieldValue, setDateFieldValue] = createMirrorSignal(
@@ -50,7 +49,6 @@ export function MeasureView(props: {
     }
 
     const afterUpdate = () => {
-      props.onSave()
       props.onRefetchMeasures()
     }
 
@@ -65,7 +63,7 @@ export function MeasureView(props: {
       .then(afterUpdate)
       .catch((error) => {
         console.error(error)
-        alert('Erro ao salvar') // TODO: Change all alerts with ConfirmModal
+        alert('Erro ao atualizar') // TODO: Change all alerts with ConfirmModal
       })
   }
 
@@ -202,7 +200,6 @@ export function MeasureView(props: {
             onClick={() => {
               const afterDelete = () => {
                 props.onRefetchMeasures()
-                props.onSave()
               }
               deleteMeasure(props.measure.id)
                 .then(afterDelete)

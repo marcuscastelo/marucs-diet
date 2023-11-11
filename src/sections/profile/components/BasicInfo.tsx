@@ -31,7 +31,7 @@ const USER_FIELD_TRANSLATION: Translation<keyof User> = {
 }
 export function BasicInfo(props: {
   user: Accessor<User>
-  onSave: (newUser: User) => Promise<User>
+  onSave: (newUser: User) => void
 }) {
   type UnsavedFields = { [key in keyof Mutable<User>]?: boolean }
 
@@ -166,7 +166,7 @@ export function BasicInfo(props: {
       <button
         class={'btn-primary no-animation btn w-full rounded-t-none'}
         onClick={() => {
-          props.onSave(innerData()).catch(console.error)
+          props.onSave(innerData())
         }}
       >
         Salvar
