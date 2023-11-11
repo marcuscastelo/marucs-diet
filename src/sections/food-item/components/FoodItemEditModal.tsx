@@ -1,28 +1,37 @@
-'use client'
-
-import { useState } from 'react'
-import FoodItemView from '@/sections/food-item/components/FoodItemView'
-import { FoodItem } from '@/src/modules/diet/food-item/domain/foodItem'
-import Modal, { ModalActions } from '@/sections/common/components/Modal'
-import { useUserContext } from '@/sections/user/context/UserContext'
-import { useModalContext } from '@/sections/common/context/ModalContext'
-import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { generateId } from '@/legacy/utils/idUtils'
-import { useFloatField } from '@/sections/common/hooks/useField'
-import { FloatInput } from '@/sections/common/components/FloatInput'
-import { TemplateItem } from '@/src/modules/diet/template-item/domain/templateItem'
 import {
-  ReadonlySignal,
-  Signal,
-  computed,
-  useSignal,
-  useSignalEffect,
-} from '@preact/signals-react'
+  FoodItemFavorite,
+  FoodItemHeader,
+  FoodItemName,
+  FoodItemNutritionalInfo,
+  FoodItemView,
+} from '~/sections/food-item/components/FoodItemView'
+import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { Modal, ModalActions } from '~/sections/common/components/Modal'
+import { useModalContext } from '~/sections/common/context/ModalContext'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { generateId } from '~/legacy/utils/idUtils'
+import { useFloatField } from '~/sections/common/hooks/useField'
+import { FloatInput } from '~/sections/common/components/FloatInput'
+import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+
+import {
+  isFoodFavorite,
+  setFoodAsFavorite,
+} from '~/modules/user/application/user'
+import {
+  mergeProps,
+  type Accessor,
+  createSignal,
+  createEffect,
+  untrack,
+  type Setter,
+  For,
+} from 'solid-js'
 
 export type FoodItemEditModalProps = {
   targetName: string
   targetNameColor?: string
-  foodItem: ReadonlySignal<
+  foodItem: Accessor<
     Partial<TemplateItem> & Pick<TemplateItem, 'reference' | 'macros'>
   >
   onApply: (item: TemplateItem) => void
@@ -31,63 +40,68 @@ export type FoodItemEditModalProps = {
 }
 
 // TODO: rename to ItemEditModal (also foodItemEditModalVisible and derivatives)
-const FoodItemEditModal = ({
-  targetName,
-  targetNameColor = 'text-green-500',
-  foodItem: initialFoodItem,
-  onApply,
-  onCancel,
-  onDelete,
-}: FoodItemEditModalProps) => {
-  const { visible } = useModalContext()
+export const FoodItemEditModal = (_props: FoodItemEditModalProps) => {
+  const props = mergeProps({ targetNameColor: 'text-green-500' }, _props)
+  const { setVisible } = useModalContext()
 
   // TODO: Better initial state for foodItem on FoodItemEditModal
-  const foodItem = useSignal<TemplateItem>({
-    __type: initialFoodItem.value?.__type ?? 'FoodItem',
-    id: initialFoodItem.value?.id ?? generateId(),
-    name: initialFoodItem.value?.name ?? 'ERRO: Sem nome',
-    quantity: initialFoodItem.value?.quantity ?? 0,
-    ...initialFoodItem.value,
+  const [foodItem, setFoodItem] = createSignal<TemplateItem>({
+    // eslint-disable-next-line solid/reactivity
+    __type: props.foodItem()?.__type ?? 'FoodItem',
+    // eslint-disable-next-line solid/reactivity
+    id: props.foodItem()?.id ?? generateId(),
+    // eslint-disable-next-line solid/reactivity
+    name: props.foodItem()?.name ?? 'ERRO: Sem nome',
+    // eslint-disable-next-line solid/reactivity
+    quantity: props.foodItem()?.quantity ?? 0,
+    // eslint-disable-next-line solid/reactivity
+    ...props.foodItem(),
   } satisfies TemplateItem)
 
-  useSignalEffect(() => {
-    foodItem.value = {
-      ...foodItem.peek(),
-      ...initialFoodItem.value,
-    }
+  createEffect(() => {
+    setFoodItem({
+      ...untrack(foodItem),
+      ...props.foodItem(),
+    })
   })
 
-  const canApply = foodItem.value.quantity > 0
+  const canApply = () => foodItem().quantity > 0
 
   return (
     <>
       <Modal
-        className="border-2 border-white"
+        class="border-2 border-white"
         header={
           <Header
             foodItem={foodItem}
-            targetName={targetName}
-            targetNameColor={targetNameColor}
+            targetName={props.targetName}
+            targetNameColor={props.targetNameColor}
           />
         }
-        body={<Body canApply={canApply} foodItem={foodItem} />}
+        body={
+          <Body
+            canApply={canApply()}
+            foodItem={foodItem}
+            setFoodItem={setFoodItem}
+          />
+        }
         actions={
           <Actions
-            id={foodItem.value.id}
-            canApply={canApply}
+            id={foodItem().id}
+            canApply={canApply()}
             onApply={() => {
               console.debug(
-                `[FoodItemEditModal] onApply - calling onApply with foodItem.value=`,
-                foodItem.value,
+                '[FoodItemEditModal] onApply - calling onApply with foodItem.value=',
+                foodItem(),
               )
-              onApply(foodItem.value)
-              visible.value = false
+              props.onApply(foodItem())
+              setVisible(false)
             }}
             onCancel={() => {
-              visible.value = false
-              onCancel?.()
+              setVisible(false)
+              props.onCancel?.()
             }}
-            onDelete={onDelete}
+            onDelete={props.onDelete}
           />
         }
       />
@@ -95,72 +109,56 @@ const FoodItemEditModal = ({
   )
 }
 
-function Header({
-  foodItem, // TODO: rename all foodItem to TemplateItem
-  targetName,
-  targetNameColor,
-}: {
-  foodItem: Signal<TemplateItem>
+function Header(props: {
+  foodItem: Accessor<TemplateItem>
   targetName: string
   targetNameColor: string
 }) {
-  const { debug } = useUserContext()
   return (
     <>
-      {debug && (
-        <code className="text-xs text-gray-400">
-          <pre>{JSON.stringify(foodItem.value, null, 2)}</pre>
-        </code>
-      )}
-      <h3 className="text-lg font-bold text-white">
+      <h3 class="text-lg font-bold text-white">
         Editando item em
-        <span className={targetNameColor}>
+        <span class={props.targetNameColor}>
           {' '}
-          &quot;{targetName ?? 'ERRO: destino desconhecido'}&quot;{' '}
+          &quot;{props.targetName ?? 'ERRO: destino desconhecido'}&quot;{' '}
         </span>
       </h3>
     </>
   )
 }
 
-function Body({
-  canApply,
-  foodItem,
-}: {
+function Body(props: {
   canApply: boolean
-  foodItem: Signal<TemplateItem>
+  foodItem: Accessor<TemplateItem>
+  setFoodItem: Setter<TemplateItem>
 }) {
-  const id = foodItem.value.id
-  const [quantityFieldDisabled, setQuantityFieldDisabled] = useState(false)
+  const id = () => props.foodItem().id
 
-  const quantitySignal = computed(() => foodItem.value.quantity || undefined)
+  const quantitySignal = () =>
+    props.foodItem().quantity === 0 ? undefined : props.foodItem().quantity
   const quantityField = useFloatField(quantitySignal, {
     decimalPlaces: 0,
-    defaultValue: foodItem.value.quantity,
+    defaultValue: props.foodItem().quantity,
   })
 
-  useSignalEffect(() => {
-    foodItem.value = {
-      ...foodItem.peek(),
-      quantity: quantityField.value.value ?? 0,
-    }
+  createEffect(() => {
+    props.setFoodItem({
+      ...untrack(props.foodItem),
+      quantity: quantityField.value() ?? 0,
+    })
   })
 
-  const { isFoodFavorite, setFoodAsFavorite } = useUserContext()
-
-  const [currentHoldTimeout, setCurrentHoldTimeout] = useState<NodeJS.Timeout>()
+  const [currentHoldTimeout, setCurrentHoldTimeout] =
+    createSignal<NodeJS.Timeout | null>(null)
   const [currentHoldInterval, setCurrentHoldInterval] =
-    useState<NodeJS.Timeout>()
+    createSignal<NodeJS.Timeout | null>(null)
 
   const increment = () =>
-    (quantityField.rawValue.value = (
-      (quantityField.value.value ?? 0) + 1
-    ).toString())
+    quantityField.setRawValue(((quantityField.value() ?? 0) + 1).toString())
   const decrement = () =>
-    (quantityField.rawValue.value = Math.max(
-      0,
-      (quantityField.value.value ?? 0) - 1,
-    ).toString())
+    quantityField.setRawValue(
+      Math.max(0, (quantityField.value() ?? 0) - 1).toString(),
+    )
 
   const holdRepeatStart = (action: () => void) => {
     setCurrentHoldTimeout(
@@ -175,80 +173,88 @@ function Body({
   }
 
   const holdRepeatStop = () => {
-    if (currentHoldTimeout) {
-      clearTimeout(currentHoldTimeout)
+    const currentHoldTimeout_ = currentHoldTimeout()
+    const currentHoldInterval_ = currentHoldInterval()
+
+    if (currentHoldTimeout_ !== null) {
+      clearTimeout(currentHoldTimeout_)
     }
 
-    if (currentHoldInterval) {
-      clearInterval(currentHoldInterval)
+    if (currentHoldInterval_ !== null) {
+      clearInterval(currentHoldInterval_)
     }
   }
 
   return (
     <>
-      <p className="mt-1 text-gray-400">Atalhos</p>
+      <p class="mt-1 text-gray-400">Atalhos</p>
       {[
         [10, 20, 30, 40, 50],
         [100, 150, 200, 250, 300],
-      ].map((row, rowIndex) => (
-        <div
-          key={`shortcuts-row-${rowIndex}`}
-          className="mt-1 flex w-full gap-1"
-        >
-          {row.map((value, index) => (
-            <div
-              key={`shortcuts-row-${rowIndex}-button-${index}}`}
-              className="btn-primary btn-sm btn flex-1"
-              onClick={() => (quantityField.rawValue.value = value.toString())}
-            >
-              {value}g
-            </div>
-          ))}
+      ].map((row) => (
+        <div class="mt-1 flex w-full gap-1">
+          <For each={row}>
+            {(value) => (
+              <div
+                class="btn-primary btn-sm btn flex-1"
+                onClick={() => quantityField.setRawValue(value.toString())}
+              >
+                {value}g
+              </div>
+            )}
+          </For>
         </div>
       ))}
-      <div className="mt-3 flex w-full justify-between gap-1">
-        <div className="my-1 flex flex-1 justify-around">
+      <div class="mt-3 flex w-full justify-between gap-1">
+        <div class="my-1 flex flex-1 justify-around">
           <FloatInput
             field={quantityField}
             style={{ width: '100%' }}
-            onFieldCommit={(value) =>
-              value === undefined &&
-              (quantityField.rawValue.value =
-                foodItem.value.quantity.toString())
-            }
+            onFieldCommit={(value) => {
+              if (value === undefined) {
+                quantityField.setRawValue(props.foodItem().quantity.toString())
+              }
+            }}
             tabIndex={-1}
             onFocus={(event) => {
               event.target.select()
-              if (quantityField.value.value === 0) {
-                quantityField.rawValue.value = ''
+              if (quantityField.value() === 0) {
+                quantityField.setRawValue('')
               }
             }}
-            disabled={quantityFieldDisabled}
             type="number"
             placeholder="Quantidade (gramas)"
-            className={`input-bordered  input mt-1  border-gray-300 bg-gray-800 ${
-              !canApply ? 'input-error border-red-500' : ''
+            class={`input-bordered  input mt-1  border-gray-300 bg-gray-800 ${
+              !props.canApply ? 'input-error border-red-500' : ''
             }`}
           />
         </div>
-        <div className="my-1 ml-1 flex flex-shrink justify-around gap-1">
+        <div class="my-1 ml-1 flex flex-shrink justify-around gap-1">
           <div
-            className="btn-primary btn-xs btn h-full w-10 px-6 text-4xl text-red-600"
+            class="btn-primary btn-xs btn h-full w-10 px-6 text-4xl text-red-600"
             onClick={decrement}
-            onMouseDown={() => holdRepeatStart(decrement)}
+            onMouseDown={() => {
+              holdRepeatStart(decrement)
+            }}
             onMouseUp={holdRepeatStop}
-            onTouchStart={() => holdRepeatStart(decrement)}
+            onTouchStart={() => {
+              holdRepeatStart(decrement)
+            }}
             onTouchEnd={holdRepeatStop}
           >
             {' '}
             -{' '}
           </div>
           <div
-            className="btn-primary btn-xs btn ml-1 h-full w-10 px-6 text-4xl text-green-400"
+            class="btn-primary btn-xs btn ml-1 h-full w-10 px-6 text-4xl text-green-400"
             onClick={increment}
-            onMouseDown={() => holdRepeatStart(increment)}
+            onMouseDown={() => {
+              holdRepeatStart(increment)
+            }}
             onMouseUp={holdRepeatStop}
-            onTouchStart={() => holdRepeatStart(increment)}
+            onTouchStart={() => {
+              holdRepeatStart(increment)
+            }}
             onTouchEnd={holdRepeatStop}
           >
             {' '}
@@ -258,42 +264,39 @@ function Body({
       </div>
 
       <FoodItemView
-        foodItem={computed(
-          () =>
-            ({
-              __type: foodItem.value.__type,
-              id,
-              name:
-                foodItem.value.name ?? 'Sem nome (itemData && FoodItemView)',
-              quantity: quantityField.value.value ?? foodItem.value.quantity,
-              reference: foodItem.value.reference,
-              macros: foodItem.value.macros,
-            }) satisfies TemplateItem,
-        )}
-        className="mt-4"
+        foodItem={() =>
+          ({
+            __type: props.foodItem().__type,
+            id: id(),
+            name:
+              props.foodItem().name ?? 'Sem nome (itemData && FoodItemView)',
+            quantity: quantityField.value() ?? props.foodItem().quantity,
+            reference: props.foodItem().reference,
+            macros: props.foodItem().macros,
+          }) satisfies TemplateItem
+        }
+        class="mt-4"
         onClick={() => {
           // alert('Alimento não editável (ainda)') // TODO: Change all alerts with ConfirmModal
         }}
         header={
-          <FoodItemView.Header
-            name={<FoodItemView.Header.Name />}
+          <FoodItemHeader
+            name={<FoodItemName />}
             favorite={
-              <FoodItemView.Header.Favorite
+              <FoodItemFavorite
                 favorite={
                   // TODO: [Feature] Add recipe favorite
-                  (foodItem && isFoodFavorite(foodItem.value.reference)) ||
-                  false
+                  isFoodFavorite(props.foodItem().reference) || false
                 }
-                onSetFavorite={(favorite) =>
-                  foodItem &&
+                onSetFavorite={(favorite) => {
                   // TODO: [Feature] Add recipe favorite
-                  setFoodAsFavorite(foodItem.value.reference, favorite)
-                }
+                  setFoodAsFavorite(props.foodItem().reference, favorite)
+                }}
               />
             }
           />
         }
-        nutritionalInfo={<FoodItemView.NutritionalInfo />}
+        nutritionalInfo={<FoodItemNutritionalInfo />}
       />
     </>
   )
@@ -302,13 +305,7 @@ function Body({
 /**
  * @deprecated
  */
-function Actions({
-  id,
-  canApply,
-  onDelete,
-  onCancel,
-  onApply,
-}: {
+function Actions(props: {
   id: number
   canApply: boolean
   onDelete?: (id: number) => void
@@ -320,13 +317,13 @@ function Actions({
   return (
     <ModalActions>
       {/* if there is a button in form, it will close the modal */}
-      {onDelete && (
+      {props.onDelete !== undefined && (
         <button
-          className="btn-error btn mr-auto"
+          class="btn-error btn mr-auto"
           onClick={(e) => {
             e.preventDefault()
 
-            onDelete &&
+            props.onDelete !== undefined &&
               showConfirmModal({
                 title: 'Excluir item',
                 body: 'Tem certeza que deseja excluir este item?',
@@ -339,7 +336,7 @@ function Actions({
                     text: 'Excluir',
                     primary: true,
                     onClick: () => {
-                      onDelete?.(id)
+                      props.onDelete?.(props.id)
                     },
                   },
                 ],
@@ -350,21 +347,21 @@ function Actions({
         </button>
       )}
       <button
-        className="btn"
+        class="btn"
         onClick={(e) => {
           e.preventDefault()
           e.stopPropagation()
-          onCancel?.()
+          props.onCancel?.()
         }}
       >
         Cancelar
       </button>
       <button
-        className="btn"
-        disabled={!canApply}
+        class="btn"
+        disabled={!props.canApply}
         onClick={(e) => {
           e.preventDefault()
-          onApply() // TODO: pass data inside onApply()
+          props.onApply() // TODO: pass data inside onApply()
         }}
       >
         Aplicar
@@ -372,5 +369,3 @@ function Actions({
     </ModalActions>
   )
 }
-
-export default FoodItemEditModal

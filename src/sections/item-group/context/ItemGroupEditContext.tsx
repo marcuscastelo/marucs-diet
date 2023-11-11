@@ -1,25 +1,26 @@
-'use client'
-
-import { ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
+import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import {
-  ReadonlySignal,
-  Signal,
-  useSignal,
-  useSignalEffect,
-} from '@preact/signals-react'
-import { ReactNode } from 'react'
+  createContext,
+  type Accessor,
+  type Setter,
+  useContext,
+  createSignal,
+  type JSXElement,
+} from 'solid-js'
+import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 
-import { createContext, useContext } from 'use-context-selector'
-
-const ItemGroupEditContext = createContext<{
-  group: Signal<ItemGroup | null>
+export type ItemGroupEditContext = {
+  group: Accessor<ItemGroup | null>
+  setGroup: Setter<ItemGroup | null>
   saveGroup: () => void
-} | null>(null)
+}
+
+const itemGroupEditContext = createContext<ItemGroupEditContext | null>(null)
 
 export function useItemGroupEditContext() {
-  const context = useContext(ItemGroupEditContext)
+  const context = useContext(itemGroupEditContext)
 
-  if (!context) {
+  if (context === null) {
     throw new Error(
       'useItemGroupContext must be used within a ItemGroupContextProvider',
     )
@@ -28,32 +29,37 @@ export function useItemGroupEditContext() {
   return context
 }
 
-export function ItemGroupEditContextProvider({
-  group: initialGroup,
-  onSaveGroup,
-  children,
-}: {
-  group: ReadonlySignal<ItemGroup | null>
+export function ItemGroupEditContextProvider(props: {
+  group: Accessor<ItemGroup | null>
+  setGroup: (group: ItemGroup | null) => void
   onSaveGroup: (group: ItemGroup) => void
-  children: ReactNode
+  children: JSXElement
 }) {
-  const group = useSignal<ItemGroup | null>(initialGroup.value)
+  const [group, setGroup] = createMirrorSignal<ItemGroup | null>(() =>
+    props.group(),
+  )
 
-  useSignalEffect(() => {
+  createContext(() => {
     console.debug(
-      `[ItemGroupEditContextProvider] <signalEffect> - initialGroup changed to `,
-      initialGroup.value,
+      '[ItemGroupEditContextProvider] <signalEffect> - initialGroup changed to ',
+      props.group(),
     )
-    group.value = initialGroup.value
+    setGroup(props.group())
   })
 
-  const handleSaveGroup = () => group.value && onSaveGroup(group.value)
+  const handleSaveGroup = () => {
+    const group_ = group()
+    if (group_ === null) {
+      throw new Error('Group is null')
+    }
+    props.onSaveGroup(group_)
+  }
 
   return (
-    <ItemGroupEditContext.Provider
-      value={{ group, saveGroup: handleSaveGroup }}
+    <itemGroupEditContext.Provider
+      value={{ group, setGroup, saveGroup: handleSaveGroup }}
     >
-      {children}
-    </ItemGroupEditContext.Provider>
+      {props.children}
+    </itemGroupEditContext.Provider>
   )
 }

@@ -1,12 +1,15 @@
 import { z } from 'zod'
-import { macroNutrientsSchema } from '@/src/modules/diet/macro-nutrients/domain/macroNutrients'
-import { generateId } from '@/legacy/utils/idUtils'
+import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { generateId } from '~/legacy/utils/idUtils'
 
 export const foodItemSchema = z.object({
   id: z.number(),
   name: z.string(),
   reference: z.number(),
   quantity: z.number(),
+  /**
+   * @deprecated Should be derived from the quantity and the reference
+   */
   macros: macroNutrientsSchema,
   __type: z
     .string()

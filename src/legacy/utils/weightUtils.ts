@@ -1,5 +1,5 @@
-import { Weight } from '@/modules/weight/domain/weight'
-import { inForceGeneric } from '@/legacy/utils/generic/inForce'
+import { type Weight } from '~/modules/weight/domain/weight'
+import { inForceGeneric } from '~/legacy/utils/generic/inForce'
 
 export function latestWeight(weights: readonly Weight[]) {
   if (weights.length === 0) {

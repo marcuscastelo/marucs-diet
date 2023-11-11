@@ -1,10 +1,10 @@
-import { ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
-import { foodItemSchema } from '@/src/modules/diet/food-item/domain/foodItem'
+import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { foodItemSchema } from '~/modules/diet/food-item/domain/foodItem'
 
 import { z } from 'zod'
-import { macroNutrientsSchema } from '@/src/modules/diet/macro-nutrients/domain/macroNutrients'
-import { calcGroupMacros } from '@/legacy/utils/macroMath'
-import { generateId } from '@/legacy/utils/idUtils'
+import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { calcGroupMacros } from '~/legacy/utils/macroMath'
+import { generateId } from '~/legacy/utils/idUtils'
 
 export const recipeSchema = z.object({
   id: z.number(),
@@ -42,6 +42,7 @@ export function createRecipe({
     owner,
     name,
     items,
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     macros: calcGroupMacros({ items } as ItemGroup), // TODO: Create a proper calcItemsMacros function for lists of items
     prepared_multiplier: preparedMultiplier,
     __type: 'Recipe',

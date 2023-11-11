@@ -1,47 +1,45 @@
-'use client'
-
-import { useEffect, useState } from 'react'
-import LoadingRing from '@/sections/common/components/LoadingRing'
+import { LoadingRing } from '~/sections/common/components/LoadingRing'
+import { createEffect, createSignal, onCleanup } from 'solid-js'
+import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 
 export type PageLoadingProps = {
   message: string
 }
 
-export default function PageLoading({ message }: PageLoadingProps) {
-  const [label, setLabel] = useState(message)
-  const [tooSlow, setTooSlow] = useState(false)
+export function PageLoading(props: PageLoadingProps) {
+  const [label, setLabel] = createMirrorSignal(() => props.message)
+  const [tooSlow, setTooSlow] = createSignal(false)
 
-  useEffect(() => {
+  createEffect(() => {
     const interval = setInterval(() => {
-      const dots = label.match(/\./g)?.length || 0
+      const dots = label().match(/\./g)?.length ?? 0
       if (dots < 3) {
-        setLabel(label + '.')
+        setLabel(label() + '.')
       } else {
-        setLabel(message)
+        setLabel(props.message)
       }
     }, 300)
-
-    return () => {
+    onCleanup(() => {
       clearInterval(interval)
-    }
-  }, [label, message])
+    })
+  })
 
-  useEffect(() => {
+  createEffect(() => {
     const timeout = setTimeout(() => {
       setTooSlow(true)
     }, 5000)
-    return () => {
+    onCleanup(() => {
       clearTimeout(timeout)
-    }
-  }, [])
+    })
+  })
 
   return (
-    <div className={`flex h-full min-h-screen w-full justify-center`}>
-      <div className="flex w-full flex-col justify-center align-middle">
+    <div class={'flex h-full min-h-screen w-full justify-center'}>
+      <div class="flex w-full flex-col justify-center align-middle">
         <LoadingRing />
-        <span className="inline-block w-full text-center">{label}</span>
-        {tooSlow && (
-          <span className="inline-block w-full text-center text-red-500">
+        <span class="inline-block w-full text-center">{label()}</span>
+        {tooSlow() && (
+          <span class="inline-block w-full text-center text-red-500">
             O servidor está demorando para responder. Tente novamente mais
             tarde.
           </span>

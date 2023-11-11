@@ -1,19 +1,24 @@
-'use client'
-
-import { Signal } from '@preact/signals-react'
-import { ReactNode } from 'react'
-import { createContext, useContext } from 'use-context-selector'
+import {
+  type JSXElement,
+  createContext,
+  useContext,
+  createSignal,
+  createEffect,
+  type Accessor,
+  type Setter,
+} from 'solid-js'
 
 type ModalContext = {
-  visible: Signal<boolean>
+  visible: Accessor<boolean>
+  setVisible: Setter<boolean>
 }
 
-const ModalContext = createContext<ModalContext | null>(null)
+const modalContext = createContext<ModalContext | null>(null)
 
 export function useModalContext() {
-  const context = useContext(ModalContext)
+  const context = useContext(modalContext)
 
-  if (!context) {
+  if (context === null) {
     throw new Error(
       'useModalContext must be used within a ModalContextProvider',
     )
@@ -22,16 +27,38 @@ export function useModalContext() {
   return context
 }
 
-export function ModalContextProvider({
-  visible,
-  children,
-}: {
-  visible: Signal<boolean>
-  children: ReactNode
+export function ModalContextProvider(props: {
+  visible: Accessor<boolean>
+  setVisible: Setter<boolean>
+  children: JSXElement
 }) {
+  // eslint-disable-next-line solid/reactivity
+
+  const [innerVisible, setInnerVisible] = createSignal(false)
+
+  createEffect(() => {
+    console.debug(
+      '[ModalContextProvider] <effect> visible -> innerVisible: ',
+      props.visible(),
+    )
+
+    setInnerVisible(props.visible())
+  })
+
+  createEffect(() => {
+    console.debug(
+      '[ModalContextProvider] <effect> innerVisible -> visible: ',
+      innerVisible(),
+    )
+
+    props.setVisible(innerVisible())
+  })
+
   return (
-    <ModalContext.Provider value={{ visible }}>
-      {children}
-    </ModalContext.Provider>
+    <modalContext.Provider
+      value={{ visible: innerVisible, setVisible: setInnerVisible }}
+    >
+      {props.children}
+    </modalContext.Provider>
   )
 }

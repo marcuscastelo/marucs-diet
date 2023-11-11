@@ -1,19 +1,16 @@
-'use client'
+import { CreateBlankDayButton } from '~/sections/day-diet/components/CreateBlankDayButton'
+import { CopyLastDayButton } from '~/sections/day-diet/components/CopyLastDayButton'
 
-import CreateBlankDayButton from '@/sections/day-diet/components/CreateBlankDayButton'
-import CopyLastDayButton from '@/sections/day-diet/components/CopyLastDayButton'
-import { computed } from '@preact/signals-react'
-
-export default function DayNotFound({ selectedDay }: { selectedDay: string }) {
+export default function DayNotFound(props: { selectedDay: string }) {
   return (
     <>
-      <h1 className="mt-2" color="warning">
-        Nenhum dado encontrado para o dia {selectedDay}
+      <h1 class="mt-2" color="warning">
+        Nenhum dado encontrado para o dia {props.selectedDay}
       </h1>
-      <CreateBlankDayButton selectedDay={selectedDay} />
+      <CreateBlankDayButton selectedDay={props.selectedDay} />
       <CopyLastDayButton
-        day={computed(() => undefined)}
-        selectedDay={selectedDay}
+        day={() => undefined}
+        selectedDay={props.selectedDay}
       />
     </>
   )

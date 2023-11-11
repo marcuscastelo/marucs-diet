@@ -1,11 +1,14 @@
-'use client'
+import {
+  type JSXElement,
+  type Accessor,
+  createContext,
+  useContext,
+  createSignal,
+  type Setter,
+} from 'solid-js'
 
-import { ReadonlySignal, Signal, useSignal } from '@preact/signals-react'
-import { Dispatch, ReactNode, SetStateAction, useState } from 'react'
-import { createContext, useContext } from 'use-context-selector'
-
-type Title = ReactNode
-type Body = ReactNode
+type Title = JSXElement
+type Body = JSXElement
 
 type ConfirmAction = {
   text: string
@@ -15,31 +18,32 @@ type ConfirmAction = {
 
 export type ConfirmModalContext = {
   internals: {
-    visible: Signal<boolean>
-    title: Title
-    setTitle: Dispatch<SetStateAction<Title>>
-    body: Body
-    setBody: Dispatch<SetStateAction<Body>>
-    actions: ConfirmAction[]
+    visible: Accessor<boolean>
+    setVisible: Setter<boolean>
+    title: Accessor<Title>
+    body: Accessor<Body>
+    actions: Accessor<ConfirmAction[]>
   }
-  visible: ReadonlySignal<boolean>
+  visible: Accessor<boolean>
   show: ({
     title,
     body,
     actions,
-  }: Partial<
-    Pick<ConfirmModalContext['internals'], 'title' | 'body' | 'actions'>
-  >) => void
+  }: {
+    title?: Title
+    body?: Body
+    actions?: ConfirmAction[]
+  }) => void
   close: () => void
 }
 
-const ConfirmModalContext = createContext<ConfirmModalContext | null>(null)
+const confirmModalContext = createContext<ConfirmModalContext | null>(null)
 
 export function useConfirmModalContext() {
   // TODO: Implement useContextSelector
 
-  const context = useContext(ConfirmModalContext)
-  if (!context) {
+  const context = useContext(confirmModalContext)
+  if (context === null) {
     throw new Error(
       'useConfirmModalContext must be used within a ConfirmModalProvider',
     )
@@ -47,77 +51,64 @@ export function useConfirmModalContext() {
   return context
 }
 
-export function ConfirmModalProvider({
-  title: initialTitle = 'BUG: No title provided',
-  message: initialMessage = 'BUG: No body provided',
-  visible: initiallyVisible = false,
-  actions: initialActions,
-  children,
-}: {
-  title?: Title
-  message?: Body
-  visible?: boolean
-  actions?: ConfirmAction[]
-  children: React.ReactNode
-}) {
-  const [title, setTitle] = useState<Title>(initialTitle)
-  const [message, setBody] = useState<Body>(initialMessage)
-  const visible = useSignal<boolean>(initiallyVisible)
+export function ConfirmModalProvider(props: { children: JSXElement }) {
+  console.debug('[ConfirmModalProvider] - Rendering')
 
-  const [actions, setActions] = useState<ConfirmAction[]>(
-    initialActions ?? [
-      {
-        text: 'Cancelar',
-        onClick: () => (visible.value = false),
-      },
-      {
-        text: 'Confirmar',
-        primary: true,
-        onClick: () => (visible.value = false),
-      },
-    ],
-  )
+  const [title, setTitle] = createSignal<Title>('')
+  const [body, setBody] = createSignal<Body>('')
+  const [visible, setVisible] = createSignal<boolean>(false)
+
+  const [actions, setActions] = createSignal<ConfirmAction[]>([
+    {
+      text: 'Cancelar',
+      onClick: () => setVisible(false),
+    },
+    {
+      text: 'Confirmar',
+      primary: true,
+      onClick: () => setVisible(false),
+    },
+  ])
 
   const context: ConfirmModalContext = {
     internals: {
       visible,
+      setVisible,
       title,
-      setTitle,
-      body: message,
-      setBody,
-      actions,
+      body,
+      actions, // TODO: Propagate signal
     },
     visible,
-    show: ({ title, body, actions }) => {
+    show: ({ title, body, actions: newActions }) => {
       if (title !== undefined) {
         setTitle(title)
       }
       if (body !== undefined) {
         setBody(body)
       }
-      if (actions !== undefined) {
+      if (newActions !== undefined) {
         setActions(
-          actions.map((action) => {
+          newActions.map((action) => {
             return {
               ...action,
               onClick: () => {
-                visible.value = false
+                setVisible(false)
                 action.onClick()
               },
             }
           }),
         )
       }
-      visible.value = true
+      setVisible(true)
     },
     close: () => {
-      visible.value = false
+      setVisible(false)
     },
   }
 
   return (
-    <ConfirmModalContext.Provider value={context}>
-      {children}
-    </ConfirmModalContext.Provider>
+    <confirmModalContext.Provider value={context}>
+      {props.children}
+    </confirmModalContext.Provider>
   )
 }

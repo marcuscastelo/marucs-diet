@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { createSignal } from 'solid-js'
 
 export function useTyping({
   onTypingStart,
@@ -9,34 +9,29 @@ export function useTyping({
   onTypingEnd?: () => void
   delay?: number
 }) {
-  const [typing, setTyping] = useState(false)
-  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null)
+  const [typing, setTyping] = createSignal(false)
+  const [timeoutId, setTimeoutId] = createSignal<NodeJS.Timeout | null>(null)
 
-  const handleTypingStart = useCallback(() => {
+  const handleTypingStart = () => {
     setTyping(true)
     onTypingStart?.()
-  }, [onTypingStart])
+  }
 
-  const handleTypingEnd = useCallback(() => {
+  const handleTypingEnd = () => {
     setTyping(false)
     onTypingEnd?.()
-  }, [onTypingEnd])
+  }
 
-  const handleTyping = useCallback(() => {
-    if (timeoutId) clearTimeout(timeoutId)
+  const handleTyping = () => {
+    const timeoutId_ = timeoutId()
+    if (timeoutId_ !== null) clearTimeout(timeoutId_)
     handleTypingStart()
     setTimeoutId(
       setTimeout(() => {
         handleTypingEnd()
       }, delay),
     )
-  }, [timeoutId, delay, handleTypingEnd, handleTypingStart])
-
-  useEffect(() => {
-    return () => {
-      if (timeoutId) clearTimeout(timeoutId)
-    }
-  }, [timeoutId])
+  }
 
   return {
     typing,

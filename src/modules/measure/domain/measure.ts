@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { DbReady } from '@/legacy/utils/newDbRecord'
+import { type DbReady } from '~/legacy/utils/newDbRecord'
 import { z } from 'zod'
 
 // TODO: Create discriminate union type for Male and Female measures
@@ -33,7 +33,7 @@ export function createMeasure({
   waist,
   hip,
   neck,
-  target_timestamp,
+  target_timestamp: targetTimestamp,
 }: DbReady<Measure>): DbReady<Measure> {
   return {
     owner,
@@ -41,6 +41,6 @@ export function createMeasure({
     waist,
     hip,
     neck,
-    target_timestamp,
+    target_timestamp: targetTimestamp,
   }
 }

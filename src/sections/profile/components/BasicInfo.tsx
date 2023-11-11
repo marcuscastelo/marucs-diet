@@ -1,12 +1,11 @@
-'use client'
-
-import { User, userSchema } from '@/modules/user/domain/user'
-import { useEffect, useState } from 'react'
-import Capsule from '@/sections/common/components/capsule/Capsule'
-import { z } from 'zod'
-import { CapsuleContent } from '@/sections/common/components/capsule/CapsuleContent'
-import { UserIcon } from '@/sections/common/components/UserIcon'
-import { Mutable } from '@/legacy/utils/typeUtils'
+import { type User, userSchema } from '~/modules/user/domain/user'
+import { Capsule } from '~/sections/common/components/capsule/Capsule'
+import { type z } from 'zod'
+import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
+import { UserIcon } from '~/sections/common/components/UserIcon'
+import { type Mutable } from '~/legacy/utils/typeUtils'
+import { type Accessor, createEffect, createSignal } from 'solid-js'
+import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 type Translation<T extends string> = { [key in T]: string }
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -30,39 +29,43 @@ const USER_FIELD_TRANSLATION: Translation<keyof User> = {
   id: 'ID',
   desired_weight: 'Peso Alvo',
 }
-export function BasicInfo({
-  user,
-  onSave,
-}: {
-  user: User
-  onSave: (newUser: User) => Promise<User>
+export function BasicInfo(props: {
+  user: Accessor<User>
+  onSave: (newUser: User) => void
 }) {
   type UnsavedFields = { [key in keyof Mutable<User>]?: boolean }
 
-  const [innerData, setInnerData] = useState<User>(user)
-  const [unsavedFields, setUnsavedFields] = useState<UnsavedFields>({})
+  const [innerData, setInnerData] = createMirrorSignal<User>(() => props.user())
+  const [unsavedFields, setUnsavedFields] = createSignal<UnsavedFields>({})
 
-  useEffect(() => {
-    setInnerData(user)
-  }, [user])
+  createEffect(() => {
+    const reduceFunc = (acc: UnsavedFields, key: string) => {
+      acc[key as keyof UnsavedFields] =
+        innerData()[key as keyof UnsavedFields] !==
+        props.user()[key as keyof User]
+      return acc
+    }
 
-  useEffect(() => {
     setUnsavedFields(
-      Object.keys(innerData).reduce((acc, key) => {
-        acc[key as keyof UnsavedFields] =
-          innerData[key as keyof UnsavedFields] !== user[key as keyof User]
-        return acc
-      }, {} as UnsavedFields),
+      Object.keys(innerData()).reduce<UnsavedFields>(
+        reduceFunc,
+        {} satisfies UnsavedFields,
+      ),
     )
-  }, [innerData, user])
+  })
 
   const makeOnBlur = <T extends keyof User>(
     field: T,
     convert: (value: string) => User[T],
   ) => {
-    return async (event: React.ChangeEvent<HTMLInputElement>) => {
+    return (
+      event: FocusEvent & {
+        currentTarget: HTMLInputElement
+        target: HTMLInputElement
+      },
+    ) => {
       event.preventDefault()
-      const newUser = { ...user }
+      const newUser: Mutable<User> = { ...innerData() }
 
       newUser[field] = convert(event.target.value)
 
@@ -75,9 +78,14 @@ export function BasicInfo({
     field: T,
     convert: (value: string) => string,
   ) => {
-    return (event: React.ChangeEvent<HTMLInputElement>) => {
+    return (
+      event: Event & {
+        currentTarget: HTMLInputElement
+        target: HTMLInputElement
+      },
+    ) => {
       event.preventDefault()
-      const newUser = { ...user }
+      const newUser: Mutable<User> = { ...innerData() }
 
       newUser[field] = convert(event.target.value) as unknown as User[T]
       setInnerData(newUser)
@@ -102,7 +110,7 @@ export function BasicInfo({
   )
 
   const convertDiet = (value: string): User['diet'] =>
-    (Object.keys(DIET_TRANSLATION) as User['diet'][]).find(
+    (Object.keys(DIET_TRANSLATION) as Array<User['diet']>).find(
       (key) => key === value,
     ) ?? 'normo'
 
@@ -115,43 +123,39 @@ export function BasicInfo({
       leftContent={
         <CapsuleContent>
           <h5
-            className={`pl-5 text-xl ${
-              unsavedFields[field] ? 'text-red-500 italic' : ''
+            class={`pl-5 text-xl ${
+              unsavedFields()[field] === true ? 'text-red-500 italic' : ''
             }`}
           >
             {USER_FIELD_TRANSLATION[field]} {extra}{' '}
-            {unsavedFields[field] ? '*' : ''}
+            {unsavedFields()[field] === true ? '*' : ''}
           </h5>
         </CapsuleContent>
       }
       rightContent={
         <CapsuleContent>
           <input
-            className={`btn-ghost input px-0 pl-5 text-xl`}
-            value={innerData[field].toString()}
+            class={'btn-ghost input px-0 pl-5 text-xl'}
+            value={innerData()[field].toString()}
             onChange={makeOnChange(field, convertString)}
             onBlur={makeOnBlur(field, convert)}
             style={{ width: '100%' }}
           />
         </CapsuleContent>
       }
-      className={`mb-2`}
+      class={'mb-2'}
     />
   )
   return (
     <>
-      <div
-        className={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE} rounded-b-none pb-6`}
-      >
-        <h5 className={`mx-auto text-center text-3xl font-bold`}>
-          <UserIcon userId={user.id} className={`w-32 h-32 mx-auto`} />
-          {user.name}
+      <div class={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE} rounded-b-none pb-6`}>
+        <h5 class={'mx-auto text-center text-3xl font-bold'}>
+          <UserIcon userId={props.user().id} class={'w-32 h-32 mx-auto'} />
+          {props.user.name}
         </h5>
 
-        <div className={`mb-1 mt-3 text-center text-lg italic`}>
-          Informações
-        </div>
-        <div className={`mx-5 lg:mx-20`}>
+        <div class={'mb-1 mt-3 text-center text-lg italic'}>Informações</div>
+        <div class={'mx-5 lg:mx-20'}>
           {makeBasicCapsule('name', convertString)}
           {makeBasicCapsule('gender', convertGender)}
           {makeBasicCapsule('diet', convertDiet)}
@@ -160,8 +164,10 @@ export function BasicInfo({
         </div>
       </div>
       <button
-        className={`btn-primary no-animation btn w-full rounded-t-none`}
-        onClick={async () => await onSave(innerData)}
+        class={'btn-primary no-animation btn w-full rounded-t-none'}
+        onClick={() => {
+          props.onSave(innerData())
+        }}
       >
         Salvar
       </button>

@@ -1,8 +1,8 @@
 /* eslint-disable camelcase */
-import { DbReady } from '@/legacy/utils/newDbRecord'
+import { type DbReady } from '~/legacy/utils/newDbRecord'
 import { z } from 'zod'
 
-export const weigthSchema = z.object({
+export const weightSchema = z.object({
   id: z.number(),
   owner: z.number(),
   weight: z.number(),
@@ -17,16 +17,16 @@ export const weigthSchema = z.object({
     .transform(() => 'Weight' as const),
 })
 
-export type Weight = Readonly<z.infer<typeof weigthSchema>>
+export type Weight = Readonly<z.infer<typeof weightSchema>>
 
 export function createWeight({
   owner,
   weight,
-  target_timestamp,
+  target_timestamp: targetTimestamp,
 }: DbReady<Weight>): DbReady<Weight> {
   return {
     owner,
     weight,
-    target_timestamp,
+    target_timestamp: targetTimestamp,
   }
 }

@@ -1,123 +1,126 @@
-'use client'
-
-import { useEffect, useState } from 'react'
-import FoodItemView from '@/sections/food-item/components/FoodItemView'
-import { searchFoodsByEan } from '@/legacy/controllers/food'
-import { Food } from '@/modules/diet/food/domain/food'
-import { useUserContext } from '@/sections/user/context/UserContext'
-import { createFoodItem } from '@/src/modules/diet/food-item/domain/foodItem'
-import { MacroNutrients } from '@/src/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
-  Signal,
-  computed,
-  useSignal,
-  useSignalEffect,
-} from '@preact/signals-react'
+  FoodItemFavorite,
+  FoodItemHeader,
+  FoodItemName,
+  FoodItemNutritionalInfo,
+  FoodItemView,
+} from '~/sections/food-item/components/FoodItemView'
+import { type Food } from '~/modules/diet/food/domain/food'
+import { createFoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+
+import {
+  isFoodFavorite,
+  setFoodAsFavorite,
+} from '~/modules/user/application/user'
+import {
+  type Accessor,
+  createSignal,
+  createEffect,
+  type Setter,
+  Show,
+} from 'solid-js'
+import { fetchFoodByEan } from '~/modules/diet/food/application/food'
 
 export type BarCodeSearchProps = {
-  barCode: Signal<string>
-  food: Signal<Food | null>
+  barCode: Accessor<string>
+  setBarCode: Setter<string>
+  food: Accessor<Food | null>
+  setFood: Setter<Food | null>
 }
 
-export default function BarCodeSearch({ barCode, food }: BarCodeSearchProps) {
-  const loading = useSignal(false)
-
-  const { isFoodFavorite, setFoodAsFavorite } = useUserContext()
+export default function BarCodeSearch(props: BarCodeSearchProps) {
+  const [loading, setLoading] = createSignal(false)
 
   const EAN_LENGTH = 13
 
-  useSignalEffect(() => {
-    if (barCode.value.length !== EAN_LENGTH) {
+  createEffect(() => {
+    if (props.barCode().length !== EAN_LENGTH) {
       return
     }
 
-    loading.value = true
-    searchFoodsByEan(barCode.value)
-      .then((newFood) => {
-        food.value = newFood
-      })
-      .catch((err) => {
-        food.value = null
-        console.error(err)
-        alert(JSON.stringify(err, null, 2)) // TODO: Change all alerts with ConfirmModal
-      })
+    setLoading(true)
+
+    const afterFetch = props.setFood
+    const catchFetch = (err: any) => {
+      props.setFood(null)
+      console.error(err)
+      alert(JSON.stringify(err, null, 2)) // TODO: Change all alerts with ConfirmModal
+    }
+
+    fetchFoodByEan(props.barCode())
+      .then(afterFetch)
+      .catch(catchFetch)
       .finally(() => {
-        loading.value = false
+        setLoading(false)
       })
   })
 
   return (
     <div>
-      <h3 className="text-lg font-bold text-white">
+      <h3 class="text-lg font-bold text-white">
         Busca por código de barras (EAN)
       </h3>
 
-      <div className="w-full text-center">
+      <div class="w-full text-center">
         <div
-          className={`loading loading-lg transition-all ${
-            loading.value ? 'h-80' : 'h-0'
+          class={`loading loading-lg transition-all ${
+            loading() ? 'h-80' : 'h-0'
           }`}
         />
       </div>
 
-      {food.value && (
-        <div className="mt-3 flex flex-col">
-          <div className="flex">
-            <div className="flex-1">
-              <p className="font-bold">{food.value.name}</p>
-              <p className="text-sm">
-                <FoodItemView
-                  foodItem={computed(() =>
-                    createFoodItem({
-                      name: food.value?.name ?? 'food == null',
-                      reference: food.value?.id ?? 0,
-                      quantity: 100,
-                      macros: {
-                        ...(food.value?.macros ??
-                          createFoodItem({
-                            name: food.value?.name ?? 'food == null',
-                            reference: food.value?.id ?? 0,
-                          }).macros),
-                      } satisfies MacroNutrients,
-                    }),
-                  )}
-                  header={
-                    <FoodItemView.Header
-                      name={<FoodItemView.Header.Name />}
-                      favorite={
-                        <FoodItemView.Header.Favorite
-                          favorite={isFoodFavorite(food.value.id)}
-                          onSetFavorite={(favorite) => {
-                            if (food.value?.id === null) {
-                              alert('food.value?.id === null')
-                              console.error(
-                                'food.value?.id === null',
-                                food.value,
-                              )
-                              throw new Error('food.value?.id === null')
-                            }
-                            food.value &&
-                              setFoodAsFavorite(food.value.id, favorite)
-                          }}
-                        />
-                      }
-                    />
-                  }
-                  nutritionalInfo={<FoodItemView.NutritionalInfo />}
-                />
-              </p>
+      <Show when={props.food()}>
+        {(food) => (
+          <div class="mt-3 flex flex-col">
+            <div class="flex">
+              <div class="flex-1">
+                <p class="font-bold">{food().name}</p>
+                <p class="text-sm">
+                  <FoodItemView
+                    foodItem={() =>
+                      createFoodItem({
+                        name: food().name,
+                        reference: food().id,
+                        quantity: 100,
+                        macros: {
+                          ...(food().macros ??
+                            createFoodItem({
+                              name: food().name,
+                              reference: food().id,
+                            }).macros),
+                        } satisfies MacroNutrients,
+                      })
+                    }
+                    header={
+                      <FoodItemHeader
+                        name={<FoodItemName />}
+                        favorite={
+                          <FoodItemFavorite
+                            favorite={isFoodFavorite(food().id)}
+                            onSetFavorite={(favorite) => {
+                              setFoodAsFavorite(food().id, favorite)
+                            }}
+                          />
+                        }
+                      />
+                    }
+                    nutritionalInfo={<FoodItemNutritionalInfo />}
+                  />
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </Show>
 
-      <div className="mt-3 flex">
+      <div class="mt-3 flex">
         <input
           type="number"
           placeholder="Código de barras (Ex: 7891234567890)"
-          className={`input-bordered input mt-1 flex-1 border-gray-300 bg-gray-800`}
-          value={barCode.value}
-          onChange={(e) => (barCode.value = e.target.value.slice(0, 13))}
+          class={'input-bordered input mt-1 flex-1 border-gray-300 bg-gray-800'}
+          value={props.barCode()}
+          onChange={(e) => props.setBarCode(e.target.value.slice(0, 13))}
         />
       </div>
     </div>

@@ -2,13 +2,11 @@
 const defaultTheme = require('tailwindcss/defaultTheme')
 
 /** @type {import('tailwindcss').Config} */
-module.exports = {
-  mode: 'jit',
+export default {
   darkMode: 'class',
   content: [
-    './node_modules/flowbite-react/**/*.js',
-    './node_modules/react-tailwindcss-datepicker/dist/index.esm.js',
-    './src/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/**/*.{js,jsx,ts,tsx}',
+    './node_modules/flowbite/**/*.js', // configure the Flowbite JS source template paths
   ],
   theme: {
     screens: {
