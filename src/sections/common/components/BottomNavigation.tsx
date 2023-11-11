@@ -1,59 +1,68 @@
-'use client'
-
-import { usePathname, useRouter } from 'next/navigation'
-import { ReactNode, useEffect } from 'react'
-import { UserIcon } from '@/sections/common/components/UserIcon'
-import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { useFetch } from '@/sections/common/hooks/useFetch'
-import { fetchUsers } from '@/legacy/controllers/users'
-import { AvaliableUser, useUserId } from '@/sections/user/context/UserContext'
-import { changeUser } from '@/legacy/actions/user'
+import { UserIcon } from '~/sections/common/components/UserIcon'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import {
+  changeToUser,
+  currentUserId,
+  fetchUsers,
+  users,
+} from '~/modules/user/application/user'
+import { type User } from '~/modules/user/domain/user'
+import { For, type JSXElement } from 'solid-js'
+import { useLocation, useNavigate } from '@solidjs/router'
 
 export function BottomNavigation() {
-  const router = useRouter()
-  const pathName = usePathname()
-  const userId = useUserId()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const pathname = location.pathname
   const { show: showConfirmModal } = useConfirmModalContext()
 
   console.debug('[BottomNavigation] Rendering')
-  console.debug('[BottomNavigation] Current path:', pathName)
+  console.debug('[BottomNavigation] Current path:', pathname)
+
+  const selector = <UserSelectorDropdown />
 
   return (
-    <div className="fixed z-50 w-full h-16 max-w-lg -translate-x-1/2 bg-white border border-gray-200 rounded-full bottom-4 left-1/2 dark:bg-slate-800 dark:border-slate-700">
-      <div className="grid h-full max-w-lg grid-cols-5 mx-auto">
+    <div class="fixed z-50 w-full h-16 max-w-lg -translate-x-1/2 bg-white border border-gray-200 rounded-full bottom-4 left-1/2 dark:bg-slate-800 dark:border-slate-700">
+      <div class="grid h-full max-w-lg grid-cols-5 mx-auto pt-1">
         <BottomNavigationTab
-          active={pathName.startsWith('/diet')}
+          active={pathname === '/'}
           label="Home"
           icon={HomeIcon}
-          onClick={() => router.push('/')}
+          onClick={() => {
+            navigate('/')
+          }}
           position="first"
         />
         <BottomNavigationTab
-          active={pathName.startsWith('/profile')}
+          active={pathname.startsWith('/profile')}
           label="Perfil"
           icon={ProfileIcon}
-          onClick={() => router.push('/profile')}
+          onClick={() => {
+            navigate('/profile')
+          }}
           position="middle"
         />
         <CTAButton />
         <BottomNavigationTab
-          active={pathName.startsWith('/settings')}
+          active={pathname.startsWith('/settings')}
           label="Configurações"
           icon={SettingsIcon}
-          onClick={() => alert('TODO: Ainda não implementado')} // TODO: Change all alerts with ConfirmModal
+          onClick={() => {
+            alert('TODO: Ainda não implementado')
+          }} // TODO: Change all alerts with ConfirmModal
           position="middle"
         />
         <BottomNavigationTab
-          active={pathName.startsWith('/settings')}
+          active={false}
           label="Usuário"
-          icon={(props) => <UserIcon userId={userId} {...props} />}
-          onClick={() =>
+          icon={(props) => <UserIcon userId={currentUserId()} {...props} />}
+          onClick={() => {
             showConfirmModal({
               title: '',
-              body: <UserSelectorDropdown />,
+              body: selector,
               actions: [],
             })
-          }
+          }}
           position="last"
         />
       </div>
@@ -61,21 +70,15 @@ export function BottomNavigation() {
   )
 }
 
-function BottomNavigationTab({
-  icon,
-  label,
-  active,
-  onClick,
-  position,
-}: {
-  icon: ({ className }: { className?: string }) => ReactNode
+function BottomNavigationTab(props: {
+  icon: (iconProps: { class?: string }) => JSXElement
   label: string
   active: boolean
   onClick: () => void
   position: 'first' | 'middle' | 'last'
 }) {
   function getRound() {
-    switch (position) {
+    switch (props.position) {
       case 'first':
         return 'rounded-l-full'
       case 'middle':
@@ -88,35 +91,37 @@ function BottomNavigationTab({
   return (
     <>
       <button
-        data-tooltip-target={`tooltip-${label}`}
+        data-tooltip-target={`tooltip-${props.label}`}
         type="button"
-        className={`${getRound()} inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-slate-900 group`}
-        onClick={onClick}
+        class={`${getRound()} inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-slate-900 group`}
+        onClick={() => {
+          props.onClick()
+        }}
       >
-        {icon({
-          className: `${
-            active
+        {props.icon({
+          class: `${
+            props.active
               ? 'text-blue-600 dark:text-blue-500'
               : 'text-gray-500 dark:text-gray-400'
-          } w-6 h-6 mb-1  group-hover:text-blue-600 dark:group-hover:text-blue-500`,
+          } w-8 h-8 mb-1  group-hover:text-blue-600 dark:group-hover:text-blue-500`,
         })}
-        <span className="sr-only">{label}</span>
+        <span class="sr-only">{props.label}</span>
       </button>
       <div
-        id={`tooltip-${label}`}
+        id={`tooltip-${props.label}`}
         role="tooltip"
-        className="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
+        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
       >
-        {label}
-        <div className="tooltip-arrow" data-popper-arrow></div>
+        {props.label}
+        <div class="tooltip-arrow" data-popper-arrow />
       </div>
     </>
   )
 }
 
-const HomeIcon = ({ className }: { className?: string }) => (
+const HomeIcon = (props: { class?: string }) => (
   <svg
-    className={className}
+    class={props.class}
     aria-hidden="true"
     xmlns="http://www.w3.org/2000/svg"
     fill="currentColor"
@@ -126,9 +131,9 @@ const HomeIcon = ({ className }: { className?: string }) => (
   </svg>
 )
 
-const ProfileIcon = ({ className }: { className?: string }) => (
+const ProfileIcon = (props: { class?: string }) => (
   <svg
-    className={className}
+    class={props.class}
     aria-hidden="true"
     xmlns="http://www.w3.org/2000/svg"
     fill="currentColor"
@@ -138,9 +143,9 @@ const ProfileIcon = ({ className }: { className?: string }) => (
   </svg>
 )
 
-const SettingsIcon = ({ className }: { className?: string }) => (
+const SettingsIcon = (props: { class?: string }) => (
   <svg
-    className={className}
+    class={props.class}
     aria-hidden="true"
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
@@ -148,9 +153,9 @@ const SettingsIcon = ({ className }: { className?: string }) => (
   >
     <path
       stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
       d="M4 12.25V1m0 11.25a2.25 2.25 0 0 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0 4.5M4 19v-2.25m6-13.5V1m0 2.25a2.25 2.25 0 0 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0 4.5M10 19V7.75m6 4.5V1m0 11.25a2.25 2.25 0 1 0 0 4.5 2.25 2.25 0 0 0 0-4.5ZM16 19v-2"
     />
   </svg>
@@ -159,14 +164,14 @@ const SettingsIcon = ({ className }: { className?: string }) => (
 function CTAButton() {
   return (
     <>
-      <div className="flex items-center justify-center">
+      <div class="flex items-center justify-center">
         <button
           data-tooltip-target="tooltip-new"
           type="button"
-          className="focus:animate-spin inline-flex items-center justify-center w-10 h-10 font-medium bg-blue-600 rounded-full hover:bg-blue-700 group focus:ring-4 focus:ring-blue-300 focus:outline-none dark:focus:ring-blue-800"
+          class="focus:animate-spin inline-flex items-center justify-center w-10 h-10 font-medium bg-blue-600 rounded-full hover:bg-blue-700 group focus:ring-4 focus:ring-blue-300 focus:outline-none dark:focus:ring-blue-800"
         >
           <svg
-            className="w-4 h-4 text-white"
+            class="w-4 h-4 text-white"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -174,22 +179,22 @@ function CTAButton() {
           >
             <path
               stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
               d="M9 1v16M1 9h16"
             />
           </svg>
-          <span className="sr-only">New item</span>
+          <span class="sr-only">New item</span>
         </button>
       </div>
       <div
         id="tooltip-new"
         role="tooltip"
-        className="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
+        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
       >
         Create new item
-        <div className="tooltip-arrow" data-popper-arrow></div>
+        <div class="tooltip-arrow" data-popper-arrow />
       </div>
     </>
   )
@@ -198,19 +203,17 @@ function CTAButton() {
 const UserSelectorDropdown = () => {
   const { show: showConfirmModal } = useConfirmModalContext()
 
-  const { data: availableUsers, fetch } = useFetch(fetchUsers)
+  fetchUsers().catch((error) => {
+    console.error('[UserSelectorDropdown] Error fetching users:', error)
+  })
 
-  useEffect(() => {
-    fetch()
-  }, [fetch])
-
-  const handleChangeUser = (user: AvaliableUser) => {
+  const handleChangeUser = (user: User) => {
     showConfirmModal({
       title: 'Trocar de usuário',
       body: (
-        <div className="flex justify-between">
+        <div class="flex justify-between">
           <span>{`Deseja entrar como ${user.name}?`}</span>
-          <UserIcon className="w-16 h-16" userId={user.id} />
+          <UserIcon class="w-16 h-16" userId={user.id} />
         </div>
       ),
       actions: [
@@ -222,24 +225,19 @@ const UserSelectorDropdown = () => {
           primary: true,
           text: 'Entrar',
           onClick: () => {
-            changeUser(user.id)
+            changeToUser(user.id)
           },
         },
       ],
     })
   }
 
-  if (availableUsers.value.loading || availableUsers.value.errored) {
-    return <>Loading available users...</>
-  }
-
   return (
-    <div className="flex flex-col gap-1">
-      {availableUsers.value.data.map((user, idx) => {
-        return (
+    <div class="flex flex-col gap-1">
+      <For each={users()}>
+        {(user) => (
           <div
-            className="btn btn-ghost flex justify-between"
-            key={idx}
+            class="btn btn-ghost flex justify-between"
             onClick={() => {
               handleChangeUser(user)
               // Force dropdown to close without having to click outside setting aria
@@ -249,11 +247,11 @@ const UserSelectorDropdown = () => {
               dropdown?.blur()
             }}
           >
-            <UserIcon className="w-10 h-10" userId={user.id} />
-            <div className="text-xl flex-1 text-start">{user.name}</div>
+            <UserIcon class="w-10 h-10" userId={user.id} />
+            <div class="text-xl flex-1 text-start">{user.name}</div>
           </div>
-        )
-      })}
+        )}
+      </For>
     </div>
   )
 }

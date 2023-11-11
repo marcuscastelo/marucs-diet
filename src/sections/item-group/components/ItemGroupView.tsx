@@ -1,141 +1,121 @@
-'use client'
-
-import MacroNutrientsView from '@/src/sections/macro-nutrients/components/MacroNutrientsView'
-import { MacroNutrients } from '@/src/modules/diet/macro-nutrients/domain/macroNutrients'
-import CopyIcon from '@/sections/common/components/icons/CopyIcon'
+import MacroNutrientsView from '~/sections/macro-nutrients/components/MacroNutrientsView'
+import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
 import {
-  ItemGroup,
+  type ItemGroup,
   isSimpleSingleGroup,
-} from '@/modules/diet/item-group/domain/itemGroup'
-import { calcGroupCalories, calcGroupMacros } from '@/legacy/utils/macroMath'
-import { useUserContext } from '@/sections/user/context/UserContext'
-import { isRecipedGroupUpToDate } from '@/legacy/utils/groupUtils'
-import { Loadable } from '@/legacy/utils/loadable'
-import { Recipe } from '@/src/modules/diet/recipe/domain/recipe'
+} from '~/modules/diet/item-group/domain/itemGroup'
+import { calcGroupCalories, calcGroupMacros } from '~/legacy/utils/macroMath'
+import { isRecipedGroupUpToDate } from '~/legacy/utils/groupUtils'
+import { type Loadable } from '~/legacy/utils/loadable'
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 import {
-  ReadonlySignal,
-  computed,
-  useSignal,
-  useSignalEffect,
-} from '@preact/signals-react'
-import { createSupabaseRecipeRepository } from '@/src/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
+  type JSXElement,
+  type Accessor,
+  createSignal,
+  createEffect,
+} from 'solid-js'
 
 // TODO: Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
 
 export type ItemGroupViewProps = {
-  itemGroup: ReadonlySignal<ItemGroup>
-  header?: React.ReactNode
-  nutritionalInfo?: React.ReactNode
+  itemGroup: Accessor<ItemGroup>
+  header?: JSXElement
+  nutritionalInfo?: JSXElement
   className?: string
   onClick?: (itemGroup: ItemGroup) => void
 }
 
-export default function ItemGroupView({
-  itemGroup,
-  header,
-  nutritionalInfo,
-  className,
-  onClick,
-}: ItemGroupViewProps) {
-  const handleClick = (e: React.MouseEvent) => {
-    onClick?.(itemGroup.value)
+export function ItemGroupView(props: ItemGroupViewProps) {
+  const handleClick = (e: MouseEvent) => {
+    props.onClick?.(props.itemGroup())
     e.stopPropagation()
     e.preventDefault()
   }
-  console.debug(`[ItemGroupView] - Rendering`)
+  console.debug('[ItemGroupView] - Rendering')
 
   return (
     <div
-      className={`meal-item block rounded-lg border border-gray-700 bg-gray-700 p-3 shadow hover:cursor-pointer hover:bg-gray-700 ${
-        className ?? ''
+      class={`meal-item block rounded-lg border border-gray-700 bg-gray-700 p-3 shadow hover:cursor-pointer hover:bg-gray-700 ${
+        props.className ?? ''
       }`}
       onClick={handleClick}
     >
-      {header}
-      {nutritionalInfo}
+      {props.header}
+      {props.nutritionalInfo}
     </div>
   )
 }
 
-ItemGroupView.Header = ItemGroupHeader
-ItemGroupView.NutritionalInfo = ItemGroupViewNutritionalInfo
-
 export type ItemGroupViewHeaderProps = {
-  name?: React.ReactNode
-  favorite?: React.ReactNode
-  copyButton?: React.ReactNode
+  name?: JSXElement
+  copyButton?: JSXElement
 }
 
-function ItemGroupHeader({
-  name,
-  favorite,
-  copyButton,
-}: ItemGroupViewHeaderProps) {
+export function ItemGroupHeader(props: ItemGroupViewHeaderProps) {
   return (
-    <div className="flex">
+    <div class="flex">
       {/* //TODO: ItemGroupView id is random, but it should be an entry on the database (meal too) */}
       {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.ItemGroupView.id}]</h5> */}
-      <div className="my-2">{name}</div>
+      <div class="my-2">{props.name}</div>
       {/*
-        // TODO: Remove code duplication between FoodItemView and ItemGroupView 
+        // TODO: Remove code duplication between FoodItemView and ItemGroupView
       */}
-      <div className={`ml-auto flex gap-2`}>
-        <div className="my-auto">{copyButton}</div>
-        <div className="my-auto">{favorite}</div>
+      <div class={'ml-auto flex gap-2'}>
+        <div class="my-auto">{props.copyButton}</div>
       </div>
     </div>
   )
 }
 
-ItemGroupHeader.Name = ItemGroupName
-ItemGroupHeader.CopyButton = ItemGroupCopyButton
-ItemGroupHeader.Favorite = ItemGroupFavorite
-
-function ItemGroupName({
-  group: itemGroup,
-}: {
-  group: ReadonlySignal<ItemGroup>
-}) {
-  const { debug } = useUserContext()
-
-  const recipe = useSignal<Loadable<Recipe | null>>({
+export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
+  const [recipe, setRecipe] = createSignal<Loadable<Recipe | null>>({
     loading: true,
   })
 
-  useSignalEffect(() => {
-    console.debug(`[ItemGroupName] item changed, fetching API:`, itemGroup)
-    if (itemGroup.value?.type === 'recipe') {
+  createEffect(() => {
+    console.debug('[ItemGroupName] item changed, fetching API:', props.group)
+    const group = props.group()
+    if (group?.type === 'recipe') {
       recipeRepository
-        .fetchRecipeById(itemGroup.value.recipe)
+        .fetchRecipeById(group.recipe)
         .then((foundRecipe) => {
-          recipe.value = { loading: false, errored: false, data: foundRecipe }
+          setRecipe({ loading: false, errored: false, data: foundRecipe })
+        })
+        .catch((err) => {
+          console.error('[ItemGroupName] Error fetching recipe:', err)
+          setRecipe({ loading: false, errored: true, error: err })
         })
     } else {
-      recipe.value = { loading: false, errored: false, data: null }
+      setRecipe({ loading: false, errored: false, data: null })
     }
   })
 
-  const nameColor = computed(() => {
-    if (itemGroup.value === null) {
-      console.error(`[ItemGroupName] item is null!!`)
+  const nameColor = () => {
+    const group_ = props.group()
+    const recipe_ = recipe()
+
+    if (group_ === null) {
+      console.error('[ItemGroupName] item is null!!')
       return 'text-red-900 bg-red-200'
     }
 
-    if (recipe.value.loading) return 'text-gray-500 animate-pulse'
-    if (recipe.value.errored) {
-      console.error(`[ItemGroupName] recipe errored!!`)
+    if (recipe_.loading) return 'text-gray-500 animate-pulse'
+    if (recipe_.errored) {
+      console.error('[ItemGroupName] recipe errored!!')
       return 'text-red-900 bg-red-200 bg-opacity-50'
     }
 
-    if (itemGroup.value.type === 'simple') {
-      if (isSimpleSingleGroup(itemGroup.value)) {
+    if (group_.type === 'simple') {
+      if (isSimpleSingleGroup(group_)) {
         return 'text-white'
       } else {
         return 'text-orange-400'
       }
-    } else if (itemGroup.value.type === 'recipe' && recipe.value.data) {
-      if (isRecipedGroupUpToDate(itemGroup.value, recipe.value.data)) {
+    } else if (group_.type === 'recipe' && recipe_.data !== null) {
+      if (isRecipedGroupUpToDate(group_, recipe_.data)) {
         return 'text-yellow-200'
       } else {
         // Strike-through text in red
@@ -144,47 +124,37 @@ function ItemGroupName({
       }
     } else {
       console.error(
-        `[ItemGroupName] item is not simple or recipe!! Item:`,
-        itemGroup.value,
+        '[ItemGroupName] item is not simple or recipe!! Item:',
+        group_,
       )
       return 'text-red-400'
     }
-  })
+  }
 
   return (
-    <div className="">
-      {/* 
-        //TODO: ItemGroupView id is random, but it should be an entry on the database (meal too) 
+    <div class="">
+      {/*
+        //TODO: ItemGroupView id is random, but it should be an entry on the database (meal too)
       */}
       {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.ItemGroupView.id}]</h5> */}
-      <h5 className={`mb-2 text-lg font-bold tracking-tight ${nameColor}`}>
-        {itemGroup.value?.name ?? 'Erro: grupo sem nome'}{' '}
-        {debug && (
-          <>
-            <div className="text-sm text-gray-400">
-              [ID: {itemGroup.value?.id}]
-            </div>
-          </>
-        )}
+      <h5 class={`mb-2 text-lg font-bold tracking-tight ${nameColor()}`}>
+        {props.group()?.name ?? 'Erro: grupo sem nome'}{' '}
       </h5>
     </div>
   )
 }
 
-function ItemGroupCopyButton({
-  onCopyItemGroup,
-  group: itemGroup,
-}: {
+export function ItemGroupCopyButton(props: {
   onCopyItemGroup: (itemGroup: ItemGroup) => void
-  group: ReadonlySignal<ItemGroup>
+  group: Accessor<ItemGroup>
 }) {
   return (
     <div
-      className={`btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105`}
+      class={'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'}
       onClick={(e) => {
         e.stopPropagation()
         e.preventDefault()
-        onCopyItemGroup(itemGroup.value)
+        props.onCopyItemGroup(props.group())
       }}
     >
       <CopyIcon />
@@ -192,57 +162,31 @@ function ItemGroupCopyButton({
   )
 }
 
-function ItemGroupFavorite({
-  favorite,
-  setFavorite,
-}: {
-  favorite: boolean
-  setFavorite?: (favorite: boolean) => void
+export function ItemGroupViewNutritionalInfo(props: {
+  group: Accessor<ItemGroup>
 }) {
-  const toggleFavorite = (e: React.MouseEvent) => {
-    setFavorite?.(!favorite)
-    e.stopPropagation()
-    e.preventDefault()
-  }
+  console.debug('[ItemGroupViewNutritionalInfo] - Rendering')
+
+  createEffect(() => {
+    console.debug('[ItemGroupViewNutritionalInfo] - itemGroup:', props.group)
+  })
+
+  const multipliedMacros = () =>
+    calcGroupMacros(props.group()) ??
+    ({
+      carbs: -666,
+      protein: -666,
+      fat: -666,
+    } satisfies MacroNutrients)
 
   return (
-    <div
-      className={`ml-auto text-3xl text-orange-400 ${
-        setFavorite ? 'hover:text-blue-200' : ''
-      }`}
-      onClick={toggleFavorite}
-    >
-      {favorite ? '★' : '☆'}
-    </div>
-  )
-}
-
-function ItemGroupViewNutritionalInfo({
-  group: itemGroup,
-}: {
-  group: ReadonlySignal<ItemGroup>
-}) {
-  console.debug(`[ItemGroupViewNutritionalInfo] - Rendering`)
-  console.debug(`[ItemGroupViewNutritionalInfo] - itemGroup:`, itemGroup)
-
-  const multipliedMacros: MacroNutrients = calcGroupMacros(itemGroup.value) ?? {
-    carbs: -666,
-    protein: -666,
-    fat: -666,
-  }
-
-  return (
-    <div className="flex">
-      <MacroNutrientsView {...multipliedMacros} />
-      <div className="ml-auto">
-        <span className="text-white">
+    <div class="flex">
+      <MacroNutrientsView {...multipliedMacros()} />
+      <div class="ml-auto">
+        <span class="text-white"> {props.group()?.quantity ?? -666}g </span>|
+        <span class="text-white">
           {' '}
-          {itemGroup.value?.quantity ?? -666}g{' '}
-        </span>
-        |
-        <span className="text-white">
-          {' '}
-          {calcGroupCalories(itemGroup.value).toFixed(0)}
+          {calcGroupCalories(props.group()).toFixed(0)}
           kcal{' '}
         </span>
       </div>

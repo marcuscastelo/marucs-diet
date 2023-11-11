@@ -1,5 +1,4 @@
-import { ReadonlySignal, useSignal } from '@preact/signals-react'
-import { useCallback } from 'react'
+import { createSignal } from 'solid-js'
 
 export function useTyping({
   onTypingStart,
@@ -10,29 +9,32 @@ export function useTyping({
   onTypingEnd?: () => void
   delay?: number
 }) {
-  const typing = useSignal(false)
-  const timeoutId = useSignal<NodeJS.Timeout | null>(null)
+  const [typing, setTyping] = createSignal(false)
+  const [timeoutId, setTimeoutId] = createSignal<NodeJS.Timeout | null>(null)
 
-  const handleTypingStart = useCallback(() => {
-    typing.value = true
+  const handleTypingStart = () => {
+    setTyping(true)
     onTypingStart?.()
-  }, [onTypingStart, typing])
+  }
 
-  const handleTypingEnd = useCallback(() => {
-    typing.value = false
+  const handleTypingEnd = () => {
+    setTyping(false)
     onTypingEnd?.()
-  }, [onTypingEnd, typing])
+  }
 
-  const handleTyping = useCallback(() => {
-    if (timeoutId.value) clearTimeout(timeoutId.value)
+  const handleTyping = () => {
+    const timeoutId_ = timeoutId()
+    if (timeoutId_ !== null) clearTimeout(timeoutId_)
     handleTypingStart()
-    timeoutId.value = setTimeout(() => {
-      handleTypingEnd()
-    }, delay)
-  }, [timeoutId, delay, handleTypingEnd, handleTypingStart])
+    setTimeoutId(
+      setTimeout(() => {
+        handleTypingEnd()
+      }, delay),
+    )
+  }
 
   return {
-    typing: typing as ReadonlySignal<boolean>,
+    typing,
     onTyped: handleTyping,
   }
 }

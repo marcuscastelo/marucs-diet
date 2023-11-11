@@ -1,10 +1,10 @@
 import {
-  ItemGroup,
-  RecipedItemGroup,
-} from '@/modules/diet/item-group/domain/itemGroup'
-import { FoodItem } from '@/src/modules/diet/food-item/domain/foodItem'
-import { Recipe } from '@/src/modules/diet/recipe/domain/recipe'
-import { generateId } from '@/legacy/utils/idUtils'
+  type ItemGroup,
+  type RecipedItemGroup,
+} from '~/modules/diet/item-group/domain/itemGroup'
+import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import { generateId } from '~/legacy/utils/idUtils'
 
 export type GroupConvertible =
   | ItemGroup
@@ -50,26 +50,13 @@ export function isRecipedGroupUpToDate(
   return true
 }
 
-export function calculateGroupQuantity(groupItems: ItemGroup['items']): number {
+function calculateGroupQuantity(groupItems: ItemGroup['items']): number {
   return groupItems
     .map((item) => item.quantity)
     .reduce((acc: number, quantity) => acc + quantity, 0)
 }
 
 // TODO: Replace quantity field with a getter that calculates it
-/**
- * @deprecated
- */
-export function updateTotalQuantity(group: ItemGroup) {
-  const newGroup = { ...group }
-
-  newGroup.quantity = newGroup.items
-    .map((item) => item.quantity)
-    .reduce((acc, quantity) => acc + quantity, 0)
-
-  return newGroup
-}
-
 export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
   if (Array.isArray(convertible)) {
     return { ...convertible }

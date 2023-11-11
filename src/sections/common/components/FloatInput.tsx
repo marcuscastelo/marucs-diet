@@ -1,48 +1,53 @@
-'use client'
+import { type useFloatField } from '~/sections/common/hooks/useField'
+import type JSX from 'solid-js/jsx-runtime'
+export function FloatInput(
+  props: {
+    field: ReturnType<typeof useFloatField>
+    commitOn?: 'blur' | 'change' /* | 'timeout' */
+    onFieldCommit?: (value: number | undefined) => void
+    onBlur?: (
+      e: FocusEvent & {
+        currentTarget: HTMLInputElement
+        target: HTMLInputElement
+      },
+    ) => void
+  } & JSX.JSX.InputHTMLAttributes<HTMLInputElement>,
+) {
+  const commitOn = () => props.commitOn ?? 'blur'
 
-import { useFloatField } from '@/sections/common/hooks/useField'
-import { FocusEventHandler } from 'react'
+  const handleOnBlur = (
+    e: FocusEvent & {
+      currentTarget: HTMLInputElement
+      target: HTMLInputElement
+    },
+  ) => {
+    props.onBlur?.(e)
 
-export function FloatInput({
-  field,
-  commitOn = 'blur',
-  onFieldCommit,
-  onBlur,
-  ...props
-}: {
-  field: ReturnType<typeof useFloatField>
-  commitOn?: 'blur' | 'change' /* | 'timeout' */
-  onFieldCommit?: (value: number | undefined) => void
-} & Omit<
-  React.DetailedHTMLProps<
-    React.InputHTMLAttributes<HTMLInputElement>,
-    HTMLInputElement
-  >,
-  'value' | 'onChange'
->) {
-  const { rawValue, value, transform } = field
-
-  const handleOnBlur: FocusEventHandler<HTMLInputElement> = (e) => {
-    onBlur?.(e)
-
-    if (commitOn === 'blur') {
-      onFieldCommit?.(value.value)
-      rawValue.value = transform.toRaw(value.value ?? 0)
+    if (commitOn() === 'blur') {
+      props.onFieldCommit?.(props.field.value())
+      props.field.setRawValue(
+        props.field.transform.toRaw(props.field.value() ?? 0),
+      )
     }
   }
 
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    rawValue.value = e.target.value
+  const handleOnChange = (
+    e: Event & {
+      currentTarget: HTMLInputElement
+      target: HTMLInputElement
+    },
+  ) => {
+    props.field.setRawValue(e.target.value)
 
-    if (commitOn === 'change') {
-      onFieldCommit?.(value.value)
+    if (commitOn() === 'change') {
+      props.onFieldCommit?.(props.field.value())
     }
   }
 
   return (
     <input
       {...props}
-      value={rawValue.value}
+      value={props.field.rawValue()}
       onChange={handleOnChange}
       onBlur={handleOnBlur}
     />

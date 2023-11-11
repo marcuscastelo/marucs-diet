@@ -1,9 +1,7 @@
-'use client'
-
-import { Recipe } from '@/src/modules/diet/recipe/domain/recipe'
-import { useEffect } from 'react'
-import { useFetch } from '@/sections/common/hooks/useFetch'
-import { createSupabaseRecipeRepository } from '@/src/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import { useFetch } from '~/sections/common/hooks/useFetch'
+import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
+import { type Accessor, createEffect } from 'solid-js'
 
 // TODO: Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
@@ -11,12 +9,12 @@ const recipeRepository = createSupabaseRecipeRepository()
 /**
  * @deprecated Should be replaced by use cases
  */
-export function useRecipe(recipeId: Recipe['id']) {
+export function useRecipe(recipeId: Accessor<Recipe['id']>) {
   const { data, fetch } = useFetch(recipeRepository.fetchRecipeById)
 
-  useEffect(() => {
-    fetch(recipeId)
-  }, [fetch, recipeId])
+  createEffect(() => {
+    fetch(recipeId())
+  })
 
   return {
     recipe: data,

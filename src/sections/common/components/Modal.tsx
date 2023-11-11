@@ -1,76 +1,73 @@
-'use client'
-
-import React, { ReactNode, useEffect, useRef } from 'react'
-import { useModalContext } from '@/sections/common/context/ModalContext'
-import { BackIcon } from '@/sections/common/components/BackIcon'
-import { cn } from '@/legacy/utils/cn'
+import { useModalContext } from '~/sections/common/context/ModalContext'
+import { BackIcon } from '~/sections/common/components/BackIcon'
+import { cn } from '~/legacy/utils/cn'
+import { mergeProps, type JSXElement, createEffect } from 'solid-js'
 
 export type ModalProps = {
   // TODO: Unify Header, Content and Actions for each component in the entire app
   /**
    * @deprecated
    */
-  header?: React.ReactNode
-  body?: React.ReactNode
+  header?: JSXElement
+  body?: JSXElement
   // TODO: Unify Header, Content and Actions for each component in the entire app
   /**
    * @deprecated
    */
-  actions?: React.ReactNode
+  actions?: JSXElement
   hasBackdrop?: boolean
-  className?: string
+  class?: string
 }
 
 let modalId = 1
 
-const Modal = ({
-  header,
-  body,
-  actions,
-  hasBackdrop = true,
-  className = '',
-}: ModalProps) => {
-  const { visible } = useModalContext()
+export const Modal = (_props: ModalProps) => {
+  const props = mergeProps({ hasBackdrop: true, className: '' }, _props)
+  const { visible, setVisible } = useModalContext()
 
-  const modalRef = useRef<HTMLDialogElement>(null)
-
-  useEffect(() => {
-    if (visible.value) {
-      modalRef.current?.showModal()
-    } else {
-      modalRef.current?.close()
-    }
-  }, [visible.value, modalRef])
+  const handleClose = (
+    e: Event & {
+      currentTarget: HTMLDialogElement
+      target: Element
+    },
+  ) => {
+    console.debug('[Modal] handleClose')
+    setVisible(false)
+    e.stopPropagation()
+  }
 
   return (
     <dialog
       id={`modal-${modalId++}`}
-      className="modal modal-bottom sm:modal-middle"
-      ref={modalRef}
-      onClose={(e) => {
-        if (visible.value) {
-          visible.value = false
-          e.stopPropagation()
+      ref={(ref) => {
+        if (ref !== null) {
+          createEffect(() => {
+            console.debug('[Modal] <effect> visible:', visible())
+            if (visible()) {
+              ref.showModal()
+            } else {
+              ref.close()
+            }
+          })
         }
       }}
+      class="modal modal-bottom sm:modal-middle"
+      onClose={handleClose}
+      onCancel={handleClose}
     >
-      <div className={cn('modal-box bg-gray-800 text-white', className)}>
-        {header}
-        {body}
-        {actions}
+      <div class={cn('modal-box bg-gray-800 text-white', props.class)}>
+        {props.header}
+        {props.body}
+        {props.actions}
       </div>
-      {hasBackdrop && (
-        <form method="dialog" className="modal-backdrop">
+      {props.hasBackdrop && (
+        <form method="dialog" class="modal-backdrop">
           <button>close</button>
         </form>
       )}
     </dialog>
   )
 }
-
-Modal.Header = ModalHeader
-Modal.Body = ModalBody
-Modal.Actions = ModalActions
 
 // TODO: ModalHeader => Modal.Header, ModalBody => Modal.Body, ModalActions => Modal.Actions
 
@@ -79,26 +76,26 @@ Modal.Actions = ModalActions
 /**
  * @deprecated
  */
-export function ModalHeader({
-  title,
-  backButton = true,
-}: {
-  title: ReactNode
+export function ModalHeader(_props: {
+  title: JSXElement
   backButton?: boolean
 }) {
-  const { visible } = useModalContext()
+  const props = mergeProps({ backButton: true }, _props)
+  const { setVisible } = useModalContext()
 
   return (
-    <div className="flex gap-2">
-      {backButton && (
+    <div class="flex gap-2">
+      {props.backButton && (
         <button
-          className="btn btn-sm btn-ghost btn-circle"
-          onClick={() => (visible.value = false)}
+          class="btn btn-sm btn-ghost btn-circle"
+          onClick={() => {
+            setVisible(false)
+          }}
         >
           <BackIcon />
         </button>
       )}
-      <h3 className="text-lg font-bold text-white my-auto w-full">{title}</h3>
+      <h3 class="text-lg font-bold text-white my-auto w-full">{props.title}</h3>
     </div>
   )
 }
@@ -113,8 +110,6 @@ export function ModalBody() {
 /**
  * @deprecated
  */
-export function ModalActions({ children }: { children: React.ReactNode }) {
-  return <div className="modal-action">{children}</div>
+export function ModalActions(props: { children: JSXElement }) {
+  return <div class="modal-action">{props.children}</div>
 }
-
-export default Modal

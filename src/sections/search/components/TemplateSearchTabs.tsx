@@ -1,17 +1,13 @@
-'use client'
-
-import { Tabs } from 'flowbite-react'
-import { ObjectValues } from '@/legacy/utils/typeUtils'
-import { Loadable, UnboxedLoadable } from '@/legacy/utils/loadable'
-import { TemplateStore } from '@/sections/template/context/TemplateContext'
-import { Template } from '@/src/modules/diet/template/domain/template'
+import { type ObjectValues } from '~/legacy/utils/typeUtils'
+import { type Accessor, For, type Setter } from 'solid-js'
+import { cn } from '~/legacy/utils/cn'
 
 type TabDefinition = {
   id: string
   title: string
 }
 
-export const avaliableTabs = {
+export const availableTabs = {
   Todos: {
     id: 'all',
     title: 'Todos',
@@ -28,57 +24,41 @@ export const avaliableTabs = {
     id: 'recipes',
     title: 'Receitas (WIP)',
   } as const satisfies TabDefinition,
-} as const satisfies { [key: string]: TabDefinition }
+} as const satisfies Record<string, TabDefinition>
 
-export type AvailableTab = ObjectValues<typeof avaliableTabs>['id']
+export type AvailableTab = ObjectValues<typeof availableTabs>['id']
 
-export function chooseFoodsFromStore(
-  tab: AvailableTab,
-  store: UnboxedLoadable<TemplateStore>,
-): Loadable<readonly Template[] | null> {
-  switch (tab) {
-    case 'all':
-      return store.foods
-    case 'favorites':
-      return store.favoriteFoods
-    case 'recent':
-      return store.recentFoods
-    case 'recipes':
-      return store.recipes
-    default:
-      tab satisfies never
-      throw new Error(`Invalid tab: ${tab}`)
-  }
-}
-
-export function TemplateSearchTabs({
-  onTabChange,
-}: {
-  onTabChange: (
-    id: (typeof avaliableTabs)[keyof typeof avaliableTabs]['id'],
-  ) => void
+export function TemplateSearchTabs(props: {
+  tab: Accessor<AvailableTab>
+  setTab: Setter<AvailableTab>
 }) {
   return (
-    <>
-      <Tabs.Group
-        aria-label="Default tabs"
-        style="fullWidth"
-        onActiveTabChange={(tabIndex) => {
-          const tab = Object.values(avaliableTabs)[tabIndex]
-          onTabChange(tab.id)
-        }}
-        theme={{
-          tablist: {
-            tabitem: {
-              base: 'flex items-center justify-center p-4 rounded-t-lg text-sm font-medium first:ml-0 disabled:cursor-not-allowed disabled:text-gray-400 disabled:dark:text-gray-500 focus:outline-none',
-            },
-          },
-        }}
-      >
-        {Object.values(avaliableTabs).map((tab, idx) => (
-          <Tabs.Item key={idx} title={tab.title} />
-        ))}
-      </Tabs.Group>
-    </>
+    <ul class="flex text-sm font-medium text-center text-gray-500 divide-x divide-gray-700 rounded-lg shadow  dark:divide-gray-700 dark:text-gray-400">
+      <For each={Object.keys(availableTabs)}>
+        {(tabKey) => (
+          <li class="w-full">
+            <a
+              href="#"
+              class={cn(
+                'flex min-h-full items-center justify-center p-4 text-sm font-medium first:ml-0 disabled:cursor-not-allowed disabled:text-gray-400 disabled:dark:text-gray-500 focus:outline-none',
+                {
+                  'text-gray-100 bg-gray-600 dark:bg-gray-700 dark:text-gray-300':
+                    props.tab() ===
+                    availableTabs[tabKey as keyof typeof availableTabs].id,
+                },
+              )}
+              aria-current="page"
+              onClick={() => {
+                props.setTab(
+                  availableTabs[tabKey as keyof typeof availableTabs].id,
+                )
+              }}
+            >
+              {availableTabs[tabKey as keyof typeof availableTabs].title}
+            </a>
+          </li>
+        )}
+      </For>
+    </ul>
   )
 }

@@ -1,31 +1,24 @@
-'use client'
+import { type Loadable } from '~/legacy/utils/loadable'
+import { createSignal } from 'solid-js'
 
-import { Loadable } from '@/legacy/utils/loadable'
-import { ReadonlySignal, useSignal } from '@preact/signals-react'
-import { useCallback } from 'react'
-
-export type FetchFunc<T, I, P extends Array<I>> = (...params: P) => Promise<T>
+export type FetchFunc<T, I, P extends I[]> = (...params: P) => Promise<T>
 
 /**
  * @deprecated Should be replaced by use cases
  */
-export function useFetch<T, I, P extends Array<I>>(
-  fetchFunc: FetchFunc<T, I, P>,
-) {
-  const data = useSignal<Loadable<T>>({ loading: true })
+export function useFetch<T, I, P extends I[]>(fetchFunc: FetchFunc<T, I, P>) {
+  const [data, setData] = createSignal<Loadable<T>>({ loading: true })
 
-  const handleFetch = useCallback(
-    (...params: P) => {
-      fetchFunc(...params).then(
-        (newData) =>
-          (data.value = { loading: false, errored: false, data: newData }),
+  const handleFetch = (...params: P) => {
+    fetchFunc(...params)
+      .then((newData) =>
+        setData({ loading: false, errored: false, data: newData }),
       )
-    },
-    [fetchFunc, data],
-  )
+      .catch((error) => setData({ loading: false, errored: true, error }))
+  }
 
   return {
-    data: data as ReadonlySignal<Loadable<T>>,
+    data,
     fetch: handleFetch,
   } as const
 }

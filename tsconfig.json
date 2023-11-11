@@ -1,31 +1,19 @@
 {
   "compilerOptions": {
-    "downlevelIteration": true,
-    "target": "es5",
-    "sourceMap": true,
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
+    "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "module": "esnext",
+    "target": "ESNext",
+    "module": "ESNext",
     "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
+    "jsxImportSource": "solid-js",
     "jsx": "preserve",
-    "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
+    "strict": true,
+    "baseUrl": "./",
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@/*": ["./*", "src/*"]
-    },
-    "baseUrl": "."
+      "~/*": ["./src/*"]
+    }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"],
+  "types": ["vitest"]
 }
