@@ -1,21 +1,23 @@
-'use client'
-
+import { LoadingRing } from '~/sections/common/components/LoadingRing'
 import {
   Html5Qrcode,
-  Html5QrcodeFullConfig,
-  Html5QrcodeResult,
+  type Html5QrcodeFullConfig,
+  type Html5QrcodeResult,
   Html5QrcodeSupportedFormats,
 } from 'html5-qrcode'
-import { useEffect } from 'react'
+import { Show, createEffect, createSignal, onCleanup } from 'solid-js'
 
-export function BarCodeReader({
-  id,
-  onScanned,
-}: {
+export function BarCodeReader(props: {
   id: string
+  enabled: boolean
   onScanned: (barcode: string) => void
 }) {
-  useEffect(() => {
+  const [loadingScanner, setLoadingScanner] = createSignal(true)
+
+  createEffect(() => {
+    if (!props.enabled) return
+    setLoadingScanner(true)
+
     function onScanSuccess(
       decodedText: string,
       decodedResult: Html5QrcodeResult,
@@ -30,7 +32,7 @@ export function BarCodeReader({
         console.warn(`Código de barras lido: ${decodedText}`)
       }
 
-      onScanned(decodedText)
+      props.onScanned(decodedText)
     }
 
     const qrboxFunction = function (
@@ -69,7 +71,7 @@ export function BarCodeReader({
       useBarCodeDetectorIfSupported: true,
     }
 
-    const html5QrcodeScanner = new Html5Qrcode(id, config)
+    const html5QrcodeScanner = new Html5Qrcode(props.id, config)
     const didStart = html5QrcodeScanner
       .start(
         { facingMode: 'environment' },
@@ -77,19 +79,33 @@ export function BarCodeReader({
         onScanSuccess,
         undefined,
       )
-      .then(() => true)
+      .then(() => {
+        setLoadingScanner(false)
+        return true
+      })
+      .catch((err) => {
+        console.error('Error starting scanner', err)
+        return false
+      })
 
-    return () => {
+    onCleanup(() => {
       didStart
-        .then(() => html5QrcodeScanner.stop())
+        .then(async () => {
+          await html5QrcodeScanner.stop().catch((err) => {
+            console.error('Error stopping scanner', err)
+          })
+        })
         .catch(() => {
           console.log('Error stopping scanner')
         })
-    }
-  }, [id, onScanned])
+    })
+  })
   return (
     <>
-      <div id={id} className="mx-auto w-full"></div>
+      <Show when={loadingScanner()}>
+        <LoadingRing />
+      </Show>
+      <div id={props.id} class="mx-auto w-full" />
     </>
   )
 }

@@ -1,106 +1,89 @@
-'use client'
+import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { calculateMacroTarget } from '~/sections/macro-nutrients/components/MacroTargets'
+import { calcCalories } from '~/legacy/utils/macroMath'
+import { latestWeight } from '~/legacy/utils/weightUtils'
+import { userWeights } from '~/modules/weight/application/weight'
+import { Show } from 'solid-js'
+import { Progress } from '~/sections/common/components/Progress'
+import { latestMacroProfile } from '~/modules/diet/macro-profile/application/macroProfile'
 
-import { MacroNutrients } from '@/src/modules/diet/macro-nutrients/domain/macroNutrients'
-import { Progress } from 'flowbite-react'
-import { calculateMacroTarget } from '@/src/sections/macro-nutrients/components/MacroTargets'
-import { CSSProperties } from 'react'
-import { calcCalories } from '@/legacy/utils/macroMath'
-import { useUserContext } from '@/sections/user/context/UserContext'
-import { latestWeight } from '@/legacy/utils/weightUtils'
-import { useMacroProfiles } from '@/sections/macro-profile/hooks/useMacroProfiles'
-import { latestMacroProfile } from '@/legacy/utils/macroProfileUtils'
-import { useWeightContext } from '@/src/sections/weight/context/WeightContext'
-
-export default function DayMacros({
-  macros,
-  className,
-}: {
+export default function DayMacros(props: {
   macros: MacroNutrients
-  className?: string
+  class?: string
 }) {
-  const { user } = useUserContext()
+  // TODO: Refactor hook to use currentUser() instead of userId (probably delete hook and use use cases)
 
-  const { weights } = useWeightContext()
-  const { macroProfiles } = useMacroProfiles(user.id)
+  const weight = () => latestWeight(userWeights())?.weight ?? null
 
-  if (weights.loading || weights.errored) {
-    return <h1>Carregando pesos...</h1>
+  const macroSignals = () => {
+    const macroProfile_ = latestMacroProfile()
+    const weight_ = weight()
+    if (macroProfile_ === null) return null
+    if (weight_ === null) return null
+
+    return {
+      macroTarget: calculateMacroTarget(weight_, macroProfile_),
+      targetCalories: calcCalories(
+        calculateMacroTarget(weight_, macroProfile_),
+      ),
+    }
   }
-
-  if (macroProfiles.loading || macroProfiles.errored) {
-    return <h1>Carregando perfis de macro...</h1>
-  }
-
-  const weight = latestWeight(weights.data)?.weight
-
-  if (!weight) {
-    return <h1>O usuário não possui pesos registrados</h1>
-  }
-
-  const macroProfile = latestMacroProfile(macroProfiles.data)
-
-  if (!macroProfile) {
-    return <h1>O usuário não possui perfis de macro registrados</h1>
-  }
-
-  const targetMacros = calculateMacroTarget(weight, macroProfile)
-
-  const targetCalories = calcCalories(targetMacros)
 
   return (
-    <>
-      <div className={`flex pt-3 ${className} flex-col xs:flex-row `}>
-        <div className="flex-shrink">
-          <Calories
-            className="w-full"
-            macros={macros}
-            targetCalories={targetCalories}
-          />
-        </div>
-        <div className="flex-1">
-          <Macros
-            className="mt-3 text-xl xs:mt-0"
-            macros={macros}
-            targetMacros={targetMacros}
-          />
-        </div>
-      </div>
-    </>
+    <Show
+      when={macroSignals()}
+      fallback={<>Sem macros: {JSON.stringify(macroSignals())}</>}
+    >
+      {(macroSignals) => (
+        <>
+          <div class={`flex pt-3 ${props.class} flex-col xs:flex-row `}>
+            <div class="flex-shrink">
+              <Calories
+                class="w-full"
+                macros={props.macros}
+                targetCalories={macroSignals().targetCalories}
+              />
+            </div>
+            <div class="flex-1">
+              <Macros
+                class="mt-3 text-xl xs:mt-0"
+                macros={props.macros}
+                targetMacros={macroSignals().macroTarget}
+              />
+            </div>
+          </div>
+        </>
+      )}
+    </Show>
   )
 }
 
-function Calories({
-  macros,
-  targetCalories,
-  className,
-}: {
+function Calories(props: {
   macros: MacroNutrients
   targetCalories: number
-  className?: string
+  class?: string
 }) {
-  const calories = calcCalories(macros)
+  const calories = () => calcCalories(props.macros)
   return (
     <>
-      <div className={`h-24 overflow-y-clip text-center ${className}`}>
+      <div class={`h-24 overflow-y-clip text-center ${props.class}`}>
         <div
-          className="radial-progress text-blue-600"
-          style={
-            {
-              '--value': (100 * (calories / targetCalories)) / 2,
-              '--size': '12rem',
-              '--thickness': '0.7rem',
-              transform: `rotate(90deg) scale(-1, -1)`,
-            } as CSSProperties
-          }
+          class="radial-progress text-blue-600"
+          style={{
+            '--value': (100 * (calories() / props.targetCalories)) / 2,
+            '--size': '12rem',
+            '--thickness': '0.7rem',
+            transform: 'rotate(90deg) scale(-1, -1)',
+          }}
         >
           <span
-            className=""
+            class=""
             style={{
-              transform: `rotate(-90deg) scale(-1, -1) translate(0, -0.5rem)`,
+              transform: 'rotate(-90deg) scale(-1, -1) translate(0, -0.5rem)',
             }}
           >
-            {Math.round(calories).toFixed(2)}/
-            {Math.round(targetCalories).toFixed(2)}kcal
+            {Math.round(calories()).toFixed(2)}/
+            {Math.round(props.targetCalories).toFixed(2)}kcal
           </span>
         </div>
       </div>
@@ -108,49 +91,46 @@ function Calories({
   )
 }
 
-function Macros({
-  macros,
-  targetMacros,
-  className,
-}: {
+function Macros(props: {
   macros: MacroNutrients
   targetMacros: MacroNutrients
-  className?: string
+  class?: string
 }) {
+  // TODO: Add Progress component
   return (
-    <div className={`mx-2 ${className}`}>
+    <div class={`mx-2 ${props.class}`}>
       <Progress
-        className=""
-        size="sm"
+        class=""
+        sizeClass="h-1.5"
         textLabelPosition="outside"
         color="green"
-        textLabel={`Carboidrato (${Math.round(macros.carbs * 100) / 100}/${
-          Math.round(targetMacros.carbs * 100) / 100
-        }g)`}
+        textLabel={`Carboidrato (${
+          Math.round(props.macros.carbs * 100) / 100
+        }/${Math.round(props.targetMacros.carbs * 100) / 100}g)`}
         labelText={true}
-        progress={(100 * macros.carbs) / targetMacros.carbs}
+        progress={(100 * props.macros.carbs) / props.targetMacros.carbs}
       />
       <Progress
-        className=""
-        size="sm"
+        class=""
+        sizeClass="h-1.5"
         textLabelPosition="outside"
         color="red"
-        textLabel={`Proteína (${Math.round(macros.protein * 100) / 100}/${
-          Math.round(targetMacros.protein * 100) / 100
+        textLabel={`Proteína (${Math.round(props.macros.protein * 100) / 100}/${
+          Math.round(props.targetMacros.protein * 100) / 100
         }g)`}
         labelText={true}
-        progress={(100 * macros.protein) / targetMacros.protein}
+        progress={(100 * props.macros.protein) / props.targetMacros.protein}
       />
       <Progress
-        className=""
-        size="sm"
+        class=""
+        sizeClass="h-1.5"
         textLabelPosition="outside"
         color="yellow"
-        textLabel={`Gordura (${Math.round(macros.fat * 100) / 100}/${
-          Math.round(targetMacros.fat * 100) / 100
+        textLabel={`Gordura (${Math.round(props.macros.fat * 100) / 100}/${
+          Math.round(props.targetMacros.fat * 100) / 100
         }g)`}
         labelText={true}
-        progress={(100 * macros.fat) / targetMacros.fat}
+        progress={(100 * props.macros.fat) / props.targetMacros.fat}
       />
     </div>
   )

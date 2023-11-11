@@ -1,6 +1,6 @@
-import { Measure } from '@/modules/measure/domain/measure'
-import { User } from '@/modules/user/domain/user'
-import { Weight } from '@/modules/weight/domain/weight'
+import { type Measure } from '~/modules/measure/domain/measure'
+import { type User } from '~/modules/user/domain/user'
+import { type Weight } from '~/modules/weight/domain/weight'
 import { z } from 'zod'
 
 export type BodyFatInput<T extends User['gender']> = {
@@ -15,21 +15,22 @@ export type BodyFatInput<T extends User['gender']> = {
 export function calculateBodyFat<T extends User['gender']>(
   input: BodyFatInput<T>,
 ) {
-  if (input.gender === 'male')
+  if (input.gender === 'male') {
     return calculateMaleBodyFat({
       ...input,
       gender: 'male',
     })
-  else
+  } else {
     return calculateFemaleBodyFat({
       ...input,
       gender: 'female',
       hip: z.number().parse(input.hip),
     })
+  }
 }
 
 /*
-BFP =	
+BFP =
 495
 1.0324 - 0.19077×log10(waist-neck) + 0.15456×log10(height)
 - 450
@@ -45,7 +46,7 @@ function calculateMaleBodyFat(input: BodyFatInput<'male'>) {
 }
 
 /*
-BFP =	
+BFP =
 495
 1.29579 - 0.35004×log10(waist+hip-neck) + 0.22100×log10(height)
 - 450

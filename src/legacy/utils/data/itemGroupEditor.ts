@@ -1,11 +1,11 @@
-import { FoodItem } from '@/src/modules/diet/food-item/domain/foodItem'
-import { ItemContainer } from '@/legacy/utils/data/interfaces/itemContainer'
-import { ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
-import { Editor } from '@/legacy/utils/data/editor'
-import { ItemEditor } from '@/legacy/utils/data/itemEditor'
-import { Recipe } from '@/src/modules/diet/recipe/domain/recipe'
-import { deepCopy } from '@/legacy/utils/deepCopy'
-import { Mutable } from '@/legacy/utils/typeUtils'
+import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { type ItemContainer } from '~/legacy/utils/data/interfaces/itemContainer'
+import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { Editor } from '~/legacy/utils/data/editor'
+import { ItemEditor } from '~/legacy/utils/data/itemEditor'
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import { deepCopy } from '~/legacy/utils/deepCopy'
+import { type Mutable } from '~/legacy/utils/typeUtils'
 
 export class ItemGroupEditor
   extends Editor<ItemGroup>
@@ -39,7 +39,7 @@ export class ItemGroupEditor
     return this
   }
 
-  findItem(id: number) {
+  findItem(id: FoodItem['id']) {
     return this.group.items.find((item) => item.id === id)
   }
 
@@ -75,7 +75,7 @@ export class ItemGroupEditor
   }
 
   setItems(items: FoodItem[]) {
-    this.group.items = deepCopy(items) as Mutable<FoodItem>[]
+    this.group.items = deepCopy(items) as Array<Mutable<FoodItem>>
     return this
   }
 

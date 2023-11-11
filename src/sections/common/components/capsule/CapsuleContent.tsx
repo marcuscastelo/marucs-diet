@@ -1,5 +1,7 @@
-export function CapsuleContent({ children }: { children: React.ReactNode }) {
+import { type JSXElement } from 'solid-js'
+
+export function CapsuleContent(props: { children: JSXElement }) {
   return (
-    <div className={`ml-2 p-2 text-xl flex justify-between`}>{children}</div>
+    <div class={'ml-2 p-2 text-xl flex justify-between'}>{props.children}</div>
   )
 }

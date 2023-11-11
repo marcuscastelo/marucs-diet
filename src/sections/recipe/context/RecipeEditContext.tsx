@@ -1,15 +1,25 @@
-'use client'
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import {
+  type Accessor,
+  type JSXElement,
+  type Setter,
+  createContext,
+  useContext,
+  createSignal,
+  createEffect,
+} from 'solid-js'
 
-import { Recipe } from '@/src/modules/diet/recipe/domain/recipe'
-import { Signal } from '@preact/signals-react'
-import { createContext, useContext } from 'use-context-selector'
+export type RecipeContext = {
+  recipe: Accessor<Recipe>
+  setRecipe: Setter<Recipe>
+}
 
-const RecipeContext = createContext<{ recipe: Signal<Recipe> } | null>(null)
+const recipeContext = createContext<RecipeContext | null>(null)
 
 export function useRecipeEditContext() {
-  const context = useContext(RecipeContext)
+  const context = useContext(recipeContext)
 
-  if (!context) {
+  if (context === null) {
     throw new Error(
       'useRecipeContext must be used within a RecipeContextProvider',
     )
@@ -18,20 +28,30 @@ export function useRecipeEditContext() {
   return context
 }
 
-export function RecipeEditContextProvider({
-  recipe,
-  children,
-}: {
-  recipe: Signal<Recipe>
-  children: React.ReactNode
+export function RecipeEditContextProvider(props: {
+  recipe: Accessor<Recipe>
+  setRecipe: Setter<Recipe>
+  children: JSXElement
 }) {
+  // TODO: Stop creating a new signal on every context provider
+  const [innerRecipe, setInnerRecipe] = createSignal(props.recipe())
+
+  createEffect(() => {
+    setInnerRecipe(props.recipe())
+  })
+
+  createEffect(() => {
+    props.setRecipe(innerRecipe())
+  })
+
   return (
-    <RecipeContext.Provider
+    <recipeContext.Provider
       value={{
-        recipe,
+        recipe: innerRecipe,
+        setRecipe: setInnerRecipe,
       }}
     >
-      {children}
-    </RecipeContext.Provider>
+      {props.children}
+    </recipeContext.Provider>
   )
 }

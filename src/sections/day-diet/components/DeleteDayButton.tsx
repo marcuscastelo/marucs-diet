@@ -1,21 +1,16 @@
-'use client'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import { deleteDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
+import { type Accessor } from 'solid-js'
 
-import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { DayDiet } from '@/modules/diet/day-diet/domain/day'
-import { ReadonlySignal } from '@preact/signals-react'
-import { useDayContext } from '@/src/sections/day-diet/context/DaysContext'
-
-export default function DeleteDayButton({
-  day,
-}: {
-  day: ReadonlySignal<DayDiet | null | undefined>
+export function DeleteDayButton(props: {
+  day: Accessor<DayDiet | null | undefined>
 }) {
   const { show: showConfirmModal } = useConfirmModalContext()
-  const { deleteDay } = useDayContext()
 
   return (
     <button
-      className="btn-error btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white hover:bg-red-400"
+      class="btn-error btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white hover:bg-red-400"
       onClick={() => {
         showConfirmModal({
           title: 'Excluir dia',
@@ -28,9 +23,10 @@ export default function DeleteDayButton({
             {
               text: 'Excluir dia',
               primary: true,
-              onClick: async () => {
-                if (day.value) {
-                  deleteDay(day.value.id)
+              onClick: () => {
+                const day_ = props.day()
+                if (day_ !== null && day_ !== undefined) {
+                  deleteDayDiet(day_.id)
                 } else {
                   console.error('Day is null')
                   throw new Error('Day is null')

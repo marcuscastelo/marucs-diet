@@ -9,7 +9,7 @@ export function BackIcon() {
       width={15}
       height={15}
       viewBox="0 0 477.175 477.175"
-      xmlSpace="preserve"
+      xml-space="preserve"
       fill="white"
     >
       <g>

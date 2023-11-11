@@ -1,51 +1,59 @@
-'use client'
-
-import { useCallback, useEffect, useState } from 'react'
-import { z } from 'zod'
+import { createEffect, createSignal } from 'solid-js'
+import { type z } from 'zod'
 
 export type ClipboardFilter = (clipboard: string) => boolean
 
-export default function useClipboard(props?: {
+export function useClipboard(props?: {
   filter?: ClipboardFilter
   periodicRead?: boolean
 }) {
-  const filter = props?.filter
-  const periodicRead = props?.periodicRead ?? true
-  const [clipboard, setClipboard] = useState('')
+  const filter = () => props?.filter
+  const periodicRead = () => props?.periodicRead ?? true
+  const [clipboard, setClipboard] = createSignal('')
 
-  const handleWrite = useCallback((text: string) => {
-    window.navigator.clipboard.writeText(text).then(() => setClipboard(text))
-  }, [])
-
-  const handleRead = useCallback(() => {
+  const handleWrite = (text: string) => {
     window.navigator.clipboard
-      .readText()
-      .then((newClipboard) => {
-        if (filter && !filter(newClipboard)) {
-          setClipboard('')
-          return
-        }
-
-        setClipboard(newClipboard)
-      })
+      .writeText(text)
+      .then(() => setClipboard(text))
       .catch(() => {
         // Do nothing. This is expected when the DOM is not focused
       })
-  }, [filter])
+  }
 
+  const handleRead = () => {
+    const afterRead = (newClipboard: string) => {
+      const filter_ = filter()
+      if (filter_ !== undefined && !filter_(newClipboard)) {
+        setClipboard('')
+        return
+      }
+
+      setClipboard(newClipboard)
+    }
+    window.navigator.clipboard
+      .readText()
+      .then(afterRead)
+      .catch(() => {
+        // Do nothing. This is expected when the DOM is not focused
+      })
+  }
   // Update clipboard periodically
-  useEffect(() => {
-    if (!periodicRead) return
+  createEffect(() => {
+    if (!periodicRead()) return
 
     const interval = setInterval(handleRead, 1000)
-    return () => clearInterval(interval)
-  }, [periodicRead, filter, handleRead])
+    return () => {
+      clearInterval(interval)
+    }
+  })
 
   return {
     clipboard,
     write: handleWrite,
     read: handleRead,
-    clear: () => handleWrite(''),
+    clear: () => {
+      handleWrite('')
+    },
   }
 }
 
@@ -53,7 +61,7 @@ export function createClipboardSchemaFilter(
   acceptedClipboardSchema: z.ZodType,
 ) {
   return (clipboard: string) => {
-    if (!clipboard) return false
+    if (clipboard === '') return false
     let parsedClipboard: unknown
     try {
       parsedClipboard = JSON.parse(clipboard)
