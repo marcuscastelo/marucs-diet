@@ -247,7 +247,7 @@ function WeightChart(props: {
     const day_ = weight.target_timestamp.toLocaleDateString().slice(0, 5)
 
     const day = props.type === 'last-30-days' ? day_ : week
-    if (!acc[day]) {
+    if (acc[day] === undefined) {
       acc[day] = []
     }
     acc[day].push(weight)
@@ -341,7 +341,7 @@ function WeightChart(props: {
         background: '#1E293B',
         events: {
           beforeZoom: function (ctx) {
-            // we need to clear the range as we only need it on the iniital load.
+            // we need to clear the range as we only need it on the initial load.
             ctx.w.config.xaxis.range = undefined
           },
         },

@@ -19,7 +19,7 @@ export function MeasureChart(props: { measures: readonly Measure[] }) {
   const measuresByDay = () =>
     props.measures.reduce<Record<string, Measure[]>>((acc, measure) => {
       const day = dateToYYYYMMDD(measure.target_timestamp)
-      if (!acc[day]) {
+      if (acc[day] === undefined) {
         acc[day] = []
       }
       acc[day].push(measure)
@@ -206,40 +206,6 @@ function ChartFor(props: {
           height={200}
         />
       </>
-      {/* <ResponsiveContainer width="95%" height={100}>
-        <ComposedChart data={props.data} syncId={'measure-chart'}>
-          <XAxis dataKey="date" />
-          <YAxis
-            type="number"
-            allowDecimals={false}
-            domain={['datamin - 1', 'datamax + 1']}
-          />
-          <CartesianGrid opacity={0.1} />
-          <Tooltip
-            content={({ payload, label, active }) => {
-              if (!active || !payload) return null
-
-              const value = props.acessor(payload[0].payload as DayMeasures)
-
-              return (
-                <div class="bg-slate-700 p-5 opacity-80">
-                  <h1>{label}</h1>
-                  <h1>
-                    {props.title}: {value.toFixed(2)} {props.title === 'BF' && '%'}
-                  </h1>
-                </div>
-              )
-            }}
-          />
-          <Line
-            type="monotone"
-            dataKey={props.dataKey}
-            stroke={props.color}
-            dot={false}
-            strokeWidth={3}
-          />
-        </ComposedChart>
-      </ResponsiveContainer> */}
     </>
   )
 }

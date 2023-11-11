@@ -40,15 +40,17 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
     }
 
     setLoading(true)
+
+    const afterFetch = props.setFood
+    const catchFetch = (err: any) => {
+      props.setFood(null)
+      console.error(err)
+      alert(JSON.stringify(err, null, 2)) // TODO: Change all alerts with ConfirmModal
+    }
+
     fetchFoodByEan(props.barCode())
-      .then((newFood) => {
-        props.setFood(newFood)
-      })
-      .catch((err) => {
-        props.setFood(null)
-        console.error(err)
-        alert(JSON.stringify(err, null, 2)) // TODO: Change all alerts with ConfirmModal
-      })
+      .then(afterFetch)
+      .catch(catchFetch)
       .finally(() => {
         setLoading(false)
       })

@@ -21,17 +21,18 @@ export function useClipboard(props?: {
   }
 
   const handleRead = () => {
+    const afterRead = (newClipboard: string) => {
+      const filter_ = filter()
+      if (filter_ !== undefined && !filter_(newClipboard)) {
+        setClipboard('')
+        return
+      }
+
+      setClipboard(newClipboard)
+    }
     window.navigator.clipboard
       .readText()
-      .then((newClipboard) => {
-        const filter_ = filter()
-        if (filter_ !== undefined && !filter_(newClipboard)) {
-          setClipboard('')
-          return
-        }
-
-        setClipboard(newClipboard)
-      })
+      .then(afterRead)
       .catch(() => {
         // Do nothing. This is expected when the DOM is not focused
       })

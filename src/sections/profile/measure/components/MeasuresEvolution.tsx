@@ -2,7 +2,7 @@ import { type Loadable } from '~/legacy/utils/loadable'
 import { type Measure, createMeasure } from '~/modules/measure/domain/measure'
 import { MeasureChart } from '~/sections/profile/measure/components/MeasureChart'
 import { MeasureView } from '~/sections/profile/measure/components/MeasureView'
-import { useFloatFieldOld } from '~/sections/common/hooks/useField'
+import { useFloatField } from '~/sections/common/hooks/useField'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { For, createEffect, createSignal } from 'solid-js'
 import { currentUserId } from '~/modules/user/application/user'
@@ -16,14 +16,14 @@ const CARD_BACKGROUND_COLOR = 'bg-slate-800'
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
 
 export function MeasuresEvolution(props: { onSave: () => void }) {
-  // TODO: Remove `measures` state and use use cases instead
+  // TODO: Remove `measures` signal and use use cases instead
   const [measures, setMeasures] = createSignal<Loadable<readonly Measure[]>>({
     loading: true,
   })
-  const heightField = useFloatFieldOld()
-  const waistField = useFloatFieldOld()
-  const hipField = useFloatFieldOld()
-  const neckField = useFloatFieldOld()
+  const heightField = useFloatField()
+  const waistField = useFloatField()
+  const hipField = useFloatField()
+  const neckField = useFloatField()
 
   const handleRefetchMeasures = () => {
     const userId = currentUserId()

@@ -7,6 +7,7 @@ import {
   createSignal,
   type JSXElement,
 } from 'solid-js'
+import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 
 export type ItemGroupEditContext = {
   group: Accessor<ItemGroup | null>
@@ -34,7 +35,9 @@ export function ItemGroupEditContextProvider(props: {
   onSaveGroup: (group: ItemGroup) => void
   children: JSXElement
 }) {
-  const [group, setGroup] = createSignal<ItemGroup | null>(props.group())
+  const [group, setGroup] = createMirrorSignal<ItemGroup | null>(() =>
+    props.group(),
+  )
 
   createContext(() => {
     console.debug(

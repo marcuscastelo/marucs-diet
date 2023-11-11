@@ -58,6 +58,7 @@ import {
   createEffect,
   Show,
 } from 'solid-js'
+import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 
 // TODO: Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
@@ -271,6 +272,7 @@ function ExternalRecipeEditModal(props: {
         >
           <RecipeEditModal
             recipe={recipe()}
+            // TODO: Convert onSaveRecipe and onDelete to sync callback
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             onSaveRecipe={async (recipe) => {
               console.debug(
@@ -345,14 +347,16 @@ function ExternalFoodItemEditModal(props: {
       <FoodItemEditModal
         targetName={(() => {
           const group_ = group()
-          return (
-            (group_ &&
-              (isSimpleSingleGroup(group_)
-                ? props.targetMealName
-                : // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-                  group_.name)) ||
-            'Erro: Grupo sem nome'
-          )
+
+          if (group_ !== null) {
+            const simpleGroup = group_ !== null && isSimpleSingleGroup(group_)
+            const receivedName = simpleGroup
+              ? props.targetMealName
+              : group_.name
+            return receivedName.length > 0 ? receivedName : 'Erro: Nome vazio'
+          }
+
+          return 'Erro: Grupo de alimentos nulo'
         })()}
         targetNameColor={(() => {
           const group_ = group()
@@ -620,8 +624,9 @@ function Body(props: {
 
                           const newRecipe = createRecipe({
                             name:
-                              group_.name ||
-                              'Nova receita (a partir de um grupo)',
+                              group_.name.length > 0
+                                ? group_.name
+                                : 'Nova receita (a partir de um grupo)',
                             items: deepCopy(group_.items) ?? [],
                             owner: currentUserId(),
                           })
@@ -890,21 +895,19 @@ function PreparedQuantity(props: {
   setRecipedGroup: Setter<RecipedItemGroup | null>
   recipe: Recipe | null
 }) {
-  const rawQuantiy = () =>
+  const rawQuantity = () =>
     props.recipedGroup()?.items.reduce((acc, item) => {
       return acc + item.quantity
     }, 0)
 
   const initialPreparedQuantity = () =>
-    (rawQuantiy() ?? 0) * (props.recipe?.prepared_multiplier ?? 1)
+    (rawQuantity() ?? 0) * (props.recipe?.prepared_multiplier ?? 1)
 
-  const [preparedQuantity, setPreparedQuantity] = createSignal(
-    initialPreparedQuantity(),
+  // TODO: Allow user to edit prepared quantity directly
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [preparedQuantity, _setPreparedQuantity] = createMirrorSignal(
+    initialPreparedQuantity,
   )
-
-  createEffect(() => {
-    setPreparedQuantity(initialPreparedQuantity())
-  })
 
   const preparedQuantityField = useFloatField(preparedQuantity, {
     decimalPlaces: 0,
@@ -929,13 +932,13 @@ function PreparedQuantity(props: {
             (newPreparedQuantity ?? 0) /
             (props.recipe?.prepared_multiplier ?? 1)
 
-          const mult = newRawQuantity / (rawQuantiy() ?? 1)
+          const multiplier = newRawQuantity / (rawQuantity() ?? 1)
 
           const newItems =
             props.recipedGroup()?.items.map((item) => {
               return {
                 ...item,
-                quantity: item.quantity * mult,
+                quantity: item.quantity * multiplier,
               }
             }) ?? []
 

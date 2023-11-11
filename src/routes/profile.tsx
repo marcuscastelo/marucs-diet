@@ -86,6 +86,7 @@ export default function Page() {
           <div class={'mx-1 md:mx-40 lg:mx-auto lg:w-1/3'}>
             <BasicInfo
               user={currentUser}
+              // TODO: Convert onSaveRecipe and onDelete to sync callback
               onSave={async (newUser: User) => {
                 const updatedUser = await updateUser(newUser.id, newUser)
                 alert('TODO: onSave Ainda não implementado')

@@ -53,16 +53,18 @@ function createChartData(
 
     const currentWeight = inForceWeight(weights, dayDate)
     const currentMacroProfile = inForceMacroProfile(macroProfiles, dayDate)
-    const macroTarget = currentMacroProfile
-      ? calculateMacroTarget(currentWeight?.weight ?? 0, currentMacroProfile)
-      : null
+    const macroTarget =
+      currentMacroProfile !== null
+        ? calculateMacroTarget(currentWeight?.weight ?? 0, currentMacroProfile)
+        : null
 
     const dayMacros = calcDayMacros(day)
     const dayCalories = calcDayCalories(day)
     return {
       name: dateToDDMM(dayDate),
       calories: dayCalories.toFixed(0),
-      targetCalories: macroTarget ? calcCalories(macroTarget) : undefined,
+      targetCalories:
+        macroTarget !== null ? calcCalories(macroTarget) : undefined,
       protein: dayMacros.protein.toFixed(0),
       targetProtein: macroTarget?.protein?.toFixed(0),
       fat: dayMacros.fat.toFixed(0),
