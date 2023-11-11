@@ -1,6 +1,6 @@
-import { macroNutrientsSchema } from '@/src/modules/diet/macro-nutrients/domain/macroNutrients'
+import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { z } from 'zod'
-import { New, enforceNew } from '@/src/legacy/utils/newDbRecord'
+import { type New, enforceNew } from '~/legacy/utils/newDbRecord'
 export const foodSchema = z.object({
   id: z.number(),
   source: z

@@ -1,18 +1,11 @@
-'use client'
-
 // TODO: Split useField in more files
 
 import {
   adjustToTimezone,
   dateToString,
   stringToDate,
-} from '@/legacy/utils/dateUtils'
-import {
-  ReadonlySignal,
-  computed,
-  useSignal,
-  useSignalEffect,
-} from '@preact/signals-react'
+} from '~/legacy/utils/dateUtils'
+import { createSignal, type Accessor, createEffect } from 'solid-js'
 
 // TODO: Unit test all FieldTransforms
 export type FieldTransform<T> = {
@@ -48,38 +41,38 @@ export const createFloatTransform = (
 
 export const createDateTransform = (): FieldTransform<Date> => ({
   toRaw: (value) => dateToString(value),
-  toValue: (value) => {
-    const date = adjustToTimezone(new Date(stringToDate(value)))
-    return date
-  },
+  toValue: (value) => stringToDate(value),
 })
 
 export function useField<T>({
   inputSignal,
   transform,
 }: {
-  inputSignal: ReadonlySignal<T | undefined>
+  inputSignal: Accessor<T | undefined>
   transform: FieldTransform<T>
 }) {
-  const rawValue = useSignal(
-    inputSignal.value === undefined ? '' : transform.toRaw(inputSignal.value),
+  const initialValue = inputSignal()
+  const [rawValue, setRawValue] = createSignal(
+    initialValue === undefined ? '' : transform.toRaw(initialValue),
   )
 
-  useSignalEffect(() => {
-    if (inputSignal.value === undefined) {
-      rawValue.value = ''
+  createEffect(() => {
+    const newValue = inputSignal()
+    if (newValue === undefined) {
+      setRawValue('')
     } else {
-      rawValue.value = transform.toRaw(inputSignal.value)
+      setRawValue(transform.toRaw(newValue))
     }
   })
 
-  const value = computed(() => {
-    const raw = rawValue.value
+  const value = () => {
+    const raw = rawValue()
     return raw === '' ? undefined : transform.toValue(raw)
-  })
+  }
 
   return {
     rawValue,
+    setRawValue,
     value,
     transform,
   }
@@ -95,7 +88,7 @@ export const useFloatFieldOld = (
     defaultValue?: number
   },
 ) => {
-  const adapterSignal = useSignal(initialValue)
+  const [adapterSignal] = createSignal(initialValue)
   return useField<number>({
     inputSignal: adapterSignal,
     transform: createFloatTransform(
@@ -106,7 +99,7 @@ export const useFloatFieldOld = (
 }
 
 export const useFloatField = (
-  inputSignal?: ReadonlySignal<number | undefined>,
+  inputSignal?: Accessor<number | undefined>,
   extras?: {
     decimalPlaces?: number
     defaultValue?: number
@@ -114,7 +107,7 @@ export const useFloatField = (
   },
 ) =>
   useField<number>({
-    inputSignal: inputSignal ?? computed(() => undefined),
+    inputSignal: inputSignal ?? (() => undefined),
     transform: createFloatTransform(
       extras?.decimalPlaces,
       extras?.defaultValue,
@@ -122,7 +115,7 @@ export const useFloatField = (
     ),
   })
 
-export const useDateField = (inputSignal: ReadonlySignal<Date | undefined>) =>
+export const useDateField = (inputSignal: Accessor<Date | undefined>) =>
   useField<Date>({
     inputSignal,
     transform: createDateTransform(),

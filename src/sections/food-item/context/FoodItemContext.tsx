@@ -1,19 +1,20 @@
-'use client'
-
-import { TemplateItem } from '@/src/modules/diet/template-item/domain/templateItem'
-import { ReadonlySignal } from '@preact/signals-react'
-import { ReactNode } from 'react'
-import { createContext, useContext } from 'use-context-selector'
+import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import {
+  type Accessor,
+  type JSXElement,
+  createContext,
+  useContext,
+} from 'solid-js'
 
 // TODO: Rename to TemplateItemContext
 const FoodItemContext = createContext<{
-  foodItem: ReadonlySignal<TemplateItem>
+  foodItem: Accessor<TemplateItem>
 } | null>(null)
 
 export function useFoodItemContext() {
   const context = useContext(FoodItemContext)
 
-  if (!context) {
+  if (context === null) {
     throw new Error(
       'useFoodItemContext must be used within a FoodItemContextProvider',
     )
@@ -23,16 +24,13 @@ export function useFoodItemContext() {
 }
 
 // TODO: Rename to TemplateItemContext
-export function FoodItemContextProvider({
-  foodItem,
-  children,
-}: {
-  foodItem: ReadonlySignal<TemplateItem>
-  children: ReactNode
+export function FoodItemContextProvider(props: {
+  foodItem: Accessor<TemplateItem>
+  children: JSXElement
 }) {
   return (
-    <FoodItemContext.Provider value={{ foodItem }}>
-      {children}
+    <FoodItemContext.Provider value={{ foodItem: () => props.foodItem() }}>
+      {props.children}
     </FoodItemContext.Provider>
   )
 }

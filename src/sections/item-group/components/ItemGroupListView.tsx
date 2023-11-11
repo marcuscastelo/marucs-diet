@@ -1,43 +1,50 @@
-'use client'
+import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import {
+  ItemGroupView,
+  ItemGroupCopyButton,
+  ItemGroupHeader,
+  ItemGroupName,
+  ItemGroupViewNutritionalInfo,
+  type ItemGroupViewProps,
+} from '~/sections/item-group/components/ItemGroupView'
+import { type Accessor } from 'solid-js'
 
-import { ItemGroup } from '@/modules/diet/item-group/domain/itemGroup'
-import ItemGroupView, {
-  ItemGroupViewProps,
-} from '@/sections/item-group/components/ItemGroupView'
-import { ReadonlySignal, computed } from '@preact/signals-react'
-
-export default function ItemGroupListView({
-  itemGroups,
-  onItemClick,
-}: {
-  itemGroups: ReadonlySignal<ItemGroup[]>
+export function ItemGroupListView(props: {
+  itemGroups: Accessor<ItemGroup[]>
   onItemClick: ItemGroupViewProps['onClick']
 }) {
-  console.debug(`[ItemGroupListView] - Rendering`)
+  console.debug('[ItemGroupListView] - Rendering')
   return (
     <>
-      {itemGroups.value.map((_, idx) => {
-        const group = computed(() => itemGroups.value[idx])
+      {props.itemGroups().map((_, idx) => {
+        const group = () => props.itemGroups()[idx]
         return (
-          <div key={group.value.id} className="mt-2">
+          <div class="mt-2">
             <ItemGroupView
               itemGroup={group}
-              onClick={onItemClick}
+              onClick={props.onItemClick}
               header={
-                <ItemGroupView.Header
-                  name={<ItemGroupView.Header.Name group={group} />}
+                <ItemGroupHeader
+                  name={<ItemGroupName group={group} />}
                   copyButton={
-                    <ItemGroupView.Header.CopyButton
+                    <ItemGroupCopyButton
                       group={group}
                       onCopyItemGroup={(group) => {
                         // TODO: Replace with clipboard hook (here and in FoodItemView, if applicable)
-                        navigator.clipboard.writeText(JSON.stringify(group))
+                        navigator.clipboard
+                          .writeText(JSON.stringify(group))
+                          .catch((err) => {
+                            console.error(
+                              'Failed to copy item group to clipboard',
+                              err,
+                            )
+                          })
                       }}
                     />
                   }
                 />
               }
-              nutritionalInfo={<ItemGroupView.NutritionalInfo group={group} />}
+              nutritionalInfo={<ItemGroupViewNutritionalInfo group={group} />}
             />
           </div>
         )

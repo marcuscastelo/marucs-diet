@@ -1,34 +1,36 @@
-'use client'
-
-import { useEffect } from 'react'
 import {
-  FoodItem,
+  type FoodItem,
   createFoodItem,
-} from '@/src/modules/diet/food-item/domain/foodItem'
-import Modal, { ModalActions } from '@/sections/common/components/Modal'
-import { Recipe, createRecipe } from '@/src/modules/diet/recipe/domain/recipe'
-import RecipeEditView from '@/sections/recipe/components/RecipeEditView'
-import FoodItemEditModal from '@/sections/food-item/components/FoodItemEditModal'
+} from '~/modules/diet/food-item/domain/foodItem'
+import { Modal, ModalActions } from '~/sections/common/components/Modal'
+import { type Recipe, createRecipe } from '~/modules/diet/recipe/domain/recipe'
+import RecipeEditView, {
+  RecipeEditContent,
+  RecipeEditHeader,
+} from '~/sections/recipe/components/RecipeEditView'
+import { FoodItemEditModal } from '~/sections/food-item/components/FoodItemEditModal'
 import {
   ModalContextProvider,
   useModalContext,
-} from '@/sections/common/context/ModalContext'
-import { useConfirmModalContext } from '@/sections/common/context/ConfirmModalContext'
-import { TemplateItem } from '@/src/modules/diet/template-item/domain/templateItem'
-import { TemplateSearchModal } from '@/sections/search/components/TemplateSearchModal'
+} from '~/sections/common/context/ModalContext'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import {
-  ItemGroup,
+  type ItemGroup,
   isSimpleSingleGroup,
-} from '@/modules/diet/item-group/domain/itemGroup'
-import { RecipeEditor } from '@/legacy/utils/data/recipeEditor'
+} from '~/modules/diet/item-group/domain/itemGroup'
+import { RecipeEditor } from '~/legacy/utils/data/recipeEditor'
+
+import { currentUserId } from '~/modules/user/application/user'
 import {
-  ReadonlySignal,
-  Signal,
-  computed,
-  useSignal,
-  useSignalEffect,
-} from '@preact/signals-react'
-import { useUserId } from '@/sections/user/context/UserContext'
+  type Accessor,
+  createEffect,
+  createSignal,
+  type Setter,
+  Show,
+} from 'solid-js'
+import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 
 export type RecipeEditModalProps = {
   show?: boolean
@@ -40,18 +42,17 @@ export type RecipeEditModalProps = {
   onVisibilityChange?: (isShowing: boolean) => void
 }
 
-export function RecipeEditModal({
-  recipe: initialRecipe,
-  onSaveRecipe,
-  onDelete,
-  onCancel,
-  onRefetch,
-}: RecipeEditModalProps) {
-  const { visible } = useModalContext()
-  const userId = useUserId()
+export function RecipeEditModal(props: RecipeEditModalProps) {
+  const { visible, setVisible } = useModalContext()
+  const userId = currentUserId()
 
-  const recipe = useSignal(
-    initialRecipe ??
+  if (userId === null) {
+    throw new Error('User is null')
+  }
+
+  const [recipe, setRecipe] = createMirrorSignal(
+    () =>
+      props.recipe ??
       createRecipe({
         name: 'New Recipe',
         items: [],
@@ -59,33 +60,28 @@ export function RecipeEditModal({
       }),
   )
 
-  const selectedFoodItem = useSignal<FoodItem | null>(null)
+  const [selectedFoodItem, setSelectedFoodItem] = createSignal<FoodItem | null>(
+    null,
+  )
 
   const impossibleFoodItem = createFoodItem({
     name: 'IMPOSSIBLE FOOD ITEM',
     reference: 0,
   })
 
-  const foodItemEditModalVisible = useSignal(false)
-  const templateSearchModalVisible = useSignal(false)
+  const [foodItemEditModalVisible, setFoodItemEditModalVisible] =
+    createSignal(false)
+  const [templateSearchModalVisible, setTemplateSearchModalVisible] =
+    createSignal(false)
 
-  useEffect(() => {
-    recipe.value =
-      initialRecipe ??
-      createRecipe({
-        name: 'Error: Recipe cannot be null!',
-        items: [],
-        owner: userId,
-      })
-  }, [recipe, initialRecipe, userId])
-
-  useSignalEffect(() => {
-    foodItemEditModalVisible.value = selectedFoodItem.value !== null
+  createEffect(() => {
+    // TODO: Replace foodItemEditModalVisible with a derived signal
+    setFoodItemEditModalVisible(selectedFoodItem() !== null)
   })
 
-  useSignalEffect(() => {
-    if (!foodItemEditModalVisible.value) {
-      selectedFoodItem.value = null
+  createEffect(() => {
+    if (!foodItemEditModalVisible()) {
+      setSelectedFoodItem(null)
     }
   })
 
@@ -93,12 +89,13 @@ export function RecipeEditModal({
     <>
       <ExternalFoodItemEditModal
         visible={foodItemEditModalVisible}
-        foodItem={computed(() => selectedFoodItem.value ?? impossibleFoodItem)}
-        targetName={recipe.value?.name ?? 'LOADING RECIPE'}
+        setVisible={setFoodItemEditModalVisible}
+        foodItem={() => selectedFoodItem() ?? impossibleFoodItem}
+        targetName={recipe()?.name ?? 'LOADING RECIPE'}
         onApply={(foodItem) => {
-          if (recipe.value === null) return
+          if (recipe() === null) return
 
-          const recipeEditor = new RecipeEditor(recipe.value)
+          const recipeEditor = new RecipeEditor(recipe())
 
           const newRecipe = recipeEditor
             .editItem(foodItem.id, (itemEditor) => {
@@ -106,41 +103,49 @@ export function RecipeEditModal({
             })
             .finish()
 
-          recipe.value = newRecipe
-          selectedFoodItem.value = null
+          setRecipe(newRecipe)
+          setSelectedFoodItem(null)
         }}
         onDelete={(itemId) => {
-          const recipeEditor = new RecipeEditor(recipe.value)
+          const recipeEditor = new RecipeEditor(recipe())
 
           const newRecipe = recipeEditor.deleteItem(itemId).finish()
 
-          recipe.value = newRecipe
-          selectedFoodItem.value = null
+          setRecipe(newRecipe)
+          setSelectedFoodItem(null)
         }}
       />
 
       <ExternalTemplateSearchModal
         visible={templateSearchModalVisible}
-        onRefetch={onRefetch}
+        setVisible={setTemplateSearchModalVisible}
+        onRefetch={props.onRefetch}
         recipe={recipe}
+        setRecipe={setRecipe}
       />
 
-      <ModalContextProvider visible={visible}>
+      <ModalContextProvider visible={visible} setVisible={setVisible}>
         <Modal
-          className="border-2 border-cyan-600"
+          class="border-2 border-cyan-600"
           // TODO: Add barcode button and handle barcode scan
           body={
             <Body
               recipe={recipe}
+              setRecipe={setRecipe}
               selectedFoodItem={selectedFoodItem}
-              onSearchNewItem={() => (templateSearchModalVisible.value = true)}
+              setSelectedFoodItem={setSelectedFoodItem}
+              onSearchNewItem={() => setTemplateSearchModalVisible(true)}
             />
           }
           actions={
             <Actions
-              onApply={() => onSaveRecipe(recipe.value)}
-              onCancel={onCancel}
-              onDelete={() => onDelete(recipe.value.id)}
+              onApply={() => {
+                props.onSaveRecipe(recipe())
+              }}
+              onCancel={props.onCancel}
+              onDelete={() => {
+                props.onDelete(recipe().id)
+              }}
             />
           }
         />
@@ -149,45 +154,41 @@ export function RecipeEditModal({
   )
 }
 
-function ExternalFoodItemEditModal({
-  foodItem,
-  targetName,
-  onApply,
-  onDelete,
-  visible,
-}: {
-  foodItem: ReadonlySignal<FoodItem>
+function ExternalFoodItemEditModal(props: {
+  foodItem: Accessor<FoodItem>
   targetName: string
   onApply: (item: TemplateItem) => void
   onDelete: (itemId: TemplateItem['id']) => void
-  visible: Signal<boolean>
+  visible: Accessor<boolean>
+  setVisible: Setter<boolean>
 }) {
-  // TODO: Determine whether to early return from modals in general or just remove all ifs
-  if (!visible) return
-
+  // TODO: Determine whether to use <Show when/> for modals in general or just remove all Shows
   return (
-    <ModalContextProvider visible={visible}>
-      <FoodItemEditModal
-        foodItem={foodItem}
-        targetName={targetName}
-        onApply={onApply}
-        onDelete={onDelete}
-      />
-    </ModalContextProvider>
+    <Show when={props.visible()}>
+      <ModalContextProvider
+        visible={props.visible}
+        setVisible={props.setVisible}
+      >
+        <FoodItemEditModal
+          foodItem={props.foodItem}
+          targetName={props.targetName}
+          onApply={props.onApply}
+          onDelete={props.onDelete}
+        />
+      </ModalContextProvider>
+    </Show>
   )
 }
 
 // TODO: This component is duplicated between RecipeEditModal and ItemGroupEditModal, must be refactored (maybe global)
-function ExternalTemplateSearchModal({
-  visible,
-  onRefetch,
-  recipe,
-}: {
-  visible: Signal<boolean>
+function ExternalTemplateSearchModal(props: {
+  visible: Accessor<boolean>
+  setVisible: Setter<boolean>
   onRefetch: () => void
-  recipe: Signal<Recipe>
+  recipe: Accessor<Recipe>
+  setRecipe: Setter<Recipe>
 }) {
-  const handleNewItemGroup = async (newGroup: ItemGroup) => {
+  const handleNewItemGroup = (newGroup: ItemGroup) => {
     console.debug('onNewItemGroup', newGroup)
 
     if (!isSimpleSingleGroup(newGroup)) {
@@ -197,29 +198,30 @@ function ExternalTemplateSearchModal({
       return
     }
 
-    const newRecipe = new RecipeEditor(recipe.value)
+    const newRecipe = new RecipeEditor(props.recipe())
       .addItems(newGroup.items)
       .finish()
 
     console.debug('onNewFoodItem: applying', JSON.stringify(newRecipe, null, 2))
 
-    recipe.value = newRecipe
+    props.setRecipe(newRecipe)
   }
 
   const handleFinishSearch = () => {
-    visible.value = false
+    props.setVisible(false)
   }
 
-  useSignalEffect(() => {
-    if (!visible.value) {
-      onRefetch()
+  createEffect(() => {
+    // TODO: [RecipeEditModal] Refetch on modal open instead of close?
+    if (!props.visible()) {
+      props.onRefetch()
     }
   })
 
   return (
-    <ModalContextProvider visible={visible}>
+    <ModalContextProvider visible={props.visible} setVisible={props.setVisible}>
       <TemplateSearchModal
-        targetName={recipe.value?.name ?? 'ERRO: Receita não especificada'}
+        targetName={props.recipe()?.name ?? 'ERRO: Receita não especificada'}
         onFinish={handleFinishSearch}
         onNewItemGroup={handleNewItemGroup}
       />
@@ -227,29 +229,30 @@ function ExternalTemplateSearchModal({
   )
 }
 
-function Body({
-  recipe,
-  selectedFoodItem,
-  onSearchNewItem,
-}: {
-  recipe: Signal<Recipe>
-  selectedFoodItem: Signal<FoodItem | null>
+function Body(props: {
+  recipe: Accessor<Recipe>
+  setRecipe: Setter<Recipe>
+  selectedFoodItem: Accessor<FoodItem | null>
+  setSelectedFoodItem: Setter<FoodItem | null>
   onSearchNewItem: () => void
 }) {
   return (
     <RecipeEditView
-      recipe={recipe}
+      recipe={props.recipe}
+      setRecipe={props.setRecipe}
       header={
-        <RecipeEditView.Header
+        <RecipeEditHeader
           onUpdateRecipe={(newRecipe) => {
-            console.debug(`[RecipeEditModal] onUpdateRecipe: `, newRecipe)
-            recipe.value = newRecipe
+            console.debug('[RecipeEditModal] onUpdateRecipe: ', newRecipe)
+            props.setRecipe(newRecipe)
           }}
         />
       }
       content={
-        <RecipeEditView.Content
-          onNewItem={() => onSearchNewItem()}
+        <RecipeEditContent
+          onNewItem={() => {
+            props.onSearchNewItem()
+          }}
           onEditItem={(item) => {
             // TODO: Allow user to edit recipe inside recipe
             if (item.__type === 'RecipeItem') {
@@ -259,7 +262,7 @@ function Body({
               return
             }
 
-            selectedFoodItem.value = item
+            props.setSelectedFoodItem(item)
           }}
         />
       }
@@ -267,22 +270,18 @@ function Body({
   )
 }
 
-function Actions({
-  onApply,
-  onDelete,
-  onCancel,
-}: {
+function Actions(props: {
   onApply: () => void
   onDelete: () => void
   onCancel?: () => void
 }) {
-  const { visible } = useModalContext()
+  const { setVisible } = useModalContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
   return (
     <ModalActions>
       <button
-        className="btn-error btn mr-auto"
+        class="btn-error btn mr-auto"
         onClick={(e) => {
           e.preventDefault()
 
@@ -298,7 +297,7 @@ function Actions({
                 text: 'Excluir',
                 primary: true,
                 onClick: () => {
-                  onDelete()
+                  props.onDelete()
                 },
               },
             ],
@@ -308,21 +307,21 @@ function Actions({
         Excluir
       </button>
       <button
-        className="btn"
+        class="btn"
         onClick={(e) => {
           e.preventDefault()
-          visible.value = false
-          onCancel?.()
+          setVisible(false)
+          props.onCancel?.()
         }}
       >
         Cancelar
       </button>
       <button
-        className="btn"
+        class="btn"
         onClick={(e) => {
           e.preventDefault()
-          onApply()
-          visible.value = false
+          props.onApply()
+          setVisible(false)
         }}
       >
         Aplicar

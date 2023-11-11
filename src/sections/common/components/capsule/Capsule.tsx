@@ -1,29 +1,29 @@
-'use client'
+import { type JSXElement } from 'solid-js'
 
-export default function Capsule({
-  leftContent,
-  rightContent,
-  className,
-}: {
-  leftContent: React.ReactNode
-  rightContent: React.ReactNode
-  className?: string
+export function Capsule(props: {
+  leftContent: JSXElement
+  rightContent: JSXElement
+  class?: string
 }) {
   return (
     <div
-      className={`flex flex-col sm:flex-row gap-2 sm:gap-0 overflow-visible mt-10 sm:mt-0 ${
-        className || ''
+      class={`flex flex-col sm:flex-row gap-2 sm:gap-0 overflow-visible mt-10 sm:mt-0 ${
+        props.class ?? ''
       }`}
     >
       <div
-        className={`flex flex-1 flex-col justify-around bg-slate-700 text-left rounded-3xl sm:rounded-r-none`}
+        class={
+          'flex flex-1 flex-col justify-around bg-slate-700 text-left rounded-3xl sm:rounded-r-none'
+        }
       >
-        {leftContent}
+        {props.leftContent}
       </div>
       <div
-        className={`flex flex-1 flex-col justify-around bg-slate-900 text-left rounded-3xl sm:rounded-l-none`}
+        class={
+          'flex flex-1 flex-col justify-around bg-slate-900 text-left rounded-3xl sm:rounded-l-none'
+        }
       >
-        {rightContent}
+        {props.rightContent}
       </div>
     </div>
   )

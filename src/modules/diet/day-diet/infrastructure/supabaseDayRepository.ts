@@ -1,21 +1,19 @@
 import {
-  DayDiet,
-  DayIndex,
+  type DayDiet,
   dayDietSchema,
-  dayIndexSchema,
-} from '@/modules/diet/day-diet/domain/dayDiet'
-import { User } from '@/modules/user/domain/user'
-import { DbReady, enforceDbReady } from '@/legacy/utils/newDbRecord'
-import supabase from '@/legacy/utils/supabase'
-import { DayRepository } from '@/src/modules/diet/day-diet/domain/dayDietRepository'
-import { ReadonlySignal, signal } from '@preact/signals-react'
+} from '~/modules/diet/day-diet/domain/dayDiet'
+import { type User } from '~/modules/user/domain/user'
+import { type DbReady, enforceDbReady } from '~/legacy/utils/newDbRecord'
+import supabase from '~/legacy/utils/supabase'
+import { type DayRepository } from '~/modules/diet/day-diet/domain/dayDietRepository'
+import { type Accessor, createSignal } from 'solid-js'
 
 // TODO: Delete old days table and rename days_test to days
 const TABLE = 'days_test'
 
 export function createSupabaseDayRepository(): DayRepository {
   return {
-    fetchAllUserDayIndexes: fetchUserDayIndexes,
+    // fetchAllUserDayIndexes: fetchUserDayIndexes,
     fetchAllUserDayDiets: fetchUserDays,
     fetchDayDiet,
     insertDayDiet: upsertDay,
@@ -27,61 +25,62 @@ export function createSupabaseDayRepository(): DayRepository {
 /**
  * @deprecated should be replaced by userDayIndexes
  */
-const userDays = signal<readonly DayDiet[]>([])
-const userDayIndexes = signal<readonly DayIndex[]>([])
+const [userDays, setUserDays] = createSignal<readonly DayDiet[]>([])
+// const [userDayIndexes, setUserDayIndexes] = createSignal<readonly DayIndex[]>([])
 
 // TODO: better error handling
-async function fetchDayDiet(dayId: DayIndex['id']): Promise<DayDiet | null> {
-  // TODO: filter userId in query
-  console.debug(`[supabaseDayRepository] fetchDayDiet(${dayId})`)
-  const { data, error } = await supabase.from(TABLE).select().eq('id', dayId)
+async function fetchDayDiet(_dayId: DayDiet['id']): Promise<DayDiet | null> {
+  //   // TODO: filter userId in query
+  //   console.debug(`[supabaseDayRepository] fetchDayDiet(${dayId})`)
+  //   const { data, error } = await supabase.from(TABLE).select().eq('id', dayId)
 
-  if (error) {
-    throw error
-  }
+  //   if (error !== null) {
+  //     throw error
+  //   }
 
-  const dayDiets = dayDietSchema.array().parse(data ?? [])
+  //   const dayDiets = dayDietSchema.array().parse(data ?? [])
 
-  console.debug(
-    `[supabaseDayRepository] fetchDayDiet returned ${dayDiets.length} days`,
-  )
+  //   console.debug(
+  //     `[supabaseDayRepository] fetchDayDiet returned ${dayDiets.length} days`
+  //   )
 
-  return dayDiets[0] ?? null
-}
+  //   return dayDiets[0] ?? null
+  // }
 
-// TODO: better error handling
-async function fetchUserDayIndexes(
-  userId: User['id'],
-): Promise<ReadonlySignal<readonly DayIndex[]>> {
-  // TODO: filter userId in query
-  console.debug(`[supabaseDayRepository] fetchUserDayIndexes(${userId})`)
-  const { data, error } = await supabase
-    .from(TABLE)
-    .select('id, target_day, owner')
-    .eq('owner', userId)
+  // // TODO: better error handling
+  // async function fetchUserDayIndexes (
+  //   userId: User['id']
+  // ): Promise<Accessor<readonly DayIndex[]>> {
+  //   // TODO: filter userId in query
+  //   console.debug(`[supabaseDayRepository] fetchUserDayIndexes(${userId})`)
+  //   const { data, error } = await supabase
+  //     .from(TABLE)
+  //     .select('id, target_day, owner')
+  //     .eq('owner', userId)
 
-  if (error) {
-    console.error('Error while fetching user day indexes: ', error)
-    throw error
-  }
+  //   if (error !== null) {
+  //     console.error('Error while fetching user day indexes: ', error)
+  //     throw error
+  //   }
 
-  const dayIndexes = dayIndexSchema.array().parse(data ?? [])
+  //   const dayIndexes = dayIndexSchema.array().parse(data ?? [])
 
-  console.debug(
-    `[supabaseDayRepository] fetchUserDayIndexes returned ${dayIndexes.length} days`,
-  )
-  userDayIndexes.value = dayIndexes
-  return userDayIndexes
+  //   console.debug(
+  //     `[supabaseDayRepository] fetchUserDayIndexes returned ${dayIndexes.length} days`
+  //   )
+  //   setUserDayIndexes(dayIndexes)
+  //   return userDayIndexes
+  return null
 }
 
 // TODO: better error handling
 async function fetchUserDays(
   userId: User['id'],
-): Promise<ReadonlySignal<readonly DayDiet[]>> {
+): Promise<Accessor<readonly DayDiet[]>> {
   // TODO: filter userId in query
   console.debug(`[supabaseDayRepository] fetchUserDays(${userId})`)
   const { data, error } = await supabase.from(TABLE).select()
-  if (error) {
+  if (error !== null) {
     throw error
   }
 
@@ -104,7 +103,7 @@ async function fetchUserDays(
   console.debug(
     `[supabaseDayRepository] fetchUserDays returned ${days.length} days`,
   )
-  userDays.value = days
+  setUserDays(days)
 
   return userDays
 }
@@ -114,12 +113,10 @@ const upsertDay = async (newDay: DbReady<DayDiet>): Promise<DayDiet | null> => {
   const day = enforceDbReady(newDay)
 
   const { data: days, error } = await supabase.from(TABLE).upsert(day).select()
-  if (error) {
+  if (error !== null) {
     throw error
   }
 
-  fetchUserDays(newDay.owner)
-  fetchUserDayIndexes(newDay.owner)
   return dayDietSchema.parse(days?.[0] ?? null)
 }
 
@@ -134,29 +131,26 @@ const updateDay = async (
     .eq('id', id)
     .select()
 
-  if (error) {
+  if (error !== null) {
     console.error('Error while updating day: ', newDay)
     console.error(error)
     throw error
   }
 
-  fetchUserDays(newDay.owner)
   return dayDietSchema.parse(data?.[0] ?? null)
 }
 
 const deleteDay = async (id: DayDiet['id']): Promise<void> => {
   const { error } = await supabase.from(TABLE).delete().eq('id', id).select()
 
-  if (error) {
+  if (error !== null) {
     throw error
   }
 
-  const userId = userDays.value.find((day) => day.id === id)?.owner
+  const userId = userDays().find((day) => day.id === id)?.owner
   if (userId === undefined) {
     throw new Error(
       `Invalid state: userId not found for day ${id} on local cache`,
     )
   }
-  fetchUserDays(userId)
-  fetchUserDayIndexes(userId)
 }

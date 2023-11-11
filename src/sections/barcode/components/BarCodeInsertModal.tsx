@@ -1,61 +1,82 @@
-'use client'
-
-import { Food } from '@/modules/diet/food/domain/food'
-import Modal, { ModalActions } from '@/sections/common/components/Modal'
-import { BarCodeReader } from '@/sections/barcode/components/BarCodeReader'
-import BarCodeSearch from '@/sections/barcode/components/BarCodeSearch'
-import { useModalContext } from '@/sections/common/context/ModalContext'
-import { useSignal } from '@preact/signals-react'
+import { type Food } from '~/modules/diet/food/domain/food'
+import {
+  Modal,
+  ModalActions,
+  ModalHeader,
+} from '~/sections/common/components/Modal'
+import { BarCodeReader } from '~/sections/barcode/components/BarCodeReader'
+import BarCodeSearch from '~/sections/barcode/components/BarCodeSearch'
+import { useModalContext } from '~/sections/common/context/ModalContext'
+import { createSignal, onMount } from 'solid-js'
 
 export type BarCodeInsertModalProps = {
   onSelect: (apiFood: Food) => void
 }
 
-const BarCodeInsertModal = ({ onSelect }: BarCodeInsertModalProps) => {
-  const { visible } = useModalContext()
+let currentId = 1
 
-  const barCode = useSignal<string>('')
-  const food = useSignal<Food | null>(null)
+const BarCodeInsertModal = (props: BarCodeInsertModalProps) => {
+  const { visible, setVisible } = useModalContext()
 
-  const handleSelect = async (e?: React.SyntheticEvent) => {
+  const [barCode, setBarCode] = createSignal<string>('')
+  const [food, setFood] = createSignal<Food | null>(null)
+
+  const handleSelect = (
+    e?: MouseEvent & {
+      currentTarget: HTMLButtonElement
+      target: Element
+    },
+  ) => {
     e?.preventDefault()
 
-    if (!food.value) {
+    const food_ = food()
+    if (food_ === null) {
       console.warn('Ignoring submit because food is null')
       return
     }
 
-    onSelect(food.value)
+    props.onSelect(food_)
   }
+
+  onMount(() => {
+    setVisible(false)
+  })
 
   return (
     <Modal
-      header={<Modal.Header title="Pesquisar por código de barras" />}
+      header={<ModalHeader title="Pesquisar por código de barras" />}
       body={
         <>
-          {visible.value && (
-            <BarCodeReader
-              id="reader"
-              onScanned={(barCodeValue) => (barCode.value = barCodeValue)}
-            />
-          )}
-          <BarCodeSearch barCode={barCode} food={food} />
+          {/*
+            // TODO: Apply Show when visible for all modals?
+          */}
+          <BarCodeReader
+            enabled={visible()}
+            id={`barcode-reader-${currentId++}`}
+            onScanned={setBarCode}
+          />
+          <BarCodeSearch
+            barCode={barCode}
+            setBarCode={setBarCode}
+            food={food}
+            setFood={setFood}
+          />
         </>
       }
       actions={
         <ModalActions>
           <button
-            className="btn"
+            class="btn"
             onClick={(e) => {
               e.preventDefault()
-              visible.value = false
+              setVisible(false)
             }}
           >
             Cancelar
           </button>
           <button
-            className="btn-primary btn"
-            disabled={!food.value}
+            class="btn-primary btn"
+            disabled={food() === null}
             onClick={handleSelect}
           >
             Aplicar

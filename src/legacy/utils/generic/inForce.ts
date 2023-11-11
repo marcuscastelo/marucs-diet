@@ -3,15 +3,15 @@ export type InForce<TObj, TKey extends keyof TObj> = {
 }
 
 export function inForceGeneric<TObj extends object, TKey extends keyof TObj>(
-  array: readonly (TObj & InForce<TObj, TKey>)[],
+  array: ReadonlyArray<TObj & InForce<TObj, TKey>>,
   key: TKey,
   date: Date,
 ) {
-  const firstItemAfterDate = array.findLast(
-    (item) => item[key].getTime() <= date.getTime(),
-  )
+  const firstItemAfterDate = [...array]
+    .reverse()
+    .find((item) => item[key].getTime() <= date.getTime())
 
-  if (!firstItemAfterDate) {
+  if (firstItemAfterDate === undefined) {
     return null
   }
 

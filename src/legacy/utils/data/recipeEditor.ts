@@ -1,11 +1,11 @@
-import { FoodItem } from '@/src/modules/diet/food-item/domain/foodItem'
-import { Recipe } from '@/src/modules/diet/recipe/domain/recipe'
-import { ItemContainer } from '@/legacy/utils/data/interfaces/itemContainer'
-import { Editor } from '@/legacy/utils/data/editor'
-import { ItemEditor } from '@/legacy/utils/data/itemEditor'
-import { calcRecipeMacros } from '@/legacy/utils/macroMath'
-import { Mutable } from '@/legacy/utils/typeUtils'
-import { deepCopy } from '@/legacy/utils/deepCopy'
+import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import { type ItemContainer } from '~/legacy/utils/data/interfaces/itemContainer'
+import { Editor } from '~/legacy/utils/data/editor'
+import { ItemEditor } from '~/legacy/utils/data/itemEditor'
+import { calcRecipeMacros } from '~/legacy/utils/macroMath'
+import { type Mutable } from '~/legacy/utils/typeUtils'
+import { deepCopy } from '~/legacy/utils/deepCopy'
 
 export class RecipeEditor extends Editor<Recipe> implements ItemContainer {
   private readonly recipe = this.content
@@ -66,11 +66,11 @@ export class RecipeEditor extends Editor<Recipe> implements ItemContainer {
   }
 
   setItems(items: FoodItem[]) {
-    this.recipe.items = deepCopy(items) as Mutable<FoodItem>[]
+    this.recipe.items = deepCopy(items) as Array<Mutable<FoodItem>>
     return this
   }
 
-  deleteItem(id: number) {
+  deleteItem(id: FoodItem['id']) {
     const index = this.recipe.items.findIndex((item) => item.id === id)
     if (index === -1) {
       console.warn(`Item with id ${id} not found!`)

@@ -1,5 +1,5 @@
 // TODO: Make generic groupBy function to replace in MeasureChart and WeightChart
-// import { Measure } from '@/modules/measure/domain/measure'
+// import { Measure } from '~/modules/measure/domain/measure'
 
 // export type CollapseFn<
 //   TData extends object,
