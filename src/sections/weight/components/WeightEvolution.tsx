@@ -19,7 +19,7 @@ import {
   userWeights,
 } from '~/modules/weight/application/weight'
 import Datepicker from '~/sections/datepicker/components/Datepicker'
-import { dateToYYYYMMDD } from '~/legacy/utils/dateUtils'
+import { adjustToTimezone, dateToYYYYMMDD } from '~/legacy/utils/dateUtils'
 import { SolidApexCharts } from 'solid-apexcharts'
 import ptBrLocale from '~/assets/locales/apex/pt-br.json'
 import { type ApexOptions } from 'apexcharts'
@@ -28,7 +28,7 @@ import { type ApexOptions } from 'apexcharts'
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
 
-export function WeightEvolution(props: { onSave: () => void }) {
+export function WeightEvolution() {
   const desiredWeight = () => currentUser()?.desired_weight ?? 0
 
   const weightField = useFloatField(undefined, {
@@ -81,7 +81,6 @@ export function WeightEvolution(props: { onSave: () => void }) {
               }
 
               const afterInsert = () => {
-                props.onSave()
                 weightField.setRawValue('')
               }
 
@@ -106,7 +105,7 @@ export function WeightEvolution(props: { onSave: () => void }) {
         <div class="mx-5 lg:mx-20 pb-10">
           <For each={[...userWeights()].reverse().slice(0, 10)}>
             {(weight) => {
-              return <WeightView weight={weight} onSave={props.onSave} />
+              return <WeightView weight={weight} />
             }}
           </For>
           {userWeights().length === 0 && 'Não há pesos registrados'}
@@ -116,7 +115,7 @@ export function WeightEvolution(props: { onSave: () => void }) {
   )
 }
 
-function WeightView(props: { weight: Weight; onSave: () => void }) {
+function WeightView(props: { weight: Weight }) {
   const targetTimestampSignal = () => props.weight.target_timestamp
   const dateField = useDateField(targetTimestampSignal)
 
@@ -146,12 +145,10 @@ function WeightView(props: { weight: Weight; onSave: () => void }) {
       ...props.weight,
       weight: weightValue,
       target_timestamp: dateValue,
+    }).catch((error) => {
+      console.error(error)
+      alert('Erro ao atualizar') // TODO: Change all alerts with ConfirmModal
     })
-      .then(props.onSave)
-      .catch((error) => {
-        console.error(error)
-        alert('Erro ao salvar') // TODO: Change all alerts with ConfirmModal
-      })
   }
 
   return (
@@ -170,7 +167,7 @@ function WeightView(props: { weight: Weight; onSave: () => void }) {
                 return
               }
               // Apply timezone offset
-              const date = new Date(value.startDate)
+              const date = adjustToTimezone(new Date(value.startDate))
               dateField.setRawValue(dateToYYYYMMDD(date))
               handleSave({
                 dateValue: date,
@@ -210,12 +207,10 @@ function WeightView(props: { weight: Weight; onSave: () => void }) {
           <button
             class="btn btn-ghost my-auto"
             onClick={() => {
-              deleteWeight(props.weight.id)
-                .then(props.onSave)
-                .catch((error) => {
-                  console.error(error)
-                  alert('Erro ao deletar') // TODO: Change all alerts with ConfirmModal
-                })
+              deleteWeight(props.weight.id).catch((error) => {
+                console.error(error)
+                alert('Erro ao deletar') // TODO: Change all alerts with ConfirmModal
+              })
             }}
           >
             <TrashIcon />

@@ -23,23 +23,17 @@ export async function fetchUserWeights(userId: number) {
 
 export async function insertWeight(newWeight: DbReady<Weight>) {
   const weight = await weightRepository.insertWeight(newWeight)
-  if (weight.owner === userWeights_()[0].owner) {
-    await fetchUserWeights(weight.owner)
-  }
+  await fetchUserWeights(currentUserId())
   return weight
 }
 
 export async function updateWeight(weightId: Weight['id'], newWeight: Weight) {
   const weight = await weightRepository.updateWeight(weightId, newWeight)
-  if (weight.owner === userWeights_()[0].owner) {
-    await fetchUserWeights(weight.owner)
-  }
+  await fetchUserWeights(currentUserId())
   return weight
 }
 
 export async function deleteWeight(weightId: Weight['id']) {
   await weightRepository.deleteWeight(weightId)
-  if (userWeights_().length > 0) {
-    await fetchUserWeights(userWeights_()[0].owner)
-  }
+  await fetchUserWeights(currentUserId())
 }

@@ -15,7 +15,7 @@ import {
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
 const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
 
-export function MeasuresEvolution(props: { onSave: () => void }) {
+export function MeasuresEvolution() {
   // TODO: Remove `measures` signal and use use cases instead
   const [measures, setMeasures] = createSignal<Loadable<readonly Measure[]>>({
     loading: true,
@@ -123,7 +123,6 @@ export function MeasuresEvolution(props: { onSave: () => void }) {
 
               const afterInsert = () => {
                 handleRefetchMeasures()
-                props.onSave()
               }
               insertMeasure(
                 createMeasure({
@@ -138,7 +137,7 @@ export function MeasuresEvolution(props: { onSave: () => void }) {
                 .then(afterInsert)
                 .catch((error) => {
                   console.error(error)
-                  alert('Erro ao salvar') // TODO: Change all alerts with ConfirmModal
+                  alert('Erro ao inserir') // TODO: Change all alerts with ConfirmModal
                 })
             }}
           >
@@ -152,7 +151,6 @@ export function MeasuresEvolution(props: { onSave: () => void }) {
               <MeasureView
                 measure={measure}
                 onRefetchMeasures={handleRefetchMeasures}
-                onSave={props.onSave}
               />
             )}
           </For>

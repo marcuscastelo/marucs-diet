@@ -41,10 +41,7 @@ export const createFloatTransform = (
 
 export const createDateTransform = (): FieldTransform<Date> => ({
   toRaw: (value) => dateToString(value),
-  toValue: (value) => {
-    const date = adjustToTimezone(new Date(stringToDate(value)))
-    return date
-  },
+  toValue: (value) => stringToDate(value),
 })
 
 export function useField<T>({

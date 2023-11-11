@@ -27,34 +27,6 @@ export default function Page() {
   // TODO: latestWeight should be a signal
   const weight = () => latestWeight(userWeights())?.weight
 
-  // if (!macroProfile) {
-  //   if (currentUserId.value === null) {
-  //     console.error('[ProfilePage] User not defined')
-  //     throw new Error('User not defined')
-  //   }
-  //   insertMacroProfile({
-  //     owner: currentUserId.value,
-  //     target_day: new Date(Date.now()),
-  //     gramsPerKgCarbs: 2,
-  //     gramsPerKgProtein: 2,
-  //     gramsPerKgFat: 1
-  //   }).then(() => {
-  //     // revalidatePath('/')
-  //   })
-  //   return (
-  //     <>
-  //       <h1>
-  //         Usuário &apos;{currentUserId.value}&apos; não possui perfis de macro
-  //         registrados, criando perfil padrão...
-  //       </h1>
-  //     </>
-  //   )
-  // }
-
-  const handleSave = async () => {
-    alert('TODO: handleSave Ainda não implementado')
-  }
-
   const onSaveProfile = async (profile: MacroProfile) => {
     if (profile.target_day.getTime() > new Date(getToday()).getTime()) {
       console.error(
@@ -74,7 +46,6 @@ export default function Page() {
       })
     }
     console.log('Updating MacroProfile')
-    alert('TODO: onSaveProfile Ainda não implementado')
   }
 
   console.debug('[ProfilePage] Rendering profile')
@@ -86,22 +57,15 @@ export default function Page() {
           <div class={'mx-1 md:mx-40 lg:mx-auto lg:w-1/3'}>
             <BasicInfo
               user={currentUser}
-              // TODO: Convert onSaveRecipe and onDelete to sync callback
-              onSave={async (newUser: User) => {
-                const updatedUser = await updateUser(newUser.id, newUser)
-                alert('TODO: onSave Ainda não implementado')
-                return updatedUser
-              }}
-            />
-
-            <WeightEvolution
-              onSave={() => {
-                handleSave().catch((error) => {
+              onSave={(newUser: User) => {
+                updateUser(newUser.id, newUser).catch((error) => {
                   console.error(error)
-                  alert('Erro ao salvar peso') // TODO: Change all alerts with ConfirmModal
+                  alert('Erro ao salvar usuário') // TODO: Change all alerts with ConfirmModal
                 })
               }}
             />
+
+            <WeightEvolution />
             <div class={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>
               <Show
                 when={weight()}
@@ -127,14 +91,7 @@ export default function Page() {
               </Show>
             </div>
             <MacroEvolution />
-            <MeasuresEvolution
-              onSave={() => {
-                handleSave().catch((error) => {
-                  console.error(error)
-                  alert('Erro ao salvar medidas') // TODO: Change all alerts with ConfirmModal
-                })
-              }}
-            />
+            <MeasuresEvolution />
           </div>
           <BottomNavigation />
         </>
