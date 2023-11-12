@@ -6,6 +6,7 @@ import { ErrorBoundary } from 'solid-start/error-boundary'
 import '~/assets/styles/globals.css'
 import { ConfirmModal } from '~/sections/common/components/ConfirmModal'
 import { ConfirmModalProvider } from '~/sections/common/context/ConfirmModalContext'
+import { Congratulate } from '~/sections/congratulate/components/Congratulate'
 
 export default function Root() {
   return (
@@ -17,6 +18,7 @@ export default function Root() {
       </Head>
       <Body>
         <Providers>
+          <Congratulate />
           <Suspense>
             <ErrorBoundary>
               <Routes>

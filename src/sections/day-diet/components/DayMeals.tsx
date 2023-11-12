@@ -13,7 +13,7 @@ import { calcDayMacros } from '~/legacy/utils/macroMath'
 import { ItemGroupEditModal } from '~/sections/item-group/components/ItemGroupEditModal'
 import { CopyLastDayButton } from '~/sections/day-diet/components/CopyLastDayButton'
 import { DeleteDayButton } from '~/sections/day-diet/components/DeleteDayButton'
-import { getToday } from '~/legacy/utils/dateUtils'
+import { getTodayYYYMMDD } from '~/legacy/utils/dateUtils'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import DayNotFound from '~/sections/day-diet/components/DayNotFound'
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
@@ -49,7 +49,7 @@ const [newItemSelection, setNewItemSelection] =
   createSignal<NewItemSelection>(null)
 
 export default function DayMeals(props: { selectedDay: string }) {
-  const today = getToday()
+  const today = getTodayYYYMMDD()
   const showingToday = () => today === props.selectedDay
 
   const [dayExplicitlyUnlocked, setDayExplicitlyUnlocked] = createSignal(false)
