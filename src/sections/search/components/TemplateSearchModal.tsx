@@ -125,11 +125,10 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
       body: 'Deseja adicionar outro item ou finalizar a inclusão?',
       actions: [
         {
+          // TODO: Show toast "Item <nome> adicionado com sucesso"
           text: 'Adicionar mais um item',
           onClick: () => {
-            // TODO: Fix "Add another item" button: it is not refreshing client-side data
-            alert('Funcionalidade desabilitada temporariamente') // TODO: Change all alerts with ConfirmModal
-            // Code from "Finalizar" button
+            // TODO: Remove createFood as default selected food
             setSelectedTemplate(
               addId(
                 createFood({
@@ -138,16 +137,6 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
               ),
             )
             setFoodItemEditModalVisible(false)
-            props.onFinish?.()
-            // -- End of "Finalizar" button code
-
-            // TODO: Remove createFood as default selected food
-            // selectedTemplate.value = addId(
-            //   createFood({
-            //     name: 'BUG: SELECTED FOOD NOT SET'
-            //   })
-            // )
-            // foodItemEditModalVisible.value = false
           },
         },
         {
