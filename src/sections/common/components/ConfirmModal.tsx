@@ -17,6 +17,7 @@ export function ConfirmModal() {
       <Modal
         header={<ModalHeader title={title()} backButton={false} />}
         body={<p>{body()}</p>}
+        hasBackdrop={false}
         actions={
           <ModalActions>
             <For each={actions()}>

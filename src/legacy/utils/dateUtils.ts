@@ -1,10 +1,17 @@
-export const getToday = () => dateToYYYYMMDD(adjustToTimezone(new Date()))
+export const getTodayYYYMMDD = () => dateToYYYYMMDD(getToday())
+export const getToday = () => adjustToTimezone(getMidnight(new Date()))
 
 export const adjustToTimezone = (date: Date) => {
   const offset = date.getTimezoneOffset() / 60
   const hours = date.getHours()
   const newDate = new Date(date)
   newDate.setHours(hours - offset)
+  return newDate
+}
+
+export const getMidnight = (date: Date) => {
+  const newDate = new Date(date)
+  newDate.setHours(0, 0, 0, 0)
   return newDate
 }
 
@@ -22,7 +29,7 @@ export const stringToDate = (
   }
 
   const dateString = dateToYYYYMMDD(date)
-  return new Date(`${dateString}T00:00:00`)
+  return new Date(`${dateString}T00:00:00Z`)
 }
 
 export const dateToYYYYMMDD = (date: Date) => date.toISOString().split('T')[0]
