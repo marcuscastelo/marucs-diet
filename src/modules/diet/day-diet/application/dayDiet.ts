@@ -1,5 +1,5 @@
 import { type New, enforceNew } from '~/legacy/utils/newDbRecord'
-import { getToday } from '~/legacy/utils/dateUtils'
+import { getTodayYYYMMDD } from '~/legacy/utils/dateUtils'
 import {
   type DayDiet,
   dayDietSchema,
@@ -31,7 +31,7 @@ export function createDayDiet({
 
 const dayRepository = createSupabaseDayRepository()
 
-export const [targetDay, setTargetDay] = createSignal<string>(getToday())
+export const [targetDay, setTargetDay] = createSignal<string>(getTodayYYYMMDD())
 
 export const [dayDiets, setDayDiets] = createSignal<readonly DayDiet[]>([])
 
