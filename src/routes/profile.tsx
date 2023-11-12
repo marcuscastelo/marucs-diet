@@ -8,7 +8,7 @@ import { latestWeight } from '~/legacy/utils/weightUtils'
 import { type User } from '~/modules/user/domain/user'
 import { type MacroProfile } from '~/modules/diet/macro-profile/domain/macroProfile'
 
-import { getToday } from '~/legacy/utils/dateUtils'
+import { getTodayYYYMMDD } from '~/legacy/utils/dateUtils'
 import { BottomNavigation } from '~/sections/common/components/BottomNavigation'
 import { currentUser, updateUser } from '~/modules/user/application/user'
 import { userWeights } from '~/modules/weight/application/weight'
@@ -28,21 +28,23 @@ export default function Page() {
   const weight = () => latestWeight(userWeights())?.weight
 
   const onSaveProfile = async (profile: MacroProfile) => {
-    if (profile.target_day.getTime() > new Date(getToday()).getTime()) {
+    if (profile.target_day.getTime() > new Date(getTodayYYYMMDD()).getTime()) {
       console.error(
         `[ProfilePage] Invalid target day ${profile.target_day.toString()}: it is in the future`,
       )
       throw new Error('Invalid target day')
     } else if (
-      profile.target_day.getTime() === new Date(getToday()).getTime()
+      profile.target_day.getTime() === new Date(getTodayYYYMMDD()).getTime()
     ) {
       // Same day, update
       await updateMacroProfile(profile.id, profile)
-    } else if (profile.target_day.getTime() < new Date(getToday()).getTime()) {
+    } else if (
+      profile.target_day.getTime() < new Date(getTodayYYYMMDD()).getTime()
+    ) {
       // Past day, insert with new date
       await insertMacroProfile({
         ...profile,
-        target_day: new Date(getToday()),
+        target_day: new Date(getTodayYYYMMDD()),
       })
     }
     console.log('Updating MacroProfile')
