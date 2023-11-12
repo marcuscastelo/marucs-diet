@@ -915,10 +915,7 @@ function PreparedQuantity(props: {
     (rawQuantity() ?? 0) * (props.recipe?.prepared_multiplier ?? 1)
 
   // TODO: Allow user to edit prepared quantity directly
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [preparedQuantity, _setPreparedQuantity] = createMirrorSignal(
-    initialPreparedQuantity,
-  )
+  const [preparedQuantity] = createMirrorSignal(initialPreparedQuantity)
 
   const preparedQuantityField = useFloatField(preparedQuantity, {
     decimalPlaces: 0,

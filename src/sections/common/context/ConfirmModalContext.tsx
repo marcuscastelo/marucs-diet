@@ -40,8 +40,6 @@ export type ConfirmModalContext = {
 const confirmModalContext = createContext<ConfirmModalContext | null>(null)
 
 export function useConfirmModalContext() {
-  // TODO: Implement useContextSelector
-
   const context = useContext(confirmModalContext)
   if (context === null) {
     throw new Error(
