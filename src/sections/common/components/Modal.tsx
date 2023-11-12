@@ -69,8 +69,6 @@ export const Modal = (_props: ModalProps) => {
   )
 }
 
-// TODO: ModalHeader => Modal.Header, ModalBody => Modal.Body, ModalActions => Modal.Actions
-
 // TODO: Use Modal.Header & Modal.Body or delete them
 // TODO: Unify Header, Content and Actions for each component in the entire app
 /**

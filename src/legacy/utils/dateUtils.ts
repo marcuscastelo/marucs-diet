@@ -4,7 +4,7 @@ export const adjustToTimezone = (date: Date) => {
   const offset = date.getTimezoneOffset() / 60
   const hours = date.getHours()
   const newDate = new Date(date)
-  newDate.setHours(hours + offset)
+  newDate.setHours(hours - offset)
   return newDate
 }
 
