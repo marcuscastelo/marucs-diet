@@ -36,6 +36,11 @@ export const Modal = (_props: ModalProps) => {
     e.stopPropagation()
   }
 
+  const modalClass = () =>
+    cn('modal modal-bottom sm:modal-middle', {
+      'modal-active': visible(),
+    })
+
   return (
     <dialog
       id={`modal-${modalId++}`}
@@ -51,7 +56,7 @@ export const Modal = (_props: ModalProps) => {
           })
         }
       }}
-      class="modal modal-bottom sm:modal-middle"
+      class={modalClass()}
       onClose={handleClose}
       onCancel={handleClose}
     >
