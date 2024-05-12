@@ -6,22 +6,18 @@ import {
 import { createSupabaseUserRepository } from '~/modules/user/infrastructure/supabaseUserRepository'
 import { createEffect, createSignal } from 'solid-js'
 
-export const DEFAULT_USER_ID = -1
+export const DEFAULT_USER_ID = 3
 
 const userRepository = createSupabaseUserRepository()
 
 export const [users, setUsers] = createSignal<readonly User[]>([])
 export const [currentUser, setCurrentUser] = createSignal<User | null>(null)
 
-export const [currentUserId, setCurrentUserId] =
-  createSignal<number>(DEFAULT_USER_ID)
+export const [currentUserId, setCurrentUserId] = createSignal<number>(1)
 
 createEffect(() => {
   if (currentUserId() !== null) {
-    if (currentUserId() === DEFAULT_USER_ID) {
-      setCurrentUserId(loadUserIdFromLocalStorage())
-    }
-
+    setCurrentUserId(loadUserIdFromLocalStorage())
     fetchCurrentUser().catch(console.error)
   }
 })
@@ -57,8 +53,8 @@ export async function deleteUser(userId: User['id']): Promise<void> {
 }
 
 export function changeToUser(userId: User['id']): void {
-  setCurrentUserId(userId)
   saveUserIdToLocalStorage(userId)
+  setCurrentUserId(userId)
 }
 
 // TODO: Create module for favorites
