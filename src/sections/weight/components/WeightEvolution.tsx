@@ -233,15 +233,21 @@ function WeightChart(props: {
   }
 
   const reduceFunc = (acc: Record<string, Weight[]>, weight: Weight) => {
-    const week = (() => {
+    const half = (() => {
+      // 1 to 4 weeks of a month
       const date = new Date(weight.target_timestamp)
       const month = date.toLocaleString('default', { month: 'short' })
-      const weekNumber = Math.min(4, Math.ceil(date.getDate() / 7))
-      return `${month} (${weekNumber}/4)`
+      // const weekNumber = Math.min(4, Math.ceil(date.getDate() / 7))
+
+      // 1 to 2 half of a month (1 -> 1-15, 2 -> 16-31)
+      const halfNumber = Math.min(2, Math.ceil(date.getDate() / 15))
+
+      // return `${month} (${weekNumber}/4)`
+      return `${month} (${halfNumber}/2)`
     })()
     const day_ = weight.target_timestamp.toLocaleDateString().slice(0, 5)
 
-    const day = props.type === 'last-30-days' ? day_ : week
+    const day = props.type === 'last-30-days' ? day_ : half
     if (acc[day] === undefined) {
       acc[day] = []
     }
