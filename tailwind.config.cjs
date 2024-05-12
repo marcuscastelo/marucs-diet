@@ -4,7 +4,7 @@ const defaultTheme = require('tailwindcss/defaultTheme')
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./src/**/*.{html,js,jsx,ts,tsx}",
+    './src/**/*.{html,js,jsx,ts,tsx}',
     './node_modules/flowbite/**/*.js', // configure the Flowbite JS source template paths
   ],
   theme: {

@@ -20,17 +20,16 @@ export function TargetDayPicker() {
   }
 
   return (
-    <>TODO</>
-    // <Datepicker
-    //   asSingle={true}
-    //   useRange={false}
-    //   readOnly={true}
-    //   displayFormat="DD/MM/YYYY"
-    //   value={{
-    //     startDate: targetDay(),
-    //     endDate: targetDay(),
-    //   }}
-    //   onChange={handleDayChange}
-    // />
+    <Datepicker
+      asSingle={true}
+      useRange={false}
+      readOnly={true}
+      displayFormat="DD/MM/YYYY"
+      value={{
+        startDate: targetDay(),
+        endDate: targetDay(),
+      }}
+      onChange={handleDayChange}
+    />
   )
 }

@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     optimizeDeps: {
-      disabled: true
+      disabled: true,
     },
     plugins: [
       devtools({

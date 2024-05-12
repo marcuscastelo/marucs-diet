@@ -1,0 +1,21 @@
+changelog:
+  categories:
+    - title: Features
+      labels:
+        - feature
+    - title: Bugfixes
+      labels:
+        - bug
+        - hotfix
+    - title: Improvements
+      labels:
+        - improvement
+    - title: Other
+      labels:
+        - '*'
+      exclude:
+        labels:
+          - feature
+          - bug
+          - improvement
+          - hotfix

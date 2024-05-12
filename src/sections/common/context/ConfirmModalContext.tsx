@@ -68,7 +68,6 @@ export function ConfirmModalProvider(props: { children: JSXElement }) {
     },
   ])
 
-
   const context: ConfirmModalContext = {
     internals: {
       visible,

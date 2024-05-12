@@ -1,6 +1,8 @@
 {
-  "name": "example-with-tailwindcss",
+  "name": "marucs-diet",
+  "private": true,
   "type": "module",
+  "version": "0.8.1",
   "scripts": {
     "dev": "vinxi dev",
     "build": "vinxi build",

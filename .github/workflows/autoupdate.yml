@@ -1,0 +1,20 @@
+name: autoupdate
+on:
+  # This will trigger on all pushes to all branches.
+  pull_request: {}
+  # Alternatively, you can only trigger if commits are pushed to certain branches, e.g.:
+  # push:
+  #   branches:
+  #     - master
+  #     - unstable
+permissions: # This is required for the action to be able to create pull requests.
+  pull-requests: write
+jobs:
+  autoupdate:
+    name: autoupdate
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: docker://chinthakagodawita/autoupdate-action:v1
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+          PR_READY_STATE: 'ready_for_review'

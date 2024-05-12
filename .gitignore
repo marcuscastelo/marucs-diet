@@ -27,3 +27,7 @@ gitignore
 # System Files
 .DS_Store
 Thumbs.db
+
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
