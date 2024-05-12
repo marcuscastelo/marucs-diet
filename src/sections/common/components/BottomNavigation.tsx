@@ -57,7 +57,7 @@ export function BottomNavigation() {
           onClick={() => {
             showConfirmModal({
               title: '',
-              body: <UserSelectorDropdown />,
+              body: () => <UserSelectorDropdown />,
               actions: [],
             })
           }}
@@ -208,7 +208,7 @@ const UserSelectorDropdown = () => {
   const handleChangeUser = (user: User) => {
     showConfirmModal({
       title: 'Trocar de usuário',
-      body: (
+      body: () => (
         <div class="flex justify-between">
           <span>{`Deseja entrar como ${user.name}?`}</span>
           <UserIcon class="w-16 h-16" userId={user.id} />
