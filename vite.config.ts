@@ -10,6 +10,9 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
   return {
+    optimizeDeps: {
+      disabled: true,
+    },
     plugins: [
       devtools({
         autoname: true, // e.g. enable autoname

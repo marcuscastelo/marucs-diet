@@ -17,7 +17,9 @@ import {
   updateMacroProfile,
   userMacroProfiles,
 } from '~/modules/diet/macro-profile/application/macroProfile'
-import { Show } from 'solid-js'
+import { type JSXElement, Show } from 'solid-js'
+import { ConfirmModalProvider } from '~/sections/common/context/ConfirmModalContext'
+import { ConfirmModal } from '~/sections/common/components/ConfirmModal'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -53,51 +55,63 @@ export default function Page() {
   console.debug('[ProfilePage] Rendering profile')
 
   return (
-    <Show when={currentUser()}>
-      {(currentUser) => (
-        <>
-          <div class={'mx-1 md:mx-40 lg:mx-auto lg:w-1/3'}>
-            <BasicInfo
-              user={currentUser}
-              onSave={(newUser: User) => {
-                updateUser(newUser.id, newUser).catch((error) => {
-                  console.error(error)
-                  alert('Erro ao salvar usuário') // TODO: Change all alerts with ConfirmModal
-                })
-              }}
-            />
+    <Providers>
+      <Show when={currentUser()}>
+        {(currentUser) => (
+          <>
+            <div class={'mx-1 md:mx-40 lg:mx-auto lg:w-1/3'}>
+              <BasicInfo
+                user={currentUser}
+                onSave={(newUser: User) => {
+                  updateUser(newUser.id, newUser).catch((error) => {
+                    console.error(error)
+                    alert('Erro ao salvar usuário') // TODO: Change all alerts with ConfirmModal
+                  })
+                }}
+              />
 
-            <WeightEvolution />
-            <div class={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>
-              <Show
-                when={weight()}
-                fallback={
-                  <h1>
-                    Não há pesos registrados, o perfil não pode ser calculado
-                  </h1>
-                }
-              >
-                {(weight) => (
-                  <MacroTarget
-                    weight={weight()}
-                    profiles={userMacroProfiles()}
-                    onSaveMacroProfile={(profile) => {
-                      onSaveProfile(profile).catch((error) => {
-                        console.error(error)
-                        alert('Erro ao salvar perfil') // TODO: Change all alerts with ConfirmModal
-                      })
-                    }}
-                    mode="edit"
-                  />
-                )}
-              </Show>
+              <WeightEvolution />
+              <div class={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>
+                <Show
+                  when={weight()}
+                  fallback={
+                    <h1>
+                      Não há pesos registrados, o perfil não pode ser calculado
+                    </h1>
+                  }
+                >
+                  {(weight) => (
+                    <MacroTarget
+                      weight={weight()}
+                      profiles={userMacroProfiles()}
+                      onSaveMacroProfile={(profile) => {
+                        onSaveProfile(profile).catch((error) => {
+                          console.error(error)
+                          alert('Erro ao salvar perfil') // TODO: Change all alerts with ConfirmModal
+                        })
+                      }}
+                      mode="edit"
+                    />
+                  )}
+                </Show>
+              </div>
+              <MacroEvolution />
+              <MeasuresEvolution />
             </div>
-            <MacroEvolution />
-            <MeasuresEvolution />
-          </div>
-          <BottomNavigation />
-        </>
-      )}
-    </Show>
+            <BottomNavigation />
+          </>
+        )}
+      </Show>
+    </Providers>
+  )
+}
+
+// TODO: Apply provider pattern to all routes
+function Providers(props: { children: JSXElement }) {
+  return (
+    <ConfirmModalProvider>
+      <ConfirmModal />
+      {props.children}
+    </ConfirmModalProvider>
   )
 }
