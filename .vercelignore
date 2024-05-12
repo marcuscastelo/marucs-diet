@@ -2,3 +2,6 @@
 .vscode/
 .gitignore
 README.md
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
