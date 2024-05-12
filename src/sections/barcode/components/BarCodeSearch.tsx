@@ -21,6 +21,7 @@ import {
   Show,
 } from 'solid-js'
 import { fetchFoodByEan } from '~/modules/diet/food/application/food'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 
 export type BarCodeSearchProps = {
   barCode: Accessor<string>
@@ -31,28 +32,55 @@ export type BarCodeSearchProps = {
 
 export default function BarCodeSearch(props: BarCodeSearchProps) {
   const [loading, setLoading] = createSignal(false)
+  const { show: showConfirmModal } = useConfirmModalContext()
 
   const EAN_LENGTH = 13
 
   createEffect(() => {
     if (props.barCode().length !== EAN_LENGTH) {
+      if (props.barCode().length > 0) {
+        props.setFood(null)
+      }
       return
     }
 
     setLoading(true)
 
-    const afterFetch = props.setFood
+    const afterFetch = (food: Food | null) => {
+      console.log('afterFetch food', food)
+      if (!food) {
+        showConfirmModal({
+          title: `Não encontrado`,
+          body: `Alimento de EAN ${props.barCode()} não encontrado`,
+          actions: [
+            { text: 'OK', primary: true, onClick: () => {} },
+          ]
+        })
+        return
+      }
+      props.setFood(food)
+    }
+
     const catchFetch = (err: any) => {
-      props.setFood(null)
+      console.log('catchFetch err', err)
       console.error(err)
-      alert(JSON.stringify(err, null, 2)) // TODO: Change all alerts with ConfirmModal
+      showConfirmModal({
+        title: `Erro ao buscar alimento de EAN ${props.barCode()}`,
+        body: `Erro: ${err}`,
+        actions: [
+          { text: 'OK', primary: true, onClick: () => {} },
+        ]
+      })
+      props.setFood(null)
     }
 
     fetchFoodByEan(props.barCode())
       .then(afterFetch)
       .catch(catchFetch)
       .finally(() => {
+        console.log('finally')
         setLoading(false)
+        props.setBarCode('')
       })
   })
 
