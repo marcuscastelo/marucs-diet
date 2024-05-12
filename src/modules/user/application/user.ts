@@ -6,19 +6,22 @@ import {
 import { createSupabaseUserRepository } from '~/modules/user/infrastructure/supabaseUserRepository'
 import { createEffect, createSignal } from 'solid-js'
 
-export const DEFAULT_USER_ID = 3
+export const DEFAULT_USER_ID = -1
 
 const userRepository = createSupabaseUserRepository()
 
 export const [users, setUsers] = createSignal<readonly User[]>([])
 export const [currentUser, setCurrentUser] = createSignal<User | null>(null)
 
-export const [currentUserId, setCurrentUserId] = createSignal<number>(
-  loadUserIdFromLocalStorage(),
-)
+export const [currentUserId, setCurrentUserId] =
+  createSignal<number>(DEFAULT_USER_ID)
 
 createEffect(() => {
   if (currentUserId() !== null) {
+    if (currentUserId() === DEFAULT_USER_ID) {
+      setCurrentUserId(loadUserIdFromLocalStorage())
+    }
+
     fetchCurrentUser().catch(console.error)
   }
 })

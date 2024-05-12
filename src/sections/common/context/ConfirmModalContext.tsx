@@ -7,8 +7,8 @@ import {
   type Setter,
 } from 'solid-js'
 
-type Title = JSXElement
-type Body = JSXElement
+type Title = () => JSXElement
+type Body = () => JSXElement
 
 type ConfirmAction = {
   text: string
@@ -30,8 +30,8 @@ export type ConfirmModalContext = {
     body,
     actions,
   }: {
-    title?: Title
-    body?: Body
+    title?: Title | string
+    body?: Body | string
     actions?: ConfirmAction[]
   }) => void
   close: () => void
@@ -52,8 +52,8 @@ export function useConfirmModalContext() {
 export function ConfirmModalProvider(props: { children: JSXElement }) {
   console.debug('[ConfirmModalProvider] - Rendering')
 
-  const [title, setTitle] = createSignal<Title>('')
-  const [body, setBody] = createSignal<Body>('')
+  const [title, setTitle] = createSignal<Title>(() => <></>)
+  const [body, setBody] = createSignal<Body>(() => <></>)
   const [visible, setVisible] = createSignal<boolean>(false)
 
   const [actions, setActions] = createSignal<ConfirmAction[]>([
@@ -79,10 +79,18 @@ export function ConfirmModalProvider(props: { children: JSXElement }) {
     visible,
     show: ({ title, body, actions: newActions }) => {
       if (title !== undefined) {
-        setTitle(title)
+        if (typeof title === 'string') {
+          setTitle(() => () => <>{title}</>)
+        } else {
+          setTitle(() => title)
+        }
       }
       if (body !== undefined) {
-        setBody(body)
+        if (typeof body === 'string') {
+          setBody(() => () => <>{body}</>)
+        } else {
+          setBody(() => body)
+        }
       }
       if (newActions !== undefined) {
         setActions(

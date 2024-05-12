@@ -75,6 +75,7 @@ function Calories(props: {
             '--thickness': '0.7rem',
             transform: 'rotate(90deg) scale(-1, -1)',
           }}
+          role="progressbar"
         >
           <span
             class=""
