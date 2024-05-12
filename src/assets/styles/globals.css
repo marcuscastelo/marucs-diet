@@ -35,3 +35,13 @@ body {
     margin: 0;
   }
 }
+
+.modal > .modal-box {
+  scale: 0.1;
+  transition: all 0.2s ease;
+}
+
+.modal.modal-active > .modal-box {
+  scale: 1;
+  transition: all 0.2s ease;
+}
