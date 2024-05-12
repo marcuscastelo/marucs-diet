@@ -2,3 +2,5 @@
 .vscode/
 .gitignore
 README.md
+yarn.lock
+package-lock.json
