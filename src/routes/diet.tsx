@@ -14,6 +14,9 @@ export default function DietPage() {
         <TopBar selectedDay={targetDay()} />
         <DayMeals selectedDay={targetDay()} />
         <BottomNavigation />
+        <div class="fixed right-5 bottom-0">
+          Version: {process.env.APP_VERSION}
+        </div>
       </div>
     </Providers>
   )
