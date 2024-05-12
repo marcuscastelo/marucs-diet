@@ -1,9 +1,0 @@
-name: autoupdate
-on:
-  pull_request: {}
-permissions:
-  pull-requests: write
-jobs:
-  autoupdate:
-    name: Auto Update
-    uses: chinthakagodawita/autoupdate@v1.7.0
