@@ -1,4 +1,5 @@
-import { type APIEvent, json } from 'solid-start/api'
+import { type APIEvent } from '@solidjs/start/server'
+import { json } from '@solidjs/router'
 import { createApiFoodRepository } from '~/modules/diet/food/infrastructure/api/infrastructure/apiFoodRepository'
 
 const apiFoodRepository = createApiFoodRepository()

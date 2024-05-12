@@ -5,4 +5,7 @@ export default defineConfig({
   server: {
     preset: 'vercel',
   },
+  vite: {
+    plugins: [],
+  },
 })
