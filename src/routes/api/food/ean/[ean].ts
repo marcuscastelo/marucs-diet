@@ -8,5 +8,6 @@ export async function GET({ params }: APIEvent) {
   console.debug('GET', params)
   const apiFood = await apiFoodRepository.fetchApiFoodByEan(params.ean)
   console.debug('apiFood', apiFood)
+
   return json(apiFood)
 }
