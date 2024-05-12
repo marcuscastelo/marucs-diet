@@ -1,6 +1,5 @@
 import { type User } from '~/modules/user/domain/user'
 import {
-  loadUserIdFromLocalStorage,
   saveUserIdToLocalStorage,
 } from '~/modules/user/infrastructure/localStorageUserRepository'
 import { createSupabaseUserRepository } from '~/modules/user/infrastructure/supabaseUserRepository'
@@ -13,9 +12,7 @@ const userRepository = createSupabaseUserRepository()
 export const [users, setUsers] = createSignal<readonly User[]>([])
 export const [currentUser, setCurrentUser] = createSignal<User | null>(null)
 
-export const [currentUserId, setCurrentUserId] = createSignal<number>(
-  loadUserIdFromLocalStorage(),
-)
+export const [currentUserId, setCurrentUserId] = createSignal<number>(1)
 
 createEffect(() => {
   if (currentUserId() !== null) {

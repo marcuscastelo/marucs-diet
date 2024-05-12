@@ -1,5 +1,5 @@
-import { Navigate } from 'solid-start'
+import { Navigate } from '@solidjs/router'
 
-export default function Home() {
+export default function DietPage() {
   return <Navigate href="/diet" />
 }
