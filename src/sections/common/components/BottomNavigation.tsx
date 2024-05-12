@@ -19,8 +19,6 @@ export function BottomNavigation() {
   console.debug('[BottomNavigation] Rendering')
   console.debug('[BottomNavigation] Current path:', pathname)
 
-  const selector = <UserSelectorDropdown />
-
   return (
     <div class="fixed z-50 w-full h-16 max-w-lg -translate-x-1/2 bg-white border border-gray-200 rounded-full bottom-4 left-1/2 dark:bg-slate-800 dark:border-slate-700">
       <div class="grid h-full max-w-lg grid-cols-5 mx-auto pt-1">
@@ -59,7 +57,7 @@ export function BottomNavigation() {
           onClick={() => {
             showConfirmModal({
               title: '',
-              body: selector,
+              body: () => <UserSelectorDropdown />,
               actions: [],
             })
           }}
@@ -210,7 +208,7 @@ const UserSelectorDropdown = () => {
   const handleChangeUser = (user: User) => {
     showConfirmModal({
       title: 'Trocar de usuário',
-      body: (
+      body: () => (
         <div class="flex justify-between">
           <span>{`Deseja entrar como ${user.name}?`}</span>
           <UserIcon class="w-16 h-16" userId={user.id} />

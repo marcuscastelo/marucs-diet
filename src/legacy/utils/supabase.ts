@@ -1,6 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
 import { z } from 'zod'
-console.debug(`[supabase] env: ${JSON.stringify(import.meta.env)}`)
 const supabaseUrl = z
   .string({
     description: 'The URL of the Supabase project',
