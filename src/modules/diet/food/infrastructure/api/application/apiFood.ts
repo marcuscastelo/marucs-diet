@@ -26,9 +26,17 @@ export function convertApi2Food(food: ApiFood): DbReady<Food> {
   }
 }
 
-export async function importFoodFromApiByEan(ean: string): Promise<Food> {
+export async function importFoodFromApiByEan(
+  ean: string,
+): Promise<Food | null> {
   const apiFood = (await axios.get(`/api/food/ean/${ean}`))
     .data as unknown as ApiFood
+
+  if (apiFood.id === 0) {
+    console.debug(`[ApiFood] Food with EAN ${ean} not found`)
+    return null
+  }
+
   const food = convertApi2Food(apiFood)
   const insertedFood = await foodRepository.insertFood(food)
   return foodSchema.parse(insertedFood)
@@ -38,6 +46,11 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
   console.debug(`[ApiFood] Importing foods with name "${name}"`)
   const apiFoods = (await axios.get(`/api/food/name/${name}`))
     .data as unknown as ApiFood[]
+
+  if (apiFoods.length === 0) {
+    console.debug(`[ApiFood] No foods found with name "${name}"`)
+    return []
+  }
 
   console.debug(`[ApiFood] Found ${apiFoods.length} foods`)
   const foodsToInsert = apiFoods.map(convertApi2Food)

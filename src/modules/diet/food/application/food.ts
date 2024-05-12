@@ -38,7 +38,7 @@ export async function fetchFoodByEan(
 ) {
   if (!(await isEanCached(ean))) {
     console.debug(`[Food] Food with EAN ${ean} not cached, importing`)
-    await importFoodFromApiByEan(ean)
+    return await importFoodFromApiByEan(ean)
   }
   // TODO: When importing a food, avoid second fetch for performance
   return await foodRepository.fetchFoodByEan(ean, params)
