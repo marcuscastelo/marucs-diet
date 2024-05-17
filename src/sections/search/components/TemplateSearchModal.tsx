@@ -442,6 +442,9 @@ function ExternalFoodItemEditModal(props: {
               ? 'FoodItem'
               : 'RecipeItem', // TODO: Refactor conversion from template type to group/item types
         })}
+        overflowOptions={{
+          enable: () => true,
+        }}
         onApply={(item) => {
           // TODO: Refactor conversion from template type to group/item types
           if (item.__type === 'FoodItem') {
