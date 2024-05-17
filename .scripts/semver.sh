@@ -1,10 +1,19 @@
 #!/bin/sh
 
-git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/' | grep -E "rc/" >/dev/null
+closest_branch=$(git show-branch -a \
+| grep '\*' \
+| grep -v `git rev-parse --abbrev-ref HEAD` \
+| head -n1 \
+| grep -Eo '\[.*\] [\[]' \
+| grep -Eo '\[.*\]' \
+| sed 's/\[\(.*\)\]/\1/' \
+)
+
+echo "$closest_branch" | grep -E "rc/" >/dev/null
 isrc=$?
 if [ $isrc -eq 0 ]; then
   count=$(git rev-list --count HEAD ^main)
-  version=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/' -e 's/rc\/\(.*\)/\1/')
+  version=$(echo "$closest_branch" | sed -e 's/rc\/\(.*\)/\1/')
   postfix="-rc.$count"
 else
   count=$(git rev-list  `git rev-list --tags --no-walk --max-count=1`..HEAD --count)
