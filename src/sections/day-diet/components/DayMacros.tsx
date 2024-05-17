@@ -1,20 +1,24 @@
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
-import { calcCalories } from '~/legacy/utils/macroMath'
+import { calcCalories, calcDayMacros } from '~/legacy/utils/macroMath'
 import { Show } from 'solid-js'
 import { Progress } from '~/sections/common/components/Progress'
 import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget'
+import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
+import { stringToDate } from '~/legacy/utils/dateUtils'
 
-export default function DayMacros(props: {
-  day: Date
-  macros: MacroNutrients
-  class?: string
-}) {
+export default function DayMacros(props: { class?: string }) {
   const macroSignals = () => {
-    const macroTarget_ = macroTarget(props.day)
+    const currentDayDiet_ = currentDayDiet()
+    if (currentDayDiet_ === null) return null
+
+    const macroTarget_ = macroTarget(stringToDate(currentDayDiet_.target_day))
     if (macroTarget_ === null) return null
+
+    const dayMacros = calcDayMacros(currentDayDiet_)
 
     return {
       macroTarget: macroTarget_,
+      macros: dayMacros,
       targetCalories: calcCalories(macroTarget_),
     }
   }
@@ -30,14 +34,14 @@ export default function DayMacros(props: {
             <div class="flex-shrink">
               <Calories
                 class="w-full"
-                macros={props.macros}
+                macros={macroSignals().macros}
                 targetCalories={macroSignals().targetCalories}
               />
             </div>
             <div class="flex-1">
               <Macros
                 class="mt-3 text-xl xs:mt-0"
-                macros={props.macros}
+                macros={macroSignals().macros}
                 targetMacros={macroSignals().macroTarget}
               />
             </div>

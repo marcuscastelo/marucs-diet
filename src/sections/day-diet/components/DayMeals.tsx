@@ -112,11 +112,7 @@ export default function DayMeals(props: { selectedDay: string }) {
             visible={itemGroupEditModalVisible}
             setVisible={setItemGroupEditModalVisible}
           />
-          <DayMacros
-            day={stringToDate(targetDay())}
-            class="mt-3 border-b-2 border-gray-800 pb-4"
-            macros={calcDayMacros(neverNullDayDiet())}
-          />
+          <DayMacros class="mt-3 border-b-2 border-gray-800 pb-4" />
           <Show when={!showingToday()}>
             {(_) => (
               <>

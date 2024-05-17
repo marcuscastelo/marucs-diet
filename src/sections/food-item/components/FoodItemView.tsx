@@ -34,6 +34,10 @@ const recipeRepository = createSupabaseRecipeRepository()
 
 export type FoodItemViewProps = {
   foodItem: Accessor<TemplateItem>
+  macroOverflowOptions?: () => {
+    enable: () => boolean
+    originalItem?: () => TemplateItem | undefined
+  }
   header?: JSXElement
   nutritionalInfo?: JSXElement
   class?: string
@@ -54,7 +58,10 @@ export function FoodItemView(props: FoodItemViewProps) {
       }`}
       onClick={handleClick}
     >
-      <FoodItemContextProvider foodItem={props.foodItem}>
+      <FoodItemContextProvider
+        foodItem={props.foodItem}
+        macroOverflowOptions={props.macroOverflowOptions}
+      >
         {props.header}
         {props.nutritionalInfo}
       </FoodItemContextProvider>
@@ -184,23 +191,16 @@ export function FoodItemFavorite(props: {
   )
 }
 
-export function FoodItemNutritionalInfo(props: {
-  macroOverflowOptions?: {
-    enable: () => boolean
-    originalItem?: () => TemplateItem | undefined
-  }
-}) {
-  const { foodItem: item } = useFoodItemContext()
+export function FoodItemNutritionalInfo() {
+  const { foodItem: item, macroOverflowOptions } = useFoodItemContext()
 
   const multipliedMacros = (): MacroNutrients => calcItemMacros(item())
 
+  // TODO: Move isOverflow to a specialized module
   const isOverflow = (property: keyof MacroNutrients) => {
     console.log(`[FoodItemNutritionalInfo] isOverflow`)
 
-    if (
-      props.macroOverflowOptions === undefined ||
-      !props.macroOverflowOptions.enable()
-    ) {
+    if (macroOverflowOptions().enable()) {
       return false
     }
 
@@ -219,7 +219,7 @@ export function FoodItemNutritionalInfo(props: {
       )
       return false
     }
-    const originalItem_ = props.macroOverflowOptions.originalItem?.()
+    const originalItem_ = macroOverflowOptions().originalItem?.()
 
     const itemMacros = calcItemMacros(item())
     const originalItemMacros: MacroNutrients =
