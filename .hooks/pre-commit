@@ -1,0 +1,3 @@
+version=$(.scripts/semver.sh)
+.scripts/updateversion.sh
+git add package.json
