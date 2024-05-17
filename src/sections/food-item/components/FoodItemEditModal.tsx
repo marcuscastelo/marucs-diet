@@ -5,14 +5,14 @@ import {
   FoodItemNutritionalInfo,
   FoodItemView,
 } from '~/sections/food-item/components/FoodItemView'
-import { createFoodItem, type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
 import { Modal, ModalActions } from '~/sections/common/components/Modal'
 import { useModalContext } from '~/sections/common/context/ModalContext'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { generateId } from '~/legacy/utils/idUtils'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import { FloatInput } from '~/sections/common/components/FloatInput'
-import { templateItemSchema, type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 
 import {
   isFoodFavorite,
@@ -34,7 +34,7 @@ export type FoodItemEditModalProps = {
   foodItem: Accessor<
     Partial<TemplateItem> & Pick<TemplateItem, 'name' | 'reference' | 'macros'>
   >
-  overflowOptions?: {
+  overflowOptions?: () => {
     enable: () => boolean
     originalItem?: () => TemplateItem | undefined
   }
@@ -130,7 +130,7 @@ function Body(props: {
   canApply: boolean
   foodItem: Accessor<TemplateItem>
   setFoodItem: Setter<TemplateItem>
-  overflowOptions?: {
+  overflowOptions?: () => {
     enable: () => boolean
     originalItem?: () => TemplateItem | undefined
   }
@@ -278,6 +278,7 @@ function Body(props: {
             macros: props.foodItem().macros,
           }) satisfies TemplateItem
         }
+        macroOverflowOptions={props.overflowOptions}
         class="mt-4"
         onClick={() => {
           // alert('Alimento não editável (ainda)') // TODO: Change all alerts with ConfirmModal
@@ -299,7 +300,7 @@ function Body(props: {
             }
           />
         }
-        nutritionalInfo={<FoodItemNutritionalInfo macroOverflowOptions={props.overflowOptions}/>}
+        nutritionalInfo={<FoodItemNutritionalInfo/>}
       />
     </>
   )
