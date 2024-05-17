@@ -11,6 +11,7 @@ import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 
 export type ItemGroupEditContext = {
   group: Accessor<ItemGroup | null>
+  persistentGroup: Accessor<ItemGroup | null>
   setGroup: Setter<ItemGroup | null>
   saveGroup: () => void
 }
@@ -39,13 +40,10 @@ export function ItemGroupEditContextProvider(props: {
     props.group(),
   )
 
-  createContext(() => {
-    console.debug(
-      '[ItemGroupEditContextProvider] <signalEffect> - initialGroup changed to ',
-      props.group(),
-    )
-    setGroup(props.group())
-  })
+  const [persistentGroup, setPersistentGroup] = createSignal<ItemGroup | null>(
+    // eslint-disable-next-line solid/reactivity
+    props.group(),
+  )
 
   const handleSaveGroup = () => {
     const group_ = group()
@@ -53,11 +51,12 @@ export function ItemGroupEditContextProvider(props: {
       throw new Error('Group is null')
     }
     props.onSaveGroup(group_)
+    setPersistentGroup(group_)
   }
 
   return (
     <itemGroupEditContext.Provider
-      value={{ group, setGroup, saveGroup: handleSaveGroup }}
+      value={{ group, persistentGroup, setGroup, saveGroup: handleSaveGroup }}
     >
       {props.children}
     </itemGroupEditContext.Provider>

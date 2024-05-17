@@ -181,7 +181,7 @@ export function ItemGroupViewNutritionalInfo(props: {
 
   return (
     <div class="flex">
-      <MacroNutrientsView {...multipliedMacros()} />
+      <MacroNutrientsView macros={multipliedMacros()} />
       <div class="ml-auto">
         <span class="text-white"> {props.group()?.quantity ?? -666}g </span>|
         <span class="text-white">

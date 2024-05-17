@@ -46,10 +46,6 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
   const { visible, setVisible } = useModalContext()
   const userId = currentUserId()
 
-  if (userId === null) {
-    throw new Error('User is null')
-  }
-
   const [recipe, setRecipe] = createMirrorSignal(
     () =>
       props.recipe ??

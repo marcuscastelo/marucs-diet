@@ -7,6 +7,7 @@ import { getLatestMacroProfile } from '~/legacy/utils/macroProfileUtils'
 import { Show, createEffect, createSignal, untrack } from 'solid-js'
 import { deleteMacroProfile } from '~/modules/diet/macro-profile/application/macroProfile'
 import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
+import { calculateMacroTarget } from '~/modules/diet/macro-target/application/macroTarget'
 
 const CARBO_CALORIES = 4 as const
 const PROTEIN_CALORIES = 4 as const
@@ -19,19 +20,6 @@ export type MacroRepresentation = {
   gramsPerKg: number
   calorieMultiplier: number
 }
-
-// TODO: calculateMacroTarget should not be exported (move to other module)
-export const calculateMacroTarget = (
-  weight: number,
-  savedMacroTarget: Pick<
-    MacroProfile,
-    'gramsPerKgCarbs' | 'gramsPerKgFat' | 'gramsPerKgProtein'
-  >,
-): MacroNutrients => ({
-  carbs: weight * savedMacroTarget.gramsPerKgCarbs,
-  protein: weight * savedMacroTarget.gramsPerKgProtein,
-  fat: weight * savedMacroTarget.gramsPerKgFat,
-})
 
 const calculateMacroRepresentation = (
   profile: Pick<
@@ -231,13 +219,13 @@ export function MacroTarget(props: MacroTargetProps) {
                         class="btn btn-primary btn-sm"
                         onClick={() => {
                           showConfirmModal({
-                            title: (
+                            title: () => (
                               <div class="text-red-500 text-center mb-5 text-xl">
                                 {' '}
                                 Restaurar perfil antigo{' '}
                               </div>
                             ),
-                            body: (
+                            body: () => (
                               <>
                                 <MacroTarget
                                   weight={props.weight}

@@ -1,31 +1,21 @@
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
-import { calculateMacroTarget } from '~/sections/macro-nutrients/components/MacroTargets'
 import { calcCalories } from '~/legacy/utils/macroMath'
-import { latestWeight } from '~/legacy/utils/weightUtils'
-import { userWeights } from '~/modules/weight/application/weight'
 import { Show } from 'solid-js'
 import { Progress } from '~/sections/common/components/Progress'
-import { latestMacroProfile } from '~/modules/diet/macro-profile/application/macroProfile'
+import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget'
 
 export default function DayMacros(props: {
+  day: Date
   macros: MacroNutrients
   class?: string
 }) {
-  // TODO: Refactor hook to use currentUser() instead of userId (probably delete hook and use use cases)
-
-  const weight = () => latestWeight(userWeights())?.weight ?? null
-
   const macroSignals = () => {
-    const macroProfile_ = latestMacroProfile()
-    const weight_ = weight()
-    if (macroProfile_ === null) return null
-    if (weight_ === null) return null
+    const macroTarget_ = macroTarget(props.day)
+    if (macroTarget_ === null) return null
 
     return {
-      macroTarget: calculateMacroTarget(weight_, macroProfile_),
-      targetCalories: calcCalories(
-        calculateMacroTarget(weight_, macroProfile_),
-      ),
+      macroTarget: macroTarget_,
+      targetCalories: calcCalories(macroTarget_),
     }
   }
 

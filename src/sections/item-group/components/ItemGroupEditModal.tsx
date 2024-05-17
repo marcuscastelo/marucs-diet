@@ -325,7 +325,7 @@ function ExternalFoodItemEditModal(props: {
   targetMealName: string
   onClose: () => void
 }) {
-  const { group, setGroup } = useItemGroupEditContext()
+  const { group, persistentGroup, setGroup } = useItemGroupEditContext()
 
   const handleCloseWithNoChanges = () => {
     props.setVisible(false)
@@ -384,6 +384,34 @@ function ExternalFoodItemEditModal(props: {
             editSelection()?.foodItem ??
             createFoodItem({ name: 'Bug: selection was null', reference: 0 })
           )
+        }}
+        overflowOptions={{
+          enable: () => true,
+          originalItem: () => {
+            const persistentGroup_ = persistentGroup()
+            if (persistentGroup_ === null) {
+              return undefined
+            }
+
+            const item = editSelection()?.foodItem
+            if (item === undefined) {
+              return undefined
+            }
+
+            // Get the original item from the persistent group
+            const originalItem = persistentGroup_.items.find(
+              (i) => i.id === item.id,
+            )
+
+            if (originalItem === undefined) {
+              console.error(
+                '[ExternalFoodItemEditModal] originalItem is not found',
+              )
+              return undefined
+            }
+
+            return originalItem
+          },
         }}
         onApply={(item) => {
           const group_ = group()
