@@ -5,7 +5,11 @@ import {
   useFoodItemContext,
 } from '~/sections/food-item/context/FoodItemContext'
 import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
-import { calcItemCalories } from '~/legacy/utils/macroMath'
+import {
+  calcDayMacros,
+  calcItemCalories,
+  calcItemMacros,
+} from '~/legacy/utils/macroMath'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { type Template } from '~/modules/diet/template/domain/template'
 
@@ -18,6 +22,12 @@ import {
 } from 'solid-js'
 import { cn } from '~/legacy/utils/cn'
 import { fetchFoodById } from '~/modules/diet/food/application/food'
+import { stringToDate } from '~/legacy/utils/dateUtils'
+import {
+  currentDayDiet,
+  targetDay,
+} from '~/modules/diet/day-diet/application/dayDiet'
+import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget'
 
 // TODO: Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
@@ -174,18 +184,77 @@ export function FoodItemFavorite(props: {
   )
 }
 
-export function FoodItemNutritionalInfo() {
+export function FoodItemNutritionalInfo(props: {
+  macroOverflowOptions?: {
+    enable: () => boolean
+    originalItem?: () => TemplateItem | undefined
+  }
+}) {
   const { foodItem: item } = useFoodItemContext()
 
-  const multipliedMacros = (): MacroNutrients => ({
-    carbs: (item().macros.carbs * item().quantity) / 100,
-    protein: (item().macros.protein * item().quantity) / 100,
-    fat: (item().macros.fat * item().quantity) / 100,
+  const multipliedMacros = (): MacroNutrients => calcItemMacros(item())
+
+  const isOverflow = (property: keyof MacroNutrients) => {
+    console.log(`[FoodItemNutritionalInfo] isOverflow`)
+
+    if (
+      props.macroOverflowOptions === undefined ||
+      !props.macroOverflowOptions.enable()
+    ) {
+      return false
+    }
+
+    const currentDayDiet_ = currentDayDiet()
+    if (currentDayDiet_ === null) {
+      console.error(
+        '[FoodItemNutritionalInfo] currentDayDiet is undefined, cannot calculate overflow',
+      )
+      return false
+    }
+
+    const macroTarget_ = macroTarget(stringToDate(targetDay()))
+    if (macroTarget_ === null) {
+      console.error(
+        '[FoodItemNutritionalInfo] macroTarget is undefined, cannot calculate overflow',
+      )
+      return false
+    }
+    const originalItem_ = props.macroOverflowOptions.originalItem?.()
+
+    const itemMacros = calcItemMacros(item())
+    const originalItemMacros: MacroNutrients =
+      originalItem_ !== undefined
+        ? calcItemMacros(originalItem_)
+        : {
+            carbs: 0,
+            protein: 0,
+            fat: 0,
+          }
+
+    const difference =
+      originalItem_ !== undefined
+        ? itemMacros[property] - originalItemMacros[property]
+        : itemMacros[property]
+
+    const current = calcDayMacros(currentDayDiet_)[property]
+    const target = macroTarget_[property]
+
+    console.log(`[FoodItemNutritionalInfo] ${property} difference:`, difference)
+
+    return current + difference > target
+  }
+  const isMacroOverflowing = () => ({
+    carbs: () => isOverflow('carbs'),
+    protein: () => isOverflow('protein'),
+    fat: () => isOverflow('fat'),
   })
 
   return (
     <div class="flex">
-      <MacroNutrientsView {...multipliedMacros()} />
+      <MacroNutrientsView
+        macros={multipliedMacros()}
+        isMacroOverflowing={isMacroOverflowing()}
+      />
       <div class="ml-auto">
         <span class="text-white"> {item().quantity}g </span>|
         <span class="text-white">
