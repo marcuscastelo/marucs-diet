@@ -3,7 +3,6 @@
 git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/' | grep -E "rc/" >/dev/null
 isrc=$?
 if [ $isrc -eq 0 ]; then
-  echo "RC logic"
   count=$(git rev-list --count HEAD ^main)
   version=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/' -e 's/rc\/\(.*\)/\1/')
   postfix="-rc.$count"
