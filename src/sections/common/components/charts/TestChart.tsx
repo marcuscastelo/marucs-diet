@@ -1,6 +1,5 @@
 import { SolidApexCharts } from 'solid-apexcharts'
 import { createSignal } from 'solid-js'
-import ptBrLocale from '~/assets/locales/apex/pt-br.json'
 
 export function TestChart() {
   const [options] = createSignal<ApexCharts.ApexOptions>({
@@ -9,7 +8,7 @@ export function TestChart() {
     },
     chart: {
       id: 'solidchart-example',
-      locales: [ptBrLocale],
+      locales: [],
       defaultLocale: 'pt-br',
       background: '#1a202c',
       toolbar: {

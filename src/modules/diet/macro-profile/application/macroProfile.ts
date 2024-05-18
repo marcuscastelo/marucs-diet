@@ -10,6 +10,7 @@ const macroProfileRepository = createSupabaseMacroProfileRepository()
 export const [userMacroProfiles, setUserMacroProfiles] = createSignal<
   readonly MacroProfile[]
 >([])
+
 export const latestMacroProfile = () =>
   getLatestMacroProfile(userMacroProfiles())
 

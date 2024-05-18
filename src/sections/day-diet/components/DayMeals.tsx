@@ -13,10 +13,13 @@ import { calcDayMacros } from '~/legacy/utils/macroMath'
 import { ItemGroupEditModal } from '~/sections/item-group/components/ItemGroupEditModal'
 import { CopyLastDayButton } from '~/sections/day-diet/components/CopyLastDayButton'
 import { DeleteDayButton } from '~/sections/day-diet/components/DeleteDayButton'
-import { getTodayYYYMMDD } from '~/legacy/utils/dateUtils'
+import { getTodayYYYMMDD, stringToDate } from '~/legacy/utils/dateUtils'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import DayNotFound from '~/sections/day-diet/components/DayNotFound'
-import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
+import {
+  currentDayDiet,
+  targetDay,
+} from '~/modules/diet/day-diet/application/dayDiet'
 import { updateMeal } from '~/modules/diet/meal/application/meal'
 import {
   deleteItemGroup,
@@ -109,10 +112,7 @@ export default function DayMeals(props: { selectedDay: string }) {
             visible={itemGroupEditModalVisible}
             setVisible={setItemGroupEditModalVisible}
           />
-          <DayMacros
-            class="mt-3 border-b-2 border-gray-800 pb-4"
-            macros={calcDayMacros(neverNullDayDiet())}
-          />
+          <DayMacros class="mt-3 border-b-2 border-gray-800 pb-4" />
           <Show when={!showingToday()}>
             {(_) => (
               <>
