@@ -21,6 +21,7 @@ import { type JSXElement, Show } from 'solid-js'
 import { ConfirmModalProvider } from '~/sections/common/context/ConfirmModalContext'
 import { ConfirmModal } from '~/sections/common/components/ConfirmModal'
 import toast, { Toaster } from 'solid-toast'
+import { Providers } from '~/sections/common/context/Providers'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -110,26 +111,5 @@ export default function Page() {
         )}
       </Show>
     </Providers>
-  )
-}
-
-// TODO: Apply provider pattern to all routes
-function Providers(props: { children: JSXElement }) {
-  return (
-    <ConfirmModalProvider>
-      <Toaster
-        toastOptions={{
-          className: 'border-2 border-gray-600 p-1',
-          style: {
-            background: '#1f2937',
-            color: '#f3f4f6',
-            'font-size': '1.2rem',
-          },
-        }}
-        position="top-center"
-      />
-      <ConfirmModal />
-      {props.children}
-    </ConfirmModalProvider>
   )
 }
