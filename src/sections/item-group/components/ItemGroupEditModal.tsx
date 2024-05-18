@@ -703,10 +703,12 @@ function Body(props: {
                         .finish(),
                     )
                   }}
-                  onFocus={(e) => {
-                    e.target.select()
-                  }}
                   value={group().name}
+                  ref={(ref) => {
+                    setTimeout(() => {
+                      ref?.blur()
+                    }, 0)
+                  }}
                 />
               </div>
               <Show when={hasValidPastableOnClipboard()}>
