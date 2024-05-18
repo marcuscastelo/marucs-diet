@@ -72,6 +72,7 @@ import { stringToDate } from '~/legacy/utils/dateUtils'
 import { calcDayMacros, calcItemMacros } from '~/legacy/utils/macroMath'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import toast from 'solid-toast'
+import { BarCodeIcon } from '~/sections/common/components/icons/BarCodeIcon'
 
 export type TemplateSearchModalProps = {
   targetName: string
@@ -267,7 +268,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
     <>
       <ModalContextProvider visible={visible} setVisible={setVisible}>
         <Modal
-          header={<ModalHeader title="Busca de alimentos" />}
+          header={<ModalHeader title="Adicionar um novo alimento" />}
           body={
             <div class="max-h-full">
               <Show when={visible}>
@@ -298,6 +299,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
         onSelect={(template) => {
           setSelectedTemplate(template)
           setFoodItemEditModalVisible(true)
+          setBarCodeModalVisible(false)
         }}
       />
     </>
@@ -463,12 +465,17 @@ export function TemplateSearch(props: {
 
   return (
     <>
-      <BarCodeButton
-        showBarCodeModal={() => {
-          console.debug('[TemplateSearchModal] showBarCodeModal')
-          props.setBarCodeModalVisible(true)
-        }}
-      />
+      <div class="mb-2 flex justify-end">
+        <h3 class="text-md text-white my-auto w-full">
+          Busca por nome ou código de barras
+        </h3>
+        <BarCodeButton
+          showBarCodeModal={() => {
+            console.debug('[TemplateSearchModal] showBarCodeModal')
+            props.setBarCodeModalVisible(true)
+          }}
+        />
+      </div>
 
       <TemplateSearchTabs tab={tab} setTab={setTab} />
       <SearchBar
@@ -506,17 +513,15 @@ export function TemplateSearch(props: {
 // TODO: Extract to components on other files
 const BarCodeButton = (props: { showBarCodeModal: () => void }) => (
   <>
-    <div class="mb-2 flex justify-start">
-      <button
-        // TODO: Add BarCode icon instead of text
-        onClick={() => {
-          props.showBarCodeModal()
-        }}
-        class="mt-2 rounded bg-gray-800 px-4 py-2 font-bold text-white hover:bg-gray-700"
-      >
-        Inserir código de barras
-      </button>
-    </div>
+    <button
+      // TODO: Add BarCode icon instead of text
+      onClick={() => {
+        props.showBarCodeModal()
+      }}
+      class="rounded bg-gray-800 font-bold text-white hover:bg-gray-700 w-16 p-2 hover:scale-110 transition-transform"
+    >
+      <BarCodeIcon />
+    </button>
   </>
 )
 
@@ -631,7 +636,7 @@ const SearchBar = (props: {
       }}
       type="search"
       id="default-search"
-      class="block w-full border-gray-600 bg-gray-700 p-4 pl-10 text-sm text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500"
+      class="block w-full border-gray-600 bg-gray-700 px-4 pl-10 text-sm text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500 hover:border-white transition-transform"
       placeholder="Buscar alimentos"
       required
     />
