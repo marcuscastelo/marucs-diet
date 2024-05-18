@@ -6,7 +6,7 @@ import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
-import { BackIcon } from '~/sections/common/components/BackIcon'
+import { BackIcon } from '~/sections/common/components/icons/BackIcon'
 import { ConfirmModal } from '~/sections/common/components/ConfirmModal'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { LoadingRing } from '~/sections/common/components/LoadingRing'
@@ -35,6 +35,7 @@ import { createEffect, createSignal, untrack } from 'solid-js'
 import DayMacros from '~/sections/day-diet/components/DayMacros'
 import { Providers } from '~/sections/common/context/Providers'
 import toast from 'solid-toast'
+import { BarCodeIcon } from '~/sections/common/components/icons/BarCodeIcon'
 
 export default function TestApp() {
   const [foodItemEditModalVisible, setFoodItemEditModalVisible] =
@@ -105,6 +106,7 @@ export default function TestApp() {
   // const [food, setFood] = createSignal<Food | null>(null)
   return (
     <>
+    <BarCodeIcon />
       <TestChart />
 
       <Providers>
