@@ -3,11 +3,15 @@
 closest_branch=$(git show-branch -a \
 | grep '\*' \
 | grep -v `git rev-parse --abbrev-ref HEAD` \
+| grep -E "main|rc/" \
 | head -n1 \
+| sed 's/\^//g' \
 | grep -Eo '\[.*\] [\[]' \
 | grep -Eo '\[.*\]' \
 | sed 's/\[\(.*\)\]/\1/' \
 )
+
+echo "$closest_branch" 
 
 echo "$closest_branch" | grep -E "rc/" >/dev/null
 isrc=$?
