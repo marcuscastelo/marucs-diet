@@ -17,11 +17,10 @@ import {
   updateMacroProfile,
   userMacroProfiles,
 } from '~/modules/diet/macro-profile/application/macroProfile'
-import { type JSXElement, Show } from 'solid-js'
-import { ConfirmModalProvider } from '~/sections/common/context/ConfirmModalContext'
-import { ConfirmModal } from '~/sections/common/components/ConfirmModal'
-import toast, { Toaster } from 'solid-toast'
+import { Show } from 'solid-js'
+import toast from 'solid-toast'
 import { Providers } from '~/sections/common/context/Providers'
+import { type New } from '~/legacy/utils/newDbRecord'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -32,38 +31,46 @@ export default function Page() {
   const weight = () => latestWeight(userWeights())?.weight
 
   const onSaveProfile = async (profile: MacroProfile) => {
+    console.log('[ProfilePage] Saving profile', profile)
     if (profile.target_day.getTime() > new Date(getTodayYYYMMDD()).getTime()) {
       console.error(
         `[ProfilePage] Invalid target day ${profile.target_day.toString()}: it is in the future`,
       )
-      throw new Error('Invalid target day')
+      toast.error('Data alvo não pode ser no futuro')
     } else if (
+      profile.id !== -1 && // TODO: Better typing system for new MacroProfile instead of -1
       profile.target_day.getTime() === new Date(getTodayYYYMMDD()).getTime()
     ) {
+      console.log('[ProfilePage] Updating profile', profile)
+
       // Same day, update
       await updateMacroProfile(profile.id, profile)
     } else if (
+      profile.id === -1 || // TODO: Better typing system for new MacroProfile instead of -1
       profile.target_day.getTime() < new Date(getTodayYYYMMDD()).getTime()
     ) {
+      console.log('[ProfilePage] Inserting profile', profile)
+
       // Past day, insert with new date
       await insertMacroProfile({
         ...profile,
         target_day: new Date(getTodayYYYMMDD()),
       })
+    } else {
+      toast.error('Erro imprevisto ao salvar perfil de macro')
     }
-    console.log('Updating MacroProfile')
   }
 
   console.debug('[ProfilePage] Rendering profile')
 
   return (
     <Providers>
-      <Show when={currentUser()}>
+      <Show when={currentUser()} keyed>
         {(currentUser) => (
           <>
             <div class={'mx-1 md:mx-40 lg:mx-auto lg:w-1/3'}>
               <BasicInfo
-                user={currentUser}
+                user={() => currentUser}
                 onSave={(newUser: User) => {
                   updateUser(newUser.id, newUser).catch((error) => {
                     console.error(error)
@@ -84,18 +91,15 @@ export default function Page() {
                       Não há pesos registrados, o perfil não pode ser calculado
                     </h1>
                   }
+                  keyed
                 >
                   {(weight) => (
                     <MacroTarget
-                      weight={weight()}
-                      profiles={userMacroProfiles()}
+                      weight={weight}
+                      profiles={userMacroProfiles}
                       onSaveMacroProfile={(profile) => {
                         onSaveProfile(profile).catch((error) => {
                           console.error(error)
-                          toast.error(
-                            'Erro ao salvar perfil: \n' +
-                              JSON.stringify(error, null, 2),
-                          )
                         })
                       }}
                       mode="edit"

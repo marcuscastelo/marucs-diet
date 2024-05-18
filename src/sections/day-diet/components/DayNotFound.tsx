@@ -9,7 +9,7 @@ export default function DayNotFound(props: { selectedDay: string }) {
       </h1>
       <CreateBlankDayButton selectedDay={props.selectedDay} />
       <CopyLastDayButton
-        day={() => undefined}
+        dayDiet={() => undefined}
         selectedDay={props.selectedDay}
       />
     </>

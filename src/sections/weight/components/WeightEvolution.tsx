@@ -23,6 +23,7 @@ import { adjustToTimezone, dateToYYYYMMDD } from '~/legacy/utils/dateUtils'
 import { SolidApexCharts } from 'solid-apexcharts'
 import { type ApexOptions } from 'apexcharts'
 import toast from 'solid-toast'
+import ptBrLocale from '~/assets/locales/apex/pt-br.json'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -337,7 +338,7 @@ function WeightChart(props: {
       },
       chart: {
         id: 'solidchart-example',
-        locales: [],
+        locales: [ptBrLocale],
         defaultLocale: 'pt-br',
         background: '#1E293B',
         events: {

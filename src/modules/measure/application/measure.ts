@@ -1,3 +1,4 @@
+import toast from 'solid-toast'
 import { type DbReady } from '~/legacy/utils/newDbRecord'
 import { type Measure } from '~/modules/measure/domain/measure'
 import { createSupabaseMeasureRepository } from '~/modules/measure/infrastructure/measures'
@@ -10,16 +11,31 @@ export async function fetchUserMeasures(userId: User['id']) {
 }
 
 export async function insertMeasure(newMeasure: DbReady<Measure>) {
-  return await measureRepository.insertMeasure(newMeasure)
+  return await toast.promise(measureRepository.insertMeasure(newMeasure), {
+    loading: 'Inserindo medidas...',
+    success: 'Medidas inseridas com sucesso',
+    error: 'Falha ao inserir medidas',
+  })
 }
 
 export async function updateMeasure(
   measureId: Measure['id'],
   newMeasure: Measure,
 ) {
-  return await measureRepository.updateMeasure(measureId, newMeasure)
+  return await toast.promise(
+    measureRepository.updateMeasure(measureId, newMeasure),
+    {
+      loading: 'Atualizando medidas...',
+      success: 'Medidas atualizadas com sucesso',
+      error: 'Falha ao atualizar medidas',
+    },
+  )
 }
 
 export async function deleteMeasure(measureId: Measure['id']) {
-  await measureRepository.deleteMeasure(measureId)
+  await toast.promise(measureRepository.deleteMeasure(measureId), {
+    loading: 'Deletando medidas...',
+    success: 'Medidas deletadas com sucesso',
+    error: 'Falha ao deletar medidas',
+  })
 }

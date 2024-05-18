@@ -68,9 +68,12 @@ import { stringToDate } from '~/legacy/utils/dateUtils'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { calcDayMacros, calcItemMacros } from '~/legacy/utils/macroMath'
 import toast from 'solid-toast'
-
-// TODO: Use repository pattern through use cases instead of directly using repositories
-const recipeRepository = createSupabaseRecipeRepository()
+import {
+  deleteRecipe,
+  fetchRecipeById,
+  insertRecipe,
+  updateRecipe,
+} from '~/modules/diet/recipe/application/recipe'
 
 type EditSelection = {
   foodItem: FoodItem
@@ -153,8 +156,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
       })
     }
 
-    recipeRepository
-      .fetchRecipeById(group_.recipe)
+    fetchRecipeById(group_.recipe)
       .then((recipe) => {
         setRecipeSignal({ loading: false, errored: false, data: recipe })
         if (recipe === null) {
@@ -287,15 +289,14 @@ function ExternalRecipeEditModal(props: {
                 '[ItemGroupEditModal::ExternalRecipeEditModal] onSaveRecipe:',
                 recipe,
               )
-              recipeRepository
-                .updateRecipe(recipe.id, recipe)
+              updateRecipe(recipe.id, recipe)
                 .then(props.setRecipe)
                 .catch((e) => {
+                  // TODO: Remove all console.error from Components and move to application/ folder
                   console.error(
                     '[ItemGroupEditModal::ExternalRecipeEditModal] Error updating recipe:',
                     e,
                   )
-                  toast.error('Erro ao salvar receita: \n' + JSON.stringify(e))
                 })
             }}
             onRefetch={props.onRefetch}
@@ -310,15 +311,13 @@ function ExternalRecipeEditModal(props: {
                 props.setRecipe(null)
               }
 
-              recipeRepository
-                .deleteRecipe(recipeId)
+              deleteRecipe(recipeId)
                 .then(afterDelete)
                 .catch((e) => {
                   console.error(
                     '[ItemGroupEditModal::ExternalRecipeEditModal] Error deleting recipe:',
                     e,
                   )
-                  toast.error('Erro ao deletar receita: \n' + JSON.stringify(e))
                 })
             }}
           />
@@ -445,8 +444,6 @@ function ExternalFoodItemEditModal(props: {
 
           // TODO: Move isOverflow to a specialized module
           const isOverflow = (property: keyof MacroNutrients) => {
-            console.log(`[FoodItemNutritionalInfo] isOverflow`)
-
             if (!macroOverflow().enable) {
               return false
             }
@@ -485,11 +482,6 @@ function ExternalFoodItemEditModal(props: {
 
             const current = calcDayMacros(currentDayDiet_)[property]
             const target = macroTarget_[property]
-
-            console.log(
-              `[FoodItemNutritionalInfo] ${property} difference:`,
-              difference,
-            )
 
             return current + difference > target
           }
@@ -761,15 +753,10 @@ function Body(props: {
                             owner: currentUserId(),
                           })
 
-                          const insertedRecipe =
-                            await recipeRepository.insertRecipe(newRecipe)
+                          const insertedRecipe = await insertRecipe(newRecipe)
 
                           if (insertedRecipe === null) {
-                            toast.error(
-                              'Falha ao criar receita a partir de grupo (erro ao conversar com banco de dados)',
-                            )
-                            console.error('insertedRecipe is null')
-                            throw new Error('insertedRecipe is null')
+                            return
                           }
 
                           setGroup(
@@ -786,7 +773,7 @@ function Body(props: {
                             '[ItemGroupEditModal] Error creating recipe from group:',
                             err,
                           )
-                          toast(
+                          toast.error(
                             'Falha ao criar receita a partir de grupo (erro interno)',
                           )
                         })

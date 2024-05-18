@@ -100,16 +100,17 @@ export default function DayMeals(props: { selectedDay: string }) {
     <Show
       when={currentDayDiet()}
       fallback={<DayNotFound selectedDay={props.selectedDay} />}
+      keyed
     >
       {(neverNullDayDiet) => (
         <>
           <ExternalTemplateSearchModal
-            day={neverNullDayDiet}
+            day={() => neverNullDayDiet}
             visible={templateSearchModalVisible}
             setVisible={setTemplateSearchModalVisible}
           />
           <ExternalItemGroupEditModal
-            day={neverNullDayDiet}
+            day={() => neverNullDayDiet}
             visible={itemGroupEditModalVisible}
             setVisible={setItemGroupEditModalVisible}
           />
@@ -154,7 +155,7 @@ export default function DayMeals(props: { selectedDay: string }) {
               </>
             )}
           </Show>
-          <For each={neverNullDayDiet().meals}>
+          <For each={neverNullDayDiet.meals}>
             {(meal) => (
               <MealEditView
                 class="mt-5"
@@ -196,10 +197,10 @@ export default function DayMeals(props: { selectedDay: string }) {
           </For>
 
           <CopyLastDayButton
-            day={neverNullDayDiet}
+            dayDiet={() => neverNullDayDiet}
             selectedDay={props.selectedDay}
           />
-          <DeleteDayButton day={neverNullDayDiet} />
+          <DeleteDayButton day={() => neverNullDayDiet} />
         </>
       )}
     </Show>
