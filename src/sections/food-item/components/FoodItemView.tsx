@@ -198,8 +198,6 @@ export function FoodItemNutritionalInfo() {
 
   // TODO: Move isOverflow to a specialized module
   const isOverflow = (property: keyof MacroNutrients) => {
-    console.log(`[FoodItemNutritionalInfo] isOverflow`)
-    console.log(macroOverflow().enable)
     if (!macroOverflow().enable) {
       return false
     }
@@ -238,8 +236,6 @@ export function FoodItemNutritionalInfo() {
 
     const current = calcDayMacros(currentDayDiet_)[property]
     const target = macroTarget_[property]
-
-    console.log(`[FoodItemNutritionalInfo] ${property} difference:`, difference)
 
     return current + difference > target
   }

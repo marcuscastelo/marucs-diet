@@ -9,15 +9,15 @@ import { For } from 'solid-js'
 
 export function ConfirmModal() {
   const {
-    internals: { visible, setVisible, title, body, actions },
+    internals: { visible, setVisible, title, body, actions, hasBackdrop },
   } = useConfirmModalContext()
 
   return (
     <ModalContextProvider visible={visible} setVisible={setVisible}>
       <Modal
-        header={<ModalHeader title={title()} backButton={false} />}
-        body={<p>{body()}</p>}
-        hasBackdrop={false}
+        header={<ModalHeader title={<>{title()}</>} backButton={false} />}
+        body={<>{body()}</>}
+        hasBackdrop={hasBackdrop()}
         actions={
           <ModalActions>
             <For each={actions()}>
