@@ -3,6 +3,7 @@ import { currentUserId } from '~/modules/user/application/user'
 import { type Weight } from '~/modules/weight/domain/weight'
 import { createSupabaseWeightRepository } from '~/modules/weight/infrastructure/supabaseWeightRepository'
 import { createEffect, createSignal } from 'solid-js'
+import toast from 'solid-toast'
 
 const weightRepository = createSupabaseWeightRepository()
 
@@ -23,17 +24,32 @@ export async function fetchUserWeights(userId: number) {
 
 export async function insertWeight(newWeight: DbReady<Weight>) {
   const weight = await weightRepository.insertWeight(newWeight)
-  await fetchUserWeights(currentUserId())
+  await toast.promise(fetchUserWeights(currentUserId()), {
+    loading: 'Inserindo peso...',
+    success: 'Peso inserido com sucesso',
+    error: 'Falha ao inserir peso',
+  })
   return weight
 }
 
 export async function updateWeight(weightId: Weight['id'], newWeight: Weight) {
-  const weight = await weightRepository.updateWeight(weightId, newWeight)
+  const weight = await toast.promise(
+    weightRepository.updateWeight(weightId, newWeight),
+    {
+      loading: 'Atualizando peso...',
+      success: 'Peso atualizado com sucesso',
+      error: 'Falha ao atualizar peso',
+    },
+  )
   await fetchUserWeights(currentUserId())
   return weight
 }
 
 export async function deleteWeight(weightId: Weight['id']) {
-  await weightRepository.deleteWeight(weightId)
+  await toast.promise(weightRepository.deleteWeight(weightId), {
+    loading: 'Deletando peso...',
+    success: 'Peso deletado com sucesso',
+    error: 'Falha ao deletar peso',
+  })
   await fetchUserWeights(currentUserId())
 }

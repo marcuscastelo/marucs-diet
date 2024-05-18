@@ -142,7 +142,7 @@ export function MeasuresEvolution() {
                 })
             }}
           >
-            Adicionar peso
+            Adicionar medidas
           </button>
         </div>
         <MeasureChart measures={loadedMeasures()} />
