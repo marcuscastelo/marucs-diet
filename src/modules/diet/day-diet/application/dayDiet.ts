@@ -8,6 +8,7 @@ import { createSupabaseDayRepository } from '~/modules/diet/day-diet/infrastruct
 import { type User } from '~/modules/user/domain/user'
 import { createEffect, createSignal } from 'solid-js'
 import { currentUserId } from '~/modules/user/application/user'
+import toast from 'solid-toast'
 
 export function createDayDiet({
   target_day: targetDay,

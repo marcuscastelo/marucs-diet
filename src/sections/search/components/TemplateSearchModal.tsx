@@ -71,6 +71,7 @@ import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget
 import { stringToDate } from '~/legacy/utils/dateUtils'
 import { calcDayMacros, calcItemMacros } from '~/legacy/utils/macroMath'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import toast from 'solid-toast'
 
 export type TemplateSearchModalProps = {
   targetName: string
@@ -237,7 +238,9 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
             onClick: () => {
               onConfirm().catch((err) => {
                 console.error(err)
-                alert(JSON.stringify(err, null, 2)) // TODO: Change alert to toast
+                toast.error(
+                  'Erro ao adicionar item: \n' + JSON.stringify(err, null, 2),
+                )
               })
             },
           },
@@ -250,7 +253,12 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
         ],
       })
     } else {
-      await onConfirm()
+      try {
+        await onConfirm()
+      } catch (err) {
+        console.error(err)
+        toast.error('Erro ao adicionar item: \n' + JSON.stringify(err, null, 2))
+      }
     }
   }
 
@@ -552,7 +560,9 @@ function ExternalFoodItemEditModal(props: {
             }
             props.onNewItemGroup(newGroup, item).catch((err) => {
               console.error(err)
-              alert(JSON.stringify(err, null, 2)) // TODO: Change alert to toast
+              toast.error(
+                'Erro ao adicionar item: \n' + JSON.stringify(err, null, 2),
+              )
             })
           } else {
             const newGroup: RecipedItemGroup = {
@@ -565,7 +575,9 @@ function ExternalFoodItemEditModal(props: {
             }
             props.onNewItemGroup(newGroup, item).catch((err) => {
               console.error(err)
-              alert(JSON.stringify(err, null, 2)) // TODO: Change alert to toast
+              toast.error(
+                'Erro ao adicionar item: \n' + JSON.stringify(err, null, 2),
+              )
             })
           }
         }}

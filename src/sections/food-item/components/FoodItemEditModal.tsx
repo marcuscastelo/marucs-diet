@@ -27,6 +27,7 @@ import {
   type Setter,
   For,
 } from 'solid-js'
+import toast from 'solid-toast'
 
 export type FoodItemEditModalProps = {
   targetName: string
@@ -281,7 +282,7 @@ function Body(props: {
         macroOverflow={props.macroOverflow}
         class="mt-4"
         onClick={() => {
-          // alert('Alimento não editável (ainda)') // TODO: Change all alerts with ConfirmModal
+          toast.error('Alimento não editável (ainda)')
         }}
         header={
           <FoodItemHeader

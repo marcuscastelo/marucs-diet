@@ -20,6 +20,7 @@ import {
 import { type JSXElement, Show } from 'solid-js'
 import { ConfirmModalProvider } from '~/sections/common/context/ConfirmModalContext'
 import { ConfirmModal } from '~/sections/common/components/ConfirmModal'
+import toast, { Toaster } from 'solid-toast'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -65,7 +66,10 @@ export default function Page() {
                 onSave={(newUser: User) => {
                   updateUser(newUser.id, newUser).catch((error) => {
                     console.error(error)
-                    alert('Erro ao salvar usuário') // TODO: Change all alerts with ConfirmModal
+                    toast.error(
+                      'Erro ao salvar usuário: \n' +
+                        JSON.stringify(error, null, 2),
+                    )
                   })
                 }}
               />
@@ -87,7 +91,10 @@ export default function Page() {
                       onSaveMacroProfile={(profile) => {
                         onSaveProfile(profile).catch((error) => {
                           console.error(error)
-                          alert('Erro ao salvar perfil') // TODO: Change all alerts with ConfirmModal
+                          toast.error(
+                            'Erro ao salvar perfil: \n' +
+                              JSON.stringify(error, null, 2),
+                          )
                         })
                       }}
                       mode="edit"
@@ -110,6 +117,17 @@ export default function Page() {
 function Providers(props: { children: JSXElement }) {
   return (
     <ConfirmModalProvider>
+      <Toaster
+        toastOptions={{
+          className: 'border-2 border-gray-600 p-1',
+          style: {
+            background: '#1f2937',
+            color: '#f3f4f6',
+            'font-size': '1.2rem',
+          },
+        }}
+        position="top-center"
+      />
       <ConfirmModal />
       {props.children}
     </ConfirmModalProvider>
