@@ -31,6 +31,7 @@ import {
   Show,
 } from 'solid-js'
 import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
+import toast from 'solid-toast'
 
 export type RecipeEditModalProps = {
   show?: boolean
@@ -193,7 +194,9 @@ function ExternalTemplateSearchModal(props: {
     if (!isSimpleSingleGroup(newGroup)) {
       // TODO: Handle non-simple groups on onNewFoodItem
       console.error('TODO: Handle non-simple groups')
-      alert('TODO: Handle non-simple groups') // TODO: Change all alerts with ConfirmModal
+      toast.error(
+        'Não é possível adicionar grupos complexos a receitas, por enquanto.',
+      )
       return
     }
 
@@ -255,7 +258,7 @@ function Body(props: {
           onEditItem={(item) => {
             // TODO: Allow user to edit recipe inside recipe
             if (item.__type === 'RecipeItem') {
-              alert(
+              toast.error(
                 'Ainda não é possível editar receitas dentro de receitas! Funcionalidade em desenvolvimento',
               )
               return
