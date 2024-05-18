@@ -46,10 +46,6 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
   const { visible, setVisible } = useModalContext()
   const userId = currentUserId()
 
-  if (userId === null) {
-    throw new Error('User is null')
-  }
-
   const [recipe, setRecipe] = createMirrorSignal(
     () =>
       props.recipe ??
@@ -172,6 +168,9 @@ function ExternalFoodItemEditModal(props: {
         <FoodItemEditModal
           foodItem={props.foodItem}
           targetName={props.targetName}
+          macroOverflow={() => ({
+            enable: false,
+          })}
           onApply={props.onApply}
           onDelete={props.onDelete}
         />

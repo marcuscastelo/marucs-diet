@@ -7,7 +7,7 @@ export const recipeItemSchema = z.object({
   name: z.string(),
   reference: z.number(),
   quantity: z.number(),
-  macros: macroNutrientsSchema,
+  macros: macroNutrientsSchema, // TODO: Rename to foodMacros for clarity
   __type: z
     .string()
     .nullable()

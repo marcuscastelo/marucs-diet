@@ -25,6 +25,7 @@ export function FoodItemListView(_props: {
               <FoodItemView
                 foodItem={item}
                 onClick={props.onItemClick}
+                macroOverflow={() => ({ enable: false })}
                 header={props.makeHeaderFn(item())}
                 nutritionalInfo={<FoodItemNutritionalInfo />}
               />

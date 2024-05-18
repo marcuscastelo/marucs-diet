@@ -5,7 +5,11 @@ import {
   useFoodItemContext,
 } from '~/sections/food-item/context/FoodItemContext'
 import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
-import { calcItemCalories } from '~/legacy/utils/macroMath'
+import {
+  calcDayMacros,
+  calcItemCalories,
+  calcItemMacros,
+} from '~/legacy/utils/macroMath'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { type Template } from '~/modules/diet/template/domain/template'
 
@@ -18,12 +22,22 @@ import {
 } from 'solid-js'
 import { cn } from '~/legacy/utils/cn'
 import { fetchFoodById } from '~/modules/diet/food/application/food'
+import { stringToDate } from '~/legacy/utils/dateUtils'
+import {
+  currentDayDiet,
+  targetDay,
+} from '~/modules/diet/day-diet/application/dayDiet'
+import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget'
 
 // TODO: Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
 
 export type FoodItemViewProps = {
   foodItem: Accessor<TemplateItem>
+  macroOverflow: () => {
+    enable: boolean
+    originalItem?: TemplateItem | undefined
+  }
   header?: JSXElement
   nutritionalInfo?: JSXElement
   class?: string
@@ -44,7 +58,10 @@ export function FoodItemView(props: FoodItemViewProps) {
       }`}
       onClick={handleClick}
     >
-      <FoodItemContextProvider foodItem={props.foodItem}>
+      <FoodItemContextProvider
+        foodItem={props.foodItem}
+        macroOverflow={props.macroOverflow}
+      >
         {props.header}
         {props.nutritionalInfo}
       </FoodItemContextProvider>
@@ -175,17 +192,69 @@ export function FoodItemFavorite(props: {
 }
 
 export function FoodItemNutritionalInfo() {
-  const { foodItem: item } = useFoodItemContext()
+  const { foodItem: item, macroOverflow } = useFoodItemContext()
 
-  const multipliedMacros = (): MacroNutrients => ({
-    carbs: (item().macros.carbs * item().quantity) / 100,
-    protein: (item().macros.protein * item().quantity) / 100,
-    fat: (item().macros.fat * item().quantity) / 100,
+  const multipliedMacros = (): MacroNutrients => calcItemMacros(item())
+
+  // TODO: Move isOverflow to a specialized module
+  const isOverflow = (property: keyof MacroNutrients) => {
+    console.log(`[FoodItemNutritionalInfo] isOverflow`)
+    console.log(macroOverflow().enable)
+    if (!macroOverflow().enable) {
+      return false
+    }
+
+    const currentDayDiet_ = currentDayDiet()
+    if (currentDayDiet_ === null) {
+      console.error(
+        '[FoodItemNutritionalInfo] currentDayDiet is undefined, cannot calculate overflow',
+      )
+      return false
+    }
+
+    const macroTarget_ = macroTarget(stringToDate(targetDay()))
+    if (macroTarget_ === null) {
+      console.error(
+        '[FoodItemNutritionalInfo] macroTarget is undefined, cannot calculate overflow',
+      )
+      return false
+    }
+    const originalItem_ = macroOverflow().originalItem
+
+    const itemMacros = calcItemMacros(item())
+    const originalItemMacros: MacroNutrients =
+      originalItem_ !== undefined
+        ? calcItemMacros(originalItem_)
+        : {
+            carbs: 0,
+            protein: 0,
+            fat: 0,
+          }
+
+    const difference =
+      originalItem_ !== undefined
+        ? itemMacros[property] - originalItemMacros[property]
+        : itemMacros[property]
+
+    const current = calcDayMacros(currentDayDiet_)[property]
+    const target = macroTarget_[property]
+
+    console.log(`[FoodItemNutritionalInfo] ${property} difference:`, difference)
+
+    return current + difference > target
+  }
+  const isMacroOverflowing = () => ({
+    carbs: () => isOverflow('carbs'),
+    protein: () => isOverflow('protein'),
+    fat: () => isOverflow('fat'),
   })
 
   return (
     <div class="flex">
-      <MacroNutrientsView {...multipliedMacros()} />
+      <MacroNutrientsView
+        macros={multipliedMacros()}
+        isMacroOverflowing={isMacroOverflowing()}
+      />
       <div class="ml-auto">
         <span class="text-white"> {item().quantity}g </span>|
         <span class="text-white">

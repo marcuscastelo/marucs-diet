@@ -5,10 +5,15 @@ import {
   createContext,
   useContext,
 } from 'solid-js'
+import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 
 // TODO: Rename to TemplateItemContext
 const FoodItemContext = createContext<{
   foodItem: Accessor<TemplateItem>
+  macroOverflow: () => {
+    enable: boolean
+    originalItem?: TemplateItem | undefined
+  }
 } | null>(null)
 
 export function useFoodItemContext() {
@@ -26,10 +31,23 @@ export function useFoodItemContext() {
 // TODO: Rename to TemplateItemContext
 export function FoodItemContextProvider(props: {
   foodItem: Accessor<TemplateItem>
+  macroOverflow: () => {
+    enable: boolean
+    originalItem?: TemplateItem | undefined
+  }
   children: JSXElement
 }) {
+  const defaultOptions = {
+    enable: () => false,
+  }
+
   return (
-    <FoodItemContext.Provider value={{ foodItem: () => props.foodItem() }}>
+    <FoodItemContext.Provider
+      value={{
+        foodItem: () => props.foodItem(),
+        macroOverflow: () => props.macroOverflow() ?? defaultOptions,
+      }}
+    >
       {props.children}
     </FoodItemContext.Provider>
   )

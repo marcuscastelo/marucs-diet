@@ -32,6 +32,7 @@ import {
 } from '~/sections/item-group/components/ItemGroupView'
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { createEffect, createSignal, untrack } from 'solid-js'
+import DayMacros from '~/sections/day-diet/components/DayMacros'
 
 export default function TestApp() {
   const [foodItemEditModalVisible, setFoodItemEditModalVisible] =
@@ -107,6 +108,8 @@ export default function TestApp() {
       <ConfirmModalProvider>
         <ConfirmModal />
 
+        <DayMacros />
+
         <ModalContextProvider
           visible={templateSearchModalVisible}
           setVisible={setTemplateSearchModalVisible}
@@ -155,6 +158,9 @@ export default function TestApp() {
           <FoodItemEditModal
             foodItem={item}
             targetName="Teste"
+            macroOverflow={() => ({
+              enable: false,
+            })}
             onApply={(item) => {
               console.debug(item)
             }}

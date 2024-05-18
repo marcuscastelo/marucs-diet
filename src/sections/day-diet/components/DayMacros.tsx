@@ -1,31 +1,25 @@
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
-import { calculateMacroTarget } from '~/sections/macro-nutrients/components/MacroTargets'
-import { calcCalories } from '~/legacy/utils/macroMath'
-import { latestWeight } from '~/legacy/utils/weightUtils'
-import { userWeights } from '~/modules/weight/application/weight'
+import { calcCalories, calcDayMacros } from '~/legacy/utils/macroMath'
 import { Show } from 'solid-js'
 import { Progress } from '~/sections/common/components/Progress'
-import { latestMacroProfile } from '~/modules/diet/macro-profile/application/macroProfile'
+import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget'
+import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
+import { stringToDate } from '~/legacy/utils/dateUtils'
 
-export default function DayMacros(props: {
-  macros: MacroNutrients
-  class?: string
-}) {
-  // TODO: Refactor hook to use currentUser() instead of userId (probably delete hook and use use cases)
-
-  const weight = () => latestWeight(userWeights())?.weight ?? null
-
+export default function DayMacros(props: { class?: string }) {
   const macroSignals = () => {
-    const macroProfile_ = latestMacroProfile()
-    const weight_ = weight()
-    if (macroProfile_ === null) return null
-    if (weight_ === null) return null
+    const currentDayDiet_ = currentDayDiet()
+    if (currentDayDiet_ === null) return null
+
+    const macroTarget_ = macroTarget(stringToDate(currentDayDiet_.target_day))
+    if (macroTarget_ === null) return null
+
+    const dayMacros = calcDayMacros(currentDayDiet_)
 
     return {
-      macroTarget: calculateMacroTarget(weight_, macroProfile_),
-      targetCalories: calcCalories(
-        calculateMacroTarget(weight_, macroProfile_),
-      ),
+      macroTarget: macroTarget_,
+      macros: dayMacros,
+      targetCalories: calcCalories(macroTarget_),
     }
   }
 
@@ -40,14 +34,14 @@ export default function DayMacros(props: {
             <div class="flex-shrink">
               <Calories
                 class="w-full"
-                macros={props.macros}
+                macros={macroSignals().macros}
                 targetCalories={macroSignals().targetCalories}
               />
             </div>
             <div class="flex-1">
               <Macros
                 class="mt-3 text-xl xs:mt-0"
-                macros={props.macros}
+                macros={macroSignals().macros}
                 targetMacros={macroSignals().macroTarget}
               />
             </div>
