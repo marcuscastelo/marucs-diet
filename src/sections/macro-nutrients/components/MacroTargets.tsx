@@ -8,6 +8,7 @@ import { Show, createEffect, createSignal, untrack } from 'solid-js'
 import { deleteMacroProfile } from '~/modules/diet/macro-profile/application/macroProfile'
 import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 import { calculateMacroTarget } from '~/modules/diet/macro-target/application/macroTarget'
+import toast from 'solid-toast'
 
 const CARBO_CALORIES = 4 as const
 const PROTEIN_CALORIES = 4 as const
@@ -144,7 +145,9 @@ export function MacroTarget(props: MacroTargetProps) {
       const profile_ = untrack(profile)
       if (profile_ === null) {
         // TODO: Implement macro profile creation for new users
-        alert('TODO: Suportar usuários sem perfil')
+        toast.error(
+          'Erro previsto: Usuário sem perfil não suportado, intervenção manual necessária',
+        )
         return
       }
       onSaveMacroProfile({
@@ -159,7 +162,7 @@ export function MacroTarget(props: MacroTargetProps) {
       const profile_ = untrack(profile)
       if (profile_ === null) {
         // TODO: Implement macro profile creation for new users
-        alert('TODO: Suportar usuários sem perfil')
+        toast.error('Erro previsto: Usuário sem perfil não suportado')
         return
       }
       onSaveMacroProfile({
@@ -173,7 +176,7 @@ export function MacroTarget(props: MacroTargetProps) {
   const makeOnSetPercentage =
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (macro: 'carbs' | 'protein' | 'fat') => (percentage: number) => {
-      alert(`TODO: set percentage ${percentage} for ${macro} macro`)
+      toast.error('Alterar porcentagem diretamente ainda não implementado')
     }
 
   return (
@@ -258,11 +261,13 @@ export function MacroTarget(props: MacroTargetProps) {
                                     .then(() => {
                                       // router.refresh()
                                       // TODO: refresh page? probably not
-                                      alert('TODO: refresh page? probably not')
+                                      toast.success(
+                                        'Perfil antigo restaurado com sucesso, se necessário, atualize a página',
+                                      )
                                     })
                                     .catch((e) => {
-                                      alert(
-                                        'TODO: show error: ' +
+                                      toast.error(
+                                        'Erro ao apagar perfil atual: \n' +
                                           JSON.stringify(e, null, 2),
                                       )
                                     })

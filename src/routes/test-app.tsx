@@ -33,6 +33,7 @@ import {
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { createEffect, createSignal, untrack } from 'solid-js'
 import DayMacros from '~/sections/day-diet/components/DayMacros'
+import toast, { Toaster } from 'solid-toast'
 
 export default function TestApp() {
   const [foodItemEditModalVisible, setFoodItemEditModalVisible] =
@@ -107,7 +108,19 @@ export default function TestApp() {
 
       <ConfirmModalProvider>
         <ConfirmModal />
-
+        <Toaster
+          toastOptions={{
+            className: 'border-2 border-gray-600',
+            style: {
+              background: '#1f2937',
+              color: '#f3f4f6',
+            },
+          }}
+          position="bottom-right"
+          containerStyle={{
+            scale: 200
+          }}
+        />
         <DayMacros />
 
         <ModalContextProvider
@@ -297,7 +310,7 @@ function TestConfirmModal() {
               text: 'Teste123',
               primary: true,
               onClick: () => {
-                alert('Teste123')
+                toast.success('Teste123')
               },
             },
           ],
