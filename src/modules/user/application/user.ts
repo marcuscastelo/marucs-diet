@@ -5,6 +5,7 @@ import {
 } from '~/modules/user/infrastructure/localStorageUserRepository'
 import { createSupabaseUserRepository } from '~/modules/user/infrastructure/supabaseUserRepository'
 import { createEffect, createSignal } from 'solid-js'
+import toast from 'solid-toast'
 
 export const DEFAULT_USER_ID = 3
 
@@ -24,7 +25,9 @@ createEffect(() => {
 
 export async function fetchUsers(): Promise<void> {
   const users = await userRepository.fetchUsers()
+  const newCurrentUser = users.find((user) => user.id === currentUserId())
   setUsers(users)
+  setCurrentUser(newCurrentUser ?? null)
 }
 
 export async function fetchCurrentUser(): Promise<User | null> {
@@ -42,7 +45,12 @@ export async function updateUser(
   userId: User['id'],
   newUser: User,
 ): Promise<User> {
-  const user = await userRepository.updateUser(userId, newUser)
+  const user = await toast.promise(userRepository.updateUser(userId, newUser), {
+    loading: 'Atualizando informações do usuário...',
+    success: 'Informações do usuário atualizadas com sucesso',
+    error: 'Falha ao atualizar informações do usuário',
+  })
+
   await fetchUsers()
   return user
 }

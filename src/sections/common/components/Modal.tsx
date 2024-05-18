@@ -2,6 +2,7 @@ import { useModalContext } from '~/sections/common/context/ModalContext'
 import { BackIcon } from '~/sections/common/components/BackIcon'
 import { cn } from '~/legacy/utils/cn'
 import { mergeProps, type JSXElement, createEffect } from 'solid-js'
+import { DarkToaster } from './DarkToaster'
 
 export type ModalProps = {
   // TODO: Unify Header, Content and Actions for each component in the entire app
@@ -60,6 +61,8 @@ export const Modal = (_props: ModalProps) => {
       onClose={handleClose}
       onCancel={handleClose}
     >
+      <DarkToaster />
+
       <div class={cn('modal-box bg-gray-800 text-white', props.class)}>
         {props.header}
         {props.body}
