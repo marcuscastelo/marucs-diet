@@ -11,8 +11,6 @@ closest_branch=$(git show-branch -a \
 | sed 's/\[\(.*\)\]/\1/' \
 )
 
-echo "$closest_branch" 
-
 echo "$closest_branch" | grep -E "rc/" >/dev/null
 isrc=$?
 if [ $isrc -eq 0 ]; then
