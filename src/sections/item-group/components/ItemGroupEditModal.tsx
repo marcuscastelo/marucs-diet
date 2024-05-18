@@ -67,6 +67,7 @@ import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget
 import { stringToDate } from '~/legacy/utils/dateUtils'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { calcDayMacros, calcItemMacros } from '~/legacy/utils/macroMath'
+import toast from 'solid-toast'
 
 // TODO: Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
@@ -294,7 +295,7 @@ function ExternalRecipeEditModal(props: {
                     '[ItemGroupEditModal::ExternalRecipeEditModal] Error updating recipe:',
                     e,
                   )
-                  alert('Erro ao salvar receita')
+                  toast.error('Erro ao salvar receita: \n' + JSON.stringify(e))
                 })
             }}
             onRefetch={props.onRefetch}
@@ -317,7 +318,7 @@ function ExternalRecipeEditModal(props: {
                     '[ItemGroupEditModal::ExternalRecipeEditModal] Error deleting recipe:',
                     e,
                   )
-                  alert('Erro ao deletar receita')
+                  toast.error('Erro ao deletar receita: \n' + JSON.stringify(e))
                 })
             }}
           />
@@ -436,8 +437,7 @@ function ExternalFoodItemEditModal(props: {
 
           // TODO: Allow user to edit recipe inside a group
           if (item.__type === 'RecipeItem') {
-            //
-            alert(
+            toast.error(
               'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
             )
             return
@@ -568,7 +568,9 @@ function ExternalTemplateSearchModal(props: {
     if (!isSimpleSingleGroup(newGroup)) {
       // TODO: Handle non-simple groups on handleNewItemGroup
       console.error('TODO: Handle non-simple groups')
-      alert('TODO: Handle non-simple groups') // TODO: Change all alerts with ConfirmModal
+      toast.error(
+        'Grupos complexos ainda não são suportados, funcionalidade em desenvolvimento',
+      )
       return
     }
 
@@ -723,7 +725,7 @@ function Body(props: {
                     }
                     onClick={() => {
                       if (isRecipeTooComplex(props.recipe())) {
-                        alert(
+                        toast.error(
                           'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
                         )
                         return
@@ -763,7 +765,7 @@ function Body(props: {
                             await recipeRepository.insertRecipe(newRecipe)
 
                           if (insertedRecipe === null) {
-                            alert(
+                            toast.error(
                               'Falha ao criar receita a partir de grupo (erro ao conversar com banco de dados)',
                             )
                             console.error('insertedRecipe is null')
@@ -784,7 +786,7 @@ function Body(props: {
                             '[ItemGroupEditModal] Error creating recipe from group:',
                             err,
                           )
-                          alert(
+                          toast(
                             'Falha ao criar receita a partir de grupo (erro interno)',
                           )
                         })
@@ -871,8 +873,7 @@ function Body(props: {
             onItemClick={(item) => {
               // TODO: Allow user to edit recipe
               if (item.__type === 'RecipeItem') {
-                //
-                alert(
+                toast.error(
                   'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
                 )
                 return
@@ -882,7 +883,7 @@ function Body(props: {
               // } else {
 
               if (isRecipeTooComplex(props.recipe())) {
-                alert(
+                toast.error(
                   'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
                 )
                 return
@@ -966,7 +967,7 @@ function Actions(props: {
             onClick={(e) => {
               e.preventDefault()
               if (group() === null) {
-                alert('BUG: group or onDelete is null') // TODO: Change all alerts with ConfirmModal
+                toast.error('Bug detectado: group ou onDelete é nulo')
               }
               showConfirmModal({
                 title: 'Excluir grupo',

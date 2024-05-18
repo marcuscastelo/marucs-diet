@@ -10,6 +10,7 @@ import {
   updateMeasure,
 } from '~/modules/measure/application/measure'
 import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
+import toast from 'solid-toast'
 
 export function MeasureView(props: {
   measure: Measure
@@ -44,7 +45,7 @@ export function MeasureView(props: {
       hip === undefined ||
       neck === undefined
     ) {
-      alert('Medidas inválidas') // TODO: Change all alerts with ConfirmModal
+      toast.error('Preencha todos os campos de medidas')
       return
     }
 
@@ -63,7 +64,7 @@ export function MeasureView(props: {
       .then(afterUpdate)
       .catch((error) => {
         console.error(error)
-        alert('Erro ao atualizar') // TODO: Change all alerts with ConfirmModal
+        toast.error('Erro ao salvar: \n' + JSON.stringify(error, null, 2))
       })
   }
 
@@ -79,7 +80,7 @@ export function MeasureView(props: {
             onChange={(value) => {
               // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
               if (!value?.startDate) {
-                alert('Data inválida') // TODO: Change all alerts with ConfirmModal
+                toast.error(`Data inválida: ${JSON.stringify(value)}`)
                 return
               }
               // Apply timezone offset
@@ -205,7 +206,9 @@ export function MeasureView(props: {
                 .then(afterDelete)
                 .catch((error) => {
                   console.error(error)
-                  alert('Erro ao deletar') // TODO: Change all alerts with ConfirmModal
+                  toast.error(
+                    'Erro ao deletar: \n' + JSON.stringify(error, null, 2),
+                  )
                 })
             }}
           >

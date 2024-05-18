@@ -9,6 +9,7 @@ import {
 import { type User } from '~/modules/user/domain/user'
 import { For, type JSXElement } from 'solid-js'
 import { useLocation, useNavigate } from '@solidjs/router'
+import toast from 'solid-toast'
 
 export function BottomNavigation() {
   const navigate = useNavigate()
@@ -46,8 +47,10 @@ export function BottomNavigation() {
           label="Configurações"
           icon={SettingsIcon}
           onClick={() => {
-            alert('TODO: Ainda não implementado')
-          }} // TODO: Change all alerts with ConfirmModal
+            toast.error('Ainda não implementado', {
+              duration: 5000,
+            })
+          }}
           position="middle"
         />
         <BottomNavigationTab
