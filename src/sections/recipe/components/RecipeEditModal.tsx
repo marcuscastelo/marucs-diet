@@ -168,6 +168,9 @@ function ExternalFoodItemEditModal(props: {
         <FoodItemEditModal
           foodItem={props.foodItem}
           targetName={props.targetName}
+          macroOverflow={() => ({
+            enable: false,
+          })}
           onApply={props.onApply}
           onDelete={props.onDelete}
         />

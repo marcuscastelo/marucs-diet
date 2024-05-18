@@ -34,9 +34,9 @@ export type FoodItemEditModalProps = {
   foodItem: Accessor<
     Partial<TemplateItem> & Pick<TemplateItem, 'name' | 'reference' | 'macros'>
   >
-  overflowOptions?: () => {
-    enable: () => boolean
-    originalItem?: () => TemplateItem | undefined
+  macroOverflow: () => {
+    enable: boolean
+    originalItem?: TemplateItem | undefined
   }
   onApply: (item: TemplateItem) => void
   onCancel?: () => void
@@ -81,7 +81,7 @@ export const FoodItemEditModal = (_props: FoodItemEditModalProps) => {
             canApply={canApply()}
             foodItem={foodItem}
             setFoodItem={setFoodItem}
-            overflowOptions={props.overflowOptions}
+            macroOverflow={props.macroOverflow}
           />
         }
         actions={
@@ -130,9 +130,9 @@ function Body(props: {
   canApply: boolean
   foodItem: Accessor<TemplateItem>
   setFoodItem: Setter<TemplateItem>
-  overflowOptions?: () => {
-    enable: () => boolean
-    originalItem?: () => TemplateItem | undefined
+  macroOverflow: () => {
+    enable: boolean
+    originalItem?: TemplateItem | undefined
   }
 }) {
   const id = () => props.foodItem().id
@@ -278,7 +278,7 @@ function Body(props: {
             macros: props.foodItem().macros,
           }) satisfies TemplateItem
         }
-        macroOverflowOptions={props.overflowOptions}
+        macroOverflow={props.macroOverflow}
         class="mt-4"
         onClick={() => {
           // alert('Alimento não editável (ainda)') // TODO: Change all alerts with ConfirmModal

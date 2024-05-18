@@ -363,30 +363,36 @@ function ExternalFoodItemEditModal(props: {
     }
   })
 
-  const macroOverflowOptions = () => ({
-    enable: () => true,
-    originalItem: () => {
-      const persistentGroup_ = persistentGroup()
-      if (persistentGroup_ === null) {
-        return undefined
+  const macroOverflow = () => {
+    const persistentGroup_ = persistentGroup()
+    if (persistentGroup_ === null) {
+      return {
+        enable: false,
       }
+    }
 
-      const item = editSelection()?.foodItem
-      if (item === undefined) {
-        return undefined
+    const item = editSelection()?.foodItem
+    if (item === undefined) {
+      return {
+        enable: false,
       }
+    }
 
-      // Get the original item from the persistent group
-      const originalItem = persistentGroup_.items.find((i) => i.id === item.id)
+    // Get the original item from the persistent group
+    const originalItem = persistentGroup_.items.find((i) => i.id === item.id)
 
-      if (originalItem === undefined) {
-        console.error('[ExternalFoodItemEditModal] originalItem is not found')
-        return undefined
+    if (originalItem === undefined) {
+      console.error('[ExternalFoodItemEditModal] originalItem is not found')
+      return {
+        enable: false,
       }
+    }
 
-      return originalItem
-    },
-  })
+    return {
+      enable: true,
+      originalItem,
+    }
+  }
 
   return (
     <ModalContextProvider visible={props.visible} setVisible={props.setVisible}>
@@ -420,7 +426,7 @@ function ExternalFoodItemEditModal(props: {
             createFoodItem({ name: 'Bug: selection was null', reference: 0 })
           )
         }}
-        overflowOptions={macroOverflowOptions}
+        macroOverflow={macroOverflow}
         onApply={(item) => {
           const group_ = group()
           if (group_ === null) {
@@ -441,7 +447,7 @@ function ExternalFoodItemEditModal(props: {
           const isOverflow = (property: keyof MacroNutrients) => {
             console.log(`[FoodItemNutritionalInfo] isOverflow`)
 
-            if (macroOverflowOptions().enable()) {
+            if (!macroOverflow().enable) {
               return false
             }
 
@@ -460,7 +466,7 @@ function ExternalFoodItemEditModal(props: {
               )
               return false
             }
-            const originalItem_ = macroOverflowOptions().originalItem?.()
+            const originalItem_ = macroOverflow().originalItem
 
             const itemMacros = calcItemMacros(item)
             const originalItemMacros: MacroNutrients =
@@ -519,6 +525,8 @@ function ExternalFoodItemEditModal(props: {
                 },
               ],
             })
+          } else {
+            onConfirm()
           }
         }}
         onDelete={(itemId) => {

@@ -5,13 +5,14 @@ import {
   createContext,
   useContext,
 } from 'solid-js'
+import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 
 // TODO: Rename to TemplateItemContext
 const FoodItemContext = createContext<{
   foodItem: Accessor<TemplateItem>
-  macroOverflowOptions: () => {
-    enable: () => boolean
-    originalItem?: () => TemplateItem | undefined
+  macroOverflow: () => {
+    enable: boolean
+    originalItem?: TemplateItem | undefined
   }
 } | null>(null)
 
@@ -30,26 +31,21 @@ export function useFoodItemContext() {
 // TODO: Rename to TemplateItemContext
 export function FoodItemContextProvider(props: {
   foodItem: Accessor<TemplateItem>
-  macroOverflowOptions?: () => {
-    enable: () => boolean
-    originalItem?: () => TemplateItem | undefined
+  macroOverflow: () => {
+    enable: boolean
+    originalItem?: TemplateItem | undefined
   }
   children: JSXElement
 }) {
-  const macroOverflowOptionsSignal = () => {
-    if (props.macroOverflowOptions !== undefined) {
-      return props.macroOverflowOptions()
-    }
-    return {
-      enable: () => false,
-    }
+  const defaultOptions = {
+    enable: () => false,
   }
 
   return (
     <FoodItemContext.Provider
       value={{
         foodItem: () => props.foodItem(),
-        macroOverflowOptions: macroOverflowOptionsSignal,
+        macroOverflow: () => props.macroOverflow() ?? defaultOptions,
       }}
     >
       {props.children}

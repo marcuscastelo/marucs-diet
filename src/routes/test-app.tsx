@@ -158,6 +158,9 @@ export default function TestApp() {
           <FoodItemEditModal
             foodItem={item}
             targetName="Teste"
+            macroOverflow={() => ({
+              enable: false,
+            })}
             onApply={(item) => {
               console.debug(item)
             }}
