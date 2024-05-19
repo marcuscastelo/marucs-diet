@@ -13,10 +13,13 @@ import { calcDayMacros } from '~/legacy/utils/macroMath'
 import { ItemGroupEditModal } from '~/sections/item-group/components/ItemGroupEditModal'
 import { CopyLastDayButton } from '~/sections/day-diet/components/CopyLastDayButton'
 import { DeleteDayButton } from '~/sections/day-diet/components/DeleteDayButton'
-import { getTodayYYYMMDD } from '~/legacy/utils/dateUtils'
+import { getTodayYYYMMDD, stringToDate } from '~/legacy/utils/dateUtils'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import DayNotFound from '~/sections/day-diet/components/DayNotFound'
-import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
+import {
+  currentDayDiet,
+  targetDay,
+} from '~/modules/diet/day-diet/application/dayDiet'
 import { updateMeal } from '~/modules/diet/meal/application/meal'
 import {
   deleteItemGroup,
@@ -33,6 +36,7 @@ import {
   For,
 } from 'solid-js'
 import { Alert } from '~/sections/common/components/Alert'
+import toast from 'solid-toast'
 
 type EditSelection = {
   meal: Meal
@@ -62,7 +66,7 @@ export default function DayMeals(props: { selectedDay: string }) {
 
   const handleEditItemGroup = (meal: Meal, itemGroup: ItemGroup) => {
     if (dayLocked()) {
-      alert('Dia bloqueado, não é possível editar') // TODO: Change all alerts with ConfirmModal
+      toast.error('Dia bloqueado, não é possível editar')
       return
     }
 
@@ -72,7 +76,7 @@ export default function DayMeals(props: { selectedDay: string }) {
 
   const handleUpdateMeal = async (day: DayDiet, meal: Meal) => {
     if (dayLocked()) {
-      alert('Dia bloqueado, não é possível editar') // TODO: Change all alerts with ConfirmModal
+      toast.error('Dia bloqueado, não é possível editar')
       return
     }
 
@@ -82,7 +86,7 @@ export default function DayMeals(props: { selectedDay: string }) {
   const handleNewItemButton = (meal: Meal) => {
     console.log('New item button clicked')
     if (dayLocked()) {
-      alert('Dia bloqueado, não é possível editar') // TODO: Change all alerts with ConfirmModal
+      toast.error('Dia bloqueado, não é possível editar')
       return
     }
 
@@ -96,23 +100,21 @@ export default function DayMeals(props: { selectedDay: string }) {
     <Show
       when={currentDayDiet()}
       fallback={<DayNotFound selectedDay={props.selectedDay} />}
+      keyed
     >
       {(neverNullDayDiet) => (
         <>
           <ExternalTemplateSearchModal
-            day={neverNullDayDiet}
+            day={() => neverNullDayDiet}
             visible={templateSearchModalVisible}
             setVisible={setTemplateSearchModalVisible}
           />
           <ExternalItemGroupEditModal
-            day={neverNullDayDiet}
+            day={() => neverNullDayDiet}
             visible={itemGroupEditModalVisible}
             setVisible={setItemGroupEditModalVisible}
           />
-          <DayMacros
-            class="mt-3 border-b-2 border-gray-800 pb-4"
-            macros={calcDayMacros(neverNullDayDiet())}
-          />
+          <DayMacros class="mt-3 border-b-2 border-gray-800 pb-4" />
           <Show when={!showingToday()}>
             {(_) => (
               <>
@@ -153,7 +155,7 @@ export default function DayMeals(props: { selectedDay: string }) {
               </>
             )}
           </Show>
-          <For each={neverNullDayDiet().meals}>
+          <For each={neverNullDayDiet.meals}>
             {(meal) => (
               <MealEditView
                 class="mt-5"
@@ -168,7 +170,10 @@ export default function DayMeals(props: { selectedDay: string }) {
                       }
                       handleUpdateMeal(currentDayDiet_, meal).catch((e) => {
                         console.error(e)
-                        alert('Erro ao atualizar refeição')
+                        toast.error(
+                          'Erro ao atualizar refeição: \n' +
+                            JSON.stringify(e, null, 2),
+                        )
                       })
                     }}
                   />
@@ -192,10 +197,10 @@ export default function DayMeals(props: { selectedDay: string }) {
           </For>
 
           <CopyLastDayButton
-            day={neverNullDayDiet}
+            dayDiet={() => neverNullDayDiet}
             selectedDay={props.selectedDay}
           />
-          <DeleteDayButton day={neverNullDayDiet} />
+          <DeleteDayButton day={() => neverNullDayDiet} />
         </>
       )}
     </Show>

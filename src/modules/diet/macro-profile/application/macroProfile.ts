@@ -4,12 +4,14 @@ import { type MacroProfile } from '~/modules/diet/macro-profile/domain/macroProf
 import { createSupabaseMacroProfileRepository } from '~/modules/diet/macro-profile/infrastructure/supabaseMacroProfileRepository'
 import { currentUserId } from '~/modules/user/application/user'
 import { createEffect, createSignal } from 'solid-js'
+import toast from 'solid-toast'
 
 const macroProfileRepository = createSupabaseMacroProfileRepository()
 
 export const [userMacroProfiles, setUserMacroProfiles] = createSignal<
   readonly MacroProfile[]
 >([])
+
 export const latestMacroProfile = () =>
   getLatestMacroProfile(userMacroProfiles())
 
@@ -29,9 +31,19 @@ export async function fetchUserMacroProfiles(userId: number) {
 export async function insertMacroProfile(
   newMacroProfile: DbReady<MacroProfile>,
 ) {
-  const macroProfile =
-    await macroProfileRepository.insertMacroProfile(newMacroProfile)
-  if (macroProfile.owner === userMacroProfiles()[0].owner) {
+  const macroProfile = await toast.promise(
+    macroProfileRepository.insertMacroProfile(newMacroProfile),
+    {
+      loading: 'Criando perfil de macro...',
+      success: 'Perfil de macro criado com sucesso',
+      error: 'Falha ao criar perfil de macro',
+    },
+  )
+
+  if (
+    userMacroProfiles().length === 0 ||
+    macroProfile.owner === userMacroProfiles()[0].owner
+  ) {
     await fetchUserMacroProfiles(macroProfile.owner)
   }
   return macroProfile
@@ -41,9 +53,13 @@ export async function updateMacroProfile(
   macroProfileId: MacroProfile['id'],
   newMacroProfile: MacroProfile,
 ) {
-  const macroProfiles = await macroProfileRepository.updateMacroProfile(
-    macroProfileId,
-    newMacroProfile,
+  const macroProfiles = await toast.promise(
+    macroProfileRepository.updateMacroProfile(macroProfileId, newMacroProfile),
+    {
+      loading: 'Atualizando perfil de macro...',
+      success: 'Perfil de macro atualizado com sucesso',
+      error: 'Falha ao atualizar perfil de macro',
+    },
   )
   if (macroProfiles.owner === userMacroProfiles()[0].owner) {
     await fetchUserMacroProfiles(macroProfiles.owner)
@@ -52,7 +68,14 @@ export async function updateMacroProfile(
 }
 
 export async function deleteMacroProfile(macroProfileId: MacroProfile['id']) {
-  await macroProfileRepository.deleteMacroProfile(macroProfileId)
+  await toast.promise(
+    macroProfileRepository.deleteMacroProfile(macroProfileId),
+    {
+      loading: 'Deletando perfil de macro...',
+      success: 'Perfil de macro deletado com sucesso',
+      error: 'Falha ao deletar perfil de macro',
+    },
+  )
   if (userMacroProfiles().length > 0) {
     await fetchUserMacroProfiles(userMacroProfiles()[0].owner)
   }

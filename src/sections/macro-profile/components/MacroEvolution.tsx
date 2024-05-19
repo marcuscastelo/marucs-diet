@@ -5,7 +5,6 @@ import {
   calcDayCalories,
   calcDayMacros,
 } from '~/legacy/utils/macroMath'
-import { calculateMacroTarget } from '~/sections/macro-nutrients/components/MacroTargets'
 import { inForceWeight } from '~/legacy/utils/weightUtils'
 import { inForceMacroProfile } from '~/legacy/utils/macroProfileUtils'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
@@ -16,6 +15,7 @@ import { dayDiets } from '~/modules/diet/day-diet/application/dayDiet'
 import { currentUser } from '~/modules/user/application/user'
 import { userWeights } from '~/modules/weight/application/weight'
 import { userMacroProfiles } from '~/modules/diet/macro-profile/application/macroProfile'
+import { calculateMacroTarget } from '~/modules/diet/macro-target/application/macroTarget'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'

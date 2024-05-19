@@ -22,7 +22,7 @@ export const availableTabs = {
   } as const satisfies TabDefinition,
   Receitas: {
     id: 'recipes',
-    title: 'Receitas (WIP)',
+    title: 'Receitas',
   } as const satisfies TabDefinition,
 } as const satisfies Record<string, TabDefinition>
 
@@ -40,9 +40,9 @@ export function TemplateSearchTabs(props: {
             <a
               href="#"
               class={cn(
-                'flex min-h-full items-center justify-center p-4 text-sm font-medium first:ml-0 disabled:cursor-not-allowed disabled:text-gray-400 disabled:dark:text-gray-500 focus:outline-none',
+                'flex min-h-full items-center justify-center px-4 py-2 text-sm font-medium first:ml-0 disabled:cursor-not-allowed disabled:text-gray-400 disabled:dark:text-gray-500 focus:outline-none hover:scale-110 transition-transform bg-gray-800 dark:bg-gray-800',
                 {
-                  'text-gray-100 bg-gray-600 dark:bg-gray-700 dark:text-gray-300':
+                  'text-gray-100 bg-gray-600 dark:bg-gray-600 dark:text-gray-300':
                     props.tab() ===
                     availableTabs[tabKey as keyof typeof availableTabs].id,
                 },

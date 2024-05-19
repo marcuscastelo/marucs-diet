@@ -151,7 +151,7 @@ export function BasicInfo(props: {
       <div class={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE} rounded-b-none pb-6`}>
         <h5 class={'mx-auto text-center text-3xl font-bold'}>
           <UserIcon userId={props.user().id} class={'w-32 h-32 mx-auto'} />
-          {props.user.name}
+          {props.user().name}
         </h5>
 
         <div class={'mb-1 mt-3 text-center text-lg italic'}>Informações</div>

@@ -59,9 +59,21 @@ import {
   Show,
 } from 'solid-js'
 import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
-
-// TODO: Use repository pattern through use cases instead of directly using repositories
-const recipeRepository = createSupabaseRecipeRepository()
+import {
+  currentDayDiet,
+  targetDay,
+} from '~/modules/diet/day-diet/application/dayDiet'
+import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget'
+import { stringToDate } from '~/legacy/utils/dateUtils'
+import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { calcDayMacros, calcItemMacros } from '~/legacy/utils/macroMath'
+import toast from 'solid-toast'
+import {
+  deleteRecipe,
+  fetchRecipeById,
+  insertRecipe,
+  updateRecipe,
+} from '~/modules/diet/recipe/application/recipe'
 
 type EditSelection = {
   foodItem: FoodItem
@@ -144,8 +156,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
       })
     }
 
-    recipeRepository
-      .fetchRecipeById(group_.recipe)
+    fetchRecipeById(group_.recipe)
       .then((recipe) => {
         setRecipeSignal({ loading: false, errored: false, data: recipe })
         if (recipe === null) {
@@ -278,15 +289,14 @@ function ExternalRecipeEditModal(props: {
                 '[ItemGroupEditModal::ExternalRecipeEditModal] onSaveRecipe:',
                 recipe,
               )
-              recipeRepository
-                .updateRecipe(recipe.id, recipe)
+              updateRecipe(recipe.id, recipe)
                 .then(props.setRecipe)
                 .catch((e) => {
+                  // TODO: Remove all console.error from Components and move to application/ folder
                   console.error(
                     '[ItemGroupEditModal::ExternalRecipeEditModal] Error updating recipe:',
                     e,
                   )
-                  alert('Erro ao salvar receita')
                 })
             }}
             onRefetch={props.onRefetch}
@@ -301,15 +311,13 @@ function ExternalRecipeEditModal(props: {
                 props.setRecipe(null)
               }
 
-              recipeRepository
-                .deleteRecipe(recipeId)
+              deleteRecipe(recipeId)
                 .then(afterDelete)
                 .catch((e) => {
                   console.error(
                     '[ItemGroupEditModal::ExternalRecipeEditModal] Error deleting recipe:',
                     e,
                   )
-                  alert('Erro ao deletar receita')
                 })
             }}
           />
@@ -325,7 +333,9 @@ function ExternalFoodItemEditModal(props: {
   targetMealName: string
   onClose: () => void
 }) {
-  const { group, setGroup } = useItemGroupEditContext()
+  const { group, persistentGroup, setGroup } = useItemGroupEditContext()
+
+  const { show: showConfirmModal } = useConfirmModalContext()
 
   const handleCloseWithNoChanges = () => {
     props.setVisible(false)
@@ -352,6 +362,37 @@ function ExternalFoodItemEditModal(props: {
       handleCloseWithNoChanges()
     }
   })
+
+  const macroOverflow = () => {
+    const persistentGroup_ = persistentGroup()
+    if (persistentGroup_ === null) {
+      return {
+        enable: false,
+      }
+    }
+
+    const item = editSelection()?.foodItem
+    if (item === undefined) {
+      return {
+        enable: false,
+      }
+    }
+
+    // Get the original item from the persistent group
+    const originalItem = persistentGroup_.items.find((i) => i.id === item.id)
+
+    if (originalItem === undefined) {
+      console.error('[ExternalFoodItemEditModal] originalItem is not found')
+      return {
+        enable: false,
+      }
+    }
+
+    return {
+      enable: true,
+      originalItem,
+    }
+  }
 
   return (
     <ModalContextProvider visible={props.visible} setVisible={props.setVisible}>
@@ -385,6 +426,7 @@ function ExternalFoodItemEditModal(props: {
             createFoodItem({ name: 'Bug: selection was null', reference: 0 })
           )
         }}
+        macroOverflow={macroOverflow}
         onApply={(item) => {
           const group_ = group()
           if (group_ === null) {
@@ -394,23 +436,90 @@ function ExternalFoodItemEditModal(props: {
 
           // TODO: Allow user to edit recipe inside a group
           if (item.__type === 'RecipeItem') {
-            //
-            alert(
+            toast.error(
               'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
             )
             return
           }
 
-          console.debug(
-            `[ExternalFoodItemEditModal] onApply: setting itemId=${item.id} to item=`,
-            item,
-          )
-          const newGroup: ItemGroup = new ItemGroupEditor(group_)
-            .editItem(item.id, (editor) => editor?.replace(item))
-            .finish()
+          // TODO: Move isOverflow to a specialized module
+          const isOverflow = (property: keyof MacroNutrients) => {
+            if (!macroOverflow().enable) {
+              return false
+            }
 
-          console.debug('newGroup', newGroup)
-          handleCloseWithChanges(newGroup)
+            const currentDayDiet_ = currentDayDiet()
+            if (currentDayDiet_ === null) {
+              console.error(
+                '[FoodItemNutritionalInfo] currentDayDiet is undefined, cannot calculate overflow',
+              )
+              return false
+            }
+
+            const macroTarget_ = macroTarget(stringToDate(targetDay()))
+            if (macroTarget_ === null) {
+              console.error(
+                '[FoodItemNutritionalInfo] macroTarget is undefined, cannot calculate overflow',
+              )
+              return false
+            }
+            const originalItem_ = macroOverflow().originalItem
+
+            const itemMacros = calcItemMacros(item)
+            const originalItemMacros: MacroNutrients =
+              originalItem_ !== undefined
+                ? calcItemMacros(originalItem_)
+                : {
+                    carbs: 0,
+                    protein: 0,
+                    fat: 0,
+                  }
+
+            const difference =
+              originalItem_ !== undefined
+                ? itemMacros[property] - originalItemMacros[property]
+                : itemMacros[property]
+
+            const current = calcDayMacros(currentDayDiet_)[property]
+            const target = macroTarget_[property]
+
+            return current + difference > target
+          }
+
+          const onConfirm = () => {
+            console.debug(
+              `[ExternalFoodItemEditModal] onApply: setting itemId=${item.id} to item=`,
+              item,
+            )
+            const newGroup: ItemGroup = new ItemGroupEditor(group_)
+              .editItem(item.id, (editor) => editor?.replace(item))
+              .finish()
+
+            console.debug('newGroup', newGroup)
+            handleCloseWithChanges(newGroup)
+          }
+
+          const isOverflowing =
+            isOverflow('carbs') || isOverflow('protein') || isOverflow('fat')
+          if (isOverflowing) {
+            showConfirmModal({
+              title: 'Macronutrientes excedem metas diárias',
+              body: 'Os macronutrientes desse item excedem as metas diárias. Deseja continuar mesmo assim?',
+              actions: [
+                {
+                  text: 'Cancelar',
+                  onClick: () => undefined,
+                },
+                {
+                  text: 'Continuar',
+                  primary: true,
+                  onClick: onConfirm,
+                },
+              ],
+            })
+          } else {
+            onConfirm()
+          }
         }}
         onDelete={(itemId) => {
           const group_ = group()
@@ -451,7 +560,9 @@ function ExternalTemplateSearchModal(props: {
     if (!isSimpleSingleGroup(newGroup)) {
       // TODO: Handle non-simple groups on handleNewItemGroup
       console.error('TODO: Handle non-simple groups')
-      alert('TODO: Handle non-simple groups') // TODO: Change all alerts with ConfirmModal
+      toast.error(
+        'Grupos complexos ainda não são suportados, funcionalidade em desenvolvimento',
+      )
       return
     }
 
@@ -592,10 +703,12 @@ function Body(props: {
                         .finish(),
                     )
                   }}
-                  onFocus={(e) => {
-                    e.target.select()
-                  }}
                   value={group().name}
+                  ref={(ref) => {
+                    setTimeout(() => {
+                      ref?.blur()
+                    }, 0)
+                  }}
                 />
               </div>
               <Show when={hasValidPastableOnClipboard()}>
@@ -606,7 +719,7 @@ function Body(props: {
                     }
                     onClick={() => {
                       if (isRecipeTooComplex(props.recipe())) {
-                        alert(
+                        toast.error(
                           'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
                         )
                         return
@@ -642,15 +755,10 @@ function Body(props: {
                             owner: currentUserId(),
                           })
 
-                          const insertedRecipe =
-                            await recipeRepository.insertRecipe(newRecipe)
+                          const insertedRecipe = await insertRecipe(newRecipe)
 
                           if (insertedRecipe === null) {
-                            alert(
-                              'Falha ao criar receita a partir de grupo (erro ao conversar com banco de dados)',
-                            )
-                            console.error('insertedRecipe is null')
-                            throw new Error('insertedRecipe is null')
+                            return
                           }
 
                           setGroup(
@@ -667,7 +775,7 @@ function Body(props: {
                             '[ItemGroupEditModal] Error creating recipe from group:',
                             err,
                           )
-                          alert(
+                          toast.error(
                             'Falha ao criar receita a partir de grupo (erro interno)',
                           )
                         })
@@ -754,8 +862,7 @@ function Body(props: {
             onItemClick={(item) => {
               // TODO: Allow user to edit recipe
               if (item.__type === 'RecipeItem') {
-                //
-                alert(
+                toast.error(
                   'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
                 )
                 return
@@ -765,7 +872,7 @@ function Body(props: {
               // } else {
 
               if (isRecipeTooComplex(props.recipe())) {
-                alert(
+                toast.error(
                   'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
                 )
                 return
@@ -849,7 +956,7 @@ function Actions(props: {
             onClick={(e) => {
               e.preventDefault()
               if (group() === null) {
-                alert('BUG: group or onDelete is null') // TODO: Change all alerts with ConfirmModal
+                toast.error('Bug detectado: group ou onDelete é nulo')
               }
               showConfirmModal({
                 title: 'Excluir grupo',

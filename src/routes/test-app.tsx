@@ -6,7 +6,7 @@ import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
-import { BackIcon } from '~/sections/common/components/BackIcon'
+import { BackIcon } from '~/sections/common/components/icons/BackIcon'
 import { ConfirmModal } from '~/sections/common/components/ConfirmModal'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { LoadingRing } from '~/sections/common/components/LoadingRing'
@@ -32,6 +32,10 @@ import {
 } from '~/sections/item-group/components/ItemGroupView'
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { createEffect, createSignal, untrack } from 'solid-js'
+import DayMacros from '~/sections/day-diet/components/DayMacros'
+import { Providers } from '~/sections/common/context/Providers'
+import toast from 'solid-toast'
+import { BarCodeIcon } from '~/sections/common/components/icons/BarCodeIcon'
 
 export default function TestApp() {
   const [foodItemEditModalVisible, setFoodItemEditModalVisible] =
@@ -102,10 +106,11 @@ export default function TestApp() {
   // const [food, setFood] = createSignal<Food | null>(null)
   return (
     <>
+    <BarCodeIcon />
       <TestChart />
 
-      <ConfirmModalProvider>
-        <ConfirmModal />
+      <Providers>
+        <DayMacros />
 
         <ModalContextProvider
           visible={templateSearchModalVisible}
@@ -155,6 +160,9 @@ export default function TestApp() {
           <FoodItemEditModal
             foodItem={item}
             targetName="Teste"
+            macroOverflow={() => ({
+              enable: false,
+            })}
             onApply={(item) => {
               console.debug(item)
             }}
@@ -250,7 +258,7 @@ export default function TestApp() {
         <TestConfirmModal />
         <LoadingRing />
         <PageLoading message="Carregando bugigangas" />
-      </ConfirmModalProvider>
+      </Providers>
     </>
   )
 }
@@ -291,7 +299,7 @@ function TestConfirmModal() {
               text: 'Teste123',
               primary: true,
               onClick: () => {
-                alert('Teste123')
+                toast.success('Teste123')
               },
             },
           ],
