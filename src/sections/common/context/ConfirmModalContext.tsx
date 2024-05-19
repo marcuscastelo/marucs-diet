@@ -23,16 +23,19 @@ export type ConfirmModalContext = {
     title: Accessor<Title>
     body: Accessor<Body>
     actions: Accessor<ConfirmAction[]>
+    hasBackdrop: Accessor<boolean>
   }
   visible: Accessor<boolean>
   show: ({
     title,
     body,
     actions,
+    hasBackdrop,
   }: {
     title?: Title | string
     body?: Body | string
     actions?: ConfirmAction[]
+    hasBackdrop?: boolean
   }) => void
   close: () => void
 }
@@ -55,6 +58,7 @@ export function ConfirmModalProvider(props: { children: JSXElement }) {
   const [title, setTitle] = createSignal<Title>(() => <></>)
   const [body, setBody] = createSignal<Body>(() => <></>)
   const [visible, setVisible] = createSignal<boolean>(false)
+  const [hasBackdrop, setHasBackdrop] = createSignal<boolean>(false)
 
   const [actions, setActions] = createSignal<ConfirmAction[]>([
     {
@@ -75,9 +79,15 @@ export function ConfirmModalProvider(props: { children: JSXElement }) {
       title,
       body,
       actions, // TODO: Propagate signal
+      hasBackdrop,
     },
     visible,
-    show: ({ title, body, actions: newActions }) => {
+    show: ({
+      title,
+      body,
+      actions: newActions,
+      hasBackdrop: newHasBackdrop,
+    }) => {
       if (title !== undefined) {
         if (typeof title === 'string') {
           setTitle(() => () => <>{title}</>)
@@ -104,6 +114,9 @@ export function ConfirmModalProvider(props: { children: JSXElement }) {
             }
           }),
         )
+      }
+      if (newHasBackdrop !== undefined) {
+        setHasBackdrop(newHasBackdrop)
       }
       setVisible(true)
     },

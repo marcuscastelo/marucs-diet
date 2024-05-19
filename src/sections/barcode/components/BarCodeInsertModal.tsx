@@ -7,7 +7,7 @@ import {
 import { BarCodeReader } from '~/sections/barcode/components/BarCodeReader'
 import BarCodeSearch from '~/sections/barcode/components/BarCodeSearch'
 import { useModalContext } from '~/sections/common/context/ModalContext'
-import { createSignal, onMount } from 'solid-js'
+import { createEffect, createSignal, onMount } from 'solid-js'
 
 export type BarCodeInsertModalProps = {
   onSelect: (apiFood: Food) => void
@@ -37,6 +37,13 @@ const BarCodeInsertModal = (props: BarCodeInsertModalProps) => {
 
     props.onSelect(food_)
   }
+
+  // Auto-select food when it is set to avoid user clicking twice
+  createEffect(() => {
+    if (food() !== null) {
+      handleSelect()
+    }
+  })
 
   onMount(() => {
     setVisible(false)

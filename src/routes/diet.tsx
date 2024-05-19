@@ -1,8 +1,6 @@
-import { type JSXElement } from 'solid-js'
 import { targetDay } from '~/modules/diet/day-diet/application/dayDiet'
 import { BottomNavigation } from '~/sections/common/components/BottomNavigation'
-import { ConfirmModal } from '~/sections/common/components/ConfirmModal'
-import { ConfirmModalProvider } from '~/sections/common/context/ConfirmModalContext'
+import { Providers } from '~/sections/common/context/Providers'
 import DayMeals from '~/sections/day-diet/components/DayMeals'
 import TopBar from '~/sections/day-diet/components/TopBar'
 
@@ -19,15 +17,5 @@ export default function DietPage() {
         </div>
       </div>
     </Providers>
-  )
-}
-
-// TODO: Apply provider pattern to all routes
-function Providers(props: { children: JSXElement }) {
-  return (
-    <ConfirmModalProvider>
-      <ConfirmModal />
-      {props.children}
-    </ConfirmModalProvider>
   )
 }

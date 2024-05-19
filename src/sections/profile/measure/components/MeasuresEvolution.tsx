@@ -10,6 +10,7 @@ import {
   fetchUserMeasures,
   insertMeasure,
 } from '~/modules/measure/application/measure'
+import toast from 'solid-toast'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -113,13 +114,10 @@ export function MeasuresEvolution() {
                 hipField.value() === undefined ||
                 neckField.value() === undefined
               ) {
-                alert('Medidas inválidas') // TODO: Change all alerts with ConfirmModal
+                toast.error('Medidas inválidas: preencha todos os campos')
                 return
               }
               const userId = currentUserId()
-              if (userId === null) {
-                throw new Error('User is null')
-              }
 
               const afterInsert = () => {
                 handleRefetchMeasures()
@@ -137,11 +135,14 @@ export function MeasuresEvolution() {
                 .then(afterInsert)
                 .catch((error) => {
                   console.error(error)
-                  alert('Erro ao inserir') // TODO: Change all alerts with ConfirmModal
+                  toast.error(
+                    'Erro ao adicionar peso: \n' +
+                      JSON.stringify(error, null, 2),
+                  )
                 })
             }}
           >
-            Adicionar peso
+            Adicionar medidas
           </button>
         </div>
         <MeasureChart measures={loadedMeasures()} />

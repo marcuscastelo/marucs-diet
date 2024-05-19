@@ -9,6 +9,7 @@ import {
 import { type User } from '~/modules/user/domain/user'
 import { For, type JSXElement } from 'solid-js'
 import { useLocation, useNavigate } from '@solidjs/router'
+import toast from 'solid-toast'
 
 export function BottomNavigation() {
   const navigate = useNavigate()
@@ -20,51 +21,56 @@ export function BottomNavigation() {
   console.debug('[BottomNavigation] Current path:', pathname)
 
   return (
-    <div class="fixed z-50 w-full h-16 max-w-lg -translate-x-1/2 bg-white border border-gray-200 rounded-full bottom-4 left-1/2 dark:bg-slate-800 dark:border-slate-700">
-      <div class="grid h-full max-w-lg grid-cols-5 mx-auto pt-1">
-        <BottomNavigationTab
-          active={pathname === '/'}
-          label="Home"
-          icon={HomeIcon}
-          onClick={() => {
-            navigate('/')
-          }}
-          position="first"
-        />
-        <BottomNavigationTab
-          active={pathname.startsWith('/profile')}
-          label="Perfil"
-          icon={ProfileIcon}
-          onClick={() => {
-            navigate('/profile')
-          }}
-          position="middle"
-        />
-        <CTAButton />
-        <BottomNavigationTab
-          active={pathname.startsWith('/settings')}
-          label="Configurações"
-          icon={SettingsIcon}
-          onClick={() => {
-            alert('TODO: Ainda não implementado')
-          }} // TODO: Change all alerts with ConfirmModal
-          position="middle"
-        />
-        <BottomNavigationTab
-          active={false}
-          label="Usuário"
-          icon={(props) => <UserIcon userId={currentUserId()} {...props} />}
-          onClick={() => {
-            showConfirmModal({
-              title: '',
-              body: () => <UserSelectorDropdown />,
-              actions: [],
-            })
-          }}
-          position="last"
-        />
+    <>
+      {/* Placeholder for bottom navigation when page is 100% scrolled */}
+      <div class="h-24" />
+      <div class="fixed z-50 w-full h-16 max-w-lg -translate-x-1/2 bg-white border border-gray-200 rounded-full bottom-6 left-1/2 dark:bg-slate-800 dark:border-slate-700">
+        <div class="grid h-full max-w-lg grid-cols-5 mx-auto pt-1">
+          <BottomNavigationTab
+            active={pathname === '/diet'}
+            label="Home"
+            icon={HomeIcon}
+            onClick={() => {
+              navigate('/diet')
+            }}
+            position="first"
+          />
+          <BottomNavigationTab
+            active={pathname.startsWith('/profile')}
+            label="Perfil"
+            icon={ProfileIcon}
+            onClick={() => {
+              navigate('/profile')
+            }}
+            position="middle"
+          />
+          <CTAButton />
+          <BottomNavigationTab
+            active={pathname.startsWith('/settings')}
+            label="Configurações"
+            icon={SettingsIcon}
+            onClick={() => {
+              toast.error('Página ainda não implementada')
+            }}
+            position="middle"
+          />
+          <BottomNavigationTab
+            active={false}
+            label="Usuário"
+            icon={(props) => <UserIcon userId={currentUserId()} {...props} />}
+            onClick={() => {
+              showConfirmModal({
+                title: '',
+                body: () => <UserSelectorDropdown />,
+                actions: [],
+                hasBackdrop: true,
+              })
+            }}
+            position="last"
+          />
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 
@@ -199,10 +205,13 @@ function CTAButton() {
 }
 
 const UserSelectorDropdown = () => {
-  const { show: showConfirmModal } = useConfirmModalContext()
+  const { show: showConfirmModal, close: closeConfirmModal } =
+    useConfirmModalContext()
 
   fetchUsers().catch((error) => {
     console.error('[UserSelectorDropdown] Error fetching users:', error)
+    toast.error('Erro ao buscar usuários')
+    closeConfirmModal()
   })
 
   const handleChangeUser = (user: User) => {

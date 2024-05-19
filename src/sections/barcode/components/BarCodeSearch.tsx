@@ -120,6 +120,9 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
                         } satisfies MacroNutrients,
                       })
                     }
+                    macroOverflow={() => ({
+                      enable: false,
+                    })}
                     header={
                       <FoodItemHeader
                         name={<FoodItemName />}

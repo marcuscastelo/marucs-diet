@@ -8,6 +8,7 @@ import { createSupabaseDayRepository } from '~/modules/diet/day-diet/infrastruct
 import { type User } from '~/modules/user/domain/user'
 import { createEffect, createSignal } from 'solid-js'
 import { currentUserId } from '~/modules/user/application/user'
+import toast from 'solid-toast'
 
 export function createDayDiet({
   target_day: targetDay,
@@ -40,7 +41,15 @@ export const [currentDayDiet, setCurrentDayDiet] = createSignal<DayDiet | null>(
 )
 
 createEffect(() => {
-  fetchAllUserDayDiets(currentUserId())
+  toast
+    .promise(fetchAllUserDayDiets(currentUserId()), {
+      loading: 'Buscando dietas do usuário...',
+      success: 'Dietas do usuário obtidas com sucesso',
+      error: 'Falha ao buscar dietas do usuário',
+    })
+    .catch((error) => {
+      console.error(error)
+    })
 })
 
 createEffect(() => {
@@ -57,61 +66,83 @@ createEffect(() => {
   setCurrentDayDiet(dayDiet)
 })
 
-export function refetchCurrentDayDiet() {
+export async function refetchCurrentDayDiet() {
   const currentDayDiet_ = currentDayDiet()
   if (currentDayDiet_ === null) {
     return
   }
 
-  dayRepository
+  await dayRepository
     .fetchDayDiet(currentDayDiet_.id)
     .then((dayDiet) => {
       setCurrentDayDiet(dayDiet)
     })
     .catch((error) => {
+      toast.error(
+        'Falha na comunicação com o servidor ao buscar dieta do dia: \n' +
+          JSON.stringify(error, null, 2),
+      )
       console.error(error)
     })
 }
 
 // TODO: Stop fetching all day diets
-export function fetchAllUserDayDiets(userId: User['id']) {
-  dayRepository
+export async function fetchAllUserDayDiets(userId: User['id']) {
+  await dayRepository
     .fetchAllUserDayDiets(userId)
-    .then(async (dayDiets) => {
-      setDayDiets(dayDiets)
+    .then((newDayDiets) => {
+      setDayDiets(newDayDiets)
+    })
+    .catch((error) => {
+      toast.error(
+        'Falha na comunicação com o servidor ao buscar dieta dos dias do usuário',
+      )
+      console.error(error)
+    })
+}
+
+export async function insertDayDiet(dayDiet: New<DayDiet>): Promise<void> {
+  await toast
+    .promise(dayRepository.insertDayDiet(enforceNew(dayDiet)), {
+      loading: 'Criando novo dia de dieta...',
+      success: 'Dia de dieta criado com sucesso',
+      error: 'Falha ao criar novo dia de dieta',
+    })
+    .then(async () => {
+      await fetchAllUserDayDiets(dayDiet.owner) // TODO: Stop fetching all day diets
     })
     .catch((error) => {
       console.error(error)
     })
 }
 
-export function insertDayDiet(dayDiet: New<DayDiet>): void {
-  dayRepository
-    .insertDayDiet(enforceNew(dayDiet))
-    .then(() => {
-      fetchAllUserDayDiets(dayDiet.owner) // TODO: Stop fetching all day diets
+export async function updateDayDiet(
+  dayId: DayDiet['id'],
+  dayDiet: DayDiet,
+): Promise<void> {
+  await toast
+    .promise(dayRepository.updateDayDiet(dayId, dayDiet), {
+      loading: 'Atualizando dieta...',
+      success: 'Dieta atualizada com sucesso',
+      error: 'Falha ao atualizar dieta',
+    })
+    .then(async () => {
+      await fetchAllUserDayDiets(dayDiet.owner) // TODO: Stop fetching all day diets
     })
     .catch((error) => {
       console.error(error)
     })
 }
 
-export function updateDayDiet(dayId: DayDiet['id'], dayDiet: DayDiet): void {
-  dayRepository
-    .updateDayDiet(dayId, dayDiet)
-    .then(() => {
-      fetchAllUserDayDiets(dayDiet.owner) // TODO: Stop fetching all day diets
+export async function deleteDayDiet(dayId: DayDiet['id']): Promise<void> {
+  await toast
+    .promise(dayRepository.deleteDayDiet(dayId), {
+      loading: 'Deletando dieta...',
+      success: 'Dieta deletada com sucesso',
+      error: 'Falha ao deletar dieta',
     })
-    .catch((error) => {
-      console.error(error)
-    })
-}
-
-export function deleteDayDiet(dayId: DayDiet['id']): void {
-  dayRepository
-    .deleteDayDiet(dayId)
-    .then(() => {
-      fetchAllUserDayDiets(dayId) // TODO: Stop fetching all day diets
+    .then(async () => {
+      await fetchAllUserDayDiets(dayId) // TODO: Stop fetching all day diets
     })
     .catch((error) => {
       console.error(error)

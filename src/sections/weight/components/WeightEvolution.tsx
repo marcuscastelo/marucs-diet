@@ -21,8 +21,9 @@ import {
 import Datepicker from '~/sections/datepicker/components/Datepicker'
 import { adjustToTimezone, dateToYYYYMMDD } from '~/legacy/utils/dateUtils'
 import { SolidApexCharts } from 'solid-apexcharts'
-import ptBrLocale from '~/assets/locales/apex/pt-br.json'
 import { type ApexOptions } from 'apexcharts'
+import toast from 'solid-toast'
+import ptBrLocale from '~/assets/locales/apex/pt-br.json'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -70,15 +71,11 @@ export function WeightEvolution() {
               const weight = weightField.value()
 
               if (weight === undefined) {
-                alert('Peso inválido (undefined)') // TODO: Change all alerts with ConfirmModal
+                toast.error('Digite um peso')
                 return
               }
 
               const userId = currentUserId()
-              if (userId === null) {
-                alert('Usuário é nulo') // TODO: Change all alerts with ConfirmModal
-                return
-              }
 
               const afterInsert = () => {
                 weightField.setRawValue('')
@@ -94,7 +91,9 @@ export function WeightEvolution() {
                 .then(afterInsert)
                 .catch((error) => {
                   console.error(error)
-                  alert('Erro ao inserir') // TODO: Change all alerts with ConfirmModal
+                  toast.error(
+                    'Erro ao adicionar: \n' + JSON.stringify(error, null, 2),
+                  )
                 })
             }}
           >
@@ -130,13 +129,13 @@ function WeightView(props: { weight: Weight }) {
     weightValue: number | undefined
   }) => {
     if (weightValue === undefined) {
-      alert('Peso inválido (undefined)') // TODO: Change all alerts with ConfirmModal
+      toast.error('Digite um peso')
       console.error('Weight is undefined')
       return
     }
 
     if (dateValue === undefined) {
-      alert('Data inválida (undefined)') // TODO: Change all alerts with ConfirmModal
+      toast.error('Digite uma data')
       console.error('Date is undefined')
       return
     }
@@ -147,7 +146,7 @@ function WeightView(props: { weight: Weight }) {
       target_timestamp: dateValue,
     }).catch((error) => {
       console.error(error)
-      alert('Erro ao atualizar') // TODO: Change all alerts with ConfirmModal
+      toast.error('Erro ao atualizar')
     })
   }
 
@@ -163,7 +162,7 @@ function WeightView(props: { weight: Weight }) {
             onChange={(value) => {
               // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
               if (!value?.startDate) {
-                alert('Data inválida') // TODO: Change all alerts with ConfirmModal
+                toast.error('Data inválida: \n' + JSON.stringify(value))
                 return
               }
               // Apply timezone offset
@@ -209,7 +208,9 @@ function WeightView(props: { weight: Weight }) {
             onClick={() => {
               deleteWeight(props.weight.id).catch((error) => {
                 console.error(error)
-                alert('Erro ao deletar') // TODO: Change all alerts with ConfirmModal
+                toast.error(
+                  'Erro ao deletar: \n' + JSON.stringify(error, null, 2),
+                )
               })
             }}
           >

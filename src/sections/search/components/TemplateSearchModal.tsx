@@ -63,6 +63,16 @@ import {
   fetchFoods,
   fetchFoodsByName,
 } from '~/modules/diet/food/application/food'
+import {
+  currentDayDiet,
+  targetDay,
+} from '~/modules/diet/day-diet/application/dayDiet'
+import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget'
+import { stringToDate } from '~/legacy/utils/dateUtils'
+import { calcDayMacros, calcItemMacros } from '~/legacy/utils/macroMath'
+import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import toast from 'solid-toast'
+import { BarCodeIcon } from '~/sections/common/components/icons/BarCodeIcon'
 
 export type TemplateSearchModalProps = {
   targetName: string
@@ -90,73 +100,167 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
     newGroup: ItemGroup,
     originalAddedItem: TemplateItem,
   ) => {
-    props.onNewItemGroup?.(newGroup, originalAddedItem)
+    // TODO: Move isOverflow to a specialized module
+    const isOverflow = (property: keyof MacroNutrients) => {
+      console.log(`[FoodItemNutritionalInfo] isOverflow`)
 
-    const recentFood = await fetchRecentFoodByUserIdAndFoodId(
-      currentUserId(),
-      originalAddedItem.reference,
-    )
+      // TODO: Create Settings for MacroOverflow warnings
+      // if (!macroOverflow().enable) {
+      // return false
+      // }
 
-    if (
-      recentFood !== null &&
-      (recentFood.user_id !== currentUserId() ||
-        recentFood.food_id !== originalAddedItem.reference)
-    ) {
-      // TODO: Remove recent food assertion once unit tests are in place
-      throw new Error('BUG: recentFood fetched does not match user and food')
+      const currentDayDiet_ = currentDayDiet()
+      if (currentDayDiet_ === null) {
+        console.error(
+          '[FoodItemNutritionalInfo] currentDayDiet is undefined, cannot calculate overflow',
+        )
+        return false
+      }
+
+      const macroTarget_ = macroTarget(stringToDate(targetDay()))
+      if (macroTarget_ === null) {
+        console.error(
+          '[FoodItemNutritionalInfo] macroTarget is undefined, cannot calculate overflow',
+        )
+        return false
+      }
+      // Since it is an insertion there is no original item
+      const originalItem_ = undefined
+
+      // TODO: Support adding more than one item at a time?
+      const itemMacros = calcItemMacros(newGroup.items[0])
+      const originalItemMacros: MacroNutrients =
+        originalItem_ !== undefined
+          ? calcItemMacros(originalItem_)
+          : {
+              carbs: 0,
+              protein: 0,
+              fat: 0,
+            }
+
+      const difference =
+        originalItem_ !== undefined
+          ? itemMacros[property] - originalItemMacros[property]
+          : itemMacros[property]
+
+      const current = calcDayMacros(currentDayDiet_)[property]
+      const target = macroTarget_[property]
+
+      console.log(
+        `[FoodItemNutritionalInfo] ${property} difference:`,
+        difference,
+      )
+
+      return current + difference > target
     }
 
-    const newRecentFood = createRecentFood({
-      ...recentFood,
-      user_id: currentUserId(),
-      food_id: originalAddedItem.reference,
-    })
+    const onConfirm = async () => {
+      props.onNewItemGroup?.(newGroup, originalAddedItem)
 
-    if (recentFood !== null) {
-      await updateRecentFood(recentFood.id, newRecentFood)
+      const recentFood = await fetchRecentFoodByUserIdAndFoodId(
+        currentUserId(),
+        originalAddedItem.reference,
+      )
+
+      if (
+        recentFood !== null &&
+        (recentFood.user_id !== currentUserId() ||
+          recentFood.food_id !== originalAddedItem.reference)
+      ) {
+        // TODO: Remove recent food assertion once unit tests are in place
+        throw new Error('BUG: recentFood fetched does not match user and food')
+      }
+
+      const newRecentFood = createRecentFood({
+        ...recentFood,
+        user_id: currentUserId(),
+        food_id: originalAddedItem.reference,
+      })
+
+      if (recentFood !== null) {
+        await updateRecentFood(recentFood.id, newRecentFood)
+      } else {
+        await insertRecentFood(newRecentFood)
+      }
+
+      // Prompt if user wants to add another item or go back (Yes/No)
+      // TODO: Show Yes/No instead of Ok/Cancel on modal
+      showConfirmModal({
+        title: 'Item adicionado com sucesso',
+        body: 'Deseja adicionar outro item ou finalizar a inclusão?',
+        actions: [
+          {
+            // TODO: Show toast "Item <nome> adicionado com sucesso"
+            text: 'Adicionar mais um item',
+            onClick: () => {
+              // TODO: Remove createFood as default selected food
+              setSelectedTemplate(
+                addId(
+                  createFood({
+                    name: 'BUG: SELECTED FOOD NOT SET',
+                  }),
+                ),
+              )
+              setFoodItemEditModalVisible(false)
+            },
+          },
+          {
+            text: 'Finalizar',
+            primary: true,
+            onClick: () => {
+              // TODO: Remove createFood as default selected food
+              setSelectedTemplate(
+                addId(
+                  createFood({
+                    name: 'BUG: SELECTED FOOD NOT SET',
+                  }),
+                ),
+              )
+              setFoodItemEditModalVisible(false)
+              props.onFinish?.()
+            },
+          },
+        ],
+      })
+    }
+
+    const isOverflowing =
+      isOverflow('carbs') || isOverflow('protein') || isOverflow('fat')
+
+    if (isOverflowing) {
+      // Prompt if user wants to add item even if it overflows
+      showConfirmModal({
+        title: 'Macros ultrapassam metas diárias',
+        body: 'Os macros deste item ultrapassam as metas diárias. Deseja adicionar mesmo assim?',
+        actions: [
+          {
+            text: 'Adicionar mesmo assim',
+            primary: true,
+            onClick: () => {
+              onConfirm().catch((err) => {
+                console.error(err)
+                toast.error(
+                  'Erro ao adicionar item: \n' + JSON.stringify(err, null, 2),
+                )
+              })
+            },
+          },
+          {
+            text: 'Cancelar',
+            onClick: () => {
+              // Do nothing
+            },
+          },
+        ],
+      })
     } else {
-      await insertRecentFood(newRecentFood)
+      try {
+        await onConfirm()
+      } catch (err) {
+        console.error(err)
+        toast.error('Erro ao adicionar item: \n' + JSON.stringify(err, null, 2))
+      }
     }
-
-    // Prompt if user wants to add another item or go back (Yes/No)
-    // TODO: Show Yes/No instead of Ok/Cancel on modal
-    showConfirmModal({
-      title: 'Item adicionado com sucesso',
-      body: 'Deseja adicionar outro item ou finalizar a inclusão?',
-      actions: [
-        {
-          // TODO: Show toast "Item <nome> adicionado com sucesso"
-          text: 'Adicionar mais um item',
-          onClick: () => {
-            // TODO: Remove createFood as default selected food
-            setSelectedTemplate(
-              addId(
-                createFood({
-                  name: 'BUG: SELECTED FOOD NOT SET',
-                }),
-              ),
-            )
-            setFoodItemEditModalVisible(false)
-          },
-        },
-        {
-          text: 'Finalizar',
-          primary: true,
-          onClick: () => {
-            // TODO: Remove createFood as default selected food
-            setSelectedTemplate(
-              addId(
-                createFood({
-                  name: 'BUG: SELECTED FOOD NOT SET',
-                }),
-              ),
-            )
-            setFoodItemEditModalVisible(false)
-            props.onFinish?.()
-          },
-        },
-      ],
-    })
   }
 
   console.debug('[TemplateSearchModal] Render')
@@ -164,7 +268,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
     <>
       <ModalContextProvider visible={visible} setVisible={setVisible}>
         <Modal
-          header={<ModalHeader title="Busca de alimentos" />}
+          header={<ModalHeader title="Adicionar um novo alimento" />}
           body={
             <div class="max-h-full">
               <Show when={visible}>
@@ -195,6 +299,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
         onSelect={(template) => {
           setSelectedTemplate(template)
           setFoodItemEditModalVisible(true)
+          setBarCodeModalVisible(false)
         }}
       />
     </>
@@ -360,12 +465,17 @@ export function TemplateSearch(props: {
 
   return (
     <>
-      <BarCodeButton
-        showBarCodeModal={() => {
-          console.debug('[TemplateSearchModal] showBarCodeModal')
-          props.setBarCodeModalVisible(true)
-        }}
-      />
+      <div class="mb-2 flex justify-end">
+        <h3 class="text-md text-white my-auto w-full">
+          Busca por nome ou código de barras
+        </h3>
+        <BarCodeButton
+          showBarCodeModal={() => {
+            console.debug('[TemplateSearchModal] showBarCodeModal')
+            props.setBarCodeModalVisible(true)
+          }}
+        />
+      </div>
 
       <TemplateSearchTabs tab={tab} setTab={setTab} />
       <SearchBar
@@ -403,17 +513,15 @@ export function TemplateSearch(props: {
 // TODO: Extract to components on other files
 const BarCodeButton = (props: { showBarCodeModal: () => void }) => (
   <>
-    <div class="mb-2 flex justify-start">
-      <button
-        // TODO: Add BarCode icon instead of text
-        onClick={() => {
-          props.showBarCodeModal()
-        }}
-        class="mt-2 rounded bg-gray-800 px-4 py-2 font-bold text-white hover:bg-gray-700"
-      >
-        Inserir código de barras
-      </button>
-    </div>
+    <button
+      // TODO: Add BarCode icon instead of text
+      onClick={() => {
+        props.showBarCodeModal()
+      }}
+      class="rounded bg-gray-800 font-bold text-white hover:bg-gray-700 w-16 p-2 hover:scale-110 transition-transform"
+    >
+      <BarCodeIcon />
+    </button>
   </>
 )
 
@@ -442,6 +550,9 @@ function ExternalFoodItemEditModal(props: {
               ? 'FoodItem'
               : 'RecipeItem', // TODO: Refactor conversion from template type to group/item types
         })}
+        macroOverflow={() => ({
+          enable: true,
+        })}
         onApply={(item) => {
           // TODO: Refactor conversion from template type to group/item types
           if (item.__type === 'FoodItem') {
@@ -454,7 +565,9 @@ function ExternalFoodItemEditModal(props: {
             }
             props.onNewItemGroup(newGroup, item).catch((err) => {
               console.error(err)
-              alert(JSON.stringify(err, null, 2)) // TODO: Change alert to toast
+              toast.error(
+                'Erro ao adicionar item: \n' + JSON.stringify(err, null, 2),
+              )
             })
           } else {
             const newGroup: RecipedItemGroup = {
@@ -467,7 +580,9 @@ function ExternalFoodItemEditModal(props: {
             }
             props.onNewItemGroup(newGroup, item).catch((err) => {
               console.error(err)
-              alert(JSON.stringify(err, null, 2)) // TODO: Change alert to toast
+              toast.error(
+                'Erro ao adicionar item: \n' + JSON.stringify(err, null, 2),
+              )
             })
           }
         }}
@@ -521,7 +636,7 @@ const SearchBar = (props: {
       }}
       type="search"
       id="default-search"
-      class="block w-full border-gray-600 bg-gray-700 p-4 pl-10 text-sm text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500"
+      class="block w-full border-gray-600 bg-gray-700 px-4 pl-10 text-sm text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500 hover:border-white transition-transform"
       placeholder="Buscar alimentos"
       required
     />
@@ -565,6 +680,9 @@ const SearchResults = (props: {
                       template().__type === 'Food' ? 'FoodItem' : 'RecipeItem', // TODO: Refactor conversion from template type to group/item types
                   })}
                   class="mt-1"
+                  macroOverflow={() => ({
+                    enable: false,
+                  })}
                   onClick={() => {
                     props.setSelectedTemplate(template())
                     props.setFoodItemEditModalVisible(true)
