@@ -72,7 +72,7 @@ export function BottomNavigation() {
           </div>
         </div>
 
-        <div class="fixed flex-wrap flex flex-row right-1/2 translate-x-1/2 lg:right-5 bottom-24 lg:bottom-0 gap-2 bg-slate-800 bg-opacity-80 p-2 rounded">
+        <div class="fixed flex-wrap flex flex-row right-1/2 translate-x-1/2 lg:translate-x-0 lg:right-5 bottom-24 lg:bottom-0 gap-2 bg-slate-800 bg-opacity-80 p-2 rounded">
           <span>Version: {process.env.APP_VERSION}</span>
           <Show when={!window.location.href.includes('stable')}>
             <a
