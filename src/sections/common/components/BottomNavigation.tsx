@@ -51,7 +51,7 @@ export function BottomNavigation() {
               label="Configurações"
               icon={SettingsIcon}
               onClick={() => {
-                toast.error('Página ainda não implementada')
+                navigate('/settings')
               }}
               position="middle"
             />
