@@ -3,7 +3,7 @@ import { defineConfig } from '@solidjs/start/config'
 export default defineConfig({
   ssr: false,
   server: {
-    preset: 'vercel',
+    preset: process.env.NODE_ENV === 'production' ? 'vercel' : undefined,
   },
   vite: {
     plugins: [],

@@ -68,7 +68,7 @@ export default function Page() {
       <Show when={currentUser()} keyed>
         {(currentUser) => (
           <>
-            <div class={'mx-1 md:mx-40 lg:mx-auto lg:w-1/3'}>
+            <div class={'mx-1 md:mx-40 lg:mx-auto lg:w-1/3 pt-1'}>
               <BasicInfo
                 user={() => currentUser}
                 onSave={(newUser: User) => {
