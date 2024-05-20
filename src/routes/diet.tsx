@@ -1,3 +1,4 @@
+import { Show } from 'solid-js'
 import { targetDay } from '~/modules/diet/day-diet/application/dayDiet'
 import { BottomNavigation } from '~/sections/common/components/BottomNavigation'
 import { Providers } from '~/sections/common/context/Providers'
@@ -12,9 +13,6 @@ export default function DietPage() {
         <TopBar selectedDay={targetDay()} />
         <DayMeals selectedDay={targetDay()} />
         <BottomNavigation />
-        <div class="fixed right-5 bottom-0">
-          Version: {process.env.APP_VERSION}
-        </div>
       </div>
     </Providers>
   )
