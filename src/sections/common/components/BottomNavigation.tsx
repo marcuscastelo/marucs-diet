@@ -7,7 +7,7 @@ import {
   users,
 } from '~/modules/user/application/user'
 import { type User } from '~/modules/user/domain/user'
-import { For, type JSXElement } from 'solid-js'
+import { For, type JSXElement, Show } from 'solid-js'
 import { useLocation, useNavigate } from '@solidjs/router'
 import toast from 'solid-toast'
 
@@ -21,56 +21,71 @@ export function BottomNavigation() {
   console.debug('[BottomNavigation] Current path:', pathname)
 
   return (
-    <>
+    <div class="">
       {/* Placeholder for bottom navigation when page is 100% scrolled */}
-      <div class="h-24" />
-      <div class="fixed z-50 w-full h-16 max-w-lg -translate-x-1/2 bg-white border border-gray-200 rounded-full bottom-6 left-1/2 dark:bg-slate-800 dark:border-slate-700">
-        <div class="grid h-full max-w-lg grid-cols-5 mx-auto pt-1">
-          <BottomNavigationTab
-            active={pathname === '/diet'}
-            label="Home"
-            icon={HomeIcon}
-            onClick={() => {
-              navigate('/diet')
-            }}
-            position="first"
-          />
-          <BottomNavigationTab
-            active={pathname.startsWith('/profile')}
-            label="Perfil"
-            icon={ProfileIcon}
-            onClick={() => {
-              navigate('/profile')
-            }}
-            position="middle"
-          />
-          <CTAButton />
-          <BottomNavigationTab
-            active={pathname.startsWith('/settings')}
-            label="Configurações"
-            icon={SettingsIcon}
-            onClick={() => {
-              toast.error('Página ainda não implementada')
-            }}
-            position="middle"
-          />
-          <BottomNavigationTab
-            active={false}
-            label="Usuário"
-            icon={(props) => <UserIcon userId={currentUserId()} {...props} />}
-            onClick={() => {
-              showConfirmModal({
-                title: '',
-                body: () => <UserSelectorDropdown />,
-                actions: [],
-                hasBackdrop: true,
-              })
-            }}
-            position="last"
-          />
+      <div class="h-36 lg:h-24" />
+      <div class="fixed z-50 w-full bottom-0 left-0">
+        <div class="fixed z-50 w-full h-16 max-w-lg -translate-x-1/2 bg-white border border-gray-200 rounded-full bottom-6 left-1/2 dark:bg-slate-800 dark:border-slate-700">
+          <div class="grid h-full max-w-lg grid-cols-5 mx-auto pt-1">
+            <BottomNavigationTab
+              active={pathname === '/diet'}
+              label="Home"
+              icon={HomeIcon}
+              onClick={() => {
+                navigate('/diet')
+              }}
+              position="first"
+            />
+            <BottomNavigationTab
+              active={pathname.startsWith('/profile')}
+              label="Perfil"
+              icon={ProfileIcon}
+              onClick={() => {
+                navigate('/profile')
+              }}
+              position="middle"
+            />
+            <CTAButton />
+            <BottomNavigationTab
+              active={pathname.startsWith('/settings')}
+              label="Configurações"
+              icon={SettingsIcon}
+              onClick={() => {
+                toast.error('Página ainda não implementada')
+              }}
+              position="middle"
+            />
+            <BottomNavigationTab
+              active={false}
+              label="Usuário"
+              icon={(props) => <UserIcon userId={currentUserId()} {...props} />}
+              onClick={() => {
+                showConfirmModal({
+                  title: '',
+                  body: () => <UserSelectorDropdown />,
+                  actions: [],
+                  hasBackdrop: true,
+                })
+              }}
+              position="last"
+            />
+          </div>
+        </div>
+
+        <div class="fixed flex-wrap flex flex-row right-1/2 translate-x-1/2 lg:right-5 bottom-24 lg:bottom-0 gap-2 bg-slate-800 bg-opacity-80 p-2 rounded">
+          <span>Version: {process.env.APP_VERSION}</span>
+          <Show when={!window.location.href.includes('stable')}>
+            <a
+              href="https://marucs-diet-stable.vercel.app/"
+              class="align-text-bottom pt-1 text-xs text-blue-500 underline"
+              onClick={() => {}}
+            >
+              Trocar para versão estável
+            </a>{' '}
+          </Show>
         </div>
       </div>
-    </>
+    </div>
   )
 }
 
@@ -172,7 +187,7 @@ function CTAButton() {
         <button
           data-tooltip-target="tooltip-new"
           type="button"
-          class="focus:animate-spin inline-flex items-center justify-center w-10 h-10 font-medium bg-blue-600 rounded-full hover:bg-blue-700 group focus:ring-4 focus:ring-blue-300 focus:outline-none dark:focus:ring-blue-800"
+          class="focus:animate-spin inline-flex items-center justify-center w-10 h-10 font-medium bg-blue-600 rounded-full hover:bg-blue-700 group focus:ring-4 focus:ring-blue-300 focus-none dark:focus:ring-blue-800"
         >
           <svg
             class="w-4 h-4 text-white"
