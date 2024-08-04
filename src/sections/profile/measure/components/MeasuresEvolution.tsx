@@ -11,10 +11,7 @@ import {
   insertMeasure,
 } from '~/modules/measure/application/measure'
 import toast from 'solid-toast'
-
-// TODO: Centralize theme constants
-const CARD_BACKGROUND_COLOR = 'bg-slate-800'
-const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
+import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 
 export function MeasuresEvolution() {
   // TODO: Remove `measures` signal and use use cases instead

@@ -1,12 +1,9 @@
 import { For, createSignal } from 'solid-js'
 import toast from 'solid-toast'
+import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { BottomNavigation } from '~/sections/common/components/BottomNavigation'
 import { Providers } from '~/sections/common/context/Providers'
 import { Toggle } from '~/sections/settings/components/Toggle'
-
-// TODO: Centralize theme constants
-const CARD_BACKGROUND_COLOR = 'bg-slate-800'
-const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
 
 export default function Page() {
   const toggleSettings = [

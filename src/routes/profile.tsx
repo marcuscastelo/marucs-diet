@@ -1,4 +1,4 @@
-import { BasicInfo } from '~/sections/profile/components/BasicInfo'
+import { UserInfo } from '~/sections/profile/components/UserInfo'
 import { WeightEvolution } from '~/sections/weight/components/WeightEvolution'
 import { MeasuresEvolution } from '~/sections/profile/measure/components/MeasuresEvolution'
 
@@ -19,10 +19,7 @@ import {
 } from '~/modules/diet/macro-profile/application/macroProfile'
 import { Show } from 'solid-js'
 import toast from 'solid-toast'
-
-// TODO: Centralize theme constants
-const CARD_BACKGROUND_COLOR = 'bg-slate-800'
-const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
+import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 
 export default function Page() {
   // TODO: latestWeight should be a signal
@@ -66,8 +63,7 @@ export default function Page() {
       {(currentUser) => (
         <>
           <div class={'mx-1 md:mx-40 lg:mx-auto lg:w-1/3 pt-1'}>
-            <BasicInfo
-              user={() => currentUser}
+            <UserInfo
               onSave={(newUser: User) => {
                 updateUser(newUser.id, newUser).catch((error) => {
                   console.error(error)

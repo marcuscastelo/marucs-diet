@@ -24,10 +24,7 @@ import { SolidApexCharts } from 'solid-apexcharts'
 import { type ApexOptions } from 'apexcharts'
 import toast from 'solid-toast'
 import ptBrLocale from '~/assets/locales/apex/pt-br.json'
-
-// TODO: Centralize theme constants
-const CARD_BACKGROUND_COLOR = 'bg-slate-800'
-const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
+import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 
 export function WeightEvolution() {
   const desiredWeight = () => currentUser()?.desired_weight ?? 0

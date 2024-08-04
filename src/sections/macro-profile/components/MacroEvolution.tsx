@@ -16,10 +16,7 @@ import { currentUser } from '~/modules/user/application/user'
 import { userWeights } from '~/modules/weight/application/weight'
 import { userMacroProfiles } from '~/modules/diet/macro-profile/application/macroProfile'
 import { calculateMacroTarget } from '~/modules/diet/macro-target/application/macroTarget'
-
-// TODO: Centralize theme constants
-const CARD_BACKGROUND_COLOR = 'bg-slate-800'
-const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
+import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 
 export function MacroEvolution() {
   const user = currentUser()
