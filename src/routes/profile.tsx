@@ -19,8 +19,6 @@ import {
 } from '~/modules/diet/macro-profile/application/macroProfile'
 import { Show } from 'solid-js'
 import toast from 'solid-toast'
-import { Providers } from '~/sections/common/context/Providers'
-import { type New } from '~/legacy/utils/newDbRecord'
 
 // TODO: Centralize theme constants
 const CARD_BACKGROUND_COLOR = 'bg-slate-800'
@@ -64,56 +62,54 @@ export default function Page() {
   console.debug('[ProfilePage] Rendering profile')
 
   return (
-    <Providers>
-      <Show when={currentUser()} keyed>
-        {(currentUser) => (
-          <>
-            <div class={'mx-1 md:mx-40 lg:mx-auto lg:w-1/3 pt-1'}>
-              <BasicInfo
-                user={() => currentUser}
-                onSave={(newUser: User) => {
-                  updateUser(newUser.id, newUser).catch((error) => {
-                    console.error(error)
-                    toast.error(
-                      'Erro ao salvar usuário: \n' +
-                        JSON.stringify(error, null, 2),
-                    )
-                  })
-                }}
-              />
+    <Show when={currentUser()} keyed>
+      {(currentUser) => (
+        <>
+          <div class={'mx-1 md:mx-40 lg:mx-auto lg:w-1/3 pt-1'}>
+            <BasicInfo
+              user={() => currentUser}
+              onSave={(newUser: User) => {
+                updateUser(newUser.id, newUser).catch((error) => {
+                  console.error(error)
+                  toast.error(
+                    'Erro ao salvar usuário: \n' +
+                      JSON.stringify(error, null, 2),
+                  )
+                })
+              }}
+            />
 
-              <WeightEvolution />
-              <div class={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>
-                <Show
-                  when={weight()}
-                  fallback={
-                    <h1>
-                      Não há pesos registrados, o perfil não pode ser calculado
-                    </h1>
-                  }
-                  keyed
-                >
-                  {(weight) => (
-                    <MacroTarget
-                      weight={weight}
-                      profiles={userMacroProfiles}
-                      onSaveMacroProfile={(profile) => {
-                        onSaveProfile(profile).catch((error) => {
-                          console.error(error)
-                        })
-                      }}
-                      mode="edit"
-                    />
-                  )}
-                </Show>
-              </div>
-              <MacroEvolution />
-              <MeasuresEvolution />
+            <WeightEvolution />
+            <div class={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>
+              <Show
+                when={weight()}
+                fallback={
+                  <h1>
+                    Não há pesos registrados, o perfil não pode ser calculado
+                  </h1>
+                }
+                keyed
+              >
+                {(weight) => (
+                  <MacroTarget
+                    weight={weight}
+                    profiles={userMacroProfiles}
+                    onSaveMacroProfile={(profile) => {
+                      onSaveProfile(profile).catch((error) => {
+                        console.error(error)
+                      })
+                    }}
+                    mode="edit"
+                  />
+                )}
+              </Show>
             </div>
-            <BottomNavigation />
-          </>
-        )}
-      </Show>
-    </Providers>
+            <MacroEvolution />
+            <MeasuresEvolution />
+          </div>
+          <BottomNavigation />
+        </>
+      )}
+    </Show>
   )
 }
