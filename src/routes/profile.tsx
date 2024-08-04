@@ -10,7 +10,7 @@ import { type MacroProfile } from '~/modules/diet/macro-profile/domain/macroProf
 
 import { getTodayYYYMMDD } from '~/legacy/utils/dateUtils'
 import { BottomNavigation } from '~/sections/common/components/BottomNavigation'
-import { currentUser, updateUser } from '~/modules/user/application/user'
+import { updateUser } from '~/modules/user/application/user'
 import { userWeights } from '~/modules/weight/application/weight'
 import {
   insertMacroProfile,
@@ -59,53 +59,46 @@ export default function Page() {
   console.debug('[ProfilePage] Rendering profile')
 
   return (
-    <Show when={currentUser()} keyed>
-      {(currentUser) => (
-        <>
-          <div class={'mx-1 md:mx-40 lg:mx-auto lg:w-1/3 pt-1'}>
-            <UserInfo
-              onSave={(newUser: User) => {
-                updateUser(newUser.id, newUser).catch((error) => {
-                  console.error(error)
-                  toast.error(
-                    'Erro ao salvar usuário: \n' +
-                      JSON.stringify(error, null, 2),
-                  )
-                })
-              }}
-            />
+    <>
+      <div class={'mx-1 md:mx-40 lg:mx-auto lg:w-1/3 pt-1'}>
+        <UserInfo
+          onSave={(newUser: User) => {
+            updateUser(newUser.id, newUser).catch((error) => {
+              console.error(error)
+              toast.error(
+                'Erro ao salvar usuário: \n' + JSON.stringify(error, null, 2),
+              )
+            })
+          }}
+        />
 
-            <WeightEvolution />
-            <div class={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>
-              <Show
-                when={weight()}
-                fallback={
-                  <h1>
-                    Não há pesos registrados, o perfil não pode ser calculado
-                  </h1>
-                }
-                keyed
-              >
-                {(weight) => (
-                  <MacroTarget
-                    weight={weight}
-                    profiles={userMacroProfiles}
-                    onSaveMacroProfile={(profile) => {
-                      onSaveProfile(profile).catch((error) => {
-                        console.error(error)
-                      })
-                    }}
-                    mode="edit"
-                  />
-                )}
-              </Show>
-            </div>
-            <MacroEvolution />
-            <MeasuresEvolution />
-          </div>
-          <BottomNavigation />
-        </>
-      )}
-    </Show>
+        <WeightEvolution />
+        <div class={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>
+          <Show
+            when={weight()}
+            fallback={
+              <h1>Não há pesos registrados, o perfil não pode ser calculado</h1>
+            }
+            keyed
+          >
+            {(weight) => (
+              <MacroTarget
+                weight={weight}
+                profiles={userMacroProfiles}
+                onSaveMacroProfile={(profile) => {
+                  onSaveProfile(profile).catch((error) => {
+                    console.error(error)
+                  })
+                }}
+                mode="edit"
+              />
+            )}
+          </Show>
+        </div>
+        <MacroEvolution />
+        <MeasuresEvolution />
+      </div>
+      <BottomNavigation />
+    </>
   )
 }
