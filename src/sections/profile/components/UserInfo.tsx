@@ -8,8 +8,9 @@ import {
   setUnsavedFields,
   type UnsavedFields,
 } from '~/modules/profile/application/profile'
-import { currentUser } from '~/modules/user/application/user'
+import { currentUser, updateUser } from '~/modules/user/application/user'
 import { convertString, UserInfoCapsule } from './UserInfoCapsule'
+import toast from 'solid-toast'
 type Translation<T extends string> = { [key in T]: string }
 // TODO: Create module for translations
 // TODO: Make diet translations appear in the UI
@@ -20,7 +21,7 @@ const DIET_TRANSLATION: Translation<User['diet']> = {
   bulk: 'Bulking',
 }
 
-export function UserInfo(props: { onSave: (newUser: User) => void }) {
+export function UserInfo() {
   createEffect(() => {
     const user_ = currentUser()
     const innerData_ = innerData()
@@ -97,11 +98,16 @@ export function UserInfo(props: { onSave: (newUser: User) => void }) {
       <button
         class={'btn-primary no-animation btn w-full rounded-t-none'}
         onClick={() => {
-          const innerData_ = innerData()
-          if (innerData_ === null) {
+          const newUser = innerData()
+          if (newUser === null) {
             return
           }
-          props.onSave(innerData_)
+          updateUser(newUser.id, newUser).catch((error) => {
+            console.error(error)
+            toast.error(
+              'Erro ao salvar usuário: \n' + JSON.stringify(error, null, 2),
+            )
+          })
         }}
       >
         Salvar
