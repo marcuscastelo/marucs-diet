@@ -4,11 +4,15 @@ import {
   type DayDiet,
   dayDietSchema,
 } from '~/modules/diet/day-diet/domain/dayDiet'
-import { createSupabaseDayRepository } from '~/modules/diet/day-diet/infrastructure/supabaseDayRepository'
+import {
+  createSupabaseDayRepository,
+  SUPABASE_TABLE_DAYS,
+} from '~/modules/diet/day-diet/infrastructure/supabaseDayRepository'
 import { type User } from '~/modules/user/domain/user'
 import { createEffect, createSignal } from 'solid-js'
 import { currentUserId } from '~/modules/user/application/user'
 import toast from 'solid-toast'
+import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 
 export function createDayDiet({
   target_day: targetDay,
@@ -40,7 +44,7 @@ export const [currentDayDiet, setCurrentDayDiet] = createSignal<DayDiet | null>(
   null,
 )
 
-createEffect(() => {
+function bootstrap() {
   toast
     .promise(fetchAllUserDayDiets(currentUserId()), {
       loading: 'Buscando dietas do usuário...',
@@ -50,8 +54,25 @@ createEffect(() => {
     .catch((error) => {
       console.error(error)
     })
+}
+
+/**
+ * When user changes, fetch all day diets for the new user
+ */
+createEffect(() => {
+  bootstrap()
 })
 
+/**
+ * When realtime day diets change, update day diets for current user
+ */
+registerSubapabaseRealtimeCallback(SUPABASE_TABLE_DAYS, () => {
+  bootstrap()
+})
+
+/**
+ * When target day changes, update current day diet
+ */
 createEffect(() => {
   const dayDiet = dayDiets().find(
     (dayDiet) => dayDiet.target_day === targetDay(),

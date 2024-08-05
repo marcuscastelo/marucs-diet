@@ -23,7 +23,7 @@ export function insertItemGroup(
     })
     .finish()
 
-  updateDayDiet(currentDayDiet_.id, newDay)
+  updateDayDiet(currentDayDiet_.id, newDay).catch(console.error)
 }
 
 export function updateItemGroup(
@@ -45,7 +45,7 @@ export function updateItemGroup(
     })
     .finish()
 
-  updateDayDiet(currentDayDiet_.id, newDay)
+  updateDayDiet(currentDayDiet_.id, newDay).catch(console.error)
 }
 
 export function deleteItemGroup(
@@ -64,5 +64,5 @@ export function deleteItemGroup(
     })
     .finish()
 
-  updateDayDiet(currentDayDiet_.id, newDay)
+  updateDayDiet(currentDayDiet_.id, newDay).catch(console.error)
 }

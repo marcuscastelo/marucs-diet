@@ -9,7 +9,7 @@ import { type DayRepository } from '~/modules/diet/day-diet/domain/dayDietReposi
 import { type Accessor, createSignal } from 'solid-js'
 
 // TODO: Delete old days table and rename days_test to days
-const TABLE = 'days_test'
+export const SUPABASE_TABLE_DAYS = 'days_test'
 
 export function createSupabaseDayRepository(): DayRepository {
   return {
@@ -32,7 +32,7 @@ const [userDays, setUserDays] = createSignal<readonly DayDiet[]>([])
 async function fetchDayDiet(_dayId: DayDiet['id']): Promise<DayDiet | null> {
   //   // TODO: filter userId in query
   //   console.debug(`[supabaseDayRepository] fetchDayDiet(${dayId})`)
-  //   const { data, error } = await supabase.from(TABLE).select().eq('id', dayId)
+  //   const { data, error } = await supabase.from(SUPABASE_TABLE_DAYS).select().eq('id', dayId)
 
   //   if (error !== null) {
   //     throw error
@@ -54,7 +54,7 @@ async function fetchDayDiet(_dayId: DayDiet['id']): Promise<DayDiet | null> {
   //   // TODO: filter userId in query
   //   console.debug(`[supabaseDayRepository] fetchUserDayIndexes(${userId})`)
   //   const { data, error } = await supabase
-  //     .from(TABLE)
+  //     .from(SUPABASE_TABLE_DAYS)
   //     .select('id, target_day, owner')
   //     .eq('owner', userId)
 
@@ -79,7 +79,7 @@ async function fetchUserDays(
 ): Promise<Accessor<readonly DayDiet[]>> {
   // TODO: filter userId in query
   console.debug(`[supabaseDayRepository] fetchUserDays(${userId})`)
-  const { data, error } = await supabase.from(TABLE).select()
+  const { data, error } = await supabase.from(SUPABASE_TABLE_DAYS).select()
   if (error !== null) {
     throw error
   }
@@ -112,7 +112,10 @@ async function fetchUserDays(
 const upsertDay = async (newDay: DbReady<DayDiet>): Promise<DayDiet | null> => {
   const day = enforceDbReady(newDay)
 
-  const { data: days, error } = await supabase.from(TABLE).upsert(day).select()
+  const { data: days, error } = await supabase
+    .from(SUPABASE_TABLE_DAYS)
+    .upsert(day)
+    .select()
   if (error !== null) {
     throw error
   }
@@ -126,7 +129,7 @@ const updateDay = async (
 ): Promise<DayDiet> => {
   const newDay = enforceDbReady(day)
   const { data, error } = await supabase
-    .from(TABLE)
+    .from(SUPABASE_TABLE_DAYS)
     .update(newDay)
     .eq('id', id)
     .select()
@@ -141,7 +144,11 @@ const updateDay = async (
 }
 
 const deleteDay = async (id: DayDiet['id']): Promise<void> => {
-  const { error } = await supabase.from(TABLE).delete().eq('id', id).select()
+  const { error } = await supabase
+    .from(SUPABASE_TABLE_DAYS)
+    .delete()
+    .eq('id', id)
+    .select()
 
   if (error !== null) {
     throw error
