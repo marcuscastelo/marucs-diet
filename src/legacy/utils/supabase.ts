@@ -10,6 +10,7 @@ const supabaseKey = z
     description: 'The public key of the Supabase project',
   })
   .parse(import.meta.env.VITE_NEXT_PUBLIC_SUPABASE_ANON_KEY)
+
 const supabase = createClient(supabaseUrl, supabaseKey, {
   db: {
     schema: 'public',
@@ -19,4 +20,13 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
   },
 })
 
+export function registerSubapabaseRealtimeCallback(
+  table: string,
+  callback: (payload: unknown) => void,
+): void {
+  supabase
+    .channel(table)
+    .on('postgres_changes', { event: '*', schema: 'public', table }, callback)
+    .subscribe()
+}
 export default supabase

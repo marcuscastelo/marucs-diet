@@ -1,0 +1,117 @@
+import { type User, userSchema } from '~/modules/user/domain/user'
+import { type z } from 'zod'
+import { UserIcon } from '~/sections/common/components/UserIcon'
+import { createEffect, Show } from 'solid-js'
+import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
+import {
+  innerData,
+  setUnsavedFields,
+  type UnsavedFields,
+} from '~/modules/profile/application/profile'
+import { currentUser, updateUser } from '~/modules/user/application/user'
+import { convertString, UserInfoCapsule } from './UserInfoCapsule'
+import toast from 'solid-toast'
+type Translation<T extends string> = { [key in T]: string }
+// TODO: Create module for translations
+// TODO: Make diet translations appear in the UI
+// TODO: Make select input for diet (cut, normo, bulk)
+const DIET_TRANSLATION: Translation<User['diet']> = {
+  cut: 'Cutting',
+  normo: 'Normocalórica',
+  bulk: 'Bulking',
+}
+
+export function UserInfo() {
+  createEffect(() => {
+    const user_ = currentUser()
+    const innerData_ = innerData()
+
+    if (user_ === null) {
+      return
+    }
+
+    if (innerData_ === null) {
+      return
+    }
+
+    const reduceFunc = (acc: UnsavedFields, key: string) => {
+      acc[key as keyof UnsavedFields] =
+        innerData_[key as keyof UnsavedFields] !== user_[key as keyof User]
+      return acc
+    }
+
+    setUnsavedFields(
+      Object.keys(innerData_).reduce<UnsavedFields>(
+        reduceFunc,
+        {} satisfies UnsavedFields,
+      ),
+    )
+  })
+
+  const convertDesiredWeight = (value: string) => Number(value)
+  const makeLiteralConverter =
+    <T extends z.ZodUnion<any>>(schema: T, defaultValue: z.infer<T>) =>
+    (value: string): z.infer<T> => {
+      const result = schema.safeParse(value)
+      if (!result.success) {
+        return defaultValue
+      }
+      return result.data
+    }
+
+  const convertGender = makeLiteralConverter(
+    userSchema._def.shape().gender,
+    'male',
+  )
+
+  const convertDiet = (value: string): User['diet'] =>
+    (Object.keys(DIET_TRANSLATION) as Array<User['diet']>).find(
+      (key) => key === value,
+    ) ?? 'normo'
+
+  return (
+    <>
+      <div class={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE} rounded-b-none pb-6`}>
+        <h1 class={'mx-auto text-center text-3xl font-bold'}>
+          <Show when={currentUser()}>
+            {(user) => (
+              <>
+                <UserIcon userId={user().id} class={'w-32 h-32 mx-auto'} />
+                {user().name}
+              </>
+            )}
+          </Show>
+        </h1>
+
+        <div class={'mb-1 mt-3 text-center text-lg italic'}>Informações</div>
+        <div class={'mx-5 lg:mx-20'}>
+          <UserInfoCapsule field="name" convert={convertString} />
+          <UserInfoCapsule field="gender" convert={convertGender} />
+          <UserInfoCapsule field="diet" convert={convertDiet} />
+          <UserInfoCapsule field="birthdate" convert={convertString} />
+          <UserInfoCapsule
+            field="desired_weight"
+            convert={convertDesiredWeight}
+          />
+        </div>
+      </div>
+      <button
+        class={'btn-primary no-animation btn w-full rounded-t-none'}
+        onClick={() => {
+          const newUser = innerData()
+          if (newUser === null) {
+            return
+          }
+          updateUser(newUser.id, newUser).catch((error) => {
+            console.error(error)
+            toast.error(
+              'Erro ao salvar usuário: \n' + JSON.stringify(error, null, 2),
+            )
+          })
+        }}
+      >
+        Salvar
+      </button>
+    </>
+  )
+}

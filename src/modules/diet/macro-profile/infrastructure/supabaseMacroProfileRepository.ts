@@ -7,7 +7,7 @@ import { type DbReady, enforceDbReady } from '~/legacy/utils/newDbRecord'
 import supabase from '~/legacy/utils/supabase'
 import { type MacroProfileRepository } from '~/modules/diet/macro-profile/domain/macroProfileRepository'
 
-const TABLE = 'macro_profiles'
+export const SUPABASE_TABLE_MACRO_PROFILES = 'macro_profiles'
 
 export function createSupabaseMacroProfileRepository(): MacroProfileRepository {
   return {
@@ -20,7 +20,7 @@ export function createSupabaseMacroProfileRepository(): MacroProfileRepository {
 
 async function fetchUserMacroProfiles(userId: User['id']) {
   const { data, error } = await supabase
-    .from(TABLE)
+    .from(SUPABASE_TABLE_MACRO_PROFILES)
     .select('*')
     .eq('owner', userId)
     .order('target_day', { ascending: true })
@@ -36,7 +36,7 @@ async function fetchUserMacroProfiles(userId: User['id']) {
 async function insertMacroProfile(newMacroProfile: DbReady<MacroProfile>) {
   const macroProfile = enforceDbReady(newMacroProfile)
   const { data, error } = await supabase
-    .from(TABLE)
+    .from(SUPABASE_TABLE_MACRO_PROFILES)
     .insert(macroProfile)
     .select()
 
@@ -54,7 +54,7 @@ async function updateMacroProfile(
 ) {
   const macroProfile = enforceDbReady(newMacroProfile)
   const { data, error } = await supabase
-    .from(TABLE)
+    .from(SUPABASE_TABLE_MACRO_PROFILES)
     .update(macroProfile)
     .eq('id', profileId)
     .select()
@@ -68,7 +68,10 @@ async function updateMacroProfile(
 }
 
 async function deleteMacroProfile(id: MacroProfile['id']) {
-  const { error } = await supabase.from(TABLE).delete().eq('id', id)
+  const { error } = await supabase
+    .from(SUPABASE_TABLE_MACRO_PROFILES)
+    .delete()
+    .eq('id', id)
 
   if (error !== null) {
     console.error(error)

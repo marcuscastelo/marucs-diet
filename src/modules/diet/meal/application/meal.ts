@@ -25,5 +25,5 @@ export async function updateMeal(
     })
     .finish()
 
-  updateDayDiet(currentDayDiet_.id, newDay)
+  updateDayDiet(currentDayDiet_.id, newDay).catch(console.error)
 }
