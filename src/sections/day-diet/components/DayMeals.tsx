@@ -9,16 +9,15 @@ import DayMacros from '~/sections/day-diet/components/DayMacros'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
-import { calcDayMacros } from '~/legacy/utils/macroMath'
 import { ItemGroupEditModal } from '~/sections/item-group/components/ItemGroupEditModal'
 import { CopyLastDayButton } from '~/sections/day-diet/components/CopyLastDayButton'
 import { DeleteDayButton } from '~/sections/day-diet/components/DeleteDayButton'
-import { getTodayYYYMMDD, stringToDate } from '~/legacy/utils/dateUtils'
+import { getTodayYYYMMDD } from '~/legacy/utils/dateUtils'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import DayNotFound from '~/sections/day-diet/components/DayNotFound'
 import {
   currentDayDiet,
-  targetDay,
+  setTargetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
 import { updateMeal } from '~/modules/diet/meal/application/meal'
 import {
@@ -129,11 +128,7 @@ export default function DayMeals(props: { selectedDay: string }) {
                         <a
                           class="font-bold text-blue-500 hover:cursor-pointer "
                           onClick={() => {
-                            // TODO: Implement redirect to today
-                            alert(
-                              'TODO: Implementar redirecionamento para o dia de hoje',
-                            )
-                            // router.push('/diet/' + today)
+                            setTargetDay(today)
                           }}
                         >
                           Mostrar refeições de hoje
