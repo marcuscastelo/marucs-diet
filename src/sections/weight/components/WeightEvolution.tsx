@@ -235,21 +235,28 @@ function WeightChart(props: {
       // 1 to 4 weeks of a month
       const date = new Date(weight.target_timestamp)
       const month = date.toLocaleString('default', { month: 'short' })
+      const year = date.getFullYear()
+      const twoDigitYear = year % 100
       // const weekNumber = Math.min(4, Math.ceil(date.getDate() / 7))
 
       // 1 to 2 half of a month (1 -> 1-15, 2 -> 16-31)
       const halfNumber = Math.min(2, Math.ceil(date.getDate() / 15))
 
-      // return `${month} (${weekNumber}/4)`
-      return `${month} (${halfNumber}/2)`
+      return `${month} ${twoDigitYear} (${halfNumber}/2)`
     })()
-    const day_ = weight.target_timestamp.toLocaleDateString().slice(0, 5)
+    const day = weight.target_timestamp.getDate()
+    const month = weight.target_timestamp.getMonth() + 1
+    const year = weight.target_timestamp.getFullYear()
+    const twoDigitYear = year % 100
 
-    const day = props.type === 'last-30-days' ? day_ : half
-    if (acc[day] === undefined) {
-      acc[day] = []
+    // TODO: create weight chart types: Daily, Weekly, Monthly, Semianually, Anually, Auto
+
+    const date_ = `${day}/${month}/${twoDigitYear}`
+    const date = props.type === 'last-30-days' ? date_ : half
+    if (acc[date] === undefined) {
+      acc[date] = []
     }
-    acc[day].push(weight)
+    acc[date].push(weight)
 
     return acc
   }
@@ -258,9 +265,9 @@ function WeightChart(props: {
     props.weights.reduce<Record<string, Weight[]>>(reduceFunc, {}),
   )
 
-  const data = createMemo((): readonly TickWeight[] =>
-    Object.entries(weightsByDay())
-      .map(([day, weights]) => {
+  const data = createMemo(
+    (): readonly TickWeight[] =>
+      Object.entries(weightsByDay()).map(([day, weights]) => {
         const open = firstWeight(weights)?.weight ?? 0
         const low = Math.min(...weights.map((weight) => weight.weight))
         const high = Math.max(...weights.map((weight) => weight.weight))
@@ -273,8 +280,8 @@ function WeightChart(props: {
           high,
           low,
         }
-      })
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
+      }),
+    // .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
   )
 
   const movingAverage = createMemo(() =>
