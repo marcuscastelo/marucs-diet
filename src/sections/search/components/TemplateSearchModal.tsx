@@ -60,6 +60,7 @@ import {
   fetchUserRecipes,
 } from '~/modules/diet/recipe/application/recipe'
 import {
+  fetchFoodById,
   fetchFoods,
   fetchFoodsByName,
 } from '~/modules/diet/food/application/food'
@@ -342,31 +343,28 @@ const fetchFoodsForModal = async (): Promise<readonly Food[]> => {
   } else {
     foods = await fetchFoodsByName(search(), { limit, allowedFoods })
   }
+
   if (tab() === 'recent') {
-    foods = foods.toSorted((a, b) => {
-      const correctOrder = allowedFoods
-      if (correctOrder === undefined) {
-        return 0
-      }
-
-      const aIndex = correctOrder.indexOf(a.id)
-      const bIndex = correctOrder.indexOf(b.id)
-
-      if (aIndex === -1 && bIndex === -1) {
-        return 0
-      } else if (aIndex === -1) {
-        return 1
-      } else if (bIndex === -1) {
-        return -1
-      } else {
-        return aIndex - bIndex
-      }
-    })
-    console.debug('Allowed foods', allowedFoods)
-    console.debug(
-      'Sorted foods',
-      foods.map((food) => food.id),
-    )
+    foods = (
+      await Promise.all(
+        allowedFoods?.map(async (foodId) => {
+          let food: Food | null = null
+          const alreadyFechedFood = foods.find((food) => food.id === foodId)
+          if (alreadyFechedFood === undefined) {
+            console.debug(
+              `[TemplateSearchModal] Food is not already fetched: ${foodId}`,
+            )
+            food = await fetchFoodById(foodId)
+          } else {
+            console.debug(
+              `[TemplateSearchModal] Food is already fetched: ${foodId}`,
+            )
+            food = alreadyFechedFood
+          }
+          return food
+        }) ?? [],
+      )
+    ).filter((food) => food !== null)
   }
   return foods
 }

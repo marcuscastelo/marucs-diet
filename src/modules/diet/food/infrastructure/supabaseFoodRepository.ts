@@ -22,11 +22,17 @@ async function fetchFoodById(
   id: Food['id'],
   params: Omit<FoodSearchParams, 'limit'> = {},
 ) {
-  const [food] = await internalCachedSearchFoods(
+  const foods = await internalCachedSearchFoods(
     { field: 'id', value: id },
     { ...params, limit: 1 },
   )
-  return food
+
+  if (foods.length === 0) {
+    console.error(`Food with id ${id} not found`)
+    return null
+  }
+
+  return foodSchema.parse(foods[0])
 }
 
 async function fetchFoodsByName(

@@ -11,7 +11,7 @@ export type FoodRepository = {
   fetchFoodById: (
     id: Food['id'],
     params: Omit<FoodSearchParams, 'limit'>,
-  ) => Promise<Food>
+  ) => Promise<Food | null>
   fetchFoodsByName: (
     name: Required<Food>['name'],
     params: FoodSearchParams,
