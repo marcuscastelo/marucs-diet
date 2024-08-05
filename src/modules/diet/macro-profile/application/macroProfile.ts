@@ -1,10 +1,14 @@
 import { getLatestMacroProfile } from '~/legacy/utils/macroProfileUtils'
 import { type DbReady } from '~/legacy/utils/newDbRecord'
 import { type MacroProfile } from '~/modules/diet/macro-profile/domain/macroProfile'
-import { createSupabaseMacroProfileRepository } from '~/modules/diet/macro-profile/infrastructure/supabaseMacroProfileRepository'
+import {
+  createSupabaseMacroProfileRepository,
+  SUPABASE_TABLE_MACRO_PROFILES,
+} from '~/modules/diet/macro-profile/infrastructure/supabaseMacroProfileRepository'
 import { currentUserId } from '~/modules/user/application/user'
 import { createEffect, createSignal } from 'solid-js'
 import toast from 'solid-toast'
+import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 
 const macroProfileRepository = createSupabaseMacroProfileRepository()
 
@@ -15,10 +19,24 @@ export const [userMacroProfiles, setUserMacroProfiles] = createSignal<
 export const latestMacroProfile = () =>
   getLatestMacroProfile(userMacroProfiles())
 
-createEffect(() => {
+function bootstrap() {
   fetchUserMacroProfiles(currentUserId()).catch(() => {
     console.error('Failed to fetch user macro profiles')
   })
+}
+
+/**
+ * Every time the user changes, fetch all user macro profiles
+ */
+createEffect(() => {
+  bootstrap()
+})
+
+/**
+ * When a realtime event occurs, fetch all user macro profiles again
+ */
+registerSubapabaseRealtimeCallback(SUPABASE_TABLE_MACRO_PROFILES, () => {
+  bootstrap()
 })
 
 export async function fetchUserMacroProfiles(userId: number) {
