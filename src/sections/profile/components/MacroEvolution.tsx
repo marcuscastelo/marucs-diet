@@ -12,21 +12,12 @@ import { type MacroProfile } from '~/modules/diet/macro-profile/domain/macroProf
 import { dateToDDMM } from '~/legacy/utils/dateUtils'
 import { type Weight } from '~/modules/weight/domain/weight'
 import { dayDiets } from '~/modules/diet/day-diet/application/dayDiet'
-import { currentUser } from '~/modules/user/application/user'
 import { userWeights } from '~/modules/weight/application/weight'
 import { userMacroProfiles } from '~/modules/diet/macro-profile/application/macroProfile'
 import { calculateMacroTarget } from '~/modules/diet/macro-target/application/macroTarget'
-
-// TODO: Centralize theme constants
-const CARD_BACKGROUND_COLOR = 'bg-slate-800'
-const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
+import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 
 export function MacroEvolution() {
-  const user = currentUser()
-  if (user === null) {
-    throw new Error('User is null')
-  }
-
   return (
     <div class={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>
       <h5 class={'mx-auto mb-5 text-center text-3xl font-bold'}>
@@ -82,11 +73,6 @@ function createChartData(
 }
 
 function AllMacrosChart(props: { weights: readonly Weight[] }) {
-  const user = currentUser()
-  if (user === null) {
-    throw new Error('User is null')
-  }
-
   // const proteinDeviance = dayDiets()
   //   .map((day) => {
   //     const currentWeight = inForceWeight(props.weights, new Date(day.target_day))
@@ -224,11 +210,6 @@ function AllMacrosChart(props: { weights: readonly Weight[] }) {
 }
 
 function CaloriesChart(props: { weights: readonly Weight[] }) {
-  const user = currentUser()
-  if (user === null) {
-    throw new Error('User is null')
-  }
-
   const data = () =>
     createChartData(props.weights, dayDiets(), userMacroProfiles())
   data()
@@ -276,11 +257,6 @@ function CaloriesChart(props: { weights: readonly Weight[] }) {
 }
 
 function ProteinChart(props: { weights: readonly Weight[] }) {
-  const user = currentUser()
-  if (user === null) {
-    throw new Error('User is null')
-  }
-
   const data = () =>
     createChartData(props.weights, dayDiets(), userMacroProfiles())
   data()
@@ -327,11 +303,6 @@ function ProteinChart(props: { weights: readonly Weight[] }) {
 }
 
 function FatChart(props: { weights: readonly Weight[] }) {
-  const user = currentUser()
-  if (user === null) {
-    throw new Error('User is null')
-  }
-
   const data = () =>
     createChartData(props.weights, dayDiets(), userMacroProfiles())
   data()
@@ -378,11 +349,6 @@ function FatChart(props: { weights: readonly Weight[] }) {
 }
 
 function CarbsChart(props: { weights: readonly Weight[] }) {
-  const user = currentUser()
-  if (user === null) {
-    throw new Error('User is null')
-  }
-
   const data = () =>
     createChartData(props.weights, dayDiets(), userMacroProfiles())
   data()
