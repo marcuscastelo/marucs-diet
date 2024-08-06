@@ -73,6 +73,7 @@ export type FoodItemHeaderProps = {
   name?: JSXElement
   favorite?: JSXElement
   copyButton?: JSXElement
+  removeFromListButton?: JSXElement
 }
 
 export function FoodItemHeader(props: FoodItemHeaderProps) {
@@ -81,9 +82,12 @@ export function FoodItemHeader(props: FoodItemHeaderProps) {
       {/* //TODO: FoodItem id is random, but it should be an entry on the database (meal too) */}
       {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.FoodItem.id}]</h5> */}
       <div class="my-2">{props.name}</div>
-      <div class={'ml-auto flex gap-2'}>
-        <div class="my-auto">{props.copyButton}</div>
-        <div class="my-auto">{props.favorite}</div>
+      <div class="ml-auto flex flex-col">
+        <div class="my-auto">{props.removeFromListButton}</div>
+        <div class={'ml-auto flex gap-2'}>
+          <div class="my-auto">{props.copyButton}</div>
+          <div class="my-auto">{props.favorite}</div>
+        </div>
       </div>
     </div>
   )
