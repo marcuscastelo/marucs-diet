@@ -15,6 +15,7 @@
     "apexcharts": "3.44.0",
     "autoprefixer": "^10.4.19",
     "axios": "^1.6.8",
+    "axios-rate-limit": "^1.4.0",
     "clsx": "2.0.0",
     "daisyui": "3.9.3",
     "dayjs": "1.11.10",
