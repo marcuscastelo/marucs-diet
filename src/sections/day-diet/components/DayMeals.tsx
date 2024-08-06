@@ -264,7 +264,7 @@ function ExternalItemGroupEditModal(props: {
           setVisible={props.setVisible}
         >
           <ItemGroupEditModal
-            group={() => editSelection().itemGroup ?? null}
+            group={() => editSelection().itemGroup}
             setGroup={(group) => {
               if (group === null) {
                 console.error('group is null!')

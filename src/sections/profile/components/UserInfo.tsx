@@ -1,6 +1,6 @@
 import { type User, userSchema } from '~/modules/user/domain/user'
 import { type z } from 'zod'
-import { UserIcon } from '~/sections/common/components/UserIcon'
+import { UserIcon } from '~/sections/common/components/icons/UserIcon'
 import { createEffect, Show } from 'solid-js'
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import {

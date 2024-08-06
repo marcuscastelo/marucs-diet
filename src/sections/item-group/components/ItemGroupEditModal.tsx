@@ -35,7 +35,10 @@ import {
 } from '~/sections/common/context/ModalContext'
 import { isRecipedGroupUpToDate } from '~/legacy/utils/groupUtils'
 import { DownloadIcon } from '~/sections/common/components/icons/DownloadIcon'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import {
+  type ConfirmModalContext,
+  useConfirmModalContext,
+} from '~/sections/common/context/ConfirmModalContext'
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { PasteIcon } from '~/sections/common/components/icons/PasteIcon'
 import { deserializeClipboard } from '~/legacy/utils/clipboardUtils'
@@ -45,7 +48,6 @@ import { ConvertToRecipeIcon } from '~/sections/common/components/icons/ConvertT
 import { deepCopy } from '~/legacy/utils/deepCopy'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import { FloatInput } from '~/sections/common/components/FloatInput'
-import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 import {
   currentUserId,
   isFoodFavorite,
@@ -57,6 +59,7 @@ import {
   type Setter,
   createEffect,
   Show,
+  untrack,
 } from 'solid-js'
 import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 import {
@@ -74,6 +77,7 @@ import {
   insertRecipe,
   updateRecipe,
 } from '~/modules/diet/recipe/application/recipe'
+import { BrokenLink } from '~/sections/common/components/icons/BrokenLinkIcon'
 
 type EditSelection = {
   foodItem: FoodItem
@@ -88,7 +92,7 @@ export type ItemGroupEditModalProps = {
   onCancel?: () => void
   onDelete?: (groupId: ItemGroup['id']) => void
   onRefetch: () => void
-  group: Accessor<ItemGroup | null>
+  group: Accessor<ItemGroup>
   setGroup: (group: ItemGroup | null) => void
 }
 
@@ -102,6 +106,42 @@ export const ItemGroupEditModal = (props: ItemGroupEditModalProps) => {
       <InnerItemGroupEditModal {...props} />
     </ItemGroupEditContextProvider>
   )
+}
+
+const unlinkRecipe = (signals: {
+  group: Accessor<ItemGroup>
+  setGroup: Setter<ItemGroup>
+}) => {
+  signals.setGroup(
+    new ItemGroupEditor(signals.group()).setRecipe(undefined).finish(),
+  )
+}
+
+const askUnlinkRecipe = (
+  prompt: string,
+  signals: {
+    showConfirmModal: ConfirmModalContext['show']
+    group: Accessor<ItemGroup>
+    setGroup: Setter<ItemGroup>
+  },
+) => {
+  signals.showConfirmModal({
+    title: 'Desvincular receita',
+    body: prompt,
+    actions: [
+      {
+        text: 'Cancelar',
+        onClick: () => undefined,
+      },
+      {
+        text: 'Desvincular',
+        primary: true,
+        onClick: () => {
+          unlinkRecipe(signals)
+        },
+      },
+    ],
+  })
 }
 
 const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
@@ -123,52 +163,46 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
 
   createEffect(() => {
     const group_ = group()
-    if (group_ === null || group_.type !== 'recipe') {
+    if (group_.type !== 'recipe') {
       setRecipeSignal({ loading: false, errored: false, data: null })
       return
-    }
-
-    const handleRecipeNotFound = () => {
-      showConfirmModal({
-        title: 'Receita não encontrada',
-        body: 'A receita atrelada a esse grupo não foi encontrada. Deseja desvincular o grupo da receita?',
-        actions: [
-          {
-            text: 'Cancelar',
-            onClick: () => undefined,
-          },
-          {
-            text: 'Desvincular',
-            primary: true,
-            onClick: () => {
-              const group_ = group()
-              if (group_ === null) {
-                console.warn('group is null, cannot unlink recipe')
-                return
-              }
-
-              setGroup(
-                new ItemGroupEditor(group_).setRecipe(undefined).finish(),
-              )
-            },
-          },
-        ],
-      })
     }
 
     fetchRecipeById(group_.recipe)
       .then((recipe) => {
         setRecipeSignal({ loading: false, errored: false, data: recipe })
-        if (recipe === null) {
-          console.warn('Recipe not found, showing modal to unlink recipe')
-          setTimeout(() => {
-            handleRecipeNotFound()
-          }, 1000)
-        }
       })
       .catch((e) => {
         setRecipeSignal({ loading: false, errored: true, error: e })
       })
+  })
+
+  createEffect(() => {
+    const group_ = group()
+    const groupHasRecipe = group_?.type === 'recipe' && group_?.recipe !== null
+    console.debug('Group changed:', group())
+
+    if (groupHasRecipe) {
+      setTimeout(() => {
+        const recipe_ = untrack(recipeSignal)
+
+        const recipeNotFound =
+          !recipe_.loading && !recipe_.errored && recipe_.data === null
+
+        if (recipeNotFound) {
+          setTimeout(() => {
+            askUnlinkRecipe(
+              'A receita atrelada a esse grupo não foi encontrada. Deseja desvincular o grupo da receita?',
+              {
+                showConfirmModal,
+                group,
+                setGroup,
+              },
+            )
+          }, 0)
+        }
+      }, 200)
+    }
   })
 
   const canApply = (group()?.name.length ?? 0) > 0 && editSelection() === null
@@ -218,12 +252,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
               }
               body={
                 <Body
-                  recipe={() => {
-                    const recipe_ = recipeSignal()
-                    return !recipe_.loading && !recipe_.errored
-                      ? recipe_.data
-                      : null
-                  }}
+                  recipe={() => recipeSignal().data}
                   isFoodFavorite={isFoodFavorite}
                   setFoodAsFavorite={setFoodAsFavorite}
                   foodItemEditModalVisible={foodItemEditModalVisible}
@@ -711,147 +740,168 @@ function Body(props: {
                   }}
                 />
               </div>
-              <Show when={hasValidPastableOnClipboard()}>
-                {(_) => (
-                  <div
-                    class={
-                      'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'
-                    }
-                    onClick={() => {
-                      if (isRecipeTooComplex(props.recipe())) {
-                        toast.error(
-                          'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
-                        )
-                        return
+
+              <div class="flex gap-2 px-2">
+                <Show when={hasValidPastableOnClipboard()}>
+                  {(_) => (
+                    <div
+                      class={
+                        'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'
                       }
-
-                      handlePaste()
-                    }}
-                  >
-                    <PasteIcon />
-                  </div>
-                )}
-              </Show>
-
-              <Show when={group().type === 'simple'}>
-                {(_) => (
-                  <>
-                    <button
-                      class="my-auto ml-auto"
                       onClick={() => {
-                        const exec = async () => {
-                          const group_ = group()
-                          if (group_ === null) {
-                            console.error('group is null')
-                            throw new Error('group is null')
-                          }
-
-                          const newRecipe = createRecipe({
-                            name:
-                              group_.name.length > 0
-                                ? group_.name
-                                : 'Nova receita (a partir de um grupo)',
-                            items: deepCopy(group_.items) ?? [],
-                            owner: currentUserId(),
-                          })
-
-                          const insertedRecipe = await insertRecipe(newRecipe)
-
-                          if (insertedRecipe === null) {
-                            return
-                          }
-
-                          setGroup(
-                            new ItemGroupEditor(group_)
-                              .setRecipe(insertedRecipe.id)
-                              .finish(),
+                        if (isRecipeTooComplex(props.recipe())) {
+                          toast.error(
+                            'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
                           )
-
-                          props.setRecipeEditModalVisible(true)
+                          return
                         }
 
-                        exec().catch((err) => {
-                          console.error(
-                            '[ItemGroupEditModal] Error creating recipe from group:',
-                            err,
-                          )
-                          toast.error(
-                            'Falha ao criar receita a partir de grupo (erro interno)',
-                          )
-                        })
+                        handlePaste()
                       }}
                     >
-                      <ConvertToRecipeIcon />
-                    </button>
-                  </>
-                )}
-              </Show>
+                      <PasteIcon />
+                    </div>
+                  )}
+                </Show>
 
-              <Show
-                when={(() => {
-                  const group_ = group()
-                  return group_.type === 'recipe' && group_
-                })()}
-              >
-                {(group) => (
-                  <>
-                    <Show when={props.recipe()}>
-                      {(recipe) => (
-                        <>
-                          <Show
-                            when={isRecipedGroupUpToDate(group(), recipe())}
-                          >
-                            {(_) => (
-                              <button
-                                class="my-auto ml-auto"
-                                onClick={() => {
-                                  // TODO: Create recipe for groups that don't have one
-                                  props.setRecipeEditModalVisible(true)
-                                }}
-                              >
-                                <RecipeIcon />
-                              </button>
-                            )}
-                          </Show>
+                <Show when={group().type === 'simple'}>
+                  {(_) => (
+                    <>
+                      <button
+                        class="my-auto ml-auto"
+                        onClick={() => {
+                          const exec = async () => {
+                            const group_ = group()
+                            if (group_ === null) {
+                              console.error('group is null')
+                              throw new Error('group is null')
+                            }
 
-                          <Show
-                            when={!isRecipedGroupUpToDate(group(), recipe())}
-                          >
-                            {(_) => (
-                              <button
-                                class="my-auto ml-auto hover:animate-pulse"
-                                onClick={() => {
-                                  if (props.recipe() === null) {
-                                    return
-                                  }
+                            const newRecipe = createRecipe({
+                              name:
+                                group_.name.length > 0
+                                  ? group_.name
+                                  : 'Nova receita (a partir de um grupo)',
+                              items: deepCopy(group_.items) ?? [],
+                              owner: currentUserId(),
+                            })
 
-                                  if (group() === null) {
-                                    console.error('group is null')
-                                    throw new Error('group is null')
-                                  }
+                            const insertedRecipe = await insertRecipe(newRecipe)
 
-                                  const newGroup = new ItemGroupEditor(group())
-                                    .clearItems()
-                                    .addItems(recipe().items)
-                                    .finish()
+                            if (insertedRecipe === null) {
+                              return
+                            }
 
-                                  setGroup(newGroup)
-                                }}
-                              >
-                                <DownloadIcon />
-                              </button>
-                            )}
-                          </Show>
-                        </>
-                      )}
-                    </Show>
+                            setGroup(
+                              new ItemGroupEditor(group_)
+                                .setRecipe(insertedRecipe.id)
+                                .finish(),
+                            )
 
-                    <Show when={props.recipe() === null}>
-                      {(_) => <>Receita não encontrada</>}
-                    </Show>
-                  </>
-                )}
-              </Show>
+                            props.setRecipeEditModalVisible(true)
+                          }
+
+                          exec().catch((err) => {
+                            console.error(
+                              '[ItemGroupEditModal] Error creating recipe from group:',
+                              err,
+                            )
+                            toast.error(
+                              'Falha ao criar receita a partir de grupo (erro interno)',
+                            )
+                          })
+                        }}
+                      >
+                        <ConvertToRecipeIcon />
+                      </button>
+                    </>
+                  )}
+                </Show>
+
+                <Show
+                  when={(() => {
+                    const group_ = group()
+                    return group_.type === 'recipe' && group_
+                  })()}
+                >
+                  {(group) => (
+                    <>
+                      <Show when={props.recipe()}>
+                        {(recipe) => (
+                          <>
+                            <Show
+                              when={isRecipedGroupUpToDate(group(), recipe())}
+                            >
+                              {(_) => (
+                                <button
+                                  class="my-auto ml-auto"
+                                  onClick={() => {
+                                    // TODO: Create recipe for groups that don't have one
+                                    props.setRecipeEditModalVisible(true)
+                                  }}
+                                >
+                                  <RecipeIcon />
+                                </button>
+                              )}
+                            </Show>
+
+                            <Show
+                              when={!isRecipedGroupUpToDate(group(), recipe())}
+                            >
+                              {(_) => (
+                                <button
+                                  class="my-auto ml-auto hover:animate-pulse"
+                                  onClick={() => {
+                                    if (props.recipe() === null) {
+                                      return
+                                    }
+
+                                    if (group() === null) {
+                                      console.error('group is null')
+                                      throw new Error('group is null')
+                                    }
+
+                                    const newGroup = new ItemGroupEditor(
+                                      group(),
+                                    )
+                                      .clearItems()
+                                      .addItems(recipe().items)
+                                      .finish()
+
+                                    setGroup(newGroup)
+                                  }}
+                                >
+                                  <DownloadIcon />
+                                </button>
+                              )}
+                            </Show>
+
+                            <button
+                              class="my-auto ml-auto hover:animate-pulse"
+                              onClick={() => {
+                                askUnlinkRecipe(
+                                  'Deseja desvincular a receita?',
+                                  {
+                                    showConfirmModal,
+                                    group,
+                                    setGroup,
+                                  },
+                                )
+                              }}
+                            >
+                              <BrokenLink />
+                            </button>
+                          </>
+                        )}
+                      </Show>
+
+                      <Show when={props.recipe() === null}>
+                        {(_) => <>Receita não encontrada</>}
+                      </Show>
+                    </>
+                  )}
+                </Show>
+              </div>
             </div>
           </div>
 
