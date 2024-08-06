@@ -14,15 +14,16 @@ export const SUPABASE_TABLE_DAYS = 'days_test'
 export function createSupabaseDayRepository(): DayRepository {
   return {
     // fetchAllUserDayIndexes: fetchUserDayIndexes,
-    fetchAllUserDayDiets: fetchUserDays,
+    fetchAllUserDayDiets,
     fetchDayDiet,
-    insertDayDiet: upsertDay,
-    updateDayDiet: updateDay,
-    deleteDayDiet: deleteDay,
+    insertDayDiet,
+    updateDayDiet,
+    deleteDayDiet,
   }
 }
 
 /**
+ * // TODO: Replace userDays with userDayIndexes
  * @deprecated should be replaced by userDayIndexes
  */
 const [userDays, setUserDays] = createSignal<readonly DayDiet[]>([])
@@ -74,31 +75,31 @@ async function fetchDayDiet(_dayId: DayDiet['id']): Promise<DayDiet | null> {
 }
 
 // TODO: better error handling
-async function fetchUserDays(
+async function fetchAllUserDayDiets(
   userId: User['id'],
 ): Promise<Accessor<readonly DayDiet[]>> {
-  // TODO: filter userId in query
   console.debug(`[supabaseDayRepository] fetchUserDays(${userId})`)
-  const { data, error } = await supabase.from(SUPABASE_TABLE_DAYS).select()
+  const { data, error } = await supabase
+    .from(SUPABASE_TABLE_DAYS)
+    .select()
+    .eq('owner', userId)
+    .order('target_day', { ascending: true })
+
   if (error !== null) {
     throw error
   }
 
   const days = data
-    .map((day) => dayDietSchema.parse(day))
-    .filter((day) => day.owner === userId)
-    .filter((day) => !isNaN(new Date(day.target_day).getTime()))
-    .map(
-      (day): DayDiet => ({
-        ...day,
-        target_day: day.target_day.split(' ')[0],
-      }),
-    )
-    .sort((a, b) => {
-      const aDate = new Date(a.target_day)
-      const bDate = new Date(b.target_day)
-      return aDate.getTime() - bDate.getTime()
+    .map((day) => dayDietSchema.safeParse(day))
+    .map((result) => {
+      if (result.success) {
+        return result.data
+      }
+      console.error('Error while parsing day: ', result.error)
+      throw result.error
     })
+
+  console.log('days', days)
 
   console.debug(
     `[supabaseDayRepository] fetchUserDays returned ${days.length} days`,
@@ -109,7 +110,9 @@ async function fetchUserDays(
 }
 
 // TODO: Change upserts to inserts on the entire app
-const upsertDay = async (newDay: DbReady<DayDiet>): Promise<DayDiet | null> => {
+const insertDayDiet = async (
+  newDay: DbReady<DayDiet>,
+): Promise<DayDiet | null> => {
   const day = enforceDbReady(newDay)
 
   const { data: days, error } = await supabase
@@ -123,7 +126,7 @@ const upsertDay = async (newDay: DbReady<DayDiet>): Promise<DayDiet | null> => {
   return dayDietSchema.parse(days?.[0] ?? null)
 }
 
-const updateDay = async (
+const updateDayDiet = async (
   id: DayDiet['id'],
   day: DbReady<DayDiet>,
 ): Promise<DayDiet> => {
@@ -143,7 +146,7 @@ const updateDay = async (
   return dayDietSchema.parse(data?.[0] ?? null)
 }
 
-const deleteDay = async (id: DayDiet['id']): Promise<void> => {
+const deleteDayDiet = async (id: DayDiet['id']): Promise<void> => {
   const { error } = await supabase
     .from(SUPABASE_TABLE_DAYS)
     .delete()
