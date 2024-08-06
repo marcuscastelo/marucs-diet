@@ -3,13 +3,6 @@ import {
   useModalContext,
   ModalContextProvider,
 } from '~/sections/common/context/ModalContext'
-import {
-  FoodItemFavorite,
-  FoodItemHeader,
-  FoodItemName,
-  FoodItemNutritionalInfo,
-  FoodItemView,
-} from '~/sections/food-item/components/FoodItemView'
 import BarCodeInsertModal from '~/sections/barcode/components/BarCodeInsertModal'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { FoodItemEditModal } from '~/sections/food-item/components/FoodItemEditModal'
@@ -20,12 +13,8 @@ import {
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { addId, generateId } from '~/legacy/utils/idUtils'
-import {
-  type AvailableTab,
-  TemplateSearchTabs,
-} from '~/sections/search/components/TemplateSearchTabs'
+import { TemplateSearchTabs } from '~/sections/search/components/TemplateSearchTabs'
 import { useTyping } from '~/sections/common/hooks/useTyping'
-import { createFoodItem } from '~/modules/diet/food-item/domain/foodItem'
 import {
   fetchRecentFoodByUserIdAndFoodId,
   fetchUserRecentFoods,
@@ -37,23 +26,17 @@ import { type Template } from '~/modules/diet/template/domain/template'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 
 import { type Food, createFood } from '~/modules/diet/food/domain/food'
-import {
-  currentUser,
-  currentUserId,
-  isFoodFavorite,
-  setFoodAsFavorite,
-} from '~/modules/user/application/user'
+import { currentUser, currentUserId } from '~/modules/user/application/user'
 import {
   type Accessor,
   Show,
   createSignal,
   type Setter,
-  For,
   createResource,
   Suspense,
   createEffect,
+  untrack,
 } from 'solid-js'
-import { Alert } from '~/sections/common/components/Alert'
 import { PageLoading } from '~/sections/common/components/PageLoading'
 import {
   fetchUserRecipeByName,
@@ -73,7 +56,15 @@ import { stringToDate } from '~/legacy/utils/dateUtils'
 import { calcDayMacros, calcItemMacros } from '~/legacy/utils/macroMath'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import toast from 'solid-toast'
-import { BarCodeIcon } from '~/sections/common/components/icons/BarCodeIcon'
+import { TemplateSearchBar } from './TemplateSearchBar'
+import { TemplateSearchResults } from './TemplateSearchResults'
+import { BarCodeButton } from '~/sections/common/components/BarCodeButton'
+import {
+  templateSearch,
+  setTemplateSearchTab,
+  templateSearchTab,
+  setTemplateSearch,
+} from '~/modules/search/application/search'
 
 export type TemplateSearchModalProps = {
   targetName: string
@@ -307,12 +298,9 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
   )
 }
 
-const [search, setSearch_] = createSignal<string>('')
-const [tab, setTab] = createSignal<AvailableTab>('all')
-
 const fetchFoodsForModal = async (): Promise<readonly Food[]> => {
   const getAllowedFoods = async () => {
-    switch (tab()) {
+    switch (templateSearchTab()) {
       case 'favorites':
         return currentUser()?.favorite_foods ?? []
       case 'recent':
@@ -325,26 +313,26 @@ const fetchFoodsForModal = async (): Promise<readonly Food[]> => {
   }
 
   const limit =
-    tab() === 'favorites'
+    templateSearchTab() === 'favorites'
       ? undefined // Show all favorites
       : 50 // Show 50 results
 
   const allowedFoods = await getAllowedFoods()
   console.debug('[TemplateSearchModal] fetchFunc', {
-    tab: tab(),
-    search: search(),
+    tab: templateSearchTab(),
+    search: templateSearch(),
     limit,
     allowedFoods,
   })
 
   let foods: readonly Food[]
-  if (search() === '') {
+  if (templateSearch() === '') {
     foods = await fetchFoods({ limit, allowedFoods })
   } else {
-    foods = await fetchFoodsByName(search(), { limit, allowedFoods })
+    foods = await fetchFoodsByName(templateSearch(), { limit, allowedFoods })
   }
 
-  if (tab() === 'recent') {
+  if (templateSearchTab() === 'recent') {
     foods = (
       await Promise.all(
         allowedFoods?.map(async (foodId) => {
@@ -370,22 +358,22 @@ const fetchFoodsForModal = async (): Promise<readonly Food[]> => {
 }
 
 const fetchRecipes = async (): Promise<readonly Recipe[]> => {
-  if (search() === '') {
+  if (templateSearch() === '') {
     return await fetchUserRecipes(currentUserId())
   } else {
-    return await fetchUserRecipeByName(currentUserId(), search())
+    return await fetchUserRecipeByName(currentUserId(), templateSearch())
   }
 }
 
 const fetchFunc = async () => {
-  const tab_ = tab()
+  const tab_ = templateSearchTab()
   if (tab_ !== 'recipes') {
     return await fetchFoodsForModal()
   } else if (tab_ === 'recipes') {
     return await fetchRecipes()
   } else {
     tab_ satisfies never
-    throw new Error('BUG: Invalid tab selected: ' + tab())
+    throw new Error('BUG: Invalid tab selected: ' + templateSearchTab())
   }
 }
 
@@ -412,54 +400,22 @@ export function TemplateSearch(props: {
 
   const [templates, { refetch }] = createResource(
     () => ({
-      search: !typing() && search(),
-      tab: tab(),
+      search: !typing() && templateSearch(),
+      tab: templateSearchTab(),
       userId: currentUserId(),
     }),
     fetchFunc,
   )
 
-  const setSearch = (newSearch: string) => {
-    setSearch_(newSearch)
-    onTyped()
-  }
+  createEffect(() => {
+    templateSearch()
+    untrack(onTyped)
+  })
 
   createEffect(() => {
     props.modalVisible()
-    setTab('all')
+    setTemplateSearchTab('all')
   })
-
-  // TODO: Create DEFAULT_TAB constant
-  // const searchFilteredTemplates = () =>
-  //   (loadedTemplatesOrNull() ?? [])
-  //     .filter((template) => {
-  //       if (search() === '') {
-  //         return true
-  //       }
-
-  //       // Fuzzy search
-  //       const searchLower = search().toLowerCase()
-  //       const nameLower = template.name.toLowerCase()
-  //       const searchWords = searchLower.split(' ')
-  //       const nameWords = nameLower.split(' ')
-
-  //       for (const searchWord of searchWords) {
-  //         let found = false
-  //         for (const nameWord of nameWords) {
-  //           if (nameWord.startsWith(searchWord)) {
-  //             found = true
-  //             break
-  //           }
-  //         }
-
-  //         if (!found) {
-  //           return false
-  //         }
-  //       }
-
-  //       return true
-  //     })
-  //     .slice(0, TEMPLATE_SEARCH_LIMIT)
 
   return (
     <>
@@ -475,12 +431,11 @@ export function TemplateSearch(props: {
         />
       </div>
 
-      <TemplateSearchTabs tab={tab} setTab={setTab} />
-      <SearchBar
-        isDesktop={isDesktop}
-        search={search()}
-        onSetSearch={setSearch}
+      <TemplateSearchTabs
+        tab={templateSearchTab}
+        setTab={setTemplateSearchTab}
       />
+      <TemplateSearchBar isDesktop={isDesktop} />
 
       <Show when={typing()}>
         <>...</>
@@ -493,8 +448,8 @@ export function TemplateSearch(props: {
           />
         }
       >
-        <SearchResults
-          search={search()}
+        <TemplateSearchResults
+          search={templateSearch()}
           filteredTemplates={templates() ?? []}
           barCodeModalVisible={props.barCodeModalVisible}
           setBarCodeModalVisible={props.setBarCodeModalVisible}
@@ -502,26 +457,12 @@ export function TemplateSearch(props: {
           setFoodItemEditModalVisible={props.setFoodItemEditModalVisible}
           setSelectedTemplate={props.setSelectedTemplate}
           typing={typing}
+          refetch={refetch}
         />
       </Suspense>
     </>
   )
 }
-
-// TODO: Extract to components on other files
-const BarCodeButton = (props: { showBarCodeModal: () => void }) => (
-  <>
-    <button
-      // TODO: Add BarCode icon instead of text
-      onClick={() => {
-        props.showBarCodeModal()
-      }}
-      class="rounded bg-gray-800 font-bold text-white hover:bg-gray-700 w-16 p-2 hover:scale-110 transition-transform"
-    >
-      <BarCodeIcon />
-    </button>
-  </>
-)
 
 // TODO: Extract to components on other files
 function ExternalFoodItemEditModal(props: {
@@ -599,113 +540,5 @@ function ExternalBarCodeInsertModal(props: {
     <ModalContextProvider visible={props.visible} setVisible={props.setVisible}>
       <BarCodeInsertModal onSelect={props.onSelect} />
     </ModalContextProvider>
-  )
-}
-
-// TODO: Extract to components on other files
-const SearchBar = (props: {
-  isDesktop: boolean
-  search: string
-  onSetSearch: (search: string) => void
-}) => (
-  <div class="relative">
-    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-      <svg
-        aria-hidden="true"
-        class="h-5 w-5 text-gray-400"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-        />
-      </svg>
-    </div>
-    <input
-      autofocus={props.isDesktop}
-      value={props.search}
-      onInput={(e) => {
-        props.onSetSearch(e.target.value)
-      }}
-      type="search"
-      id="default-search"
-      class="block w-full border-gray-600 bg-gray-700 px-4 pl-10 text-sm text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500 hover:border-white transition-transform"
-      placeholder="Buscar alimentos"
-      required
-    />
-  </div>
-)
-
-// TODO: Extract to components on other files
-const SearchResults = (props: {
-  search: string
-  typing: Accessor<boolean>
-  filteredTemplates: readonly Template[]
-  setSelectedTemplate: (food: Template) => void
-  barCodeModalVisible: Accessor<boolean>
-  setBarCodeModalVisible: Setter<boolean>
-  foodItemEditModalVisible: Accessor<boolean>
-  setFoodItemEditModalVisible: Setter<boolean>
-}) => {
-  return (
-    <>
-      {!props.typing() && props.filteredTemplates.length === 0 && (
-        <Alert color="yellow" class="mt-2">
-          Nenhum alimento encontrado para a busca &quot;{props.search}&quot;.
-        </Alert>
-      )}
-
-      <div class="bg-gray-800 p-1">
-        <For each={props.filteredTemplates}>
-          {(_, idx) => {
-            const template = () => props.filteredTemplates[idx()]
-            return (
-              <>
-                <FoodItemView
-                  foodItem={() => ({
-                    ...createFoodItem({
-                      name: template().name,
-                      quantity: 100,
-                      macros: template().macros,
-                      reference: template().id,
-                    }),
-                    __type:
-                      template().__type === 'Food' ? 'FoodItem' : 'RecipeItem', // TODO: Refactor conversion from template type to group/item types
-                  })}
-                  class="mt-1"
-                  macroOverflow={() => ({
-                    enable: false,
-                  })}
-                  onClick={() => {
-                    props.setSelectedTemplate(template())
-                    props.setFoodItemEditModalVisible(true)
-                    props.setBarCodeModalVisible(false)
-                  }}
-                  header={
-                    <FoodItemHeader
-                      name={<FoodItemName />}
-                      favorite={
-                        <FoodItemFavorite
-                          favorite={isFoodFavorite(template().id)}
-                          onSetFavorite={(favorite) => {
-                            setFoodAsFavorite(template().id, favorite)
-                          }}
-                        />
-                      }
-                    />
-                  }
-                  nutritionalInfo={<FoodItemNutritionalInfo />}
-                />
-              </>
-            )
-          }}
-        </For>
-      </div>
-    </>
   )
 }
