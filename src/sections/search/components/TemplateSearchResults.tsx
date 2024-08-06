@@ -1,11 +1,16 @@
-import { type Accessor, For, type Setter } from 'solid-js'
+import { type Accessor, For, type Setter, Show } from 'solid-js'
+import toast from 'solid-toast'
+import { deleteRecentFoodByFoodId } from '~/legacy/controllers/recentFood'
 import { createFoodItem } from '~/modules/diet/food-item/domain/foodItem'
 import { type Template } from '~/modules/diet/template/domain/template'
+import { templateSearchTab } from '~/modules/search/application/search'
 import {
+  currentUserId,
   isFoodFavorite,
   setFoodAsFavorite,
 } from '~/modules/user/application/user'
 import { Alert } from '~/sections/common/components/Alert'
+import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import {
   FoodItemFavorite,
   FoodItemHeader,
@@ -23,6 +28,7 @@ export function TemplateSearchResults(props: {
   setBarCodeModalVisible: Setter<boolean>
   foodItemEditModalVisible: Accessor<boolean>
   setFoodItemEditModalVisible: Setter<boolean>
+  refetch: () => Promise<void>
 }) {
   return (
     <>
@@ -68,6 +74,37 @@ export function TemplateSearchResults(props: {
                             setFoodAsFavorite(template().id, favorite)
                           }}
                         />
+                      }
+                      // Removes from recent list
+                      removeFromListButton={
+                        <Show when={templateSearchTab() === 'recent'}>
+                          <button
+                            class="my-auto pt-2 pl-1 hover:animate-pulse"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              e.preventDefault()
+                              toast
+                                .promise(
+                                  deleteRecentFoodByFoodId(
+                                    currentUserId(),
+                                    template().id,
+                                  ),
+                                  {
+                                    loading:
+                                      'Removendo alimento da lista de recentes...',
+                                    success:
+                                      'Alimento removido da lista de recentes com sucesso!',
+                                    error:
+                                      'Erro ao remover alimento da lista de recentes.',
+                                  },
+                                )
+                                .then(props.refetch)
+                                .catch(console.error)
+                            }}
+                          >
+                            <TrashIcon size={20} />
+                          </button>
+                        </Show>
                       }
                     />
                   }

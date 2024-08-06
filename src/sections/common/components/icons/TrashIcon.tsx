@@ -1,9 +1,9 @@
-export const TrashIcon = () => (
+export const TrashIcon = (props: { size?: number }) => (
   <svg
     class="bi bi-trash"
     xmlns="http://www.w3.org/2000/svg"
-    width="30"
-    height="30"
+    width={props.size ?? 30}
+    height={props.size ?? 30}
     fill="currentColor"
     viewBox="0 0 16 16"
   >

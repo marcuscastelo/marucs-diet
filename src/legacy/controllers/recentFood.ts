@@ -71,8 +71,15 @@ export async function updateRecentFood(
   return recentFoodSchema.parse(data?.[0])
 }
 
-export async function deleteRecentFood(id: RecentFood['id']) {
-  const { error } = await supabase.from(TABLE).delete().eq('id', id)
+export async function deleteRecentFoodByFoodId(
+  userId: RecentFood['user_id'],
+  foodId: RecentFood['food_id'],
+) {
+  const { error } = await supabase
+    .from(TABLE)
+    .delete()
+    .eq('user_id', userId)
+    .eq('food_id', foodId)
 
   if (error !== null) {
     console.error(error)
