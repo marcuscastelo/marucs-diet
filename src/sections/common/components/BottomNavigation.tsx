@@ -1,4 +1,4 @@
-import { UserIcon } from '~/sections/common/components/UserIcon'
+import { UserIcon } from '~/sections/common/components/icons/UserIcon'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import {
   changeToUser,
