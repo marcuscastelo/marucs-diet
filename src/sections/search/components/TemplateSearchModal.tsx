@@ -13,10 +13,7 @@ import {
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { addId, generateId } from '~/legacy/utils/idUtils'
-import {
-  type AvailableTab,
-  TemplateSearchTabs,
-} from '~/sections/search/components/TemplateSearchTabs'
+import { TemplateSearchTabs } from '~/sections/search/components/TemplateSearchTabs'
 import { useTyping } from '~/sections/common/hooks/useTyping'
 import {
   fetchRecentFoodByUserIdAndFoodId,
@@ -38,6 +35,7 @@ import {
   createResource,
   Suspense,
   createEffect,
+  untrack,
 } from 'solid-js'
 import { PageLoading } from '~/sections/common/components/PageLoading'
 import {
@@ -61,6 +59,12 @@ import toast from 'solid-toast'
 import { TemplateSearchBar } from './TemplateSearchBar'
 import { TemplateSearchResults } from './TemplateSearchResults'
 import { BarCodeButton } from '~/sections/common/components/BarCodeButton'
+import {
+  templateSearch,
+  setTemplateSearchTab,
+  templateSearchTab,
+  setTemplateSearch,
+} from '~/modules/search/application/search'
 
 export type TemplateSearchModalProps = {
   targetName: string
@@ -294,12 +298,9 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
   )
 }
 
-const [search, setSearch_] = createSignal<string>('')
-const [tab, setTab] = createSignal<AvailableTab>('all')
-
 const fetchFoodsForModal = async (): Promise<readonly Food[]> => {
   const getAllowedFoods = async () => {
-    switch (tab()) {
+    switch (templateSearchTab()) {
       case 'favorites':
         return currentUser()?.favorite_foods ?? []
       case 'recent':
@@ -312,26 +313,26 @@ const fetchFoodsForModal = async (): Promise<readonly Food[]> => {
   }
 
   const limit =
-    tab() === 'favorites'
+    templateSearchTab() === 'favorites'
       ? undefined // Show all favorites
       : 50 // Show 50 results
 
   const allowedFoods = await getAllowedFoods()
   console.debug('[TemplateSearchModal] fetchFunc', {
-    tab: tab(),
-    search: search(),
+    tab: templateSearchTab(),
+    search: templateSearch(),
     limit,
     allowedFoods,
   })
 
   let foods: readonly Food[]
-  if (search() === '') {
+  if (templateSearch() === '') {
     foods = await fetchFoods({ limit, allowedFoods })
   } else {
-    foods = await fetchFoodsByName(search(), { limit, allowedFoods })
+    foods = await fetchFoodsByName(templateSearch(), { limit, allowedFoods })
   }
 
-  if (tab() === 'recent') {
+  if (templateSearchTab() === 'recent') {
     foods = (
       await Promise.all(
         allowedFoods?.map(async (foodId) => {
@@ -357,22 +358,22 @@ const fetchFoodsForModal = async (): Promise<readonly Food[]> => {
 }
 
 const fetchRecipes = async (): Promise<readonly Recipe[]> => {
-  if (search() === '') {
+  if (templateSearch() === '') {
     return await fetchUserRecipes(currentUserId())
   } else {
-    return await fetchUserRecipeByName(currentUserId(), search())
+    return await fetchUserRecipeByName(currentUserId(), templateSearch())
   }
 }
 
 const fetchFunc = async () => {
-  const tab_ = tab()
+  const tab_ = templateSearchTab()
   if (tab_ !== 'recipes') {
     return await fetchFoodsForModal()
   } else if (tab_ === 'recipes') {
     return await fetchRecipes()
   } else {
     tab_ satisfies never
-    throw new Error('BUG: Invalid tab selected: ' + tab())
+    throw new Error('BUG: Invalid tab selected: ' + templateSearchTab())
   }
 }
 
@@ -399,21 +400,21 @@ export function TemplateSearch(props: {
 
   const [templates, { refetch }] = createResource(
     () => ({
-      search: !typing() && search(),
-      tab: tab(),
+      search: !typing() && templateSearch(),
+      tab: templateSearchTab(),
       userId: currentUserId(),
     }),
     fetchFunc,
   )
 
-  const setSearch = (newSearch: string) => {
-    setSearch_(newSearch)
-    onTyped()
-  }
+  createEffect(() => {
+    templateSearch()
+    untrack(onTyped)
+  })
 
   createEffect(() => {
     props.modalVisible()
-    setTab('all')
+    setTemplateSearchTab('all')
   })
 
   return (
@@ -430,12 +431,11 @@ export function TemplateSearch(props: {
         />
       </div>
 
-      <TemplateSearchTabs tab={tab} setTab={setTab} />
-      <TemplateSearchBar
-        isDesktop={isDesktop}
-        search={search()}
-        onSetSearch={setSearch}
+      <TemplateSearchTabs
+        tab={templateSearchTab}
+        setTab={setTemplateSearchTab}
       />
+      <TemplateSearchBar isDesktop={isDesktop} />
 
       <Show when={typing()}>
         <>...</>
@@ -449,7 +449,7 @@ export function TemplateSearch(props: {
         }
       >
         <TemplateSearchResults
-          search={search()}
+          search={templateSearch()}
           filteredTemplates={templates() ?? []}
           barCodeModalVisible={props.barCodeModalVisible}
           setBarCodeModalVisible={props.setBarCodeModalVisible}
@@ -457,6 +457,7 @@ export function TemplateSearch(props: {
           setFoodItemEditModalVisible={props.setFoodItemEditModalVisible}
           setSelectedTemplate={props.setSelectedTemplate}
           typing={typing}
+          refetch={refetch}
         />
       </Suspense>
     </>

@@ -1,8 +1,9 @@
-export function TemplateSearchBar(props: {
-  isDesktop: boolean
-  search: string
-  onSetSearch: (search: string) => void
-}) {
+import {
+  templateSearch,
+  setTemplateSearch,
+} from '~/modules/search/application/search'
+
+export function TemplateSearchBar(props: { isDesktop: boolean }) {
   return (
     <div class="relative">
       <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -24,9 +25,9 @@ export function TemplateSearchBar(props: {
       </div>
       <input
         autofocus={props.isDesktop}
-        value={props.search}
+        value={templateSearch()}
         onInput={(e) => {
-          props.onSetSearch(e.target.value)
+          setTemplateSearch(e.target.value)
         }}
         type="search"
         id="default-search"
