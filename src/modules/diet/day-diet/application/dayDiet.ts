@@ -87,7 +87,11 @@ createEffect(() => {
   setCurrentDayDiet(dayDiet)
 })
 
-export async function refetchCurrentDayDiet() {
+/**
+ * @deprecated Not used. TODO: Clean up dayDiet repository
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export async function __unused_refetchCurrentDayDiet() {
   const currentDayDiet_ = currentDayDiet()
   if (currentDayDiet_ === null) {
     return
