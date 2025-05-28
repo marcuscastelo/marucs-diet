@@ -6,20 +6,20 @@ import {
   recipedItemGroupSchema,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { Modal, ModalActions } from '~/sections/common/components/Modal'
-import { FoodItemListView } from '~/sections/food-item/components/FoodItemListView'
+import { ItemListView } from '~/sections/food-item/components/ItemListView'
 import {
-  FoodItemCopyButton,
-  FoodItemFavorite,
-  FoodItemHeader,
-  FoodItemName,
-} from '~/sections/food-item/components/FoodItemView'
+  ItemCopyButton,
+  ItemFavorite,
+  ItemHeader,
+  ItemName,
+} from '~/sections/food-item/components/ItemView'
 import {
-  type FoodItem,
-  createFoodItem,
-  foodItemSchema,
-} from '~/modules/diet/food-item/domain/foodItem'
+  type Item,
+  createItem,
+  itemSchema,
+} from '~/modules/diet/item/domain/item'
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
-import { FoodItemEditModal } from '~/sections/food-item/components/FoodItemEditModal'
+import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
 import { RecipeIcon } from '~/sections/common/components/icons/RecipeIcon'
 import { RecipeEditModal } from '~/sections/recipe/components/RecipeEditModal'
 import { type Recipe, createRecipe } from '~/modules/diet/recipe/domain/recipe'
@@ -80,7 +80,7 @@ import {
 import { BrokenLink } from '~/sections/common/components/icons/BrokenLinkIcon'
 
 type EditSelection = {
-  foodItem: FoodItem
+  item: Item
 } | null
 
 const [editSelection, setEditSelection] = createSignal<EditSelection>(null)
@@ -150,7 +150,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   const { show: showConfirmModal } = useConfirmModalContext()
   const [recipeEditModalVisible, setRecipeEditModalVisible] =
     createSignal(false)
-  const [foodItemEditModalVisible, setFoodItemEditModalVisible] =
+  const [itemEditModalVisible, setItemEditModalVisible] =
     createSignal(false)
   const [templateSearchModalVisible, setTemplateSearchModalVisible] =
     createSignal(false)
@@ -229,9 +229,9 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
             setVisible={setRecipeEditModalVisible}
             onRefetch={props.onRefetch}
           />
-          <ExternalFoodItemEditModal
-            visible={foodItemEditModalVisible}
-            setVisible={setFoodItemEditModalVisible}
+          <ExternalItemEditModal
+            visible={itemEditModalVisible}
+            setVisible={setItemEditModalVisible}
             onClose={() => setEditSelection(null)}
             targetMealName={props.targetMealName}
           />
@@ -255,8 +255,8 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
                   recipe={() => recipeSignal().data}
                   isFoodFavorite={isFoodFavorite}
                   setFoodAsFavorite={setFoodAsFavorite}
-                  foodItemEditModalVisible={foodItemEditModalVisible}
-                  setFoodItemEditModalVisible={setFoodItemEditModalVisible}
+                  itemEditModalVisible={itemEditModalVisible}
+                  setItemEditModalVisible={setItemEditModalVisible}
                   templateSearchModalVisible={templateSearchModalVisible}
                   setTemplateSearchModalVisible={setTemplateSearchModalVisible}
                   recipeEditModalVisible={recipeEditModalVisible}
@@ -356,7 +356,7 @@ function ExternalRecipeEditModal(props: {
   )
 }
 
-function ExternalFoodItemEditModal(props: {
+function ExternalItemEditModal(props: {
   visible: Accessor<boolean>
   setVisible: Setter<boolean>
   targetMealName: string
@@ -378,7 +378,7 @@ function ExternalFoodItemEditModal(props: {
     }
 
     console.debug(
-      '[ExternalFoodItemEditModal] handleCloseWithChanges - newGroup: ',
+      '[ExternalItemEditModal] handleCloseWithChanges - newGroup: ',
       newGroup,
     )
     setGroup(newGroup)
@@ -400,7 +400,7 @@ function ExternalFoodItemEditModal(props: {
       }
     }
 
-    const item = editSelection()?.foodItem
+    const item = editSelection()?.item
     if (item === undefined) {
       return {
         enable: false,
@@ -411,7 +411,7 @@ function ExternalFoodItemEditModal(props: {
     const originalItem = persistentGroup_.items.find((i) => i.id === item.id)
 
     if (originalItem === undefined) {
-      console.error('[ExternalFoodItemEditModal] originalItem is not found')
+      console.error('[ExternalItemEditModal] originalItem is not found')
       return {
         enable: false,
       }
@@ -425,7 +425,7 @@ function ExternalFoodItemEditModal(props: {
 
   return (
     <ModalContextProvider visible={props.visible} setVisible={props.setVisible}>
-      <FoodItemEditModal
+      <ItemEditModal
         targetName={(() => {
           const group_ = group()
 
@@ -445,14 +445,14 @@ function ExternalFoodItemEditModal(props: {
             ? 'text-green-500'
             : 'text-orange-400'
         })()}
-        foodItem={() => {
+        item={() => {
           console.debug(
-            '[ExternalFoodItemEditModal] <computed> foodItem: ',
-            editSelection()?.foodItem,
+            '[ExternalItemEditModal] <computed> item: ',
+            editSelection()?.item,
           )
           return (
-            editSelection()?.foodItem ??
-            createFoodItem({ name: 'Bug: selection was null', reference: 0 })
+            editSelection()?.item ??
+            createItem({ name: 'Bug: selection was null', reference: 0 })
           )
         }}
         macroOverflow={macroOverflow}
@@ -480,7 +480,7 @@ function ExternalFoodItemEditModal(props: {
             const currentDayDiet_ = currentDayDiet()
             if (currentDayDiet_ === null) {
               console.error(
-                '[FoodItemNutritionalInfo] currentDayDiet is undefined, cannot calculate overflow',
+                '[ItemNutritionalInfo] currentDayDiet is undefined, cannot calculate overflow',
               )
               return false
             }
@@ -488,7 +488,7 @@ function ExternalFoodItemEditModal(props: {
             const macroTarget_ = macroTarget(stringToDate(targetDay()))
             if (macroTarget_ === null) {
               console.error(
-                '[FoodItemNutritionalInfo] macroTarget is undefined, cannot calculate overflow',
+                '[ItemNutritionalInfo] macroTarget is undefined, cannot calculate overflow',
               )
               return false
             }
@@ -517,7 +517,7 @@ function ExternalFoodItemEditModal(props: {
 
           const onConfirm = () => {
             console.debug(
-              `[ExternalFoodItemEditModal] onApply: setting itemId=${item.id} to item=`,
+              `[ExternalItemEditModal] onApply: setting itemId=${item.id} to item=`,
               item,
             )
             const newGroup: ItemGroup = new ItemGroupEditor(group_)
@@ -578,7 +578,7 @@ function ExternalTemplateSearchModal(props: {
   const { group, setGroup } = useItemGroupEditContext()
 
   const handleNewItemGroup = (newGroup: ItemGroup) => {
-    console.debug('onNewItemGroup', newGroup)
+    console.debug('handleNewItemGroup', newGroup)
 
     const group_ = group()
     if (group_ === null) {
@@ -600,7 +600,7 @@ function ExternalTemplateSearchModal(props: {
       .finish()
 
     console.debug(
-      'onNewFoodItem: applying',
+      'handleNewItemGroup: applying',
       JSON.stringify(finalGroup, null, 2),
     )
 
@@ -642,12 +642,12 @@ function Body(props: {
   setFoodAsFavorite: (foodId: number, isFavorite: boolean) => void
   recipeEditModalVisible: Accessor<boolean>
   setRecipeEditModalVisible: Setter<boolean>
-  foodItemEditModalVisible: Accessor<boolean>
-  setFoodItemEditModalVisible: Setter<boolean>
+  itemEditModalVisible: Accessor<boolean>
+  setItemEditModalVisible: Setter<boolean>
   templateSearchModalVisible: Accessor<boolean>
   setTemplateSearchModalVisible: Setter<boolean>
 }) {
-  const acceptedClipboardSchema = foodItemSchema.or(itemGroupSchema)
+  const acceptedClipboardSchema = itemSchema.or(itemGroupSchema)
 
   const { group, setGroup } = useItemGroupEditContext()
 
@@ -905,8 +905,8 @@ function Body(props: {
             </div>
           </div>
 
-          <FoodItemListView
-            foodItems={() => group()?.items ?? []}
+          <ItemListView
+            items={() => group()?.items ?? []}
             // TODO: Check if this margin was lost
             //   className="mt-4"
             onItemClick={(item) => {
@@ -928,15 +928,15 @@ function Body(props: {
                 return
               }
 
-              setEditSelection({ foodItem: item })
-              props.setFoodItemEditModalVisible(true)
+              setEditSelection({ item })
+              props.setItemEditModalVisible(true)
               // }
             }}
             makeHeaderFn={(item) => (
-              <FoodItemHeader
-                name={<FoodItemName />}
+              <ItemHeader
+                name={<ItemName />}
                 favorite={
-                  <FoodItemFavorite
+                  <ItemFavorite
                     favorite={props.isFoodFavorite(item.reference)}
                     onSetFavorite={(favorite) => {
                       props.setFoodAsFavorite(item.reference, favorite)
@@ -944,7 +944,7 @@ function Body(props: {
                   />
                 }
                 copyButton={
-                  <FoodItemCopyButton
+                  <ItemCopyButton
                     onCopyItem={(item) => {
                       writeToClipboard(JSON.stringify(item))
                     }}

@@ -1,5 +1,5 @@
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
-import { foodItemSchema } from '~/modules/diet/food-item/domain/foodItem'
+import { itemSchema } from '~/modules/diet/item/domain/item'
 
 import { z } from 'zod'
 import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
@@ -10,7 +10,7 @@ export const recipeSchema = z.object({
   id: z.number(),
   name: z.string(),
   owner: z.number(),
-  items: z.array(foodItemSchema).readonly(), // TODO: Think of a way to avoid id reuse on each item and bugs
+  items: z.array(itemSchema).readonly(), // TODO: Think of a way to avoid id reuse on each item and bugs
   macros: macroNutrientsSchema,
   prepared_multiplier: z.number().default(1), // TODO: Rename all snake_case to camelCase (also in db)
   __type: z

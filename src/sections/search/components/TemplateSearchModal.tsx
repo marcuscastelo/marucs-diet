@@ -5,7 +5,7 @@ import {
 } from '~/sections/common/context/ModalContext'
 import BarCodeInsertModal from '~/sections/barcode/components/BarCodeInsertModal'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
-import { FoodItemEditModal } from '~/sections/food-item/components/FoodItemEditModal'
+import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
 import {
   type ItemGroup,
   type RecipedItemGroup,
@@ -69,7 +69,7 @@ import {
 export type TemplateSearchModalProps = {
   targetName: string
   onNewItemGroup?: (
-    foodItem: ItemGroup,
+    group: ItemGroup,
     originalAddedItem: TemplateItem,
   ) => void
   onFinish?: () => void
@@ -79,7 +79,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
   const { visible, setVisible } = useModalContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
-  const [foodItemEditModalVisible, setFoodItemEditModalVisible] =
+  const [itemEditModalVisible, setItemEditModalVisible] =
     createSignal(false)
 
   const [barCodeModalVisible, setBarCodeModalVisible] = createSignal(false)
@@ -94,7 +94,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
   ) => {
     // TODO: Move isOverflow to a specialized module
     const isOverflow = (property: keyof MacroNutrients) => {
-      console.log(`[FoodItemNutritionalInfo] isOverflow`)
+      console.log(`[TemplateSearchModal] isOverflow`)
 
       // TODO: Create Settings for MacroOverflow warnings
       // if (!macroOverflow().enable) {
@@ -104,7 +104,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
       const currentDayDiet_ = currentDayDiet()
       if (currentDayDiet_ === null) {
         console.error(
-          '[FoodItemNutritionalInfo] currentDayDiet is undefined, cannot calculate overflow',
+          '[TemplateSearchModal] currentDayDiet is undefined, cannot calculate overflow',
         )
         return false
       }
@@ -112,7 +112,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
       const macroTarget_ = macroTarget(stringToDate(targetDay()))
       if (macroTarget_ === null) {
         console.error(
-          '[FoodItemNutritionalInfo] macroTarget is undefined, cannot calculate overflow',
+          '[TemplateSearchModal] macroTarget is undefined, cannot calculate overflow',
         )
         return false
       }
@@ -139,7 +139,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
       const target = macroTarget_[property]
 
       console.log(
-        `[FoodItemNutritionalInfo] ${property} difference:`,
+        `[TemplateSearchModal] ${property} difference:`,
         difference,
       )
 
@@ -193,7 +193,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
                   }),
                 ),
               )
-              setFoodItemEditModalVisible(false)
+              setItemEditModalVisible(false)
             },
           },
           {
@@ -208,7 +208,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
                   }),
                 ),
               )
-              setFoodItemEditModalVisible(false)
+              setItemEditModalVisible(false)
               props.onFinish?.()
             },
           },
@@ -267,8 +267,8 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
                 <TemplateSearch
                   barCodeModalVisible={barCodeModalVisible}
                   setBarCodeModalVisible={setBarCodeModalVisible}
-                  foodItemEditModalVisible={foodItemEditModalVisible}
-                  setFoodItemEditModalVisible={setFoodItemEditModalVisible}
+                  itemEditModalVisible={itemEditModalVisible}
+                  setItemEditModalVisible={setItemEditModalVisible}
                   setSelectedTemplate={setSelectedTemplate}
                   modalVisible={visible}
                 />
@@ -277,9 +277,9 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
           }
         />
       </ModalContextProvider>
-      <ExternalFoodItemEditModal
-        visible={foodItemEditModalVisible}
-        setVisible={setFoodItemEditModalVisible}
+      <ExternalItemEditModal
+        visible={itemEditModalVisible}
+        setVisible={setItemEditModalVisible}
         selectedTemplate={selectedTemplate}
         setSelectedTemplate={setSelectedTemplate}
         targetName={props.targetName}
@@ -290,7 +290,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
         setVisible={setBarCodeModalVisible}
         onSelect={(template) => {
           setSelectedTemplate(template)
-          setFoodItemEditModalVisible(true)
+          setItemEditModalVisible(true)
           setBarCodeModalVisible(false)
         }}
       />
@@ -381,8 +381,8 @@ export function TemplateSearch(props: {
   modalVisible: Accessor<boolean>
   barCodeModalVisible: Accessor<boolean>
   setBarCodeModalVisible: Setter<boolean>
-  foodItemEditModalVisible: Accessor<boolean>
-  setFoodItemEditModalVisible: Setter<boolean>
+  itemEditModalVisible: Accessor<boolean>
+  setItemEditModalVisible: Setter<boolean>
   setSelectedTemplate: (food: Template) => void
 }) {
   const TYPING_TIMEOUT_MS = 2000
@@ -453,8 +453,8 @@ export function TemplateSearch(props: {
           filteredTemplates={templates() ?? []}
           barCodeModalVisible={props.barCodeModalVisible}
           setBarCodeModalVisible={props.setBarCodeModalVisible}
-          foodItemEditModalVisible={props.foodItemEditModalVisible}
-          setFoodItemEditModalVisible={props.setFoodItemEditModalVisible}
+          itemEditModalVisible={props.itemEditModalVisible}
+          setItemEditModalVisible={props.setItemEditModalVisible}
           setSelectedTemplate={props.setSelectedTemplate}
           typing={typing}
           refetch={refetch}
@@ -465,7 +465,7 @@ export function TemplateSearch(props: {
 }
 
 // TODO: Extract to components on other files
-function ExternalFoodItemEditModal(props: {
+function ExternalItemEditModal(props: {
   visible: Accessor<boolean>
   setVisible: Setter<boolean>
   selectedTemplate: Accessor<Template>
@@ -478,15 +478,15 @@ function ExternalFoodItemEditModal(props: {
 }) {
   return (
     <ModalContextProvider visible={props.visible} setVisible={props.setVisible}>
-      <FoodItemEditModal
+      <ItemEditModal
         targetName={props.targetName}
-        foodItem={() => ({
+        item={() => ({
           reference: props.selectedTemplate().id,
           name: props.selectedTemplate().name,
           macros: props.selectedTemplate().macros,
           __type:
             props.selectedTemplate().__type === 'Food'
-              ? 'FoodItem'
+              ? 'Item'
               : 'RecipeItem', // TODO: Refactor conversion from template type to group/item types
         })}
         macroOverflow={() => ({
@@ -494,7 +494,7 @@ function ExternalFoodItemEditModal(props: {
         })}
         onApply={(item) => {
           // TODO: Refactor conversion from template type to group/item types
-          if (item.__type === 'FoodItem') {
+          if (item.__type === 'Item') {
             const newGroup: SimpleItemGroup = {
               id: generateId(),
               name: item.name,

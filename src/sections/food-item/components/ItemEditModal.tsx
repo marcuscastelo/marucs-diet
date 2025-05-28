@@ -1,11 +1,11 @@
 import {
-  FoodItemFavorite,
-  FoodItemHeader,
-  FoodItemName,
-  FoodItemNutritionalInfo,
-  FoodItemView,
-} from '~/sections/food-item/components/FoodItemView'
-import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
+  ItemFavorite,
+  ItemHeader,
+  ItemName,
+  ItemNutritionalInfo,
+  ItemView,
+} from '~/sections/food-item/components/ItemView'
+import { type Item } from '~/modules/diet/item/domain/item'
 import { Modal, ModalActions } from '~/sections/common/components/Modal'
 import { useModalContext } from '~/sections/common/context/ModalContext'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
@@ -29,10 +29,10 @@ import {
 } from 'solid-js'
 import toast from 'solid-toast'
 
-export type FoodItemEditModalProps = {
+export type ItemEditModalProps = {
   targetName: string
   targetNameColor?: string
-  foodItem: Accessor<
+  item: Accessor<
     Partial<TemplateItem> & Pick<TemplateItem, 'name' | 'reference' | 'macros'>
   >
   macroOverflow: () => {
@@ -41,30 +41,29 @@ export type FoodItemEditModalProps = {
   }
   onApply: (item: TemplateItem) => void
   onCancel?: () => void
-  onDelete?: (itemId: FoodItem['id']) => void
+  onDelete?: (itemId: Item['id']) => void
 }
 
-// TODO: rename to ItemEditModal (also foodItemEditModalVisible and derivatives)
-export const FoodItemEditModal = (_props: FoodItemEditModalProps) => {
+export const ItemEditModal = (_props: ItemEditModalProps) => {
   const props = mergeProps({ targetNameColor: 'text-green-500' }, _props)
   const { setVisible } = useModalContext()
 
-  // TODO: Better initial state for foodItem on FoodItemEditModal
-  const [foodItem, setFoodItem] = createSignal<TemplateItem>({
-    __type: props.foodItem()?.__type ?? 'FoodItem',
-    id: props.foodItem()?.id ?? generateId(),
-    quantity: props.foodItem()?.quantity ?? 0,
-    ...props.foodItem(),
+  // TODO: Better initial state for item on ItemEditModal
+  const [item, setItem] = createSignal<TemplateItem>({
+    __type: props.item()?.__type ?? 'Item',
+    id: props.item()?.id ?? generateId(),
+    quantity: props.item()?.quantity ?? 0,
+    ...props.item(),
   } satisfies TemplateItem)
 
   createEffect(() => {
-    setFoodItem({
-      ...untrack(foodItem),
-      ...props.foodItem(),
+    setItem({
+      ...untrack(item),
+      ...props.item(),
     })
   })
 
-  const canApply = () => foodItem().quantity > 0
+  const canApply = () => item().quantity > 0
 
   return (
     <>
@@ -72,7 +71,7 @@ export const FoodItemEditModal = (_props: FoodItemEditModalProps) => {
         class="border-2 border-white"
         header={
           <Header
-            foodItem={foodItem}
+            item={item}
             targetName={props.targetName}
             targetNameColor={props.targetNameColor}
           />
@@ -80,21 +79,21 @@ export const FoodItemEditModal = (_props: FoodItemEditModalProps) => {
         body={
           <Body
             canApply={canApply()}
-            foodItem={foodItem}
-            setFoodItem={setFoodItem}
+            item={item}
+            setItem={setItem}
             macroOverflow={props.macroOverflow}
           />
         }
         actions={
           <Actions
-            id={foodItem().id}
+            id={item().id}
             canApply={canApply()}
             onApply={() => {
               console.debug(
-                '[FoodItemEditModal] onApply - calling onApply with foodItem.value=',
-                foodItem(),
+                '[ItemEditModal] onApply - calling onApply with item.value=',
+                item(),
               )
-              props.onApply(foodItem())
+              props.onApply(item())
               setVisible(false)
             }}
             onCancel={() => {
@@ -110,7 +109,7 @@ export const FoodItemEditModal = (_props: FoodItemEditModalProps) => {
 }
 
 function Header(props: {
-  foodItem: Accessor<TemplateItem>
+  item: Accessor<TemplateItem>
   targetName: string
   targetNameColor: string
 }) {
@@ -129,25 +128,25 @@ function Header(props: {
 
 function Body(props: {
   canApply: boolean
-  foodItem: Accessor<TemplateItem>
-  setFoodItem: Setter<TemplateItem>
+  item: Accessor<TemplateItem>
+  setItem: Setter<TemplateItem>
   macroOverflow: () => {
     enable: boolean
     originalItem?: TemplateItem | undefined
   }
 }) {
-  const id = () => props.foodItem().id
+  const id = () => props.item().id
 
   const quantitySignal = () =>
-    props.foodItem().quantity === 0 ? undefined : props.foodItem().quantity
+    props.item().quantity === 0 ? undefined : props.item().quantity
   const quantityField = useFloatField(quantitySignal, {
     decimalPlaces: 0,
-    defaultValue: props.foodItem().quantity,
+    defaultValue: props.item().quantity,
   })
 
   createEffect(() => {
-    props.setFoodItem({
-      ...untrack(props.foodItem),
+    props.setItem({
+      ...untrack(props.item),
       quantity: quantityField.value() ?? 0,
     })
   })
@@ -216,7 +215,7 @@ function Body(props: {
             style={{ width: '100%' }}
             onFieldCommit={(value) => {
               if (value === undefined) {
-                quantityField.setRawValue(props.foodItem().quantity.toString())
+                quantityField.setRawValue(props.item().quantity.toString())
               }
             }}
             tabIndex={-1}
@@ -267,16 +266,16 @@ function Body(props: {
         </div>
       </div>
 
-      <FoodItemView
-        foodItem={() =>
+      <ItemView
+        item={() =>
           ({
-            __type: props.foodItem().__type,
+            __type: props.item().__type,
             id: id(),
             name:
-              props.foodItem().name ?? 'Sem nome (itemData && FoodItemView)',
-            quantity: quantityField.value() ?? props.foodItem().quantity,
-            reference: props.foodItem().reference,
-            macros: props.foodItem().macros,
+              props.item().name ?? 'Sem nome (itemData && ItemView)',
+            quantity: quantityField.value() ?? props.item().quantity,
+            reference: props.item().reference,
+            macros: props.item().macros,
           }) satisfies TemplateItem
         }
         macroOverflow={props.macroOverflow}
@@ -285,23 +284,23 @@ function Body(props: {
           toast.error('Alimento não editável (ainda)')
         }}
         header={
-          <FoodItemHeader
-            name={<FoodItemName />}
+          <ItemHeader
+            name={<ItemName />}
             favorite={
-              <FoodItemFavorite
+              <ItemFavorite
                 favorite={
                   // TODO: [Feature] Add recipe favorite
-                  isFoodFavorite(props.foodItem().reference) || false
+                  isFoodFavorite(props.item().reference) || false
                 }
                 onSetFavorite={(favorite) => {
                   // TODO: [Feature] Add recipe favorite
-                  setFoodAsFavorite(props.foodItem().reference, favorite)
+                  setFoodAsFavorite(props.item().reference, favorite)
                 }}
               />
             }
           />
         }
-        nutritionalInfo={<FoodItemNutritionalInfo/>}
+        nutritionalInfo={<ItemNutritionalInfo/>}
       />
     </>
   )

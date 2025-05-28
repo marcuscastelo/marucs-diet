@@ -1,9 +1,9 @@
 import MacroNutrientsView from '~/sections/macro-nutrients/components/MacroNutrientsView'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
-  FoodItemContextProvider,
-  useFoodItemContext,
-} from '~/sections/food-item/context/FoodItemContext'
+  ItemContextProvider,
+  useItemContext,
+} from '~/sections/food-item/context/ItemContext'
 import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
 import {
   calcDayMacros,
@@ -32,8 +32,8 @@ import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget
 // TODO: Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
 
-export type FoodItemViewProps = {
-  foodItem: Accessor<TemplateItem>
+export type ItemViewProps = {
+  item: Accessor<TemplateItem>
   macroOverflow: () => {
     enable: boolean
     originalItem?: TemplateItem | undefined
@@ -41,12 +41,12 @@ export type FoodItemViewProps = {
   header?: JSXElement
   nutritionalInfo?: JSXElement
   class?: string
-  onClick?: (foodItem: TemplateItem) => void
+  onClick?: (item: TemplateItem) => void
 }
 
-export function FoodItemView(props: FoodItemViewProps) {
+export function ItemView(props: ItemViewProps) {
   const handleClick = (e: MouseEvent) => {
-    props.onClick?.(props.foodItem())
+    props.onClick?.(props.item())
     e.stopPropagation()
     e.preventDefault()
   }
@@ -58,29 +58,29 @@ export function FoodItemView(props: FoodItemViewProps) {
       }`}
       onClick={handleClick}
     >
-      <FoodItemContextProvider
-        foodItem={props.foodItem}
+      <ItemContextProvider
+        item={props.item}
         macroOverflow={props.macroOverflow}
       >
         {props.header}
         {props.nutritionalInfo}
-      </FoodItemContextProvider>
+      </ItemContextProvider>
     </div>
   )
 }
 
-export type FoodItemHeaderProps = {
+export type ItemHeaderProps = {
   name?: JSXElement
   favorite?: JSXElement
   copyButton?: JSXElement
   removeFromListButton?: JSXElement
 }
 
-export function FoodItemHeader(props: FoodItemHeaderProps) {
+export function ItemHeader(props: ItemHeaderProps) {
   return (
     <div class="flex">
-      {/* //TODO: FoodItem id is random, but it should be an entry on the database (meal too) */}
-      {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.FoodItem.id}]</h5> */}
+      {/* //TODO: Item id is random, but it should be an entry on the database (meal too) */}
+      {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.Item.id}]</h5> */}
       <div class="my-2">{props.name}</div>
       <div class="ml-auto flex flex-col">
         <div class="my-auto">{props.removeFromListButton}</div>
@@ -93,17 +93,17 @@ export function FoodItemHeader(props: FoodItemHeaderProps) {
   )
 }
 
-export function FoodItemName() {
-  const { foodItem: item } = useFoodItemContext()
+export function ItemName() {
+  const { item: item } = useItemContext()
 
   const [template, setTemplate] = createSignal<Template | null>(null)
 
   createEffect(() => {
-    console.debug('[FoodItemName] item changed, fetching API:', item())
+    console.debug('[ItemName] item changed, fetching API:', item())
 
     const itemValue = item()
     if (itemValue === undefined) {
-      console.warn('[FoodItemName] item is undefined!!')
+      console.warn('[ItemName] item is undefined!!')
       return // TODO: Remove serverActions: causing bugs with signals
     }
 
@@ -112,27 +112,27 @@ export function FoodItemName() {
         .fetchRecipeById(itemValue.reference)
         .then(setTemplate)
         .catch((err) => {
-          console.error('[FoodItemName] Error fetching recipe:', err)
+          console.error('[ItemName] Error fetching recipe:', err)
           setTemplate(null)
         })
     } else {
       fetchFoodById(itemValue.reference)
         .then(setTemplate)
         .catch((err) => {
-          console.error('[FoodItemName] Error fetching food:', err)
+          console.error('[ItemName] Error fetching food:', err)
           setTemplate(null)
         })
     }
   })
 
   const templateNameColor = () => {
-    if (item()?.__type === 'FoodItem') {
+    if (item()?.__type === 'Item') {
       return 'text-white'
     } else if (item().__type === 'RecipeItem') {
       return 'text-blue-500'
     } else {
       console.error(
-        '[FoodItemName] item is not a FoodItem or RecipeItem! Item:',
+        '[ItemName] item is not a Item or RecipeItem! Item:',
         item(),
       )
       return 'text-red-500 bg-red-100'
@@ -143,8 +143,8 @@ export function FoodItemName() {
 
   return (
     <div class="">
-      {/* //TODO: FoodItem id is random, but it should be an entry on the database (meal too) */}
-      {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.FoodItem.id}]</h5> */}
+      {/* //TODO: Item id is random, but it should be an entry on the database (meal too) */}
+      {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.Item.id}]</h5> */}
       <h5
         class={`mb-2 text-lg font-bold tracking-tight ${templateNameColor()}`}
       >
@@ -154,10 +154,10 @@ export function FoodItemName() {
   )
 }
 
-export function FoodItemCopyButton(props: {
-  onCopyItem: (foodItem: TemplateItem) => void
+export function ItemCopyButton(props: {
+  onCopyItem: (item: TemplateItem) => void
 }) {
-  const { foodItem } = useFoodItemContext()
+  const { item } = useItemContext()
 
   return (
     <div
@@ -165,7 +165,7 @@ export function FoodItemCopyButton(props: {
       onClick={(e) => {
         e.stopPropagation()
         e.preventDefault()
-        props.onCopyItem(foodItem())
+        props.onCopyItem(item())
       }}
     >
       <CopyIcon />
@@ -173,7 +173,7 @@ export function FoodItemCopyButton(props: {
   )
 }
 
-export function FoodItemFavorite(props: {
+export function ItemFavorite(props: {
   favorite: boolean
   onSetFavorite?: (favorite: boolean) => void
 }) {
@@ -195,8 +195,8 @@ export function FoodItemFavorite(props: {
   )
 }
 
-export function FoodItemNutritionalInfo() {
-  const { foodItem: item, macroOverflow } = useFoodItemContext()
+export function ItemNutritionalInfo() {
+  const { item: item, macroOverflow } = useItemContext()
 
   const multipliedMacros = (): MacroNutrients => calcItemMacros(item())
 
@@ -209,7 +209,7 @@ export function FoodItemNutritionalInfo() {
     const currentDayDiet_ = currentDayDiet()
     if (currentDayDiet_ === null) {
       console.error(
-        '[FoodItemNutritionalInfo] currentDayDiet is undefined, cannot calculate overflow',
+        '[ItemNutritionalInfo] currentDayDiet is undefined, cannot calculate overflow',
       )
       return false
     }
@@ -217,7 +217,7 @@ export function FoodItemNutritionalInfo() {
     const macroTarget_ = macroTarget(stringToDate(targetDay()))
     if (macroTarget_ === null) {
       console.error(
-        '[FoodItemNutritionalInfo] macroTarget is undefined, cannot calculate overflow',
+        '[ItemNutritionalInfo] macroTarget is undefined, cannot calculate overflow',
       )
       return false
     }
