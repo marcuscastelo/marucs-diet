@@ -8,6 +8,7 @@ import {
 import DayMacros from '~/sections/day-diet/components/DayMacros'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
+import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { ItemGroupEditModal } from '~/sections/item-group/components/ItemGroupEditModal'
 import { CopyLastDayButton } from '~/sections/day-diet/components/CopyLastDayButton'
@@ -95,6 +96,19 @@ export default function DayMeals(props: { selectedDay: string }) {
     setTemplateSearchModalVisible(true)
   }
 
+  const handleNewItemGroup = (dayDiet: DayDiet) => (newGroup: ItemGroup) => {
+    const newItemSelection_ = newItemSelection()
+    if (newItemSelection_ === null) {
+      throw new Error('No meal selected!')
+    }
+
+    insertItemGroup(dayDiet.id, newItemSelection_.meal.id, newGroup)
+  }
+
+  const handleFinishSearch = () => {
+    setNewItemSelection(null)
+  }
+
   return (
     <Show
       when={currentDayDiet()}
@@ -104,9 +118,14 @@ export default function DayMeals(props: { selectedDay: string }) {
       {(neverNullDayDiet) => (
         <>
           <ExternalTemplateSearchModal
-            day={() => neverNullDayDiet}
             visible={templateSearchModalVisible}
             setVisible={setTemplateSearchModalVisible}
+            onRefetch={() => {
+              console.warn('[DayMeals] onRefetch called!')
+            }}
+            targetName={newItemSelection()?.meal.name ?? 'Nenhuma refeição selecionada'}
+            onNewItemGroup={handleNewItemGroup(neverNullDayDiet)}
+            onFinish={handleFinishSearch}
           />
           <ExternalItemGroupEditModal
             day={() => neverNullDayDiet}
@@ -197,49 +216,6 @@ export default function DayMeals(props: { selectedDay: string }) {
           />
           <DeleteDayButton day={() => neverNullDayDiet} />
         </>
-      )}
-    </Show>
-  )
-}
-
-function ExternalTemplateSearchModal(props: {
-  visible: Accessor<boolean>
-  setVisible: Setter<boolean>
-  day: Accessor<DayDiet>
-}) {
-  const handleNewItemGroup = (newGroup: ItemGroup) => {
-    const newItemSelection_ = newItemSelection()
-    if (newItemSelection_ === null) {
-      throw new Error('No meal selected!')
-    }
-
-    insertItemGroup(props.day().id, newItemSelection_.meal.id, newGroup)
-  }
-
-  createEffect(() => {
-    if (!props.visible()) {
-      setNewItemSelection(null)
-    }
-  })
-
-  const handleFinishSearch = () => {
-    setNewItemSelection(null)
-    props.setVisible(false)
-  }
-
-  return (
-    <Show when={newItemSelection()}>
-      {(newItemSelection) => (
-        <ModalContextProvider
-          visible={props.visible}
-          setVisible={props.setVisible}
-        >
-          <TemplateSearchModal
-            targetName={newItemSelection().meal.name}
-            onFinish={handleFinishSearch}
-            onNewItemGroup={handleNewItemGroup}
-          />
-        </ModalContextProvider>
       )}
     </Show>
   )
