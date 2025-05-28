@@ -14,9 +14,11 @@ const weightRepository = createSupabaseWeightRepository()
 const [userWeights_, setUserWeights] = createSignal<readonly Weight[]>([])
 export const userWeights = () => userWeights_()
 
-function bootstrap() {
-  fetchUserWeights(currentUserId()).catch(() => {
-    console.error('Failed to fetch user weights')
+async function bootstrap() {
+  await toast.promise(fetchUserWeights(currentUserId()), {
+    loading: 'Carregando pesos...',
+    success: 'Pesos carregados com sucesso',
+    error: 'Falha ao carregar pesos',
   })
 }
 
