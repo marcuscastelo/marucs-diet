@@ -9,7 +9,7 @@ import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleCont
 import {
   calculateWeightProgress,
   firstWeight,
-  latestWeight,
+  getLatestWeight,
 } from '~/legacy/utils/weightUtils'
 import { currentUser, currentUserId } from '~/modules/user/application/user'
 import {
@@ -271,7 +271,7 @@ function WeightChart(props: {
         const open = firstWeight(weights)?.weight ?? 0
         const low = Math.min(...weights.map((weight) => weight.weight))
         const high = Math.max(...weights.map((weight) => weight.weight))
-        const close = latestWeight(weights)?.weight ?? 0
+        const close = getLatestWeight(weights)?.weight ?? 0
 
         return {
           date: day,
