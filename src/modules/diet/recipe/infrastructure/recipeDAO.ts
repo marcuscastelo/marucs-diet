@@ -1,5 +1,5 @@
 import { calcItemContainerMacros } from '~/legacy/utils/macroMath'
-import { foodItemSchema } from '~/modules/diet/food-item/domain/foodItem'
+import { itemSchema } from '~/modules/diet/food-item/domain/foodItem'
 import { type Recipe, recipeSchema } from '~/modules/diet/recipe/domain/recipe'
 
 import { z } from 'zod'
@@ -8,7 +8,7 @@ export const recipeDAOSchema = z.object({
   id: z.number(),
   name: z.string(),
   owner: z.number(),
-  items: z.array(foodItemSchema),
+  items: z.array(itemSchema),
   prepared_multiplier: z.number(),
 })
 
