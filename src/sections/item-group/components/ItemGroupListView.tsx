@@ -30,7 +30,7 @@ export function ItemGroupListView(props: {
                     <ItemGroupCopyButton
                       group={group}
                       onCopyItemGroup={(group) => {
-                        // TODO: Replace with clipboard hook (here and in FoodItemView, if applicable)
+                        // TODO: Replace with clipboard hook (here and in ItemView, if applicable)
                         navigator.clipboard
                           .writeText(JSON.stringify(group))
                           .catch((err) => {

@@ -61,7 +61,7 @@ export function ItemGroupHeader(props: ItemGroupViewHeaderProps) {
       {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.ItemGroupView.id}]</h5> */}
       <div class="my-2">{props.name}</div>
       {/*
-        // TODO: Remove code duplication between FoodItemView and ItemGroupView
+        // TODO: Remove code duplication between ItemView and ItemGroupView
       */}
       <div class={'ml-auto flex gap-2'}>
         <div class="my-auto">{props.copyButton}</div>

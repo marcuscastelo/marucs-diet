@@ -8,7 +8,7 @@ import RecipeEditView, {
   RecipeEditContent,
   RecipeEditHeader,
 } from '~/sections/recipe/components/RecipeEditView'
-import { FoodItemEditModal } from '~/sections/food-item/components/FoodItemEditModal'
+import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
 import {
   ModalContextProvider,
   useModalContext,
@@ -61,42 +61,42 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
     null,
   )
 
-  const impossibleFoodItem = createItem({
-    name: 'IMPOSSIBLE FOOD ITEM',
+  const impossibleItem = createItem({
+    name: 'IMPOSSIBLE ITEM',
     reference: 0,
   })
 
-  const [foodItemEditModalVisible, setFoodItemEditModalVisible] =
+  const [itemEditModalVisible, setItemEditModalVisible] =
     createSignal(false)
   const [templateSearchModalVisible, setTemplateSearchModalVisible] =
     createSignal(false)
 
   createEffect(() => {
-    // TODO: Replace foodItemEditModalVisible with a derived signal
-    setFoodItemEditModalVisible(selectedItem() !== null)
+    // TODO: Replace itemEditModalVisible with a derived signal
+    setItemEditModalVisible(selectedItem() !== null)
   })
 
   createEffect(() => {
-    if (!foodItemEditModalVisible()) {
+    if (!itemEditModalVisible()) {
       setSelectedItem(null)
     }
   })
 
   return (
     <>
-      <ExternalFoodItemEditModal
-        visible={foodItemEditModalVisible}
-        setVisible={setFoodItemEditModalVisible}
-        foodItem={() => selectedItem() ?? impossibleFoodItem}
+      <ExternalItemEditModal
+        visible={itemEditModalVisible}
+        setVisible={setItemEditModalVisible}
+        item={() => selectedItem() ?? impossibleItem}
         targetName={recipe()?.name ?? 'LOADING RECIPE'}
-        onApply={(foodItem) => {
+        onApply={(item) => {
           if (recipe() === null) return
 
           const recipeEditor = new RecipeEditor(recipe())
 
           const newRecipe = recipeEditor
-            .editItem(foodItem.id, (itemEditor) => {
-              itemEditor?.setQuantity(foodItem.quantity)
+            .editItem(item.id, (itemEditor) => {
+              itemEditor?.setQuantity(item.quantity)
             })
             .finish()
 
@@ -151,8 +151,8 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
   )
 }
 
-function ExternalFoodItemEditModal(props: {
-  foodItem: Accessor<Item>
+function ExternalItemEditModal(props: {
+  item: Accessor<Item>
   targetName: string
   onApply: (item: TemplateItem) => void
   onDelete: (itemId: TemplateItem['id']) => void
@@ -166,8 +166,8 @@ function ExternalFoodItemEditModal(props: {
         visible={props.visible}
         setVisible={props.setVisible}
       >
-        <FoodItemEditModal
-          foodItem={props.foodItem}
+        <ItemEditModal
+          item={props.item}
           targetName={props.targetName}
           macroOverflow={() => ({
             enable: false,
@@ -192,7 +192,7 @@ function ExternalTemplateSearchModal(props: {
     console.debug('onNewItemGroup', newGroup)
 
     if (!isSimpleSingleGroup(newGroup)) {
-      // TODO: Handle non-simple groups on onNewFoodItem
+      // TODO: Handle non-simple groups on handleNewItemGroup
       console.error('TODO: Handle non-simple groups')
       toast.error(
         'Não é possível adicionar grupos complexos a receitas, por enquanto.',
@@ -204,7 +204,7 @@ function ExternalTemplateSearchModal(props: {
       .addItems(newGroup.items)
       .finish()
 
-    console.debug('onNewFoodItem: applying', JSON.stringify(newRecipe, null, 2))
+    console.debug('handleNewItemGroup: applying', JSON.stringify(newRecipe, null, 2))
 
     props.setRecipe(newRecipe)
   }

@@ -3,7 +3,7 @@ import {
   targetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
-import { type FoodItem } from '~/modules/diet/item/domain/item'
+import { type Item } from '~/modules/diet/item/domain/item'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { BackIcon } from '~/sections/common/components/icons/BackIcon'
@@ -20,8 +20,8 @@ import {
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import Datepicker from '~/sections/datepicker/components/Datepicker'
-import { FoodItemEditModal } from '~/sections/food-item/components/FoodItemEditModal'
-import { FoodItemListView } from '~/sections/food-item/components/FoodItemListView'
+import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
+import { ItemListView } from '~/sections/food-item/components/ItemListView'
 import { ItemGroupEditModal } from '~/sections/item-group/components/ItemGroupEditModal'
 import {
   ItemGroupView,
@@ -38,15 +38,15 @@ import toast from 'solid-toast'
 import { BarCodeIcon } from '~/sections/common/components/icons/BarCodeIcon'
 
 export default function TestApp() {
-  const [foodItemEditModalVisible, setFoodItemEditModalVisible] =
+  const [ItemEditModalVisible, setItemEditModalVisible] =
     createSignal(false)
   const [itemGroupEditModalVisible, setItemGroupEditModalVisible] =
     createSignal(false)
   const [templateSearchModalVisible, setTemplateSearchModalVisible] =
     createSignal(false)
 
-  const [item] = createSignal<FoodItem>({
-    __type: 'FoodItem',
+  const [item] = createSignal<Item>({
+    __type: 'Item',
     id: 1,
     macros: {
       carbs: 10,
@@ -154,11 +154,11 @@ export default function TestApp() {
         </ModalContextProvider>
 
         <ModalContextProvider
-          visible={foodItemEditModalVisible}
-          setVisible={setFoodItemEditModalVisible}
+          visible={ItemEditModalVisible}
+          setVisible={setItemEditModalVisible}
         >
-          <FoodItemEditModal
-            foodItem={item}
+          <ItemEditModal
+            item={item}
             targetName="Teste"
             macroOverflow={() => ({
               enable: false,
@@ -208,11 +208,11 @@ export default function TestApp() {
             }]}
           /> */}
 
-        <h1>FoodItemListView</h1>
-        <FoodItemListView
-          foodItems={() => group().items}
+        <h1>ItemListView</h1>
+        <ItemListView
+          items={() => group().items}
           onItemClick={() => {
-            setFoodItemEditModalVisible(true)
+            setItemEditModalVisible(true)
           }}
         />
         <h1>ItemGroupView</h1>

@@ -9,7 +9,7 @@ import {
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import { PasteIcon } from '~/sections/common/components/icons/PasteIcon'
 import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
-import { FoodItemListView } from '~/sections/food-item/components/FoodItemListView'
+import { ItemListView } from '~/sections/food-item/components/ItemListView'
 import { calcRecipeCalories } from '~/legacy/utils/macroMath'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { regenerateId } from '~/legacy/utils/idUtils'
@@ -215,8 +215,8 @@ export function RecipeEditContent(props: {
         }}
         value={recipe().name ?? ''}
       />
-      <FoodItemListView
-        foodItems={() => recipe().items}
+      <ItemListView
+        items={() => recipe().items}
         onItemClick={props.onEditItem}
       />
       <AddNewItemButton onClick={props.onNewItem} />
