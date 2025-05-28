@@ -12,12 +12,12 @@ import {
 import { Alert } from '~/sections/common/components/Alert'
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import {
-  FoodItemFavorite,
-  FoodItemHeader,
-  FoodItemName,
-  FoodItemNutritionalInfo,
-  FoodItemView,
-} from '~/sections/food-item/components/FoodItemView'
+  ItemFavorite,
+  ItemHeader,
+  ItemName,
+  ItemNutritionalInfo,
+  ItemView,
+} from '~/sections/food-item/components/ItemView'
 
 export function TemplateSearchResults(props: {
   search: string
@@ -26,8 +26,8 @@ export function TemplateSearchResults(props: {
   setSelectedTemplate: (food: Template) => void
   barCodeModalVisible: Accessor<boolean>
   setBarCodeModalVisible: Setter<boolean>
-  foodItemEditModalVisible: Accessor<boolean>
-  setFoodItemEditModalVisible: Setter<boolean>
+  ItemEditModalVisible: Accessor<boolean>
+  setItemEditModalVisible: Setter<boolean>
   refetch: () => Promise<void>
 }) {
   return (
@@ -44,8 +44,8 @@ export function TemplateSearchResults(props: {
             const template = () => props.filteredTemplates[idx()]
             return (
               <>
-                <FoodItemView
-                  foodItem={() => ({
+                <ItemView
+                  item={() => ({
                     ...createItem({
                       name: template().name,
                       quantity: 100,
@@ -61,14 +61,14 @@ export function TemplateSearchResults(props: {
                   })}
                   onClick={() => {
                     props.setSelectedTemplate(template())
-                    props.setFoodItemEditModalVisible(true)
+                    props.setItemEditModalVisible(true)
                     props.setBarCodeModalVisible(false)
                   }}
                   header={
-                    <FoodItemHeader
-                      name={<FoodItemName />}
+                    <ItemHeader
+                      name={<ItemName />}
                       favorite={
-                        <FoodItemFavorite
+                        <ItemFavorite
                           favorite={isFoodFavorite(template().id)}
                           onSetFavorite={(favorite) => {
                             setFoodAsFavorite(template().id, favorite)
@@ -108,7 +108,7 @@ export function TemplateSearchResults(props: {
                       }
                     />
                   }
-                  nutritionalInfo={<FoodItemNutritionalInfo />}
+                  nutritionalInfo={<ItemNutritionalInfo />}
                 />
               </>
             )

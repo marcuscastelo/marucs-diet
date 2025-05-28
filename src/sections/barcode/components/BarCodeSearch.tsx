@@ -1,10 +1,10 @@
 import {
-  FoodItemFavorite,
-  FoodItemHeader,
-  FoodItemName,
-  FoodItemNutritionalInfo,
-  FoodItemView,
-} from '~/sections/food-item/components/FoodItemView'
+  ItemFavorite,
+  ItemHeader,
+  ItemName,
+  ItemNutritionalInfo,
+  ItemView,
+} from '~/sections/food-item/components/ItemView'
 import { type Food } from '~/modules/diet/food/domain/food'
 import { createItem } from '~/modules/diet/item/domain/item'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
@@ -105,8 +105,8 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
               <div class="flex-1">
                 <p class="font-bold">{food().name}</p>
                 <p class="text-sm">
-                  <FoodItemView
-                    foodItem={() =>
+                  <ItemView
+                    item={() =>
                       createItem({
                         name: food().name,
                         reference: food().id,
@@ -124,10 +124,10 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
                       enable: false,
                     })}
                     header={
-                      <FoodItemHeader
-                        name={<FoodItemName />}
+                      <ItemHeader
+                        name={<ItemName />}
                         favorite={
-                          <FoodItemFavorite
+                          <ItemFavorite
                             favorite={isFoodFavorite(food().id)}
                             onSetFavorite={(favorite) => {
                               setFoodAsFavorite(food().id, favorite)
@@ -136,7 +136,7 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
                         }
                       />
                     }
-                    nutritionalInfo={<FoodItemNutritionalInfo />}
+                    nutritionalInfo={<ItemNutritionalInfo />}
                   />
                 </p>
               </div>
