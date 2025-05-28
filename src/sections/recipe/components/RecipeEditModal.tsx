@@ -16,7 +16,7 @@ import {
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
-import { ExternalItemEditModal } from '~/sections/search/components/ExternalItemEditModal'
+import { ExternalItemEditModal } from '~/sections/food-item/components/ExternalItemEditModal'
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import {
   type ItemGroup,
