@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 const requiredEnv = [
   'VITE_NEXT_PUBLIC_SUPABASE_ANON_KEY',
   'VITE_NEXT_PUBLIC_SUPABASE_URL',
@@ -12,14 +14,24 @@ const requiredEnv = [
 
 type EnvKeys = typeof requiredEnv[number]
 
-const env: Record<EnvKeys, string> = {} as any
+const envSchema = z.object(
+  Object.fromEntries(
+    requiredEnv.map((key) => [key, z.string().min(1, `${key} cannot be empty`)])
+  ) as Record<EnvKeys, z.ZodString>
+)
 
-for (const key of requiredEnv) {
-  const value = import.meta.env[key] || process.env[key]
-  if (!value) {
-    throw new Error(`Missing environment variable: ${key}`)
-  }
-  env[key] = value
+const getEnvVars = (): Record<EnvKeys, string> => {
+  return Object.fromEntries(
+    requiredEnv.map((key) => {
+      const value = import.meta.env[key] || process.env[key];
+      if (!value) {
+        throw new Error(`Missing environment variable: ${key}`);
+      }
+      return [key, value];
+    })
+  ) as Record<EnvKeys, string>;
 }
+
+const env = envSchema.parse(getEnvVars())
 
 export default env
