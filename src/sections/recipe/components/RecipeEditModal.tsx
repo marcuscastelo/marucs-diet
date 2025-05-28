@@ -57,7 +57,7 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
       }),
   )
 
-  const [selectedFoodItem, setSelectedFoodItem] = createSignal<Item | null>(
+  const [selectedItem, setSelectedItem] = createSignal<Item | null>(
     null,
   )
 
@@ -73,12 +73,12 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
 
   createEffect(() => {
     // TODO: Replace foodItemEditModalVisible with a derived signal
-    setFoodItemEditModalVisible(selectedFoodItem() !== null)
+    setFoodItemEditModalVisible(selectedItem() !== null)
   })
 
   createEffect(() => {
     if (!foodItemEditModalVisible()) {
-      setSelectedFoodItem(null)
+      setSelectedItem(null)
     }
   })
 
@@ -87,7 +87,7 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
       <ExternalFoodItemEditModal
         visible={foodItemEditModalVisible}
         setVisible={setFoodItemEditModalVisible}
-        foodItem={() => selectedFoodItem() ?? impossibleFoodItem}
+        foodItem={() => selectedItem() ?? impossibleFoodItem}
         targetName={recipe()?.name ?? 'LOADING RECIPE'}
         onApply={(foodItem) => {
           if (recipe() === null) return
@@ -101,7 +101,7 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
             .finish()
 
           setRecipe(newRecipe)
-          setSelectedFoodItem(null)
+          setSelectedItem(null)
         }}
         onDelete={(itemId) => {
           const recipeEditor = new RecipeEditor(recipe())
@@ -109,7 +109,7 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
           const newRecipe = recipeEditor.deleteItem(itemId).finish()
 
           setRecipe(newRecipe)
-          setSelectedFoodItem(null)
+          setSelectedItem(null)
         }}
       />
 
@@ -129,8 +129,8 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
             <Body
               recipe={recipe}
               setRecipe={setRecipe}
-              selectedFoodItem={selectedFoodItem}
-              setSelectedFoodItem={setSelectedFoodItem}
+              selectedItem={selectedItem}
+              setSelectedItem={setSelectedItem}
               onSearchNewItem={() => setTemplateSearchModalVisible(true)}
             />
           }
@@ -234,8 +234,8 @@ function ExternalTemplateSearchModal(props: {
 function Body(props: {
   recipe: Accessor<Recipe>
     setRecipe: Setter<Recipe>
-  selectedFoodItem: Accessor<Item | null>
-  setSelectedFoodItem: Setter<Item | null>
+  selectedItem: Accessor<Item | null>
+  setSelectedItem: Setter<Item | null>
   onSearchNewItem: () => void
 }) {
   return (
@@ -264,7 +264,7 @@ function Body(props: {
               return
             }
 
-            props.setSelectedFoodItem(item)
+            props.setSelectedItem(item)
           }}
         />
       }

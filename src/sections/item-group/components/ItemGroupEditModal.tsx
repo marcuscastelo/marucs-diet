@@ -80,7 +80,7 @@ import {
 import { BrokenLink } from '~/sections/common/components/icons/BrokenLinkIcon'
 
 type EditSelection = {
-  foodItem: Item
+  item: Item
 } | null
 
 const [editSelection, setEditSelection] = createSignal<EditSelection>(null)
@@ -229,7 +229,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
             setVisible={setRecipeEditModalVisible}
             onRefetch={props.onRefetch}
           />
-          <ExternalFoodItemEditModal
+          <ExternalItemEditModal
             visible={foodItemEditModalVisible}
             setVisible={setFoodItemEditModalVisible}
             onClose={() => setEditSelection(null)}
@@ -356,7 +356,7 @@ function ExternalRecipeEditModal(props: {
   )
 }
 
-function ExternalFoodItemEditModal(props: {
+function ExternalItemEditModal(props: {
   visible: Accessor<boolean>
   setVisible: Setter<boolean>
   targetMealName: string
@@ -400,7 +400,7 @@ function ExternalFoodItemEditModal(props: {
       }
     }
 
-    const item = editSelection()?.foodItem
+    const item = editSelection()?.item
     if (item === undefined) {
       return {
         enable: false,
@@ -448,10 +448,10 @@ function ExternalFoodItemEditModal(props: {
         foodItem={() => {
           console.debug(
             '[ExternalFoodItemEditModal] <computed> foodItem: ',
-            editSelection()?.foodItem,
+            editSelection()?.item,
           )
           return (
-            editSelection()?.foodItem ??
+            editSelection()?.item ??
             createItem({ name: 'Bug: selection was null', reference: 0 })
           )
         }}
