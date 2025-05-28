@@ -38,7 +38,7 @@ import toast from 'solid-toast'
 import { BarCodeIcon } from '~/sections/common/components/icons/BarCodeIcon'
 
 export default function TestApp() {
-  const [ItemEditModalVisible, setItemEditModalVisible] =
+  const [itemEditModalVisible, setItemEditModalVisible] =
     createSignal(false)
   const [itemGroupEditModalVisible, setItemGroupEditModalVisible] =
     createSignal(false)
@@ -154,7 +154,7 @@ export default function TestApp() {
         </ModalContextProvider>
 
         <ModalContextProvider
-          visible={ItemEditModalVisible}
+          visible={itemEditModalVisible}
           setVisible={setItemEditModalVisible}
         >
           <ItemEditModal
