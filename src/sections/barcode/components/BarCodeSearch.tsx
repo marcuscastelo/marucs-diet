@@ -6,7 +6,7 @@ import {
   FoodItemView,
 } from '~/sections/food-item/components/FoodItemView'
 import { type Food } from '~/modules/diet/food/domain/food'
-import { createFoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { createItem } from '~/modules/diet/food-item/domain/foodItem'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 
 import {
@@ -107,13 +107,13 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
                 <p class="text-sm">
                   <FoodItemView
                     foodItem={() =>
-                      createFoodItem({
+                      createItem({
                         name: food().name,
                         reference: food().id,
                         quantity: 100,
                         macros: {
                           ...(food().macros ??
-                            createFoodItem({
+                            createItem({
                               name: food().name,
                               reference: food().id,
                             }).macros),

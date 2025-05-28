@@ -1,7 +1,7 @@
 import { type Accessor, For, type Setter, Show } from 'solid-js'
 import toast from 'solid-toast'
 import { deleteRecentFoodByFoodId } from '~/legacy/controllers/recentFood'
-import { createFoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { createItem } from '~/modules/diet/food-item/domain/foodItem'
 import { type Template } from '~/modules/diet/template/domain/template'
 import { templateSearchTab } from '~/modules/search/application/search'
 import {
@@ -46,14 +46,14 @@ export function TemplateSearchResults(props: {
               <>
                 <FoodItemView
                   foodItem={() => ({
-                    ...createFoodItem({
+                    ...createItem({
                       name: template().name,
                       quantity: 100,
                       macros: template().macros,
                       reference: template().id,
                     }),
                     __type:
-                      template().__type === 'Food' ? 'FoodItem' : 'RecipeItem', // TODO: Refactor conversion from template type to group/item types
+                      template().__type === 'Food' ? 'Item' : 'RecipeItem', // TODO: Refactor conversion from template type to group/item types
                   })}
                   class="mt-1"
                   macroOverflow={() => ({

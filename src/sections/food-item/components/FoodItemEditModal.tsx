@@ -5,7 +5,7 @@ import {
   FoodItemNutritionalInfo,
   FoodItemView,
 } from '~/sections/food-item/components/FoodItemView'
-import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { type Item } from '~/modules/diet/food-item/domain/foodItem'
 import { Modal, ModalActions } from '~/sections/common/components/Modal'
 import { useModalContext } from '~/sections/common/context/ModalContext'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
@@ -41,7 +41,7 @@ export type FoodItemEditModalProps = {
   }
   onApply: (item: TemplateItem) => void
   onCancel?: () => void
-  onDelete?: (itemId: FoodItem['id']) => void
+  onDelete?: (itemId: Item['id']) => void
 }
 
 // TODO: rename to ItemEditModal (also foodItemEditModalVisible and derivatives)
@@ -51,7 +51,7 @@ export const FoodItemEditModal = (_props: FoodItemEditModalProps) => {
 
   // TODO: Better initial state for foodItem on FoodItemEditModal
   const [foodItem, setFoodItem] = createSignal<TemplateItem>({
-    __type: props.foodItem()?.__type ?? 'FoodItem',
+    __type: props.foodItem()?.__type ?? 'Item',
     id: props.foodItem()?.id ?? generateId(),
     quantity: props.foodItem()?.quantity ?? 0,
     ...props.foodItem(),

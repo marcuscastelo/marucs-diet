@@ -1,4 +1,4 @@
-import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { type Item } from '~/modules/diet/food-item/domain/foodItem'
 import {
   FoodItemView,
   FoodItemCopyButton,
@@ -10,9 +10,9 @@ import {
 import { mergeProps, type Accessor, For } from 'solid-js'
 
 export function FoodItemListView(_props: {
-  foodItems: Accessor<readonly FoodItem[]>
+  foodItems: Accessor<readonly Item[]>
   onItemClick: FoodItemViewProps['onClick']
-  makeHeaderFn?: (item: FoodItem) => FoodItemViewProps['header']
+  makeHeaderFn?: (item: Item) => FoodItemViewProps['header']
 }) {
   const props = mergeProps({ makeHeaderFn: () => <DefaultHeader /> }, _props)
   return (
