@@ -16,6 +16,7 @@ import {
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
+import { ExternalItemEditModal } from '~/sections/search/components/ExternalItemEditModal'
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import {
   type ItemGroup,
@@ -170,35 +171,6 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
         />
       </ModalContextProvider>
     </>
-  )
-}
-
-function ExternalItemEditModal(props: {
-  item: Accessor<Item>
-  targetName: string
-  onApply: (item: TemplateItem) => void
-  onDelete: (itemId: TemplateItem['id']) => void
-  visible: Accessor<boolean>
-  setVisible: Setter<boolean>
-}) {
-  // TODO: Determine whether to use <Show when/> for modals in general or just remove all Shows
-  return (
-    <Show when={props.visible()}>
-      <ModalContextProvider
-        visible={props.visible}
-        setVisible={props.setVisible}
-      >
-        <ItemEditModal
-          item={props.item}
-          targetName={props.targetName}
-          macroOverflow={() => ({
-            enable: false,
-          })}
-          onApply={props.onApply}
-          onDelete={props.onDelete}
-        />
-      </ModalContextProvider>
-    </Show>
   )
 }
 
