@@ -16,10 +16,14 @@ export const [currentUser, setCurrentUser] = createSignal<User | null>(null)
 
 export const [currentUserId, setCurrentUserId] = createSignal<number>(1)
 
-createEffect(() => {
+createEffect(async () => {
   if (currentUserId() !== null) {
     setCurrentUserId(loadUserIdFromLocalStorage())
-    fetchCurrentUser().catch(console.error)
+    await toast.promise(fetchCurrentUser(), {
+      loading: 'Carregando usuário atual...',
+      success: 'Usuário atual carregado com sucesso',
+      error: 'Falha ao carregar usuário atual',
+    })
   }
 })
 
