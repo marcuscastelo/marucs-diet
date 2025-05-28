@@ -15,9 +15,11 @@ export const [userMacroProfiles, setUserMacroProfiles] = createSignal<
 export const latestMacroProfile = () =>
   getLatestMacroProfile(userMacroProfiles())
 
-createEffect(() => {
-  fetchUserMacroProfiles(currentUserId()).catch(() => {
-    console.error('Failed to fetch user macro profiles')
+createEffect(async () => {
+  await toast.promise(fetchUserMacroProfiles(currentUserId()), {
+    loading: 'Carregando perfis de macro...',
+    success: 'Perfis de macro carregados com sucesso',
+    error: 'Falha ao carregar perfis de macro',
   })
 })
 
