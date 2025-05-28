@@ -16,7 +16,7 @@ import {
 import { deserializeClipboard } from '~/legacy/utils/clipboardUtils'
 import { convertToGroups } from '~/legacy/utils/groupUtils'
 import { regenerateId } from '~/legacy/utils/idUtils'
-import { itemSchema } from '~/modules/diet/food-item/domain/foodItem'
+import { itemSchema } from '~/modules/diet/item/domain/item'
 import { recipeSchema } from '~/modules/diet/recipe/domain/recipe'
 import { createEffect, Show, type JSXElement } from 'solid-js'
 import {

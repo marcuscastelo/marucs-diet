@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { itemSchema } from '~/modules/diet/food-item/domain/foodItem'
+import { itemSchema } from '~/modules/diet/item/domain/item'
 import { recipeItemSchema } from '~/modules/diet/recipe-item/domain/recipeItem'
 
 export const templateItemSchema = z.discriminatedUnion('__type', [

@@ -17,7 +17,7 @@ import {
   type Item,
   createItem,
   itemSchema,
-} from '~/modules/diet/food-item/domain/foodItem'
+} from '~/modules/diet/item/domain/item'
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { FoodItemEditModal } from '~/sections/food-item/components/FoodItemEditModal'
 import { RecipeIcon } from '~/sections/common/components/icons/RecipeIcon'

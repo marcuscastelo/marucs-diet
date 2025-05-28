@@ -1,4 +1,4 @@
-import { type Item } from '~/modules/diet/food-item/domain/foodItem'
+import { type Item } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { type ItemContainer } from '~/legacy/utils/data/interfaces/itemContainer'
 import { Editor } from '~/legacy/utils/data/editor'

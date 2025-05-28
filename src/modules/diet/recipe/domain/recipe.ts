@@ -1,5 +1,5 @@
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
-import { itemSchema } from '~/modules/diet/food-item/domain/foodItem'
+import { itemSchema } from '~/modules/diet/item/domain/item'
 
 import { z } from 'zod'
 import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
