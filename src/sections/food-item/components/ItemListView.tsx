@@ -1,33 +1,33 @@
-import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { type Item } from '~/modules/diet/item/domain/item'
 import {
-  FoodItemView,
-  FoodItemCopyButton,
-  FoodItemHeader,
-  FoodItemName,
-  FoodItemNutritionalInfo,
-  type FoodItemViewProps,
-} from '~/sections/food-item/components/FoodItemView'
+  ItemView,
+  ItemCopyButton,
+  ItemHeader,
+  ItemName,
+  ItemNutritionalInfo,
+  type ItemViewProps,
+} from '~/sections/food-item/components/ItemView'
 import { mergeProps, type Accessor, For } from 'solid-js'
 
-export function FoodItemListView(_props: {
-  foodItems: Accessor<readonly FoodItem[]>
-  onItemClick: FoodItemViewProps['onClick']
-  makeHeaderFn?: (item: FoodItem) => FoodItemViewProps['header']
+export function ItemListView(_props: {
+  items: Accessor<readonly Item[]>
+  onItemClick: ItemViewProps['onClick']
+  makeHeaderFn?: (item: Item) => ItemViewProps['header']
 }) {
   const props = mergeProps({ makeHeaderFn: () => <DefaultHeader /> }, _props)
   return (
     <>
-      <For each={props.foodItems()}>
+      <For each={props.items()}>
         {(_, idx) => {
-          const item = () => props.foodItems()[idx()]
+          const item = () => props.items()[idx()]
           return (
             <div class="mt-2">
-              <FoodItemView
-                foodItem={item}
+              <ItemView
+                item={item}
                 onClick={props.onItemClick}
                 macroOverflow={() => ({ enable: false })}
                 header={props.makeHeaderFn(item())}
-                nutritionalInfo={<FoodItemNutritionalInfo />}
+                nutritionalInfo={<ItemNutritionalInfo />}
               />
             </div>
           )
@@ -39,10 +39,10 @@ export function FoodItemListView(_props: {
 
 function DefaultHeader() {
   return (
-    <FoodItemHeader
-      name={<FoodItemName />}
+    <ItemHeader
+      name={<ItemName />}
       copyButton={
-        <FoodItemCopyButton
+        <ItemCopyButton
           onCopyItem={(item) => {
             navigator.clipboard.writeText(JSON.stringify(item)).catch(() => {
               console.error('Failed to copy item to clipboard')

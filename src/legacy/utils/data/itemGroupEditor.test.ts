@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
 import { ItemGroupEditor } from '~/legacy/utils/data/itemGroupEditor'
-import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { type Item } from '~/modules/diet/item/domain/item'
 
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 
-function mockItem(): FoodItem {
+function mockItem(): Item {
   return {
     name: 'test:name',
     reference: 1,
@@ -13,7 +13,7 @@ function mockItem(): FoodItem {
       fat: 20,
       protein: 30,
     },
-    __type: 'FoodItem',
+    __type: 'Item',
     id: 1000,
     quantity: 11234,
   }
