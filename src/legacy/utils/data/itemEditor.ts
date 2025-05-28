@@ -1,10 +1,10 @@
-import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { type Item } from '~/modules/diet/food-item/domain/foodItem'
 import { Editor } from '~/legacy/utils/data/editor'
 
-export class ItemEditor extends Editor<FoodItem> {
+export class ItemEditor extends Editor<Item> {
   private readonly item = this.content
 
-  setQuantity(quantity: FoodItem['quantity']) {
+  setQuantity(quantity: Item['quantity']) {
     this.item.quantity = quantity
     return this
   }

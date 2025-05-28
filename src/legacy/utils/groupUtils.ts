@@ -2,7 +2,7 @@ import {
   type ItemGroup,
   type RecipedItemGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
-import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { type Item } from '~/modules/diet/food-item/domain/foodItem'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { generateId } from '~/legacy/utils/idUtils'
 
@@ -10,7 +10,7 @@ export type GroupConvertible =
   | ItemGroup
   | ItemGroup[]
   | { groups: ItemGroup[] }
-  | FoodItem
+  | Item
   | Recipe
 
 // TODO: Move isRecipedGroupUpToDate to somewhere else
@@ -85,7 +85,7 @@ export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
       {
         id: generateId(),
         name: convertible.name,
-        items: [{ ...convertible } satisfies FoodItem],
+        items: [{ ...convertible } satisfies Item],
         quantity: convertible.quantity,
         type: 'simple',
       } satisfies ItemGroup,

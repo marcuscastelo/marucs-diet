@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
 import { ItemEditor } from './itemEditor'
-import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { type Item } from '~/modules/diet/food-item/domain/foodItem'
 
-function mockItem(): FoodItem {
+function mockItem(): Item {
   return {
     name: 'test:name',
     reference: 1,
@@ -12,7 +12,7 @@ function mockItem(): FoodItem {
       fat: 20,
       protein: 30,
     },
-    __type: 'FoodItem',
+    __type: 'Item',
     id: 1000,
     quantity: 11234,
   }

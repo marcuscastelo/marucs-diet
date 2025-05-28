@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { foodItemSchema } from '~/modules/diet/food-item/domain/foodItem'
+import { itemSchema } from '~/modules/diet/food-item/domain/foodItem'
 
 // TODO: Add support for nested groups and recipes (recursive schema: https://github.com/colinhacks/zod#recursive-types)
 // TODO: In the future, it seems like discriminated unions will deprecated (https://github.com/colinhacks/zod/issues/2106)
@@ -7,7 +7,7 @@ import { foodItemSchema } from '~/modules/diet/food-item/domain/foodItem'
 export const simpleItemGroupSchema = z.object({
   id: z.number(),
   name: z.string(),
-  items: foodItemSchema.array(), // TODO: Support nested groups and recipes
+  items: itemSchema.array(), // TODO: Support nested groups and recipes
   quantity: z.number(), // TODO: Replace quantity field with a getter that calculates it
   type: z.literal('simple'),
   recipe: z
@@ -20,7 +20,7 @@ export const simpleItemGroupSchema = z.object({
 export const recipedItemGroupSchema = z.object({
   id: z.number(),
   name: z.string(),
-  items: foodItemSchema.array().readonly(), // TODO: Support nested groups and recipes
+  items: itemSchema.array().readonly(), // TODO: Support nested groups and recipes
   quantity: z.number(), // TODO: Replace quantity field with a getter that calculates it
   type: z.literal('recipe'),
   recipe: z.number(),
