@@ -1,5 +1,5 @@
 import { calcItemContainerMacros } from '~/legacy/utils/macroMath'
-import { itemSchema } from '~/modules/diet/food-item/domain/foodItem'
+import { itemSchema } from '~/modules/diet/item/domain/item'
 import { type Recipe, recipeSchema } from '~/modules/diet/recipe/domain/recipe'
 
 import { z } from 'zod'

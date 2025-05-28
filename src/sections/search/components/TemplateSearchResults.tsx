@@ -1,7 +1,7 @@
 import { type Accessor, For, type Setter, Show } from 'solid-js'
 import toast from 'solid-toast'
 import { deleteRecentFoodByFoodId } from '~/legacy/controllers/recentFood'
-import { createItem } from '~/modules/diet/food-item/domain/foodItem'
+import { createItem } from '~/modules/diet/item/domain/item'
 import { type Template } from '~/modules/diet/template/domain/template'
 import { templateSearchTab } from '~/modules/search/application/search'
 import {

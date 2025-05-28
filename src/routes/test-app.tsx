@@ -3,7 +3,7 @@ import {
   targetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
-import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { type FoodItem } from '~/modules/diet/item/domain/item'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { BackIcon } from '~/sections/common/components/icons/BackIcon'

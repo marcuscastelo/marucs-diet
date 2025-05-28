@@ -1,4 +1,4 @@
-import { type Item } from '~/modules/diet/food-item/domain/foodItem'
+import { type Item } from '~/modules/diet/item/domain/item'
 import { type ItemEditor } from '~/legacy/utils/data/itemEditor'
 
 export type ItemContainer = {

@@ -1,7 +1,7 @@
 // TODO: Unify Recipe and Recipe components into a single component?
 
 import { type Recipe, recipeSchema } from '~/modules/diet/recipe/domain/recipe'
-import { itemSchema } from '~/modules/diet/food-item/domain/foodItem'
+import { itemSchema } from '~/modules/diet/item/domain/item'
 import {
   RecipeEditContextProvider,
   useRecipeEditContext,

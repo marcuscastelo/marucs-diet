@@ -2,7 +2,7 @@ import {
   type ItemGroup,
   type RecipedItemGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
-import { type Item } from '~/modules/diet/food-item/domain/foodItem'
+import { type Item } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { generateId } from '~/legacy/utils/idUtils'
 

@@ -6,7 +6,7 @@ import {
   FoodItemView,
 } from '~/sections/food-item/components/FoodItemView'
 import { type Food } from '~/modules/diet/food/domain/food'
-import { createItem } from '~/modules/diet/food-item/domain/foodItem'
+import { createItem } from '~/modules/diet/item/domain/item'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 
 import {

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { ItemGroupEditor } from '~/legacy/utils/data/itemGroupEditor'
-import { type Item } from '~/modules/diet/food-item/domain/foodItem'
+import { type Item } from '~/modules/diet/item/domain/item'
 
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { ItemEditor } from './itemEditor'
-import { type Item } from '~/modules/diet/food-item/domain/foodItem'
+import { type Item } from '~/modules/diet/item/domain/item'
 
 function mockItem(): Item {
   return {

@@ -5,7 +5,7 @@ import {
   FoodItemNutritionalInfo,
   FoodItemView,
 } from '~/sections/food-item/components/FoodItemView'
-import { type Item } from '~/modules/diet/food-item/domain/foodItem'
+import { type Item } from '~/modules/diet/item/domain/item'
 import { Modal, ModalActions } from '~/sections/common/components/Modal'
 import { useModalContext } from '~/sections/common/context/ModalContext'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'

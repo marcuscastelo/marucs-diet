@@ -1,7 +1,7 @@
 import {
   type Item,
   createItem,
-} from '~/modules/diet/food-item/domain/foodItem'
+} from '~/modules/diet/item/domain/item'
 import { Modal, ModalActions } from '~/sections/common/components/Modal'
 import { type Recipe, createRecipe } from '~/modules/diet/recipe/domain/recipe'
 import RecipeEditView, {
