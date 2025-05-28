@@ -44,13 +44,3 @@ export function createItem({
     },
   } satisfies Item)
 }
-
-// Legacy exports for backward compatibility
-/** @deprecated Use `itemSchema` instead */
-export const foodItemSchema = itemSchema
-
-/** @deprecated Use `Item` instead */
-export type FoodItem = Item
-
-/** @deprecated Use `createItem` instead */
-export const createFoodItem = createItem

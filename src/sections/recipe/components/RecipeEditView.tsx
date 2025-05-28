@@ -1,7 +1,7 @@
 // TODO: Unify Recipe and Recipe components into a single component?
 
 import { type Recipe, recipeSchema } from '~/modules/diet/recipe/domain/recipe'
-import { foodItemSchema } from '~/modules/diet/food-item/domain/foodItem'
+import { itemSchema } from '~/modules/diet/food-item/domain/foodItem'
 import {
   RecipeEditContextProvider,
   useRecipeEditContext,
@@ -69,7 +69,7 @@ export function RecipeEditHeader(props: {
 }) {
   const acceptedClipboardSchema = mealSchema
     .or(itemGroupSchema)
-    .or(foodItemSchema)
+    .or(itemSchema)
     .or(recipeSchema)
 
   const { recipe } = useRecipeEditContext()

@@ -14,9 +14,9 @@ import {
   FoodItemName,
 } from '~/sections/food-item/components/FoodItemView'
 import {
-  type FoodItem,
-  createFoodItem,
-  foodItemSchema,
+  type Item,
+  createItem,
+  itemSchema,
 } from '~/modules/diet/food-item/domain/foodItem'
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { FoodItemEditModal } from '~/sections/food-item/components/FoodItemEditModal'
@@ -80,7 +80,7 @@ import {
 import { BrokenLink } from '~/sections/common/components/icons/BrokenLinkIcon'
 
 type EditSelection = {
-  foodItem: FoodItem
+  foodItem: Item
 } | null
 
 const [editSelection, setEditSelection] = createSignal<EditSelection>(null)
@@ -452,7 +452,7 @@ function ExternalFoodItemEditModal(props: {
           )
           return (
             editSelection()?.foodItem ??
-            createFoodItem({ name: 'Bug: selection was null', reference: 0 })
+            createItem({ name: 'Bug: selection was null', reference: 0 })
           )
         }}
         macroOverflow={macroOverflow}
@@ -647,7 +647,7 @@ function Body(props: {
   templateSearchModalVisible: Accessor<boolean>
   setTemplateSearchModalVisible: Setter<boolean>
 }) {
-  const acceptedClipboardSchema = foodItemSchema.or(itemGroupSchema)
+  const acceptedClipboardSchema = itemSchema.or(itemGroupSchema)
 
   const { group, setGroup } = useItemGroupEditContext()
 

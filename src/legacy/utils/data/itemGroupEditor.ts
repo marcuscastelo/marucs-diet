@@ -1,4 +1,4 @@
-import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { type Item } from '~/modules/diet/food-item/domain/foodItem'
 import { type ItemContainer } from '~/legacy/utils/data/interfaces/itemContainer'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { Editor } from '~/legacy/utils/data/editor'
@@ -29,17 +29,17 @@ export class ItemGroupEditor
     return this
   }
 
-  addItem(item: FoodItem) {
+  addItem(item: Item) {
     this.group.items.push(item)
     return this
   }
 
-  addItems(items: readonly FoodItem[]) {
+  addItems(items: readonly Item[]) {
     this.group.items.push(...items)
     return this
   }
 
-  findItem(id: FoodItem['id']) {
+  findItem(id: Item['id']) {
     return this.group.items.find((item) => item.id === id)
   }
 
@@ -74,8 +74,8 @@ export class ItemGroupEditor
     return this
   }
 
-  setItems(items: FoodItem[]) {
-    this.group.items = deepCopy(items) as Array<Mutable<FoodItem>>
+  setItems(items: Item[]) {
+    this.group.items = deepCopy(items) as Array<Mutable<Item>>
     return this
   }
 
