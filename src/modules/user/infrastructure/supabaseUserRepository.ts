@@ -19,13 +19,13 @@ const fetchUsers = async (): Promise<User[]> => {
   const { data, error } = await supabase.from(SUPABASE_TABLE_USERS).select()
 
   if (error !== null) {
-    console.error(error)
     throw error
   }
 
   const users = userSchema.array().parse(data ?? [])
   return users
 }
+
 const fetchUser = async (id: DbReady<User['id']>): Promise<User | null> => {
   const { data, error } = await supabase
     .from(SUPABASE_TABLE_USERS)
@@ -33,7 +33,6 @@ const fetchUser = async (id: DbReady<User['id']>): Promise<User | null> => {
     .eq('id', id)
 
   if (error !== null) {
-    console.error(error)
     throw error
   }
 
@@ -49,7 +48,6 @@ const insertUser = async (user: DbReady<User>): Promise<User> => {
     .select()
 
   if (error !== null) {
-    console.error(error)
     throw error
   }
 
@@ -69,7 +67,6 @@ const updateUser = async (
     .select()
 
   if (error !== null) {
-    console.error(error)
     throw error
   }
 
@@ -85,7 +82,6 @@ const deleteUser = async (id: User['id']): Promise<void> => {
     .eq('id', id)
 
   if (error !== null) {
-    console.error(error)
     throw error
   }
 }
