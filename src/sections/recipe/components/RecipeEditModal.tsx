@@ -1,6 +1,6 @@
 import {
-  type FoodItem,
-  createFoodItem,
+  type Item,
+  createItem,
 } from '~/modules/diet/food-item/domain/foodItem'
 import { Modal, ModalActions } from '~/sections/common/components/Modal'
 import { type Recipe, createRecipe } from '~/modules/diet/recipe/domain/recipe'
@@ -57,11 +57,11 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
       }),
   )
 
-  const [selectedFoodItem, setSelectedFoodItem] = createSignal<FoodItem | null>(
+  const [selectedFoodItem, setSelectedFoodItem] = createSignal<Item | null>(
     null,
   )
 
-  const impossibleFoodItem = createFoodItem({
+  const impossibleFoodItem = createItem({
     name: 'IMPOSSIBLE FOOD ITEM',
     reference: 0,
   })
@@ -152,7 +152,7 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
 }
 
 function ExternalFoodItemEditModal(props: {
-  foodItem: Accessor<FoodItem>
+  foodItem: Accessor<Item>
   targetName: string
   onApply: (item: TemplateItem) => void
   onDelete: (itemId: TemplateItem['id']) => void
@@ -233,9 +233,9 @@ function ExternalTemplateSearchModal(props: {
 
 function Body(props: {
   recipe: Accessor<Recipe>
-  setRecipe: Setter<Recipe>
-  selectedFoodItem: Accessor<FoodItem | null>
-  setSelectedFoodItem: Setter<FoodItem | null>
+    setRecipe: Setter<Recipe>
+  selectedFoodItem: Accessor<Item | null>
+  setSelectedFoodItem: Setter<Item | null>
   onSearchNewItem: () => void
 }) {
   return (
