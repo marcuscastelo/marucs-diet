@@ -19,6 +19,7 @@ import {
   itemSchema,
 } from '~/modules/diet/item/domain/item'
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
+import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
 import { RecipeIcon } from '~/sections/common/components/icons/RecipeIcon'
 import { RecipeEditModal } from '~/sections/recipe/components/RecipeEditModal'
@@ -155,6 +156,36 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   const [templateSearchModalVisible, setTemplateSearchModalVisible] =
     createSignal(false)
 
+  const handleNewItemGroup = (newGroup: ItemGroup) => {
+    console.debug('handleNewItemGroup', newGroup)
+
+    const currentGroup = group()
+    if (currentGroup === null) {
+      console.error('group is null')
+      throw new Error('group is null')
+    }
+
+    if (!isSimpleSingleGroup(newGroup)) {
+      // TODO: Handle non-simple groups on handleNewItemGroup
+      console.error('TODO: Handle non-simple groups')
+      toast.error(
+        'Grupos complexos ainda não são suportados, funcionalidade em desenvolvimento',
+      )
+      return
+    }
+
+    const finalGroup: ItemGroup = new ItemGroupEditor(currentGroup)
+      .addItem(newGroup.items[0])
+      .finish()
+
+    console.debug(
+      'handleNewItemGroup: applying',
+      JSON.stringify(finalGroup, null, 2),
+    )
+
+    setGroup(finalGroup)
+  }
+
   const [recipeSignal, setRecipeSignal] = createSignal<Loadable<Recipe | null>>(
     {
       loading: true,
@@ -239,6 +270,8 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
             visible={templateSearchModalVisible}
             setVisible={setTemplateSearchModalVisible}
             onRefetch={props.onRefetch}
+            targetName={group()?.name ?? 'ERRO: Grupo de alimentos não especificado'}
+            onNewItemGroup={handleNewItemGroup}
           />
           <ModalContextProvider visible={visible} setVisible={setVisible}>
             <Modal
@@ -564,69 +597,6 @@ function ExternalItemEditModal(props: {
           console.debug('newGroup', newGroup)
           handleCloseWithChanges(newGroup)
         }}
-      />
-    </ModalContextProvider>
-  )
-}
-
-// TODO: This component is duplicated between RecipeEditModal and ItemGroupEditModal, must be refactored
-function ExternalTemplateSearchModal(props: {
-  visible: Accessor<boolean>
-  setVisible: Setter<boolean>
-  onRefetch: () => void
-}) {
-  const { group, setGroup } = useItemGroupEditContext()
-
-  const handleNewItemGroup = (newGroup: ItemGroup) => {
-    console.debug('handleNewItemGroup', newGroup)
-
-    const group_ = group()
-    if (group_ === null) {
-      console.error('group is null')
-      throw new Error('group is null')
-    }
-
-    if (!isSimpleSingleGroup(newGroup)) {
-      // TODO: Handle non-simple groups on handleNewItemGroup
-      console.error('TODO: Handle non-simple groups')
-      toast.error(
-        'Grupos complexos ainda não são suportados, funcionalidade em desenvolvimento',
-      )
-      return
-    }
-
-    const finalGroup: ItemGroup = new ItemGroupEditor(group_)
-      .addItem(newGroup.items[0])
-      .finish()
-
-    console.debug(
-      'handleNewItemGroup: applying',
-      JSON.stringify(finalGroup, null, 2),
-    )
-
-    setGroup(finalGroup)
-  }
-
-  const handleFinishSearch = () => {
-    props.setVisible(false)
-    // onRefetch()
-  }
-
-  createEffect(() => {
-    if (!props.visible()) {
-      console.debug('[ExternalTemplateSearchModal] onRefetch')
-      props.onRefetch()
-    }
-  })
-
-  return (
-    <ModalContextProvider visible={props.visible} setVisible={props.setVisible}>
-      <TemplateSearchModal
-        targetName={
-          group()?.name ?? 'ERRO: Grupo de alimentos não especificado'
-        }
-        onFinish={handleFinishSearch}
-        onNewItemGroup={handleNewItemGroup}
       />
     </ModalContextProvider>
   )

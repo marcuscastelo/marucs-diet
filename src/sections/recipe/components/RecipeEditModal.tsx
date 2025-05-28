@@ -15,12 +15,14 @@ import {
 } from '~/sections/common/context/ModalContext'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import {
   type ItemGroup,
   isSimpleSingleGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { RecipeEditor } from '~/legacy/utils/data/recipeEditor'
+import toast from 'solid-toast'
 
 import { currentUserId } from '~/modules/user/application/user'
 import {
@@ -31,7 +33,6 @@ import {
   Show,
 } from 'solid-js'
 import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
-import toast from 'solid-toast'
 
 export type RecipeEditModalProps = {
   show?: boolean
@@ -70,6 +71,27 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
     createSignal(false)
   const [templateSearchModalVisible, setTemplateSearchModalVisible] =
     createSignal(false)
+
+  const handleNewItemGroup = (newGroup: ItemGroup) => {
+    console.debug('onNewItemGroup', newGroup)
+
+    if (!isSimpleSingleGroup(newGroup)) {
+      // TODO: Handle non-simple groups on handleNewItemGroup
+      console.error('TODO: Handle non-simple groups')
+      toast.error(
+        'Não é possível adicionar grupos complexos a receitas, por enquanto.',
+      )
+      return
+    }
+
+    const newRecipe = new RecipeEditor(recipe())
+      .addItems(newGroup.items)
+      .finish()
+
+    console.debug('handleNewItemGroup: applying', JSON.stringify(newRecipe, null, 2))
+
+    setRecipe(newRecipe)
+  }
 
   createEffect(() => {
     // TODO: Replace itemEditModalVisible with a derived signal
@@ -117,8 +139,8 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
         visible={templateSearchModalVisible}
         setVisible={setTemplateSearchModalVisible}
         onRefetch={props.onRefetch}
-        recipe={recipe}
-        setRecipe={setRecipe}
+        targetName={recipe()?.name ?? 'ERRO: Receita não especificada'}
+        onNewItemGroup={handleNewItemGroup}
       />
 
       <ModalContextProvider visible={visible} setVisible={setVisible}>
@@ -180,60 +202,9 @@ function ExternalItemEditModal(props: {
   )
 }
 
-// TODO: This component is duplicated between RecipeEditModal and ItemGroupEditModal, must be refactored (maybe global)
-function ExternalTemplateSearchModal(props: {
-  visible: Accessor<boolean>
-  setVisible: Setter<boolean>
-  onRefetch: () => void
-  recipe: Accessor<Recipe>
-  setRecipe: Setter<Recipe>
-}) {
-  const handleNewItemGroup = (newGroup: ItemGroup) => {
-    console.debug('onNewItemGroup', newGroup)
-
-    if (!isSimpleSingleGroup(newGroup)) {
-      // TODO: Handle non-simple groups on handleNewItemGroup
-      console.error('TODO: Handle non-simple groups')
-      toast.error(
-        'Não é possível adicionar grupos complexos a receitas, por enquanto.',
-      )
-      return
-    }
-
-    const newRecipe = new RecipeEditor(props.recipe())
-      .addItems(newGroup.items)
-      .finish()
-
-    console.debug('handleNewItemGroup: applying', JSON.stringify(newRecipe, null, 2))
-
-    props.setRecipe(newRecipe)
-  }
-
-  const handleFinishSearch = () => {
-    props.setVisible(false)
-  }
-
-  createEffect(() => {
-    // TODO: [RecipeEditModal] Refetch on modal open instead of close?
-    if (!props.visible()) {
-      props.onRefetch()
-    }
-  })
-
-  return (
-    <ModalContextProvider visible={props.visible} setVisible={props.setVisible}>
-      <TemplateSearchModal
-        targetName={props.recipe()?.name ?? 'ERRO: Receita não especificada'}
-        onFinish={handleFinishSearch}
-        onNewItemGroup={handleNewItemGroup}
-      />
-    </ModalContextProvider>
-  )
-}
-
 function Body(props: {
   recipe: Accessor<Recipe>
-    setRecipe: Setter<Recipe>
+  setRecipe: Setter<Recipe>
   selectedItem: Accessor<Item | null>
   setSelectedItem: Setter<Item | null>
   onSearchNewItem: () => void
