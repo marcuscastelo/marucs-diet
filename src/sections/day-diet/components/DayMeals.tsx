@@ -37,6 +37,7 @@ import {
 } from 'solid-js'
 import { Alert } from '~/sections/common/components/Alert'
 import toast from 'solid-toast'
+import { formatError } from '~/shared/formatError'
 
 type EditSelection = {
   meal: Meal
@@ -185,8 +186,7 @@ export default function DayMeals(props: { selectedDay: string }) {
                       handleUpdateMeal(currentDayDiet_, meal).catch((e) => {
                         console.error(e)
                         toast.error(
-                          'Erro ao atualizar refeição: \n' +
-                            JSON.stringify(e, null, 2),
+                          `Erro ao atualizar refeição: ${formatError(e)}`,
                         )
                       })
                     }}
@@ -255,12 +255,6 @@ function ExternalItemGroupEditModal(props: {
               editSelection().meal.name ?? 'ERROR: No meal selected'
             }
             onSaveGroup={(group) => {
-              console.debug(
-                `[DayMeals] (<ItemGroupEditModal/>) Saving group: ${JSON.stringify(
-                  group,
-                )}`,
-              )
-
               updateItemGroup(
                 props.day().id,
                 editSelection().meal.id,

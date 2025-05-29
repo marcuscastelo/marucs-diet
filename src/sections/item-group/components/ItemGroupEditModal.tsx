@@ -4,6 +4,7 @@ import {
   isSimpleSingleGroup,
   itemGroupSchema,
   recipedItemGroupSchema,
+  getItemGroupQuantity,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { Modal, ModalActions } from '~/sections/common/components/Modal'
 import { ItemListView } from '~/sections/food-item/components/ItemListView'
@@ -181,11 +182,6 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
       .addItem(newGroup.items[0])
       .finish()
 
-    console.debug(
-      'handleNewItemGroup: applying',
-      JSON.stringify(finalGroup, null, 2),
-    )
-
     setGroup(finalGroup)
   }
 
@@ -197,7 +193,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
 
   createEffect(() => {
     const group_ = group()
-    if (group_.groupType !== 'recipe') {
+    if (group_.type !== 'recipe') {
       setRecipeSignal({ loading: false, errored: false, data: null })
       return
     }
@@ -213,7 +209,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
 
   createEffect(() => {
     const group_ = group()
-    const groupHasRecipe = group_?.groupType === 'recipe' && group_?.recipe !== null
+    const groupHasRecipe = group_?.type === 'recipe' && group_?.recipe !== null
     console.debug('Group changed:', group())
 
     if (groupHasRecipe) {
@@ -665,7 +661,7 @@ function Body(props: {
                   )}
                 </Show>
 
-                <Show when={group().groupType === 'simple'}>
+                <Show when={group().type === 'simple'}>
                   {(_) => (
                     <>
                       <button
@@ -722,7 +718,7 @@ function Body(props: {
                 <Show
                   when={(() => {
                     const group_ = group()
-                    return group_.groupType === 'recipe' && group_
+                    return group_.type === 'recipe' && group_
                   })()}
                 >
                   {(group) => (
@@ -863,7 +859,7 @@ function Body(props: {
           >
             Adicionar item
           </button>
-          {group().groupType === 'recipe' && group().recipe !== null && (
+          {group().type === 'recipe' && group().recipe !== null && (
             <PreparedQuantity
               // TODO: Remove as unknown as Accessor<RecipedItemGroup>
               recipedGroup={
@@ -964,10 +960,10 @@ function PreparedQuantity(props: {
   setRecipedGroup: Setter<RecipedItemGroup | null>
   recipe: Recipe | null
 }) {
-  const rawQuantity = () =>
-    props.recipedGroup()?.items.reduce((acc, item) => {
-      return acc + item.quantity
-    }, 0)
+  const rawQuantity = () => {
+    const group = props.recipedGroup()
+    return group ? getItemGroupQuantity(group) : 0
+  }
 
   const initialPreparedQuantity = () =>
     (rawQuantity() ?? 0) * (props.recipe?.prepared_multiplier ?? 1)

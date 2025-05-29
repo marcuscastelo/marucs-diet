@@ -23,7 +23,6 @@ function mockGroup(): ItemGroup {
   const group = createSimpleItemGroup({
     name: 'test:name',
     items: [],
-    quantity: 0,
   })
   // Override the generated ID for testing
   return { ...group, id: 1000 }

@@ -20,11 +20,11 @@ export class ItemGroupEditor
 
   setRecipe(recipe: Recipe['id'] | undefined) {
     if (recipe === undefined) {
-      this.group.groupType = 'simple'
+      this.group.type = 'simple'
       this.group.recipe = undefined
       return this
     }
-    this.group.groupType = 'recipe'
+    this.group.type = 'recipe'
     this.group.recipe = recipe
     return this
   }
@@ -95,10 +95,6 @@ export class ItemGroupEditor
   }
 
   protected override onFinish() {
-    // TODO: Replace quantity field with a getter that calculates it
-    this.group.quantity = this.group.items.reduce(
-      (acc, item) => acc + item.quantity,
-      0,
-    )
+    // Quantity is now calculated on-demand via getItemGroupQuantity()
   }
 }
