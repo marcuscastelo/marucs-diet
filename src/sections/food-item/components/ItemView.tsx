@@ -28,6 +28,7 @@ import {
   targetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
 import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget'
+import { createMacroOverflowChecker } from '~/legacy/utils/macroOverflow'
 
 // TODO: Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
@@ -200,54 +201,16 @@ export function ItemNutritionalInfo() {
 
   const multipliedMacros = (): MacroNutrients => calcItemMacros(item())
 
-  // TODO: Move isOverflow to a specialized module
-  const isOverflow = (property: keyof MacroNutrients) => {
-    if (!macroOverflow().enable) {
-      return false
-    }
-
+  const isMacroOverflowing = () => {
     const currentDayDiet_ = currentDayDiet()
-    if (currentDayDiet_ === null) {
-      console.error(
-        '[ItemNutritionalInfo] currentDayDiet is undefined, cannot calculate overflow',
-      )
-      return false
-    }
-
     const macroTarget_ = macroTarget(stringToDate(targetDay()))
-    if (macroTarget_ === null) {
-      console.error(
-        '[ItemNutritionalInfo] macroTarget is undefined, cannot calculate overflow',
-      )
-      return false
-    }
-    const originalItem_ = macroOverflow().originalItem
-
-    const itemMacros = calcItemMacros(item())
-    const originalItemMacros: MacroNutrients =
-      originalItem_ !== undefined
-        ? calcItemMacros(originalItem_)
-        : {
-            carbs: 0,
-            protein: 0,
-            fat: 0,
-          }
-
-    const difference =
-      originalItem_ !== undefined
-        ? itemMacros[property] - originalItemMacros[property]
-        : itemMacros[property]
-
-    const current = calcDayMacros(currentDayDiet_)[property]
-    const target = macroTarget_[property]
-
-    return current + difference > target
+    
+    return createMacroOverflowChecker(item(), {
+      currentDayDiet: currentDayDiet_,
+      macroTarget: macroTarget_,
+      macroOverflowOptions: macroOverflow()
+    })
   }
-  const isMacroOverflowing = () => ({
-    carbs: () => isOverflow('carbs'),
-    protein: () => isOverflow('protein'),
-    fat: () => isOverflow('fat'),
-  })
 
   return (
     <div class="flex">
