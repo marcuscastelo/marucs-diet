@@ -69,6 +69,7 @@ export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
       createRecipedItemGroup({
         name: convertible.name,
         items: [...convertible.items],
+        quantity: calculateGroupQuantity(convertible.items),
         recipe: convertible.id,
       }),
     ]
