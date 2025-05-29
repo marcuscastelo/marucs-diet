@@ -77,7 +77,7 @@ src/
 ### Setup
 
 ```bash
-git clone https://github.com/yourusername/marucs-diet.git
+git clone https://github.com/marcuscastelo/marucs-diet.git
 cd marucs-diet
 npm install
 cp .env.example .env.local  # Add your Supabase credentials
