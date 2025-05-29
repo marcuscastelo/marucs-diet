@@ -1,32 +1,106 @@
-# SolidStart
+# Marucs Diet
 
-Everything you need to build a Solid project, powered by [`solid-start`](https://start.solidjs.com);
+**A nutrition tracking platform built with modular architecture and modern web technologies.**
 
-## Creating a project
+![Version](https://img.shields.io/badge/version-v0.9.0-blue.svg)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)
+![SolidJS](https://img.shields.io/badge/SolidJS-2c4f7c?logo=solid&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?logo=supabase&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?logo=tailwind-css&logoColor=white)
 
-```bash
-# create a new project in the current directory
-npm init solid@latest
+---
 
-# create a new project in my-app
-npm init solid@latest my-app
+## Overview
+
+Marucs Diet is a nutrition tracking system focused on strong typing, reactive UI, and modular domain-driven design. It follows clean architecture principles and integrates with modern backend and frontend tools.
+
+For now, it is focused on being a personal project to track my own nutrition, but maybe in the future it will be a SaaS product.
+
+---
+
+## Features
+
+### Nutrition & Progress
+- Macro tracking: carbs, protein, and fat
+- Real-time calorie calculation
+- Personalized macro profiles (grams per kg)
+- Daily goal visualization with charts
+
+### Body Data
+- Body fat estimation (U.S. Navy method)
+- Weight tracking with trends
+
+### Food Management
+- Barcode scanning for quick entry
+- Searchable food database
+- Custom recipe builder with automatic macros
+- Meal planning and reusable templates
+
+### User Interface
+- Responsive design
+- Real-time updates via SolidJS signals
+- Simplified navigation
+
+---
+
+## Architecture
+
+```
+src/
+├── modules/           # Domain logic and business entities
+├── sections/          # UI and presentation layer
+├── legacy/            # Utility and legacy code (under migration)
+└── shared/            # Common logic (e.g. error handling)
 ```
 
-## Developing
+### Design Principles
+- **Domain-Driven Design + Clean Architecture**
+- **Repository Pattern with Supabase**
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+---
+
+## Tech Stack
+
+- **Frontend**: SolidJS, TypeScript, TailwindCSS
+- **Backend**: Supabase (PostgreSQL + Realtime), Vercel
+- **Validation & Visualization**: Zod, ApexCharts
+- **Dev Tools**: ESLint, Prettier, html5-qrcode
+
+---
+
+## Getting Started
+
+### Requirements
+- Node.js 18+
+- Supabase account
+
+### Setup
 
 ```bash
+git clone https://github.com/marcuscastelo/marucs-diet.git
+cd marucs-diet
+npm install
+cp .env.example .env.local  # Add your Supabase credentials
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
 
-## Building
+---
 
-Solid apps are built with _presets_, which optimise your project for deployment to different environments.
+## Roadmap
 
-By default, `npm run build` will generate a Node app that you can run with `npm start`. To use a different preset, add it to the `devDependencies` in `package.json` and specify in your `app.config.js`.
+- OpenTelemetry integration
+- PWA support
+- ML-based food recognition
+- Social features (sharing, collaboration)
 
-## This project was created with the [Solid CLI](https://solid-cli.netlify.app)
+---
+
+## Contributing
+
+Contributions are welcome. Please maintain consistency with the codebase’s structure and quality standards.
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE) for details.
