@@ -18,6 +18,7 @@ import {
   ItemNutritionalInfo,
   ItemView,
 } from '~/sections/food-item/components/ItemView'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 export function TemplateSearchResults(props: {
   search: string
@@ -99,7 +100,13 @@ export function TemplateSearchResults(props: {
                                   },
                                 )
                                 .then(props.refetch)
-                                .catch(console.error)
+                                .catch((err) => {
+                                  handleApiError(err, {
+                                    component: 'TemplateSearchResults',
+                                    operation: 'deleteRecentFood',
+                                    additionalData: { foodId: template().id }
+                                  })
+                                })
                             }}
                           >
                             <TrashIcon size={20} />

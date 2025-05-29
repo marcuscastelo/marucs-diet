@@ -19,6 +19,7 @@ import {
 } from '~/legacy/controllers/recentFood'
 import { createRecentFood } from '~/modules/recent-food/domain/recentFood'
 import { type Template } from '~/modules/diet/template/domain/template'
+import { handleApiError } from '~/shared/error/errorHandler'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 
 import { type Food, createFood } from '~/modules/diet/food/domain/food'
@@ -195,7 +196,11 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
             primary: true,
             onClick: () => {
               onConfirm().catch((err) => {
-                console.error(err)
+                handleApiError(err, {
+                  component: 'TemplateSearchModal',
+                  operation: 'confirmOverMacros',
+                  additionalData: { templateType: 'item' }
+                })
                 toast.error(
                   `Erro ao adicionar item: ${formatError(err)}`,
                 )
@@ -214,7 +219,11 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
       try {
         await onConfirm()
       } catch (err) {
-        console.error(err)
+        handleApiError(err, {
+          component: 'TemplateSearchModal',
+          operation: 'confirmItem',
+          additionalData: { templateType: 'item' }
+        })
         toast.error(`Erro ao adicionar item: ${formatError(err)}`)
       }
     }

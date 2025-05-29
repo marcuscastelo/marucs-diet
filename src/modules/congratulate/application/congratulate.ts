@@ -5,10 +5,15 @@ import {
 } from '~/legacy/utils/dateUtils'
 import { currentUser } from '~/modules/user/application/user'
 import { createMemo } from 'solid-js'
+import { logError } from '~/shared/error/errorHandler'
 export const birthdayToday = createMemo(() => {
   const user_ = currentUser()
   if (user_ === null) {
-    console.error(`[congratulate::application] user is null`)
+    logError('user is null', {
+      component: 'congratulateApplication',
+      operation: 'birthdayToday',
+      additionalData: {}
+    })
     return false
   }
 

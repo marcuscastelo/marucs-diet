@@ -5,6 +5,7 @@ import {
 } from '~/modules/diet/day-diet/application/dayDiet'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 // TODO: Maybe replace empty arrays with loading state (null or something)
 export const dayMeals = () => currentDayDiet()?.meals ?? []
@@ -25,5 +26,11 @@ export async function updateMeal(
     })
     .finish()
 
-  updateDayDiet(currentDayDiet_.id, newDay).catch(console.error)
+  updateDayDiet(currentDayDiet_.id, newDay).catch((error) => 
+    handleApiError(error, {
+      component: 'mealApplication',
+      operation: 'updateMeal',
+      additionalData: { mealId, mealName: newMeal.name }
+    })
+  )
 }

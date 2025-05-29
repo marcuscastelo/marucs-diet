@@ -17,6 +17,7 @@ import {
   createSignal,
   createEffect,
 } from 'solid-js'
+import { handleApiError, handleValidationError } from '~/shared/error/errorHandler'
 
 // TODO: Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
@@ -86,7 +87,11 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
           setRecipe({ loading: false, errored: false, data: foundRecipe })
         })
         .catch((err) => {
-          console.error('[ItemGroupName] Error fetching recipe:', err)
+          handleApiError(err, {
+            component: 'ItemGroupView::ItemGroupName',
+            operation: 'fetchRecipeById',
+            additionalData: { recipeId: group.recipe }
+          })
           setRecipe({ loading: false, errored: true, error: err })
         })
     } else {
@@ -99,13 +104,26 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
     const recipe_ = recipe()
 
     if (group_ === null) {
-      console.error('[ItemGroupName] item is null!!')
+      handleValidationError(
+        new Error('ItemGroup is null'),
+        {
+          component: 'ItemGroupView::ItemGroupName',
+          operation: 'nameColor'
+        }
+      )
       return 'text-red-900 bg-red-200'
     }
 
     if (recipe_.loading) return 'text-gray-500 animate-pulse'
     if (recipe_.errored) {
-      console.error('[ItemGroupName] recipe errored!!')
+      handleValidationError(
+        new Error('Recipe loading failed'),
+        {
+          component: 'ItemGroupView::ItemGroupName',
+          operation: 'nameColor',
+          additionalData: { recipeError: recipe_.error }
+        }
+      )
       return 'text-red-900 bg-red-200 bg-opacity-50'
     }
 
@@ -124,9 +142,13 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
         return className
       }
     } else {
-      console.error(
-        '[ItemGroupName] item is not simple or recipe!! Item:',
-        group_,
+      handleValidationError(
+        new Error(`ItemGroup is not simple or recipe! Item: ${JSON.stringify(group_)}`),
+        {
+          component: 'ItemGroupView::ItemGroupName',
+          operation: 'nameColor',
+          additionalData: { group: group_ }
+        }
       )
       return 'text-red-400'
     }
