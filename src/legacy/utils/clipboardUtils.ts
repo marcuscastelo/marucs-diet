@@ -1,4 +1,5 @@
 import { type z } from 'zod'
+import { handleValidationError } from '~/shared/error/errorHandler'
 
 export function deserializeClipboard<T extends z.ZodType>(
   clipboard: string,
@@ -7,8 +8,11 @@ export function deserializeClipboard<T extends z.ZodType>(
   const parsed = JSON.parse(clipboard)
   const result = allowedSchema.safeParse(parsed)
   if (!result.success) {
-    console.error('Invalid clipboard data')
-    console.error(result.error)
+    handleValidationError('Invalid clipboard data', {
+      component: 'clipboardUtils',
+      operation: 'deserializeClipboard',
+      additionalData: { clipboard, error: result.error }
+    })
     return null
   }
   return result.data

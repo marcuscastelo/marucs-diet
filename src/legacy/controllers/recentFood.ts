@@ -4,6 +4,7 @@ import {
 } from '~/modules/recent-food/domain/recentFood'
 import { type DbReady, enforceDbReady } from '~/legacy/utils/newDbRecord'
 import supabase from '~/legacy/utils/supabase'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 const TABLE = 'recent_foods'
 
@@ -18,7 +19,11 @@ export async function fetchRecentFoodByUserIdAndFoodId(
     .eq('food_id', foodId)
 
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'recentFood',
+      operation: 'fetchRecentFoodByUserIdAndFoodId',
+      additionalData: { userId, foodId }
+    })
     throw error
   }
 
@@ -33,7 +38,11 @@ export async function fetchUserRecentFoods(userId: RecentFood['user_id']) {
     .order('last_used', { ascending: false })
 
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'recentFood',
+      operation: 'fetchUserRecentFoods',
+      additionalData: { userId }
+    })
     throw error
   }
 
@@ -45,7 +54,11 @@ export async function insertRecentFood(newRecentFood: DbReady<RecentFood>) {
   const { data, error } = await supabase.from(TABLE).insert(recentFood).select()
 
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'recentFood',
+      operation: 'insertRecentFood',
+      additionalData: { recentFood }
+    })
     throw error
   }
 
@@ -64,7 +77,11 @@ export async function updateRecentFood(
     .select()
 
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'recentFood',
+      operation: 'updateRecentFood',
+      additionalData: { recentFoodId, recentFood }
+    })
     throw error
   }
 
@@ -82,7 +99,11 @@ export async function deleteRecentFoodByFoodId(
     .eq('food_id', foodId)
 
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'recentFood',
+      operation: 'deleteRecentFoodByFoodId',
+      additionalData: { userId, foodId }
+    })
     throw error
   }
 }

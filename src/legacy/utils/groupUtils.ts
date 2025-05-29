@@ -6,6 +6,7 @@ import {
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Item } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import { handleValidationError } from '~/shared/error/errorHandler'
 
 export type GroupConvertible =
   | ItemGroup
@@ -20,9 +21,15 @@ export function isRecipedGroupUpToDate(
   groupRecipe: Recipe,
 ) {
   if (groupRecipe.id !== group.recipe) {
-    console.error(
-      'Invalid state! This is a bug! Group recipe is not the same as the recipe in the group!',
-    )
+    handleValidationError('Invalid state! Group recipe is not the same as the recipe in the group!', {
+      component: 'groupUtils',
+      operation: 'isRecipedGroupUpToDate',
+      additionalData: { 
+        groupRecipeId: groupRecipe.id, 
+        groupId: group.recipe,
+        groupName: group.name 
+      }
+    })
     throw new Error('Invalid state! This is a bug! see console.error')
   }
 
@@ -84,6 +91,10 @@ export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
   }
 
   convertible satisfies never
-  console.error('Invalid state! This is a bug! Unhandled convertible type!')
+  handleValidationError('Invalid state! Unhandled convertible type!', {
+    component: 'groupUtils',
+    operation: 'convertToGroups',
+    additionalData: { convertible }
+  })
   throw new Error('Invalid state! This is a bug! see console.error')
 }

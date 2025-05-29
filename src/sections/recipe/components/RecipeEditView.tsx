@@ -19,6 +19,7 @@ import {
   createClipboardSchemaFilter,
 } from '~/sections/common/hooks/useClipboard'
 import { deserializeClipboard } from '~/legacy/utils/clipboardUtils'
+import { handleValidationError } from '~/shared/error/errorHandler'
 import { convertToGroups } from '~/legacy/utils/groupUtils'
 import { mealSchema } from '~/modules/diet/meal/domain/meal'
 import { itemGroupSchema } from '~/modules/diet/item-group/domain/itemGroup'
@@ -205,7 +206,14 @@ export function RecipeEditContent(props: {
         type="text"
         onChange={(e) => {
           if (recipe() === null) {
-            console.error('group is null')
+            handleValidationError(
+              'Recipe is null during name change',
+              {
+                component: 'RecipeEditView',
+                operation: 'setName',
+                additionalData: { newName: e.target.value }
+              }
+            )
             throw new Error('group is null')
           }
           setRecipe(new RecipeEditor(recipe()).setName(e.target.value).finish())

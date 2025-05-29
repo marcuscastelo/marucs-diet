@@ -9,6 +9,7 @@ import {
 } from '~/modules/user/infrastructure/supabaseUserRepository'
 import { createEffect, createSignal } from 'solid-js'
 import toast from 'solid-toast'
+import { handleApiError } from '~/shared/error/errorHandler'
 import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 
 export const DEFAULT_USER_ID = 3
@@ -33,7 +34,13 @@ createEffect(async () => {
 })
 
 function bootstrap() {
-  fetchUsers().catch(console.error)
+  fetchUsers().catch((error) => 
+    handleApiError(error, {
+      component: 'userApplication',
+      operation: 'bootstrap',
+      additionalData: {}
+    })
+  )
 }
 
 /**
@@ -119,5 +126,11 @@ export function setFoodAsFavorite(foodId: number, favorite: boolean): void {
     favorite_foods: favoriteFoods,
   })
     .then(fetchCurrentUser)
-    .catch(console.error)
+    .catch((error) => 
+      handleApiError(error, {
+        component: 'userApplication',
+        operation: 'toggleFavoriteFood',
+        additionalData: { foodId }
+      })
+    )
 }

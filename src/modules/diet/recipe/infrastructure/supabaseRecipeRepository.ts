@@ -8,6 +8,7 @@ import {
   createRecipeFromDAO,
   recipeDAOSchema,
 } from '~/modules/diet/recipe/infrastructure/recipeDAO'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 const TABLE = 'recipes'
 
@@ -30,7 +31,11 @@ const fetchUserRecipes = async (userId: User['id']): Promise<Recipe[]> => {
     .eq('owner', userId)
 
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'supabaseRecipeRepository',
+      operation: 'fetchUserRecipes',
+      additionalData: { userId }
+    })
     throw error
   }
 
@@ -44,7 +49,11 @@ const fetchRecipeById = async (id: Recipe['id']): Promise<Recipe | null> => {
   const { data, error } = await supabase.from(TABLE).select().eq('id', id)
 
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'supabaseRecipeRepository',
+      operation: 'fetchRecipeById',
+      additionalData: { id }
+    })
     throw error
   }
 
@@ -65,7 +74,11 @@ const fetchUserRecipeByName = async (
     .eq('name', name)
 
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'supabaseRecipeRepository',
+      operation: 'fetchUserRecipeByName',
+      additionalData: { userId, name }
+    })
     throw error
   }
 
@@ -86,7 +99,11 @@ const upsertRecipe = async (
   const { data, error } = await supabase.from(TABLE).upsert(recipe).select()
 
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'supabaseRecipeRepository',
+      operation: 'upsertRecipe',
+      additionalData: { recipe }
+    })
     throw error
   }
 
@@ -114,7 +131,11 @@ const updateRecipe = async (
     .select()
 
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'supabaseRecipeRepository',
+      operation: 'updateRecipe',
+      additionalData: { id, recipe }
+    })
     throw error
   }
 
@@ -132,7 +153,11 @@ const deleteRecipe = async (id: Recipe['id']): Promise<Recipe> => {
     .select()
 
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'supabaseRecipeRepository',
+      operation: 'deleteRecipe',
+      additionalData: { id }
+    })
     throw error
   }
 

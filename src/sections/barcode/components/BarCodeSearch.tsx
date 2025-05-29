@@ -8,6 +8,7 @@ import {
 import { type Food } from '~/modules/diet/food/domain/food'
 import { createItem } from '~/modules/diet/item/domain/item'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 import {
   isFoodFavorite,
@@ -22,6 +23,7 @@ import {
 } from 'solid-js'
 import { fetchFoodByEan } from '~/modules/diet/food/application/food'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { formatError } from '~/shared/formatError'
 
 export type BarCodeSearchProps = {
   barCode: Accessor<string>
@@ -63,10 +65,14 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
 
     const catchFetch = (err: any) => {
       console.log('catchFetch err', err)
-      console.error(err)
+      handleApiError(err, {
+        component: 'BarCodeSearch',
+        operation: 'fetchFoodByEan',
+        additionalData: { barCode: props.barCode() }
+      })
       showConfirmModal({
         title: `Erro ao buscar alimento de EAN ${props.barCode()}`,
-        body: `Erro: ${err}`,
+        body: `Erro: ${formatError(err)}`,
         actions: [
           { text: 'OK', primary: true, onClick: () => {} },
         ]

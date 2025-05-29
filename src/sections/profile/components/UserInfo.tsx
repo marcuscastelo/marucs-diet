@@ -12,6 +12,7 @@ import { currentUser, updateUser } from '~/modules/user/application/user'
 import { convertString, UserInfoCapsule } from './UserInfoCapsule'
 import toast from 'solid-toast'
 import { formatError } from '~/shared/formatError'
+import { handleApiError } from '~/shared/error/errorHandler'
 type Translation<T extends string> = { [key in T]: string }
 // TODO: Create module for translations
 // TODO: Make diet translations appear in the UI
@@ -104,7 +105,11 @@ export function UserInfo() {
             return
           }
           updateUser(newUser.id, newUser).catch((error) => {
-            console.error(error)
+            handleApiError(error, {
+              component: 'UserInfo',
+              operation: 'updateUser',
+              additionalData: { userId: newUser.id }
+            })
             toast.error(
               `Erro ao atualizar usuário: ${formatError(error)}`,
             )

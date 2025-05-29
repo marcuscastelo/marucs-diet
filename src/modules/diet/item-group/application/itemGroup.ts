@@ -6,6 +6,7 @@ import {
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 export function insertItemGroup(
   _dayId: DayDiet['id'], // TODO: Remove dayId from functions that don't need it
@@ -23,7 +24,13 @@ export function insertItemGroup(
     })
     .finish()
 
-  updateDayDiet(currentDayDiet_.id, newDay).catch(console.error)
+  updateDayDiet(currentDayDiet_.id, newDay).catch((error) => 
+    handleApiError(error, {
+      component: 'itemGroupApplication',
+      operation: 'insertItemGroup',
+      additionalData: { mealId, groupName: newItemGroup.name }
+    })
+  )
 }
 
 export function updateItemGroup(
@@ -45,7 +52,13 @@ export function updateItemGroup(
     })
     .finish()
 
-  updateDayDiet(currentDayDiet_.id, newDay).catch(console.error)
+  updateDayDiet(currentDayDiet_.id, newDay).catch((error) => 
+    handleApiError(error, {
+      component: 'itemGroupApplication',
+      operation: 'updateItemGroup',
+      additionalData: { mealId, itemGroupId, groupName: newItemGroup.name }
+    })
+  )
 }
 
 export function deleteItemGroup(
@@ -64,5 +77,11 @@ export function deleteItemGroup(
     })
     .finish()
 
-  updateDayDiet(currentDayDiet_.id, newDay).catch(console.error)
+  updateDayDiet(currentDayDiet_.id, newDay).catch((error) => 
+    handleApiError(error, {
+      component: 'itemGroupApplication',
+      operation: 'deleteItemGroup',
+      additionalData: { mealId, itemGroupId }
+    })
+  )
 }

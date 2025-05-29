@@ -6,6 +6,7 @@ import { type User } from '~/modules/user/domain/user'
 import { type DbReady, enforceDbReady } from '~/legacy/utils/newDbRecord'
 import supabase from '~/legacy/utils/supabase'
 import { type MacroProfileRepository } from '~/modules/diet/macro-profile/domain/macroProfileRepository'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 export const SUPABASE_TABLE_MACRO_PROFILES = 'macro_profiles'
 
@@ -26,7 +27,11 @@ async function fetchUserMacroProfiles(userId: User['id']) {
     .order('target_day', { ascending: true })
 
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'supabaseMacroProfileRepository',
+      operation: 'fetchUserMacroProfiles',
+      additionalData: { userId }
+    })
     throw error
   }
 
@@ -41,7 +46,11 @@ async function insertMacroProfile(newMacroProfile: DbReady<MacroProfile>) {
     .select()
 
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'supabaseMacroProfileRepository',
+      operation: 'insertMacroProfile',
+      additionalData: { macroProfile }
+    })
     throw error
   }
 
@@ -60,7 +69,11 @@ async function updateMacroProfile(
     .select()
 
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'supabaseMacroProfileRepository',
+      operation: 'updateMacroProfile',
+      additionalData: { profileId, macroProfile }
+    })
     throw error
   }
 
@@ -74,7 +87,11 @@ async function deleteMacroProfile(id: MacroProfile['id']) {
     .eq('id', id)
 
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'supabaseMacroProfileRepository',
+      operation: 'deleteMacroProfile',
+      additionalData: { id }
+    })
     throw error
   }
 }
