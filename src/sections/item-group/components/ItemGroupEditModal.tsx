@@ -25,8 +25,8 @@ import { ExternalTemplateSearchModal } from '~/sections/search/components/Extern
 import { ExternalItemEditModal } from '~/sections/food-item/components/ExternalItemEditModal'
 import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
 import { RecipeIcon } from '~/sections/common/components/icons/RecipeIcon'
-import { RecipeEditModal } from '~/sections/recipe/components/RecipeEditModal'
 import { type Recipe, createRecipe } from '~/modules/diet/recipe/domain/recipe'
+import { ExternalRecipeEditModal } from './ExternalRecipeEditModal'
 import { type Loadable } from '~/legacy/utils/loadable'
 
 import {
@@ -416,7 +416,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
             <Modal class="border-2 border-orange-800" hasBackdrop={true}>
               <Modal.Header
                 title={
-                  <Header
+                  <Title
                     recipe={recipeSignal().data}
                     targetMealName={props.targetMealName}
                   />
@@ -452,7 +452,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   )
 }
 
-function Header(props: { targetMealName: string; recipe: Recipe | null }) {
+function Title(props: { targetMealName: string; recipe: Recipe | null }) {
   return (
     <>
       <h3 class="text-lg font-bold text-white">
@@ -463,67 +463,6 @@ function Header(props: { targetMealName: string; recipe: Recipe | null }) {
     </>
   )
 }
-
-function ExternalRecipeEditModal(props: {
-  recipe: Recipe | null
-  setRecipe: (recipe: Recipe | null) => void
-  visible: Accessor<boolean>
-  setVisible: Setter<boolean>
-  onRefetch: () => void
-}) {
-  return (
-    <Show when={props.recipe}>
-      {(recipe) => (
-        <ModalContextProvider
-          visible={props.visible}
-          setVisible={props.setVisible}
-        >
-          <RecipeEditModal
-            recipe={recipe()}
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            onSaveRecipe={(recipe) => {
-              console.debug(
-                '[ItemGroupEditModal::ExternalRecipeEditModal] onSaveRecipe:',
-                recipe,
-              )
-              updateRecipe(recipe.id, recipe)
-                .then(props.setRecipe)
-                .catch((e) => {
-                  // TODO: Remove all console.error from Components and move to application/ folder
-                  console.error(
-                    '[ItemGroupEditModal::ExternalRecipeEditModal] Error updating recipe:',
-                    e,
-                  )
-                })
-            }}
-            onRefetch={props.onRefetch}
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            onDelete={(recipeId) => {
-              console.debug(
-                '[ItemGroupEditModal::ExternalRecipeEditModal] onDelete:',
-                recipeId,
-              )
-
-              const afterDelete = () => {
-                props.setRecipe(null)
-              }
-
-              deleteRecipe(recipeId)
-                .then(afterDelete)
-                .catch((e) => {
-                  console.error(
-                    '[ItemGroupEditModal::ExternalRecipeEditModal] Error deleting recipe:',
-                    e,
-                  )
-                })
-            }}
-          />
-        </ModalContextProvider>
-      )}
-    </Show>
-  )
-}
-
 
 function Body(props: {
   recipe: Accessor<Recipe | null>
