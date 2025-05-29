@@ -197,7 +197,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
 
   createEffect(() => {
     const group_ = group()
-    if (group_.type !== 'recipe') {
+    if (group_.groupType !== 'recipe') {
       setRecipeSignal({ loading: false, errored: false, data: null })
       return
     }
@@ -213,7 +213,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
 
   createEffect(() => {
     const group_ = group()
-    const groupHasRecipe = group_?.type === 'recipe' && group_?.recipe !== null
+    const groupHasRecipe = group_?.groupType === 'recipe' && group_?.recipe !== null
     console.debug('Group changed:', group())
 
     if (groupHasRecipe) {
@@ -665,7 +665,7 @@ function Body(props: {
                   )}
                 </Show>
 
-                <Show when={group().type === 'simple'}>
+                <Show when={group().groupType === 'simple'}>
                   {(_) => (
                     <>
                       <button
@@ -722,7 +722,7 @@ function Body(props: {
                 <Show
                   when={(() => {
                     const group_ = group()
-                    return group_.type === 'recipe' && group_
+                    return group_.groupType === 'recipe' && group_
                   })()}
                 >
                   {(group) => (
@@ -863,7 +863,7 @@ function Body(props: {
           >
             Adicionar item
           </button>
-          {group().type === 'recipe' && group().recipe !== null && (
+          {group().groupType === 'recipe' && group().recipe !== null && (
             <PreparedQuantity
               // TODO: Remove as unknown as Accessor<RecipedItemGroup>
               recipedGroup={

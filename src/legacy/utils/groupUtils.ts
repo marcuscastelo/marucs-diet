@@ -1,6 +1,8 @@
 import {
   type ItemGroup,
   type RecipedItemGroup,
+  createSimpleItemGroup,
+  createRecipedItemGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Item } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
@@ -64,14 +66,11 @@ export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
 
   if ('__type' in convertible && convertible.__type === 'Recipe') {
     return [
-      {
-        id: generateId(),
+      createRecipedItemGroup({
         name: convertible.name,
         items: [...convertible.items],
-        quantity: calculateGroupQuantity(convertible.items),
-        type: 'recipe',
         recipe: convertible.id,
-      },
+      }),
     ]
   }
 
@@ -81,14 +80,11 @@ export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
 
   if ('reference' in convertible) {
     return [
-      // TODO: createItemGroup({ items: [container] })
-      {
-        id: generateId(),
+      createSimpleItemGroup({
         name: convertible.name,
         items: [{ ...convertible } satisfies Item],
         quantity: convertible.quantity,
-        type: 'simple',
-      } satisfies ItemGroup,
+      }),
     ]
   }
 

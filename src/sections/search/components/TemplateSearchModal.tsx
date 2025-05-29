@@ -10,6 +10,8 @@ import {
   type ItemGroup,
   type RecipedItemGroup,
   type SimpleItemGroup,
+  createSimpleItemGroup,
+  createRecipedItemGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { addId, generateId } from '~/legacy/utils/idUtils'
@@ -463,13 +465,11 @@ function ExternalItemEditModal(props: {
         onApply={(item) => {
           // TODO: Refactor conversion from template type to group/item types
           if (item.__type === 'Item') {
-            const newGroup: SimpleItemGroup = {
-              id: generateId(),
+            const newGroup: SimpleItemGroup = createSimpleItemGroup({
               name: item.name,
               items: [item],
-              type: 'simple',
               quantity: item.quantity,
-            }
+            })
             props.onNewItemGroup(newGroup, item).catch((err) => {
               console.error(err)
               toast.error(
@@ -477,14 +477,12 @@ function ExternalItemEditModal(props: {
               )
             })
           } else {
-            const newGroup: RecipedItemGroup = {
-              id: generateId(),
+            const newGroup: RecipedItemGroup = createRecipedItemGroup({
               name: item.name,
-              items: [...(props.selectedTemplate() as Recipe).items],
-              type: 'recipe',
-              quantity: item.quantity, // TODO: Implement quantity on recipe item groups (should influence macros)
               recipe: (props.selectedTemplate() as Recipe).id,
-            }
+              items: [...(props.selectedTemplate() as Recipe).items],
+              quantity: item.quantity, // TODO: Implement quantity on recipe item groups (should influence macros)
+            })
             props.onNewItemGroup(newGroup, item).catch((err) => {
               console.error(err)
               toast.error(

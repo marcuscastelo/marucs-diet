@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { ItemGroupEditor } from '~/legacy/utils/data/itemGroupEditor'
 import { type Item } from '~/modules/diet/item/domain/item'
 
-import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { type ItemGroup, createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 
 function mockItem(): Item {
   return {
@@ -20,13 +20,13 @@ function mockItem(): Item {
 }
 
 function mockGroup(): ItemGroup {
-  return {
+  const group = createSimpleItemGroup({
     name: 'test:name',
     items: [],
-    type: 'simple',
-    id: 1000,
     quantity: 0,
-  }
+  })
+  // Override the generated ID for testing
+  return { ...group, id: 1000 }
 }
 
 describe('ItemGroupEditor', () => {

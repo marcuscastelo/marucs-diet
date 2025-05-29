@@ -78,7 +78,7 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
   createEffect(() => {
     console.debug('[ItemGroupName] item changed, fetching API:', props.group)
     const group = props.group()
-    if (group?.type === 'recipe') {
+    if (group?.groupType === 'recipe') {
       recipeRepository
         .fetchRecipeById(group.recipe)
         .then((foundRecipe) => {
@@ -108,13 +108,13 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
       return 'text-red-900 bg-red-200 bg-opacity-50'
     }
 
-    if (group_.type === 'simple') {
+    if (group_.groupType === 'simple') {
       if (isSimpleSingleGroup(group_)) {
         return 'text-white'
       } else {
         return 'text-orange-400'
       }
-    } else if (group_.type === 'recipe' && recipe_.data !== null) {
+    } else if (group_.groupType === 'recipe' && recipe_.data !== null) {
       if (isRecipedGroupUpToDate(group_, recipe_.data)) {
         return 'text-yellow-200'
       } else {

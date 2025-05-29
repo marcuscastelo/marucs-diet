@@ -4,7 +4,7 @@ import {
 } from '~/modules/diet/day-diet/application/dayDiet'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type Item } from '~/modules/diet/item/domain/item'
-import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { type ItemGroup, createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { BackIcon } from '~/sections/common/components/icons/BackIcon'
 import { ConfirmModal } from '~/sections/common/components/ConfirmModal'
@@ -58,13 +58,11 @@ export default function TestApp() {
     reference: 31606,
   })
 
-  const [group, setGroup] = createSignal<ItemGroup>({
-    id: 1,
+  const [group, setGroup] = createSignal<ItemGroup>(createSimpleItemGroup({
     name: 'Teste',
     quantity: 100,
-    type: 'simple',
     items: [],
-  } satisfies ItemGroup)
+  }))
 
   createEffect(() => {
     setGroup({
