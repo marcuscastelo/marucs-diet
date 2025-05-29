@@ -41,7 +41,7 @@ export function ExternalItemEditModal(props: ExternalItemEditModalProps) {
           item={props.item}
           targetName={props.targetName}
           targetNameColor={props.targetNameColor}
-          macroOverflow={props.macroOverflow ?? (() => ({ enable: false }))}
+          macroOverflow={props.macroOverflow || (() => ({ enable: false }))}
           onApply={props.onApply}
           onDelete={props.onDelete}
         />
