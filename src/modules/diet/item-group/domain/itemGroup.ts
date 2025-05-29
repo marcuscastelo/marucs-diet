@@ -9,27 +9,25 @@ export const simpleItemGroupSchema = z.object({
   id: z.number(),
   name: z.string(),
   items: itemSchema.array(), // TODO: Support nested groups and recipes
-  quantity: z.number(), // TODO: Replace quantity field with a getter that calculates it
-  groupType: z.literal('simple'),
+  type: z.literal('simple'),
   recipe: z
     .number()
     .nullable()
     .optional()
     .transform((recipe) => recipe ?? undefined),
-  __type: z.literal('ItemGroup'),
+  __type: z.literal('ItemGroup').optional().default('ItemGroup'),
 })
 
 export const recipedItemGroupSchema = z.object({
   id: z.number(),
   name: z.string(),
   items: itemSchema.array().readonly(), // TODO: Support nested groups and recipes
-  quantity: z.number(), // TODO: Replace quantity field with a getter that calculates it
-  groupType: z.literal('recipe'),
+  type: z.literal('recipe'),
   recipe: z.number(),
-  __type: z.literal('ItemGroup'),
+  __type: z.literal('ItemGroup').default('ItemGroup'),
 })
 
-export const itemGroupSchema = z.discriminatedUnion('groupType', [
+export const itemGroupSchema = z.discriminatedUnion('type', [
   simpleItemGroupSchema,
   recipedItemGroupSchema,
 ])
@@ -43,7 +41,20 @@ export type ItemGroup = Readonly<z.infer<typeof itemGroupSchema>>
 export function isSimpleSingleGroup(
   group: ItemGroup,
 ): group is SimpleItemGroup {
-  return group.groupType === 'simple' && group.items.length === 1
+  return group.type === 'simple' && group.items.length === 1
+}
+
+/**
+ * Calculates the total quantity of an ItemGroup by summing all item quantities.
+ * This replaces the deprecated quantity field that was previously stored.
+ *
+ * @param group - The ItemGroup to calculate quantity for
+ * @returns The total quantity of all items in the group
+ */
+export function getItemGroupQuantity(group: ItemGroup): number {
+  return group.items
+    .map((item) => item.quantity)
+    .reduce((acc: number, quantity) => acc + quantity, 0)
 }
 
 /**
@@ -52,24 +63,20 @@ export function isSimpleSingleGroup(
  *
  * @param name - Name of the item group
  * @param items - Array of items in the group
- * @param quantity - Quantity of the group (default: 1)
  * @returns A new SimpleItemGroup
  */
 export function createSimpleItemGroup({
   name,
   items = [],
-  quantity = 1,
 }: {
   name: string
   items?: SimpleItemGroup['items']
-  quantity?: number
 }): SimpleItemGroup {
   return {
     id: generateId(),
     name,
     items,
-    quantity,
-    groupType: 'simple',
+    type: 'simple',
     recipe: undefined,
     __type: 'ItemGroup',
   }
@@ -82,26 +89,22 @@ export function createSimpleItemGroup({
  * @param name - Name of the item group
  * @param recipe - Recipe ID this group is associated with
  * @param items - Array of items in the group
- * @param quantity - Quantity of the group (default: 1)
  * @returns A new RecipedItemGroup
  */
 export function createRecipedItemGroup({
   name,
   recipe,
   items = [],
-  quantity = 1,
 }: {
   name: string
   recipe: number
   items?: RecipedItemGroup['items']
-  quantity?: number
 }): RecipedItemGroup {
   return {
     id: generateId(),
     name,
     items,
-    quantity,
-    groupType: 'recipe',
+    type: 'recipe',
     recipe,
     __type: 'ItemGroup',
   }

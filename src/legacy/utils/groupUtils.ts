@@ -3,6 +3,7 @@ import {
   type RecipedItemGroup,
   createSimpleItemGroup,
   createRecipedItemGroup,
+  getItemGroupQuantity,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Item } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
@@ -52,13 +53,6 @@ export function isRecipedGroupUpToDate(
   return true
 }
 
-function calculateGroupQuantity(groupItems: ItemGroup['items']): number {
-  return groupItems
-    .map((item) => item.quantity)
-    .reduce((acc: number, quantity) => acc + quantity, 0)
-}
-
-// TODO: Replace quantity field with a getter that calculates it
 export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
   if (Array.isArray(convertible)) {
     return { ...convertible }
@@ -69,7 +63,6 @@ export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
       createRecipedItemGroup({
         name: convertible.name,
         items: [...convertible.items],
-        quantity: calculateGroupQuantity(convertible.items),
         recipe: convertible.id,
       }),
     ]
@@ -84,7 +77,6 @@ export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
       createSimpleItemGroup({
         name: convertible.name,
         items: [{ ...convertible } satisfies Item],
-        quantity: convertible.quantity,
       }),
     ]
   }
