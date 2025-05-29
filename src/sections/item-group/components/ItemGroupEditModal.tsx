@@ -73,6 +73,7 @@ import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget
 import { stringToDate } from '~/legacy/utils/dateUtils'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { calcDayMacros, calcItemMacros } from '~/legacy/utils/macroMath'
+import { isOverflow } from '~/legacy/utils/macroOverflow'
 import toast from 'solid-toast'
 import {
   deleteRecipe,
@@ -255,9 +256,8 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
       return
     }
 
-    // TODO: Move isOverflow to a specialized module
-    const isOverflow = (property: keyof MacroNutrients) => {
-      const macroOverflowResult = (() => {
+    const checkOverflow = (property: keyof MacroNutrients) => {
+      const macroOverflowOptions = (() => {
         const persistentGroup_ = persistentGroup()
         if (persistentGroup_ === null) {
           return { enable: false }
@@ -274,42 +274,14 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
         return { enable: true, originalItem }
       })()
 
-      if (!macroOverflowResult.enable) {
-        return false
-      }
-
       const currentDayDiet_ = currentDayDiet()
-      if (currentDayDiet_ === null) {
-        console.error(
-          '[ItemNutritionalInfo] currentDayDiet is undefined, cannot calculate overflow',
-        )
-        return false
-      }
-
       const macroTarget_ = macroTarget(stringToDate(targetDay()))
-      if (macroTarget_ === null) {
-        console.error(
-          '[ItemNutritionalInfo] macroTarget is undefined, cannot calculate overflow',
-        )
-        return false
-      }
-      const originalItem_ = macroOverflowResult.originalItem
-
-      const itemMacros = calcItemMacros(item)
-      const originalItemMacros: MacroNutrients =
-        originalItem_ !== undefined
-          ? calcItemMacros(originalItem_)
-          : { carbs: 0, protein: 0, fat: 0 }
-
-      const difference =
-        originalItem_ !== undefined
-          ? itemMacros[property] - originalItemMacros[property]
-          : itemMacros[property]
-
-      const current = calcDayMacros(currentDayDiet_)[property]
-      const target = macroTarget_[property]
-
-      return current + difference > target
+      
+      return isOverflow(item, property, {
+        currentDayDiet: currentDayDiet_,
+        macroTarget: macroTarget_,
+        macroOverflowOptions
+      })
     }
 
     const onConfirm = () => {
@@ -327,7 +299,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
     }
 
     const isOverflowing =
-      isOverflow('carbs') || isOverflow('protein') || isOverflow('fat')
+      checkOverflow('carbs') || checkOverflow('protein') || checkOverflow('fat')
     if (isOverflowing) {
       showConfirmModal({
         title: 'Macronutrientes excedem metas diárias',
