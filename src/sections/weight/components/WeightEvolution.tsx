@@ -25,6 +25,7 @@ import { type ApexOptions } from 'apexcharts'
 import toast from 'solid-toast'
 import ptBrLocale from '~/assets/locales/apex/pt-br.json'
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
+import { formatError } from '~/shared/formatError'
 
 export function WeightEvolution() {
   const desiredWeight = () => currentUser()?.desired_weight ?? 0
@@ -89,7 +90,7 @@ export function WeightEvolution() {
                 .catch((error) => {
                   console.error(error)
                   toast.error(
-                    'Erro ao adicionar: \n' + JSON.stringify(error, null, 2),
+                    `Erro ao adicionar peso: ${formatError(error)}`,
                   )
                 })
             }}
@@ -206,7 +207,7 @@ function WeightView(props: { weight: Weight }) {
               deleteWeight(props.weight.id).catch((error) => {
                 console.error(error)
                 toast.error(
-                  'Erro ao deletar: \n' + JSON.stringify(error, null, 2),
+                  `Erro ao deletar peso: ${formatError(error)}`,
                 )
               })
             }}

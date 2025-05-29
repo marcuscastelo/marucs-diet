@@ -13,6 +13,7 @@ import { createEffect, createSignal } from 'solid-js'
 import { currentUserId } from '~/modules/user/application/user'
 import toast from 'solid-toast'
 import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
+import { formatError } from '~/shared/formatError'
 
 export function createDayDiet({
   target_day: targetDay,
@@ -104,8 +105,7 @@ export async function __unused_refetchCurrentDayDiet() {
     })
     .catch((error) => {
       toast.error(
-        'Falha na comunicação com o servidor ao buscar dieta do dia: \n' +
-          JSON.stringify(error, null, 2),
+        `Falha na comunicação com o servidor ao buscar dieta do dia: ${formatError(error)}`,
       )
       console.error(error)
     })
@@ -120,8 +120,9 @@ export async function fetchAllUserDayDiets(userId: User['id']) {
     })
     .catch((error) => {
       toast.error(
-        'Falha na comunicação com o servidor ao buscar dieta dos dias do usuário',
+        `Falha na comunicação com o servidor ao buscar dieta dos dias do usuário: ${formatError(error)}`,
       )
+
       console.error(error)
     })
 }
