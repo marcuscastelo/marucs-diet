@@ -54,6 +54,7 @@ import {
 import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget'
 import { stringToDate } from '~/legacy/utils/dateUtils'
 import { calcDayMacros, calcItemMacros } from '~/legacy/utils/macroMath'
+import { isOverflowForItemGroup, createMacroOverflowChecker } from '~/legacy/utils/macroOverflow'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import toast from 'solid-toast'
 import { TemplateSearchBar } from './TemplateSearchBar'
@@ -92,58 +93,22 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
     newGroup: ItemGroup,
     originalAddedItem: TemplateItem,
   ) => {
-    // TODO: Move isOverflow to a specialized module
-    const isOverflow = (property: keyof MacroNutrients) => {
-      console.log(`[TemplateSearchModal] isOverflow`)
-
-      // TODO: Create Settings for MacroOverflow warnings
-      // if (!macroOverflow().enable) {
-      // return false
-      // }
-
-      const currentDayDiet_ = currentDayDiet()
-      if (currentDayDiet_ === null) {
-        console.error(
-          '[TemplateSearchModal] currentDayDiet is undefined, cannot calculate overflow',
-        )
-        return false
-      }
-
-      const macroTarget_ = macroTarget(stringToDate(targetDay()))
-      if (macroTarget_ === null) {
-        console.error(
-          '[TemplateSearchModal] macroTarget is undefined, cannot calculate overflow',
-        )
-        return false
-      }
-      // Since it is an insertion there is no original item
-      const originalItem_ = undefined
-
-      // TODO: Support adding more than one item at a time?
-      const itemMacros = calcItemMacros(newGroup.items[0])
-      const originalItemMacros: MacroNutrients =
-        originalItem_ !== undefined
-          ? calcItemMacros(originalItem_)
-          : {
-              carbs: 0,
-              protein: 0,
-              fat: 0,
-            }
-
-      const difference =
-        originalItem_ !== undefined
-          ? itemMacros[property] - originalItemMacros[property]
-          : itemMacros[property]
-
-      const current = calcDayMacros(currentDayDiet_)[property]
-      const target = macroTarget_[property]
-
-      console.log(
-        `[TemplateSearchModal] ${property} difference:`,
-        difference,
-      )
-
-      return current + difference > target
+    // Use specialized macro overflow checker with context
+    console.log(`[TemplateSearchModal] Setting up macro overflow checking`)
+    
+    const currentDayDiet_ = currentDayDiet()
+    const macroTarget_ = macroTarget(stringToDate(targetDay()))
+    
+    // Create context object once
+    const macroOverflowContext = {
+      currentDayDiet: currentDayDiet_,
+      macroTarget: macroTarget_,
+      macroOverflowOptions: { enable: true } // Since it's an insertion, no original item
+    }
+    
+    // Helper function for checking individual macro properties
+    const checkMacroOverflow = (property: keyof MacroNutrients) => {
+      return isOverflowForItemGroup(newGroup.items, property, macroOverflowContext)
     }
 
     const onConfirm = async () => {
@@ -216,8 +181,11 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
       })
     }
 
+    // Check if any macro nutrient would overflow
     const isOverflowing =
-      isOverflow('carbs') || isOverflow('protein') || isOverflow('fat')
+      checkMacroOverflow('carbs') || 
+      checkMacroOverflow('protein') || 
+      checkMacroOverflow('fat')
 
     if (isOverflowing) {
       // Prompt if user wants to add item even if it overflows
