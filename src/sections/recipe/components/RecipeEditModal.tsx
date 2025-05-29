@@ -4,21 +4,18 @@ import {
 } from '~/modules/diet/item/domain/item'
 import { Modal } from '~/sections/common/components/Modal'
 import { type Recipe, createRecipe } from '~/modules/diet/recipe/domain/recipe'
-import RecipeEditView, {
+import {
   RecipeEditContent,
   RecipeEditHeader,
 } from '~/sections/recipe/components/RecipeEditView'
 import { RecipeEditContextProvider } from '~/sections/recipe/context/RecipeEditContext'
-import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
 import {
   ModalContextProvider,
   useModalContext,
 } from '~/sections/common/context/ModalContext'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
-import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { ExternalItemEditModal } from '~/sections/food-item/components/ExternalItemEditModal'
-import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { handleValidationError } from '~/shared/error/errorHandler'
 import {
   type ItemGroup,
@@ -29,11 +26,8 @@ import toast from 'solid-toast'
 
 import { currentUserId } from '~/modules/user/application/user'
 import {
-  type Accessor,
   createEffect,
   createSignal,
-  type Setter,
-  Show,
 } from 'solid-js'
 import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 

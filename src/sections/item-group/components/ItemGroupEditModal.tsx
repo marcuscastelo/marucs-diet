@@ -20,10 +20,8 @@ import {
   itemSchema,
 } from '~/modules/diet/item/domain/item'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
-import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { ExternalItemEditModal } from '~/sections/food-item/components/ExternalItemEditModal'
-import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
 import { RecipeIcon } from '~/sections/common/components/icons/RecipeIcon'
 import { type Recipe, createRecipe } from '~/modules/diet/recipe/domain/recipe'
 import { ExternalRecipeEditModal } from './ExternalRecipeEditModal'

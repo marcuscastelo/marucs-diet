@@ -74,7 +74,7 @@ export type TemplateSearchModalProps = {
 }
 
 export function TemplateSearchModal(props: TemplateSearchModalProps) {
-  const { visible, setVisible } = useModalContext()
+  const { visible } = useModalContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
   const [itemEditModalVisible, setItemEditModalVisible] =
