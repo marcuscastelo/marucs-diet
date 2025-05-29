@@ -4,6 +4,7 @@ import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
 import {
   type ItemGroup,
   isSimpleSingleGroup,
+  getItemGroupQuantity,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { calcGroupCalories, calcGroupMacros } from '~/legacy/utils/macroMath'
 import { isRecipedGroupUpToDate } from '~/legacy/utils/groupUtils'
@@ -78,7 +79,7 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
   createEffect(() => {
     console.debug('[ItemGroupName] item changed, fetching API:', props.group)
     const group = props.group()
-    if (group?.groupType === 'recipe') {
+    if (group?.type === 'recipe') {
       recipeRepository
         .fetchRecipeById(group.recipe)
         .then((foundRecipe) => {
@@ -108,13 +109,13 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
       return 'text-red-900 bg-red-200 bg-opacity-50'
     }
 
-    if (group_.groupType === 'simple') {
+    if (group_.type === 'simple') {
       if (isSimpleSingleGroup(group_)) {
         return 'text-white'
       } else {
         return 'text-orange-400'
       }
-    } else if (group_.groupType === 'recipe' && recipe_.data !== null) {
+    } else if (group_.type === 'recipe' && recipe_.data !== null) {
       if (isRecipedGroupUpToDate(group_, recipe_.data)) {
         return 'text-yellow-200'
       } else {
@@ -183,7 +184,7 @@ export function ItemGroupViewNutritionalInfo(props: {
     <div class="flex">
       <MacroNutrientsView macros={multipliedMacros()} />
       <div class="ml-auto">
-        <span class="text-white"> {props.group()?.quantity ?? -666}g </span>|
+        <span class="text-white"> {getItemGroupQuantity(props.group())}g </span>|
         <span class="text-white">
           {' '}
           {calcGroupCalories(props.group()).toFixed(0)}

@@ -23,6 +23,7 @@ import toast from 'solid-toast'
 import { currentUserId } from '~/modules/user/application/user'
 import { targetDay } from '~/modules/diet/day-diet/application/dayDiet'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { formatError } from '~/shared/formatError'
 
 const CARBO_CALORIES = 4 as const
 const PROTEIN_CALORIES = 4 as const
@@ -241,8 +242,7 @@ export function MacroTarget(props: MacroTargetProps) {
                                       })
                                       .catch((e) => {
                                         toast.error(
-                                          'Erro ao apagar perfil atual: \n' +
-                                            JSON.stringify(e, null, 2),
+                                          `Erro ao restaurar perfil antigo: ${formatError(e)}`,
                                         )
                                       })
                                   },

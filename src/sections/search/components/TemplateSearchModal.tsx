@@ -68,6 +68,7 @@ import {
   templateSearchTab,
   setTemplateSearch,
 } from '~/modules/search/application/search'
+import { formatError } from '~/shared/formatError'
 
 export type TemplateSearchModalProps = {
   targetName: string
@@ -202,7 +203,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
               onConfirm().catch((err) => {
                 console.error(err)
                 toast.error(
-                  'Erro ao adicionar item: \n' + JSON.stringify(err, null, 2),
+                  `Erro ao adicionar item: ${formatError(err)}`,
                 )
               })
             },
@@ -220,7 +221,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
         await onConfirm()
       } catch (err) {
         console.error(err)
-        toast.error('Erro ao adicionar item: \n' + JSON.stringify(err, null, 2))
+        toast.error(`Erro ao adicionar item: ${formatError(err)}`)
       }
     }
   }
@@ -427,7 +428,7 @@ export function TemplateSearch(props: {
           setItemEditModalVisible={props.setItemEditModalVisible}
           setSelectedTemplate={props.setSelectedTemplate}
           typing={typing}
-          refetch={refetch}
+          refetch={async () => { await refetch(); }}
         />
       </Suspense>
     </>
@@ -468,12 +469,11 @@ function ExternalItemEditModal(props: {
             const newGroup: SimpleItemGroup = createSimpleItemGroup({
               name: item.name,
               items: [item],
-              quantity: item.quantity,
             })
             props.onNewItemGroup(newGroup, item).catch((err) => {
               console.error(err)
               toast.error(
-                'Erro ao adicionar item: \n' + JSON.stringify(err, null, 2),
+                `Erro ao adicionar item: ${formatError(err)}`,
               )
             })
           } else {
@@ -481,12 +481,11 @@ function ExternalItemEditModal(props: {
               name: item.name,
               recipe: (props.selectedTemplate() as Recipe).id,
               items: [...(props.selectedTemplate() as Recipe).items],
-              quantity: item.quantity, // TODO: Implement quantity on recipe item groups (should influence macros)
             })
             props.onNewItemGroup(newGroup, item).catch((err) => {
               console.error(err)
               toast.error(
-                'Erro ao adicionar item: \n' + JSON.stringify(err, null, 2),
+                `Erro ao adicionar item: ${formatError(err)}`,
               )
             })
           }
