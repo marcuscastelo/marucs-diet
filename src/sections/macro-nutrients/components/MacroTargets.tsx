@@ -1,5 +1,8 @@
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
-import { type MacroProfile } from '~/modules/diet/macro-profile/domain/macroProfile'
+import { 
+  type MacroProfile,
+  createMacroProfile
+} from '~/modules/diet/macro-profile/domain/macroProfile'
 import {
   dateToYYYYMMDD,
   getTodayYYYMMDD,
@@ -308,18 +311,8 @@ function MacroTargetSetting(props: {
   const grams = () => emptyIfZeroElse2Decimals(props.target.grams)
   const gramsPerKg = () => emptyIfZeroElse2Decimals(props.target.gramsPerKg)
 
-  // TODO: Move to macroProfile module
-  const createNewMacroProfile = () => ({
-    id: -1,
-    owner: currentUserId(),
-    target_day: stringToDate(targetDay()),
-    gramsPerKgCarbs: 0,
-    gramsPerKgProtein: 0,
-    gramsPerKgFat: 0,
-  })
-
   const onSetGramsPerKg = (gramsPerKg: number) => {
-    const profile_ = props.currentProfile ?? createNewMacroProfile()
+    const profile_ = props.currentProfile ?? createMacroProfile(currentUserId(), stringToDate(targetDay()))
     onSaveMacroProfile({
       ...profile_,
       [`gramsPerKg${props.field.charAt(0).toUpperCase() + props.field.slice(1)}`]:
@@ -328,7 +321,7 @@ function MacroTargetSetting(props: {
   }
 
   const onSetGrams = (grams: number) => {
-    const profile_ = props.currentProfile ?? createNewMacroProfile()
+    const profile_ = props.currentProfile ?? createMacroProfile(currentUserId(), stringToDate(targetDay()))
     onSaveMacroProfile({
       ...profile_,
       [`gramsPerKg${props.field.charAt(0).toUpperCase() + props.field.slice(1)}`]:
