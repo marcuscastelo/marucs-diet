@@ -1,15 +1,5 @@
 import { ZodError } from 'zod'
 
-export interface ZodErrorInfo {
-  name: 'ZodError'
-  issues: Array<{
-    code: string
-    message: string
-    path: (string | number)[]
-    options?: string[]
-  }>
-}
-
 export function isZodError(error: unknown): error is ZodError {
   return error instanceof ZodError || 
          (typeof error === 'object' && 
