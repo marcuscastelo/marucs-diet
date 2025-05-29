@@ -3,18 +3,12 @@ import {
   useModalContext,
   ModalContextProvider,
 } from '~/sections/common/context/ModalContext'
-import BarCodeInsertModal from '~/sections/barcode/components/BarCodeInsertModal'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
-import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
 import {
   type ItemGroup,
-  type RecipedItemGroup,
-  type SimpleItemGroup,
-  createSimpleItemGroup,
-  createRecipedItemGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
-import { addId, generateId } from '~/legacy/utils/idUtils'
+import { addId } from '~/legacy/utils/idUtils'
 import { TemplateSearchTabs } from '~/sections/search/components/TemplateSearchTabs'
 import { useTyping } from '~/sections/common/hooks/useTyping'
 import {
@@ -55,8 +49,7 @@ import {
 } from '~/modules/diet/day-diet/application/dayDiet'
 import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget'
 import { stringToDate } from '~/legacy/utils/dateUtils'
-import { calcDayMacros, calcItemMacros } from '~/legacy/utils/macroMath'
-import { isOverflowForItemGroup, createMacroOverflowChecker } from '~/legacy/utils/macroOverflow'
+import { isOverflowForItemGroup } from '~/legacy/utils/macroOverflow'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import toast from 'solid-toast'
 import { TemplateSearchBar } from './TemplateSearchBar'
@@ -66,9 +59,10 @@ import {
   templateSearch,
   setTemplateSearchTab,
   templateSearchTab,
-  setTemplateSearch,
 } from '~/modules/search/application/search'
 import { formatError } from '~/shared/formatError'
+import { ExternalTemplateToItemGroupModal } from './ExternalTemplateToItemGroupModal'
+import { ExternalBarCodeInsertModal } from './ExternalBarCodeInsertModal'
 
 export type TemplateSearchModalProps = {
   targetName: string
@@ -248,11 +242,10 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
           }
         />
       </ModalContextProvider>
-      <ExternalItemEditModal
+      <ExternalTemplateToItemGroupModal
         visible={itemEditModalVisible}
         setVisible={setItemEditModalVisible}
         selectedTemplate={selectedTemplate}
-        setSelectedTemplate={setSelectedTemplate}
         targetName={props.targetName}
         onNewItemGroup={handleNewItemGroup}
       />
@@ -432,78 +425,5 @@ export function TemplateSearch(props: {
         />
       </Suspense>
     </>
-  )
-}
-
-// TODO: Extract to components on other files
-function ExternalItemEditModal(props: {
-  visible: Accessor<boolean>
-  setVisible: Setter<boolean>
-  selectedTemplate: Accessor<Template>
-  setSelectedTemplate: Setter<Template>
-  targetName: string
-  onNewItemGroup: (
-    newGroup: ItemGroup,
-    originalAddedItem: TemplateItem,
-  ) => Promise<void>
-}) {
-  return (
-    <ModalContextProvider visible={props.visible} setVisible={props.setVisible}>
-      <ItemEditModal
-        targetName={props.targetName}
-        item={() => ({
-          reference: props.selectedTemplate().id,
-          name: props.selectedTemplate().name,
-          macros: props.selectedTemplate().macros,
-          __type:
-            props.selectedTemplate().__type === 'Food'
-              ? 'Item'
-              : 'RecipeItem', // TODO: Refactor conversion from template type to group/item types
-        })}
-        macroOverflow={() => ({
-          enable: true,
-        })}
-        onApply={(item) => {
-          // TODO: Refactor conversion from template type to group/item types
-          if (item.__type === 'Item') {
-            const newGroup: SimpleItemGroup = createSimpleItemGroup({
-              name: item.name,
-              items: [item],
-            })
-            props.onNewItemGroup(newGroup, item).catch((err) => {
-              console.error(err)
-              toast.error(
-                `Erro ao adicionar item: ${formatError(err)}`,
-              )
-            })
-          } else {
-            const newGroup: RecipedItemGroup = createRecipedItemGroup({
-              name: item.name,
-              recipe: (props.selectedTemplate() as Recipe).id,
-              items: [...(props.selectedTemplate() as Recipe).items],
-            })
-            props.onNewItemGroup(newGroup, item).catch((err) => {
-              console.error(err)
-              toast.error(
-                `Erro ao adicionar item: ${formatError(err)}`,
-              )
-            })
-          }
-        }}
-      />
-    </ModalContextProvider>
-  )
-}
-
-// TODO: Extract to components on other files
-function ExternalBarCodeInsertModal(props: {
-  visible: Accessor<boolean>
-  setVisible: Setter<boolean>
-  onSelect: (template: Template) => void
-}) {
-  return (
-    <ModalContextProvider visible={props.visible} setVisible={props.setVisible}>
-      <BarCodeInsertModal onSelect={props.onSelect} />
-    </ModalContextProvider>
   )
 }
