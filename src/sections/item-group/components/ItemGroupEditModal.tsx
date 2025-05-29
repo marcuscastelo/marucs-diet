@@ -6,7 +6,7 @@ import {
   recipedItemGroupSchema,
   getItemGroupQuantity,
 } from '~/modules/diet/item-group/domain/itemGroup'
-import { Modal, ModalActions } from '~/sections/common/components/Modal'
+import { Modal } from '~/sections/common/components/Modal'
 import { ItemListView } from '~/sections/food-item/components/ItemListView'
 import {
   ItemCopyButton,
@@ -413,16 +413,16 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
             onNewItemGroup={handleNewItemGroup}
           />
           <ModalContextProvider visible={visible} setVisible={setVisible}>
-            <Modal
-              class="border-2 border-orange-800"
-              hasBackdrop={true}
-              header={
-                <Header
-                  recipe={recipeSignal().data}
-                  targetMealName={props.targetMealName}
-                />
-              }
-              body={
+            <Modal class="border-2 border-orange-800" hasBackdrop={true}>
+              <Modal.Header
+                title={
+                  <Header
+                    recipe={recipeSignal().data}
+                    targetMealName={props.targetMealName}
+                  />
+                }
+              />
+              <Modal.Content>
                 <Body
                   recipe={() => recipeSignal().data}
                   isFoodFavorite={isFoodFavorite}
@@ -434,8 +434,8 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
                   recipeEditModalVisible={recipeEditModalVisible}
                   setRecipeEditModalVisible={setRecipeEditModalVisible}
                 />
-              }
-              actions={
+              </Modal.Content>
+              <Modal.Footer>
                 <Actions
                   canApply={canApply}
                   visible={visible}
@@ -443,8 +443,8 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
                   onCancel={props.onCancel}
                   onDelete={props.onDelete}
                 />
-              }
-            />
+              </Modal.Footer>
+            </Modal>
           </ModalContextProvider>
         </>
       )}
@@ -452,10 +452,6 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   )
 }
 
-// TODO: Unify Header, Content and Actions for each component in the entire app
-/**
- * @deprecated
- */
 function Header(props: { targetMealName: string; recipe: Recipe | null }) {
   return (
     <>
@@ -529,10 +525,6 @@ function ExternalRecipeEditModal(props: {
 }
 
 
-// TODO: Unify Header, Content and Actions for each component in the entire app
-/**
- * @deprecated
- */
 function Body(props: {
   recipe: Accessor<Recipe | null>
   isFoodFavorite: (foodId: number) => boolean
@@ -877,10 +869,6 @@ function Body(props: {
   )
 }
 
-// TODO: Unify Header, Content and Actions for each component in the entire app
-/**
- * @deprecated
- */
 function Actions(props: {
   onDelete?: (groupId: number) => void
   onCancel?: () => void
@@ -894,7 +882,7 @@ function Actions(props: {
   const { show: showConfirmModal } = useConfirmModalContext()
 
   return (
-    <ModalActions>
+    <>
       {/* if there is a button in form, it will close the modal */}
       <Show when={props.onDelete}>
         {(onDelete) => (
@@ -951,7 +939,7 @@ function Actions(props: {
       >
         Aplicar
       </button>
-    </ModalActions>
+    </>
   )
 }
 

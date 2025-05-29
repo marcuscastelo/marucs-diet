@@ -1,8 +1,6 @@
 import { type Food } from '~/modules/diet/food/domain/food'
 import {
   Modal,
-  ModalActions,
-  ModalHeader,
 } from '~/sections/common/components/Modal'
 import { BarCodeReader } from '~/sections/barcode/components/BarCodeReader'
 import BarCodeSearch from '~/sections/barcode/components/BarCodeSearch'
@@ -50,47 +48,43 @@ const BarCodeInsertModal = (props: BarCodeInsertModalProps) => {
   })
 
   return (
-    <Modal
-      header={<ModalHeader title="Pesquisar por código de barras" />}
-      body={
-        <>
-          {/*
-            // TODO: Apply Show when visible for all modals?
-          */}
-          <BarCodeReader
-            enabled={visible()}
-            id={`barcode-reader-${currentId++}`}
-            onScanned={setBarCode}
-          />
-          <BarCodeSearch
-            barCode={barCode}
-            setBarCode={setBarCode}
-            food={food}
-            setFood={setFood}
-          />
-        </>
-      }
-      actions={
-        <ModalActions>
-          <button
-            class="btn"
-            onClick={(e) => {
-              e.preventDefault()
-              setVisible(false)
-            }}
-          >
-            Cancelar
-          </button>
-          <button
-            class="btn-primary btn"
-            disabled={food() === null}
-            onClick={handleSelect}
-          >
-            Aplicar
-          </button>
-        </ModalActions>
-      }
-    />
+    <Modal>
+      <Modal.Header title="Pesquisar por código de barras" />
+      <Modal.Content>
+        {/*
+          // TODO: Apply Show when visible for all modals?
+        */}
+        <BarCodeReader
+          enabled={visible()}
+          id={`barcode-reader-${currentId++}`}
+          onScanned={setBarCode}
+        />
+        <BarCodeSearch
+          barCode={barCode}
+          setBarCode={setBarCode}
+          food={food}
+          setFood={setFood}
+        />
+      </Modal.Content>
+      <Modal.Footer>
+        <button
+          class="btn"
+          onClick={(e) => {
+            e.preventDefault()
+            setVisible(false)
+          }}
+        >
+          Cancelar
+        </button>
+        <button
+          class="btn-primary btn"
+          disabled={food() === null}
+          onClick={handleSelect}
+        >
+          Aplicar
+        </button>
+      </Modal.Footer>
+    </Modal>
   )
 }
 

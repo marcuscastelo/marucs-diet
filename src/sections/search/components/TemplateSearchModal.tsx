@@ -1,4 +1,4 @@
-import { Modal, ModalHeader } from '~/sections/common/components/Modal'
+import { Modal } from '~/sections/common/components/Modal'
 import {
   useModalContext,
   ModalContextProvider,
@@ -232,25 +232,23 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
   console.debug('[TemplateSearchModal] Render')
   return (
     <>
-      <ModalContextProvider visible={visible} setVisible={setVisible}>
-        <Modal
-          header={<ModalHeader title="Adicionar um novo alimento" />}
-          body={
-            <div class="max-h-full">
-              <Show when={visible}>
-                <TemplateSearch
-                  barCodeModalVisible={barCodeModalVisible}
-                  setBarCodeModalVisible={setBarCodeModalVisible}
-                  itemEditModalVisible={itemEditModalVisible}
-                  setItemEditModalVisible={setItemEditModalVisible}
-                  setSelectedTemplate={setSelectedTemplate}
-                  modalVisible={visible}
-                />
-              </Show>
-            </div>
-          }
-        />
-      </ModalContextProvider>
+      <Modal>
+        <Modal.Header title="Adicionar um novo alimento" />
+        <Modal.Content>
+          <div class="max-h-full">
+            <Show when={visible}>
+              <TemplateSearch
+                barCodeModalVisible={barCodeModalVisible}
+                setBarCodeModalVisible={setBarCodeModalVisible}
+                itemEditModalVisible={itemEditModalVisible}
+                setItemEditModalVisible={setItemEditModalVisible}
+                setSelectedTemplate={setSelectedTemplate}
+                modalVisible={visible}
+              />
+            </Show>
+          </div>
+        </Modal.Content>
+      </Modal>
       <ExternalTemplateToItemGroupModal
         visible={itemEditModalVisible}
         setVisible={setItemEditModalVisible}

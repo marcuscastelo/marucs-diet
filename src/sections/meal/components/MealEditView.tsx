@@ -27,13 +27,11 @@ import { MealEditor } from '~/legacy/utils/data/mealEditor'
 
 export type MealEditViewProps = {
   meal: Meal
-  // TODO: Unify Header, Content and Actions for each component in the entire app
   /**
    * @deprecated
    */
   header?: JSXElement
   content?: JSXElement
-  // TODO: Unify Header, Content and Actions for each component in the entire app
   /**
    * @deprecated
    */
