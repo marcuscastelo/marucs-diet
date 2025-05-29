@@ -90,11 +90,11 @@ export function ModalHeader(_props: {
   )
 }
 
-export function ModalContent(props: { children: JSXElement }) {
+function ModalContent(props: { children: JSXElement }) {
   return <div class="modal-content">{props.children}</div>
 }
 
-export function ModalFooter(props: { children: JSXElement }) {
+function ModalFooter(props: { children: JSXElement }) {
   return <div class="modal-action">{props.children}</div>
 }
 
@@ -102,9 +102,3 @@ export function ModalFooter(props: { children: JSXElement }) {
 Modal.Header = ModalHeader
 Modal.Content = ModalContent
 Modal.Footer = ModalFooter
-
-// Legacy exports for backward compatibility during transition
-/** @deprecated Use Modal.Footer instead */
-export const ModalActions = ModalFooter
-/** @deprecated Use Modal.Content instead */
-export const ModalBody = ModalContent
