@@ -29,6 +29,7 @@ import {
 } from '~/modules/diet/day-diet/application/dayDiet'
 import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget'
 import { createMacroOverflowChecker } from '~/legacy/utils/macroOverflow'
+import { handleApiError, handleValidationError } from '~/shared/error/errorHandler'
 
 // TODO: Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
@@ -113,14 +114,22 @@ export function ItemName() {
         .fetchRecipeById(itemValue.reference)
         .then(setTemplate)
         .catch((err) => {
-          console.error('[ItemName] Error fetching recipe:', err)
+          handleApiError(err, {
+            component: 'ItemView::ItemName',
+            operation: 'fetchRecipeById',
+            additionalData: { recipeId: itemValue.reference }
+          })
           setTemplate(null)
         })
     } else {
       fetchFoodById(itemValue.reference)
         .then(setTemplate)
         .catch((err) => {
-          console.error('[ItemName] Error fetching food:', err)
+          handleApiError(err, {
+            component: 'ItemView::ItemName',
+            operation: 'fetchFoodById',
+            additionalData: { foodId: itemValue.reference }
+          })
           setTemplate(null)
         })
     }
@@ -132,9 +141,13 @@ export function ItemName() {
     } else if (item().__type === 'RecipeItem') {
       return 'text-blue-500'
     } else {
-      console.error(
-        '[ItemName] item is not a Item or RecipeItem! Item:',
-        item(),
+      handleValidationError(
+        new Error(`Item is not a Item or RecipeItem! Item: ${JSON.stringify(item())}`),
+        {
+          component: 'ItemView::ItemName',
+          operation: 'templateNameColor',
+          additionalData: { item: item() }
+        }
       )
       return 'text-red-500 bg-red-100'
     }

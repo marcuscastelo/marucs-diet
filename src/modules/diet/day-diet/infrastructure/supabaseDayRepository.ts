@@ -7,6 +7,7 @@ import { type DbReady, enforceDbReady } from '~/legacy/utils/newDbRecord'
 import supabase from '~/legacy/utils/supabase'
 import { type DayRepository } from '~/modules/diet/day-diet/domain/dayDietRepository'
 import { type Accessor, createSignal } from 'solid-js'
+import { handleApiError, handleValidationError } from '~/shared/error/errorHandler'
 
 // TODO: Delete old days table and rename days_test to days
 export const SUPABASE_TABLE_DAYS = 'days_test'
@@ -95,7 +96,11 @@ async function fetchAllUserDayDiets(
       if (result.success) {
         return result.data
       }
-      console.error('Error while parsing day: ', result.error)
+      handleValidationError('Error while parsing day', {
+        component: 'supabaseDayRepository',
+        operation: 'fetchAllUserDayDiets',
+        additionalData: { parseError: result.error }
+      })
       throw result.error
     })
 
@@ -138,8 +143,11 @@ const updateDayDiet = async (
     .select()
 
   if (error !== null) {
-    console.error('Error while updating day: ', newDay)
-    console.error(error)
+    handleApiError(error, {
+      component: 'supabaseDayRepository',
+      operation: 'updateDayDiet',
+      additionalData: { id, dayData: newDay }
+    })
     throw error
   }
 

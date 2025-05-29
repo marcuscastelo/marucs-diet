@@ -6,6 +6,7 @@ import {
   Html5QrcodeSupportedFormats,
 } from 'html5-qrcode'
 import { Show, createEffect, createSignal, onCleanup } from 'solid-js'
+import { handleScannerError } from '~/shared/error/errorHandler'
 
 export function BarCodeReader(props: {
   id: string
@@ -84,7 +85,10 @@ export function BarCodeReader(props: {
         return true
       })
       .catch((err) => {
-        console.error('Error starting scanner', err)
+        handleScannerError(err, {
+          component: 'BarCodeReader',
+          operation: 'startScanner'
+        })
         return false
       })
 
@@ -92,7 +96,10 @@ export function BarCodeReader(props: {
       didStart
         .then(async () => {
           await html5QrcodeScanner.stop().catch((err) => {
-            console.error('Error stopping scanner', err)
+            handleScannerError(err, {
+              component: 'BarCodeReader',
+              operation: 'stopScanner'
+            })
           })
         })
         .catch(() => {

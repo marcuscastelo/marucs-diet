@@ -3,6 +3,7 @@ import { type User } from '~/modules/user/domain/user'
 import { type DbReady, enforceDbReady } from '~/legacy/utils/newDbRecord'
 import supabase from '~/legacy/utils/supabase'
 import { type MeasureRepository } from '~/modules/measure/domain/measureRepository'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 const TABLE = 'body_measures'
 
@@ -23,7 +24,11 @@ async function fetchUserMeasures(userId: User['id']) {
     .order('target_timestamp', { ascending: true })
 
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'supabaseMeasureRepository',
+      operation: 'fetchUserMeasures',
+      additionalData: { userId }
+    })
     throw error
   }
 
@@ -35,7 +40,11 @@ async function insertMeasure(newMeasure: DbReady<Measure>) {
   const { data, error } = await supabase.from(TABLE).insert(measure).select()
 
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'supabaseMeasureRepository',
+      operation: 'insertMeasure',
+      additionalData: { measure }
+    })
     throw error
   }
 
@@ -54,7 +63,11 @@ async function updateMeasure(
     .select()
 
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'supabaseMeasureRepository',
+      operation: 'updateMeasure',
+      additionalData: { measureId, measure }
+    })
     throw error
   }
 
@@ -65,7 +78,11 @@ async function deleteMeasure(id: Measure['id']) {
   const { error } = await supabase.from(TABLE).delete().eq('id', id)
 
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'supabaseMeasureRepository',
+      operation: 'deleteMeasure',
+      additionalData: { id }
+    })
     throw error
   }
 }

@@ -2,6 +2,7 @@ import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macro
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { calcItemMacros, calcDayMacros } from '~/legacy/utils/macroMath'
+import { handleValidationError, logError } from '~/shared/error/errorHandler'
 
 export interface MacroOverflowOptions {
   enable: boolean
@@ -40,16 +41,20 @@ export function isOverflow(
 
   // Validate required context
   if (currentDayDiet === null) {
-    console.error(
-      '[macroOverflow] currentDayDiet is undefined, cannot calculate overflow'
-    )
+    handleValidationError('currentDayDiet is undefined, cannot calculate overflow', {
+      component: 'macroOverflow',
+      operation: 'isOverflow',
+      additionalData: { property, itemName: item.name }
+    })
     return false
   }
 
   if (macroTarget === null) {
-    console.error(
-      '[macroOverflow] macroTarget is undefined, cannot calculate overflow'
-    )
+    handleValidationError('macroTarget is undefined, cannot calculate overflow', {
+      component: 'macroOverflow',
+      operation: 'isOverflow',
+      additionalData: { property, itemName: item.name }
+    })
     return false
   }
 
@@ -108,7 +113,11 @@ export function isOverflowForItemGroup(
   context: MacroOverflowContext
 ): boolean {
   if (items.length === 0) {
-    console.warn('[macroOverflow] No items provided for overflow check')
+    logError('No items provided for overflow check', {
+      component: 'macroOverflow',
+      operation: 'isOverflowForItemGroup',
+      additionalData: { property }
+    })
     return false
   }
 

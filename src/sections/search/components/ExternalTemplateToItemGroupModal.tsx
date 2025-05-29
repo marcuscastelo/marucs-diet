@@ -13,6 +13,7 @@ import { type Template } from '~/modules/diet/template/domain/template'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { formatError } from '~/shared/formatError'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 export interface ExternalTemplateToItemGroupModalProps {
   visible: Accessor<boolean>
@@ -50,7 +51,11 @@ export function ExternalTemplateToItemGroupModal(props: ExternalTemplateToItemGr
               items: [item],
             })
             props.onNewItemGroup(newGroup, item).catch((err) => {
-              console.error(err)
+              handleApiError(err, {
+                component: 'ExternalTemplateToItemGroupModal',
+                operation: 'addSimpleItem',
+                additionalData: { itemName: item.name, templateType: 'Item' }
+              })
               toast.error(
                 `Erro ao adicionar item: ${formatError(err)}`,
               )
@@ -62,7 +67,11 @@ export function ExternalTemplateToItemGroupModal(props: ExternalTemplateToItemGr
               items: [...(props.selectedTemplate() as Recipe).items],
             })
             props.onNewItemGroup(newGroup, item).catch((err) => {
-              console.error(err)
+              handleApiError(err, {
+                component: 'ExternalTemplateToItemGroupModal',
+                operation: 'addRecipeItem',
+                additionalData: { itemName: item.name, templateType: 'Recipe' }
+              })
               toast.error(
                 `Erro ao adicionar item: ${formatError(err)}`,
               )
