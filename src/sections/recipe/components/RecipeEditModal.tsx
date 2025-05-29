@@ -2,22 +2,20 @@ import {
   type Item,
   createItem,
 } from '~/modules/diet/item/domain/item'
-import { Modal, ModalActions } from '~/sections/common/components/Modal'
+import { Modal } from '~/sections/common/components/Modal'
 import { type Recipe, createRecipe } from '~/modules/diet/recipe/domain/recipe'
-import RecipeEditView, {
+import {
   RecipeEditContent,
   RecipeEditHeader,
 } from '~/sections/recipe/components/RecipeEditView'
-import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
+import { RecipeEditContextProvider } from '~/sections/recipe/context/RecipeEditContext'
 import {
   ModalContextProvider,
   useModalContext,
 } from '~/sections/common/context/ModalContext'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
-import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { ExternalItemEditModal } from '~/sections/food-item/components/ExternalItemEditModal'
-import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { handleValidationError } from '~/shared/error/errorHandler'
 import {
   type ItemGroup,
@@ -28,11 +26,8 @@ import toast from 'solid-toast'
 
 import { currentUserId } from '~/modules/user/application/user'
 import {
-  type Accessor,
   createEffect,
   createSignal,
-  type Setter,
-  Show,
 } from 'solid-js'
 import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 
@@ -153,19 +148,40 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
       />
 
       <ModalContextProvider visible={visible} setVisible={setVisible}>
-        <Modal
-          class="border-2 border-cyan-600"
-          // TODO: Add barcode button and handle barcode scan
-          body={
-            <Body
-              recipe={recipe}
-              setRecipe={setRecipe}
-              selectedItem={selectedItem}
-              setSelectedItem={setSelectedItem}
-              onSearchNewItem={() => setTemplateSearchModalVisible(true)}
-            />
-          }
-          actions={
+        <Modal class="border-2 border-cyan-600">
+          <Modal.Header 
+            title={
+              <RecipeEditContextProvider recipe={recipe} setRecipe={setRecipe}>
+                <RecipeEditHeader
+                  onUpdateRecipe={(newRecipe) => {
+                    console.debug('[RecipeEditModal] onUpdateRecipe: ', newRecipe)
+                    setRecipe(newRecipe)
+                  }}
+                />
+              </RecipeEditContextProvider>
+            }
+          />
+          <Modal.Content>
+            <RecipeEditContextProvider recipe={recipe} setRecipe={setRecipe}>
+              <RecipeEditContent
+                onNewItem={() => {
+                  setTemplateSearchModalVisible(true)
+                }}
+                onEditItem={(item) => {
+                  // TODO: Allow user to edit recipe inside recipe
+                  if (item.__type === 'RecipeItem') {
+                    toast.error(
+                      'Ainda não é possível editar receitas dentro de receitas! Funcionalidade em desenvolvimento',
+                    )
+                    return
+                  }
+
+                  setSelectedItem(item)
+                }}
+              />
+            </RecipeEditContextProvider>
+          </Modal.Content>
+          <Modal.Footer>
             <Actions
               onApply={() => {
                 props.onSaveRecipe(recipe())
@@ -175,53 +191,13 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
                 props.onDelete(recipe().id)
               }}
             />
-          }
-        />
+          </Modal.Footer>
+        </Modal>
       </ModalContextProvider>
     </>
   )
 }
 
-function Body(props: {
-  recipe: Accessor<Recipe>
-  setRecipe: Setter<Recipe>
-  selectedItem: Accessor<Item | null>
-  setSelectedItem: Setter<Item | null>
-  onSearchNewItem: () => void
-}) {
-  return (
-    <RecipeEditView
-      recipe={props.recipe}
-      setRecipe={props.setRecipe}
-      header={
-        <RecipeEditHeader
-          onUpdateRecipe={(newRecipe) => {
-            console.debug('[RecipeEditModal] onUpdateRecipe: ', newRecipe)
-            props.setRecipe(newRecipe)
-          }}
-        />
-      }
-      content={
-        <RecipeEditContent
-          onNewItem={() => {
-            props.onSearchNewItem()
-          }}
-          onEditItem={(item) => {
-            // TODO: Allow user to edit recipe inside recipe
-            if (item.__type === 'RecipeItem') {
-              toast.error(
-                'Ainda não é possível editar receitas dentro de receitas! Funcionalidade em desenvolvimento',
-              )
-              return
-            }
-
-            props.setSelectedItem(item)
-          }}
-        />
-      }
-    />
-  )
-}
 
 function Actions(props: {
   onApply: () => void
@@ -232,7 +208,7 @@ function Actions(props: {
   const { show: showConfirmModal } = useConfirmModalContext()
 
   return (
-    <ModalActions>
+    <>
       <button
         class="btn-error btn mr-auto"
         onClick={(e) => {
@@ -279,6 +255,6 @@ function Actions(props: {
       >
         Aplicar
       </button>
-    </ModalActions>
+    </>
   )
 }

@@ -1,7 +1,6 @@
-import { Modal, ModalHeader } from '~/sections/common/components/Modal'
+import { Modal } from '~/sections/common/components/Modal'
 import {
   useModalContext,
-  ModalContextProvider,
 } from '~/sections/common/context/ModalContext'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import {
@@ -75,7 +74,7 @@ export type TemplateSearchModalProps = {
 }
 
 export function TemplateSearchModal(props: TemplateSearchModalProps) {
-  const { visible, setVisible } = useModalContext()
+  const { visible } = useModalContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
   const [itemEditModalVisible, setItemEditModalVisible] =
@@ -232,25 +231,23 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
   console.debug('[TemplateSearchModal] Render')
   return (
     <>
-      <ModalContextProvider visible={visible} setVisible={setVisible}>
-        <Modal
-          header={<ModalHeader title="Adicionar um novo alimento" />}
-          body={
-            <div class="max-h-full">
-              <Show when={visible}>
-                <TemplateSearch
-                  barCodeModalVisible={barCodeModalVisible}
-                  setBarCodeModalVisible={setBarCodeModalVisible}
-                  itemEditModalVisible={itemEditModalVisible}
-                  setItemEditModalVisible={setItemEditModalVisible}
-                  setSelectedTemplate={setSelectedTemplate}
-                  modalVisible={visible}
-                />
-              </Show>
-            </div>
-          }
-        />
-      </ModalContextProvider>
+      <Modal>
+        <Modal.Header title="Adicionar um novo alimento" />
+        <Modal.Content>
+          <div class="max-h-full">
+            <Show when={visible}>
+              <TemplateSearch
+                barCodeModalVisible={barCodeModalVisible}
+                setBarCodeModalVisible={setBarCodeModalVisible}
+                itemEditModalVisible={itemEditModalVisible}
+                setItemEditModalVisible={setItemEditModalVisible}
+                setSelectedTemplate={setSelectedTemplate}
+                modalVisible={visible}
+              />
+            </Show>
+          </div>
+        </Modal.Content>
+      </Modal>
       <ExternalTemplateToItemGroupModal
         visible={itemEditModalVisible}
         setVisible={setItemEditModalVisible}

@@ -64,7 +64,6 @@ export default function RecipeEditView(props: RecipeEditViewProps) {
   )
 }
 
-// TODO: Unify Header, Content and Actions for each component in the entire app
 export function RecipeEditHeader(props: {
   onUpdateRecipe: (Recipe: Recipe) => void
 }) {

@@ -7,10 +7,9 @@ import { type Item } from '~/modules/diet/item/domain/item'
 import { type ItemGroup, createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { BackIcon } from '~/sections/common/components/icons/BackIcon'
-import { ConfirmModal } from '~/sections/common/components/ConfirmModal'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { LoadingRing } from '~/sections/common/components/LoadingRing'
-import { Modal, ModalHeader } from '~/sections/common/components/Modal'
+import { Modal } from '~/sections/common/components/Modal'
 import { PageLoading } from '~/sections/common/components/PageLoading'
 import { TestChart } from '~/sections/common/components/charts/TestChart'
 import {
@@ -60,7 +59,6 @@ export default function TestApp() {
 
   const [group, setGroup] = createSignal<ItemGroup>(createSimpleItemGroup({
     name: 'Teste',
-    quantity: 100,
     items: [],
   }))
 
@@ -278,7 +276,20 @@ function TestModal() {
 
   return (
     <ModalContextProvider visible={visible} setVisible={setVisible}>
-      <Modal header={<ModalHeader title="adf" />} body={<h1>asdfasdf</h1>} />
+      <Modal>
+        <Modal.Header title="Test Modal" />
+        <Modal.Content>
+          <h1>This is a test modal</h1>
+          <button
+            class="btn btn-primary"
+            onClick={() => {
+              setVisible(false)
+            }}
+          >
+            Close
+          </button>
+        </Modal.Content>
+      </Modal>
       <button onClick={() => setVisible(!visible())}>Open modal!</button>
     </ModalContextProvider>
   )

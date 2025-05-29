@@ -1,7 +1,5 @@
 import {
   Modal,
-  ModalActions,
-  ModalHeader,
 } from '~/sections/common/components/Modal'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
@@ -14,29 +12,28 @@ export function ConfirmModal() {
 
   return (
     <ModalContextProvider visible={visible} setVisible={setVisible}>
-      <Modal
-        header={<ModalHeader title={<>{title()}</>} backButton={false} />}
-        body={<>{body()}</>}
-        hasBackdrop={hasBackdrop()}
-        actions={
-          <ModalActions>
-            <For each={actions()}>
-              {(action) => (
-                <button
-                  class={`btn ${
-                    action.primary !== undefined && action.primary
-                      ? 'btn-primary'
-                      : 'btn-ghost'
-                  }`}
-                  onClick={action.onClick}
-                >
-                  {action.text}
-                </button>
-              )}
-            </For>
-          </ModalActions>
-        }
-      />
+      <Modal hasBackdrop={hasBackdrop()}>
+        <Modal.Header title={title()()} backButton={false} />
+        <Modal.Content>
+          {body()()}
+        </Modal.Content>
+        <Modal.Footer>
+          <For each={actions()}>
+            {(action) => (
+              <button
+                class={`btn ${
+                  action.primary !== undefined && action.primary
+                    ? 'btn-primary'
+                    : 'btn-ghost'
+                }`}
+                onClick={action.onClick}
+              >
+                {action.text}
+              </button>
+            )}
+          </For>
+        </Modal.Footer>
+      </Modal>
     </ModalContextProvider>
   )
 }

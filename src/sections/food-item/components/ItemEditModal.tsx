@@ -6,7 +6,7 @@ import {
   ItemView,
 } from '~/sections/food-item/components/ItemView'
 import { type Item } from '~/modules/diet/item/domain/item'
-import { Modal, ModalActions } from '~/sections/common/components/Modal'
+import { Modal } from '~/sections/common/components/Modal'
 import { useModalContext } from '~/sections/common/context/ModalContext'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { generateId } from '~/legacy/utils/idUtils'
@@ -47,6 +47,7 @@ export type ItemEditModalProps = {
 export const ItemEditModal = (_props: ItemEditModalProps) => {
   const props = mergeProps({ targetNameColor: 'text-green-500' }, _props)
   const { setVisible } = useModalContext()
+  const { show: showConfirmModal } = useConfirmModalContext()
 
   // TODO: Better initial state for item on ItemEditModal
   const [item, setItem] = createSignal<TemplateItem>({
@@ -66,63 +67,83 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
   const canApply = () => item().quantity > 0
 
   return (
-    <>
-      <Modal
-        class="border-2 border-white"
-        header={
-          <Header
-            item={item}
-            targetName={props.targetName}
-            targetNameColor={props.targetNameColor}
-          />
-        }
-        body={
-          <Body
-            canApply={canApply()}
-            item={item}
-            setItem={setItem}
-            macroOverflow={props.macroOverflow}
-          />
-        }
-        actions={
-          <Actions
-            id={item().id}
-            canApply={canApply()}
-            onApply={() => {
-              console.debug(
-                '[ItemEditModal] onApply - calling onApply with item.value=',
-                item(),
-              )
-              props.onApply(item())
-              setVisible(false)
-            }}
-            onCancel={() => {
-              setVisible(false)
-              props.onCancel?.()
-            }}
-            onDelete={props.onDelete}
-          />
+    <Modal class="border-2 border-white">
+      <Modal.Header 
+        title={
+          <span>
+            Editando item em
+            <span class={props.targetNameColor}>
+              {' '}
+              &quot;{props.targetName ?? 'ERRO: destino desconhecido'}&quot;{' '}
+            </span>
+          </span>
         }
       />
-    </>
-  )
-}
-
-function Header(props: {
-  item: Accessor<TemplateItem>
-  targetName: string
-  targetNameColor: string
-}) {
-  return (
-    <>
-      <h3 class="text-lg font-bold text-white">
-        Editando item em
-        <span class={props.targetNameColor}>
-          {' '}
-          &quot;{props.targetName ?? 'ERRO: destino desconhecido'}&quot;{' '}
-        </span>
-      </h3>
-    </>
+      <Modal.Content>
+        <Body
+          canApply={canApply()}
+          item={item}
+          setItem={setItem}
+          macroOverflow={props.macroOverflow}
+        />
+      </Modal.Content>
+      <Modal.Footer>
+        {props.onDelete !== undefined && (
+          <button
+            class="btn-error btn mr-auto"
+            onClick={(e) => {
+              e.preventDefault()
+              props.onDelete !== undefined &&
+                showConfirmModal({
+                  title: 'Excluir item',
+                  body: 'Tem certeza que deseja excluir este item?',
+                  actions: [
+                    {
+                      text: 'Cancelar',
+                      onClick: () => undefined,
+                    },
+                    {
+                      text: 'Excluir',
+                      primary: true,
+                      onClick: () => {
+                        props.onDelete?.(item().id)
+                      },
+                    },
+                  ],
+                })
+            }}
+          >
+            Excluir
+          </button>
+        )}
+        <button
+          class="btn"
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            setVisible(false)
+            props.onCancel?.()
+          }}
+        >
+          Cancelar
+        </button>
+        <button
+          class="btn"
+          disabled={!canApply()}
+          onClick={(e) => {
+            e.preventDefault()
+            console.debug(
+              '[ItemEditModal] onApply - calling onApply with item.value=',
+              item(),
+            )
+            props.onApply(item())
+            setVisible(false)
+          }}
+        >
+          Aplicar
+        </button>
+      </Modal.Footer>
+    </Modal>
   )
 }
 
@@ -303,73 +324,5 @@ function Body(props: {
         nutritionalInfo={<ItemNutritionalInfo/>}
       />
     </>
-  )
-}
-// TODO: Unify Header, Content and Actions for each component in the entire app
-/**
- * @deprecated
- */
-function Actions(props: {
-  id: number
-  canApply: boolean
-  onDelete?: (id: number) => void
-  onCancel?: () => void
-  onApply: () => void
-}) {
-  const { show: showConfirmModal } = useConfirmModalContext()
-
-  return (
-    <ModalActions>
-      {/* if there is a button in form, it will close the modal */}
-      {props.onDelete !== undefined && (
-        <button
-          class="btn-error btn mr-auto"
-          onClick={(e) => {
-            e.preventDefault()
-
-            props.onDelete !== undefined &&
-              showConfirmModal({
-                title: 'Excluir item',
-                body: 'Tem certeza que deseja excluir este item?',
-                actions: [
-                  {
-                    text: 'Cancelar',
-                    onClick: () => undefined,
-                  },
-                  {
-                    text: 'Excluir',
-                    primary: true,
-                    onClick: () => {
-                      props.onDelete?.(props.id)
-                    },
-                  },
-                ],
-              })
-          }}
-        >
-          Excluir
-        </button>
-      )}
-      <button
-        class="btn"
-        onClick={(e) => {
-          e.preventDefault()
-          e.stopPropagation()
-          props.onCancel?.()
-        }}
-      >
-        Cancelar
-      </button>
-      <button
-        class="btn"
-        disabled={!props.canApply}
-        onClick={(e) => {
-          e.preventDefault()
-          props.onApply() // TODO: pass data inside onApply()
-        }}
-      >
-        Aplicar
-      </button>
-    </ModalActions>
   )
 }

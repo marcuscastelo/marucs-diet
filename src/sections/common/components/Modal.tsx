@@ -5,17 +5,7 @@ import { mergeProps, type JSXElement, createEffect } from 'solid-js'
 import { DarkToaster } from './DarkToaster'
 
 export type ModalProps = {
-  // TODO: Unify Header, Content and Actions for each component in the entire app
-  /**
-   * @deprecated
-   */
-  header?: JSXElement
-  body?: JSXElement
-  // TODO: Unify Header, Content and Actions for each component in the entire app
-  /**
-   * @deprecated
-   */
-  actions?: JSXElement
+  children: JSXElement
   hasBackdrop?: boolean
   class?: string
 }
@@ -23,7 +13,7 @@ export type ModalProps = {
 let modalId = 1
 
 export const Modal = (_props: ModalProps) => {
-  const props = mergeProps({ hasBackdrop: true, className: '' }, _props)
+  const props = mergeProps({ hasBackdrop: true, class: '' }, _props)
   const { visible, setVisible } = useModalContext()
 
   const handleClose = (
@@ -64,9 +54,7 @@ export const Modal = (_props: ModalProps) => {
       <DarkToaster />
 
       <div class={cn('modal-box bg-gray-800 text-white', props.class)}>
-        {props.header}
-        {props.body}
-        {props.actions}
+        {props.children}
       </div>
       {props.hasBackdrop && (
         <form method="dialog" class="modal-backdrop">
@@ -77,11 +65,7 @@ export const Modal = (_props: ModalProps) => {
   )
 }
 
-// TODO: Use Modal.Header & Modal.Body or delete them
-// TODO: Unify Header, Content and Actions for each component in the entire app
-/**
- * @deprecated
- */
+// Modern composition-based modal components
 export function ModalHeader(_props: {
   title: JSXElement
   backButton?: boolean
@@ -105,17 +89,16 @@ export function ModalHeader(_props: {
     </div>
   )
 }
-// TODO: Unify Header, Content and Actions for each component in the entire app
-/**
- * @deprecated
- */
-export function ModalBody() {
-  return <>Modal body</>
+
+function ModalContent(props: { children: JSXElement }) {
+  return <div class="modal-content">{props.children}</div>
 }
-// TODO: Unify Header, Content and Actions for each component in the entire app
-/**
- * @deprecated
- */
-export function ModalActions(props: { children: JSXElement }) {
+
+function ModalFooter(props: { children: JSXElement }) {
   return <div class="modal-action">{props.children}</div>
 }
+
+// Compound component pattern
+Modal.Header = ModalHeader
+Modal.Content = ModalContent
+Modal.Footer = ModalFooter

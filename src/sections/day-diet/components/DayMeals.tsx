@@ -7,7 +7,6 @@ import {
 } from '~/sections/meal/components/MealEditView'
 import DayMacros from '~/sections/day-diet/components/DayMacros'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
-import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { ItemGroupEditModal } from '~/sections/item-group/components/ItemGroupEditModal'

@@ -6,7 +6,7 @@ import {
   recipedItemGroupSchema,
   getItemGroupQuantity,
 } from '~/modules/diet/item-group/domain/itemGroup'
-import { Modal, ModalActions } from '~/sections/common/components/Modal'
+import { Modal } from '~/sections/common/components/Modal'
 import { ItemListView } from '~/sections/food-item/components/ItemListView'
 import {
   ItemCopyButton,
@@ -20,13 +20,11 @@ import {
   itemSchema,
 } from '~/modules/diet/item/domain/item'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
-import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { ExternalItemEditModal } from '~/sections/food-item/components/ExternalItemEditModal'
-import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
 import { RecipeIcon } from '~/sections/common/components/icons/RecipeIcon'
-import { RecipeEditModal } from '~/sections/recipe/components/RecipeEditModal'
 import { type Recipe, createRecipe } from '~/modules/diet/recipe/domain/recipe'
+import { ExternalRecipeEditModal } from './ExternalRecipeEditModal'
 import { type Loadable } from '~/legacy/utils/loadable'
 
 import {
@@ -413,16 +411,16 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
             onNewItemGroup={handleNewItemGroup}
           />
           <ModalContextProvider visible={visible} setVisible={setVisible}>
-            <Modal
-              class="border-2 border-orange-800"
-              hasBackdrop={true}
-              header={
-                <Header
-                  recipe={recipeSignal().data}
-                  targetMealName={props.targetMealName}
-                />
-              }
-              body={
+            <Modal class="border-2 border-orange-800" hasBackdrop={true}>
+              <Modal.Header
+                title={
+                  <Title
+                    recipe={recipeSignal().data}
+                    targetMealName={props.targetMealName}
+                  />
+                }
+              />
+              <Modal.Content>
                 <Body
                   recipe={() => recipeSignal().data}
                   isFoodFavorite={isFoodFavorite}
@@ -434,8 +432,8 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
                   recipeEditModalVisible={recipeEditModalVisible}
                   setRecipeEditModalVisible={setRecipeEditModalVisible}
                 />
-              }
-              actions={
+              </Modal.Content>
+              <Modal.Footer>
                 <Actions
                   canApply={canApply}
                   visible={visible}
@@ -443,8 +441,8 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
                   onCancel={props.onCancel}
                   onDelete={props.onDelete}
                 />
-              }
-            />
+              </Modal.Footer>
+            </Modal>
           </ModalContextProvider>
         </>
       )}
@@ -452,11 +450,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   )
 }
 
-// TODO: Unify Header, Content and Actions for each component in the entire app
-/**
- * @deprecated
- */
-function Header(props: { targetMealName: string; recipe: Recipe | null }) {
+function Title(props: { targetMealName: string; recipe: Recipe | null }) {
   return (
     <>
       <h3 class="text-lg font-bold text-white">
@@ -468,71 +462,6 @@ function Header(props: { targetMealName: string; recipe: Recipe | null }) {
   )
 }
 
-function ExternalRecipeEditModal(props: {
-  recipe: Recipe | null
-  setRecipe: (recipe: Recipe | null) => void
-  visible: Accessor<boolean>
-  setVisible: Setter<boolean>
-  onRefetch: () => void
-}) {
-  return (
-    <Show when={props.recipe}>
-      {(recipe) => (
-        <ModalContextProvider
-          visible={props.visible}
-          setVisible={props.setVisible}
-        >
-          <RecipeEditModal
-            recipe={recipe()}
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            onSaveRecipe={(recipe) => {
-              console.debug(
-                '[ItemGroupEditModal::ExternalRecipeEditModal] onSaveRecipe:',
-                recipe,
-              )
-              updateRecipe(recipe.id, recipe)
-                .then(props.setRecipe)
-                .catch((e) => {
-                  // TODO: Remove all console.error from Components and move to application/ folder
-                  console.error(
-                    '[ItemGroupEditModal::ExternalRecipeEditModal] Error updating recipe:',
-                    e,
-                  )
-                })
-            }}
-            onRefetch={props.onRefetch}
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            onDelete={(recipeId) => {
-              console.debug(
-                '[ItemGroupEditModal::ExternalRecipeEditModal] onDelete:',
-                recipeId,
-              )
-
-              const afterDelete = () => {
-                props.setRecipe(null)
-              }
-
-              deleteRecipe(recipeId)
-                .then(afterDelete)
-                .catch((e) => {
-                  console.error(
-                    '[ItemGroupEditModal::ExternalRecipeEditModal] Error deleting recipe:',
-                    e,
-                  )
-                })
-            }}
-          />
-        </ModalContextProvider>
-      )}
-    </Show>
-  )
-}
-
-
-// TODO: Unify Header, Content and Actions for each component in the entire app
-/**
- * @deprecated
- */
 function Body(props: {
   recipe: Accessor<Recipe | null>
   isFoodFavorite: (foodId: number) => boolean
@@ -877,10 +806,6 @@ function Body(props: {
   )
 }
 
-// TODO: Unify Header, Content and Actions for each component in the entire app
-/**
- * @deprecated
- */
 function Actions(props: {
   onDelete?: (groupId: number) => void
   onCancel?: () => void
@@ -894,7 +819,7 @@ function Actions(props: {
   const { show: showConfirmModal } = useConfirmModalContext()
 
   return (
-    <ModalActions>
+    <>
       {/* if there is a button in form, it will close the modal */}
       <Show when={props.onDelete}>
         {(onDelete) => (
@@ -951,7 +876,7 @@ function Actions(props: {
       >
         Aplicar
       </button>
-    </ModalActions>
+    </>
   )
 }
 
