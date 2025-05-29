@@ -30,8 +30,8 @@ export function ExternalTemplateSearchModal(props: ExternalTemplateSearchModalPr
     props.onFinish?.()
   }
 
+  // Trigger the onRefetch callback whenever the modal is closed (i.e., when visible becomes false).
   createEffect(() => {
-    // Refetch on modal close
     if (!props.visible()) {
       props.onRefetch()
     }
