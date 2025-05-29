@@ -18,7 +18,10 @@ import {
   createItem,
   itemSchema,
 } from '~/modules/diet/item/domain/item'
+import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
+import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
+import { ExternalItemEditModal } from '~/sections/food-item/components/ExternalItemEditModal'
 import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
 import { RecipeIcon } from '~/sections/common/components/icons/RecipeIcon'
 import { RecipeEditModal } from '~/sections/recipe/components/RecipeEditModal'
@@ -146,7 +149,7 @@ const askUnlinkRecipe = (
 
 const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   const { visible, setVisible } = useModalContext()
-  const { group, setGroup } = useItemGroupEditContext()
+  const { group, persistentGroup, setGroup } = useItemGroupEditContext()
   const { show: showConfirmModal } = useConfirmModalContext()
   const [recipeEditModalVisible, setRecipeEditModalVisible] =
     createSignal(false)
@@ -154,6 +157,36 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
     createSignal(false)
   const [templateSearchModalVisible, setTemplateSearchModalVisible] =
     createSignal(false)
+
+  const handleNewItemGroup = (newGroup: ItemGroup) => {
+    console.debug('handleNewItemGroup', newGroup)
+
+    const currentGroup = group()
+    if (currentGroup === null) {
+      console.error('group is null')
+      throw new Error('group is null')
+    }
+
+    if (!isSimpleSingleGroup(newGroup)) {
+      // TODO: Handle non-simple groups on handleNewItemGroup
+      console.error('TODO: Handle non-simple groups')
+      toast.error(
+        'Grupos complexos ainda não são suportados, funcionalidade em desenvolvimento',
+      )
+      return
+    }
+
+    const finalGroup: ItemGroup = new ItemGroupEditor(currentGroup)
+      .addItem(newGroup.items[0])
+      .finish()
+
+    console.debug(
+      'handleNewItemGroup: applying',
+      JSON.stringify(finalGroup, null, 2),
+    )
+
+    setGroup(finalGroup)
+  }
 
   const [recipeSignal, setRecipeSignal] = createSignal<Loadable<Recipe | null>>(
     {
@@ -207,6 +240,131 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
 
   const canApply = (group()?.name.length ?? 0) > 0 && editSelection() === null
 
+  const handleItemApply = (item: TemplateItem) => {
+    const group_ = group()
+    if (group_ === null) {
+      console.error('group is null')
+      throw new Error('group is null')
+    }
+
+    // TODO: Allow user to edit recipe inside a group
+    if (item.__type === 'RecipeItem') {
+      toast.error(
+        'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
+      )
+      return
+    }
+
+    // TODO: Move isOverflow to a specialized module
+    const isOverflow = (property: keyof MacroNutrients) => {
+      const macroOverflowResult = (() => {
+        const persistentGroup_ = persistentGroup()
+        if (persistentGroup_ === null) {
+          return { enable: false }
+        }
+        const currentItem = editSelection()?.item
+        if (currentItem === undefined) {
+          return { enable: false }
+        }
+        const originalItem = persistentGroup_.items.find((i: Item) => i.id === currentItem.id)
+        if (originalItem === undefined) {
+          console.error('[ExternalItemEditModal] originalItem is not found')
+          return { enable: false }
+        }
+        return { enable: true, originalItem }
+      })()
+
+      if (!macroOverflowResult.enable) {
+        return false
+      }
+
+      const currentDayDiet_ = currentDayDiet()
+      if (currentDayDiet_ === null) {
+        console.error(
+          '[ItemNutritionalInfo] currentDayDiet is undefined, cannot calculate overflow',
+        )
+        return false
+      }
+
+      const macroTarget_ = macroTarget(stringToDate(targetDay()))
+      if (macroTarget_ === null) {
+        console.error(
+          '[ItemNutritionalInfo] macroTarget is undefined, cannot calculate overflow',
+        )
+        return false
+      }
+      const originalItem_ = macroOverflowResult.originalItem
+
+      const itemMacros = calcItemMacros(item)
+      const originalItemMacros: MacroNutrients =
+        originalItem_ !== undefined
+          ? calcItemMacros(originalItem_)
+          : { carbs: 0, protein: 0, fat: 0 }
+
+      const difference =
+        originalItem_ !== undefined
+          ? itemMacros[property] - originalItemMacros[property]
+          : itemMacros[property]
+
+      const current = calcDayMacros(currentDayDiet_)[property]
+      const target = macroTarget_[property]
+
+      return current + difference > target
+    }
+
+    const onConfirm = () => {
+      console.debug(
+        `[ExternalItemEditModal] onApply: setting itemId=${item.id} to item=`,
+        item,
+      )
+      const newGroup: ItemGroup = new ItemGroupEditor(group_)
+        .editItem(item.id, (editor) => editor?.replace(item))
+        .finish()
+
+      console.debug('newGroup', newGroup)
+      setGroup(newGroup)
+      setEditSelection(null)
+    }
+
+    const isOverflowing =
+      isOverflow('carbs') || isOverflow('protein') || isOverflow('fat')
+    if (isOverflowing) {
+      showConfirmModal({
+        title: 'Macronutrientes excedem metas diárias',
+        body: 'Os macronutrientes desse item excedem as metas diárias. Deseja continuar mesmo assim?',
+        actions: [
+          {
+            text: 'Cancelar',
+            onClick: () => undefined,
+          },
+          {
+            text: 'Continuar',
+            primary: true,
+            onClick: onConfirm,
+          },
+        ],
+      })
+    } else {
+      onConfirm()
+    }
+  }
+
+  const handleItemDelete = (itemId: TemplateItem['id']) => {
+    const group_ = group()
+    if (group_ === null) {
+      console.error('group is null')
+      throw new Error('group is null')
+    }
+
+    const newGroup: ItemGroup = new ItemGroupEditor(group_)
+      .deleteItem(itemId)
+      .finish()
+
+    console.debug('newGroup', newGroup)
+    setGroup(newGroup)
+    setEditSelection(null)
+  }
+
   return (
     <Show
       when={(() => {
@@ -232,13 +390,59 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
           <ExternalItemEditModal
             visible={itemEditModalVisible}
             setVisible={setItemEditModalVisible}
+            item={() => {
+              console.debug(
+                '[ExternalItemEditModal] <computed> item: ',
+                editSelection()?.item,
+              )
+              return (
+                editSelection()?.item ??
+                createItem({ name: 'Bug: selection was null', reference: 0 })
+              )
+            }}
+            targetName={(() => {
+              const group_ = group()
+              if (group_ !== null) {
+                const simpleGroup = group_ !== null && isSimpleSingleGroup(group_)
+                const receivedName = simpleGroup
+                  ? props.targetMealName
+                  : group_.name
+                return receivedName.length > 0 ? receivedName : 'Erro: Nome vazio'
+              }
+              return 'Erro: Grupo de alimentos nulo'
+            })()}
+            targetNameColor={(() => {
+              const group_ = group()
+              return group_ !== null && isSimpleSingleGroup(group_)
+                ? 'text-green-500'
+                : 'text-orange-400'
+            })()}
+            macroOverflow={() => {
+              const persistentGroup_ = persistentGroup()
+              if (persistentGroup_ === null) {
+                return { enable: false }
+              }
+              const item = editSelection()?.item
+              if (item === undefined) {
+                return { enable: false }
+              }
+              const originalItem = persistentGroup_.items.find((i: Item) => i.id === item.id)
+              if (originalItem === undefined) {
+                console.error('[ExternalItemEditModal] originalItem is not found')
+                return { enable: false }
+              }
+              return { enable: true, originalItem }
+            }}
+            onApply={handleItemApply}
+            onDelete={handleItemDelete}
             onClose={() => setEditSelection(null)}
-            targetMealName={props.targetMealName}
           />
           <ExternalTemplateSearchModal
             visible={templateSearchModalVisible}
             setVisible={setTemplateSearchModalVisible}
             onRefetch={props.onRefetch}
+            targetName={group()?.name ?? 'ERRO: Grupo de alimentos não especificado'}
+            onNewItemGroup={handleNewItemGroup}
           />
           <ModalContextProvider visible={visible} setVisible={setVisible}>
             <Modal
@@ -356,281 +560,6 @@ function ExternalRecipeEditModal(props: {
   )
 }
 
-function ExternalItemEditModal(props: {
-  visible: Accessor<boolean>
-  setVisible: Setter<boolean>
-  targetMealName: string
-  onClose: () => void
-}) {
-  const { group, persistentGroup, setGroup } = useItemGroupEditContext()
-
-  const { show: showConfirmModal } = useConfirmModalContext()
-
-  const handleCloseWithNoChanges = () => {
-    props.setVisible(false)
-    props.onClose()
-  }
-
-  const handleCloseWithChanges = (newGroup: ItemGroup) => {
-    if (group() === null) {
-      console.error('group is null')
-      throw new Error('group is null')
-    }
-
-    console.debug(
-      '[ExternalItemEditModal] handleCloseWithChanges - newGroup: ',
-      newGroup,
-    )
-    setGroup(newGroup)
-    props.setVisible(false)
-    props.onClose()
-  }
-
-  createEffect(() => {
-    if (!props.visible()) {
-      handleCloseWithNoChanges()
-    }
-  })
-
-  const macroOverflow = () => {
-    const persistentGroup_ = persistentGroup()
-    if (persistentGroup_ === null) {
-      return {
-        enable: false,
-      }
-    }
-
-    const item = editSelection()?.item
-    if (item === undefined) {
-      return {
-        enable: false,
-      }
-    }
-
-    // Get the original item from the persistent group
-    const originalItem = persistentGroup_.items.find((i) => i.id === item.id)
-
-    if (originalItem === undefined) {
-      console.error('[ExternalItemEditModal] originalItem is not found')
-      return {
-        enable: false,
-      }
-    }
-
-    return {
-      enable: true,
-      originalItem,
-    }
-  }
-
-  return (
-    <ModalContextProvider visible={props.visible} setVisible={props.setVisible}>
-      <ItemEditModal
-        targetName={(() => {
-          const group_ = group()
-
-          if (group_ !== null) {
-            const simpleGroup = group_ !== null && isSimpleSingleGroup(group_)
-            const receivedName = simpleGroup
-              ? props.targetMealName
-              : group_.name
-            return receivedName.length > 0 ? receivedName : 'Erro: Nome vazio'
-          }
-
-          return 'Erro: Grupo de alimentos nulo'
-        })()}
-        targetNameColor={(() => {
-          const group_ = group()
-          return group_ !== null && isSimpleSingleGroup(group_)
-            ? 'text-green-500'
-            : 'text-orange-400'
-        })()}
-        item={() => {
-          console.debug(
-            '[ExternalItemEditModal] <computed> item: ',
-            editSelection()?.item,
-          )
-          return (
-            editSelection()?.item ??
-            createItem({ name: 'Bug: selection was null', reference: 0 })
-          )
-        }}
-        macroOverflow={macroOverflow}
-        onApply={(item) => {
-          const group_ = group()
-          if (group_ === null) {
-            console.error('group is null')
-            throw new Error('group is null')
-          }
-
-          // TODO: Allow user to edit recipe inside a group
-          if (item.__type === 'RecipeItem') {
-            toast.error(
-              'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
-            )
-            return
-          }
-
-          // TODO: Move isOverflow to a specialized module
-          const isOverflow = (property: keyof MacroNutrients) => {
-            if (!macroOverflow().enable) {
-              return false
-            }
-
-            const currentDayDiet_ = currentDayDiet()
-            if (currentDayDiet_ === null) {
-              console.error(
-                '[ItemNutritionalInfo] currentDayDiet is undefined, cannot calculate overflow',
-              )
-              return false
-            }
-
-            const macroTarget_ = macroTarget(stringToDate(targetDay()))
-            if (macroTarget_ === null) {
-              console.error(
-                '[ItemNutritionalInfo] macroTarget is undefined, cannot calculate overflow',
-              )
-              return false
-            }
-            const originalItem_ = macroOverflow().originalItem
-
-            const itemMacros = calcItemMacros(item)
-            const originalItemMacros: MacroNutrients =
-              originalItem_ !== undefined
-                ? calcItemMacros(originalItem_)
-                : {
-                    carbs: 0,
-                    protein: 0,
-                    fat: 0,
-                  }
-
-            const difference =
-              originalItem_ !== undefined
-                ? itemMacros[property] - originalItemMacros[property]
-                : itemMacros[property]
-
-            const current = calcDayMacros(currentDayDiet_)[property]
-            const target = macroTarget_[property]
-
-            return current + difference > target
-          }
-
-          const onConfirm = () => {
-            console.debug(
-              `[ExternalItemEditModal] onApply: setting itemId=${item.id} to item=`,
-              item,
-            )
-            const newGroup: ItemGroup = new ItemGroupEditor(group_)
-              .editItem(item.id, (editor) => editor?.replace(item))
-              .finish()
-
-            console.debug('newGroup', newGroup)
-            handleCloseWithChanges(newGroup)
-          }
-
-          const isOverflowing =
-            isOverflow('carbs') || isOverflow('protein') || isOverflow('fat')
-          if (isOverflowing) {
-            showConfirmModal({
-              title: 'Macronutrientes excedem metas diárias',
-              body: 'Os macronutrientes desse item excedem as metas diárias. Deseja continuar mesmo assim?',
-              actions: [
-                {
-                  text: 'Cancelar',
-                  onClick: () => undefined,
-                },
-                {
-                  text: 'Continuar',
-                  primary: true,
-                  onClick: onConfirm,
-                },
-              ],
-            })
-          } else {
-            onConfirm()
-          }
-        }}
-        onDelete={(itemId) => {
-          const group_ = group()
-          if (group_ === null) {
-            console.error('group is null')
-            throw new Error('group is null')
-          }
-
-          const newGroup: ItemGroup = new ItemGroupEditor(group_)
-            .deleteItem(itemId)
-            .finish()
-
-          console.debug('newGroup', newGroup)
-          handleCloseWithChanges(newGroup)
-        }}
-      />
-    </ModalContextProvider>
-  )
-}
-
-// TODO: This component is duplicated between RecipeEditModal and ItemGroupEditModal, must be refactored
-function ExternalTemplateSearchModal(props: {
-  visible: Accessor<boolean>
-  setVisible: Setter<boolean>
-  onRefetch: () => void
-}) {
-  const { group, setGroup } = useItemGroupEditContext()
-
-  const handleNewItemGroup = (newGroup: ItemGroup) => {
-    console.debug('handleNewItemGroup', newGroup)
-
-    const group_ = group()
-    if (group_ === null) {
-      console.error('group is null')
-      throw new Error('group is null')
-    }
-
-    if (!isSimpleSingleGroup(newGroup)) {
-      // TODO: Handle non-simple groups on handleNewItemGroup
-      console.error('TODO: Handle non-simple groups')
-      toast.error(
-        'Grupos complexos ainda não são suportados, funcionalidade em desenvolvimento',
-      )
-      return
-    }
-
-    const finalGroup: ItemGroup = new ItemGroupEditor(group_)
-      .addItem(newGroup.items[0])
-      .finish()
-
-    console.debug(
-      'handleNewItemGroup: applying',
-      JSON.stringify(finalGroup, null, 2),
-    )
-
-    setGroup(finalGroup)
-  }
-
-  const handleFinishSearch = () => {
-    props.setVisible(false)
-    // onRefetch()
-  }
-
-  createEffect(() => {
-    if (!props.visible()) {
-      console.debug('[ExternalTemplateSearchModal] onRefetch')
-      props.onRefetch()
-    }
-  })
-
-  return (
-    <ModalContextProvider visible={props.visible} setVisible={props.setVisible}>
-      <TemplateSearchModal
-        targetName={
-          group()?.name ?? 'ERRO: Grupo de alimentos não especificado'
-        }
-        onFinish={handleFinishSearch}
-        onNewItemGroup={handleNewItemGroup}
-      />
-    </ModalContextProvider>
-  )
-}
 
 // TODO: Unify Header, Content and Actions for each component in the entire app
 /**
