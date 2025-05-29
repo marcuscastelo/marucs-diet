@@ -20,11 +20,11 @@ export class ItemGroupEditor
 
   setRecipe(recipe: Recipe['id'] | undefined) {
     if (recipe === undefined) {
-      this.group.type = 'simple'
+      this.group.groupType = 'simple'
       this.group.recipe = undefined
       return this
     }
-    this.group.type = 'recipe'
+    this.group.groupType = 'recipe'
     this.group.recipe = recipe
     return this
   }
