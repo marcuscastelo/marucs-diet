@@ -9,7 +9,6 @@
 // } from '~/legacy/api/apiSecrets'
 
 // export const searchFoodNameInternal = async (food: string) => {
-//   return JSON.stringify('oi')
 
 //   const url = `${EXTERNAL_API_BASE_URL}/${EXTERNAL_API_FOOD_ENDPOINT}`
 //   const response = await axios.get(url, {

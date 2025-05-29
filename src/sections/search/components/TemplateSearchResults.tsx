@@ -26,7 +26,7 @@ export function TemplateSearchResults(props: {
   setSelectedTemplate: (food: Template) => void
   barCodeModalVisible: Accessor<boolean>
   setBarCodeModalVisible: Setter<boolean>
-  ItemEditModalVisible: Accessor<boolean>
+  itemEditModalVisible: Accessor<boolean>
   setItemEditModalVisible: Setter<boolean>
   refetch: () => Promise<void>
 }) {
