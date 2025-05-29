@@ -13,7 +13,7 @@ export type ModalProps = {
 let modalId = 1
 
 export const Modal = (_props: ModalProps) => {
-  const props = mergeProps({ hasBackdrop: true }, _props)
+  const props = mergeProps({ hasBackdrop: true, class: '' }, _props)
   const { visible, setVisible } = useModalContext()
 
   const handleClose = (

@@ -1,7 +1,6 @@
 import { Modal } from '~/sections/common/components/Modal'
 import {
   useModalContext,
-  ModalContextProvider,
 } from '~/sections/common/context/ModalContext'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import {
