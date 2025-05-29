@@ -3,15 +3,21 @@ import {
   loadUserIdFromLocalStorage,
   saveUserIdToLocalStorage,
 } from '~/modules/user/infrastructure/localStorageUserRepository'
-import { createSupabaseUserRepository } from '~/modules/user/infrastructure/supabaseUserRepository'
+import {
+  createSupabaseUserRepository,
+  SUPABASE_TABLE_USERS,
+} from '~/modules/user/infrastructure/supabaseUserRepository'
 import { createEffect, createSignal } from 'solid-js'
 import toast from 'solid-toast'
+import { handleApiError } from '~/shared/error/errorHandler'
+import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 
 export const DEFAULT_USER_ID = 3
 
 const userRepository = createSupabaseUserRepository()
 
 export const [users, setUsers] = createSignal<readonly User[]>([])
+
 export const [currentUser, setCurrentUser] = createSignal<User | null>(null)
 
 export const [currentUserId, setCurrentUserId] = createSignal<number>(1)
@@ -25,6 +31,30 @@ createEffect(async () => {
       error: 'Falha ao carregar usuário atual',
     })
   }
+})
+
+function bootstrap() {
+  fetchUsers().catch((error) => 
+    handleApiError(error, {
+      component: 'userApplication',
+      operation: 'bootstrap',
+      additionalData: {}
+    })
+  )
+}
+
+/**
+ * At app start, fetch all users
+ */
+createEffect(() => {
+  bootstrap()
+})
+
+/**
+ * When realtime event occurs, fetch all users again
+ */
+registerSubapabaseRealtimeCallback(SUPABASE_TABLE_USERS, () => {
+  bootstrap()
 })
 
 export async function fetchUsers(): Promise<void> {
@@ -96,5 +126,11 @@ export function setFoodAsFavorite(foodId: number, favorite: boolean): void {
     favorite_foods: favoriteFoods,
   })
     .then(fetchCurrentUser)
-    .catch(console.error)
+    .catch((error) => 
+      handleApiError(error, {
+        component: 'userApplication',
+        operation: 'toggleFavoriteFood',
+        additionalData: { foodId }
+      })
+    )
 }

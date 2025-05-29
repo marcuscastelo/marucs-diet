@@ -67,19 +67,32 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
   )
 
   if (insertionResults.some((result) => result.status === 'rejected')) {
-    console.error(
-      `Failed to insert some foods: ${JSON.stringify(insertionResults)}`,
+    const allRejected = insertionResults.filter(
+      (result) => result.status === 'rejected',
     )
-    throw new Error('Failed to insert some foods. See console for details.')
+
+    const reasons = allRejected.map((result) => result.reason)
+    const errors = reasons.map((reason) => (reason as { code: string }).code)
+
+    const ignoredErrors = [
+      '23505', // Unique violation: food already exists, ignore
+    ]
+
+    if (errors.some((error) => !ignoredErrors.includes(error))) {
+      console.error(
+        `Failed to insert some foods: ${JSON.stringify(allRejected)}`,
+      )
+      throw new Error('Failed to insert some foods. See console for details.')
+    }
   } else {
     console.debug('[ApiFood] No failed insertions, marking search as cached')
     await markSearchAsCached(name)
   }
 
-  const insertedFoods: ReadonlyArray<Food | null> = insertionResults.map(
-    (result) =>
-      result.status === 'fulfilled' ? result.value : (null as unknown as Food),
-  )
+  const insertedFoods: ReadonlyArray<Food | null> = insertionResults
+    .filter((result) => result.status === 'fulfilled')
+    .map((result) => result.value)
+
   console.debug(
     `[ApiFood] Returning ${insertedFoods.length}/${apiFoods.length} foods`,
   )

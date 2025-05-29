@@ -5,6 +5,7 @@ import {
   type FoodRepository,
   type FoodSearchParams,
 } from '~/modules/diet/food/domain/foodRepository'
+import { handleApiError, logError } from '~/shared/error/errorHandler'
 
 const TABLE = 'foods'
 
@@ -22,11 +23,21 @@ async function fetchFoodById(
   id: Food['id'],
   params: Omit<FoodSearchParams, 'limit'> = {},
 ) {
-  const [food] = await internalCachedSearchFoods(
+  const foods = await internalCachedSearchFoods(
     { field: 'id', value: id },
     { ...params, limit: 1 },
   )
-  return food
+
+  if (foods.length === 0) {
+    logError(`Food with id ${id} not found`, {
+      component: 'supabaseFoodRepository',
+      operation: 'fetchFoodById',
+      additionalData: { id, params }
+    })
+    return null
+  }
+
+  return foodSchema.parse(foods[0])
 }
 
 async function fetchFoodsByName(
@@ -114,7 +125,11 @@ async function internalCachedSearchFoods(
 
   const { data, error } = await query
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'supabaseFoodRepository',
+      operation: 'internalCachedSearchFoods',
+      additionalData: { field, value, operator, params }
+    })
     throw error
   }
 
@@ -127,7 +142,11 @@ async function insertFood(newFood: DbReady<Food>): Promise<Food> {
 
   const { data, error } = await supabase.from(TABLE).insert(food).select('*')
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'supabaseFoodRepository',
+      operation: 'insertFood',
+      additionalData: { food }
+    })
     throw error
   }
 

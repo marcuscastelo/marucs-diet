@@ -1,7 +1,7 @@
 // TODO: Unify Recipe and Recipe components into a single component?
 
 import { type Recipe, recipeSchema } from '~/modules/diet/recipe/domain/recipe'
-import { foodItemSchema } from '~/modules/diet/food-item/domain/foodItem'
+import { itemSchema } from '~/modules/diet/item/domain/item'
 import {
   RecipeEditContextProvider,
   useRecipeEditContext,
@@ -9,7 +9,7 @@ import {
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import { PasteIcon } from '~/sections/common/components/icons/PasteIcon'
 import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
-import { FoodItemListView } from '~/sections/food-item/components/FoodItemListView'
+import { ItemListView } from '~/sections/food-item/components/ItemListView'
 import { calcRecipeCalories } from '~/legacy/utils/macroMath'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { regenerateId } from '~/legacy/utils/idUtils'
@@ -19,6 +19,7 @@ import {
   createClipboardSchemaFilter,
 } from '~/sections/common/hooks/useClipboard'
 import { deserializeClipboard } from '~/legacy/utils/clipboardUtils'
+import { handleValidationError } from '~/shared/error/errorHandler'
 import { convertToGroups } from '~/legacy/utils/groupUtils'
 import { mealSchema } from '~/modules/diet/meal/domain/meal'
 import { itemGroupSchema } from '~/modules/diet/item-group/domain/itemGroup'
@@ -69,7 +70,7 @@ export function RecipeEditHeader(props: {
 }) {
   const acceptedClipboardSchema = mealSchema
     .or(itemGroupSchema)
-    .or(foodItemSchema)
+    .or(itemSchema)
     .or(recipeSchema)
 
   const { recipe } = useRecipeEditContext()
@@ -205,7 +206,14 @@ export function RecipeEditContent(props: {
         type="text"
         onChange={(e) => {
           if (recipe() === null) {
-            console.error('group is null')
+            handleValidationError(
+              'Recipe is null during name change',
+              {
+                component: 'RecipeEditView',
+                operation: 'setName',
+                additionalData: { newName: e.target.value }
+              }
+            )
             throw new Error('group is null')
           }
           setRecipe(new RecipeEditor(recipe()).setName(e.target.value).finish())
@@ -215,8 +223,8 @@ export function RecipeEditContent(props: {
         }}
         value={recipe().name ?? ''}
       />
-      <FoodItemListView
-        foodItems={() => recipe().items}
+      <ItemListView
+        items={() => recipe().items}
         onItemClick={props.onEditItem}
       />
       <AddNewItemButton onClick={props.onNewItem} />

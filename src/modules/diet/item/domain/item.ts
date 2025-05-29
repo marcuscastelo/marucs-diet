@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { generateId } from '~/legacy/utils/idUtils'
 
-export const foodItemSchema = z.object({
+export const itemSchema = z.object({
   id: z.number(),
   name: z.string(),
   reference: z.number(),
@@ -15,13 +15,12 @@ export const foodItemSchema = z.object({
     .string()
     .nullable()
     .optional()
-    .transform(() => 'FoodItem' as const),
+    .transform(() => 'Item' as const),
 })
 
-// TODO: Rename to Item
-export type FoodItem = Readonly<z.infer<typeof foodItemSchema>>
+export type Item = Readonly<z.infer<typeof itemSchema>>
 
-export function createFoodItem({
+export function createItem({
   name,
   reference,
   quantity = 0,
@@ -30,11 +29,11 @@ export function createFoodItem({
   name: string
   reference: number
   quantity?: number
-  macros?: Partial<FoodItem['macros']>
+  macros?: Partial<Item['macros']>
 }) {
-  return foodItemSchema.parse({
-    __type: 'FoodItem',
-    id: generateId(), // TODO: Remove id generation from createFoodItem and use it only in the database
+  return itemSchema.parse({
+    __type: 'Item',
+    id: generateId(), // TODO: Remove id generation from createItem and use it only in the database
     name,
     reference,
     quantity,
@@ -43,5 +42,5 @@ export function createFoodItem({
       carbs: macros.carbs ?? 0,
       fat: macros.fat ?? 0,
     },
-  } satisfies FoodItem)
+  } satisfies Item)
 }

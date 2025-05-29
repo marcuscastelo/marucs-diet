@@ -1,3 +1,5 @@
+// TODO: Use SolidJS Resource instead of Loadable
+
 /**
  * @deprecated Should be replaced by SolidJS Resource
  */

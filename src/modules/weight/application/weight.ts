@@ -1,21 +1,39 @@
 import { type DbReady } from '~/legacy/utils/newDbRecord'
 import { currentUserId } from '~/modules/user/application/user'
 import { type Weight } from '~/modules/weight/domain/weight'
-import { createSupabaseWeightRepository } from '~/modules/weight/infrastructure/supabaseWeightRepository'
+import {
+  createSupabaseWeightRepository,
+  SUPABASE_TABLE_WEIGHTS,
+} from '~/modules/weight/infrastructure/supabaseWeightRepository'
 import { createEffect, createSignal } from 'solid-js'
 import toast from 'solid-toast'
+import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 
 const weightRepository = createSupabaseWeightRepository()
 
 const [userWeights_, setUserWeights] = createSignal<readonly Weight[]>([])
 export const userWeights = () => userWeights_()
 
-createEffect(async () => {
+async function bootstrap() {
   await toast.promise(fetchUserWeights(currentUserId()), {
     loading: 'Carregando pesos...',
     success: 'Pesos carregados com sucesso',
     error: 'Falha ao carregar pesos',
   })
+}
+
+/**
+ * Every time the user changes, fetch all user weights
+ */
+createEffect(() => {
+  bootstrap()
+})
+
+/**
+ * When a realtime event occurs, fetch all user weights again
+ */
+registerSubapabaseRealtimeCallback(SUPABASE_TABLE_WEIGHTS, () => {
+  bootstrap()
 })
 
 export async function fetchUserWeights(userId: number) {

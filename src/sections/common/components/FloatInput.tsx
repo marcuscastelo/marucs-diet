@@ -1,5 +1,5 @@
+import { JSX } from 'solid-js/jsx-runtime'
 import { type useFloatField } from '~/sections/common/hooks/useField'
-import type JSX from 'solid-js/jsx-runtime'
 export function FloatInput(
   props: {
     field: ReturnType<typeof useFloatField>
@@ -11,7 +11,7 @@ export function FloatInput(
         target: HTMLInputElement
       },
     ) => void
-  } & JSX.JSX.InputHTMLAttributes<HTMLInputElement>,
+  } & JSX.InputHTMLAttributes<HTMLInputElement>,
 ) {
   const commitOn = () => props.commitOn ?? 'blur'
 

@@ -11,6 +11,7 @@ import {
 } from '~/modules/measure/application/measure'
 import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 import toast from 'solid-toast'
+import { formatError } from '~/shared/formatError'
 
 export function MeasureView(props: {
   measure: Measure
@@ -64,7 +65,9 @@ export function MeasureView(props: {
       .then(afterUpdate)
       .catch((error) => {
         console.error(error)
-        toast.error('Erro ao salvar: \n' + JSON.stringify(error, null, 2))
+        toast.error(
+          `Erro ao atualizar medida: ${formatError(error)}`
+        )
       })
   }
 

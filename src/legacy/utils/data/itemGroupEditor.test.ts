@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
 import { ItemGroupEditor } from '~/legacy/utils/data/itemGroupEditor'
-import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { type Item } from '~/modules/diet/item/domain/item'
 
-import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { type ItemGroup, createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 
-function mockItem(): FoodItem {
+function mockItem(): Item {
   return {
     name: 'test:name',
     reference: 1,
@@ -13,20 +13,19 @@ function mockItem(): FoodItem {
       fat: 20,
       protein: 30,
     },
-    __type: 'FoodItem',
+    __type: 'Item',
     id: 1000,
     quantity: 11234,
   }
 }
 
 function mockGroup(): ItemGroup {
-  return {
+  const group = createSimpleItemGroup({
     name: 'test:name',
     items: [],
-    type: 'simple',
-    id: 1000,
-    quantity: 0,
-  }
+  })
+  // Override the generated ID for testing
+  return { ...group, id: 1000 }
 }
 
 describe('ItemGroupEditor', () => {

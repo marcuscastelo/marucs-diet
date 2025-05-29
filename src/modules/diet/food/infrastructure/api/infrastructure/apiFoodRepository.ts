@@ -12,8 +12,14 @@ import {
   type ApiFood,
 } from '~/modules/diet/food/infrastructure/api/domain/apiFoodModel'
 import { type ApiFoodRepository } from '~/modules/diet/food/infrastructure/api/domain/apiFoodRepository'
-
+import rateLimit from 'axios-rate-limit'
 import axios from 'axios'
+
+const API = rateLimit(axios.create(), {
+  maxRequests: 2,
+  perMilliseconds: 1000,
+  maxRPS: 2,
+})
 
 export function createApiFoodRepository(): ApiFoodRepository {
   return {
@@ -52,7 +58,7 @@ async function fetchApiFoodsByName(
   console.debug(`[ApiFood] Fetching foods with name from url ${url}`, config)
   let response
   try {
-    response = await axios.get(url, config)
+    response = await API.get(url, config)
   } catch (error) {
     console.error(`[ApiFood] Error fetching foods with name from url ${url}`, {
       error,
@@ -69,7 +75,7 @@ async function fetchApiFoodByEan(
   ean: Required<ApiFood>['ean'],
 ): Promise<ApiFood> {
   const url = `${EXTERNAL_API_BASE_URL}/${EXTERNAL_API_EAN_ENDPOINT}/${ean}`
-  const response = await axios.get(url, {
+  const response = await API.get(url, {
     headers: {
       accept: 'application/json, text/plain, */*',
       'accept-encoding': 'gzip',

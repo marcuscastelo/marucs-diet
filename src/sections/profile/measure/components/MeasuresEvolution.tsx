@@ -11,10 +11,8 @@ import {
   insertMeasure,
 } from '~/modules/measure/application/measure'
 import toast from 'solid-toast'
-
-// TODO: Centralize theme constants
-const CARD_BACKGROUND_COLOR = 'bg-slate-800'
-const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
+import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
+import { formatError } from '~/shared/formatError'
 
 export function MeasuresEvolution() {
   // TODO: Remove `measures` signal and use use cases instead
@@ -136,8 +134,7 @@ export function MeasuresEvolution() {
                 .catch((error) => {
                   console.error(error)
                   toast.error(
-                    'Erro ao adicionar peso: \n' +
-                      JSON.stringify(error, null, 2),
+                    `Erro ao adicionar medida: ${formatError(error)}`,
                   )
                 })
             }}

@@ -56,11 +56,6 @@ export function MeasureChart(props: { measures: readonly Measure[] }) {
           weightsOfTheDay().reduce((acc, weight) => acc + weight.weight, 0) /
           weightsOfTheDay().length
 
-        if (currentUser() === null) {
-          console.log('currentUser.value === null')
-          throw new Error('currentUser.value === null')
-        }
-
         const dayBf = () =>
           parseFloat(
             calculateBodyFat({
