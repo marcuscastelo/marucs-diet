@@ -7,6 +7,7 @@ import {
   ItemGroupViewNutritionalInfo,
   type ItemGroupViewProps,
 } from '~/sections/item-group/components/ItemGroupView'
+import { handleClipboardError } from '~/shared/error/errorHandler'
 import { type Accessor } from 'solid-js'
 
 export function ItemGroupListView(props: {
@@ -34,10 +35,11 @@ export function ItemGroupListView(props: {
                         navigator.clipboard
                           .writeText(JSON.stringify(group))
                           .catch((err) => {
-                            console.error(
-                              'Failed to copy item group to clipboard',
-                              err,
-                            )
+                            handleClipboardError(err, {
+                              component: 'ItemGroupListView',
+                              operation: 'copy item group',
+                              additionalData: { groupId: group.id }
+                            })
                           })
                       }}
                     />

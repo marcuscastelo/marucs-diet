@@ -8,6 +8,7 @@ import {
   type ItemViewProps,
 } from '~/sections/food-item/components/ItemView'
 import { mergeProps, type Accessor, For } from 'solid-js'
+import { handleClipboardError } from '~/shared/error/errorHandler'
 
 export function ItemListView(_props: {
   items: Accessor<readonly Item[]>
@@ -44,8 +45,12 @@ function DefaultHeader() {
       copyButton={
         <ItemCopyButton
           onCopyItem={(item) => {
-            navigator.clipboard.writeText(JSON.stringify(item)).catch(() => {
-              console.error('Failed to copy item to clipboard')
+            navigator.clipboard.writeText(JSON.stringify(item)).catch((error) => {
+              handleClipboardError(error, { 
+                component: 'ItemListView',
+                operation: 'copyItem',
+                additionalData: { itemId: item.reference }
+              })
             })
           }}
         />

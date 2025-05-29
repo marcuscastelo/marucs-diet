@@ -18,6 +18,7 @@ import { type TemplateItem } from '~/modules/diet/template-item/domain/templateI
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { ExternalItemEditModal } from '~/sections/food-item/components/ExternalItemEditModal'
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
+import { handleValidationError } from '~/shared/error/errorHandler'
 import {
   type ItemGroup,
   isSimpleSingleGroup,
@@ -78,7 +79,14 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
 
     if (!isSimpleSingleGroup(newGroup)) {
       // TODO: Handle non-simple groups on handleNewItemGroup
-      console.error('TODO: Handle non-simple groups')
+      handleValidationError(
+        'Cannot add complex groups to recipes',
+        {
+          component: 'RecipeEditModal',
+          operation: 'handleNewItemGroup',
+          additionalData: { groupType: 'complex', groupId: newGroup.id }
+        }
+      )
       toast.error(
         'Não é possível adicionar grupos complexos a receitas, por enquanto.',
       )
