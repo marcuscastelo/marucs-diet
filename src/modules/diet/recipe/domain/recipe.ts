@@ -22,9 +22,15 @@ export const recipeSchema = z.object({
 
 export type Recipe = Readonly<z.infer<typeof recipeSchema>>
 
-// TODO: Create/Move factory function for other models
 /**
- * @deprecated should be in another file
+ * Creates a new Recipe with calculated macros.
+ * Used for initializing new recipes before saving to database.
+ *
+ * @param name - Name of the recipe
+ * @param items - Array of items in the recipe
+ * @param preparedMultiplier - Multiplier for prepared quantity (default: 1)
+ * @param owner - User ID who owns this recipe
+ * @returns A new Recipe with calculated macros
  */
 export function createRecipe({
   name,
@@ -49,10 +55,18 @@ export function createRecipe({
   }
 }
 
-export function createRecipeFromGroup(group: ItemGroup) {
+/**
+ * Creates a Recipe from an ItemGroup.
+ * Useful for converting item groups into standalone recipes.
+ *
+ * @param group - ItemGroup to convert to a recipe
+ * @param owner - User ID who will own this recipe
+ * @returns A new Recipe created from the group
+ */
+export function createRecipeFromGroup(group: ItemGroup, owner: number): Recipe {
   return createRecipe({
     name: group.name,
     items: [...group.items],
-    owner: 3, // TODO: Get owner from somewhere (or create new Recipe type for data-only)
+    owner,
   })
 }
