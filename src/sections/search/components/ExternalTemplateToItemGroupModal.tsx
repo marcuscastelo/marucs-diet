@@ -14,6 +14,7 @@ import { type TemplateItem } from '~/modules/diet/template-item/domain/templateI
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { formatError } from '~/shared/formatError'
 import { handleApiError } from '~/shared/error/errorHandler'
+import { calcRecipeMacros } from '~/legacy/utils/macroMath'
 
 export interface ExternalTemplateToItemGroupModalProps {
   visible: Accessor<boolean>
@@ -31,15 +32,18 @@ export function ExternalTemplateToItemGroupModal(props: ExternalTemplateToItemGr
     <ModalContextProvider visible={props.visible} setVisible={props.setVisible}>
       <ItemEditModal
         targetName={props.targetName}
-        item={() => ({
-          reference: props.selectedTemplate().id,
-          name: props.selectedTemplate().name,
-          macros: props.selectedTemplate().macros,
-          __type:
-            props.selectedTemplate().__type === 'Food'
-              ? 'Item'
-              : 'RecipeItem', // TODO: Refactor conversion from template type to group/item types
-        })}
+        item={() => {
+          const template = props.selectedTemplate()
+          const macros = template.__type === 'Food' 
+            ? template.macros 
+            : calcRecipeMacros(template)
+          return {
+            reference: template.id,
+            name: template.name,
+            macros,
+            __type: template.__type === 'Food' ? 'Item' : 'RecipeItem', // TODO: Refactor conversion from template type to group/item types
+          }
+        }}
         macroOverflow={() => ({
           enable: true,
         })}

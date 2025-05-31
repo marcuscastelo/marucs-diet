@@ -3,7 +3,7 @@ import {
   createItem,
 } from '~/modules/diet/item/domain/item'
 import { Modal } from '~/sections/common/components/Modal'
-import { type Recipe, createRecipe } from '~/modules/diet/recipe/domain/recipe'
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import {
   RecipeEditContent,
   RecipeEditHeader,
@@ -33,7 +33,7 @@ import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 
 export type RecipeEditModalProps = {
   show?: boolean
-  recipe: Recipe | null // TODO: After #159 is done, remove recipe nullability and check if something breaks
+  recipe: Recipe
   onSaveRecipe: (recipe: Recipe) => void
   onRefetch: () => void
   onCancel?: () => void
@@ -43,17 +43,8 @@ export type RecipeEditModalProps = {
 
 export function RecipeEditModal(props: RecipeEditModalProps) {
   const { visible, setVisible } = useModalContext()
-  const userId = currentUserId()
 
-  const [recipe, setRecipe] = createMirrorSignal(
-    () =>
-      props.recipe ??
-      createRecipe({
-        name: 'New Recipe',
-        items: [],
-        owner: userId,
-      }),
-  )
+  const [recipe, setRecipe] = createMirrorSignal(() => props.recipe)
 
   const [selectedItem, setSelectedItem] = createSignal<Item | null>(
     null,
@@ -149,7 +140,7 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
 
       <ModalContextProvider visible={visible} setVisible={setVisible}>
         <Modal class="border-2 border-cyan-600">
-          <Modal.Header 
+          <Modal.Header
             title={
               <RecipeEditContextProvider recipe={recipe} setRecipe={setRecipe}>
                 <RecipeEditHeader

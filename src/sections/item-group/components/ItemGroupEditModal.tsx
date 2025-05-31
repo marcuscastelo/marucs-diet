@@ -23,7 +23,7 @@ import { type TemplateItem } from '~/modules/diet/template-item/domain/templateI
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { ExternalItemEditModal } from '~/sections/food-item/components/ExternalItemEditModal'
 import { RecipeIcon } from '~/sections/common/components/icons/RecipeIcon'
-import { type Recipe, createRecipe } from '~/modules/diet/recipe/domain/recipe'
+import { type Recipe, createNewRecipe } from '~/modules/diet/recipe/domain/recipe'
 import { ExternalRecipeEditModal } from './ExternalRecipeEditModal'
 import { type Loadable } from '~/legacy/utils/loadable'
 
@@ -604,7 +604,7 @@ function Body(props: {
                               throw new Error('group is null')
                             }
 
-                            const newRecipe = createRecipe({
+                            const newRecipe = createNewRecipe({
                               name:
                                 group_.name.length > 0
                                   ? group_.name

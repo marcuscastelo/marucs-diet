@@ -68,7 +68,7 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
 
   if (insertionResults.some((result) => result.status === 'rejected')) {
     const allRejected = insertionResults.filter(
-      (result) => result.status === 'rejected',
+      (result): result is PromiseRejectedResult => result.status === 'rejected',
     )
 
     const reasons = allRejected.map((result) => result.reason)
@@ -90,7 +90,7 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
   }
 
   const insertedFoods: ReadonlyArray<Food | null> = insertionResults
-    .filter((result) => result.status === 'fulfilled')
+    .filter((result): result is PromiseFulfilledResult<Food | null> => result.status === 'fulfilled')
     .map((result) => result.value)
 
   console.debug(

@@ -322,7 +322,7 @@ const fetchFoodsForModal = async (): Promise<readonly Food[]> => {
           return food
         }) ?? [],
       )
-    ).filter((food) => food !== null)
+    ).filter((food): food is Food => food !== null)
   }
   return foods
 }
