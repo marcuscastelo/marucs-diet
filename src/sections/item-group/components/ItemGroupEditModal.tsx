@@ -48,8 +48,7 @@ import { regenerateId } from '~/legacy/utils/idUtils'
 import { ItemGroupEditor } from '~/legacy/utils/data/itemGroupEditor'
 import { ConvertToRecipeIcon } from '~/sections/common/components/icons/ConvertToRecipeIcon'
 import { deepCopy } from '~/legacy/utils/deepCopy'
-import { useFloatField } from '~/sections/common/hooks/useField'
-import { FloatInput } from '~/sections/common/components/FloatInput'
+import { PreparedQuantity } from '~/sections/common/components/PreparedQuantity'
 import {
   currentUserId,
   isFoodFavorite,
@@ -62,8 +61,8 @@ import {
   createEffect,
   Show,
   untrack,
+  createMemo,
 } from 'solid-js'
-import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 import {
   currentDayDiet,
   targetDay,
@@ -71,14 +70,11 @@ import {
 import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget'
 import { stringToDate } from '~/legacy/utils/dateUtils'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
-import { calcDayMacros, calcItemMacros } from '~/legacy/utils/macroMath'
 import { isOverflow } from '~/legacy/utils/macroOverflow'
 import toast from 'solid-toast'
 import {
-  deleteRecipe,
   fetchRecipeById,
   insertRecipe,
-  updateRecipe,
 } from '~/modules/diet/recipe/application/recipe'
 import { BrokenLink } from '~/sections/common/components/icons/BrokenLinkIcon'
 
@@ -477,6 +473,11 @@ function Body(props: {
 
   const { group, setGroup } = useItemGroupEditContext()
 
+  const recipedGroup = createMemo(() => {
+    const currentGroup = group()
+    return currentGroup.type === 'recipe' && currentGroup.recipe !== null ? currentGroup : null
+  })
+
   const {
     write: writeToClipboard,
     clear: clearClipboard,
@@ -788,18 +789,15 @@ function Body(props: {
           >
             Adicionar item
           </button>
-          {group().type === 'recipe' && group().recipe !== null && (
-            <PreparedQuantity
-              // TODO: Remove as unknown as Accessor<RecipedItemGroup>
-              recipedGroup={
-                group as unknown as Accessor<RecipedItemGroup | null>
-              }
-              setRecipedGroup={
-                setGroup as unknown as Setter<RecipedItemGroup | null>
-              }
-              recipe={props.recipe()}
-            />
-          )}
+          <Show when={recipedGroup()}>
+            {(recipedGroup) => (
+              <PreparedQuantityWrapper
+                recipedGroup={recipedGroup}
+                setRecipedGroup={setGroup}
+                recipe={props.recipe()}
+              />
+            )}
+          </Show>
         </>
       )}
     </Show>
@@ -880,65 +878,41 @@ function Actions(props: {
   )
 }
 
-function PreparedQuantity(props: {
-  recipedGroup: Accessor<RecipedItemGroup | null>
-  setRecipedGroup: Setter<RecipedItemGroup | null>
+function PreparedQuantityWrapper(props: {
+  recipedGroup: Accessor<RecipedItemGroup>
+  setRecipedGroup: Setter<ItemGroup>
   recipe: Recipe | null
 }) {
-  const rawQuantity = () => {
-    const group = props.recipedGroup()
-    return group ? getItemGroupQuantity(group) : 0
-  }
-
-  const initialPreparedQuantity = () =>
-    (rawQuantity() ?? 0) * (props.recipe?.prepared_multiplier ?? 1)
-
-  // TODO: Allow user to edit prepared quantity directly
-  const [preparedQuantity] = createMirrorSignal(initialPreparedQuantity)
-
-  const preparedQuantityField = useFloatField(preparedQuantity, {
-    decimalPlaces: 0,
-  })
+  const rawQuantity = () => getItemGroupQuantity(props.recipedGroup())
 
   return (
-    <div class="flex gap-2">
-      <FloatInput
-        field={preparedQuantityField}
-        commitOn="change"
-        class="input px-0 pl-5 text-md"
-        onFocus={(event) => {
-          event.target.select()
-        }}
-        onFieldCommit={(newPreparedQuantity) => {
-          console.debug(
-            '[PreparedQuantity] onFieldCommit: ',
-            newPreparedQuantity,
-          )
+    <PreparedQuantity
+      rawQuantity={rawQuantity()}
+      preparedMultiplier={props.recipe?.prepared_multiplier ?? 1}
+      onPreparedQuantityChange={({ newPreparedQuantity, newMultiplier, newRawQuantity }) => {
+        console.debug(
+          '[PreparedQuantity] onPreparedQuantityChange: ',
+          newPreparedQuantity(),
+          'newMultiplier:',
+          newMultiplier(),
+          'newRawQuantity:',
+          newRawQuantity(),
+        )
 
-          const newRawQuantity =
-            (newPreparedQuantity ?? 0) /
-            (props.recipe?.prepared_multiplier ?? 1)
+        const newItems = props.recipedGroup().items.map((item) => {
+          return {
+            ...item,
+            quantity: item.quantity * newMultiplier(),
+          }
+        })
 
-          const multiplier = newRawQuantity / (rawQuantity() ?? 1)
+        const newGroup = new ItemGroupEditor(props.recipedGroup())
+          .setItems(newItems)
+          .finish()
 
-          const newItems =
-            props.recipedGroup()?.items.map((item) => {
-              return {
-                ...item,
-                quantity: item.quantity * multiplier,
-              }
-            }) ?? []
-
-          const recipedGroup_ = props.recipedGroup()
-          const newGroup =
-            recipedGroup_ !== null &&
-            new ItemGroupEditor(recipedGroup_).setItems(newItems).finish()
-
-          props.setRecipedGroup(recipedItemGroupSchema.parse(newGroup))
-        }}
-        style={{ width: '100%' }}
-      />
-    </div>
+        props.setRecipedGroup(newGroup)
+      }}
+    />
   )
 }
 
