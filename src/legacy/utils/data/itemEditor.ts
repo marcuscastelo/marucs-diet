@@ -10,11 +10,7 @@ export class ItemEditor extends Editor<Item, Item> {
     return this
   }
 
-  protected override onFinish(): Item {
-    const copy = deepCopy(this.item)
-    if (copy === null) {
-      throw new Error('Error copying item group!')
-    }
-    return copy
+  protected override onFinish() { 
+
   }
 }
