@@ -234,7 +234,17 @@ export function RecipeEditContent(props: {
           <div class="text-gray-400 ml-1">Peso (cru)</div>
         </div>
         <div class="flex flex-col">
-          <PreparedQuantityWrapper />
+          <PreparedQuantity
+            rawQuantity={recipe().items.reduce((acc, item) => acc + item.quantity, 0)}
+            preparedMultiplier={recipe().prepared_multiplier}
+            onPreparedQuantityChange={(newPreparedQuantity, newMultiplier) => {
+              const newRecipe = new RecipeEditor(recipe())
+                .setPreparedMultiplier(newMultiplier)
+                .finish()
+
+              setRecipe(newRecipe)
+            }}
+          />
           <div class="text-gray-400 ml-1">Peso (pronto)</div>
         </div>
         <div class="flex flex-col">
@@ -280,29 +290,6 @@ function RawQuantity() {
         style={{ width: '100%' }}
       />
     </div>
-  )
-}
-
-// Wrapper component that adapts the shared PreparedQuantity to work with recipe context
-function PreparedQuantityWrapper() {
-  const { recipe, setRecipe } = useRecipeEditContext()
-
-  const rawQuantity = recipe().items.reduce((acc, item) => {
-    return acc + item.quantity
-  }, 0)
-
-  return (
-    <PreparedQuantity
-      rawQuantity={rawQuantity}
-      preparedMultiplier={recipe().prepared_multiplier}
-      onPreparedQuantityChange={(newPreparedQuantity, newMultiplier) => {
-        const newRecipe = new RecipeEditor(recipe())
-          .setPreparedMultiplier(newMultiplier)
-          .finish()
-
-        setRecipe(newRecipe)
-      }}
-    />
   )
 }
 
