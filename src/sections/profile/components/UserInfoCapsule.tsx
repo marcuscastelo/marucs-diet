@@ -66,7 +66,7 @@ const makeOnBlur = <T extends keyof User>(
 export const convertString = (value: string) => value
 
 // TODO: Create module for translations
-const USER_FIELD_TRANSLATION: Translation<keyof User> = {
+const USER_FIELD_TRANSLATION: Translation<keyof Omit<User, '__type'>> = {
   name: 'Nome',
   gender: 'Gênero',
   diet: 'Dieta',
@@ -76,7 +76,7 @@ const USER_FIELD_TRANSLATION: Translation<keyof User> = {
   desired_weight: 'Peso Alvo',
 }
 
-export function UserInfoCapsule<T extends keyof User>(props: {
+export function UserInfoCapsule<T extends keyof Omit<User, '__type'>>(props: {
   field: T
   convert: (value: string) => User[T]
   extra?: string
@@ -90,7 +90,7 @@ export function UserInfoCapsule<T extends keyof User>(props: {
   )
 }
 
-function LeftContent(props: { field: keyof User; extra?: string }) {
+function LeftContent(props: { field: keyof Omit<User, '__type'>; extra?: string }) {
   return (
     <CapsuleContent>
       <h5
@@ -105,7 +105,7 @@ function LeftContent(props: { field: keyof User; extra?: string }) {
   )
 }
 
-function RightContent<T extends keyof User>(props: {
+function RightContent<T extends keyof Omit<User, '__type'>>(props: {
   field: T
   convert: (value: string) => User[T]
 }) {

@@ -1,8 +1,8 @@
 import { type User } from '~/modules/user/domain/user'
-import { type Weight, weightSchema } from '~/modules/weight/domain/weight'
-import { type DbReady, enforceDbReady } from '~/legacy/utils/newDbRecord'
+import { type Weight, weightSchema, type NewWeight } from '~/modules/weight/domain/weight'
 import supabase from '~/legacy/utils/supabase'
 import { type WeightRepository } from '~/modules/weight/domain/weightRepository'
+import { createInsertWeightDAOFromWeight, createUpdateWeightDAOFromWeight, weightDAOSchema } from './weightDAO'
 
 export const SUPABASE_TABLE_WEIGHTS = 'weights'
 
@@ -30,11 +30,11 @@ async function fetchUserWeights(userId: User['id']) {
   return weightSchema.array().parse(data)
 }
 
-async function insertWeight(newWeight: DbReady<Weight>) {
-  const weight = enforceDbReady(newWeight)
+async function insertWeight(newWeight: NewWeight) {
+  const weightDAO = createInsertWeightDAOFromWeight(newWeight)
   const { data, error } = await supabase
     .from(SUPABASE_TABLE_WEIGHTS)
-    .insert(weight)
+    .insert(weightDAO)
     .select()
 
   if (error !== null) {
@@ -47,12 +47,12 @@ async function insertWeight(newWeight: DbReady<Weight>) {
 
 async function updateWeight(
   weightId: Weight['id'],
-  newWeight: DbReady<Weight>,
+  weight: Weight,
 ) {
-  const weight = enforceDbReady(newWeight)
+  const weightDAO = createUpdateWeightDAOFromWeight(weight)
   const { data, error } = await supabase
     .from(SUPABASE_TABLE_WEIGHTS)
-    .update(weight)
+    .update(weightDAO)
     .eq('id', weightId)
     .select()
 

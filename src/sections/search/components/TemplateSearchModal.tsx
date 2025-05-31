@@ -16,7 +16,7 @@ import {
   insertRecentFood,
   updateRecentFood,
 } from '~/legacy/controllers/recentFood'
-import { createRecentFood } from '~/modules/recent-food/domain/recentFood'
+import { createNewRecentFood } from '~/modules/recent-food/domain/recentFood'
 import { type Template } from '~/modules/diet/template/domain/template'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
@@ -82,8 +82,8 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
 
   const [barCodeModalVisible, setBarCodeModalVisible] = createSignal(false)
 
-  const [selectedTemplate, setSelectedTemplate] = createSignal<Template>(
-    addId(createFood({ name: 'BUG: SELECTED TEMPLATE NOT SET' })), // TODO: Properly handle no template selected
+  const [selectedTemplate, setSelectedTemplate] = createSignal<Template | undefined>(
+    undefined
   )
 
   const handleNewItemGroup = async (
@@ -125,7 +125,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
         throw new Error('BUG: recentFood fetched does not match user and food')
       }
 
-      const newRecentFood = createRecentFood({
+      const newRecentFood = createNewRecentFood({
         ...recentFood,
         user_id: currentUserId(),
         food_id: originalAddedItem.reference,
@@ -147,14 +147,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
             // TODO: Show toast "Item <nome> adicionado com sucesso"
             text: 'Adicionar mais um item',
             onClick: () => {
-              // TODO: Remove createFood as default selected food
-              setSelectedTemplate(
-                addId(
-                  createFood({
-                    name: 'BUG: SELECTED FOOD NOT SET',
-                  }),
-                ),
-              )
+              setSelectedTemplate(undefined)
               setItemEditModalVisible(false)
             },
           },
@@ -162,14 +155,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
             text: 'Finalizar',
             primary: true,
             onClick: () => {
-              // TODO: Remove createFood as default selected food
-              setSelectedTemplate(
-                addId(
-                  createFood({
-                    name: 'BUG: SELECTED FOOD NOT SET',
-                  }),
-                ),
-              )
+              setSelectedTemplate(undefined)
               setItemEditModalVisible(false)
               props.onFinish?.()
             },
@@ -248,13 +234,15 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
           </div>
         </Modal.Content>
       </Modal>
-      <ExternalTemplateToItemGroupModal
-        visible={itemEditModalVisible}
-        setVisible={setItemEditModalVisible}
-        selectedTemplate={selectedTemplate}
-        targetName={props.targetName}
-        onNewItemGroup={handleNewItemGroup}
-      />
+      <Show when={selectedTemplate() !== undefined}>
+        <ExternalTemplateToItemGroupModal
+          visible={itemEditModalVisible}
+          setVisible={setItemEditModalVisible}
+          selectedTemplate={() => selectedTemplate() as Template}
+          targetName={props.targetName}
+          onNewItemGroup={handleNewItemGroup}
+        />
+      </Show>
       <ExternalBarCodeInsertModal
         visible={barCodeModalVisible}
         setVisible={setBarCodeModalVisible}
@@ -353,7 +341,7 @@ export function TemplateSearch(props: {
   setBarCodeModalVisible: Setter<boolean>
   itemEditModalVisible: Accessor<boolean>
   setItemEditModalVisible: Setter<boolean>
-  setSelectedTemplate: (food: Template) => void
+  setSelectedTemplate: (food: Template | undefined) => void
 }) {
   const TYPING_TIMEOUT_MS = 2000
 

@@ -1,6 +1,5 @@
 import { type Recipe, type NewRecipe } from '~/modules/diet/recipe/domain/recipe'
 import { type User } from '~/modules/user/domain/user'
-import { type DbReady } from '~/legacy/utils/newDbRecord'
 import supabase from '~/legacy/utils/supabase'
 import { type RecipeRepository } from '~/modules/diet/recipe/domain/recipeRepository'
 import {

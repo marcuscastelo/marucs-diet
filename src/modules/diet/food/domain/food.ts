@@ -1,6 +1,20 @@
-import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { macroNutrientsSchema, type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { z } from 'zod'
-import { type New, enforceNew } from '~/legacy/utils/newDbRecord'
+
+export const newFoodSchema = z.object({
+  name: z.string(),
+  ean: z.string().optional(),
+  macros: macroNutrientsSchema,
+  source: z
+    .object({
+      type: z.literal('api'),
+      id: z.string(),
+    })
+    .optional(),
+  recipeId: z.number().optional(),
+  __type: z.literal('NewFood'),
+})
+
 export const foodSchema = z.object({
   id: z.number(),
   source: z
@@ -30,20 +44,70 @@ export const foodSchema = z.object({
     .transform(() => 'Food' as const),
 })
 
+export type NewFood = Readonly<z.infer<typeof newFoodSchema>>
 export type Food = Readonly<z.infer<typeof foodSchema>>
 
+/**
+ * Creates a new NewFood.
+ * Used for initializing new foods before saving to database.
+ */
+export function createNewFood({
+  name,
+  macros,
+  ean,
+  source,
+  recipeId,
+}: {
+  name: string
+  macros: MacroNutrients
+  ean?: string
+  source?: NewFood['source']
+  recipeId?: number
+}): NewFood {
+  return {
+    name,
+    macros,
+    ean,
+    source,
+    recipeId,
+    __type: 'NewFood',
+  }
+}
+
+/**
+ * Promotes a NewFood to a Food after persistence.
+ */
+export function promoteToFood(newFood: NewFood, id: number): Food {
+  return {
+    ...newFood,
+    id,
+    __type: 'Food',
+  }
+}
+
+/**
+ * Demotes a Food to a NewFood for updates.
+ * Used when converting a persisted Food back to NewFood for database operations.
+ */
+export function demoteToNewFood(food: Food): NewFood {
+  return newFoodSchema.parse({
+    name: food.name,
+    macros: food.macros,
+    ean: food.ean,
+    source: food.source,
+    recipeId: food.recipeId,
+    __type: 'NewFood',
+  })
+}
+
 // TODO: Make createFood function more than a mock
-export function createFood({ name }: { name: string }): New<Food> {
-  return enforceNew(
-    foodSchema.parse({
-      __type: 'Food',
-      id: 0,
-      name,
-      macros: {
-        protein: 1234,
-        carbs: 4321,
-        fat: 666,
-      },
-    } satisfies Food),
-  )
+export function createFood({ name }: { name: string }): NewFood {
+  return createNewFood({
+    name,
+    macros: {
+      protein: 1234,
+      carbs: 4321,
+      fat: 666,
+    },
+  })
 }

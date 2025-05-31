@@ -1,4 +1,4 @@
-import { type User } from '~/modules/user/domain/user'
+import { type User, type NewUser, demoteToNewUser } from '~/modules/user/domain/user'
 import {
   loadUserIdFromLocalStorage,
   saveUserIdToLocalStorage,
@@ -70,15 +70,15 @@ export async function fetchCurrentUser(): Promise<User | null> {
   return user
 }
 
-export async function insertUser(newUser: User): Promise<void> {
+export async function insertUser(newUser: NewUser): Promise<void> {
   await userRepository.insertUser(newUser)
   await fetchUsers()
 }
 
 export async function updateUser(
   userId: User['id'],
-  newUser: User,
-): Promise<User> {
+  newUser: NewUser,
+): Promise<User | null> {
   const user = await toast.promise(userRepository.updateUser(userId, newUser), {
     loading: 'Atualizando informações do usuário...',
     success: 'Informações do usuário atualizadas com sucesso',
@@ -122,7 +122,7 @@ export function setFoodAsFavorite(foodId: number, favorite: boolean): void {
   }
 
   updateUser(currentUser_.id, {
-    ...currentUser_,
+    ...demoteToNewUser(currentUser_),
     favorite_foods: favoriteFoods,
   })
     .then(fetchCurrentUser)

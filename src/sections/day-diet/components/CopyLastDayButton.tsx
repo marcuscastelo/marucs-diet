@@ -1,5 +1,5 @@
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
-import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import { createNewDayDiet, type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import {
   dayDiets,
   insertDayDiet,
@@ -62,10 +62,10 @@ export function CopyLastDayButton(props: {
                       text: 'Sobrescrever',
                       primary: true,
                       onClick: () => {
-                        updateDayDiet(day_.id, {
+                        updateDayDiet(day_.id, createNewDayDiet({
                           ...lastDay,
                           target_day: props.selectedDay,
-                        })
+                        }))
                       },
                     },
                   ],
@@ -73,10 +73,10 @@ export function CopyLastDayButton(props: {
                 return
               }
 
-              insertDayDiet({
+              insertDayDiet(createNewDayDiet({
                 ...lastDay,
                 target_day: props.selectedDay,
-              })
+              }))
             }}
           >
             {/* //TODO: Allow copying any past day, not just latest one */}

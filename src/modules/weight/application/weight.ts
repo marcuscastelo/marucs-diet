@@ -1,6 +1,5 @@
-import { type DbReady } from '~/legacy/utils/newDbRecord'
 import { currentUserId } from '~/modules/user/application/user'
-import { type Weight } from '~/modules/weight/domain/weight'
+import { type Weight, type NewWeight } from '~/modules/weight/domain/weight'
 import {
   createSupabaseWeightRepository,
   SUPABASE_TABLE_WEIGHTS,
@@ -42,7 +41,7 @@ export async function fetchUserWeights(userId: number) {
   return weights
 }
 
-export async function insertWeight(newWeight: DbReady<Weight>) {
+export async function insertWeight(newWeight: NewWeight) {
   const weight = await weightRepository.insertWeight(newWeight)
   await toast.promise(fetchUserWeights(currentUserId()), {
     loading: 'Inserindo peso...',

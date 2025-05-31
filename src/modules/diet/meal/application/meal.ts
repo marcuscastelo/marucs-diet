@@ -3,7 +3,7 @@ import {
   currentDayDiet,
   updateDayDiet,
 } from '~/modules/diet/day-diet/application/dayDiet'
-import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import { createNewDayDiet, type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { handleApiError } from '~/shared/error/errorHandler'
 
@@ -20,7 +20,7 @@ export async function updateMeal(
     throw new Error('[meal::application] Current day diet is null')
   }
 
-  const newDay = new DayDietEditor(currentDayDiet_)
+  const newDay = new DayDietEditor(createNewDayDiet(currentDayDiet_))
     .editMeal(mealId, (editor) => {
       editor?.replace(newMeal)
     })

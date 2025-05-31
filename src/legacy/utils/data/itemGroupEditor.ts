@@ -95,6 +95,6 @@ export class ItemGroupEditor
   }
 
   protected override onFinish() {
-    // Quantity is now calculated on-demand via getItemGroupQuantity()
+
   }
 }

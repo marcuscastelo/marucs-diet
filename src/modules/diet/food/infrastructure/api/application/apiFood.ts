@@ -1,5 +1,4 @@
-import { type Food, foodSchema } from '~/modules/diet/food/domain/food'
-import { type DbReady } from '~/legacy/utils/newDbRecord'
+import { type Food, foodSchema, type NewFood, createNewFood } from '~/modules/diet/food/domain/food'
 import { markSearchAsCached } from '~/legacy/controllers/searchCache'
 import { type ApiFood } from '~/modules/diet/food/infrastructure/api/domain/apiFoodModel'
 import { createApiFoodRepository } from '~/modules/diet/food/infrastructure/api/infrastructure/apiFoodRepository'
@@ -10,8 +9,8 @@ import axios from 'axios'
 const foodRepository = createSupabaseFoodRepository()
 
 // TODO: Move `convertApi2Food` to a more appropriate place
-export function convertApi2Food(food: ApiFood): DbReady<Food> {
-  return {
+export function convertApi2Food(food: ApiFood): NewFood {
+  return createNewFood({
     name: food.nome,
     source: {
       type: 'api',
@@ -23,7 +22,7 @@ export function convertApi2Food(food: ApiFood): DbReady<Food> {
       protein: food.proteinas * 100,
       fat: food.gordura * 100,
     },
-  }
+  })
 }
 
 export async function importFoodFromApiByEan(
@@ -39,7 +38,7 @@ export async function importFoodFromApiByEan(
 
   const food = convertApi2Food(apiFood)
   const insertedFood = await foodRepository.insertFood(food)
-  return foodSchema.parse(insertedFood)
+  return insertedFood
 }
 
 export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
@@ -97,5 +96,5 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
     `[ApiFood] Returning ${insertedFoods.length}/${apiFoods.length} foods`,
   )
 
-  return foodSchema.array().parse(insertedFoods)
+  return insertedFoods.filter((food): food is Food => food !== null)
 }

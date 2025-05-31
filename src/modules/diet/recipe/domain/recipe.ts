@@ -17,7 +17,11 @@ export const recipeSchema = z.object({
   owner: z.number(),
   items: z.array(itemSchema).readonly(), // TODO: Think of a way to avoid id reuse on each item and bugs
   prepared_multiplier: z.number().default(1), // TODO: Rename all snake_case to camelCase (also in db)
-  __type: z.literal('Recipe'),
+  __type: z
+    .string()
+    .nullable()
+    .optional()
+    .transform(() => 'Recipe' as const),
 })
 
 export type NewRecipe = Readonly<z.infer<typeof newRecipeSchema>>
@@ -82,4 +86,18 @@ export function promoteToRecipe(newRecipe: NewRecipe, id: number): Recipe {
     id,
     __type: 'Recipe',
   }
+}
+
+/**
+ * Demotes a Recipe to a NewRecipe for updates.
+ * Used when converting a persisted Recipe back to NewRecipe for database operations.
+ */
+export function demoteToNewRecipe(recipe: Recipe): NewRecipe {
+  return newRecipeSchema.parse({
+    name: recipe.name,
+    owner: recipe.owner,
+    items: recipe.items,
+    prepared_multiplier: recipe.prepared_multiplier,
+    __type: 'NewRecipe',
+  })
 }

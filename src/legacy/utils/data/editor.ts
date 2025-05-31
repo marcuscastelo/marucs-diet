@@ -1,9 +1,9 @@
 import { deepCopy } from '~/legacy/utils/deepCopy'
 import { type Mutable } from '~/legacy/utils/typeUtils'
 
-export abstract class Editor<T extends object | undefined | null> {
-  protected readonly content: Mutable<T>
-  constructor(content: T) {
+export abstract class Editor<T extends Omit<TNew, '__type'>, TNew extends object | undefined | null = T> {
+  protected readonly content: Mutable<TNew>
+  constructor(content: TNew) {
     const copy = deepCopy(content)
     if (copy === null) {
       throw new Error('Error copying recipe!')
@@ -11,7 +11,7 @@ export abstract class Editor<T extends object | undefined | null> {
     this.content = copy
   }
 
-  replace(content: T) {
+  replace(content: T | TNew) {
     const copy = deepCopy(content)
     if (copy === null) {
       throw new Error('Error copying recipe!')

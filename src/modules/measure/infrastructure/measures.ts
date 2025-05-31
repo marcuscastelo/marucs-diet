@@ -1,9 +1,14 @@
-import { type Measure, measureSchema } from '~/modules/measure/domain/measure'
+import { type Measure, type NewMeasure } from '~/modules/measure/domain/measure'
 import { type User } from '~/modules/user/domain/user'
-import { type DbReady, enforceDbReady } from '~/legacy/utils/newDbRecord'
 import supabase from '~/legacy/utils/supabase'
 import { type MeasureRepository } from '~/modules/measure/domain/measureRepository'
 import { handleApiError } from '~/shared/error/errorHandler'
+import {
+  createMeasureFromDAO,
+  measureDAOSchema,
+  createInsertMeasureDAOFromNewMeasure,
+  createUpdateMeasureDAOFromNewMeasure,
+} from '~/modules/measure/infrastructure/measureDAO'
 
 const TABLE = 'body_measures'
 
@@ -32,33 +37,37 @@ async function fetchUserMeasures(userId: User['id']) {
     throw error
   }
 
-  return measureSchema.array().parse(data)
+  const measureDAOs = measureDAOSchema.array().parse(data)
+  return measureDAOs.map(createMeasureFromDAO)
 }
 
-async function insertMeasure(newMeasure: DbReady<Measure>) {
-  const measure = enforceDbReady(newMeasure)
-  const { data, error } = await supabase.from(TABLE).insert(measure).select()
+async function insertMeasure(newMeasure: NewMeasure): Promise<Measure | null> {
+  const createDAO = createInsertMeasureDAOFromNewMeasure(newMeasure)
+  const { data, error } = await supabase.from(TABLE).insert(createDAO).select()
 
   if (error !== null) {
     handleApiError(error, {
       component: 'supabaseMeasureRepository',
       operation: 'insertMeasure',
-      additionalData: { measure }
+      additionalData: { measure: newMeasure }
     })
     throw error
   }
 
-  return measureSchema.parse(data?.[0])
+  const measureDAOs = measureDAOSchema.array().parse(data ?? [])
+  const measures = measureDAOs.map(createMeasureFromDAO)
+
+  return measures[0] ?? null
 }
 
 async function updateMeasure(
   measureId: Measure['id'],
-  newMeasure: DbReady<Measure>,
-) {
-  const measure = enforceDbReady(newMeasure)
+  newMeasure: NewMeasure,
+): Promise<Measure | null> {
+  const updateDAO = createUpdateMeasureDAOFromNewMeasure(newMeasure)
   const { data, error } = await supabase
     .from(TABLE)
-    .update(measure)
+    .update(updateDAO)
     .eq('id', measureId)
     .select()
 
@@ -66,12 +75,15 @@ async function updateMeasure(
     handleApiError(error, {
       component: 'supabaseMeasureRepository',
       operation: 'updateMeasure',
-      additionalData: { measureId, measure }
+      additionalData: { measureId, measure: newMeasure }
     })
     throw error
   }
 
-  return measureSchema.parse(data?.[0])
+  const measureDAOs = measureDAOSchema.array().parse(data ?? [])
+  const measures = measureDAOs.map(createMeasureFromDAO)
+
+  return measures[0] ?? null
 }
 
 async function deleteMeasure(id: Measure['id']) {

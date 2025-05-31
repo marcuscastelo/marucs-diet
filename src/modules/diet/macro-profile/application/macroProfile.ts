@@ -1,6 +1,5 @@
 import { getLatestMacroProfile } from '~/legacy/utils/macroProfileUtils'
-import { type DbReady } from '~/legacy/utils/newDbRecord'
-import { type MacroProfile } from '~/modules/diet/macro-profile/domain/macroProfile'
+import { type MacroProfile, type NewMacroProfile } from '~/modules/diet/macro-profile/domain/macroProfile'
 import {
   createSupabaseMacroProfileRepository,
   SUPABASE_TABLE_MACRO_PROFILES,
@@ -49,7 +48,7 @@ export async function fetchUserMacroProfiles(userId: number) {
 }
 
 export async function insertMacroProfile(
-  newMacroProfile: DbReady<MacroProfile>,
+  newMacroProfile: NewMacroProfile,
 ) {
   const macroProfile = await toast.promise(
     macroProfileRepository.insertMacroProfile(newMacroProfile),
@@ -60,10 +59,10 @@ export async function insertMacroProfile(
     },
   )
 
-  if (
+  if (macroProfile && (
     userMacroProfiles().length === 0 ||
     macroProfile.owner === userMacroProfiles()[0].owner
-  ) {
+  )) {
     await fetchUserMacroProfiles(macroProfile.owner)
   }
   return macroProfile
@@ -71,7 +70,7 @@ export async function insertMacroProfile(
 
 export async function updateMacroProfile(
   macroProfileId: MacroProfile['id'],
-  newMacroProfile: MacroProfile,
+  newMacroProfile: NewMacroProfile,
 ) {
   const macroProfiles = await toast.promise(
     macroProfileRepository.updateMacroProfile(macroProfileId, newMacroProfile),
@@ -81,7 +80,7 @@ export async function updateMacroProfile(
       error: 'Falha ao atualizar perfil de macro',
     },
   )
-  if (macroProfiles.owner === userMacroProfiles()[0].owner) {
+  if (macroProfiles && macroProfiles.owner === userMacroProfiles()[0].owner) {
     await fetchUserMacroProfiles(macroProfiles.owner)
   }
   return macroProfiles

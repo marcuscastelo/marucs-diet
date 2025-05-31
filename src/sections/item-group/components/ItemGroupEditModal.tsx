@@ -359,6 +359,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
               )
               return (
                 editSelection()?.item ??
+                // TODO: Properly handle null case
                 createItem({ name: 'Bug: selection was null', reference: 0 })
               )
             }}
@@ -508,6 +509,7 @@ function Body(props: {
     }
     const group_ = group()
     if (group_ === null) {
+      // TODO: Properly handle null case
       throw new Error('BUG: group is null')
     }
 

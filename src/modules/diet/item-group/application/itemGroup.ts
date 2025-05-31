@@ -3,7 +3,7 @@ import {
   currentDayDiet,
   updateDayDiet,
 } from '~/modules/diet/day-diet/application/dayDiet'
-import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import { createNewDayDiet, NewDayDiet, type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { handleApiError } from '~/shared/error/errorHandler'
@@ -18,7 +18,7 @@ export function insertItemGroup(
     throw new Error('[meal::application] Current day diet is null')
   }
 
-  const newDay = new DayDietEditor(currentDayDiet_)
+  const newDay = new DayDietEditor(createNewDayDiet(currentDayDiet_))
     .editMeal(mealId, (mealEditor) => {
       mealEditor?.addGroup(newItemGroup)
     })
@@ -44,7 +44,7 @@ export function updateItemGroup(
     throw new Error('[meal::application] Current day diet is null')
   }
 
-  const newDay = new DayDietEditor(currentDayDiet_)
+  const newDay: NewDayDiet = new DayDietEditor(createNewDayDiet(currentDayDiet_))
     .editMeal(mealId, (mealEditor) => {
       mealEditor?.editGroup(itemGroupId, (groupEditor) => {
         groupEditor?.replace(newItemGroup)
@@ -71,7 +71,7 @@ export function deleteItemGroup(
     throw new Error('[meal::application] Current day diet is null')
   }
 
-  const newDay = new DayDietEditor(currentDayDiet_)
+  const newDay = new DayDietEditor(createNewDayDiet(currentDayDiet_))
     .editMeal(mealId, (mealEditor) => {
       mealEditor?.deleteGroup(itemGroupId)
     })
