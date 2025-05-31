@@ -349,57 +349,54 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
             setVisible={setRecipeEditModalVisible}
             onRefetch={props.onRefetch}
           />
-          <ExternalItemEditModal
-            visible={itemEditModalVisible}
-            setVisible={setItemEditModalVisible}
-            item={() => {
-              console.debug(
-                '[ExternalItemEditModal] <computed> item: ',
-                editSelection()?.item,
-              )
-              return (
-                editSelection()?.item ??
-                // TODO: Properly handle null case
-                createItem({ name: 'Bug: selection was null', reference: 0 })
-              )
-            }}
-            targetName={(() => {
-              const group_ = group()
-              if (group_ !== null) {
-                const simpleGroup = group_ !== null && isSimpleSingleGroup(group_)
-                const receivedName = simpleGroup
-                  ? props.targetMealName
-                  : group_.name
-                return receivedName.length > 0 ? receivedName : 'Erro: Nome vazio'
-              }
-              return 'Erro: Grupo de alimentos nulo'
-            })()}
-            targetNameColor={(() => {
-              const group_ = group()
-              return group_ !== null && isSimpleSingleGroup(group_)
-                ? 'text-green-500'
-                : 'text-orange-400'
-            })()}
-            macroOverflow={() => {
-              const persistentGroup_ = persistentGroup()
-              if (persistentGroup_ === null) {
-                return { enable: false }
-              }
-              const item = editSelection()?.item
-              if (item === undefined) {
-                return { enable: false }
-              }
-              const originalItem = persistentGroup_.items.find((i: Item) => i.id === item.id)
-              if (originalItem === undefined) {
-                console.error('[ExternalItemEditModal] originalItem is not found')
-                return { enable: false }
-              }
-              return { enable: true, originalItem }
-            }}
-            onApply={handleItemApply}
-            onDelete={handleItemDelete}
-            onClose={() => setEditSelection(null)}
-          />
+          <Show when={editSelection()?.item}>
+            {(selectedItem) => (
+              <ExternalItemEditModal
+                visible={itemEditModalVisible}
+                setVisible={setItemEditModalVisible}
+                item={() => {
+                  console.debug(
+                    '[ExternalItemEditModal] <computed> item: ',
+                    selectedItem(),
+                  )
+                  return selectedItem()
+                }}
+                targetName={(() => {
+                  const group_ = group()
+                  if (group_ !== null) {
+                    const simpleGroup = group_ !== null && isSimpleSingleGroup(group_)
+                    const receivedName = simpleGroup
+                      ? props.targetMealName
+                      : group_.name
+                    return receivedName.length > 0 ? receivedName : 'Erro: Nome vazio'
+                  }
+                  return 'Erro: Grupo de alimentos nulo'
+                })()}
+                targetNameColor={(() => {
+                  const group_ = group()
+                  return group_ !== null && isSimpleSingleGroup(group_)
+                    ? 'text-green-500'
+                    : 'text-orange-400'
+                })()}
+                macroOverflow={() => {
+                  const persistentGroup_ = persistentGroup()
+                  if (persistentGroup_ === null) {
+                    return { enable: false }
+                  }
+                  const item = selectedItem()
+                  const originalItem = persistentGroup_.items.find((i: Item) => i.id === item.id)
+                  if (originalItem === undefined) {
+                    console.error('[ExternalItemEditModal] originalItem is not found')
+                    return { enable: false }
+                  }
+                  return { enable: true, originalItem }
+                }}
+                onApply={handleItemApply}
+                onDelete={handleItemDelete}
+                onClose={() => setEditSelection(null)}
+              />
+            )}
+          </Show>
           <ExternalTemplateSearchModal
             visible={templateSearchModalVisible}
             setVisible={setTemplateSearchModalVisible}
@@ -508,10 +505,6 @@ function Body(props: {
       throw new Error('Invalid clipboard data: ' + clipboardText())
     }
     const group_ = group()
-    if (group_ === null) {
-      // TODO: Properly handle null case
-      throw new Error('BUG: group is null')
-    }
 
     if ('items' in data) {
       // data is an itemGroup
