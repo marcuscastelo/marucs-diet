@@ -20,7 +20,7 @@ import {
   createSignal,
   createEffect,
 } from 'solid-js'
-import { cn } from '~/legacy/utils/cn'
+import { cn } from '~/shared/cn'
 import { fetchFoodById } from '~/modules/diet/food/application/food'
 import { stringToDate } from '~/legacy/utils/dateUtils'
 import {

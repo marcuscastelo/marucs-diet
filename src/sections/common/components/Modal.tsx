@@ -1,6 +1,6 @@
 import { useModalContext } from '~/sections/common/context/ModalContext'
 import { BackIcon } from '~/sections/common/components/icons/BackIcon'
-import { cn } from '~/legacy/utils/cn'
+import { cn } from '~/shared/cn'
 import { mergeProps, type JSXElement, createEffect } from 'solid-js'
 import { DarkToaster } from './DarkToaster'
 

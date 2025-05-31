@@ -1,6 +1,6 @@
-import { type Accessor } from 'solid-js'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import { FloatInput } from '~/sections/common/components/FloatInput'
+import { cn } from '~/shared/cn'
 
 export interface PreparedQuantityProps {
   /**
@@ -18,7 +18,7 @@ export interface PreparedQuantityProps {
    * @param newPreparedQuantity - The new prepared quantity entered by the user
    * @param newMultiplier - The calculated new multiplier based on the new prepared quantity
    */
-  onPreparedQuantityChange: (newPreparedQuantity: number | null, newMultiplier: number) => void
+  onPreparedQuantityChange: (newPreparedQuantity: number | undefined, newMultiplier: number) => void
   
   /**
    * Optional CSS class to apply to the container
@@ -46,7 +46,7 @@ export function PreparedQuantity(props: PreparedQuantityProps) {
   })
 
   return (
-    <div class="flex gap-2">
+    <div class={cn('flex gap-2', props.class)}>
       <FloatInput
         field={preparedQuantityField}
         commitOn="change"
