@@ -237,9 +237,9 @@ export function RecipeEditContent(props: {
           <PreparedQuantity
             rawQuantity={recipe().items.reduce((acc, item) => acc + item.quantity, 0)}
             preparedMultiplier={recipe().prepared_multiplier}
-            onPreparedQuantityChange={(newPreparedQuantity, newMultiplier) => {
+            onPreparedQuantityChange={({ newMultiplier }) => {
               const newRecipe = new RecipeEditor(recipe())
-                .setPreparedMultiplier(newMultiplier)
+                .setPreparedMultiplier(newMultiplier())
                 .finish()
 
               setRecipe(newRecipe)

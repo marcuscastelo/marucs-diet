@@ -889,24 +889,20 @@ function PreparedQuantityWrapper(props: {
     <PreparedQuantity
       rawQuantity={rawQuantity()}
       preparedMultiplier={props.recipe?.prepared_multiplier ?? 1}
-      onPreparedQuantityChange={(newPreparedQuantity, newMultiplier) => {
+      onPreparedQuantityChange={({ newPreparedQuantity, newMultiplier, newRawQuantity }) => {
         console.debug(
           '[PreparedQuantity] onPreparedQuantityChange: ',
-          newPreparedQuantity,
+          newPreparedQuantity(),
           'newMultiplier:',
-          newMultiplier,
+          newMultiplier(),
+          'newRawQuantity:',
+          newRawQuantity(),
         )
-
-        const newRawQuantity =
-          (newPreparedQuantity ?? 0) /
-          (props.recipe?.prepared_multiplier ?? 1)
-
-        const multiplier = newRawQuantity / (rawQuantity() ?? 1)
 
         const newItems = props.recipedGroup().items.map((item) => {
           return {
             ...item,
-            quantity: item.quantity * multiplier,
+            quantity: item.quantity * newMultiplier(),
           }
         })
 

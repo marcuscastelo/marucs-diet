@@ -1,6 +1,7 @@
 import { useFloatField } from '~/sections/common/hooks/useField'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { cn } from '~/shared/cn'
+import { type Accessor, createMemo } from 'solid-js'
 
 export interface PreparedQuantityProps {
   /**
@@ -15,10 +16,15 @@ export interface PreparedQuantityProps {
   
   /**
    * Callback called when the user commits a new prepared quantity value
-   * @param newPreparedQuantity - The new prepared quantity entered by the user
-   * @param newMultiplier - The calculated new multiplier based on the new prepared quantity
    */
-  onPreparedQuantityChange: (newPreparedQuantity: number | undefined, newMultiplier: number) => void
+  onPreparedQuantityChange: (values: {
+    /** The new prepared quantity entered by the user */
+    newPreparedQuantity: Accessor<number | undefined>
+    /** The calculated new multiplier based on the new prepared quantity */
+    newMultiplier: Accessor<number>
+    /** The calculated new raw quantity (newPreparedQuantity / preparedMultiplier) */
+    newRawQuantity: Accessor<number>
+  }) => void
   
   /**
    * Optional CSS class to apply to the container
@@ -55,8 +61,15 @@ export function PreparedQuantity(props: PreparedQuantityProps) {
           event.target.select()
         }}
         onFieldCommit={(newPreparedQuantity) => {
-          const newMultiplier = (newPreparedQuantity ?? props.rawQuantity) / props.rawQuantity
-          props.onPreparedQuantityChange(newPreparedQuantity, newMultiplier ?? 1)
+          const newPreparedQuantityAccessor = () => newPreparedQuantity
+          const newMultiplierAccessor = createMemo(() => (newPreparedQuantity ?? props.rawQuantity) / props.rawQuantity)
+          const newRawQuantityAccessor = createMemo(() => (newPreparedQuantity ?? 0) / props.preparedMultiplier)
+          
+          props.onPreparedQuantityChange({
+            newPreparedQuantity: newPreparedQuantityAccessor,
+            newMultiplier: newMultiplierAccessor,
+            newRawQuantity: newRawQuantityAccessor
+          })
         }}
         style={{ width: '100%', ...props.style }}
       />
