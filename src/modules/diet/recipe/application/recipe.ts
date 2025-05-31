@@ -1,8 +1,7 @@
 import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 import { type User } from '~/modules/user/domain/user'
-import { type Recipe } from '../domain/recipe'
+import { type Recipe, type NewRecipe } from '../domain/recipe'
 import toast from 'solid-toast'
-import { type DbReady } from '~/legacy/utils/newDbRecord'
 
 const recipeRepository = createSupabaseRecipeRepository()
 
@@ -18,7 +17,7 @@ export async function fetchRecipeById(recipeId: Recipe['id']) {
   return await recipeRepository.fetchRecipeById(recipeId)
 }
 
-export async function insertRecipe(newRecipe: DbReady<Recipe>) {
+export async function insertRecipe(newRecipe: NewRecipe) {
   const recipe = await toast.promise(recipeRepository.insertRecipe(newRecipe), {
     loading: 'Criando nova receita...',
     success: 'Receita criada com sucesso',

@@ -1,7 +1,10 @@
 import { type Accessor, For, type Setter, Show } from 'solid-js'
 import toast from 'solid-toast'
 import { deleteRecentFoodByFoodId } from '~/legacy/controllers/recentFood'
+import { calcRecipeMacros } from '~/legacy/utils/macroMath'
 import { createItem } from '~/modules/diet/item/domain/item'
+import { type Food } from '~/modules/diet/food/domain/food'
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { type Template } from '~/modules/diet/template/domain/template'
 import { templateSearchTab } from '~/modules/search/application/search'
 import {
@@ -50,7 +53,9 @@ export function TemplateSearchResults(props: {
                     ...createItem({
                       name: template().name,
                       quantity: 100,
-                      macros: template().macros,
+                      macros: template().__type === 'Food' 
+                        ? (template() as Food).macros 
+                        : calcRecipeMacros(template() as Recipe),
                       reference: template().id,
                     }),
                     __type:
