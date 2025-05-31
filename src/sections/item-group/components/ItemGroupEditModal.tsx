@@ -901,7 +901,7 @@ function PreparedQuantity(props: {
           (newPreparedQuantity ?? 0) /
           (props.recipe?.prepared_multiplier ?? 1)
 
-        const multiplier = newRawQuantity / (rawQuantity() || 1)
+        const multiplier = newRawQuantity / (rawQuantity() ?? 1)
 
         const newItems =
           props.recipedGroup()?.items.map((item) => {
