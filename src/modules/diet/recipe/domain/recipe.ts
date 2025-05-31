@@ -16,7 +16,7 @@ export const recipeSchema = z.object({
   name: z.string(),
   owner: z.number(),
   items: z.array(itemSchema).readonly(), // TODO: Think of a way to avoid id reuse on each item and bugs
-  prepared_multiplier: z.number().default(1), // TODO: Raname all snake_case to camelCase (also in db)
+  prepared_multiplier: z.number().default(1), // TODO: Rename all snake_case to camelCase (also in db)
   __type: z.literal('Recipe'),
 })
 
