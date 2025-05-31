@@ -100,15 +100,25 @@ export function UserInfo() {
       <button
         class={'btn-primary no-animation btn w-full rounded-t-none'}
         onClick={() => {
-          const newUser = innerData()
-          if (newUser === null) {
+          const user = innerData()
+          if (user === null) {
             return
           }
-          updateUser(newUser.id, newUser).catch((error) => {
+          // Convert User to NewUser for the update
+          const newUser = {
+            name: user.name,
+            favorite_foods: user.favorite_foods,
+            diet: user.diet,
+            birthdate: user.birthdate,
+            gender: user.gender,
+            desired_weight: user.desired_weight,
+            __type: 'NewUser' as const,
+          }
+          updateUser(user.id, newUser).catch((error) => {
             handleApiError(error, {
               component: 'UserInfo',
               operation: 'updateUser',
-              additionalData: { userId: newUser.id }
+              additionalData: { userId: user.id }
             })
             toast.error(
               `Erro ao atualizar usuário: ${formatError(error)}`,

@@ -23,7 +23,9 @@ export const measureSchema = z.object({
     .transform(() => 'Measure' as const),
 })
 
-export const newMeasureSchema = measureSchema.omit({ id: true, __type: true })
+export const newMeasureSchema = measureSchema.omit({ id: true, __type: true }).extend({
+  __type: z.literal('NewMeasure'),
+})
 
 // TODO: rename to BodyMeasure
 export type Measure = Readonly<z.infer<typeof measureSchema>>
@@ -51,6 +53,7 @@ export function createNewMeasure({
     hip,
     neck,
     target_timestamp,
+    __type: 'NewMeasure',
   })
 }
 
@@ -58,5 +61,21 @@ export function promoteToMeasure(newMeasure: NewMeasure, id: number): Measure {
   return measureSchema.parse({
     ...newMeasure,
     id,
+  })
+}
+
+/**
+ * Demotes a Measure to a NewMeasure for updates.
+ * Used when converting a persisted Measure back to NewMeasure for database operations.
+ */
+export function demoteToNewMeasure(measure: Measure): NewMeasure {
+  return newMeasureSchema.parse({
+    height: measure.height,
+    waist: measure.waist,
+    hip: measure.hip,
+    neck: measure.neck,
+    owner: measure.owner,
+    target_timestamp: measure.target_timestamp,
+    __type: 'NewMeasure',
   })
 }

@@ -10,31 +10,19 @@ export const macroProfileSchema = z.object({
   gramsPerKgCarbs: z.number(),
   gramsPerKgProtein: z.number(),
   gramsPerKgFat: z.number(),
+  __type: z
+    .string()
+    .nullable()
+    .optional()
+    .transform(() => 'MacroProfile' as const),
 })
 
-export const newMacroProfileSchema = macroProfileSchema.omit({ id: true })
+export const newMacroProfileSchema = macroProfileSchema.omit({ id: true }).extend({
+  __type: z.literal('NewMacroProfile'),
+})
 
 export type MacroProfile = Readonly<z.infer<typeof macroProfileSchema>>
 export type NewMacroProfile = Readonly<z.infer<typeof newMacroProfileSchema>>
-
-/**
- * Creates a new MacroProfile with default values.
- * Used for initializing new macro profiles before saving to database.
- *
- * @param owner - User ID who owns this macro profile
- * @param targetDay - Date for which this profile applies
- * @returns A new MacroProfile with default values for all macro nutrients
- */
-export function createMacroProfile(owner: number, targetDay: Date): MacroProfile {
-  return {
-    id: -1,
-    owner,
-    target_day: targetDay,
-    gramsPerKgCarbs: 0,
-    gramsPerKgProtein: 0,
-    gramsPerKgFat: 0,
-  }
-}
 
 export function createNewMacroProfile({
   owner,
@@ -55,6 +43,7 @@ export function createNewMacroProfile({
     gramsPerKgCarbs,
     gramsPerKgProtein,
     gramsPerKgFat,
+    __type: 'NewMacroProfile',
   })
 }
 
@@ -62,5 +51,21 @@ export function promoteToMacroProfile(newMacroProfile: NewMacroProfile, id: numb
   return macroProfileSchema.parse({
     ...newMacroProfile,
     id,
+    __type: 'MacroProfile',
+  })
+}
+
+/**
+ * Demotes a MacroProfile to a NewMacroProfile for updates.
+ * Used when converting a persisted MacroProfile back to NewMacroProfile for database operations.
+ */
+export function demoteToNewMacroProfile(macroProfile: MacroProfile): NewMacroProfile {
+  return newMacroProfileSchema.parse({
+    owner: macroProfile.owner,
+    target_day: macroProfile.target_day,
+    gramsPerKgCarbs: macroProfile.gramsPerKgCarbs,
+    gramsPerKgProtein: macroProfile.gramsPerKgProtein,
+    gramsPerKgFat: macroProfile.gramsPerKgFat,
+    __type: 'NewMacroProfile',
   })
 }

@@ -83,3 +83,17 @@ export function promoteToRecipe(newRecipe: NewRecipe, id: number): Recipe {
     __type: 'Recipe',
   }
 }
+
+/**
+ * Demotes a Recipe to a NewRecipe for updates.
+ * Used when converting a persisted Recipe back to NewRecipe for database operations.
+ */
+export function demoteToNewRecipe(recipe: Recipe): NewRecipe {
+  return newRecipeSchema.parse({
+    name: recipe.name,
+    owner: recipe.owner,
+    items: recipe.items,
+    prepared_multiplier: recipe.prepared_multiplier,
+    __type: 'NewRecipe',
+  })
+}

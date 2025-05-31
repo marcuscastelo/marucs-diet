@@ -29,9 +29,16 @@ export const userSchema = z.object({
     required_error: 'Desired weight is required',
     invalid_type_error: 'Desired weight must be a number',
   }),
+  __type: z
+    .string()
+    .nullable()
+    .optional()
+    .transform(() => 'User' as const),
 })
 
-export const newUserSchema = userSchema.omit({ id: true })
+export const newUserSchema = userSchema.omit({ id: true }).extend({
+  __type: z.literal('NewUser'),
+})
 
 export type NewUser = Readonly<z.infer<typeof newUserSchema>>
 export type User = Readonly<z.infer<typeof userSchema>>
@@ -58,6 +65,7 @@ export function createNewUser({
     birthdate,
     gender,
     desired_weight,
+    __type: 'NewUser',
   })
 }
 
@@ -65,5 +73,21 @@ export function promoteToUser(newUser: NewUser, id: number): User {
   return userSchema.parse({
     ...newUser,
     id,
+  })
+}
+
+/**
+ * Demotes a User to a NewUser for updates.
+ * Used when converting a persisted User back to NewUser for database operations.
+ */
+export function demoteToNewUser(user: User): NewUser {
+  return newUserSchema.parse({
+    name: user.name,
+    favorite_foods: user.favorite_foods,
+    diet: user.diet,
+    birthdate: user.birthdate,
+    gender: user.gender,
+    desired_weight: user.desired_weight,
+    __type: 'NewUser',
   })
 }

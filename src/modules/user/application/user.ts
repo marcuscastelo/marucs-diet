@@ -1,4 +1,4 @@
-import { type User, type NewUser } from '~/modules/user/domain/user'
+import { type User, type NewUser, demoteToNewUser } from '~/modules/user/domain/user'
 import {
   loadUserIdFromLocalStorage,
   saveUserIdToLocalStorage,
@@ -122,7 +122,7 @@ export function setFoodAsFavorite(foodId: number, favorite: boolean): void {
   }
 
   updateUser(currentUser_.id, {
-    ...currentUser_,
+    ...demoteToNewUser(currentUser_),
     favorite_foods: favoriteFoods,
   })
     .then(fetchCurrentUser)

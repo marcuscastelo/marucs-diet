@@ -1,7 +1,7 @@
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
-import { 
+import {
   type MacroProfile,
-  createMacroProfile
+  createNewMacroProfile
 } from '~/modules/diet/macro-profile/domain/macroProfile'
 import {
   dateToYYYYMMDD,
@@ -10,7 +10,7 @@ import {
 } from '~/legacy/utils/dateUtils'
 import { calcCalories } from '~/legacy/utils/macroMath'
 import { getLatestMacroProfile } from '~/legacy/utils/macroProfileUtils'
-import { Show, createEffect, untrack } from 'solid-js'
+import { Show, createEffect } from 'solid-js'
 import {
   deleteMacroProfile,
   insertMacroProfile,
@@ -106,7 +106,7 @@ const onSaveMacroProfile = (profile: MacroProfile) => {
 
     // Same day, update
     // TODO: Change all catch console.error to toast.error (and think about Sentry as well)
-    updateMacroProfile(profile.id, profile).catch(console.error)
+    updateMacroProfile(profile.id, createNewMacroProfile(profile)).catch(console.error)
   } else if (
     profile.id === -1 || // TODO: Better typing system for new MacroProfile instead of -1
     profile.target_day.getTime() < new Date(getTodayYYYMMDD()).getTime()
@@ -114,10 +114,10 @@ const onSaveMacroProfile = (profile: MacroProfile) => {
     console.log('[ProfilePage] Inserting profile', profile)
 
     // Past day, insert with new date
-    insertMacroProfile({
+    insertMacroProfile(createNewMacroProfile({
       ...profile,
       target_day: new Date(getTodayYYYMMDD()),
-    }).catch(console.error)
+    })).catch(console.error)
   } else {
     toast.error('Erro imprevisto ao salvar perfil de macro')
   }
@@ -312,7 +312,8 @@ function MacroTargetSetting(props: {
   const gramsPerKg = () => emptyIfZeroElse2Decimals(props.target.gramsPerKg)
 
   const onSetGramsPerKg = (gramsPerKg: number) => {
-    const profile_ = props.currentProfile ?? createMacroProfile(currentUserId(), stringToDate(targetDay()))
+    const profile_ = props.currentProfile 
+
     onSaveMacroProfile({
       ...profile_,
       [`gramsPerKg${props.field.charAt(0).toUpperCase() + props.field.slice(1)}`]:
@@ -321,7 +322,8 @@ function MacroTargetSetting(props: {
   }
 
   const onSetGrams = (grams: number) => {
-    const profile_ = props.currentProfile ?? createMacroProfile(currentUserId(), stringToDate(targetDay()))
+    const profile_ = props.currentProfile 
+
     onSaveMacroProfile({
       ...profile_,
       [`gramsPerKg${props.field.charAt(0).toUpperCase() + props.field.slice(1)}`]:

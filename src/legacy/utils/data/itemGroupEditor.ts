@@ -94,7 +94,11 @@ export class ItemGroupEditor
     return this
   }
 
-  protected override onFinish() {
-    // Quantity is now calculated on-demand via getItemGroupQuantity()
+  protected override onFinish(): ItemGroup {
+    const copy = deepCopy(this.group)
+    if (copy === null) {
+      throw new Error('Error copying item group!')
+    }
+    return copy
   }
 }

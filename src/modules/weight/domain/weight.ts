@@ -60,3 +60,16 @@ export function promoteToWeight(newWeight: NewWeight, id: number): Weight {
     __type: 'Weight',
   }
 }
+
+/**
+ * Demotes a Weight to a NewWeight for updates.
+ * Used when converting a persisted Weight back to NewWeight for database operations.
+ */
+export function demoteToNewWeight(weight: Weight): NewWeight {
+  return newWeightSchema.parse({
+    owner: weight.owner,
+    weight: weight.weight,
+    target_timestamp: weight.target_timestamp,
+    __type: 'NewWeight',
+  })
+}

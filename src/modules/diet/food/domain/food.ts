@@ -85,6 +85,21 @@ export function promoteToFood(newFood: NewFood, id: number): Food {
   }
 }
 
+/**
+ * Demotes a Food to a NewFood for updates.
+ * Used when converting a persisted Food back to NewFood for database operations.
+ */
+export function demoteToNewFood(food: Food): NewFood {
+  return newFoodSchema.parse({
+    name: food.name,
+    macros: food.macros,
+    ean: food.ean,
+    source: food.source,
+    recipeId: food.recipeId,
+    __type: 'NewFood',
+  })
+}
+
 // TODO: Make createFood function more than a mock
 export function createFood({ name }: { name: string }): NewFood {
   return createNewFood({

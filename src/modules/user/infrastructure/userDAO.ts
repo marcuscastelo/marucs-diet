@@ -43,5 +43,6 @@ export function createUserFromDAO(dao: UserDAO): User {
     birthdate: dao.birthdate,
     gender: dao.gender,
     desired_weight: dao.desired_weight,
+    __type: 'User',
   }
 }

@@ -40,5 +40,6 @@ export function createMacroProfileFromDAO(dao: MacroProfileDAO): MacroProfile {
     gramsPerKgCarbs: dao.gramsPerKgCarbs,
     gramsPerKgProtein: dao.gramsPerKgProtein,
     gramsPerKgFat: dao.gramsPerKgFat,
+    __type: 'MacroProfile',
   }
 }
