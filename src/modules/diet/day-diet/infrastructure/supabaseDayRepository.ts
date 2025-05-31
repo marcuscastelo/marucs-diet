@@ -126,16 +126,7 @@ async function fetchAllUserDayDiets(
 const insertDayDiet = async (
   newDay: NewDayDiet,
 ): Promise<DayDiet | null> => {
-  const createDAO: CreateDayDietDAO = {
-    target_day: newDay.target_day,
-    owner: newDay.owner,
-    meals: newDay.meals.map(meal => ({
-      id: 0, // Will be assigned by database
-      name: meal.name,
-      groups: meal.groups,
-      __type: 'Meal' as const,
-    })),
-  }
+  const createDAO = createInsertDayDietDAOFromNewDayDiet(newDay)
 
   const { data: days, error } = await supabase
     .from(SUPABASE_TABLE_DAYS)
