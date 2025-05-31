@@ -1,0 +1,33 @@
+name: Update VERSION on merge to rc/*
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - 'rc/**'
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # necessário para git history completo
+
+      - name: Set up Git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Generate version
+        run: |
+          chmod +x ./scripts/semver.sh | tee VERSION
+          chmod +x ./scripts/updateversion.sh
+          ./scripts/updateversion.sh
+
+      - name: Commit and push VERSION
+        run: |
+          git add .
+          git commit -m "chore: bump version to $(cat VERSION)"
+          git push
