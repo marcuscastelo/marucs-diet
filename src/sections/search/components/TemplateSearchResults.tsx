@@ -27,7 +27,7 @@ export function TemplateSearchResults(props: {
   search: string
   typing: Accessor<boolean>
   filteredTemplates: readonly Template[]
-  setSelectedTemplate: (food: Template) => void
+  setSelectedTemplate: (food: Template | undefined) => void
   barCodeModalVisible: Accessor<boolean>
   setBarCodeModalVisible: Setter<boolean>
   itemEditModalVisible: Accessor<boolean>

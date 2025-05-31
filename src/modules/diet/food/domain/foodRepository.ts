@@ -1,5 +1,4 @@
-import { type DbReady } from '~/legacy/utils/newDbRecord'
-import { type Food } from '~/modules/diet/food/domain/food'
+import { type Food, type NewFood } from '~/modules/diet/food/domain/food'
 
 export type FoodSearchParams = {
   limit?: number
@@ -21,5 +20,5 @@ export type FoodRepository = {
     params: Omit<FoodSearchParams, 'limit'>,
   ) => Promise<Food | null>
 
-  insertFood: (newFood: DbReady<Food>) => Promise<Food | null>
+  insertFood: (newFood: NewFood) => Promise<Food | null>
 }

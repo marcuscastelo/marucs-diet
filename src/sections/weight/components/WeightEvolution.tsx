@@ -1,5 +1,5 @@
 import { For, createEffect, createMemo } from 'solid-js'
-import { type Weight, createWeight } from '~/modules/weight/domain/weight'
+import { type Weight, createNewWeight } from '~/modules/weight/domain/weight'
 import { Capsule } from '~/sections/common/components/capsule/Capsule'
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import { type OHLC } from '~/legacy/model/ohlcModel'
@@ -80,7 +80,7 @@ export function WeightEvolution() {
               }
 
               insertWeight(
-                createWeight({
+                createNewWeight({
                   owner: userId,
                   weight,
                   target_timestamp: new Date(Date.now()),

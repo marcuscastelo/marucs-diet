@@ -1,13 +1,20 @@
 import {
   type DayDiet,
   dayDietSchema,
+  type NewDayDiet,
 } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type User } from '~/modules/user/domain/user'
-import { type DbReady, enforceDbReady } from '~/legacy/utils/newDbRecord'
 import supabase from '~/legacy/utils/supabase'
 import { type DayRepository } from '~/modules/diet/day-diet/domain/dayDietRepository'
 import { type Accessor, createSignal } from 'solid-js'
 import { handleApiError, handleValidationError } from '~/shared/error/errorHandler'
+import {
+  type DayDietDAO,
+  dayDietToDAO,
+  daoToDayDiet,
+  createDayDietDAOToDAO,
+  type CreateDayDietDAO,
+} from './dayDietDAO'
 
 // TODO: Delete old days table and rename days_test to days
 export const SUPABASE_TABLE_DAYS = 'days_test'
@@ -116,29 +123,49 @@ async function fetchAllUserDayDiets(
 
 // TODO: Change upserts to inserts on the entire app
 const insertDayDiet = async (
-  newDay: DbReady<DayDiet>,
+  newDay: NewDayDiet,
 ): Promise<DayDiet | null> => {
-  const day = enforceDbReady(newDay)
+  const createDAO: CreateDayDietDAO = {
+    target_day: newDay.target_day,
+    owner: newDay.owner,
+    meals: newDay.meals.map(meal => ({
+      id: 0, // Will be assigned by database
+      name: meal.name,
+      groups: meal.groups,
+      __type: 'Meal' as const,
+    })),
+  }
 
   const { data: days, error } = await supabase
     .from(SUPABASE_TABLE_DAYS)
-    .upsert(day)
+    .insert(createDAO)
     .select()
   if (error !== null) {
     throw error
   }
 
-  return dayDietSchema.parse(days?.[0] ?? null)
+  const dayDAO = days?.[0] as DayDietDAO | undefined
+  return dayDAO ? daoToDayDiet(dayDAO) : null
 }
 
 const updateDayDiet = async (
   id: DayDiet['id'],
-  day: DbReady<DayDiet>,
+  newDay: NewDayDiet,
 ): Promise<DayDiet> => {
-  const newDay = enforceDbReady(day)
+  const updateDAO = {
+    target_day: newDay.target_day,
+    owner: newDay.owner,
+    meals: newDay.meals.map((meal, index) => ({
+      id: index + 1, // Temporary ID for meals
+      name: meal.name,
+      groups: meal.groups,
+      __type: 'Meal' as const,
+    })),
+  }
+  
   const { data, error } = await supabase
     .from(SUPABASE_TABLE_DAYS)
-    .update(newDay)
+    .update(updateDAO)
     .eq('id', id)
     .select()
 
@@ -146,12 +173,13 @@ const updateDayDiet = async (
     handleApiError(error, {
       component: 'supabaseDayRepository',
       operation: 'updateDayDiet',
-      additionalData: { id, dayData: newDay }
+      additionalData: { id, dayData: updateDAO }
     })
     throw error
   }
 
-  return dayDietSchema.parse(data?.[0] ?? null)
+  const dayDAO = data?.[0] as DayDietDAO
+  return daoToDayDiet(dayDAO)
 }
 
 const deleteDayDiet = async (id: DayDiet['id']): Promise<void> => {

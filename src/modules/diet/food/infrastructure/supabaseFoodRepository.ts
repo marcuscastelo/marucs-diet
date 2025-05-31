@@ -1,10 +1,14 @@
-import { type Food, foodSchema } from '~/modules/diet/food/domain/food'
-import { type DbReady, enforceDbReady } from '~/legacy/utils/newDbRecord'
+import { type Food, foodSchema, type NewFood } from '~/modules/diet/food/domain/food'
 import supabase from '~/legacy/utils/supabase'
 import {
   type FoodRepository,
   type FoodSearchParams,
 } from '~/modules/diet/food/domain/foodRepository'
+import {
+  createFoodFromDAO,
+  foodDAOSchema,
+  createInsertFoodDAOFromNewFood,
+} from '~/modules/diet/food/infrastructure/foodDAO'
 import { handleApiError, logError } from '~/shared/error/errorHandler'
 
 const TABLE = 'foods'
@@ -37,7 +41,7 @@ async function fetchFoodById(
     return null
   }
 
-  return foodSchema.parse(foods[0])
+  return foods[0]
 }
 
 async function fetchFoodsByName(
@@ -134,21 +138,25 @@ async function internalCachedSearchFoods(
   }
 
   console.debug(`[Food] Found ${data?.length ?? 0} foods`)
-  return foodSchema.array().parse(data ?? [])
+  const foodDAOs = foodDAOSchema.array().parse(data ?? [])
+  return foodDAOs.map(createFoodFromDAO)
 }
 
-async function insertFood(newFood: DbReady<Food>): Promise<Food> {
-  const food = enforceDbReady(newFood)
+async function insertFood(newFood: NewFood): Promise<Food | null> {
+  const createDAO = createInsertFoodDAOFromNewFood(newFood)
 
-  const { data, error } = await supabase.from(TABLE).insert(food).select('*')
+  const { data, error } = await supabase.from(TABLE).insert(createDAO).select('*')
   if (error !== null) {
     handleApiError(error, {
       component: 'supabaseFoodRepository',
       operation: 'insertFood',
-      additionalData: { food }
+      additionalData: { food: newFood }
     })
     throw error
   }
 
-  return foodSchema.parse(data?.[0] ?? {})
+  const foodDAOs = foodDAOSchema.array().parse(data ?? [])
+  const foods = foodDAOs.map(createFoodFromDAO)
+
+  return foods[0] ?? null
 }

@@ -12,7 +12,10 @@ export const macroProfileSchema = z.object({
   gramsPerKgFat: z.number(),
 })
 
+export const newMacroProfileSchema = macroProfileSchema.omit({ id: true })
+
 export type MacroProfile = Readonly<z.infer<typeof macroProfileSchema>>
+export type NewMacroProfile = Readonly<z.infer<typeof newMacroProfileSchema>>
 
 /**
  * Creates a new MacroProfile with default values.
@@ -31,4 +34,33 @@ export function createMacroProfile(owner: number, targetDay: Date): MacroProfile
     gramsPerKgProtein: 0,
     gramsPerKgFat: 0,
   }
+}
+
+export function createNewMacroProfile({
+  owner,
+  target_day,
+  gramsPerKgCarbs,
+  gramsPerKgProtein,
+  gramsPerKgFat,
+}: {
+  owner: number
+  target_day: Date | string
+  gramsPerKgCarbs: number
+  gramsPerKgProtein: number
+  gramsPerKgFat: number
+}): NewMacroProfile {
+  return newMacroProfileSchema.parse({
+    owner,
+    target_day,
+    gramsPerKgCarbs,
+    gramsPerKgProtein,
+    gramsPerKgFat,
+  })
+}
+
+export function promoteToMacroProfile(newMacroProfile: NewMacroProfile, id: number): MacroProfile {
+  return macroProfileSchema.parse({
+    ...newMacroProfile,
+    id,
+  })
 }

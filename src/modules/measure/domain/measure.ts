@@ -1,5 +1,4 @@
 /* eslint-disable camelcase */
-import { type DbReady } from '~/legacy/utils/newDbRecord'
 import { z } from 'zod'
 
 // TODO: Create discriminate union type for Male and Female measures
@@ -24,23 +23,40 @@ export const measureSchema = z.object({
     .transform(() => 'Measure' as const),
 })
 
+export const newMeasureSchema = measureSchema.omit({ id: true, __type: true })
+
 // TODO: rename to BodyMeasure
 export type Measure = Readonly<z.infer<typeof measureSchema>>
+export type NewMeasure = Readonly<z.infer<typeof newMeasureSchema>>
 
-export function createMeasure({
+export function createNewMeasure({
   owner,
   height,
   waist,
   hip,
   neck,
-  target_timestamp: targetTimestamp,
-}: DbReady<Measure>): DbReady<Measure> {
-  return {
+  target_timestamp,
+}: {
+  owner: number
+  height: number
+  waist: number
+  hip?: number | null | undefined
+  neck: number
+  target_timestamp: Date | string
+}): NewMeasure {
+  return newMeasureSchema.parse({
     owner,
     height,
     waist,
     hip,
     neck,
-    target_timestamp: targetTimestamp,
-  }
+    target_timestamp,
+  })
+}
+
+export function promoteToMeasure(newMeasure: NewMeasure, id: number): Measure {
+  return measureSchema.parse({
+    ...newMeasure,
+    id,
+  })
 }

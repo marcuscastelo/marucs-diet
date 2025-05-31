@@ -1,10 +1,9 @@
-import { type User } from '~/modules/user/domain/user'
-import { type DbReady } from '~/legacy/utils/newDbRecord'
+import { type User, type NewUser } from '~/modules/user/domain/user'
 
 export type UserRepository = {
   fetchUsers: () => Promise<readonly User[]>
   fetchUser: (userId: User['id']) => Promise<User | null>
-  insertUser: (newUser: DbReady<User>) => Promise<User>
-  updateUser: (userId: User['id'], newUser: DbReady<User>) => Promise<User>
+  insertUser: (newUser: NewUser) => Promise<User | null>
+  updateUser: (userId: User['id'], newUser: NewUser) => Promise<User | null>
   deleteUser: (userId: User['id']) => Promise<void>
 }

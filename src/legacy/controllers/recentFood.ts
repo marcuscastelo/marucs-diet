@@ -1,10 +1,16 @@
 import {
   type RecentFood,
   recentFoodSchema,
+  type NewRecentFood,
 } from '~/modules/recent-food/domain/recentFood'
-import { type DbReady, enforceDbReady } from '~/legacy/utils/newDbRecord'
 import supabase from '~/legacy/utils/supabase'
 import { handleApiError } from '~/shared/error/errorHandler'
+import {
+  type RecentFoodDAO,
+  type CreateRecentFoodDAO,
+  recentFoodToDAO,
+  daoToRecentFood,
+} from '~/modules/recent-food/infrastructure/recentFoodDAO'
 
 const TABLE = 'recent_foods'
 
@@ -49,30 +55,43 @@ export async function fetchUserRecentFoods(userId: RecentFood['user_id']) {
   return recentFoodSchema.array().parse(data)
 }
 
-export async function insertRecentFood(newRecentFood: DbReady<RecentFood>) {
-  const recentFood = enforceDbReady(newRecentFood)
-  const { data, error } = await supabase.from(TABLE).insert(recentFood).select()
+export async function insertRecentFood(newRecentFood: NewRecentFood) {
+  const createDAO: CreateRecentFoodDAO = {
+    user_id: newRecentFood.user_id,
+    food_id: newRecentFood.food_id,
+    last_used: newRecentFood.last_used,
+    times_used: newRecentFood.times_used,
+  }
+  
+  const { data, error } = await supabase.from(TABLE).insert(createDAO).select()
 
   if (error !== null) {
     handleApiError(error, {
       component: 'recentFood',
       operation: 'insertRecentFood',
-      additionalData: { recentFood }
+      additionalData: { createDAO }
     })
     throw error
   }
 
-  return recentFoodSchema.parse(data?.[0])
+  const recentFoodDAO = data?.[0] as RecentFoodDAO
+  return daoToRecentFood(recentFoodDAO)
 }
 
 export async function updateRecentFood(
   recentFoodId: RecentFood['id'],
-  newRecentFood: DbReady<RecentFood>,
+  newRecentFood: NewRecentFood,
 ) {
-  const recentFood = enforceDbReady(newRecentFood)
+  const updateDAO = {
+    user_id: newRecentFood.user_id,
+    food_id: newRecentFood.food_id,
+    last_used: newRecentFood.last_used,
+    times_used: newRecentFood.times_used,
+  }
+  
   const { data, error } = await supabase
     .from(TABLE)
-    .update(recentFood)
+    .update(updateDAO)
     .eq('id', recentFoodId)
     .select()
 
@@ -80,12 +99,13 @@ export async function updateRecentFood(
     handleApiError(error, {
       component: 'recentFood',
       operation: 'updateRecentFood',
-      additionalData: { recentFoodId, recentFood }
+      additionalData: { recentFoodId, updateDAO }
     })
     throw error
   }
 
-  return recentFoodSchema.parse(data?.[0])
+  const recentFoodDAO = data?.[0] as RecentFoodDAO
+  return daoToRecentFood(recentFoodDAO)
 }
 
 export async function deleteRecentFoodByFoodId(

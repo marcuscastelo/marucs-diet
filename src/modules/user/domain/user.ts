@@ -31,4 +31,39 @@ export const userSchema = z.object({
   }),
 })
 
+export const newUserSchema = userSchema.omit({ id: true })
+
+export type NewUser = Readonly<z.infer<typeof newUserSchema>>
 export type User = Readonly<z.infer<typeof userSchema>>
+
+export function createNewUser({
+  name,
+  favorite_foods,
+  diet,
+  birthdate,
+  gender,
+  desired_weight,
+}: {
+  name: string
+  favorite_foods?: number[] | null
+  diet: 'cut' | 'normo' | 'bulk'
+  birthdate: string
+  gender: 'male' | 'female'
+  desired_weight: number
+}): NewUser {
+  return newUserSchema.parse({
+    name,
+    favorite_foods: favorite_foods ?? [],
+    diet,
+    birthdate,
+    gender,
+    desired_weight,
+  })
+}
+
+export function promoteToUser(newUser: NewUser, id: number): User {
+  return userSchema.parse({
+    ...newUser,
+    id,
+  })
+}

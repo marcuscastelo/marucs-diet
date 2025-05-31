@@ -1,5 +1,5 @@
 import { type Loadable } from '~/legacy/utils/loadable'
-import { type Measure, createMeasure } from '~/modules/measure/domain/measure'
+import { type Measure, createNewMeasure } from '~/modules/measure/domain/measure'
 import { MeasureChart } from '~/sections/profile/measure/components/MeasureChart'
 import { MeasureView } from '~/sections/profile/measure/components/MeasureView'
 import { useFloatField } from '~/sections/common/hooks/useField'
@@ -121,7 +121,7 @@ export function MeasuresEvolution() {
                 handleRefetchMeasures()
               }
               insertMeasure(
-                createMeasure({
+                createNewMeasure({
                   owner: userId,
                   height: heightField.value() ?? 0,
                   waist: waistField.value() ?? 0,

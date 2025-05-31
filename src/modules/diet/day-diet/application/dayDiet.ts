@@ -1,8 +1,9 @@
-import { type New, enforceNew } from '~/legacy/utils/newDbRecord'
 import { getTodayYYYMMDD } from '~/legacy/utils/dateUtils'
 import {
   type DayDiet,
   dayDietSchema,
+  type NewDayDiet,
+  createNewDayDiet,
 } from '~/modules/diet/day-diet/domain/dayDiet'
 import {
   createSupabaseDayRepository,
@@ -23,16 +24,12 @@ export function createDayDiet({
   target_day: string
   owner: number
   meals?: DayDiet['meals']
-}): New<DayDiet> {
-  return enforceNew(
-    dayDietSchema.parse({
-      id: 0,
-      target_day: targetDay,
-      owner,
-      meals,
-      __type: 'DayDiet',
-    } satisfies DayDiet),
-  )
+}): NewDayDiet {
+  return createNewDayDiet({
+    target_day: targetDay,
+    owner,
+    meals,
+  })
 }
 
 const dayRepository = createSupabaseDayRepository()
@@ -127,9 +124,9 @@ export async function fetchAllUserDayDiets(userId: User['id']) {
     })
 }
 
-export async function insertDayDiet(dayDiet: New<DayDiet>): Promise<void> {
+export async function insertDayDiet(dayDiet: NewDayDiet): Promise<void> {
   await toast
-    .promise(dayRepository.insertDayDiet(enforceNew(dayDiet)), {
+    .promise(dayRepository.insertDayDiet(dayDiet), {
       loading: 'Criando novo dia de dieta...',
       success: 'Dia de dieta criado com sucesso',
       error: 'Falha ao criar novo dia de dieta',
@@ -144,7 +141,7 @@ export async function insertDayDiet(dayDiet: New<DayDiet>): Promise<void> {
 
 export async function updateDayDiet(
   dayId: DayDiet['id'],
-  dayDiet: DayDiet,
+  dayDiet: NewDayDiet,
 ): Promise<void> {
   await toast
     .promise(dayRepository.updateDayDiet(dayId, dayDiet), {

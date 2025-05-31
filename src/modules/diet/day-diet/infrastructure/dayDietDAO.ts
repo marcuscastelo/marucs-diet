@@ -1,0 +1,86 @@
+import { z } from 'zod'
+import { type DayDiet, dayDietSchema } from '~/modules/diet/day-diet/domain/dayDiet'
+import { mealDAOSchema } from '~/modules/diet/meal/infrastructure/mealDAO'
+
+// DAO schema for creating new day diets
+export const createDayDietDAOSchema = z.object({
+  target_day: z.string(),
+  owner: z.number(),
+  meals: z.array(mealDAOSchema),
+})
+
+// DAO schema for updating existing day diets
+export const updateDayDietDAOSchema = z.object({
+  id: z.number(),
+  target_day: z.string().optional(),
+  owner: z.number().optional(),
+  meals: z.array(mealDAOSchema).optional(),
+})
+
+// DAO schema for database record
+export const dayDietDAOSchema = z.object({
+  id: z.number(),
+  target_day: z.string(),
+  owner: z.number(),
+  meals: z.array(mealDAOSchema),
+  __type: z.literal('DayDiet').optional().default('DayDiet'),
+})
+
+export type CreateDayDietDAO = z.infer<typeof createDayDietDAOSchema>
+export type UpdateDayDietDAO = z.infer<typeof updateDayDietDAOSchema>
+export type DayDietDAO = z.infer<typeof dayDietDAOSchema>
+
+/**
+ * Converts a domain DayDiet object to a DAO object for database storage
+ */
+export function dayDietToDAO(dayDiet: DayDiet): DayDietDAO {
+  return {
+    id: dayDiet.id,
+    target_day: dayDiet.target_day,
+    owner: dayDiet.owner,
+    meals: dayDiet.meals.map(meal => ({
+      id: meal.id,
+      name: meal.name,
+      groups: meal.groups,
+      __type: 'Meal' as const,
+    })),
+    __type: 'DayDiet',
+  }
+}
+
+/**
+ * Converts a DAO object from database to domain DayDiet object
+ */
+export function daoToDayDiet(dao: DayDietDAO): DayDiet {
+  return dayDietSchema.parse({
+    id: dao.id,
+    target_day: dao.target_day,
+    owner: dao.owner,
+    meals: dao.meals,
+    __type: 'DayDiet',
+  })
+}
+
+/**
+ * Converts CreateDayDietDAO to DayDietDAO for database operations
+ */
+export function createDayDietDAOToDAO(createDAO: CreateDayDietDAO, id: number): DayDietDAO {
+  return dayDietDAOSchema.parse({
+    id,
+    target_day: createDAO.target_day,
+    owner: createDAO.owner,
+    meals: createDAO.meals,
+    __type: 'DayDiet',
+  })
+}
+
+/**
+ * Merges UpdateDayDietDAO with existing DayDietDAO for database updates
+ */
+export function mergeUpdateDayDietDAO(existing: DayDietDAO, update: UpdateDayDietDAO): DayDietDAO {
+  return dayDietDAOSchema.parse({
+    ...existing,
+    ...update,
+    __type: 'DayDiet',
+  })
+}
