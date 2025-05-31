@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { type MacroProfile, type NewMacroProfile } from '~/modules/diet/macro-profile/domain/macroProfile'
+import { type MacroProfile, type NewMacroProfile, macroProfileSchema } from '~/modules/diet/macro-profile/domain/macroProfile'
 
 // DAO schemas for database operations
 export const createMacroProfileDAOSchema = z.object({
@@ -33,13 +33,12 @@ export function createUpdateMacroProfileDAOFromNewMacroProfile(newMacroProfile: 
 }
 
 export function createMacroProfileFromDAO(dao: MacroProfileDAO): MacroProfile {
-  return {
+  return macroProfileSchema.parse({
     id: dao.id,
     owner: dao.owner,
     target_day: new Date(dao.target_day),
     gramsPerKgCarbs: dao.gramsPerKgCarbs,
     gramsPerKgProtein: dao.gramsPerKgProtein,
     gramsPerKgFat: dao.gramsPerKgFat,
-    __type: 'MacroProfile',
-  }
+  })
 }

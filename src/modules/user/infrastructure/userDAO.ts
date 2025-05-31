@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { type User, type NewUser } from '~/modules/user/domain/user'
+import { type User, type NewUser, userSchema } from '~/modules/user/domain/user'
 
 // DAO schemas for database operations
 export const createUserDAOSchema = z.object({
@@ -35,7 +35,7 @@ export function createUpdateUserDAOFromNewUser(newUser: NewUser): CreateUserDAO 
 }
 
 export function createUserFromDAO(dao: UserDAO): User {
-  return {
+  return userSchema.parse({
     id: dao.id,
     name: dao.name,
     favorite_foods: dao.favorite_foods ?? [],
@@ -43,6 +43,5 @@ export function createUserFromDAO(dao: UserDAO): User {
     birthdate: dao.birthdate,
     gender: dao.gender,
     desired_weight: dao.desired_weight,
-    __type: 'User',
-  }
+  })
 }

@@ -57,7 +57,6 @@ export function createFoodFromDAO(dao: FoodDAO): Food {
     ean: dao.ean ?? undefined,
     source: dao.source ?? undefined,
     recipeId: dao.recipeId ?? undefined,
-    __type: 'Food',
   })
 }
 

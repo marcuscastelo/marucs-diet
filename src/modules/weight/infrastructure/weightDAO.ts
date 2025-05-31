@@ -33,7 +33,6 @@ export function createWeightDAO(weight: Weight): WeightDAO {
 export function createWeightFromDAO(dao: WeightDAO): Weight {
   return weightSchema.parse({
     ...dao,
-    __type: 'Weight',
   })
 }
 

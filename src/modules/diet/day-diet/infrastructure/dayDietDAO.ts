@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { type DayDiet, dayDietSchema } from '~/modules/diet/day-diet/domain/dayDiet'
+import { type DayDiet, dayDietSchema, NewDayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { mealDAOSchema } from '~/modules/diet/meal/infrastructure/mealDAO'
 
 // DAO schema for creating new day diets
@@ -23,7 +23,6 @@ export const dayDietDAOSchema = z.object({
   target_day: z.string(),
   owner: z.number(),
   meals: z.array(mealDAOSchema),
-  __type: z.literal('DayDiet').optional().default('DayDiet'),
 })
 
 export type CreateDayDietDAO = z.infer<typeof createDayDietDAOSchema>
@@ -42,10 +41,23 @@ export function dayDietToDAO(dayDiet: DayDiet): DayDietDAO {
       id: meal.id,
       name: meal.name,
       groups: meal.groups,
-      __type: 'Meal' as const,
     })),
-    __type: 'DayDiet',
   }
+}
+
+/**
+ * Converts a NewDayDiet object to a CreateDayDietDAO for database operations
+ */
+export function createInsertDayDietDAOFromNewDayDiet(newDayDiet: NewDayDiet): CreateDayDietDAO {
+  return createDayDietDAOSchema.parse({
+    target_day: newDayDiet.target_day,
+    owner: newDayDiet.owner,
+    meals: newDayDiet.meals.map(meal => ({
+      id: meal.id,
+      name: meal.name,
+      groups: meal.groups,
+    })),
+  })
 }
 
 /**
@@ -57,7 +69,6 @@ export function daoToDayDiet(dao: DayDietDAO): DayDiet {
     target_day: dao.target_day,
     owner: dao.owner,
     meals: dao.meals,
-    __type: 'DayDiet',
   })
 }
 
@@ -70,7 +81,6 @@ export function createDayDietDAOToDAO(createDAO: CreateDayDietDAO, id: number): 
     target_day: createDAO.target_day,
     owner: createDAO.owner,
     meals: createDAO.meals,
-    __type: 'DayDiet',
   })
 }
 
@@ -81,6 +91,5 @@ export function mergeUpdateDayDietDAO(existing: DayDietDAO, update: UpdateDayDie
   return dayDietDAOSchema.parse({
     ...existing,
     ...update,
-    __type: 'DayDiet',
   })
 }

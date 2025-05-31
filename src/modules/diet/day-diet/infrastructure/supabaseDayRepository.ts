@@ -14,6 +14,7 @@ import {
   daoToDayDiet,
   createDayDietDAOToDAO,
   type CreateDayDietDAO,
+  createInsertDayDietDAOFromNewDayDiet,
 } from './dayDietDAO'
 
 // TODO: Delete old days table and rename days_test to days
@@ -152,16 +153,7 @@ const updateDayDiet = async (
   id: DayDiet['id'],
   newDay: NewDayDiet,
 ): Promise<DayDiet> => {
-  const updateDAO = {
-    target_day: newDay.target_day,
-    owner: newDay.owner,
-    meals: newDay.meals.map((meal, index) => ({
-      id: index + 1, // Temporary ID for meals
-      name: meal.name,
-      groups: meal.groups,
-      __type: 'Meal' as const,
-    })),
-  }
+  const updateDAO = createInsertDayDietDAOFromNewDayDiet(newDay)
   
   const { data, error } = await supabase
     .from(SUPABASE_TABLE_DAYS)

@@ -46,7 +46,6 @@ export function createRecipeFromDAO(dao: RecipeDAO): Recipe {
   return recipeSchema.parse({
     ...dao,
     items: [...dao.items],
-    __type: 'Recipe',
   })
 }
 

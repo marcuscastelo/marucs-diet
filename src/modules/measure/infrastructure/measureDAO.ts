@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { type Measure, type NewMeasure } from '~/modules/measure/domain/measure'
+import { type Measure, type NewMeasure, measureSchema } from '~/modules/measure/domain/measure'
 
 // DAO schemas for database operations
 export const createMeasureDAOSchema = z.object({
@@ -35,7 +35,7 @@ export function createUpdateMeasureDAOFromNewMeasure(newMeasure: NewMeasure): Cr
 }
 
 export function createMeasureFromDAO(dao: MeasureDAO): Measure {
-  return {
+  return measureSchema.parse({
     id: dao.id,
     height: dao.height,
     waist: dao.waist,
@@ -43,6 +43,5 @@ export function createMeasureFromDAO(dao: MeasureDAO): Measure {
     neck: dao.neck,
     owner: dao.owner,
     target_timestamp: new Date(dao.target_timestamp),
-    __type: 'Measure' as const,
-  }
+  })
 }

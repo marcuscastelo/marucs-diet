@@ -20,7 +20,6 @@ export const mealDAOSchema = z.object({
   id: z.number(),
   name: z.string(),
   groups: z.array(itemGroupSchema),
-  __type: z.literal('Meal').optional().default('Meal'),
 })
 
 export type CreateMealDAO = z.infer<typeof createMealDAOSchema>
@@ -35,7 +34,6 @@ export function mealToDAO(meal: Meal): MealDAO {
     id: meal.id,
     name: meal.name,
     groups: meal.groups,
-    __type: 'Meal',
   }
 }
 
@@ -47,7 +45,6 @@ export function daoToMeal(dao: MealDAO): Meal {
     id: dao.id,
     name: dao.name,
     groups: dao.groups,
-    __type: 'Meal',
   })
 }
 
@@ -59,7 +56,6 @@ export function createMealDAOToDAO(createDAO: CreateMealDAO, id: number): MealDA
     id,
     name: createDAO.name,
     groups: createDAO.groups,
-    __type: 'Meal',
   })
 }
 
@@ -70,6 +66,5 @@ export function mergeUpdateMealDAO(existing: MealDAO, update: UpdateMealDAO): Me
   return mealDAOSchema.parse({
     ...existing,
     ...update,
-    __type: 'Meal',
   })
 }
