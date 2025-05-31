@@ -10,10 +10,7 @@ import { type Accessor, createSignal } from 'solid-js'
 import { handleApiError, handleValidationError } from '~/shared/error/errorHandler'
 import {
   type DayDietDAO,
-  dayDietToDAO,
   daoToDayDiet,
-  createDayDietDAOToDAO,
-  type CreateDayDietDAO,
   createInsertDayDietDAOFromNewDayDiet,
 } from './dayDietDAO'
 
