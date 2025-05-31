@@ -48,7 +48,7 @@ import { regenerateId } from '~/legacy/utils/idUtils'
 import { ItemGroupEditor } from '~/legacy/utils/data/itemGroupEditor'
 import { ConvertToRecipeIcon } from '~/sections/common/components/icons/ConvertToRecipeIcon'
 import { deepCopy } from '~/legacy/utils/deepCopy'
-import { PreparedQuantity as SharedPreparedQuantity } from '~/sections/common/components/PreparedQuantity'
+import { PreparedQuantity } from '~/sections/common/components/PreparedQuantity'
 import {
   currentUserId,
   isFoodFavorite,
@@ -61,6 +61,7 @@ import {
   createEffect,
   Show,
   untrack,
+  createMemo,
 } from 'solid-js'
 import {
   currentDayDiet,
@@ -472,6 +473,11 @@ function Body(props: {
 
   const { group, setGroup } = useItemGroupEditContext()
 
+  const recipedGroup = createMemo(() => {
+    const currentGroup = group()
+    return currentGroup.type === 'recipe' && currentGroup.recipe !== null ? currentGroup : null
+  })
+
   const {
     write: writeToClipboard,
     clear: clearClipboard,
@@ -783,18 +789,15 @@ function Body(props: {
           >
             Adicionar item
           </button>
-          {group().type === 'recipe' && group().recipe !== null && (
-            <PreparedQuantity
-              // TODO: Remove as unknown as Accessor<RecipedItemGroup>
-              recipedGroup={
-                group as unknown as Accessor<RecipedItemGroup | null>
-              }
-              setRecipedGroup={
-                setGroup as unknown as Setter<RecipedItemGroup | null>
-              }
-              recipe={props.recipe()}
-            />
-          )}
+          <Show when={recipedGroup()}>
+            {(recipedGroup) => (
+              <PreparedQuantityWrapper
+                recipedGroup={recipedGroup}
+                setRecipedGroup={setGroup}
+                recipe={props.recipe()}
+              />
+            )}
+          </Show>
         </>
       )}
     </Show>
@@ -875,18 +878,15 @@ function Actions(props: {
   )
 }
 
-function PreparedQuantity(props: {
-  recipedGroup: Accessor<RecipedItemGroup | null>
-  setRecipedGroup: Setter<RecipedItemGroup | null>
+function PreparedQuantityWrapper(props: {
+  recipedGroup: Accessor<RecipedItemGroup>
+  setRecipedGroup: Setter<ItemGroup>
   recipe: Recipe | null
 }) {
-  const rawQuantity = () => {
-    const group = props.recipedGroup()
-    return group ? getItemGroupQuantity(group) : 0
-  }
+  const rawQuantity = () => getItemGroupQuantity(props.recipedGroup())
 
   return (
-    <SharedPreparedQuantity
+    <PreparedQuantity
       rawQuantity={rawQuantity()}
       preparedMultiplier={props.recipe?.prepared_multiplier ?? 1}
       onPreparedQuantityChange={(newPreparedQuantity, newMultiplier) => {
@@ -903,20 +903,18 @@ function PreparedQuantity(props: {
 
         const multiplier = newRawQuantity / (rawQuantity() ?? 1)
 
-        const newItems =
-          props.recipedGroup()?.items.map((item) => {
-            return {
-              ...item,
-              quantity: item.quantity * multiplier,
-            }
-          }) ?? []
+        const newItems = props.recipedGroup().items.map((item) => {
+          return {
+            ...item,
+            quantity: item.quantity * multiplier,
+          }
+        })
 
-        const recipedGroup_ = props.recipedGroup()
-        const newGroup =
-          recipedGroup_ !== null &&
-          new ItemGroupEditor(recipedGroup_).setItems(newItems).finish()
+        const newGroup = new ItemGroupEditor(props.recipedGroup())
+          .setItems(newItems)
+          .finish()
 
-        props.setRecipedGroup(recipedItemGroupSchema.parse(newGroup))
+        props.setRecipedGroup(newGroup)
       }}
     />
   )
