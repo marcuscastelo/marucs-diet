@@ -48,8 +48,7 @@ import { regenerateId } from '~/legacy/utils/idUtils'
 import { ItemGroupEditor } from '~/legacy/utils/data/itemGroupEditor'
 import { ConvertToRecipeIcon } from '~/sections/common/components/icons/ConvertToRecipeIcon'
 import { deepCopy } from '~/legacy/utils/deepCopy'
-import { useFloatField } from '~/sections/common/hooks/useField'
-import { FloatInput } from '~/sections/common/components/FloatInput'
+import { PreparedQuantity as SharedPreparedQuantity } from '~/sections/common/components/PreparedQuantity'
 import {
   currentUserId,
   isFoodFavorite,
@@ -63,7 +62,6 @@ import {
   Show,
   untrack,
 } from 'solid-js'
-import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 import {
   currentDayDiet,
   targetDay,
@@ -71,14 +69,11 @@ import {
 import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget'
 import { stringToDate } from '~/legacy/utils/dateUtils'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
-import { calcDayMacros, calcItemMacros } from '~/legacy/utils/macroMath'
 import { isOverflow } from '~/legacy/utils/macroOverflow'
 import toast from 'solid-toast'
 import {
-  deleteRecipe,
   fetchRecipeById,
   insertRecipe,
-  updateRecipe,
 } from '~/modules/diet/recipe/application/recipe'
 import { BrokenLink } from '~/sections/common/components/icons/BrokenLinkIcon'
 
@@ -890,55 +885,40 @@ function PreparedQuantity(props: {
     return group ? getItemGroupQuantity(group) : 0
   }
 
-  const initialPreparedQuantity = () =>
-    (rawQuantity() ?? 0) * (props.recipe?.prepared_multiplier ?? 1)
-
-  // TODO: Allow user to edit prepared quantity directly
-  const [preparedQuantity] = createMirrorSignal(initialPreparedQuantity)
-
-  const preparedQuantityField = useFloatField(preparedQuantity, {
-    decimalPlaces: 0,
-  })
-
   return (
-    <div class="flex gap-2">
-      <FloatInput
-        field={preparedQuantityField}
-        commitOn="change"
-        class="input px-0 pl-5 text-md"
-        onFocus={(event) => {
-          event.target.select()
-        }}
-        onFieldCommit={(newPreparedQuantity) => {
-          console.debug(
-            '[PreparedQuantity] onFieldCommit: ',
-            newPreparedQuantity,
-          )
+    <SharedPreparedQuantity
+      rawQuantity={rawQuantity()}
+      preparedMultiplier={props.recipe?.prepared_multiplier ?? 1}
+      onPreparedQuantityChange={(newPreparedQuantity, newMultiplier) => {
+        console.debug(
+          '[PreparedQuantity] onPreparedQuantityChange: ',
+          newPreparedQuantity,
+          'newMultiplier:',
+          newMultiplier,
+        )
 
-          const newRawQuantity =
-            (newPreparedQuantity ?? 0) /
-            (props.recipe?.prepared_multiplier ?? 1)
+        const newRawQuantity =
+          (newPreparedQuantity ?? 0) /
+          (props.recipe?.prepared_multiplier ?? 1)
 
-          const multiplier = newRawQuantity / (rawQuantity() ?? 1)
+        const multiplier = newRawQuantity / (rawQuantity() || 1)
 
-          const newItems =
-            props.recipedGroup()?.items.map((item) => {
-              return {
-                ...item,
-                quantity: item.quantity * multiplier,
-              }
-            }) ?? []
+        const newItems =
+          props.recipedGroup()?.items.map((item) => {
+            return {
+              ...item,
+              quantity: item.quantity * multiplier,
+            }
+          }) ?? []
 
-          const recipedGroup_ = props.recipedGroup()
-          const newGroup =
-            recipedGroup_ !== null &&
-            new ItemGroupEditor(recipedGroup_).setItems(newItems).finish()
+        const recipedGroup_ = props.recipedGroup()
+        const newGroup =
+          recipedGroup_ !== null &&
+          new ItemGroupEditor(recipedGroup_).setItems(newItems).finish()
 
-          props.setRecipedGroup(recipedItemGroupSchema.parse(newGroup))
-        }}
-        style={{ width: '100%' }}
-      />
-    </div>
+        props.setRecipedGroup(recipedItemGroupSchema.parse(newGroup))
+      }}
+    />
   )
 }
 

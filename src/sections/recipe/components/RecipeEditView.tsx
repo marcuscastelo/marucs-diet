@@ -23,6 +23,7 @@ import { handleValidationError } from '~/shared/error/errorHandler'
 import { convertToGroups } from '~/legacy/utils/groupUtils'
 import { mealSchema } from '~/modules/diet/meal/domain/meal'
 import { itemGroupSchema } from '~/modules/diet/item-group/domain/itemGroup'
+import { PreparedQuantity } from '~/sections/common/components/PreparedQuantity'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { RecipeEditor } from '~/legacy/utils/data/recipeEditor'
@@ -233,7 +234,7 @@ export function RecipeEditContent(props: {
           <div class="text-gray-400 ml-1">Peso (cru)</div>
         </div>
         <div class="flex flex-col">
-          <PreparedQuantity />
+          <PreparedQuantityWrapper />
           <div class="text-gray-400 ml-1">Peso (pronto)</div>
         </div>
         <div class="flex flex-col">
@@ -282,42 +283,26 @@ function RawQuantity() {
   )
 }
 
-// TODO: Deduplicate PreparedQuantity between RecipeEditView and ItemGroupEditModal
-function PreparedQuantity() {
+// Wrapper component that adapts the shared PreparedQuantity to work with recipe context
+function PreparedQuantityWrapper() {
   const { recipe, setRecipe } = useRecipeEditContext()
 
   const rawQuantity = recipe().items.reduce((acc, item) => {
     return acc + item.quantity
   }, 0)
 
-  const preparedQuantity = () => rawQuantity * recipe().prepared_multiplier
-
-  const preparedQuantityField = useFloatField(preparedQuantity, {
-    decimalPlaces: 0,
-  })
-
   return (
-    <div class="flex gap-2">
-      <FloatInput
-        field={preparedQuantityField}
-        commitOn="change"
-        class="input px-0 pl-5 text-md"
-        onFocus={(event) => {
-          event.target.select()
-        }}
-        onFieldCommit={(newPreparedQuantity) => {
-          const newMultiplier =
-            (newPreparedQuantity ?? rawQuantity) / rawQuantity
+    <PreparedQuantity
+      rawQuantity={rawQuantity}
+      preparedMultiplier={recipe().prepared_multiplier}
+      onPreparedQuantityChange={(newPreparedQuantity, newMultiplier) => {
+        const newRecipe = new RecipeEditor(recipe())
+          .setPreparedMultiplier(newMultiplier)
+          .finish()
 
-          const newRecipe = new RecipeEditor(recipe())
-            .setPreparedMultiplier(newMultiplier ?? 1)
-            .finish()
-
-          setRecipe(newRecipe)
-        }}
-        style={{ width: '100%' }}
-      />
-    </div>
+        setRecipe(newRecipe)
+      }}
+    />
   )
 }
 
