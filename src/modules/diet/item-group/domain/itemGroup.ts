@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { generateId } from '~/legacy/utils/idUtils'
 import { Recipe } from '~/modules/diet/recipe/domain/recipe'
-import { Item } from '~/modules/diet/item/domain/item'
+import { macrosAreEqual } from '~/shared/utils/comparison'
 
 // TODO: Add support for nested groups and recipes (recursive schema: https://github.com/colinhacks/zod#recursive-types)
 // TODO: In the future, it seems like discriminated unions will deprecated (https://github.com/colinhacks/zod/issues/2106)
@@ -138,59 +138,10 @@ export function isRecipedGroupUpToDate(
     if (recipeItem.quantity !== groupItem.quantity) {
       return false
     }
-    // Compare item macros too (deep equality)
-    if (JSON.stringify(recipeItem.macros) !== JSON.stringify(groupItem.macros)) {
+    // Compare item macros using proper equality function
+    if (!macrosAreEqual(recipeItem.macros, groupItem.macros)) {
       return false
     }
   }
   return true
-}
-
-export type GroupConvertible =
-  | ItemGroup
-  | ItemGroup[]
-  | { groups: ItemGroup[] }
-  | Item
-  | Recipe
-
-/**
- * Converts various group-like objects into an array of ItemGroups.
- * Throws a clear error if the input type is not handled.
- */
-export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
-  if (Array.isArray(convertible)) {
-    return [ ...convertible ]
-  }
-
-  if ('__type' in convertible && convertible.__type === 'Recipe') {
-    return [
-      createRecipedItemGroup({
-        name: convertible.name,
-        items: [...convertible.items],
-        recipe: convertible.id,
-      }),
-    ]
-  }
-
-  if ('groups' in convertible) {
-    return [...convertible.groups]
-  }
-
-  if ('reference' in convertible) {
-    return [
-      createSimpleItemGroup({
-        name: convertible.name,
-        items: [{ ...convertible } as Item],
-      }),
-    ]
-  }
-
-  if ('items' in convertible) {
-    return [{ ...convertible }]
-  }
-
-  // Improved exhaustive check: throw with explicit type info
-  const typeName = (convertible && (convertible as any).__type) || typeof convertible
-  // handleValidationError is not imported here; throw directly
-  throw new Error(`Invalid state! Unhandled convertible type in convertToGroups: ${typeName}`)
 }
