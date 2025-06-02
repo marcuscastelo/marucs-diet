@@ -55,7 +55,15 @@ export async function fetchFoodByEan(
       }
     )
   }
-  return await foodRepository.fetchFoodByEan(ean, params)
+
+  await toastPromise(
+    foodRepository.fetchFoodByEan(ean, params),
+    {
+      loading: 'Buscando alimento por EAN...',
+      success: 'Alimento encontrado',
+      error: (error) => `Erro ao buscar alimento por EAN: ${formatError(error)}`
+    }
+  )
 }
 
 export async function isEanCached(ean: Required<Food>['ean']) {

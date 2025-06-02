@@ -4,6 +4,9 @@
  * use these utilities or pass errors to their parent components.
  */
 
+import toast from "solid-toast"
+import { formatError } from "../formatError"
+
 export interface ErrorContext {
   component?: string
   operation?: string
@@ -21,6 +24,8 @@ export function logError(error: unknown, context?: ErrorContext): void {
     '[Unknown]'
   
   console.error(`${timestamp} ${contextStr} Error:`, error)
+
+  toast.error(formatError(error))
   
   if (context?.additionalData) {
     console.error('Additional context:', context.additionalData)

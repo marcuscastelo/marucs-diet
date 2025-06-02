@@ -1,4 +1,5 @@
 import toast from 'solid-toast'
+import { handleApiError } from './error/errorHandler'
 
 export interface ToastPromiseOptions<T> {
   loading: string
@@ -29,6 +30,15 @@ export async function toastPromise<T>(
     const errorMessage = typeof options.error === 'function' 
       ? options.error(error) 
       : options.error
+
+    handleApiError(error, {
+      component: 'ToastPromise',
+      operation: 'toastPromise',
+      additionalData : {
+        options,
+        errorMessage,
+      }, 
+    })
     
     toast.error(errorMessage, { id: toastId })
     throw error
