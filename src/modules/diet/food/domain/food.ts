@@ -11,7 +11,6 @@ export const newFoodSchema = z.object({
       id: z.string(),
     })
     .optional(),
-  recipeId: z.number().optional(),
   __type: z.literal('NewFood'),
 })
 
@@ -32,11 +31,6 @@ export const foodSchema = z.object({
     .transform((val) => val ?? undefined)
     .optional(),
   macros: macroNutrientsSchema,
-  recipeId: z
-    .number()
-    .nullable()
-    .transform((val) => val ?? undefined)
-    .optional(),
   __type: z
     .string()
     .nullable()
@@ -56,20 +50,17 @@ export function createNewFood({
   macros,
   ean,
   source,
-  recipeId,
 }: {
   name: string
   macros: MacroNutrients
   ean?: string
   source?: NewFood['source']
-  recipeId?: number
 }): NewFood {
   return {
     name,
     macros,
     ean,
     source,
-    recipeId,
     __type: 'NewFood',
   }
 }
@@ -95,7 +86,6 @@ export function demoteToNewFood(food: Food): NewFood {
     macros: food.macros,
     ean: food.ean,
     source: food.source,
-    recipeId: food.recipeId,
     __type: 'NewFood',
   })
 }

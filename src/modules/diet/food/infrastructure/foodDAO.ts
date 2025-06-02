@@ -15,7 +15,6 @@ export const foodDAOSchema = z.object({
     })
     .nullable()
     .optional(),
-  recipeId: z.number().nullable().optional(),
 })
 
 // Schema for creation (without ID)
@@ -37,7 +36,6 @@ export function createFoodDAO(food: Food): FoodDAO {
     ean: food.ean ?? null,
     macros: food.macros,
     source: food.source ?? null,
-    recipeId: food.recipeId ?? null,
   })
 }
 
@@ -47,7 +45,6 @@ export function createInsertFoodDAO(food: Omit<Food, 'id' | '__type'>): CreateFo
     ean: food.ean ?? null,
     macros: food.macros,
     source: food.source ?? null,
-    recipeId: food.recipeId ?? null,
   })
 }
 
@@ -56,7 +53,6 @@ export function createFoodFromDAO(dao: FoodDAO): Food {
     ...dao,
     ean: dao.ean ?? undefined,
     source: dao.source ?? undefined,
-    recipeId: dao.recipeId ?? undefined,
   })
 }
 
@@ -66,7 +62,6 @@ export function createInsertFoodDAOFromNewFood(newFood: NewFood): CreateFoodDAO 
     ean: newFood.ean ?? null,
     macros: newFood.macros,
     source: newFood.source ?? null,
-    recipeId: newFood.recipeId ?? null,
   })
 }
 
@@ -76,6 +71,5 @@ export function createUpdateFoodDAOFromFood(food: Food): UpdateFoodDAO {
     ean: food.ean ?? null,
     macros: food.macros,
     source: food.source ?? null,
-    recipeId: food.recipeId ?? null,
   })
 }
