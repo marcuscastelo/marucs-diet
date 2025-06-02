@@ -22,7 +22,7 @@ export async function GET({ params }: APIEvent) {
     })
     return json(
       {
-        error: 'Error fetching foods by name: ' + (error as AxiosError).message,
+        error: 'Error fetching food items by name: ' + (error as AxiosError).message,
       },
       { status: (error as AxiosError).status },
     )

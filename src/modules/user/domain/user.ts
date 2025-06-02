@@ -6,12 +6,12 @@ export const userSchema = z.object({
   favorite_foods: z
     .array(
       z.number({
-        required_error: 'Favorite food is required',
-        invalid_type_error: 'Favorite food must be an integer',
+        required_error: 'Favorite food item is required',
+        invalid_type_error: 'Favorite food item must be an integer',
       }),
       {
-        required_error: 'Favorite foods is required',
-        invalid_type_error: 'Favorite foods must be an array',
+        required_error: 'Favorite food items are required',
+        invalid_type_error: 'Favorite food items must be an array',
       },
     )
     .nullable()

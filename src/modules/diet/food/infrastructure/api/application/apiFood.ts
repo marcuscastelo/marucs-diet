@@ -86,7 +86,7 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
       }
       
       handleApiError(
-        new Error(`Failed to insert ${allRejected.length} of ${insertionResults.length} foods`),
+        new Error(`Failed to insert ${allRejected.length} of ${insertionResults.length} food items`),
         {
           component: 'ApiFood',
           operation: 'importFoodsFromApiByName',
@@ -94,7 +94,7 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
         }
       )
       
-      throw new Error(`Failed to insert some foods. ${allRejected.length} of ${insertionResults.length} insertions failed.`)
+      throw new Error(`Failed to insert some food items. ${allRejected.length} of ${insertionResults.length} insertions failed.`)
     }
   } else {
     console.debug('[ApiFood] No failed insertions, marking search as cached')
