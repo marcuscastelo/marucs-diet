@@ -10,6 +10,36 @@ import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure
 
 const foodRepository = createSupabaseFoodRepository()
 
+/**
+ * Apply search parameters to a list of foods
+ */
+function applySearchParamsToFoods(foods: Food[], params: FoodSearchParams): Food[] {
+  // Filter foods using the same logic as single food filtering
+  let filteredFoods = foods
+    .map(food => doesFoodMatchParams(food, params))
+    .filter((food): food is Food => food !== null)
+  
+  // Apply limit if specified
+  if (params.limit) {
+    filteredFoods = filteredFoods.slice(0, params.limit)
+  }
+  
+  return filteredFoods
+}
+
+/**
+ * Check if a food matches the search parameters (for single food filtering)
+ */
+function doesFoodMatchParams(food: Food | null, params: Omit<FoodSearchParams, 'limit'>): Food | null {
+  if (!food) return null
+  
+  if (params.allowedFoods && !params.allowedFoods.includes(food.id)) {
+    return null // Food not in allowed list
+  }
+  
+  return food
+}
+
 export async function fetchFoods(params: FoodSearchParams = {}) {
   return await foodRepository.fetchFoods(params)
 }
@@ -27,13 +57,17 @@ export async function fetchFoodsByName(
 ) {
   if (!(await isSearchCached(name))) {
     console.debug(`[Food] Food with name ${name} not cached, importing`)
-    await toast.promise(importFoodsFromApiByName(name), {
+    const importedFoods = await toast.promise(importFoodsFromApiByName(name), {
       loading: 'Importando alimentos...',
       success: 'Alimentos importados com sucesso',
       error: 'Error ao importar alimentos',
     })
+    
+    // Apply search parameters to imported foods if needed
+    const filteredFoods = applySearchParamsToFoods(importedFoods, params)
+    
+    return filteredFoods
   }
-  // TODO: When importing a food, avoid second fetch for performance
   return await foodRepository.fetchFoodsByName(name, params)
 }
 
@@ -43,13 +77,17 @@ export async function fetchFoodByEan(
 ) {
   if (!(await isEanCached(ean))) {
     console.debug(`[Food] Food with EAN ${ean} not cached, importing`)
-    return await toast.promise(importFoodFromApiByEan(ean), {
+    const importedFood = await toast.promise(importFoodFromApiByEan(ean), {
       loading: 'Importando alimento...',
       success: 'Alimento importado com sucesso',
       error: 'Error ao importar alimento',
     })
+    
+    // Apply search parameters to imported food if needed
+    const food = doesFoodMatchParams(importedFood, params)
+    
+    return food
   }
-  // TODO: When importing a food, avoid second fetch for performance
   return await foodRepository.fetchFoodByEan(ean, params)
 }
 
