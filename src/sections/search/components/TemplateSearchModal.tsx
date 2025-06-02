@@ -21,7 +21,7 @@ import { type Template } from '~/modules/diet/template/domain/template'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 
-import { type Food, createFood } from '~/modules/diet/food/domain/food'
+import { type Food } from '~/modules/diet/food/domain/food'
 import { currentUser, currentUserId } from '~/modules/user/application/user'
 import {
   type Accessor,

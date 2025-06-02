@@ -51,7 +51,7 @@ export function createInsertFoodDAO(food: Omit<Food, 'id' | '__type'>): CreateFo
 export function createFoodFromDAO(dao: FoodDAO): Food {
   return foodSchema.parse({
     ...dao,
-    ean: dao.ean ?? undefined,
+    ean: dao.ean ?? null,
     source: dao.source ?? undefined,
   })
 }

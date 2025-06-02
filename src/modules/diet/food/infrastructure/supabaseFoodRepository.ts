@@ -20,6 +20,7 @@ export function createSupabaseFoodRepository(): FoodRepository {
     fetchFoodsByName,
     fetchFoodByEan,
     insertFood,
+    upsertFood,
   }
 }
 
@@ -150,6 +151,26 @@ async function insertFood(newFood: NewFood): Promise<Food | null> {
     handleApiError(error, {
       component: 'supabaseFoodRepository',
       operation: 'insertFood',
+      additionalData: { food: newFood }
+    })
+    throw error
+  }
+
+  const foodDAOs = foodDAOSchema.array().parse(data ?? [])
+  const foods = foodDAOs.map(createFoodFromDAO)
+
+  return foods[0] ?? null
+}
+
+async function upsertFood(newFood: NewFood): Promise<Food | null> {
+  const createDAO = createInsertFoodDAOFromNewFood(newFood)
+
+  const { data, error } = await supabase.from(TABLE).upsert(createDAO).select('*')
+
+  if (error !== null) {
+    handleApiError(error, {
+      component: 'supabaseFoodRepository',
+      operation: 'upsertFood',
       additionalData: { food: newFood }
     })
     throw error

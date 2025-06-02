@@ -6,14 +6,10 @@ import {
   importFoodsFromApiByName,
 } from '~/modules/diet/food/infrastructure/api/application/apiFood'
 import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
-import { applySearchParamsToFoods, doesFoodMatchParams } from './foodSearchUtils'
 import { toastPromise } from '~/shared/toastPromise'
 import { formatError } from '~/shared/formatError'
 
 const foodRepository = createSupabaseFoodRepository()
-
-// Re-export utility functions for external use
-export { applySearchParamsToFoods, doesFoodMatchParams }
 
 export async function fetchFoods(params: FoodSearchParams = {}) {
   return await foodRepository.fetchFoods(params)
@@ -32,8 +28,7 @@ export async function fetchFoodsByName(
 ) {
   if (!(await isSearchCached(name))) {
     console.debug(`[Food] Food with name ${name} not cached, importing`)
-    
-    const importedFoods = await toastPromise(
+    await toastPromise(
       importFoodsFromApiByName(name),
       {
         loading: 'Importando alimentos...',
@@ -41,23 +36,17 @@ export async function fetchFoodsByName(
         error: (error) => `Erro ao importar alimentos: ${formatError(error)}`
       }
     )
-    
-    // Apply search parameters to imported foods if needed
-    const filteredFoods = applySearchParamsToFoods(importedFoods, params)
-    
-    return filteredFoods
   }
   return await foodRepository.fetchFoodsByName(name, params)
 }
 
 export async function fetchFoodByEan(
-  ean: Required<Food>['ean'],
+  ean: string,
   params: Omit<FoodSearchParams, 'limit'> = {},
 ) {
   if (!(await isEanCached(ean))) {
     console.debug(`[Food] Food with EAN ${ean} not cached, importing`)
-    
-    const importedFood = await toastPromise(
+    await toastPromise(
       importFoodFromApiByEan(ean),
       {
         loading: 'Importando alimento...',
@@ -65,11 +54,6 @@ export async function fetchFoodByEan(
         error: (error) => `Erro ao importar alimento: ${formatError(error)}`
       }
     )
-    
-    // Apply search parameters to imported food if needed
-    const food = doesFoodMatchParams(importedFood, params)
-    
-    return food
   }
   return await foodRepository.fetchFoodByEan(ean, params)
 }

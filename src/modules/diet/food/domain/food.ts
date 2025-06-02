@@ -3,7 +3,7 @@ import { z } from 'zod'
 
 export const newFoodSchema = z.object({
   name: z.string(),
-  ean: z.string().optional(),
+  ean: z.string().nullable(),
   macros: macroNutrientsSchema,
   source: z
     .object({
@@ -25,11 +25,7 @@ export const foodSchema = z.object({
     .transform((val) => val ?? undefined)
     .optional(),
   name: z.string(),
-  ean: z
-    .string()
-    .nullable()
-    .transform((val) => val ?? undefined)
-    .optional(),
+  ean: z.string().nullable(),
   macros: macroNutrientsSchema,
   __type: z
     .string()
@@ -53,7 +49,7 @@ export function createNewFood({
 }: {
   name: string
   macros: MacroNutrients
-  ean?: string
+  ean: string | null
   source?: NewFood['source']
 }): NewFood {
   return {
@@ -87,17 +83,5 @@ export function demoteToNewFood(food: Food): NewFood {
     ean: food.ean,
     source: food.source,
     __type: 'NewFood',
-  })
-}
-
-// TODO: Make createFood function more than a mock
-export function createFood({ name }: { name: string }): NewFood {
-  return createNewFood({
-    name,
-    macros: {
-      protein: 1234,
-      carbs: 4321,
-      fat: 666,
-    },
   })
 }
