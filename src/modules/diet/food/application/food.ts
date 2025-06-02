@@ -7,38 +7,12 @@ import {
   importFoodsFromApiByName,
 } from '~/modules/diet/food/infrastructure/api/application/apiFood'
 import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
+import { applySearchParamsToFoods, doesFoodMatchParams } from './foodSearchUtils'
 
 const foodRepository = createSupabaseFoodRepository()
 
-/**
- * Apply search parameters to a list of foods
- */
-function applySearchParamsToFoods(foods: Food[], params: FoodSearchParams): Food[] {
-  // Filter foods using the same logic as single food filtering
-  let filteredFoods = foods
-    .map(food => doesFoodMatchParams(food, params))
-    .filter((food): food is Food => food !== null)
-  
-  // Apply limit if specified
-  if (params.limit) {
-    filteredFoods = filteredFoods.slice(0, params.limit)
-  }
-  
-  return filteredFoods
-}
-
-/**
- * Check if a food matches the search parameters (for single food filtering)
- */
-function doesFoodMatchParams(food: Food | null, params: Omit<FoodSearchParams, 'limit'>): Food | null {
-  if (!food) return null
-  
-  if (params.allowedFoods && !params.allowedFoods.includes(food.id)) {
-    return null // Food not in allowed list
-  }
-  
-  return food
-}
+// Re-export utility functions for external use
+export { applySearchParamsToFoods, doesFoodMatchParams }
 
 export async function fetchFoods(params: FoodSearchParams = {}) {
   return await foodRepository.fetchFoods(params)
