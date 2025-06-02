@@ -33,7 +33,15 @@ export async function importFoodFromApiByEan(
     .data as unknown as ApiFood
 
   if (apiFood.id === 0) {
-    console.debug(`[ApiFood] Food with EAN ${ean} not found`)
+    handleApiError(
+      new Error(`Food with ean ${ean} not found on external api`),
+      {
+        component: 'apiFood',
+        operation: 'importFoodFromApiByEan',
+        additionalData: {ean},
+      }
+
+    )
     return null
   }
 
