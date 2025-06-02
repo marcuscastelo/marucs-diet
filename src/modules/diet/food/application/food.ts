@@ -57,16 +57,22 @@ export async function fetchFoodsByName(
 ) {
   if (!(await isSearchCached(name))) {
     console.debug(`[Food] Food with name ${name} not cached, importing`)
-    const importedFoods = await toast.promise(importFoodsFromApiByName(name), {
-      loading: 'Importando alimentos...',
-      success: 'Alimentos importados com sucesso',
-      error: 'Error ao importar alimentos',
-    })
     
-    // Apply search parameters to imported foods if needed
-    const filteredFoods = applySearchParamsToFoods(importedFoods, params)
+    toast.loading('Importando alimentos...')
     
-    return filteredFoods
+    try {
+      const importedFoods = await importFoodsFromApiByName(name)
+      toast.success('Alimentos importados com sucesso')
+      
+      // Apply search parameters to imported foods if needed
+      const filteredFoods = applySearchParamsToFoods(importedFoods, params)
+      
+      return filteredFoods
+    } catch (error) {
+      const errorMessage = `Erro ao importar alimentos: ${(error as Error)?.message || error}`
+      toast.error(errorMessage)
+      throw error
+    }
   }
   return await foodRepository.fetchFoodsByName(name, params)
 }
@@ -77,16 +83,22 @@ export async function fetchFoodByEan(
 ) {
   if (!(await isEanCached(ean))) {
     console.debug(`[Food] Food with EAN ${ean} not cached, importing`)
-    const importedFood = await toast.promise(importFoodFromApiByEan(ean), {
-      loading: 'Importando alimento...',
-      success: 'Alimento importado com sucesso',
-      error: 'Error ao importar alimento',
-    })
     
-    // Apply search parameters to imported food if needed
-    const food = doesFoodMatchParams(importedFood, params)
+    toast.loading('Importando alimento...')
     
-    return food
+    try {
+      const importedFood = await importFoodFromApiByEan(ean)
+      toast.success('Alimento importado com sucesso')
+      
+      // Apply search parameters to imported food if needed
+      const food = doesFoodMatchParams(importedFood, params)
+      
+      return food
+    } catch (error) {
+      const errorMessage = `Erro ao importar alimento: ${(error as Error)?.message || error}`
+      toast.error(errorMessage)
+      throw error
+    }
   }
   return await foodRepository.fetchFoodByEan(ean, params)
 }

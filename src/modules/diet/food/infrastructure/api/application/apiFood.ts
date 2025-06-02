@@ -1,8 +1,8 @@
 import { type Food, foodSchema, type NewFood, createNewFood } from '~/modules/diet/food/domain/food'
 import { markSearchAsCached } from '~/legacy/controllers/searchCache'
 import { type ApiFood } from '~/modules/diet/food/infrastructure/api/domain/apiFoodModel'
-import { createApiFoodRepository } from '~/modules/diet/food/infrastructure/api/infrastructure/apiFoodRepository'
 import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
+import { handleApiError } from '~/shared/error/errorHandler'
 import axios from 'axios'
 
 // TODO: Depency injection for repositories on all application files
@@ -78,10 +78,23 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
     ]
 
     if (errors.some((error) => !ignoredErrors.includes(error))) {
-      console.error(
-        `Failed to insert some foods: ${JSON.stringify(allRejected)}`,
+      const errorDetails = {
+        rejectedCount: allRejected.length,
+        totalCount: insertionResults.length,
+        errors: errors,
+        searchName: name
+      }
+      
+      handleApiError(
+        new Error(`Failed to insert ${allRejected.length} of ${insertionResults.length} foods`),
+        {
+          component: 'ApiFood',
+          operation: 'importFoodsFromApiByName',
+          additionalData: errorDetails
+        }
       )
-      throw new Error('Failed to insert some foods. See console for details.')
+      
+      throw new Error(`Failed to insert some foods. ${allRejected.length} of ${insertionResults.length} insertions failed.`)
     }
   } else {
     console.debug('[ApiFood] No failed insertions, marking search as cached')

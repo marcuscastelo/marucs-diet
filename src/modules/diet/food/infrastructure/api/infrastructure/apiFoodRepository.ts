@@ -12,6 +12,7 @@ import {
   type ApiFood,
 } from '~/modules/diet/food/infrastructure/api/domain/apiFoodModel'
 import { type ApiFoodRepository } from '~/modules/diet/food/infrastructure/api/domain/apiFoodRepository'
+import { handleApiError } from '~/shared/error/errorHandler'
 import rateLimit from 'axios-rate-limit'
 import axios from 'axios'
 
@@ -60,8 +61,10 @@ async function fetchApiFoodsByName(
   try {
     response = await API.get(url, config)
   } catch (error) {
-    console.error(`[ApiFood] Error fetching foods with name from url ${url}`, {
-      error,
+    handleApiError(error, {
+      component: 'ApiFoodRepository',
+      operation: 'fetchApiFoodsByName',
+      additionalData: { url, name }
     })
     throw error
   }
