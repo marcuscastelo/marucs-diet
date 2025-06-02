@@ -1,6 +1,7 @@
-import { type ItemGroup, type RecipedItemGroup, createSimpleItemGroup, createRecipedItemGroup } from '../domain/itemGroup'
+import { type ItemGroup, createSimpleItemGroup, createRecipedItemGroup } from '../domain/itemGroup'
 import { type Item } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 export type GroupConvertible =
   | ItemGroup
@@ -11,11 +12,21 @@ export type GroupConvertible =
 
 /**
  * Converts various group-like objects into an array of ItemGroups.
- * Uses proper type checking instead of string-based detection.
+ *
+ * Accepts:
+ * - ItemGroup
+ * - ItemGroup[]
+ * - { groups: ItemGroup[] }
+ * - Item
+ * - Recipe
+ *
+ * @param convertible - The object to convert (see accepted types above)
+ * @returns Array of ItemGroup
  */
 export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
   if (Array.isArray(convertible)) {
-    return [...convertible]
+    // Defensive: filter only valid ItemGroups
+    return (convertible as unknown[]).filter(isItemGroup) as ItemGroup[]
   }
 
   if (isRecipe(convertible)) {
@@ -45,34 +56,53 @@ export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
     return [{ ...convertible }]
   }
 
-  throw new Error(
-    `Unsupported convertible type: ${getTypeDescription(convertible)}`
+  handleApiError(new Error(`Unsupported convertible type: ${getTypeDescription(convertible)}`), {
+    component: 'itemGroupService',
+    operation: 'convertToGroups',
+    additionalData: { input: convertible }
+  })
+  return []
+}
+
+function isRecipe(obj: unknown): obj is Recipe {
+  return (
+    obj !== null &&
+    typeof obj === 'object' &&
+    '__type' in obj &&
+    (obj as any).__type === 'Recipe'
   )
 }
 
-function isRecipe(obj: any): obj is Recipe {
-  return obj && typeof obj === 'object' && obj.__type === 'Recipe'
+function hasGroups(obj: unknown): obj is { groups: ItemGroup[] } {
+  return (
+    obj !== null &&
+    typeof obj === 'object' &&
+    Array.isArray((obj as any).groups)
+  )
 }
 
-function hasGroups(obj: any): obj is { groups: ItemGroup[] } {
-  return obj && typeof obj === 'object' && Array.isArray(obj.groups)
+function isItem(obj: unknown): obj is Item {
+  return (
+    obj !== null &&
+    typeof obj === 'object' &&
+    'reference' in obj
+  )
 }
 
-function isItem(obj: any): obj is Item {
-  return obj && typeof obj === 'object' && 'reference' in obj
+function isItemGroup(obj: unknown): obj is ItemGroup {
+  return (
+    obj !== null &&
+    typeof obj === 'object' &&
+    'items' in obj &&
+    !('groups' in obj)
+  )
 }
 
-function isItemGroup(obj: any): obj is ItemGroup {
-  return obj && typeof obj === 'object' && 'items' in obj && !('groups' in obj)
-}
-
-function getTypeDescription(obj: any): string {
+function getTypeDescription(obj: unknown): string {
   if (obj === null) return 'null'
   if (obj === undefined) return 'undefined'
   if (typeof obj !== 'object') return typeof obj
-
-  const constructor = obj.constructor?.name
-  const type = obj.__type
-
+  const constructor = (obj as any).constructor?.name
+  const type = (obj as any).__type
   return type || constructor || 'unknown object'
 }
