@@ -5,6 +5,12 @@ import { type Mutable } from '~/legacy/utils/typeUtils'
 import { NewDayDiet, type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 
+// TODO: Remove deprecated DayDietEditor - Replace with pure functions in day-diet/application/
+/**
+ * @deprecated Use pure functions instead of DayDietEditor pattern.
+ * Replace with functions like: updateMealInDay(day, mealId, meal), addMealToDay(day, meal)
+ * See CODESTYLE_GUIDE.md section #3 for replacement patterns.
+ */
 export class DayDietEditor extends Editor<DayDiet, NewDayDiet> {
   private readonly dayDiet = this.content
 

@@ -1,3 +1,4 @@
+// TODO: Remove deprecated DayDietEditor usage - Replace with pure functions
 import { DayDietEditor } from '~/legacy/utils/data/dayDietEditor'
 import {
   currentDayDiet,

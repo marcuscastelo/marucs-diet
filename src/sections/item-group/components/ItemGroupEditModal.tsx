@@ -45,6 +45,7 @@ import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { PasteIcon } from '~/sections/common/components/icons/PasteIcon'
 import { deserializeClipboard } from '~/legacy/utils/clipboardUtils'
 import { regenerateId } from '~/legacy/utils/idUtils'
+// TODO: Remove deprecated ItemGroupEditor usage - Replace with pure functions
 import { ItemGroupEditor } from '~/legacy/utils/data/itemGroupEditor'
 import { ConvertToRecipeIcon } from '~/sections/common/components/icons/ConvertToRecipeIcon'
 import { deepCopy } from '~/legacy/utils/deepCopy'

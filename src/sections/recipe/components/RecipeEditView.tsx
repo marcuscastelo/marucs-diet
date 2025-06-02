@@ -25,6 +25,7 @@ import { itemGroupSchema } from '~/modules/diet/item-group/domain/itemGroup'
 import { PreparedQuantity } from '~/sections/common/components/PreparedQuantity'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import { FloatInput } from '~/sections/common/components/FloatInput'
+// TODO: Remove deprecated RecipeEditor usage - Replace with pure functions
 import { RecipeEditor } from '~/legacy/utils/data/recipeEditor'
 import { cn } from '~/shared/cn'
 import { type JSXElement, type Accessor, type Setter } from 'solid-js'

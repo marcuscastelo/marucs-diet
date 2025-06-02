@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+// TODO: Remove deprecated ItemGroupEditor test - Replace with pure function tests
 import { ItemGroupEditor } from '~/legacy/utils/data/itemGroupEditor'
 import { type Item } from '~/modules/diet/item/domain/item'
 

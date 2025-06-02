@@ -6,6 +6,12 @@ import { ItemEditor } from '~/legacy/utils/data/itemEditor'
 import { type Mutable } from '~/legacy/utils/typeUtils'
 import { deepCopy } from '~/legacy/utils/deepCopy'
 
+// TODO: Remove deprecated RecipeEditor - Replace with pure functions in recipe/application/
+/**
+ * @deprecated Use pure functions instead of RecipeEditor pattern.
+ * Replace with functions like: addItemsToRecipe(recipe, items), updateRecipePreparedMultiplier(recipe, multiplier)
+ * See CODESTYLE_GUIDE.md section #3 for replacement patterns.
+ */
 export class RecipeEditor extends Editor<Recipe> implements ItemContainer {
   private readonly recipe = this.content
 

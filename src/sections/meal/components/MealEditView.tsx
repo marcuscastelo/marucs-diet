@@ -23,6 +23,7 @@ import {
   MealContextProvider,
   useMealContext,
 } from '~/sections/meal/context/MealContext'
+// TODO: Remove deprecated MealEditor usage - Replace with pure functions
 import { MealEditor } from '~/legacy/utils/data/mealEditor'
 
 export type MealEditViewProps = {

@@ -5,6 +5,12 @@ import {  type Meal } from '~/modules/diet/meal/domain/meal'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { ItemGroupEditor } from '~/legacy/utils/data/itemGroupEditor'
 
+// TODO: Remove deprecated MealEditor - Replace with pure functions in meal/application/
+/**
+ * @deprecated Use pure functions instead of MealEditor pattern.
+ * Replace with functions like: addGroupsToMeal(meal, groups), updateMealInDay(day, mealId, meal)
+ * See CODESTYLE_GUIDE.md section #3 for replacement patterns.
+ */
 export class MealEditor extends Editor<Meal> {
   private readonly meal = this.content
 
