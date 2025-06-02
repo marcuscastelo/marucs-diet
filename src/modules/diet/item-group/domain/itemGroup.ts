@@ -127,6 +127,7 @@ export function isRecipedGroupUpToDate(
       operation: 'isRecipedGroupUpToDate',
       additionalData: { groupId: group.id, groupRecipeId: groupRecipe.id }
     })
+    // Defensive: always throw after logging for invalid state
     throw new Error('Invalid state! Group recipe is not the same as the recipe in the group!')
   }
   const groupRecipeItems = groupRecipe.items
