@@ -21,6 +21,7 @@ import {
   type ItemGroup,
   isSimpleSingleGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
+// TODO: Remove deprecated RecipeEditor usage - Replace with pure functions
 import { RecipeEditor } from '~/legacy/utils/data/recipeEditor'
 import toast from 'solid-toast'
 

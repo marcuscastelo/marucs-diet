@@ -7,7 +7,7 @@ import {
   getItemGroupQuantity,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { calcGroupCalories, calcGroupMacros } from '~/legacy/utils/macroMath'
-import { isRecipedGroupUpToDate } from '~/legacy/utils/groupUtils'
+import { isRecipedGroupUpToDate } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Loadable } from '~/legacy/utils/loadable'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
