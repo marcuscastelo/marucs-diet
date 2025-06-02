@@ -2,7 +2,6 @@ import { z } from 'zod'
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { generateId } from '~/legacy/utils/idUtils'
 import { Recipe } from '~/modules/diet/recipe/domain/recipe'
-import { macrosAreEqual } from '~/shared/utils/comparison'
 import { handleApiError } from '~/shared/error/errorHandler'
 
 // TODO: Add support for nested groups and recipes (recursive schema: https://github.com/colinhacks/zod#recursive-types)
@@ -144,10 +143,8 @@ export function isRecipedGroupUpToDate(
     if (recipeItem.quantity !== groupItem.quantity) {
       return false
     }
-    // Compare item macros using proper equality function
-    if (!macrosAreEqual(recipeItem.macros, groupItem.macros)) {
-      return false
-    }
+
+    // TODO: Compare macros when they are implemented in the recipe
   }
   return true
 }
