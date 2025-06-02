@@ -37,7 +37,15 @@ export async function fetchFoodsByName(
       }
     )
   }
-  return await foodRepository.fetchFoodsByName(name, params)
+
+  return await toastPromise(
+    foodRepository.fetchFoodsByName(name, params),
+    {
+      loading: 'Buscando alimentos por nome...',
+      success: 'Alimentos encontrados',
+      error: (error) => `Erro ao buscar alimentos por nome: ${formatError(error)}`
+    }
+  )
 }
 
 export async function fetchFoodByEan(
@@ -56,7 +64,7 @@ export async function fetchFoodByEan(
     )
   }
 
-  await toastPromise(
+  return await toastPromise(
     foodRepository.fetchFoodByEan(ean, params),
     {
       loading: 'Buscando alimento por EAN...',
