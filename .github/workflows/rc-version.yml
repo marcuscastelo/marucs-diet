@@ -22,9 +22,9 @@ jobs:
 
       - name: Generate version
         run: |
-          chmod +x ./scripts/semver.sh | tee VERSION
-          chmod +x ./scripts/updateversion.sh
-          ./scripts/updateversion.sh
+          chmod +x ./.scripts/semver.sh | tee VERSION
+          chmod +x ./.scripts/updateversion.sh
+          ./.scripts/updateversion.sh
 
       - name: Commit and push VERSION
         run: |
