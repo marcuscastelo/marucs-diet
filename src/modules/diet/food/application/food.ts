@@ -1,4 +1,3 @@
-import toast from 'solid-toast'
 import { isSearchCached } from '~/legacy/controllers/searchCache'
 import { type Food } from '~/modules/diet/food/domain/food'
 import { type FoodSearchParams } from '~/modules/diet/food/domain/foodRepository'
@@ -7,6 +6,8 @@ import {
   importFoodsFromApiByName,
 } from '~/modules/diet/food/infrastructure/api/application/apiFood'
 import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
+import { toastPromise } from '~/shared/toastPromise'
+import { formatError } from '~/shared/formatError'
 
 const foodRepository = createSupabaseFoodRepository()
 
@@ -27,29 +28,33 @@ export async function fetchFoodsByName(
 ) {
   if (!(await isSearchCached(name))) {
     console.debug(`[Food] Food with name ${name} not cached, importing`)
-    await toast.promise(importFoodsFromApiByName(name), {
-      loading: 'Importando alimentos...',
-      success: 'Alimentos importados com sucesso',
-      error: 'Error ao importar alimentos',
-    })
+    await toastPromise(
+      importFoodsFromApiByName(name),
+      {
+        loading: 'Importando alimentos...',
+        success: 'Alimentos importados com sucesso',
+        error: (error) => `Erro ao importar alimentos: ${formatError(error)}`
+      }
+    )
   }
-  // TODO: When importing a food, avoid second fetch for performance
   return await foodRepository.fetchFoodsByName(name, params)
 }
 
 export async function fetchFoodByEan(
-  ean: Required<Food>['ean'],
+  ean: string,
   params: Omit<FoodSearchParams, 'limit'> = {},
 ) {
   if (!(await isEanCached(ean))) {
     console.debug(`[Food] Food with EAN ${ean} not cached, importing`)
-    return await toast.promise(importFoodFromApiByEan(ean), {
-      loading: 'Importando alimento...',
-      success: 'Alimento importado com sucesso',
-      error: 'Error ao importar alimento',
-    })
+    await toastPromise(
+      importFoodFromApiByEan(ean),
+      {
+        loading: 'Importando alimento...',
+        success: 'Alimento importado com sucesso',
+        error: (error) => `Erro ao importar alimento: ${formatError(error)}`
+      }
+    )
   }
-  // TODO: When importing a food, avoid second fetch for performance
   return await foodRepository.fetchFoodByEan(ean, params)
 }
 

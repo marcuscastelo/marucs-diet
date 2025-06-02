@@ -2,12 +2,13 @@
   "name": "marucs-diet",
   "private": true,
   "type": "module",
-  "version": "v0.11.0-dev.13+issue.429",
+  "version": "v0.11.0-dev.7+issue.518",
   "scripts": {
     "dev": "vinxi dev",
     "build": "vinxi build",
     "start": "vinxi start",
-    "type-check": "tsc --noEmit --skipLibCheck"
+    "type-check": "tsc --noEmit --skipLibCheck",
+    "test": "vitest"
   },
   "dependencies": {
     "@solidjs/router": "^0.13.3",
