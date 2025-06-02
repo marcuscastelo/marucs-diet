@@ -1,6 +1,11 @@
-import { type ItemGroup, createSimpleItemGroup, createRecipedItemGroup } from '../domain/itemGroup'
-import { type Item } from '~/modules/diet/item/domain/item'
-import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import {
+  type ItemGroup,
+  createSimpleItemGroup,
+  createRecipedItemGroup,
+  itemGroupSchema,
+} from '../domain/itemGroup'
+import { type Item, itemSchema } from '~/modules/diet/item/domain/item'
+import { type Recipe, recipeSchema } from '~/modules/diet/recipe/domain/recipe'
 import { handleApiError } from '~/shared/error/errorHandler'
 
 export type GroupConvertible =
@@ -9,6 +14,7 @@ export type GroupConvertible =
   | { groups: ItemGroup[] }
   | Item
   | Recipe
+  | unknown
 
 /**
  * Converts various group-like objects into an array of ItemGroups.
@@ -20,15 +26,16 @@ export type GroupConvertible =
  * - Item
  * - Recipe
  *
+ * If the input is not convertible, logs the error and returns an empty array.
+ *
  * @param convertible - The object to convert (see accepted types above)
- * @returns Array of ItemGroup
+ * @returns Array of ItemGroup (empty if input is not convertible)
  */
 export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
   if (Array.isArray(convertible)) {
     // Defensive: filter only valid ItemGroups
     return (convertible as unknown[]).filter(isItemGroup) as ItemGroup[]
   }
-
   if (isRecipe(convertible)) {
     return [
       createRecipedItemGroup({
@@ -38,11 +45,9 @@ export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
       }),
     ]
   }
-
   if (hasGroups(convertible)) {
     return [...convertible.groups]
   }
-
   if (isItem(convertible)) {
     return [
       createSimpleItemGroup({
@@ -51,26 +56,23 @@ export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
       }),
     ]
   }
-
   if (isItemGroup(convertible)) {
     return [{ ...convertible }]
   }
-
-  handleApiError(new Error(`Unsupported convertible type: ${getTypeDescription(convertible)}`), {
-    component: 'itemGroupService',
-    operation: 'convertToGroups',
-    additionalData: { input: convertible }
-  })
+  handleApiError(
+    new Error(`Unsupported convertible type: ${getTypeDescription(convertible)}`),
+    {
+      component: 'itemGroupService',
+      operation: 'convertToGroups',
+      additionalData: { input: convertible },
+    },
+  )
+  // Defensive: always return an empty array for unsupported input
   return []
 }
 
 function isRecipe(obj: unknown): obj is Recipe {
-  return (
-    obj !== null &&
-    typeof obj === 'object' &&
-    '__type' in obj &&
-    (obj as any).__type === 'Recipe'
-  )
+  return recipeSchema.safeParse(obj).success
 }
 
 function hasGroups(obj: unknown): obj is { groups: ItemGroup[] } {
@@ -82,20 +84,11 @@ function hasGroups(obj: unknown): obj is { groups: ItemGroup[] } {
 }
 
 function isItem(obj: unknown): obj is Item {
-  return (
-    obj !== null &&
-    typeof obj === 'object' &&
-    'reference' in obj
-  )
+  return itemSchema.safeParse(obj).success
 }
 
 function isItemGroup(obj: unknown): obj is ItemGroup {
-  return (
-    obj !== null &&
-    typeof obj === 'object' &&
-    'items' in obj &&
-    !('groups' in obj)
-  )
+  return itemGroupSchema.safeParse(obj).success
 }
 
 function getTypeDescription(obj: unknown): string {
