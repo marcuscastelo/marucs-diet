@@ -335,4 +335,14 @@ if (groupRecipe.id !== group.recipe) {
 
 ---
 
-**Next Actions**: Focus on eliminating Editor pattern first (highest impact), then address component duplication.
+## 📖 See also
+
+For module structure, layering, and architecture examples, see [`ARCHITECTURE_GUIDE.md`](./ARCHITECTURE_GUIDE.md).
+
+---
+
+## 🚫 Language Policy
+
+All code, comments, documentation, and commit messages must be written strictly in English. The only exception is user-facing UI text, which may be in Portuguese if required by the product. Any other use of Portuguese is strictly prohibited.
+
+---

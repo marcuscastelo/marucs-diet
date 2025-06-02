@@ -1,6 +1,19 @@
 {
     "editor.tabSize": 2,
     "editor.detectIndentation": false,
+        "github.copilot.chat.codeGeneration.instructions": [
+        {
+            "file": "docs/ARCHITECTURE_GUIDE.md"
+        },
+        {
+            "file": "docs/CODESTYLE_GUIDE.md"
+        }
+    ],
+    "github.copilot.chat.commitMessageGeneration.instructions": [
+        {
+            "text": " We follow the [Conventional Commits](https://www.conventionalcommits.org/) standard, with an extension for more specific types:\n\n| Type       | When to use                                                        |\n|------------|--------------------------------------------------------------------|\n| `feat`     | New feature or endpoint                                            |\n| `fix`      | Bug fixes                                                         |\n| `refactor` | Internal refactoring without behavior change                      |\n| `style`    | Changes that do not affect behavior (spaces, formatting)           |\n| `docs`     | Documentation changes                                              |\n| `test`     | Adding or modifying tests                                          |\n| `build`    | Changes to the build process (Makefile, Dockerfile, etc)           |\n| `ci`       | Changes to pipelines, GitHub Actions, etc                          |\n| `chore`    | Dependency updates, configs, administrative tasks                  |\n| `revert`   | Reverting a previous commit                                       |\n\n### Example:\n\nfeat(api): add endpoint for user creation\nfix(auth): fix JWT token expiration\nrefactor(service): move retry logic to middleware\nchore(deps): update Go to 1.22\ndocs: update README with build instructions. ALL COMMITS MUST BE IN TECHNICAL ENGLISH, BRIEF BUT DO NOT OMIT ANY MODIFICATION."
+        }
+    ],
     "cSpell.words": [
       "apexcharts",
       "camelcase",

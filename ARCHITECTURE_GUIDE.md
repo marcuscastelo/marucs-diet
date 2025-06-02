@@ -145,3 +145,17 @@ export default function DayDietPage() {
 ## 📚 Conclusion
 
 This architecture allows frontend development to scale cleanly. New modules should follow this structure and conventions to maintain project cohesion.
+
+---
+
+## 📖 See also
+
+For idiomatic code patterns, concrete anti-patterns, and real codebase examples, see [`CODESTYLE_GUIDE.md`](./CODESTYLE_GUIDE.md).
+
+---
+
+## 🚫 Language Policy
+
+All code, comments, documentation, and commit messages must be written strictly in English. The only exception is user-facing UI text, which may be in Portuguese if required by the product. Any other use of Portuguese is strictly prohibited.
+
+---
