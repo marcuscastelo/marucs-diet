@@ -2,7 +2,7 @@
   "name": "marucs-diet",
   "private": true,
   "type": "module",
-  "version": "",
+  "version": "v0.10.0-rc.837",
   "scripts": {
     "dev": "vinxi dev",
     "build": "vinxi build",
