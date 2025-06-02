@@ -6,7 +6,7 @@ current_branch=$(git rev-parse --abbrev-ref HEAD)
 # Detecta se estamos em um branch rc/*
 if [[ "$current_branch" =~ ^rc\/(v[0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
   version="${BASH_REMATCH[1]}"
-  count=$(git rev-list --count HEAD ^stable ^main ^master)
+  count=$(git rev-list --count HEAD ^stable)
   echo "$version-rc.$count"
   exit 0
 fi
