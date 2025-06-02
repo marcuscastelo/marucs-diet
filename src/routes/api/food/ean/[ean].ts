@@ -21,7 +21,7 @@ export async function GET({ params }: APIEvent) {
     })
     return json(
       {
-        error: 'Error fetching foods by ean: ' + (error as AxiosError).message,
+        error: 'Error fetching food by EAN: ' + (error as AxiosError).message,
       },
       { status: (error as AxiosError).status },
     )
