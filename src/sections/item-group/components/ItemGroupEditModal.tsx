@@ -238,7 +238,8 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
       throw new Error('group is null')
     }
 
-    // TODO: Allow user to edit recipe inside a group
+    // TODO: Allow user to edit recipe.
+    // TODO: Allow user to edit recipe inside a group.
     if (item.__type === 'RecipeItem') {
       toast.error(
         'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
@@ -729,7 +730,7 @@ function Body(props: {
 
           <ItemListView
             items={() => group()?.items ?? []}
-            // TODO: Check if this margin was lost
+            // TODO: Check if this margin was lost.
             //   className="mt-4"
             onItemClick={(item) => {
               // TODO: Allow user to edit recipe

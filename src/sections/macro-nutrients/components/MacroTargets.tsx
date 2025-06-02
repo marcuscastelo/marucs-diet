@@ -99,16 +99,16 @@ const onSaveMacroProfile = (profile: MacroProfile) => {
     )
     toast.error('Data alvo não pode ser no futuro')
   } else if (
-    profile.id !== -1 && // TODO: Better typing system for new MacroProfile instead of -1
+    profile.id !== -1 && // TODO: Better typing system for new MacroProfile instead of -1.
     profile.target_day.getTime() === new Date(getTodayYYYMMDD()).getTime()
   ) {
     console.log('[ProfilePage] Updating profile', profile)
 
     // Same day, update
-    // TODO: Change all catch console.error to toast.error (and think about Sentry as well)
+    // TODO: Change all catch console.error to toast.error (and think about Sentry as well).
     updateMacroProfile(profile.id, createNewMacroProfile(profile)).catch(console.error)
   } else if (
-    profile.id === -1 || // TODO: Better typing system for new MacroProfile instead of -1
+    profile.id === -1 || // TODO: Better typing system for new MacroProfile instead of -1.
     profile.target_day.getTime() < new Date(getTodayYYYMMDD()).getTime()
   ) {
     console.log('[ProfilePage] Inserting profile', profile)
@@ -167,7 +167,7 @@ export function MacroTarget(props: MacroTargetProps) {
           class="input-bordered input text-center font-bold"
           style={{ width: '100%' }}
           placeholder="Insira a meta de calorias diárias"
-          disabled={true} // TODO: Enable changing target calories directly (and update macros accordingly)
+          disabled={true} // TODO: Enable changing target calories directly (and update macros accordingly).
           required
         />
       </div>

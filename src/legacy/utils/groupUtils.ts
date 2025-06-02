@@ -52,7 +52,7 @@ export function isRecipedGroupUpToDate(
       return false
     }
 
-    // TODO: Compare item macros too
+    // TODO: Compare item macros too.
   }
 
   return true

@@ -77,3 +77,7 @@ export class DayDietEditor extends Editor<DayDiet, NewDayDiet> {
 
   }
 }
+
+/**
+ * @deprecated Not used. TODO: Clean up dayDiet repository.
+ */
