@@ -14,7 +14,7 @@ import {
   createClipboardSchemaFilter,
 } from '~/sections/common/hooks/useClipboard'
 import { deserializeClipboard } from '~/legacy/utils/clipboardUtils'
-import { convertToGroups } from '~/legacy/utils/groupUtils'
+import { convertToGroups } from '~/modules/diet/item-group/domain/itemGroup'
 import { regenerateId } from '~/legacy/utils/idUtils'
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { recipeSchema } from '~/modules/diet/recipe/domain/recipe'

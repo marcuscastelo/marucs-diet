@@ -30,7 +30,7 @@ import { cn } from '~/shared/cn'
 import { type JSXElement, type Accessor, type Setter } from 'solid-js'
 
 // TODO: Migrate convertToGroups to a non-legacy location if groupUtils.ts is removed
-import { convertToGroups } from '~/legacy/utils/groupUtils'
+import { convertToGroups } from '~/modules/diet/item-group/domain/itemGroup'
 
 export type RecipeEditViewProps = {
   recipe: Accessor<Recipe>
