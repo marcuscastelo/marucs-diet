@@ -10,80 +10,69 @@ export type GroupConvertible =
   | Recipe
 
 /**
- * Service for handling ItemGroup conversions and operations.
- * This belongs in the application layer, not domain.
+ * Converts various group-like objects into an array of ItemGroups.
+ * Uses proper type checking instead of string-based detection.
  */
-export class ItemGroupService {
-  /**
-   * Converts various group-like objects into an array of ItemGroups.
-   * Uses proper type checking instead of string-based detection.
-   */
-  static convertToGroups(convertible: GroupConvertible): ItemGroup[] {
-    if (Array.isArray(convertible)) {
-      return [...convertible]
-    }
-
-    // Better type checking for Recipe
-    if (this.isRecipe(convertible)) {
-      return [
-        createRecipedItemGroup({
-          name: convertible.name,
-          items: [...convertible.items],
-          recipe: convertible.id,
-        }),
-      ]
-    }
-
-    // Type guard for object with groups
-    if (this.hasGroups(convertible)) {
-      return [...convertible.groups]
-    }
-
-    // Type guard for Item
-    if (this.isItem(convertible)) {
-      return [
-        createSimpleItemGroup({
-          name: convertible.name,
-          items: [{ ...convertible }],
-        }),
-      ]
-    }
-
-    // Type guard for ItemGroup
-    if (this.isItemGroup(convertible)) {
-      return [{ ...convertible }]
-    }
-
-    // Exhaustive check with better error information
-    throw new Error(
-      `Unsupported convertible type: ${this.getTypeDescription(convertible)}`
-    )
+export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
+  if (Array.isArray(convertible)) {
+    return [...convertible]
   }
 
-  private static isRecipe(obj: any): obj is Recipe {
-    return obj && typeof obj === 'object' && obj.__type === 'Recipe'
+  if (isRecipe(convertible)) {
+    return [
+      createRecipedItemGroup({
+        name: convertible.name,
+        items: [...convertible.items],
+        recipe: convertible.id,
+      }),
+    ]
   }
 
-  private static hasGroups(obj: any): obj is { groups: ItemGroup[] } {
-    return obj && typeof obj === 'object' && Array.isArray(obj.groups)
+  if (hasGroups(convertible)) {
+    return [...convertible.groups]
   }
 
-  private static isItem(obj: any): obj is Item {
-    return obj && typeof obj === 'object' && 'reference' in obj
+  if (isItem(convertible)) {
+    return [
+      createSimpleItemGroup({
+        name: convertible.name,
+        items: [{ ...convertible }],
+      }),
+    ]
   }
 
-  private static isItemGroup(obj: any): obj is ItemGroup {
-    return obj && typeof obj === 'object' && 'items' in obj && !('groups' in obj)
+  if (isItemGroup(convertible)) {
+    return [{ ...convertible }]
   }
 
-  private static getTypeDescription(obj: any): string {
-    if (obj === null) return 'null'
-    if (obj === undefined) return 'undefined'
-    if (typeof obj !== 'object') return typeof obj
-    
-    const constructor = obj.constructor?.name
-    const type = obj.__type
-    
-    return type || constructor || 'unknown object'
-  }
+  throw new Error(
+    `Unsupported convertible type: ${getTypeDescription(convertible)}`
+  )
+}
+
+function isRecipe(obj: any): obj is Recipe {
+  return obj && typeof obj === 'object' && obj.__type === 'Recipe'
+}
+
+function hasGroups(obj: any): obj is { groups: ItemGroup[] } {
+  return obj && typeof obj === 'object' && Array.isArray(obj.groups)
+}
+
+function isItem(obj: any): obj is Item {
+  return obj && typeof obj === 'object' && 'reference' in obj
+}
+
+function isItemGroup(obj: any): obj is ItemGroup {
+  return obj && typeof obj === 'object' && 'items' in obj && !('groups' in obj)
+}
+
+function getTypeDescription(obj: any): string {
+  if (obj === null) return 'null'
+  if (obj === undefined) return 'undefined'
+  if (typeof obj !== 'object') return typeof obj
+
+  const constructor = obj.constructor?.name
+  const type = obj.__type
+
+  return type || constructor || 'unknown object'
 }

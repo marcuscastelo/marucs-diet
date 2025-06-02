@@ -28,8 +28,7 @@ import { FloatInput } from '~/sections/common/components/FloatInput'
 import { RecipeEditor } from '~/legacy/utils/data/recipeEditor'
 import { cn } from '~/shared/cn'
 import { type JSXElement, type Accessor, type Setter } from 'solid-js'
-
-import { ItemGroupService } from '~/modules/diet/item-group/application/itemGroupService'
+import { convertToGroups } from '~/modules/diet/item-group/application/itemGroupService'
 
 export type RecipeEditViewProps = {
   recipe: Accessor<Recipe>
@@ -99,7 +98,7 @@ export function RecipeEditHeader(props: {
       throw new Error('Invalid clipboard data: ' + clipboardText())
     }
 
-    const groupsToAdd = ItemGroupService.convertToGroups(data)
+    const groupsToAdd = convertToGroups(data)
       .map((group) => regenerateId(group))
       .map((g) => ({
         ...g,

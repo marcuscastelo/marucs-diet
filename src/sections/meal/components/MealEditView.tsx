@@ -14,7 +14,7 @@ import {
   createClipboardSchemaFilter,
 } from '~/sections/common/hooks/useClipboard'
 import { deserializeClipboard } from '~/legacy/utils/clipboardUtils'
-import { ItemGroupService } from '~/modules/diet/item-group/application/itemGroupService'
+import { convertToGroups } from '~/modules/diet/item-group/application/itemGroupService'
 import { regenerateId } from '~/legacy/utils/idUtils'
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { recipeSchema } from '~/modules/diet/recipe/domain/recipe'
@@ -100,7 +100,7 @@ export function MealEditViewHeader(props: {
       throw new Error('mealSignal is null!')
     }
 
-    const groupsToAdd = ItemGroupService.convertToGroups(data)
+    const groupsToAdd = convertToGroups(data)
       .map((group) => regenerateId(group))
       .map((g) => ({
         ...g,
