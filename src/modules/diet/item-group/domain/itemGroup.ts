@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { generateId } from '~/legacy/utils/idUtils'
+import { Recipe } from '~/modules/diet/recipe/domain/recipe'
 
 // TODO: Add support for nested groups and recipes (recursive schema: https://github.com/colinhacks/zod#recursive-types)
 // TODO: In the future, it seems like discriminated unions will deprecated (https://github.com/colinhacks/zod/issues/2106)
@@ -108,4 +109,38 @@ export function createRecipedItemGroup({
     recipe,
     __type: 'ItemGroup',
   }
+}
+
+/**
+ * Checks if a RecipedItemGroup is up to date with its associated Recipe.
+ * Returns false if any item reference, quantity, or macros differ.
+ */
+export function isRecipedGroupUpToDate(
+  group: RecipedItemGroup,
+  groupRecipe: Recipe,
+): boolean {
+  if (groupRecipe.id !== group.recipe) {
+    // handleValidationError is not imported here; throw directly
+    throw new Error('Invalid state! Group recipe is not the same as the recipe in the group!')
+  }
+  const groupRecipeItems = groupRecipe.items
+  const groupItems = group.items
+  if (groupRecipeItems.length !== groupItems.length) {
+    return false
+  }
+  for (let i = 0; i < groupRecipeItems.length; i++) {
+    const recipeItem = groupRecipeItems[i]
+    const groupItem = groupItems[i]
+    if (recipeItem.reference !== groupItem.reference) {
+      return false
+    }
+    if (recipeItem.quantity !== groupItem.quantity) {
+      return false
+    }
+    // Compare item macros too (deep equality)
+    if (JSON.stringify(recipeItem.macros) !== JSON.stringify(groupItem.macros)) {
+      return false
+    }
+  }
+  return true
 }

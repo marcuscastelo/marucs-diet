@@ -35,7 +35,7 @@ import {
   ModalContextProvider,
   useModalContext,
 } from '~/sections/common/context/ModalContext'
-import { isRecipedGroupUpToDate } from '~/legacy/utils/groupUtils'
+import { isRecipedGroupUpToDate } from '~/modules/diet/item-group/domain/itemGroup'
 import { DownloadIcon } from '~/sections/common/components/icons/DownloadIcon'
 import {
   type ConfirmModalContext,

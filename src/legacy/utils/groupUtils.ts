@@ -15,52 +15,13 @@ export type GroupConvertible =
   | Item
   | Recipe
 
-// TODO: Move isRecipedGroupUpToDate to somewhere else
-export function isRecipedGroupUpToDate(
-  group: RecipedItemGroup,
-  groupRecipe: Recipe,
-) {
-  if (groupRecipe.id !== group.recipe) {
-    handleValidationError('Invalid state! Group recipe is not the same as the recipe in the group!', {
-      component: 'groupUtils',
-      operation: 'isRecipedGroupUpToDate',
-      additionalData: { 
-        groupRecipeId: groupRecipe.id, 
-        groupId: group.recipe,
-        groupName: group.name 
-      }
-    })
-    throw new Error('Invalid state! This is a bug! see console.error')
-  }
-
-  const groupRecipeItems = groupRecipe.items
-  const groupItems = group.items
-
-  if (groupRecipeItems.length !== groupItems.length) {
-    return false
-  }
-
-  for (let i = 0; i < groupRecipeItems.length; i++) {
-    const recipeItem = groupRecipeItems[i]
-    const groupItem = groupItems[i]
-
-    if (recipeItem.reference !== groupItem.reference) {
-      return false
-    }
-
-    if (recipeItem.quantity !== groupItem.quantity) {
-      return false
-    }
-
-    // TODO: Compare item macros too.
-  }
-
-  return true
-}
-
+/**
+ * Converts various group-like objects into an array of ItemGroups.
+ * Throws a clear error if the input type is not handled.
+ */
 export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
   if (Array.isArray(convertible)) {
-    return { ...convertible }
+    return [ ...convertible ]
   }
 
   if ('__type' in convertible && convertible.__type === 'Recipe') {
@@ -90,11 +51,12 @@ export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
     return [{ ...convertible }]
   }
 
-  convertible satisfies never
-  handleValidationError('Invalid state! Unhandled convertible type!', {
+  // Improved exhaustive check: throw with explicit type info
+  const typeName = (convertible && (convertible as any).__type) || typeof convertible
+  handleValidationError('Invalid state! Unhandled convertible type in convertToGroups!', {
     component: 'groupUtils',
     operation: 'convertToGroups',
-    additionalData: { convertible }
+    additionalData: { convertible, typeName }
   })
-  throw new Error('Invalid state! This is a bug! see console.error')
+  throw new Error(`Invalid state! Unhandled convertible type: ${typeName}`)
 }

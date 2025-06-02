@@ -20,7 +20,6 @@ import {
 } from '~/sections/common/hooks/useClipboard'
 import { deserializeClipboard } from '~/legacy/utils/clipboardUtils'
 import { handleValidationError } from '~/shared/error/errorHandler'
-import { convertToGroups } from '~/legacy/utils/groupUtils'
 import { mealSchema } from '~/modules/diet/meal/domain/meal'
 import { itemGroupSchema } from '~/modules/diet/item-group/domain/itemGroup'
 import { PreparedQuantity } from '~/sections/common/components/PreparedQuantity'
@@ -29,6 +28,9 @@ import { FloatInput } from '~/sections/common/components/FloatInput'
 import { RecipeEditor } from '~/legacy/utils/data/recipeEditor'
 import { cn } from '~/shared/cn'
 import { type JSXElement, type Accessor, type Setter } from 'solid-js'
+
+// TODO: Migrate convertToGroups to a non-legacy location if groupUtils.ts is removed
+import { convertToGroups } from '~/legacy/utils/groupUtils'
 
 export type RecipeEditViewProps = {
   recipe: Accessor<Recipe>
