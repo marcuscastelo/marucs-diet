@@ -1,4 +1,3 @@
-import toast from 'solid-toast'
 import { isSearchCached } from '~/legacy/controllers/searchCache'
 import { type Food } from '~/modules/diet/food/domain/food'
 import { type FoodSearchParams } from '~/modules/diet/food/domain/foodRepository'
@@ -8,6 +7,8 @@ import {
 } from '~/modules/diet/food/infrastructure/api/application/apiFood'
 import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
 import { applySearchParamsToFoods, doesFoodMatchParams } from './foodSearchUtils'
+import { toastPromise } from '~/shared/toastPromise'
+import { formatError } from '~/shared/formatError'
 
 const foodRepository = createSupabaseFoodRepository()
 
@@ -32,21 +33,19 @@ export async function fetchFoodsByName(
   if (!(await isSearchCached(name))) {
     console.debug(`[Food] Food with name ${name} not cached, importing`)
     
-    toast.loading('Importando alimentos...')
+    const importedFoods = await toastPromise(
+      importFoodsFromApiByName(name),
+      {
+        loading: 'Importando alimentos...',
+        success: 'Alimentos importados com sucesso',
+        error: (error) => `Erro ao importar alimentos: ${formatError(error)}`
+      }
+    )
     
-    try {
-      const importedFoods = await importFoodsFromApiByName(name)
-      toast.success('Alimentos importados com sucesso')
-      
-      // Apply search parameters to imported foods if needed
-      const filteredFoods = applySearchParamsToFoods(importedFoods, params)
-      
-      return filteredFoods
-    } catch (error) {
-      const errorMessage = `Erro ao importar alimentos: ${(error as Error)?.message || error}`
-      toast.error(errorMessage)
-      throw error
-    }
+    // Apply search parameters to imported foods if needed
+    const filteredFoods = applySearchParamsToFoods(importedFoods, params)
+    
+    return filteredFoods
   }
   return await foodRepository.fetchFoodsByName(name, params)
 }
@@ -58,21 +57,19 @@ export async function fetchFoodByEan(
   if (!(await isEanCached(ean))) {
     console.debug(`[Food] Food with EAN ${ean} not cached, importing`)
     
-    toast.loading('Importando alimento...')
+    const importedFood = await toastPromise(
+      importFoodFromApiByEan(ean),
+      {
+        loading: 'Importando alimento...',
+        success: 'Alimento importado com sucesso',
+        error: (error) => `Erro ao importar alimento: ${formatError(error)}`
+      }
+    )
     
-    try {
-      const importedFood = await importFoodFromApiByEan(ean)
-      toast.success('Alimento importado com sucesso')
-      
-      // Apply search parameters to imported food if needed
-      const food = doesFoodMatchParams(importedFood, params)
-      
-      return food
-    } catch (error) {
-      const errorMessage = `Erro ao importar alimento: ${(error as Error)?.message || error}`
-      toast.error(errorMessage)
-      throw error
-    }
+    // Apply search parameters to imported food if needed
+    const food = doesFoodMatchParams(importedFood, params)
+    
+    return food
   }
   return await foodRepository.fetchFoodByEan(ean, params)
 }
