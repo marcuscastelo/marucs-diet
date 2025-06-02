@@ -1,10 +1,13 @@
 import { getLatestMacroProfile } from '~/legacy/utils/macroProfileUtils'
-import { type DbReady } from '~/legacy/utils/newDbRecord'
-import { type MacroProfile } from '~/modules/diet/macro-profile/domain/macroProfile'
-import { createSupabaseMacroProfileRepository } from '~/modules/diet/macro-profile/infrastructure/supabaseMacroProfileRepository'
+import { type MacroProfile, type NewMacroProfile } from '~/modules/diet/macro-profile/domain/macroProfile'
+import {
+  createSupabaseMacroProfileRepository,
+  SUPABASE_TABLE_MACRO_PROFILES,
+} from '~/modules/diet/macro-profile/infrastructure/supabaseMacroProfileRepository'
 import { currentUserId } from '~/modules/user/application/user'
 import { createEffect, createSignal } from 'solid-js'
 import toast from 'solid-toast'
+import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 
 const macroProfileRepository = createSupabaseMacroProfileRepository()
 
@@ -15,12 +18,26 @@ export const [userMacroProfiles, setUserMacroProfiles] = createSignal<
 export const latestMacroProfile = () =>
   getLatestMacroProfile(userMacroProfiles())
 
-createEffect(async () => {
+async function bootstrap() {
   await toast.promise(fetchUserMacroProfiles(currentUserId()), {
     loading: 'Carregando perfis de macro...',
     success: 'Perfis de macro carregados com sucesso',
     error: 'Falha ao carregar perfis de macro',
   })
+}
+
+/**
+ * Every time the user changes, fetch all user macro profiles
+ */
+createEffect(() => {
+  bootstrap()
+})
+
+/**
+ * When a realtime event occurs, fetch all user macro profiles again
+ */
+registerSubapabaseRealtimeCallback(SUPABASE_TABLE_MACRO_PROFILES, () => {
+  bootstrap()
 })
 
 export async function fetchUserMacroProfiles(userId: number) {
@@ -31,7 +48,7 @@ export async function fetchUserMacroProfiles(userId: number) {
 }
 
 export async function insertMacroProfile(
-  newMacroProfile: DbReady<MacroProfile>,
+  newMacroProfile: NewMacroProfile,
 ) {
   const macroProfile = await toast.promise(
     macroProfileRepository.insertMacroProfile(newMacroProfile),
@@ -42,10 +59,10 @@ export async function insertMacroProfile(
     },
   )
 
-  if (
+  if (macroProfile && (
     userMacroProfiles().length === 0 ||
     macroProfile.owner === userMacroProfiles()[0].owner
-  ) {
+  )) {
     await fetchUserMacroProfiles(macroProfile.owner)
   }
   return macroProfile
@@ -53,7 +70,7 @@ export async function insertMacroProfile(
 
 export async function updateMacroProfile(
   macroProfileId: MacroProfile['id'],
-  newMacroProfile: MacroProfile,
+  newMacroProfile: NewMacroProfile,
 ) {
   const macroProfiles = await toast.promise(
     macroProfileRepository.updateMacroProfile(macroProfileId, newMacroProfile),
@@ -63,7 +80,7 @@ export async function updateMacroProfile(
       error: 'Falha ao atualizar perfil de macro',
     },
   )
-  if (macroProfiles.owner === userMacroProfiles()[0].owner) {
+  if (macroProfiles && macroProfiles.owner === userMacroProfiles()[0].owner) {
     await fetchUserMacroProfiles(macroProfiles.owner)
   }
   return macroProfiles

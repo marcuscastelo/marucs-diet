@@ -1,5 +1,5 @@
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
-import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import { createNewDayDiet, type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import {
   dayDiets,
   insertDayDiet,
@@ -9,7 +9,7 @@ import { Show, createEffect, createSignal, type Accessor } from 'solid-js'
 import toast from 'solid-toast'
 
 export function CopyLastDayButton(props: {
-  dayDiet: Accessor<DayDiet | undefined> // TODO: Rename all 'day' to 'dayDiet' on entire project
+  dayDiet: Accessor<DayDiet | undefined> // TODO: Rename all 'day' to 'dayDiet' on entire project.
   selectedDay: string
 }) {
   const { show: showConfirmModal } = useConfirmModalContext()
@@ -62,10 +62,10 @@ export function CopyLastDayButton(props: {
                       text: 'Sobrescrever',
                       primary: true,
                       onClick: () => {
-                        updateDayDiet(day_.id, {
+                        updateDayDiet(day_.id, createNewDayDiet({
                           ...lastDay,
                           target_day: props.selectedDay,
-                        })
+                        }))
                       },
                     },
                   ],
@@ -73,13 +73,13 @@ export function CopyLastDayButton(props: {
                 return
               }
 
-              insertDayDiet({
+              insertDayDiet(createNewDayDiet({
                 ...lastDay,
                 target_day: props.selectedDay,
-              })
+              }))
             }}
           >
-            {/* //TODO: Allow copying any past day, not just latest one */}
+            {/* //TODO: Allow copying any past day, not just latest one. */}
             Copiar dia anterior ({lastDay.target_day})
           </button>
         )}

@@ -2,10 +2,10 @@ import { Editor } from '~/legacy/utils/data/editor'
 import { MealEditor } from '~/legacy/utils/data/mealEditor'
 import { deepCopy } from '~/legacy/utils/deepCopy'
 import { type Mutable } from '~/legacy/utils/typeUtils'
-import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import { NewDayDiet, type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 
-export class DayDietEditor extends Editor<DayDiet> {
+export class DayDietEditor extends Editor<DayDiet, NewDayDiet> {
   private readonly dayDiet = this.content
 
   addMeal(meal: Meal) {
@@ -73,5 +73,11 @@ export class DayDietEditor extends Editor<DayDiet> {
     return this
   }
 
-  protected override onFinish() {}
+  protected override onFinish() {
+
+  }
 }
+
+/**
+ * @deprecated Not used. TODO: Clean up dayDiet repository.
+ */

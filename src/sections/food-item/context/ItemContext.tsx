@@ -8,20 +8,20 @@ import {
 import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 
 // TODO: Rename to TemplateItemContext
-const FoodItemContext = createContext<{
-  foodItem: Accessor<TemplateItem>
+const ItemContext = createContext<{
+  item: Accessor<TemplateItem>
   macroOverflow: () => {
     enable: boolean
     originalItem?: TemplateItem | undefined
   }
 } | null>(null)
 
-export function useFoodItemContext() {
-  const context = useContext(FoodItemContext)
+export function useItemContext() {
+  const context = useContext(ItemContext)
 
   if (context === null) {
     throw new Error(
-      'useFoodItemContext must be used within a FoodItemContextProvider',
+      'useItemContext must be used within a ItemContextProvider',
     )
   }
 
@@ -29,8 +29,8 @@ export function useFoodItemContext() {
 }
 
 // TODO: Rename to TemplateItemContext
-export function FoodItemContextProvider(props: {
-  foodItem: Accessor<TemplateItem>
+export function ItemContextProvider(props: {
+  item: Accessor<TemplateItem>
   macroOverflow: () => {
     enable: boolean
     originalItem?: TemplateItem | undefined
@@ -42,13 +42,13 @@ export function FoodItemContextProvider(props: {
   }
 
   return (
-    <FoodItemContext.Provider
+    <ItemContext.Provider
       value={{
-        foodItem: () => props.foodItem(),
+        item: () => props.item(),
         macroOverflow: () => props.macroOverflow() ?? defaultOptions,
       }}
     >
       {props.children}
-    </FoodItemContext.Provider>
+    </ItemContext.Provider>
   )
 }

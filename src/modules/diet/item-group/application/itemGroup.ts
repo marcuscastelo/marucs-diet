@@ -3,12 +3,13 @@ import {
   currentDayDiet,
   updateDayDiet,
 } from '~/modules/diet/day-diet/application/dayDiet'
-import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import { createNewDayDiet, NewDayDiet, type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 export function insertItemGroup(
-  _dayId: DayDiet['id'], // TODO: Remove dayId from functions that don't need it
+  _dayId: DayDiet['id'], // TODO: Remove dayId from functions that don't need it.
   mealId: Meal['id'],
   newItemGroup: ItemGroup,
 ) {
@@ -17,17 +18,23 @@ export function insertItemGroup(
     throw new Error('[meal::application] Current day diet is null')
   }
 
-  const newDay = new DayDietEditor(currentDayDiet_)
+  const newDay = new DayDietEditor(createNewDayDiet(currentDayDiet_))
     .editMeal(mealId, (mealEditor) => {
       mealEditor?.addGroup(newItemGroup)
     })
     .finish()
 
-  updateDayDiet(currentDayDiet_.id, newDay)
+  updateDayDiet(currentDayDiet_.id, newDay).catch((error) => 
+    handleApiError(error, {
+      component: 'itemGroupApplication',
+      operation: 'insertItemGroup',
+      additionalData: { mealId, groupName: newItemGroup.name }
+    })
+  )
 }
 
 export function updateItemGroup(
-  _dayId: DayDiet['id'], // TODO: Remove dayId from functions that don't need it
+  _dayId: DayDiet['id'], // TODO: Remove dayId from functions that don't need it.
   mealId: Meal['id'],
   itemGroupId: ItemGroup['id'],
   newItemGroup: ItemGroup,
@@ -37,7 +44,7 @@ export function updateItemGroup(
     throw new Error('[meal::application] Current day diet is null')
   }
 
-  const newDay = new DayDietEditor(currentDayDiet_)
+  const newDay: NewDayDiet = new DayDietEditor(createNewDayDiet(currentDayDiet_))
     .editMeal(mealId, (mealEditor) => {
       mealEditor?.editGroup(itemGroupId, (groupEditor) => {
         groupEditor?.replace(newItemGroup)
@@ -45,7 +52,13 @@ export function updateItemGroup(
     })
     .finish()
 
-  updateDayDiet(currentDayDiet_.id, newDay)
+  updateDayDiet(currentDayDiet_.id, newDay).catch((error) => 
+    handleApiError(error, {
+      component: 'itemGroupApplication',
+      operation: 'updateItemGroup',
+      additionalData: { mealId, itemGroupId, groupName: newItemGroup.name }
+    })
+  )
 }
 
 export function deleteItemGroup(
@@ -58,11 +71,17 @@ export function deleteItemGroup(
     throw new Error('[meal::application] Current day diet is null')
   }
 
-  const newDay = new DayDietEditor(currentDayDiet_)
+  const newDay = new DayDietEditor(createNewDayDiet(currentDayDiet_))
     .editMeal(mealId, (mealEditor) => {
       mealEditor?.deleteGroup(itemGroupId)
     })
     .finish()
 
-  updateDayDiet(currentDayDiet_.id, newDay)
+  updateDayDiet(currentDayDiet_.id, newDay).catch((error) => 
+    handleApiError(error, {
+      component: 'itemGroupApplication',
+      operation: 'deleteItemGroup',
+      additionalData: { mealId, itemGroupId }
+    })
+  )
 }

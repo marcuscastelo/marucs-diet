@@ -1,17 +1,21 @@
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
-import { foodItemSchema } from '~/modules/diet/food-item/domain/foodItem'
+import { itemSchema } from '~/modules/diet/item/domain/item'
 
 import { z } from 'zod'
-import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
-import { calcGroupMacros } from '~/legacy/utils/macroMath'
-import { generateId } from '~/legacy/utils/idUtils'
+
+export const newRecipeSchema = z.object({
+  name: z.string(),
+  owner: z.number(),
+  items: z.array(itemSchema).readonly(),
+  prepared_multiplier: z.number().default(1),
+  __type: z.literal('NewRecipe'),
+})
 
 export const recipeSchema = z.object({
   id: z.number(),
   name: z.string(),
   owner: z.number(),
-  items: z.array(foodItemSchema).readonly(), // TODO: Think of a way to avoid id reuse on each item and bugs
-  macros: macroNutrientsSchema,
+  items: z.array(itemSchema).readonly(), // TODO: Think of a way to avoid id reuse on each item and bugs
   prepared_multiplier: z.number().default(1), // TODO: Rename all snake_case to camelCase (also in db)
   __type: z
     .string()
@@ -20,39 +24,80 @@ export const recipeSchema = z.object({
     .transform(() => 'Recipe' as const),
 })
 
+export type NewRecipe = Readonly<z.infer<typeof newRecipeSchema>>
 export type Recipe = Readonly<z.infer<typeof recipeSchema>>
 
-// TODO: Create/Move factory function for other models
 /**
- * @deprecated should be in another file
+ * Creates a Recipe from an ItemGroup.
+ * Useful for converting item groups into standalone recipes.
+ *
+ * @param group - ItemGroup to convert to a recipe
+ * @param owner - User ID who will own this recipe
+ * @returns A new Recipe created from the group
  */
-export function createRecipe({
+export function createNewRecipeFromGroup(group: ItemGroup, owner: number): NewRecipe {
+  return createNewRecipe({
+    name: group.name,
+    items: [...group.items],
+    owner,
+  })
+}
+
+/**
+ * Creates a new NewRecipe.
+ * Used for initializing new recipes before saving to database.
+ *
+ * @param name - Name of the recipe
+ * @param items - Array of items in the recipe
+ * @param preparedMultiplier - Multiplier for prepared quantity (default: 1)
+ * @param owner - User ID who owns this recipe
+ * @returns A new NewRecipe
+ */
+export function createNewRecipe({
   name,
   items,
   preparedMultiplier = 1,
   owner,
 }: {
   name: string
-  items: Recipe['items']
+  items: NewRecipe['items']
   preparedMultiplier?: number
-  owner: Recipe['owner']
-}): Recipe {
+  owner: NewRecipe['owner']
+}): NewRecipe {
   return {
-    id: generateId(),
-    owner,
     name,
     items,
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    macros: calcGroupMacros({ items } as ItemGroup), // TODO: Create a proper calcItemsMacros function for lists of items
     prepared_multiplier: preparedMultiplier,
+    owner,
+    __type: 'NewRecipe',
+  }
+}
+
+/**
+ * Promotes a NewRecipe to a Recipe after persistence.
+ *
+ * @param newRecipe - The NewRecipe to promote
+ * @param id - The ID assigned to the recipe upon persistence
+ * @returns The promoted Recipe
+ */
+export function promoteToRecipe(newRecipe: NewRecipe, id: number): Recipe {
+  return {
+    ...newRecipe,
+    id,
     __type: 'Recipe',
   }
 }
 
-export function createRecipeFromGroup(group: ItemGroup) {
-  return createRecipe({
-    name: group.name,
-    items: [...group.items],
-    owner: 3, // TODO: Get owner from somewhere (or create new Recipe type for data-only)
+/**
+ * Demotes a Recipe to a NewRecipe for updates.
+ * Used when converting a persisted Recipe back to NewRecipe for database operations.
+ */
+export function demoteToNewRecipe(recipe: Recipe): NewRecipe {
+  return newRecipeSchema.parse({
+    name: recipe.name,
+    owner: recipe.owner,
+    items: recipe.items,
+    prepared_multiplier: recipe.prepared_multiplier,
+    __type: 'NewRecipe',
   })
 }

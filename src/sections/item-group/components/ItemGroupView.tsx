@@ -4,6 +4,7 @@ import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
 import {
   type ItemGroup,
   isSimpleSingleGroup,
+  getItemGroupQuantity,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { calcGroupCalories, calcGroupMacros } from '~/legacy/utils/macroMath'
 import { isRecipedGroupUpToDate } from '~/legacy/utils/groupUtils'
@@ -16,6 +17,7 @@ import {
   createSignal,
   createEffect,
 } from 'solid-js'
+import { handleApiError, handleValidationError } from '~/shared/error/errorHandler'
 
 // TODO: Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
@@ -61,7 +63,7 @@ export function ItemGroupHeader(props: ItemGroupViewHeaderProps) {
       {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.ItemGroupView.id}]</h5> */}
       <div class="my-2">{props.name}</div>
       {/*
-        // TODO: Remove code duplication between FoodItemView and ItemGroupView
+        // TODO: Remove code duplication between ItemView and ItemGroupView
       */}
       <div class={'ml-auto flex gap-2'}>
         <div class="my-auto">{props.copyButton}</div>
@@ -85,7 +87,11 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
           setRecipe({ loading: false, errored: false, data: foundRecipe })
         })
         .catch((err) => {
-          console.error('[ItemGroupName] Error fetching recipe:', err)
+          handleApiError(err, {
+            component: 'ItemGroupView::ItemGroupName',
+            operation: 'fetchRecipeById',
+            additionalData: { recipeId: group.recipe }
+          })
           setRecipe({ loading: false, errored: true, error: err })
         })
     } else {
@@ -98,13 +104,26 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
     const recipe_ = recipe()
 
     if (group_ === null) {
-      console.error('[ItemGroupName] item is null!!')
+      handleValidationError(
+        new Error('ItemGroup is null'),
+        {
+          component: 'ItemGroupView::ItemGroupName',
+          operation: 'nameColor'
+        }
+      )
       return 'text-red-900 bg-red-200'
     }
 
     if (recipe_.loading) return 'text-gray-500 animate-pulse'
     if (recipe_.errored) {
-      console.error('[ItemGroupName] recipe errored!!')
+      handleValidationError(
+        new Error('Recipe loading failed'),
+        {
+          component: 'ItemGroupView::ItemGroupName',
+          operation: 'nameColor',
+          additionalData: { recipeError: recipe_.error }
+        }
+      )
       return 'text-red-900 bg-red-200 bg-opacity-50'
     }
 
@@ -123,9 +142,13 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
         return className
       }
     } else {
-      console.error(
-        '[ItemGroupName] item is not simple or recipe!! Item:',
-        group_,
+      handleValidationError(
+        new Error(`ItemGroup is not simple or recipe! Item: ${JSON.stringify(group_)}`),
+        {
+          component: 'ItemGroupView::ItemGroupName',
+          operation: 'nameColor',
+          additionalData: { group: group_ }
+        }
       )
       return 'text-red-400'
     }
@@ -183,7 +206,7 @@ export function ItemGroupViewNutritionalInfo(props: {
     <div class="flex">
       <MacroNutrientsView macros={multipliedMacros()} />
       <div class="ml-auto">
-        <span class="text-white"> {props.group()?.quantity ?? -666}g </span>|
+        <span class="text-white"> {getItemGroupQuantity(props.group())}g </span>|
         <span class="text-white">
           {' '}
           {calcGroupCalories(props.group()).toFixed(0)}

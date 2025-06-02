@@ -1,5 +1,4 @@
-import { type Food, foodSchema } from '~/modules/diet/food/domain/food'
-import { type DbReady } from '~/legacy/utils/newDbRecord'
+import { type Food, foodSchema, type NewFood, createNewFood } from '~/modules/diet/food/domain/food'
 import { markSearchAsCached } from '~/legacy/controllers/searchCache'
 import { type ApiFood } from '~/modules/diet/food/infrastructure/api/domain/apiFoodModel'
 import { createApiFoodRepository } from '~/modules/diet/food/infrastructure/api/infrastructure/apiFoodRepository'
@@ -10,8 +9,8 @@ import axios from 'axios'
 const foodRepository = createSupabaseFoodRepository()
 
 // TODO: Move `convertApi2Food` to a more appropriate place
-export function convertApi2Food(food: ApiFood): DbReady<Food> {
-  return {
+export function convertApi2Food(food: ApiFood): NewFood {
+  return createNewFood({
     name: food.nome,
     source: {
       type: 'api',
@@ -23,7 +22,7 @@ export function convertApi2Food(food: ApiFood): DbReady<Food> {
       protein: food.proteinas * 100,
       fat: food.gordura * 100,
     },
-  }
+  })
 }
 
 export async function importFoodFromApiByEan(
@@ -39,7 +38,7 @@ export async function importFoodFromApiByEan(
 
   const food = convertApi2Food(apiFood)
   const insertedFood = await foodRepository.insertFood(food)
-  return foodSchema.parse(insertedFood)
+  return insertedFood
 }
 
 export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
@@ -67,22 +66,35 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
   )
 
   if (insertionResults.some((result) => result.status === 'rejected')) {
-    console.error(
-      `Failed to insert some foods: ${JSON.stringify(insertionResults)}`,
+    const allRejected = insertionResults.filter(
+      (result): result is PromiseRejectedResult => result.status === 'rejected',
     )
-    throw new Error('Failed to insert some foods. See console for details.')
+
+    const reasons = allRejected.map((result) => result.reason)
+    const errors = reasons.map((reason) => (reason as { code: string }).code)
+
+    const ignoredErrors = [
+      '23505', // Unique violation: food already exists, ignore
+    ]
+
+    if (errors.some((error) => !ignoredErrors.includes(error))) {
+      console.error(
+        `Failed to insert some foods: ${JSON.stringify(allRejected)}`,
+      )
+      throw new Error('Failed to insert some foods. See console for details.')
+    }
   } else {
     console.debug('[ApiFood] No failed insertions, marking search as cached')
     await markSearchAsCached(name)
   }
 
-  const insertedFoods: ReadonlyArray<Food | null> = insertionResults.map(
-    (result) =>
-      result.status === 'fulfilled' ? result.value : (null as unknown as Food),
-  )
+  const insertedFoods: ReadonlyArray<Food | null> = insertionResults
+    .filter((result): result is PromiseFulfilledResult<Food | null> => result.status === 'fulfilled')
+    .map((result) => result.value)
+
   console.debug(
     `[ApiFood] Returning ${insertedFoods.length}/${apiFoods.length} foods`,
   )
 
-  return foodSchema.array().parse(insertedFoods)
+  return insertedFoods.filter((food): food is Food => food !== null)
 }

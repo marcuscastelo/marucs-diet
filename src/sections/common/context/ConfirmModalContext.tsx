@@ -7,6 +7,7 @@ import {
   type Setter,
 } from 'solid-js'
 
+// TODO: simplify types, use Accessor<Title> and Accessor<Body> where needed instead of functions in the type definitions
 type Title = () => JSXElement
 type Body = () => JSXElement
 

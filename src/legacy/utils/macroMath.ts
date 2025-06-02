@@ -30,7 +30,7 @@ export function calcItemContainerMacros<
 }
 
 /**
- * @deprecated should already be in recipe.macros
+ * Calculates the macros for a recipe based on its items.
  */
 export function calcRecipeMacros(recipe: Recipe): MacroNutrients {
   return calcItemContainerMacros(recipe)

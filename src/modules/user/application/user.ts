@@ -1,17 +1,23 @@
-import { type User } from '~/modules/user/domain/user'
+import { type User, type NewUser, demoteToNewUser } from '~/modules/user/domain/user'
 import {
   loadUserIdFromLocalStorage,
   saveUserIdToLocalStorage,
 } from '~/modules/user/infrastructure/localStorageUserRepository'
-import { createSupabaseUserRepository } from '~/modules/user/infrastructure/supabaseUserRepository'
+import {
+  createSupabaseUserRepository,
+  SUPABASE_TABLE_USERS,
+} from '~/modules/user/infrastructure/supabaseUserRepository'
 import { createEffect, createSignal } from 'solid-js'
 import toast from 'solid-toast'
+import { handleApiError } from '~/shared/error/errorHandler'
+import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 
 export const DEFAULT_USER_ID = 3
 
 const userRepository = createSupabaseUserRepository()
 
 export const [users, setUsers] = createSignal<readonly User[]>([])
+
 export const [currentUser, setCurrentUser] = createSignal<User | null>(null)
 
 export const [currentUserId, setCurrentUserId] = createSignal<number>(1)
@@ -27,6 +33,30 @@ createEffect(async () => {
   }
 })
 
+function bootstrap() {
+  fetchUsers().catch((error) => 
+    handleApiError(error, {
+      component: 'userApplication',
+      operation: 'bootstrap',
+      additionalData: {}
+    })
+  )
+}
+
+/**
+ * At app start, fetch all users
+ */
+createEffect(() => {
+  bootstrap()
+})
+
+/**
+ * When realtime event occurs, fetch all users again
+ */
+registerSubapabaseRealtimeCallback(SUPABASE_TABLE_USERS, () => {
+  bootstrap()
+})
+
 export async function fetchUsers(): Promise<void> {
   const users = await userRepository.fetchUsers()
   const newCurrentUser = users.find((user) => user.id === currentUserId())
@@ -40,15 +70,15 @@ export async function fetchCurrentUser(): Promise<User | null> {
   return user
 }
 
-export async function insertUser(newUser: User): Promise<void> {
+export async function insertUser(newUser: NewUser): Promise<void> {
   await userRepository.insertUser(newUser)
   await fetchUsers()
 }
 
 export async function updateUser(
   userId: User['id'],
-  newUser: User,
-): Promise<User> {
+  newUser: NewUser,
+): Promise<User | null> {
   const user = await toast.promise(userRepository.updateUser(userId, newUser), {
     loading: 'Atualizando informações do usuário...',
     success: 'Informações do usuário atualizadas com sucesso',
@@ -92,9 +122,15 @@ export function setFoodAsFavorite(foodId: number, favorite: boolean): void {
   }
 
   updateUser(currentUser_.id, {
-    ...currentUser_,
+    ...demoteToNewUser(currentUser_),
     favorite_foods: favoriteFoods,
   })
     .then(fetchCurrentUser)
-    .catch(console.error)
+    .catch((error) => 
+      handleApiError(error, {
+        component: 'userApplication',
+        operation: 'toggleFavoriteFood',
+        additionalData: { foodId }
+      })
+    )
 }

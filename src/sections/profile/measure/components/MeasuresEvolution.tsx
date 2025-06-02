@@ -1,5 +1,5 @@
 import { type Loadable } from '~/legacy/utils/loadable'
-import { type Measure, createMeasure } from '~/modules/measure/domain/measure'
+import { type Measure, createNewMeasure } from '~/modules/measure/domain/measure'
 import { MeasureChart } from '~/sections/profile/measure/components/MeasureChart'
 import { MeasureView } from '~/sections/profile/measure/components/MeasureView'
 import { useFloatField } from '~/sections/common/hooks/useField'
@@ -11,10 +11,8 @@ import {
   insertMeasure,
 } from '~/modules/measure/application/measure'
 import toast from 'solid-toast'
-
-// TODO: Centralize theme constants
-const CARD_BACKGROUND_COLOR = 'bg-slate-800'
-const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
+import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
+import { formatError } from '~/shared/formatError'
 
 export function MeasuresEvolution() {
   // TODO: Remove `measures` signal and use use cases instead
@@ -123,7 +121,7 @@ export function MeasuresEvolution() {
                 handleRefetchMeasures()
               }
               insertMeasure(
-                createMeasure({
+                createNewMeasure({
                   owner: userId,
                   height: heightField.value() ?? 0,
                   waist: waistField.value() ?? 0,
@@ -136,8 +134,7 @@ export function MeasuresEvolution() {
                 .catch((error) => {
                   console.error(error)
                   toast.error(
-                    'Erro ao adicionar peso: \n' +
-                      JSON.stringify(error, null, 2),
+                    `Erro ao adicionar medida: ${formatError(error)}`,
                   )
                 })
             }}

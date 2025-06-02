@@ -1,5 +1,5 @@
 import { For, createEffect, createMemo } from 'solid-js'
-import { type Weight, createWeight } from '~/modules/weight/domain/weight'
+import { type Weight, createNewWeight } from '~/modules/weight/domain/weight'
 import { Capsule } from '~/sections/common/components/capsule/Capsule'
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import { type OHLC } from '~/legacy/model/ohlcModel'
@@ -9,7 +9,7 @@ import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleCont
 import {
   calculateWeightProgress,
   firstWeight,
-  latestWeight,
+  getLatestWeight,
 } from '~/legacy/utils/weightUtils'
 import { currentUser, currentUserId } from '~/modules/user/application/user'
 import {
@@ -24,10 +24,8 @@ import { SolidApexCharts } from 'solid-apexcharts'
 import { type ApexOptions } from 'apexcharts'
 import toast from 'solid-toast'
 import ptBrLocale from '~/assets/locales/apex/pt-br.json'
-
-// TODO: Centralize theme constants
-const CARD_BACKGROUND_COLOR = 'bg-slate-800'
-const CARD_STYLE = 'mt-5 pt-5 rounded-lg'
+import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
+import { formatError } from '~/shared/formatError'
 
 export function WeightEvolution() {
   const desiredWeight = () => currentUser()?.desired_weight ?? 0
@@ -82,7 +80,7 @@ export function WeightEvolution() {
               }
 
               insertWeight(
-                createWeight({
+                createNewWeight({
                   owner: userId,
                   weight,
                   target_timestamp: new Date(Date.now()),
@@ -92,7 +90,7 @@ export function WeightEvolution() {
                 .catch((error) => {
                   console.error(error)
                   toast.error(
-                    'Erro ao adicionar: \n' + JSON.stringify(error, null, 2),
+                    `Erro ao adicionar peso: ${formatError(error)}`,
                   )
                 })
             }}
@@ -209,7 +207,7 @@ function WeightView(props: { weight: Weight }) {
               deleteWeight(props.weight.id).catch((error) => {
                 console.error(error)
                 toast.error(
-                  'Erro ao deletar: \n' + JSON.stringify(error, null, 2),
+                  `Erro ao deletar peso: ${formatError(error)}`,
                 )
               })
             }}
@@ -238,21 +236,28 @@ function WeightChart(props: {
       // 1 to 4 weeks of a month
       const date = new Date(weight.target_timestamp)
       const month = date.toLocaleString('default', { month: 'short' })
+      const year = date.getFullYear()
+      const twoDigitYear = year % 100
       // const weekNumber = Math.min(4, Math.ceil(date.getDate() / 7))
 
       // 1 to 2 half of a month (1 -> 1-15, 2 -> 16-31)
       const halfNumber = Math.min(2, Math.ceil(date.getDate() / 15))
 
-      // return `${month} (${weekNumber}/4)`
-      return `${month} (${halfNumber}/2)`
+      return `${month} ${twoDigitYear} (${halfNumber}/2)`
     })()
-    const day_ = weight.target_timestamp.toLocaleDateString().slice(0, 5)
+    const day = weight.target_timestamp.getDate()
+    const month = weight.target_timestamp.getMonth() + 1
+    const year = weight.target_timestamp.getFullYear()
+    const twoDigitYear = year % 100
 
-    const day = props.type === 'last-30-days' ? day_ : half
-    if (acc[day] === undefined) {
-      acc[day] = []
+    // TODO: create weight chart types: Daily, Weekly, Monthly, Semianually, Anually, Auto
+
+    const date_ = `${day}/${month}/${twoDigitYear}`
+    const date = props.type === 'last-30-days' ? date_ : half
+    if (acc[date] === undefined) {
+      acc[date] = []
     }
-    acc[day].push(weight)
+    acc[date].push(weight)
 
     return acc
   }
@@ -261,13 +266,13 @@ function WeightChart(props: {
     props.weights.reduce<Record<string, Weight[]>>(reduceFunc, {}),
   )
 
-  const data = createMemo((): readonly TickWeight[] =>
-    Object.entries(weightsByDay())
-      .map(([day, weights]) => {
+  const data = createMemo(
+    (): readonly TickWeight[] =>
+      Object.entries(weightsByDay()).map(([day, weights]) => {
         const open = firstWeight(weights)?.weight ?? 0
         const low = Math.min(...weights.map((weight) => weight.weight))
         const high = Math.max(...weights.map((weight) => weight.weight))
-        const close = latestWeight(weights)?.weight ?? 0
+        const close = getLatestWeight(weights)?.weight ?? 0
 
         return {
           date: day,
@@ -276,8 +281,8 @@ function WeightChart(props: {
           high,
           low,
         }
-      })
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
+      }),
+    // .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
   )
 
   const movingAverage = createMemo(() =>

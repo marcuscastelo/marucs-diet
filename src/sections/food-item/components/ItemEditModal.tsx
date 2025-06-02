@@ -1,12 +1,12 @@
 import {
-  FoodItemFavorite,
-  FoodItemHeader,
-  FoodItemName,
-  FoodItemNutritionalInfo,
-  FoodItemView,
-} from '~/sections/food-item/components/FoodItemView'
-import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
-import { Modal, ModalActions } from '~/sections/common/components/Modal'
+  ItemFavorite,
+  ItemHeader,
+  ItemName,
+  ItemNutritionalInfo,
+  ItemView,
+} from '~/sections/food-item/components/ItemView'
+import { type Item } from '~/modules/diet/item/domain/item'
+import { Modal } from '~/sections/common/components/Modal'
 import { useModalContext } from '~/sections/common/context/ModalContext'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { generateId } from '~/legacy/utils/idUtils'
@@ -29,10 +29,10 @@ import {
 } from 'solid-js'
 import toast from 'solid-toast'
 
-export type FoodItemEditModalProps = {
+export type ItemEditModalProps = {
   targetName: string
   targetNameColor?: string
-  foodItem: Accessor<
+  item: Accessor<
     Partial<TemplateItem> & Pick<TemplateItem, 'name' | 'reference' | 'macros'>
   >
   macroOverflow: () => {
@@ -41,113 +41,133 @@ export type FoodItemEditModalProps = {
   }
   onApply: (item: TemplateItem) => void
   onCancel?: () => void
-  onDelete?: (itemId: FoodItem['id']) => void
+  onDelete?: (itemId: Item['id']) => void
 }
 
-// TODO: rename to ItemEditModal (also foodItemEditModalVisible and derivatives)
-export const FoodItemEditModal = (_props: FoodItemEditModalProps) => {
+export const ItemEditModal = (_props: ItemEditModalProps) => {
   const props = mergeProps({ targetNameColor: 'text-green-500' }, _props)
   const { setVisible } = useModalContext()
+  const { show: showConfirmModal } = useConfirmModalContext()
 
-  // TODO: Better initial state for foodItem on FoodItemEditModal
-  const [foodItem, setFoodItem] = createSignal<TemplateItem>({
-    __type: props.foodItem()?.__type ?? 'FoodItem',
-    id: props.foodItem()?.id ?? generateId(),
-    quantity: props.foodItem()?.quantity ?? 0,
-    ...props.foodItem(),
+  // TODO: Better initial state for item on ItemEditModal
+  const [item, setItem] = createSignal<TemplateItem>({
+    __type: props.item()?.__type ?? 'Item',
+    id: props.item()?.id ?? generateId(),
+    quantity: props.item()?.quantity ?? 0,
+    ...props.item(),
   } satisfies TemplateItem)
 
   createEffect(() => {
-    setFoodItem({
-      ...untrack(foodItem),
-      ...props.foodItem(),
+    setItem({
+      ...untrack(item),
+      ...props.item(),
     })
   })
 
-  const canApply = () => foodItem().quantity > 0
+  const canApply = () => item().quantity > 0
 
   return (
-    <>
-      <Modal
-        class="border-2 border-white"
-        header={
-          <Header
-            foodItem={foodItem}
-            targetName={props.targetName}
-            targetNameColor={props.targetNameColor}
-          />
-        }
-        body={
-          <Body
-            canApply={canApply()}
-            foodItem={foodItem}
-            setFoodItem={setFoodItem}
-            macroOverflow={props.macroOverflow}
-          />
-        }
-        actions={
-          <Actions
-            id={foodItem().id}
-            canApply={canApply()}
-            onApply={() => {
-              console.debug(
-                '[FoodItemEditModal] onApply - calling onApply with foodItem.value=',
-                foodItem(),
-              )
-              props.onApply(foodItem())
-              setVisible(false)
-            }}
-            onCancel={() => {
-              setVisible(false)
-              props.onCancel?.()
-            }}
-            onDelete={props.onDelete}
-          />
+    <Modal class="border-2 border-white">
+      <Modal.Header 
+        title={
+          <span>
+            Editando item em
+            <span class={props.targetNameColor}>
+              {' '}
+              &quot;{props.targetName ?? 'ERRO: destino desconhecido'}&quot;{' '}
+            </span>
+          </span>
         }
       />
-    </>
-  )
-}
-
-function Header(props: {
-  foodItem: Accessor<TemplateItem>
-  targetName: string
-  targetNameColor: string
-}) {
-  return (
-    <>
-      <h3 class="text-lg font-bold text-white">
-        Editando item em
-        <span class={props.targetNameColor}>
-          {' '}
-          &quot;{props.targetName ?? 'ERRO: destino desconhecido'}&quot;{' '}
-        </span>
-      </h3>
-    </>
+      <Modal.Content>
+        <Body
+          canApply={canApply()}
+          item={item}
+          setItem={setItem}
+          macroOverflow={props.macroOverflow}
+        />
+      </Modal.Content>
+      <Modal.Footer>
+        {props.onDelete !== undefined && (
+          <button
+            class="btn-error btn mr-auto"
+            onClick={(e) => {
+              e.preventDefault()
+              props.onDelete !== undefined &&
+                showConfirmModal({
+                  title: 'Excluir item',
+                  body: 'Tem certeza que deseja excluir este item?',
+                  actions: [
+                    {
+                      text: 'Cancelar',
+                      onClick: () => undefined,
+                    },
+                    {
+                      text: 'Excluir',
+                      primary: true,
+                      onClick: () => {
+                        props.onDelete?.(item().id)
+                      },
+                    },
+                  ],
+                })
+            }}
+          >
+            Excluir
+          </button>
+        )}
+        <button
+          class="btn"
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            setVisible(false)
+            props.onCancel?.()
+          }}
+        >
+          Cancelar
+        </button>
+        <button
+          class="btn"
+          disabled={!canApply()}
+          onClick={(e) => {
+            e.preventDefault()
+            console.debug(
+              '[ItemEditModal] onApply - calling onApply with item.value=',
+              item(),
+            )
+            props.onApply(item())
+            setVisible(false)
+          }}
+        >
+          Aplicar
+        </button>
+      </Modal.Footer>
+    </Modal>
   )
 }
 
 function Body(props: {
   canApply: boolean
-  foodItem: Accessor<TemplateItem>
-  setFoodItem: Setter<TemplateItem>
+  item: Accessor<TemplateItem>
+  setItem: Setter<TemplateItem>
   macroOverflow: () => {
     enable: boolean
     originalItem?: TemplateItem | undefined
   }
 }) {
-  const id = () => props.foodItem().id
+  const id = () => props.item().id
 
   const quantitySignal = () =>
-    props.foodItem().quantity === 0 ? undefined : props.foodItem().quantity
+    props.item().quantity === 0 ? undefined : props.item().quantity
   const quantityField = useFloatField(quantitySignal, {
     decimalPlaces: 0,
-    defaultValue: props.foodItem().quantity,
+    defaultValue: props.item().quantity,
   })
 
   createEffect(() => {
-    props.setFoodItem({
-      ...untrack(props.foodItem),
+    props.setItem({
+      ...untrack(props.item),
       quantity: quantityField.value() ?? 0,
     })
   })
@@ -216,7 +236,7 @@ function Body(props: {
             style={{ width: '100%' }}
             onFieldCommit={(value) => {
               if (value === undefined) {
-                quantityField.setRawValue(props.foodItem().quantity.toString())
+                quantityField.setRawValue(props.item().quantity.toString())
               }
             }}
             tabIndex={-1}
@@ -267,16 +287,16 @@ function Body(props: {
         </div>
       </div>
 
-      <FoodItemView
-        foodItem={() =>
+      <ItemView
+        item={() =>
           ({
-            __type: props.foodItem().__type,
+            __type: props.item().__type,
             id: id(),
             name:
-              props.foodItem().name ?? 'Sem nome (itemData && FoodItemView)',
-            quantity: quantityField.value() ?? props.foodItem().quantity,
-            reference: props.foodItem().reference,
-            macros: props.foodItem().macros,
+              props.item().name ?? 'Sem nome (itemData && ItemView)',
+            quantity: quantityField.value() ?? props.item().quantity,
+            reference: props.item().reference,
+            macros: props.item().macros,
           }) satisfies TemplateItem
         }
         macroOverflow={props.macroOverflow}
@@ -285,92 +305,24 @@ function Body(props: {
           toast.error('Alimento não editável (ainda)')
         }}
         header={
-          <FoodItemHeader
-            name={<FoodItemName />}
+          <ItemHeader
+            name={<ItemName />}
             favorite={
-              <FoodItemFavorite
+              <ItemFavorite
                 favorite={
                   // TODO: [Feature] Add recipe favorite
-                  isFoodFavorite(props.foodItem().reference) || false
+                  isFoodFavorite(props.item().reference) || false
                 }
                 onSetFavorite={(favorite) => {
                   // TODO: [Feature] Add recipe favorite
-                  setFoodAsFavorite(props.foodItem().reference, favorite)
+                  setFoodAsFavorite(props.item().reference, favorite)
                 }}
               />
             }
           />
         }
-        nutritionalInfo={<FoodItemNutritionalInfo/>}
+        nutritionalInfo={<ItemNutritionalInfo/>}
       />
     </>
-  )
-}
-// TODO: Unify Header, Content and Actions for each component in the entire app
-/**
- * @deprecated
- */
-function Actions(props: {
-  id: number
-  canApply: boolean
-  onDelete?: (id: number) => void
-  onCancel?: () => void
-  onApply: () => void
-}) {
-  const { show: showConfirmModal } = useConfirmModalContext()
-
-  return (
-    <ModalActions>
-      {/* if there is a button in form, it will close the modal */}
-      {props.onDelete !== undefined && (
-        <button
-          class="btn-error btn mr-auto"
-          onClick={(e) => {
-            e.preventDefault()
-
-            props.onDelete !== undefined &&
-              showConfirmModal({
-                title: 'Excluir item',
-                body: 'Tem certeza que deseja excluir este item?',
-                actions: [
-                  {
-                    text: 'Cancelar',
-                    onClick: () => undefined,
-                  },
-                  {
-                    text: 'Excluir',
-                    primary: true,
-                    onClick: () => {
-                      props.onDelete?.(props.id)
-                    },
-                  },
-                ],
-              })
-          }}
-        >
-          Excluir
-        </button>
-      )}
-      <button
-        class="btn"
-        onClick={(e) => {
-          e.preventDefault()
-          e.stopPropagation()
-          props.onCancel?.()
-        }}
-      >
-        Cancelar
-      </button>
-      <button
-        class="btn"
-        disabled={!props.canApply}
-        onClick={(e) => {
-          e.preventDefault()
-          props.onApply() // TODO: pass data inside onApply()
-        }}
-      >
-        Aplicar
-      </button>
-    </ModalActions>
   )
 }

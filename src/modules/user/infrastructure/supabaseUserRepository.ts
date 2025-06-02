@@ -1,9 +1,14 @@
-import { type User, userSchema } from '~/modules/user/domain/user'
+import { type User, type NewUser } from '~/modules/user/domain/user'
 import supabase from '~/legacy/utils/supabase'
 import { type UserRepository } from '~/modules/user/domain/userRepository'
-import { type DbReady } from '~/legacy/utils/newDbRecord'
+import {
+  createUserFromDAO,
+  userDAOSchema,
+  createInsertUserDAOFromNewUser,
+  createUpdateUserDAOFromNewUser,
+} from '~/modules/user/infrastructure/userDAO'
 
-const TABLE = 'users'
+export const SUPABASE_TABLE_USERS = 'users'
 
 export function createSupabaseUserRepository(): UserRepository {
   return {
@@ -16,47 +21,59 @@ export function createSupabaseUserRepository(): UserRepository {
 }
 
 const fetchUsers = async (): Promise<User[]> => {
-  const { data, error } = await supabase.from(TABLE).select()
+  const { data, error } = await supabase.from(SUPABASE_TABLE_USERS).select()
 
   if (error !== null) {
     throw error
   }
 
-  const users = userSchema.array().parse(data ?? [])
-  return users
+  const userDAOs = userDAOSchema.array().parse(data ?? [])
+  return userDAOs.map(createUserFromDAO)
 }
 
-const fetchUser = async (id: DbReady<User['id']>): Promise<User | null> => {
-  const { data, error } = await supabase.from(TABLE).select().eq('id', id)
+const fetchUser = async (id: User['id']): Promise<User | null> => {
+  const { data, error } = await supabase
+    .from(SUPABASE_TABLE_USERS)
+    .select()
+    .eq('id', id)
 
   if (error !== null) {
     throw error
   }
 
-  const users = userSchema.array().parse(data ?? [])
+  const userDAOs = userDAOSchema.array().parse(data ?? [])
+  const users = userDAOs.map(createUserFromDAO)
 
   return users[0] ?? null
 }
 
-const insertUser = async (user: DbReady<User>): Promise<User> => {
-  const { data, error } = await supabase.from(TABLE).insert(user).select()
+const insertUser = async (newUser: NewUser): Promise<User | null> => {
+  const createDAO = createInsertUserDAOFromNewUser(newUser)
+
+  const { data, error } = await supabase
+    .from(SUPABASE_TABLE_USERS)
+    .insert(createDAO)
+    .select()
 
   if (error !== null) {
     throw error
   }
 
-  const users = userSchema.array().parse(data ?? [])
+  const userDAOs = userDAOSchema.array().parse(data ?? [])
+  const users = userDAOs.map(createUserFromDAO)
 
   return users[0] ?? null
 }
 
 const updateUser = async (
   id: User['id'],
-  user: DbReady<User>,
-): Promise<User> => {
+  newUser: NewUser,
+): Promise<User | null> => {
+  const updateDAO = createUpdateUserDAOFromNewUser(newUser)
+
   const { data, error } = await supabase
-    .from(TABLE)
-    .update(user)
+    .from(SUPABASE_TABLE_USERS)
+    .update(updateDAO)
     .eq('id', id)
     .select()
 
@@ -64,13 +81,17 @@ const updateUser = async (
     throw error
   }
 
-  const users = userSchema.array().parse(data ?? [])
+  const userDAOs = userDAOSchema.array().parse(data ?? [])
+  const users = userDAOs.map(createUserFromDAO)
 
   return users[0] ?? null
 }
 
 const deleteUser = async (id: User['id']): Promise<void> => {
-  const { error } = await supabase.from(TABLE).delete().eq('id', id)
+  const { error } = await supabase
+    .from(SUPABASE_TABLE_USERS)
+    .delete()
+    .eq('id', id)
 
   if (error !== null) {
     throw error

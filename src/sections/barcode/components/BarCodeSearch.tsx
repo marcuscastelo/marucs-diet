@@ -1,13 +1,14 @@
 import {
-  FoodItemFavorite,
-  FoodItemHeader,
-  FoodItemName,
-  FoodItemNutritionalInfo,
-  FoodItemView,
-} from '~/sections/food-item/components/FoodItemView'
+  ItemFavorite,
+  ItemHeader,
+  ItemName,
+  ItemNutritionalInfo,
+  ItemView,
+} from '~/sections/food-item/components/ItemView'
 import { type Food } from '~/modules/diet/food/domain/food'
-import { createFoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { createItem } from '~/modules/diet/item/domain/item'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 import {
   isFoodFavorite,
@@ -22,6 +23,7 @@ import {
 } from 'solid-js'
 import { fetchFoodByEan } from '~/modules/diet/food/application/food'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { formatError } from '~/shared/formatError'
 
 export type BarCodeSearchProps = {
   barCode: Accessor<string>
@@ -63,10 +65,14 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
 
     const catchFetch = (err: any) => {
       console.log('catchFetch err', err)
-      console.error(err)
+      handleApiError(err, {
+        component: 'BarCodeSearch',
+        operation: 'fetchFoodByEan',
+        additionalData: { barCode: props.barCode() }
+      })
       showConfirmModal({
         title: `Erro ao buscar alimento de EAN ${props.barCode()}`,
-        body: `Erro: ${err}`,
+        body: `Erro: ${formatError(err)}`,
         actions: [
           { text: 'OK', primary: true, onClick: () => {} },
         ]
@@ -105,15 +111,15 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
               <div class="flex-1">
                 <p class="font-bold">{food().name}</p>
                 <p class="text-sm">
-                  <FoodItemView
-                    foodItem={() =>
-                      createFoodItem({
+                  <ItemView
+                    item={() =>
+                      createItem({
                         name: food().name,
                         reference: food().id,
                         quantity: 100,
                         macros: {
                           ...(food().macros ??
-                            createFoodItem({
+                            createItem({
                               name: food().name,
                               reference: food().id,
                             }).macros),
@@ -124,10 +130,10 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
                       enable: false,
                     })}
                     header={
-                      <FoodItemHeader
-                        name={<FoodItemName />}
+                      <ItemHeader
+                        name={<ItemName />}
                         favorite={
-                          <FoodItemFavorite
+                          <ItemFavorite
                             favorite={isFoodFavorite(food().id)}
                             onSetFavorite={(favorite) => {
                               setFoodAsFavorite(food().id, favorite)
@@ -136,7 +142,7 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
                         }
                       />
                     }
-                    nutritionalInfo={<FoodItemNutritionalInfo />}
+                    nutritionalInfo={<ItemNutritionalInfo />}
                   />
                 </p>
               </div>

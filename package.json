@@ -2,11 +2,12 @@
   "name": "marucs-diet",
   "private": true,
   "type": "module",
-  "version": "v0.9.0",
+  "version": "v0.10.0",
   "scripts": {
     "dev": "vinxi dev",
     "build": "vinxi build",
-    "start": "vinxi start"
+    "start": "vinxi start",
+    "type-check": "tsc --noEmit --skipLibCheck"
   },
   "dependencies": {
     "@solidjs/router": "^0.13.3",
@@ -15,6 +16,7 @@
     "apexcharts": "3.44.0",
     "autoprefixer": "^10.4.19",
     "axios": "^1.6.8",
+    "axios-rate-limit": "^1.4.0",
     "clsx": "2.0.0",
     "daisyui": "3.9.3",
     "dayjs": "1.11.10",
@@ -53,6 +55,7 @@
     "typescript": "^4.9.5",
     "vite": "^4.4.9",
     "vite-plugin-eslint": "^1.8.1",
-    "vite-tsconfig-paths": "^4.2.1"
+    "vite-tsconfig-paths": "^4.2.1",
+    "vitest": "^3.1.4"
   }
 }

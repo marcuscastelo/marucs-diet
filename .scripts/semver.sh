@@ -1,32 +1,52 @@
-#!/bin/sh
+#!/bin/bash
+set -e
 
-closest_branch=$(git show-branch -a \
-| grep '\*' \
-| grep -v `git rev-parse --abbrev-ref HEAD` \
-| grep -E "main|rc/" \
-| head -n1 \
-| sed 's/\^//g' \
-| grep -Eo '\[.*\] [\[]' \
-| grep -Eo '\[.*\]' \
-| sed 's/\[\(.*\)\]/\1/' \
-)
+current_branch=$(git rev-parse --abbrev-ref HEAD)
 
-echo "$closest_branch" | grep -E "rc/" >/dev/null
-isrc=$?
-if [ $isrc -eq 0 ]; then
-  count=$(git rev-list --count HEAD ^main)
-  version=$(echo "$closest_branch" | sed -e 's/rc\/\(.*\)/\1/')
-  postfix="-rc.$count"
-else
-  count=$(git rev-list  `git rev-list --tags --no-walk --max-count=1`..HEAD --count)
-  # If count is 0, then it's a release tag, so we should return the tag itself
-  if [ $count -eq 0 ]; then
-    echo "$(git tag | tail -1)"
-    exit 0
-  fi
-  version=$(git tag | tail -1)
-  postfix="-dev.$count"
+# Detecta se estamos em um branch rc/*
+if [[ "$current_branch" =~ ^rc\/(v[0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+  version="${BASH_REMATCH[1]}"
+  count=$(git rev-list --count HEAD ^stable)
+  echo "$version-rc.$count"
+  exit 0
 fi
 
-# Otherwise, we should return the tag with the count
-echo "$version$postfix"
+# Caso contrário: estamos em um branch de desenvolvimento
+# Vamos encontrar a rc/* mais próxima
+closest_rc=$(git for-each-ref --format='%(refname:short)' refs/heads/ |
+  grep '^rc/' |
+  while read branch; do
+    echo "$(git merge-base $current_branch $branch) $branch"
+  done |
+  sort -r |
+  head -n1 |
+  awk '{print $2}')
+
+if [ -z "$closest_rc" ]; then
+  echo "Erro: Nenhum branch rc/ encontrado como base para o branch atual."
+  exit 1
+fi
+
+# Extrai a versão da rc/vX.Y.Z
+version=$(echo "$closest_rc" | sed -E 's|rc/(v[0-9]+\.[0-9]+\.[0-9]+)|\1|')
+
+# Conta commits desde o ponto de divergência com a rc
+merge_base=$(git merge-base HEAD "$closest_rc")
+count=$(git rev-list --count "$merge_base"..HEAD)
+
+# Extrai o número da issue (primeiro número após a barra do nome do branch)
+issue_number=$(echo "$current_branch" | sed -E 's|.*/[^0-9]*([0-9]+).*|\1|')
+
+# Constrói a versão final
+if [ "$count" -eq 0 ]; then
+  version_str="$version-dev.0"
+else
+  version_str="$version-dev.$count"
+fi
+
+# Anexa +issue.<numero> se extraído com sucesso
+if [[ -n "$issue_number" ]]; then
+  version_str="$version_str+issue.$issue_number"
+fi
+
+echo "$version_str"

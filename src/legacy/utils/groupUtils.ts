@@ -1,16 +1,18 @@
 import {
   type ItemGroup,
   type RecipedItemGroup,
+  createSimpleItemGroup,
+  createRecipedItemGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
-import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
+import { type Item } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
-import { generateId } from '~/legacy/utils/idUtils'
+import { handleValidationError } from '~/shared/error/errorHandler'
 
 export type GroupConvertible =
   | ItemGroup
   | ItemGroup[]
   | { groups: ItemGroup[] }
-  | FoodItem
+  | Item
   | Recipe
 
 // TODO: Move isRecipedGroupUpToDate to somewhere else
@@ -19,9 +21,15 @@ export function isRecipedGroupUpToDate(
   groupRecipe: Recipe,
 ) {
   if (groupRecipe.id !== group.recipe) {
-    console.error(
-      'Invalid state! This is a bug! Group recipe is not the same as the recipe in the group!',
-    )
+    handleValidationError('Invalid state! Group recipe is not the same as the recipe in the group!', {
+      component: 'groupUtils',
+      operation: 'isRecipedGroupUpToDate',
+      additionalData: { 
+        groupRecipeId: groupRecipe.id, 
+        groupId: group.recipe,
+        groupName: group.name 
+      }
+    })
     throw new Error('Invalid state! This is a bug! see console.error')
   }
 
@@ -44,19 +52,12 @@ export function isRecipedGroupUpToDate(
       return false
     }
 
-    // TODO: Compare item macros too
+    // TODO: Compare item macros too.
   }
 
   return true
 }
 
-function calculateGroupQuantity(groupItems: ItemGroup['items']): number {
-  return groupItems
-    .map((item) => item.quantity)
-    .reduce((acc: number, quantity) => acc + quantity, 0)
-}
-
-// TODO: Replace quantity field with a getter that calculates it
 export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
   if (Array.isArray(convertible)) {
     return { ...convertible }
@@ -64,14 +65,11 @@ export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
 
   if ('__type' in convertible && convertible.__type === 'Recipe') {
     return [
-      {
-        id: generateId(),
+      createRecipedItemGroup({
         name: convertible.name,
         items: [...convertible.items],
-        quantity: calculateGroupQuantity(convertible.items),
-        type: 'recipe',
         recipe: convertible.id,
-      },
+      }),
     ]
   }
 
@@ -81,14 +79,10 @@ export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
 
   if ('reference' in convertible) {
     return [
-      // TODO: createItemGroup({ items: [container] })
-      {
-        id: generateId(),
+      createSimpleItemGroup({
         name: convertible.name,
-        items: [{ ...convertible } satisfies FoodItem],
-        quantity: convertible.quantity,
-        type: 'simple',
-      } satisfies ItemGroup,
+        items: [{ ...convertible } satisfies Item],
+      }),
     ]
   }
 
@@ -97,6 +91,10 @@ export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
   }
 
   convertible satisfies never
-  console.error('Invalid state! This is a bug! Unhandled convertible type!')
+  handleValidationError('Invalid state! Unhandled convertible type!', {
+    component: 'groupUtils',
+    operation: 'convertToGroups',
+    additionalData: { convertible }
+  })
   throw new Error('Invalid state! This is a bug! see console.error')
 }

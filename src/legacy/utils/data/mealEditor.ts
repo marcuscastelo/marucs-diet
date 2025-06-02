@@ -1,7 +1,7 @@
 import { Editor } from '~/legacy/utils/data/editor'
 import { deepCopy } from '~/legacy/utils/deepCopy'
 import { type Mutable } from '~/legacy/utils/typeUtils'
-import { type Meal } from '~/modules/diet/meal/domain/meal'
+import {  type Meal } from '~/modules/diet/meal/domain/meal'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { ItemGroupEditor } from '~/legacy/utils/data/itemGroupEditor'
 
@@ -36,10 +36,10 @@ export class MealEditor extends Editor<Meal> {
     const group = this.findGroup(id)
     const editor = group !== undefined ? new ItemGroupEditor(group) : undefined
     callback(editor)
-    const newItem = editor?.finish()
-    if (newItem !== undefined) {
+    const newGroup = editor?.finish()
+    if (newGroup !== undefined) {
       const index = this.meal.groups.findIndex((group) => group.id === id)
-      this.meal.groups.splice(index, 1, newItem)
+      this.meal.groups.splice(index, 1, newGroup)
     }
     return this
   }

@@ -3,14 +3,13 @@ import {
   targetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
-import { type FoodItem } from '~/modules/diet/food-item/domain/foodItem'
-import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { type Item } from '~/modules/diet/item/domain/item'
+import { type ItemGroup, createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { BackIcon } from '~/sections/common/components/icons/BackIcon'
-import { ConfirmModal } from '~/sections/common/components/ConfirmModal'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { LoadingRing } from '~/sections/common/components/LoadingRing'
-import { Modal, ModalHeader } from '~/sections/common/components/Modal'
+import { Modal } from '~/sections/common/components/Modal'
 import { PageLoading } from '~/sections/common/components/PageLoading'
 import { TestChart } from '~/sections/common/components/charts/TestChart'
 import {
@@ -20,8 +19,8 @@ import {
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import Datepicker from '~/sections/datepicker/components/Datepicker'
-import { FoodItemEditModal } from '~/sections/food-item/components/FoodItemEditModal'
-import { FoodItemListView } from '~/sections/food-item/components/FoodItemListView'
+import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
+import { ItemListView } from '~/sections/food-item/components/ItemListView'
 import { ItemGroupEditModal } from '~/sections/item-group/components/ItemGroupEditModal'
 import {
   ItemGroupView,
@@ -38,15 +37,15 @@ import toast from 'solid-toast'
 import { BarCodeIcon } from '~/sections/common/components/icons/BarCodeIcon'
 
 export default function TestApp() {
-  const [foodItemEditModalVisible, setFoodItemEditModalVisible] =
+  const [itemEditModalVisible, setItemEditModalVisible] =
     createSignal(false)
   const [itemGroupEditModalVisible, setItemGroupEditModalVisible] =
     createSignal(false)
   const [templateSearchModalVisible, setTemplateSearchModalVisible] =
     createSignal(false)
 
-  const [item] = createSignal<FoodItem>({
-    __type: 'FoodItem',
+  const [item] = createSignal<Item>({
+    __type: 'Item',
     id: 1,
     macros: {
       carbs: 10,
@@ -58,13 +57,10 @@ export default function TestApp() {
     reference: 31606,
   })
 
-  const [group, setGroup] = createSignal<ItemGroup>({
-    id: 1,
+  const [group, setGroup] = createSignal<ItemGroup>(createSimpleItemGroup({
     name: 'Teste',
-    quantity: 100,
-    type: 'simple',
     items: [],
-  } satisfies ItemGroup)
+  }))
 
   createEffect(() => {
     setGroup({
@@ -154,11 +150,11 @@ export default function TestApp() {
         </ModalContextProvider>
 
         <ModalContextProvider
-          visible={foodItemEditModalVisible}
-          setVisible={setFoodItemEditModalVisible}
+          visible={itemEditModalVisible}
+          setVisible={setItemEditModalVisible}
         >
-          <FoodItemEditModal
-            foodItem={item}
+          <ItemEditModal
+            item={item}
             targetName="Teste"
             macroOverflow={() => ({
               enable: false,
@@ -208,11 +204,11 @@ export default function TestApp() {
             }]}
           /> */}
 
-        <h1>FoodItemListView</h1>
-        <FoodItemListView
-          foodItems={() => group().items}
+        <h1>ItemListView</h1>
+        <ItemListView
+          items={() => group().items}
           onItemClick={() => {
-            setFoodItemEditModalVisible(true)
+            setItemEditModalVisible(true)
           }}
         />
         <h1>ItemGroupView</h1>
@@ -280,7 +276,20 @@ function TestModal() {
 
   return (
     <ModalContextProvider visible={visible} setVisible={setVisible}>
-      <Modal header={<ModalHeader title="adf" />} body={<h1>asdfasdf</h1>} />
+      <Modal>
+        <Modal.Header title="Test Modal" />
+        <Modal.Content>
+          <h1>This is a test modal</h1>
+          <button
+            class="btn btn-primary"
+            onClick={() => {
+              setVisible(false)
+            }}
+          >
+            Close
+          </button>
+        </Modal.Content>
+      </Modal>
       <button onClick={() => setVisible(!visible())}>Open modal!</button>
     </ModalContextProvider>
   )

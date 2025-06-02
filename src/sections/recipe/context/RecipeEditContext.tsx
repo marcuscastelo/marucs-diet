@@ -21,7 +21,7 @@ export function useRecipeEditContext() {
 
   if (context === null) {
     throw new Error(
-      'useRecipeContext must be used within a RecipeContextProvider',
+      'useRecipeEditContext must be used within a RecipeEditContextProvider',
     )
   }
 

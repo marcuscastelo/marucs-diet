@@ -1,4 +1,4 @@
-import { cn } from '~/legacy/utils/cn'
+import { cn } from '~/shared/cn'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 
 export default function MacroNutrientsView(props: {

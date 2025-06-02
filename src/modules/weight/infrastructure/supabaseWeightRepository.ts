@@ -1,10 +1,10 @@
 import { type User } from '~/modules/user/domain/user'
-import { type Weight, weightSchema } from '~/modules/weight/domain/weight'
-import { type DbReady, enforceDbReady } from '~/legacy/utils/newDbRecord'
+import { type Weight, weightSchema, type NewWeight } from '~/modules/weight/domain/weight'
 import supabase from '~/legacy/utils/supabase'
 import { type WeightRepository } from '~/modules/weight/domain/weightRepository'
+import { createInsertWeightDAOFromWeight, createUpdateWeightDAOFromWeight, weightDAOSchema } from './weightDAO'
 
-const TABLE = 'weights'
+export const SUPABASE_TABLE_WEIGHTS = 'weights'
 
 export function createSupabaseWeightRepository(): WeightRepository {
   return {
@@ -17,7 +17,7 @@ export function createSupabaseWeightRepository(): WeightRepository {
 
 async function fetchUserWeights(userId: User['id']) {
   const { data, error } = await supabase
-    .from(TABLE)
+    .from(SUPABASE_TABLE_WEIGHTS)
     .select('*')
     .eq('owner', userId)
     .order('target_timestamp', { ascending: true })
@@ -30,9 +30,12 @@ async function fetchUserWeights(userId: User['id']) {
   return weightSchema.array().parse(data)
 }
 
-async function insertWeight(newWeight: DbReady<Weight>) {
-  const weight = enforceDbReady(newWeight)
-  const { data, error } = await supabase.from(TABLE).insert(weight).select()
+async function insertWeight(newWeight: NewWeight) {
+  const weightDAO = createInsertWeightDAOFromWeight(newWeight)
+  const { data, error } = await supabase
+    .from(SUPABASE_TABLE_WEIGHTS)
+    .insert(weightDAO)
+    .select()
 
   if (error !== null) {
     console.error(error)
@@ -44,12 +47,12 @@ async function insertWeight(newWeight: DbReady<Weight>) {
 
 async function updateWeight(
   weightId: Weight['id'],
-  newWeight: DbReady<Weight>,
+  weight: Weight,
 ) {
-  const weight = enforceDbReady(newWeight)
+  const weightDAO = createUpdateWeightDAOFromWeight(weight)
   const { data, error } = await supabase
-    .from(TABLE)
-    .update(weight)
+    .from(SUPABASE_TABLE_WEIGHTS)
+    .update(weightDAO)
     .eq('id', weightId)
     .select()
 
@@ -62,7 +65,10 @@ async function updateWeight(
 }
 
 async function deleteWeight(id: Weight['id']) {
-  const { error } = await supabase.from(TABLE).delete().eq('id', id)
+  const { error } = await supabase
+    .from(SUPABASE_TABLE_WEIGHTS)
+    .delete()
+    .eq('id', id)
 
   if (error !== null) {
     console.error(error)

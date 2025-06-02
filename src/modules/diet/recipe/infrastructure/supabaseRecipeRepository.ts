@@ -1,13 +1,17 @@
-import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import { type Recipe, type NewRecipe } from '~/modules/diet/recipe/domain/recipe'
 import { type User } from '~/modules/user/domain/user'
-import { type DbReady, enforceDbReady } from '~/legacy/utils/newDbRecord'
 import supabase from '~/legacy/utils/supabase'
-import { type Mutable } from '~/legacy/utils/typeUtils'
 import { type RecipeRepository } from '~/modules/diet/recipe/domain/recipeRepository'
 import {
+  CreateRecipeDAO,
   createRecipeFromDAO,
+  RecipeDAO,
   recipeDAOSchema,
+  UpdateRecipeDAO,
+  createInsertRecipeDAOFromNewRecipe,
+  createUpdateRecipeDAOFromRecipe,
 } from '~/modules/diet/recipe/infrastructure/recipeDAO'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 const TABLE = 'recipes'
 
@@ -16,7 +20,7 @@ export function createSupabaseRecipeRepository(): RecipeRepository {
     fetchUserRecipes,
     fetchRecipeById,
     fetchUserRecipeByName,
-    insertRecipe: upsertRecipe,
+    insertRecipe,
     updateRecipe,
     deleteRecipe,
   }
@@ -30,7 +34,11 @@ const fetchUserRecipes = async (userId: User['id']): Promise<Recipe[]> => {
     .eq('owner', userId)
 
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'supabaseRecipeRepository',
+      operation: 'fetchUserRecipes',
+      additionalData: { userId }
+    })
     throw error
   }
 
@@ -44,7 +52,11 @@ const fetchRecipeById = async (id: Recipe['id']): Promise<Recipe | null> => {
   const { data, error } = await supabase.from(TABLE).select().eq('id', id)
 
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'supabaseRecipeRepository',
+      operation: 'fetchRecipeById',
+      additionalData: { id }
+    })
     throw error
   }
 
@@ -65,7 +77,11 @@ const fetchUserRecipeByName = async (
     .eq('name', name)
 
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'supabaseRecipeRepository',
+      operation: 'fetchUserRecipeByName',
+      additionalData: { userId, name }
+    })
     throw error
   }
 
@@ -75,18 +91,20 @@ const fetchUserRecipeByName = async (
   return recipes
 }
 
-const upsertRecipe = async (
-  newRecipe: DbReady<Recipe>,
-): Promise<Recipe | null> => {
-  // TODO: Remove macros field from recipe type, it should be calculated from items only locally
-  delete (newRecipe as Partial<Mutable<Recipe>>).macros
-
-  const recipe = enforceDbReady(newRecipe)
-
-  const { data, error } = await supabase.from(TABLE).upsert(recipe).select()
+const insertRecipe = async (newRecipe: NewRecipe): Promise<Recipe | null> => {
+  const createDAO = createInsertRecipeDAOFromNewRecipe(newRecipe)
+  
+  const { data, error } = await supabase
+    .from(TABLE)
+    .insert(createDAO)
+    .select()
 
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'supabaseRecipeRepository',
+      operation: 'insertRecipe',
+      additionalData: { recipe: newRecipe }
+    })
     throw error
   }
 
@@ -97,31 +115,36 @@ const upsertRecipe = async (
 }
 
 const updateRecipe = async (
-  id: Recipe['id'],
-  newRecipe: DbReady<Recipe>,
+  recipeId: Recipe['id'],
+  newRecipe: Recipe,
 ): Promise<Recipe> => {
-  const recipe = enforceDbReady(newRecipe)
+  console.debug(`[RecipeController] Updating recipe ${recipeId} with`, newRecipe)
 
-  // TODO: Remove macros field from recipe type, it should be calculated from items only locally
-  delete (recipe as Partial<Mutable<Recipe>>).macros
-
-  console.debug(`[RecipeController] Updating recipe ${id} with`, recipe)
+  const updateDAO = createUpdateRecipeDAOFromRecipe(newRecipe)
 
   const { data, error } = await supabase
     .from(TABLE)
-    .update(recipe)
-    .eq('id', id)
+    .update(updateDAO)
+    .eq('id', recipeId)
     .select()
 
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'supabaseRecipeRepository',
+      operation: 'updateRecipe',
+      additionalData: { id: recipeId, recipe: newRecipe }
+    })
     throw error
   }
 
   const recipeDAOs = recipeDAOSchema.array().parse(data ?? [])
   const recipes = recipeDAOs.map(createRecipeFromDAO)
 
-  return recipes[0] ?? null
+  if (!recipes[0]) {
+    throw new Error(`Recipe with id ${recipeId} not found after update`)
+  }
+
+  return recipes[0]
 }
 
 const deleteRecipe = async (id: Recipe['id']): Promise<Recipe> => {
@@ -132,7 +155,11 @@ const deleteRecipe = async (id: Recipe['id']): Promise<Recipe> => {
     .select()
 
   if (error !== null) {
-    console.error(error)
+    handleApiError(error, {
+      component: 'supabaseRecipeRepository',
+      operation: 'deleteRecipe',
+      additionalData: { id }
+    })
     throw error
   }
 

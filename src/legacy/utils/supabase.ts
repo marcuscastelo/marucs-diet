@@ -20,4 +20,13 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
   },
 })
 
+export function registerSubapabaseRealtimeCallback(
+  table: string,
+  callback: (payload: unknown) => void,
+): void {
+  supabase
+    .channel(table)
+    .on('postgres_changes', { event: '*', schema: 'public', table }, callback)
+    .subscribe()
+}
 export default supabase

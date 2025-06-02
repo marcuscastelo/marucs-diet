@@ -7,18 +7,17 @@ import {
 } from '~/sections/meal/components/MealEditView'
 import DayMacros from '~/sections/day-diet/components/DayMacros'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
-import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
+import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
-import { calcDayMacros } from '~/legacy/utils/macroMath'
 import { ItemGroupEditModal } from '~/sections/item-group/components/ItemGroupEditModal'
 import { CopyLastDayButton } from '~/sections/day-diet/components/CopyLastDayButton'
 import { DeleteDayButton } from '~/sections/day-diet/components/DeleteDayButton'
-import { getTodayYYYMMDD, stringToDate } from '~/legacy/utils/dateUtils'
+import { getTodayYYYMMDD } from '~/legacy/utils/dateUtils'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import DayNotFound from '~/sections/day-diet/components/DayNotFound'
 import {
   currentDayDiet,
-  targetDay,
+  setTargetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
 import { updateMeal } from '~/modules/diet/meal/application/meal'
 import {
@@ -37,6 +36,7 @@ import {
 } from 'solid-js'
 import { Alert } from '~/sections/common/components/Alert'
 import toast from 'solid-toast'
+import { formatError } from '~/shared/formatError'
 
 type EditSelection = {
   meal: Meal
@@ -96,6 +96,19 @@ export default function DayMeals(props: { selectedDay: string }) {
     setTemplateSearchModalVisible(true)
   }
 
+  const handleNewItemGroup = (dayDiet: DayDiet) => (newGroup: ItemGroup) => {
+    const newItemSelection_ = newItemSelection()
+    if (newItemSelection_ === null) {
+      throw new Error('No meal selected!')
+    }
+
+    insertItemGroup(dayDiet.id, newItemSelection_.meal.id, newGroup)
+  }
+
+  const handleFinishSearch = () => {
+    setNewItemSelection(null)
+  }
+
   return (
     <Show
       when={currentDayDiet()}
@@ -105,9 +118,14 @@ export default function DayMeals(props: { selectedDay: string }) {
       {(neverNullDayDiet) => (
         <>
           <ExternalTemplateSearchModal
-            day={() => neverNullDayDiet}
             visible={templateSearchModalVisible}
             setVisible={setTemplateSearchModalVisible}
+            onRefetch={() => {
+              console.warn('[DayMeals] onRefetch called!')
+            }}
+            targetName={newItemSelection()?.meal.name ?? 'Nenhuma refeição selecionada'}
+            onNewItemGroup={handleNewItemGroup(neverNullDayDiet)}
+            onFinish={handleFinishSearch}
           />
           <ExternalItemGroupEditModal
             day={() => neverNullDayDiet}
@@ -129,11 +147,7 @@ export default function DayMeals(props: { selectedDay: string }) {
                         <a
                           class="font-bold text-blue-500 hover:cursor-pointer "
                           onClick={() => {
-                            // TODO: Implement redirect to today
-                            alert(
-                              'TODO: Implementar redirecionamento para o dia de hoje',
-                            )
-                            // router.push('/diet/' + today)
+                            setTargetDay(today)
                           }}
                         >
                           Mostrar refeições de hoje
@@ -171,8 +185,7 @@ export default function DayMeals(props: { selectedDay: string }) {
                       handleUpdateMeal(currentDayDiet_, meal).catch((e) => {
                         console.error(e)
                         toast.error(
-                          'Erro ao atualizar refeição: \n' +
-                            JSON.stringify(e, null, 2),
+                          `Erro ao atualizar refeição: ${formatError(e)}`,
                         )
                       })
                     }}
@@ -207,49 +220,6 @@ export default function DayMeals(props: { selectedDay: string }) {
   )
 }
 
-function ExternalTemplateSearchModal(props: {
-  visible: Accessor<boolean>
-  setVisible: Setter<boolean>
-  day: Accessor<DayDiet>
-}) {
-  const handleNewItemGroup = (newGroup: ItemGroup) => {
-    const newItemSelection_ = newItemSelection()
-    if (newItemSelection_ === null) {
-      throw new Error('No meal selected!')
-    }
-
-    insertItemGroup(props.day().id, newItemSelection_.meal.id, newGroup)
-  }
-
-  createEffect(() => {
-    if (!props.visible()) {
-      setNewItemSelection(null)
-    }
-  })
-
-  const handleFinishSearch = () => {
-    setNewItemSelection(null)
-    props.setVisible(false)
-  }
-
-  return (
-    <Show when={newItemSelection()}>
-      {(newItemSelection) => (
-        <ModalContextProvider
-          visible={props.visible}
-          setVisible={props.setVisible}
-        >
-          <TemplateSearchModal
-            targetName={newItemSelection().meal.name}
-            onFinish={handleFinishSearch}
-            onNewItemGroup={handleNewItemGroup}
-          />
-        </ModalContextProvider>
-      )}
-    </Show>
-  )
-}
-
 function ExternalItemGroupEditModal(props: {
   visible: Accessor<boolean>
   setVisible: Setter<boolean>
@@ -269,7 +239,7 @@ function ExternalItemGroupEditModal(props: {
           setVisible={props.setVisible}
         >
           <ItemGroupEditModal
-            group={() => editSelection().itemGroup ?? null}
+            group={() => editSelection().itemGroup}
             setGroup={(group) => {
               if (group === null) {
                 console.error('group is null!')
@@ -284,16 +254,10 @@ function ExternalItemGroupEditModal(props: {
               editSelection().meal.name ?? 'ERROR: No meal selected'
             }
             onSaveGroup={(group) => {
-              console.debug(
-                `[DayMeals] (<ItemGroupEditModal/>) Saving group: ${JSON.stringify(
-                  group,
-                )}`,
-              )
-
               updateItemGroup(
                 props.day().id,
                 editSelection().meal.id,
-                group.id, // TODO: Get id from selection instead of group parameter (avoid bugs if id is changed)
+                group.id, // TODO: Get id from selection instead of group parameter (avoid bugs if id is changed).
                 group,
               )
 
