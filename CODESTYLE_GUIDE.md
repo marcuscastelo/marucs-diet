@@ -298,6 +298,30 @@ if (groupRecipe.id !== group.recipe) {
 
 ---
 
+## 🛑 Error Handling Standard
+
+All domain and application errors must be reported using the shared error handler utility:
+
+- Use `handleApiError` from `~/shared/error/errorHandler` to log, report, or propagate errors.
+- Never throw or log errors directly in domain/application code without also calling `handleApiError`.
+- Always provide context (component, operation, additionalData) for traceability.
+
+**Example:**
+```typescript
+import { handleApiError } from '~/shared/error/errorHandler'
+
+if (somethingWentWrong) {
+  handleApiError(new Error('Something went wrong'), {
+    component: 'itemGroupDomain',
+    operation: 'isRecipedGroupUpToDate',
+    additionalData: { groupId, groupRecipeId }
+  })
+  throw new Error('Something went wrong')
+}
+```
+
+---
+
 ## 10. **Migration Checklist**
 
 ### Phase 1: Editor Pattern Elimination

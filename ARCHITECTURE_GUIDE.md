@@ -159,3 +159,25 @@ For idiomatic code patterns, concrete anti-patterns, and real codebase examples,
 All code, comments, documentation, and commit messages must be written strictly in English. The only exception is user-facing UI text, which may be in Portuguese if required by the product. Any other use of Portuguese is strictly prohibited.
 
 ---
+
+## 🛑 Error Handling Standard
+
+All domain and application errors must be reported using the shared error handler utility:
+
+- Use `handleApiError` from `~/shared/error/errorHandler` to log, report, or propagate errors.
+- Never throw or log errors directly in domain/application code without also calling `handleApiError`.
+- Always provide context (component, operation, additionalData) for traceability.
+
+**Example:**
+```typescript
+import { handleApiError } from '~/shared/error/errorHandler'
+
+if (somethingWentWrong) {
+  handleApiError(new Error('Something went wrong'), {
+    component: 'itemGroupDomain',
+    operation: 'isRecipedGroupUpToDate',
+    additionalData: { groupId, groupRecipeId }
+  })
+  throw new Error('Something went wrong')
+}
+```
