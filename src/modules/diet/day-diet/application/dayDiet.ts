@@ -16,16 +16,16 @@ import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 import { formatError } from '~/shared/formatError'
 
 export function createDayDiet({
-  targetDay,
+  target_day: targetDay,
   owner,
   meals = [],
 }: {
-  targetDay: string
+  target_day: string
   owner: number
   meals?: DayDiet['meals']
 }): NewDayDiet {
   return createNewDayDiet({
-    targetDay,
+    target_day: targetDay,
     owner,
     meals,
   })
@@ -73,7 +73,7 @@ registerSubapabaseRealtimeCallback(SUPABASE_TABLE_DAYS, () => {
  */
 createEffect(() => {
   const dayDiet = dayDiets().find(
-    (dayDiet) => dayDiet.targetDay === targetDay(),
+    (dayDiet) => dayDiet.target_day === targetDay(),
   )
 
   if (dayDiet === undefined) {

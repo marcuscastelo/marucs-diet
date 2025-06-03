@@ -104,7 +104,7 @@ const onSaveMacroProfile = (profile: MacroProfile) => {
       profile.id,
       createNewMacroProfile({
         owner: profile.owner,
-        targetDay: profile.target_day,
+        target_day: profile.target_day,
         gramsPerKgCarbs: profile.gramsPerKgCarbs,
         gramsPerKgProtein: profile.gramsPerKgProtein,
         gramsPerKgFat: profile.gramsPerKgFat,
@@ -120,7 +120,7 @@ const onSaveMacroProfile = (profile: MacroProfile) => {
     insertMacroProfile(
       createNewMacroProfile({
         ...profile,
-        targetDay: new Date(getTodayYYYYMMDD()),
+        target_day: new Date(getTodayYYYYMMDD()),
       }),
     ).catch(console.error)
   } else {
