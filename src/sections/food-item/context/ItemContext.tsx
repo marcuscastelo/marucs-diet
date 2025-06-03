@@ -5,7 +5,6 @@ import {
   createContext,
   useContext,
 } from 'solid-js'
-import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 
 // TODO: Rename to TemplateItemContext
 const ItemContext = createContext<{
@@ -20,9 +19,7 @@ export function useItemContext() {
   const context = useContext(ItemContext)
 
   if (context === null) {
-    throw new Error(
-      'useItemContext must be used within a ItemContextProvider',
-    )
+    throw new Error('useItemContext must be used within a ItemContextProvider')
   }
 
   return context

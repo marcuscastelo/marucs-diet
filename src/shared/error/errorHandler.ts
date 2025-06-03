@@ -4,10 +4,10 @@
  * use these utilities or pass errors to their parent components.
  */
 
-import toast from "solid-toast"
-import { formatError } from "../formatError"
+import toast from 'solid-toast'
+import { formatError } from '../formatError'
 
-export interface ErrorContext {
+export type ErrorContext = {
   component?: string
   operation?: string
   userId?: string
@@ -19,18 +19,24 @@ export interface ErrorContext {
  */
 export function logError(error: unknown, context?: ErrorContext): void {
   const timestamp = new Date().toISOString()
-  const contextStr = context ? 
-    `[${context.component}${context.operation ? `::${context.operation}` : ''}]` : 
-    '[Unknown]'
-  
+  const componentStr =
+    typeof context?.component === 'string' && context.component.trim() !== ''
+      ? context.component
+      : 'Unknown'
+  const operationStr =
+    typeof context?.operation === 'string' && context.operation.trim() !== ''
+      ? `::${context.operation}`
+      : ''
+  const contextStr = `[${componentStr}${operationStr}]`
+
   console.error(`${timestamp} ${contextStr} Error:`, error)
 
   toast.error(formatError(error))
-  
-  if (context?.additionalData) {
+
+  if (context?.additionalData !== undefined) {
     console.error('Additional context:', context.additionalData)
   }
-  
+
   // In the future, this could send errors to a monitoring service
   // e.g., Sentry, LogRocket, etc.
 }
@@ -39,26 +45,38 @@ export function logError(error: unknown, context?: ErrorContext): void {
  * Handle errors related to API operations
  */
 export function handleApiError(error: unknown, context?: ErrorContext): void {
-  logError(error, { ...context, operation: `${context?.operation || 'API'} request` })
+  logError(error, {
+    ...context,
+    operation: `${context?.operation ?? 'API'} request`,
+  })
 }
 
 /**
- * Handle errors related to clipboard operations  
+ * Handle errors related to clipboard operations
  */
-export function handleClipboardError(error: unknown, context?: ErrorContext): void {
+export function handleClipboardError(
+  error: unknown,
+  context?: ErrorContext,
+): void {
   logError(error, { ...context, operation: 'Clipboard operation' })
 }
 
 /**
  * Handle errors related to scanner/hardware operations
  */
-export function handleScannerError(error: unknown, context?: ErrorContext): void {
+export function handleScannerError(
+  error: unknown,
+  context?: ErrorContext,
+): void {
   logError(error, { ...context, operation: 'Scanner operation' })
 }
 
 /**
  * Handle validation/business logic errors
  */
-export function handleValidationError(error: unknown, context?: ErrorContext): void {
+export function handleValidationError(
+  error: unknown,
+  context?: ErrorContext,
+): void {
   logError(error, { ...context, operation: 'Validation' })
 }

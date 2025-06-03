@@ -1,5 +1,8 @@
 import { type Loadable } from '~/legacy/utils/loadable'
-import { type Measure, createNewMeasure } from '~/modules/measure/domain/measure'
+import {
+  type Measure,
+  createNewMeasure,
+} from '~/modules/measure/domain/measure'
 import { MeasureChart } from '~/sections/profile/measure/components/MeasureChart'
 import { MeasureView } from '~/sections/profile/measure/components/MeasureView'
 import { useFloatField } from '~/sections/common/hooks/useField'
@@ -127,15 +130,13 @@ export function MeasuresEvolution() {
                   waist: waistField.value() ?? 0,
                   hip: hipField.value() ?? 0,
                   neck: neckField.value() ?? 0,
-                  target_timestamp: new Date(Date.now()),
+                  targetTimestamp: new Date(Date.now()),
                 }),
               )
                 .then(afterInsert)
                 .catch((error) => {
                   console.error(error)
-                  toast.error(
-                    `Erro ao adicionar medida: ${formatError(error)}`,
-                  )
+                  toast.error(`Erro ao adicionar medida: ${formatError(error)}`)
                 })
             }}
           >

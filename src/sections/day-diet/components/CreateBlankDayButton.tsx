@@ -5,6 +5,8 @@ import {
 import { createMeal } from '~/modules/diet/meal/domain/meal'
 import { currentUser } from '~/modules/user/application/user'
 import { Show } from 'solid-js'
+import { toastPromise } from '~/shared/toastPromise'
+import { formatError } from '~/shared/formatError'
 
 // TODO: Make meal names editable and persistent by user
 const DEFAULT_MEALS = [
@@ -22,13 +24,20 @@ export function CreateBlankDayButton(props: { selectedDay: string }) {
         <button
           class="btn-primary btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white"
           onClick={() => {
-            insertDayDiet(
-              createDayDiet({
-                owner: currentUser().id,
-                target_day: props.selectedDay,
-                meals: DEFAULT_MEALS,
-              }),
-            )
+            toastPromise(
+              insertDayDiet(
+                createDayDiet({
+                  owner: currentUser().id,
+                  targetDay: props.selectedDay,
+                  meals: DEFAULT_MEALS,
+                }),
+              ),
+              {
+                loading: 'Criando dia...',
+                success: 'Dia criado com sucesso',
+                error: (error) => `Erro ao criar dia: ${formatError(error)}`,
+              },
+            ).catch(() => {})
           }}
         >
           Criar dia do zero

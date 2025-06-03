@@ -1,6 +1,5 @@
-import { itemSchema, type Item } from '~/modules/diet/item/domain/item'
+import { type Item } from '~/modules/diet/item/domain/item'
 import { Editor } from '~/legacy/utils/data/editor'
-import { deepCopy } from '../deepCopy'
 
 // TODO: Remove deprecated ItemEditor - Replace with pure functions in item/application/
 /**
@@ -16,7 +15,5 @@ export class ItemEditor extends Editor<Item, Item> {
     return this
   }
 
-  protected override onFinish() { 
-
-  }
+  protected override onFinish() {}
 }

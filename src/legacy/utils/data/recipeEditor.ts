@@ -44,10 +44,11 @@ export class RecipeEditor extends Editor<Recipe> implements ItemContainer {
     callback: (editor: Omit<ItemEditor, 'finish'> | undefined) => void,
   ) {
     const item = this.findItem(id)
-    const editor = item && new ItemEditor(item)
+    const editor =
+      item !== undefined && item !== null ? new ItemEditor(item) : undefined
     callback(editor)
     const newItem = editor?.finish()
-    if (newItem) {
+    if (newItem !== undefined && newItem !== null) {
       const index = this.recipe.items.findIndex((item) => item.id === id)
       this.recipe.items.splice(index, 1, newItem)
     }
@@ -90,6 +91,5 @@ export class RecipeEditor extends Editor<Recipe> implements ItemContainer {
     return this
   }
 
-  protected override onFinish(): void {
-  }
+  protected override onFinish(): void {}
 }

@@ -47,16 +47,13 @@ function DefaultHeader() {
       copyButton={
         <ItemCopyButton
           onCopyItem={(item) => {
-            clipboard.write(
-              JSON.stringify(item),
-              (error) => {
-                handleClipboardError(error, {
-                  component: 'ItemListView',
-                  operation: 'copyItem',
-                  additionalData: { itemId: item.reference },
-                })
-              }
-            )
+            clipboard.write(JSON.stringify(item), (error) => {
+              handleClipboardError(error, {
+                component: 'ItemListView',
+                operation: 'copyItem',
+                additionalData: { itemId: item.reference },
+              })
+            })
           }}
         />
       }

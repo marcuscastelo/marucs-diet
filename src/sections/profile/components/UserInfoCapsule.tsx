@@ -90,7 +90,10 @@ export function UserInfoCapsule<T extends keyof Omit<User, '__type'>>(props: {
   )
 }
 
-function LeftContent(props: { field: keyof Omit<User, '__type'>; extra?: string }) {
+function LeftContent(props: {
+  field: keyof Omit<User, '__type'>
+  extra?: string
+}) {
   return (
     <CapsuleContent>
       <h5

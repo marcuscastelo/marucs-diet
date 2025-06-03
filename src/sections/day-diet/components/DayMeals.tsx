@@ -96,12 +96,11 @@ export default function DayMeals(props: { selectedDay: string }) {
     setTemplateSearchModalVisible(true)
   }
 
-  const handleNewItemGroup = (dayDiet: DayDiet) => (newGroup: ItemGroup) => {
+  const handleNewItemGroup = (dayDiet: DayDiet, newGroup: ItemGroup) => {
     const newItemSelection_ = newItemSelection()
     if (newItemSelection_ === null) {
       throw new Error('No meal selected!')
     }
-
     insertItemGroup(dayDiet.id, newItemSelection_.meal.id, newGroup)
   }
 
@@ -123,8 +122,12 @@ export default function DayMeals(props: { selectedDay: string }) {
             onRefetch={() => {
               console.warn('[DayMeals] onRefetch called!')
             }}
-            targetName={newItemSelection()?.meal.name ?? 'Nenhuma refeição selecionada'}
-            onNewItemGroup={handleNewItemGroup(neverNullDayDiet)}
+            targetName={
+              newItemSelection()?.meal.name ?? 'Nenhuma refeição selecionada'
+            }
+            onNewItemGroup={(newGroup) => {
+              handleNewItemGroup(neverNullDayDiet, newGroup)
+            }}
             onFinish={handleFinishSearch}
           />
           <ExternalItemGroupEditModal

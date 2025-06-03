@@ -4,7 +4,10 @@ import {
 } from '~/modules/diet/day-diet/application/dayDiet'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type Item } from '~/modules/diet/item/domain/item'
-import { type ItemGroup, createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import {
+  type ItemGroup,
+  createSimpleItemGroup,
+} from '~/modules/diet/item-group/domain/itemGroup'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { BackIcon } from '~/sections/common/components/icons/BackIcon'
 import { FloatInput } from '~/sections/common/components/FloatInput'
@@ -12,10 +15,7 @@ import { LoadingRing } from '~/sections/common/components/LoadingRing'
 import { Modal } from '~/sections/common/components/Modal'
 import { PageLoading } from '~/sections/common/components/PageLoading'
 import { TestChart } from '~/sections/common/components/charts/TestChart'
-import {
-  ConfirmModalProvider,
-  useConfirmModalContext,
-} from '~/sections/common/context/ConfirmModalContext'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import Datepicker from '~/sections/datepicker/components/Datepicker'
@@ -37,8 +37,7 @@ import toast from 'solid-toast'
 import { BarCodeIcon } from '~/sections/common/components/icons/BarCodeIcon'
 
 export default function TestApp() {
-  const [itemEditModalVisible, setItemEditModalVisible] =
-    createSignal(false)
+  const [itemEditModalVisible, setItemEditModalVisible] = createSignal(false)
   const [itemGroupEditModalVisible, setItemGroupEditModalVisible] =
     createSignal(false)
   const [templateSearchModalVisible, setTemplateSearchModalVisible] =
@@ -57,10 +56,12 @@ export default function TestApp() {
     reference: 31606,
   })
 
-  const [group, setGroup] = createSignal<ItemGroup>(createSimpleItemGroup({
-    name: 'Teste',
-    items: [],
-  }))
+  const [group, setGroup] = createSignal<ItemGroup>(
+    createSimpleItemGroup({
+      name: 'Teste',
+      items: [],
+    }),
+  )
 
   createEffect(() => {
     setGroup({
@@ -88,7 +89,7 @@ export default function TestApp() {
     id: 1,
     meals: [],
     owner: 3,
-    target_day: '2023-11-02',
+    targetDay: '2023-11-02',
   })
 
   createEffect(() => {
@@ -102,7 +103,7 @@ export default function TestApp() {
   // const [food, setFood] = createSignal<Food | null>(null)
   return (
     <>
-    <BarCodeIcon />
+      <BarCodeIcon />
       <TestChart />
 
       <Providers>

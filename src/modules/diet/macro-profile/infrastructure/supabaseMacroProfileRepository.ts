@@ -35,7 +35,7 @@ async function fetchUserMacroProfiles(userId: User['id']) {
     handleApiError(error, {
       component: 'supabaseMacroProfileRepository',
       operation: 'fetchUserMacroProfiles',
-      additionalData: { userId }
+      additionalData: { userId },
     })
     throw error
   }
@@ -44,8 +44,11 @@ async function fetchUserMacroProfiles(userId: User['id']) {
   return macroProfileDAOs.map(createMacroProfileFromDAO)
 }
 
-async function insertMacroProfile(newMacroProfile: NewMacroProfile): Promise<MacroProfile | null> {
-  const createDAO = createInsertMacroProfileDAOFromNewMacroProfile(newMacroProfile)
+async function insertMacroProfile(
+  newMacroProfile: NewMacroProfile,
+): Promise<MacroProfile | null> {
+  const createDAO =
+    createInsertMacroProfileDAOFromNewMacroProfile(newMacroProfile)
   const { data, error } = await supabase
     .from(SUPABASE_TABLE_MACRO_PROFILES)
     .insert(createDAO)
@@ -55,7 +58,7 @@ async function insertMacroProfile(newMacroProfile: NewMacroProfile): Promise<Mac
     handleApiError(error, {
       component: 'supabaseMacroProfileRepository',
       operation: 'insertMacroProfile',
-      additionalData: { macroProfile: newMacroProfile }
+      additionalData: { macroProfile: newMacroProfile },
     })
     throw error
   }
@@ -70,7 +73,8 @@ async function updateMacroProfile(
   profileId: MacroProfile['id'],
   newMacroProfile: NewMacroProfile,
 ): Promise<MacroProfile | null> {
-  const updateDAO = createUpdateMacroProfileDAOFromNewMacroProfile(newMacroProfile)
+  const updateDAO =
+    createUpdateMacroProfileDAOFromNewMacroProfile(newMacroProfile)
   const { data, error } = await supabase
     .from(SUPABASE_TABLE_MACRO_PROFILES)
     .update(updateDAO)
@@ -81,7 +85,7 @@ async function updateMacroProfile(
     handleApiError(error, {
       component: 'supabaseMacroProfileRepository',
       operation: 'updateMacroProfile',
-      additionalData: { profileId, macroProfile: newMacroProfile }
+      additionalData: { profileId, macroProfile: newMacroProfile },
     })
     throw error
   }
@@ -102,7 +106,7 @@ async function deleteMacroProfile(id: MacroProfile['id']) {
     handleApiError(error, {
       component: 'supabaseMacroProfileRepository',
       operation: 'deleteMacroProfile',
-      additionalData: { id }
+      additionalData: { id },
     })
     throw error
   }

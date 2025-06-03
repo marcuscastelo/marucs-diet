@@ -1,17 +1,11 @@
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { RecipeEditModal } from '~/sections/recipe/components/RecipeEditModal'
-import {
-  ModalContextProvider,
-} from '~/sections/common/context/ModalContext'
+import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import {
   deleteRecipe,
   updateRecipe,
 } from '~/modules/diet/recipe/application/recipe'
-import {
-  type Accessor,
-  type Setter,
-  Show,
-} from 'solid-js'
+import { type Accessor, type Setter, Show } from 'solid-js'
 
 export function ExternalRecipeEditModal(props: {
   recipe: Recipe | null

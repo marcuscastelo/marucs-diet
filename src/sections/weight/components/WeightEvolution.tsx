@@ -89,9 +89,7 @@ export function WeightEvolution() {
                 .then(afterInsert)
                 .catch((error) => {
                   console.error(error)
-                  toast.error(
-                    `Erro ao adicionar peso: ${formatError(error)}`,
-                  )
+                  toast.error(`Erro ao adicionar peso: ${formatError(error)}`)
                 })
             }}
           >
@@ -206,9 +204,7 @@ function WeightView(props: { weight: Weight }) {
             onClick={() => {
               deleteWeight(props.weight.id).catch((error) => {
                 console.error(error)
-                toast.error(
-                  `Erro ao deletar peso: ${formatError(error)}`,
-                )
+                toast.error(`Erro ao deletar peso: ${formatError(error)}`)
               })
             }}
           >

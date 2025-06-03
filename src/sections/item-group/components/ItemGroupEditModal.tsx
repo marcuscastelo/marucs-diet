@@ -3,7 +3,6 @@ import {
   type RecipedItemGroup,
   isSimpleSingleGroup,
   itemGroupSchema,
-  recipedItemGroupSchema,
   getItemGroupQuantity,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { Modal } from '~/sections/common/components/Modal'
@@ -14,16 +13,15 @@ import {
   ItemHeader,
   ItemName,
 } from '~/sections/food-item/components/ItemView'
-import {
-  type Item,
-  createItem,
-  itemSchema,
-} from '~/modules/diet/item/domain/item'
+import { type Item, itemSchema } from '~/modules/diet/item/domain/item'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { ExternalItemEditModal } from '~/sections/food-item/components/ExternalItemEditModal'
 import { RecipeIcon } from '~/sections/common/components/icons/RecipeIcon'
-import { type Recipe, createNewRecipe } from '~/modules/diet/recipe/domain/recipe'
+import {
+  type Recipe,
+  createNewRecipe,
+} from '~/modules/diet/recipe/domain/recipe'
 import { ExternalRecipeEditModal } from './ExternalRecipeEditModal'
 import { type Loadable } from '~/legacy/utils/loadable'
 
@@ -41,9 +39,7 @@ import {
   type ConfirmModalContext,
   useConfirmModalContext,
 } from '~/sections/common/context/ConfirmModalContext'
-import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { PasteIcon } from '~/sections/common/components/icons/PasteIcon'
-import { deserializeClipboard } from '~/legacy/utils/clipboardUtils'
 import { regenerateId } from '~/legacy/utils/idUtils'
 // TODO: Remove deprecated ItemGroupEditor usage - Replace with pure functions
 import { ItemGroupEditor } from '~/legacy/utils/data/itemGroupEditor'
@@ -151,8 +147,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   const { show: showConfirmModal } = useConfirmModalContext()
   const [recipeEditModalVisible, setRecipeEditModalVisible] =
     createSignal(false)
-  const [itemEditModalVisible, setItemEditModalVisible] =
-    createSignal(false)
+  const [itemEditModalVisible, setItemEditModalVisible] = createSignal(false)
   const [templateSearchModalVisible, setTemplateSearchModalVisible] =
     createSignal(false)
 
@@ -259,7 +254,9 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
         if (currentItem === undefined) {
           return { enable: false }
         }
-        const originalItem = persistentGroup_.items.find((i: Item) => i.id === currentItem.id)
+        const originalItem = persistentGroup_.items.find(
+          (i: Item) => i.id === currentItem.id,
+        )
         if (originalItem === undefined) {
           console.error('[ExternalItemEditModal] originalItem is not found')
           return { enable: false }
@@ -269,11 +266,11 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
 
       const currentDayDiet_ = currentDayDiet()
       const macroTarget_ = macroTarget(stringToDate(targetDay()))
-      
+
       return isOverflow(item, property, {
         currentDayDiet: currentDayDiet_,
         macroTarget: macroTarget_,
-        macroOverflowOptions
+        macroOverflowOptions,
       })
     }
 
@@ -367,11 +364,14 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
                 targetName={(() => {
                   const group_ = group()
                   if (group_ !== null) {
-                    const simpleGroup = group_ !== null && isSimpleSingleGroup(group_)
+                    const simpleGroup =
+                      group_ !== null && isSimpleSingleGroup(group_)
                     const receivedName = simpleGroup
                       ? props.targetMealName
                       : group_.name
-                    return receivedName.length > 0 ? receivedName : 'Erro: Nome vazio'
+                    return receivedName.length > 0
+                      ? receivedName
+                      : 'Erro: Nome vazio'
                   }
                   return 'Erro: Grupo de alimentos nulo'
                 })()}
@@ -387,9 +387,13 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
                     return { enable: false }
                   }
                   const item = selectedItem()
-                  const originalItem = persistentGroup_.items.find((i: Item) => i.id === item.id)
+                  const originalItem = persistentGroup_.items.find(
+                    (i: Item) => i.id === item.id,
+                  )
                   if (originalItem === undefined) {
-                    console.error('[ExternalItemEditModal] originalItem is not found')
+                    console.error(
+                      '[ExternalItemEditModal] originalItem is not found',
+                    )
                     return { enable: false }
                   }
                   return { enable: true, originalItem }
@@ -404,7 +408,9 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
             visible={templateSearchModalVisible}
             setVisible={setTemplateSearchModalVisible}
             onRefetch={props.onRefetch}
-            targetName={group()?.name ?? 'ERRO: Grupo de alimentos não especificado'}
+            targetName={
+              group()?.name ?? 'ERRO: Grupo de alimentos não especificado'
+            }
             onNewItemGroup={handleNewItemGroup}
           />
           <ModalContextProvider visible={visible} setVisible={setVisible}>
@@ -476,7 +482,9 @@ function Body(props: {
   const { group, setGroup } = useItemGroupEditContext()
   const recipedGroup = createMemo(() => {
     const currentGroup = group()
-    return currentGroup.type === 'recipe' && currentGroup.recipe !== null ? currentGroup : null
+    return currentGroup.type === 'recipe' && currentGroup.recipe !== null
+      ? currentGroup
+      : null
   })
 
   const {
@@ -849,7 +857,11 @@ function PreparedQuantityWrapper(props: {
     <PreparedQuantity
       rawQuantity={rawQuantity()}
       preparedMultiplier={props.recipe?.prepared_multiplier ?? 1}
-      onPreparedQuantityChange={({ newPreparedQuantity, newMultiplier, newRawQuantity }) => {
+      onPreparedQuantityChange={({
+        newPreparedQuantity,
+        newMultiplier,
+        newRawQuantity,
+      }) => {
         console.debug(
           '[PreparedQuantity] onPreparedQuantityChange: ',
           newPreparedQuantity(),

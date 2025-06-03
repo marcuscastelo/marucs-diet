@@ -3,17 +3,17 @@ import { FloatInput } from '~/sections/common/components/FloatInput'
 import { cn } from '~/shared/cn'
 import { type Accessor, createMemo } from 'solid-js'
 
-export interface PreparedQuantityProps {
+export type PreparedQuantityProps = {
   /**
    * The raw (unprepared) quantity value
    */
   rawQuantity: number
-  
+
   /**
    * The prepared multiplier to calculate prepared quantity
    */
   preparedMultiplier: number
-  
+
   /**
    * Callback called when the user commits a new prepared quantity value
    */
@@ -25,12 +25,12 @@ export interface PreparedQuantityProps {
     /** The calculated new raw quantity (newPreparedQuantity / preparedMultiplier) */
     newRawQuantity: Accessor<number>
   }) => void
-  
+
   /**
    * Optional CSS class to apply to the container
    */
   class?: string
-  
+
   /**
    * Optional style to apply to the input
    */
@@ -39,7 +39,7 @@ export interface PreparedQuantityProps {
 
 /**
  * A reusable component for editing prepared quantities.
- * 
+ *
  * This component displays the current prepared quantity (rawQuantity * preparedMultiplier)
  * and allows the user to edit it directly. When the user changes the prepared quantity,
  * it calculates the new multiplier and calls the onPreparedQuantityChange callback.
@@ -62,13 +62,18 @@ export function PreparedQuantity(props: PreparedQuantityProps) {
         }}
         onFieldCommit={(newPreparedQuantity) => {
           const newPreparedQuantityAccessor = () => newPreparedQuantity
-          const newMultiplierAccessor = createMemo(() => (newPreparedQuantity ?? props.rawQuantity) / props.rawQuantity)
-          const newRawQuantityAccessor = createMemo(() => (newPreparedQuantity ?? 0) / props.preparedMultiplier)
-          
+          const newMultiplierAccessor = createMemo(
+            () =>
+              (newPreparedQuantity ?? props.rawQuantity) / props.rawQuantity,
+          )
+          const newRawQuantityAccessor = createMemo(
+            () => (newPreparedQuantity ?? 0) / props.preparedMultiplier,
+          )
+
           props.onPreparedQuantityChange({
             newPreparedQuantity: newPreparedQuantityAccessor,
             newMultiplier: newMultiplierAccessor,
-            newRawQuantity: newRawQuantityAccessor
+            newRawQuantity: newRawQuantityAccessor,
           })
         }}
         style={{ width: '100%', ...props.style }}

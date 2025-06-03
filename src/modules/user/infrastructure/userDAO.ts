@@ -19,7 +19,9 @@ export type CreateUserDAO = z.infer<typeof createUserDAOSchema>
 export type UserDAO = z.infer<typeof userDAOSchema>
 
 // Conversion functions
-export function createInsertUserDAOFromNewUser(newUser: NewUser): CreateUserDAO {
+export function createInsertUserDAOFromNewUser(
+  newUser: NewUser,
+): CreateUserDAO {
   return {
     name: newUser.name,
     favorite_foods: newUser.favorite_foods,
@@ -30,7 +32,9 @@ export function createInsertUserDAOFromNewUser(newUser: NewUser): CreateUserDAO 
   }
 }
 
-export function createUpdateUserDAOFromNewUser(newUser: NewUser): CreateUserDAO {
+export function createUpdateUserDAOFromNewUser(
+  newUser: NewUser,
+): CreateUserDAO {
   return createInsertUserDAOFromNewUser(newUser)
 }
 

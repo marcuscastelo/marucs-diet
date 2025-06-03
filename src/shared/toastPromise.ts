@@ -1,7 +1,7 @@
 import toast from 'solid-toast'
 import { handleApiError } from './error/errorHandler'
 
-export interface ToastPromiseOptions<T> {
+export type ToastPromiseOptions<T> = {
   loading: string
   success: string | ((data: T) => string)
   error: string | ((error: unknown) => string)
@@ -13,33 +13,33 @@ export interface ToastPromiseOptions<T> {
  */
 export async function toastPromise<T>(
   promise: Promise<T>,
-  options: ToastPromiseOptions<T>
+  options: ToastPromiseOptions<T>,
 ): Promise<T> {
   const toastId = toast.loading(options.loading)
-  
+
   try {
     const result = await promise
-    
-    const successMessage = typeof options.success === 'function' 
-      ? options.success(result) 
-      : options.success
-    
+
+    const successMessage =
+      typeof options.success === 'function'
+        ? options.success(result)
+        : options.success
+
     toast.success(successMessage, { id: toastId })
     return result
   } catch (error) {
-    const errorMessage = typeof options.error === 'function' 
-      ? options.error(error) 
-      : options.error
+    const errorMessage =
+      typeof options.error === 'function' ? options.error(error) : options.error
 
     handleApiError(error, {
       component: 'ToastPromise',
       operation: 'toastPromise',
-      additionalData : {
+      additionalData: {
         options,
         errorMessage,
-      }, 
+      },
     })
-    
+
     toast.error(errorMessage, { id: toastId })
     throw error
   }

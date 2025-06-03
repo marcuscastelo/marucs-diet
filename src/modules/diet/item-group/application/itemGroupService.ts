@@ -34,7 +34,7 @@ export type GroupConvertible =
 export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
   if (Array.isArray(convertible)) {
     // Defensive: filter only valid ItemGroups
-    return (convertible as unknown[]).filter(isItemGroup) as ItemGroup[]
+    return convertible.filter(isItemGroup)
   }
   if (isRecipe(convertible)) {
     return [
@@ -60,7 +60,9 @@ export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
     return [{ ...convertible }]
   }
   handleApiError(
-    new Error(`Unsupported convertible type: ${getTypeDescription(convertible)}`),
+    new Error(
+      `Unsupported convertible type: ${getTypeDescription(convertible)}`,
+    ),
     {
       component: 'itemGroupService',
       operation: 'convertToGroups',

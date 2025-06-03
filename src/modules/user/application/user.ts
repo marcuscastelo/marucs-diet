@@ -1,4 +1,8 @@
-import { type User, type NewUser, demoteToNewUser } from '~/modules/user/domain/user'
+import {
+  type User,
+  type NewUser,
+  demoteToNewUser,
+} from '~/modules/user/domain/user'
 import {
   loadUserIdFromLocalStorage,
   saveUserIdToLocalStorage,
@@ -8,7 +12,7 @@ import {
   SUPABASE_TABLE_USERS,
 } from '~/modules/user/infrastructure/supabaseUserRepository'
 import { createEffect, createSignal } from 'solid-js'
-import toast from 'solid-toast'
+import { toastPromise } from '~/shared/toastPromise'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 
@@ -22,25 +26,25 @@ export const [currentUser, setCurrentUser] = createSignal<User | null>(null)
 
 export const [currentUserId, setCurrentUserId] = createSignal<number>(1)
 
-createEffect(async () => {
+createEffect(() => {
   if (currentUserId() !== null) {
     setCurrentUserId(loadUserIdFromLocalStorage())
-    await toast.promise(fetchCurrentUser(), {
+    toastPromise(fetchCurrentUser(), {
       loading: 'Carregando usuário atual...',
       success: 'Usuário atual carregado com sucesso',
       error: 'Falha ao carregar usuário atual',
-    })
+    }).catch(() => {})
   }
 })
 
 function bootstrap() {
-  fetchUsers().catch((error) => 
+  fetchUsers().catch((error) => {
     handleApiError(error, {
       component: 'userApplication',
       operation: 'bootstrap',
-      additionalData: {}
+      additionalData: {},
     })
-  )
+  })
 }
 
 /**
@@ -79,7 +83,7 @@ export async function updateUser(
   userId: User['id'],
   newUser: NewUser,
 ): Promise<User | null> {
-  const user = await toast.promise(userRepository.updateUser(userId, newUser), {
+  const user = await toastPromise(userRepository.updateUser(userId, newUser), {
     loading: 'Atualizando informações do usuário...',
     success: 'Informações do usuário atualizadas com sucesso',
     error: 'Falha ao atualizar informações do usuário',
@@ -126,11 +130,11 @@ export function setFoodAsFavorite(foodId: number, favorite: boolean): void {
     favorite_foods: favoriteFoods,
   })
     .then(fetchCurrentUser)
-    .catch((error) => 
+    .catch((error) => {
       handleApiError(error, {
         component: 'userApplication',
         operation: 'toggleFavoriteFood',
-        additionalData: { foodId }
+        additionalData: { foodId },
       })
-    )
+    })
 }

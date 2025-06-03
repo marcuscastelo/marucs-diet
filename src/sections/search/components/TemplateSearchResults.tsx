@@ -1,5 +1,5 @@
 import { type Accessor, For, type Setter, Show } from 'solid-js'
-import toast from 'solid-toast'
+import { toastPromise } from '~/shared/toastPromise'
 import { deleteRecentFoodByFoodId } from '~/legacy/controllers/recentFood'
 import { calcRecipeMacros } from '~/legacy/utils/macroMath'
 import { createItem } from '~/modules/diet/item/domain/item'
@@ -53,9 +53,10 @@ export function TemplateSearchResults(props: {
                     ...createItem({
                       name: template().name,
                       quantity: 100,
-                      macros: template().__type === 'Food' 
-                        ? (template() as Food).macros 
-                        : calcRecipeMacros(template() as Recipe),
+                      macros:
+                        template().__type === 'Food'
+                          ? (template() as Food).macros
+                          : calcRecipeMacros(template() as Recipe),
                       reference: template().id,
                     }),
                     __type:
@@ -89,29 +90,28 @@ export function TemplateSearchResults(props: {
                             onClick={(e) => {
                               e.stopPropagation()
                               e.preventDefault()
-                              toast
-                                .promise(
-                                  deleteRecentFoodByFoodId(
-                                    currentUserId(),
-                                    template().id,
-                                  ),
-                                  {
-                                    loading:
-                                      'Removendo alimento da lista de recentes...',
-                                    success:
-                                      'Alimento removido da lista de recentes com sucesso!',
-                                    error:
-                                      'Erro ao remover alimento da lista de recentes.',
+                              toastPromise(
+                                deleteRecentFoodByFoodId(
+                                  currentUserId(),
+                                  template().id,
+                                ),
+                                {
+                                  loading:
+                                    'Removendo alimento da lista de recentes...',
+                                  success:
+                                    'Alimento removido da lista de recentes com sucesso!',
+                                  error: (err) => {
+                                    handleApiError(err, {
+                                      component: 'TemplateSearchResults',
+                                      operation: 'deleteRecentFood',
+                                      additionalData: { foodId: template().id },
+                                    })
+                                    return 'Erro ao remover alimento da lista de recentes.'
                                   },
-                                )
+                                },
+                              )
                                 .then(props.refetch)
-                                .catch((err) => {
-                                  handleApiError(err, {
-                                    component: 'TemplateSearchResults',
-                                    operation: 'deleteRecentFood',
-                                    additionalData: { foodId: template().id }
-                                  })
-                                })
+                                .catch(() => {})
                             }}
                           >
                             <TrashIcon size={20} />

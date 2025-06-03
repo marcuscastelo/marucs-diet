@@ -51,7 +51,10 @@ export function daoToMeal(dao: MealDAO): Meal {
 /**
  * Converts CreateMealDAO to MealDAO for database operations
  */
-export function createMealDAOToDAO(createDAO: CreateMealDAO, id: number): MealDAO {
+export function createMealDAOToDAO(
+  createDAO: CreateMealDAO,
+  id: number,
+): MealDAO {
   return mealDAOSchema.parse({
     id,
     name: createDAO.name,
@@ -62,7 +65,10 @@ export function createMealDAOToDAO(createDAO: CreateMealDAO, id: number): MealDA
 /**
  * Merges UpdateMealDAO with existing MealDAO for database updates
  */
-export function mergeUpdateMealDAO(existing: MealDAO, update: UpdateMealDAO): MealDAO {
+export function mergeUpdateMealDAO(
+  existing: MealDAO,
+  update: UpdateMealDAO,
+): MealDAO {
   return mealDAOSchema.parse({
     ...existing,
     ...update,

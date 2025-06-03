@@ -25,16 +25,21 @@ function normalizeNumericString(value: string): string {
 /**
  * Creates a transform for floating point numbers with validation
  */
-export function createFloatTransform(options: {
-  decimalPlaces?: number
-  defaultValue?: number
-  maxValue?: number
-} = {}): FieldTransform<number> {
+export function createFloatTransform(
+  options: {
+    decimalPlaces?: number
+    defaultValue?: number
+    maxValue?: number
+  } = {},
+): FieldTransform<number> {
   const { decimalPlaces = 2, defaultValue = 0, maxValue } = options
 
   return {
     toRaw: (value: number) => {
-      const clampedValue = maxValue ? Math.min(value, maxValue) : value
+      const clampedValue =
+        typeof maxValue === 'number' && !isNaN(maxValue)
+          ? Math.min(value, maxValue)
+          : value
       return clampedValue.toFixed(decimalPlaces)
     },
 
@@ -43,11 +48,16 @@ export function createFloatTransform(options: {
       const parsed = parseFloat(normalized)
 
       if (isNaN(parsed)) {
-        return maxValue ? Math.min(maxValue, defaultValue) : defaultValue
+        if (typeof maxValue === 'number' && !isNaN(maxValue)) {
+          return Math.min(maxValue, defaultValue)
+        }
+        return defaultValue
       }
 
       const fixed = parseFloat(parsed.toFixed(decimalPlaces))
-      return maxValue ? Math.min(maxValue, fixed) : fixed
+      return typeof maxValue === 'number' && !isNaN(maxValue)
+        ? Math.min(maxValue, fixed)
+        : fixed
     },
   }
 }

@@ -23,9 +23,11 @@ export const measureSchema = z.object({
     .transform(() => 'Measure' as const),
 })
 
-export const newMeasureSchema = measureSchema.omit({ id: true, __type: true }).extend({
-  __type: z.literal('NewMeasure'),
-})
+export const newMeasureSchema = measureSchema
+  .omit({ id: true, __type: true })
+  .extend({
+    __type: z.literal('NewMeasure'),
+  })
 
 // TODO: rename to BodyMeasure
 export type Measure = Readonly<z.infer<typeof measureSchema>>
@@ -37,14 +39,14 @@ export function createNewMeasure({
   waist,
   hip,
   neck,
-  target_timestamp,
+  targetTimestamp,
 }: {
   owner: number
   height: number
   waist: number
   hip?: number | null | undefined
   neck: number
-  target_timestamp: Date | string
+  targetTimestamp: Date | string
 }): NewMeasure {
   return newMeasureSchema.parse({
     owner,
@@ -52,7 +54,7 @@ export function createNewMeasure({
     waist,
     hip,
     neck,
-    target_timestamp,
+    target_timestamp: targetTimestamp,
     __type: 'NewMeasure',
   })
 }

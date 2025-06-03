@@ -64,7 +64,7 @@ async function fetchApiFoodsByName(
     handleApiError(error, {
       component: 'ApiFoodRepository',
       operation: 'fetchApiFoodsByName',
-      additionalData: { url, name }
+      additionalData: { url, name },
     })
     throw error
   }

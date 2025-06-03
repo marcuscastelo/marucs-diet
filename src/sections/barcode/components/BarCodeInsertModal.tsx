@@ -1,7 +1,5 @@
 import { type Food } from '~/modules/diet/food/domain/food'
-import {
-  Modal,
-} from '~/sections/common/components/Modal'
+import { Modal } from '~/sections/common/components/Modal'
 import { BarCodeReader } from '~/sections/barcode/components/BarCodeReader'
 import BarCodeSearch from '~/sections/barcode/components/BarCodeSearch'
 import { useModalContext } from '~/sections/common/context/ModalContext'

@@ -7,9 +7,9 @@ import {
   ItemGroupViewNutritionalInfo,
   type ItemGroupViewProps,
 } from '~/sections/item-group/components/ItemGroupView'
-import { useClipboard } from '~/sections/common/hooks/useClipboard'
-import { type Accessor } from 'solid-js'
 import { handleClipboardError } from '~/shared/error/errorHandler'
+import { useClipboard } from '~/sections/common/hooks/useClipboard'
+import { type Accessor, For } from 'solid-js'
 
 export function ItemGroupListView(props: {
   itemGroups: Accessor<ItemGroup[]>
@@ -18,41 +18,37 @@ export function ItemGroupListView(props: {
   const clipboard = useClipboard()
   console.debug('[ItemGroupListView] - Rendering')
   return (
-    <>
-      {props.itemGroups().map((_, idx) => {
-        const group = () => props.itemGroups()[idx]
-        return (
-          <div class="mt-2">
-            <ItemGroupView
-              itemGroup={group}
-              onClick={props.onItemClick}
-              header={
-                <ItemGroupHeader
-                  name={<ItemGroupName group={group} />}
-                  copyButton={
-                    <ItemGroupCopyButton
-                      group={group}
-                      onCopyItemGroup={(group) => {
-                        clipboard.write(
-                          JSON.stringify(group),
-                          (err) => {
-                            handleClipboardError(err, {
-                              component: 'ItemGroupListView',
-                              operation: 'copyItemGroup',
-                              additionalData: { groupId: group.id },
-                            })
-                          }
-                        )
-                      }}
-                    />
-                  }
-                />
-              }
-              nutritionalInfo={<ItemGroupViewNutritionalInfo group={group} />}
-            />
-          </div>
-        )
-      })}
-    </>
+    <For each={props.itemGroups()}>
+      {(group) => (
+        <div class="mt-2">
+          <ItemGroupView
+            itemGroup={() => group}
+            onClick={props.onItemClick}
+            header={
+              <ItemGroupHeader
+                name={<ItemGroupName group={() => group} />}
+                copyButton={
+                  <ItemGroupCopyButton
+                    group={() => group}
+                    onCopyItemGroup={(group) => {
+                      clipboard.write(JSON.stringify(group), (err) => {
+                        handleClipboardError(err, {
+                          component: 'ItemGroupListView',
+                          operation: 'copyItemGroup',
+                          additionalData: { groupId: group.id },
+                        })
+                      })
+                    }}
+                  />
+                }
+              />
+            }
+            nutritionalInfo={
+              <ItemGroupViewNutritionalInfo group={() => group} />
+            }
+          />
+        </div>
+      )}
+    </For>
   )
 }

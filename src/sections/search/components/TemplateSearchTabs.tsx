@@ -62,4 +62,3 @@ export function TemplateSearchTabs(props: {
     </ul>
   )
 }
-

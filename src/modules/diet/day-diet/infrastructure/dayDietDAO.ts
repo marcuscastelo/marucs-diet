@@ -1,5 +1,9 @@
 import { z } from 'zod'
-import { type DayDiet, dayDietSchema, NewDayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import {
+  type DayDiet,
+  dayDietSchema,
+  type NewDayDiet,
+} from '~/modules/diet/day-diet/domain/dayDiet'
 import { mealDAOSchema } from '~/modules/diet/meal/infrastructure/mealDAO'
 
 // DAO schema for creating new day diets
@@ -35,9 +39,9 @@ export type DayDietDAO = z.infer<typeof dayDietDAOSchema>
 export function dayDietToDAO(dayDiet: DayDiet): DayDietDAO {
   return {
     id: dayDiet.id,
-    target_day: dayDiet.target_day,
+    target_day: dayDiet.targetDay,
     owner: dayDiet.owner,
-    meals: dayDiet.meals.map(meal => ({
+    meals: dayDiet.meals.map((meal) => ({
       id: meal.id,
       name: meal.name,
       groups: meal.groups,
@@ -48,11 +52,13 @@ export function dayDietToDAO(dayDiet: DayDiet): DayDietDAO {
 /**
  * Converts a NewDayDiet object to a CreateDayDietDAO for database operations
  */
-export function createInsertDayDietDAOFromNewDayDiet(newDayDiet: NewDayDiet): CreateDayDietDAO {
+export function createInsertDayDietDAOFromNewDayDiet(
+  newDayDiet: NewDayDiet,
+): CreateDayDietDAO {
   return createDayDietDAOSchema.parse({
-    target_day: newDayDiet.target_day,
+    target_day: newDayDiet.targetDay,
     owner: newDayDiet.owner,
-    meals: newDayDiet.meals.map(meal => ({
+    meals: newDayDiet.meals.map((meal) => ({
       id: meal.id,
       name: meal.name,
       groups: meal.groups,
@@ -75,7 +81,10 @@ export function daoToDayDiet(dao: DayDietDAO): DayDiet {
 /**
  * Converts CreateDayDietDAO to DayDietDAO for database operations
  */
-export function createDayDietDAOToDAO(createDAO: CreateDayDietDAO, id: number): DayDietDAO {
+export function createDayDietDAOToDAO(
+  createDAO: CreateDayDietDAO,
+  id: number,
+): DayDietDAO {
   return dayDietDAOSchema.parse({
     id,
     target_day: createDAO.target_day,
@@ -87,7 +96,10 @@ export function createDayDietDAOToDAO(createDAO: CreateDayDietDAO, id: number): 
 /**
  * Merges UpdateDayDietDAO with existing DayDietDAO for database updates
  */
-export function mergeUpdateDayDietDAO(existing: DayDietDAO, update: UpdateDayDietDAO): DayDietDAO {
+export function mergeUpdateDayDietDAO(
+  existing: DayDietDAO,
+  update: UpdateDayDietDAO,
+): DayDietDAO {
   return dayDietDAOSchema.parse({
     ...existing,
     ...update,

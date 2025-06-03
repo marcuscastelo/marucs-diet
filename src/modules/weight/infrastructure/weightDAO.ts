@@ -6,14 +6,19 @@ export const weightDAOSchema = z.object({
   id: z.number(),
   owner: z.number(),
   weight: z.number(),
-  target_timestamp: z.date().or(z.string()).transform((v) => new Date(v)),
+  target_timestamp: z
+    .date()
+    .or(z.string())
+    .transform((v) => new Date(v)),
 })
 
 // Schema para criação (sem ID)
 export const createWeightDAOSchema = weightDAOSchema.omit({ id: true })
 
 // Schema para atualização (campos opcionais, sem ID)
-export const updateWeightDAOSchema = weightDAOSchema.omit({ id: true }).partial()
+export const updateWeightDAOSchema = weightDAOSchema
+  .omit({ id: true })
+  .partial()
 
 // Types
 export type WeightDAO = z.infer<typeof weightDAOSchema>
@@ -36,7 +41,9 @@ export function createWeightFromDAO(dao: WeightDAO): Weight {
   })
 }
 
-export function createInsertWeightDAOFromWeight(weight: Omit<Weight, 'id' | '__type'>): CreateWeightDAO {
+export function createInsertWeightDAOFromWeight(
+  weight: Omit<Weight, 'id' | '__type'>,
+): CreateWeightDAO {
   return createWeightDAOSchema.parse({
     owner: weight.owner,
     weight: weight.weight,
@@ -44,7 +51,9 @@ export function createInsertWeightDAOFromWeight(weight: Omit<Weight, 'id' | '__t
   })
 }
 
-export function createUpdateWeightDAOFromWeight(weight: Weight): UpdateWeightDAO {
+export function createUpdateWeightDAOFromWeight(
+  weight: Weight,
+): UpdateWeightDAO {
   return updateWeightDAOSchema.parse({
     owner: weight.owner,
     weight: weight.weight,

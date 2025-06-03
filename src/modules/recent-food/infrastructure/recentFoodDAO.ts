@@ -60,7 +60,10 @@ export function daoToRecentFood(dao: RecentFoodDAO): RecentFood {
 /**
  * Converts CreateRecentFoodDAO to RecentFoodDAO for database operations
  */
-export function createRecentFoodDAOToDAO(createDAO: CreateRecentFoodDAO, id: number): RecentFoodDAO {
+export function createRecentFoodDAOToDAO(
+  createDAO: CreateRecentFoodDAO,
+  id: number,
+): RecentFoodDAO {
   return recentFoodDAOSchema.parse({
     id,
     user_id: createDAO.user_id,
@@ -73,7 +76,10 @@ export function createRecentFoodDAOToDAO(createDAO: CreateRecentFoodDAO, id: num
 /**
  * Merges UpdateRecentFoodDAO with existing RecentFoodDAO for database updates
  */
-export function mergeUpdateRecentFoodDAO(existing: RecentFoodDAO, update: UpdateRecentFoodDAO): RecentFoodDAO {
+export function mergeUpdateRecentFoodDAO(
+  existing: RecentFoodDAO,
+  update: UpdateRecentFoodDAO,
+): RecentFoodDAO {
   return recentFoodDAOSchema.parse({
     ...existing,
     ...update,

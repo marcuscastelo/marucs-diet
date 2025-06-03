@@ -1,7 +1,7 @@
 import { Editor } from '~/legacy/utils/data/editor'
 import { deepCopy } from '~/legacy/utils/deepCopy'
 import { type Mutable } from '~/legacy/utils/typeUtils'
-import {  type Meal } from '~/modules/diet/meal/domain/meal'
+import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { ItemGroupEditor } from '~/legacy/utils/data/itemGroupEditor'
 

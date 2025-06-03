@@ -2,7 +2,10 @@ import { Editor } from '~/legacy/utils/data/editor'
 import { MealEditor } from '~/legacy/utils/data/mealEditor'
 import { deepCopy } from '~/legacy/utils/deepCopy'
 import { type Mutable } from '~/legacy/utils/typeUtils'
-import { NewDayDiet, type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import {
+  type NewDayDiet,
+  type DayDiet,
+} from '~/modules/diet/day-diet/domain/dayDiet'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 
 // TODO: Remove deprecated DayDietEditor - Replace with pure functions in day-diet/application/
@@ -79,9 +82,7 @@ export class DayDietEditor extends Editor<DayDiet, NewDayDiet> {
     return this
   }
 
-  protected override onFinish() {
-
-  }
+  protected override onFinish() {}
 }
 
 /**

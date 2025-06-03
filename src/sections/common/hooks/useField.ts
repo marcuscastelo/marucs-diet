@@ -4,14 +4,17 @@
 
 import { createSignal, createEffect, type Accessor } from 'solid-js'
 import type { FieldTransform } from './transforms/fieldTransforms'
-import { createFloatTransform, createDateTransform } from './transforms/fieldTransforms'
+import {
+  createFloatTransform,
+  createDateTransform,
+} from './transforms/fieldTransforms'
 
-export interface UseFieldOptions<T> {
+export type UseFieldOptions<T> = {
   inputSignal: Accessor<T | undefined>
   transform: FieldTransform<T>
 }
 
-export interface UseFieldReturn<T> {
+export type UseFieldReturn<T> = {
   rawValue: Accessor<string>
   setRawValue: (value: string) => void
   value: Accessor<T | undefined>
@@ -20,20 +23,20 @@ export interface UseFieldReturn<T> {
 
 /**
  * Generic hook for managing form fields with type transformations
- * 
+ *
  * @param options Configuration for the field
  * @returns Field state and setters
- * 
+ *
  * @example
  * ```tsx
  * const field = useField({
  *   inputSignal: () => someNumber,
  *   transform: createFloatTransform({ decimalPlaces: 2 })
  * })
- * 
- * return <input 
- *   value={field.rawValue()} 
- *   onInput={(e) => field.setRawValue(e.target.value)} 
+ *
+ * return <input
+ *   value={field.rawValue()}
+ *   onInput={(e) => field.setRawValue(e.target.value)}
  * />
  * ```
  */
@@ -70,18 +73,18 @@ export function useField<T>({
 
 /**
  * Hook for managing float/number input fields
- * 
+ *
  * @param inputSignal Signal providing the current value
  * @param extras Configuration options for the float field
  * @returns Field state and handlers for float inputs
- * 
+ *
  * @example
  * ```tsx
  * const heightField = useFloatField(() => measure.height, {
  *   decimalPlaces: 1,
  *   maxValue: 300
  * })
- * 
+ *
  * return <FloatInput field={heightField} />
  * ```
  */
@@ -91,11 +94,11 @@ export function useFloatField(
     decimalPlaces?: number
     defaultValue?: number
     maxValue?: number
-  }
+  },
 ) {
   return useField<number>({
     inputSignal: inputSignal ?? (() => undefined),
-    transform: createFloatTransform(extras || {}),
+    transform: createFloatTransform(extras ?? {}),
   })
 }
 
@@ -110,19 +113,21 @@ export function useFloatField(
  * ```tsx
  * const dateField = useDateField(() => measure.target_timestamp)
  *
- * return <Datepicker 
- *   value={dateField.value()} 
- *   onChange={(date) => dateField.setRawValue(dateField.transform.toRaw(date))} 
+ * return <Datepicker
+ *   value={dateField.value()}
+ *   onChange={(date) => dateField.setRawValue(dateField.transform.toRaw(date))}
  * />
  * ```
  */
 export function useDateField<
-  Options extends { fallback: () => Date } | undefined = undefined
+  Options extends { fallback: () => Date } | undefined = undefined,
 >(
   inputSignal: Accessor<Date | undefined>,
-  options?: Options
+  options?: Options,
 ): Omit<ReturnType<typeof useField<Date>>, 'value'> & {
-  value: Options extends { fallback: () => Date } ? () => Date : () => Date | undefined
+  value: Options extends { fallback: () => Date }
+    ? () => Date
+    : () => Date | undefined
 } {
   const field = useField<Date>({
     inputSignal,
@@ -143,6 +148,8 @@ export function useDateField<
   }
   return {
     ...field,
-    value: valueWithFallback as Options extends { fallback: () => Date } ? () => Date : () => Date | undefined,
+    value: valueWithFallback as Options extends { fallback: () => Date }
+      ? () => Date
+      : () => Date | undefined,
   }
 }

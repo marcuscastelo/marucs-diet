@@ -1,4 +1,8 @@
-import { type Food, foodSchema, type NewFood, createNewFood } from '~/modules/diet/food/domain/food'
+import {
+  type Food,
+  type NewFood,
+  createNewFood,
+} from '~/modules/diet/food/domain/food'
 import { markSearchAsCached } from '~/legacy/controllers/searchCache'
 import { type ApiFood } from '~/modules/diet/food/infrastructure/api/domain/apiFoodModel'
 import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
@@ -17,7 +21,7 @@ export function convertApi2Food(food: ApiFood): NewFood {
       type: 'api',
       id: food.id.toString(),
     },
-    ean: food.ean || null, // Convert EAN to null if not provided
+    ean: food.ean === '' ? null : food.ean, // Convert EAN to null if not provided
     macros: {
       carbs: food.carboidratos * 100,
       protein: food.proteinas * 100,
@@ -38,9 +42,8 @@ export async function importFoodFromApiByEan(
       {
         component: 'apiFood',
         operation: 'importFoodFromApiByEan',
-        additionalData: {ean},
-      }
-
+        additionalData: { ean },
+      },
     )
     return null
   }
@@ -94,16 +97,16 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
       const errorDetails = {
         rejectedCount: relevantErrors.length,
         errors: relevantErrors,
-        searchName: name
+        searchName: name,
       }
-      
+
       handleApiError(
         new Error(`Failed to upsert ${relevantErrors.length} foods`),
         {
           component: 'ApiFood',
           operation: 'importFoodsFromApiByName',
-          additionalData: errorDetails
-        }
+          additionalData: errorDetails,
+        },
       )
 
       toast.error(
@@ -116,7 +119,10 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
   }
 
   const upsertedFoods: ReadonlyArray<Food | null> = upsertionResults
-    .filter((result): result is PromiseFulfilledResult<Food | null> => result.status === 'fulfilled')
+    .filter(
+      (result): result is PromiseFulfilledResult<Food | null> =>
+        result.status === 'fulfilled',
+    )
     .map((result) => result.value)
 
   console.debug(
