@@ -38,7 +38,7 @@ export function ItemGroupListView(props: {
                           (err) => {
                             handleClipboardError(err, {
                               component: 'ItemGroupListView',
-                              operation: 'copy item group',
+                              operation: 'copyItemGroup',
                               additionalData: { groupId: group.id },
                             })
                           }
