@@ -41,8 +41,8 @@ purpose and usage.
 ## Testing
 For every new feature or bug fix:
 - Write unit tests that cover edge cases
+- Always update the test files in the same commit as the code changes (adding, modifying, or removing functions should be accompanied by corresponding test updates)
 - After making any change, run the `npm type-check` and `npx vitest run`, remember to wait for the output before reading the terminal
-- If no issues are found, print "No problems found" to the console
 - If any problems are detected, fix them immediately
 
 ## Code Reviews
