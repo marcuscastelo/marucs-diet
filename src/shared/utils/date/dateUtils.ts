@@ -50,7 +50,7 @@ export function getTodayYYYYMMDD(): string {
  * 
  * This function creates a new date that represents the same moment
  * adjusted for the local timezone offset by subtracting the timezone
- * offset from the current hours.
+ * offset in minutes. This correctly handles half-hour and quarter-hour timezones.
  * 
  * @param {Date} date - The date to adjust
  * @returns {Date} New date adjusted for timezone
@@ -59,14 +59,12 @@ export function getTodayYYYYMMDD(): string {
  * ```typescript
  * const utcDate = new Date('2024-01-15T12:00:00Z')
  * const adjustedDate = adjustToTimezone(utcDate)
- * // Adjusted based on local timezone offset
+ * // Adjusted based on local timezone offset (works for +05:30, +09:45, etc.)
  * ```
  */
 export function adjustToTimezone(date: Date): Date {
-  const offset = date.getTimezoneOffset() / 60
-  const hours = date.getHours()
   const newDate = new Date(date)
-  newDate.setHours(hours - offset)
+  newDate.setMinutes(newDate.getMinutes() - newDate.getTimezoneOffset())
   return newDate
 }
 
