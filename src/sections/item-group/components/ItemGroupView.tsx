@@ -17,7 +17,10 @@ import {
   createSignal,
   createEffect,
 } from 'solid-js'
-import { handleApiError, handleValidationError } from '~/shared/error/errorHandler'
+import {
+  handleApiError,
+  handleValidationError,
+} from '~/shared/error/errorHandler'
 
 // TODO: Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
@@ -90,7 +93,7 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
           handleApiError(err, {
             component: 'ItemGroupView::ItemGroupName',
             operation: 'fetchRecipeById',
-            additionalData: { recipeId: group.recipe }
+            additionalData: { recipeId: group.recipe },
           })
           setRecipe({ loading: false, errored: true, error: err })
         })
@@ -104,26 +107,20 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
     const recipe_ = recipe()
 
     if (group_ === null) {
-      handleValidationError(
-        new Error('ItemGroup is null'),
-        {
-          component: 'ItemGroupView::ItemGroupName',
-          operation: 'nameColor'
-        }
-      )
+      handleValidationError(new Error('ItemGroup is null'), {
+        component: 'ItemGroupView::ItemGroupName',
+        operation: 'nameColor',
+      })
       return 'text-red-900 bg-red-200'
     }
 
     if (recipe_.loading) return 'text-gray-500 animate-pulse'
     if (recipe_.errored) {
-      handleValidationError(
-        new Error('Recipe loading failed'),
-        {
-          component: 'ItemGroupView::ItemGroupName',
-          operation: 'nameColor',
-          additionalData: { recipeError: recipe_.error }
-        }
-      )
+      handleValidationError(new Error('Recipe loading failed'), {
+        component: 'ItemGroupView::ItemGroupName',
+        operation: 'nameColor',
+        additionalData: { recipeError: recipe_.error },
+      })
       return 'text-red-900 bg-red-200 bg-opacity-50'
     }
 
@@ -143,12 +140,14 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
       }
     } else {
       handleValidationError(
-        new Error(`ItemGroup is not simple or recipe! Item: ${JSON.stringify(group_)}`),
+        new Error(
+          `ItemGroup is not simple or recipe! Item: ${JSON.stringify(group_)}`,
+        ),
         {
           component: 'ItemGroupView::ItemGroupName',
           operation: 'nameColor',
-          additionalData: { group: group_ }
-        }
+          additionalData: { group: group_ },
+        },
       )
       return 'text-red-400'
     }
@@ -206,7 +205,8 @@ export function ItemGroupViewNutritionalInfo(props: {
     <div class="flex">
       <MacroNutrientsView macros={multipliedMacros()} />
       <div class="ml-auto">
-        <span class="text-white"> {getItemGroupQuantity(props.group())}g </span>|
+        <span class="text-white"> {getItemGroupQuantity(props.group())}g </span>
+        |
         <span class="text-white">
           {' '}
           {calcGroupCalories(props.group()).toFixed(0)}
