@@ -2,16 +2,16 @@
  * @fileoverview Unit tests for field transform utilities
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createFloatTransform, createDateTransform } from './fieldTransforms'
+
+import { dateToString, stringToDate } from '~/shared/utils/date'
 
 // Mock the date utils module
 vi.mock('~/shared/utils/date', () => ({
   dateToString: vi.fn(),
   stringToDate: vi.fn(),
 }))
-
-import { dateToString, stringToDate } from '~/shared/utils/date'
 
 describe('fieldTransforms', () => {
   describe('createFloatTransform', () => {
@@ -26,8 +26,8 @@ describe('fieldTransforms', () => {
 
       it('should parse valid numeric strings', () => {
         expect(transform.toValue('123.45')).toBe(123.45)
-        expect(transform.toValue('123')).toBe(123.00)
-        expect(transform.toValue('0')).toBe(0.00)
+        expect(transform.toValue('123')).toBe(123.0)
+        expect(transform.toValue('0')).toBe(0.0)
       })
 
       it('should handle comma as decimal separator', () => {
@@ -37,10 +37,10 @@ describe('fieldTransforms', () => {
 
       it('should normalize problematic input patterns', () => {
         expect(transform.toValue('12.34.56')).toBe(1234.56) // Multiple dots - keeps last dot
-        expect(transform.toValue('123-456')).toBe(123456.00) // Minus signs
-        expect(transform.toValue('123+456')).toBe(123456.00) // Plus signs
-        expect(transform.toValue('1 2 3')).toBe(123.00) // Spaces
-        expect(transform.toValue('00123')).toBe(123.00) // Leading zeros
+        expect(transform.toValue('123-456')).toBe(123456.0) // Minus signs
+        expect(transform.toValue('123+456')).toBe(123456.0) // Plus signs
+        expect(transform.toValue('1 2 3')).toBe(123.0) // Spaces
+        expect(transform.toValue('00123')).toBe(123.0) // Leading zeros
       })
 
       it('should return default value for invalid input', () => {
@@ -82,9 +82,9 @@ describe('fieldTransforms', () => {
       })
 
       it('should clamp default value to max', () => {
-        const transformWithDefault = createFloatTransform({ 
-          maxValue: 50, 
-          defaultValue: 100 
+        const transformWithDefault = createFloatTransform({
+          maxValue: 50,
+          defaultValue: 100,
         })
         expect(transformWithDefault.toValue('invalid')).toBe(50)
       })
@@ -94,7 +94,7 @@ describe('fieldTransforms', () => {
       const transform = createFloatTransform({
         decimalPlaces: 3,
         defaultValue: 5,
-        maxValue: 1000
+        maxValue: 1000,
       })
 
       it('should handle all options together', () => {
@@ -114,12 +114,12 @@ describe('fieldTransforms', () => {
     it('should delegate to dateToString for toRaw', () => {
       const testDate = new Date('2023-12-25')
       const expectedString = '2023-12-25'
-      
+
       vi.mocked(dateToString).mockReturnValue(expectedString)
-      
+
       const transform = createDateTransform()
       const result = transform.toRaw(testDate)
-      
+
       expect(dateToString).toHaveBeenCalledWith(testDate)
       expect(result).toBe(expectedString)
     })
@@ -127,12 +127,12 @@ describe('fieldTransforms', () => {
     it('should delegate to stringToDate for toValue', () => {
       const testString = '2023-12-25'
       const expectedDate = new Date('2023-12-25')
-      
+
       vi.mocked(stringToDate).mockReturnValue(expectedDate)
-      
+
       const transform = createDateTransform()
       const result = transform.toValue(testString)
-      
+
       expect(stringToDate).toHaveBeenCalledWith(testString)
       expect(result).toBe(expectedDate)
     })
@@ -141,21 +141,21 @@ describe('fieldTransforms', () => {
   describe('FieldTransform interface', () => {
     it('should provide consistent interface for float transform', () => {
       const transform = createFloatTransform()
-      
+
       expect(typeof transform.toRaw).toBe('function')
       expect(typeof transform.toValue).toBe('function')
-      
+
       // Test round-trip consistency
       const originalValue = 123.45
       const rawValue = transform.toRaw(originalValue)
       const parsedValue = transform.toValue(rawValue)
-      
+
       expect(parsedValue).toBe(originalValue)
     })
 
     it('should provide consistent interface for date transform', () => {
       const transform = createDateTransform()
-      
+
       expect(typeof transform.toRaw).toBe('function')
       expect(typeof transform.toValue).toBe('function')
     })
