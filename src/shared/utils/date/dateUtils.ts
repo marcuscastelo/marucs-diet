@@ -93,8 +93,7 @@ export function getMidnight(date: Date): Date {
  * Converts a string or Date to a normalized Date object
  * 
  * @param {string | Date} day - The date string or Date object to convert
- * @param {object} extras - Options object
- * @param {boolean} extras.keepTime - Whether to keep the original time or set to midnight
+ * @param {DateFormatOptions} options - Formatting options
  * @returns {Date} Converted and normalized Date object
  * 
  * @example
@@ -108,17 +107,16 @@ export function getMidnight(date: Date): Date {
  */
 export function stringToDate(
   day: string | Date,
-  extras?: {
-    keepTime?: boolean
-  }
+  options?: DateFormatOptions
 ): Date {
   const date = new Date(day)
 
-  if (extras?.keepTime === undefined || extras.keepTime) {
+  if (options?.keepTime === undefined || options.keepTime) {
     return date
   }
 
-  return getMidnight(date)
+  const dateString = dateToYYYYMMDD(date)
+  return new Date(`${dateString}T00:00:00Z`)
 }
 
 /**

@@ -117,9 +117,10 @@ describe('dateUtils', () => {
       const dateString = '2024-01-15T15:30:00'
       const result = stringToDate(dateString, { keepTime: false })
       
-      expect(result.getHours()).toBe(0)
-      expect(result.getMinutes()).toBe(0)
-      expect(result.getSeconds()).toBe(0)
+      // Legacy implementation creates UTC midnight, so check UTC time
+      expect(result.getUTCHours()).toBe(0)
+      expect(result.getUTCMinutes()).toBe(0)
+      expect(result.getUTCSeconds()).toBe(0)
     })
 
     it('should handle Date objects', () => {
