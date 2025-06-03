@@ -4,10 +4,10 @@ set -e
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 
 # Detecta se estamos em um branch rc/*
+rc_count=$(git rev-list --count HEAD ^stable)
 if [[ "$current_branch" =~ ^rc\/(v[0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
   version="${BASH_REMATCH[1]}"
-  count=$(git rev-list --count HEAD ^stable)
-  echo "$version-rc.$count"
+  echo "$version-rc.$rc_count"
   exit 0
 fi
 
@@ -41,7 +41,7 @@ issue_number=$(echo "$current_branch" | sed -E 's|.*/[^0-9]*([0-9]+).*|\1|')
 if [ "$count" -eq 0 ]; then
   version_str="$version-dev.0"
 else
-  version_str="$version-dev.$count"
+  version_str="$version-dev.$rc_count.$count"
 fi
 
 # Anexa +issue.<numero> se extraído com sucesso
