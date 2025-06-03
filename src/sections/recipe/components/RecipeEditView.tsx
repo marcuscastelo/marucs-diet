@@ -70,6 +70,8 @@ export default function RecipeEditView(props: RecipeEditViewProps) {
 export function RecipeEditHeader(props: {
   onUpdateRecipe: (Recipe: Recipe) => void
 }) {
+  const { show: showConfirmModal } = useConfirmModalContext()
+
   const acceptedClipboardSchema = mealSchema
     .or(itemGroupSchema)
     .or(itemSchema)
@@ -101,23 +103,20 @@ export function RecipeEditHeader(props: {
 
   const onClearItems = (e: MouseEvent) => {
     e.preventDefault()
-    import('~/sections/common/context/ConfirmModalContext').then(({ useConfirmModalContext }) => {
-      const { show: showConfirmModal } = useConfirmModalContext()
-      showConfirmModal({
-        title: 'Limpar itens',
-        body: 'Tem certeza que deseja limpar os itens?',
-        actions: [
-          { text: 'Cancelar', onClick: () => undefined },
-          {
-            text: 'Excluir todos os itens',
-            primary: true,
-            onClick: () => {
-              const newRecipe = new RecipeEditor(recipe()).clearItems().finish()
-              props.onUpdateRecipe(newRecipe)
-            },
+    showConfirmModal({
+      title: 'Limpar itens',
+      body: 'Tem certeza que deseja limpar os itens?',
+      actions: [
+        { text: 'Cancelar', onClick: () => undefined },
+        {
+          text: 'Excluir todos os itens',
+          primary: true,
+          onClick: () => {
+            const newRecipe = new RecipeEditor(recipe()).clearItems().finish()
+            props.onUpdateRecipe(newRecipe)
           },
-        ],
-      })
+        },
+      ],
     })
   }
 
