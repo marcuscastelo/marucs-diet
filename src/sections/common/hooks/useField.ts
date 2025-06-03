@@ -101,23 +101,48 @@ export function useFloatField(
 
 /**
  * Hook for managing date input fields
- * 
+ *
  * @param inputSignal Signal providing the current date value
+ * @param options Optional configuration with a fallback function for default date
  * @returns Field state and handlers for date inputs
- * 
+ *
  * @example
  * ```tsx
  * const dateField = useDateField(() => measure.target_timestamp)
- * 
+ *
  * return <Datepicker 
  *   value={dateField.value()} 
  *   onChange={(date) => dateField.setRawValue(dateField.transform.toRaw(date))} 
  * />
  * ```
  */
-export function useDateField(inputSignal: Accessor<Date | undefined>) {
-  return useField<Date>({
+export function useDateField<
+  Options extends { fallback: () => Date } | undefined = undefined
+>(
+  inputSignal: Accessor<Date | undefined>,
+  options?: Options
+): Omit<ReturnType<typeof useField<Date>>, 'value'> & {
+  value: Options extends { fallback: () => Date } ? () => Date : () => Date | undefined
+} {
+  const field = useField<Date>({
     inputSignal,
     transform: createDateTransform(),
   })
+  const valueWithFallback = () => {
+    const v = field.value()
+    if (v !== undefined) return v
+    if (
+      typeof options === 'object' &&
+      options !== null &&
+      'fallback' in options &&
+      typeof options.fallback === 'function'
+    ) {
+      return options.fallback()
+    }
+    return undefined
+  }
+  return {
+    ...field,
+    value: valueWithFallback as Options extends { fallback: () => Date } ? () => Date : () => Date | undefined,
+  }
 }
