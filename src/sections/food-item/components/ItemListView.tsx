@@ -9,6 +9,7 @@ import {
 } from '~/sections/food-item/components/ItemView'
 import { mergeProps, type Accessor, For } from 'solid-js'
 import { handleClipboardError } from '~/shared/error/errorHandler'
+import { useClipboard } from '~/sections/common/hooks/useClipboard'
 
 export function ItemListView(_props: {
   items: Accessor<readonly Item[]>
@@ -39,19 +40,14 @@ export function ItemListView(_props: {
 }
 
 function DefaultHeader() {
+  const clipboard = useClipboard()
   return (
     <ItemHeader
       name={<ItemName />}
       copyButton={
         <ItemCopyButton
           onCopyItem={(item) => {
-            navigator.clipboard.writeText(JSON.stringify(item)).catch((error) => {
-              handleClipboardError(error, { 
-                component: 'ItemListView',
-                operation: 'copyItem',
-                additionalData: { itemId: item.reference }
-              })
-            })
+            clipboard.write(JSON.stringify(item))
           }}
         />
       }
