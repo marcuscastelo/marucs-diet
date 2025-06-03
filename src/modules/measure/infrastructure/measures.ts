@@ -32,7 +32,7 @@ async function fetchUserMeasures(userId: User['id']) {
     handleApiError(error, {
       component: 'supabaseMeasureRepository',
       operation: 'fetchUserMeasures',
-      additionalData: { userId }
+      additionalData: { userId },
     })
     throw error
   }
@@ -49,7 +49,7 @@ async function insertMeasure(newMeasure: NewMeasure): Promise<Measure | null> {
     handleApiError(error, {
       component: 'supabaseMeasureRepository',
       operation: 'insertMeasure',
-      additionalData: { measure: newMeasure }
+      additionalData: { measure: newMeasure },
     })
     throw error
   }
@@ -75,7 +75,7 @@ async function updateMeasure(
     handleApiError(error, {
       component: 'supabaseMeasureRepository',
       operation: 'updateMeasure',
-      additionalData: { measureId, measure: newMeasure }
+      additionalData: { measureId, measure: newMeasure },
     })
     throw error
   }
@@ -93,7 +93,7 @@ async function deleteMeasure(id: Measure['id']) {
     handleApiError(error, {
       component: 'supabaseMeasureRepository',
       operation: 'deleteMeasure',
-      additionalData: { id }
+      additionalData: { id },
     })
     throw error
   }
