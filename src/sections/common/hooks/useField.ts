@@ -101,34 +101,29 @@ export function useFloatField(
 
 /**
  * Hook for managing date input fields
- * 
+ *
  * @param inputSignal Signal providing the current date value
+ * @param options Optional configuration with a fallback function for default date
  * @returns Field state and handlers for date inputs
- * 
+ *
  * @example
  * ```tsx
  * const dateField = useDateField(() => measure.target_timestamp)
- * 
+ *
  * return <Datepicker 
  *   value={dateField.value()} 
  *   onChange={(date) => dateField.setRawValue(dateField.transform.toRaw(date))} 
  * />
  * ```
  */
-// Overload signatures
-export function useDateField(
+export function useDateField<
+  Options extends { fallback: () => Date } | undefined = undefined
+>(
   inputSignal: Accessor<Date | undefined>,
-  options: { fallback: () => Date }
-): Omit<ReturnType<typeof useField<Date>>, 'value'> & { value: () => Date }
-export function useDateField(
-  inputSignal: Accessor<Date | undefined>,
-  options?: undefined
-): Omit<ReturnType<typeof useField<Date>>, 'value'> & { value: () => Date | undefined }
-// Implementation
-export function useDateField(
-  inputSignal: Accessor<Date | undefined>,
-  options?: { fallback?: () => Date }
-): Omit<ReturnType<typeof useField<Date>>, 'value'> & { value: () => Date | undefined } {
+  options?: Options
+): Omit<ReturnType<typeof useField<Date>>, 'value'> & {
+  value: Options extends { fallback: () => Date } ? () => Date : () => Date | undefined
+} {
   const field = useField<Date>({
     inputSignal,
     transform: createDateTransform(),
@@ -136,11 +131,18 @@ export function useDateField(
   const valueWithFallback = () => {
     const v = field.value()
     if (v !== undefined) return v
-    if (options?.fallback) return options.fallback()
+    if (
+      typeof options === 'object' &&
+      options !== null &&
+      'fallback' in options &&
+      typeof options.fallback === 'function'
+    ) {
+      return options.fallback()
+    }
     return undefined
   }
   return {
     ...field,
-    value: valueWithFallback,
+    value: valueWithFallback as Options extends { fallback: () => Date } ? () => Date : () => Date | undefined,
   }
 }
