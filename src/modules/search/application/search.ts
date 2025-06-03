@@ -1,6 +1,6 @@
 import { createSignal } from 'solid-js'
-import { type AvailableTab } from '~/sections/search/components/TemplateSearchTabs'
+import { type AvailableTab, availableTabs } from '~/sections/search/components/TemplateSearchTabs'
 
 export const [templateSearch, setTemplateSearch] = createSignal<string>('')
 export const [templateSearchTab, setTemplateSearchTab] =
-  createSignal<AvailableTab>('all')
+  createSignal<AvailableTab>(availableTabs.Todos.id)
