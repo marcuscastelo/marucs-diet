@@ -11,7 +11,7 @@ export default function DayMacros(props: { class?: string }) {
     const currentDayDiet_ = currentDayDiet()
     if (currentDayDiet_ === null) return null
 
-    const macroTarget_ = macroTarget(stringToDate(currentDayDiet_.targetDay))
+    const macroTarget_ = macroTarget(stringToDate(currentDayDiet_.target_day))
     if (macroTarget_ === null) return null
 
     const dayMacros = calcDayMacros(currentDayDiet_)

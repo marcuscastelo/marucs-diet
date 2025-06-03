@@ -28,13 +28,13 @@ export type NewMacroProfile = Readonly<z.infer<typeof newMacroProfileSchema>>
 
 export function createNewMacroProfile({
   owner,
-  targetDay,
+  target_day: targetDay,
   gramsPerKgCarbs,
   gramsPerKgProtein,
   gramsPerKgFat,
 }: {
   owner: number
-  targetDay: Date | string
+  target_day: Date | string
   gramsPerKgCarbs: number
   gramsPerKgProtein: number
   gramsPerKgFat: number

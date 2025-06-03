@@ -28,7 +28,7 @@ export function CreateBlankDayButton(props: { selectedDay: string }) {
               insertDayDiet(
                 createDayDiet({
                   owner: currentUser().id,
-                  targetDay: props.selectedDay,
+                  target_day: props.selectedDay,
                   meals: DEFAULT_MEALS,
                 }),
               ),

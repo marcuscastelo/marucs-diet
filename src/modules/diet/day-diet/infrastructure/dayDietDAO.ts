@@ -39,7 +39,7 @@ export type DayDietDAO = z.infer<typeof dayDietDAOSchema>
 export function dayDietToDAO(dayDiet: DayDiet): DayDietDAO {
   return {
     id: dayDiet.id,
-    target_day: dayDiet.targetDay,
+    target_day: dayDiet.target_day,
     owner: dayDiet.owner,
     meals: dayDiet.meals.map((meal) => ({
       id: meal.id,
@@ -56,7 +56,7 @@ export function createInsertDayDietDAOFromNewDayDiet(
   newDayDiet: NewDayDiet,
 ): CreateDayDietDAO {
   return createDayDietDAOSchema.parse({
-    target_day: newDayDiet.targetDay,
+    target_day: newDayDiet.target_day,
     owner: newDayDiet.owner,
     meals: newDayDiet.meals.map((meal) => ({
       id: meal.id,
