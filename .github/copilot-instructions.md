@@ -15,6 +15,10 @@ Use descriptive and meaningful names for all variables, functions,
 classes, and files. Organize the code into logical modules and packages, 
 following the project's directory structure.
 
+### Typescript
+
+- Never use `any` type, NEVER.
+
 ## Formatting
 Formatting should be consistent throughout the codebase. Use appropriate 
 tools such as:
@@ -37,7 +41,7 @@ purpose and usage.
 ## Testing
 For every new feature or bug fix:
 - Write unit tests that cover edge cases
-- After making any change, run the type-check and test commands
+- After making any change, run the `npm type-check` and `npx vitest run`, remember to wait for the output before reading the terminal
 - If no issues are found, print "No problems found" to the console
 - If any problems are detected, fix them immediately
 
