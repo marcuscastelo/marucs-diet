@@ -122,7 +122,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
         (recentFood.user_id !== currentUserId() ||
           recentFood.food_id !== originalAddedItem.reference)
       ) {
-        // TODO: Remove recent food assertion once unit tests are in place
+        // TODO:   Remove recent food assertion once unit tests are in place
         throw new Error('BUG: recentFood fetched does not match user and food')
       }
 
@@ -139,13 +139,13 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
       }
 
       // Prompt if user wants to add another item or go back (Yes/No)
-      // TODO: Show Yes/No instead of Ok/Cancel on modal
+      // TODO:   Show Yes/No instead of Ok/Cancel on modal
       showConfirmModal({
         title: 'Item adicionado com sucesso',
         body: 'Deseja adicionar outro item ou finalizar a inclusão?',
         actions: [
           {
-            // TODO: Show toast "Item <nome> adicionado com sucesso"
+            // TODO:   Show toast "Item <nome> adicionado com sucesso"
             text: 'Adicionar mais um item',
             onClick: () => {
               setSelectedTemplate(undefined)
@@ -346,7 +346,7 @@ export function TemplateSearch(props: {
 }) {
   const TYPING_TIMEOUT_MS = 2000
 
-  // TODO: Determine if user is on desktop or mobile to set autofocus
+  // TODO:   Determine if user is on desktop or mobile to set autofocus
   const isDesktop = false
 
   const { typing, onTyped } = useTyping({

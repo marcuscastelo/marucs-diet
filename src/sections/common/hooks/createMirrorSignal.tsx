@@ -5,7 +5,7 @@ import {
   createEffect,
 } from 'solid-js'
 
-// TODO: Remove mirror signals in the future
+// TODO:   Remove mirror signals in the future
 /**
  * @deprecated Mirror signals are a temporary solution and should be avoided.
  */

@@ -13,7 +13,7 @@ export type DayRepository = {
     userId: User['id'],
   ) => Promise<Accessor<readonly DayDiet[]>>
   fetchDayDiet: (dayId: DayDiet['id']) => Promise<DayDiet | null>
-  insertDayDiet: (newDay: NewDayDiet) => Promise<DayDiet | null> // TODO: Remove nullability from insertDay
+  insertDayDiet: (newDay: NewDayDiet) => Promise<DayDiet | null> // TODO:   Remove nullability from insertDay
   updateDayDiet: (dayId: DayDiet['id'], newDay: NewDayDiet) => Promise<DayDiet>
   deleteDayDiet: (id: DayDiet['id']) => Promise<void>
 }

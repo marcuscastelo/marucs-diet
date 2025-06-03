@@ -1,4 +1,4 @@
-// TODO: Remove deprecated DayDietEditor usage - Replace with pure functions
+// TODO:   Remove deprecated DayDietEditor usage - Replace with pure functions
 import { DayDietEditor } from '~/legacy/utils/data/dayDietEditor'
 import {
   currentDayDiet,
@@ -14,7 +14,7 @@ import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { handleApiError } from '~/shared/error/errorHandler'
 
 export function insertItemGroup(
-  _dayId: DayDiet['id'], // TODO: Remove dayId from functions that don't need it.
+  _dayId: DayDiet['id'], // TODO:   Remove dayId from functions that don't need it.
   mealId: Meal['id'],
   newItemGroup: ItemGroup,
 ) {
@@ -39,7 +39,7 @@ export function insertItemGroup(
 }
 
 export function updateItemGroup(
-  _dayId: DayDiet['id'], // TODO: Remove dayId from functions that don't need it.
+  _dayId: DayDiet['id'], // TODO:   Remove dayId from functions that don't need it.
   mealId: Meal['id'],
   itemGroupId: ItemGroup['id'],
   newItemGroup: ItemGroup,
@@ -69,7 +69,7 @@ export function updateItemGroup(
 }
 
 export function deleteItemGroup(
-  _dayId: DayDiet['id'], // TODO: Remove dayId from functions that don't need it
+  _dayId: DayDiet['id'], // TODO:   Remove dayId from functions that don't need it
   mealId: Meal['id'],
   itemGroupId: ItemGroup['id'],
 ) {

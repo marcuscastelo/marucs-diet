@@ -60,7 +60,7 @@ export function TemplateSearchResults(props: {
                       reference: template().id,
                     }),
                     __type:
-                      template().__type === 'Food' ? 'Item' : 'RecipeItem', // TODO: Refactor conversion from template type to group/item types
+                      template().__type === 'Food' ? 'Item' : 'RecipeItem', // TODO:   Refactor conversion from template type to group/item types
                   })}
                   class="mt-1"
                   macroOverflow={() => ({

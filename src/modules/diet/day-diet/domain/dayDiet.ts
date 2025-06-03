@@ -4,7 +4,7 @@ import { type Meal } from '~/modules/diet/meal/domain/meal'
 
 export const dayDietSchema = z.object({
   id: z.number(),
-  targetDay: z.string(), // TODO: Change target_day to supabase date type
+  targetDay: z.string(), // TODO:   Change target_day to supabase date type
   owner: z.number(),
   meals: z.array(mealSchema),
   __type: z

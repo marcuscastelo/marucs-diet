@@ -6,7 +6,7 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'standard-with-typescript',
-    // 'plugin:jsx-a11y/recommended', // TODO: Enable a11y rules as warnings.
+    // 'plugin:jsx-a11y/recommended', // TODO:   Enable a11y rules as warnings.
     'plugin:solid/recommended',
     'plugin:prettier/recommended',
   ],
@@ -36,9 +36,9 @@ module.exports = {
     'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': 'warn',
 
-    '@typescript-eslint/prefer-readonly-parameter-types': 0, // TODO: Change prefer-readonly-parameter-types to error
-    '@typescript-eslint/strict-boolean-expressions': 'warn', // TODO: Change strict-boolean-expressions to error
-    '@typescript-eslint/no-unnecessary-type-assertion': 'warn', // TODO: Change no-unnecessary-type-assertion to error
+    '@typescript-eslint/prefer-readonly-parameter-types': 0, // TODO:   Change prefer-readonly-parameter-types to error
+    '@typescript-eslint/strict-boolean-expressions': 'warn', // TODO:   Change strict-boolean-expressions to error
+    '@typescript-eslint/no-unnecessary-type-assertion': 'warn', // TODO:   Change no-unnecessary-type-assertion to error
 
     'prettier/prettier': [
       'error',

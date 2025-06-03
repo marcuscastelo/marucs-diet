@@ -7,7 +7,7 @@ import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { deepCopy } from '~/legacy/utils/deepCopy'
 import { type Mutable } from '~/legacy/utils/typeUtils'
 
-// TODO: Remove deprecated ItemGroupEditor - Replace with pure functions in item-group/application/
+// TODO:   Remove deprecated ItemGroupEditor - Replace with pure functions in item-group/application/
 /**
  * @deprecated Use pure functions instead of ItemGroupEditor pattern.
  * Replace with functions like: addItemToGroup(group, item), updateGroupRecipe(group, recipeId)

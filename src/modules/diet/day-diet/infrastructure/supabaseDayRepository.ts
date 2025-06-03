@@ -17,7 +17,7 @@ import {
   createInsertDayDietDAOFromNewDayDiet,
 } from './dayDietDAO'
 
-// TODO: Delete old days table and rename days_test to days
+// TODO:   Delete old days table and rename days_test to days
 export const SUPABASE_TABLE_DAYS = 'days_test'
 
 export function createSupabaseDayRepository(): DayRepository {
@@ -32,15 +32,15 @@ export function createSupabaseDayRepository(): DayRepository {
 }
 
 /**
- * // TODO: Replace userDays with userDayIndexes
+ * // TODO:   Replace userDays with userDayIndexes
  * @deprecated should be replaced by userDayIndexes
  */
 const [userDays, setUserDays] = createSignal<readonly DayDiet[]>([])
 // const [userDayIndexes, setUserDayIndexes] = createSignal<readonly DayIndex[]>([])
 
-// TODO: better error handling
+// TODO:   better error handling
 async function fetchDayDiet(_dayId: DayDiet['id']): Promise<DayDiet | null> {
-  //   // TODO: filter userId in query
+  //   // TODO:   filter userId in query
   //   console.debug(`[supabaseDayRepository] fetchDayDiet(${dayId})`)
   //   const { data, error } = await supabase.from(SUPABASE_TABLE_DAYS).select().eq('id', dayId)
 
@@ -57,11 +57,11 @@ async function fetchDayDiet(_dayId: DayDiet['id']): Promise<DayDiet | null> {
   //   return dayDiets[0] ?? null
   // }
 
-  // // TODO: better error handling
+  // // TODO:   better error handling
   // async function fetchUserDayIndexes (
   //   userId: User['id']
   // ): Promise<Accessor<readonly DayIndex[]>> {
-  //   // TODO: filter userId in query
+  //   // TODO:   filter userId in query
   //   console.debug(`[supabaseDayRepository] fetchUserDayIndexes(${userId})`)
   //   const { data, error } = await supabase
   //     .from(SUPABASE_TABLE_DAYS)
@@ -83,7 +83,7 @@ async function fetchDayDiet(_dayId: DayDiet['id']): Promise<DayDiet | null> {
   return null
 }
 
-// TODO: better error handling
+// TODO:   better error handling
 async function fetchAllUserDayDiets(
   userId: User['id'],
 ): Promise<Accessor<readonly DayDiet[]>> {
@@ -127,7 +127,7 @@ async function fetchAllUserDayDiets(
   return userDays
 }
 
-// TODO: Change upserts to inserts on the entire app
+// TODO:   Change upserts to inserts on the entire app
 const insertDayDiet = async (newDay: NewDayDiet): Promise<DayDiet | null> => {
   const createDAO = createInsertDayDietDAOFromNewDayDiet(newDay)
 

@@ -30,7 +30,7 @@ import {
   handleValidationError,
 } from '~/shared/error/errorHandler'
 
-// TODO: Use repository pattern through use cases instead of directly using repositories
+// TODO:   Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
 
 export type ItemViewProps = {
@@ -80,7 +80,7 @@ export type ItemHeaderProps = {
 export function ItemHeader(props: ItemHeaderProps) {
   return (
     <div class="flex">
-      {/* //TODO: Item id is random, but it should be an entry on the database (meal too) */}
+      {/* //TODO:   Item id is random, but it should be an entry on the database (meal too) */}
       {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.Item.id}]</h5> */}
       <div class="my-2">{props.name}</div>
       <div class="ml-auto flex flex-col">
@@ -105,7 +105,7 @@ export function ItemName() {
     const itemValue = item()
     if (itemValue === undefined) {
       console.warn('[ItemName] item is undefined!!')
-      return // TODO: Remove serverActions: causing bugs with signals
+      return // TODO:   Remove serverActions: causing bugs with signals
     }
 
     if (itemValue.__type === 'RecipeItem') {
@@ -158,7 +158,7 @@ export function ItemName() {
 
   return (
     <div class="">
-      {/* //TODO: Item id is random, but it should be an entry on the database (meal too) */}
+      {/* //TODO:   Item id is random, but it should be an entry on the database (meal too) */}
       {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.Item.id}]</h5> */}
       <h5
         class={`mb-2 text-lg font-bold tracking-tight ${templateNameColor()}`}

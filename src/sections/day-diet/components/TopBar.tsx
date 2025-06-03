@@ -1,9 +1,9 @@
 import { TargetDayPicker } from '~/sections/common/components/TargetDayPicker'
 import { createEffect } from 'solid-js'
 
-// TODO: make day/TopBar a common component
+// TODO:   make day/TopBar a common component
 export default function TopBar(props: { selectedDay: string }) {
-  // TODO: Add datepicker to top bar
+  // TODO:   Add datepicker to top bar
   createEffect(() => {
     console.debug('TopBar', props.selectedDay)
   })

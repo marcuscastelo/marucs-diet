@@ -18,7 +18,7 @@ import {
   type ItemGroup,
   isSimpleSingleGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
-// TODO: Remove deprecated RecipeEditor usage - Replace with pure functions
+// TODO:   Remove deprecated RecipeEditor usage - Replace with pure functions
 import { RecipeEditor } from '~/legacy/utils/data/recipeEditor'
 import toast from 'solid-toast'
 
@@ -55,7 +55,7 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
     console.debug('onNewItemGroup', newGroup)
 
     if (!isSimpleSingleGroup(newGroup)) {
-      // TODO: Handle non-simple groups on handleNewItemGroup
+      // TODO:   Handle non-simple groups on handleNewItemGroup
       handleValidationError('Cannot add complex groups to recipes', {
         component: 'RecipeEditModal',
         operation: 'handleNewItemGroup',
@@ -80,7 +80,7 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
   }
 
   createEffect(() => {
-    // TODO: Replace itemEditModalVisible with a derived signal
+    // TODO:   Replace itemEditModalVisible with a derived signal
     setItemEditModalVisible(selectedItem() !== null)
   })
 
@@ -153,7 +153,7 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
                   setTemplateSearchModalVisible(true)
                 }}
                 onEditItem={(item) => {
-                  // TODO: Allow user to edit recipe.
+                  // TODO:   Allow user to edit recipe.
                   if (item.__type === 'RecipeItem') {
                     toast.error(
                       'Ainda não é possível editar receitas dentro de receitas! Funcionalidade em desenvolvimento',

@@ -3,7 +3,7 @@ import { useFetch } from '~/sections/common/hooks/useFetch'
 import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 import { type Accessor, createEffect } from 'solid-js'
 
-// TODO: Use repository pattern through use cases instead of directly using repositories
+// TODO:   Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
 
 /**

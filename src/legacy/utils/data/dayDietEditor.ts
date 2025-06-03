@@ -8,7 +8,7 @@ import {
 } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 
-// TODO: Remove deprecated DayDietEditor - Replace with pure functions in day-diet/application/
+// TODO:   Remove deprecated DayDietEditor - Replace with pure functions in day-diet/application/
 /**
  * @deprecated Use pure functions instead of DayDietEditor pattern.
  * Replace with functions like: updateMealInDay(day, mealId, meal), addMealToDay(day, meal)
@@ -86,5 +86,5 @@ export class DayDietEditor extends Editor<DayDiet, NewDayDiet> {
 }
 
 /**
- * @deprecated Not used. TODO: Clean up dayDiet repository.
+ * @deprecated Not used. TODO:   Clean up dayDiet repository.
  */

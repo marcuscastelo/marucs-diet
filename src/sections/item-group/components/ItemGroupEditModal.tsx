@@ -41,7 +41,7 @@ import {
 } from '~/sections/common/context/ConfirmModalContext'
 import { PasteIcon } from '~/sections/common/components/icons/PasteIcon'
 import { regenerateId } from '~/legacy/utils/idUtils'
-// TODO: Remove deprecated ItemGroupEditor usage - Replace with pure functions
+// TODO:   Remove deprecated ItemGroupEditor usage - Replace with pure functions
 import { ItemGroupEditor } from '~/legacy/utils/data/itemGroupEditor'
 import { ConvertToRecipeIcon } from '~/sections/common/components/icons/ConvertToRecipeIcon'
 import { deepCopy } from '~/legacy/utils/deepCopy'
@@ -161,8 +161,8 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
     }
 
     if (!isSimpleSingleGroup(newGroup)) {
-      // TODO: Handle non-simple groups on handleNewItemGroup
-      console.error('TODO: Handle non-simple groups')
+      // TODO:   Handle non-simple groups on handleNewItemGroup
+      console.error('TODO:   Handle non-simple groups')
       toast.error(
         'Grupos complexos ainda não são suportados, funcionalidade em desenvolvimento',
       )
@@ -235,8 +235,8 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
       throw new Error('group is null')
     }
 
-    // TODO: Allow user to edit recipe.
-    // TODO: Allow user to edit recipe inside a group.
+    // TODO:   Allow user to edit recipe.
+    // TODO:   Allow user to edit recipe inside a group.
     if (item.__type === 'RecipeItem') {
       toast.error(
         'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
@@ -631,7 +631,7 @@ function Body(props: {
                                 <button
                                   class="my-auto ml-auto"
                                   onClick={() => {
-                                    // TODO: Create recipe for groups that don't have one
+                                    // TODO:   Create recipe for groups that don't have one
                                     props.setRecipeEditModalVisible(true)
                                   }}
                                 >
@@ -702,10 +702,10 @@ function Body(props: {
 
           <ItemListView
             items={() => group()?.items ?? []}
-            // TODO: Check if this margin was lost.
+            // TODO:   Check if this margin was lost.
             //   className="mt-4"
             onItemClick={(item) => {
-              // TODO: Allow user to edit recipe
+              // TODO:   Allow user to edit recipe
               if (item.__type === 'RecipeItem') {
                 toast.error(
                   'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
@@ -779,7 +779,7 @@ function Actions(props: {
   visible: Accessor<boolean>
   setVisible: Setter<boolean>
 }) {
-  // TODO: Make itemGroup not nullable? Reflect changes on all group?. and itemGroup?. and ?? everywhere
+  // TODO:   Make itemGroup not nullable? Reflect changes on all group?. and itemGroup?. and ?? everywhere
   const { group, saveGroup } = useItemGroupEditContext()
 
   const { show: showConfirmModal } = useConfirmModalContext()
@@ -799,7 +799,7 @@ function Actions(props: {
               showConfirmModal({
                 title: 'Excluir grupo',
                 body: `Tem certeza que deseja excluir o grupo ${
-                  group()?.name ?? 'BUG: group is null' // TODO: Color group name orange and BUG red
+                  group()?.name ?? 'BUG: group is null' // TODO:   Color group name orange and BUG red
                 }?`,
                 actions: [
                   {

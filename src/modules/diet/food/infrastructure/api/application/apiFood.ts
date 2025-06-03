@@ -10,10 +10,10 @@ import { handleApiError } from '~/shared/error/errorHandler'
 import axios from 'axios'
 import toast from 'solid-toast'
 
-// TODO: Depency injection for repositories on all application files
+// TODO:   Depency injection for repositories on all application files
 const foodRepository = createSupabaseFoodRepository()
 
-// TODO: Move `convertApi2Food` to a more appropriate place
+// TODO:   Move `convertApi2Food` to a more appropriate place
 export function convertApi2Food(food: ApiFood): NewFood {
   return createNewFood({
     name: food.nome,

@@ -260,11 +260,11 @@ function ExternalItemGroupEditModal(props: {
               updateItemGroup(
                 props.day().id,
                 editSelection().meal.id,
-                group.id, // TODO: Get id from selection instead of group parameter (avoid bugs if id is changed).
+                group.id, // TODO:   Get id from selection instead of group parameter (avoid bugs if id is changed).
                 group,
               )
 
-              // TODO: Analyze if these commands are troublesome
+              // TODO:   Analyze if these commands are troublesome
               setEditSelection(null)
               props.setVisible(false)
             }}

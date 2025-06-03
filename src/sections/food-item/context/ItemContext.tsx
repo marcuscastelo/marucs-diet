@@ -6,7 +6,7 @@ import {
   useContext,
 } from 'solid-js'
 
-// TODO: Rename to TemplateItemContext
+// TODO:   Rename to TemplateItemContext
 const ItemContext = createContext<{
   item: Accessor<TemplateItem>
   macroOverflow: () => {
@@ -25,7 +25,7 @@ export function useItemContext() {
   return context
 }
 
-// TODO: Rename to TemplateItemContext
+// TODO:   Rename to TemplateItemContext
 export function ItemContextProvider(props: {
   item: Accessor<TemplateItem>
   macroOverflow: () => {

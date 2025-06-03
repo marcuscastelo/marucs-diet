@@ -4,13 +4,13 @@ import { generateId } from '~/legacy/utils/idUtils'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { handleApiError } from '~/shared/error/errorHandler'
 
-// TODO: Add support for nested groups and recipes (recursive schema: https://github.com/colinhacks/zod#recursive-types)
-// TODO: In the future, it seems like discriminated unions will deprecated (https://github.com/colinhacks/zod/issues/2106)
+// TODO:   Add support for nested groups and recipes (recursive schema: https://github.com/colinhacks/zod#recursive-types)
+// TODO:   In the future, it seems like discriminated unions will deprecated (https://github.com/colinhacks/zod/issues/2106)
 
 export const simpleItemGroupSchema = z.object({
   id: z.number(),
   name: z.string(),
-  items: itemSchema.array(), // TODO: Support nested groups and recipes
+  items: itemSchema.array(), // TODO:   Support nested groups and recipes
   type: z.literal('simple'),
   recipe: z
     .number()
@@ -23,7 +23,7 @@ export const simpleItemGroupSchema = z.object({
 export const recipedItemGroupSchema = z.object({
   id: z.number(),
   name: z.string(),
-  items: itemSchema.array().readonly(), // TODO: Support nested groups and recipes
+  items: itemSchema.array().readonly(), // TODO:   Support nested groups and recipes
   type: z.literal('recipe'),
   recipe: z.number(),
   __type: z.literal('ItemGroup').default('ItemGroup'),
@@ -151,7 +151,7 @@ export function isRecipedGroupUpToDate(
       return false
     }
 
-    // TODO: Compare macros when they are implemented in the recipe
+    // TODO:   Compare macros when they are implemented in the recipe
   }
   return true
 }

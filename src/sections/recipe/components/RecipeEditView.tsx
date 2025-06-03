@@ -1,4 +1,4 @@
-// TODO: Unify Recipe and Recipe components into a single component?
+// TODO:   Unify Recipe and Recipe components into a single component?
 
 import { type Recipe, recipeSchema } from '~/modules/diet/recipe/domain/recipe'
 import { itemSchema } from '~/modules/diet/item/domain/item'
@@ -20,7 +20,7 @@ import { itemGroupSchema } from '~/modules/diet/item-group/domain/itemGroup'
 import { PreparedQuantity } from '~/sections/common/components/PreparedQuantity'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import { FloatInput } from '~/sections/common/components/FloatInput'
-// TODO: Remove deprecated RecipeEditor usage - Replace with pure functions
+// TODO:   Remove deprecated RecipeEditor usage - Replace with pure functions
 import { RecipeEditor } from '~/legacy/utils/data/recipeEditor'
 import { cn } from '~/shared/cn'
 import { type JSXElement, type Accessor, type Setter } from 'solid-js'
@@ -36,7 +36,7 @@ export type RecipeEditViewProps = {
   className?: string
 }
 
-// TODO: Reenable drag and drop
+// TODO:   Reenable drag and drop
 // a little function to help us with reordering the result
 // const reorder = (list: unknown[], startIndex: number, endIndex: number) => {
 //   const result = Array.from(list)
@@ -47,7 +47,7 @@ export type RecipeEditViewProps = {
 // }
 
 export default function RecipeEditView(props: RecipeEditViewProps) {
-  // TODO: implement setRecipe
+  // TODO:   implement setRecipe
   return (
     <div class={cn('p-3', props.className)}>
       <RecipeEditContextProvider

@@ -49,7 +49,7 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
   const { setVisible } = useModalContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
-  // TODO: Better initial state for item on ItemEditModal
+  // TODO:   Better initial state for item on ItemEditModal
   const [item, setItem] = createSignal<TemplateItem>({
     __type: props.item()?.__type ?? 'Item',
     id: props.item()?.id ?? generateId(),
@@ -318,11 +318,11 @@ function Body(props: {
             favorite={
               <ItemFavorite
                 favorite={
-                  // TODO: [Feature] Add recipe favorite
+                  // TODO:   [Feature] Add recipe favorite
                   isFoodFavorite(props.item().reference) || false
                 }
                 onSetFavorite={(favorite) => {
-                  // TODO: [Feature] Add recipe favorite
+                  // TODO:   [Feature] Add recipe favorite
                   setFoodAsFavorite(props.item().reference, favorite)
                 }}
               />

@@ -114,7 +114,7 @@ async function internalCachedSearchFoods(
         query = query.ilike(field, `%${value}%`)
         break
       default:
-        ;((_: never) => _)(operator) // TODO: Create a better function for exhaustive checks
+        ;((_: never) => _)(operator) // TODO:   Create a better function for exhaustive checks
     }
   }
 

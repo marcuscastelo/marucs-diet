@@ -19,7 +19,7 @@ import {
   MealContextProvider,
   useMealContext,
 } from '~/sections/meal/context/MealContext'
-// TODO: Remove deprecated MealEditor usage - Replace with pure functions
+// TODO:   Remove deprecated MealEditor usage - Replace with pure functions
 import { MealEditor } from '~/legacy/utils/data/mealEditor'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 
@@ -37,7 +37,7 @@ export type MealEditViewProps = {
   class?: string
 }
 
-// TODO: move this function
+// TODO:   move this function
 // a little function to help us with reordering the result
 // const reorder = (list: unknown[], startIndex: number, endIndex: number) => {
 //   const result = Array.from(list)
@@ -51,7 +51,7 @@ export function MealEditView(props: MealEditViewProps) {
   return (
     <MealContextProvider meal={() => props.meal}>
       <div
-        class={`bg-gray-800 p-3 ${props.class ?? ''}`} // TODO: use cn on all classes that use props.class
+        class={`bg-gray-800 p-3 ${props.class ?? ''}`} // TODO:   use cn on all classes that use props.class
       >
         {props.header}
         {props.content}
@@ -133,7 +133,7 @@ export function MealEditViewHeader(props: {
             <h5 class="text-3xl">{mealSignal()?.name}</h5>
             <p class="italic text-gray-400">{mealCalories().toFixed(0)}kcal</p>
           </div>
-          {/* // TODO: Remove code duplication between MealEditView and RecipeView */}
+          {/* // TODO:   Remove code duplication between MealEditView and RecipeView */}
           <div class={'ml-auto flex gap-2'}>
             {!hasValidPastableOnClipboard() &&
               (mealSignal()?.groups.length ?? 0) > 0 && (

@@ -18,7 +18,7 @@ import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { formatError } from '~/shared/formatError'
 
 export function MeasuresEvolution() {
-  // TODO: Remove `measures` signal and use use cases instead
+  // TODO:   Remove `measures` signal and use use cases instead
   const [measures, setMeasures] = createSignal<Loadable<readonly Measure[]>>({
     loading: true,
   })

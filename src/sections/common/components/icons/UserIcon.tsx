@@ -1,7 +1,7 @@
 import { type User } from '~/modules/user/domain/user'
 
 export function UserIcon(props: { userId: User['id']; class?: string }) {
-  // TODO: validateDOMNesting(...): <div> cannot appear as a descendant of <p>.
+  // TODO:   validateDOMNesting(...): <div> cannot appear as a descendant of <p>.
   return (
     <div class={props.class}>
       <img

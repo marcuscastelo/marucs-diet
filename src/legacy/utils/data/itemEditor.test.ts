@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-// TODO: Remove deprecated ItemEditor test - Replace with pure function tests
+// TODO:   Remove deprecated ItemEditor test - Replace with pure function tests
 import { ItemEditor } from './itemEditor'
 import { type Item } from '~/modules/diet/item/domain/item'
 

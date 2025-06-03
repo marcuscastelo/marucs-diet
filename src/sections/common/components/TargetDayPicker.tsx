@@ -16,7 +16,7 @@ export function TargetDayPicker() {
 
     const dateString = newValue.startDate
     const date = stringToDate(dateString)
-    const dayString = date.toISOString().split('T')[0] // TODO: retriggered: use dateUtils when this is understood
+    const dayString = date.toISOString().split('T')[0] // TODO:   use dateUtils when this is understood
     setTargetDay(dayString)
   }
 

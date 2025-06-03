@@ -32,7 +32,7 @@ export function ExternalRecipeEditModal(props: {
               updateRecipe(recipe.id, recipe)
                 .then(props.setRecipe)
                 .catch((e) => {
-                  // TODO: Remove all console.error from Components and move to application/ folder
+                  // TODO:   Remove all console.error from Components and move to application/ folder
                   console.error(
                     '[ItemGroupEditModal::ExternalRecipeEditModal] Error updating recipe:',
                     e,

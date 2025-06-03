@@ -26,7 +26,7 @@ export function createSupabaseRecipeRepository(): RecipeRepository {
   }
 }
 
-// TODO: retriggered: tratar erros (também no resto dos controllers)
+// TODO:   tratar erros (também no resto dos controllers)
 const fetchUserRecipes = async (userId: User['id']): Promise<Recipe[]> => {
   const { data, error } = await supabase
     .from(TABLE)

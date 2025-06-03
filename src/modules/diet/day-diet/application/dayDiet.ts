@@ -86,7 +86,7 @@ createEffect(() => {
 })
 
 /**
- * @deprecated Not used. TODO: Clean up dayDiet repository
+ * @deprecated Not used. TODO:   Clean up dayDiet repository
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export async function __unused_refetchCurrentDayDiet() {
@@ -108,7 +108,7 @@ export async function __unused_refetchCurrentDayDiet() {
     })
 }
 
-// TODO: Stop fetching all day diets
+// TODO:   Stop fetching all day diets
 export async function fetchAllUserDayDiets(userId: User['id']) {
   await dayRepository
     .fetchAllUserDayDiets(userId)
@@ -132,7 +132,7 @@ export async function insertDayDiet(dayDiet: NewDayDiet): Promise<void> {
       error: 'Falha ao criar novo dia de dieta',
     })
     .then(async () => {
-      await fetchAllUserDayDiets(dayDiet.owner) // TODO: Stop fetching all day diets
+      await fetchAllUserDayDiets(dayDiet.owner) // TODO:   Stop fetching all day diets
     })
     .catch((error) => {
       console.error(error)
@@ -150,7 +150,7 @@ export async function updateDayDiet(
       error: 'Falha ao atualizar dieta',
     })
     .then(async () => {
-      await fetchAllUserDayDiets(dayDiet.owner) // TODO: Stop fetching all day diets
+      await fetchAllUserDayDiets(dayDiet.owner) // TODO:   Stop fetching all day diets
     })
     .catch((error) => {
       console.error(error)
@@ -165,7 +165,7 @@ export async function deleteDayDiet(dayId: DayDiet['id']): Promise<void> {
       error: 'Falha ao deletar dieta',
     })
     .then(async () => {
-      await fetchAllUserDayDiets(dayId) // TODO: Stop fetching all day diets
+      await fetchAllUserDayDiets(dayId) // TODO:   Stop fetching all day diets
     })
     .catch((error) => {
       console.error(error)

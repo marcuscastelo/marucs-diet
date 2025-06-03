@@ -41,14 +41,14 @@ export function ExternalTemplateToItemGroupModal(props: ExternalTemplateToItemGr
             reference: template.id,
             name: template.name,
             macros,
-            __type: template.__type === 'Food' ? 'Item' : 'RecipeItem', // TODO: Refactor conversion from template type to group/item types
+            __type: template.__type === 'Food' ? 'Item' : 'RecipeItem', // TODO:   Refactor conversion from template type to group/item types
           }
         }}
         macroOverflow={() => ({
           enable: true,
         })}
         onApply={(item) => {
-          // TODO: Refactor conversion from template type to group/item types
+          // TODO:   Refactor conversion from template type to group/item types
           if (item.__type === 'Item') {
             const newGroup: SimpleItemGroup = createSimpleItemGroup({
               name: item.name,

@@ -1,4 +1,4 @@
-// TODO: Remove deprecated DayDietEditor usage - Replace with pure functions
+// TODO:   Remove deprecated DayDietEditor usage - Replace with pure functions
 import { DayDietEditor } from '~/legacy/utils/data/dayDietEditor'
 import {
   currentDayDiet,
@@ -11,11 +11,11 @@ import {
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { handleApiError } from '~/shared/error/errorHandler'
 
-// TODO: Maybe replace empty arrays with loading state (null or something)
+// TODO:   Maybe replace empty arrays with loading state (null or something)
 export const dayMeals = () => currentDayDiet()?.meals ?? []
 
 export async function updateMeal(
-  _dayId: DayDiet['id'], // TODO: Remove dayId from functions that don't need it
+  _dayId: DayDiet['id'], // TODO:   Remove dayId from functions that don't need it
   mealId: Meal['id'],
   newMeal: Meal,
 ) {

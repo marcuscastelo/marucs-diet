@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-// TODO: Use macroNutrientsSchema for other schemas that need macro nutrients
+// TODO:   Use macroNutrientsSchema for other schemas that need macro nutrients
 export const macroNutrientsSchema = z.object({
   carbs: z.number(),
   protein: z.number(),

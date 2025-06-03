@@ -12,7 +12,7 @@ import { Show, createEffect, createSignal, type Accessor } from 'solid-js'
 import toast from 'solid-toast'
 
 export function CopyLastDayButton(props: {
-  dayDiet: Accessor<DayDiet | undefined> // TODO: Rename all 'day' to 'dayDiet' on entire project.
+  dayDiet: Accessor<DayDiet | undefined> // TODO:   Rename all 'day' to 'dayDiet' on entire project.
   selectedDay: string
 }) {
   const { show: showConfirmModal } = useConfirmModalContext()
@@ -87,7 +87,7 @@ export function CopyLastDayButton(props: {
               ).catch(() => {})
             }}
           >
-            {/* //TODO: Allow copying any past day, not just latest one. */}
+            {/* //TODO:   Allow copying any past day, not just latest one. */}
             Copiar dia anterior ({lastDay.targetDay})
           </button>
         )}

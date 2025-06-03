@@ -22,7 +22,7 @@ import {
   handleValidationError,
 } from '~/shared/error/errorHandler'
 
-// TODO: Use repository pattern through use cases instead of directly using repositories
+// TODO:   Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
 
 export type ItemGroupViewProps = {
@@ -62,11 +62,11 @@ export type ItemGroupViewHeaderProps = {
 export function ItemGroupHeader(props: ItemGroupViewHeaderProps) {
   return (
     <div class="flex">
-      {/* //TODO: ItemGroupView id is random, but it should be an entry on the database (meal too) */}
+      {/* //TODO:   ItemGroupView id is random, but it should be an entry on the database (meal too) */}
       {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.ItemGroupView.id}]</h5> */}
       <div class="my-2">{props.name}</div>
       {/*
-        // TODO: Remove code duplication between ItemView and ItemGroupView
+        // TODO:   Remove code duplication between ItemView and ItemGroupView
       */}
       <div class={'ml-auto flex gap-2'}>
         <div class="my-auto">{props.copyButton}</div>
@@ -156,7 +156,7 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
   return (
     <div class="">
       {/*
-        //TODO: ItemGroupView id is random, but it should be an entry on the database (meal too)
+        //TODO:   ItemGroupView id is random, but it should be an entry on the database (meal too)
       */}
       {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.ItemGroupView.id}]</h5> */}
       <h5 class={`mb-2 text-lg font-bold tracking-tight ${nameColor()}`}>

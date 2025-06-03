@@ -7,7 +7,7 @@ export const recipeItemSchema = z.object({
   name: z.string(),
   reference: z.number(),
   quantity: z.number(),
-  macros: macroNutrientsSchema, // TODO: Rename to foodMacros for clarity
+  macros: macroNutrientsSchema, // TODO:   Rename to foodMacros for clarity
   __type: z
     .string()
     .nullable()
@@ -30,7 +30,7 @@ export function createRecipeItem({
 }) {
   return recipeItemSchema.parse({
     __type: 'RecipeItem',
-    id: generateId(), // TODO: Remove id generation from createRecipeItem and use it only in the database
+    id: generateId(), // TODO:   Remove id generation from createRecipeItem and use it only in the database
     name,
     reference,
     quantity,

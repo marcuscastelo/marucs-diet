@@ -14,9 +14,9 @@ import toast from 'solid-toast'
 import { formatError } from '~/shared/formatError'
 import { handleApiError } from '~/shared/error/errorHandler'
 type Translation<T extends string> = { [key in T]: string }
-// TODO: Create module for translations
-// TODO: Make diet translations appear in the UI
-// TODO: Make select input for diet (cut, normo, bulk)
+// TODO:   Create module for translations
+// TODO:   Make diet translations appear in the UI
+// TODO:   Make select input for diet (cut, normo, bulk)
 const DIET_TRANSLATION: Translation<User['diet']> = {
   cut: 'Cutting',
   normo: 'Normocalórica',

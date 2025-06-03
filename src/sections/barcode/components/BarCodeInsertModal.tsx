@@ -50,7 +50,7 @@ const BarCodeInsertModal = (props: BarCodeInsertModalProps) => {
       <Modal.Header title="Pesquisar por código de barras" />
       <Modal.Content>
         {/*
-          // TODO: Apply Show when visible for all modals?
+          // TODO:   Apply Show when visible for all modals?
         */}
         <BarCodeReader
           enabled={visible()}

@@ -49,7 +49,7 @@ export function WeightEvolution() {
           Progresso do peso ({weightProgressText()})
         </h5>
         <div class="mx-5 lg:mx-20 pb-10">
-          {/* // TODO: Create combo box to select weight chart variant (7 days or all time)  */}
+          {/* // TODO:   Create combo box to select weight chart variant (7 days or all time)  */}
           <WeightChart
             weights={userWeights()}
             desiredWeight={desiredWeight()}
@@ -246,7 +246,7 @@ function WeightChart(props: {
     const year = weight.target_timestamp.getFullYear()
     const twoDigitYear = year % 100
 
-    // TODO: create weight chart types: Daily, Weekly, Monthly, Semianually, Anually, Auto
+    // TODO:   create weight chart types: Daily, Weekly, Monthly, Semianually, Anually, Auto
 
     const date_ = `${day}/${month}/${twoDigitYear}`
     const date = props.type === 'last-30-days' ? date_ : half

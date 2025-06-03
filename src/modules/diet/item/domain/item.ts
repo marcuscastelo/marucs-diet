@@ -33,7 +33,7 @@ export function createItem({
 }) {
   return itemSchema.parse({
     __type: 'Item',
-    id: generateId(), // TODO: Remove id generation from createItem and use it only in the database
+    id: generateId(), // TODO:   Remove id generation from createItem and use it only in the database
     name,
     reference,
     quantity,

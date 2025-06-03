@@ -4,7 +4,7 @@ import { userMacroProfiles } from '~/modules/diet/macro-profile/application/macr
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { MacroTarget } from '~/sections/macro-nutrients/components/MacroTargets'
 
-// TODO: Rename MacroProfileComp to MacroProfile.
+// TODO:   Rename MacroProfileComp to MacroProfile.
 export function MacroProfileComp() {
   return (
     <div class={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>

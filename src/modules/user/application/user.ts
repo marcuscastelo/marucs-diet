@@ -103,7 +103,7 @@ export function changeToUser(userId: User['id']): void {
   setCurrentUserId(userId)
 }
 
-// TODO: Create module for favorites
+// TODO:   Create module for favorites
 export function isFoodFavorite(foodId: number): boolean {
   return currentUser()?.favorite_foods.includes(foodId) ?? false
 }

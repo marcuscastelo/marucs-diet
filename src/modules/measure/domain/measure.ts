@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import { z } from 'zod'
 
-// TODO: Create discriminate union type for Male and Female measures
+// TODO:   Create discriminate union type for Male and Female measures
 export const measureSchema = z.object({
   id: z.number(),
   height: z.number(),
@@ -29,7 +29,7 @@ export const newMeasureSchema = measureSchema
     __type: z.literal('NewMeasure'),
   })
 
-// TODO: rename to BodyMeasure
+// TODO:   rename to BodyMeasure
 export type Measure = Readonly<z.infer<typeof measureSchema>>
 export type NewMeasure = Readonly<z.infer<typeof newMeasureSchema>>
 

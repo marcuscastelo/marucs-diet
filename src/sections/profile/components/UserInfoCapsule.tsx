@@ -58,14 +58,14 @@ const makeOnBlur = <T extends keyof User>(
 
     newUser[field] = convert(event.target.value)
 
-    // TODO: Move to server onSave(newProfile)
+    // TODO:   Move to server onSave(newProfile)
     setInnerData(userSchema.parse(newUser))
   }
 }
 
 export const convertString = (value: string) => value
 
-// TODO: Create module for translations
+// TODO:   Create module for translations
 const USER_FIELD_TRANSLATION: Translation<keyof Omit<User, '__type'>> = {
   name: 'Nome',
   gender: 'Gênero',

@@ -8,7 +8,7 @@ import { Show } from 'solid-js'
 import { toastPromise } from '~/shared/toastPromise'
 import { formatError } from '~/shared/formatError'
 
-// TODO: Make meal names editable and persistent by user
+// TODO:   Make meal names editable and persistent by user
 const DEFAULT_MEALS = [
   'Café da manhã',
   'Almoço',
