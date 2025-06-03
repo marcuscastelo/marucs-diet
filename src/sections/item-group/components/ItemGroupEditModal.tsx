@@ -542,6 +542,7 @@ function Body(props: {
                         'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'
                       }
                       onClick={() => {
+                        // TODO: Support editing complex recipes
                         if (isRecipeTooComplex(props.recipe())) {
                           toast.error(
                             'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
@@ -709,6 +710,7 @@ function Body(props: {
               //   recipeEditModalRef.current?.showModal()
               // } else {
 
+              // TODO: Support editing complex recipes
               if (isRecipeTooComplex(props.recipe())) {
                 toast.error(
                   'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
