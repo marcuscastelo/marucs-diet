@@ -19,7 +19,7 @@ import {
   userWeights,
 } from '~/modules/weight/application/weight'
 import Datepicker from '~/sections/datepicker/components/Datepicker'
-import { adjustToTimezone, dateToYYYYMMDD } from '~/legacy/utils/dateUtils'
+import { adjustToTimezone, dateToYYYYMMDD } from '~/shared/utils/date'
 import { SolidApexCharts } from 'solid-apexcharts'
 import { type ApexOptions } from 'apexcharts'
 import toast from 'solid-toast'

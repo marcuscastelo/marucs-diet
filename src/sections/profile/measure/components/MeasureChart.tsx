@@ -6,7 +6,7 @@ import { SolidApexCharts } from 'solid-apexcharts'
 import ptBrLocale from '~/assets/locales/apex/pt-br.json'
 import { type ApexOptions } from 'apexcharts'
 import { createMemo } from 'solid-js'
-import { dateToYYYYMMDD } from '~/legacy/utils/dateUtils'
+import { dateToYYYYMMDD } from '~/shared/utils/date'
 
 type DayAverage = Omit<Measure, '__type' | 'id' | 'owner' | 'target_timestamp'>
 type DayMeasures = {

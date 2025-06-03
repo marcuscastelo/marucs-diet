@@ -5,9 +5,9 @@ import {
 } from '~/modules/diet/macro-profile/domain/macroProfile'
 import {
   dateToYYYYMMDD,
-  getTodayYYYMMDD,
+  getTodayYYYYMMDD,
   stringToDate,
-} from '~/legacy/utils/dateUtils'
+} from '~/shared/utils/date'
 import { calcCalories } from '~/legacy/utils/macroMath'
 import { getLatestMacroProfile } from '~/legacy/utils/macroProfileUtils'
 import { Show, createEffect } from 'solid-js'
@@ -93,14 +93,14 @@ export type MacroTargetProps = {
 
 const onSaveMacroProfile = (profile: MacroProfile) => {
   console.log('[ProfilePage] Saving profile', profile)
-  if (profile.target_day.getTime() > new Date(getTodayYYYMMDD()).getTime()) {
+  if (profile.target_day.getTime() > new Date(getTodayYYYYMMDD()).getTime()) {
     console.error(
       `[ProfilePage] Invalid target day ${profile.target_day.toString()}: it is in the future`,
     )
     toast.error('Data alvo não pode ser no futuro')
   } else if (
     profile.id !== -1 && // TODO: Better typing system for new MacroProfile instead of -1.
-    profile.target_day.getTime() === new Date(getTodayYYYMMDD()).getTime()
+    profile.target_day.getTime() === new Date(getTodayYYYYMMDD()).getTime()
   ) {
     console.log('[ProfilePage] Updating profile', profile)
 
@@ -109,14 +109,14 @@ const onSaveMacroProfile = (profile: MacroProfile) => {
     updateMacroProfile(profile.id, createNewMacroProfile(profile)).catch(console.error)
   } else if (
     profile.id === -1 || // TODO: Better typing system for new MacroProfile instead of -1.
-    profile.target_day.getTime() < new Date(getTodayYYYMMDD()).getTime()
+    profile.target_day.getTime() < new Date(getTodayYYYYMMDD()).getTime()
   ) {
     console.log('[ProfilePage] Inserting profile', profile)
 
     // Past day, insert with new date
     insertMacroProfile(createNewMacroProfile({
       ...profile,
-      target_day: new Date(getTodayYYYMMDD()),
+      target_day: new Date(getTodayYYYYMMDD()),
     })).catch(console.error)
   } else {
     toast.error('Erro imprevisto ao salvar perfil de macro')
@@ -234,8 +234,6 @@ export function MacroTarget(props: MacroTargetProps) {
                                   onClick: () => {
                                     deleteMacroProfile(profile.id)
                                       .then(() => {
-                                        // router.refresh()
-                                        // TODO: refresh page? probably not
                                         toast.success(
                                           'Perfil antigo restaurado com sucesso, se necessário, atualize a página',
                                         )
