@@ -11,7 +11,10 @@ import {
 import toast from 'solid-toast'
 import { formatError } from '~/shared/formatError'
 import { adjustToTimezone } from '~/shared/utils/date/dateUtils'
-import { createNewMeasure, type Measure } from '~/modules/measure/domain/measure'
+import {
+  createNewMeasure,
+  type Measure,
+} from '~/modules/measure/domain/measure'
 
 /**
  * Renders a capsule view for editing and saving a single Measure.
@@ -23,7 +26,9 @@ export function MeasureView(props: {
   measure: Measure
   onRefetchMeasures: () => void
 }) {
-  const dateField = useDateField(() => props.measure.target_timestamp, { fallback: () => new Date() })
+  const dateField = useDateField(() => props.measure.target_timestamp, {
+    fallback: () => new Date(),
+  })
   const heightField = useFloatField(() => props.measure.height)
   const waistField = useFloatField(() => props.measure.waist)
   const hipField = useFloatField(() => props.measure.hip)
@@ -54,20 +59,21 @@ export function MeasureView(props: {
     const afterUpdate = () => {
       props.onRefetchMeasures()
     }
-    updateMeasure(props.measure.id, createNewMeasure({
-      ...props.measure,
-      height,
-      waist,
-      hip,
-      neck,
-      target_timestamp: date,
-    }))
+    updateMeasure(
+      props.measure.id,
+      createNewMeasure({
+        ...props.measure,
+        height,
+        waist,
+        hip,
+        neck,
+        targetTimestamp: date,
+      }),
+    )
       .then(afterUpdate)
       .catch((error) => {
         console.error(error)
-        toast.error(
-          `Erro ao atualizar medida: ${formatError(error)}`
-        )
+        toast.error(`Erro ao atualizar medida: ${formatError(error)}`)
       })
   }
 
@@ -79,9 +85,7 @@ export function MeasureView(props: {
       .then(afterDelete)
       .catch((error) => {
         console.error(error)
-        toast.error(
-          'Erro ao deletar: \n' + JSON.stringify(error, null, 2),
-        )
+        toast.error('Erro ao deletar: \n' + JSON.stringify(error, null, 2))
       })
   }
 
@@ -138,14 +142,7 @@ export function MeasureView(props: {
   )
 }
 
-function MeasureFields({
-  heightField,
-  waistField,
-  hipField,
-  neckField,
-  onSave,
-  getDate,
-}: {
+function MeasureFields(props: {
   heightField: ReturnType<typeof useFloatField>
   waistField: ReturnType<typeof useFloatField>
   hipField: ReturnType<typeof useFloatField>
@@ -164,19 +161,19 @@ function MeasureFields({
       <div class="flex">
         <span class="my-auto">Altura:</span>
         <FloatInput
-          field={heightField}
+          field={props.heightField}
           class="input text-center btn-ghost px-0 flex-shrink"
           style={{ width: '100%' }}
           onFocus={(event) => {
             event.target.select()
           }}
           onFieldCommit={(value) => {
-            onSave({
-              date: getDate(),
+            props.onSave({
+              date: props.getDate(),
               height: value,
-              waist: waistField.value(),
-              hip: hipField.value(),
-              neck: neckField.value(),
+              waist: props.waistField.value(),
+              hip: props.hipField.value(),
+              neck: props.neckField.value(),
             })
           }}
         />
@@ -185,19 +182,19 @@ function MeasureFields({
       <div class="flex">
         <span class="my-auto">Cintura:</span>
         <FloatInput
-          field={waistField}
+          field={props.waistField}
           class="input text-center btn-ghost px-0 flex-shrink"
           style={{ width: '100%' }}
           onFocus={(event) => {
             event.target.select()
           }}
           onFieldCommit={(value) => {
-            onSave({
-              date: getDate(),
-              height: heightField.value(),
+            props.onSave({
+              date: props.getDate(),
+              height: props.heightField.value(),
               waist: value,
-              hip: hipField.value(),
-              neck: neckField.value(),
+              hip: props.hipField.value(),
+              neck: props.neckField.value(),
             })
           }}
         />
@@ -206,19 +203,19 @@ function MeasureFields({
       <div class="flex">
         <span class="my-auto">Quadril:</span>
         <FloatInput
-          field={hipField}
+          field={props.hipField}
           class="input text-center btn-ghost px-0 flex-shrink"
           style={{ width: '100%' }}
           onFocus={(event) => {
             event.target.select()
           }}
           onFieldCommit={(value) => {
-            onSave({
-              date: getDate(),
-              height: heightField.value(),
-              waist: waistField.value(),
+            props.onSave({
+              date: props.getDate(),
+              height: props.heightField.value(),
+              waist: props.waistField.value(),
               hip: value,
-              neck: neckField.value(),
+              neck: props.neckField.value(),
             })
           }}
         />
@@ -227,18 +224,18 @@ function MeasureFields({
       <div class="flex">
         <span class="my-auto">Pescoço:</span>
         <FloatInput
-          field={neckField}
+          field={props.neckField}
           class="input text-center btn-ghost px-0 flex-shrink"
           style={{ width: '100%' }}
           onFocus={(event) => {
             event.target.select()
           }}
           onFieldCommit={(value) => {
-            onSave({
-              date: getDate(),
-              height: heightField.value(),
-              waist: waistField.value(),
-              hip: hipField.value(),
+            props.onSave({
+              date: props.getDate(),
+              height: props.heightField.value(),
+              waist: props.waistField.value(),
+              hip: props.hipField.value(),
               neck: value,
             })
           }}
@@ -249,12 +246,9 @@ function MeasureFields({
   )
 }
 
-function DeleteButton({ onDelete }: { onDelete: () => void }) {
+function DeleteButton(props: { onDelete: () => void }) {
   return (
-    <button
-      class="btn btn-ghost my-auto"
-      onClick={onDelete}
-    >
+    <button class="btn btn-ghost my-auto" onClick={props.onDelete}>
       <TrashIcon />
     </button>
   )

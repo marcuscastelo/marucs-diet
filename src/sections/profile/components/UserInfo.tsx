@@ -118,11 +118,9 @@ export function UserInfo() {
             handleApiError(error, {
               component: 'UserInfo',
               operation: 'updateUser',
-              additionalData: { userId: user.id }
+              additionalData: { userId: user.id },
             })
-            toast.error(
-              `Erro ao atualizar usuário: ${formatError(error)}`,
-            )
+            toast.error(`Erro ao atualizar usuário: ${formatError(error)}`)
           })
         }}
       >
