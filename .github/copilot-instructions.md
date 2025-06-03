@@ -44,6 +44,14 @@ For every new feature or bug fix:
 - Always update the test files in the same commit as the code changes (adding, modifying, or removing functions should be accompanied by corresponding test updates)
 - After making any change, run the `npm type-check` and `npx vitest run`, remember to wait for the output before reading the terminal
 - If any problems are detected, fix them immediately
+- For every code change (including refactoring, renaming, or moving code), always search for and update all related test files in the same commit. 
+- If a function, class, or file is changed, renamed, or removed, ensure all corresponding tests are also updated, renamed, or removed accordingly. 
+- Never leave orphaned or outdated tests after a code change.
+
+## Commits
+- Prioritize small commits (atomic)
+- After some refactoring, sugest the user to commit the changes
+- After additions, refactors, removals, suggest a commit message
 
 ## Code Reviews
 All generated code should be ready for code review, meeting the project's 
