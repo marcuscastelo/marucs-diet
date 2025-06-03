@@ -1,7 +1,16 @@
 {
     "editor.tabSize": 2,
     "editor.detectIndentation": false,
-        "github.copilot.chat.codeGeneration.instructions": [
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "always"
+    },
+    "eslint.validate": [
+        "typescript",
+        "typescriptreact",
+        "javascript",
+        "javascriptreact"
+    ],
+    "github.copilot.chat.codeGeneration.instructions": [
         {
             "file": "docs/ARCHITECTURE_GUIDE.md"
         },
