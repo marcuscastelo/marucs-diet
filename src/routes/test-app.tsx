@@ -89,7 +89,7 @@ export default function TestApp() {
     id: 1,
     meals: [],
     owner: 3,
-    targetDay: '2023-11-02',
+    target_day: '2023-11-02',
   })
 
   createEffect(() => {
