@@ -7,8 +7,7 @@ import {
   type ItemGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
-import { addId } from '~/legacy/utils/idUtils'
-import { TemplateSearchTabs } from '~/sections/search/components/TemplateSearchTabs'
+import { TemplateSearchTabs, availableTabs } from '~/sections/search/components/TemplateSearchTabs'
 import { useTyping } from '~/sections/common/hooks/useTyping'
 import {
   fetchRecentFoodByUserIdAndFoodId,
@@ -63,6 +62,8 @@ import {
 import { formatError } from '~/shared/formatError'
 import { ExternalTemplateToItemGroupModal } from './ExternalTemplateToItemGroupModal'
 import { ExternalBarCodeInsertModal } from './ExternalBarCodeInsertModal'
+
+const DEFAULT_TAB = availableTabs.Todos.id
 
 export type TemplateSearchModalProps = {
   targetName: string
@@ -353,7 +354,7 @@ export function TemplateSearch(props: {
     onTypingEnd: () => {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       refetch()
-    }, // TODO: Change 'all' to selected tab
+    }, // TODO: Change DEFAULT_TAB to selected tab
   })
 
   const [templates, { refetch }] = createResource(
@@ -372,7 +373,7 @@ export function TemplateSearch(props: {
 
   createEffect(() => {
     props.modalVisible()
-    setTemplateSearchTab('all')
+    setTemplateSearchTab(DEFAULT_TAB)
   })
 
   return (
