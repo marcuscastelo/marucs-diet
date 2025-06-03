@@ -1,5 +1,8 @@
 import { getLatestMacroProfile } from '~/legacy/utils/macroProfileUtils'
-import { type MacroProfile, type NewMacroProfile } from '~/modules/diet/macro-profile/domain/macroProfile'
+import {
+  type MacroProfile,
+  type NewMacroProfile,
+} from '~/modules/diet/macro-profile/domain/macroProfile'
 import {
   createSupabaseMacroProfileRepository,
   SUPABASE_TABLE_MACRO_PROFILES,
@@ -30,14 +33,14 @@ async function bootstrap() {
  * Every time the user changes, fetch all user macro profiles
  */
 createEffect(() => {
-  bootstrap()
+  bootstrap().catch(() => {})
 })
 
 /**
  * When a realtime event occurs, fetch all user macro profiles again
  */
 registerSubapabaseRealtimeCallback(SUPABASE_TABLE_MACRO_PROFILES, () => {
-  bootstrap()
+  bootstrap().catch(() => {})
 })
 
 export async function fetchUserMacroProfiles(userId: number) {
@@ -47,9 +50,7 @@ export async function fetchUserMacroProfiles(userId: number) {
   return macroProfiles
 }
 
-export async function insertMacroProfile(
-  newMacroProfile: NewMacroProfile,
-) {
+export async function insertMacroProfile(newMacroProfile: NewMacroProfile) {
   const macroProfile = await toast.promise(
     macroProfileRepository.insertMacroProfile(newMacroProfile),
     {
@@ -59,10 +60,11 @@ export async function insertMacroProfile(
     },
   )
 
-  if (macroProfile && (
-    userMacroProfiles().length === 0 ||
-    macroProfile.owner === userMacroProfiles()[0].owner
-  )) {
+  if (
+    macroProfile &&
+    (userMacroProfiles().length === 0 ||
+      macroProfile.owner === userMacroProfiles()[0].owner)
+  ) {
     await fetchUserMacroProfiles(macroProfile.owner)
   }
   return macroProfile

@@ -116,7 +116,7 @@ const onSaveMacroProfile = (profile: MacroProfile) => {
     // Past day, insert with new date
     insertMacroProfile(createNewMacroProfile({
       ...profile,
-      target_day: new Date(getTodayYYYYMMDD()),
+      targetDay: new Date(getTodayYYYYMMDD()),
     })).catch(console.error)
   } else {
     toast.error('Erro imprevisto ao salvar perfil de macro')
