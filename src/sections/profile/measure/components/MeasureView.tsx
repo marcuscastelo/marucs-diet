@@ -1,9 +1,8 @@
 import { Capsule } from '~/sections/common/components/capsule/Capsule'
-import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
-import { createNewMeasure, type Measure } from '~/modules/measure/domain/measure'
 import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
-import { useFloatField, useDateField } from '~/sections/common/hooks/useField'
+import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import { FloatInput } from '~/sections/common/components/FloatInput'
+import { useFloatField, useDateField } from '~/sections/common/hooks/useField'
 import Datepicker from '~/sections/datepicker/components/Datepicker'
 import {
   deleteMeasure,
@@ -12,6 +11,7 @@ import {
 import toast from 'solid-toast'
 import { formatError } from '~/shared/formatError'
 import { adjustToTimezone } from '~/shared/utils/date/dateUtils'
+import { createNewMeasure, type Measure } from '~/modules/measure/domain/measure'
 
 /**
  * Renders a capsule view for editing and saving a single Measure.
