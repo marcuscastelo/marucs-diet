@@ -46,8 +46,12 @@ For every new feature or bug fix:
 
 ## Commits
 - Prioritize small commits (atomic)
-- After some refactoring, sugest the user to commit the changes
+- Never make an empty commit (commit with no changes)
+- After some refactoring, suggest the user to commit the changes
 - After additions, refactors, removals, suggest a commit message
+
+## Comments
+- Never add a comment in the code explaining to the developer the refactor made by the Copilot agent
 
 ## Code Reviews
 All generated code should be ready for code review, meeting the project's 
