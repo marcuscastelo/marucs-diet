@@ -4,7 +4,7 @@ import {
   adjustToTimezone,
   dateToString,
   stringToDate,
-} from '~/legacy/utils/dateUtils'
+} from '~/shared/utils/date'
 import { createSignal, type Accessor, createEffect } from 'solid-js'
 
 // TODO: Unit test all FieldTransforms

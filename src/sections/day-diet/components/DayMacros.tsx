@@ -4,7 +4,7 @@ import { Show } from 'solid-js'
 import { Progress } from '~/sections/common/components/Progress'
 import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget'
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
-import { stringToDate } from '~/legacy/utils/dateUtils'
+import { stringToDate } from '~/shared/utils/date'
 
 export default function DayMacros(props: { class?: string }) {
   const macroSignals = () => {

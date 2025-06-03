@@ -1,4 +1,4 @@
-import { getTodayYYYMMDD, stringToDate } from '~/legacy/utils/dateUtils'
+import { getTodayYYYYMMDD, stringToDate } from '~/shared/utils/date'
 import {
   setTargetDay,
   targetDay,
@@ -10,7 +10,7 @@ export function TargetDayPicker() {
   const handleDayChange = (newValue: DateValueType) => {
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (!newValue?.startDate) {
-      setTargetDay(getTodayYYYMMDD())
+      setTargetDay(getTodayYYYYMMDD())
       return
     }
 

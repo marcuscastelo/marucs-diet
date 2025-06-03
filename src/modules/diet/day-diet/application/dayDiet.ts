@@ -1,4 +1,4 @@
-import { getTodayYYYMMDD } from '~/legacy/utils/dateUtils'
+import { getTodayYYYYMMDD } from '~/shared/utils/date'
 import {
   type DayDiet,
   dayDietSchema,
@@ -34,7 +34,7 @@ export function createDayDiet({
 
 const dayRepository = createSupabaseDayRepository()
 
-export const [targetDay, setTargetDay] = createSignal<string>(getTodayYYYMMDD())
+export const [targetDay, setTargetDay] = createSignal<string>(getTodayYYYYMMDD())
 
 export const [dayDiets, setDayDiets] = createSignal<readonly DayDiet[]>([])
 

@@ -12,7 +12,7 @@ import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { ItemGroupEditModal } from '~/sections/item-group/components/ItemGroupEditModal'
 import { CopyLastDayButton } from '~/sections/day-diet/components/CopyLastDayButton'
 import { DeleteDayButton } from '~/sections/day-diet/components/DeleteDayButton'
-import { getTodayYYYMMDD } from '~/legacy/utils/dateUtils'
+import { getTodayYYYYMMDD } from '~/shared/utils/date'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import DayNotFound from '~/sections/day-diet/components/DayNotFound'
 import {
@@ -53,7 +53,7 @@ const [newItemSelection, setNewItemSelection] =
   createSignal<NewItemSelection>(null)
 
 export default function DayMeals(props: { selectedDay: string }) {
-  const today = getTodayYYYMMDD()
+  const today = getTodayYYYYMMDD()
   const showingToday = () => today === props.selectedDay
 
   const [dayExplicitlyUnlocked, setDayExplicitlyUnlocked] = createSignal(false)

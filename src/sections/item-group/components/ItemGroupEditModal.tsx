@@ -69,7 +69,7 @@ import {
   targetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
 import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget'
-import { stringToDate } from '~/legacy/utils/dateUtils'
+import { stringToDate } from '~/shared/utils/date'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { isOverflow } from '~/legacy/utils/macroOverflow'
 import toast from 'solid-toast'
