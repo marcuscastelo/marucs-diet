@@ -17,7 +17,7 @@ export function MeasureView(props: {
   onRefetchMeasures: () => void
 }) {
   // Use useDateField for date handling
-  const dateField = useDateField(() => props.measure.target_timestamp)
+  const dateField = useDateField(() => props.measure.target_timestamp, { fallback: () => new Date() })
 
   const heightField = useFloatField(() => props.measure.height)
   const waistField = useFloatField(() => props.measure.waist)
@@ -74,8 +74,8 @@ export function MeasureView(props: {
         <CapsuleContent>
           <Datepicker
             value={{
-              startDate: dateField.value() ?? new Date(),
-              endDate: dateField.value() ?? new Date(),
+              startDate: dateField.value(),
+              endDate: dateField.value(),
             }}
             onChange={(value) => {
               if (!value?.startDate) {

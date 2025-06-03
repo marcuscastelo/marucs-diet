@@ -115,9 +115,32 @@ export function useFloatField(
  * />
  * ```
  */
-export function useDateField(inputSignal: Accessor<Date | undefined>) {
-  return useField<Date>({
+// Overload signatures
+export function useDateField(
+  inputSignal: Accessor<Date | undefined>,
+  options: { fallback: () => Date }
+): Omit<ReturnType<typeof useField<Date>>, 'value'> & { value: () => Date }
+export function useDateField(
+  inputSignal: Accessor<Date | undefined>,
+  options?: undefined
+): Omit<ReturnType<typeof useField<Date>>, 'value'> & { value: () => Date | undefined }
+// Implementation
+export function useDateField(
+  inputSignal: Accessor<Date | undefined>,
+  options?: { fallback?: () => Date }
+): Omit<ReturnType<typeof useField<Date>>, 'value'> & { value: () => Date | undefined } {
+  const field = useField<Date>({
     inputSignal,
     transform: createDateTransform(),
   })
+  const valueWithFallback = () => {
+    const v = field.value()
+    if (v !== undefined) return v
+    if (options?.fallback) return options.fallback()
+    return undefined
+  }
+  return {
+    ...field,
+    value: valueWithFallback,
+  }
 }
