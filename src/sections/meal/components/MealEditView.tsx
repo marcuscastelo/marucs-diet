@@ -21,6 +21,7 @@ import {
 } from '~/sections/meal/context/MealContext'
 // TODO: Remove deprecated MealEditor usage - Replace with pure functions
 import { MealEditor } from '~/legacy/utils/data/mealEditor'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 
 export type MealEditViewProps = {
   meal: Meal
@@ -63,6 +64,7 @@ export function MealEditView(props: MealEditViewProps) {
 export function MealEditViewHeader(props: {
   onUpdateMeal: (meal: Meal) => void
 }) {
+  const { show: showConfirmModal } = useConfirmModalContext()
   const { meal } = useMealContext()
   const acceptedClipboardSchema = mealSchema
     .or(itemGroupSchema)
@@ -102,28 +104,24 @@ export function MealEditViewHeader(props: {
 
   const onClearItems = (e: MouseEvent) => {
     e.preventDefault()
-    // This logic is not duplicated with RecipeEditView, so keep it here
-    import('~/sections/common/context/ConfirmModalContext').then(({ useConfirmModalContext }) => {
-      const { show: showConfirmModal } = useConfirmModalContext()
-      showConfirmModal({
-        title: 'Limpar itens',
-        body: 'Tem certeza que deseja limpar os itens?',
-        actions: [
-          { text: 'Cancelar', onClick: () => undefined },
-          {
-            text: 'Excluir todos os itens',
-            primary: true,
-            onClick: () => {
-              const meal_ = meal()
-              if (meal_ === null) {
-                throw new Error('meal_ is null!')
-              }
-              const newMeal = new MealEditor(meal_).clearGroups().finish()
-              props.onUpdateMeal(newMeal)
-            },
+    showConfirmModal({
+      title: 'Limpar itens',
+      body: 'Tem certeza que deseja limpar os itens?',
+      actions: [
+        { text: 'Cancelar', onClick: () => undefined },
+        {
+          text: 'Excluir todos os itens',
+          primary: true,
+          onClick: () => {
+            const meal_ = meal()
+            if (meal_ === null) {
+              throw new Error('meal_ is null!')
+            }
+            const newMeal = new MealEditor(meal_).clearGroups().finish()
+            props.onUpdateMeal(newMeal)
           },
-        ],
-      })
+        },
+      ],
     })
   }
 
