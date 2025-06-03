@@ -22,7 +22,6 @@ import {
 import { RecipeEditor } from '~/legacy/utils/data/recipeEditor'
 import toast from 'solid-toast'
 
-import { currentUserId } from '~/modules/user/application/user'
 import { createEffect, createSignal } from 'solid-js'
 import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 

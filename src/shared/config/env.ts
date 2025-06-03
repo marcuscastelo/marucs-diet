@@ -26,8 +26,15 @@ const envSchema = z.object(
 const getEnvVars = (): Record<EnvKeys, string> => {
   return Object.fromEntries(
     requiredEnv.map((key) => {
-      const value = import.meta.env[key] || process.env[key]
-      if (!value) {
+      const importMetaValue = import.meta.env[key]
+      const processEnvValue = process.env[key]
+      const value =
+        typeof importMetaValue === 'string'
+          ? importMetaValue
+          : typeof processEnvValue === 'string'
+            ? processEnvValue
+            : undefined
+      if (typeof value !== 'string' || value.length === 0) {
         throw new Error(`Missing environment variable: ${key}`)
       }
       return [key, value]

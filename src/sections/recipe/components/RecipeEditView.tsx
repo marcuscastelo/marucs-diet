@@ -14,11 +14,6 @@ import { calcRecipeCalories } from '~/legacy/utils/macroMath'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { regenerateId } from '~/legacy/utils/idUtils'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
-import {
-  useClipboard,
-  createClipboardSchemaFilter,
-} from '~/sections/common/hooks/useClipboard'
-import { deserializeClipboard } from '~/legacy/utils/clipboardUtils'
 import { handleValidationError } from '~/shared/error/errorHandler'
 import { mealSchema } from '~/modules/diet/meal/domain/meal'
 import { itemGroupSchema } from '~/modules/diet/item-group/domain/itemGroup'
@@ -79,25 +74,24 @@ export function RecipeEditHeader(props: {
 
   const { recipe } = useRecipeEditContext()
 
-  const {
-    handleCopy,
-    handlePaste,
-    hasValidPastableOnClipboard,
-  } = useCopyPasteActions({
-    acceptedClipboardSchema,
-    getDataToCopy: () => recipe(),
-    onPaste: (data) => {
-      const groupsToAdd = convertToGroups(data)
-        .map((group) => regenerateId(group))
-        .map((g) => ({
-          ...g,
-          items: g.items.map((item) => regenerateId(item)),
-        }))
-      const itemsToAdd = groupsToAdd.flatMap((g) => g.items)
-      const newRecipe = new RecipeEditor(recipe()).addItems(itemsToAdd).finish()
-      props.onUpdateRecipe(newRecipe)
-    },
-  })
+  const { handleCopy, handlePaste, hasValidPastableOnClipboard } =
+    useCopyPasteActions({
+      acceptedClipboardSchema,
+      getDataToCopy: () => recipe(),
+      onPaste: (data) => {
+        const groupsToAdd = convertToGroups(data)
+          .map((group) => regenerateId(group))
+          .map((g) => ({
+            ...g,
+            items: g.items.map((item) => regenerateId(item)),
+          }))
+        const itemsToAdd = groupsToAdd.flatMap((g) => g.items)
+        const newRecipe = new RecipeEditor(recipe())
+          .addItems(itemsToAdd)
+          .finish()
+        props.onUpdateRecipe(newRecipe)
+      },
+    })
 
   const recipeCalories = calcRecipeCalories(recipe())
 

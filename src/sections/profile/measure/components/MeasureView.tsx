@@ -99,7 +99,7 @@ export function MeasureView(props: {
               endDate: dateField.value(),
             }}
             onChange={(value) => {
-              if (!value?.startDate) {
+              if (value?.startDate === undefined || value?.startDate === null) {
                 toast.error(`Data inválida: ${JSON.stringify(value)}`)
                 return
               }

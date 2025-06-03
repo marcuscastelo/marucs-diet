@@ -3,10 +3,7 @@ import { type z } from 'zod'
 
 // Utility to check if an error is a NotAllowedError DOMException
 function isClipboardNotAllowedError(error: unknown): boolean {
-  return (
-    error instanceof DOMException &&
-    error.name === 'NotAllowedError'
-  )
+  return error instanceof DOMException && error.name === 'NotAllowedError'
 }
 
 export type ClipboardFilter = (clipboard: string) => boolean
@@ -19,10 +16,7 @@ export function useClipboard(props?: {
   const periodicRead = () => props?.periodicRead ?? true
   const [clipboard, setClipboard] = createSignal('')
 
-  const handleWrite = (
-    text: string,
-    onError?: (error: unknown) => void
-  ) => {
+  const handleWrite = (text: string, onError?: (error: unknown) => void) => {
     window.navigator.clipboard
       .writeText(text)
       .then(() => setClipboard(text))
@@ -31,7 +25,7 @@ export function useClipboard(props?: {
           // Ignore NotAllowedError (likely DOM not focused)
           return
         }
-        if (onError) onError(err)
+        if (onError !== undefined && onError !== null) onError(err)
       })
   }
 

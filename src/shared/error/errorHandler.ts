@@ -19,15 +19,21 @@ export type ErrorContext = {
  */
 export function logError(error: unknown, context?: ErrorContext): void {
   const timestamp = new Date().toISOString()
-  const contextStr = context
-    ? `[${context.component}${context.operation ? `::${context.operation}` : ''}]`
-    : '[Unknown]'
+  const componentStr =
+    typeof context?.component === 'string' && context.component.trim() !== ''
+      ? context.component
+      : 'Unknown'
+  const operationStr =
+    typeof context?.operation === 'string' && context.operation.trim() !== ''
+      ? `::${context.operation}`
+      : ''
+  const contextStr = `[${componentStr}${operationStr}]`
 
   console.error(`${timestamp} ${contextStr} Error:`, error)
 
   toast.error(formatError(error))
 
-  if (context?.additionalData) {
+  if (context?.additionalData !== undefined) {
     console.error('Additional context:', context.additionalData)
   }
 
@@ -41,7 +47,7 @@ export function logError(error: unknown, context?: ErrorContext): void {
 export function handleApiError(error: unknown, context?: ErrorContext): void {
   logError(error, {
     ...context,
-    operation: `${context?.operation || 'API'} request`,
+    operation: `${context?.operation ?? 'API'} request`,
   })
 }
 
