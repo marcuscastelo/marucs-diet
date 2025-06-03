@@ -45,26 +45,26 @@ export type User = Readonly<z.infer<typeof userSchema>>
 
 export function createNewUser({
   name,
-  favorite_foods,
+  favoriteFoods,
   diet,
   birthdate,
   gender,
-  desired_weight,
+  desiredWeight,
 }: {
   name: string
-  favorite_foods?: number[] | null
+  favoriteFoods?: number[] | null
   diet: 'cut' | 'normo' | 'bulk'
   birthdate: string
   gender: 'male' | 'female'
-  desired_weight: number
+  desiredWeight: number
 }): NewUser {
   return newUserSchema.parse({
     name,
-    favorite_foods: favorite_foods ?? [],
+    favorite_foods: favoriteFoods ?? [],
     diet,
     birthdate,
     gender,
-    desired_weight,
+    desired_weight: desiredWeight,
     __type: 'NewUser',
   })
 }
