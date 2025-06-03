@@ -87,7 +87,7 @@ export function BarCodeReader(props: {
       .catch((err) => {
         handleScannerError(err, {
           component: 'BarCodeReader',
-          operation: 'startScanner'
+          operation: 'startScanner',
         })
         return false
       })
@@ -98,7 +98,7 @@ export function BarCodeReader(props: {
           await html5QrcodeScanner.stop().catch((err) => {
             handleScannerError(err, {
               component: 'BarCodeReader',
-              operation: 'stopScanner'
+              operation: 'stopScanner',
             })
           })
         })

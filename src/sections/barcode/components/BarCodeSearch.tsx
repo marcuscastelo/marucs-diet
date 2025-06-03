@@ -50,13 +50,11 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
 
     const afterFetch = (food: Food | null) => {
       console.log('afterFetch food', food)
-      if (!food) {
+      if (food === null) {
         showConfirmModal({
           title: `Não encontrado`,
           body: `Alimento de EAN ${props.barCode()} não encontrado`,
-          actions: [
-            { text: 'OK', primary: true, onClick: () => {} },
-          ]
+          actions: [{ text: 'OK', primary: true, onClick: () => {} }],
         })
         return
       }
@@ -68,26 +66,26 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
       handleApiError(err, {
         component: 'BarCodeSearch',
         operation: 'fetchFoodByEan',
-        additionalData: { barCode: props.barCode() }
+        additionalData: { barCode: props.barCode() },
       })
       showConfirmModal({
         title: `Erro ao buscar alimento de EAN ${props.barCode()}`,
         body: `Erro: ${formatError(err)}`,
-        actions: [
-          { text: 'OK', primary: true, onClick: () => {} },
-        ]
+        actions: [{ text: 'OK', primary: true, onClick: () => {} }],
       })
       props.setFood(null)
+    }
+
+    const finallyFetch = () => {
+      console.log('finallyFetch')
+      setLoading(false)
+      props.setBarCode('')
     }
 
     fetchFoodByEan(props.barCode())
       .then(afterFetch)
       .catch(catchFetch)
-      .finally(() => {
-        console.log('finally')
-        setLoading(false)
-        props.setBarCode('')
-      })
+      .finally(finallyFetch)
   })
 
   return (
