@@ -28,24 +28,19 @@ export async function fetchFoodsByName(
 ) {
   if (!(await isSearchCached(name))) {
     console.debug(`[Food] Food with name ${name} not cached, importing`)
-    await toastPromise(
-      importFoodsFromApiByName(name),
-      {
-        loading: 'Importando alimentos...',
-        success: 'Alimentos importados com sucesso',
-        error: (error) => `Erro ao importar alimentos: ${formatError(error)}`
-      }
-    )
+    await toastPromise(importFoodsFromApiByName(name), {
+      loading: 'Importando alimentos...',
+      success: 'Alimentos importados com sucesso',
+      error: (error) => `Erro ao importar alimentos: ${formatError(error)}`,
+    })
   }
 
-  return await toastPromise(
-    foodRepository.fetchFoodsByName(name, params),
-    {
-      loading: 'Buscando alimentos por nome...',
-      success: 'Alimentos encontrados',
-      error: (error) => `Erro ao buscar alimentos por nome: ${formatError(error)}`
-    }
-  )
+  return await toastPromise(foodRepository.fetchFoodsByName(name, params), {
+    loading: 'Buscando alimentos por nome...',
+    success: 'Alimentos encontrados',
+    error: (error) =>
+      `Erro ao buscar alimentos por nome: ${formatError(error)}`,
+  })
 }
 
 export async function fetchFoodByEan(
@@ -54,24 +49,18 @@ export async function fetchFoodByEan(
 ) {
   if (!(await isEanCached(ean))) {
     console.debug(`[Food] Food with EAN ${ean} not cached, importing`)
-    await toastPromise(
-      importFoodFromApiByEan(ean),
-      {
-        loading: 'Importando alimento...',
-        success: 'Alimento importado com sucesso',
-        error: (error) => `Erro ao importar alimento: ${formatError(error)}`
-      }
-    )
+    await toastPromise(importFoodFromApiByEan(ean), {
+      loading: 'Importando alimento...',
+      success: 'Alimento importado com sucesso',
+      error: (error) => `Erro ao importar alimento: ${formatError(error)}`,
+    })
   }
 
-  return await toastPromise(
-    foodRepository.fetchFoodByEan(ean, params),
-    {
-      loading: 'Buscando alimento por EAN...',
-      success: 'Alimento encontrado',
-      error: (error) => `Erro ao buscar alimento por EAN: ${formatError(error)}`
-    }
-  )
+  return await toastPromise(foodRepository.fetchFoodByEan(ean, params), {
+    loading: 'Buscando alimento por EAN...',
+    success: 'Alimento encontrado',
+    error: (error) => `Erro ao buscar alimento por EAN: ${formatError(error)}`,
+  })
 }
 
 export async function isEanCached(ean: Required<Food>['ean']) {
