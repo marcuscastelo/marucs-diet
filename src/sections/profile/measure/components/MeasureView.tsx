@@ -17,7 +17,6 @@ export function MeasureView(props: {
   measure: Measure
   onRefetchMeasures: () => void
 }) {
-  // Use useDateField for date handling
   const dateField = useDateField(() => props.measure.target_timestamp, { fallback: () => new Date() })
 
   const heightField = useFloatField(() => props.measure.height)
@@ -118,7 +117,7 @@ export function MeasureView(props: {
                   }}
                   onFieldCommit={(value) => {
                     handleSave({
-                      date: dateField.value() ?? new Date(),
+                      date: dateField.value(),
                       height: value,
                       waist: waistField.value(),
                       hip: hipField.value(),
@@ -139,7 +138,7 @@ export function MeasureView(props: {
                   }}
                   onFieldCommit={(value) => {
                     handleSave({
-                      date: dateField.value() ?? new Date(),
+                      date: dateField.value(),
                       height: heightField.value(),
                       waist: value,
                       hip: hipField.value(),
@@ -160,7 +159,7 @@ export function MeasureView(props: {
                   }}
                   onFieldCommit={(value) => {
                     handleSave({
-                      date: dateField.value() ?? new Date(),
+                      date: dateField.value(),
                       height: heightField.value(),
                       waist: waistField.value(),
                       hip: value,
@@ -181,7 +180,7 @@ export function MeasureView(props: {
                   }}
                   onFieldCommit={(value) => {
                     handleSave({
-                      date: dateField.value() ?? new Date(),
+                      date: dateField.value(),
                       height: heightField.value(),
                       waist: waistField.value(),
                       hip: hipField.value(),
