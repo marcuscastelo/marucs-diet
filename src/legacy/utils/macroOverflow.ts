@@ -4,12 +4,12 @@ import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { calcItemMacros, calcDayMacros } from '~/legacy/utils/macroMath'
 import { handleValidationError, logError } from '~/shared/error/errorHandler'
 
-export interface MacroOverflowOptions {
+export type MacroOverflowOptions = {
   enable: boolean
   originalItem?: TemplateItem
 }
 
-export interface MacroOverflowContext {
+export type MacroOverflowContext = {
   currentDayDiet: DayDiet | null
   macroTarget: MacroNutrients | null
   macroOverflowOptions: MacroOverflowOptions
@@ -21,7 +21,7 @@ export interface MacroOverflowContext {
  * - Adding new items (no originalItem)
  * - Editing existing items (with originalItem for difference calculation)
  * - Disabled overflow checking
- * 
+ *
  * @param item - The item being added or edited
  * @param property - The macro nutrient property to check ('carbs', 'protein', 'fat')
  * @param context - Context containing current day diet, macro target, and overflow options
@@ -30,7 +30,7 @@ export interface MacroOverflowContext {
 export function isOverflow(
   item: TemplateItem,
   property: keyof MacroNutrients,
-  context: MacroOverflowContext
+  context: MacroOverflowContext,
 ): boolean {
   const { currentDayDiet, macroTarget, macroOverflowOptions } = context
 
@@ -41,35 +41,41 @@ export function isOverflow(
 
   // Validate required context
   if (currentDayDiet === null) {
-    handleValidationError('currentDayDiet is undefined, cannot calculate overflow', {
-      component: 'macroOverflow',
-      operation: 'isOverflow',
-      additionalData: { property, itemName: item.name }
-    })
+    handleValidationError(
+      'currentDayDiet is undefined, cannot calculate overflow',
+      {
+        component: 'macroOverflow',
+        operation: 'isOverflow',
+        additionalData: { property, itemName: item.name },
+      },
+    )
     return false
   }
 
   if (macroTarget === null) {
-    handleValidationError('macroTarget is undefined, cannot calculate overflow', {
-      component: 'macroOverflow',
-      operation: 'isOverflow',
-      additionalData: { property, itemName: item.name }
-    })
+    handleValidationError(
+      'macroTarget is undefined, cannot calculate overflow',
+      {
+        component: 'macroOverflow',
+        operation: 'isOverflow',
+        additionalData: { property, itemName: item.name },
+      },
+    )
     return false
   }
 
   // Calculate macros for the item being checked
   const itemMacros = calcItemMacros(item)
-  
-  // Calculate original item macros if provided (for edit scenarios)
-  const originalItemMacros: MacroNutrients = macroOverflowOptions.originalItem !== undefined
-    ? calcItemMacros(macroOverflowOptions.originalItem)
-    : { carbs: 0, protein: 0, fat: 0 }
 
-  // Calculate the difference (for edits) or full amount (for new items)
-  const difference = macroOverflowOptions.originalItem !== undefined
-    ? itemMacros[property] - originalItemMacros[property]
-    : itemMacros[property]
+  const originalItemMacros: MacroNutrients =
+    macroOverflowOptions.originalItem !== undefined
+      ? calcItemMacros(macroOverflowOptions.originalItem)
+      : { carbs: 0, protein: 0, fat: 0 }
+
+  const difference =
+    macroOverflowOptions.originalItem !== undefined
+      ? itemMacros[property] - originalItemMacros[property]
+      : itemMacros[property]
 
   // Get current day totals and target
   const current = calcDayMacros(currentDayDiet)[property]
@@ -82,14 +88,14 @@ export function isOverflow(
 /**
  * Creates a function that checks overflow for all macro nutrients.
  * Useful for components that need to check multiple macros.
- * 
+ *
  * @param item - The item being checked
  * @param context - Context containing current day diet, macro target, and overflow options
  * @returns Object with functions to check each macro nutrient
  */
 export function createMacroOverflowChecker(
   item: TemplateItem,
-  context: MacroOverflowContext
+  context: MacroOverflowContext,
 ) {
   return {
     carbs: () => isOverflow(item, 'carbs', context),
@@ -101,7 +107,7 @@ export function createMacroOverflowChecker(
 /**
  * Specialized version for ItemGroup scenarios where we check the first item.
  * This handles the specific case from TemplateSearchModal.
- * 
+ *
  * @param items - Array of template items (uses first item for calculation)
  * @param property - The macro nutrient property to check
  * @param context - Context containing current day diet, macro target, and overflow options
@@ -110,13 +116,13 @@ export function createMacroOverflowChecker(
 export function isOverflowForItemGroup(
   items: readonly TemplateItem[],
   property: keyof MacroNutrients,
-  context: MacroOverflowContext
+  context: MacroOverflowContext,
 ): boolean {
   if (items.length === 0) {
     logError('No items provided for overflow check', {
       component: 'macroOverflow',
       operation: 'isOverflowForItemGroup',
-      additionalData: { property }
+      additionalData: { property },
     })
     return false
   }
