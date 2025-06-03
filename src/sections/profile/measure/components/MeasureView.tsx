@@ -11,6 +11,7 @@ import {
 } from '~/modules/measure/application/measure'
 import toast from 'solid-toast'
 import { formatError } from '~/shared/formatError'
+import { adjustToTimezone } from '~/shared/utils/date/dateUtils'
 
 export function MeasureView(props: {
   measure: Measure
@@ -82,9 +83,8 @@ export function MeasureView(props: {
                 toast.error(`Data inválida: ${JSON.stringify(value)}`)
                 return
               }
-              // Apply timezone offset
-              const date = new Date(value.startDate)
-              date.setHours(date.getHours() + 3)
+              // Use dateUtils to adjust to local timezone
+              const date = adjustToTimezone(new Date(value.startDate))
               dateField.setRawValue(date.toISOString())
               handleSave({
                 date,

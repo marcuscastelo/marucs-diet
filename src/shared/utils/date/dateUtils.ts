@@ -44,26 +44,44 @@ export function getTodayYYYYMMDD(): string {
 }
 
 /**
- * Adjusts a date to account for timezone offset
- * 
- * This function creates a new date that represents the same moment
- * adjusted for the local timezone offset by subtracting the timezone
- * offset in minutes. This correctly handles half-hour and quarter-hour timezones.
- * 
- * @param {Date} date - The date to adjust
- * @returns {Date} New date adjusted for timezone
- * 
+ * Converts a UTC date to a local date (preserving the same wall time)
+ * @param {Date} date - The UTC date
+ * @returns {Date} Local date
  * @example
- * ```typescript
- * const utcDate = new Date('2024-01-15T12:00:00Z')
- * const adjustedDate = adjustToTimezone(utcDate)
- * // Adjusted based on local timezone offset (works for +05:30, +09:45, etc.)
- * ```
+ * // For a user in GMT-3:
+ * // UTC: 2024-06-03T15:00:00.000Z
+ * // Local: 2024-06-03T12:00:00.000Z
+ * const utcDate = new Date('2024-06-03T15:00:00.000Z')
+ * const localDate = toLocalDate(utcDate)
+ * console.log(localDate.toISOString()) // "2024-06-03T12:00:00.000Z"
+ */
+export function toLocalDate(date: Date): Date {
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+}
+
+/**
+ * Converts a local date to a UTC date (preserving the same wall time)
+ * @param {Date} date - The local date
+ * @returns {Date} UTC date
+ * @example
+ * // For a user in GMT-3:
+ * // Local: 2024-06-03T12:00:00.000Z
+ * // UTC: 2024-06-03T15:00:00.000Z
+ * const localDate = new Date('2024-06-03T12:00:00.000Z')
+ * const utcDate = toUTCDate(localDate)
+ * console.log(utcDate.toISOString()) // "2024-06-03T15:00:00.000Z"
+ */
+export function toUTCDate(date: Date): Date {
+  return new Date(date.getTime() + date.getTimezoneOffset() * 60000)
+}
+
+/**
+ * Adjusts a date to the user's local timezone (alias for toLocalDate)
+ * @param {Date} date - The date to adjust
+ * @returns {Date} Date adjusted to local timezone
  */
 export function adjustToTimezone(date: Date): Date {
-  const newDate = new Date(date)
-  newDate.setMinutes(newDate.getMinutes() - newDate.getTimezoneOffset())
-  return newDate
+  return toLocalDate(date)
 }
 
 /**
