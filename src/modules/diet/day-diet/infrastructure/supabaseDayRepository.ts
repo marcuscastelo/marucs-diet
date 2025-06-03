@@ -7,7 +7,10 @@ import { type User } from '~/modules/user/domain/user'
 import supabase from '~/legacy/utils/supabase'
 import { type DayRepository } from '~/modules/diet/day-diet/domain/dayDietRepository'
 import { type Accessor, createSignal } from 'solid-js'
-import { handleApiError, handleValidationError } from '~/shared/error/errorHandler'
+import {
+  handleApiError,
+  handleValidationError,
+} from '~/shared/error/errorHandler'
 import {
   type DayDietDAO,
   daoToDayDiet,
@@ -92,6 +95,11 @@ async function fetchAllUserDayDiets(
     .order('target_day', { ascending: true })
 
   if (error !== null) {
+    handleApiError(error, {
+      component: 'supabaseDayRepository',
+      operation: 'fetchAllUserDayDiets',
+      additionalData: { userId },
+    })
     throw error
   }
 
@@ -104,7 +112,7 @@ async function fetchAllUserDayDiets(
       handleValidationError('Error while parsing day', {
         component: 'supabaseDayRepository',
         operation: 'fetchAllUserDayDiets',
-        additionalData: { parseError: result.error }
+        additionalData: { parseError: result.error },
       })
       throw result.error
     })
@@ -120,9 +128,7 @@ async function fetchAllUserDayDiets(
 }
 
 // TODO: Change upserts to inserts on the entire app
-const insertDayDiet = async (
-  newDay: NewDayDiet,
-): Promise<DayDiet | null> => {
+const insertDayDiet = async (newDay: NewDayDiet): Promise<DayDiet | null> => {
   const createDAO = createInsertDayDietDAOFromNewDayDiet(newDay)
 
   const { data: days, error } = await supabase
@@ -134,7 +140,10 @@ const insertDayDiet = async (
   }
 
   const dayDAO = days?.[0] as DayDietDAO | undefined
-  return dayDAO ? daoToDayDiet(dayDAO) : null
+  if (dayDAO !== null && dayDAO !== undefined) {
+    return daoToDayDiet(dayDAO)
+  }
+  return null
 }
 
 const updateDayDiet = async (
@@ -142,7 +151,7 @@ const updateDayDiet = async (
   newDay: NewDayDiet,
 ): Promise<DayDiet> => {
   const updateDAO = createInsertDayDietDAOFromNewDayDiet(newDay)
-  
+
   const { data, error } = await supabase
     .from(SUPABASE_TABLE_DAYS)
     .update(updateDAO)
@@ -153,7 +162,7 @@ const updateDayDiet = async (
     handleApiError(error, {
       component: 'supabaseDayRepository',
       operation: 'updateDayDiet',
-      additionalData: { id, dayData: updateDAO }
+      additionalData: { id, dayData: updateDAO },
     })
     throw error
   }
