@@ -1,6 +1,13 @@
 import { createEffect, createSignal } from 'solid-js'
 import { type z } from 'zod'
-import { isClipboardNotAllowedError } from '~/shared/error/isClipboardNotAllowedError'
+
+// Utility to check if an error is a NotAllowedError DOMException
+function isClipboardNotAllowedError(error: unknown): boolean {
+  return (
+    error instanceof DOMException &&
+    error.name === 'NotAllowedError'
+  )
+}
 
 export type ClipboardFilter = (clipboard: string) => boolean
 
