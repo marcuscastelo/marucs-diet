@@ -10,35 +10,45 @@ import {
   convertToNewDayDiet,
 } from './dayDietOperations'
 import { describe, it, expect } from 'vitest'
+import { createItem } from '~/modules/diet/item/domain/item'
+import { createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { createMeal } from '~/modules/diet/meal/domain/meal'
+import type { DayDiet } from './dayDiet'
 
-const baseItem = {
-  id: 1,
-  __type: 'Item',
-  name: 'Arroz',
-  reference: 1,
-  quantity: 100,
-  macros: { carbs: 10, protein: 2, fat: 1 },
+function makeItem(id: number, name = 'Arroz') {
+  return {
+    ...createItem({
+      name,
+      reference: id,
+      quantity: 100,
+      macros: { carbs: 10, protein: 2, fat: 1 },
+    }),
+    id,
+  }
 }
-const baseGroup = {
+function makeGroup(id: number, name = 'G1', items = [makeItem(1)]) {
+  return {
+    ...createSimpleItemGroup({ name, items }),
+    id,
+  }
+}
+function makeMeal(id: number, name = 'Almoço', groups = [makeGroup(1)]) {
+  return {
+    ...createMeal({ name, groups }),
+    id,
+  }
+}
+
+const baseItem = makeItem(1)
+const baseGroup = makeGroup(1, 'G1', [baseItem])
+const baseMeal = makeMeal(1, 'Almoço', [baseGroup])
+const baseDayDiet: DayDiet = {
   id: 1,
-  type: 'simple',
-  __type: 'ItemGroup',
-  name: 'G1',
-  items: [baseItem],
-} as any
-const baseMeal = {
-  id: 1,
-  __type: 'Meal',
-  name: 'Almoço',
-  groups: [baseGroup],
-} as any
-const baseDayDiet = {
   __type: 'DayDiet',
-  id: 1,
   owner: 1,
   target_day: '2023-01-01',
   meals: [baseMeal],
-} as any
+}
 
 describe('dayDietOperations', () => {
   it('addMealToDayDiet adds a meal', () => {
@@ -58,7 +68,7 @@ describe('dayDietOperations', () => {
   })
 
   it('updateMealInDayDiet updates a meal', () => {
-    const updated = { ...baseMeal, name: 'Jantar' }
+    const updated = makeMeal(1, 'Jantar', [baseGroup])
     const result = updateMealInDayDiet(baseDayDiet, 1, updated)
     expect(result.meals[0].name).toBe('Jantar')
   })

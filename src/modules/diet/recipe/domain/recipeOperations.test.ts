@@ -11,23 +11,33 @@ import {
   replaceRecipe,
 } from './recipeOperations'
 import { describe, it, expect } from 'vitest'
+import { createItem } from '~/modules/diet/item/domain/item'
+import {
+  createNewRecipe,
+  promoteToRecipe,
+} from '~/modules/diet/recipe/domain/recipe'
 
-const baseItem = {
-  id: 1,
-  __type: 'Item',
-  name: 'Arroz',
-  reference: 1,
-  quantity: 100,
-  macros: { carbs: 10, protein: 2, fat: 1 },
-} as const
-const baseRecipe = {
-  id: 1,
-  __type: 'Recipe',
-  name: 'Receita',
-  owner: 1,
-  items: [baseItem],
-  prepared_multiplier: 1,
-} as any
+function makeItem(id: number, name = 'Arroz') {
+  return {
+    ...createItem({
+      name,
+      reference: id,
+      quantity: 100,
+      macros: { carbs: 10, protein: 2, fat: 1 },
+    }),
+    id,
+  }
+}
+const baseItem = makeItem(1)
+const baseRecipe = promoteToRecipe(
+  createNewRecipe({
+    name: 'Receita',
+    owner: 1,
+    items: [baseItem],
+    preparedMultiplier: 1,
+  }),
+  1,
+)
 
 describe('recipeOperations', () => {
   it('updateRecipeName updates name', () => {
@@ -41,22 +51,19 @@ describe('recipeOperations', () => {
   })
 
   it('addItemToRecipe adds item', () => {
-    const item = { ...baseItem, id: 2 }
+    const item = makeItem(2)
     const result = addItemToRecipe(baseRecipe, item)
     expect(result.items).toHaveLength(2)
   })
 
   it('addItemsToRecipe adds items', () => {
-    const items = [
-      { ...baseItem, id: 2 },
-      { ...baseItem, id: 3 },
-    ]
+    const items = [makeItem(2), makeItem(3)]
     const result = addItemsToRecipe(baseRecipe, items)
     expect(result.items).toHaveLength(3)
   })
 
   it('updateItemInRecipe updates item', () => {
-    const updated = { ...baseItem, name: 'Feijão' }
+    const updated = makeItem(1, 'Feijão')
     const result = updateItemInRecipe(baseRecipe, 1, updated)
     expect(result.items[0].name).toBe('Feijão')
   })
@@ -67,7 +74,7 @@ describe('recipeOperations', () => {
   })
 
   it('setRecipeItems sets items', () => {
-    const items = [{ ...baseItem, id: 2 }]
+    const items = [makeItem(2)]
     const result = setRecipeItems(baseRecipe, items)
     expect(result.items).toEqual(items)
   })

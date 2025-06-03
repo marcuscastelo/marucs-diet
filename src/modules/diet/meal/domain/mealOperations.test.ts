@@ -10,28 +10,37 @@ import {
   replaceMeal,
 } from './mealOperations'
 import { describe, it, expect } from 'vitest'
+import { createItem } from '~/modules/diet/item/domain/item'
+import { createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { createMeal } from '~/modules/diet/meal/domain/meal'
 
-const baseItem = {
-  id: 1,
-  __type: 'Item',
-  name: 'Arroz',
-  reference: 1,
-  quantity: 100,
-  macros: { carbs: 10, protein: 2, fat: 1 },
+function makeItem(id: number, name = 'Arroz') {
+  return {
+    ...createItem({
+      name,
+      reference: id,
+      quantity: 100,
+      macros: { carbs: 10, protein: 2, fat: 1 },
+    }),
+    id,
+  }
 }
-const baseGroup = {
-  id: 1,
-  type: 'simple',
-  __type: 'ItemGroup',
-  name: 'G1',
-  items: [baseItem],
-} as any // as any to allow mutable array
-const baseMeal = {
-  id: 1,
-  __type: 'Meal',
-  name: 'Almoço',
-  groups: [baseGroup],
-} as any // as any to allow mutable array
+function makeGroup(id: number, name = 'G1', items = [makeItem(1)]) {
+  return {
+    ...createSimpleItemGroup({ name, items }),
+    id,
+  }
+}
+function makeMeal(id: number, name = 'Almoço', groups = [makeGroup(1)]) {
+  return {
+    ...createMeal({ name, groups }),
+    id,
+  }
+}
+
+const baseItem = makeItem(1)
+const baseGroup = makeGroup(1, 'G1', [baseItem])
+const baseMeal = makeMeal(1, 'Almoço', [baseGroup])
 
 describe('mealOperations', () => {
   it('updateMealName updates name', () => {
@@ -55,7 +64,7 @@ describe('mealOperations', () => {
   })
 
   it('updateGroupInMeal updates a group', () => {
-    const updated = { ...baseGroup, name: 'Novo' }
+    const updated = makeGroup(1, 'Novo', [baseItem])
     const result = updateGroupInMeal(baseMeal, 1, updated)
     expect(result.groups[0].name).toBe('Novo')
   })

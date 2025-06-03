@@ -4,16 +4,15 @@ import {
   updateItemMacros,
   replaceItem,
 } from './itemOperations'
+import { createItem } from './item'
 import { describe, it, expect } from 'vitest'
 
-const baseItem = {
-  id: 1,
-  __type: 'Item',
+const baseItem = createItem({
   name: 'Arroz',
   reference: 1,
   quantity: 100,
   macros: { carbs: 10, protein: 2, fat: 1 },
-} as const
+})
 
 describe('itemOperations', () => {
   it('updateItemQuantity updates quantity', () => {

@@ -11,24 +11,31 @@ import {
   replaceItemGroup,
 } from './itemGroupOperations'
 import { describe, it, expect } from 'vitest'
+import { createItem } from '~/modules/diet/item/domain/item'
+import { createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 
-const baseItem = {
-  id: 1,
-  __type: 'Item',
-  name: 'Arroz',
-  reference: 1,
-  quantity: 100,
-  macros: { carbs: 10, protein: 2, fat: 1 },
-} as const
-const item2 = { ...baseItem, id: 2 } as const
-const item3 = { ...baseItem, id: 3 } as const
-const baseGroup = {
-  id: 1,
-  type: 'simple',
-  __type: 'ItemGroup',
-  name: 'G1',
-  items: [baseItem],
-} as any
+function makeItem(id: number, name = 'Arroz') {
+  return {
+    ...createItem({
+      name,
+      reference: id,
+      quantity: 100,
+      macros: { carbs: 10, protein: 2, fat: 1 },
+    }),
+    id,
+  }
+}
+function makeGroup(id: number, name = 'G1', items = [makeItem(1)]) {
+  return {
+    ...createSimpleItemGroup({ name, items }),
+    id,
+  }
+}
+
+const baseItem = makeItem(1)
+const item2 = makeItem(2, 'Feijão')
+const item3 = makeItem(3, 'Batata')
+const baseGroup = makeGroup(1, 'G1', [baseItem])
 
 describe('itemGroupOperations', () => {
   it('updateItemGroupName updates name', () => {
@@ -53,7 +60,7 @@ describe('itemGroupOperations', () => {
   })
 
   it('updateItemInGroup updates item', () => {
-    const updated = { ...baseItem, name: 'Feijão' }
+    const updated = makeItem(1, 'Feijão')
     const result = updateItemInGroup(baseGroup, 1, updated)
     expect(result.items[0].name).toBe('Feijão')
   })
