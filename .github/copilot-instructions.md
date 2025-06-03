@@ -15,10 +15,6 @@ Use descriptive and meaningful names for all variables, functions,
 classes, and files. Organize the code into logical modules and packages, 
 following the project's directory structure.
 
-### Typescript
-
-- Never use `any` type, NEVER.
-
 ## Formatting
 Formatting should be consistent throughout the codebase. Use appropriate 
 tools such as:
@@ -56,5 +52,29 @@ For every new feature or bug fix:
 ## Code Reviews
 All generated code should be ready for code review, meeting the project's 
 coding standards and passing all tests before submitting a pull request.
+
+## ESLint/Prettier Formatting and Style
+- Always use single quotes for strings.
+- Do not use semicolons at the end of statements.
+- Use trailing commas where valid in ES5 (objects, arrays, etc.).
+- Use arrow functions with parentheses around parameters, even if there is only one.
+- Set the print width to 80 characters and tab width to 2 spaces.
+- Always use consistent indentation and formatting as enforced by Prettier and ESLint.
+
+## TypeScript
+- Prefer `type` aliases over `interface` for type definitions.
+- Never use the `any` type, NEVER.
+- Prefer explicit types, but function return types can be inferred.
+- Do not throw non-Error objects.
+- Do not use unused variables; remove or use all declared variables.
+- Use strict boolean expressions and avoid loose checks.
+
+## JSX/Accessibility
+- Always provide `alt` text for images.
+- Follow accessibility best practices for ARIA roles and properties.
+
+## Naming and Structure
+- Use consistent naming conventions for all identifiers.
+- Do not modify `.eslintrc.cjs` or `.github/copilot-instructions.md` without user consent.
 
 This file should not be modified directly without user consent.
