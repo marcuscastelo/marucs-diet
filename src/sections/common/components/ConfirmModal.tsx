@@ -1,6 +1,4 @@
-import {
-  Modal,
-} from '~/sections/common/components/Modal'
+import { Modal } from '~/sections/common/components/Modal'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { For } from 'solid-js'
@@ -14,9 +12,7 @@ export function ConfirmModal() {
     <ModalContextProvider visible={visible} setVisible={setVisible}>
       <Modal hasBackdrop={hasBackdrop()}>
         <Modal.Header title={title()()} backButton={false} />
-        <Modal.Content>
-          {body()()}
-        </Modal.Content>
+        <Modal.Content>{body()()}</Modal.Content>
         <Modal.Footer>
           <For each={actions()}>
             {(action) => (
