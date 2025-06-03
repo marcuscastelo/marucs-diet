@@ -11,6 +11,8 @@ import {
   daysBetween,
   addDays,
   isSameDay,
+  toLocalDate,
+  toUTCDate,
 } from './dateUtils'
 
 describe('dateUtils', () => {
@@ -295,6 +297,31 @@ describe('dateUtils', () => {
       const date = new Date('2024-01-15T12:00:00')
       
       expect(isSameDay(date, date)).toBe(true)
+    })
+  })
+
+  describe('time conversion', () => {
+    it('toLocalDate should convert UTC date to local time', () => {
+      const utcDate = new Date(Date.UTC(2024, 5, 3, 15, 0, 0))
+      const localDate = toLocalDate(utcDate)
+      expect(localDate.getUTCHours()).not.toBe(utcDate.getUTCHours())
+      expect(localDate.getUTCDate()).toBe(utcDate.getUTCDate())
+      expect(localDate.getUTCMonth()).toBe(utcDate.getUTCMonth())
+      expect(localDate.getUTCFullYear()).toBe(utcDate.getUTCFullYear())
+    })
+
+    it('toUTCDate should convert local date to UTC time', () => {
+      const localDate = new Date(2024, 5, 3, 12, 0, 0)
+      const utcDate = toUTCDate(localDate)
+      expect(utcDate.getUTCHours()).not.toBe(localDate.getHours())
+      expect(utcDate.getUTCDate()).toBe(localDate.getDate())
+      expect(utcDate.getUTCMonth()).toBe(localDate.getMonth())
+      expect(utcDate.getUTCFullYear()).toBe(localDate.getFullYear())
+    })
+
+    it('adjustToTimezone should be an alias for toLocalDate', () => {
+      const date = new Date('2024-06-03T15:00:00.000Z')
+      expect(adjustToTimezone(date).getTime()).toBe(toLocalDate(date).getTime())
     })
   })
 })
