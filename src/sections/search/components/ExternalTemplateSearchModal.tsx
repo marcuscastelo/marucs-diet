@@ -1,11 +1,5 @@
-import {
-  type Accessor,
-  createEffect,
-  type Setter,
-} from 'solid-js'
-import { 
-  ModalContextProvider 
-} from '~/sections/common/context/ModalContext'
+import { type Accessor, createEffect, type Setter } from 'solid-js'
+import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 
@@ -21,10 +15,12 @@ export type ExternalTemplateSearchModalProps = {
 /**
  * Shared ExternalTemplateSearchModal component that was previously duplicated
  * between RecipeEditModal and ItemGroupEditModal.
- * 
+ *
  * @see https://github.com/marcuscastelo/marucs-diet/issues/397
  */
-export function ExternalTemplateSearchModal(props: ExternalTemplateSearchModalProps) {
+export function ExternalTemplateSearchModal(
+  props: ExternalTemplateSearchModalProps,
+) {
   const handleFinishSearch = () => {
     props.setVisible(false)
     props.onFinish?.()

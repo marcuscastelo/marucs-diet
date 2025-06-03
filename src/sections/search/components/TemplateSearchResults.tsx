@@ -53,9 +53,10 @@ export function TemplateSearchResults(props: {
                     ...createItem({
                       name: template().name,
                       quantity: 100,
-                      macros: template().__type === 'Food' 
-                        ? (template() as Food).macros 
-                        : calcRecipeMacros(template() as Recipe),
+                      macros:
+                        template().__type === 'Food'
+                          ? (template() as Food).macros
+                          : calcRecipeMacros(template() as Recipe),
                       reference: template().id,
                     }),
                     __type:
@@ -109,7 +110,7 @@ export function TemplateSearchResults(props: {
                                   handleApiError(err, {
                                     component: 'TemplateSearchResults',
                                     operation: 'deleteRecentFood',
-                                    additionalData: { foodId: template().id }
+                                    additionalData: { foodId: template().id },
                                   })
                                 })
                             }}
