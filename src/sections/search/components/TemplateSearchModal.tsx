@@ -63,7 +63,7 @@ import { formatError } from '~/shared/formatError'
 import { ExternalTemplateToItemGroupModal } from './ExternalTemplateToItemGroupModal'
 import { ExternalBarCodeInsertModal } from './ExternalBarCodeInsertModal'
 
-const DEFAULT_TAB = availableTabs.Todos.id
+const TEMPLATE_SEARCH_DEFAULT_TAB = availableTabs.Todos.id
 
 export type TemplateSearchModalProps = {
   targetName: string
@@ -373,7 +373,7 @@ export function TemplateSearch(props: {
 
   createEffect(() => {
     props.modalVisible()
-    setTemplateSearchTab(DEFAULT_TAB)
+    setTemplateSearchTab(TEMPLATE_SEARCH_DEFAULT_TAB)
   })
 
   return (
