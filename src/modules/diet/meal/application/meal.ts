@@ -4,7 +4,10 @@ import {
   currentDayDiet,
   updateDayDiet,
 } from '~/modules/diet/day-diet/application/dayDiet'
-import { createNewDayDiet, type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import {
+  createNewDayDiet,
+  type DayDiet,
+} from '~/modules/diet/day-diet/domain/dayDiet'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { handleApiError } from '~/shared/error/errorHandler'
 
@@ -27,11 +30,11 @@ export async function updateMeal(
     })
     .finish()
 
-  updateDayDiet(currentDayDiet_.id, newDay).catch((error) => 
+  updateDayDiet(currentDayDiet_.id, newDay).catch((error) => {
     handleApiError(error, {
       component: 'mealApplication',
       operation: 'updateMeal',
-      additionalData: { mealId, mealName: newMeal.name }
+      additionalData: { mealId, mealName: newMeal.name },
     })
-  )
+  })
 }
