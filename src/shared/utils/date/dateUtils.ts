@@ -1,6 +1,6 @@
 /**
  * @fileoverview Utility functions for date manipulation and formatting
- * 
+ *
  * This module provides a comprehensive set of utilities for working with dates,
  * including timezone adjustments, formatting, and date normalization.
  */
@@ -8,16 +8,16 @@
 /**
  * Options for date formatting functions
  */
-export interface DateFormatOptions {
+export type DateFormatOptions = {
   /** Whether to keep the original time or set to midnight */
   keepTime?: boolean
 }
 
 /**
  * Gets the current date at midnight in the local timezone
- * 
+ *
  * @returns {Date} Current date at midnight (00:00:00)
- * 
+ *
  * @example
  * ```typescript
  * const today = getToday()
@@ -30,9 +30,9 @@ export function getToday(): Date {
 
 /**
  * Gets today's date formatted as YYYY-MM-DD string
- * 
+ *
  * @returns {string} Today's date in YYYY-MM-DD format
- * 
+ *
  * @example
  * ```typescript
  * const todayString = getTodayYYYYMMDD()
@@ -86,10 +86,10 @@ export function adjustToTimezone(date: Date): Date {
 
 /**
  * Sets a date to midnight (00:00:00.000)
- * 
+ *
  * @param {Date} date - The date to normalize to midnight
  * @returns {Date} New date set to midnight
- * 
+ *
  * @example
  * ```typescript
  * const someDate = new Date('2024-01-15T15:30:45')
@@ -105,23 +105,23 @@ export function getMidnight(date: Date): Date {
 
 /**
  * Converts a string or Date to a normalized Date object
- * 
+ *
  * @param {string | Date} day - The date string or Date object to convert
  * @param {DateFormatOptions} options - Formatting options
  * @returns {Date} Converted and normalized Date object
- * 
+ *
  * @example
  * ```typescript
  * // Keep original time
  * const dateWithTime = stringToDate('2024-01-15T15:30:00')
- * 
+ *
  * // Set to midnight in UTC
  * const dateAtMidnight = stringToDate('2024-01-15T15:30:00', { keepTime: false })
  * ```
  */
 export function stringToDate(
   day: string | Date,
-  options?: DateFormatOptions
+  options?: DateFormatOptions,
 ): Date {
   const date = new Date(day)
 
@@ -135,10 +135,10 @@ export function stringToDate(
 
 /**
  * Formats a date as YYYY-MM-DD string
- * 
+ *
  * @param {Date} date - The date to format
  * @returns {string} Date formatted as YYYY-MM-DD
- * 
+ *
  * @example
  * ```typescript
  * const date = new Date('2024-01-15T15:30:00')
@@ -152,10 +152,10 @@ export function dateToYYYYMMDD(date: Date): string {
 
 /**
  * Formats a date as DD/MM string
- * 
+ *
  * @param {Date} date - The date to format
  * @returns {string} Date formatted as DD/MM
- * 
+ *
  * @example
  * ```typescript
  * const date = new Date('2024-01-15')
@@ -171,10 +171,10 @@ export function dateToDDMM(date: Date): string {
 
 /**
  * Converts a date to ISO string format
- * 
+ *
  * @param {Date} date - The date to convert
  * @returns {string} Date in ISO string format
- * 
+ *
  * @example
  * ```typescript
  * const date = new Date('2024-01-15T15:30:00')
@@ -188,11 +188,11 @@ export function dateToString(date: Date): string {
 
 /**
  * Calculates the difference between two dates in days
- * 
+ *
  * @param {Date} startDate - The start date
  * @param {Date} endDate - The end date
  * @returns {number} Number of days between the dates
- * 
+ *
  * @example
  * ```typescript
  * const start = new Date('2024-01-15')
@@ -205,23 +205,25 @@ export function daysBetween(startDate: Date, endDate: Date): number {
   const oneDay = 24 * 60 * 60 * 1000 // hours*minutes*seconds*milliseconds
   const firstDate = getMidnight(startDate)
   const secondDate = getMidnight(endDate)
-  
-  return Math.round(Math.abs((firstDate.getTime() - secondDate.getTime()) / oneDay))
+
+  return Math.round(
+    Math.abs((firstDate.getTime() - secondDate.getTime()) / oneDay),
+  )
 }
 
 /**
  * Adds a specified number of days to a date
- * 
+ *
  * @param {Date} date - The base date
  * @param {number} days - Number of days to add (can be negative)
  * @returns {Date} New date with days added
- * 
+ *
  * @example
  * ```typescript
  * const baseDate = new Date('2024-01-15')
  * const futureDate = addDays(baseDate, 7)
  * console.log(futureDate) // 2024-01-22
- * 
+ *
  * const pastDate = addDays(baseDate, -3)
  * console.log(pastDate) // 2024-01-12
  * ```
@@ -234,11 +236,11 @@ export function addDays(date: Date, days: number): Date {
 
 /**
  * Checks if two dates are on the same day
- * 
+ *
  * @param {Date} date1 - First date
  * @param {Date} date2 - Second date
  * @returns {boolean} True if dates are on the same day
- * 
+ *
  * @example
  * ```typescript
  * const date1 = new Date('2024-01-15T09:00:00')
@@ -248,7 +250,9 @@ export function addDays(date: Date, days: number): Date {
  * ```
  */
 export function isSameDay(date1: Date, date2: Date): boolean {
-  return date1.getFullYear() === date2.getFullYear() &&
-         date1.getMonth() === date2.getMonth() &&
-         date1.getDate() === date2.getDate()
+  return (
+    date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate()
+  )
 }
