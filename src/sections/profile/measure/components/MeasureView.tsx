@@ -13,6 +13,12 @@ import toast from 'solid-toast'
 import { formatError } from '~/shared/formatError'
 import { adjustToTimezone } from '~/shared/utils/date/dateUtils'
 
+/**
+ * Renders a capsule view for editing and saving a single Measure.
+ *
+ * @param props.measure - The measure to display and edit
+ * @param props.onRefetchMeasures - Callback to refetch measures after update/delete
+ */
 export function MeasureView(props: {
   measure: Measure
   onRefetchMeasures: () => void
