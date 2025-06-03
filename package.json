@@ -2,7 +2,7 @@
   "name": "marucs-diet",
   "private": true,
   "type": "module",
-  "version": "v0.11.0-dev.0+issue.112",
+  "version": "v0.11.0-dev.61.1+issue.112",
   "scripts": {
     "dev": "vinxi dev",
     "build": "vinxi build",
@@ -40,6 +40,7 @@
     "@typescript-eslint/eslint-plugin": "^6.4.0",
     "@typescript-eslint/parser": "^8.33.1",
     "autoprefixer": "^10.4.16",
+    "defu": "^6.1.4",
     "eslint": "^8.52.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-config-standard-with-typescript": "^39.1.1",
