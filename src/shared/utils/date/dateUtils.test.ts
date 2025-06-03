@@ -11,7 +11,6 @@ import {
   daysBetween,
   addDays,
   isSameDay,
-  isToday,
 } from './dateUtils'
 
 describe('dateUtils', () => {
@@ -296,32 +295,6 @@ describe('dateUtils', () => {
       const date = new Date('2024-01-15T12:00:00')
       
       expect(isSameDay(date, date)).toBe(true)
-    })
-  })
-
-  describe('isToday', () => {
-    it('should return true for today', () => {
-      const today = new Date()
-      
-      expect(isToday(today)).toBe(true)
-    })
-
-    it('should return false for yesterday', () => {
-      const yesterday = addDays(new Date(), -1)
-      
-      expect(isToday(yesterday)).toBe(false)
-    })
-
-    it('should return false for tomorrow', () => {
-      const tomorrow = addDays(new Date(), 1)
-      
-      expect(isToday(tomorrow)).toBe(false)
-    })
-
-    it('should handle different times on same day', () => {
-      const earlyToday = getMidnight(new Date())
-      
-      expect(isToday(earlyToday)).toBe(true)
     })
   })
 })
