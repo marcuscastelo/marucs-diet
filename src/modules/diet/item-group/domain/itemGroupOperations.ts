@@ -77,7 +77,7 @@ export function setItemGroupItems(
 ): ItemGroup {
   return {
     ...group,
-    items: items as Item[],
+    items: [...items],
   }
 }
 
@@ -100,7 +100,8 @@ export function replaceItemGroup(
   updates: Partial<ItemGroup>,
 ): ItemGroup {
   // Handle items array separately to ensure proper typing
-  const items = updates.items ? [...updates.items] : [...group.items]
+  const items =
+    updates.items !== undefined ? [...updates.items] : [...group.items]
 
   // Create the base result without items first
   const { items: _omittedItems, ...updatesWithoutItems } = updates
