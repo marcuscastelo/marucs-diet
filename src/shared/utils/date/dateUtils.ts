@@ -11,8 +11,6 @@
 export interface DateFormatOptions {
   /** Whether to keep the original time or set to midnight */
   keepTime?: boolean
-  /** Timezone offset in hours (defaults to local timezone) */
-  timezoneOffset?: number
 }
 
 /**
