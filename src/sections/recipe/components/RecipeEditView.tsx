@@ -207,14 +207,11 @@ export function RecipeEditContent(props: {
         type="text"
         onChange={(e) => {
           if (recipe() === null) {
-            handleValidationError(
-              'Recipe is null during name change',
-              {
-                component: 'RecipeEditView',
-                operation: 'setName',
-                additionalData: { newName: e.target.value }
-              }
-            )
+            handleValidationError('Recipe is null during name change', {
+              component: 'RecipeEditView',
+              operation: 'setName',
+              additionalData: { newName: e.target.value },
+            })
             throw new Error('group is null')
           }
           setRecipe(new RecipeEditor(recipe()).setName(e.target.value).finish())
@@ -236,7 +233,10 @@ export function RecipeEditContent(props: {
         </div>
         <div class="flex flex-col">
           <PreparedQuantity
-            rawQuantity={recipe().items.reduce((acc, item) => acc + item.quantity, 0)}
+            rawQuantity={recipe().items.reduce(
+              (acc, item) => acc + item.quantity,
+              0,
+            )}
             preparedMultiplier={recipe().prepared_multiplier}
             onPreparedQuantityChange={({ newMultiplier }) => {
               const newRecipe = new RecipeEditor(recipe())

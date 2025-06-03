@@ -1,7 +1,4 @@
-import {
-  type Item,
-  createItem,
-} from '~/modules/diet/item/domain/item'
+import { type Item, createItem } from '~/modules/diet/item/domain/item'
 import { Modal } from '~/sections/common/components/Modal'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import {
@@ -26,10 +23,7 @@ import { RecipeEditor } from '~/legacy/utils/data/recipeEditor'
 import toast from 'solid-toast'
 
 import { currentUserId } from '~/modules/user/application/user'
-import {
-  createEffect,
-  createSignal,
-} from 'solid-js'
+import { createEffect, createSignal } from 'solid-js'
 import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 
 export type RecipeEditModalProps = {
@@ -47,17 +41,14 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
 
   const [recipe, setRecipe] = createMirrorSignal(() => props.recipe)
 
-  const [selectedItem, setSelectedItem] = createSignal<Item | null>(
-    null,
-  )
+  const [selectedItem, setSelectedItem] = createSignal<Item | null>(null)
 
   const impossibleItem = createItem({
     name: 'IMPOSSIBLE ITEM',
     reference: 0,
   })
 
-  const [itemEditModalVisible, setItemEditModalVisible] =
-    createSignal(false)
+  const [itemEditModalVisible, setItemEditModalVisible] = createSignal(false)
   const [templateSearchModalVisible, setTemplateSearchModalVisible] =
     createSignal(false)
 
@@ -66,14 +57,11 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
 
     if (!isSimpleSingleGroup(newGroup)) {
       // TODO: Handle non-simple groups on handleNewItemGroup
-      handleValidationError(
-        'Cannot add complex groups to recipes',
-        {
-          component: 'RecipeEditModal',
-          operation: 'handleNewItemGroup',
-          additionalData: { groupType: 'complex', groupId: newGroup.id }
-        }
-      )
+      handleValidationError('Cannot add complex groups to recipes', {
+        component: 'RecipeEditModal',
+        operation: 'handleNewItemGroup',
+        additionalData: { groupType: 'complex', groupId: newGroup.id },
+      })
       toast.error(
         'Não é possível adicionar grupos complexos a receitas, por enquanto.',
       )
@@ -84,7 +72,10 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
       .addItems(newGroup.items)
       .finish()
 
-    console.debug('handleNewItemGroup: applying', JSON.stringify(newRecipe, null, 2))
+    console.debug(
+      'handleNewItemGroup: applying',
+      JSON.stringify(newRecipe, null, 2),
+    )
 
     setRecipe(newRecipe)
   }
@@ -146,7 +137,10 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
               <RecipeEditContextProvider recipe={recipe} setRecipe={setRecipe}>
                 <RecipeEditHeader
                   onUpdateRecipe={(newRecipe) => {
-                    console.debug('[RecipeEditModal] onUpdateRecipe: ', newRecipe)
+                    console.debug(
+                      '[RecipeEditModal] onUpdateRecipe: ',
+                      newRecipe,
+                    )
                     setRecipe(newRecipe)
                   }}
                 />
@@ -189,7 +183,6 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
     </>
   )
 }
-
 
 function Actions(props: {
   onApply: () => void
