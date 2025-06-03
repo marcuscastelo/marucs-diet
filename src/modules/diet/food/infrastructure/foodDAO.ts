@@ -1,5 +1,9 @@
 import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
-import { type Food, foodSchema, type NewFood } from '~/modules/diet/food/domain/food'
+import {
+  type Food,
+  foodSchema,
+  type NewFood,
+} from '~/modules/diet/food/domain/food'
 import { z } from 'zod'
 
 // Base schema (with ID)
@@ -39,7 +43,9 @@ export function createFoodDAO(food: Food): FoodDAO {
   })
 }
 
-export function createInsertFoodDAO(food: Omit<Food, 'id' | '__type'>): CreateFoodDAO {
+export function createInsertFoodDAO(
+  food: Omit<Food, 'id' | '__type'>,
+): CreateFoodDAO {
   return createFoodDAOSchema.parse({
     name: food.name,
     ean: food.ean ?? null,
@@ -56,7 +62,9 @@ export function createFoodFromDAO(dao: FoodDAO): Food {
   })
 }
 
-export function createInsertFoodDAOFromNewFood(newFood: NewFood): CreateFoodDAO {
+export function createInsertFoodDAOFromNewFood(
+  newFood: NewFood,
+): CreateFoodDAO {
   return createFoodDAOSchema.parse({
     name: newFood.name,
     ean: newFood.ean ?? null,

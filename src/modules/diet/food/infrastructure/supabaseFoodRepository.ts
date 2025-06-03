@@ -1,4 +1,8 @@
-import { type Food, foodSchema, type NewFood } from '~/modules/diet/food/domain/food'
+import {
+  type Food,
+  foodSchema,
+  type NewFood,
+} from '~/modules/diet/food/domain/food'
 import supabase from '~/legacy/utils/supabase'
 import {
   type FoodRepository,
@@ -37,7 +41,7 @@ async function fetchFoodById(
     logError(`Food with id ${id} not found`, {
       component: 'supabaseFoodRepository',
       operation: 'fetchFoodById',
-      additionalData: { id, params }
+      additionalData: { id, params },
     })
     return null
   }
@@ -133,7 +137,7 @@ async function internalCachedSearchFoods(
     handleApiError(error, {
       component: 'supabaseFoodRepository',
       operation: 'internalCachedSearchFoods',
-      additionalData: { field, value, operator, params }
+      additionalData: { field, value, operator, params },
     })
     throw error
   }
@@ -146,12 +150,15 @@ async function internalCachedSearchFoods(
 async function insertFood(newFood: NewFood): Promise<Food | null> {
   const createDAO = createInsertFoodDAOFromNewFood(newFood)
 
-  const { data, error } = await supabase.from(TABLE).insert(createDAO).select('*')
+  const { data, error } = await supabase
+    .from(TABLE)
+    .insert(createDAO)
+    .select('*')
   if (error !== null) {
     handleApiError(error, {
       component: 'supabaseFoodRepository',
       operation: 'insertFood',
-      additionalData: { food: newFood }
+      additionalData: { food: newFood },
     })
     throw error
   }
@@ -165,13 +172,16 @@ async function insertFood(newFood: NewFood): Promise<Food | null> {
 async function upsertFood(newFood: NewFood): Promise<Food | null> {
   const createDAO = createInsertFoodDAOFromNewFood(newFood)
 
-  const { data, error } = await supabase.from(TABLE).upsert(createDAO).select('*')
+  const { data, error } = await supabase
+    .from(TABLE)
+    .upsert(createDAO)
+    .select('*')
 
   if (error !== null) {
     handleApiError(error, {
       component: 'supabaseFoodRepository',
       operation: 'upsertFood',
-      additionalData: { food: newFood }
+      additionalData: { food: newFood },
     })
     throw error
   }
