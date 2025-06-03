@@ -6,7 +6,7 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'standard-with-typescript',
-    // 'plugin:jsx-a11y/recommended', // TODO: Enable a11y rules as warnings
+    // 'plugin:jsx-a11y/recommended', // TODO: Enable a11y rules as warnings.
     'plugin:solid/recommended',
     'plugin:prettier/recommended',
   ],
