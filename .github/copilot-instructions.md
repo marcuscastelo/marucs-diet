@@ -85,3 +85,57 @@ coding standards and passing all tests before submitting a pull request.
 - Never use dynamic/inline imports (e.g., `import('~/sections/common/context/ConfirmModalContext')`). Always use static imports at the top of the file.
 
 This file should not be modified directly without user consent.
+
+---
+
+# Marucs Diet – Concrete Codebase Style & Anti-Patterns Guide
+
+## Naming Conventions
+
+- Use descriptive, specific names for functions, files, and components.
+- Functions: Use action verbs (e.g., isRecipedGroupUpToDate, convertToGroups, addItemsToGroup).
+- Files: Name by specific purpose (e.g., comparison.ts, itemGroupService.ts, macroOverflow.ts).
+- Components: Use complete, descriptive names (e.g., ItemGroupEditModal, ExternalTemplateSearchModal).
+- Avoid generic names (e.g., utils.ts, helper.ts, group(), item(), data(), Editor, Service, Manager).
+
+## Clean Architecture
+
+### Domain Layer (`~/modules/*/domain/`)
+- Only pure business logic, no side effects.
+- Do not include API calls or UI concerns.
+
+### Application Layer (`~/modules/*/application/`)
+- Use cases, orchestration, and data conversion.
+- Do not include domain logic here.
+
+## Component Duplication
+
+- Avoid duplicating logic between components (e.g., clipboard logic in MealEditView.tsx and RecipeEditView.tsx).
+- Refactor shared logic into utilities or hooks.
+
+## Error Handling Standard
+
+- All errors in domain and application layers must use the shared error handler utility.
+- Use `handleApiError` from `~/shared/error/errorHandler` for logging, reporting, or propagating errors.
+- Never throw or log errors directly without also calling `handleApiError`.
+- Always provide context (component, operation, additionalData).
+
+**Example:**
+```typescript
+import { handleApiError } from '~/shared/error/errorHandler'
+
+if (somethingWentWrong) {
+  handleApiError(new Error('Something went wrong'), {
+    component: 'itemGroupDomain',
+    operation: 'isRecipedGroupUpToDate',
+    additionalData: { groupId, groupRecipeId },
+  })
+  throw new Error('Something went wrong')
+}
+```
+
+
+Language Policy
+All code, comments, documentation, and commit messages must be in English.
+Only exception: UI text (labels, error messages, etc.) may be in Portuguese (pt-BR) if required by the product.
+Any other use of Portuguese is prohibited.
