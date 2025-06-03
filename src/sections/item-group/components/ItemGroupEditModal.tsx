@@ -76,6 +76,7 @@ import {
   insertRecipe,
 } from '~/modules/diet/recipe/application/recipe'
 import { BrokenLink } from '~/sections/common/components/icons/BrokenLinkIcon'
+import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 
 type EditSelection = {
   item: Item
@@ -477,10 +478,10 @@ function Body(props: {
   templateSearchModalVisible: Accessor<boolean>
   setTemplateSearchModalVisible: Setter<boolean>
 }) {
+  const { show: showConfirmModal } = useConfirmModalContext()
+
   const acceptedClipboardSchema = itemSchema.or(itemGroupSchema)
-
   const { group, setGroup } = useItemGroupEditContext()
-
   const recipedGroup = createMemo(() => {
     const currentGroup = group()
     return currentGroup.type === 'recipe' && currentGroup.recipe !== null
@@ -489,65 +490,28 @@ function Body(props: {
   })
 
   const {
-    write: writeToClipboard,
-    clear: clearClipboard,
-    clipboard: clipboardText,
-  } = useClipboard({
-    filter: (clipboard) => {
-      if (clipboard === '') return false
-      let parsedClipboard: unknown
-      try {
-        parsedClipboard = JSON.parse(clipboard)
-      } catch (e) {
-        // Error parsing JSON. Probably clipboard is some random text from the user
-        return false
+    writeToClipboard,
+    handlePaste: handlePasteShared,
+    hasValidPastableOnClipboard: hasValidPastableOnClipboardShared,
+  } = useCopyPasteActions({
+    acceptedClipboardSchema,
+    getDataToCopy: () => group(),
+    onPaste: (data: any) => {
+      const group_ = group()
+      if ('items' in data) {
+        // data is an itemGroup
+        const newGroup = new ItemGroupEditor(group_)
+          .addItems(data.items.map((item: any) => regenerateId(item)))
+          .finish()
+        setGroup(newGroup)
+      } else {
+        const newGroup = new ItemGroupEditor(group_)
+          .addItem(regenerateId(data))
+          .finish()
+        setGroup(newGroup)
       }
-
-      return acceptedClipboardSchema.safeParse(parsedClipboard).success
     },
   })
-  const { show: showConfirmModal } = useConfirmModalContext()
-
-  const hasValidPastableOnClipboard = () => clipboardText().length > 0
-
-  const handlePasteAfterConfirm = () => {
-    const data = deserializeClipboard(clipboardText(), acceptedClipboardSchema)
-
-    if (data === null) {
-      throw new Error('Invalid clipboard data: ' + clipboardText())
-    }
-    const group_ = group()
-
-    if ('items' in data) {
-      // data is an itemGroup
-      const newGroup = new ItemGroupEditor(group_)
-        .addItems(data.items.map((item) => regenerateId(item)))
-        .finish()
-      setGroup(newGroup)
-    } else {
-      const newGroup = new ItemGroupEditor(group_)
-        .addItem(regenerateId(data))
-        .finish()
-      setGroup(newGroup)
-    }
-
-    // Clear clipboard
-    clearClipboard()
-  }
-
-  const handlePaste = () => {
-    showConfirmModal({
-      title: 'Colar itens',
-      body: 'Tem certeza que deseja colar os itens?',
-      actions: [
-        {
-          text: 'Cancelar',
-          onClick: () => undefined,
-        },
-        { text: 'Colar', primary: true, onClick: handlePasteAfterConfirm },
-      ],
-    })
-  }
 
   return (
     <Show when={group()}>
@@ -576,7 +540,7 @@ function Body(props: {
               </div>
 
               <div class="flex gap-2 px-2">
-                <Show when={hasValidPastableOnClipboard()}>
+                <Show when={hasValidPastableOnClipboardShared()}>
                   {(_) => (
                     <div
                       class={
@@ -589,8 +553,7 @@ function Body(props: {
                           )
                           return
                         }
-
-                        handlePaste()
+                        handlePasteShared()
                       }}
                     >
                       <PasteIcon />

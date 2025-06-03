@@ -81,4 +81,7 @@ coding standards and passing all tests before submitting a pull request.
 - Use consistent naming conventions for all identifiers.
 - Do not modify `.eslintrc.cjs` or `.github/copilot-instructions.md` without user consent.
 
+## Imports
+- Never use dynamic/inline imports (e.g., `import('~/sections/common/context/ConfirmModalContext')`). Always use static imports at the top of the file.
+
 This file should not be modified directly without user consent.
