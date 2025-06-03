@@ -40,7 +40,7 @@ function createChartData(
   macroProfiles: readonly MacroProfile[],
 ) {
   const data = days.map((day) => {
-    const dayDate = new Date(day.target_day)
+    const dayDate = new Date(day.targetDay)
 
     const currentWeight = inForceWeight(weights, dayDate)
     const currentMacroProfile = inForceMacroProfile(macroProfiles, dayDate)

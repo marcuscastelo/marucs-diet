@@ -20,7 +20,7 @@ export function CopyLastDayButton(props: {
     const days = [...dayDiets()]
     const newLastDay = days
       .reverse()
-      .find((day) => Date.parse(day.target_day) < Date.parse(props.selectedDay))
+      .find((day) => Date.parse(day.targetDay) < Date.parse(props.selectedDay))
     setLastDay(newLastDay)
   })
 
@@ -80,7 +80,7 @@ export function CopyLastDayButton(props: {
             }}
           >
             {/* //TODO: Allow copying any past day, not just latest one. */}
-            Copiar dia anterior ({lastDay.target_day})
+            Copiar dia anterior ({lastDay.targetDay})
           </button>
         )}
       </Show>

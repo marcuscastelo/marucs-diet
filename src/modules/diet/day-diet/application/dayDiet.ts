@@ -73,7 +73,7 @@ registerSubapabaseRealtimeCallback(SUPABASE_TABLE_DAYS, () => {
  */
 createEffect(() => {
   const dayDiet = dayDiets().find(
-    (dayDiet) => dayDiet.target_day === targetDay(),
+    (dayDiet) => dayDiet.targetDay === targetDay(),
   )
 
   if (dayDiet === undefined) {
