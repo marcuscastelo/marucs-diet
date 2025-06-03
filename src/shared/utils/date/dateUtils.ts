@@ -252,22 +252,3 @@ export function isSameDay(date1: Date, date2: Date): boolean {
          date1.getMonth() === date2.getMonth() &&
          date1.getDate() === date2.getDate()
 }
-
-/**
- * Checks if a date is today
- * 
- * @param {Date} date - The date to check
- * @returns {boolean} True if the date is today
- * 
- * @example
- * ```typescript
- * const today = new Date()
- * const yesterday = addDays(new Date(), -1)
- * 
- * console.log(isToday(today)) // true
- * console.log(isToday(yesterday)) // false
- * ```
- */
-export function isToday(date: Date): boolean {
-  return isSameDay(date, new Date())
-}
