@@ -1,13 +1,9 @@
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import {
   type MacroProfile,
-  createNewMacroProfile
+  createNewMacroProfile,
 } from '~/modules/diet/macro-profile/domain/macroProfile'
-import {
-  dateToYYYYMMDD,
-  getTodayYYYYMMDD,
-  stringToDate,
-} from '~/shared/utils/date'
+import { dateToYYYYMMDD, getTodayYYYYMMDD } from '~/shared/utils/date'
 import { calcCalories } from '~/legacy/utils/macroMath'
 import { getLatestMacroProfile } from '~/legacy/utils/macroProfileUtils'
 import { Show, createEffect } from 'solid-js'
@@ -20,8 +16,6 @@ import {
 import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 import { calculateMacroTarget } from '~/modules/diet/macro-target/application/macroTarget'
 import toast from 'solid-toast'
-import { currentUserId } from '~/modules/user/application/user'
-import { targetDay } from '~/modules/diet/day-diet/application/dayDiet'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { formatError } from '~/shared/formatError'
 
@@ -106,7 +100,16 @@ const onSaveMacroProfile = (profile: MacroProfile) => {
 
     // Same day, update
     // TODO: Change all catch console.error to toast.error (and think about Sentry as well).
-    updateMacroProfile(profile.id, createNewMacroProfile(profile)).catch(console.error)
+    updateMacroProfile(
+      profile.id,
+      createNewMacroProfile({
+        owner: profile.owner,
+        targetDay: profile.target_day,
+        gramsPerKgCarbs: profile.gramsPerKgCarbs,
+        gramsPerKgProtein: profile.gramsPerKgProtein,
+        gramsPerKgFat: profile.gramsPerKgFat,
+      }),
+    ).catch(console.error)
   } else if (
     profile.id === -1 || // TODO: Better typing system for new MacroProfile instead of -1.
     profile.target_day.getTime() < new Date(getTodayYYYYMMDD()).getTime()
@@ -114,10 +117,12 @@ const onSaveMacroProfile = (profile: MacroProfile) => {
     console.log('[ProfilePage] Inserting profile', profile)
 
     // Past day, insert with new date
-    insertMacroProfile(createNewMacroProfile({
-      ...profile,
-      targetDay: new Date(getTodayYYYYMMDD()),
-    })).catch(console.error)
+    insertMacroProfile(
+      createNewMacroProfile({
+        ...profile,
+        targetDay: new Date(getTodayYYYYMMDD()),
+      }),
+    ).catch(console.error)
   } else {
     toast.error('Erro imprevisto ao salvar perfil de macro')
   }
@@ -310,7 +315,7 @@ function MacroTargetSetting(props: {
   const gramsPerKg = () => emptyIfZeroElse2Decimals(props.target.gramsPerKg)
 
   const onSetGramsPerKg = (gramsPerKg: number) => {
-    const profile_ = props.currentProfile 
+    const profile_ = props.currentProfile
 
     onSaveMacroProfile({
       ...profile_,
@@ -320,7 +325,7 @@ function MacroTargetSetting(props: {
   }
 
   const onSetGrams = (grams: number) => {
-    const profile_ = props.currentProfile 
+    const profile_ = props.currentProfile
 
     onSaveMacroProfile({
       ...profile_,
