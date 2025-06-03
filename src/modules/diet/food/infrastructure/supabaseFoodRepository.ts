@@ -1,8 +1,4 @@
-import {
-  type Food,
-  foodSchema,
-  type NewFood,
-} from '~/modules/diet/food/domain/food'
+import { type Food, type NewFood } from '~/modules/diet/food/domain/food'
 import supabase from '~/legacy/utils/supabase'
 import {
   type FoodRepository,

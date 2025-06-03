@@ -248,7 +248,12 @@ function MeasureFields(props: {
 
 function DeleteButton(props: { onDelete: () => void }) {
   return (
-    <button class="btn btn-ghost my-auto" onClick={props.onDelete}>
+    <button
+      class="btn btn-ghost my-auto"
+      onClick={() => {
+        props.onDelete()
+      }}
+    >
       <TrashIcon />
     </button>
   )

@@ -61,7 +61,8 @@ export async function insertMacroProfile(newMacroProfile: NewMacroProfile) {
   )
 
   if (
-    macroProfile &&
+    macroProfile !== null &&
+    macroProfile !== undefined &&
     (userMacroProfiles().length === 0 ||
       macroProfile.owner === userMacroProfiles()[0].owner)
   ) {
@@ -82,7 +83,13 @@ export async function updateMacroProfile(
       error: 'Falha ao atualizar perfil de macro',
     },
   )
-  if (macroProfiles && macroProfiles.owner === userMacroProfiles()[0].owner) {
+  const firstUserMacroProfile = userMacroProfiles()[0]
+  if (
+    macroProfiles !== null &&
+    macroProfiles !== undefined &&
+    firstUserMacroProfile !== undefined &&
+    macroProfiles.owner === firstUserMacroProfile.owner
+  ) {
     await fetchUserMacroProfiles(macroProfiles.owner)
   }
   return macroProfiles
