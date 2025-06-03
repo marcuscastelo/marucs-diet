@@ -354,7 +354,7 @@ export function TemplateSearch(props: {
     onTypingEnd: () => {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       refetch()
-    }, // TODO: Change DEFAULT_TAB to selected tab
+    }, 
   })
 
   const [templates, { refetch }] = createResource(
