@@ -54,10 +54,11 @@ export class ItemGroupEditor
     callback: (editor: Omit<ItemEditor, 'finish'> | undefined) => void,
   ) {
     const item = this.findItem(id)
-    const editor = item && new ItemEditor(item)
+    const editor =
+      item !== undefined && item !== null ? new ItemEditor(item) : undefined
     callback(editor)
     const newItem = editor?.finish()
-    if (newItem) {
+    if (newItem !== undefined) {
       const index = this.group.items.findIndex((item) => item.id === id)
       this.group.items.splice(index, 1, newItem)
     }
@@ -100,7 +101,5 @@ export class ItemGroupEditor
     return this
   }
 
-  protected override onFinish() {
-
-  }
+  protected override onFinish() {}
 }

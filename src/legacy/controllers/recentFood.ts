@@ -8,7 +8,6 @@ import { handleApiError } from '~/shared/error/errorHandler'
 import {
   type RecentFoodDAO,
   type CreateRecentFoodDAO,
-  recentFoodToDAO,
   daoToRecentFood,
 } from '~/modules/recent-food/infrastructure/recentFoodDAO'
 
@@ -28,7 +27,7 @@ export async function fetchRecentFoodByUserIdAndFoodId(
     handleApiError(error, {
       component: 'recentFood',
       operation: 'fetchRecentFoodByUserIdAndFoodId',
-      additionalData: { userId, foodId }
+      additionalData: { userId, foodId },
     })
     throw error
   }
@@ -47,7 +46,7 @@ export async function fetchUserRecentFoods(userId: RecentFood['user_id']) {
     handleApiError(error, {
       component: 'recentFood',
       operation: 'fetchUserRecentFoods',
-      additionalData: { userId }
+      additionalData: { userId },
     })
     throw error
   }
@@ -62,14 +61,14 @@ export async function insertRecentFood(newRecentFood: NewRecentFood) {
     last_used: newRecentFood.last_used,
     times_used: newRecentFood.times_used,
   }
-  
+
   const { data, error } = await supabase.from(TABLE).insert(createDAO).select()
 
   if (error !== null) {
     handleApiError(error, {
       component: 'recentFood',
       operation: 'insertRecentFood',
-      additionalData: { createDAO }
+      additionalData: { createDAO },
     })
     throw error
   }
@@ -88,7 +87,7 @@ export async function updateRecentFood(
     last_used: newRecentFood.last_used,
     times_used: newRecentFood.times_used,
   }
-  
+
   const { data, error } = await supabase
     .from(TABLE)
     .update(updateDAO)
@@ -99,7 +98,7 @@ export async function updateRecentFood(
     handleApiError(error, {
       component: 'recentFood',
       operation: 'updateRecentFood',
-      additionalData: { recentFoodId, updateDAO }
+      additionalData: { recentFoodId, updateDAO },
     })
     throw error
   }
@@ -122,7 +121,7 @@ export async function deleteRecentFoodByFoodId(
     handleApiError(error, {
       component: 'recentFood',
       operation: 'deleteRecentFoodByFoodId',
-      additionalData: { userId, foodId }
+      additionalData: { userId, foodId },
     })
     throw error
   }

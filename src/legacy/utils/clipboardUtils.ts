@@ -11,7 +11,7 @@ export function deserializeClipboard<T extends z.ZodType>(
     handleValidationError('Invalid clipboard data', {
       component: 'clipboardUtils',
       operation: 'deserializeClipboard',
-      additionalData: { clipboard, error: result.error }
+      additionalData: { clipboard, error: result.error },
     })
     return null
   }
