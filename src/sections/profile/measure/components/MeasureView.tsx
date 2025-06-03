@@ -2,14 +2,13 @@ import { Capsule } from '~/sections/common/components/capsule/Capsule'
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import { createNewMeasure, type Measure } from '~/modules/measure/domain/measure'
 import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
-import { useFloatField } from '~/sections/common/hooks/useField'
+import { useFloatField, useDateField } from '~/sections/common/hooks/useField'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import Datepicker from '~/sections/datepicker/components/Datepicker'
 import {
   deleteMeasure,
   updateMeasure,
 } from '~/modules/measure/application/measure'
-import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 import toast from 'solid-toast'
 import { formatError } from '~/shared/formatError'
 
@@ -17,10 +16,8 @@ export function MeasureView(props: {
   measure: Measure
   onRefetchMeasures: () => void
 }) {
-  // TODO: Replace this with useDateField
-  const [dateFieldValue, setDateFieldValue] = createMirrorSignal(
-    () => props.measure.target_timestamp,
-  )
+  // Use useDateField for date handling
+  const dateField = useDateField(() => props.measure.target_timestamp)
 
   const heightField = useFloatField(() => props.measure.height)
   const waistField = useFloatField(() => props.measure.waist)
@@ -77,11 +74,10 @@ export function MeasureView(props: {
         <CapsuleContent>
           <Datepicker
             value={{
-              startDate: dateFieldValue(),
-              endDate: dateFieldValue(),
+              startDate: dateField.value() ?? new Date(),
+              endDate: dateField.value() ?? new Date(),
             }}
             onChange={(value) => {
-              // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
               if (!value?.startDate) {
                 toast.error(`Data inválida: ${JSON.stringify(value)}`)
                 return
@@ -89,8 +85,7 @@ export function MeasureView(props: {
               // Apply timezone offset
               const date = new Date(value.startDate)
               date.setHours(date.getHours() + 3)
-              setDateFieldValue(date)
-
+              dateField.setRawValue(date.toISOString())
               handleSave({
                 date,
                 height: heightField.value(),
@@ -99,7 +94,6 @@ export function MeasureView(props: {
                 neck: neckField.value(),
               })
             }}
-            // Timezone = GMT-3
             displayFormat="DD/MM/YYYY HH:mm"
             asSingle={true}
             useRange={false}
@@ -124,7 +118,7 @@ export function MeasureView(props: {
                   }}
                   onFieldCommit={(value) => {
                     handleSave({
-                      date: dateFieldValue(),
+                      date: dateField.value() ?? new Date(),
                       height: value,
                       waist: waistField.value(),
                       hip: hipField.value(),
@@ -145,7 +139,7 @@ export function MeasureView(props: {
                   }}
                   onFieldCommit={(value) => {
                     handleSave({
-                      date: dateFieldValue(),
+                      date: dateField.value() ?? new Date(),
                       height: heightField.value(),
                       waist: value,
                       hip: hipField.value(),
@@ -166,7 +160,7 @@ export function MeasureView(props: {
                   }}
                   onFieldCommit={(value) => {
                     handleSave({
-                      date: dateFieldValue(),
+                      date: dateField.value() ?? new Date(),
                       height: heightField.value(),
                       waist: waistField.value(),
                       hip: value,
@@ -187,7 +181,7 @@ export function MeasureView(props: {
                   }}
                   onFieldCommit={(value) => {
                     handleSave({
-                      date: dateFieldValue(),
+                      date: dateField.value() ?? new Date(),
                       height: heightField.value(),
                       waist: waistField.value(),
                       hip: hipField.value(),
