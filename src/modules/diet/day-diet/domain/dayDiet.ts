@@ -29,16 +29,16 @@ export type NewDayDiet = Readonly<z.infer<typeof newDayDietSchema>>
  * Creates a NewDayDiet object for day diet creation without generating an ID
  */
 export function createNewDayDiet({
-  target_day,
+  targetDay,
   owner,
   meals = [],
 }: {
-  target_day: string
+  targetDay: string
   owner: number
   meals?: Meal[]
 }): NewDayDiet {
   return newDayDietSchema.parse({
-    target_day,
+    target_day: targetDay,
     owner,
     meals,
     __type: 'NewDayDiet',

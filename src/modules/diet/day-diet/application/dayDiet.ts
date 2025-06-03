@@ -1,7 +1,6 @@
 import { getTodayYYYYMMDD } from '~/shared/utils/date'
 import {
   type DayDiet,
-  dayDietSchema,
   type NewDayDiet,
   createNewDayDiet,
 } from '~/modules/diet/day-diet/domain/dayDiet'
@@ -17,16 +16,16 @@ import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 import { formatError } from '~/shared/formatError'
 
 export function createDayDiet({
-  target_day: targetDay,
+  targetDay,
   owner,
   meals = [],
 }: {
-  target_day: string
+  targetDay: string
   owner: number
   meals?: DayDiet['meals']
 }): NewDayDiet {
   return createNewDayDiet({
-    target_day: targetDay,
+    targetDay,
     owner,
     meals,
   })
@@ -34,7 +33,8 @@ export function createDayDiet({
 
 const dayRepository = createSupabaseDayRepository()
 
-export const [targetDay, setTargetDay] = createSignal<string>(getTodayYYYYMMDD())
+export const [targetDay, setTargetDay] =
+  createSignal<string>(getTodayYYYYMMDD())
 
 export const [dayDiets, setDayDiets] = createSignal<readonly DayDiet[]>([])
 
