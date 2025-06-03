@@ -30,6 +30,7 @@ import { RecipeEditor } from '~/legacy/utils/data/recipeEditor'
 import { cn } from '~/shared/cn'
 import { type JSXElement, type Accessor, type Setter } from 'solid-js'
 import { convertToGroups } from '~/modules/diet/item-group/application/itemGroupService'
+import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 
 export type RecipeEditViewProps = {
   recipe: Accessor<Recipe>
@@ -75,88 +76,50 @@ export function RecipeEditHeader(props: {
     .or(recipeSchema)
 
   const { recipe } = useRecipeEditContext()
-  const { show: showConfirmModal } = useConfirmModalContext()
-
-  const isClipboardValid = createClipboardSchemaFilter(acceptedClipboardSchema)
 
   const {
-    clipboard: clipboardText,
-    write: writeToClipboard,
-    clear: clearClipboard,
-  } = useClipboard({
-    filter: isClipboardValid,
+    handleCopy,
+    handlePaste,
+    hasValidPastableOnClipboard,
+  } = useCopyPasteActions({
+    acceptedClipboardSchema,
+    getDataToCopy: () => recipe(),
+    onPaste: (data) => {
+      const groupsToAdd = convertToGroups(data)
+        .map((group) => regenerateId(group))
+        .map((g) => ({
+          ...g,
+          items: g.items.map((item) => regenerateId(item)),
+        }))
+      const itemsToAdd = groupsToAdd.flatMap((g) => g.items)
+      const newRecipe = new RecipeEditor(recipe()).addItems(itemsToAdd).finish()
+      props.onUpdateRecipe(newRecipe)
+    },
   })
-
-  const handleCopy = () => {
-    writeToClipboard(JSON.stringify(recipe))
-  }
-
-  // TODO: Remove code duplication between MealEditView and RecipeView
-  const handlePasteAfterConfirm = () => {
-    const data = deserializeClipboard(clipboardText(), acceptedClipboardSchema)
-
-    if (data === null) {
-      throw new Error('Invalid clipboard data: ' + clipboardText())
-    }
-
-    const groupsToAdd = convertToGroups(data)
-      .map((group) => regenerateId(group))
-      .map((g) => ({
-        ...g,
-        items: g.items.map((item) => regenerateId(item)),
-      }))
-
-    const itemsToAdd = groupsToAdd.flatMap((g) => g.items)
-
-    const newRecipe = new RecipeEditor(recipe()).addItems(itemsToAdd).finish()
-
-    props.onUpdateRecipe(newRecipe)
-
-    // Clear clipboard
-    clearClipboard()
-  }
-
-  const handlePaste = () => {
-    showConfirmModal({
-      title: 'Colar itens',
-      body: 'Tem certeza que deseja colar os itens?',
-      actions: [
-        {
-          text: 'Cancelar',
-          onClick: () => undefined,
-        },
-        { text: 'Colar', primary: true, onClick: handlePasteAfterConfirm },
-      ],
-    })
-  }
 
   const recipeCalories = calcRecipeCalories(recipe())
 
   const onClearItems = (e: MouseEvent) => {
     e.preventDefault()
-
-    showConfirmModal({
-      title: 'Limpar itens',
-      body: 'Tem certeza que deseja limpar os itens?',
-      actions: [
-        {
-          text: 'Cancelar',
-          onClick: () => undefined,
-        },
-        {
-          text: 'Excluir todos os itens',
-          primary: true,
-          onClick: () => {
-            const newRecipe = new RecipeEditor(recipe()).clearItems().finish()
-
-            props.onUpdateRecipe(newRecipe)
+    import('~/sections/common/context/ConfirmModalContext').then(({ useConfirmModalContext }) => {
+      const { show: showConfirmModal } = useConfirmModalContext()
+      showConfirmModal({
+        title: 'Limpar itens',
+        body: 'Tem certeza que deseja limpar os itens?',
+        actions: [
+          { text: 'Cancelar', onClick: () => undefined },
+          {
+            text: 'Excluir todos os itens',
+            primary: true,
+            onClick: () => {
+              const newRecipe = new RecipeEditor(recipe()).clearItems().finish()
+              props.onUpdateRecipe(newRecipe)
+            },
           },
-        },
-      ],
+        ],
+      })
     })
   }
-
-  const hasValidPastableOnClipboard = isClipboardValid(clipboardText())
 
   return (
     <div class="flex">
@@ -165,7 +128,7 @@ export function RecipeEditHeader(props: {
         <p class="italic text-gray-400">{recipeCalories.toFixed(0)}kcal</p>
       </div>
       <div class={'ml-auto flex gap-2'}>
-        {!hasValidPastableOnClipboard && recipe().items.length > 0 && (
+        {!hasValidPastableOnClipboard() && recipe().items.length > 0 && (
           <div
             class={'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'}
             onClick={handleCopy}
@@ -173,7 +136,7 @@ export function RecipeEditHeader(props: {
             <CopyIcon />
           </div>
         )}
-        {hasValidPastableOnClipboard && (
+        {hasValidPastableOnClipboard() && (
           <div
             class={'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'}
             onClick={handlePaste}

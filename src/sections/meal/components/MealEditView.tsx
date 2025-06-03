@@ -8,11 +8,7 @@ import {
   type ItemGroup,
   itemGroupSchema,
 } from '~/modules/diet/item-group/domain/itemGroup'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
-import {
-  useClipboard,
-  createClipboardSchemaFilter,
-} from '~/sections/common/hooks/useClipboard'
+import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { deserializeClipboard } from '~/legacy/utils/clipboardUtils'
 import { convertToGroups } from '~/modules/diet/item-group/application/itemGroupService'
 import { regenerateId } from '~/legacy/utils/idUtils'
@@ -67,70 +63,35 @@ export function MealEditView(props: MealEditViewProps) {
 export function MealEditViewHeader(props: {
   onUpdateMeal: (meal: Meal) => void
 }) {
+  const { meal } = useMealContext()
   const acceptedClipboardSchema = mealSchema
     .or(itemGroupSchema)
     .or(itemSchema)
     .or(recipeSchema)
-  const { show: showConfirmModal } = useConfirmModalContext()
-  const { meal } = useMealContext()
-
-  const isClipboardValid = createClipboardSchemaFilter(acceptedClipboardSchema)
 
   const {
-    clipboard: clipboardText,
-    write: writeToClipboard,
-    clear: clearClipboard,
-  } = useClipboard({
-    filter: isClipboardValid,
+    handleCopy,
+    handlePaste,
+    hasValidPastableOnClipboard,
+  } = useCopyPasteActions({
+    acceptedClipboardSchema,
+    getDataToCopy: () => meal(),
+    onPaste: (data) => {
+      const meal_ = meal()
+      if (meal_ === null) {
+        throw new Error('mealSignal is null!')
+      }
+      const groupsToAdd = convertToGroups(data)
+        .map((group) => regenerateId(group))
+        .map((g) => ({
+          ...g,
+          items: g.items.map((item) => regenerateId(item)),
+        }))
+      const newMeal = new MealEditor(meal_).addGroups(groupsToAdd).finish()
+      props.onUpdateMeal(newMeal)
+    },
   })
 
-  const handleCopy = () => {
-    writeToClipboard(JSON.stringify(meal()))
-  }
-
-  // TODO: Remove code duplication between MealEditView and RecipeView
-  const handlePasteAfterConfirm = () => {
-    const data = deserializeClipboard(clipboardText(), acceptedClipboardSchema)
-
-    if (data === null) {
-      throw new Error('Invalid clipboard data: ' + clipboardText())
-    }
-
-    const meal_ = meal()
-    if (meal_ === null) {
-      throw new Error('mealSignal is null!')
-    }
-
-    const groupsToAdd = convertToGroups(data)
-      .map((group) => regenerateId(group))
-      .map((g) => ({
-        ...g,
-        items: g.items.map((item) => regenerateId(item)),
-      }))
-
-    const newMeal = new MealEditor(meal_).addGroups(groupsToAdd).finish()
-
-    props.onUpdateMeal(newMeal)
-
-    // Clear clipboard
-    clearClipboard()
-  }
-
-  const handlePaste = () => {
-    showConfirmModal({
-      title: 'Colar itens',
-      body: 'Tem certeza que deseja colar os itens?',
-      actions: [
-        {
-          text: 'Cancelar',
-          onClick: () => undefined,
-        },
-        { text: 'Colar', primary: true, onClick: handlePasteAfterConfirm },
-      ],
-    })
-  }
-
-  // TODO: Show how much of the daily target is this meal (e.g. 30% of daily calories) (maybe in a tooltip) (useContext)s
   const mealCalories = () => {
     const meal_ = meal()
     if (meal_ === null) {
@@ -141,34 +102,30 @@ export function MealEditViewHeader(props: {
 
   const onClearItems = (e: MouseEvent) => {
     e.preventDefault()
-
-    showConfirmModal({
-      title: 'Limpar itens',
-      body: 'Tem certeza que deseja limpar os itens?',
-      actions: [
-        {
-          text: 'Cancelar',
-          onClick: () => undefined,
-        },
-        {
-          text: 'Excluir todos os itens',
-          primary: true,
-          onClick: () => {
-            const meal_ = meal()
-            if (meal_ === null) {
-              throw new Error('meal_ is null!')
-            }
-
-            const newMeal = new MealEditor(meal_).clearGroups().finish()
-
-            props.onUpdateMeal(newMeal)
+    // This logic is not duplicated with RecipeEditView, so keep it here
+    import('~/sections/common/context/ConfirmModalContext').then(({ useConfirmModalContext }) => {
+      const { show: showConfirmModal } = useConfirmModalContext()
+      showConfirmModal({
+        title: 'Limpar itens',
+        body: 'Tem certeza que deseja limpar os itens?',
+        actions: [
+          { text: 'Cancelar', onClick: () => undefined },
+          {
+            text: 'Excluir todos os itens',
+            primary: true,
+            onClick: () => {
+              const meal_ = meal()
+              if (meal_ === null) {
+                throw new Error('meal_ is null!')
+              }
+              const newMeal = new MealEditor(meal_).clearGroups().finish()
+              props.onUpdateMeal(newMeal)
+            },
           },
-        },
-      ],
+        ],
+      })
     })
   }
-
-  const hasValidPastableOnClipboard = () => isClipboardValid(clipboardText())
 
   return (
     <Show when={meal()}>
