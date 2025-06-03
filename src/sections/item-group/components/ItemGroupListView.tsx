@@ -9,6 +9,7 @@ import {
 } from '~/sections/item-group/components/ItemGroupView'
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { type Accessor } from 'solid-js'
+import { handleClipboardError } from '~/shared/error/errorHandler'
 
 export function ItemGroupListView(props: {
   itemGroups: Accessor<ItemGroup[]>
@@ -32,7 +33,16 @@ export function ItemGroupListView(props: {
                     <ItemGroupCopyButton
                       group={group}
                       onCopyItemGroup={(group) => {
-                        clipboard.write(JSON.stringify(group))
+                        clipboard.write(
+                          JSON.stringify(group),
+                          (err) => {
+                            handleClipboardError(err, {
+                              component: 'ItemGroupListView',
+                              operation: 'copy item group',
+                              additionalData: { groupId: group.id },
+                            })
+                          }
+                        )
                       }}
                     />
                   }
