@@ -69,6 +69,25 @@ describe('dateUtils', () => {
       expect(adjusted1).toBeInstanceOf(Date)
       expect(adjusted2).toBeInstanceOf(Date)
     })
+
+    it('should accurately handle minute-based timezone offsets', () => {
+      // Use vi.spyOn to mock the method safely
+      const mockGetTimezoneOffset = vi.spyOn(Date.prototype, 'getTimezoneOffset')
+      
+      // Mock +05:30 timezone (330 minutes behind UTC)
+      mockGetTimezoneOffset.mockReturnValue(-330)
+      
+      try {
+        const utcDate = new Date('2024-01-15T12:00:00Z')
+        const adjusted = adjustToTimezone(utcDate)
+        
+        // Should add 5.5 hours (330 minutes) to UTC time
+        expect(adjusted.toISOString()).toBe('2024-01-15T17:30:00.000Z')
+      } finally {
+        // Restore the original method
+        mockGetTimezoneOffset.mockRestore()
+      }
+    })
   })
 
   describe('getMidnight', () => {
