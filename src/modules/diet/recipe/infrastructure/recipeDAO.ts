@@ -1,5 +1,9 @@
 import { itemSchema } from '~/modules/diet/item/domain/item'
-import { type Recipe, recipeSchema, type NewRecipe } from '~/modules/diet/recipe/domain/recipe'
+import {
+  type Recipe,
+  recipeSchema,
+  type NewRecipe,
+} from '~/modules/diet/recipe/domain/recipe'
 import { z } from 'zod'
 
 // Base schema (com ID)
@@ -15,7 +19,9 @@ export const recipeDAOSchema = z.object({
 export const createRecipeDAOSchema = recipeDAOSchema.omit({ id: true })
 
 // Schema para atualização (campos opcionais, sem ID)
-export const updateRecipeDAOSchema = recipeDAOSchema.omit({ id: true }).partial()
+export const updateRecipeDAOSchema = recipeDAOSchema
+  .omit({ id: true })
+  .partial()
 
 // Types
 export type RecipeDAO = z.infer<typeof recipeDAOSchema>
@@ -33,7 +39,9 @@ export function createRecipeDAO(recipe: Recipe): RecipeDAO {
   })
 }
 
-export function createInsertRecipeDAO(recipe: Omit<Recipe, 'id' | '__type'>): CreateRecipeDAO {
+export function createInsertRecipeDAO(
+  recipe: Omit<Recipe, 'id' | '__type'>,
+): CreateRecipeDAO {
   return createRecipeDAOSchema.parse({
     name: recipe.name,
     owner: recipe.owner,
@@ -49,7 +57,9 @@ export function createRecipeFromDAO(dao: RecipeDAO): Recipe {
   })
 }
 
-export function createInsertRecipeDAOFromNewRecipe(newRecipe: NewRecipe): CreateRecipeDAO {
+export function createInsertRecipeDAOFromNewRecipe(
+  newRecipe: NewRecipe,
+): CreateRecipeDAO {
   return createRecipeDAOSchema.parse({
     name: newRecipe.name,
     owner: newRecipe.owner,
@@ -58,7 +68,9 @@ export function createInsertRecipeDAOFromNewRecipe(newRecipe: NewRecipe): Create
   })
 }
 
-export function createUpdateRecipeDAOFromRecipe(recipe: Recipe): UpdateRecipeDAO {
+export function createUpdateRecipeDAOFromRecipe(
+  recipe: Recipe,
+): UpdateRecipeDAO {
   return updateRecipeDAOSchema.parse({
     name: recipe.name,
     owner: recipe.owner,

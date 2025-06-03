@@ -35,7 +35,10 @@ export type Recipe = Readonly<z.infer<typeof recipeSchema>>
  * @param owner - User ID who will own this recipe
  * @returns A new Recipe created from the group
  */
-export function createNewRecipeFromGroup(group: ItemGroup, owner: number): NewRecipe {
+export function createNewRecipeFromGroup(
+  group: ItemGroup,
+  owner: number,
+): NewRecipe {
   return createNewRecipe({
     name: group.name,
     items: [...group.items],
