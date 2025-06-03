@@ -5,11 +5,7 @@ import {
   useItemContext,
 } from '~/sections/food-item/context/ItemContext'
 import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
-import {
-  calcDayMacros,
-  calcItemCalories,
-  calcItemMacros,
-} from '~/legacy/utils/macroMath'
+import { calcItemCalories, calcItemMacros } from '~/legacy/utils/macroMath'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { type Template } from '~/modules/diet/template/domain/template'
 
@@ -29,7 +25,10 @@ import {
 } from '~/modules/diet/day-diet/application/dayDiet'
 import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget'
 import { createMacroOverflowChecker } from '~/legacy/utils/macroOverflow'
-import { handleApiError, handleValidationError } from '~/shared/error/errorHandler'
+import {
+  handleApiError,
+  handleValidationError,
+} from '~/shared/error/errorHandler'
 
 // TODO: Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
@@ -96,7 +95,7 @@ export function ItemHeader(props: ItemHeaderProps) {
 }
 
 export function ItemName() {
-  const { item: item } = useItemContext()
+  const { item } = useItemContext()
 
   const [template, setTemplate] = createSignal<Template | null>(null)
 
@@ -117,7 +116,7 @@ export function ItemName() {
           handleApiError(err, {
             component: 'ItemView::ItemName',
             operation: 'fetchRecipeById',
-            additionalData: { recipeId: itemValue.reference }
+            additionalData: { recipeId: itemValue.reference },
           })
           setTemplate(null)
         })
@@ -128,7 +127,7 @@ export function ItemName() {
           handleApiError(err, {
             component: 'ItemView::ItemName',
             operation: 'fetchFoodById',
-            additionalData: { foodId: itemValue.reference }
+            additionalData: { foodId: itemValue.reference },
           })
           setTemplate(null)
         })
@@ -142,12 +141,14 @@ export function ItemName() {
       return 'text-blue-500'
     } else {
       handleValidationError(
-        new Error(`Item is not a Item or RecipeItem! Item: ${JSON.stringify(item())}`),
+        new Error(
+          `Item is not a Item or RecipeItem! Item: ${JSON.stringify(item())}`,
+        ),
         {
           component: 'ItemView::ItemName',
           operation: 'templateNameColor',
-          additionalData: { item: item() }
-        }
+          additionalData: { item: item() },
+        },
       )
       return 'text-red-500 bg-red-100'
     }
@@ -210,18 +211,18 @@ export function ItemFavorite(props: {
 }
 
 export function ItemNutritionalInfo() {
-  const { item: item, macroOverflow } = useItemContext()
+  const { item, macroOverflow } = useItemContext()
 
   const multipliedMacros = (): MacroNutrients => calcItemMacros(item())
 
   const isMacroOverflowing = () => {
     const currentDayDiet_ = currentDayDiet()
     const macroTarget_ = macroTarget(stringToDate(targetDay()))
-    
+
     return createMacroOverflowChecker(item(), {
       currentDayDiet: currentDayDiet_,
       macroTarget: macroTarget_,
-      macroOverflowOptions: macroOverflow()
+      macroOverflowOptions: macroOverflow(),
     })
   }
 

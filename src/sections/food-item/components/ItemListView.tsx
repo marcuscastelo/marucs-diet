@@ -45,13 +45,15 @@ function DefaultHeader() {
       copyButton={
         <ItemCopyButton
           onCopyItem={(item) => {
-            navigator.clipboard.writeText(JSON.stringify(item)).catch((error) => {
-              handleClipboardError(error, { 
-                component: 'ItemListView',
-                operation: 'copyItem',
-                additionalData: { itemId: item.reference }
+            navigator.clipboard
+              .writeText(JSON.stringify(item))
+              .catch((error) => {
+                handleClipboardError(error, {
+                  component: 'ItemListView',
+                  operation: 'copyItem',
+                  additionalData: { itemId: item.reference },
+                })
               })
-            })
           }}
         />
       }

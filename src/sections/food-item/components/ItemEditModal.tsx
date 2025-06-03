@@ -68,13 +68,14 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
 
   return (
     <Modal class="border-2 border-white">
-      <Modal.Header 
+      <Modal.Header
         title={
           <span>
             Editando item em
             <span class={props.targetNameColor}>
               {' '}
-              &quot;{props.targetName ?? 'ERRO: destino desconhecido'}&quot;{' '}
+              &quot;{props.targetName ??
+                'ERRO: destino desconhecido'}&quot;{' '}
             </span>
           </span>
         }
@@ -177,12 +178,14 @@ function Body(props: {
   const [currentHoldInterval, setCurrentHoldInterval] =
     createSignal<NodeJS.Timeout | null>(null)
 
-  const increment = () =>
+  const increment = () => {
     quantityField.setRawValue(((quantityField.value() ?? 0) + 1).toString())
-  const decrement = () =>
+  }
+  const decrement = () => {
     quantityField.setRawValue(
       Math.max(0, (quantityField.value() ?? 0) - 1).toString(),
     )
+  }
 
   const holdRepeatStart = (action: () => void) => {
     setCurrentHoldTimeout(
@@ -212,23 +215,29 @@ function Body(props: {
   return (
     <>
       <p class="mt-1 text-gray-400">Atalhos</p>
-      {[
-        [10, 20, 30, 40, 50],
-        [100, 150, 200, 250, 300],
-      ].map((row) => (
-        <div class="mt-1 flex w-full gap-1">
-          <For each={row}>
-            {(value) => (
-              <div
-                class="btn-primary btn-sm btn flex-1"
-                onClick={() => quantityField.setRawValue(value.toString())}
-              >
-                {value}g
-              </div>
-            )}
-          </For>
-        </div>
-      ))}
+      <For
+        each={[
+          [10, 20, 30, 40, 50],
+          [100, 150, 200, 250, 300],
+        ]}
+      >
+        {(row) => (
+          <div class="mt-1 flex w-full gap-1">
+            <For each={row}>
+              {(value) => (
+                <div
+                  class="btn-primary btn-sm btn flex-1"
+                  onClick={() => {
+                    quantityField.setRawValue(value.toString())
+                  }}
+                >
+                  {value}g
+                </div>
+              )}
+            </For>
+          </div>
+        )}
+      </For>
       <div class="mt-3 flex w-full justify-between gap-1">
         <div class="my-1 flex flex-1 justify-around">
           <FloatInput
@@ -292,8 +301,7 @@ function Body(props: {
           ({
             __type: props.item().__type,
             id: id(),
-            name:
-              props.item().name ?? 'Sem nome (itemData && ItemView)',
+            name: props.item().name ?? 'Sem nome (itemData && ItemView)',
             quantity: quantityField.value() ?? props.item().quantity,
             reference: props.item().reference,
             macros: props.item().macros,
@@ -321,7 +329,7 @@ function Body(props: {
             }
           />
         }
-        nutritionalInfo={<ItemNutritionalInfo/>}
+        nutritionalInfo={<ItemNutritionalInfo />}
       />
     </>
   )
