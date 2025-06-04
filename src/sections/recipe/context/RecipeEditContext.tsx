@@ -5,8 +5,6 @@ import {
   type Setter,
   createContext,
   useContext,
-  createSignal,
-  createEffect,
 } from 'solid-js'
 
 export type RecipeContext = {
@@ -33,22 +31,11 @@ export function RecipeEditContextProvider(props: {
   setRecipe: Setter<Recipe>
   children: JSXElement
 }) {
-  // TODO:   Stop creating a new signal on every context provider
-  const [innerRecipe, setInnerRecipe] = createSignal(props.recipe())
-
-  createEffect(() => {
-    setInnerRecipe(props.recipe())
-  })
-
-  createEffect(() => {
-    props.setRecipe(innerRecipe())
-  })
-
   return (
     <recipeContext.Provider
       value={{
-        recipe: innerRecipe,
-        setRecipe: setInnerRecipe,
+        recipe: props.recipe,
+        setRecipe: props.setRecipe,
       }}
     >
       {props.children}

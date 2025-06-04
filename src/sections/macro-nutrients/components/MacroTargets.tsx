@@ -6,14 +6,13 @@ import {
 import { dateToYYYYMMDD, getTodayYYYYMMDD } from '~/shared/utils/date'
 import { calcCalories } from '~/legacy/utils/macroMath'
 import { getLatestMacroProfile } from '~/legacy/utils/macroProfileUtils'
-import { Show, createEffect } from 'solid-js'
+import { Show, createEffect, createMemo, createSignal } from 'solid-js'
 import {
   deleteMacroProfile,
   insertMacroProfile,
   updateMacroProfile,
   userMacroProfiles,
 } from '~/modules/diet/macro-profile/application/macroProfile'
-import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 import { calculateMacroTarget } from '~/modules/diet/macro-target/application/macroTarget'
 import toast from 'solid-toast'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
@@ -148,7 +147,7 @@ export function MacroTarget(props: MacroTargetProps) {
     return calculateMacroRepresentation(profile_, props.weight())
   }
 
-  const [targetCalories, setTargetCalories] = createMirrorSignal(() => {
+  const targetCalories = createMemo(() => {
     const profile_ = currentProfile()
     if (profile_ === null) {
       return 'Sem meta, preencha os campos abaixo'
@@ -166,7 +165,6 @@ export function MacroTarget(props: MacroTargetProps) {
       <div class="mx-5">
         <input
           value={targetCalories()}
-          onChange={setTargetCalories}
           type="search"
           id="default-search"
           class="input-bordered input text-center font-bold"
@@ -403,7 +401,7 @@ function MacroField(props: {
   disabled?: boolean
   className?: string
 }) {
-  const [innerField, setInnerField] = createMirrorSignal(() => props.field)
+  const [innerField, setInnerField] = createSignal(props.field)
 
   createEffect(() => {
     setInnerField(props.field)
