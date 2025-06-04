@@ -154,4 +154,5 @@ export type ToastError = {
   fullError?: string
   stack?: string
   context?: Record<string, unknown>
+  timestamp?: number
 }

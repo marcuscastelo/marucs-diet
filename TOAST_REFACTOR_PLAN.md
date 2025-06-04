@@ -73,11 +73,11 @@ export type ToastOptions = {
 - **Tests**: ⏳ Pending
 
 #### Commit 5: Expandable Error Component  
-- **Status**: ⏳ Pending  
+- **Status**: ✅ Complete  
 - **Files to create**:  
-  - `src/sections/common/components/ExpandableErrorToast.tsx`  
+  - `src/shared/toast/ExpandableErrorToast.tsx` ✅
 - **Description**: Toast component with error expansion option  
-- **Tests**: ❌ Not run
+- **Tests**: ⏳ Pending
 
 ---
 

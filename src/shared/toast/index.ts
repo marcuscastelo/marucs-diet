@@ -15,3 +15,9 @@ export * from './errorMessageHandler'
 
 // Main toast manager
 export * from './toastManager'
+
+// Smart toast promise (replacement for legacy toastPromise)
+export * from './smartToastPromise'
+
+// Expandable error component
+export * from './ExpandableErrorToast'
