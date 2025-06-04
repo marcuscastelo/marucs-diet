@@ -4,10 +4,6 @@ import { createItem } from '~/modules/diet/item/domain/item'
 import { type Food } from '~/modules/diet/food/domain/food'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { type Template } from '~/modules/diet/template/domain/template'
-import {
-  isFoodFavorite,
-  setFoodAsFavorite,
-} from '~/modules/user/application/user'
 import { Alert } from '~/sections/common/components/Alert'
 import {
   ItemName,
@@ -70,14 +66,7 @@ export function TemplateSearchResults(props: {
                     <HeaderWithActionsAndCopy
                       name={<ItemName />}
                       copyButton={undefined}
-                      actions={
-                        <ItemFavorite
-                          favorite={isFoodFavorite(template().id)}
-                          onSetFavorite={(favorite: boolean) =>
-                            setFoodAsFavorite(template().id, favorite)
-                          }
-                        />
-                      }
+                      actions={<ItemFavorite foodId={template().id} />}
                       removeFromListButton={
                         <RemoveFromRecentButton
                           templateId={template().id}

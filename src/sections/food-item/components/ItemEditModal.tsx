@@ -13,10 +13,6 @@ import { useFloatField } from '~/sections/common/hooks/useField'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { HeaderWithActionsAndCopy } from '~/sections/common/components/HeaderWithNameAndCopy'
-import {
-  isFoodFavorite,
-  setFoodAsFavorite,
-} from '~/modules/user/application/user'
 
 import {
   mergeProps,
@@ -26,7 +22,6 @@ import {
   untrack,
   type Setter,
   For,
-  createMemo,
 } from 'solid-js'
 import toast from 'solid-toast'
 
@@ -326,14 +321,7 @@ function Body(props: {
           <HeaderWithActionsAndCopy
             name={<ItemName />}
             copyButton={undefined}
-            actions={
-              <ItemFavorite
-                favorite={isFoodFavorite(props.item().reference)}
-                onSetFavorite={(favorite) => {
-                  setFoodAsFavorite(props.item().reference, favorite)
-                }}
-              />
-            }
+            actions={<ItemFavorite foodId={props.item().reference} />}
           />
         }
         nutritionalInfo={<ItemNutritionalInfo />}

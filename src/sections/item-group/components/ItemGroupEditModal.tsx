@@ -53,11 +53,7 @@ import {
 import { ConvertToRecipeIcon } from '~/sections/common/components/icons/ConvertToRecipeIcon'
 import { deepCopy } from '~/legacy/utils/deepCopy'
 import { PreparedQuantity } from '~/sections/common/components/PreparedQuantity'
-import {
-  currentUserId,
-  isFoodFavorite,
-  setFoodAsFavorite,
-} from '~/modules/user/application/user'
+import { currentUserId } from '~/modules/user/application/user'
 import {
   type Accessor,
   createSignal,
@@ -433,8 +429,6 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
               <Modal.Content>
                 <Body
                   recipe={() => recipeSignal().data}
-                  isFoodFavorite={isFoodFavorite}
-                  setFoodAsFavorite={setFoodAsFavorite}
                   itemEditModalVisible={itemEditModalVisible}
                   setItemEditModalVisible={setItemEditModalVisible}
                   templateSearchModalVisible={templateSearchModalVisible}
@@ -474,8 +468,6 @@ function Title(props: { targetMealName: string; recipe: Recipe | null }) {
 
 function Body(props: {
   recipe: Accessor<Recipe | null>
-  isFoodFavorite: (foodId: number) => boolean
-  setFoodAsFavorite: (foodId: number, isFavorite: boolean) => void
   recipeEditModalVisible: Accessor<boolean>
   setRecipeEditModalVisible: Setter<boolean>
   itemEditModalVisible: Accessor<boolean>
@@ -758,14 +750,7 @@ function Body(props: {
                     }}
                   />
                 }
-                actions={
-                  <ItemFavorite
-                    favorite={isFoodFavorite(item.reference)}
-                    onSetFavorite={(favorite) => {
-                      setFoodAsFavorite(item.reference, favorite)
-                    }}
-                  />
-                }
+                actions={<ItemFavorite foodId={item.reference} />}
               />
             )}
           />

@@ -11,10 +11,6 @@ import { handleApiError } from '~/shared/error/errorHandler'
 import { HeaderWithActionsAndCopy } from '~/sections/common/components/HeaderWithNameAndCopy'
 
 import {
-  isFoodFavorite,
-  setFoodAsFavorite,
-} from '~/modules/user/application/user'
-import {
   type Accessor,
   createSignal,
   createEffect,
@@ -130,14 +126,7 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
                     header={
                       <HeaderWithActionsAndCopy
                         name={<ItemName />}
-                        actions={
-                          <ItemFavorite
-                            favorite={isFoodFavorite(food().id)}
-                            onSetFavorite={(favorite) => {
-                              setFoodAsFavorite(food().id, favorite)
-                            }}
-                          />
-                        }
+                        actions={<ItemFavorite foodId={food().id} />}
                       />
                     }
                     nutritionalInfo={<ItemNutritionalInfo />}

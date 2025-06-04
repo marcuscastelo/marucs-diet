@@ -8,6 +8,10 @@ import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
 import { calcItemCalories, calcItemMacros } from '~/legacy/utils/macroMath'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { type Template } from '~/modules/diet/template/domain/template'
+import {
+  isFoodFavorite,
+  setFoodAsFavorite,
+} from '~/modules/user/application/user'
 
 import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 import {
@@ -16,7 +20,6 @@ import {
   createSignal,
   createEffect,
 } from 'solid-js'
-import { cn } from '~/shared/cn'
 import { fetchFoodById } from '~/modules/diet/food/application/food'
 import { stringToDate } from '~/shared/utils/date'
 import {
@@ -164,24 +167,19 @@ export function ItemCopyButton(props: {
   )
 }
 
-export function ItemFavorite(props: {
-  favorite: boolean
-  onSetFavorite?: (favorite: boolean) => void
-}) {
+export function ItemFavorite(props: { foodId: number }) {
   const toggleFavorite = (e: MouseEvent) => {
-    props.onSetFavorite?.(!props.favorite)
+    setFoodAsFavorite(props.foodId, !isFoodFavorite(props.foodId))
     e.stopPropagation()
     e.preventDefault()
   }
 
   return (
     <div
-      class={cn('ml-auto mt-1 text-3xl text-orange-400 active:scale-105', {
-        'hover:text-blue-200': props.onSetFavorite !== undefined,
-      })}
+      class="ml-auto mt-1 text-3xl text-orange-400 active:scale-105 hover:text-blue-200"
       onClick={toggleFavorite}
     >
-      {props.favorite ? '★' : '☆'}
+      {isFoodFavorite(props.foodId) ? '★' : '☆'}
     </div>
   )
 }
