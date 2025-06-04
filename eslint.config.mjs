@@ -56,8 +56,22 @@ export default [
       '@typescript-eslint/strict-boolean-expressions': 'warn',
       '@typescript-eslint/no-unnecessary-type-assertion': 'warn',
 
+      "require-await": "off",
+      "@typescript-eslint/require-await": "off",
+
       'no-unused-vars': 'off',
-      '@typescript-eslint/no-unused-vars': 'warn',
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          "args": "all",
+          "argsIgnorePattern": "^_",
+          "caughtErrors": "all",
+          "caughtErrorsIgnorePattern": "^_",
+          "destructuredArrayIgnorePattern": "^_",
+          "varsIgnorePattern": "^_",
+          "ignoreRestSiblings": true
+        }
+      ],
 
       'jsx-a11y/alt-text': [
         'warn',
