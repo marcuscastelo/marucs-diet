@@ -28,7 +28,7 @@ import {
   ItemGroupName,
   ItemGroupViewNutritionalInfo,
 } from '~/sections/item-group/components/ItemGroupView'
-import { HeaderWithActionsAndCopy } from '~/sections/common/components/HeaderWithNameAndCopy'
+import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { createEffect, createSignal, untrack } from 'solid-js'
 import DayMacros from '~/sections/day-diet/components/DayMacros'
@@ -195,16 +195,16 @@ export default function TestApp() {
         <ItemGroupView
           itemGroup={group}
           header={
-            <HeaderWithActionsAndCopy
+            <HeaderWithActions
               name={<ItemGroupName group={group} />}
-              copyButton={
+              actions={[
                 <ItemGroupCopyButton
                   group={group}
                   onCopyItemGroup={(item) => {
                     console.debug(item)
                   }}
-                />
-              }
+                />,
+              ]}
             />
           }
           nutritionalInfo={<ItemGroupViewNutritionalInfo group={group} />}

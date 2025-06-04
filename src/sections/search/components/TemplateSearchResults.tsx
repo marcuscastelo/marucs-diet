@@ -10,7 +10,7 @@ import {
   ItemNutritionalInfo,
   ItemView,
 } from '~/sections/food-item/components/ItemView'
-import { HeaderWithActionsAndCopy } from '~/sections/common/components/HeaderWithNameAndCopy'
+import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import { ItemFavorite } from '~/sections/food-item/components/ItemView'
 import { RemoveFromRecentButton } from '~/sections/food-item/components/RemoveFromRecentButton'
 
@@ -63,10 +63,9 @@ export function TemplateSearchResults(props: {
                     props.setBarCodeModalVisible(false)
                   }}
                   header={
-                    <HeaderWithActionsAndCopy
+                    <HeaderWithActions
                       name={<ItemName />}
-                      copyButton={undefined}
-                      actions={<ItemFavorite foodId={template().id} />}
+                      actions={[<ItemFavorite foodId={template().id} />]}
                       removeFromListButton={
                         <RemoveFromRecentButton
                           templateId={template().id}

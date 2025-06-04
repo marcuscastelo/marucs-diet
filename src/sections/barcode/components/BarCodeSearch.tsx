@@ -8,7 +8,7 @@ import { type Food } from '~/modules/diet/food/domain/food'
 import { createItem } from '~/modules/diet/item/domain/item'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { handleApiError } from '~/shared/error/errorHandler'
-import { HeaderWithActionsAndCopy } from '~/sections/common/components/HeaderWithNameAndCopy'
+import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 
 import {
   type Accessor,
@@ -124,9 +124,9 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
                       enable: false,
                     })}
                     header={
-                      <HeaderWithActionsAndCopy
+                      <HeaderWithActions
                         name={<ItemName />}
-                        actions={<ItemFavorite foodId={food().id} />}
+                        actions={[<ItemFavorite foodId={food().id} />]}
                       />
                     }
                     nutritionalInfo={<ItemNutritionalInfo />}

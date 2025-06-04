@@ -8,7 +8,7 @@ import {
 } from '~/sections/item-group/components/ItemGroupView'
 import { handleClipboardError } from '~/shared/error/errorHandler'
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
-import { HeaderWithActionsAndCopy } from '~/sections/common/components/HeaderWithNameAndCopy'
+import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import { type Accessor, For } from 'solid-js'
 
 export function ItemGroupListView(props: {
@@ -25,9 +25,9 @@ export function ItemGroupListView(props: {
             itemGroup={() => group}
             onClick={props.onItemClick}
             header={
-              <HeaderWithActionsAndCopy
+              <HeaderWithActions
                 name={<ItemGroupName group={() => group} />}
-                copyButton={
+                actions={[
                   <ItemGroupCopyButton
                     group={() => group}
                     onCopyItemGroup={(group) => {
@@ -39,8 +39,8 @@ export function ItemGroupListView(props: {
                         })
                       })
                     }}
-                  />
-                }
+                  />,
+                ]}
               />
             }
             nutritionalInfo={

@@ -78,7 +78,7 @@ import {
 } from '~/modules/diet/recipe/application/recipe'
 import { BrokenLink } from '~/sections/common/components/icons/BrokenLinkIcon'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
-import { HeaderWithActionsAndCopy } from '~/sections/common/components/HeaderWithNameAndCopy'
+import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 
 type EditSelection = {
   item: Item
@@ -741,16 +741,16 @@ function Body(props: {
               // }
             }}
             makeHeaderFn={(item) => (
-              <HeaderWithActionsAndCopy
+              <HeaderWithActions
                 name={<ItemName />}
-                copyButton={
+                actions={[
                   <ItemCopyButton
                     onCopyItem={(item) => {
                       writeToClipboard(JSON.stringify(item))
                     }}
-                  />
-                }
-                actions={<ItemFavorite foodId={item.reference} />}
+                  />,
+                  <ItemFavorite foodId={item.reference} />,
+                ]}
               />
             )}
           />

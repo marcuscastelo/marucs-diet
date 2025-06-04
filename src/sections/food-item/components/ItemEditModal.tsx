@@ -12,7 +12,7 @@ import { generateId } from '~/legacy/utils/idUtils'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
-import { HeaderWithActionsAndCopy } from '~/sections/common/components/HeaderWithNameAndCopy'
+import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 
 import {
   mergeProps,
@@ -318,10 +318,9 @@ function Body(props: {
           toast.error('Alimento não editável (ainda)')
         }}
         header={
-          <HeaderWithActionsAndCopy
+          <HeaderWithActions
             name={<ItemName />}
-            copyButton={undefined}
-            actions={<ItemFavorite foodId={props.item().reference} />}
+            actions={[<ItemFavorite foodId={props.item().reference} />]}
           />
         }
         nutritionalInfo={<ItemNutritionalInfo />}
