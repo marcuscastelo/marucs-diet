@@ -52,6 +52,13 @@
 - After any change, run `npm type-check` and `npx vitest run` and fix all problems immediately.
 - Never leave orphaned or outdated tests after a code change.
 
+## Testing & Validation
+- After any major change (refactor, feature, or bug fix), always run:
+  - `npm run lint`
+  - `npm run type-check`
+  - `npm run test`
+- Fix all reported issues before committing or opening a pull request.
+
 ## Commits
 - Prioritize small, atomic commits.
 - Never make an empty commit.
@@ -106,10 +113,3 @@ if (somethingWentWrong) {
 - For Solid components, use `@solidjs/testing-library`.
 - Always render components inside `render(<Component />)` and use `waitFor` for async tests.
 - Use `screen.getByRole`, `screen.queryByText`, etc., to ensure accessibility in tests.
-````
-
-## Restrictions
-- Do not modify `.eslintrc.cjs` or `.github/copilot-instructions.md` without user consent.
-
-## See Also
-- For module structure, layering, and architecture, see [`ARCHITECTURE_GUIDE.md`](../ARCHITECTURE_GUIDE.md).
