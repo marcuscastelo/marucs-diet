@@ -65,11 +65,7 @@ export const Modal = (_props: ModalProps) => {
   )
 }
 
-// Modern composition-based modal components
-export function ModalHeader(_props: {
-  title: JSXElement
-  backButton?: boolean
-}) {
+function ModalHeader(_props: { title: JSXElement; backButton?: boolean }) {
   const props = mergeProps({ backButton: true }, _props)
   const { setVisible } = useModalContext()
 
