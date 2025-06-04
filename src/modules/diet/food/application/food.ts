@@ -6,7 +6,7 @@ import {
   importFoodsFromApiByName,
 } from '~/modules/diet/food/infrastructure/api/application/apiFood'
 import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
-import { toastPromise } from '~/shared/toastPromise'
+import { smartToastPromise } from '~/shared/toast'
 import { formatError } from '~/shared/formatError'
 
 const foodRepository = createSupabaseFoodRepository()
@@ -28,19 +28,25 @@ export async function fetchFoodsByName(
 ) {
   if (!(await isSearchCached(name))) {
     console.debug(`[Food] Food with name ${name} not cached, importing`)
-    await toastPromise(importFoodsFromApiByName(name), {
+    await smartToastPromise(importFoodsFromApiByName(name), {
+      context: 'background',
       loading: 'Importando alimentos...',
       success: 'Alimentos importados com sucesso',
-      error: (error) => `Erro ao importar alimentos: ${formatError(error)}`,
+      error: (error: unknown) =>
+        `Erro ao importar alimentos: ${formatError(error)}`,
     })
   }
 
-  return await toastPromise(foodRepository.fetchFoodsByName(name, params), {
-    loading: 'Buscando alimentos por nome...',
-    success: 'Alimentos encontrados',
-    error: (error) =>
-      `Erro ao buscar alimentos por nome: ${formatError(error)}`,
-  })
+  return await smartToastPromise(
+    foodRepository.fetchFoodsByName(name, params),
+    {
+      context: 'user-action',
+      loading: 'Buscando alimentos por nome...',
+      success: 'Alimentos encontrados',
+      error: (error: unknown) =>
+        `Erro ao buscar alimentos por nome: ${formatError(error)}`,
+    },
+  )
 }
 
 export async function fetchFoodByEan(
@@ -49,17 +55,21 @@ export async function fetchFoodByEan(
 ) {
   if (!(await isEanCached(ean))) {
     console.debug(`[Food] Food with EAN ${ean} not cached, importing`)
-    await toastPromise(importFoodFromApiByEan(ean), {
+    await smartToastPromise(importFoodFromApiByEan(ean), {
+      context: 'background',
       loading: 'Importando alimento...',
       success: 'Alimento importado com sucesso',
-      error: (error) => `Erro ao importar alimento: ${formatError(error)}`,
+      error: (error: unknown) =>
+        `Erro ao importar alimento: ${formatError(error)}`,
     })
   }
 
-  return await toastPromise(foodRepository.fetchFoodByEan(ean, params), {
+  return await smartToastPromise(foodRepository.fetchFoodByEan(ean, params), {
+    context: 'user-action',
     loading: 'Buscando alimento por EAN...',
     success: 'Alimento encontrado',
-    error: (error) => `Erro ao buscar alimento por EAN: ${formatError(error)}`,
+    error: (error: unknown) =>
+      `Erro ao buscar alimento por EAN: ${formatError(error)}`,
   })
 }
 

@@ -90,7 +90,8 @@ export function showError(
   options: Partial<ToastOptions> = {},
 ): void {
   const processedError = processErrorMessage(error, {
-    maxLength: options.maxLength ?? DEFAULT_TOAST_OPTIONS[context]?.maxLength ?? 100,
+    maxLength:
+      options.maxLength ?? DEFAULT_TOAST_OPTIONS[context]?.maxLength ?? 100,
   })
 
   const finalOptions: ToastOptions = {

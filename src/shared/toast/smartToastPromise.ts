@@ -26,14 +26,14 @@ export type SmartToastPromiseOptions = {
 
 /**
  * Smart toast promise wrapper with context-aware behavior
- * 
+ *
  * This is the replacement for the legacy toastPromise function.
  * It provides intelligent toast management based on operation context.
- * 
+ *
  * @param promise - The promise to wrap
  * @param toastOptions - Configuration for toast behavior
  * @returns The original promise result
- * 
+ *
  * @example
  * ```typescript
  * // User-initiated action (shows all toasts)
@@ -46,7 +46,7 @@ export type SmartToastPromiseOptions = {
  *     error: 'Failed to save profile'
  *   }
  * )
- * 
+ *
  * // Background operation (only shows errors)
  * const data = await smartToastPromise(
  *   fetchBackgroundData(),
@@ -145,7 +145,7 @@ export function systemToast<T>(
 /**
  * Migration helper: provides the same API as the legacy toastPromise
  * but with smart behavior. Use this for easy migration from old code.
- * 
+ *
  * @deprecated Use smartToastPromise with explicit context instead
  */
 export function legacyToastPromise<T>(
@@ -157,7 +157,7 @@ export function legacyToastPromise<T>(
   console.warn(
     'legacyToastPromise is deprecated. Use smartToastPromise with explicit context instead.',
   )
-  
+
   return smartToastPromise(promise, {
     context: 'user-action', // Default to user-action for legacy compatibility
     loading,

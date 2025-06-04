@@ -23,7 +23,7 @@ export type ExpandableErrorToastProps = {
 
 /**
  * Expandable Error Toast Component
- * 
+ *
  * Shows a truncated error message with an option to expand and view full details.
  * Includes copy-to-clipboard functionality for debugging.
  */
@@ -133,7 +133,7 @@ ${timestampText}
             <div class="whitespace-pre-wrap break-words">
               {props.errorDetails.message}
             </div>
-            
+
             <Show when={props.errorDetails.stack}>
               <div class="mt-2">
                 <div class="font-medium">Stack Trace:</div>

@@ -11,6 +11,7 @@ import {
 import { type User } from '~/modules/user/domain/user'
 import { createEffect, createSignal } from 'solid-js'
 import { currentUserId } from '~/modules/user/application/user'
+import { smartToastPromise } from '~/shared/toast'
 import toast from 'solid-toast'
 import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 import { formatError } from '~/shared/formatError'
@@ -43,15 +44,14 @@ export const [currentDayDiet, setCurrentDayDiet] = createSignal<DayDiet | null>(
 )
 
 function bootstrap() {
-  toast
-    .promise(fetchAllUserDayDiets(currentUserId()), {
-      loading: 'Buscando dietas do usuário...',
-      success: 'Dietas do usuário obtidas com sucesso',
-      error: 'Falha ao buscar dietas do usuário',
-    })
-    .catch((error) => {
-      console.error(error)
-    })
+  smartToastPromise(fetchAllUserDayDiets(currentUserId()), {
+    context: 'background',
+    loading: 'Buscando dietas do usuário...',
+    success: 'Dietas do usuário obtidas com sucesso',
+    error: 'Falha ao buscar dietas do usuário',
+  }).catch((error: unknown) => {
+    console.error(error)
+  })
 }
 
 /**
@@ -125,16 +125,16 @@ export async function fetchAllUserDayDiets(userId: User['id']) {
 }
 
 export async function insertDayDiet(dayDiet: NewDayDiet): Promise<void> {
-  await toast
-    .promise(dayRepository.insertDayDiet(dayDiet), {
-      loading: 'Criando novo dia de dieta...',
-      success: 'Dia de dieta criado com sucesso',
-      error: 'Falha ao criar novo dia de dieta',
-    })
+  await smartToastPromise(dayRepository.insertDayDiet(dayDiet), {
+    context: 'user-action',
+    loading: 'Criando novo dia de dieta...',
+    success: 'Dia de dieta criado com sucesso',
+    error: 'Falha ao criar novo dia de dieta',
+  })
     .then(async () => {
       await fetchAllUserDayDiets(dayDiet.owner) // TODO:   Stop fetching all day diets
     })
-    .catch((error) => {
+    .catch((error: unknown) => {
       console.error(error)
     })
 }
@@ -143,31 +143,31 @@ export async function updateDayDiet(
   dayId: DayDiet['id'],
   dayDiet: NewDayDiet,
 ): Promise<void> {
-  await toast
-    .promise(dayRepository.updateDayDiet(dayId, dayDiet), {
-      loading: 'Atualizando dieta...',
-      success: 'Dieta atualizada com sucesso',
-      error: 'Falha ao atualizar dieta',
-    })
+  await smartToastPromise(dayRepository.updateDayDiet(dayId, dayDiet), {
+    context: 'user-action',
+    loading: 'Atualizando dieta...',
+    success: 'Dieta atualizada com sucesso',
+    error: 'Falha ao atualizar dieta',
+  })
     .then(async () => {
       await fetchAllUserDayDiets(dayDiet.owner) // TODO:   Stop fetching all day diets
     })
-    .catch((error) => {
+    .catch((error: unknown) => {
       console.error(error)
     })
 }
 
 export async function deleteDayDiet(dayId: DayDiet['id']): Promise<void> {
-  await toast
-    .promise(dayRepository.deleteDayDiet(dayId), {
-      loading: 'Deletando dieta...',
-      success: 'Dieta deletada com sucesso',
-      error: 'Falha ao deletar dieta',
-    })
+  await smartToastPromise(dayRepository.deleteDayDiet(dayId), {
+    context: 'user-action',
+    loading: 'Deletando dieta...',
+    success: 'Dieta deletada com sucesso',
+    error: 'Falha ao deletar dieta',
+  })
     .then(async () => {
       await fetchAllUserDayDiets(dayId) // TODO:   Stop fetching all day diets
     })
-    .catch((error) => {
+    .catch((error: unknown) => {
       console.error(error)
     })
 }

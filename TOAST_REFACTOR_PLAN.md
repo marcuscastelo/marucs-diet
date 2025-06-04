@@ -13,7 +13,7 @@ Refactoring of the toast system to reduce visual clutter and improve user experi
 ### General Status
 - **Start**: 2025-06-04  
 - **Status**: ✅ Complete
-- **Progress**: 4/18 commits (22.2%)
+- **Progress**: 7/18 commits (38.9%)
 
 ---
 
@@ -92,13 +92,16 @@ export type ToastOptions = {
 - **Tests**: ❌ Not run
 
 #### Commit 7: Critical Module Migration  
-- **Status**: ⏳ Pending  
-- **Files to modify**:  
+- **Status**: ✅ Complete  
+- **Files modified**:  
+  - `src/modules/diet/food/application/food.ts`  
   - `src/modules/user/application/user.ts`  
   - `src/modules/weight/application/weight.ts`  
-  - `src/modules/diet/macro-profile/application/macroProfile.ts`  
-- **Description**: Replace toastPromise in key modules  
-- **Tests**: ❌ Not run
+  - `src/modules/diet/day-diet/application/dayDiet.ts`  
+  - `src/sections/food-item/components/RemoveFromRecentButton.tsx`  
+  - `src/sections/day-diet/components/CreateBlankDayButton.tsx`  
+- **Description**: Migrated all toastPromise usages to smartToastPromise with context-aware behavior  
+- **Tests**: ✅ Type-check passed
 
 ---
 

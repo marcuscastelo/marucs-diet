@@ -12,7 +12,7 @@ import {
   SUPABASE_TABLE_USERS,
 } from '~/modules/user/infrastructure/supabaseUserRepository'
 import { createEffect, createSignal } from 'solid-js'
-import { toastPromise } from '~/shared/toastPromise'
+import { smartToastPromise } from '~/shared/toast'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 
@@ -29,7 +29,8 @@ export const [currentUserId, setCurrentUserId] = createSignal<number>(1)
 createEffect(() => {
   if (currentUserId() !== null) {
     setCurrentUserId(loadUserIdFromLocalStorage())
-    toastPromise(fetchCurrentUser(), {
+    smartToastPromise(fetchCurrentUser(), {
+      context: 'background',
       loading: 'Carregando usuário atual...',
       success: 'Usuário atual carregado com sucesso',
       error: 'Falha ao carregar usuário atual',
@@ -83,11 +84,15 @@ export async function updateUser(
   userId: User['id'],
   newUser: NewUser,
 ): Promise<User | null> {
-  const user = await toastPromise(userRepository.updateUser(userId, newUser), {
-    loading: 'Atualizando informações do usuário...',
-    success: 'Informações do usuário atualizadas com sucesso',
-    error: 'Falha ao atualizar informações do usuário',
-  })
+  const user = await smartToastPromise(
+    userRepository.updateUser(userId, newUser),
+    {
+      context: 'user-action',
+      loading: 'Atualizando informações do usuário...',
+      success: 'Informações do usuário atualizadas com sucesso',
+      error: 'Falha ao atualizar informações do usuário',
+    },
+  )
 
   await fetchUsers()
   return user
