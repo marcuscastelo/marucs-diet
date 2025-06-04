@@ -26,7 +26,6 @@ import {
 import toast from 'solid-toast'
 
 import { createEffect, createSignal } from 'solid-js'
-import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 
 export type RecipeEditModalProps = {
   show?: boolean
@@ -41,7 +40,7 @@ export type RecipeEditModalProps = {
 export function RecipeEditModal(props: RecipeEditModalProps) {
   const { visible, setVisible } = useModalContext()
 
-  const [recipe, setRecipe] = createMirrorSignal(() => props.recipe)
+  const [recipe, setRecipe] = createSignal(props.recipe)
 
   const [selectedItem, setSelectedItem] = createSignal<Item | null>(null)
 

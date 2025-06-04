@@ -5,9 +5,9 @@ import {
   type Setter,
   useContext,
   createSignal,
+  untrack,
   type JSXElement,
 } from 'solid-js'
-import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 
 export type ItemGroupEditContext = {
   group: Accessor<ItemGroup>
@@ -36,15 +36,22 @@ export function ItemGroupEditContextProvider(props: {
   onSaveGroup: (group: ItemGroup) => void
   children: JSXElement
 }) {
-  const [group, setGroup] = createMirrorSignal<ItemGroup>(() => props.group())
-
+  // Initialize with untracked read to avoid reactivity warning
   const [persistentGroup, setPersistentGroup] = createSignal<ItemGroup>(
-    // eslint-disable-next-line solid/reactivity
-    props.group(),
+    untrack(() => props.group()),
   )
 
+  // Wrapper to convert props.setGroup to a Setter
+  const setGroup: Setter<ItemGroup> = (value) => {
+    const newValue =
+      typeof value === 'function'
+        ? (value as (prev: ItemGroup) => ItemGroup)(props.group())
+        : (value as ItemGroup)
+    props.setGroup(newValue)
+  }
+
   const handleSaveGroup = () => {
-    const group_ = group()
+    const group_ = props.group()
     if (group_ === null) {
       throw new Error('Group is null')
     }
@@ -54,7 +61,12 @@ export function ItemGroupEditContextProvider(props: {
 
   return (
     <itemGroupEditContext.Provider
-      value={{ group, persistentGroup, setGroup, saveGroup: handleSaveGroup }}
+      value={{
+        group: props.group,
+        persistentGroup,
+        setGroup,
+        saveGroup: handleSaveGroup,
+      }}
     >
       {props.children}
     </itemGroupEditContext.Provider>
