@@ -9,7 +9,7 @@ import {
   updateDayDiet,
 } from '~/modules/diet/day-diet/application/dayDiet'
 import { Show, createEffect, createSignal, type Accessor } from 'solid-js'
-import toast from 'solid-toast'
+import { showError } from '~/shared/toast'
 
 export function CopyLastDayButton(props: {
   dayDiet: Accessor<DayDiet | undefined> // TODO:   Rename all 'day' to 'dayDiet' on entire project.
@@ -37,8 +37,9 @@ export function CopyLastDayButton(props: {
             <button
               class="btn-error btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white"
               onClick={() => {
-                toast.error(
+                showError(
                   `Não foi possível encontrar um dia anterior a ${props.selectedDay}`,
+                  'user-action',
                 )
               }}
             >

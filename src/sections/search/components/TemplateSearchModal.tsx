@@ -49,7 +49,7 @@ import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget
 import { stringToDate } from '~/shared/utils/date'
 import { isOverflowForItemGroup } from '~/legacy/utils/macroOverflow'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
-import toast from 'solid-toast'
+import { showError } from '~/shared/toast'
 import { TemplateSearchBar } from './TemplateSearchBar'
 import { TemplateSearchResults } from './TemplateSearchResults'
 import { BarCodeButton } from '~/sections/common/components/BarCodeButton'
@@ -186,7 +186,10 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
                   operation: 'confirmOverMacros',
                   additionalData: { templateType: 'item' },
                 })
-                toast.error(`Erro ao adicionar item: ${formatError(err)}`)
+                showError(
+                  `Erro ao adicionar item: ${formatError(err)}`,
+                  'user-action',
+                )
               })
             },
           },
@@ -207,7 +210,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
           operation: 'confirmItem',
           additionalData: { templateType: 'item' },
         })
-        toast.error(`Erro ao adicionar item: ${formatError(err)}`)
+        showError(`Erro ao adicionar item: ${formatError(err)}`, 'user-action')
       }
     }
   }

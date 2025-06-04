@@ -8,7 +8,7 @@ import {
   deleteMeasure,
   updateMeasure,
 } from '~/modules/measure/application/measure'
-import toast from 'solid-toast'
+import { showError } from '~/shared/toast'
 import { formatError } from '~/shared/formatError'
 import { adjustToTimezone } from '~/shared/utils/date/dateUtils'
 import {
@@ -53,7 +53,7 @@ export function MeasureView(props: {
       hip === undefined ||
       neck === undefined
     ) {
-      toast.error('Preencha todos os campos de medidas')
+      showError('Preencha todos os campos de medidas', 'user-action')
       return
     }
     const afterUpdate = () => {
@@ -73,7 +73,10 @@ export function MeasureView(props: {
       .then(afterUpdate)
       .catch((error) => {
         console.error(error)
-        toast.error(`Erro ao atualizar medida: ${formatError(error)}`)
+        showError(
+          `Erro ao atualizar medida: ${formatError(error)}`,
+          'user-action',
+        )
       })
   }
 
@@ -85,7 +88,10 @@ export function MeasureView(props: {
       .then(afterDelete)
       .catch((error) => {
         console.error(error)
-        toast.error('Erro ao deletar: \n' + JSON.stringify(error, null, 2))
+        showError(
+          'Erro ao deletar: \n' + JSON.stringify(error, null, 2),
+          'user-action',
+        )
       })
   }
 
@@ -100,7 +106,10 @@ export function MeasureView(props: {
             }}
             onChange={(value) => {
               if (value?.startDate === undefined || value?.startDate === null) {
-                toast.error(`Data inválida: ${JSON.stringify(value)}`)
+                showError(
+                  `Data inválida: ${JSON.stringify(value)}`,
+                  'user-action',
+                )
                 return
               }
               const date = adjustToTimezone(new Date(value.startDate))

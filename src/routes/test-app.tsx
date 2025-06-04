@@ -33,7 +33,7 @@ import { TemplateSearchModal } from '~/sections/search/components/TemplateSearch
 import { createEffect, createSignal, untrack } from 'solid-js'
 import DayMacros from '~/sections/day-diet/components/DayMacros'
 import { Providers } from '~/sections/common/context/Providers'
-import toast from 'solid-toast'
+import { showSuccess } from '~/shared/toast'
 import { BarCodeIcon } from '~/sections/common/components/icons/BarCodeIcon'
 
 export default function TestApp() {
@@ -288,7 +288,7 @@ function TestConfirmModal() {
               text: 'Teste123',
               primary: true,
               onClick: () => {
-                toast.success('Teste123')
+                showSuccess('Teste123', 'user-action')
               },
             },
           ],

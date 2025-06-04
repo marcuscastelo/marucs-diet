@@ -35,7 +35,7 @@ import {
   For,
 } from 'solid-js'
 import { Alert } from '~/sections/common/components/Alert'
-import toast from 'solid-toast'
+import { showError } from '~/shared/toast'
 import { formatError } from '~/shared/formatError'
 
 type EditSelection = {
@@ -66,7 +66,7 @@ export default function DayMeals(props: { selectedDay: string }) {
 
   const handleEditItemGroup = (meal: Meal, itemGroup: ItemGroup) => {
     if (dayLocked()) {
-      toast.error('Dia bloqueado, não é possível editar')
+      showError('Dia bloqueado, não é possível editar', 'user-action')
       return
     }
 
@@ -76,7 +76,7 @@ export default function DayMeals(props: { selectedDay: string }) {
 
   const handleUpdateMeal = async (day: DayDiet, meal: Meal) => {
     if (dayLocked()) {
-      toast.error('Dia bloqueado, não é possível editar')
+      showError('Dia bloqueado, não é possível editar', 'user-action')
       return
     }
 
@@ -86,7 +86,7 @@ export default function DayMeals(props: { selectedDay: string }) {
   const handleNewItemButton = (meal: Meal) => {
     console.log('New item button clicked')
     if (dayLocked()) {
-      toast.error('Dia bloqueado, não é possível editar')
+      showError('Dia bloqueado, não é possível editar', 'user-action')
       return
     }
 
@@ -187,8 +187,9 @@ export default function DayMeals(props: { selectedDay: string }) {
                       }
                       handleUpdateMeal(currentDayDiet_, meal).catch((e) => {
                         console.error(e)
-                        toast.error(
+                        showError(
                           `Erro ao atualizar refeição: ${formatError(e)}`,
+                          'user-action',
                         )
                       })
                     }}

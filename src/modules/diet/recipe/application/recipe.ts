@@ -1,7 +1,7 @@
 import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 import { type User } from '~/modules/user/domain/user'
 import { type Recipe, type NewRecipe } from '../domain/recipe'
-import toast from 'solid-toast'
+import { smartToastPromise } from '~/shared/toast'
 
 const recipeRepository = createSupabaseRecipeRepository()
 
@@ -18,18 +18,23 @@ export async function fetchRecipeById(recipeId: Recipe['id']) {
 }
 
 export async function insertRecipe(newRecipe: NewRecipe) {
-  const recipe = await toast.promise(recipeRepository.insertRecipe(newRecipe), {
-    loading: 'Criando nova receita...',
-    success: 'Receita criada com sucesso',
-    error: 'Falha ao criar receita',
-  })
+  const recipe = await smartToastPromise(
+    recipeRepository.insertRecipe(newRecipe),
+    {
+      context: 'user-action',
+      loading: 'Criando nova receita...',
+      success: 'Receita criada com sucesso',
+      error: 'Falha ao criar receita',
+    },
+  )
   return recipe
 }
 
 export async function updateRecipe(recipeId: Recipe['id'], newRecipe: Recipe) {
-  const weight = await toast.promise(
+  const weight = await smartToastPromise(
     recipeRepository.updateRecipe(recipeId, newRecipe),
     {
+      context: 'user-action',
       loading: 'Atualizando receita...',
       success: 'Receita atualizada com sucesso',
       error: 'Falha ao atualizar receita',
@@ -39,10 +44,14 @@ export async function updateRecipe(recipeId: Recipe['id'], newRecipe: Recipe) {
 }
 
 export async function deleteRecipe(recipeId: Recipe['id']) {
-  const weight = await toast.promise(recipeRepository.deleteRecipe(recipeId), {
-    loading: 'Deletando receita...',
-    success: 'Receita deletada com sucesso',
-    error: 'Falha ao deletar receita',
-  })
+  const weight = await smartToastPromise(
+    recipeRepository.deleteRecipe(recipeId),
+    {
+      context: 'user-action',
+      loading: 'Deletando receita...',
+      success: 'Receita deletada com sucesso',
+      error: 'Falha ao deletar receita',
+    },
+  )
   return weight
 }

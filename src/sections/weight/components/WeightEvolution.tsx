@@ -23,7 +23,7 @@ import Datepicker from '~/sections/datepicker/components/Datepicker'
 import { adjustToTimezone, dateToYYYYMMDD } from '~/shared/utils/date'
 import { SolidApexCharts } from 'solid-apexcharts'
 import { type ApexOptions } from 'apexcharts'
-import toast from 'solid-toast'
+import { showError } from '~/shared/toast'
 import ptBrLocale from '~/assets/locales/apex/pt-br.json'
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { formatError } from '~/shared/formatError'
@@ -70,7 +70,7 @@ export function WeightEvolution() {
               const weight = weightField.value()
 
               if (weight === undefined) {
-                toast.error('Digite um peso')
+                showError('Digite um peso', 'user-action')
                 return
               }
 
@@ -90,7 +90,10 @@ export function WeightEvolution() {
                 .then(afterInsert)
                 .catch((error) => {
                   console.error(error)
-                  toast.error(`Erro ao adicionar peso: ${formatError(error)}`)
+                  showError(
+                    `Erro ao adicionar peso: ${formatError(error)}`,
+                    'user-action',
+                  )
                 })
             }}
           >
@@ -126,13 +129,13 @@ function WeightView(props: { weight: Weight }) {
     weightValue: number | undefined
   }) => {
     if (weightValue === undefined) {
-      toast.error('Digite um peso')
+      showError('Digite um peso', 'user-action')
       console.error('Weight is undefined')
       return
     }
 
     if (dateValue === undefined) {
-      toast.error('Digite uma data')
+      showError('Digite uma data', 'user-action')
       console.error('Date is undefined')
       return
     }
@@ -143,7 +146,7 @@ function WeightView(props: { weight: Weight }) {
       target_timestamp: dateValue,
     }).catch((error) => {
       console.error(error)
-      toast.error('Erro ao atualizar')
+      showError('Erro ao atualizar', 'user-action')
     })
   }
 
@@ -159,7 +162,10 @@ function WeightView(props: { weight: Weight }) {
             onChange={(value) => {
               // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
               if (!value?.startDate) {
-                toast.error('Data inválida: \n' + JSON.stringify(value))
+                showError(
+                  'Data inválida: \n' + JSON.stringify(value),
+                  'user-action',
+                )
                 return
               }
               // Apply timezone offset
@@ -205,7 +211,10 @@ function WeightView(props: { weight: Weight }) {
             onClick={() => {
               deleteWeight(props.weight.id).catch((error) => {
                 console.error(error)
-                toast.error(`Erro ao deletar peso: ${formatError(error)}`)
+                showError(
+                  `Erro ao deletar peso: ${formatError(error)}`,
+                  'user-action',
+                )
               })
             }}
           >

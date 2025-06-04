@@ -1,5 +1,5 @@
 import { For, createSignal } from 'solid-js'
-import toast from 'solid-toast'
+import { showSuccess } from '~/shared/toast'
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { BottomNavigation } from '~/sections/common/components/BottomNavigation'
 import { Providers } from '~/sections/common/context/Providers'
@@ -86,8 +86,9 @@ export default function Page() {
                     checked={checked}
                     setChecked={(newChecked) => {
                       setChecked(newChecked)
-                      toast.success(
+                      showSuccess(
                         `${name} foi ${newChecked ? 'ativado' : 'desativado'}`,
+                        'user-action',
                       )
                     }}
                   />

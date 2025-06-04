@@ -11,8 +11,7 @@ import {
 import { type User } from '~/modules/user/domain/user'
 import { createEffect, createSignal } from 'solid-js'
 import { currentUserId } from '~/modules/user/application/user'
-import { smartToastPromise } from '~/shared/toast'
-import toast from 'solid-toast'
+import { smartToastPromise, showError } from '~/shared/toast'
 import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 import { formatError } from '~/shared/formatError'
 
@@ -101,8 +100,9 @@ export async function __unused_refetchCurrentDayDiet() {
       setCurrentDayDiet(dayDiet)
     })
     .catch((error) => {
-      toast.error(
+      showError(
         `Falha na comunicação com o servidor ao buscar dieta do dia: ${formatError(error)}`,
+        'background',
       )
       console.error(error)
     })
@@ -116,8 +116,9 @@ export async function fetchAllUserDayDiets(userId: User['id']) {
       setDayDiets(newDayDiets)
     })
     .catch((error) => {
-      toast.error(
+      showError(
         `Falha na comunicação com o servidor ao buscar dieta dos dias do usuário: ${formatError(error)}`,
+        'background',
       )
 
       console.error(error)

@@ -23,7 +23,7 @@ import {
   type Setter,
   For,
 } from 'solid-js'
-import toast from 'solid-toast'
+import { showError } from '~/shared/toast'
 
 export type ItemEditModalProps = {
   targetName: string
@@ -315,7 +315,7 @@ function Body(props: {
         macroOverflow={props.macroOverflow}
         class="mt-4"
         onClick={() => {
-          toast.error('Alimento não editável (ainda)')
+          showError('Alimento não editável (ainda)', 'user-action')
         }}
         header={
           <HeaderWithActions

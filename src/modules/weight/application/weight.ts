@@ -5,9 +5,8 @@ import {
   SUPABASE_TABLE_WEIGHTS,
 } from '~/modules/weight/infrastructure/supabaseWeightRepository'
 import { createEffect, createSignal } from 'solid-js'
-import toast from 'solid-toast'
-import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 import { smartToastPromise } from '~/shared/toast'
+import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 
 const weightRepository = createSupabaseWeightRepository()
 
@@ -45,7 +44,8 @@ export async function fetchUserWeights(userId: number) {
 
 export async function insertWeight(newWeight: NewWeight) {
   const weight = await weightRepository.insertWeight(newWeight)
-  await toast.promise(fetchUserWeights(currentUserId()), {
+  await smartToastPromise(fetchUserWeights(currentUserId()), {
+    context: 'user-action',
     loading: 'Inserindo peso...',
     success: 'Peso inserido com sucesso',
     error: 'Falha ao inserir peso',
@@ -54,9 +54,10 @@ export async function insertWeight(newWeight: NewWeight) {
 }
 
 export async function updateWeight(weightId: Weight['id'], newWeight: Weight) {
-  const weight = await toast.promise(
+  const weight = await smartToastPromise(
     weightRepository.updateWeight(weightId, newWeight),
     {
+      context: 'user-action',
       loading: 'Atualizando peso...',
       success: 'Peso atualizado com sucesso',
       error: 'Falha ao atualizar peso',
@@ -67,7 +68,8 @@ export async function updateWeight(weightId: Weight['id'], newWeight: Weight) {
 }
 
 export async function deleteWeight(weightId: Weight['id']) {
-  await toast.promise(weightRepository.deleteWeight(weightId), {
+  await smartToastPromise(weightRepository.deleteWeight(weightId), {
+    context: 'user-action',
     loading: 'Deletando peso...',
     success: 'Peso deletado com sucesso',
     error: 'Falha ao deletar peso',

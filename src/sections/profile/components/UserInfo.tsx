@@ -9,7 +9,7 @@ import {
 } from '~/modules/profile/application/profile'
 import { currentUser, updateUser } from '~/modules/user/application/user'
 import { convertString, UserInfoCapsule } from './UserInfoCapsule'
-import toast from 'solid-toast'
+import { showError } from '~/shared/toast'
 import { formatError } from '~/shared/formatError'
 import { handleApiError } from '~/shared/error/errorHandler'
 type Translation<T extends string> = { [_key in T]: string }
@@ -113,7 +113,10 @@ export function UserInfo() {
               operation: 'updateUser',
               additionalData: { userId: user.id },
             })
-            toast.error(`Erro ao atualizar usuário: ${formatError(error)}`)
+            showError(
+              `Erro ao atualizar usuário: ${formatError(error)}`,
+              'user-action',
+            )
           })
         }}
       >

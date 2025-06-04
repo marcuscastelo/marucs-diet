@@ -14,7 +14,7 @@ import {
   userMacroProfiles,
 } from '~/modules/diet/macro-profile/application/macroProfile'
 import { calculateMacroTarget } from '~/modules/diet/macro-target/application/macroTarget'
-import toast from 'solid-toast'
+import { showError, showSuccess } from '~/shared/toast'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { formatError } from '~/shared/formatError'
 
@@ -90,7 +90,7 @@ const onSaveMacroProfile = (profile: MacroProfile) => {
     console.error(
       `[ProfilePage] Invalid target day ${profile.target_day.toString()}: it is in the future`,
     )
-    toast.error('Data alvo não pode ser no futuro')
+    showError('Data alvo não pode ser no futuro', 'user-action')
   } else if (
     profile.id !== -1 && // TODO:   Better typing system for new MacroProfile instead of -1.
     profile.target_day.getTime() === new Date(getTodayYYYYMMDD()).getTime()
@@ -123,7 +123,7 @@ const onSaveMacroProfile = (profile: MacroProfile) => {
       }),
     ).catch(console.error)
   } else {
-    toast.error('Erro imprevisto ao salvar perfil de macro')
+    showError('Erro imprevisto ao salvar perfil de macro', 'user-action')
   }
 }
 
@@ -237,13 +237,15 @@ export function MacroTarget(props: MacroTargetProps) {
                                   onClick: () => {
                                     deleteMacroProfile(profile.id)
                                       .then(() => {
-                                        toast.success(
+                                        showSuccess(
                                           'Perfil antigo restaurado com sucesso, se necessário, atualize a página',
+                                          'user-action',
                                         )
                                       })
                                       .catch((e) => {
-                                        toast.error(
+                                        showError(
                                           `Erro ao restaurar perfil antigo: ${formatError(e)}`,
+                                          'user-action',
                                         )
                                       })
                                   },

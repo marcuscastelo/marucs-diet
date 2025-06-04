@@ -7,8 +7,8 @@ import { markSearchAsCached } from '~/legacy/controllers/searchCache'
 import { type ApiFood } from '~/modules/diet/food/infrastructure/api/domain/apiFoodModel'
 import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
 import { handleApiError } from '~/shared/error/errorHandler'
+import { showError } from '~/shared/toast'
 import axios from 'axios'
-import toast from 'solid-toast'
 
 // TODO:   Depency injection for repositories on all application files
 const foodRepository = createSupabaseFoodRepository()
@@ -59,7 +59,7 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
     .data as unknown as ApiFood[]
 
   if (apiFoods.length === 0) {
-    toast.error(`Nenhum alimento encontrado para "${name}"`)
+    showError(`Nenhum alimento encontrado para "${name}"`, 'user-action')
     return []
   }
 
@@ -116,8 +116,9 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
         },
       )
 
-      toast.error(
+      showError(
         `Erro ao importar alguns alimentos: ${relevantErrors.length} falhas. Verifique o console para mais detalhes.`,
+        'background',
       )
     }
   } else {

@@ -1,4 +1,4 @@
-import toast from 'solid-toast'
+import { smartToastPromise } from '~/shared/toast'
 import { type Measure, type NewMeasure } from '~/modules/measure/domain/measure'
 import { createSupabaseMeasureRepository } from '~/modules/measure/infrastructure/measures'
 import { type User } from '~/modules/user/domain/user'
@@ -10,7 +10,8 @@ export async function fetchUserMeasures(userId: User['id']) {
 }
 
 export async function insertMeasure(newMeasure: NewMeasure) {
-  return await toast.promise(measureRepository.insertMeasure(newMeasure), {
+  return await smartToastPromise(measureRepository.insertMeasure(newMeasure), {
+    context: 'user-action',
     loading: 'Inserindo medidas...',
     success: 'Medidas inseridas com sucesso',
     error: 'Falha ao inserir medidas',
@@ -21,9 +22,10 @@ export async function updateMeasure(
   measureId: Measure['id'],
   newMeasure: NewMeasure,
 ) {
-  return await toast.promise(
+  return await smartToastPromise(
     measureRepository.updateMeasure(measureId, newMeasure),
     {
+      context: 'user-action',
       loading: 'Atualizando medidas...',
       success: 'Medidas atualizadas com sucesso',
       error: 'Falha ao atualizar medidas',
@@ -32,7 +34,8 @@ export async function updateMeasure(
 }
 
 export async function deleteMeasure(measureId: Measure['id']) {
-  await toast.promise(measureRepository.deleteMeasure(measureId), {
+  await smartToastPromise(measureRepository.deleteMeasure(measureId), {
+    context: 'user-action',
     loading: 'Deletando medidas...',
     success: 'Medidas deletadas com sucesso',
     error: 'Falha ao deletar medidas',

@@ -23,7 +23,7 @@ import {
   updateItemInRecipe,
   removeItemFromRecipe,
 } from '~/modules/diet/recipe/domain/recipeOperations'
-import toast from 'solid-toast'
+import { showError } from '~/shared/toast'
 
 import { createEffect, createSignal } from 'solid-js'
 
@@ -63,8 +63,9 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
         operation: 'handleNewItemGroup',
         additionalData: { groupType: 'complex', groupId: newGroup.id },
       })
-      toast.error(
+      showError(
         'Não é possível adicionar grupos complexos a receitas, por enquanto.',
+        'user-action',
       )
       return
     }
@@ -158,8 +159,9 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
                 onEditItem={(item) => {
                   // TODO:   Allow user to edit recipe.
                   if (item.__type === 'RecipeItem') {
-                    toast.error(
+                    showError(
                       'Ainda não é possível editar receitas dentro de receitas! Funcionalidade em desenvolvimento',
+                      'user-action',
                     )
                     return
                   }

@@ -13,7 +13,7 @@ import {
   fetchUserMeasures,
   insertMeasure,
 } from '~/modules/measure/application/measure'
-import toast from 'solid-toast'
+import { showError } from '~/shared/toast'
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { formatError } from '~/shared/formatError'
 
@@ -115,7 +115,10 @@ export function MeasuresEvolution() {
                 hipField.value() === undefined ||
                 neckField.value() === undefined
               ) {
-                toast.error('Medidas inválidas: preencha todos os campos')
+                showError(
+                  'Medidas inválidas: preencha todos os campos',
+                  'user-action',
+                )
                 return
               }
               const userId = currentUserId()
@@ -136,7 +139,10 @@ export function MeasuresEvolution() {
                 .then(afterInsert)
                 .catch((error) => {
                   console.error(error)
-                  toast.error(`Erro ao adicionar medida: ${formatError(error)}`)
+                  showError(
+                    `Erro ao adicionar medida: ${formatError(error)}`,
+                    'user-action',
+                  )
                 })
             }}
           >
