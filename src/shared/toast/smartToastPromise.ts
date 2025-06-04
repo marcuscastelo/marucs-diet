@@ -5,19 +5,19 @@
  * Integrates with the new toast queue system and provides context-aware behavior.
  */
 
-import { ToastContext, ToastLevel, ToastOptions } from './toastConfig'
+import { ToastContext, ToastOptions } from './toastConfig'
 import { showPromise } from './toastManager'
 
 /**
  * Options for smart toast promise operations
  */
-export type SmartToastPromiseOptions = {
+export type SmartToastPromiseOptions<T> = {
   /** Context of the operation (determines toast behavior) */
   context?: ToastContext
   /** Loading message */
   loading?: string
   /** Success message or function to generate message from result */
-  success?: string | ((data: any) => string)
+  success?: string | ((data: T) => string)
   /** Error message or function to generate message from error */
   error?: string | ((error: unknown) => string)
   /** Additional toast options */
@@ -60,7 +60,7 @@ export type SmartToastPromiseOptions = {
  */
 export async function smartToastPromise<T>(
   promise: Promise<T>,
-  toastOptions: SmartToastPromiseOptions = {},
+  toastOptions: SmartToastPromiseOptions<T> = {},
 ): Promise<T> {
   const {
     context = 'user-action',
