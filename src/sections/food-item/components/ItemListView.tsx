@@ -2,7 +2,6 @@ import { type Item } from '~/modules/diet/item/domain/item'
 import {
   ItemView,
   ItemCopyButton,
-  ItemHeader,
   ItemName,
   ItemNutritionalInfo,
   type ItemViewProps,
@@ -10,6 +9,7 @@ import {
 import { mergeProps, type Accessor, For } from 'solid-js'
 import { handleClipboardError } from '~/shared/error/errorHandler'
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
+import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 
 export function ItemListView(_props: {
   items: Accessor<readonly Item[]>
@@ -42,9 +42,9 @@ export function ItemListView(_props: {
 function DefaultHeader() {
   const clipboard = useClipboard()
   return (
-    <ItemHeader
+    <HeaderWithActions
       name={<ItemName />}
-      copyButton={
+      primaryActions={
         <ItemCopyButton
           onCopyItem={(item) => {
             clipboard.write(JSON.stringify(item), (error) => {

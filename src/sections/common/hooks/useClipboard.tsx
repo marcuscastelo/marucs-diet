@@ -74,7 +74,7 @@ export function createClipboardSchemaFilter(
     let parsedClipboard: unknown
     try {
       parsedClipboard = JSON.parse(clipboard)
-    } catch (e) {
+    } catch {
       // Error parsing JSON. Probably clipboard is some random text from the user
       return false
     }

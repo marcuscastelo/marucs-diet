@@ -25,10 +25,10 @@ import { ItemGroupEditModal } from '~/sections/item-group/components/ItemGroupEd
 import {
   ItemGroupView,
   ItemGroupCopyButton,
-  ItemGroupHeader,
   ItemGroupName,
   ItemGroupViewNutritionalInfo,
 } from '~/sections/item-group/components/ItemGroupView'
+import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { createEffect, createSignal, untrack } from 'solid-js'
 import DayMacros from '~/sections/day-diet/components/DayMacros'
@@ -184,27 +184,6 @@ export default function TestApp() {
           setItemGroupEditModalVisible
         </button>
 
-        <h1>MealEditViewList: deletado</h1>
-        {/* <MealEditViewList
-            mealEditPropsList={() => [{
-              meal: meal(),
-              header: (<MealEditViewHeader
-                onUpdateMeal={(meal) => { setMeal(meal) }}
-              />),
-              content: (<MealEditViewContent
-                onEditItemGroup={(group) => {
-                  setGroup(group)
-                  setItemGroupEditModalVisible(true)
-                }}
-              />),
-              actions: (<MealEditViewActions
-                onNewItem={() => {
-                  setTemplateSearchModalVisible(true)
-                }}
-              />)
-            }]}
-          /> */}
-
         <h1>ItemListView</h1>
         <ItemListView
           items={() => group().items}
@@ -216,9 +195,9 @@ export default function TestApp() {
         <ItemGroupView
           itemGroup={group}
           header={
-            <ItemGroupHeader
+            <HeaderWithActions
               name={<ItemGroupName group={group} />}
-              copyButton={
+              primaryActions={
                 <ItemGroupCopyButton
                   group={group}
                   onCopyItemGroup={(item) => {

@@ -10,7 +10,6 @@ import { ItemListView } from '~/sections/food-item/components/ItemListView'
 import {
   ItemCopyButton,
   ItemFavorite,
-  ItemHeader,
   ItemName,
 } from '~/sections/food-item/components/ItemView'
 import { type Item, itemSchema } from '~/modules/diet/item/domain/item'
@@ -54,11 +53,7 @@ import {
 import { ConvertToRecipeIcon } from '~/sections/common/components/icons/ConvertToRecipeIcon'
 import { deepCopy } from '~/legacy/utils/deepCopy'
 import { PreparedQuantity } from '~/sections/common/components/PreparedQuantity'
-import {
-  currentUserId,
-  isFoodFavorite,
-  setFoodAsFavorite,
-} from '~/modules/user/application/user'
+import { currentUserId } from '~/modules/user/application/user'
 import {
   type Accessor,
   createSignal,
@@ -83,6 +78,7 @@ import {
 } from '~/modules/diet/recipe/application/recipe'
 import { BrokenLink } from '~/sections/common/components/icons/BrokenLinkIcon'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
+import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 
 type EditSelection = {
   item: Item
@@ -433,8 +429,6 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
               <Modal.Content>
                 <Body
                   recipe={() => recipeSignal().data}
-                  isFoodFavorite={isFoodFavorite}
-                  setFoodAsFavorite={setFoodAsFavorite}
                   itemEditModalVisible={itemEditModalVisible}
                   setItemEditModalVisible={setItemEditModalVisible}
                   templateSearchModalVisible={templateSearchModalVisible}
@@ -474,8 +468,6 @@ function Title(props: { targetMealName: string; recipe: Recipe | null }) {
 
 function Body(props: {
   recipe: Accessor<Recipe | null>
-  isFoodFavorite: (foodId: number) => boolean
-  setFoodAsFavorite: (foodId: number, isFavorite: boolean) => void
   recipeEditModalVisible: Accessor<boolean>
   setRecipeEditModalVisible: Setter<boolean>
   itemEditModalVisible: Accessor<boolean>
@@ -749,22 +741,17 @@ function Body(props: {
               // }
             }}
             makeHeaderFn={(item) => (
-              <ItemHeader
+              <HeaderWithActions
                 name={<ItemName />}
-                favorite={
-                  <ItemFavorite
-                    favorite={props.isFoodFavorite(item.reference)}
-                    onSetFavorite={(favorite) => {
-                      props.setFoodAsFavorite(item.reference, favorite)
-                    }}
-                  />
-                }
-                copyButton={
-                  <ItemCopyButton
-                    onCopyItem={(item) => {
-                      writeToClipboard(JSON.stringify(item))
-                    }}
-                  />
+                primaryActions={
+                  <>
+                    <ItemCopyButton
+                      onCopyItem={(item) => {
+                        writeToClipboard(JSON.stringify(item))
+                      }}
+                    />
+                    <ItemFavorite foodId={item.reference} />
+                  </>
                 }
               />
             )}

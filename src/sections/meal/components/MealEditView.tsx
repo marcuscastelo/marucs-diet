@@ -1,7 +1,4 @@
 import { type Meal, mealSchema } from '~/modules/diet/meal/domain/meal'
-import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
-import { PasteIcon } from '~/sections/common/components/icons/PasteIcon'
-import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
 import { calcMealCalories } from '~/legacy/utils/macroMath'
 import { ItemGroupListView } from '~/sections/item-group/components/ItemGroupListView'
 import {
@@ -26,6 +23,7 @@ import {
   addGroupsToMeal,
   clearMealGroups,
 } from '~/modules/diet/meal/domain/mealOperations'
+import { ClipboardActionButtons } from '~/sections/common/components/ClipboardActionButtons'
 
 export type MealEditViewProps = {
   meal: Meal
@@ -134,40 +132,17 @@ export function MealEditViewHeader(props: {
             <h5 class="text-3xl">{mealSignal()?.name}</h5>
             <p class="italic text-gray-400">{mealCalories().toFixed(0)}kcal</p>
           </div>
-          {/* // TODO:   Remove code duplication between MealEditView and RecipeView */}
-          <div class={'ml-auto flex gap-2'}>
-            {!hasValidPastableOnClipboard() &&
-              (mealSignal()?.groups.length ?? 0) > 0 && (
-                <div
-                  class={
-                    'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'
-                  }
-                  onClick={handleCopy}
-                >
-                  <CopyIcon />
-                </div>
-              )}
-            {hasValidPastableOnClipboard() && (
-              <div
-                class={
-                  'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'
-                }
-                onClick={handlePaste}
-              >
-                <PasteIcon />
-              </div>
-            )}
-            {(mealSignal()?.groups.length ?? 0) > 0 && (
-              <div
-                class={
-                  'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'
-                }
-                onClick={onClearItems}
-              >
-                <TrashIcon />
-              </div>
-            )}
-          </div>
+          <ClipboardActionButtons
+            canCopy={
+              !hasValidPastableOnClipboard() &&
+              (mealSignal()?.groups.length ?? 0) > 0
+            }
+            canPaste={hasValidPastableOnClipboard()}
+            canClear={(mealSignal()?.groups.length ?? 0) > 0}
+            onCopy={handleCopy}
+            onPaste={handlePaste}
+            onClear={onClearItems}
+          />
         </div>
       )}
     </Show>

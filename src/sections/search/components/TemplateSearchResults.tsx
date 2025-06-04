@@ -1,27 +1,18 @@
-import { type Accessor, For, type Setter, Show } from 'solid-js'
-import { toastPromise } from '~/shared/toastPromise'
-import { deleteRecentFoodByFoodId } from '~/legacy/controllers/recentFood'
+import { type Accessor, For, type Setter } from 'solid-js'
 import { calcRecipeMacros } from '~/legacy/utils/macroMath'
 import { createItem } from '~/modules/diet/item/domain/item'
 import { type Food } from '~/modules/diet/food/domain/food'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { type Template } from '~/modules/diet/template/domain/template'
-import { templateSearchTab } from '~/modules/search/application/search'
-import {
-  currentUserId,
-  isFoodFavorite,
-  setFoodAsFavorite,
-} from '~/modules/user/application/user'
 import { Alert } from '~/sections/common/components/Alert'
-import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import {
-  ItemFavorite,
-  ItemHeader,
   ItemName,
   ItemNutritionalInfo,
   ItemView,
 } from '~/sections/food-item/components/ItemView'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
+import { ItemFavorite } from '~/sections/food-item/components/ItemView'
+import { RemoveFromRecentButton } from '~/sections/food-item/components/RemoveFromRecentButton'
 
 export function TemplateSearchResults(props: {
   search: string
@@ -72,51 +63,14 @@ export function TemplateSearchResults(props: {
                     props.setBarCodeModalVisible(false)
                   }}
                   header={
-                    <ItemHeader
+                    <HeaderWithActions
                       name={<ItemName />}
-                      favorite={
-                        <ItemFavorite
-                          favorite={isFoodFavorite(template().id)}
-                          onSetFavorite={(favorite) => {
-                            setFoodAsFavorite(template().id, favorite)
-                          }}
+                      primaryActions={<ItemFavorite foodId={template().id} />}
+                      secondaryActions={
+                        <RemoveFromRecentButton
+                          templateId={template().id}
+                          refetch={props.refetch}
                         />
-                      }
-                      // Removes from recent list
-                      removeFromListButton={
-                        <Show when={templateSearchTab() === 'recent'}>
-                          <button
-                            class="my-auto pt-2 pl-1 hover:animate-pulse"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              e.preventDefault()
-                              toastPromise(
-                                deleteRecentFoodByFoodId(
-                                  currentUserId(),
-                                  template().id,
-                                ),
-                                {
-                                  loading:
-                                    'Removendo alimento da lista de recentes...',
-                                  success:
-                                    'Alimento removido da lista de recentes com sucesso!',
-                                  error: (err) => {
-                                    handleApiError(err, {
-                                      component: 'TemplateSearchResults',
-                                      operation: 'deleteRecentFood',
-                                      additionalData: { foodId: template().id },
-                                    })
-                                    return 'Erro ao remover alimento da lista de recentes.'
-                                  },
-                                },
-                              )
-                                .then(props.refetch)
-                                .catch(() => {})
-                            }}
-                          >
-                            <TrashIcon size={20} />
-                          </button>
-                        </Show>
                       }
                     />
                   }
