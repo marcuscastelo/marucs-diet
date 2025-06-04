@@ -4,7 +4,7 @@ This document provides **concrete, specific guidelines** for the Marucs Diet cod
 
 ---
 
-## 1. **Naming Conventions (Concrete Examples)**
+## **Naming Conventions (Concrete Examples)**
 
 ### ✅ Good Naming
 ```typescript
@@ -33,7 +33,7 @@ Editor, Service, Manager
 
 ---
 
-## 2. **Clean Architecture - Concrete Structure**
+## **Clean Architecture - Concrete Structure**
 
 ### Domain Layer (`~/modules/*/domain/`)
 **Purpose**: Pure business logic, no side effects
@@ -62,73 +62,7 @@ export function isValidGroup(group: ItemGroup) // This belongs in domain
 
 ---
 
-## 3. **Legacy Editor Pattern - CRITICAL TO AVOID**
-
-### ❌ ANTI-PATTERN: Editor Classes (Found Throughout Codebase)
-```typescript
-// Examples of current legacy patterns that MUST be refactored:
-
-// MealEditView.tsx - Line 112
-const newMeal = new MealEditor(meal_)
-  .addGroups(groupsToAdd)
-  .finish()
-
-// ItemGroupEditModal.tsx - Line 515  
-const newGroup = new ItemGroupEditor(group_)
-  .addItem(regenerateId(data))
-  .finish()
-
-// RecipeEditView.tsx - Line 245
-const newRecipe = new RecipeEditor(recipe())
-  .setPreparedMultiplier(newMultiplier())
-  .finish()
-
-// DayDietEditor usage throughout application layer
-const newDay = new DayDietEditor(createNewDayDiet(currentDayDiet_))
-  .editMeal(mealId, (editor) => editor?.replace(newMeal))
-  .finish()
-```
-
-### ✅ REPLACEMENT: Pure Functions
-```typescript
-// Replace Editor pattern with pure functions:
-
-// Instead of MealEditor
-export function addGroupsToMeal(meal: Meal, groups: ItemGroup[]): Meal {
-  return { ...meal, groups: [...meal.groups, ...groups] }
-}
-
-// Instead of ItemGroupEditor  
-export function addItemToGroup(group: ItemGroup, item: Item): ItemGroup {
-  return { ...group, items: [...group.items, item] }
-}
-
-// Instead of RecipeEditor
-export function updateRecipePreparedMultiplier(recipe: Recipe, multiplier: number): Recipe {
-  return { ...recipe, prepared_multiplier: multiplier }
-}
-
-// Instead of nested editor pattern
-export function updateMealInDay(day: DayDiet, mealId: number, updatedMeal: Meal): DayDiet {
-  return {
-    ...day,
-    meals: day.meals.map(meal => 
-      meal.id === mealId ? updatedMeal : meal
-    )
-  }
-}
-```
-
-### Why Editor Pattern Must Be Eliminated:
-1. **Mutation instead of immutability** - Goes against React/SolidJS paradigms
-2. **Complex state management** - Internal mutable state is hard to debug
-3. **Not testable** - Side effects and complex object lifecycles
-4. **Verbose and unidiomatic** - Modern JS/TS favors functional patterns
-5. **Performance issues** - Unnecessary object creation and mutation
-
----
-
-## 4. **Component Duplication - Specific Cases**
+## **Component Duplication - Specific Cases**
 
 ### ❌ Found Duplications
 ```typescript
