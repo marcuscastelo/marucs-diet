@@ -89,7 +89,7 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
         .then((foundRecipe) => {
           setRecipe({ loading: false, errored: false, data: foundRecipe })
         })
-        .catch((err) => {
+        .catch((err: unknown) => {
           handleApiError(err, {
             component: 'ItemGroupView::ItemGroupName',
             operation: 'fetchRecipeById',

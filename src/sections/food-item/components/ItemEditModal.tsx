@@ -74,8 +74,8 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
             Editando item em
             <span class={props.targetNameColor}>
               {' '}
-              &quot;{props.targetName ??
-                'ERRO: destino desconhecido'}&quot;{' '}
+              &quot;{props.targetName ?? 'ERRO: destino desconhecido'}
+              &quot;{' '}
             </span>
           </span>
         }

@@ -24,6 +24,7 @@ import {
 } from '~/modules/diet/recipe/domain/recipe'
 import { ExternalRecipeEditModal } from './ExternalRecipeEditModal'
 import { type Loadable } from '~/legacy/utils/loadable'
+import { z } from 'zod'
 
 import {
   ItemGroupEditContextProvider,
@@ -199,8 +200,12 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
       .then((recipe) => {
         setRecipeSignal({ loading: false, errored: false, data: recipe })
       })
-      .catch((e) => {
-        setRecipeSignal({ loading: false, errored: true, error: e })
+      .catch((e: unknown) => {
+        setRecipeSignal({
+          loading: false,
+          errored: true,
+          error: e instanceof Error ? e : new Error(String(e)),
+        })
       })
   })
 
@@ -480,7 +485,12 @@ function Body(props: {
 }) {
   const { show: showConfirmModal } = useConfirmModalContext()
 
-  const acceptedClipboardSchema = itemSchema.or(itemGroupSchema)
+  // Use output types for clipboard schema
+  const acceptedClipboardSchema = z.union([
+    itemSchema,
+    itemGroupSchema,
+  ]) as unknown as z.ZodType<ItemOrGroup>
+
   const { group, setGroup } = useItemGroupEditContext()
   const recipedGroup = createMemo(() => {
     const currentGroup = group()
@@ -489,20 +499,35 @@ function Body(props: {
       : null
   })
 
+  // Use output types for strict type-safety
+  type ItemOrGroup =
+    | z.output<typeof itemSchema>
+    | z.output<typeof itemGroupSchema>
+
+  function isItemGroup(
+    data: ItemOrGroup,
+  ): data is z.output<typeof itemGroupSchema> {
+    return (
+      typeof data === 'object' &&
+      data !== null &&
+      'items' in data &&
+      Array.isArray(data.items)
+    )
+  }
+
   const {
     writeToClipboard,
     handlePaste: handlePasteShared,
     hasValidPastableOnClipboard: hasValidPastableOnClipboardShared,
-  } = useCopyPasteActions({
+  } = useCopyPasteActions<ItemOrGroup>({
     acceptedClipboardSchema,
-    getDataToCopy: () => group(),
-    onPaste: (data: any) => {
+    getDataToCopy: () => group() as ItemOrGroup,
+    onPaste: (data) => {
       const group_ = group()
-      if ('items' in data) {
-        // data is an itemGroup
+      if (isItemGroup(data)) {
         const newGroup = addItemsToGroup(
           group_,
-          data.items.map((item: any) => regenerateId(item)),
+          data.items.map((item) => regenerateId(item)),
         )
         setGroup(newGroup)
       } else {
@@ -685,7 +710,8 @@ function Body(props: {
                       </Show>
 
                       <Show when={props.recipe() === null}>
-                        {(_) => <>Receita não encontrada</>}
+                        {/* Direct JSX child, not a function */}
+                        <>Receita não encontrada</>
                       </Show>
                     </>
                   )}

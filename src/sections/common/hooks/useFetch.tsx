@@ -14,7 +14,9 @@ export function useFetch<T, I, P extends I[]>(fetchFunc: FetchFunc<T, I, P>) {
       .then((newData) =>
         setData({ loading: false, errored: false, data: newData }),
       )
-      .catch((error) => setData({ loading: false, errored: true, error }))
+      .catch((error: unknown) =>
+        setData({ loading: false, errored: true, error }),
+      )
   }
 
   return {

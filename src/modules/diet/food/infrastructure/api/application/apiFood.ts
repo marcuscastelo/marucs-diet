@@ -82,8 +82,17 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
       (result): result is PromiseRejectedResult => result.status === 'rejected',
     )
 
-    const reasons = allRejected.map((result) => result.reason)
-    const errors = reasons.map((reason) => (reason as { code: string }).code)
+    const reasons = allRejected.map((result) => {
+      if (
+        typeof result.reason === 'object' &&
+        result.reason !== null &&
+        'code' in result.reason
+      ) {
+        return result.reason as { code: string }
+      }
+      return { code: 'unknown' }
+    })
+    const errors = reasons.map((reason) => reason.code)
 
     const ignoredErrors = [
       '23505', // Unique violation: food already exists, ignore

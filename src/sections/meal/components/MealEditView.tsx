@@ -9,7 +9,6 @@ import {
   itemGroupSchema,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
-import { deserializeClipboard } from '~/legacy/utils/clipboardUtils'
 import { convertToGroups } from '~/modules/diet/item-group/application/itemGroupService'
 import { regenerateId } from '~/legacy/utils/idUtils'
 import { itemSchema } from '~/modules/diet/item/domain/item'

@@ -335,11 +335,11 @@ function MacroTargetSetting(props: {
   }
 
   // TODO:   Allow changing percentage directly
-  const makeOnSetPercentage =
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (macro: 'carbs' | 'protein' | 'fat') => (percentage: number) => {
-      toast.error('Alterar porcentagem diretamente ainda não implementado')
-    }
+  // const makeOnSetPercentage =
+  //   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  //   (macro: 'carbs' | 'protein' | 'fat') => (percentage: number) => {
+  //     toast.error('Alterar porcentagem diretamente ainda não implementado')
+  //   }
 
   return (
     <div class="my-2 flex flex-col p-2 border-t border-slate-900">

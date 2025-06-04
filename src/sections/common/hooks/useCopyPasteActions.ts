@@ -4,6 +4,7 @@ import {
 } from '~/sections/common/hooks/useClipboard'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { deserializeClipboard } from '~/legacy/utils/clipboardUtils'
+import { z } from 'zod'
 
 /**
  * Shared clipboard copy/paste logic for meal/recipe editors.
@@ -17,9 +18,9 @@ export function useCopyPasteActions<T>({
   getDataToCopy,
   onPaste,
 }: {
-  acceptedClipboardSchema: any
+  acceptedClipboardSchema: z.ZodType<T>
   getDataToCopy: () => T
-  onPaste: (data: unknown) => void
+  onPaste: (data: T) => void
 }) {
   const { show: showConfirmModal } = useConfirmModalContext()
   const isClipboardValid = createClipboardSchemaFilter(acceptedClipboardSchema)

@@ -71,7 +71,17 @@ async function fetchApiFoodsByName(
 
   console.debug(`[ApiFood] Response from url ${url}`, response.data)
 
-  return apiFoodSchema.array().parse(response.data.alimentos)
+  const data = response.data as Record<string, unknown>
+  const alimentos = data.alimentos
+  if (!Array.isArray(alimentos)) {
+    handleApiError(new Error('Invalid alimentos array in API response'), {
+      component: 'ApiFoodRepository',
+      operation: 'fetchApiFoodsByName',
+      additionalData: { url, name, data },
+    })
+    return []
+  }
+  return apiFoodSchema.array().parse(alimentos)
 }
 
 async function fetchApiFoodByEan(

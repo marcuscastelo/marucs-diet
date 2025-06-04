@@ -413,6 +413,7 @@ export function TemplateSearch(props: {
           setItemEditModalVisible={props.setItemEditModalVisible}
           setSelectedTemplate={props.setSelectedTemplate}
           typing={typing}
+          // eslint-disable-next-line solid/reactivity
           refetch={async () => {
             await refetch()
           }}

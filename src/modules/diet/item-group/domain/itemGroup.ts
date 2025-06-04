@@ -34,11 +34,10 @@ export const itemGroupSchema = z.discriminatedUnion('type', [
   recipedItemGroupSchema,
 ])
 
-export type SimpleItemGroup = Readonly<z.infer<typeof simpleItemGroupSchema>>
-
-export type RecipedItemGroup = Readonly<z.infer<typeof recipedItemGroupSchema>>
-
-export type ItemGroup = Readonly<z.infer<typeof itemGroupSchema>>
+// Use output type for strict clipboard unions
+export type SimpleItemGroup = Readonly<z.output<typeof simpleItemGroupSchema>>
+export type RecipedItemGroup = Readonly<z.output<typeof recipedItemGroupSchema>>
+export type ItemGroup = Readonly<z.output<typeof itemGroupSchema>>
 
 export function isSimpleSingleGroup(
   group: ItemGroup,
