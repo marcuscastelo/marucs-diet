@@ -16,7 +16,7 @@ import { formatError } from '~/shared/formatError'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { calcRecipeMacros } from '~/legacy/utils/macroMath'
 
-export interface ExternalTemplateToItemGroupModalProps {
+export type ExternalTemplateToItemGroupModalProps = {
   visible: Accessor<boolean>
   setVisible: Setter<boolean>
   selectedTemplate: Accessor<Template>
@@ -27,16 +27,19 @@ export interface ExternalTemplateToItemGroupModalProps {
   ) => Promise<void>
 }
 
-export function ExternalTemplateToItemGroupModal(props: ExternalTemplateToItemGroupModalProps) {
+export function ExternalTemplateToItemGroupModal(
+  props: ExternalTemplateToItemGroupModalProps,
+) {
   return (
     <ModalContextProvider visible={props.visible} setVisible={props.setVisible}>
       <ItemEditModal
         targetName={props.targetName}
         item={() => {
           const template = props.selectedTemplate()
-          const macros = template.__type === 'Food' 
-            ? template.macros 
-            : calcRecipeMacros(template)
+          const macros =
+            template.__type === 'Food'
+              ? template.macros
+              : calcRecipeMacros(template)
           return {
             reference: template.id,
             name: template.name,
@@ -58,11 +61,9 @@ export function ExternalTemplateToItemGroupModal(props: ExternalTemplateToItemGr
               handleApiError(err, {
                 component: 'ExternalTemplateToItemGroupModal',
                 operation: 'addSimpleItem',
-                additionalData: { itemName: item.name, templateType: 'Item' }
+                additionalData: { itemName: item.name, templateType: 'Item' },
               })
-              toast.error(
-                `Erro ao adicionar item: ${formatError(err)}`,
-              )
+              toast.error(`Erro ao adicionar item: ${formatError(err)}`)
             })
           } else {
             const newGroup: RecipedItemGroup = createRecipedItemGroup({
@@ -74,11 +75,9 @@ export function ExternalTemplateToItemGroupModal(props: ExternalTemplateToItemGr
               handleApiError(err, {
                 component: 'ExternalTemplateToItemGroupModal',
                 operation: 'addRecipeItem',
-                additionalData: { itemName: item.name, templateType: 'Recipe' }
+                additionalData: { itemName: item.name, templateType: 'Recipe' },
               })
-              toast.error(
-                `Erro ao adicionar item: ${formatError(err)}`,
-              )
+              toast.error(`Erro ao adicionar item: ${formatError(err)}`)
             })
           }
         }}

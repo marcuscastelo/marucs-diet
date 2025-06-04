@@ -1,4 +1,7 @@
-import { useClipboard, createClipboardSchemaFilter } from '~/sections/common/hooks/useClipboard'
+import {
+  useClipboard,
+  createClipboardSchemaFilter,
+} from '~/sections/common/hooks/useClipboard'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { deserializeClipboard } from '~/legacy/utils/clipboardUtils'
 
