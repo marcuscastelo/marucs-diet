@@ -1,12 +1,17 @@
 /**
  * Toast Queue Manager
- * 
+ *
  * Manages a queue of toasts to ensure only one toast is visible at a time,
  * with intelligent prioritization and deduplication.
  */
 
 import { createSignal, createEffect } from 'solid-js'
-import { ToastItem, ToastQueueConfig, DEFAULT_QUEUE_CONFIG, TOAST_PRIORITY } from './toastConfig'
+import {
+  ToastItem,
+  ToastQueueConfig,
+  DEFAULT_QUEUE_CONFIG,
+  TOAST_PRIORITY,
+} from './toastConfig'
 
 // Global queue state
 const [queue, setQueue] = createSignal<ToastItem[]>([])
@@ -27,9 +32,9 @@ createEffect(() => {
  */
 function isDuplicateToast(newToast: ToastItem): boolean {
   return queue().some(
-    (existingToast) => 
-      existingToast.message === newToast.message && 
-      existingToast.options.level === newToast.options.level
+    (existingToast) =>
+      existingToast.message === newToast.message &&
+      existingToast.options.level === newToast.options.level,
   )
 }
 
@@ -61,8 +66,13 @@ export function enqueue(toast: ToastItem): void {
   // Add new toast and sort by priority
   const newQueue = [...queue(), toast]
   setQueue(sortByPriority(newQueue))
-  
-  console.debug('[ToastQueue] Toast enqueued:', toast.message, 'Queue length:', newQueue.length)
+
+  console.debug(
+    '[ToastQueue] Toast enqueued:',
+    toast.message,
+    'Queue length:',
+    newQueue.length,
+  )
 
   // Process immediately if no toast is currently showing
   if (!currentToast() && !isProcessing()) {
@@ -84,7 +94,7 @@ export function dequeue(): void {
     if (processingTimeout) {
       clearTimeout(processingTimeout)
     }
-    
+
     processingTimeout = window.setTimeout(() => {
       setIsProcessing(false)
       processNext()
@@ -107,10 +117,10 @@ function processNext(): void {
 
   const nextToast = currentQueue[0]
   const remainingQueue = currentQueue.slice(1)
-  
+
   setQueue(remainingQueue)
   setCurrentToast(nextToast)
-  
+
   console.debug('[ToastQueue] Processing next toast:', nextToast.message)
 
   // Auto-dismiss if duration is set
@@ -118,7 +128,7 @@ function processNext(): void {
     if (processingTimeout) {
       clearTimeout(processingTimeout)
     }
-    
+
     processingTimeout = window.setTimeout(() => {
       dequeue()
     }, nextToast.options.duration)
@@ -155,7 +165,7 @@ export function getStatus() {
     currentToast: currentToast(),
     queueLength: queue().length,
     isProcessing: isProcessing(),
-    nextToast: queue()[0] || null
+    nextToast: queue()[0] || null,
   }
 }
 
@@ -172,11 +182,11 @@ export function updateConfig(newConfig: Partial<ToastQueueConfig>): void {
  */
 export function createToastItem(
   message: string,
-  options: Partial<ToastItem['options']>
+  options: Partial<ToastItem['options']>,
 ): ToastItem {
   const level = options.level || 'info'
   const priority = TOAST_PRIORITY[level]
-  
+
   return {
     id: `toast_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     message,
@@ -188,28 +198,9 @@ export function createToastItem(
       maxLength: 100,
       duration: level === 'error' || level === 'warning' ? 0 : 3000,
       dismissible: true,
-      ...options
+      ...options,
     },
     timestamp: Date.now(),
-    priority
+    priority,
   }
-}
-
-/**
- * Toast Queue class for compatibility (if needed)
- */
-export class ToastQueue {
-  enqueue = enqueue
-  dequeue = dequeue
-  clear = clear
-  getCurrentToast = getCurrentToast
-  getStatus = getStatus
-  updateConfig = updateConfig
-}
-
-/**
- * Get the global toast queue instance
- */
-export function getToastQueue(): ToastQueue {
-  return new ToastQueue()
 }
