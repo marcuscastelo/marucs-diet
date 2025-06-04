@@ -10,7 +10,6 @@ import { ItemListView } from '~/sections/food-item/components/ItemListView'
 import {
   ItemCopyButton,
   ItemFavorite,
-  ItemHeader,
   ItemName,
 } from '~/sections/food-item/components/ItemView'
 import { type Item, itemSchema } from '~/modules/diet/item/domain/item'
@@ -83,6 +82,7 @@ import {
 } from '~/modules/diet/recipe/application/recipe'
 import { BrokenLink } from '~/sections/common/components/icons/BrokenLinkIcon'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
+import { HeaderWithNameAndCopy } from '~/sections/common/components/HeaderWithNameAndCopy'
 
 type EditSelection = {
   item: Item
@@ -749,20 +749,20 @@ function Body(props: {
               // }
             }}
             makeHeaderFn={(item) => (
-              <ItemHeader
+              <HeaderWithNameAndCopy
                 name={<ItemName />}
-                favorite={
-                  <ItemFavorite
-                    favorite={props.isFoodFavorite(item.reference)}
-                    onSetFavorite={(favorite) => {
-                      props.setFoodAsFavorite(item.reference, favorite)
-                    }}
-                  />
-                }
                 copyButton={
                   <ItemCopyButton
                     onCopyItem={(item) => {
                       writeToClipboard(JSON.stringify(item))
+                    }}
+                  />
+                }
+                actions={
+                  <ItemFavorite
+                    favorite={isFoodFavorite(item.reference)}
+                    onSetFavorite={(favorite) => {
+                      setFoodAsFavorite(item.reference, favorite)
                     }}
                   />
                 }

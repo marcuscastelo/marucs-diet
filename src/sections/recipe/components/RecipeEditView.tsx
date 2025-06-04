@@ -6,9 +6,6 @@ import {
   RecipeEditContextProvider,
   useRecipeEditContext,
 } from '~/sections/recipe/context/RecipeEditContext'
-import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
-import { PasteIcon } from '~/sections/common/components/icons/PasteIcon'
-import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
 import { ItemListView } from '~/sections/food-item/components/ItemListView'
 import { calcRecipeCalories } from '~/legacy/utils/macroMath'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
@@ -33,6 +30,7 @@ import {
   type GroupConvertible,
 } from '~/modules/diet/item-group/application/itemGroupService'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
+import { ClipboardActionButtons } from '~/sections/common/components/ClipboardActionButtons'
 
 export type RecipeEditViewProps = {
   recipe: Accessor<Recipe>
@@ -125,32 +123,14 @@ export function RecipeEditHeader(props: {
         <h5 class="text-3xl text-blue-500">{recipe().name}</h5>
         <p class="italic text-gray-400">{recipeCalories.toFixed(0)}kcal</p>
       </div>
-      <div class={'ml-auto flex gap-2'}>
-        {!hasValidPastableOnClipboard() && recipe().items.length > 0 && (
-          <div
-            class={'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'}
-            onClick={handleCopy}
-          >
-            <CopyIcon />
-          </div>
-        )}
-        {hasValidPastableOnClipboard() && (
-          <div
-            class={'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'}
-            onClick={handlePaste}
-          >
-            <PasteIcon />
-          </div>
-        )}
-        {recipe().items.length > 0 && (
-          <div
-            class={'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'}
-            onClick={onClearItems}
-          >
-            <TrashIcon />
-          </div>
-        )}
-      </div>
+      <ClipboardActionButtons
+        canCopy={!hasValidPastableOnClipboard() && recipe().items.length > 0}
+        canPaste={hasValidPastableOnClipboard()}
+        canClear={recipe().items.length > 0}
+        onCopy={handleCopy}
+        onPaste={handlePaste}
+        onClear={onClearItems}
+      />
     </div>
   )
 }

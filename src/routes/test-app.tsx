@@ -25,10 +25,10 @@ import { ItemGroupEditModal } from '~/sections/item-group/components/ItemGroupEd
 import {
   ItemGroupView,
   ItemGroupCopyButton,
-  ItemGroupHeader,
   ItemGroupName,
   ItemGroupViewNutritionalInfo,
 } from '~/sections/item-group/components/ItemGroupView'
+import { HeaderWithNameAndCopy } from '~/sections/common/components/HeaderWithNameAndCopy'
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { createEffect, createSignal, untrack } from 'solid-js'
 import DayMacros from '~/sections/day-diet/components/DayMacros'
@@ -186,7 +186,7 @@ export default function TestApp() {
 
         <h1>MealEditViewList: deletado</h1>
         {/* <MealEditViewList
-            mealEditPropsList={() => [{
+            mealEditPropsList={() [{
               meal: meal(),
               header: (<MealEditViewHeader
                 onUpdateMeal={(meal) => { setMeal(meal) }}
@@ -216,7 +216,7 @@ export default function TestApp() {
         <ItemGroupView
           itemGroup={group}
           header={
-            <ItemGroupHeader
+            <HeaderWithNameAndCopy
               name={<ItemGroupName group={group} />}
               copyButton={
                 <ItemGroupCopyButton

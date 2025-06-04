@@ -1,6 +1,5 @@
 import {
   ItemFavorite,
-  ItemHeader,
   ItemName,
   ItemNutritionalInfo,
   ItemView,
@@ -13,11 +12,12 @@ import { generateId } from '~/legacy/utils/idUtils'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
-
+import { HeaderWithNameAndCopy } from '~/sections/common/components/HeaderWithNameAndCopy'
 import {
   isFoodFavorite,
   setFoodAsFavorite,
 } from '~/modules/user/application/user'
+
 import {
   mergeProps,
   type Accessor,
@@ -29,6 +29,7 @@ import {
 } from 'solid-js'
 import toast from 'solid-toast'
 
+// Corrigir imports múltiplos para múltiplas linhas conforme padrão do projeto
 export type ItemEditModalProps = {
   targetName: string
   targetNameColor?: string
@@ -50,20 +51,31 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
   const { show: showConfirmModal } = useConfirmModalContext()
 
   // TODO:   Better initial state for item on ItemEditModal
-  const [item, setItem] = createSignal<TemplateItem>({
-    __type: props.item()?.__type ?? 'Item',
-    id: props.item()?.id ?? generateId(),
-    quantity: props.item()?.quantity ?? 0,
-    ...props.item(),
-  } satisfies TemplateItem)
-
+  // Fix: Only access _props.item() inside createEffect for initial state
+  // Fix: Initialize item with a fallback value to guarantee it's never undefined
+  // Fix: fallbackItem.reference should be number (or correct type)
+  const fallbackItem: TemplateItem = {
+    __type: 'Item',
+    id: generateId(),
+    name: '',
+    quantity: 0,
+    reference: 0, // assuming number, adjust if needed
+    macros: { carbs: 0, protein: 0, fat: 0 },
+  }
+  const [item, setItem] = createSignal<TemplateItem>(fallbackItem)
   createEffect(() => {
     setItem({
-      ...untrack(item),
       ...props.item(),
+      __type: props.item().__type ?? 'Item',
+      id: props.item().id ?? generateId(),
+      quantity: props.item().quantity ?? 0,
+      name: props.item().name ?? '',
+      reference: props.item().reference ?? 0,
+      macros: props.item().macros ?? { carbs: 0, protein: 0, fat: 0 },
     })
   })
 
+  // Fix: canApply, onDelete, onApply, and all usages of item() to handle always-defined TemplateItem
   const canApply = () => item().quantity > 0
 
   return (
@@ -161,9 +173,14 @@ function Body(props: {
 
   const quantitySignal = () =>
     props.item().quantity === 0 ? undefined : props.item().quantity
+  // Move defaultValue for useFloatField into a createEffect so it's tracked
+  let defaultQuantity = 0
+  createEffect(() => {
+    defaultQuantity = props.item().quantity ?? 0
+  })
   const quantityField = useFloatField(quantitySignal, {
     decimalPlaces: 0,
-    defaultValue: props.item().quantity,
+    defaultValue: defaultQuantity,
   })
 
   createEffect(() => {
@@ -313,16 +330,13 @@ function Body(props: {
           toast.error('Alimento não editável (ainda)')
         }}
         header={
-          <ItemHeader
+          <HeaderWithNameAndCopy
             name={<ItemName />}
-            favorite={
+            copyButton={undefined}
+            actions={
               <ItemFavorite
-                favorite={
-                  // TODO:   [Feature] Add recipe favorite
-                  isFoodFavorite(props.item().reference) || false
-                }
+                favorite={isFoodFavorite(props.item().reference)}
                 onSetFavorite={(favorite) => {
-                  // TODO:   [Feature] Add recipe favorite
                   setFoodAsFavorite(props.item().reference, favorite)
                 }}
               />

@@ -1,6 +1,5 @@
 import {
   ItemFavorite,
-  ItemHeader,
   ItemName,
   ItemNutritionalInfo,
   ItemView,
@@ -9,6 +8,7 @@ import { type Food } from '~/modules/diet/food/domain/food'
 import { createItem } from '~/modules/diet/item/domain/item'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { handleApiError } from '~/shared/error/errorHandler'
+import { HeaderWithNameAndCopy } from '~/sections/common/components/HeaderWithNameAndCopy'
 
 import {
   isFoodFavorite,
@@ -128,9 +128,9 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
                       enable: false,
                     })}
                     header={
-                      <ItemHeader
+                      <HeaderWithNameAndCopy
                         name={<ItemName />}
-                        favorite={
+                        actions={
                           <ItemFavorite
                             favorite={isFoodFavorite(food().id)}
                             onSetFavorite={(favorite) => {

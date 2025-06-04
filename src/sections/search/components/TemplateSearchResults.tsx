@@ -15,13 +15,13 @@ import {
 import { Alert } from '~/sections/common/components/Alert'
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import {
-  ItemFavorite,
-  ItemHeader,
   ItemName,
   ItemNutritionalInfo,
   ItemView,
 } from '~/sections/food-item/components/ItemView'
 import { handleApiError } from '~/shared/error/errorHandler'
+import { HeaderWithNameAndCopy } from '~/sections/common/components/HeaderWithNameAndCopy'
+import { ItemFavorite } from '~/sections/food-item/components/ItemView'
 
 export function TemplateSearchResults(props: {
   search: string
@@ -72,56 +72,54 @@ export function TemplateSearchResults(props: {
                     props.setBarCodeModalVisible(false)
                   }}
                   header={
-                    <ItemHeader
+                    <HeaderWithNameAndCopy
                       name={<ItemName />}
-                      favorite={
+                      copyButton={undefined}
+                      actions={
                         <ItemFavorite
                           favorite={isFoodFavorite(template().id)}
-                          onSetFavorite={(favorite) => {
+                          onSetFavorite={(favorite: boolean) =>
                             setFoodAsFavorite(template().id, favorite)
-                          }}
+                          }
                         />
-                      }
-                      // Removes from recent list
-                      removeFromListButton={
-                        <Show when={templateSearchTab() === 'recent'}>
-                          <button
-                            class="my-auto pt-2 pl-1 hover:animate-pulse"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              e.preventDefault()
-                              toastPromise(
-                                deleteRecentFoodByFoodId(
-                                  currentUserId(),
-                                  template().id,
-                                ),
-                                {
-                                  loading:
-                                    'Removendo alimento da lista de recentes...',
-                                  success:
-                                    'Alimento removido da lista de recentes com sucesso!',
-                                  error: (err) => {
-                                    handleApiError(err, {
-                                      component: 'TemplateSearchResults',
-                                      operation: 'deleteRecentFood',
-                                      additionalData: { foodId: template().id },
-                                    })
-                                    return 'Erro ao remover alimento da lista de recentes.'
-                                  },
-                                },
-                              )
-                                .then(props.refetch)
-                                .catch(() => {})
-                            }}
-                          >
-                            <TrashIcon size={20} />
-                          </button>
-                        </Show>
                       }
                     />
                   }
                   nutritionalInfo={<ItemNutritionalInfo />}
                 />
+                {/* Renderizando o botão de remover fora do HeaderWithNameAndCopy */}
+                <Show when={templateSearchTab() === 'recent'}>
+                  <button
+                    class="my-auto pt-2 pl-1 hover:animate-pulse"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      e.preventDefault()
+                      toastPromise(
+                        deleteRecentFoodByFoodId(
+                          currentUserId(),
+                          template().id,
+                        ),
+                        {
+                          loading: 'Removendo alimento da lista de recentes...',
+                          success:
+                            'Alimento removido da lista de recentes com sucesso!',
+                          error: (err) => {
+                            handleApiError(err, {
+                              component: 'TemplateSearchResults',
+                              operation: 'deleteRecentFood',
+                              additionalData: { foodId: template().id },
+                            })
+                            return 'Erro ao remover alimento da lista de recentes.'
+                          },
+                        },
+                      )
+                        .then(props.refetch)
+                        .catch(() => {})
+                    }}
+                  >
+                    <TrashIcon size={20} />
+                  </button>
+                </Show>
               </>
             )
           }}
