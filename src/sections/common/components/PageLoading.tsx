@@ -1,12 +1,12 @@
 import { LoadingRing } from '~/sections/common/components/LoadingRing'
-import { createEffect, createSignal, onCleanup } from 'solid-js'
+import { createEffect, createSignal, onCleanup, untrack } from 'solid-js'
 
 export type PageLoadingProps = {
   message: string
 }
 
 export function PageLoading(props: PageLoadingProps) {
-  const [label, setLabel] = createSignal(props.message)
+  const [label, setLabel] = createSignal(untrack(() => props.message))
   const [tooSlow, setTooSlow] = createSignal(false)
 
   createEffect(() => {
