@@ -28,7 +28,10 @@ import {
   updateRecipePreparedMultiplier,
 } from '~/modules/diet/recipe/domain/recipeOperations'
 import { type JSXElement, type Accessor, type Setter } from 'solid-js'
-import { convertToGroups } from '~/modules/diet/item-group/application/itemGroupService'
+import {
+  convertToGroups,
+  type GroupConvertible,
+} from '~/modules/diet/item-group/application/itemGroupService'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 
 export type RecipeEditViewProps = {
@@ -83,7 +86,7 @@ export function RecipeEditHeader(props: {
       acceptedClipboardSchema,
       getDataToCopy: () => recipe(),
       onPaste: (data) => {
-        const groupsToAdd = convertToGroups(data)
+        const groupsToAdd = convertToGroups(data as GroupConvertible)
           .map((group) => regenerateId(group))
           .map((g) => ({
             ...g,

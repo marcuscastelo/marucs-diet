@@ -9,7 +9,10 @@ import {
   itemGroupSchema,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
-import { convertToGroups } from '~/modules/diet/item-group/application/itemGroupService'
+import {
+  convertToGroups,
+  type GroupConvertible,
+} from '~/modules/diet/item-group/application/itemGroupService'
 import { regenerateId } from '~/legacy/utils/idUtils'
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { recipeSchema } from '~/modules/diet/recipe/domain/recipe'
@@ -81,7 +84,7 @@ export function MealEditViewHeader(props: {
         if (meal_ === null) {
           throw new Error('mealSignal is null!')
         }
-        const groupsToAdd = convertToGroups(data)
+        const groupsToAdd = convertToGroups(data as GroupConvertible)
           .map((group) => regenerateId(group))
           .map((g) => ({
             ...g,
