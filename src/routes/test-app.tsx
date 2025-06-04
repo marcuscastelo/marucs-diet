@@ -184,27 +184,6 @@ export default function TestApp() {
           setItemGroupEditModalVisible
         </button>
 
-        <h1>MealEditViewList: deletado</h1>
-        {/* <MealEditViewList
-            mealEditPropsList={() [{
-              meal: meal(),
-              header: (<MealEditViewHeader
-                onUpdateMeal={(meal) => { setMeal(meal) }}
-              />),
-              content: (<MealEditViewContent
-                onEditItemGroup={(group) => {
-                  setGroup(group)
-                  setItemGroupEditModalVisible(true)
-                }}
-              />),
-              actions: (<MealEditViewActions
-                onNewItem={() => {
-                  setTemplateSearchModalVisible(true)
-                }}
-              />)
-            }]}
-          /> */}
-
         <h1>ItemListView</h1>
         <ItemListView
           items={() => group().items}
