@@ -44,7 +44,7 @@ function DefaultHeader() {
   return (
     <HeaderWithActions
       name={<ItemName />}
-      actions={[
+      primaryActions={
         <ItemCopyButton
           onCopyItem={(item) => {
             clipboard.write(JSON.stringify(item), (error) => {
@@ -55,8 +55,8 @@ function DefaultHeader() {
               })
             })
           }}
-        />,
-      ]}
+        />
+      }
     />
   )
 }

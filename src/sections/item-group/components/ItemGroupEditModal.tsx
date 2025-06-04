@@ -743,14 +743,16 @@ function Body(props: {
             makeHeaderFn={(item) => (
               <HeaderWithActions
                 name={<ItemName />}
-                actions={[
-                  <ItemCopyButton
-                    onCopyItem={(item) => {
-                      writeToClipboard(JSON.stringify(item))
-                    }}
-                  />,
-                  <ItemFavorite foodId={item.reference} />,
-                ]}
+                primaryActions={
+                  <>
+                    <ItemCopyButton
+                      onCopyItem={(item) => {
+                        writeToClipboard(JSON.stringify(item))
+                      }}
+                    />
+                    <ItemFavorite foodId={item.reference} />
+                  </>
+                }
               />
             )}
           />

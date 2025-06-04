@@ -197,14 +197,14 @@ export default function TestApp() {
           header={
             <HeaderWithActions
               name={<ItemGroupName group={group} />}
-              actions={[
+              primaryActions={
                 <ItemGroupCopyButton
                   group={group}
                   onCopyItemGroup={(item) => {
                     console.debug(item)
                   }}
-                />,
-              ]}
+                />
+              }
             />
           }
           nutritionalInfo={<ItemGroupViewNutritionalInfo group={group} />}

@@ -320,7 +320,7 @@ function Body(props: {
         header={
           <HeaderWithActions
             name={<ItemName />}
-            actions={[<ItemFavorite foodId={props.item().reference} />]}
+            primaryActions={<ItemFavorite foodId={props.item().reference} />}
           />
         }
         nutritionalInfo={<ItemNutritionalInfo />}

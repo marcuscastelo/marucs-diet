@@ -27,7 +27,7 @@ export function ItemGroupListView(props: {
             header={
               <HeaderWithActions
                 name={<ItemGroupName group={() => group} />}
-                actions={[
+                primaryActions={
                   <ItemGroupCopyButton
                     group={() => group}
                     onCopyItemGroup={(group) => {
@@ -39,8 +39,8 @@ export function ItemGroupListView(props: {
                         })
                       })
                     }}
-                  />,
-                ]}
+                  />
+                }
               />
             }
             nutritionalInfo={

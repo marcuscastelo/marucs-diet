@@ -126,7 +126,7 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
                     header={
                       <HeaderWithActions
                         name={<ItemName />}
-                        actions={[<ItemFavorite foodId={food().id} />]}
+                        primaryActions={<ItemFavorite foodId={food().id} />}
                       />
                     }
                     nutritionalInfo={<ItemNutritionalInfo />}

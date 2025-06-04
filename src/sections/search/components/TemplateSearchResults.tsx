@@ -65,8 +65,8 @@ export function TemplateSearchResults(props: {
                   header={
                     <HeaderWithActions
                       name={<ItemName />}
-                      actions={[<ItemFavorite foodId={template().id} />]}
-                      removeFromListButton={
+                      primaryActions={<ItemFavorite foodId={template().id} />}
+                      secondaryActions={
                         <RemoveFromRecentButton
                           templateId={template().id}
                           refetch={props.refetch}

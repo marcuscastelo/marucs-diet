@@ -1,9 +1,9 @@
-import { JSXElement, For } from 'solid-js'
+import { JSXElement, Show } from 'solid-js'
 
 export type HeaderWithActionsProps = {
   name: JSXElement
-  actions?: JSXElement[]
-  removeFromListButton?: JSXElement
+  primaryActions?: JSXElement
+  secondaryActions?: JSXElement
 }
 
 export function HeaderWithActions(props: HeaderWithActionsProps): JSXElement {
@@ -11,12 +11,14 @@ export function HeaderWithActions(props: HeaderWithActionsProps): JSXElement {
     <div class="flex">
       <div class="my-2">{props.name}</div>
       <div class="ml-auto flex flex-col">
-        <div class="my-auto">{props.removeFromListButton}</div>
-        <div class="ml-auto flex gap-2">
-          <For each={props.actions}>
-            {(action) => <div class="my-auto">{action}</div>}
-          </For>
-        </div>
+        <Show when={props.secondaryActions}>
+          <div class="my-auto">{props.secondaryActions}</div>
+        </Show>
+        <Show when={props.primaryActions}>
+          <div class="ml-auto flex gap-2">
+            <div class="my-auto">{props.primaryActions}</div>
+          </div>
+        </Show>
       </div>
     </div>
   )
