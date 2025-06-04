@@ -1,13 +1,12 @@
 import { Modal } from '~/sections/common/components/Modal'
-import {
-  useModalContext,
-} from '~/sections/common/context/ModalContext'
+import { useModalContext } from '~/sections/common/context/ModalContext'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
-import {
-  type ItemGroup,
-} from '~/modules/diet/item-group/domain/itemGroup'
+import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
-import { TemplateSearchTabs, availableTabs } from '~/sections/search/components/TemplateSearchTabs'
+import {
+  TemplateSearchTabs,
+  availableTabs,
+} from '~/sections/search/components/TemplateSearchTabs'
 import { useTyping } from '~/sections/common/hooks/useTyping'
 import {
   fetchRecentFoodByUserIdAndFoodId,
@@ -67,10 +66,7 @@ const TEMPLATE_SEARCH_DEFAULT_TAB = availableTabs.Todos.id
 
 export type TemplateSearchModalProps = {
   targetName: string
-  onNewItemGroup?: (
-    group: ItemGroup,
-    originalAddedItem: TemplateItem,
-  ) => void
+  onNewItemGroup?: (group: ItemGroup, originalAddedItem: TemplateItem) => void
   onFinish?: () => void
 }
 
@@ -78,14 +74,13 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
   const { visible } = useModalContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
-  const [itemEditModalVisible, setItemEditModalVisible] =
-    createSignal(false)
+  const [itemEditModalVisible, setItemEditModalVisible] = createSignal(false)
 
   const [barCodeModalVisible, setBarCodeModalVisible] = createSignal(false)
 
-  const [selectedTemplate, setSelectedTemplate] = createSignal<Template | undefined>(
-    undefined
-  )
+  const [selectedTemplate, setSelectedTemplate] = createSignal<
+    Template | undefined
+  >(undefined)
 
   const handleNewItemGroup = async (
     newGroup: ItemGroup,
@@ -93,20 +88,24 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
   ) => {
     // Use specialized macro overflow checker with context
     console.log(`[TemplateSearchModal] Setting up macro overflow checking`)
-    
+
     const currentDayDiet_ = currentDayDiet()
     const macroTarget_ = macroTarget(stringToDate(targetDay()))
-    
+
     // Create context object once
     const macroOverflowContext = {
       currentDayDiet: currentDayDiet_,
       macroTarget: macroTarget_,
-      macroOverflowOptions: { enable: true } // Since it's an insertion, no original item
+      macroOverflowOptions: { enable: true }, // Since it's an insertion, no original item
     }
-    
+
     // Helper function for checking individual macro properties
     const checkMacroOverflow = (property: keyof MacroNutrients) => {
-      return isOverflowForItemGroup(newGroup.items, property, macroOverflowContext)
+      return isOverflowForItemGroup(
+        newGroup.items,
+        property,
+        macroOverflowContext,
+      )
     }
 
     const onConfirm = async () => {
@@ -167,8 +166,8 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
 
     // Check if any macro nutrient would overflow
     const isOverflowing =
-      checkMacroOverflow('carbs') || 
-      checkMacroOverflow('protein') || 
+      checkMacroOverflow('carbs') ||
+      checkMacroOverflow('protein') ||
       checkMacroOverflow('fat')
 
     if (isOverflowing) {
@@ -185,11 +184,9 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
                 handleApiError(err, {
                   component: 'TemplateSearchModal',
                   operation: 'confirmOverMacros',
-                  additionalData: { templateType: 'item' }
+                  additionalData: { templateType: 'item' },
                 })
-                toast.error(
-                  `Erro ao adicionar item: ${formatError(err)}`,
-                )
+                toast.error(`Erro ao adicionar item: ${formatError(err)}`)
               })
             },
           },
@@ -208,7 +205,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
         handleApiError(err, {
           component: 'TemplateSearchModal',
           operation: 'confirmItem',
-          additionalData: { templateType: 'item' }
+          additionalData: { templateType: 'item' },
         })
         toast.error(`Erro ao adicionar item: ${formatError(err)}`)
       }
@@ -354,7 +351,7 @@ export function TemplateSearch(props: {
     onTypingEnd: () => {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       refetch()
-    }, 
+    },
   })
 
   const [templates, { refetch }] = createResource(
@@ -416,7 +413,10 @@ export function TemplateSearch(props: {
           setItemEditModalVisible={props.setItemEditModalVisible}
           setSelectedTemplate={props.setSelectedTemplate}
           typing={typing}
-          refetch={async () => { await refetch(); }}
+          // eslint-disable-next-line solid/reactivity
+          refetch={async () => {
+            await refetch()
+          }}
         />
       </Suspense>
     </>

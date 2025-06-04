@@ -24,6 +24,7 @@ import {
 } from '~/modules/diet/recipe/domain/recipe'
 import { ExternalRecipeEditModal } from './ExternalRecipeEditModal'
 import { type Loadable } from '~/legacy/utils/loadable'
+import { z } from 'zod'
 
 import {
   ItemGroupEditContextProvider,
@@ -41,8 +42,15 @@ import {
 } from '~/sections/common/context/ConfirmModalContext'
 import { PasteIcon } from '~/sections/common/components/icons/PasteIcon'
 import { regenerateId } from '~/legacy/utils/idUtils'
-// TODO:   Remove deprecated ItemGroupEditor usage - Replace with pure functions
-import { ItemGroupEditor } from '~/legacy/utils/data/itemGroupEditor'
+import {
+  setItemGroupRecipe,
+  addItemToGroup,
+  addItemsToGroup,
+  updateItemInGroup,
+  removeItemFromGroup,
+  updateItemGroupName,
+  setItemGroupItems,
+} from '~/modules/diet/item-group/domain/itemGroupOperations'
 import { ConvertToRecipeIcon } from '~/sections/common/components/icons/ConvertToRecipeIcon'
 import { deepCopy } from '~/legacy/utils/deepCopy'
 import { PreparedQuantity } from '~/sections/common/components/PreparedQuantity'
@@ -109,9 +117,7 @@ const unlinkRecipe = (signals: {
   group: Accessor<ItemGroup>
   setGroup: Setter<ItemGroup>
 }) => {
-  signals.setGroup(
-    new ItemGroupEditor(signals.group()).setRecipe(undefined).finish(),
-  )
+  signals.setGroup(setItemGroupRecipe(signals.group(), undefined))
 }
 
 const askUnlinkRecipe = (
@@ -169,9 +175,10 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
       return
     }
 
-    const finalGroup: ItemGroup = new ItemGroupEditor(currentGroup)
-      .addItem(newGroup.items[0])
-      .finish()
+    const finalGroup: ItemGroup = addItemToGroup(
+      currentGroup,
+      newGroup.items[0],
+    )
 
     setGroup(finalGroup)
   }
@@ -193,8 +200,12 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
       .then((recipe) => {
         setRecipeSignal({ loading: false, errored: false, data: recipe })
       })
-      .catch((e) => {
-        setRecipeSignal({ loading: false, errored: true, error: e })
+      .catch((e: unknown) => {
+        setRecipeSignal({
+          loading: false,
+          errored: true,
+          error: e instanceof Error ? e : new Error(String(e)),
+        })
       })
   })
 
@@ -279,9 +290,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
         `[ExternalItemEditModal] onApply: setting itemId=${item.id} to item=`,
         item,
       )
-      const newGroup: ItemGroup = new ItemGroupEditor(group_)
-        .editItem(item.id, (editor) => editor?.replace(item))
-        .finish()
+      const newGroup: ItemGroup = updateItemInGroup(group_, item.id, item)
 
       console.debug('newGroup', newGroup)
       setGroup(newGroup)
@@ -318,9 +327,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
       throw new Error('group is null')
     }
 
-    const newGroup: ItemGroup = new ItemGroupEditor(group_)
-      .deleteItem(itemId)
-      .finish()
+    const newGroup: ItemGroup = removeItemFromGroup(group_, itemId)
 
     console.debug('newGroup', newGroup)
     setGroup(newGroup)
@@ -478,7 +485,12 @@ function Body(props: {
 }) {
   const { show: showConfirmModal } = useConfirmModalContext()
 
-  const acceptedClipboardSchema = itemSchema.or(itemGroupSchema)
+  // Use output types for clipboard schema
+  const acceptedClipboardSchema = z.union([
+    itemSchema,
+    itemGroupSchema,
+  ]) as unknown as z.ZodType<ItemOrGroup>
+
   const { group, setGroup } = useItemGroupEditContext()
   const recipedGroup = createMemo(() => {
     const currentGroup = group()
@@ -487,25 +499,39 @@ function Body(props: {
       : null
   })
 
+  // Use output types for strict type-safety
+  type ItemOrGroup =
+    | z.output<typeof itemSchema>
+    | z.output<typeof itemGroupSchema>
+
+  function isItemGroup(
+    data: ItemOrGroup,
+  ): data is z.output<typeof itemGroupSchema> {
+    return (
+      typeof data === 'object' &&
+      data !== null &&
+      'items' in data &&
+      Array.isArray(data.items)
+    )
+  }
+
   const {
     writeToClipboard,
     handlePaste: handlePasteShared,
     hasValidPastableOnClipboard: hasValidPastableOnClipboardShared,
-  } = useCopyPasteActions({
+  } = useCopyPasteActions<ItemOrGroup>({
     acceptedClipboardSchema,
-    getDataToCopy: () => group(),
-    onPaste: (data: any) => {
+    getDataToCopy: () => group() as ItemOrGroup,
+    onPaste: (data) => {
       const group_ = group()
-      if ('items' in data) {
-        // data is an itemGroup
-        const newGroup = new ItemGroupEditor(group_)
-          .addItems(data.items.map((item: any) => regenerateId(item)))
-          .finish()
+      if (isItemGroup(data)) {
+        const newGroup = addItemsToGroup(
+          group_,
+          data.items.map((item) => regenerateId(item)),
+        )
         setGroup(newGroup)
       } else {
-        const newGroup = new ItemGroupEditor(group_)
-          .addItem(regenerateId(data))
-          .finish()
+        const newGroup = addItemToGroup(group_, regenerateId(data))
         setGroup(newGroup)
       }
     },
@@ -522,11 +548,7 @@ function Body(props: {
                   class="input w-full"
                   type="text"
                   onChange={(e) => {
-                    setGroup(
-                      new ItemGroupEditor(group())
-                        .setName(e.target.value)
-                        .finish(),
-                    )
+                    setGroup(updateItemGroupName(group(), e.target.value))
                   }}
                   value={group().name}
                   ref={(ref) => {
@@ -545,6 +567,7 @@ function Body(props: {
                         'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'
                       }
                       onClick={() => {
+                        // TODO: Support editing complex recipes
                         if (isRecipeTooComplex(props.recipe())) {
                           toast.error(
                             'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
@@ -588,9 +611,7 @@ function Body(props: {
                             }
 
                             setGroup(
-                              new ItemGroupEditor(group_)
-                                .setRecipe(insertedRecipe.id)
-                                .finish(),
+                              setItemGroupRecipe(group_, insertedRecipe.id),
                             )
 
                             props.setRecipeEditModalVisible(true)
@@ -656,12 +677,10 @@ function Body(props: {
                                       throw new Error('group is null')
                                     }
 
-                                    const newGroup = new ItemGroupEditor(
+                                    const newGroup = setItemGroupItems(
                                       group(),
+                                      recipe().items,
                                     )
-                                      .clearItems()
-                                      .addItems(recipe().items)
-                                      .finish()
 
                                     setGroup(newGroup)
                                   }}
@@ -691,7 +710,8 @@ function Body(props: {
                       </Show>
 
                       <Show when={props.recipe() === null}>
-                        {(_) => <>Receita não encontrada</>}
+                        {/* Direct JSX child, not a function */}
+                        <>Receita não encontrada</>
                       </Show>
                     </>
                   )}
@@ -716,6 +736,7 @@ function Body(props: {
               //   recipeEditModalRef.current?.showModal()
               // } else {
 
+              // TODO: Support editing complex recipes
               if (isRecipeTooComplex(props.recipe())) {
                 toast.error(
                   'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
@@ -878,9 +899,7 @@ function PreparedQuantityWrapper(props: {
           }
         })
 
-        const newGroup = new ItemGroupEditor(props.recipedGroup())
-          .setItems(newItems)
-          .finish()
+        const newGroup = setItemGroupItems(props.recipedGroup(), newItems)
 
         props.setRecipedGroup(newGroup)
       }}

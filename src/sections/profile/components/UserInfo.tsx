@@ -1,5 +1,4 @@
 import { type User, userSchema } from '~/modules/user/domain/user'
-import { type z } from 'zod'
 import { UserIcon } from '~/sections/common/components/icons/UserIcon'
 import { createEffect, Show } from 'solid-js'
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
@@ -13,7 +12,7 @@ import { convertString, UserInfoCapsule } from './UserInfoCapsule'
 import toast from 'solid-toast'
 import { formatError } from '~/shared/formatError'
 import { handleApiError } from '~/shared/error/errorHandler'
-type Translation<T extends string> = { [key in T]: string }
+type Translation<T extends string> = { [_key in T]: string }
 // TODO:   Create module for translations
 // TODO:   Make diet translations appear in the UI
 // TODO:   Make select input for diet (cut, normo, bulk)
@@ -51,20 +50,14 @@ export function UserInfo() {
   })
 
   const convertDesiredWeight = (value: string) => Number(value)
-  const makeLiteralConverter =
-    <T extends z.ZodUnion<any>>(schema: T, defaultValue: z.infer<T>) =>
-    (value: string): z.infer<T> => {
-      const result = schema.safeParse(value)
-      if (!result.success) {
-        return defaultValue
-      }
-      return result.data
-    }
 
-  const convertGender = makeLiteralConverter(
-    userSchema._def.shape().gender,
-    'male',
-  )
+  const convertGender = (value: string): User['gender'] => {
+    const result = userSchema._def.shape().gender.safeParse(value)
+    if (!result.success) {
+      return 'male'
+    }
+    return result.data
+  }
 
   const convertDiet = (value: string): User['diet'] =>
     (Object.keys(DIET_TRANSLATION) as Array<User['diet']>).find(

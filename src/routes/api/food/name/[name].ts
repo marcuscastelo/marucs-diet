@@ -18,11 +18,12 @@ export async function GET({ params }: APIEvent) {
     handleApiError(error, {
       component: 'ApiRoute',
       operation: 'fetchApiFoodsByName',
-      additionalData: { name: params.name }
+      additionalData: { name: params.name },
     })
     return json(
       {
-        error: 'Error fetching food items by name: ' + (error as AxiosError).message,
+        error:
+          'Error fetching food items by name: ' + (error as AxiosError).message,
       },
       { status: (error as AxiosError).status },
     )

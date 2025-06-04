@@ -18,8 +18,11 @@ import {
   type ItemGroup,
   isSimpleSingleGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
-// TODO:   Remove deprecated RecipeEditor usage - Replace with pure functions
-import { RecipeEditor } from '~/legacy/utils/data/recipeEditor'
+import {
+  addItemsToRecipe,
+  updateItemInRecipe,
+  removeItemFromRecipe,
+} from '~/modules/diet/recipe/domain/recipeOperations'
 import toast from 'solid-toast'
 
 import { createEffect, createSignal } from 'solid-js'
@@ -67,16 +70,14 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
       return
     }
 
-    const newRecipe = new RecipeEditor(recipe())
-      .addItems(newGroup.items)
-      .finish()
+    const updatedRecipe = addItemsToRecipe(recipe(), newGroup.items)
 
     console.debug(
       'handleNewItemGroup: applying',
-      JSON.stringify(newRecipe, null, 2),
+      JSON.stringify(updatedRecipe, null, 2),
     )
 
-    setRecipe(newRecipe)
+    setRecipe(updatedRecipe)
   }
 
   createEffect(() => {
@@ -100,23 +101,26 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
         onApply={(item) => {
           if (recipe() === null) return
 
-          const recipeEditor = new RecipeEditor(recipe())
+          // Only handle regular Items, not RecipeItems
+          if (item.__type !== 'Item') {
+            console.warn('Cannot edit RecipeItems in recipe')
+            return
+          }
 
-          const newRecipe = recipeEditor
-            .editItem(item.id, (itemEditor) => {
-              itemEditor?.setQuantity(item.quantity)
-            })
-            .finish()
+          const updatedItem: Item = { ...item, quantity: item.quantity }
+          const updatedRecipe = updateItemInRecipe(
+            recipe(),
+            item.id,
+            updatedItem,
+          )
 
-          setRecipe(newRecipe)
+          setRecipe(updatedRecipe)
           setSelectedItem(null)
         }}
         onDelete={(itemId) => {
-          const recipeEditor = new RecipeEditor(recipe())
+          const updatedRecipe = removeItemFromRecipe(recipe(), itemId)
 
-          const newRecipe = recipeEditor.deleteItem(itemId).finish()
-
-          setRecipe(newRecipe)
+          setRecipe(updatedRecipe)
           setSelectedItem(null)
         }}
       />

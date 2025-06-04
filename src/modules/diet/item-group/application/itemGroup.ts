@@ -1,16 +1,22 @@
-// TODO:   Remove deprecated DayDietEditor usage - Replace with pure functions
-import { DayDietEditor } from '~/legacy/utils/data/dayDietEditor'
 import {
   currentDayDiet,
   updateDayDiet,
 } from '~/modules/diet/day-diet/application/dayDiet'
 import {
-  createNewDayDiet,
   type NewDayDiet,
   type DayDiet,
 } from '~/modules/diet/day-diet/domain/dayDiet'
+import {
+  updateMealInDayDiet,
+  convertToNewDayDiet,
+} from '~/modules/diet/day-diet/domain/dayDietOperations'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
+import {
+  addGroupToMeal,
+  updateGroupInMeal,
+  removeGroupFromMeal,
+} from '~/modules/diet/meal/domain/mealOperations'
 import { handleApiError } from '~/shared/error/errorHandler'
 
 export function insertItemGroup(
@@ -23,11 +29,24 @@ export function insertItemGroup(
     throw new Error('[meal::application] Current day diet is null')
   }
 
-  const newDay = new DayDietEditor(createNewDayDiet(currentDayDiet_))
-    .editMeal(mealId, (mealEditor) => {
-      mealEditor?.addGroup(newItemGroup)
-    })
-    .finish()
+  // Find the meal to update
+  const meal = currentDayDiet_.meals.find((m) => m.id === mealId)
+  if (meal === null || meal === undefined) {
+    throw new Error(`Meal with id ${mealId} not found`)
+  }
+
+  // Add group to meal
+  const updatedMeal = addGroupToMeal(meal, newItemGroup)
+
+  // Update meal in day diet
+  const updatedDayDiet = updateMealInDayDiet(
+    currentDayDiet_,
+    mealId,
+    updatedMeal,
+  )
+
+  // Convert to NewDayDiet
+  const newDay = convertToNewDayDiet(updatedDayDiet)
 
   updateDayDiet(currentDayDiet_.id, newDay).catch((error) => {
     handleApiError(error, {
@@ -49,15 +68,24 @@ export function updateItemGroup(
     throw new Error('[meal::application] Current day diet is null')
   }
 
-  const newDay: NewDayDiet = new DayDietEditor(
-    createNewDayDiet(currentDayDiet_),
+  // Find the meal to update
+  const meal = currentDayDiet_.meals.find((m) => m.id === mealId)
+  if (meal === null || meal === undefined) {
+    throw new Error(`Meal with id ${mealId} not found`)
+  }
+
+  // Update group in meal
+  const updatedMeal = updateGroupInMeal(meal, itemGroupId, newItemGroup)
+
+  // Update meal in day diet
+  const updatedDayDiet = updateMealInDayDiet(
+    currentDayDiet_,
+    mealId,
+    updatedMeal,
   )
-    .editMeal(mealId, (mealEditor) => {
-      mealEditor?.editGroup(itemGroupId, (groupEditor) => {
-        groupEditor?.replace(newItemGroup)
-      })
-    })
-    .finish()
+
+  // Convert to NewDayDiet
+  const newDay: NewDayDiet = convertToNewDayDiet(updatedDayDiet)
 
   updateDayDiet(currentDayDiet_.id, newDay).catch((error) => {
     handleApiError(error, {
@@ -78,11 +106,24 @@ export function deleteItemGroup(
     throw new Error('[meal::application] Current day diet is null')
   }
 
-  const newDay = new DayDietEditor(createNewDayDiet(currentDayDiet_))
-    .editMeal(mealId, (mealEditor) => {
-      mealEditor?.deleteGroup(itemGroupId)
-    })
-    .finish()
+  // Find the meal to update
+  const meal = currentDayDiet_.meals.find((m) => m.id === mealId)
+  if (meal === null || meal === undefined) {
+    throw new Error(`Meal with id ${mealId} not found`)
+  }
+
+  // Remove group from meal
+  const updatedMeal = removeGroupFromMeal(meal, itemGroupId)
+
+  // Update meal in day diet
+  const updatedDayDiet = updateMealInDayDiet(
+    currentDayDiet_,
+    mealId,
+    updatedMeal,
+  )
+
+  // Convert to NewDayDiet
+  const newDay = convertToNewDayDiet(updatedDayDiet)
 
   updateDayDiet(currentDayDiet_.id, newDay).catch((error) => {
     handleApiError(error, {

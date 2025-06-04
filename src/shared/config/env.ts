@@ -24,9 +24,10 @@ const envSchema = z.object(
 )
 
 const getEnvVars = (): Record<EnvKeys, string> => {
+  const importMetaEnv = import.meta.env as Record<string, string | undefined>
   return Object.fromEntries(
     requiredEnv.map((key) => {
-      const importMetaValue = import.meta.env[key]
+      const importMetaValue = importMetaEnv[key]
       const processEnvValue = process.env[key]
       const value =
         typeof importMetaValue === 'string'

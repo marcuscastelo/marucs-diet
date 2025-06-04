@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { For, createEffect, createMemo } from 'solid-js'
 import { type Weight, createNewWeight } from '~/modules/weight/domain/weight'
 import { Capsule } from '~/sections/common/components/capsule/Capsule'

@@ -36,7 +36,7 @@ export function MeasuresEvolution() {
       .then((measures) =>
         setMeasures({ loading: false, errored: false, data: measures }),
       )
-      .catch((error) => {
+      .catch((error: unknown) => {
         console.error(error)
         setMeasures({ loading: false, errored: true, error })
       })

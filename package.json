@@ -2,13 +2,14 @@
   "name": "marucs-diet",
   "private": true,
   "type": "module",
-  "version": "v0.11.0-rc.112",
+  "version": "v0.11.0-dev.140.27+issue.602",
   "scripts": {
     "dev": "vinxi dev",
     "build": "vinxi build",
     "start": "vinxi start",
     "type-check": "tsc --noEmit --skipLibCheck",
-    "test": "vitest"
+    "test": "vitest run",
+    "lint": "eslint . --quiet"
   },
   "dependencies": {
     "@solidjs/router": "^0.13.3",
@@ -33,12 +34,14 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@eslint/js": "^9.28.0",
     "@solidjs/meta": "^0.29.1",
     "@solidjs/router": "^0.8.3",
     "@total-typescript/ts-reset": "^0.4.2",
     "@types/node": "^20.8.9",
     "@typescript-eslint/eslint-plugin": "^6.4.0",
     "@typescript-eslint/parser": "^8.33.1",
+    "@vitest/coverage-v8": "^3.2.1",
     "autoprefixer": "^10.4.16",
     "defu": "^6.1.4",
     "eslint": "^8.52.0",
@@ -50,6 +53,8 @@
     "eslint-plugin-prettier": "5.0.0-alpha.2",
     "eslint-plugin-promise": "^6.0.0",
     "eslint-plugin-solid": "^0.14.5",
+    "eslint-plugin-unicorn": "^59.0.1",
+    "globals": "^16.2.0",
     "postcss": "^8.4.31",
     "prettier": "^3.0.0",
     "prettier-plugin-tailwindcss": "^0.4.1",

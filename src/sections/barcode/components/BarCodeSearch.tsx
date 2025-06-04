@@ -61,7 +61,7 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
       props.setFood(food)
     }
 
-    const catchFetch = (err: any) => {
+    const catchFetch = (err: unknown) => {
       console.log('catchFetch err', err)
       handleApiError(err, {
         component: 'BarCodeSearch',

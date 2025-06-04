@@ -1,13 +1,12 @@
-// TODO:   Remove deprecated DayDietEditor usage - Replace with pure functions
-import { DayDietEditor } from '~/legacy/utils/data/dayDietEditor'
 import {
   currentDayDiet,
   updateDayDiet,
 } from '~/modules/diet/day-diet/application/dayDiet'
+import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import {
-  createNewDayDiet,
-  type DayDiet,
-} from '~/modules/diet/day-diet/domain/dayDiet'
+  updateMealInDayDiet,
+  convertToNewDayDiet,
+} from '~/modules/diet/day-diet/domain/dayDietOperations'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { handleApiError } from '~/shared/error/errorHandler'
 
@@ -24,11 +23,11 @@ export async function updateMeal(
     throw new Error('[meal::application] Current day diet is null')
   }
 
-  const newDay = new DayDietEditor(createNewDayDiet(currentDayDiet_))
-    .editMeal(mealId, (editor) => {
-      editor?.replace(newMeal)
-    })
-    .finish()
+  // Update meal in day diet
+  const updatedDayDiet = updateMealInDayDiet(currentDayDiet_, mealId, newMeal)
+
+  // Convert to NewDayDiet
+  const newDay = convertToNewDayDiet(updatedDayDiet)
 
   updateDayDiet(currentDayDiet_.id, newDay).catch((error) => {
     handleApiError(error, {

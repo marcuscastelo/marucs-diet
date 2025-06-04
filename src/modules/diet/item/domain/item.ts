@@ -18,7 +18,7 @@ export const itemSchema = z.object({
     .transform(() => 'Item' as const),
 })
 
-export type Item = Readonly<z.infer<typeof itemSchema>>
+export type Item = Readonly<z.output<typeof itemSchema>>
 
 export function createItem({
   name,

@@ -20,11 +20,18 @@ import { itemGroupSchema } from '~/modules/diet/item-group/domain/itemGroup'
 import { PreparedQuantity } from '~/sections/common/components/PreparedQuantity'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import { FloatInput } from '~/sections/common/components/FloatInput'
-// TODO:   Remove deprecated RecipeEditor usage - Replace with pure functions
-import { RecipeEditor } from '~/legacy/utils/data/recipeEditor'
 import { cn } from '~/shared/cn'
+import {
+  addItemsToRecipe,
+  clearRecipeItems,
+  updateRecipeName,
+  updateRecipePreparedMultiplier,
+} from '~/modules/diet/recipe/domain/recipeOperations'
 import { type JSXElement, type Accessor, type Setter } from 'solid-js'
-import { convertToGroups } from '~/modules/diet/item-group/application/itemGroupService'
+import {
+  convertToGroups,
+  type GroupConvertible,
+} from '~/modules/diet/item-group/application/itemGroupService'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 
 export type RecipeEditViewProps = {
@@ -79,16 +86,14 @@ export function RecipeEditHeader(props: {
       acceptedClipboardSchema,
       getDataToCopy: () => recipe(),
       onPaste: (data) => {
-        const groupsToAdd = convertToGroups(data)
+        const groupsToAdd = convertToGroups(data as GroupConvertible)
           .map((group) => regenerateId(group))
           .map((g) => ({
             ...g,
             items: g.items.map((item) => regenerateId(item)),
           }))
         const itemsToAdd = groupsToAdd.flatMap((g) => g.items)
-        const newRecipe = new RecipeEditor(recipe())
-          .addItems(itemsToAdd)
-          .finish()
+        const newRecipe = addItemsToRecipe(recipe(), itemsToAdd)
         props.onUpdateRecipe(newRecipe)
       },
     })
@@ -106,7 +111,7 @@ export function RecipeEditHeader(props: {
           text: 'Excluir todos os itens',
           primary: true,
           onClick: () => {
-            const newRecipe = new RecipeEditor(recipe()).clearItems().finish()
+            const newRecipe = clearRecipeItems(recipe())
             props.onUpdateRecipe(newRecipe)
           },
         },
@@ -170,7 +175,7 @@ export function RecipeEditContent(props: {
             })
             throw new Error('group is null')
           }
-          setRecipe(new RecipeEditor(recipe()).setName(e.target.value).finish())
+          setRecipe(updateRecipeName(recipe(), e.target.value))
         }}
         onFocus={(e) => {
           e.target.select()
@@ -195,9 +200,10 @@ export function RecipeEditContent(props: {
             )}
             preparedMultiplier={recipe().prepared_multiplier}
             onPreparedQuantityChange={({ newMultiplier }) => {
-              const newRecipe = new RecipeEditor(recipe())
-                .setPreparedMultiplier(newMultiplier())
-                .finish()
+              const newRecipe = updateRecipePreparedMultiplier(
+                recipe(),
+                newMultiplier(),
+              )
 
               setRecipe(newRecipe)
             }}
@@ -269,9 +275,10 @@ function PreparedMultiplier() {
           event.target.select()
         }}
         onFieldCommit={(newMultiplier) => {
-          const newRecipe = new RecipeEditor(recipe())
-            .setPreparedMultiplier(newMultiplier ?? 1)
-            .finish()
+          const newRecipe = updateRecipePreparedMultiplier(
+            recipe(),
+            newMultiplier ?? 1,
+          )
 
           setRecipe(newRecipe)
         }}

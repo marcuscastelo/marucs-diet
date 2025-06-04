@@ -14,7 +14,6 @@ export type GroupConvertible =
   | { groups: ItemGroup[] }
   | Item
   | Recipe
-  | unknown
 
 /**
  * Converts various group-like objects into an array of ItemGroups.
@@ -81,7 +80,7 @@ function hasGroups(obj: unknown): obj is { groups: ItemGroup[] } {
   return (
     obj !== null &&
     typeof obj === 'object' &&
-    Array.isArray((obj as any).groups)
+    Array.isArray((obj as Record<string, unknown>).groups)
   )
 }
 
@@ -97,7 +96,20 @@ function getTypeDescription(obj: unknown): string {
   if (obj === null) return 'null'
   if (obj === undefined) return 'undefined'
   if (typeof obj !== 'object') return typeof obj
-  const constructor = (obj as any).constructor?.name
-  const type = (obj as any).__type
-  return type || constructor || 'unknown object'
+  if (
+    Object.prototype.hasOwnProperty.call(obj, '__type') &&
+    typeof (obj as Record<string, unknown>)['__type'] === 'string'
+  ) {
+    return String((obj as Record<string, unknown>)['__type'])
+  }
+  // Check for constructor name safely
+  const maybeObj = obj as { constructor?: { name?: string } }
+  if (
+    maybeObj.constructor &&
+    typeof maybeObj.constructor.name === 'string' &&
+    maybeObj.constructor.name.length > 0
+  ) {
+    return maybeObj.constructor.name
+  }
+  return 'unknown object'
 }

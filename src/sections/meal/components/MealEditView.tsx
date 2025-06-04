@@ -9,8 +9,10 @@ import {
   itemGroupSchema,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
-import { deserializeClipboard } from '~/legacy/utils/clipboardUtils'
-import { convertToGroups } from '~/modules/diet/item-group/application/itemGroupService'
+import {
+  convertToGroups,
+  type GroupConvertible,
+} from '~/modules/diet/item-group/application/itemGroupService'
 import { regenerateId } from '~/legacy/utils/idUtils'
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { recipeSchema } from '~/modules/diet/recipe/domain/recipe'
@@ -19,9 +21,11 @@ import {
   MealContextProvider,
   useMealContext,
 } from '~/sections/meal/context/MealContext'
-// TODO:   Remove deprecated MealEditor usage - Replace with pure functions
-import { MealEditor } from '~/legacy/utils/data/mealEditor'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import {
+  addGroupsToMeal,
+  clearMealGroups,
+} from '~/modules/diet/meal/domain/mealOperations'
 
 export type MealEditViewProps = {
   meal: Meal
@@ -71,28 +75,25 @@ export function MealEditViewHeader(props: {
     .or(itemSchema)
     .or(recipeSchema)
 
-  const {
-    handleCopy,
-    handlePaste,
-    hasValidPastableOnClipboard,
-  } = useCopyPasteActions({
-    acceptedClipboardSchema,
-    getDataToCopy: () => meal(),
-    onPaste: (data) => {
-      const meal_ = meal()
-      if (meal_ === null) {
-        throw new Error('mealSignal is null!')
-      }
-      const groupsToAdd = convertToGroups(data)
-        .map((group) => regenerateId(group))
-        .map((g) => ({
-          ...g,
-          items: g.items.map((item) => regenerateId(item)),
-        }))
-      const newMeal = new MealEditor(meal_).addGroups(groupsToAdd).finish()
-      props.onUpdateMeal(newMeal)
-    },
-  })
+  const { handleCopy, handlePaste, hasValidPastableOnClipboard } =
+    useCopyPasteActions({
+      acceptedClipboardSchema,
+      getDataToCopy: () => meal(),
+      onPaste: (data) => {
+        const meal_ = meal()
+        if (meal_ === null) {
+          throw new Error('mealSignal is null!')
+        }
+        const groupsToAdd = convertToGroups(data as GroupConvertible)
+          .map((group) => regenerateId(group))
+          .map((g) => ({
+            ...g,
+            items: g.items.map((item) => regenerateId(item)),
+          }))
+        const newMeal = addGroupsToMeal(meal_, groupsToAdd)
+        props.onUpdateMeal(newMeal)
+      },
+    })
 
   const mealCalories = () => {
     const meal_ = meal()
@@ -117,7 +118,7 @@ export function MealEditViewHeader(props: {
             if (meal_ === null) {
               throw new Error('meal_ is null!')
             }
-            const newMeal = new MealEditor(meal_).clearGroups().finish()
+            const newMeal = clearMealGroups(meal_)
             props.onUpdateMeal(newMeal)
           },
         },

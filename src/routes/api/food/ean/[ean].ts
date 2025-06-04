@@ -17,11 +17,12 @@ export async function GET({ params }: APIEvent) {
     handleApiError(error, {
       component: 'ApiRoute',
       operation: 'fetchApiFoodByEan',
-      additionalData: { ean: params.ean }
+      additionalData: { ean: params.ean },
     })
     return json(
       {
-        error: 'Error fetching food item by EAN: ' + (error as AxiosError).message,
+        error:
+          'Error fetching food item by EAN: ' + (error as AxiosError).message,
       },
       { status: (error as AxiosError).status },
     )

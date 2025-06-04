@@ -1,9 +1,7 @@
 import { type Accessor, type Setter } from 'solid-js'
 import BarCodeInsertModal from '~/sections/barcode/components/BarCodeInsertModal'
 import { type Template } from '~/modules/diet/template/domain/template'
-import {
-  ModalContextProvider,
-} from '~/sections/common/context/ModalContext'
+import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 
 export function ExternalBarCodeInsertModal(props: {
   visible: Accessor<boolean>

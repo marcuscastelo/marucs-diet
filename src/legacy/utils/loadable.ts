@@ -22,7 +22,7 @@ export type Loaded<T> = {
 export type Errored<T = Record<never, never>> = T & {
   loading: false
   errored: true
-  error: Error
+  error: unknown
 }
 
 /**
