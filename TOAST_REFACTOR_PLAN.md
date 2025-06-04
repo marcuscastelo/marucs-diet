@@ -13,7 +13,7 @@ Refactoring of the toast system to reduce visual clutter and improve user experi
 ### General Status
 - **Start**: 2025-06-04  
 - **Status**: ✅ Complete
-- **Progress**: 3/18 commits (16.7%)
+- **Progress**: 4/18 commits (22.2%)
 
 ---
 
@@ -66,11 +66,11 @@ export type ToastOptions = {
 *Status: 🚧 In Progress*
 
 #### Commit 4: Main ToastManager  
-- **Status**: ⏳ Pending  
+- **Status**: ✅ Complete
 - **Files to create**:  
-  - `src/shared/toast/toastManager.ts`  
+  - `src/shared/toast/toastManager.ts` ✅
 - **Description**: Central class to manage all toasts  
-- **Tests**: ❌ Not run
+- **Tests**: ⏳ Pending
 
 #### Commit 5: Expandable Error Component  
 - **Status**: ⏳ Pending  

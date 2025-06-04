@@ -5,159 +5,166 @@
  * with intelligent prioritization and deduplication.
  */
 
-import { createSignal, createEffect, onCleanup } from 'solid-js'
+import { createSignal, createEffect } from 'solid-js'
 import { ToastItem, ToastQueueConfig, DEFAULT_QUEUE_CONFIG, TOAST_PRIORITY } from './toastConfig'
 
+// Global queue state
+const [queue, setQueue] = createSignal<ToastItem[]>([])
+const [currentToast, setCurrentToast] = createSignal<ToastItem | null>(null)
+const [isProcessing, setIsProcessing] = createSignal(false)
+let config: ToastQueueConfig = { ...DEFAULT_QUEUE_CONFIG }
+let processingTimeout: number | null = null
+
+// Auto-process queue when current toast changes
+createEffect(() => {
+  if (!currentToast() && !isProcessing() && queue().length > 0) {
+    processNext()
+  }
+})
+
 /**
- * Toast Queue Manager Class
- * Handles queuing, prioritization, and display control of toasts
+ * Check for duplicate messages to avoid spam
  */
-export class ToastQueue {
-  private queue: ToastItem[] = []
-  private [currentToast, setCurrentToast] = createSignal<ToastItem | null>(null)
-  private [isProcessing, setIsProcessing] = createSignal(false)
-  private config: ToastQueueConfig
-  private processingTimeout: number | null = null
+function isDuplicateToast(newToast: ToastItem): boolean {
+  return queue().some(
+    (existingToast) => 
+      existingToast.message === newToast.message && 
+      existingToast.options.level === newToast.options.level
+  )
+}
 
-  constructor(config: Partial<ToastQueueConfig> = {}) {
-    this.config = { ...DEFAULT_QUEUE_CONFIG, ...config }
+/**
+ * Sort toasts by priority (higher priority first)
+ */
+function sortByPriority(toasts: ToastItem[]): ToastItem[] {
+  return [...toasts].sort((a, b) => b.priority - a.priority)
+}
+
+/**
+ * Add a toast to the queue
+ */
+export function enqueue(toast: ToastItem): void {
+  if (isDuplicateToast(toast)) {
+    console.debug('[ToastQueue] Duplicate toast ignored:', toast.message)
+    return
+  }
+
+  // Manage queue size
+  const currentQueue = queue()
+  if (currentQueue.length >= config.maxQueueSize) {
+    // Remove lowest priority toast
+    const sorted = sortByPriority(currentQueue)
+    sorted.pop() // Remove last (lowest priority)
+    setQueue(sorted)
+  }
+
+  // Add new toast and sort by priority
+  const newQueue = [...queue(), toast]
+  setQueue(sortByPriority(newQueue))
+  
+  console.debug('[ToastQueue] Toast enqueued:', toast.message, 'Queue length:', newQueue.length)
+
+  // Process immediately if no toast is currently showing
+  if (!currentToast() && !isProcessing()) {
+    processNext()
+  }
+}
+
+/**
+ * Remove current toast and process next in queue
+ */
+export function dequeue(): void {
+  const current = currentToast()
+  if (current) {
+    console.debug('[ToastQueue] Dequeuing toast:', current.message)
+    setCurrentToast(null)
+    setIsProcessing(true)
+
+    // Wait for transition delay before showing next toast
+    if (processingTimeout) {
+      clearTimeout(processingTimeout)
+    }
     
-    // Auto-process queue when current toast changes
-    createEffect(() => {
-      if (!this.currentToast() && !this.isProcessing()) {
-        this.processNext()
-      }
-    })
+    processingTimeout = window.setTimeout(() => {
+      setIsProcessing(false)
+      processNext()
+    }, config.transitionDelay)
+  }
+}
 
-    // Cleanup on component unmount
-    onCleanup(() => {
-      if (this.processingTimeout) {
-        clearTimeout(this.processingTimeout)
-      }
-    })
+/**
+ * Process next toast in queue
+ */
+function processNext(): void {
+  if (isProcessing() || currentToast()) {
+    return
   }
 
-  /**
-   * Add a toast to the queue
-   */
-  enqueue(toast: ToastItem): void {
-    // Check for duplicate messages to avoid spam
-    const isDuplicate = this.queue.some(
-      (existingToast) => 
-        existingToast.message === toast.message && 
-        existingToast.options.level === toast.options.level
-    )
+  const currentQueue = queue()
+  if (currentQueue.length === 0) {
+    return
+  }
 
-    if (isDuplicate) {
-      console.debug('[ToastQueue] Duplicate toast ignored:', toast.message)
-      return
+  const nextToast = currentQueue[0]
+  const remainingQueue = currentQueue.slice(1)
+  
+  setQueue(remainingQueue)
+  setCurrentToast(nextToast)
+  
+  console.debug('[ToastQueue] Processing next toast:', nextToast.message)
+
+  // Auto-dismiss if duration is set
+  if (nextToast.options.duration && nextToast.options.duration > 0) {
+    if (processingTimeout) {
+      clearTimeout(processingTimeout)
     }
-
-    // Remove oldest toast if queue is full
-    if (this.queue.length >= this.config.maxQueueSize) {
-      const removed = this.queue.shift()
-      console.debug('[ToastQueue] Queue full, removed oldest toast:', removed?.message)
-    }
-
-    // Add toast with priority
-    this.queue.push(toast)
     
-    // Sort queue by priority (higher priority first)
-    this.queue.sort((a, b) => b.priority - a.priority)
-
-    console.debug('[ToastQueue] Toast enqueued:', {
-      message: toast.message,
-      priority: toast.priority,
-      queueLength: this.queue.length
-    })
-
-    // Process immediately if no toast is currently showing
-    if (!this.currentToast() && !this.isProcessing()) {
-      this.processNext()
-    }
+    processingTimeout = window.setTimeout(() => {
+      dequeue()
+    }, nextToast.options.duration)
   }
+}
 
-  /**
-   * Remove current toast and process next in queue
-   */
-  dequeue(): void {
-    const current = this.currentToast()
-    if (current) {
-      console.debug('[ToastQueue] Dequeuing toast:', current.message)
-      this.setCurrentToast(null)
-      
-      // Wait for transition delay before showing next toast
-      this.processingTimeout = window.setTimeout(() => {
-        this.setIsProcessing(false)
-        this.processNext()
-      }, this.config.transitionDelay)
-    }
+/**
+ * Clear all toasts
+ */
+export function clear(): void {
+  console.debug('[ToastQueue] Clearing all toasts')
+  setQueue([])
+  setCurrentToast(null)
+  setIsProcessing(false)
+
+  if (processingTimeout) {
+    clearTimeout(processingTimeout)
+    processingTimeout = null
   }
+}
 
-  /**
-   * Process next toast in queue
-   */
-  private processNext(): void {
-    if (this.isProcessing() || this.currentToast()) {
-      return
-    }
+/**
+ * Get current toast (reactive)
+ */
+export function getCurrentToast() {
+  return currentToast()
+}
 
-    const nextToast = this.queue.shift()
-    if (nextToast) {
-      console.debug('[ToastQueue] Processing next toast:', nextToast.message)
-      this.setIsProcessing(true)
-      this.setCurrentToast(nextToast)
-      
-      // Auto-dequeue after duration if specified
-      if (nextToast.options.duration && nextToast.options.duration > 0) {
-        this.processingTimeout = window.setTimeout(() => {
-          this.dequeue()
-        }, nextToast.options.duration)
-      }
-    }
+/**
+ * Get queue status for debugging
+ */
+export function getStatus() {
+  return {
+    currentToast: currentToast(),
+    queueLength: queue().length,
+    isProcessing: isProcessing(),
+    nextToast: queue()[0] || null
   }
+}
 
-  /**
-   * Clear all toasts from queue
-   */
-  clear(): void {
-    console.debug('[ToastQueue] Clearing all toasts')
-    this.queue = []
-    this.setCurrentToast(null)
-    this.setIsProcessing(false)
-    
-    if (this.processingTimeout) {
-      clearTimeout(this.processingTimeout)
-      this.processingTimeout = null
-    }
-  }
-
-  /**
-   * Get current visible toast
-   */
-  getCurrentToast() {
-    return this.currentToast()
-  }
-
-  /**
-   * Get queue status
-   */
-  getStatus() {
-    return {
-      currentToast: this.currentToast(),
-      queueLength: this.queue.length,
-      isProcessing: this.isProcessing(),
-      nextToast: this.queue[0] || null
-    }
-  }
-
-  /**
-   * Update queue configuration
-   */
-  updateConfig(newConfig: Partial<ToastQueueConfig>): void {
-    this.config = { ...this.config, ...newConfig }
-    console.debug('[ToastQueue] Configuration updated:', this.config)
-  }
+/**
+ * Update queue configuration
+ */
+export function updateConfig(newConfig: Partial<ToastQueueConfig>): void {
+  config = { ...config, ...newConfig }
+  console.debug('[ToastQueue] Configuration updated:', config)
 }
 
 /**
@@ -189,26 +196,20 @@ export function createToastItem(
 }
 
 /**
- * Singleton instance for global toast queue management
+ * Toast Queue class for compatibility (if needed)
  */
-let globalToastQueue: ToastQueue | null = null
-
-/**
- * Get or create the global toast queue instance
- */
-export function getToastQueue(): ToastQueue {
-  if (!globalToastQueue) {
-    globalToastQueue = new ToastQueue()
-  }
-  return globalToastQueue
+export class ToastQueue {
+  enqueue = enqueue
+  dequeue = dequeue
+  clear = clear
+  getCurrentToast = getCurrentToast
+  getStatus = getStatus
+  updateConfig = updateConfig
 }
 
 /**
- * Reset the global toast queue (mainly for testing)
+ * Get the global toast queue instance
  */
-export function resetToastQueue(): void {
-  if (globalToastQueue) {
-    globalToastQueue.clear()
-  }
-  globalToastQueue = null
+export function getToastQueue(): ToastQueue {
+  return new ToastQueue()
 }
