@@ -26,6 +26,7 @@ import {
   untrack,
   type Setter,
   For,
+  createMemo,
 } from 'solid-js'
 import toast from 'solid-toast'
 
@@ -173,20 +174,18 @@ function Body(props: {
 
   const quantitySignal = () =>
     props.item().quantity === 0 ? undefined : props.item().quantity
-  // Move defaultValue for useFloatField into a createEffect so it's tracked
-  let defaultQuantity = 0
-  createEffect(() => {
-    defaultQuantity = props.item().quantity ?? 0
-  })
-  const quantityField = useFloatField(quantitySignal, {
-    decimalPlaces: 0,
-    defaultValue: defaultQuantity,
-  })
+
+  const quantityField = createMemo(() =>
+    useFloatField(quantitySignal, {
+      decimalPlaces: 0,
+      defaultValue: props.item().quantity,
+    }),
+  )
 
   createEffect(() => {
     props.setItem({
       ...untrack(props.item),
-      quantity: quantityField.value() ?? 0,
+      quantity: quantityField().value() ?? 0,
     })
   })
 
@@ -196,11 +195,11 @@ function Body(props: {
     createSignal<NodeJS.Timeout | null>(null)
 
   const increment = () => {
-    quantityField.setRawValue(((quantityField.value() ?? 0) + 1).toString())
+    quantityField().setRawValue(((quantityField().value() ?? 0) + 1).toString())
   }
   const decrement = () => {
-    quantityField.setRawValue(
-      Math.max(0, (quantityField.value() ?? 0) - 1).toString(),
+    quantityField().setRawValue(
+      Math.max(0, (quantityField().value() ?? 0) - 1).toString(),
     )
   }
 
@@ -245,7 +244,7 @@ function Body(props: {
                 <div
                   class="btn-primary btn-sm btn flex-1"
                   onClick={() => {
-                    quantityField.setRawValue(value.toString())
+                    quantityField().setRawValue(value.toString())
                   }}
                 >
                   {value}g
@@ -258,18 +257,18 @@ function Body(props: {
       <div class="mt-3 flex w-full justify-between gap-1">
         <div class="my-1 flex flex-1 justify-around">
           <FloatInput
-            field={quantityField}
+            field={quantityField()}
             style={{ width: '100%' }}
             onFieldCommit={(value) => {
               if (value === undefined) {
-                quantityField.setRawValue(props.item().quantity.toString())
+                quantityField().setRawValue(props.item().quantity.toString())
               }
             }}
             tabIndex={-1}
             onFocus={(event) => {
               event.target.select()
-              if (quantityField.value() === 0) {
-                quantityField.setRawValue('')
+              if (quantityField().value() === 0) {
+                quantityField().setRawValue('')
               }
             }}
             type="number"
@@ -319,7 +318,7 @@ function Body(props: {
             __type: props.item().__type,
             id: id(),
             name: props.item().name ?? 'Sem nome (itemData && ItemView)',
-            quantity: quantityField.value() ?? props.item().quantity,
+            quantity: quantityField().value() ?? props.item().quantity,
             reference: props.item().reference,
             macros: props.item().macros,
           }) satisfies TemplateItem
