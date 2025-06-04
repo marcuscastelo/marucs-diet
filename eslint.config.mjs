@@ -1,0 +1,93 @@
+/* global process, NodeJS, ApexCharts */
+import js from '@eslint/js'
+import parserTs from '@typescript-eslint/parser'
+import pluginTs from '@typescript-eslint/eslint-plugin'
+import pluginSolid from 'eslint-plugin-solid'
+import pluginPrettier from 'eslint-plugin-prettier'
+import pluginA11y from 'eslint-plugin-jsx-a11y'
+import globals from 'globals'
+
+export default [
+  {
+    files: ['**/*.ts', '**/*.tsx'],
+    languageOptions: {
+      parser: parserTs,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        ecmaFeatures: { jsx: true },
+        project: ['./tsconfig.json'], // necessário para 'standard-with-typescript'
+      },
+      globals: {
+        ...globals.browser,
+        ...globals.es2021,
+        process: 'readonly',
+        NodeJS: 'readonly',
+        ApexCharts: 'readonly',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': pluginTs,
+      solid: pluginSolid,
+      prettier: pluginPrettier,
+      'jsx-a11y': pluginA11y,
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      ...pluginTs.configs['recommended-type-checked'].rules,
+
+      'prettier/prettier': [
+        'error',
+        {
+          printWidth: 80,
+          tabWidth: 2,
+          singleQuote: true,
+          trailingComma: 'all',
+          arrowParens: 'always',
+          semi: false,
+          endOfLine: 'auto',
+        },
+      ],
+
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/no-throw-literal': 'off',
+      '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
+      '@typescript-eslint/prefer-readonly-parameter-types': 'off',
+      '@typescript-eslint/strict-boolean-expressions': 'warn',
+      '@typescript-eslint/no-unnecessary-type-assertion': 'warn',
+
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': 'warn',
+
+      'jsx-a11y/alt-text': [
+        'warn',
+        {
+          elements: ['img'],
+          img: ['Image'],
+        },
+      ],
+      'jsx-a11y/aria-props': 'warn',
+      'jsx-a11y/aria-proptypes': 'warn',
+      'jsx-a11y/aria-unsupported-elements': 'warn',
+      'jsx-a11y/role-has-required-aria-props': 'warn',
+      'jsx-a11y/role-supports-aria-props': 'warn',
+
+      ...pluginSolid.configs.recommended.rules,
+    },
+    settings: {
+      'import/parsers': {
+        [parserTs]: ['.ts', '.tsx', '.d.ts'],
+      },
+    },
+  },
+  {
+    files: ['.eslintrc.js', '.eslintrc.cjs', 'eslint.config.js'],
+    languageOptions: {
+      sourceType: 'script',
+      globals: globals.node,
+    },
+  },
+  {
+    ignores: ['node_modules', 'src/sections/datepicker'],
+  },
+]

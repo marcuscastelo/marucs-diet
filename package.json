@@ -2,14 +2,14 @@
   "name": "marucs-diet",
   "private": true,
   "type": "module",
-  "version": "v0.11.0-dev.131.18+issue.602",
+  "version": "v0.11.0-dev.132.19+issue.602",
   "scripts": {
     "dev": "vinxi dev",
     "build": "vinxi build",
     "start": "vinxi start",
     "type-check": "tsc --noEmit --skipLibCheck",
     "test": "vitest",
-    "lint": "eslint . --ext .ts,.tsx,.js,.jsx --quiet"
+    "lint": "eslint . --quiet"
   },
   "dependencies": {
     "@solidjs/router": "^0.13.3",
@@ -34,6 +34,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@eslint/js": "^9.28.0",
     "@solidjs/meta": "^0.29.1",
     "@solidjs/router": "^0.8.3",
     "@total-typescript/ts-reset": "^0.4.2",
@@ -51,6 +52,8 @@
     "eslint-plugin-prettier": "5.0.0-alpha.2",
     "eslint-plugin-promise": "^6.0.0",
     "eslint-plugin-solid": "^0.14.5",
+    "eslint-plugin-unicorn": "^59.0.1",
+    "globals": "^16.2.0",
     "postcss": "^8.4.31",
     "prettier": "^3.0.0",
     "prettier-plugin-tailwindcss": "^0.4.1",
