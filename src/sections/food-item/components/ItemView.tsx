@@ -219,6 +219,3 @@ export function ItemNutritionalInfo() {
     </div>
   )
 }
-
-// Example usage:
-// <HeaderWithNameAndCopy name={<ItemName />} copyButton={<ItemCopyButton ... />} />

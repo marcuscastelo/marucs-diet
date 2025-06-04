@@ -30,7 +30,6 @@ import {
 } from 'solid-js'
 import toast from 'solid-toast'
 
-// Corrigir imports múltiplos para múltiplas linhas conforme padrão do projeto
 export type ItemEditModalProps = {
   targetName: string
   targetNameColor?: string
