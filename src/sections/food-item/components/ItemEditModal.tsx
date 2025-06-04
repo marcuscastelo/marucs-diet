@@ -12,7 +12,7 @@ import { generateId } from '~/legacy/utils/idUtils'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
-import { HeaderWithNameAndCopy } from '~/sections/common/components/HeaderWithNameAndCopy'
+import { HeaderWithActionsAndCopy } from '~/sections/common/components/HeaderWithNameAndCopy'
 import {
   isFoodFavorite,
   setFoodAsFavorite,
@@ -52,9 +52,6 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
   const { show: showConfirmModal } = useConfirmModalContext()
 
   // TODO:   Better initial state for item on ItemEditModal
-  // Fix: Only access _props.item() inside createEffect for initial state
-  // Fix: Initialize item with a fallback value to guarantee it's never undefined
-  // Fix: fallbackItem.reference should be number (or correct type)
   const fallbackItem: TemplateItem = {
     __type: 'Item',
     id: generateId(),
@@ -76,7 +73,6 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
     })
   })
 
-  // Fix: canApply, onDelete, onApply, and all usages of item() to handle always-defined TemplateItem
   const canApply = () => item().quantity > 0
 
   return (
@@ -329,7 +325,7 @@ function Body(props: {
           toast.error('Alimento não editável (ainda)')
         }}
         header={
-          <HeaderWithNameAndCopy
+          <HeaderWithActionsAndCopy
             name={<ItemName />}
             copyButton={undefined}
             actions={

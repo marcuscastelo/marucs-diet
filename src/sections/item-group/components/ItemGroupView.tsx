@@ -195,9 +195,3 @@ export function ItemGroupViewNutritionalInfo(props: {
     </div>
   )
 }
-
-// Replace ItemGroupHeader usage with HeaderWithNameAndCopy
-// Example usage:
-// <HeaderWithNameAndCopy name={<ItemGroupName group={props.group} />} copyButton={<ItemGroupCopyButton ... />} />
-
-// Remove ItemGroupHeader export if not already removed

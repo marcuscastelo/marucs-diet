@@ -8,7 +8,7 @@ import {
 } from '~/sections/item-group/components/ItemGroupView'
 import { handleClipboardError } from '~/shared/error/errorHandler'
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
-import { HeaderWithNameAndCopy } from '~/sections/common/components/HeaderWithNameAndCopy'
+import { HeaderWithActionsAndCopy } from '~/sections/common/components/HeaderWithNameAndCopy'
 import { type Accessor, For } from 'solid-js'
 
 export function ItemGroupListView(props: {
@@ -25,7 +25,7 @@ export function ItemGroupListView(props: {
             itemGroup={() => group}
             onClick={props.onItemClick}
             header={
-              <HeaderWithNameAndCopy
+              <HeaderWithActionsAndCopy
                 name={<ItemGroupName group={() => group} />}
                 copyButton={
                   <ItemGroupCopyButton

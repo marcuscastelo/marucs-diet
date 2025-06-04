@@ -20,7 +20,7 @@ import {
   ItemView,
 } from '~/sections/food-item/components/ItemView'
 import { handleApiError } from '~/shared/error/errorHandler'
-import { HeaderWithNameAndCopy } from '~/sections/common/components/HeaderWithNameAndCopy'
+import { HeaderWithActionsAndCopy } from '~/sections/common/components/HeaderWithNameAndCopy'
 import { ItemFavorite } from '~/sections/food-item/components/ItemView'
 
 export function TemplateSearchResults(props: {
@@ -72,7 +72,7 @@ export function TemplateSearchResults(props: {
                     props.setBarCodeModalVisible(false)
                   }}
                   header={
-                    <HeaderWithNameAndCopy
+                    <HeaderWithActionsAndCopy
                       name={<ItemName />}
                       copyButton={undefined}
                       actions={

@@ -1,13 +1,13 @@
 import { JSXElement } from 'solid-js'
 
-export type HeaderWithNameAndCopyProps = {
+export type HeaderWithActionsAndCopyProps = {
   name: JSXElement
   copyButton?: JSXElement
   actions?: JSXElement
 }
 
-export function HeaderWithNameAndCopy(
-  props: HeaderWithNameAndCopyProps,
+export function HeaderWithActionsAndCopy(
+  props: HeaderWithActionsAndCopyProps,
 ): JSXElement {
   return (
     <div class="flex">

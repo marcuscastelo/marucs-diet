@@ -82,7 +82,7 @@ import {
 } from '~/modules/diet/recipe/application/recipe'
 import { BrokenLink } from '~/sections/common/components/icons/BrokenLinkIcon'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
-import { HeaderWithNameAndCopy } from '~/sections/common/components/HeaderWithNameAndCopy'
+import { HeaderWithActionsAndCopy } from '~/sections/common/components/HeaderWithNameAndCopy'
 
 type EditSelection = {
   item: Item
@@ -749,7 +749,7 @@ function Body(props: {
               // }
             }}
             makeHeaderFn={(item) => (
-              <HeaderWithNameAndCopy
+              <HeaderWithActionsAndCopy
                 name={<ItemName />}
                 copyButton={
                   <ItemCopyButton

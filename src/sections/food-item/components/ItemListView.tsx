@@ -9,7 +9,7 @@ import {
 import { mergeProps, type Accessor, For } from 'solid-js'
 import { handleClipboardError } from '~/shared/error/errorHandler'
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
-import { HeaderWithNameAndCopy } from '~/sections/common/components/HeaderWithNameAndCopy'
+import { HeaderWithActionsAndCopy } from '~/sections/common/components/HeaderWithNameAndCopy'
 
 export function ItemListView(_props: {
   items: Accessor<readonly Item[]>
@@ -42,7 +42,7 @@ export function ItemListView(_props: {
 function DefaultHeader() {
   const clipboard = useClipboard()
   return (
-    <HeaderWithNameAndCopy
+    <HeaderWithActionsAndCopy
       name={<ItemName />}
       copyButton={
         <ItemCopyButton
