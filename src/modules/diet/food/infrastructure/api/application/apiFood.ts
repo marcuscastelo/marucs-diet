@@ -82,13 +82,11 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
       (result): result is PromiseRejectedResult => result.status === 'rejected',
     )
 
+    type Reason = { code: string }
     const reasons = allRejected.map((result) => {
-      if (
-        typeof result.reason === 'object' &&
-        result.reason !== null &&
-        'code' in result.reason
-      ) {
-        return result.reason as { code: string }
+      const reason: unknown = result.reason
+      if (typeof reason === 'object' && reason !== null && 'code' in reason) {
+        return reason as Reason
       }
       return { code: 'unknown' }
     })
