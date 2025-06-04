@@ -1,0 +1,275 @@
+/**
+ * Error Message Handler
+ *
+ * Utilities for handling error messages in toasts, including truncation,
+ * formatting, and providing expansion capabilities for long messages.
+ */
+
+import { ToastError } from './toastConfig'
+
+/**
+ * Result of error message processing
+ */
+export type ProcessedErrorMessage = {
+  /** The truncated message for display */
+  displayMessage: string
+  /** Whether the message was truncated */
+  isTruncated: boolean
+  /** The original full message */
+  originalMessage: string
+  /** Full error details */
+  errorDetails: ToastError
+  /** Whether expansion is available */
+  canExpand: boolean
+}
+
+/**
+ * Options for error message processing
+ */
+export type ErrorProcessingOptions = {
+  /** Maximum length before truncation */
+  maxLength?: number
+  /** Whether to preserve line breaks in truncation */
+  preserveLineBreaks?: boolean
+  /** Custom truncation suffix */
+  truncationSuffix?: string
+  /** Include stack trace in error details */
+  includeStack?: boolean
+}
+
+/**
+ * Default options for error processing
+ */
+const DEFAULT_ERROR_OPTIONS: Required<ErrorProcessingOptions> = {
+  maxLength: 100,
+  preserveLineBreaks: false,
+  truncationSuffix: '...',
+  includeStack: true,
+}
+
+/**
+ * Process an error for display in toasts
+ * Handles truncation, formatting, and detail extraction
+ */
+export function processErrorMessage(
+  error: unknown,
+  options: ErrorProcessingOptions = {},
+): ProcessedErrorMessage {
+  const opts = { ...DEFAULT_ERROR_OPTIONS, ...options }
+  const errorDetails = extractErrorDetails(error, opts.includeStack)
+  const originalMessage = errorDetails.message
+
+  // Clean up the message for display
+  const cleanMessage = cleanErrorMessage(
+    originalMessage,
+    opts.preserveLineBreaks,
+  )
+
+  // Check if truncation is needed
+  const needsTruncation = cleanMessage.length > opts.maxLength
+  const displayMessage = needsTruncation
+    ? truncateMessage(cleanMessage, opts.maxLength, opts.truncationSuffix)
+    : cleanMessage
+
+  return {
+    displayMessage,
+    isTruncated: needsTruncation,
+    originalMessage,
+    errorDetails,
+    canExpand:
+      needsTruncation || !!errorDetails.stack || !!errorDetails.context,
+  }
+}
+
+/**
+ * Extract detailed error information from various error types
+ */
+function extractErrorDetails(
+  error: unknown,
+  includeStack: boolean,
+): ToastError {
+  if (error instanceof Error) {
+    return {
+      message: error.message || 'Unknown error occurred',
+      fullError: error.toString(),
+      stack: includeStack ? error.stack : undefined,
+      context: {
+        name: error.name,
+        cause: error.cause,
+      },
+    }
+  }
+
+  if (typeof error === 'string') {
+    return {
+      message: error,
+      fullError: error,
+    }
+  }
+
+  if (typeof error === 'object' && error !== null) {
+    const errorObj = error as Record<string, unknown>
+    return {
+      message: String(errorObj.message || errorObj.error || 'Unknown error'),
+      fullError: JSON.stringify(error, null, 2),
+      context: errorObj,
+    }
+  }
+
+  return {
+    message: 'An unexpected error occurred',
+    fullError: String(error),
+  }
+}
+
+/**
+ * Clean error message for display
+ */
+function cleanErrorMessage(
+  message: string,
+  preserveLineBreaks: boolean,
+): string {
+  let cleaned = message.trim()
+
+  // Remove common error prefixes that add noise
+  const noisyPrefixes = [
+    'Error: ',
+    'TypeError: ',
+    'ReferenceError: ',
+    'SyntaxError: ',
+    'Network Error: ',
+    'Request failed: ',
+  ]
+
+  for (const prefix of noisyPrefixes) {
+    if (cleaned.startsWith(prefix)) {
+      cleaned = cleaned.substring(prefix.length)
+      break
+    }
+  }
+
+  // Handle line breaks
+  if (!preserveLineBreaks) {
+    cleaned = cleaned.replace(/\n\s*/g, ' ')
+  }
+
+  // Remove excessive whitespace
+  cleaned = cleaned.replace(/\s+/g, ' ').trim()
+
+  return cleaned
+}
+
+/**
+ * Truncate message intelligently
+ * Tries to break at word boundaries when possible
+ */
+function truncateMessage(
+  message: string,
+  maxLength: number,
+  suffix: string,
+): string {
+  if (message.length <= maxLength) {
+    return message
+  }
+
+  const targetLength = maxLength - suffix.length
+
+  // Try to break at a word boundary
+  const truncated = message.substring(0, targetLength)
+  const lastSpace = truncated.lastIndexOf(' ')
+
+  // If we can break at a word boundary and it's not too short, do so
+  if (lastSpace > targetLength * 0.7) {
+    return truncated.substring(0, lastSpace) + suffix
+  }
+
+  // Otherwise, hard truncate
+  return truncated + suffix
+}
+
+/**
+ * Format error details for display in modal or expanded view
+ */
+export function formatErrorForDisplay(errorDetails: ToastError): string {
+  const sections: string[] = []
+
+  // Main message
+  if (errorDetails.message) {
+    sections.push(`Message: ${errorDetails.message}`)
+  }
+
+  // Full error if different from message
+  if (
+    errorDetails.fullError &&
+    errorDetails.fullError !== errorDetails.message
+  ) {
+    sections.push(`Details: ${errorDetails.fullError}`)
+  }
+
+  // Context information
+  if (errorDetails.context && Object.keys(errorDetails.context).length > 0) {
+    sections.push(`Context: ${JSON.stringify(errorDetails.context, null, 2)}`)
+  }
+
+  // Stack trace
+  if (errorDetails.stack) {
+    sections.push(`Stack Trace:\n${errorDetails.stack}`)
+  }
+
+  return sections.join('\n\n')
+}
+
+/**
+ * Copy error details to clipboard
+ */
+export async function copyErrorToClipboard(
+  errorDetails: ToastError,
+): Promise<boolean> {
+  try {
+    const formattedError = formatErrorForDisplay(errorDetails)
+    const timestamp = new Date().toISOString()
+    const clipboardContent = `Error Report - ${timestamp}\n\n${formattedError}`
+
+    await navigator.clipboard.writeText(clipboardContent)
+    return true
+  } catch (clipboardError) {
+    console.error('Failed to copy error to clipboard:', clipboardError)
+    return false
+  }
+}
+
+/**
+ * Get user-friendly error message for common error types
+ */
+export function getUserFriendlyMessage(error: unknown): string {
+  const errorDetails = extractErrorDetails(error, false)
+  const message = errorDetails.message.toLowerCase()
+
+  // Network errors
+  if (message.includes('network') || message.includes('fetch')) {
+    return 'Network connection issue. Please check your internet connection.'
+  }
+
+  // Permission errors
+  if (message.includes('permission') || message.includes('unauthorized')) {
+    return "You don't have permission to perform this action."
+  }
+
+  // Timeout errors
+  if (message.includes('timeout') || message.includes('timed out')) {
+    return 'The operation took too long. Please try again.'
+  }
+
+  // Validation errors
+  if (message.includes('validation') || message.includes('invalid')) {
+    return 'Please check your input and try again.'
+  }
+
+  // Server errors
+  if (message.includes('server') || message.includes('500')) {
+    return 'Server error. Please try again later.'
+  }
+
+  // Return original message if no friendly version available
+  return errorDetails.message
+}
