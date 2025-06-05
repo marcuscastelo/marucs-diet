@@ -83,6 +83,49 @@ export async function smartToastPromise<T>(
 }
 
 /**
+ * Execute a promise in detached mode without waiting for completion
+ *
+ * This function detaches from the promise chain, making it ideal for
+ * bootstrap operations, realtime callbacks, and other fire-and-forget
+ * scenarios where you don't need to await the result.
+ *
+ * Note: "Detached" refers to promise chain detachment, not toast context.
+ * You can still use any toast context ('user-action', 'background', 'system').
+ *
+ * @param promise - The promise to execute in detached mode
+ * @param toastOptions - Configuration for toast behavior
+ *
+ * @example
+ * ```typescript
+ * // Bootstrap operation - detached execution
+ * function bootstrap() {
+ *   smartToastPromiseDetached(fetchAllUserData(), {
+ *     context: 'background',
+ *     loading: 'Loading user data...',
+ *     error: 'Failed to load user data'
+ *   })
+ * }
+ *
+ * // Realtime callback - fire and forget
+ * onRealtimeUpdate(() => {
+ *   smartToastPromiseDetached(refreshCache(), {
+ *     context: 'system',
+ *     error: 'Failed to refresh cache'
+ *   })
+ * })
+ * ```
+ */
+export function smartToastPromiseDetached<T>(
+  promise: Promise<T>,
+  toastOptions: SmartToastPromiseOptions<T> = {},
+): void {
+  smartToastPromise(promise, toastOptions).catch(() => {
+    // Errors are already handled by smartToastPromise internally
+    // This catch prevents unhandled promise rejection warnings
+  })
+}
+
+/**
  * Convenience function for user-action toasts
  * Always shows loading, success, and error toasts
  */
@@ -139,30 +182,6 @@ export function systemToast<T>(
     context: 'system',
     ...messages,
     options,
-  })
-}
-
-/**
- * Migration helper: provides the same API as the legacy toastPromise
- * but with smart behavior. Use this for easy migration from old code.
- *
- * @deprecated Use smartToastPromise with explicit context instead
- */
-export function legacyToastPromise<T>(
-  promise: Promise<T>,
-  loading?: string,
-  success?: string,
-  error?: string,
-): Promise<T> {
-  console.warn(
-    'legacyToastPromise is deprecated. Use smartToastPromise with explicit context instead.',
-  )
-
-  return smartToastPromise(promise, {
-    context: 'user-action', // Default to user-action for legacy compatibility
-    loading,
-    success,
-    error,
   })
 }
 

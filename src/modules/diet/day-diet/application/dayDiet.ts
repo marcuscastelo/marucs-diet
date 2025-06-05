@@ -11,7 +11,11 @@ import {
 import { type User } from '~/modules/user/domain/user'
 import { createEffect, createSignal } from 'solid-js'
 import { currentUserId } from '~/modules/user/application/user'
-import { smartToastPromise, showError } from '~/shared/toast'
+import {
+  smartToastPromise,
+  smartToastPromiseDetached,
+  showError,
+} from '~/shared/toast'
 import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 import { formatError } from '~/shared/formatError'
 
@@ -43,13 +47,11 @@ export const [currentDayDiet, setCurrentDayDiet] = createSignal<DayDiet | null>(
 )
 
 function bootstrap() {
-  smartToastPromise(fetchAllUserDayDiets(currentUserId()), {
+  smartToastPromiseDetached(fetchAllUserDayDiets(currentUserId()), {
     context: 'background',
     loading: 'Buscando dietas do usuário...',
     success: 'Dietas do usuário obtidas com sucesso',
     error: 'Falha ao buscar dietas do usuário',
-  }).catch((error: unknown) => {
-    console.error(error)
   })
 }
 

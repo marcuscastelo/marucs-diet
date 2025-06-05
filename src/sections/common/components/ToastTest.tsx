@@ -9,6 +9,7 @@ import {
   showSuccess,
   showError,
 } from '~/shared/toast/toastManager'
+import { smartToastPromise, smartToastPromiseDetached } from '~/shared/toast'
 
 const ToastTest: Component = () => {
   const testPromiseSuccess = () => {
@@ -70,6 +71,82 @@ const ToastTest: Component = () => {
     })
   }
 
+  const testSmartToastPromise = async () => {
+    try {
+      console.log('Starting smartToastPromise test...')
+      const result = await smartToastPromise(
+        new Promise<string>((resolve) => {
+          setTimeout(() => resolve('Data loaded!'), 2000)
+        }),
+        {
+          context: 'user-action',
+          loading: 'Loading with smartToastPromise...',
+          success: 'Smart toast completed!',
+          error: 'Smart toast failed',
+        },
+      )
+      console.log('smartToastPromise result:', result)
+    } catch (error) {
+      console.error('smartToastPromise error:', error)
+    }
+  }
+
+  const testSmartToastPromiseDetached = () => {
+    console.log('Starting smartToastPromiseDetached test...')
+
+    // Fire and forget - no await, no .then/.catch needed
+    smartToastPromiseDetached(
+      new Promise<string>((resolve) => {
+        setTimeout(() => {
+          console.log('Detached operation completed!')
+          resolve('Detached data loaded!')
+        }, 2000)
+      }),
+      {
+        context: 'user-action',
+        success: 'Detached operation completed!',
+        loading: 'Detached operation...',
+        error: 'Detached operation failed',
+      },
+    )
+
+    console.log('smartToastPromiseDetached called - continuing immediately')
+  }
+
+  const testMultipleDetachedOperations = () => {
+    console.log('Testing multiple detached operations...')
+
+    // Simulate bootstrap scenario - multiple detached operations
+    smartToastPromiseDetached(
+      new Promise((resolve) => setTimeout(() => resolve('User data'), 1000)),
+      {
+        context: 'background',
+        loading: 'Loading user data...',
+        error: 'Failed to load user data',
+      },
+    )
+
+    smartToastPromiseDetached(
+      new Promise((resolve) => setTimeout(() => resolve('Settings'), 1500)),
+      {
+        context: 'background',
+        loading: 'Loading settings...',
+        error: 'Failed to load settings',
+      },
+    )
+
+    smartToastPromiseDetached(
+      new Promise((resolve) => setTimeout(() => resolve('Cache'), 800)),
+      {
+        context: 'background',
+        loading: 'Refreshing cache...',
+        error: 'Failed to refresh cache',
+      },
+    )
+
+    console.log('All detached operations started')
+  }
+
   return (
     <div style={{ padding: '20px', 'font-family': 'sans-serif' }}>
       <h2>Toast System Test</h2>
@@ -97,6 +174,37 @@ const ToastTest: Component = () => {
           Test Promise without Success Message
         </button>
 
+        <hr style={{ margin: '10px 0', border: '1px solid #ccc' }} />
+
+        <h3 style={{ margin: '10px 0 5px 0', 'font-size': '16px' }}>
+          New smartToastPromiseDetached Tests
+        </h3>
+
+        <button
+          onClick={() => {
+            testSmartToastPromise().catch(() => {})
+          }}
+          style={{ 'background-color': '#4CAF50', color: 'white' }}
+        >
+          Test smartToastPromise (awaitable)
+        </button>
+
+        <button
+          onClick={testSmartToastPromiseDetached}
+          style={{ 'background-color': '#2196F3', color: 'white' }}
+        >
+          Test smartToastPromiseDetached (fire & forget)
+        </button>
+
+        <button
+          onClick={testMultipleDetachedOperations}
+          style={{ 'background-color': '#FF9800', color: 'white' }}
+        >
+          Test Multiple Detached Ops (bootstrap scenario)
+        </button>
+
+        <hr style={{ margin: '10px 0', border: '1px solid #ccc' }} />
+
         <button onClick={() => showSuccess('Simple Success Toast')}>
           Test Simple Success
         </button>
@@ -115,6 +223,21 @@ const ToastTest: Component = () => {
           <li>Promise loading toasts should be replaced by success/error</li>
           <li>Multiple toasts should queue properly</li>
           <li>Loading toast should disappear when no success message</li>
+        </ul>
+
+        <p style={{ 'margin-top': '15px' }}>
+          <strong>smartToastPromiseDetached vs smartToastPromise:</strong>
+        </p>
+        <ul>
+          <li>
+            <strong>smartToastPromise:</strong> Returns Promise, can be awaited,
+            use for user actions
+          </li>
+          <li>
+            <strong>smartToastPromiseDetached:</strong> Fire & forget, ideal for
+            bootstrap/background ops
+          </li>
+          <li>Check browser console for execution logs</li>
         </ul>
       </div>
     </div>

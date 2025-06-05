@@ -12,7 +12,7 @@ import {
   SUPABASE_TABLE_USERS,
 } from '~/modules/user/infrastructure/supabaseUserRepository'
 import { createEffect, createSignal } from 'solid-js'
-import { smartToastPromise } from '~/shared/toast'
+import { smartToastPromise, smartToastPromiseDetached } from '~/shared/toast'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 
@@ -29,12 +29,12 @@ export const [currentUserId, setCurrentUserId] = createSignal<number>(1)
 createEffect(() => {
   if (currentUserId() !== null) {
     setCurrentUserId(loadUserIdFromLocalStorage())
-    smartToastPromise(fetchCurrentUser(), {
+    smartToastPromiseDetached(fetchCurrentUser(), {
       context: 'background',
       loading: 'Carregando usuário atual...',
       success: 'Usuário atual carregado com sucesso',
       error: 'Falha ao carregar usuário atual',
-    }).catch(() => {})
+    })
   }
 })
 
