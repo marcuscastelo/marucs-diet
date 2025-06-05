@@ -29,6 +29,7 @@ import {
   ItemGroupEditContextProvider,
   useItemGroupEditContext,
 } from '~/sections/item-group/context/ItemGroupEditContext'
+import { formatError } from '~/shared/formatError'
 import {
   ModalContextProvider,
   useModalContext,
@@ -158,13 +159,12 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
 
     const currentGroup = group()
     if (currentGroup === null) {
-      console.error('group is null')
+      showError('Grupo não encontrado', 'system')
       throw new Error('group is null')
     }
 
     if (!isSimpleSingleGroup(newGroup)) {
       // TODO:   Handle non-simple groups on handleNewItemGroup
-      console.error('TODO:   Handle non-simple groups')
       showError(
         'Grupos complexos ainda não são suportados, funcionalidade em desenvolvimento',
         'user-action',
@@ -239,7 +239,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   const handleItemApply = (item: TemplateItem) => {
     const group_ = group()
     if (group_ === null) {
-      console.error('group is null')
+      showError('Grupo não encontrado', 'system')
       throw new Error('group is null')
     }
 
@@ -267,7 +267,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
           (i: Item) => i.id === currentItem.id,
         )
         if (originalItem === undefined) {
-          console.error('[ExternalItemEditModal] originalItem is not found')
+          showError('Item original não encontrado', 'system')
           return { enable: false }
         }
         return { enable: true, originalItem }
@@ -321,7 +321,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   const handleItemDelete = (itemId: TemplateItem['id']) => {
     const group_ = group()
     if (group_ === null) {
-      console.error('group is null')
+      showError('Grupo não encontrado', 'system')
       throw new Error('group is null')
     }
 
@@ -396,9 +396,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
                     (i: Item) => i.id === item.id,
                   )
                   if (originalItem === undefined) {
-                    console.error(
-                      '[ExternalItemEditModal] originalItem is not found',
-                    )
+                    showError('Item original não encontrado', 'system')
                     return { enable: false }
                   }
                   return { enable: true, originalItem }
@@ -586,7 +584,7 @@ function Body(props: {
                           const exec = async () => {
                             const group_ = group()
                             if (group_ === null) {
-                              console.error('group is null')
+                              showError('Grupo não encontrado', 'system')
                               throw new Error('group is null')
                             }
 
@@ -613,12 +611,8 @@ function Body(props: {
                           }
 
                           exec().catch((err) => {
-                            console.error(
-                              '[ItemGroupEditModal] Error creating recipe from group:',
-                              err,
-                            )
                             showError(
-                              'Falha ao criar receita a partir de grupo (erro interno)',
+                              `Falha ao criar receita a partir de grupo: ${formatError(err)}`,
                               'user-action',
                             )
                           })
@@ -669,7 +663,10 @@ function Body(props: {
                                     }
 
                                     if (group() === null) {
-                                      console.error('group is null')
+                                      showError(
+                                        'Grupo não encontrado',
+                                        'system',
+                                      )
                                       throw new Error('group is null')
                                     }
 

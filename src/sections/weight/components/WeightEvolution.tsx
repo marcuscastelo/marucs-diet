@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { For, createEffect, createMemo } from 'solid-js'
+import { For, createMemo } from 'solid-js'
 import { type Weight, createNewWeight } from '~/modules/weight/domain/weight'
 import { Capsule } from '~/sections/common/components/capsule/Capsule'
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
@@ -89,7 +89,6 @@ export function WeightEvolution() {
               )
                 .then(afterInsert)
                 .catch((error) => {
-                  console.error(error)
                   showError(
                     `Erro ao adicionar peso: ${formatError(error)}`,
                     'user-action',
@@ -130,13 +129,11 @@ function WeightView(props: { weight: Weight }) {
   }) => {
     if (weightValue === undefined) {
       showError('Digite um peso', 'user-action')
-      console.error('Weight is undefined')
       return
     }
 
     if (dateValue === undefined) {
       showError('Digite uma data', 'user-action')
-      console.error('Date is undefined')
       return
     }
 
@@ -145,8 +142,7 @@ function WeightView(props: { weight: Weight }) {
       weight: weightValue,
       target_timestamp: dateValue,
     }).catch((error) => {
-      console.error(error)
-      showError('Erro ao atualizar', 'user-action')
+      showError(`Erro ao atualizar peso: ${formatError(error)}`, 'user-action')
     })
   }
 
@@ -210,7 +206,6 @@ function WeightView(props: { weight: Weight }) {
             class="btn btn-ghost my-auto"
             onClick={() => {
               deleteWeight(props.weight.id).catch((error) => {
-                console.error(error)
                 showError(
                   `Erro ao deletar peso: ${formatError(error)}`,
                   'user-action',
@@ -409,10 +404,6 @@ function WeightChart(props: {
       },
     ] satisfies ApexOptions['series'],
   }))
-
-  createEffect(() => {
-    console.log('polishedData', polishedData())
-  })
 
   return (
     <>
