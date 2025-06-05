@@ -100,7 +100,7 @@ export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
       >
         ✕
       </button>
-      <ToastContent message={props.message} />
+      <ToastContent message={props.message} isTruncated={props.isTruncated} />
     </div>
   )
 }
@@ -299,14 +299,14 @@ function ErrorIcon() {
  *
  * A SolidJS component for displaying the content of the toast.
  */
-function ToastContent(props: { message: string }) {
+function ToastContent(props: { message: string; isTruncated: boolean }) {
   return (
     <div class="flex flex-col flex-1 mx-[10px] my-1">
       <div class="flex items-center gap-2">
         <ErrorIcon />
         <span class="whitespace-pre-line">{props.message}</span>
       </div>
-      <div class="flex gap-2 mt-2 hidden">
+      <div class={props.isTruncated ? 'flex gap-2 mt-2' : 'hidden'}>
         <button
           type="button"
           class="px-2 py-1 rounded bg-gray-700 text-gray-100 text-xs hover:bg-gray-600 transition-colors"
