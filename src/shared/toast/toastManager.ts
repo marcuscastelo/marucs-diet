@@ -96,6 +96,13 @@ function filterBackgroundPromiseMessages<T>(
 }
 
 /**
+ * Helper to check if a value is a non-empty string
+ */
+function isNonEmptyString(val: unknown): val is string {
+  return typeof val === 'string' && val.length > 0
+}
+
+/**
  * Show a toast with intelligent filtering and queue management
  */
 export function show(
@@ -189,7 +196,7 @@ export function showPromise<T>(
   // Show loading toast if enabled and store its ID for precise removal
   let loadingToastId: string | null = null
   const loadingMessage = messages.loading
-  if (loadingMessage !== undefined && loadingMessage.length > 0) {
+  if (isNonEmptyString(loadingMessage)) {
     loadingToastId = createAndEnqueueToast(loadingMessage, 'info', context, {
       ...finalOptions,
       duration: 0, // Loading toast should not auto-dismiss
@@ -207,11 +214,7 @@ export function showPromise<T>(
         typeof messages.success === 'function'
           ? messages.success(data)
           : messages.success
-      if (
-        successMsg !== undefined &&
-        successMsg !== null &&
-        successMsg.length > 0
-      ) {
+      if (isNonEmptyString(successMsg)) {
         createAndEnqueueToast(successMsg, 'success', context, finalOptions)
       }
       return data
@@ -232,7 +235,9 @@ export function showPromise<T>(
       } else {
         errorMsg = getUserFriendlyMessage(error)
       }
-      createAndEnqueueToast(errorMsg, 'error', context, finalOptions)
+      if (isNonEmptyString(errorMsg)) {
+        createAndEnqueueToast(errorMsg, 'error', context, finalOptions)
+      }
       throw error
     })
 }
