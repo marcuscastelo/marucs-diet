@@ -66,13 +66,13 @@ export function CopyLastDayButton(props: {
                       text: 'Sobrescrever',
                       primary: true,
                       onClick: () => {
-                        updateDayDiet(
+                        void updateDayDiet(
                           day_.id,
                           createNewDayDiet({
                             ...lastDay,
                             target_day: props.selectedDay,
                           }),
-                        ).catch(() => {})
+                        )
                       },
                     },
                   ],
@@ -80,12 +80,12 @@ export function CopyLastDayButton(props: {
                 return
               }
 
-              insertDayDiet(
+              void insertDayDiet(
                 createNewDayDiet({
                   ...lastDay,
                   target_day: props.selectedDay,
                 }),
-              ).catch(() => {})
+              )
             }}
           >
             {/* //TODO:   Allow copying any past day, not just latest one. */}

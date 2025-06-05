@@ -117,15 +117,12 @@ async function fetchAllUserDayDiets(userId: User['id']) {
     const newDayDiets = await dayRepository.fetchAllUserDayDiets(userId)
     setDayDiets(newDayDiets)
   } catch (error) {
-    showError(
-      `Falha na comunicação com o servidor ao buscar dieta dos dias do usuário: ${formatError(error)}`,
-      'background',
-    )
     handleApiError(error, {
       component: 'dayDietApplication',
       operation: 'fetchAllUserDayDiets',
       additionalData: { userId },
     })
+    throw error
   }
 }
 
@@ -137,18 +134,15 @@ export async function insertDayDiet(dayDiet: NewDayDiet): Promise<void> {
       success: 'Dia de dieta criado com sucesso',
       error: 'Falha ao criar novo dia de dieta',
     })
-    await smartToastPromise(fetchAllUserDayDiets(dayDiet.owner), {
-      context: 'background',
-      loading: 'Atualizando lista de dietas...',
-      success: 'Lista de dietas atualizada',
-      error: 'Falha ao atualizar lista de dietas',
-    })
+    // Silently refresh data without additional toast noise
+    await fetchAllUserDayDiets(dayDiet.owner)
   } catch (error) {
     handleApiError(error, {
       component: 'dayDietApplication',
       operation: 'insertDayDiet',
       additionalData: { owner: dayDiet.owner },
     })
+    throw error
   }
 }
 
@@ -163,18 +157,15 @@ export async function updateDayDiet(
       success: 'Dieta atualizada com sucesso',
       error: 'Falha ao atualizar dieta',
     })
-    await smartToastPromise(fetchAllUserDayDiets(dayDiet.owner), {
-      context: 'background',
-      loading: 'Atualizando lista de dietas...',
-      success: 'Lista de dietas atualizada',
-      error: 'Falha ao atualizar lista de dietas',
-    })
+    // Silently refresh data without additional toast noise
+    await fetchAllUserDayDiets(dayDiet.owner)
   } catch (error) {
     handleApiError(error, {
       component: 'dayDietApplication',
       operation: 'updateDayDiet',
       additionalData: { dayId, owner: dayDiet.owner },
     })
+    throw error
   }
 }
 
@@ -186,17 +177,14 @@ export async function deleteDayDiet(dayId: DayDiet['id']): Promise<void> {
       success: 'Dieta deletada com sucesso',
       error: 'Falha ao deletar dieta',
     })
-    await smartToastPromise(fetchAllUserDayDiets(dayId), {
-      context: 'background',
-      loading: 'Atualizando lista de dietas...',
-      success: 'Lista de dietas atualizada',
-      error: 'Falha ao atualizar lista de dietas',
-    })
+    // Silently refresh data without additional toast noise
+    await fetchAllUserDayDiets(currentUserId())
   } catch (error) {
     handleApiError(error, {
       component: 'dayDietApplication',
       operation: 'deleteDayDiet',
       additionalData: { dayId },
     })
+    throw error
   }
 }

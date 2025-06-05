@@ -7,15 +7,42 @@ import { handleApiError } from '~/shared/error/errorHandler'
 const recipeRepository = createSupabaseRecipeRepository()
 
 export async function fetchUserRecipes(userId: User['id']) {
-  return await recipeRepository.fetchUserRecipes(userId)
+  try {
+    return await recipeRepository.fetchUserRecipes(userId)
+  } catch (error) {
+    handleApiError(error, {
+      component: 'recipeApplication',
+      operation: 'fetchUserRecipes',
+      additionalData: { userId },
+    })
+    throw error
+  }
 }
 
 export async function fetchUserRecipeByName(userId: User['id'], name: string) {
-  return await recipeRepository.fetchUserRecipeByName(userId, name)
+  try {
+    return await recipeRepository.fetchUserRecipeByName(userId, name)
+  } catch (error) {
+    handleApiError(error, {
+      component: 'recipeApplication',
+      operation: 'fetchUserRecipeByName',
+      additionalData: { userId, name },
+    })
+    throw error
+  }
 }
 
 export async function fetchRecipeById(recipeId: Recipe['id']) {
-  return await recipeRepository.fetchRecipeById(recipeId)
+  try {
+    return await recipeRepository.fetchRecipeById(recipeId)
+  } catch (error) {
+    handleApiError(error, {
+      component: 'recipeApplication',
+      operation: 'fetchRecipeById',
+      additionalData: { recipeId },
+    })
+    throw error
+  }
 }
 
 export async function insertRecipe(newRecipe: NewRecipe) {

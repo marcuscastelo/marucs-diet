@@ -8,18 +8,37 @@ import {
 import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
 import { smartToastPromise } from '~/shared/toast'
 import { formatError } from '~/shared/formatError'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 const foodRepository = createSupabaseFoodRepository()
 
 export async function fetchFoods(params: FoodSearchParams = {}) {
-  return await foodRepository.fetchFoods(params)
+  try {
+    return await foodRepository.fetchFoods(params)
+  } catch (error) {
+    handleApiError(error, {
+      component: 'foodApplication',
+      operation: 'fetchFoods',
+      additionalData: { params },
+    })
+    throw error
+  }
 }
 
 export async function fetchFoodById(
   id: Food['id'],
   params: FoodSearchParams = {},
 ) {
-  return await foodRepository.fetchFoodById(id, params)
+  try {
+    return await foodRepository.fetchFoodById(id, params)
+  } catch (error) {
+    handleApiError(error, {
+      component: 'foodApplication',
+      operation: 'fetchFoodById',
+      additionalData: { id, params },
+    })
+    throw error
+  }
 }
 
 export async function fetchFoodsByName(
@@ -74,7 +93,17 @@ export async function fetchFoodByEan(
 }
 
 export async function isEanCached(ean: Required<Food>['ean']) {
-  const cached = (await foodRepository.fetchFoodByEan(ean, {})) !== null
-  console.debug(`[Food] EAN ${ean} cached: ${cached}`)
-  return cached
+  try {
+    const cached = (await foodRepository.fetchFoodByEan(ean, {})) !== null
+    console.debug(`[Food] EAN ${ean} cached: ${cached}`)
+    return cached
+  } catch (error) {
+    handleApiError(error, {
+      component: 'foodApplication',
+      operation: 'isEanCached',
+      additionalData: { ean },
+    })
+    // Return false as default for caching check failure
+    return false
+  }
 }

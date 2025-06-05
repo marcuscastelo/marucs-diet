@@ -101,7 +101,7 @@ export default function DayMeals(props: { selectedDay: string }) {
     if (newItemSelection_ === null) {
       throw new Error('No meal selected!')
     }
-    insertItemGroup(dayDiet.id, newItemSelection_.meal.id, newGroup)
+    void insertItemGroup(dayDiet.id, newItemSelection_.meal.id, newGroup)
   }
 
   const handleFinishSearch = () => {
@@ -258,7 +258,7 @@ function ExternalItemGroupEditModal(props: {
               editSelection().meal.name ?? 'ERROR: No meal selected'
             }
             onSaveGroup={(group) => {
-              updateItemGroup(
+              void updateItemGroup(
                 props.day().id,
                 editSelection().meal.id,
                 group.id, // TODO:   Get id from selection instead of group parameter (avoid bugs if id is changed).
@@ -270,7 +270,7 @@ function ExternalItemGroupEditModal(props: {
               props.setVisible(false)
             }}
             onDelete={(id: ItemGroup['id']) => {
-              deleteItemGroup(props.day().id, editSelection().meal.id, id)
+              void deleteItemGroup(props.day().id, editSelection().meal.id, id)
 
               setEditSelection(null)
               props.setVisible(false)

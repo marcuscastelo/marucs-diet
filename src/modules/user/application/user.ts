@@ -76,31 +76,67 @@ export async function fetchCurrentUser(): Promise<User | null> {
 }
 
 export async function insertUser(newUser: NewUser): Promise<void> {
-  await userRepository.insertUser(newUser)
-  await fetchUsers()
+  try {
+    await smartToastPromise(userRepository.insertUser(newUser), {
+      context: 'user-action',
+      loading: 'Inserindo usuário...',
+      success: 'Usuário inserido com sucesso',
+      error: 'Falha ao inserir usuário',
+    })
+    await fetchUsers()
+  } catch (error) {
+    handleApiError(error, {
+      component: 'userApplication',
+      operation: 'insertUser',
+      additionalData: { newUser },
+    })
+    throw error
+  }
 }
 
 export async function updateUser(
   userId: User['id'],
   newUser: NewUser,
 ): Promise<User | null> {
-  const user = await smartToastPromise(
-    userRepository.updateUser(userId, newUser),
-    {
-      context: 'user-action',
-      loading: 'Atualizando informações do usuário...',
-      success: 'Informações do usuário atualizadas com sucesso',
-      error: 'Falha ao atualizar informações do usuário',
-    },
-  )
-
-  await fetchUsers()
-  return user
+  try {
+    const user = await smartToastPromise(
+      userRepository.updateUser(userId, newUser),
+      {
+        context: 'user-action',
+        loading: 'Atualizando informações do usuário...',
+        success: 'Informações do usuário atualizadas com sucesso',
+        error: 'Falha ao atualizar informações do usuário',
+      },
+    )
+    await fetchUsers()
+    return user
+  } catch (error) {
+    handleApiError(error, {
+      component: 'userApplication',
+      operation: 'updateUser',
+      additionalData: { userId, newUser },
+    })
+    throw error
+  }
 }
 
 export async function deleteUser(userId: User['id']): Promise<void> {
-  await userRepository.deleteUser(userId)
-  await fetchUsers()
+  try {
+    await smartToastPromise(userRepository.deleteUser(userId), {
+      context: 'user-action',
+      loading: 'Removendo usuário...',
+      success: 'Usuário removido com sucesso',
+      error: 'Falha ao remover usuário',
+    })
+    await fetchUsers()
+  } catch (error) {
+    handleApiError(error, {
+      component: 'userApplication',
+      operation: 'deleteUser',
+      additionalData: { userId },
+    })
+    throw error
+  }
 }
 
 export function changeToUser(userId: User['id']): void {
@@ -139,7 +175,7 @@ export function setFoodAsFavorite(foodId: number, favorite: boolean): void {
       handleApiError(error, {
         component: 'userApplication',
         operation: 'toggleFavoriteFood',
-        additionalData: { foodId },
+        additionalData: { foodId, favorite },
       })
     })
 }

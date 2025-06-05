@@ -30,7 +30,6 @@ async function fetchUserWeights(userId: User['id']) {
     .order('target_timestamp', { ascending: true })
 
   if (error !== null) {
-    console.error(error)
     throw error
   }
 
@@ -45,7 +44,6 @@ async function insertWeight(newWeight: NewWeight) {
     .select()
 
   if (error !== null) {
-    console.error(error)
     throw error
   }
 
@@ -61,7 +59,6 @@ async function updateWeight(weightId: Weight['id'], weight: Weight) {
     .select()
 
   if (error !== null) {
-    console.error(error)
     throw error
   }
 
@@ -75,7 +72,6 @@ async function deleteWeight(id: Weight['id']) {
     .eq('id', id)
 
   if (error !== null) {
-    console.error(error)
     throw error
   }
 }
