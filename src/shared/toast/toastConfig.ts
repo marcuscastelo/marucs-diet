@@ -60,6 +60,17 @@ export type ToastOptions = {
    * @default true
    */
   dismissible?: boolean
+
+  /**
+   * Data for expandable error toasts
+   * @internal Used by ExpandableErrorToast component
+   */
+  expandableErrorData?: {
+    isTruncated: boolean
+    errorDetails: ToastError
+    onDismiss?: () => void
+    onCopy?: (text: string) => void
+  }
 }
 
 /**

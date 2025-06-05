@@ -12,8 +12,8 @@ import {
   ToastQueueConfig,
   DEFAULT_QUEUE_CONFIG,
   TOAST_PRIORITY,
-  ToastLevel,
 } from './toastConfig'
+import { displayExpandableErrorToast } from './ExpandableErrorToast'
 
 // Global queue state
 const [queue, setQueue] = createSignal<ToastItem[]>([])
@@ -36,13 +36,30 @@ createEffect(() => {
  * Display a toast in solid-toast with the appropriate styling
  * Returns the solid-toast ID for later dismissal
  */
-function displayToast(
-  message: string,
-  level: ToastLevel,
-  toastId: string,
-): string {
+function displayToast(toastItem: ToastItem): string {
+  const { message, options, id: toastId } = toastItem
+  const { level, expandableErrorData } = options
   let solidToastId: string
 
+  // Check if this is an expandable error toast
+  if (expandableErrorData && level === 'error') {
+    // Use the displayExpandableErrorToast function directly
+
+    solidToastId = displayExpandableErrorToast(
+      message,
+      expandableErrorData.isTruncated,
+      expandableErrorData.errorDetails,
+      {
+        duration: options.duration ?? 8000,
+        onDismiss: expandableErrorData.onDismiss,
+        onCopy: expandableErrorData.onCopy,
+      },
+    )
+    solidToastIdMap.set(toastId, solidToastId)
+    return solidToastId
+  }
+
+  // Standard toast rendering
   switch (level) {
     case 'success':
       solidToastId = toast.success(message)
@@ -237,7 +254,7 @@ function processNext(): void {
   console.debug('[ToastQueue] Processing next toast:', nextToast.message)
 
   // Actually display the toast and store solid-toast ID
-  displayToast(nextToast.message, nextToast.options.level, nextToast.id)
+  displayToast(nextToast)
 
   // Auto-dismiss if duration is set
   const duration = nextToast.options.duration

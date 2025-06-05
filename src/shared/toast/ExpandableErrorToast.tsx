@@ -9,6 +9,7 @@ import { createSignal, Show } from 'solid-js'
 import toast from 'solid-toast'
 import { ToastError } from './toastConfig'
 import { ErrorDetailModal } from '~/sections/common/components/ErrorDetailModal'
+import { enqueue, createToastItem } from './toastQueue'
 
 export type ExpandableErrorToastProps = {
   /** The display message (potentially truncated) */
@@ -174,8 +175,40 @@ export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
 }
 
 /**
+ * Display an expandable error toast using solid-toast directly
+ * This function is called from the toast queue system
+ */
+export function displayExpandableErrorToast(
+  message: string,
+  isTruncated: boolean,
+  errorDetails: ToastError,
+  options?: {
+    duration?: number
+    onDismiss?: () => void
+    onCopy?: (text: string) => void
+  },
+): string {
+  const duration = options?.duration ?? (isTruncated ? 8000 : 5000)
+
+  return toast.custom(
+    () => (
+      <ExpandableErrorToast
+        message={message}
+        isTruncated={isTruncated}
+        errorDetails={errorDetails}
+        onDismiss={options?.onDismiss}
+        onCopy={options?.onCopy}
+      />
+    ),
+    {
+      duration,
+    },
+  )
+}
+
+/**
  * Utility function to create an expandable error toast
- * This integrates with solid-toast to show custom toast content
+ * This integrates with the toast queue system
  */
 export function showExpandableErrorToast(
   message: string,
@@ -189,21 +222,20 @@ export function showExpandableErrorToast(
 ): string {
   const duration = options?.duration ?? (isTruncated ? 8000 : 5000)
 
-  return toast.custom(
-    (t) => (
-      <ExpandableErrorToast
-        message={message}
-        isTruncated={isTruncated}
-        errorDetails={errorDetails}
-        onDismiss={() => {
-          toast.dismiss(t.id)
-          if (options?.onDismiss) {
-            options.onDismiss()
-          }
-        }}
-        onCopy={options?.onCopy}
-      />
-    ),
-    { duration },
-  )
+  // Create a custom toast item that will render the ExpandableErrorToast component
+  const toastItem = createToastItem(message, {
+    level: 'error',
+    context: 'user-action',
+    duration,
+    dismissible: true,
+    // Store the expandable error data in the toast item for later use
+    expandableErrorData: {
+      isTruncated,
+      errorDetails,
+      onDismiss: options?.onDismiss,
+      onCopy: options?.onCopy,
+    },
+  })
+
+  return enqueue(toastItem)
 }

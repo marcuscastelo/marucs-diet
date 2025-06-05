@@ -16,6 +16,7 @@ import {
   getUserFriendlyMessage,
   processErrorMessage,
 } from './errorMessageHandler'
+import { showExpandableErrorToast } from './ExpandableErrorToast'
 
 /**
  * Creates and enqueues a toast notification with merged options.
@@ -212,10 +213,18 @@ export function showError(
   // Use processErrorMessage to handle truncation
   const processed = processErrorMessage(error, {
     maxLength: finalOptions.maxLength ?? 100,
-    includeStack: false,
+    includeStack: true, // Include stack for expandable error toast
   })
 
-  show(processed.displayMessage, 'error', context, finalOptions)
+  // Use expandable error toast for rich display with buttons
+  showExpandableErrorToast(
+    processed.displayMessage,
+    processed.isTruncated,
+    processed.errorDetails,
+    {
+      duration: finalOptions.duration,
+    },
+  )
 }
 
 /**
