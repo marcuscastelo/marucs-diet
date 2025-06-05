@@ -3,7 +3,7 @@
  * Component para testar o sistema de toast com ID-based management
  */
 
-import { Component } from 'solid-js'
+import { Component, createSignal } from 'solid-js'
 import {
   showPromise,
   showSuccess,
@@ -12,6 +12,9 @@ import {
 import { smartToastPromise, smartToastPromiseDetached } from '~/shared/toast'
 
 const ToastTest: Component = () => {
+  const [showLoading, setShowLoading] = createSignal(true)
+  const [showSuccess, setShowSuccess] = createSignal(true)
+
   const testPromiseSuccess = () => {
     const promise = new Promise<string>((resolve) => {
       setTimeout(() => resolve('Sucesso!'), 2000)
@@ -94,7 +97,6 @@ const ToastTest: Component = () => {
   const testSmartToastPromiseDetached = () => {
     console.log('Starting smartToastPromiseDetached test...')
 
-    // Fire and forget - no await, no .then/.catch needed
     smartToastPromiseDetached(
       new Promise<string>((resolve) => {
         setTimeout(() => {
@@ -104,8 +106,8 @@ const ToastTest: Component = () => {
       }),
       {
         context: 'user-action',
-        success: 'Detached operation completed!',
-        loading: 'Detached operation...',
+        ...(showSuccess() && { success: 'Detached operation completed!' }),
+        ...(showLoading() && { loading: 'Detached operation...' }),
         error: 'Detached operation failed',
       },
     )
@@ -116,13 +118,13 @@ const ToastTest: Component = () => {
   const testMultipleDetachedOperations = () => {
     console.log('Testing multiple detached operations...')
 
-    // Simulate bootstrap scenario - multiple detached operations
     smartToastPromiseDetached(
       new Promise((resolve) => setTimeout(() => resolve('User data'), 1000)),
       {
         context: 'background',
-        loading: 'Loading user data...',
+        ...(showLoading() && { loading: 'Loading user data...' }),
         error: 'Failed to load user data',
+        ...(showSuccess() && { success: 'User data loaded!' }),
       },
     )
 
@@ -130,8 +132,9 @@ const ToastTest: Component = () => {
       new Promise((resolve) => setTimeout(() => resolve('Settings'), 1500)),
       {
         context: 'background',
-        loading: 'Loading settings...',
+        ...(showLoading() && { loading: 'Loading settings...' }),
         error: 'Failed to load settings',
+        ...(showSuccess() && { success: 'Settings loaded!' }),
       },
     )
 
@@ -139,8 +142,9 @@ const ToastTest: Component = () => {
       new Promise((resolve) => setTimeout(() => resolve('Cache'), 800)),
       {
         context: 'background',
-        loading: 'Refreshing cache...',
+        ...(showLoading() && { loading: 'Refreshing cache...' }),
         error: 'Failed to refresh cache',
+        ...(showSuccess() && { success: 'Cache refreshed!' }),
       },
     )
 
@@ -179,6 +183,25 @@ const ToastTest: Component = () => {
         <h3 style={{ margin: '10px 0 5px 0', 'font-size': '16px' }}>
           New smartToastPromiseDetached Tests
         </h3>
+
+        <div style={{ display: 'flex', 'align-items': 'center', gap: '10px' }}>
+          <label>
+            <input
+              type="checkbox"
+              checked={showLoading()}
+              onInput={(e) => setShowLoading(e.currentTarget.checked)}
+            />
+            showLoading
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={showSuccess()}
+              onInput={(e) => setShowSuccess(e.currentTarget.checked)}
+            />
+            showSuccess
+          </label>
+        </div>
 
         <button
           onClick={() => {
