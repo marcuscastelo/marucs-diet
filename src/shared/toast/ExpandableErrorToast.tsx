@@ -5,11 +5,11 @@
  * that opens a modal with full error information.
  */
 
-import { createSignal, Show } from 'solid-js'
+import { Show } from 'solid-js'
 import toast from 'solid-toast'
 import { ToastError } from './toastConfig'
-import { ErrorDetailModal } from '~/sections/common/components/ErrorDetailModal'
 import { enqueue, createToastItem } from './toastQueue'
+import { openErrorModal } from './modalState'
 
 export type ExpandableErrorToastProps = {
   /** The display message (potentially truncated) */
@@ -30,14 +30,8 @@ export type ExpandableErrorToastProps = {
  * Shows a truncated error message with an option to open a modal with details.
  */
 export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
-  const [isModalOpen, setIsModalOpen] = createSignal(false)
-
   const openModal = () => {
-    setIsModalOpen(true)
-  }
-
-  const closeModal = () => {
-    setIsModalOpen(false)
+    openErrorModal(props.errorDetails)
   }
 
   const handleDismiss = () => {
@@ -163,13 +157,6 @@ export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
           </div>
         </Show>
       </div>
-
-      {/* Error Details Modal */}
-      <ErrorDetailModal
-        errorDetails={props.errorDetails}
-        isOpen={isModalOpen()}
-        onClose={closeModal}
-      />
     </>
   )
 }
