@@ -157,6 +157,11 @@ const ToastTest: Component = () => {
     console.log('All detached operations started')
   }
 
+  const testLongError = () => {
+    const longMessage = `This is a very long error message that will demonstrate the truncation capability of our toast system. It contains multiple sentences and will definitely exceed the maximum length allowed for display in a toast. When this happens, the message will be truncated and an option to view the complete details will be provided to the user. This helps keep the UI clean while still allowing users to access the full error information if they need it. The error details modal will display this entire message along with any stack trace or context information that may be available.`
+    showError(new Error(longMessage), 'user-action')
+  }
+
   return (
     <div style={{ padding: '20px', 'font-family': 'sans-serif' }}>
       <h2>Toast System Test</h2>
@@ -251,6 +256,8 @@ const ToastTest: Component = () => {
         <button onClick={() => showError(new Error('Simple error test'))}>
           Test Simple Error
         </button>
+
+        <button onClick={testLongError}>Test Long Error (truncate/copy)</button>
       </div>
 
       <div style={{ 'margin-top': '20px', 'font-size': '14px', color: '#666' }}>
