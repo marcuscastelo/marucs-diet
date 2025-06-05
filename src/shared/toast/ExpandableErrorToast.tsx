@@ -104,6 +104,7 @@ export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
         message={props.message}
         isTruncated={props.isTruncated}
         onCopy={handleCopy}
+        errorDetails={props.errorDetails}
       />
     </div>
   )
@@ -307,7 +308,11 @@ function ToastContent(props: {
   message: string
   isTruncated: boolean
   onCopy: () => void
+  errorDetails: ToastError
 }) {
+  const handleShowDetails = () => {
+    openErrorModal(props.errorDetails)
+  }
   return (
     <div class="flex flex-col flex-1 mx-[10px] my-1">
       <div class="flex items-center gap-2">
@@ -318,6 +323,7 @@ function ToastContent(props: {
         <button
           type="button"
           class="px-2 py-1 rounded bg-gray-700 text-gray-100 text-xs hover:bg-gray-600 transition-colors"
+          onClick={handleShowDetails}
         >
           Mostrar detalhes
         </button>
