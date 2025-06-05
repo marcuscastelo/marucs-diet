@@ -10,6 +10,7 @@ import {
   showError,
 } from '~/shared/toast/toastManager'
 import { smartToastPromise, smartToastPromiseDetached } from '~/shared/toast'
+import toast from 'solid-toast'
 
 const ToastTest: Component = () => {
   const [toastOptions, setToastOptions] = createSignal({
@@ -248,6 +249,8 @@ const ToastTest: Component = () => {
         </button>
 
         <hr style={{ margin: '10px 0', border: '1px solid #ccc' }} />
+
+        <button onClick={() => toast.error('Direct Toast')}>Test Direct</button>
 
         <button onClick={() => showSuccess('Simple Success Toast')}>
           Test Simple Success

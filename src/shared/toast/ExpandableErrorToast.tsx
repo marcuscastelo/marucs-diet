@@ -5,10 +5,10 @@
  * that opens a modal with full error information.
  */
 
-import { Show, createSignal } from 'solid-js'
+import { createSignal } from 'solid-js'
 import toast from 'solid-toast'
-import { ToastError } from './toastConfig'
-import { enqueue, createToastItem } from './toastQueue'
+import { ToastError, ToastItem } from './toastConfig'
+import { dequeueById } from './toastQueue'
 import { openErrorModal } from './modalState'
 
 export type ExpandableErrorToastProps = {
@@ -20,8 +20,6 @@ export type ExpandableErrorToastProps = {
   errorDetails: ToastError
   /** Optional dismiss callback */
   onDismiss?: () => void
-  /** Optional copy to clipboard callback */
-  onCopy?: (text: string) => void
 }
 
 /**
@@ -42,6 +40,8 @@ export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
       props.onDismiss()
     }
   }
+
+  const isComplexError = () => props.isTruncated
 
   // Helper to remove leading indentation from template literals
   function dedent(str: string): string {
@@ -76,93 +76,32 @@ export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
       ${timestampText}
     `)
 
-    if (props.onCopy) {
-      props.onCopy(fullErrorText)
-    } else {
-      // Fallback to clipboard API
-      navigator.clipboard.writeText(fullErrorText).catch(() => {
-        // Fallback for older browsers
-        const textArea = document.createElement('textarea')
-        textArea.value = fullErrorText
-        document.body.appendChild(textArea)
-        textArea.select()
-        document.execCommand('copy')
-        document.body.removeChild(textArea)
-      })
-    }
+    // Fallback to clipboard API
+    // TODO: Use clipboard hook
+    navigator.clipboard.writeText(fullErrorText).catch(() => {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea')
+      textArea.value = fullErrorText
+      document.body.appendChild(textArea)
+      textArea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textArea)
+    })
   }
 
   return (
-    <>
-      <div class="border-2 border-red-500 bg-[#23272f] text-[#f3f4f6] shadow-xl rounded-xl max-w-md px-6 py-4 transition-all duration-200">
-        {/* Header with error icon and message */}
-        <div class="flex items-start gap-3">
-          <div class="flex-shrink-0 mt-1">
-            <svg
-              class="h-6 w-6 text-red-400"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                clip-rule="evenodd"
-              />
-            </svg>
-          </div>
-          <div class="flex-1">
-            <h3 class="text-base font-semibold text-red-300 mb-1 tracking-wide">
-              Error
-            </h3>
-            <p class="text-sm text-gray-200 leading-snug">{props.message}</p>
-          </div>
-          <div class="ml-2 flex-shrink-0">
-            <button
-              type="button"
-              class="rounded-full p-1 text-red-400 hover:text-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
-              onClick={handleDismiss}
-              title="Dismiss"
-            >
-              <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path
-                  fill-rule="evenodd"
-                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-        {/* Show details/copy buttons */}
-        <Show
-          when={
-            props.isTruncated ||
-            (props.errorDetails.stack != null &&
-              props.errorDetails.stack.length > 0) ||
-            (props.errorDetails.context != null &&
-              Object.keys(props.errorDetails.context).length > 0)
-          }
-        >
-          <div class="mt-4 flex gap-3">
-            <button
-              type="button"
-              class="px-3 py-1 rounded-md text-sm font-medium bg-red-900/60 text-red-200 hover:bg-red-700/80 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
-              aria-expanded={isExpanded() ? 'true' : 'false'}
-              onClick={openModal}
-            >
-              Show more details
-            </button>
-            <button
-              type="button"
-              class="px-3 py-1 rounded-md text-sm font-medium bg-blue-900/60 text-blue-200 hover:bg-blue-700/80 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-              onClick={handleCopy}
-            >
-              Copy error
-            </button>
-          </div>
-        </Show>
-      </div>
-    </>
+    <div class="relative flex flex-col border-2 border-gray-600 text-gray-100 bg-gray-800 shadow-[0_3px_10px_rgba(0,0,0,0.1),_0_3px_3px_rgba(0,0,0,0.05)] max-w-[350px] pointer-events-auto px-[10px] pr-6 py-2 rounded line-height-[1.3]">
+      <button
+        type="button"
+        onClick={handleDismiss}
+        title="Dismiss"
+        aria-label="Dismiss"
+        class="absolute top-2 right-2 text-lg text-gray-400 hover:text-gray-200 z-10"
+      >
+        ✕
+      </button>
+      <ToastContent message={props.message} />
+    </div>
   )
 }
 
@@ -170,64 +109,217 @@ export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
  * Display an expandable error toast using solid-toast directly
  * This function is called from the toast queue system
  */
-export function displayExpandableErrorToast(
-  message: string,
-  isTruncated: boolean,
-  errorDetails: ToastError,
-  options?: {
-    duration?: number
-    onDismiss?: () => void
-    onCopy?: (text: string) => void
-  },
-): string {
-  const duration = options?.duration ?? (isTruncated ? 8000 : 5000)
-
+export function displayExpandableErrorToast(toastItem: ToastItem): string {
   return toast.custom(
     () => (
       <ExpandableErrorToast
-        message={message}
-        isTruncated={isTruncated}
-        errorDetails={errorDetails}
-        onDismiss={options?.onDismiss}
-        onCopy={options?.onCopy}
+        message={toastItem.message}
+        isTruncated={
+          toastItem.options.expandableErrorData?.isTruncated ?? false
+        }
+        errorDetails={
+          toastItem.options.expandableErrorData?.errorDetails ?? {
+            message: 'No error details provided',
+            stack: '',
+            context: {},
+            timestamp: Date.now(),
+          }
+        }
+        onDismiss={() => {
+          dequeueById(toastItem.id)
+        }}
       />
     ),
     {
-      duration,
+      duration: toastItem.options.duration ?? 8000,
     },
   )
 }
 
 /**
- * Utility function to create an expandable error toast
- * This integrates with the toast queue system
+ * Success Checkmark Icon Component
+ *
+ * A SolidJS component for displaying a checkmark icon with animation.
  */
-export function showExpandableErrorToast(
-  message: string,
-  isTruncated: boolean,
-  errorDetails: ToastError,
-  options?: {
-    duration?: number
-    onDismiss?: () => void
-    onCopy?: (text: string) => void
-  },
-): string {
-  const duration = options?.duration ?? (isTruncated ? 8000 : 5000)
+function SuccessCheckmarkIcon() {
+  return (
+    <svg
+      viewBox="0 0 32 32"
+      width="1.25rem"
+      height="1.25rem"
+      class="overflow-visible"
+    >
+      {/* <!-- Círculo animado verde --> */}
+      <circle cx="16" cy="16" r="0" fill="#34C759">
+        <animate
+          attributeName="opacity"
+          values="0; 1; 1"
+          dur="0.35s"
+          begin="100ms"
+          fill="freeze"
+        />
+        <animate
+          attributeName="r"
+          values="0; 17.5; 16"
+          dur="0.35s"
+          begin="100ms"
+          fill="freeze"
+        />
+      </circle>
+      {/* <!-- Expansão de fundo verde --> */}
+      <circle cx="16" cy="16" r="12" opacity="0" fill="#34C759">
+        <animate
+          attributeName="opacity"
+          values="1; 0"
+          dur="1s"
+          begin="350ms"
+          fill="freeze"
+        />
+        <animate
+          attributeName="r"
+          values="12; 26"
+          dur="1s"
+          begin="350ms"
+          fill="freeze"
+        />
+      </circle>
+      {/* <!-- Checkmark branco --> */}
+      <path
+        fill="none"
+        stroke-width="4"
+        stroke-dasharray="22"
+        stroke-dashoffset="22"
+        stroke-linecap="round"
+        stroke-miterlimit="10"
+        d="M9.8,17.2l3.8,3.6c0.1,0.1,0.3,0.1,0.4,0l9.6-9.7"
+        stroke="#FCFCFC"
+      >
+        <animate
+          attributeName="stroke-dashoffset"
+          values="22;0"
+          dur="0.25s"
+          begin="250ms"
+          fill="freeze"
+        />
+      </path>
+    </svg>
+  )
+}
 
-  // Create a custom toast item that will render the ExpandableErrorToast component
-  const toastItem = createToastItem(message, {
-    level: 'error',
-    context: 'user-action',
-    duration,
-    dismissible: true,
-    // Store the expandable error data in the toast item for later use
-    expandableErrorData: {
-      isTruncated,
-      errorDetails,
-      onDismiss: options?.onDismiss,
-      onCopy: options?.onCopy,
-    },
-  })
+function ErrorIcon() {
+  return (
+    <svg
+      viewBox="0 0 32 32"
+      width="1.25rem"
+      height="1.25rem"
+      class="overflow-visible"
+    >
+      <circle cx="16" cy="16" r="0" fill="#FF3B30">
+        <animate
+          attributeName="opacity"
+          values="0; 1; 1"
+          dur="0.35s"
+          begin="100ms"
+          fill="freeze"
+          calcMode="spline"
+          keyTimes="0; 0.6; 1"
+          keySplines="0.25 0.71 0.4 0.88; .59 .22 .87 .63"
+        />
+        <animate
+          attributeName="r"
+          values="0; 17.5; 16"
+          dur="0.35s"
+          begin="100ms"
+          fill="freeze"
+          calcMode="spline"
+          keyTimes="0; 0.6; 1"
+          keySplines="0.25 0.71 0.4 0.88; .59 .22 .87 .63"
+        />
+      </circle>
+      <circle cx="16" cy="16" r="12" opacity="0" fill="#FF3B30">
+        <animate
+          attributeName="opacity"
+          values="1; 0"
+          dur="1s"
+          begin="320ms"
+          fill="freeze"
+          calcMode="spline"
+          keyTimes="0; 1"
+          keySplines="0.0 0.0 0.2 1"
+        />
+        <animate
+          attributeName="r"
+          values="12; 26"
+          dur="1s"
+          begin="320ms"
+          fill="freeze"
+          calcMode="spline"
+          keyTimes="0; 1"
+          keySplines="0.0 0.0 0.2 1"
+        />
+      </circle>
+      <path
+        fill="none"
+        stroke-width="4"
+        stroke-dasharray="9"
+        stroke-dashoffset="9"
+        stroke-linecap="round"
+        d="M16,7l0,9"
+        stroke="#FFFFFF"
+      >
+        <animate
+          attributeName="stroke-dashoffset"
+          values="9;0"
+          dur="0.2s"
+          begin="250ms"
+          fill="freeze"
+          calcMode="spline"
+          keyTimes="0; 1"
+          keySplines="0.0, 0.0, 0.58, 1.0"
+        />
+      </path>
+      <circle cx="16" cy="23" r="2.5" opacity="0" fill="#FFFFFF">
+        <animate
+          attributeName="opacity"
+          values="0;1"
+          dur="0.25s"
+          begin="350ms"
+          fill="freeze"
+          calcMode="spline"
+          keyTimes="0; 1"
+          keySplines="0.0, 0.0, 0.58, 1.0"
+        />
+      </circle>
+    </svg>
+  )
+}
 
-  return enqueue(toastItem)
+/**
+ * Toast Content Component
+ *
+ * A SolidJS component for displaying the content of the toast.
+ */
+function ToastContent(props: { message: string }) {
+  return (
+    <div class="flex flex-col flex-1 mx-[10px] my-1">
+      <div class="flex items-center gap-2">
+        <ErrorIcon />
+        <span class="whitespace-pre-line">{props.message}</span>
+      </div>
+      <div class="flex gap-2 mt-2 hidden">
+        <button
+          type="button"
+          class="px-2 py-1 rounded bg-gray-700 text-gray-100 text-xs hover:bg-gray-600 transition-colors"
+        >
+          Mostrar detalhes
+        </button>
+        <button
+          type="button"
+          class="px-2 py-1 rounded bg-gray-700 text-gray-100 text-xs hover:bg-gray-600 transition-colors"
+        >
+          Copiar erro
+        </button>
+      </div>
+    </div>
+  )
 }

@@ -16,7 +16,6 @@ import {
   getUserFriendlyMessage,
   processErrorMessage,
 } from './errorMessageHandler'
-import { showExpandableErrorToast } from './ExpandableErrorToast'
 
 /**
  * Creates and enqueues a toast notification with merged options.
@@ -216,15 +215,21 @@ export function showError(
     includeStack: true, // Include stack for expandable error toast
   })
 
-  // Use expandable error toast for rich display with buttons
-  showExpandableErrorToast(
-    processed.displayMessage,
-    processed.isTruncated,
-    processed.errorDetails,
-    {
-      duration: finalOptions.duration,
+  // Inline logic from showExpandableErrorToast
+  const duration =
+    finalOptions.duration ?? (processed.isTruncated ? 8000 : 5000)
+  const toastItem = createToastItem(processed.displayMessage, {
+    level: 'error',
+    context: 'user-action',
+    duration,
+    dismissible: true,
+    expandableErrorData: {
+      isTruncated: processed.isTruncated,
+      errorDetails: processed.errorDetails,
+      // onDismiss/onCopy can be added if needed
     },
-  )
+  })
+  enqueue(toastItem)
 }
 
 /**

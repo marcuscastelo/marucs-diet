@@ -44,17 +44,7 @@ function displayToast(toastItem: ToastItem): string {
   // Check if this is an expandable error toast
   if (expandableErrorData && level === 'error') {
     // Use the displayExpandableErrorToast function directly
-
-    solidToastId = displayExpandableErrorToast(
-      message,
-      expandableErrorData.isTruncated,
-      expandableErrorData.errorDetails,
-      {
-        duration: options.duration ?? 8000,
-        onDismiss: expandableErrorData.onDismiss,
-        onCopy: expandableErrorData.onCopy,
-      },
-    )
+    solidToastId = displayExpandableErrorToast(toastItem)
     solidToastIdMap.set(toastId, solidToastId)
     return solidToastId
   }
