@@ -91,7 +91,12 @@ export function ErrorDetailModal(props: ErrorDetailModalProps) {
   return (
     <Show when={props.isOpen}>
       <Portal>
-        <div class="fixed inset-0 z-50 overflow-y-auto">
+        <div
+          class="fixed inset-0 z-50 overflow-y-auto"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="error-detail-modal-title"
+        >
           {/* Backdrop */}
           <div
             class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
@@ -105,7 +110,10 @@ export function ErrorDetailModal(props: ErrorDetailModalProps) {
               {/* Header */}
               <div class="bg-red-50 px-6 py-4 border-b border-red-100">
                 <div class="flex items-center justify-between">
-                  <h3 class="text-lg font-medium text-red-900 flex items-center">
+                  <h3
+                    id="error-detail-modal-title"
+                    class="text-lg font-medium text-red-900 flex items-center"
+                  >
                     <svg
                       class="h-5 w-5 text-red-500 mr-2"
                       viewBox="0 0 20 20"
