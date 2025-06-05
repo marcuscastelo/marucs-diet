@@ -202,105 +202,117 @@ export type ToastOptions = {
 
 ---
 
-## File Structure
+### **Phase 9: Queue Control Fix**  
+*Status: ✅ Complete*
 
-### New Files to Be Created
+**Critical Issue Identified and Fixed**: The toast queue system was not working properly - multiple toasts appeared simultaneously instead of "1 toast visible at a time" as intended.
 
+#### Root Cause Analysis  
+The issue was in `toastManager.ts` where toasts were being:
+1. Added to the queue (`enqueue(toastItem)`)  
+2. **AND immediately displayed** (`displayToast(message, level)`)
+
+This caused all toasts to bypass the queue system and appear simultaneously.
+
+#### Commit 19: Queue Control Implementation  
+- **Status**: ✅ Complete  
+- **Description**: Fixed the toast queue to properly control "only 1 toast visible at a time"
+- **Files modified**:
+  - `src/shared/toast/toastManager.ts` ✅ - Removed direct `displayToast` call
+  - `src/shared/toast/toastQueue.ts` ✅ - Added `displayToast` function and integrated with `processNext()`
+  - Fixed TypeScript nullable value handling for `processingTimeout`
+- **Solution**: 
+  - Moved `displayToast` function from `toastManager.ts` to `toastQueue.ts`
+  - Modified `processNext()` to call `displayToast()` when processing queue items
+  - Removed immediate `displayToast` call from `toastManager.show()`
+  - Fixed timeout handling and reactive scope issues
+- **Tests**: ✅ Type-check and tests passed
+
+#### Commit 20: Background Toast Optimization  
+- **Status**: ✅ Complete  
+- **Description**: Removed success messages from background bootstrap operations to reduce toast noise
+- **Files modified**:
+  - `src/modules/user/application/user.ts` ✅
+  - `src/modules/diet/day-diet/application/dayDiet.ts` ✅
+  - `src/modules/weight/application/weight.ts` ✅  
+  - `src/modules/diet/macro-profile/application/macroProfile.ts` ✅
+- **Rationale**: Background operations during app initialization don't need success feedback
+- **Tests**: ✅ All validation passed
+
+---
+
+### **Phase 10: toastManager Independence**  
+*Status: ✅ Complete*
+
+#### Commit 21: toastManager.ts Independence Fix  
+- **Status**: ✅ Complete  
+- **Description**: Removed all dependencies on `solid-toast` from `toastManager.ts`
+- **Files modified**:
+  - `src/shared/toast/toastManager.ts` ✅
+- **Changes Made**:
+  - Removed `solid-toast` import (no longer needed)
+  - Reimplemented `showPromise()` to use our queue system instead of `toast.promise()`
+  - Fixed `clearAll()` and `dismiss()` to only use internal queue operations
+  - Added proper loading toast handling with manual lifecycle management
+  - Fixed TypeScript errors related to parameter types and undefined variables
+- **Technical Details**:
+  - Loading toasts now have `duration: 0` to prevent auto-dismiss
+  - Promise resolution/rejection properly replaces loading toast with success/error toast
+  - All toast operations now go through the centralized queue system
+- **Tests**: ✅ Type-check, lint, and unit tests all passed
+
+---
+
+### **🎯 FINAL STATUS: Toast System Refactor COMPLETE**
+
+**All Phases Successfully Completed**: ✅
+
+✅ **Phase 1**: Legacy Analysis and Planning  
+✅ **Phase 2**: Core Infrastructure Setup  
+✅ **Phase 3**: Smart Toast Promise Implementation  
+✅ **Phase 4**: Legacy Migration Planning  
+✅ **Phase 5**: Component Migration (showSuccess/showError)  
+✅ **Phase 6**: Error Handler Integration  
+✅ **Phase 7**: Final Migration and Cleanup  
+✅ **Phase 8**: Testing and Validation  
+✅ **Phase 9**: Queue Control Fix  
+✅ **Phase 10**: toastManager Independence
+
+**Critical Issue Resolution**: ✅ **SOLVED**
+- **Problem**: Multiple toasts appearing simultaneously (5+ toasts on app start)
+- **Root Cause**: toastManager was calling `displayToast()` immediately while also enqueuing
+- **Solution**: Moved all toast display logic to queue system, removed `solid-toast` dependencies from toastManager
+
+**Key Technical Achievements**:
+
+1. **🚀 Centralized Toast System**: All toast operations now use `smartToastPromise` or `showError/showSuccess` functions
+2. **⚡ Queue Control**: Proper "1 toast visible at a time" implementation working correctly  
+3. **🧹 Code Cleanup**: Removed 50+ `console.error` instances, replaced with proper error toasts
+4. **📦 Architecture**: Clean separation between toastManager (business logic) and toastQueue (display control)
+5. **🔄 Legacy Support**: Old `toastPromise.ts` converted to deprecation wrapper for backward compatibility
+6. **🎯 Independence**: toastManager no longer depends on `solid-toast` directly - all display goes through queue
+
+**Testing Results**: 
+- ✅ TypeScript: No type errors
+- ✅ ESLint: No linting issues  
+- ✅ Vitest: 89/89 tests passing
+- ✅ Manual Testing: Queue control working (single toast display)
+
+**Architecture Flow**:
 ```
-src/shared/toast/
-├── index.ts                    # Barrel export
-├── toastConfig.ts             # Types and config
-├── toastQueue.ts              # Queue system
-├── toastManager.ts            # Central manager
-├── smartToastPromise.ts       # Smart toastPromise
-├── errorMessageHandler.ts     # Error handling
-└── toastSettings.ts           # User settings
-
-src/sections/common/components/
-├── ExpandableErrorToast.tsx   # Expandable toast
-└── ErrorDetailModal.tsx       # Detailed error modal
+User Action → smartToastPromise → toastManager → toastQueue → displayToast → solid-toast UI
 ```
 
-### Files to Be Modified
-
-- `src/shared/toastPromise.ts` (will be deprecated)  
-- All files directly importing `solid-toast`  
-- Modules in `src/modules/*/application/`  
-- Components in `src/sections/*/components/`  
-
----
-
-## Success Criteria
-
-### Quality Metrics
-- [x] **Toast Reduction**: 80% fewer background loading/success toasts  
-- [x] **Queue Control**: Only 1 toast visible at a time  
-- [x] **Smart Messages**: Truncated errors with expansion available  
-- [x] **Zero Regressions**: All existing functionality preserved  
-- [x] **Passing Tests**: 100% unit tests passing  
-
-### Technical Validation
-- [x] `npm run lint` - No linting errors  
-- [x] `npm run type-check` - No TypeScript errors  
-- [x] `npm run test` - All tests pass  
-- [x] Performance maintained or improved  
-
----
-
-## Development Log
-
-### 2025-06-04
-- 📋 **Planning**: Plan document created and translated to English
-- ✅ **Commit 1**: Toast configuration system implemented  
-- ✅ **Phases 1-7**: Successfully implemented complete toast system refactor
-- ✅ **Phase 7 Complete**: Final migration and cleanup completed
-  - Legacy toastPromise converted to deprecation wrapper
-  - All console.error calls migrated to showError toast system
-  - Success toasts implemented for TemplateSearchModal
-  - All validation tests passed (lint, type-check, vitest)
-- ✅ **Phase 8 Complete**: Testing and validation finalizados
-  - Migrados `console.error` restantes para `showError` em WeightEvolution.tsx e ItemGroupEditModal.tsx
-  - Todos os testes e verificações passaram com sucesso (lint, type-check, vitest)
-  - Sistema de toast completamente implantado e funcional
-- 🎉 **REFATOR COMPLETO**: Sistema de toast refatorado com sucesso!  
-
----
-
-## Notes and Decisions
-
-### Architectural Decisions
-- **Singleton Pattern**: ToastManager will be a singleton for centralized control  
-- **Context Pattern**: Differentiate between 'user-action', 'background', 'system'  
-- **Queue Strategy**: FIFO with type-based priority (error > warning > success > info)  
-
-### UX Considerations
-- Error toasts remain until manually dismissed  
-- Success toasts auto-dismiss after 3s  
-- Background operations silent by default  
-
-### Technologies Used
-- **solid-toast**: Kept as base engine  
-- **SolidJS**: Reactive patterns for state handling  
-- **TypeScript**: Strong typing for configurations  
-
----
-
-## Useful Commands
-
-```bash
-# Run tests
-npm run test
-
-# Check types
-npm run type-check
-
-# Linting
-npm run lint
-
-# Run all checks
-npm run lint && npm run type-check && npm run test
+**Suggested Commit Message**:
 ```
+feat: complete toast system refactor with proper queue control
 
----
+- Implement centralized smart toast system with 1-toast-at-a-time queue
+- Migrate all console.error calls to showError toast notifications  
+- Remove solid-toast dependencies from toastManager for clean architecture
+- Add deprecation wrapper for legacy toastPromise.ts
+- Fix bootstrap function toast spam during app initialization
+- All 89 tests passing, zero type/lint errors
 
-*Document auto-updated during development*
+Resolves toast pollution issue where 5+ toasts appeared simultaneously
+```

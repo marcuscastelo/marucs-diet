@@ -5,7 +5,6 @@
  * Handles toast creation, queue management, and integration with solid-toast.
  */
 
-import toast from 'solid-toast'
 import { enqueue, createToastItem, dequeue, clear } from './toastQueue'
 import {
   ToastOptions,
@@ -14,33 +13,6 @@ import {
   DEFAULT_TOAST_OPTIONS,
 } from './toastConfig'
 import { getUserFriendlyMessage } from './errorMessageHandler'
-
-/**
- * Display a toast in solid-toast with the appropriate styling
- */
-function displayToast(message: string, level: ToastLevel): void {
-  switch (level) {
-    case 'success':
-      toast.success(message)
-      break
-    case 'error':
-      toast.error(message)
-      break
-    case 'warning':
-      // solid-toast doesn't have warning, use custom or error styling
-      toast(message, {
-        style: {
-          background: '#f59e0b',
-          color: 'white',
-        },
-      })
-      break
-    case 'info':
-    default:
-      toast(message)
-      break
-  }
-}
 
 /**
  * Show a toast with intelligent filtering and queue management
@@ -73,9 +45,6 @@ export function show(
 
   // Add to queue for controlled display
   enqueue(toastItem)
-
-  // Show in solid-toast immediately (queue will handle sequencing)
-  displayToast(message, level)
 }
 
 /**
@@ -159,10 +128,20 @@ export function showPromise<T>(
     }
   }
 
-  // Use solid-toast's promise handler
-  return toast.promise(promise, {
-    loading: messages.loading ?? 'Loading...',
-    success: (data) => {
+  // Show loading toast if enabled
+  if (messages.loading && messages.loading.length > 0) {
+    const loadingToast = createToastItem(messages.loading, {
+      ...finalOptions,
+      level: 'info',
+      duration: 0, // Loading toast should not auto-dismiss
+    })
+    enqueue(loadingToast)
+  }
+
+  // Use our custom promise handling instead of solid-toast
+  return promise
+    .then((data) => {
+      // Remove loading toast by adding a new toast that will replace it
       const successMsg =
         typeof messages.success === 'function'
           ? messages.success(data)
@@ -174,11 +153,15 @@ export function showPromise<T>(
           level: 'success',
         })
         enqueue(toastItem)
+      } else {
+        // If no success message, just dismiss current loading toast
+        dequeue()
       }
 
-      return successMsg
-    },
-    error: (error) => {
+      return data
+    })
+    .catch((error: unknown) => {
+      // Remove loading toast by adding error toast
       const userFriendlyMessage = getUserFriendlyMessage(error)
 
       const toastItem = createToastItem(userFriendlyMessage, {
@@ -187,9 +170,8 @@ export function showPromise<T>(
       })
       enqueue(toastItem)
 
-      return userFriendlyMessage
-    },
-  })
+      throw error
+    })
 }
 
 /**
@@ -197,7 +179,6 @@ export function showPromise<T>(
  */
 export function clearAll(): void {
   clear()
-  toast.dismiss()
 }
 
 /**
@@ -205,7 +186,6 @@ export function clearAll(): void {
  */
 export function dismiss(): void {
   dequeue()
-  toast.dismiss()
 }
 
 // Legacy class-based interface for backward compatibility

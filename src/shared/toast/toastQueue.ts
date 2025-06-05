@@ -6,11 +6,13 @@
  */
 
 import { createSignal, createEffect } from 'solid-js'
+import toast from 'solid-toast'
 import {
   ToastItem,
   ToastQueueConfig,
   DEFAULT_QUEUE_CONFIG,
   TOAST_PRIORITY,
+  ToastLevel,
 } from './toastConfig'
 
 // Global queue state
@@ -26,6 +28,33 @@ createEffect(() => {
     processNext()
   }
 })
+
+/**
+ * Display a toast in solid-toast with the appropriate styling
+ */
+function displayToast(message: string, level: ToastLevel): void {
+  switch (level) {
+    case 'success':
+      toast.success(message)
+      break
+    case 'error':
+      toast.error(message)
+      break
+    case 'warning':
+      // solid-toast doesn't have warning, use custom or error styling
+      toast(message, {
+        style: {
+          background: '#f59e0b',
+          color: 'white',
+        },
+      })
+      break
+    case 'info':
+    default:
+      toast(message)
+      break
+  }
+}
 
 /**
  * Check for duplicate messages to avoid spam
@@ -91,7 +120,7 @@ export function dequeue(): void {
     setIsProcessing(true)
 
     // Wait for transition delay before showing next toast
-    if (processingTimeout) {
+    if (processingTimeout !== null) {
       clearTimeout(processingTimeout)
     }
 
@@ -123,14 +152,24 @@ function processNext(): void {
 
   console.debug('[ToastQueue] Processing next toast:', nextToast.message)
 
+  // Actually display the toast
+  displayToast(nextToast.message, nextToast.options.level)
+
   // Auto-dismiss if duration is set
   if (nextToast.options.duration && nextToast.options.duration > 0) {
-    if (processingTimeout) {
+    if (processingTimeout !== null) {
       clearTimeout(processingTimeout)
     }
 
     processingTimeout = window.setTimeout(() => {
-      dequeue()
+      // Dequeue current toast and process next
+      setCurrentToast(null)
+      setIsProcessing(true)
+
+      setTimeout(() => {
+        setIsProcessing(false)
+        processNext()
+      }, config.transitionDelay)
     }, nextToast.options.duration)
   }
 }
@@ -144,7 +183,7 @@ export function clear(): void {
   setCurrentToast(null)
   setIsProcessing(false)
 
-  if (processingTimeout) {
+  if (processingTimeout !== null) {
     clearTimeout(processingTimeout)
     processingTimeout = null
   }
@@ -165,7 +204,7 @@ export function getStatus() {
     currentToast: currentToast(),
     queueLength: queue().length,
     isProcessing: isProcessing(),
-    nextToast: queue()[0] || null,
+    nextToast: queue()[0] ?? null,
   }
 }
 
