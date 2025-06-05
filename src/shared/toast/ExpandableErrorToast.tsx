@@ -100,7 +100,11 @@ export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
       >
         ✕
       </button>
-      <ToastContent message={props.message} isTruncated={props.isTruncated} />
+      <ToastContent
+        message={props.message}
+        isTruncated={props.isTruncated}
+        onCopy={handleCopy}
+      />
     </div>
   )
 }
@@ -299,7 +303,11 @@ function ErrorIcon() {
  *
  * A SolidJS component for displaying the content of the toast.
  */
-function ToastContent(props: { message: string; isTruncated: boolean }) {
+function ToastContent(props: {
+  message: string
+  isTruncated: boolean
+  onCopy: () => void
+}) {
   return (
     <div class="flex flex-col flex-1 mx-[10px] my-1">
       <div class="flex items-center gap-2">
@@ -316,6 +324,7 @@ function ToastContent(props: { message: string; isTruncated: boolean }) {
         <button
           type="button"
           class="px-2 py-1 rounded bg-gray-700 text-gray-100 text-xs hover:bg-gray-600 transition-colors"
+          onClick={() => props.onCopy()}
         >
           Copiar erro
         </button>
