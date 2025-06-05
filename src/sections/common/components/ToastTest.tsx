@@ -12,8 +12,10 @@ import {
 import { smartToastPromise, smartToastPromiseDetached } from '~/shared/toast'
 
 const ToastTest: Component = () => {
-  const [showLoading, setShowLoading] = createSignal(true)
-  const [showSuccess, setShowSuccess] = createSignal(true)
+  const [toastOptions, setToastOptions] = createSignal({
+    showLoading: true,
+    showSuccess: true,
+  })
 
   const testPromiseSuccess = () => {
     const promise = new Promise<string>((resolve) => {
@@ -106,8 +108,12 @@ const ToastTest: Component = () => {
       }),
       {
         context: 'user-action',
-        ...(showSuccess() && { success: 'Detached operation completed!' }),
-        ...(showLoading() && { loading: 'Detached operation...' }),
+        loading: toastOptions().showLoading
+          ? 'Detached operation...'
+          : undefined,
+        success: toastOptions().showSuccess
+          ? 'Detached operation completed!'
+          : undefined,
         error: 'Detached operation failed',
       },
     )
@@ -122,9 +128,11 @@ const ToastTest: Component = () => {
       new Promise((resolve) => setTimeout(() => resolve('User data'), 1000)),
       {
         context: 'background',
-        ...(showLoading() && { loading: 'Loading user data...' }),
+        loading: toastOptions().showLoading
+          ? 'Loading user data...'
+          : undefined,
+        success: toastOptions().showSuccess ? 'User data loaded!' : undefined,
         error: 'Failed to load user data',
-        ...(showSuccess() && { success: 'User data loaded!' }),
       },
     )
 
@@ -132,9 +140,9 @@ const ToastTest: Component = () => {
       new Promise((resolve) => setTimeout(() => resolve('Settings'), 1500)),
       {
         context: 'background',
-        ...(showLoading() && { loading: 'Loading settings...' }),
+        loading: toastOptions().showLoading ? 'Loading settings...' : undefined,
+        success: toastOptions().showSuccess ? 'Settings loaded!' : undefined,
         error: 'Failed to load settings',
-        ...(showSuccess() && { success: 'Settings loaded!' }),
       },
     )
 
@@ -142,9 +150,9 @@ const ToastTest: Component = () => {
       new Promise((resolve) => setTimeout(() => resolve('Cache'), 800)),
       {
         context: 'background',
-        ...(showLoading() && { loading: 'Refreshing cache...' }),
+        loading: toastOptions().showLoading ? 'Refreshing cache...' : undefined,
+        success: toastOptions().showSuccess ? 'Cache refreshed!' : undefined,
         error: 'Failed to refresh cache',
-        ...(showSuccess() && { success: 'Cache refreshed!' }),
       },
     )
 
@@ -188,16 +196,26 @@ const ToastTest: Component = () => {
           <label>
             <input
               type="checkbox"
-              checked={showLoading()}
-              onInput={(e) => setShowLoading(e.currentTarget.checked)}
+              checked={toastOptions().showLoading}
+              onInput={(e) =>
+                setToastOptions((o) => ({
+                  ...o,
+                  showLoading: e.currentTarget.checked,
+                }))
+              }
             />
             showLoading
           </label>
           <label>
             <input
               type="checkbox"
-              checked={showSuccess()}
-              onInput={(e) => setShowSuccess(e.currentTarget.checked)}
+              checked={toastOptions().showSuccess}
+              onInput={(e) =>
+                setToastOptions((o) => ({
+                  ...o,
+                  showSuccess: e.currentTarget.checked,
+                }))
+              }
             />
             showSuccess
           </label>
