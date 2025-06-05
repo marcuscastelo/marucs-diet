@@ -45,6 +45,52 @@ export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
     }
   }
 
+  // Helper to remove leading indentation from template literals
+  function dedent(str: string): string {
+    const lines = str.replace(/^\n/, '').split('\n')
+    const minIndent = lines
+      .filter((line) => line.trim())
+      .reduce((min, line) => {
+        const match = line.match(/^(\s*)/)
+        const indent = match ? match[1].length : 0
+        return min === null ? indent : Math.min(min, indent)
+      }, null as number | null)
+    return lines
+      .map((line) => line.slice(minIndent ?? 0))
+      .join('\n')
+      .trim()
+  }
+
+  // Use dedent for cleaner clipboard content
+  const handleCopy = () => {
+    const timestampText =
+      typeof props.errorDetails.timestamp === 'number'
+        ? `Timestamp: ${new Date(props.errorDetails.timestamp).toISOString()}`
+        : ''
+
+    const fullErrorText = dedent(`
+      Error Message: ${props.errorDetails.message}
+      Stack Trace: ${props.errorDetails.stack ?? 'Not available'}
+      Context: ${props.errorDetails.context ? JSON.stringify(props.errorDetails.context, null, 2) : 'None'}
+      ${timestampText}
+    `)
+
+    if (props.onCopy) {
+      props.onCopy(fullErrorText)
+    } else {
+      // Fallback to clipboard API
+      navigator.clipboard.writeText(fullErrorText).catch(() => {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea')
+        textArea.value = fullErrorText
+        document.body.appendChild(textArea)
+        textArea.select()
+        document.execCommand('copy')
+        document.body.removeChild(textArea)
+      })
+    }
+  }
+
   return (
     <>
       <div class="bg-red-50 border border-red-200 rounded-lg p-4 max-w-md">
@@ -95,13 +141,20 @@ export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
               Object.keys(props.errorDetails.context).length > 0)
           }
         >
-          <div class="mt-3">
+          <div class="mt-3 flex gap-2">
             <button
               type="button"
               class="text-sm text-red-600 hover:text-red-500 font-medium"
               onClick={openModal}
             >
               Show more details
+            </button>
+            <button
+              type="button"
+              class="text-sm text-red-600 hover:text-red-500 font-medium"
+              onClick={handleCopy}
+            >
+              Copy error
             </button>
           </div>
         </Show>
