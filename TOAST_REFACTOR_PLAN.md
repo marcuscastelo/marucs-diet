@@ -338,4 +338,36 @@ Resolves toast pollution issue where 5+ toasts appeared simultaneously
   - Enhanced console logging with toast IDs for better debugging
 - **Tests**: ✅ Type-check and unit tests passed (89/89)
 
+#### Commit 24: solid-toast Integration Fix  
+- **Status**: ✅ Complete  
+- **Description**: Fixed critical missing integration between our queue system and actual solid-toast dismissal
+- **Files modified**:
+  - `src/shared/toast/toastQueue.ts` ✅
+- **Critical Issue Identified**: The `dequeueById()` function was removing toasts from our internal queue but **NOT calling `toast.dismiss()` to actually close the visible toast in the UI**
+- **Root Cause**: We were managing two separate systems:
+  1. Our internal queue/state management 
+  2. solid-toast UI display
+  - When `dequeueById()` was called, it only affected our internal state
+- **Solution**:
+  - Added `solidToastIdMap` to track mapping between our toast IDs and solid-toast IDs
+  - Modified `displayToast()` to store solid-toast ID when creating toasts
+  - Updated `dequeueById()` to call `toast.dismiss(solidToastId)` when removing toasts
+  - Updated `dequeue()` and `clear()` to also dismiss actual solid-toasts
+  - Added cleanup for expired toasts to prevent memory leaks
+- **Technical Implementation**:
+  ```typescript
+  // Store mapping when displaying toast
+  const solidToastId = toast.success(message)
+  solidToastIdMap.set(toastId, solidToastId)
+  
+  // Dismiss actual toast when removing
+  const solidToastId = solidToastIdMap.get(toastId)
+  if (solidToastId !== undefined) {
+    toast.dismiss(solidToastId)
+    solidToastIdMap.delete(toastId)
+  }
+  ```
+- **Impact**: Now when `showPromise()` calls `dequeueById()`, it actually closes the loading toast in the UI
+- **Tests**: ✅ All validation passed (89/89 tests, type-check, lint)
+
 ---

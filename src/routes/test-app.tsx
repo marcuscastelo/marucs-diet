@@ -35,6 +35,7 @@ import DayMacros from '~/sections/day-diet/components/DayMacros'
 import { Providers } from '~/sections/common/context/Providers'
 import { showSuccess } from '~/shared/toast'
 import { BarCodeIcon } from '~/sections/common/components/icons/BarCodeIcon'
+import ToastTest from '~/sections/common/components/ToastTest'
 
 export default function TestApp() {
   const [itemEditModalVisible, setItemEditModalVisible] = createSignal(false)
@@ -108,6 +109,8 @@ export default function TestApp() {
 
       <Providers>
         <DayMacros />
+
+        <ToastTest />
 
         <ModalContextProvider
           visible={templateSearchModalVisible}

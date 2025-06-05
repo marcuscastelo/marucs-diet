@@ -22,6 +22,9 @@ const [isProcessing, setIsProcessing] = createSignal(false)
 let config: ToastQueueConfig = { ...DEFAULT_QUEUE_CONFIG }
 let processingTimeout: number | null = null
 
+// Map to track solid-toast IDs for our internal toast IDs
+const solidToastIdMap = new Map<string, string>()
+
 // Auto-process queue when current toast changes
 createEffect(() => {
   if (!currentToast() && !isProcessing() && queue().length > 0) {
@@ -31,18 +34,25 @@ createEffect(() => {
 
 /**
  * Display a toast in solid-toast with the appropriate styling
+ * Returns the solid-toast ID for later dismissal
  */
-function displayToast(message: string, level: ToastLevel): void {
+function displayToast(
+  message: string,
+  level: ToastLevel,
+  toastId: string,
+): string {
+  let solidToastId: string
+
   switch (level) {
     case 'success':
-      toast.success(message)
+      solidToastId = toast.success(message)
       break
     case 'error':
-      toast.error(message)
+      solidToastId = toast.error(message)
       break
     case 'warning':
       // solid-toast doesn't have warning, use custom or error styling
-      toast(message, {
+      solidToastId = toast(message, {
         style: {
           background: '#f59e0b',
           color: 'white',
@@ -51,9 +61,13 @@ function displayToast(message: string, level: ToastLevel): void {
       break
     case 'info':
     default:
-      toast(message)
+      solidToastId = toast(message)
       break
   }
+
+  // Store the mapping between our toast ID and solid-toast ID
+  solidToastIdMap.set(toastId, solidToastId)
+  return solidToastId
 }
 
 /**
@@ -120,6 +134,14 @@ export function dequeue(): void {
   const current = currentToast()
   if (current) {
     console.debug('[ToastQueue] Dequeuing current toast:', current.message)
+
+    // Dismiss the actual solid-toast if it exists
+    const solidToastId = solidToastIdMap.get(current.id)
+    if (solidToastId !== undefined) {
+      toast.dismiss(solidToastId)
+      solidToastIdMap.delete(current.id)
+    }
+
     setCurrentToast(null)
     setIsProcessing(true)
 
@@ -148,6 +170,14 @@ export function dequeueById(toastId: string): boolean {
       toastId,
       current.message,
     )
+
+    // Dismiss the actual solid-toast if it exists
+    const solidToastId = solidToastIdMap.get(toastId)
+    if (solidToastId !== undefined) {
+      toast.dismiss(solidToastId)
+      solidToastIdMap.delete(toastId)
+    }
+
     setCurrentToast(null)
     setIsProcessing(true)
 
@@ -206,8 +236,8 @@ function processNext(): void {
 
   console.debug('[ToastQueue] Processing next toast:', nextToast.message)
 
-  // Actually display the toast
-  displayToast(nextToast.message, nextToast.options.level)
+  // Actually display the toast and store solid-toast ID
+  displayToast(nextToast.message, nextToast.options.level, nextToast.id)
 
   // Auto-dismiss if duration is set
   const duration = nextToast.options.duration
@@ -234,6 +264,13 @@ function processNext(): void {
  */
 export function clear(): void {
   console.debug('[ToastQueue] Clearing all toasts')
+
+  // Dismiss all solid-toasts
+  solidToastIdMap.forEach((solidToastId) => {
+    toast.dismiss(solidToastId)
+  })
+  solidToastIdMap.clear()
+
   setQueue([])
   setCurrentToast(null)
   setIsProcessing(false)
