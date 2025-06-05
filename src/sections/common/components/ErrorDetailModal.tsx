@@ -8,7 +8,7 @@
 import { createSignal, Show } from 'solid-js'
 import { Portal } from 'solid-js/web'
 import { ToastError } from '../../../shared/toast/toastConfig'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { handleCopyErrorToClipboard } from '~/shared/toast/clipboardErrorUtils'
 
 export type ErrorDetailModalProps = {
   /** The error details to display */
@@ -25,67 +25,13 @@ export type ErrorDetailModalProps = {
 export function ErrorDetailModal(props: ErrorDetailModalProps) {
   const [isCopied, setIsCopied] = createSignal(false)
 
-  const formatErrorForDisplay = (): string => {
-    const sections: string[] = []
-
-    // Main message
-    if (props.errorDetails.message) {
-      sections.push(`Message: ${props.errorDetails.message}`)
-    }
-
-    // Full error if different from message
-    if (
-      props.errorDetails.fullError &&
-      props.errorDetails.fullError !== props.errorDetails.message
-    ) {
-      sections.push(`Details: ${props.errorDetails.fullError}`)
-    }
-
-    // Context information
-    if (
-      props.errorDetails.context &&
-      Object.keys(props.errorDetails.context).length > 0
-    ) {
-      sections.push(
-        `Context: ${JSON.stringify(props.errorDetails.context, null, 2)}`,
-      )
-    }
-
-    // Stack trace
-    if (
-      typeof props.errorDetails.stack === 'string' &&
-      props.errorDetails.stack.trim() !== ''
-    ) {
-      sections.push(`Stack Trace:\n${props.errorDetails.stack}`)
-    }
-
-    // Timestamp if available
-    if (props.errorDetails.timestamp) {
-      const date = new Date(props.errorDetails.timestamp)
-      sections.push(`Timestamp: ${date.toISOString()}`)
-    }
-
-    return sections.join('\n\n')
-  }
-
   const handleCopy = async () => {
-    try {
-      const formattedError = formatErrorForDisplay()
-      const timestamp = new Date().toISOString()
-      const clipboardContent = `Error Report - ${timestamp}\n\n${formattedError}`
-
-      await navigator.clipboard.writeText(clipboardContent)
-      setIsCopied(true)
-      setTimeout(() => setIsCopied(false), 2000)
-    } catch (error) {
-      handleApiError(error, {
-        component: 'ErrorDetailModal',
-        operation: 'handleCopy',
-        additionalData: {
-          errorDetails: props.errorDetails,
-        },
-      })
-    }
+    await handleCopyErrorToClipboard(props.errorDetails, {
+      component: 'ErrorDetailModal',
+      operation: 'handleCopy',
+    })
+    setIsCopied(true)
+    setTimeout(() => setIsCopied(false), 2000)
   }
 
   return (

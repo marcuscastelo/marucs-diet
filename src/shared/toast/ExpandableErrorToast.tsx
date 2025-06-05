@@ -5,11 +5,11 @@
  * that opens a modal with full error information.
  */
 
-import { createSignal } from 'solid-js'
 import toast from 'solid-toast'
 import { ToastError, ToastItem } from './toastConfig'
 import { dequeueById } from './toastQueue'
 import { openErrorModal } from './modalState'
+import { handleCopyErrorToClipboard } from './clipboardErrorUtils'
 
 export type ExpandableErrorToastProps = {
   /** The display message (potentially truncated) */
@@ -28,64 +28,15 @@ export type ExpandableErrorToastProps = {
  * Shows a truncated error message with an option to open a modal with details.
  */
 export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
-  const [isExpanded, setIsExpanded] = createSignal(false)
-
-  const openModal = () => {
-    setIsExpanded(true)
-    openErrorModal(props.errorDetails)
-  }
-
   const handleDismiss = () => {
     if (props.onDismiss) {
       props.onDismiss()
     }
   }
-
-  const isComplexError = () => props.isTruncated
-
-  // Helper to remove leading indentation from template literals
-  function dedent(str: string): string {
-    const lines = str.replace(/^\n/, '').split('\n')
-    const minIndent = lines
-      .filter((line) => line.trim())
-      .reduce(
-        (min, line) => {
-          const match = line.match(/^(\s*)/)
-          const indent = match ? match[1].length : 0
-          return min === null ? indent : Math.min(min, indent)
-        },
-        null as number | null,
-      )
-    return lines
-      .map((line) => line.slice(minIndent ?? 0))
-      .join('\n')
-      .trim()
-  }
-
-  // Use dedent for cleaner clipboard content
   const handleCopy = () => {
-    const timestampText =
-      typeof props.errorDetails.timestamp === 'number'
-        ? `Timestamp: ${new Date(props.errorDetails.timestamp).toISOString()}`
-        : ''
-
-    const fullErrorText = dedent(`
-      Error Message: ${props.errorDetails.message}
-      Stack Trace: ${props.errorDetails.stack ?? 'Not available'}
-      Context: ${props.errorDetails.context ? JSON.stringify(props.errorDetails.context, null, 2) : 'None'}
-      ${timestampText}
-    `)
-
-    // Fallback to clipboard API
-    // TODO: Use clipboard hook
-    navigator.clipboard.writeText(fullErrorText).catch(() => {
-      // Fallback for older browsers
-      const textArea = document.createElement('textarea')
-      textArea.value = fullErrorText
-      document.body.appendChild(textArea)
-      textArea.select()
-      document.execCommand('copy')
-      document.body.removeChild(textArea)
+    void handleCopyErrorToClipboard(props.errorDetails, {
+      component: 'ExpandableErrorToast',
+      operation: 'handleCopy',
     })
   }
 
