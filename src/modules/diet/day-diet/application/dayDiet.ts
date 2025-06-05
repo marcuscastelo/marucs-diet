@@ -18,6 +18,7 @@ import {
 } from '~/shared/toast'
 import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 import { formatError } from '~/shared/formatError'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 export function createDayDiet({
   target_day: targetDay,
@@ -110,67 +111,92 @@ export async function __unused_refetchCurrentDayDiet() {
     })
 }
 
-// TODO:   Stop fetching all day diets
-export async function fetchAllUserDayDiets(userId: User['id']) {
-  await dayRepository
-    .fetchAllUserDayDiets(userId)
-    .then((newDayDiets) => {
-      setDayDiets(newDayDiets)
+async function fetchAllUserDayDiets(userId: User['id']) {
+  // TODO: Optimize fetching to only get necessary data
+  try {
+    const newDayDiets = await dayRepository.fetchAllUserDayDiets(userId)
+    setDayDiets(newDayDiets)
+  } catch (error) {
+    showError(
+      `Falha na comunicação com o servidor ao buscar dieta dos dias do usuário: ${formatError(error)}`,
+      'background',
+    )
+    handleApiError(error, {
+      component: 'dayDietApplication',
+      operation: 'fetchAllUserDayDiets',
+      additionalData: { userId },
     })
-    .catch((error) => {
-      showError(
-        `Falha na comunicação com o servidor ao buscar dieta dos dias do usuário: ${formatError(error)}`,
-        'background',
-      )
-
-      console.error(error)
-    })
+  }
 }
 
 export async function insertDayDiet(dayDiet: NewDayDiet): Promise<void> {
-  await smartToastPromise(dayRepository.insertDayDiet(dayDiet), {
-    context: 'user-action',
-    loading: 'Criando novo dia de dieta...',
-    success: 'Dia de dieta criado com sucesso',
-    error: 'Falha ao criar novo dia de dieta',
-  })
-    .then(async () => {
-      await fetchAllUserDayDiets(dayDiet.owner) // TODO:   Stop fetching all day diets
+  try {
+    await smartToastPromise(dayRepository.insertDayDiet(dayDiet), {
+      context: 'user-action',
+      loading: 'Criando novo dia de dieta...',
+      success: 'Dia de dieta criado com sucesso',
+      error: 'Falha ao criar novo dia de dieta',
     })
-    .catch((error: unknown) => {
-      console.error(error)
+    await smartToastPromise(fetchAllUserDayDiets(dayDiet.owner), {
+      context: 'background',
+      loading: 'Atualizando lista de dietas...',
+      success: 'Lista de dietas atualizada',
+      error: 'Falha ao atualizar lista de dietas',
     })
+  } catch (error) {
+    handleApiError(error, {
+      component: 'dayDietApplication',
+      operation: 'insertDayDiet',
+      additionalData: { owner: dayDiet.owner },
+    })
+  }
 }
 
 export async function updateDayDiet(
   dayId: DayDiet['id'],
   dayDiet: NewDayDiet,
 ): Promise<void> {
-  await smartToastPromise(dayRepository.updateDayDiet(dayId, dayDiet), {
-    context: 'user-action',
-    loading: 'Atualizando dieta...',
-    success: 'Dieta atualizada com sucesso',
-    error: 'Falha ao atualizar dieta',
-  })
-    .then(async () => {
-      await fetchAllUserDayDiets(dayDiet.owner) // TODO:   Stop fetching all day diets
+  try {
+    await smartToastPromise(dayRepository.updateDayDiet(dayId, dayDiet), {
+      context: 'user-action',
+      loading: 'Atualizando dieta...',
+      success: 'Dieta atualizada com sucesso',
+      error: 'Falha ao atualizar dieta',
     })
-    .catch((error: unknown) => {
-      console.error(error)
+    await smartToastPromise(fetchAllUserDayDiets(dayDiet.owner), {
+      context: 'background',
+      loading: 'Atualizando lista de dietas...',
+      success: 'Lista de dietas atualizada',
+      error: 'Falha ao atualizar lista de dietas',
     })
+  } catch (error) {
+    handleApiError(error, {
+      component: 'dayDietApplication',
+      operation: 'updateDayDiet',
+      additionalData: { dayId, owner: dayDiet.owner },
+    })
+  }
 }
 
 export async function deleteDayDiet(dayId: DayDiet['id']): Promise<void> {
-  await smartToastPromise(dayRepository.deleteDayDiet(dayId), {
-    context: 'user-action',
-    loading: 'Deletando dieta...',
-    success: 'Dieta deletada com sucesso',
-    error: 'Falha ao deletar dieta',
-  })
-    .then(async () => {
-      await fetchAllUserDayDiets(dayId) // TODO:   Stop fetching all day diets
+  try {
+    await smartToastPromise(dayRepository.deleteDayDiet(dayId), {
+      context: 'user-action',
+      loading: 'Deletando dieta...',
+      success: 'Dieta deletada com sucesso',
+      error: 'Falha ao deletar dieta',
     })
-    .catch((error: unknown) => {
-      console.error(error)
+    await smartToastPromise(fetchAllUserDayDiets(dayId), {
+      context: 'background',
+      loading: 'Atualizando lista de dietas...',
+      success: 'Lista de dietas atualizada',
+      error: 'Falha ao atualizar lista de dietas',
     })
+  } catch (error) {
+    handleApiError(error, {
+      component: 'dayDietApplication',
+      operation: 'deleteDayDiet',
+      additionalData: { dayId },
+    })
+  }
 }
