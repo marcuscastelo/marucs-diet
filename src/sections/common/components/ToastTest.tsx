@@ -54,12 +54,6 @@ const ToastTest: Component = () => {
     })
   }
 
-  const testMultipleToasts = () => {
-    for (let i = 0; i < 10; i++) {
-      showSuccess(`Toast ${i + 1}`)
-    }
-  }
-
   const testPromiseWithoutMessages = () => {
     const promise = new Promise<string>((resolve) => {
       setTimeout(() => resolve('OK'), 1500)
@@ -177,25 +171,43 @@ const ToastTest: Component = () => {
         <button onClick={testPromiseSuccess}>
           Test Promise Success (2s loading)
         </button>
-
         <button onClick={testPromiseError}>
           Test Promise Error (2s loading)
         </button>
-
-        <button onClick={testMultipleToasts}>
-          Test Multiple Toasts (Queue)
-        </button>
-
+        {/* Failed promise for Promise without messages */}
         <button onClick={testPromiseWithoutMessages}>
           Test Promise without Success Message
         </button>
-
+        <button
+          onClick={() => {
+            const promise = new Promise<string>((_, reject) => {
+              setTimeout(
+                () => reject(new Error('Simulated error (no success message)')),
+                1500,
+              )
+            })
+            showPromise(
+              promise,
+              {
+                loading: 'Loading without success message...',
+                // No success message to test if loading toast is removed correctly
+                error: 'Operation failed (no success message)',
+              },
+              'user-action',
+            ).catch((err) => {
+              console.error(
+                'Error processing promise without success message:',
+                err,
+              )
+            })
+          }}
+        >
+          Test Promise without Success Message (error)
+        </button>
         <hr style={{ margin: '10px 0', border: '1px solid #ccc' }} />
-
         <h3 style={{ margin: '10px 0 5px 0', 'font-size': '16px' }}>
           New smartToastPromiseDetached Tests
         </h3>
-
         <div style={{ display: 'flex', 'align-items': 'center', gap: '10px' }}>
           <label>
             <input
@@ -224,7 +236,6 @@ const ToastTest: Component = () => {
             showSuccess
           </label>
         </div>
-
         <button
           onClick={() => {
             void testSmartToastPromise()
@@ -233,21 +244,70 @@ const ToastTest: Component = () => {
         >
           Test smartToastPromise (awaitable)
         </button>
-
+        <button
+          onClick={() => {
+            void (async () => {
+              try {
+                await smartToastPromise(
+                  new Promise<string>((_, reject) => {
+                    setTimeout(
+                      () =>
+                        reject(
+                          new Error('Simulated error (smartToastPromise)'),
+                        ),
+                      2000,
+                    )
+                  }),
+                  {
+                    context: 'user-action',
+                    loading: 'Loading with smartToastPromise...',
+                    success: 'Smart toast completed!',
+                    error: 'Smart toast failed (error)',
+                  },
+                )
+              } catch (error) {
+                console.error('smartToastPromise error:', error)
+              }
+            })()
+          }}
+          style={{ 'background-color': '#E53935', color: 'white' }}
+        >
+          Test smartToastPromise (error)
+        </button>
         <button
           onClick={testSmartToastPromiseDetached}
           style={{ 'background-color': '#2196F3', color: 'white' }}
         >
           Test smartToastPromiseDetached (fire & forget)
         </button>
-
+        <button
+          onClick={() => {
+            smartToastPromiseDetached(
+              new Promise<string>((_, reject) => {
+                setTimeout(
+                  () => reject(new Error('Simulated error (detached)')),
+                  2000,
+                )
+              }),
+              {
+                context: 'user-action',
+                loading: 'Detached operation...',
+                success: 'Detached operation completed!',
+                error: 'Detached operation failed (error)',
+                options: toastOptions(),
+              },
+            )
+          }}
+          style={{ 'background-color': '#E53935', color: 'white' }}
+        >
+          Test smartToastPromiseDetached (error)
+        </button>
         <button
           onClick={testMultipleDetachedOperations}
           style={{ 'background-color': '#FF9800', color: 'white' }}
         >
           Test Multiple Detached Ops (bootstrap scenario)
         </button>
-
         <hr style={{ margin: '10px 0', border: '1px solid #ccc' }} />
 
         <button onClick={() => toast.error('Direct Toast')}>Test Direct</button>

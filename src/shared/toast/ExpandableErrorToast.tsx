@@ -6,12 +6,12 @@
  */
 
 import toast from 'solid-toast'
-import { ToastError, ToastItem } from './toastConfig'
+import { ToastError, ToastItem, ToastLevel } from './toastConfig'
 import { dequeueById } from './toastQueue'
 import { openErrorModal } from './modalState'
 import { handleCopyErrorToClipboard } from './clipboardErrorUtils'
 
-export type ExpandableErrorToastProps = {
+export type ExpandableToastProps = {
   /** The display message (potentially truncated) */
   message: string
   /** Whether the message was truncated */
@@ -20,6 +20,8 @@ export type ExpandableErrorToastProps = {
   errorDetails: ToastError
   /** Optional dismiss callback */
   onDismiss?: () => void
+  /** Toast type: 'error' | 'success' */
+  level: ToastLevel
 }
 
 /**
@@ -27,7 +29,7 @@ export type ExpandableErrorToastProps = {
  *
  * Shows a truncated error message with an option to open a modal with details.
  */
-export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
+export function ExpandableToast(props: ExpandableToastProps) {
   const handleDismiss = () => {
     if (props.onDismiss) {
       props.onDismiss()
@@ -39,6 +41,14 @@ export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
       operation: 'handleCopy',
     })
   }
+
+  const isComplex = () =>
+    props.isTruncated ||
+    (props.errorDetails &&
+      (props.errorDetails.message ||
+        props.errorDetails.fullError ||
+        props.errorDetails.stack ||
+        Object.keys(props.errorDetails.context || {}).length > 0))
 
   return (
     <div class="relative flex flex-col border-2 border-gray-600 text-gray-100 bg-gray-800 shadow-[0_3px_10px_rgba(0,0,0,0.1),_0_3px_3px_rgba(0,0,0,0.05)] max-w-[350px] pointer-events-auto px-[10px] pr-6 py-2 rounded line-height-[1.3]">
@@ -53,9 +63,10 @@ export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
       </button>
       <ToastContent
         message={props.message}
-        isTruncated={props.isTruncated}
+        complex={isComplex()}
         onCopy={handleCopy}
         errorDetails={props.errorDetails}
+        level={props.level ?? 'error'}
       />
     </div>
   )
@@ -68,7 +79,7 @@ export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
 export function displayExpandableErrorToast(toastItem: ToastItem): string {
   return toast.custom(
     () => (
-      <ExpandableErrorToast
+      <ExpandableToast
         message={toastItem.message}
         isTruncated={
           toastItem.options.expandableErrorData?.isTruncated ?? false
@@ -84,6 +95,7 @@ export function displayExpandableErrorToast(toastItem: ToastItem): string {
         onDismiss={() => {
           dequeueById(toastItem.id)
         }}
+        level={toastItem.options.level}
       />
     ),
     {
@@ -257,9 +269,10 @@ function ErrorIcon() {
  */
 function ToastContent(props: {
   message: string
-  isTruncated: boolean
+  complex: boolean
   onCopy: () => void
   errorDetails: ToastError
+  level: ToastLevel
 }) {
   const handleShowDetails = () => {
     openErrorModal(props.errorDetails)
@@ -267,10 +280,10 @@ function ToastContent(props: {
   return (
     <div class="flex flex-col flex-1 mx-[10px] my-1">
       <div class="flex items-center gap-2">
-        <ErrorIcon />
+        {props.level === 'error' ? <ErrorIcon /> : <SuccessCheckmarkIcon />}
         <span class="whitespace-pre-line">{props.message}</span>
       </div>
-      <div class={props.isTruncated ? 'flex gap-2 mt-2' : 'hidden'}>
+      <div class={props.complex ? 'flex gap-2 mt-2' : 'hidden'}>
         <button
           type="button"
           class="px-2 py-1 rounded bg-gray-700 text-gray-100 text-xs hover:bg-gray-600 transition-colors"

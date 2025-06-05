@@ -12,10 +12,7 @@ import {
   ToastLevel,
   DEFAULT_TOAST_OPTIONS,
 } from './toastConfig'
-import {
-  getUserFriendlyMessage,
-  processErrorMessage,
-} from './errorMessageHandler'
+import { processErrorMessage } from './errorMessageHandler'
 
 /**
  * Creates and enqueues a toast notification with merged options.
@@ -120,40 +117,34 @@ function isNonEmptyString(val: unknown): val is string {
 }
 
 /**
- * Resolves the success message for a promise toast, supporting string or function.
+ * Resolves a value or function with the provided argument.
  *
- * @param data - The resolved data from the promise.
- * @param messages - The toast messages object.
- * @returns The resolved success message, or undefined if not set.
- */
-function resolveSuccessMessage<T>(
-  data: T,
-  messages: { success?: string | ((data: T) => string) },
-): string | undefined {
-  if (messages.success === undefined) return undefined
-  return typeof messages.success === 'function'
-    ? messages.success(data)
-    : messages.success
-}
-
-/**
- * Resolves the error message for a promise toast, supporting string or function.
- * Falls back to a user-friendly message if not set.
+ * Usage examples:
  *
- * @param error - The error thrown by the promise.
- * @param messages - The toast messages object.
- * @returns The resolved error message.
+ * // Example 1: Passing a string value
+ * const result1 = resolveValueOrFunction('Hello', 123)
+ * // result1 === 'Hello'
+ *
+ * // Example 2: Passing a function
+ * const result2 = resolveValueOrFunction((n: number) => `Value: ${n}` , 42)
+ * // result2 === 'Value: 42'
+ *
+ * // Example 3: Passing undefined
+ * const result3 = resolveValueOrFunction(undefined, 'ignored')
+ * // result3 === undefined
+ *
+ * @param valueOrFn - A value or a function to resolve.
+ * @param arg - The argument to pass if valueOrFn is a function.
+ * @returns The resolved value, or undefined if not set.
  */
-function resolveErrorMessage(
-  error: unknown,
-  messages: { error?: string | ((error: unknown) => string) },
-): string {
-  if (messages.error !== undefined) {
-    return typeof messages.error === 'function'
-      ? messages.error(error)
-      : messages.error
-  }
-  return getUserFriendlyMessage(error)
+function resolveValueOrFunction<T, R>(
+  valueOrFn: R | ((arg: T) => R) | undefined,
+  arg: T,
+): R | undefined {
+  if (valueOrFn === undefined) return undefined
+  return typeof valueOrFn === 'function'
+    ? (valueOrFn as (arg: T) => R)(arg)
+    : valueOrFn
 }
 
 /**
@@ -172,7 +163,7 @@ export function show(
   level: ToastLevel = 'info',
   context: ToastContext = 'user-action',
   options: Partial<ToastOptions> = {},
-): void {
+): string {
   const defaultOptions = DEFAULT_TOAST_OPTIONS[context]
   const finalOptions: ToastOptions = {
     context,
@@ -182,9 +173,9 @@ export function show(
   }
   if (shouldSkipBackgroundToast(level, context, finalOptions)) {
     console.debug('[ToastManager] Skipping background toast:', message)
-    return
+    return ''
   }
-  createAndEnqueueToast(message, level, context, options)
+  return createAndEnqueueToast(message, level, context, options)
 }
 
 /**
@@ -201,35 +192,32 @@ export function showError(
   error: unknown,
   context: ToastContext = 'user-action',
   options: Partial<ToastOptions> = {},
-): void {
+): string {
+  const defaultOptions = DEFAULT_TOAST_OPTIONS[context]
   const finalOptions: ToastOptions = {
     context,
     level: 'error',
-    ...DEFAULT_TOAST_OPTIONS[context],
+    ...defaultOptions,
     ...options,
   }
-
-  // Use processErrorMessage to handle truncation
-  const processed = processErrorMessage(error, {
+  // Use processErrorMessage to handle truncation for error toasts
+  const processed = processErrorMessage(error as string, {
     maxLength: finalOptions.maxLength ?? 100,
     includeStack: true, // Include stack for expandable error toast
   })
 
-  // Inline logic from showExpandableErrorToast
   const duration =
     finalOptions.duration ?? (processed.isTruncated ? 8000 : 5000)
-  const toastItem = createToastItem(processed.displayMessage, {
-    level: 'error',
-    context: 'user-action',
+
+  return show(processed.displayMessage, 'error', context, {
+    ...options,
     duration,
     dismissible: true,
     expandableErrorData: {
       isTruncated: processed.isTruncated,
       errorDetails: processed.errorDetails,
-      // onDismiss/onCopy can be added if needed
     },
   })
-  enqueue(toastItem)
 }
 
 /**
@@ -243,8 +231,8 @@ export function showSuccess(
   message: string,
   context: ToastContext = 'user-action',
   options: Partial<ToastOptions> = {},
-): void {
-  show(message, 'success', context, options)
+): string {
+  return show(message, 'success', context, options)
 }
 
 /**
@@ -258,8 +246,8 @@ export function showInfo(
   message: string,
   context: ToastContext = 'user-action',
   options: Partial<ToastOptions> = {},
-): void {
-  show(message, 'info', context, options)
+): string {
+  return show(message, 'info', context, options)
 }
 
 /**
@@ -273,8 +261,8 @@ export function showWarning(
   message: string,
   context: ToastContext = 'user-action',
   options: Partial<ToastOptions> = {},
-): void {
-  show(message, 'warning', context, options)
+): string {
+  return show(message, 'warning', context, options)
 }
 
 /**
@@ -302,40 +290,35 @@ export function showPromise<T>(
   options: Partial<ToastOptions> = {},
 ): Promise<T> {
   filterBackgroundPromiseMessages(messages, context, options)
-  const finalOptions = { ...DEFAULT_TOAST_OPTIONS[context], ...options }
   // Show loading toast if enabled and store its ID for precise removal
   let loadingToastId: string | null = null
-  const loadingMessage = messages.loading
-  if (isNonEmptyString(loadingMessage)) {
-    loadingToastId = createAndEnqueueToast(loadingMessage, 'info', context, {
-      ...finalOptions,
-      duration: 0, // Loading toast should not auto-dismiss
-    })
+  if (isNonEmptyString(messages.loading)) {
+    const loadingOptions = { ...options, duration: 0 }
+    loadingToastId = show(messages.loading, 'info', context, loadingOptions)
   }
+
   // Use our custom promise handling instead of solid-toast
   return promise
     .then((data) => {
-      // Remove the specific loading toast if it exists
-      if (loadingToastId !== null) {
-        dequeueById(loadingToastId)
-      }
       // Show success toast if enabled
-      const successMsg = resolveSuccessMessage(data, messages)
+      const successMsg = resolveValueOrFunction(messages.success, data)
       if (isNonEmptyString(successMsg)) {
-        createAndEnqueueToast(successMsg, 'success', context, finalOptions)
+        showSuccess(successMsg, context, options)
       }
       return data
     })
-    .catch((error: unknown) => {
+    .catch((err: unknown) => {
+      // Show error toast
+      const errorMsg = resolveValueOrFunction(messages.error, err)
+      if (isNonEmptyString(errorMsg)) {
+        showError(err, context, options)
+      }
+      throw err
+    })
+    .finally(() => {
       // Remove the specific loading toast if it exists
-      if (loadingToastId !== null) {
+      if (typeof loadingToastId === 'string' && loadingToastId.length > 0) {
         dequeueById(loadingToastId)
       }
-      // Show error toast
-      const errorMsg = resolveErrorMessage(error, messages)
-      if (isNonEmptyString(errorMsg)) {
-        createAndEnqueueToast(errorMsg, 'error', context, finalOptions)
-      }
-      throw error
     })
 }

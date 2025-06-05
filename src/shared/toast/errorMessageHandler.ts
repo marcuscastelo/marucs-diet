@@ -237,39 +237,3 @@ export async function copyErrorToClipboard(
     return false
   }
 }
-
-/**
- * Get user-friendly error message for common error types
- */
-export function getUserFriendlyMessage(error: unknown): string {
-  const errorDetails = extractErrorDetails(error, false)
-  const message = errorDetails.message.toLowerCase()
-
-  // Network errors
-  if (message.includes('network') || message.includes('fetch')) {
-    return 'Network connection issue. Please check your internet connection.'
-  }
-
-  // Permission errors
-  if (message.includes('permission') || message.includes('unauthorized')) {
-    return "You don't have permission to perform this action."
-  }
-
-  // Timeout errors
-  if (message.includes('timeout') || message.includes('timed out')) {
-    return 'The operation took too long. Please try again.'
-  }
-
-  // Validation errors
-  if (message.includes('validation') || message.includes('invalid')) {
-    return 'Please check your input and try again.'
-  }
-
-  // Server errors
-  if (message.includes('server') || message.includes('500')) {
-    return 'Server error. Please try again later.'
-  }
-
-  // Return original message if no friendly version available
-  return errorDetails.message
-}
