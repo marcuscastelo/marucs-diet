@@ -5,7 +5,13 @@
  * Handles toast creation, queue management, and integration with solid-toast.
  */
 
-import { enqueue, createToastItem, dequeue, clear } from './toastQueue'
+import {
+  enqueue,
+  createToastItem,
+  dequeue,
+  dequeueById,
+  clear,
+} from './toastQueue'
 import {
   ToastOptions,
   ToastContext,
@@ -128,46 +134,63 @@ export function showPromise<T>(
     }
   }
 
-  // Show loading toast if enabled
-  if (messages.loading && messages.loading.length > 0) {
-    const loadingToast = createToastItem(messages.loading, {
+  // Show loading toast if enabled and store its ID for precise removal
+  let loadingToastId: string | null = null
+  const loadingMessage = messages.loading
+  if (loadingMessage !== undefined && loadingMessage.length > 0) {
+    const loadingToast = createToastItem(loadingMessage, {
       ...finalOptions,
       level: 'info',
       duration: 0, // Loading toast should not auto-dismiss
     })
-    enqueue(loadingToast)
+    loadingToastId = enqueue(loadingToast)
   }
 
   // Use our custom promise handling instead of solid-toast
   return promise
     .then((data) => {
-      // Remove loading toast by adding a new toast that will replace it
+      // Remove the specific loading toast if it exists
+      if (loadingToastId !== null) {
+        dequeueById(loadingToastId)
+      }
+
+      // Show success toast if enabled
       const successMsg =
         typeof messages.success === 'function'
           ? messages.success(data)
           : messages.success
 
-      if (successMsg) {
+      if (
+        successMsg !== undefined &&
+        successMsg !== null &&
+        successMsg.length > 0
+      ) {
         const toastItem = createToastItem(successMsg, {
           ...finalOptions,
           level: 'success',
         })
         enqueue(toastItem)
-      } else {
-        // If no success message, just dismiss current loading toast
-        dequeue()
       }
 
       return data
     })
     .catch((error: unknown) => {
-      // Remove loading toast by adding error toast
-      const errorMsg =
-        messages.error !== undefined
-          ? typeof messages.error === 'function'
-            ? messages.error(error)
-            : messages.error
-          : getUserFriendlyMessage(error)
+      // Remove the specific loading toast if it exists
+      if (loadingToastId !== null) {
+        dequeueById(loadingToastId)
+      }
+
+      // Show error toast
+      let errorMsg: string
+      if (messages.error !== undefined) {
+        if (typeof messages.error === 'function') {
+          errorMsg = messages.error(error)
+        } else {
+          errorMsg = messages.error
+        }
+      } else {
+        errorMsg = getUserFriendlyMessage(error)
+      }
 
       const toastItem = createToastItem(errorMsg, {
         ...finalOptions,

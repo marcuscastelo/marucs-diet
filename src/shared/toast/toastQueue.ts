@@ -75,12 +75,12 @@ function sortByPriority(toasts: ToastItem[]): ToastItem[] {
 }
 
 /**
- * Add a toast to the queue
+ * Add a toast to the queue and return the toast ID
  */
-export function enqueue(toast: ToastItem): void {
+export function enqueue(toast: ToastItem): string {
   if (isDuplicateToast(toast)) {
     console.debug('[ToastQueue] Duplicate toast ignored:', toast.message)
-    return
+    return toast.id
   }
 
   // Manage queue size
@@ -99,6 +99,8 @@ export function enqueue(toast: ToastItem): void {
   console.debug(
     '[ToastQueue] Toast enqueued:',
     toast.message,
+    'ID:',
+    toast.id,
     'Queue length:',
     newQueue.length,
   )
@@ -107,6 +109,8 @@ export function enqueue(toast: ToastItem): void {
   if (!currentToast() && !isProcessing()) {
     processNext()
   }
+
+  return toast.id
 }
 
 /**
@@ -115,7 +119,7 @@ export function enqueue(toast: ToastItem): void {
 export function dequeue(): void {
   const current = currentToast()
   if (current) {
-    console.debug('[ToastQueue] Dequeuing toast:', current.message)
+    console.debug('[ToastQueue] Dequeuing current toast:', current.message)
     setCurrentToast(null)
     setIsProcessing(true)
 
@@ -129,6 +133,56 @@ export function dequeue(): void {
       processNext()
     }, config.transitionDelay)
   }
+}
+
+/**
+ * Remove a specific toast by ID from queue or current toast
+ */
+export function dequeueById(toastId: string): boolean {
+  const current = currentToast()
+
+  // Check if the toast to remove is currently displayed
+  if (current?.id === toastId) {
+    console.debug(
+      '[ToastQueue] Dequeuing current toast by ID:',
+      toastId,
+      current.message,
+    )
+    setCurrentToast(null)
+    setIsProcessing(true)
+
+    // Wait for transition delay before showing next toast
+    if (processingTimeout !== null) {
+      clearTimeout(processingTimeout)
+    }
+
+    processingTimeout = window.setTimeout(() => {
+      setIsProcessing(false)
+      processNext()
+    }, config.transitionDelay)
+
+    return true
+  }
+
+  // Otherwise, remove from queue
+  const currentQueue = queue()
+  const toastIndex = currentQueue.findIndex((toast) => toast.id === toastId)
+
+  if (toastIndex >= 0) {
+    const removedToast = currentQueue[toastIndex]
+    const newQueue = currentQueue.filter((toast) => toast.id !== toastId)
+    setQueue(newQueue)
+
+    console.debug(
+      '[ToastQueue] Removed toast from queue by ID:',
+      toastId,
+      removedToast.message,
+    )
+    return true
+  }
+
+  console.debug('[ToastQueue] Toast not found for dequeue by ID:', toastId)
+  return false
 }
 
 /**
@@ -156,7 +210,8 @@ function processNext(): void {
   displayToast(nextToast.message, nextToast.options.level)
 
   // Auto-dismiss if duration is set
-  if (nextToast.options.duration && nextToast.options.duration > 0) {
+  const duration = nextToast.options.duration
+  if (duration !== undefined && duration !== null && duration > 0) {
     if (processingTimeout !== null) {
       clearTimeout(processingTimeout)
     }
@@ -170,7 +225,7 @@ function processNext(): void {
         setIsProcessing(false)
         processNext()
       }, config.transitionDelay)
-    }, nextToast.options.duration)
+    }, duration)
   }
 }
 

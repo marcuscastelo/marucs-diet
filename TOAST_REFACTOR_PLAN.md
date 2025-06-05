@@ -305,35 +305,37 @@ User Action → smartToastPromise → toastManager → toastQueue → displayToa
 
 **Suggested Commit Message**:
 ```
-feat: complete toast system refactor with proper queue control
+feat: complete toast system refactor with ID-based queue control
 
-- Implement centralized smart toast system with 1-toast-at-a-time queue
+- Implement centralized smart toast system with proper 1-toast-at-a-time queue
+- Add ID-based toast management to prevent incorrect toast removal
 - Migrate all console.error calls to showError toast notifications  
 - Remove solid-toast dependencies from toastManager for clean architecture
 - Add deprecation wrapper for legacy toastPromise.ts
 - Fix bootstrap function toast spam during app initialization
+- Fix showPromise to use specific toast IDs for precise loading toast removal
 - All 89 tests passing, zero type/lint errors
 
 Resolves toast pollution issue where 5+ toasts appeared simultaneously
 ```
 
-#### Commit 22: messages.error Integration Fix  
+#### Commit 23: ID-Based Toast Management  
 - **Status**: ✅ Complete  
-- **Description**: Fixed `showPromise()` to properly use custom error messages
+- **Description**: Implemented ID-based toast system to prevent wrong toast removal
 - **Files modified**:
-  - `src/shared/toast/toastManager.ts` ✅
-- **Issue**: The `messages.error` parameter in `showPromise()` was being ignored
+  - `src/shared/toast/toastQueue.ts` ✅ - Added `dequeueById()` function and return ID from `enqueue()`
+  - `src/shared/toast/toastManager.ts` ✅ - Updated `showPromise()` to use ID-based removal
+- **Issue**: `dequeue()` in `showPromise` success/error handlers could accidentally remove unrelated toasts from queue
 - **Solution**: 
-  - Added proper conditional logic to use `messages.error` when provided
-  - Supports both string and function error message formats
-  - Falls back to `getUserFriendlyMessage()` when no custom error message is provided
-- **Implementation**:
-  ```typescript
-  const errorMsg =
-    messages.error !== undefined
-      ? typeof messages.error === 'function'
-        ? messages.error(error)
-        : messages.error
-      : getUserFriendlyMessage(error)
-  ```
-- **Tests**: ✅ Type-check and unit tests passed
+  - Modified `enqueue()` to return the toast ID for precise tracking
+  - Added `dequeueById(toastId: string)` function for specific toast removal
+  - Updated `showPromise()` to store loading toast ID and remove it specifically on success/error
+  - Maintains backward compatibility with existing `dequeue()` function
+- **Technical Details**:
+  - Loading toast ID is stored in `loadingToastId` variable
+  - Success/error handlers use `dequeueById(loadingToastId)` for precise removal
+  - Added proper null checks for TypeScript strict mode
+  - Enhanced console logging with toast IDs for better debugging
+- **Tests**: ✅ Type-check and unit tests passed (89/89)
+
+---
