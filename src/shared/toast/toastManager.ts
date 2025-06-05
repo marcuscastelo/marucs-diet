@@ -21,6 +21,26 @@ import {
 import { getUserFriendlyMessage } from './errorMessageHandler'
 
 /**
+ * Internal helper to create and enqueue a toast with merged options
+ */
+function createAndEnqueueToast(
+  message: string,
+  level: ToastLevel,
+  context: ToastContext,
+  options: Partial<ToastOptions> = {},
+): string {
+  const defaultOptions = DEFAULT_TOAST_OPTIONS[context]
+  const finalOptions: ToastOptions = {
+    context,
+    level,
+    ...defaultOptions,
+    ...options,
+  }
+  const toastItem = createToastItem(message, finalOptions)
+  return enqueue(toastItem)
+}
+
+/**
  * Show a toast with intelligent filtering and queue management
  */
 export function show(
@@ -29,6 +49,7 @@ export function show(
   context: ToastContext = 'user-action',
   options: Partial<ToastOptions> = {},
 ): void {
+  // Skip background toasts for success/info unless explicitly enabled
   const defaultOptions = DEFAULT_TOAST_OPTIONS[context]
   const finalOptions: ToastOptions = {
     context,
@@ -36,8 +57,6 @@ export function show(
     ...defaultOptions,
     ...options,
   }
-
-  // Skip background toasts for success/info unless explicitly enabled
   if (
     context === 'background' &&
     (level === 'success' || level === 'info') &&
@@ -46,11 +65,7 @@ export function show(
     console.debug('[ToastManager] Skipping background toast:', message)
     return
   }
-
-  const toastItem = createToastItem(message, finalOptions)
-
-  // Add to queue for controlled display
-  enqueue(toastItem)
+  createAndEnqueueToast(message, level, context, options)
 }
 
 /**
@@ -123,7 +138,6 @@ export function showPromise<T>(
     ...DEFAULT_TOAST_OPTIONS[context],
     ...options,
   }
-
   // For background operations, don't show loading/success unless explicitly enabled
   if (context === 'background') {
     if (finalOptions.showLoading !== true) {
@@ -133,19 +147,15 @@ export function showPromise<T>(
       messages.success = undefined
     }
   }
-
   // Show loading toast if enabled and store its ID for precise removal
   let loadingToastId: string | null = null
   const loadingMessage = messages.loading
   if (loadingMessage !== undefined && loadingMessage.length > 0) {
-    const loadingToast = createToastItem(loadingMessage, {
+    loadingToastId = createAndEnqueueToast(loadingMessage, 'info', context, {
       ...finalOptions,
-      level: 'info',
       duration: 0, // Loading toast should not auto-dismiss
     })
-    loadingToastId = enqueue(loadingToast)
   }
-
   // Use our custom promise handling instead of solid-toast
   return promise
     .then((data) => {
@@ -153,25 +163,18 @@ export function showPromise<T>(
       if (loadingToastId !== null) {
         dequeueById(loadingToastId)
       }
-
       // Show success toast if enabled
       const successMsg =
         typeof messages.success === 'function'
           ? messages.success(data)
           : messages.success
-
       if (
         successMsg !== undefined &&
         successMsg !== null &&
         successMsg.length > 0
       ) {
-        const toastItem = createToastItem(successMsg, {
-          ...finalOptions,
-          level: 'success',
-        })
-        enqueue(toastItem)
+        createAndEnqueueToast(successMsg, 'success', context, finalOptions)
       }
-
       return data
     })
     .catch((error: unknown) => {
@@ -179,7 +182,6 @@ export function showPromise<T>(
       if (loadingToastId !== null) {
         dequeueById(loadingToastId)
       }
-
       // Show error toast
       let errorMsg: string
       if (messages.error !== undefined) {
@@ -191,13 +193,7 @@ export function showPromise<T>(
       } else {
         errorMsg = getUserFriendlyMessage(error)
       }
-
-      const toastItem = createToastItem(errorMsg, {
-        ...finalOptions,
-        level: 'error',
-      })
-      enqueue(toastItem)
-
+      createAndEnqueueToast(errorMsg, 'error', context, finalOptions)
       throw error
     })
 }
