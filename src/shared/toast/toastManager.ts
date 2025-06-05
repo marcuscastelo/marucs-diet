@@ -103,6 +103,34 @@ function isNonEmptyString(val: unknown): val is string {
 }
 
 /**
+ * Helper to resolve the success message for a promise toast
+ */
+function resolveSuccessMessage<T>(
+  data: T,
+  messages: { success?: string | ((data: T) => string) },
+): string | undefined {
+  if (messages.success === undefined) return undefined
+  return typeof messages.success === 'function'
+    ? messages.success(data)
+    : messages.success
+}
+
+/**
+ * Helper to resolve the error message for a promise toast
+ */
+function resolveErrorMessage(
+  error: unknown,
+  messages: { error?: string | ((error: unknown) => string) },
+): string {
+  if (messages.error !== undefined) {
+    return typeof messages.error === 'function'
+      ? messages.error(error)
+      : messages.error
+  }
+  return getUserFriendlyMessage(error)
+}
+
+/**
  * Show a toast with intelligent filtering and queue management
  */
 export function show(
@@ -210,10 +238,7 @@ export function showPromise<T>(
         dequeueById(loadingToastId)
       }
       // Show success toast if enabled
-      const successMsg =
-        typeof messages.success === 'function'
-          ? messages.success(data)
-          : messages.success
+      const successMsg = resolveSuccessMessage(data, messages)
       if (isNonEmptyString(successMsg)) {
         createAndEnqueueToast(successMsg, 'success', context, finalOptions)
       }
@@ -225,16 +250,7 @@ export function showPromise<T>(
         dequeueById(loadingToastId)
       }
       // Show error toast
-      let errorMsg: string
-      if (messages.error !== undefined) {
-        if (typeof messages.error === 'function') {
-          errorMsg = messages.error(error)
-        } else {
-          errorMsg = messages.error
-        }
-      } else {
-        errorMsg = getUserFriendlyMessage(error)
-      }
+      const errorMsg = resolveErrorMessage(error, messages)
       if (isNonEmptyString(errorMsg)) {
         createAndEnqueueToast(errorMsg, 'error', context, finalOptions)
       }
