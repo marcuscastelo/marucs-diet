@@ -108,13 +108,10 @@ const ToastTest: Component = () => {
       }),
       {
         context: 'user-action',
-        loading: toastOptions().showLoading
-          ? 'Detached operation...'
-          : undefined,
-        success: toastOptions().showSuccess
-          ? 'Detached operation completed!'
-          : undefined,
+        loading: 'Detached operation...',
+        success: 'Detached operation completed!',
         error: 'Detached operation failed',
+        options: toastOptions(),
       },
     )
 
@@ -128,11 +125,10 @@ const ToastTest: Component = () => {
       new Promise((resolve) => setTimeout(() => resolve('User data'), 1000)),
       {
         context: 'background',
-        loading: toastOptions().showLoading
-          ? 'Loading user data...'
-          : undefined,
-        success: toastOptions().showSuccess ? 'User data loaded!' : undefined,
+        loading: 'Loading user data...',
+        success: 'User data loaded!',
         error: 'Failed to load user data',
+        options: toastOptions(),
       },
     )
 
@@ -140,9 +136,10 @@ const ToastTest: Component = () => {
       new Promise((resolve) => setTimeout(() => resolve('Settings'), 1500)),
       {
         context: 'background',
-        loading: toastOptions().showLoading ? 'Loading settings...' : undefined,
-        success: toastOptions().showSuccess ? 'Settings loaded!' : undefined,
+        loading: 'Loading settings...',
+        success: 'Settings loaded!',
         error: 'Failed to load settings',
+        options: toastOptions(),
       },
     )
 
@@ -150,9 +147,10 @@ const ToastTest: Component = () => {
       new Promise((resolve) => setTimeout(() => resolve('Cache'), 800)),
       {
         context: 'background',
-        loading: toastOptions().showLoading ? 'Refreshing cache...' : undefined,
-        success: toastOptions().showSuccess ? 'Cache refreshed!' : undefined,
+        loading: 'Refreshing cache...',
+        success: 'Cache refreshed!',
         error: 'Failed to refresh cache',
+        options: toastOptions(),
       },
     )
 
