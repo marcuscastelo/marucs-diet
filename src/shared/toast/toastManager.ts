@@ -41,6 +41,29 @@ function createAndEnqueueToast(
 }
 
 /**
+ * Helper to determine if a toast should be skipped in background context
+ */
+function shouldSkipBackgroundToast(
+  level: ToastLevel,
+  context: ToastContext,
+  options: Partial<ToastOptions>,
+): boolean {
+  // Defensive: fallback to 'user-action' if context is undefined
+  const ctx: ToastContext = context ?? 'user-action'
+  const opts = {
+    ...DEFAULT_TOAST_OPTIONS[ctx],
+    ...options,
+    context: ctx,
+    level,
+  }
+  return (
+    ctx === 'background' &&
+    (level === 'success' || level === 'info') &&
+    opts.showSuccess !== true
+  )
+}
+
+/**
  * Show a toast with intelligent filtering and queue management
  */
 export function show(
@@ -49,7 +72,6 @@ export function show(
   context: ToastContext = 'user-action',
   options: Partial<ToastOptions> = {},
 ): void {
-  // Skip background toasts for success/info unless explicitly enabled
   const defaultOptions = DEFAULT_TOAST_OPTIONS[context]
   const finalOptions: ToastOptions = {
     context,
@@ -57,11 +79,7 @@ export function show(
     ...defaultOptions,
     ...options,
   }
-  if (
-    context === 'background' &&
-    (level === 'success' || level === 'info') &&
-    finalOptions.showSuccess !== true
-  ) {
+  if (shouldSkipBackgroundToast(level, context, finalOptions)) {
     console.debug('[ToastManager] Skipping background toast:', message)
     return
   }
@@ -134,19 +152,26 @@ export function showPromise<T>(
   context: ToastContext = 'user-action',
   options: Partial<ToastOptions> = {},
 ): Promise<T> {
-  const finalOptions = {
+  // Defensive: always merge to get required fields
+  const optsInfo = {
     ...DEFAULT_TOAST_OPTIONS[context],
     ...options,
+    context,
+    level: 'info' as ToastLevel,
   }
-  // For background operations, don't show loading/success unless explicitly enabled
-  if (context === 'background') {
-    if (finalOptions.showLoading !== true) {
-      messages.loading = undefined
-    }
-    if (finalOptions.showSuccess !== true) {
-      messages.success = undefined
-    }
+  const optsSuccess = {
+    ...DEFAULT_TOAST_OPTIONS[context],
+    ...options,
+    context,
+    level: 'success' as ToastLevel,
   }
+  if (shouldSkipBackgroundToast('info', context, optsInfo)) {
+    messages.loading = undefined
+  }
+  if (shouldSkipBackgroundToast('success', context, optsSuccess)) {
+    messages.success = undefined
+  }
+  const finalOptions = { ...DEFAULT_TOAST_OPTIONS[context], ...options }
   // Show loading toast if enabled and store its ID for precise removal
   let loadingToastId: string | null = null
   const loadingMessage = messages.loading
