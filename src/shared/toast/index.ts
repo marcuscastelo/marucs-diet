@@ -13,6 +13,9 @@ export * from './toastQueue'
 // Error message handling
 export * from './errorMessageHandler'
 
+// Error toast handling
+export * from './errorHandler'
+
 // Main toast manager
 export * from './toastManager'
 

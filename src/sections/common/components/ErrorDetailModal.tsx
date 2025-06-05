@@ -1,0 +1,262 @@
+/**
+ * Error Detail Modal Component
+ *
+ * A modal component that displays detailed error information,
+ * allowing users to view full stack traces and copy error details.
+ */
+
+import { createSignal, Show } from 'solid-js'
+import { Portal } from 'solid-js/web'
+import { ToastError } from '../../../shared/toast/toastConfig'
+
+export type ErrorDetailModalProps = {
+  /** The error details to display */
+  errorDetails: ToastError
+  /** Whether the modal is open */
+  isOpen: boolean
+  /** Callback when the modal is closed */
+  onClose: () => void
+}
+
+/**
+ * Modal component for displaying detailed error information
+ */
+export function ErrorDetailModal(props: ErrorDetailModalProps) {
+  const [isCopied, setIsCopied] = createSignal(false)
+
+  const formatErrorForDisplay = (): string => {
+    const sections: string[] = []
+
+    // Main message
+    if (props.errorDetails.message) {
+      sections.push(`Message: ${props.errorDetails.message}`)
+    }
+
+    // Full error if different from message
+    if (
+      props.errorDetails.fullError &&
+      props.errorDetails.fullError !== props.errorDetails.message
+    ) {
+      sections.push(`Details: ${props.errorDetails.fullError}`)
+    }
+
+    // Context information
+    if (
+      props.errorDetails.context &&
+      Object.keys(props.errorDetails.context).length > 0
+    ) {
+      sections.push(
+        `Context: ${JSON.stringify(props.errorDetails.context, null, 2)}`,
+      )
+    }
+
+    // Stack trace
+    if (props.errorDetails.stack) {
+      sections.push(`Stack Trace:\n${props.errorDetails.stack}`)
+    }
+
+    // Timestamp if available
+    if (props.errorDetails.timestamp) {
+      const date = new Date(props.errorDetails.timestamp)
+      sections.push(`Timestamp: ${date.toISOString()}`)
+    }
+
+    return sections.join('\n\n')
+  }
+
+  const handleCopy = async () => {
+    try {
+      const formattedError = formatErrorForDisplay()
+      const timestamp = new Date().toISOString()
+      const clipboardContent = `Error Report - ${timestamp}\n\n${formattedError}`
+
+      await navigator.clipboard.writeText(clipboardContent)
+      setIsCopied(true)
+      setTimeout(() => setIsCopied(false), 2000)
+    } catch (error) {
+      // Fail silently, user can still manually copy
+      console.error('Failed to copy error to clipboard')
+    }
+  }
+
+  // If modal is not open, don't render anything
+  if (!props.isOpen) {
+    return null
+  }
+
+  return (
+    <Portal>
+      <div class="fixed inset-0 z-50 overflow-y-auto">
+        {/* Backdrop */}
+        <div
+          class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+          onClick={props.onClose}
+          aria-hidden="true"
+        />
+
+        {/* Modal */}
+        <div class="flex min-h-full items-center justify-center">
+          <div class="relative bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-screen overflow-hidden m-4">
+            {/* Header */}
+            <div class="bg-red-50 px-6 py-4 border-b border-red-100">
+              <div class="flex items-center justify-between">
+                <h3 class="text-lg font-medium text-red-900 flex items-center">
+                  <svg
+                    class="h-5 w-5 text-red-500 mr-2"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                  Error Details
+                </h3>
+                <button
+                  type="button"
+                  class="text-red-400 hover:text-red-500 focus:outline-none"
+                  onClick={props.onClose}
+                >
+                  <span class="sr-only">Close</span>
+                  <svg
+                    class="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div class="px-6 py-4 max-h-[60vh] overflow-y-auto">
+              {/* Main error message */}
+              <div class="mb-4">
+                <h4 class="font-medium text-gray-900 mb-1">Error Message</h4>
+                <div class="bg-red-50 text-red-700 p-3 rounded-md">
+                  {props.errorDetails.message}
+                </div>
+              </div>
+
+              {/* Full error if available and different */}
+              <Show
+                when={
+                  props.errorDetails.fullError &&
+                  props.errorDetails.fullError !== props.errorDetails.message
+                }
+              >
+                <div class="mb-4">
+                  <h4 class="font-medium text-gray-900 mb-1">Full Error</h4>
+                  <div class="bg-gray-50 text-gray-700 p-3 rounded-md whitespace-pre-wrap">
+                    {props.errorDetails.fullError}
+                  </div>
+                </div>
+              </Show>
+
+              {/* Context information if available */}
+              <Show
+                when={
+                  props.errorDetails.context &&
+                  Object.keys(props.errorDetails.context).length > 0
+                }
+              >
+                <div class="mb-4">
+                  <h4 class="font-medium text-gray-900 mb-1">
+                    Context Information
+                  </h4>
+                  <pre class="bg-gray-50 text-gray-700 p-3 rounded-md text-sm overflow-x-auto">
+                    {JSON.stringify(props.errorDetails.context, null, 2)}
+                  </pre>
+                </div>
+              </Show>
+
+              {/* Stack trace if available */}
+              <Show when={props.errorDetails.stack}>
+                <div class="mb-4">
+                  <h4 class="font-medium text-gray-900 mb-1">Stack Trace</h4>
+                  <pre class="bg-gray-50 text-gray-700 p-3 rounded-md text-xs overflow-x-auto whitespace-pre-wrap">
+                    {props.errorDetails.stack}
+                  </pre>
+                </div>
+              </Show>
+
+              {/* Timestamp if available */}
+              <Show when={props.errorDetails.timestamp}>
+                <div class="text-sm text-gray-500">
+                  Occurred at:{' '}
+                  {new Date(
+                    props.errorDetails.timestamp as number,
+                  ).toLocaleString()}
+                </div>
+              </Show>
+            </div>
+
+            {/* Footer with actions */}
+            <div class="bg-gray-50 px-6 py-3 flex justify-end border-t">
+              <button
+                type="button"
+                class="mr-2 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                onClick={() => void handleCopy()}
+              >
+                <Show
+                  when={isCopied()}
+                  fallback={
+                    <>
+                      <svg
+                        class="mr-1.5 h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                        />
+                      </svg>
+                      Copy to Clipboard
+                    </>
+                  }
+                >
+                  <>
+                    <svg
+                      class="mr-1.5 h-4 w-4 text-green-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span class="text-green-500">Copied!</span>
+                  </>
+                </Show>
+              </button>
+              <button
+                type="button"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                onClick={props.onClose}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Portal>
+  )
+}

@@ -13,10 +13,7 @@ import {
   ToastLevel,
   DEFAULT_TOAST_OPTIONS,
 } from './toastConfig'
-import {
-  processErrorMessage,
-  getUserFriendlyMessage,
-} from './errorMessageHandler'
+import { getUserFriendlyMessage } from './errorMessageHandler'
 
 /**
  * Display a toast in solid-toast with the appropriate styling
@@ -89,11 +86,6 @@ export function showError(
   context: ToastContext = 'user-action',
   options: Partial<ToastOptions> = {},
 ): void {
-  const processedError = processErrorMessage(error, {
-    maxLength:
-      options.maxLength ?? DEFAULT_TOAST_OPTIONS[context]?.maxLength ?? 100,
-  })
-
   const finalOptions: ToastOptions = {
     context,
     level: 'error',
