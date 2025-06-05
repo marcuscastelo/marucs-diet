@@ -1,6 +1,6 @@
 /**
  * Toast Test Component
- * Component para testar o sistema de toast com ID-based management
+ * Component to test the toast system with ID-based management
  */
 
 import { Component, createSignal } from 'solid-js'
@@ -19,37 +19,37 @@ const ToastTest: Component = () => {
 
   const testPromiseSuccess = () => {
     const promise = new Promise<string>((resolve) => {
-      setTimeout(() => resolve('Sucesso!'), 2000)
+      setTimeout(() => resolve('Success!'), 2000)
     })
 
     showPromise(
       promise,
       {
-        loading: 'Carregando...',
-        success: 'Operação concluída com sucesso!',
-        error: 'Erro na operação',
+        loading: 'Loading...',
+        success: 'Operation completed successfully!',
+        error: 'Error in operation',
       },
       'user-action',
     ).catch((err) => {
-      console.error('Erro ao processar promise:', err)
+      console.error('Error processing promise:', err)
     })
   }
 
   const testPromiseError = () => {
     const promise = new Promise<string>((_, reject) => {
-      setTimeout(() => reject(new Error('Erro simulado')), 2000)
+      setTimeout(() => reject(new Error('Simulated error')), 2000)
     })
 
     showPromise(
       promise,
       {
-        loading: 'Processando...',
-        success: 'Sucesso!',
-        error: 'Falha na operação',
+        loading: 'Processing...',
+        success: 'Success!',
+        error: 'Operation failed',
       },
       'user-action',
     ).catch((err) => {
-      console.error('Erro ao processar promise:', err)
+      console.error('Error processing promise:', err)
     })
   }
 
@@ -67,12 +67,12 @@ const ToastTest: Component = () => {
     showPromise(
       promise,
       {
-        loading: 'Carregando sem success message...',
-        // Sem success message para testar se loading toast é removido corretamente
+        loading: 'Loading without success message...',
+        // No success message to test if loading toast is removed correctly
       },
       'user-action',
     ).catch((err) => {
-      console.error('Erro ao processar promise sem mensagem de sucesso:', err)
+      console.error('Error processing promise without success message:', err)
     })
   }
 

@@ -345,7 +345,7 @@ function MacroTargetSetting(props: {
   // const makeOnSetPercentage =
   //   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   //   (macro: 'carbs' | 'protein' | 'fat') => (percentage: number) => {
-  //     showError('Alterar porcentagem diretamente ainda não implementado', 'user-action')
+  //     showError('Direct percentage change not yet implemented', 'user-action')
   //   }
 
   return (
