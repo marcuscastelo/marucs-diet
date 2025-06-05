@@ -106,7 +106,7 @@ export function ErrorDetailModal(props: ErrorDetailModalProps) {
 
           {/* Modal */}
           <div class="flex min-h-full items-center justify-center">
-            <div class="relative bg-slate-800 text-white rounded-lg shadow-xl max-w-3xl w-full max-h-screen overflow-hidden m-4 dark:bg-slate-900">
+            <div class="relative border-2 border-gray-600 p-1 bg-[#1f2937] text-[#f3f4f6] rounded-lg shadow-xl max-w-3xl w-full max-h-screen overflow-hidden m-4">
               {/* Header */}
               <div class="bg-slate-900 px-6 py-4 border-b border-red-700 dark:bg-slate-800 dark:border-red-800">
                 <div class="flex items-center justify-between">

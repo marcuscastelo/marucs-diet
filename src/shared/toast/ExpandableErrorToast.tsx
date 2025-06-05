@@ -94,7 +94,10 @@ export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
 
   return (
     <>
-      <div class="bg-slate-800 border border-red-500 rounded-lg p-4 max-w-md text-white dark:bg-slate-900 dark:border-red-600">
+      <div
+        class="border-2 border-gray-600 p-1 rounded-lg max-w-md"
+        style={{ background: '#1f2937', color: '#f3f4f6' }}
+      >
         {/* Header with error icon and message */}
         <div class="flex items-start">
           <div class="flex-shrink-0">
