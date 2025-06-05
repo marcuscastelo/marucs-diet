@@ -94,15 +94,12 @@ export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
 
   return (
     <>
-      <div
-        class="border-2 border-gray-600 p-1 rounded-lg max-w-md"
-        style={{ background: '#1f2937', color: '#f3f4f6' }}
-      >
+      <div class="border-2 border-red-500 bg-[#23272f] text-[#f3f4f6] shadow-xl rounded-xl max-w-md px-6 py-4 transition-all duration-200">
         {/* Header with error icon and message */}
-        <div class="flex items-start">
-          <div class="flex-shrink-0">
+        <div class="flex items-start gap-3">
+          <div class="flex-shrink-0 mt-1">
             <svg
-              class="h-5 w-5 text-red-400"
+              class="h-6 w-6 text-red-400"
               viewBox="0 0 20 20"
               fill="currentColor"
             >
@@ -113,17 +110,19 @@ export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
               />
             </svg>
           </div>
-          <div class="ml-3 flex-1">
-            <h3 class="text-sm font-medium text-red-400">Error</h3>
-            <p class="mt-1 text-sm text-red-200">{props.message}</p>
+          <div class="flex-1">
+            <h3 class="text-base font-semibold text-red-300 mb-1 tracking-wide">
+              Error
+            </h3>
+            <p class="text-sm text-gray-200 leading-snug">{props.message}</p>
           </div>
-          <div class="ml-4 flex-shrink-0">
+          <div class="ml-2 flex-shrink-0">
             <button
               type="button"
-              class="bg-slate-800 rounded-md inline-flex text-red-400 hover:text-red-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:bg-slate-900"
+              class="rounded-full p-1 text-red-400 hover:text-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
               onClick={handleDismiss}
+              title="Dismiss"
             >
-              <span class="sr-only">Dismiss</span>
               <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path
                   fill-rule="evenodd"
@@ -134,8 +133,7 @@ export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
             </button>
           </div>
         </div>
-
-        {/* Show details button if message was truncated or has additional details */}
+        {/* Show details/copy buttons */}
         <Show
           when={
             props.isTruncated ||
@@ -145,10 +143,10 @@ export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
               Object.keys(props.errorDetails.context).length > 0)
           }
         >
-          <div class="mt-3 flex gap-2">
+          <div class="mt-4 flex gap-3">
             <button
               type="button"
-              class="text-sm text-red-300 hover:text-red-200 font-medium"
+              class="px-3 py-1 rounded-md text-sm font-medium bg-red-900/60 text-red-200 hover:bg-red-700/80 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
               aria-expanded={isExpanded() ? 'true' : 'false'}
               onClick={openModal}
             >
@@ -156,7 +154,7 @@ export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
             </button>
             <button
               type="button"
-              class="text-sm text-blue-300 hover:text-blue-200 font-medium"
+              class="px-3 py-1 rounded-md text-sm font-medium bg-blue-900/60 text-blue-200 hover:bg-blue-700/80 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
               onClick={handleCopy}
             >
               Copy error
