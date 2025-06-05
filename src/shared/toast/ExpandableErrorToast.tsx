@@ -50,11 +50,14 @@ export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
     const lines = str.replace(/^\n/, '').split('\n')
     const minIndent = lines
       .filter((line) => line.trim())
-      .reduce((min, line) => {
-        const match = line.match(/^(\s*)/)
-        const indent = match ? match[1].length : 0
-        return min === null ? indent : Math.min(min, indent)
-      }, null as number | null)
+      .reduce(
+        (min, line) => {
+          const match = line.match(/^(\s*)/)
+          const indent = match ? match[1].length : 0
+          return min === null ? indent : Math.min(min, indent)
+        },
+        null as number | null,
+      )
     return lines
       .map((line) => line.slice(minIndent ?? 0))
       .join('\n')

@@ -12,7 +12,10 @@ import {
   ToastLevel,
   DEFAULT_TOAST_OPTIONS,
 } from './toastConfig'
-import { getUserFriendlyMessage } from './errorMessageHandler'
+import {
+  getUserFriendlyMessage,
+  processErrorMessage,
+} from './errorMessageHandler'
 
 /**
  * Creates and enqueues a toast notification with merged options.
@@ -206,9 +209,13 @@ export function showError(
     ...options,
   }
 
-  const userFriendlyMessage = getUserFriendlyMessage(error)
+  // Use processErrorMessage to handle truncation
+  const processed = processErrorMessage(error, {
+    maxLength: finalOptions.maxLength ?? 100,
+    includeStack: false,
+  })
 
-  show(userFriendlyMessage, 'error', context, finalOptions)
+  show(processed.displayMessage, 'error', context, finalOptions)
 }
 
 /**
