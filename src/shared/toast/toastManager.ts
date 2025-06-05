@@ -5,13 +5,7 @@
  * Handles toast creation, queue management, and integration with solid-toast.
  */
 
-import {
-  enqueue,
-  createToastItem,
-  dequeue,
-  dequeueById,
-  clear,
-} from './toastQueue'
+import { enqueue, createToastItem, dequeueById } from './toastQueue'
 import {
   ToastOptions,
   ToastContext,
@@ -257,32 +251,3 @@ export function showPromise<T>(
       throw error
     })
 }
-
-/**
- * Clear all toasts
- */
-export function clearAll(): void {
-  clear()
-}
-
-/**
- * Dismiss current toast and move to next in queue
- */
-export function dismiss(): void {
-  dequeue()
-}
-
-// Legacy class-based interface for backward compatibility
-export class ToastManager {
-  show = show
-  showError = showError
-  showSuccess = showSuccess
-  showInfo = showInfo
-  showWarning = showWarning
-  showPromise = showPromise
-  clearAll = clearAll
-  dismiss = dismiss
-}
-
-// Default instance for convenience
-export const toastManager = new ToastManager()
