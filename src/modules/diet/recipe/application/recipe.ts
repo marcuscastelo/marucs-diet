@@ -69,7 +69,7 @@ export async function insertRecipe(newRecipe: NewRecipe) {
 
 export async function updateRecipe(recipeId: Recipe['id'], newRecipe: Recipe) {
   try {
-    const weight = await smartToastPromise(
+    const recipe = await smartToastPromise(
       recipeRepository.updateRecipe(recipeId, newRecipe),
       {
         context: 'user-action',
@@ -78,7 +78,7 @@ export async function updateRecipe(recipeId: Recipe['id'], newRecipe: Recipe) {
         error: 'Falha ao atualizar receita',
       },
     )
-    return weight
+    return recipe
   } catch (error) {
     handleApiError(error, {
       component: 'recipeApplication',
@@ -91,7 +91,7 @@ export async function updateRecipe(recipeId: Recipe['id'], newRecipe: Recipe) {
 
 export async function deleteRecipe(recipeId: Recipe['id']) {
   try {
-    const weight = await smartToastPromise(
+    const recipe = await smartToastPromise(
       recipeRepository.deleteRecipe(recipeId),
       {
         context: 'user-action',
@@ -100,7 +100,7 @@ export async function deleteRecipe(recipeId: Recipe['id']) {
         error: 'Falha ao deletar receita',
       },
     )
-    return weight
+    return recipe
   } catch (error) {
     handleApiError(error, {
       component: 'recipeApplication',
