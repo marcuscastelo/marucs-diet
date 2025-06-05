@@ -94,7 +94,7 @@ export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
 
   return (
     <>
-      <div class="bg-red-50 border border-red-200 rounded-lg p-4 max-w-md">
+      <div class="bg-slate-800 border border-red-500 rounded-lg p-4 max-w-md text-white dark:bg-slate-900 dark:border-red-600">
         {/* Header with error icon and message */}
         <div class="flex items-start">
           <div class="flex-shrink-0">
@@ -111,13 +111,13 @@ export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
             </svg>
           </div>
           <div class="ml-3 flex-1">
-            <h3 class="text-sm font-medium text-red-800">Error</h3>
-            <p class="mt-1 text-sm text-red-700">{props.message}</p>
+            <h3 class="text-sm font-medium text-red-400">Error</h3>
+            <p class="mt-1 text-sm text-red-200">{props.message}</p>
           </div>
           <div class="ml-4 flex-shrink-0">
             <button
               type="button"
-              class="bg-red-50 rounded-md inline-flex text-red-400 hover:text-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              class="bg-slate-800 rounded-md inline-flex text-red-400 hover:text-red-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:bg-slate-900"
               onClick={handleDismiss}
             >
               <span class="sr-only">Dismiss</span>
@@ -145,7 +145,7 @@ export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
           <div class="mt-3 flex gap-2">
             <button
               type="button"
-              class="text-sm text-red-600 hover:text-red-500 font-medium"
+              class="text-sm text-red-300 hover:text-red-200 font-medium"
               aria-expanded={isExpanded() ? 'true' : 'false'}
               onClick={openModal}
             >
@@ -153,7 +153,7 @@ export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
             </button>
             <button
               type="button"
-              class="text-sm text-red-600 hover:text-red-500 font-medium"
+              class="text-sm text-blue-300 hover:text-blue-200 font-medium"
               onClick={handleCopy}
             >
               Copy error

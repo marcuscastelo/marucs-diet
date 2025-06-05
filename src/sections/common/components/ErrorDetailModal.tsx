@@ -99,20 +99,20 @@ export function ErrorDetailModal(props: ErrorDetailModalProps) {
         >
           {/* Backdrop */}
           <div
-            class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+            class="fixed inset-0 bg-black bg-opacity-60 transition-opacity dark:bg-slate-900 dark:bg-opacity-80"
             onClick={() => props.onClose()}
             aria-hidden="true"
           />
 
           {/* Modal */}
           <div class="flex min-h-full items-center justify-center">
-            <div class="relative bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-screen overflow-hidden m-4">
+            <div class="relative bg-slate-800 text-white rounded-lg shadow-xl max-w-3xl w-full max-h-screen overflow-hidden m-4 dark:bg-slate-900">
               {/* Header */}
-              <div class="bg-red-50 px-6 py-4 border-b border-red-100">
+              <div class="bg-slate-900 px-6 py-4 border-b border-red-700 dark:bg-slate-800 dark:border-red-800">
                 <div class="flex items-center justify-between">
                   <h3
                     id="error-detail-modal-title"
-                    class="text-lg font-medium text-red-900 flex items-center"
+                    class="text-lg font-medium text-red-400 flex items-center"
                   >
                     <svg
                       class="h-5 w-5 text-red-500 mr-2"
@@ -154,8 +154,8 @@ export function ErrorDetailModal(props: ErrorDetailModalProps) {
               <div class="px-6 py-4 max-h-[60vh] overflow-y-auto">
                 {/* Main error message */}
                 <div class="mb-4">
-                  <h4 class="font-medium text-gray-900 mb-1">Error Message</h4>
-                  <div class="bg-red-50 text-red-700 p-3 rounded-md">
+                  <h4 class="font-medium text-red-300 mb-1">Error Message</h4>
+                  <div class="bg-slate-900 text-red-200 p-3 rounded-md dark:bg-slate-800">
                     {props.errorDetails.message}
                   </div>
                 </div>
@@ -169,8 +169,8 @@ export function ErrorDetailModal(props: ErrorDetailModalProps) {
                   }
                 >
                   <div class="mb-4">
-                    <h4 class="font-medium text-gray-900 mb-1">Full Error</h4>
-                    <div class="bg-gray-50 text-gray-700 p-3 rounded-md whitespace-pre-wrap">
+                    <h4 class="font-medium text-red-300 mb-1">Full Error</h4>
+                    <div class="bg-slate-900 text-red-200 p-3 rounded-md whitespace-pre-wrap dark:bg-slate-800">
                       {props.errorDetails.fullError}
                     </div>
                   </div>
@@ -184,10 +184,10 @@ export function ErrorDetailModal(props: ErrorDetailModalProps) {
                   }
                 >
                   <div class="mb-4">
-                    <h4 class="font-medium text-gray-900 mb-1">
+                    <h4 class="font-medium text-blue-300 mb-1">
                       Context Information
                     </h4>
-                    <pre class="bg-gray-50 text-gray-700 p-3 rounded-md text-sm overflow-x-auto">
+                    <pre class="bg-slate-900 text-blue-200 p-3 rounded-md text-sm overflow-x-auto dark:bg-slate-800">
                       {JSON.stringify(props.errorDetails.context, null, 2)}
                     </pre>
                   </div>
@@ -200,8 +200,10 @@ export function ErrorDetailModal(props: ErrorDetailModalProps) {
                   }
                 >
                   <div class="mb-4">
-                    <h4 class="font-medium text-gray-900 mb-1">Stack Trace</h4>
-                    <pre class="bg-gray-50 text-gray-700 p-3 rounded-md text-xs overflow-x-auto whitespace-pre-wrap">
+                    <h4 class="font-medium text-yellow-300 mb-1">
+                      Stack Trace
+                    </h4>
+                    <pre class="bg-slate-900 text-yellow-200 p-3 rounded-md text-xs overflow-x-auto whitespace-pre-wrap dark:bg-slate-800">
                       {props.errorDetails.stack}
                     </pre>
                   </div>
@@ -209,7 +211,7 @@ export function ErrorDetailModal(props: ErrorDetailModalProps) {
 
                 {/* Timestamp if available */}
                 <Show when={props.errorDetails.timestamp}>
-                  <div class="text-sm text-gray-500">
+                  <div class="text-sm text-gray-400">
                     Occurred at:{' '}
                     {new Date(
                       props.errorDetails.timestamp as number,
@@ -219,10 +221,10 @@ export function ErrorDetailModal(props: ErrorDetailModalProps) {
               </div>
 
               {/* Footer with actions */}
-              <div class="bg-gray-50 px-6 py-3 flex justify-end border-t">
+              <div class="bg-slate-900 px-6 py-3 flex justify-end border-t border-red-800 dark:bg-slate-800">
                 <button
                   type="button"
-                  class="mr-2 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  class="mr-2 inline-flex items-center px-4 py-2 border border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-200 bg-slate-800 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   onClick={() => void handleCopy()}
                 >
                   <Show
@@ -260,13 +262,13 @@ export function ErrorDetailModal(props: ErrorDetailModalProps) {
                           d="M5 13l4 4L19 7"
                         />
                       </svg>
-                      <span class="text-green-500">Copied!</span>
+                      <span class="text-green-400">Copied!</span>
                     </>
                   </Show>
                 </button>
                 <button
                   type="button"
-                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                   onClick={() => props.onClose()}
                 >
                   Close
