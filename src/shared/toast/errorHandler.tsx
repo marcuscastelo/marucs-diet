@@ -9,6 +9,7 @@ import toast from 'solid-toast'
 import { ToastOptions } from './toastConfig'
 import { ErrorContext, logError } from '../error/errorHandler'
 import { processErrorMessage } from './errorMessageHandler'
+import { showExpandableErrorToast } from './ExpandableErrorToast'
 
 /**
  * Options for error toast display
@@ -63,11 +64,13 @@ export function showErrorToast(
         : 5000
       : opts.duration
 
-  // For now, we'll show a simple error toast with the processed message
-  // In the future, this can be enhanced to use the ExpandableErrorToast component
-  return toast.error(processed.displayMessage, {
-    duration,
-  })
+  // Use the expandable error toast component for rich display
+  return showExpandableErrorToast(
+    processed.displayMessage,
+    processed.isTruncated,
+    processed.errorDetails,
+    { duration },
+  )
 }
 
 /**

@@ -6,6 +6,7 @@
  */
 
 import { createSignal, Show } from 'solid-js'
+import toast from 'solid-toast'
 import { ToastError } from './toastConfig'
 import { ErrorDetailModal } from '~/sections/common/components/ErrorDetailModal'
 
@@ -124,20 +125,29 @@ export function showExpandableErrorToast(
   message: string,
   isTruncated: boolean,
   errorDetails: ToastError,
-  _options?: {
+  options?: {
     duration?: number
     onDismiss?: () => void
     onCopy?: (text: string) => void
   },
-): void {
-  // This would integrate with solid-toast custom content
-  // For now, we'll implement this in the next phase when we integrate with toastManager
-  console.warn(
-    'showExpandableErrorToast not yet implemented - will be added in integration phase',
+): string {
+  const duration = options?.duration ?? (isTruncated ? 8000 : 5000)
+
+  return toast.custom(
+    (t) => (
+      <ExpandableErrorToast
+        message={message}
+        isTruncated={isTruncated}
+        errorDetails={errorDetails}
+        onDismiss={() => {
+          toast.dismiss(t.id)
+          if (options?.onDismiss) {
+            options.onDismiss()
+          }
+        }}
+        onCopy={options?.onCopy}
+      />
+    ),
+    { duration },
   )
-  console.group('📋 Expandable Error Toast')
-  console.log('Message:', message)
-  console.log('Is Truncated:', isTruncated)
-  console.log('Error Details:', errorDetails)
-  console.groupEnd()
 }

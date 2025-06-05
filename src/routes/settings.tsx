@@ -1,9 +1,10 @@
-import { For, createSignal } from 'solid-js'
+import { For, createSignal, Show } from 'solid-js'
 import { showSuccess } from '~/shared/toast'
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { BottomNavigation } from '~/sections/common/components/BottomNavigation'
 import { Providers } from '~/sections/common/context/Providers'
 import { Toggle } from '~/sections/settings/components/Toggle'
+import { ToastSettings } from '~/sections/settings/components/ToastSettings'
 
 export default function Page() {
   const toggleSettings = [
@@ -98,6 +99,13 @@ export default function Page() {
                 </div>
               )}
             </For>
+
+            <div class="mt-8">
+              <h2 class="text-xl font-semibold mb-4">
+                Configurações de Notificações
+              </h2>
+              <ToastSettings />
+            </div>
           </div>
         </div>
       </div>

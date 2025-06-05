@@ -22,5 +22,8 @@ export * from './toastManager'
 // Smart toast promise (replacement for legacy toastPromise)
 export * from './smartToastPromise'
 
+// User settings
+export * from './toastSettings'
+
 // Expandable error component
 export * from './ExpandableErrorToast'
