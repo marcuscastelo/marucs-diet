@@ -316,3 +316,24 @@ feat: complete toast system refactor with proper queue control
 
 Resolves toast pollution issue where 5+ toasts appeared simultaneously
 ```
+
+#### Commit 22: messages.error Integration Fix  
+- **Status**: ✅ Complete  
+- **Description**: Fixed `showPromise()` to properly use custom error messages
+- **Files modified**:
+  - `src/shared/toast/toastManager.ts` ✅
+- **Issue**: The `messages.error` parameter in `showPromise()` was being ignored
+- **Solution**: 
+  - Added proper conditional logic to use `messages.error` when provided
+  - Supports both string and function error message formats
+  - Falls back to `getUserFriendlyMessage()` when no custom error message is provided
+- **Implementation**:
+  ```typescript
+  const errorMsg =
+    messages.error !== undefined
+      ? typeof messages.error === 'function'
+        ? messages.error(error)
+        : messages.error
+      : getUserFriendlyMessage(error)
+  ```
+- **Tests**: ✅ Type-check and unit tests passed

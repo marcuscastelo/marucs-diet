@@ -145,7 +145,7 @@ export function showPromise<T>(
       const successMsg =
         typeof messages.success === 'function'
           ? messages.success(data)
-          : (messages.success ?? 'Success!')
+          : messages.success
 
       if (successMsg) {
         const toastItem = createToastItem(successMsg, {
@@ -162,9 +162,14 @@ export function showPromise<T>(
     })
     .catch((error: unknown) => {
       // Remove loading toast by adding error toast
-      const userFriendlyMessage = getUserFriendlyMessage(error)
+      const errorMsg =
+        messages.error !== undefined
+          ? typeof messages.error === 'function'
+            ? messages.error(error)
+            : messages.error
+          : getUserFriendlyMessage(error)
 
-      const toastItem = createToastItem(userFriendlyMessage, {
+      const toastItem = createToastItem(errorMsg, {
         ...finalOptions,
         level: 'error',
       })
