@@ -5,7 +5,7 @@
  * that opens a modal with full error information.
  */
 
-import { Show } from 'solid-js'
+import { Show, createSignal } from 'solid-js'
 import toast from 'solid-toast'
 import { ToastError } from './toastConfig'
 import { enqueue, createToastItem } from './toastQueue'
@@ -30,7 +30,10 @@ export type ExpandableErrorToastProps = {
  * Shows a truncated error message with an option to open a modal with details.
  */
 export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
+  const [isExpanded, setIsExpanded] = createSignal(false)
+
   const openModal = () => {
+    setIsExpanded(true)
     openErrorModal(props.errorDetails)
   }
 
@@ -143,6 +146,7 @@ export function ExpandableErrorToast(props: ExpandableErrorToastProps) {
             <button
               type="button"
               class="text-sm text-red-600 hover:text-red-500 font-medium"
+              aria-expanded={isExpanded() ? 'true' : 'false'}
               onClick={openModal}
             >
               Show more details
