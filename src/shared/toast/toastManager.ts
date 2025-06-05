@@ -64,6 +64,38 @@ function shouldSkipBackgroundToast(
 }
 
 /**
+ * Helper to filter loading/success messages for background context
+ */
+function filterBackgroundPromiseMessages<T>(
+  messages: {
+    loading?: string
+    success?: string | ((data: T) => string)
+    error?: string | ((error: unknown) => string)
+  },
+  context: ToastContext,
+  options: Partial<ToastOptions>,
+): void {
+  const optsInfo = {
+    ...DEFAULT_TOAST_OPTIONS[context],
+    ...options,
+    context,
+    level: 'info' as ToastLevel,
+  }
+  const optsSuccess = {
+    ...DEFAULT_TOAST_OPTIONS[context],
+    ...options,
+    context,
+    level: 'success' as ToastLevel,
+  }
+  if (shouldSkipBackgroundToast('info', context, optsInfo)) {
+    messages.loading = undefined
+  }
+  if (shouldSkipBackgroundToast('success', context, optsSuccess)) {
+    messages.success = undefined
+  }
+}
+
+/**
  * Show a toast with intelligent filtering and queue management
  */
 export function show(
@@ -152,25 +184,7 @@ export function showPromise<T>(
   context: ToastContext = 'user-action',
   options: Partial<ToastOptions> = {},
 ): Promise<T> {
-  // Defensive: always merge to get required fields
-  const optsInfo = {
-    ...DEFAULT_TOAST_OPTIONS[context],
-    ...options,
-    context,
-    level: 'info' as ToastLevel,
-  }
-  const optsSuccess = {
-    ...DEFAULT_TOAST_OPTIONS[context],
-    ...options,
-    context,
-    level: 'success' as ToastLevel,
-  }
-  if (shouldSkipBackgroundToast('info', context, optsInfo)) {
-    messages.loading = undefined
-  }
-  if (shouldSkipBackgroundToast('success', context, optsSuccess)) {
-    messages.success = undefined
-  }
+  filterBackgroundPromiseMessages(messages, context, options)
   const finalOptions = { ...DEFAULT_TOAST_OPTIONS[context], ...options }
   // Show loading toast if enabled and store its ID for precise removal
   let loadingToastId: string | null = null
