@@ -18,6 +18,7 @@ import { createNewRecentFood } from '~/modules/recent-food/domain/recentFood'
 import { type Template } from '~/modules/diet/template/domain/template'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import { showSuccess } from '~/shared/toast'
 
 import { type Food } from '~/modules/diet/food/domain/food'
 import { currentUser, currentUserId } from '~/modules/user/application/user'
@@ -144,9 +145,12 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
         body: 'Deseja adicionar outro item ou finalizar a inclusão?',
         actions: [
           {
-            // TODO:   Show toast "Item <nome> adicionado com sucesso"
+            // Show success toast when adding more items
             text: 'Adicionar mais um item',
             onClick: () => {
+              showSuccess(
+                `Item "${originalAddedItem.name}" adicionado com sucesso!`,
+              )
               setSelectedTemplate(undefined)
               setItemEditModalVisible(false)
             },
@@ -155,6 +159,9 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
             text: 'Finalizar',
             primary: true,
             onClick: () => {
+              showSuccess(
+                `Item "${originalAddedItem.name}" adicionado com sucesso!`,
+              )
               setSelectedTemplate(undefined)
               setItemEditModalVisible(false)
               props.onFinish?.()

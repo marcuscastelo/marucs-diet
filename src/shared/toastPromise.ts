@@ -1,5 +1,11 @@
-import toast from 'solid-toast'
-import { handleApiError } from './error/errorHandler'
+/**
+ * Legacy Toast Promise (DEPRECATED)
+ *
+ * @deprecated This file is deprecated. Use smartToastPromise from ~/shared/toast instead.
+ * This wrapper is provided for backward compatibility only.
+ */
+
+import { smartToastPromise } from './toast/smartToastPromise'
 
 export type ToastPromiseOptions<T> = {
   loading: string
@@ -8,39 +14,20 @@ export type ToastPromiseOptions<T> = {
 }
 
 /**
- * Wraps a promise with toast notifications for loading, success, and error states
- * with support for custom error message handling
+ * @deprecated Use smartToastPromise from ~/shared/toast instead
  */
 export async function toastPromise<T>(
   promise: Promise<T>,
   options: ToastPromiseOptions<T>,
 ): Promise<T> {
-  const toastId = toast.loading(options.loading)
+  console.warn(
+    'toastPromise is deprecated. Use smartToastPromise from ~/shared/toast instead.',
+  )
 
-  try {
-    const result = await promise
-
-    const successMessage =
-      typeof options.success === 'function'
-        ? options.success(result)
-        : options.success
-
-    toast.success(successMessage, { id: toastId })
-    return result
-  } catch (error) {
-    const errorMessage =
-      typeof options.error === 'function' ? options.error(error) : options.error
-
-    handleApiError(error, {
-      component: 'ToastPromise',
-      operation: 'toastPromise',
-      additionalData: {
-        options,
-        errorMessage,
-      },
-    })
-
-    toast.error(errorMessage, { id: toastId })
-    throw error
-  }
+  return smartToastPromise(promise, {
+    context: 'user-action', // Default to user-action for legacy compatibility
+    loading: options.loading,
+    success: options.success,
+    error: options.error,
+  })
 }

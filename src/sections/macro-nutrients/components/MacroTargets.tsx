@@ -87,10 +87,8 @@ export type MacroTargetProps = {
 const onSaveMacroProfile = (profile: MacroProfile) => {
   console.log('[ProfilePage] Saving profile', profile)
   if (profile.target_day.getTime() > new Date(getTodayYYYYMMDD()).getTime()) {
-    console.error(
-      `[ProfilePage] Invalid target day ${profile.target_day.toString()}: it is in the future`,
-    )
     showError('Data alvo não pode ser no futuro', 'user-action')
+    return
   } else if (
     profile.id !== -1 && // TODO:   Better typing system for new MacroProfile instead of -1.
     profile.target_day.getTime() === new Date(getTodayYYYYMMDD()).getTime()
@@ -98,7 +96,6 @@ const onSaveMacroProfile = (profile: MacroProfile) => {
     console.log('[ProfilePage] Updating profile', profile)
 
     // Same day, update
-    // TODO:   Change all catch console.error to toast.error (and think about Sentry as well).
     updateMacroProfile(
       profile.id,
       createNewMacroProfile({
@@ -108,7 +105,12 @@ const onSaveMacroProfile = (profile: MacroProfile) => {
         gramsPerKgProtein: profile.gramsPerKgProtein,
         gramsPerKgFat: profile.gramsPerKgFat,
       }),
-    ).catch(console.error)
+    ).catch((error) => {
+      showError(
+        `Erro ao atualizar perfil de macro: ${formatError(error)}`,
+        'user-action',
+      )
+    })
   } else if (
     profile.id === -1 || // TODO:   Better typing system for new MacroProfile instead of -1.
     profile.target_day.getTime() < new Date(getTodayYYYYMMDD()).getTime()
@@ -121,7 +123,12 @@ const onSaveMacroProfile = (profile: MacroProfile) => {
         ...profile,
         target_day: new Date(getTodayYYYYMMDD()),
       }),
-    ).catch(console.error)
+    ).catch((error) => {
+      showError(
+        `Erro ao inserir novo perfil de macro: ${formatError(error)}`,
+        'user-action',
+      )
+    })
   } else {
     showError('Erro imprevisto ao salvar perfil de macro', 'user-action')
   }
@@ -338,7 +345,7 @@ function MacroTargetSetting(props: {
   // const makeOnSetPercentage =
   //   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   //   (macro: 'carbs' | 'protein' | 'fat') => (percentage: number) => {
-  //     toast.error('Alterar porcentagem diretamente ainda não implementado')
+  //     showError('Alterar porcentagem diretamente ainda não implementado', 'user-action')
   //   }
 
   return (
