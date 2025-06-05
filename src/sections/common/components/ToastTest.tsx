@@ -221,7 +221,7 @@ const ToastTest: Component = () => {
 
         <button
           onClick={() => {
-            testSmartToastPromise().catch(() => {})
+            void testSmartToastPromise()
           }}
           style={{ 'background-color': '#4CAF50', color: 'white' }}
         >

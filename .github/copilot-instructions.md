@@ -1,9 +1,8 @@
 # Instructions
 
 ## Language
-- All code, comments, documentation, and commit messages must be in English.
-- Exception: UI text (labels, error messages, etc.) may be in Portuguese (pt-BR) if required by the product.
-- Do not use Portuguese elsewhere.
+- Prefer English for code, comments, and commit messages for consistency and future scalability.
+- Exception: UI text (labels, error messages, etc.) must be in Portuguese (pt-BR) if required by the product.
 
 ## Naming & Structure
 - Use descriptive, specific names for functions, files, and components.
@@ -14,8 +13,61 @@
 - Organize code into logical modules and packages, following the project's directory structure.
 
 ## Clean Architecture
-- Domain Layer (`~/modules/*/domain/`): Only pure business logic, no side effects, no API/UI.
-- Application Layer (`~/modules/*/application/`): Use cases, orchestration, data conversion. No domain logic.
+- Domain Layer (`~/modules/*/domain/`): Only pure business logic, no side effects, no API/UI. **Never import or use `handleApiError` or any side-effect utility. Only throw pure errors (custom error classes if needed).**
+- Application Layer (`~/modules/*/application/`): Use cases, orchestration, data conversion, error handling. Responsible for catching errors from the domain and calling `handleApiError` with full context. No domain logic.
+
+## Error Handling
+- **Domain layer:** Only throws pure errors. Never imports or uses `handleApiError` or any side-effect utility.
+- **Application layer:** Always catches errors from domain and calls `handleApiError` with context (`component`, `operation`, `additionalData`).
+- **UI/Controller:** May also call `handleApiError` for UI-specific errors.
+- Always provide context (component, operation, additionalData).
+- Never throw or log errors directly in application code without also calling `handleApiError`.
+
+**Example:**
+```typescript
+// Domain
+throw new GroupConflictError('Group mismatch', { groupId, recipeId })
+
+// Application
+try {
+  domainFunc()
+} catch (e) {
+  handleApiError(e, {
+    component: 'ItemGroupForm',
+    operation: 'submitGroup',
+    additionalData: { userId }
+  })
+  throw e
+}
+```
+
+## Domain vs Application Validation
+- **Domain validation:** Pure, context-free rules (e.g., "a group cannot have duplicate items").
+- **Application validation:** Rules that depend on user, permissions, UI state, or workflow context.
+
+## Fire-and-Forget Promises & the `void` Operator
+- Use the `void` operator for fire-and-forget promises **only in event handlers or non-critical effects**, and only when all error handling is guaranteed in the application layer.
+- Do **not** use `.catch(() => {})` to silence errors. All errors must be handled in the application layer, and the `void` operator signals that the promise is intentionally not awaited in the UI.
+- Fire-and-forget should be the exception, not the rule. If the reason for `void` is not obvious, add a comment.
+- **Checklist:**
+  - The promise result is not needed for the user flow.
+  - All error handling and user feedback are handled in the application layer.
+  - Usage is limited to event handlers, parallel effects, or non-critical callbacks.
+  - The reason for `void` is documented if not obvious.
+
+**Example:**
+```tsx
+// OK: fire-and-forget, feedback handled in application layer
+<button onClick={() => {
+  void insertDayDiet(createDayDiet({
+    owner: currentUser().id,
+    target_day: selectedDay,
+    meals: DEFAULT_MEALS,
+  }))
+}}>
+  Create blank day
+</button>
+```
 
 ## Formatting & Style
 - Formatting must be consistent throughout the codebase. Use Prettier/ESLint for JS/TS and Black for Python to ensure proper indentation, spacing, and line breaks.
@@ -67,49 +119,3 @@
 
 ## Code Reviews
 - All code must be ready for review, meet standards, and pass all tests before PR.
-
-## Error Handling
-- All errors in domain and application layers must use the shared error handler utility.
-- Use `handleApiError` from `~/shared/error/errorHandler` for logging, reporting, or propagating errors.
-- Never throw or log errors directly without also calling `handleApiError`.
-- Always provide context (component, operation, additionalData).
-
-**Example:**
-```typescript
-import { handleApiError } from '~/shared/error/errorHandler'
-
-if (somethingWentWrong) {
-  handleApiError(new Error('Something went wrong'), {
-    component: 'itemGroupDomain',
-    operation: 'isRecipedGroupUpToDate',
-    additionalData: { groupId, groupRecipeId },
-  })
-  throw new Error('Something went wrong')
-}
-```
-
-## Component Duplication
-- Avoid duplicating logic between components (e.g., clipboard logic in MealEditView.tsx and RecipeEditView.tsx).
-- Refactor shared logic into utilities or hooks.
-
-## SolidJS Best Practices
-- Always wrap side effects inside `createEffect` or similar reactive primitives (`createMemo`, `createResource`).
-- Never access reactive signals (`createSignal`) directly inside JSX without a function call: use `count()` instead of `count`.
-- Avoid destructuring signals, as this breaks reactivity:
-  - Do not do: `const { value } = someSignal`
-  - Do: `const [value] = someSignal`
-- Use `createMemo` to avoid recalculating expensive derived values unnecessarily.
-- Prefer `Show`, `Switch`, and `For` from `solid-js` instead of inline ternaries and array `.map()` for conditional and dynamic rendering.
-- Always clean up effects if using `onCleanup`.
-- SolidJS components must be named with CapitalCase and return JSX.
-- Do not use React hooks (`useEffect`, `useState`, etc.). Use Solid signals and effects instead.
-- Avoid spreading props directly unless necessary, as it may break reactivity.
-- Wrap event handlers with arrow functions to avoid extra re-renders unless performance dictates otherwise.
-- Prefer fine-grained reactivity over global state when possible.
-- Avoid using stores (`createStore`) for highly dynamic or nested state — prefer `createSignal` or `createMemo`.
-- When using `createStore`, prefer shallow updates or use `produce` to avoid performance bottlenecks.
-- Use `eslint-plugin-solid` to detect invalid reactivity patterns and non-idiomatic practices.
-- Follow the official `solid-start` template recommendations if using SSR or advanced routing.
-- For Solid components, use `@solidjs/testing-library`.
-- Always render components inside `render(<Component />)` and use `waitFor` for async tests.
-- Use `screen.getByRole`, `screen.queryByText`, etc., to ensure accessibility in tests.
