@@ -114,12 +114,6 @@ export type ToastQueueConfig = {
   maxQueueSize: number
 
   /**
-   * Maximum number of toasts visible simultaneously
-   * @default 1
-   */
-  maxVisibleToasts: number
-
-  /**
    * Delay between toast transitions in milliseconds
    * @default 300
    */
@@ -131,7 +125,6 @@ export type ToastQueueConfig = {
  */
 export const DEFAULT_QUEUE_CONFIG: ToastQueueConfig = {
   maxQueueSize: 10,
-  maxVisibleToasts: 1,
   transitionDelay: 300,
 }
 

@@ -127,22 +127,6 @@ export function ToastSettings() {
             class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           />
         </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            Máximo de notificações visíveis
-          </label>
-          <input
-            type="number"
-            min="1"
-            max="5"
-            value={settings().maxVisibleToasts}
-            onChange={(e) =>
-              handleChange('maxVisibleToasts', parseInt(e.target.value, 10))
-            }
-            class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          />
-        </div>
       </div>
 
       <div class="mt-6 flex items-center justify-between">

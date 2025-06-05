@@ -19,8 +19,6 @@ export type ToastSettings = {
   autoDismissErrors: boolean
   /** Default duration for toasts in ms */
   defaultDuration: number
-  /** Maximum number of toasts to show at once */
-  maxVisibleToasts: number
   /** Whether to group similar toasts */
   groupSimilarToasts: boolean
   /** Whether to show detailed error information */
@@ -35,7 +33,6 @@ const DEFAULT_SETTINGS: ToastSettings = {
   showBackgroundLoading: false,
   autoDismissErrors: false,
   defaultDuration: 5000,
-  maxVisibleToasts: 1,
   groupSimilarToasts: true,
   showDetailedErrors: true,
 }
@@ -110,10 +107,6 @@ export function setAutoDismissErrors(value: boolean): void {
 
 export function setDefaultDuration(value: number): void {
   updateToastSettings({ defaultDuration: value })
-}
-
-export function setMaxVisibleToasts(value: number): void {
-  updateToastSettings({ maxVisibleToasts: value })
 }
 
 export function setGroupSimilarToasts(value: boolean): void {
