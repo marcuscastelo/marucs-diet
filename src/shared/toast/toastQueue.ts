@@ -319,7 +319,7 @@ export function createToastItem(
   const priority = TOAST_PRIORITY[level]
 
   return {
-    id: `toast_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    id: `toast_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`,
     message,
     options: {
       context: 'user-action',
