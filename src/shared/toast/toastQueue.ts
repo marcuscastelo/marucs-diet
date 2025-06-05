@@ -13,6 +13,7 @@ import {
   DEFAULT_QUEUE_CONFIG,
   TOAST_PRIORITY,
   ToastLevel,
+  ToastContext,
 } from './toastConfig'
 
 // Global queue state
@@ -308,6 +309,15 @@ export function updateConfig(newConfig: Partial<ToastQueueConfig>): void {
   console.debug('[ToastQueue] Configuration updated:', config)
 }
 
+const DEFAULT_TOAST_ITEM_OPTIONS = {
+  context: 'user-action' as ToastContext,
+  showLoading: true,
+  showSuccess: true,
+  maxLength: 100,
+  duration: 3000,
+  dismissible: true,
+}
+
 /**
  * Utility function to create a ToastItem from basic parameters
  */
@@ -322,13 +332,12 @@ export function createToastItem(
     id: `toast_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`,
     message,
     options: {
-      context: 'user-action',
+      ...DEFAULT_TOAST_ITEM_OPTIONS,
       level,
-      showLoading: true,
-      showSuccess: true,
-      maxLength: 100,
-      duration: level === 'error' || level === 'warning' ? 0 : 3000,
-      dismissible: true,
+      duration:
+        level === 'error' || level === 'warning'
+          ? 0
+          : DEFAULT_TOAST_ITEM_OPTIONS.duration,
       ...options,
     },
     timestamp: Date.now(),
