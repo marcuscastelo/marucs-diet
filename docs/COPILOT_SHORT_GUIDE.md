@@ -11,3 +11,4 @@
 - Follow Prettier/ESLint for formatting.
 - Prefer small, atomic commits and always suggest a commit message after changes.
 - Always generate commit messages using 4 backticks (````) for formatting.
+- **Never use dynamic imports. Always use static imports at the top of the file.**
