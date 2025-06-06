@@ -1,11 +1,11 @@
-import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
-import { calcCalories, calcDayMacros } from '~/legacy/utils/macroMath'
 import { Show } from 'solid-js'
-import { Progress } from '~/sections/common/components/Progress'
-import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
+import { calcCalories, calcDayMacros } from '~/legacy/utils/macroMath'
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
-import { stringToDate } from '~/shared/utils/date'
+import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import { showError } from '~/modules/toast/application/toastManager'
+import { Progress } from '~/sections/common/components/Progress'
+import { stringToDate } from '~/shared/utils/date'
 
 export default function DayMacros(props: { class?: string }) {
   const macroSignals = () => {

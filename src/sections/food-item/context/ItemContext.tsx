@@ -1,10 +1,10 @@
-import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import {
   type Accessor,
   type JSXElement,
   createContext,
   useContext,
 } from 'solid-js'
+import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 
 // TODO:   Rename to TemplateItemContext
 const ItemContext = createContext<{
@@ -34,15 +34,11 @@ export function ItemContextProvider(props: {
   }
   children: JSXElement
 }) {
-  const defaultOptions = {
-    enable: () => false,
-  }
-
   return (
     <ItemContext.Provider
       value={{
         item: () => props.item(),
-        macroOverflow: () => props.macroOverflow() ?? defaultOptions,
+        macroOverflow: () => props.macroOverflow(),
       }}
     >
       {props.children}

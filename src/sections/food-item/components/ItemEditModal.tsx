@@ -1,27 +1,27 @@
+import { generateId } from '~/legacy/utils/idUtils'
+import { type Item } from '~/modules/diet/item/domain/item'
+import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import { FloatInput } from '~/sections/common/components/FloatInput'
+import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
+import { Modal } from '~/sections/common/components/Modal'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { useModalContext } from '~/sections/common/context/ModalContext'
+import { useFloatField } from '~/sections/common/hooks/useField'
 import {
   ItemFavorite,
   ItemName,
   ItemNutritionalInfo,
   ItemView,
 } from '~/sections/food-item/components/ItemView'
-import { type Item } from '~/modules/diet/item/domain/item'
-import { Modal } from '~/sections/common/components/Modal'
-import { useModalContext } from '~/sections/common/context/ModalContext'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
-import { generateId } from '~/legacy/utils/idUtils'
-import { useFloatField } from '~/sections/common/hooks/useField'
-import { FloatInput } from '~/sections/common/components/FloatInput'
-import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
-import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 
 import {
-  mergeProps,
-  type Accessor,
-  createSignal,
   createEffect,
-  untrack,
-  type Setter,
+  createSignal,
   For,
+  mergeProps,
+  untrack,
+  type Accessor,
+  type Setter,
 } from 'solid-js'
 import { showError } from '~/modules/toast/application/toastManager'
 
@@ -61,9 +61,9 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
       __type: props.item().__type ?? 'Item',
       id: props.item().id ?? generateId(),
       quantity: props.item().quantity ?? 0,
-      name: props.item().name ?? '',
-      reference: props.item().reference ?? 0,
-      macros: props.item().macros ?? { carbs: 0, protein: 0, fat: 0 },
+      name: props.item().name,
+      reference: props.item().reference,
+      macros: props.item().macros,
     })
   })
 
@@ -75,11 +75,7 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
         title={
           <span>
             Editando item em
-            <span class={props.targetNameColor}>
-              {' '}
-              &quot;{props.targetName ?? 'ERRO: destino desconhecido'}
-              &quot;{' '}
-            </span>
+            <span class={props.targetNameColor}>"{props.targetName}"</span>
           </span>
         }
       />
@@ -306,7 +302,7 @@ function Body(props: {
           ({
             __type: props.item().__type,
             id: id(),
-            name: props.item().name ?? 'Sem nome (itemData && ItemView)',
+            name: props.item().name,
             quantity: quantityField.value() ?? props.item().quantity,
             reference: props.item().reference,
             macros: props.item().macros,

@@ -1,19 +1,19 @@
+import { describe, expect, it } from 'vitest'
+import { createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { createItem } from '~/modules/diet/item/domain/item'
+import { createMeal } from '~/modules/diet/meal/domain/meal'
+import type { DayDiet } from './dayDiet'
 import {
   addMealToDayDiet,
   addMealsToDayDiet,
-  updateMealInDayDiet,
-  removeMealFromDayDiet,
-  setDayDietMeals,
   clearDayDietMeals,
-  findMealInDayDiet,
-  replaceDayDiet,
   convertToNewDayDiet,
+  findMealInDayDiet,
+  removeMealFromDayDiet,
+  replaceDayDiet,
+  setDayDietMeals,
+  updateMealInDayDiet,
 } from './dayDietOperations'
-import { describe, it, expect } from 'vitest'
-import { createItem } from '~/modules/diet/item/domain/item'
-import { createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
-import { createMeal } from '~/modules/diet/meal/domain/meal'
-import type { DayDiet } from './dayDiet'
 
 function makeItem(id: number, name = 'Arroz') {
   return {
@@ -70,7 +70,7 @@ describe('dayDietOperations', () => {
   it('updateMealInDayDiet updates a meal', () => {
     const updated = makeMeal(1, 'Jantar', [baseGroup])
     const result = updateMealInDayDiet(baseDayDiet, 1, updated)
-    expect(result.meals[0].name).toBe('Jantar')
+    expect(result.meals[0]?.name).toBe('Jantar')
   })
 
   it('removeMealFromDayDiet removes a meal', () => {

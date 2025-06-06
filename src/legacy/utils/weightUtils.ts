@@ -1,13 +1,13 @@
-import { type Weight } from '~/modules/weight/domain/weight'
-import { inForceGeneric } from '~/legacy/utils/generic/inForce'
 import { createMemo } from 'solid-js'
+import { inForceGeneric } from '~/legacy/utils/generic/inForce'
 import { userWeights } from '~/modules/weight/application/weight'
+import { type Weight } from '~/modules/weight/domain/weight'
 
 export function getLatestWeight(weights: readonly Weight[]) {
   if (weights.length === 0) {
     return null
   }
-  return weights[weights.length - 1]
+  return weights[weights.length - 1] ?? null
 }
 
 // Reactive signal that returns the latest weight from userWeights
@@ -23,7 +23,7 @@ export function firstWeight(weights: readonly Weight[]) {
   if (weights.length === 0) {
     return null
   }
-  return weights[0]
+  return weights[0] ?? null
 }
 
 export function calculateWeightChange(weights: readonly Weight[]) {

@@ -5,14 +5,14 @@
  */
 
 import { Component, createSignal } from 'solid-js'
+import toast from 'solid-toast'
 import {
-  showPromise,
-  showSuccess,
   showError,
   showLoading,
+  showPromise,
+  showSuccess,
 } from '~/modules/toast/application/toastManager'
 import { ToastOptions } from '~/modules/toast/domain/toastTypes'
-import toast from 'solid-toast'
 
 const ToastTest: Component = () => {
   const [toastOptions, setToastOptions] = createSignal<Partial<ToastOptions>>({
@@ -26,11 +26,15 @@ const ToastTest: Component = () => {
       setTimeout(() => resolve('Success!'), 2000)
     })
 
-    void showPromise(promise, {
-      loading: 'Loading...',
-      success: 'Operation completed successfully!',
-      error: 'Error in operation',
-    }).catch((err) => {
+    void showPromise(
+      promise,
+      {
+        loading: 'Loading...',
+        success: 'Operation completed successfully!',
+        error: 'Error in operation',
+      },
+      toastOptions(),
+    ).catch((err) => {
       console.error('Error processing promise:', err)
     })
   }
@@ -41,11 +45,15 @@ const ToastTest: Component = () => {
       setTimeout(() => reject(new Error('Simulated error')), 2000)
     })
 
-    void showPromise(promise, {
-      loading: 'Processing...',
-      success: 'Success!',
-      error: 'Operação falhou\nPor favor, tente novamente.',
-    }).catch((err) => {
+    void showPromise(
+      promise,
+      {
+        loading: 'Processing...',
+        success: 'Success!',
+        error: 'Operação falhou\nPor favor, tente novamente.',
+      },
+      toastOptions(),
+    ).catch((err) => {
       console.error('Error processing promise:', err)
     })
   }
@@ -56,10 +64,14 @@ const ToastTest: Component = () => {
       setTimeout(() => resolve('OK'), 1500)
     })
 
-    void showPromise(promise, {
-      loading: 'Loading without success message...',
-      // No success message to test if loading toast is removed correctly
-    }).catch((err) => {
+    void showPromise(
+      promise,
+      {
+        loading: 'Loading without success message...',
+        // No success message to test if loading toast is removed correctly
+      },
+      toastOptions(),
+    ).catch((err) => {
       console.error('Error processing promise without success message:', err)
     })
   }
@@ -76,6 +88,7 @@ const ToastTest: Component = () => {
           success: 'Smart toast completed!',
           error: 'Smart toast failed',
         },
+        toastOptions(),
       )
       console.log('showPromise result:', result)
     } catch (error) {
@@ -98,6 +111,7 @@ const ToastTest: Component = () => {
         success: 'Detached operation completed!',
         error: 'Operação destacada falhou\nPor favor, tente novamente.',
       },
+      toastOptions(),
     )
 
     console.log('showPromise called - continuing immediately')
@@ -113,7 +127,7 @@ const ToastTest: Component = () => {
         success: 'User data loaded!',
         error: 'Falha ao carregar dados do usuário\nTente novamente.',
       },
-      { context: 'background' },
+      toastOptions(),
     )
 
     void showPromise(
@@ -123,7 +137,7 @@ const ToastTest: Component = () => {
         success: 'Settings loaded!',
         error: 'Falha ao carregar configurações\nTente novamente.',
       },
-      { context: 'background' },
+      toastOptions(),
     )
 
     void showPromise(
@@ -133,7 +147,7 @@ const ToastTest: Component = () => {
         success: 'Cache refreshed!',
         error: 'Falha ao atualizar cache\nTente novamente.',
       },
-      { context: 'background' },
+      toastOptions(),
     )
 
     console.log('All detached operations started')
@@ -141,7 +155,7 @@ const ToastTest: Component = () => {
 
   const testLongError = () => {
     const longMessage = `This is a very long error message that will demonstrate the truncation capability of our toast system. It contains multiple sentences and will definitely exceed the maximum length allowed for display in a toast. When this happens, the message will be truncated and an option to view the complete details will be provided to the user. This helps keep the UI clean while still allowing users to access the full error information if they need it. The error details modal will display this entire message along with any stack trace or context information that may be available.`
-    showError(new Error(longMessage))
+    showError(new Error(longMessage), toastOptions())
   }
 
   return (
@@ -173,11 +187,15 @@ const ToastTest: Component = () => {
                 1500,
               )
             })
-            void showPromise(promise, {
-              loading: 'Loading without success message...',
-              // No success message to test if loading toast is removed correctly
-              error: 'Operação falhou\nPor favor, tente novamente.',
-            }).catch((err) => {
+            void showPromise(
+              promise,
+              {
+                loading: 'Loading without success message...',
+                // No success message to test if loading toast is removed correctly
+                error: 'Operação falhou\nPor favor, tente novamente.',
+              },
+              toastOptions(),
+            ).catch((err) => {
               console.error(
                 'Error processing promise without success message:',
                 err,
@@ -243,6 +261,7 @@ const ToastTest: Component = () => {
                     success: 'Smart toast completed!',
                     error: 'Smart toast failed (error)',
                   },
+                  toastOptions(),
                 )
               } catch (error) {
                 console.error('showPromise error:', error)
@@ -273,6 +292,7 @@ const ToastTest: Component = () => {
                 success: 'Detached operation completed!',
                 error: 'Operação destacada falhou\nPor favor, tente novamente.',
               },
+              toastOptions(),
             )
           }}
           style={{ 'background-color': '#E53935', color: 'white' }}
@@ -291,15 +311,23 @@ const ToastTest: Component = () => {
           Test Direct
         </button>
 
-        <button onClick={() => showSuccess('Simple Success Toast')}>
+        <button
+          onClick={() => showSuccess('Simple Success Toast', toastOptions())}
+        >
           Test Simple Success
         </button>
 
-        <button onClick={() => showLoading('Loading operation...')}>
+        <button
+          onClick={() => showLoading('Loading operation...', toastOptions())}
+        >
           Test Simple Loading
         </button>
 
-        <button onClick={() => showError(new Error('Simple error test'))}>
+        <button
+          onClick={() =>
+            showError(new Error('Simple error test'), toastOptions())
+          }
+        >
           Test Simple Error
         </button>
 

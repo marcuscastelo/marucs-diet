@@ -1,19 +1,18 @@
+import { type Food } from '~/modules/diet/food/domain/food'
+import { createItem } from '~/modules/diet/item/domain/item'
+import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import {
   ItemFavorite,
   ItemName,
   ItemNutritionalInfo,
   ItemView,
 } from '~/sections/food-item/components/ItemView'
-import { type Food } from '~/modules/diet/food/domain/food'
-import { createItem } from '~/modules/diet/item/domain/item'
-import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { handleApiError } from '~/shared/error/errorHandler'
-import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 
 import {
   type Accessor,
-  createSignal,
   createEffect,
+  createSignal,
   type Setter,
   Show,
 } from 'solid-js'
@@ -111,13 +110,7 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
                         name: food().name,
                         reference: food().id,
                         quantity: 100,
-                        macros: {
-                          ...(food().macros ??
-                            createItem({
-                              name: food().name,
-                              reference: food().id,
-                            }).macros),
-                        } satisfies MacroNutrients,
+                        macros: { ...food().macros },
                       })
                     }
                     macroOverflow={() => ({

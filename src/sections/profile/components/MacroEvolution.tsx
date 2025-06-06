@@ -5,17 +5,17 @@ import {
   calcDayCalories,
   calcDayMacros,
 } from '~/legacy/utils/macroMath'
-import { inForceWeight } from '~/legacy/utils/weightUtils'
 import { inForceMacroProfile } from '~/legacy/utils/macroProfileUtils'
-import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
-import { type MacroProfile } from '~/modules/diet/macro-profile/domain/macroProfile'
-import { dateToDDMM } from '~/shared/utils/date'
-import { type Weight } from '~/modules/weight/domain/weight'
+import { inForceWeight } from '~/legacy/utils/weightUtils'
 import { dayDiets } from '~/modules/diet/day-diet/application/dayDiet'
-import { userWeights } from '~/modules/weight/application/weight'
+import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { userMacroProfiles } from '~/modules/diet/macro-profile/application/macroProfile'
+import { type MacroProfile } from '~/modules/diet/macro-profile/domain/macroProfile'
 import { calculateMacroTarget } from '~/modules/diet/macro-target/application/macroTarget'
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
+import { userWeights } from '~/modules/weight/application/weight'
+import { type Weight } from '~/modules/weight/domain/weight'
+import { dateToDDMM } from '~/shared/utils/date'
 
 export function MacroEvolution() {
   return (
@@ -57,11 +57,11 @@ function createChartData(
       targetCalories:
         macroTarget !== null ? calcCalories(macroTarget) : undefined,
       protein: dayMacros.protein.toFixed(0),
-      targetProtein: macroTarget?.protein?.toFixed(0),
+      targetProtein: macroTarget?.protein.toFixed(0),
       fat: dayMacros.fat.toFixed(0),
-      targetFat: macroTarget?.fat?.toFixed(0),
+      targetFat: macroTarget?.fat.toFixed(0),
       carbs: dayMacros.carbs.toFixed(0),
-      targetCarbs: macroTarget?.carbs?.toFixed(0),
+      targetCarbs: macroTarget?.carbs.toFixed(0),
       targetGrams:
         (macroTarget?.protein ?? NaN) +
         (macroTarget?.carbs ?? NaN) +

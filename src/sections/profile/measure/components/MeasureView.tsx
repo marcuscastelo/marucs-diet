@@ -1,20 +1,20 @@
-import { Capsule } from '~/sections/common/components/capsule/Capsule'
-import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
-import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
-import { FloatInput } from '~/sections/common/components/FloatInput'
-import { useFloatField, useDateField } from '~/sections/common/hooks/useField'
-import Datepicker from '~/sections/datepicker/components/Datepicker'
 import {
   deleteMeasure,
   updateMeasure,
 } from '~/modules/measure/application/measure'
-import { showError } from '~/modules/toast/application/toastManager'
-import { formatError } from '~/shared/formatError'
-import { adjustToTimezone } from '~/shared/utils/date/dateUtils'
 import {
   createNewMeasure,
   type Measure,
 } from '~/modules/measure/domain/measure'
+import { showError } from '~/modules/toast/application/toastManager'
+import { Capsule } from '~/sections/common/components/capsule/Capsule'
+import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
+import { FloatInput } from '~/sections/common/components/FloatInput'
+import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
+import { useDateField, useFloatField } from '~/sections/common/hooks/useField'
+import Datepicker from '~/sections/datepicker/components/Datepicker'
+import { formatError } from '~/shared/formatError'
+import { adjustToTimezone } from '~/shared/utils/date/dateUtils'
 
 /**
  * Renders a capsule view for editing and saving a single Measure.
@@ -99,7 +99,7 @@ export function MeasureView(props: {
               endDate: dateField.value(),
             }}
             onChange={(value) => {
-              if (value?.startDate === undefined || value?.startDate === null) {
+              if (value?.startDate === undefined || value.startDate === null) {
                 showError(`Data inválida: ${JSON.stringify(value)}`)
                 return
               }

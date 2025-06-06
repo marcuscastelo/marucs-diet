@@ -1,5 +1,5 @@
-import { type JSXElement, Show, useContext, For } from 'solid-js'
 import dayjs from 'dayjs'
+import { For, type JSXElement, Show, useContext } from 'solid-js'
 
 import { DATE_FORMAT, TEXT_COLOR } from '../constants'
 import DEFAULT_SHORTCUTS from '../constants/shortcuts'
@@ -78,7 +78,7 @@ const Shortcuts = () => {
 
     return Object.entries(configs.shortcuts).flatMap(([key, customConfig]) => {
       if (Object.prototype.hasOwnProperty.call(DEFAULT_SHORTCUTS, key)) {
-        return [[key, DEFAULT_SHORTCUTS[key]]]
+        return [[key, DEFAULT_SHORTCUTS[key] as ShortcutsItem | ShortcutsItem[]]]
       }
 
       const { text, period } = customConfig as {
@@ -106,10 +106,10 @@ const Shortcuts = () => {
             }
           ]
         ]
-      }
+      }  
 
       return []
-    })
+    }) 
   }
 
   const printItemText = (item: ShortcutsItem) => {

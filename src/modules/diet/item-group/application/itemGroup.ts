@@ -3,19 +3,19 @@ import {
   updateDayDiet,
 } from '~/modules/diet/day-diet/application/dayDiet'
 import {
-  type NewDayDiet,
   type DayDiet,
+  type NewDayDiet,
 } from '~/modules/diet/day-diet/domain/dayDiet'
 import {
-  updateMealInDayDiet,
   convertToNewDayDiet,
+  updateMealInDayDiet,
 } from '~/modules/diet/day-diet/domain/dayDietOperations'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import {
   addGroupToMeal,
-  updateGroupInMeal,
   removeGroupFromMeal,
+  updateGroupInMeal,
 } from '~/modules/diet/meal/domain/mealOperations'
 import { handleApiError } from '~/shared/error/errorHandler'
 
@@ -32,7 +32,7 @@ export async function insertItemGroup(
 
     // Find the meal to update
     const meal = currentDayDiet_.meals.find((m) => m.id === mealId)
-    if (meal === null || meal === undefined) {
+    if (meal === undefined) {
       throw new Error(`Meal with id ${mealId} not found`)
     }
 
@@ -74,7 +74,7 @@ export async function updateItemGroup(
 
     // Find the meal to update
     const meal = currentDayDiet_.meals.find((m) => m.id === mealId)
-    if (meal === null || meal === undefined) {
+    if (meal === undefined) {
       throw new Error(`Meal with id ${mealId} not found`)
     }
 
@@ -115,7 +115,7 @@ export async function deleteItemGroup(
 
     // Find the meal to update
     const meal = currentDayDiet_.meals.find((m) => m.id === mealId)
-    if (meal === null || meal === undefined) {
+    if (meal === undefined) {
       throw new Error(`Meal with id ${mealId} not found`)
     }
 

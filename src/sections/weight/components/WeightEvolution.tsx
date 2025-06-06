@@ -1,17 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import { type ApexOptions } from 'apexcharts'
+import { SolidApexCharts } from 'solid-apexcharts'
 import { For, createMemo } from 'solid-js'
-import { type Weight, createNewWeight } from '~/modules/weight/domain/weight'
-import { Capsule } from '~/sections/common/components/capsule/Capsule'
-import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
+import ptBrLocale from '~/assets/locales/apex/pt-br.json'
 import { type OHLC } from '~/legacy/model/ohlcModel'
-import { useDateField, useFloatField } from '~/sections/common/hooks/useField'
-import { FloatInput } from '~/sections/common/components/FloatInput'
-import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
 import {
   calculateWeightProgress,
   firstWeight,
   getLatestWeight,
 } from '~/legacy/utils/weightUtils'
+import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
+import { showError } from '~/modules/toast/application/toastManager'
 import { currentUser, currentUserId } from '~/modules/user/application/user'
 import {
   deleteWeight,
@@ -19,14 +18,14 @@ import {
   updateWeight,
   userWeights,
 } from '~/modules/weight/application/weight'
+import { type Weight, createNewWeight } from '~/modules/weight/domain/weight'
+import { FloatInput } from '~/sections/common/components/FloatInput'
+import { Capsule } from '~/sections/common/components/capsule/Capsule'
+import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
+import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
+import { useDateField, useFloatField } from '~/sections/common/hooks/useField'
 import Datepicker from '~/sections/datepicker/components/Datepicker'
 import { adjustToTimezone, dateToYYYYMMDD } from '~/shared/utils/date'
-import { SolidApexCharts } from 'solid-apexcharts'
-import { type ApexOptions } from 'apexcharts'
-import { showError } from '~/modules/toast/application/toastManager'
-import ptBrLocale from '~/assets/locales/apex/pt-br.json'
-import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
-import { formatError } from '~/shared/formatError'
 
 export function WeightEvolution() {
   const desiredWeight = () => currentUser()?.desired_weight ?? 0
@@ -39,7 +38,7 @@ export function WeightEvolution() {
     calculateWeightProgress(userWeights(), desiredWeight())
 
   const weightProgressText = () =>
-    weightProgress === null
+    weightProgress() === null
       ? 'Erro'
       : `${((weightProgress() ?? 0) * 100).toFixed(2)}%`
 
@@ -243,7 +242,7 @@ function WeightChart(props: {
     if (acc[date] === undefined) {
       acc[date] = []
     }
-    acc[date].push(weight)
+    acc[date]?.push(weight)
 
     return acc
   }

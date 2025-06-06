@@ -52,6 +52,6 @@ const DEFAULT_SHORTCUTS: {
       end: formatDate(previousMonth(dayjs()).endOf('month'))
     }
   }
-}
+} 
 
 export default DEFAULT_SHORTCUTS

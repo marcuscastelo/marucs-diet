@@ -1,6 +1,17 @@
 import { SolidApexCharts } from 'solid-apexcharts'
 import { createSignal } from 'solid-js'
 
+// TODO: apexcharts.esm.js?v=55c99a60:5 Uncaught (in promise) Error: Wrong locale name provided. Please make sure you set the correct locale name in options
+// at t.value (apexcharts.esm.js?v=55c99a60:5:181477)
+// at t.value (apexcharts.esm.js?v=55c99a60:9:46335)
+// at apexcharts.esm.js?v=55c99a60:9:21999
+// at new Promise (<anonymous>)
+// at t.value (apexcharts.esm.js?v=55c99a60:9:21788)
+// at init (dev.jsx:30:11)
+// at dev.jsx:33:5
+// at untrack (chunk-5AFA2RXD.js?v=55c99a60:473:12)
+// at Object.fn (chunk-5AFA2RXD.js?v=55c99a60:498:22)
+// at runComputation (chunk-5AFA2RXD.js?v=55c99a60:740:22)
 export function TestChart() {
   const [options] = createSignal<ApexCharts.ApexOptions>({
     theme: {

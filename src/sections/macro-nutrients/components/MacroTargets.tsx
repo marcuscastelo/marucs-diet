@@ -1,25 +1,25 @@
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
-import {
-  type MacroProfile,
-  createNewMacroProfile,
-} from '~/modules/diet/macro-profile/domain/macroProfile'
-import { dateToYYYYMMDD, getTodayYYYYMMDD } from '~/shared/utils/date'
+import { Show, createEffect, createMemo, createSignal } from 'solid-js'
 import { calcCalories } from '~/legacy/utils/macroMath'
 import { getLatestMacroProfile } from '~/legacy/utils/macroProfileUtils'
-import { Show, createEffect, createMemo, createSignal } from 'solid-js'
+import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   deleteMacroProfile,
   insertMacroProfile,
   updateMacroProfile,
   userMacroProfiles,
 } from '~/modules/diet/macro-profile/application/macroProfile'
+import {
+  type MacroProfile,
+  createNewMacroProfile,
+} from '~/modules/diet/macro-profile/domain/macroProfile'
 import { calculateMacroTarget } from '~/modules/diet/macro-target/application/macroTarget'
 import {
   showError,
   showSuccess,
 } from '~/modules/toast/application/toastManager'
-import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { formatError } from '~/shared/formatError'
+import { dateToYYYYMMDD, getTodayYYYYMMDD } from '~/shared/utils/date'
 
 const CARBO_CALORIES = 4 as const
 const PROTEIN_CALORIES = 4 as const

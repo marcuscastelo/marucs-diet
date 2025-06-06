@@ -1,18 +1,19 @@
 import toast from 'solid-toast'
 import { ToastItem } from '~/modules/toast/domain/toastTypes'
 import { displayExpandableErrorToast } from '~/modules/toast/ui/ExpandableErrorToast'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 /**
  * Display a toast in solid-toast with the appropriate styling
  * Returns the solid-toast ID for later dismissal
  */
-export function displayToast(toastItem: ToastItem): string {
+export function displaySolidToast(toastItem: ToastItem): string {
   const { message, options } = toastItem
-  const { level, expandableErrorData, duration } = options
+  const { type, expandableErrorData, duration } = options
   let solidToastId: string
 
   // Check if this is an expandable error toast
-  if (expandableErrorData && level === 'error') {
+  if (expandableErrorData && type === 'error') {
     // Use the displayExpandableErrorToast function directly
     solidToastId = displayExpandableErrorToast(toastItem)
     return solidToastId
@@ -20,32 +21,46 @@ export function displayToast(toastItem: ToastItem): string {
 
   // Prepare solid-toast options with duration
   const solidToastOptions = {
-    duration: duration ?? 2000,
+    duration: duration,
   }
 
   // Standard toast rendering
-  switch (level) {
+  switch (type) {
     case 'success':
       solidToastId = toast.success(message, solidToastOptions)
       break
     case 'error':
       solidToastId = toast.error(message, solidToastOptions)
       break
-    case 'warning':
-      // solid-toast doesn't have warning, use custom or error styling
-      solidToastId = toast(message, {
+    case 'loading':
+      solidToastId = toast.loading(message, {
         ...solidToastOptions,
-        style: {
-          background: '#f59e0b',
-          color: 'white',
-        },
+        duration: 0, // Loading toasts should not auto-dismiss
       })
       break
     case 'info':
-    default:
       solidToastId = toast(message, solidToastOptions)
       break
+    default:
+      ;((_: never) => _)(type) // TODO:   Create a better function for exhaustive checks
+      handleApiError(
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        new Error(`Unknown toast type: ${type}`),
+        {
+          component: 'displayToast',
+          operation: 'unknownToastType',
+          additionalData: { type, message },
+        },
+      )
+      return ''
   }
 
   return solidToastId
+}
+
+/**
+ * Dismiss a toast by its solid-toast ID
+ */
+export function dismissSolidToast(solidToastId: string): void {
+  toast.dismiss(solidToastId)
 }

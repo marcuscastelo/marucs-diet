@@ -5,7 +5,7 @@
  * Settings are persisted in local storage.
  */
 
-import { createSignal, createEffect } from 'solid-js'
+import { createEffect, createSignal } from 'solid-js'
 
 /**
  * User-configurable toast settings
@@ -52,7 +52,7 @@ const STORAGE_KEY = 'marucs-diet:toast-settings'
 function loadSettings(): ToastSettings {
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored != null && stored.length > 0) {
+    if (stored !== null && stored.length > 0) {
       const parsed = JSON.parse(stored) as Partial<ToastSettings>
       return { ...DEFAULT_SETTINGS, ...parsed }
     }

@@ -6,31 +6,24 @@
  */
 
 import toast from 'solid-toast'
+import { openErrorModal } from '~/modules/toast/application/modalState'
+import { TOAST_MESSAGES } from '~/modules/toast/domain/toastMessages'
 import {
   ToastError,
   ToastItem,
-  ToastLevel,
+  ToastType,
 } from '~/modules/toast/domain/toastTypes'
-import { dequeueById } from '~/modules/toast/application/toastQueue'
-import { openErrorModal } from '~/modules/toast/application/modalState'
 import { handleCopyErrorToClipboard } from '~/modules/toast/infrastructure/clipboardErrorUtils'
-import { TOAST_MESSAGES } from '~/modules/toast/domain/toastMessages'
+import { killToast } from '../application/toastQueue'
 
 export type ExpandableToastProps = {
-  /** The display message (potentially truncated) */
   message: string
-  /** Whether the message was truncated */
   isTruncated: boolean
-  /** The original full message */
   originalMessage: string
-  /** Full error details for expansion */
   errorDetails: ToastError
-  /** Whether expansion is available (from domain) */
   canExpand: boolean
-  /** Optional dismiss callback */
   onDismiss?: () => void
-  /** Toast type: 'error' | 'success' */
-  level: ToastLevel
+  type: ToastType
 }
 
 // Fallback error details for missing or incomplete error data
@@ -49,7 +42,7 @@ export type ExpandableToastContentProps = {
   canExpand: boolean
   onCopy: () => void
   errorDetails: ToastError
-  level: ToastLevel
+  type: ToastType
 }
 
 /**
@@ -92,7 +85,7 @@ export function ExpandableToast(props: ExpandableToastProps) {
         canExpand={props.canExpand}
         onCopy={handleCopy}
         errorDetails={props.errorDetails}
-        level={props.level}
+        type={props.type}
       />
     </div>
   )
@@ -122,13 +115,13 @@ export function displayExpandableErrorToast(toastItem: ToastItem): string {
         }
         canExpand={toastItem.options.expandableErrorData?.canExpand ?? false}
         onDismiss={() => {
-          dequeueById(toastItem.id)
+          killToast(toastItem.id)
         }}
-        level={toastItem.options.level}
+        type={toastItem.options.type}
       />
     ),
     {
-      duration: toastItem.options.duration ?? 8000,
+      duration: toastItem.options.duration,
     },
   )
 }
@@ -306,7 +299,7 @@ function ExpandableToastContent(props: ExpandableToastContentProps) {
   return (
     <div class="flex flex-col flex-1 mx-[10px] my-1">
       <div class="flex items-center gap-2">
-        {props.level === 'error' ? <ErrorIcon /> : <SuccessCheckmarkIcon />}
+        {props.type === 'error' ? <ErrorIcon /> : <SuccessCheckmarkIcon />}
         <span class="whitespace-pre-line">{props.message}</span>
       </div>
       <div class={props.canExpand ? 'flex gap-2 mt-2' : 'hidden'}>

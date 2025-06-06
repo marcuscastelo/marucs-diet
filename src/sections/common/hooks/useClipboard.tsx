@@ -25,7 +25,7 @@ export function useClipboard(props?: {
           // Ignore NotAllowedError (likely DOM not focused)
           return
         }
-        if (onError !== undefined && onError !== null) onError(err)
+        if (onError !== undefined) onError(err)
       })
   }
 

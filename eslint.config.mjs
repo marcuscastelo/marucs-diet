@@ -1,12 +1,13 @@
 /* global process, NodeJS, ApexCharts */
 import js from '@eslint/js'
-import parserTs from '@typescript-eslint/parser'
 import pluginTs from '@typescript-eslint/eslint-plugin'
-import pluginSolid from 'eslint-plugin-solid'
-import pluginPrettier from 'eslint-plugin-prettier'
+import parserTs from '@typescript-eslint/parser'
 import pluginA11y from 'eslint-plugin-jsx-a11y'
+import pluginPrettier from 'eslint-plugin-prettier'
+import pluginSolid from 'eslint-plugin-solid'
 import globals from 'globals'
 
+/** @type {import('eslint').Linter.Config} */
 export default [
   {
     files: ['**/*.ts', '**/*.tsx'],
@@ -36,6 +37,8 @@ export default [
       ...js.configs.recommended.rules,
       ...pluginTs.configs['recommended-type-checked'].rules,
 
+      eqeqeq: ["error", "always"],
+
       'prettier/prettier': [
         'error',
         {
@@ -55,6 +58,7 @@ export default [
       '@typescript-eslint/prefer-readonly-parameter-types': 'off',
       '@typescript-eslint/strict-boolean-expressions': 'warn',
       '@typescript-eslint/no-unnecessary-type-assertion': 'warn',
+      '@typescript-eslint/no-unnecessary-condition': 'error',
 
       "require-await": "off",
       "@typescript-eslint/require-await": "off",
@@ -102,6 +106,6 @@ export default [
     },
   },
   {
-    ignores: ['node_modules', 'src/sections/datepicker'],
+    ignores: ['node_modules', 'src/sections/datepicker', '.vercel', '.vinxi', 'dist', 'build', 'coverage', 'public', 'out'],
   },
 ]

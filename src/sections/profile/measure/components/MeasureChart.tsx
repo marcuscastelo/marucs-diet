@@ -1,11 +1,11 @@
-import { type Measure } from '~/modules/measure/domain/measure'
+import { type ApexOptions } from 'apexcharts'
+import { SolidApexCharts } from 'solid-apexcharts'
+import { createMemo } from 'solid-js'
+import ptBrLocale from '~/assets/locales/apex/pt-br.json'
 import { type BodyFatInput, calculateBodyFat } from '~/legacy/utils/bfMath'
+import { type Measure } from '~/modules/measure/domain/measure'
 import { currentUser } from '~/modules/user/application/user'
 import { userWeights } from '~/modules/weight/application/weight'
-import { SolidApexCharts } from 'solid-apexcharts'
-import ptBrLocale from '~/assets/locales/apex/pt-br.json'
-import { type ApexOptions } from 'apexcharts'
-import { createMemo } from 'solid-js'
 import { dateToYYYYMMDD } from '~/shared/utils/date'
 
 type DayAverage = Omit<Measure, '__type' | 'id' | 'owner' | 'target_timestamp'>
@@ -22,7 +22,7 @@ export function MeasureChart(props: { measures: readonly Measure[] }) {
       if (acc[day] === undefined) {
         acc[day] = []
       }
-      acc[day].push(measure)
+      acc[day]?.push(measure)
       return acc
     }, {})
 

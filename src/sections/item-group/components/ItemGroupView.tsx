@@ -1,22 +1,23 @@
-import MacroNutrientsView from '~/sections/macro-nutrients/components/MacroNutrientsView'
-import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
-import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
+import {
+  type Accessor,
+  type JSXElement,
+  createEffect,
+  createSignal,
+} from 'solid-js'
+import { type Loadable } from '~/legacy/utils/loadable'
+import { calcGroupCalories, calcGroupMacros } from '~/legacy/utils/macroMath'
 import {
   type ItemGroup,
-  isSimpleSingleGroup,
+  RecipedItemGroup,
+  SimpleItemGroup,
   getItemGroupQuantity,
+  isRecipedGroupUpToDate,
+  isSimpleSingleGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
-import { calcGroupCalories, calcGroupMacros } from '~/legacy/utils/macroMath'
-import { isRecipedGroupUpToDate } from '~/modules/diet/item-group/domain/itemGroup'
-import { type Loadable } from '~/legacy/utils/loadable'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
-import {
-  type JSXElement,
-  type Accessor,
-  createSignal,
-  createEffect,
-} from 'solid-js'
+import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
+import MacroNutrientsView from '~/sections/macro-nutrients/components/MacroNutrientsView'
 import {
   handleApiError,
   handleValidationError,
@@ -62,7 +63,7 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
   createEffect(() => {
     console.debug('[ItemGroupName] item changed, fetching API:', props.group)
     const group = props.group()
-    if (group?.type === 'recipe') {
+    if (group.type === 'recipe') {
       recipeRepository
         .fetchRecipeById(group.recipe)
         .then((foundRecipe) => {
@@ -85,14 +86,6 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
     const group_ = props.group()
     const recipe_ = recipe()
 
-    if (group_ === null) {
-      handleValidationError(new Error('ItemGroup is null'), {
-        component: 'ItemGroupView::ItemGroupName',
-        operation: 'nameColor',
-      })
-      return 'text-red-900 bg-red-200'
-    }
-
     if (recipe_.loading) return 'text-gray-500 animate-pulse'
     if (recipe_.errored) {
       handleValidationError(new Error('Recipe loading failed'), {
@@ -103,32 +96,41 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
       return 'text-red-900 bg-red-200 bg-opacity-50'
     }
 
-    if (group_.type === 'simple') {
-      if (isSimpleSingleGroup(group_)) {
+    const handleSimple = (simpleGroup: SimpleItemGroup) => {
+      if (isSimpleSingleGroup(simpleGroup)) {
         return 'text-white'
       } else {
         return 'text-orange-400'
       }
-    } else if (group_.type === 'recipe' && recipe_.data !== null) {
-      if (isRecipedGroupUpToDate(group_, recipe_.data)) {
+    }
+
+    const handleRecipe = (recipedGroup: RecipedItemGroup, recipe: Recipe) => {
+      if (isRecipedGroupUpToDate(recipedGroup, recipe)) {
         return 'text-yellow-200'
       } else {
         // Strike-through text in red
         const className = 'text-yellow-200 underline decoration-red-500'
         return className
       }
-    } else {
-      handleValidationError(
-        new Error(
-          `ItemGroup is not simple or recipe! Item: ${JSON.stringify(group_)}`,
-        ),
-        {
+    }
+
+    switch (group_.type) {
+      case 'simple':
+        return handleSimple(group_ as SimpleItemGroup)
+      case 'recipe':
+        if (recipe_.data !== null) {
+          return handleRecipe(group_ as RecipedItemGroup, recipe_.data)
+        } else {
+          return 'text-red-400'
+        }
+      default:
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        handleValidationError(new Error(`Unknown ItemGroup: ${group_}`), {
           component: 'ItemGroupView::ItemGroupName',
           operation: 'nameColor',
           additionalData: { group: group_ },
-        },
-      )
-      return 'text-red-400'
+        })
+        return 'text-red-400'
     }
   }
 
@@ -139,7 +141,7 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
       */}
       {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.ItemGroupView.id}]</h5> */}
       <h5 class={`mb-2 text-lg font-bold tracking-tight ${nameColor()}`}>
-        {props.group()?.name ?? 'Erro: grupo sem nome'}{' '}
+        {props.group().name}{' '}
       </h5>
     </div>
   )
@@ -172,13 +174,7 @@ export function ItemGroupViewNutritionalInfo(props: {
     console.debug('[ItemGroupViewNutritionalInfo] - itemGroup:', props.group)
   })
 
-  const multipliedMacros = () =>
-    calcGroupMacros(props.group()) ??
-    ({
-      carbs: -666,
-      protein: -666,
-      fat: -666,
-    } satisfies MacroNutrients)
+  const multipliedMacros = () => calcGroupMacros(props.group())
 
   return (
     <div class="flex">

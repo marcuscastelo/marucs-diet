@@ -1,15 +1,15 @@
+import supabase from '~/legacy/utils/supabase'
 import {
+  type NewRecentFood,
   type RecentFood,
   recentFoodSchema,
-  type NewRecentFood,
 } from '~/modules/recent-food/domain/recentFood'
-import supabase from '~/legacy/utils/supabase'
-import { handleApiError } from '~/shared/error/errorHandler'
 import {
-  type RecentFoodDAO,
   type CreateRecentFoodDAO,
   daoToRecentFood,
+  type RecentFoodDAO,
 } from '~/modules/recent-food/infrastructure/recentFoodDAO'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 const TABLE = 'recent_foods'
 
@@ -73,7 +73,7 @@ export async function insertRecentFood(newRecentFood: NewRecentFood) {
     throw error
   }
 
-  const recentFoodDAO = data?.[0] as RecentFoodDAO
+  const recentFoodDAO = data[0] as RecentFoodDAO
   return daoToRecentFood(recentFoodDAO)
 }
 
@@ -103,7 +103,7 @@ export async function updateRecentFood(
     throw error
   }
 
-  const recentFoodDAO = data?.[0] as RecentFoodDAO
+  const recentFoodDAO = data[0] as RecentFoodDAO
   return daoToRecentFood(recentFoodDAO)
 }
 

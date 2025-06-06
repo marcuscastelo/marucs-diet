@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import { itemSchema } from '~/modules/diet/item/domain/item'
 import { generateId } from '~/legacy/utils/idUtils'
+import { itemSchema } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { handleApiError } from '~/shared/error/errorHandler'
 
@@ -140,9 +140,14 @@ export function isRecipedGroupUpToDate(
   if (groupRecipeItems.length !== groupItems.length) {
     return false
   }
+
   for (let i = 0; i < groupRecipeItems.length; i++) {
     const recipeItem = groupRecipeItems[i]
     const groupItem = groupItems[i]
+
+    if (recipeItem === undefined || groupItem === undefined) {
+      return false
+    }
     if (recipeItem.reference !== groupItem.reference) {
       return false
     }

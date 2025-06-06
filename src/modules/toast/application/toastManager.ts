@@ -6,93 +6,65 @@
  */
 
 import {
-  enqueue,
-  createToastItem,
-  dequeueById,
+  killToast,
+  registerToast,
 } from '~/modules/toast/application/toastQueue'
+import { createExpandableErrorData } from '~/modules/toast/domain/errorMessageHandler'
 import {
-  ToastOptions,
+  createToastItem,
+  DEFAULT_TOAST_CONTEXT,
   DEFAULT_TOAST_OPTIONS,
   TOAST_DURATION_INFINITY,
-  DEFAULT_TOAST_CONTEXT,
+  ToastOptions,
 } from '~/modules/toast/domain/toastTypes'
-import { createExpandableErrorData } from '~/modules/toast/domain/errorMessageHandler'
+import { createDebug } from '~/shared/utils/createDebug'
+import { isNonEmptyString } from '~/shared/utils/isNonEmptyString'
 
-/**
- * Creates and enqueues a toast notification with merged options.
- *
- * @param message - The message to display in the toast.
- * @param options - Toast options to override defaults and control behavior.
- * @returns {string} The ID of the created toast.
- */
-function createAndEnqueueToast(message: string, options: ToastOptions): string {
-  return enqueue(createToastItem(message, options))
-}
+const debug = createDebug('ToastManager')
 
 /**
  * Returns true if the toast should be skipped based on context, audience, and type.
  *
- * @param options - ToastOptions including context, audience, level, showSuccess, showLoading.
+ * @param options - ToastOptions including context, audience, type, showSuccess, showLoading.
  * @returns True if the toast should be skipped, false otherwise.
  */
 function shouldSkipToast(options: ToastOptions): boolean {
-  const { context, audience, level, showSuccess, showLoading } = options
+  const { context, audience, type, showSuccess, showLoading } = options
 
   // Always show error toasts
-  if (level === 'error') return false
+  if (type === 'error') return false
 
   const isBackgroundOrSystem = context === 'background' || audience === 'system'
 
-  if (level === 'success' && isBackgroundOrSystem && showSuccess !== true) {
+  if (type === 'success' && isBackgroundOrSystem && showSuccess !== true) {
     return true
   }
 
-  if (level === 'info' && isBackgroundOrSystem && showLoading !== true) {
+  if (type === 'loading' && isBackgroundOrSystem && showLoading !== true) {
     return true
   }
 
   return false
 }
 
-/**
- * Returns a filtered copy of the toast messages object, never mutating the original.
- * Filters out loading and success messages for background/system context and audience unless explicitly enabled.
- *
- * @template T
- * @param messages - Toast messages for loading, success, and error.
- * @param options - Toast options, may include context and audience.
- * @returns Filtered messages object.
- */
-function filterBackgroundPromiseMessages<T>(
-  messages: {
-    loading?: string
-    success?: string | ((data: T) => string)
-    error?: string | ((error: unknown) => string)
-  },
+function filterPromiseMessages<T>(
+  messages: ToastPromiseMessages<T>,
   providedOptions?: Partial<ToastOptions>,
-): typeof messages {
+): ToastPromiseMessages<T> {
   const options = mergeToastOptions(providedOptions)
-  return {
-    loading: !shouldSkipToast({ ...options, level: 'info' })
+  const filteredMessages = {
+    loading: !shouldSkipToast({ ...options, type: 'loading' })
       ? messages.loading
       : undefined,
-    success: !shouldSkipToast({ ...options, level: 'success' })
+    success: !shouldSkipToast({ ...options, type: 'success' })
       ? messages.success
       : undefined,
-    error: !shouldSkipToast({ ...options, level: 'error' })
+    error: !shouldSkipToast({ ...options, type: 'error' })
       ? messages.error
       : undefined,
   }
-}
 
-/**
- * Checks if a value is a non-empty string.
- *
- * @param val - Value to check.
- * @returns {boolean} True if value is a non-empty string.
- */
-function isNonEmptyString(val: unknown): val is string {
-  return typeof val === 'string' && val.length > 0
+  return filteredMessages
 }
 
 /**
@@ -123,7 +95,10 @@ function resolveValueOrFunction<T, R>(
 function show(message: string, providedOptions: Partial<ToastOptions>): string {
   const options: ToastOptions = mergeToastOptions(providedOptions)
   if (shouldSkipToast(options)) return ''
-  return createAndEnqueueToast(message, options)
+
+  const toastItem = createToastItem(message, options)
+  registerToast(toastItem)
+  return toastItem.id
 }
 
 /**
@@ -133,25 +108,28 @@ function show(message: string, providedOptions: Partial<ToastOptions>): string {
  * Error display options can be overridden via providedOptions.
  *
  * @param error - The error to display.
- * @param providedOptions - Partial toast options (except level). Error display options are merged with defaults from errorMessageHandler.ts.
+ * @param providedOptions - Partial toast options (except type). Error display options are merged with defaults from errorMessageHandler.ts.
  * @returns The toast ID.
  */
 export function showError(
   error: unknown,
-  providedOptions?: Omit<Partial<ToastOptions>, 'level'>,
+  providedOptions?: Omit<Partial<ToastOptions>, 'type'>,
+  providedDisplayMessage?: string,
 ): string {
-  const options = mergeToastOptions({ ...providedOptions, level: 'error' })
+  const options = mergeToastOptions({ ...providedOptions, type: 'error' })
 
   // Ensure error is a string for display
   const errorMessage = typeof error === 'string' ? error : String(error)
 
-  const processed = createExpandableErrorData(errorMessage, {
-    ...options,
-  })
+  const expandableErrorData = createExpandableErrorData(
+    errorMessage,
+    options,
+    providedDisplayMessage,
+  )
 
-  return show(processed.displayMessage, {
+  return show(expandableErrorData.displayMessage, {
     ...options,
-    expandableErrorData: { ...processed },
+    expandableErrorData,
   })
 }
 
@@ -159,69 +137,94 @@ export function showError(
  * Shows a success toast.
  *
  * @param message - The message to display.
- * @param providedOptions - Partial toast options (except level).
+ * @param providedOptions - Partial toast options (except type).
  * @returns {string} The toast ID.
  */
 export function showSuccess(
   message: string,
-  providedOptions?: Omit<Partial<ToastOptions>, 'level'>,
+  providedOptions?: Omit<Partial<ToastOptions>, 'type'>,
 ): string {
-  return show(message, { ...providedOptions, level: 'success' as const })
+  return show(message, { ...providedOptions, type: 'success' as const })
 }
 
 /**
  * Shows a loading toast with infinite duration.
  *
  * @param message - The message to display.
- * @param providedOptions - Partial toast options (except level).
+ * @param providedOptions - Partial toast options (except type).
  * @returns {string} The toast ID.
  */
 export function showLoading(
   message: string,
-  providedOptions?: Omit<Partial<ToastOptions>, 'level'>,
+  providedOptions?: Omit<Partial<ToastOptions>, 'type'>,
 ): string {
   return show(message, {
     duration: TOAST_DURATION_INFINITY,
     ...providedOptions,
-    level: 'info' as const,
+    type: 'info' as const,
   })
+}
+
+/**
+ * Shows an info toast.
+ *
+ * @param message - The message to display.
+ * @param providedOptions - Partial toast options (except type).
+ * @returns {string} The toast ID.
+ */
+export function showInfo(
+  message: string,
+  providedOptions?: Omit<Partial<ToastOptions>, 'type'>,
+): string {
+  return show(message, { ...providedOptions, type: 'info' as const })
+}
+
+function handlePromiseLoading<T>(
+  filteredMessages: ToastPromiseMessages<T>,
+  providedOptions?: Partial<ToastOptions>,
+): string | null {
+  if (isNonEmptyString(filteredMessages.loading)) {
+    debug(`Promise loading toast: "${filteredMessages.loading}"`)
+    return showLoading(filteredMessages.loading, providedOptions)
+  } else {
+    debug('No loading toast message provided, skipping loading toast')
+  }
+  return null
 }
 
 function handlePromiseSuccess<T>(
   data: T,
-  filteredMessages: {
-    loading?: string
-    success?: string | ((data: T) => string)
-    error?: string | ((error: unknown) => string)
-  },
+  filteredMessages: ToastPromiseMessages<T>,
   providedOptions?: Partial<ToastOptions>,
 ) {
   const successMsg = resolveValueOrFunction(filteredMessages.success, data)
   if (isNonEmptyString(successMsg)) {
+    debug('Showing success toast', { successMsg })
     showSuccess(successMsg, providedOptions)
+  } else {
+    debug('No success toast message provided, skipping success toast')
   }
 }
 
 function handlePromiseError<T>(
   err: unknown,
-  filteredMessages: {
-    loading?: string
-    success?: string | ((data: T) => string)
-    error?: string | ((error: unknown) => string)
-  },
+  filteredMessages: ToastPromiseMessages<T>,
   providedOptions?: Partial<ToastOptions>,
 ) {
   const errorMsg = resolveValueOrFunction(filteredMessages.error, err)
   if (isNonEmptyString(errorMsg)) {
-    showError(errorMsg, providedOptions)
+    debug('Showing error toast with custom message', { errorMsg, err })
+    showError(err, providedOptions, errorMsg)
   } else {
+    debug('Showing error toast with message from error', { err })
     showError(err, providedOptions)
   }
 }
 
-function removeLoadingToast(loadingToastId: string | null) {
+function handleLoadingToastRemoval(loadingToastId: string | null) {
+  debug('Removing loading toast', { loadingToastId })
   if (typeof loadingToastId === 'string' && loadingToastId.length > 0) {
-    dequeueById(loadingToastId)
+    killToast(loadingToastId)
   }
 }
 
@@ -238,35 +241,24 @@ function removeLoadingToast(loadingToastId: string | null) {
  * @param options - Additional toast options.
  * @returns {Promise<T>} The resolved value of the promise.
  */
-export function showPromise<T>(
+export async function showPromise<T>(
   promise: Promise<T>,
-  messages: {
-    loading?: string
-    success?: string | ((data: T) => string)
-    error?: string | ((error: unknown) => string)
-  },
+  messages: ToastPromiseMessages<T>,
   providedOptions?: Partial<ToastOptions>,
 ): Promise<T> {
-  const filteredMessages = filterBackgroundPromiseMessages(
-    messages,
-    providedOptions,
-  )
-  let loadingToastId: string | null = null
-  if (isNonEmptyString(filteredMessages.loading)) {
-    loadingToastId = showLoading(filteredMessages.loading, providedOptions)
+  const filteredMessages = filterPromiseMessages(messages, providedOptions)
+
+  const loadingToastId = handlePromiseLoading(filteredMessages, providedOptions)
+  try {
+    const data = await promise
+    handlePromiseSuccess(data, filteredMessages, providedOptions)
+    return data
+  } catch (err) {
+    handlePromiseError(err, filteredMessages, providedOptions)
+    throw err
+  } finally {
+    handleLoadingToastRemoval(loadingToastId)
   }
-  return promise
-    .then((data) => {
-      handlePromiseSuccess(data, filteredMessages, providedOptions)
-      return data
-    })
-    .catch((err: unknown) => {
-      handlePromiseError(err, filteredMessages, providedOptions)
-      throw err
-    })
-    .finally(() => {
-      removeLoadingToast(loadingToastId)
-    })
 }
 
 /**
@@ -284,4 +276,11 @@ function mergeToastOptions(
     ...DEFAULT_TOAST_OPTIONS[context],
     ...providedOptions,
   }
+}
+
+// ToastPromiseMessages type for promise-based toast messages
+export type ToastPromiseMessages<T> = {
+  loading?: string
+  success?: string | ((data: T) => string)
+  error?: string | ((error: unknown) => string)
 }

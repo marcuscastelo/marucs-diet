@@ -7,8 +7,8 @@ import {
 } from '~/modules/diet/food/infrastructure/api/application/apiFood'
 import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
 import { showPromise } from '~/modules/toast/application/toastManager'
-import { formatError } from '~/shared/formatError'
 import { handleApiError } from '~/shared/error/errorHandler'
+import { formatError } from '~/shared/formatError'
 
 const foodRepository = createSupabaseFoodRepository()
 
@@ -59,12 +59,18 @@ export async function fetchFoodsByName(
       { context: 'background' },
     )
   }
-  return await showPromise(foodRepository.fetchFoodsByName(name, params), {
-    loading: 'Buscando alimentos por nome...',
-    success: 'Alimentos encontrados',
-    error: (error: unknown) =>
-      `Erro ao buscar alimentos por nome: ${formatError(error)}`,
-  })
+  return await showPromise(
+    foodRepository.fetchFoodsByName(name, params),
+    {
+      loading: 'Buscando alimentos por nome...',
+      success: 'Alimentos encontrados',
+      error: (error: unknown) =>
+        `Erro ao buscar alimentos por nome: ${formatError(error)}`,
+    },
+    {
+      audience: 'system',
+    },
+  )
 }
 
 export async function fetchFoodByEan(
@@ -73,7 +79,7 @@ export async function fetchFoodByEan(
 ) {
   console.debug(`[Food] Fetching food by EAN: ${ean}`)
   await showPromise(
-    importFoodFromApiByEan(ean ?? ''),
+    importFoodFromApiByEan(ean),
     {
       loading: 'Importando alimento...',
       success: 'Alimento importado com sucesso',
@@ -81,7 +87,7 @@ export async function fetchFoodByEan(
     },
     { context: 'background' },
   )
-  return await showPromise(foodRepository.fetchFoodByEan(ean ?? '', params), {
+  return await showPromise(foodRepository.fetchFoodByEan(ean, params), {
     loading: 'Buscando alimento por EAN...',
     success: 'Alimento encontrado',
     error: (error: unknown) =>

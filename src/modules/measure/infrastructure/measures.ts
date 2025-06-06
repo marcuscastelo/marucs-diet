@@ -1,14 +1,14 @@
-import { type Measure, type NewMeasure } from '~/modules/measure/domain/measure'
-import { type User } from '~/modules/user/domain/user'
 import supabase from '~/legacy/utils/supabase'
+import { type Measure, type NewMeasure } from '~/modules/measure/domain/measure'
 import { type MeasureRepository } from '~/modules/measure/domain/measureRepository'
-import { handleApiError } from '~/shared/error/errorHandler'
 import {
-  createMeasureFromDAO,
-  measureDAOSchema,
   createInsertMeasureDAOFromNewMeasure,
+  createMeasureFromDAO,
   createUpdateMeasureDAOFromNewMeasure,
+  measureDAOSchema,
 } from '~/modules/measure/infrastructure/measureDAO'
+import { type User } from '~/modules/user/domain/user'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 const TABLE = 'body_measures'
 
@@ -54,7 +54,7 @@ async function insertMeasure(newMeasure: NewMeasure): Promise<Measure | null> {
     throw error
   }
 
-  const measureDAOs = measureDAOSchema.array().parse(data ?? [])
+  const measureDAOs = measureDAOSchema.array().parse(data)
   const measures = measureDAOs.map(createMeasureFromDAO)
 
   return measures[0] ?? null
@@ -80,7 +80,7 @@ async function updateMeasure(
     throw error
   }
 
-  const measureDAOs = measureDAOSchema.array().parse(data ?? [])
+  const measureDAOs = measureDAOSchema.array().parse(data)
   const measures = measureDAOs.map(createMeasureFromDAO)
 
   return measures[0] ?? null

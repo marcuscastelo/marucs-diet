@@ -1,17 +1,17 @@
+import supabase from '~/legacy/utils/supabase'
 import {
   type MacroProfile,
   type NewMacroProfile,
 } from '~/modules/diet/macro-profile/domain/macroProfile'
-import { type User } from '~/modules/user/domain/user'
-import supabase from '~/legacy/utils/supabase'
 import { type MacroProfileRepository } from '~/modules/diet/macro-profile/domain/macroProfileRepository'
-import { handleApiError } from '~/shared/error/errorHandler'
 import {
-  createMacroProfileFromDAO,
-  macroProfileDAOSchema,
   createInsertMacroProfileDAOFromNewMacroProfile,
+  createMacroProfileFromDAO,
   createUpdateMacroProfileDAOFromNewMacroProfile,
+  macroProfileDAOSchema,
 } from '~/modules/diet/macro-profile/infrastructure/macroProfileDAO'
+import { type User } from '~/modules/user/domain/user'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 export const SUPABASE_TABLE_MACRO_PROFILES = 'macro_profiles'
 
@@ -63,7 +63,7 @@ async function insertMacroProfile(
     throw error
   }
 
-  const macroProfileDAOs = macroProfileDAOSchema.array().parse(data ?? [])
+  const macroProfileDAOs = macroProfileDAOSchema.array().parse(data)
   const macroProfiles = macroProfileDAOs.map(createMacroProfileFromDAO)
 
   return macroProfiles[0] ?? null
@@ -90,7 +90,7 @@ async function updateMacroProfile(
     throw error
   }
 
-  const macroProfileDAOs = macroProfileDAOSchema.array().parse(data ?? [])
+  const macroProfileDAOs = macroProfileDAOSchema.array().parse(data)
   const macroProfiles = macroProfileDAOs.map(createMacroProfileFromDAO)
 
   return macroProfiles[0] ?? null

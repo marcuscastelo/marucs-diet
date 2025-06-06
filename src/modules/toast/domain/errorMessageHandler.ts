@@ -66,22 +66,31 @@ const NOISY_PREFIXES = [
 export function createExpandableErrorData(
   error: unknown,
   options: Partial<ErrorProcessingOptions> = {},
+  providedDisplayMessage?: string,
 ): ToastExpandableErrorData {
   const opts = { ...DEFAULT_ERROR_OPTIONS, ...options }
   const errorDetails = mapUnknownToToastError(error, opts.includeStack)
   const originalMessage = errorDetails.message
 
-  // Clean up the message for display
-  const cleanMessage = cleanErrorMessage(
-    originalMessage,
-    opts.preserveLineBreaks,
-  )
+  let displayMessage: string
+  let needsTruncation: boolean
 
-  // Check if truncation is needed
-  const needsTruncation = cleanMessage.length > opts.maxLength
-  const displayMessage = needsTruncation
-    ? truncateMessage(cleanMessage, opts.maxLength, opts.truncationSuffix)
-    : cleanMessage
+  if (providedDisplayMessage !== undefined) {
+    displayMessage = providedDisplayMessage
+    needsTruncation = displayMessage.length > opts.maxLength
+  } else {
+    // Clean up the message for display
+    const cleanMessage = cleanErrorMessage(
+      originalMessage,
+      opts.preserveLineBreaks,
+    )
+
+    // Check if truncation is needed
+    needsTruncation = cleanMessage.length > opts.maxLength
+    displayMessage = needsTruncation
+      ? truncateMessage(cleanMessage, opts.maxLength, opts.truncationSuffix)
+      : cleanMessage
+  }
 
   return {
     displayMessage,

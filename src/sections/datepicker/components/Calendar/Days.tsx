@@ -1,11 +1,11 @@
 import dayjs from 'dayjs'
 import isBetween from 'dayjs/plugin/isBetween'
 
+import { For, useContext } from 'solid-js'
 import { BG_COLOR, TEXT_COLOR } from '../../constants'
 import DatepickerContext from '../../contexts/DatepickerContext'
-import { formatDate, nextMonth, previousMonth, classNames as cn } from '../../helpers'
+import { classNames as cn, formatDate, nextMonth, previousMonth } from '../../helpers'
 import { type Period } from '../../types'
-import { For, useContext } from 'solid-js'
 
 dayjs.extend(isBetween)
 
@@ -226,8 +226,8 @@ const Days = (props: Props) => {
       }
       for (let i = 0; i < disabledDates.length; i++) {
         if (
-          dayjs(hoverPeriod.start).isBefore(disabledDates[i].startDate) &&
-          dayjs(hoverPeriod.end).isAfter(disabledDates[i].endDate)
+          dayjs(hoverPeriod.start).isBefore(disabledDates[i]?.startDate) &&
+          dayjs(hoverPeriod.end).isAfter(disabledDates[i]?.endDate)
         ) {
           return true
         }

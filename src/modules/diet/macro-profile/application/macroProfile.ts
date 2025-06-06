@@ -1,4 +1,6 @@
+import { createEffect, createSignal } from 'solid-js'
 import { getLatestMacroProfile } from '~/legacy/utils/macroProfileUtils'
+import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 import {
   type MacroProfile,
   type NewMacroProfile,
@@ -7,10 +9,8 @@ import {
   createSupabaseMacroProfileRepository,
   SUPABASE_TABLE_MACRO_PROFILES,
 } from '~/modules/diet/macro-profile/infrastructure/supabaseMacroProfileRepository'
-import { currentUserId } from '~/modules/user/application/user'
-import { createEffect, createSignal } from 'solid-js'
 import { showPromise } from '~/modules/toast/application/toastManager'
-import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
+import { currentUserId } from '~/modules/user/application/user'
 import { handleApiError } from '~/shared/error/errorHandler'
 
 const macroProfileRepository = createSupabaseMacroProfileRepository()
@@ -76,12 +76,17 @@ export async function insertMacroProfile(newMacroProfile: NewMacroProfile) {
         error: 'Falha ao criar perfil de macro',
       },
     )
-    if (
+    const userProfiles = userMacroProfiles()
+    const hasResult = macroProfile !== null
+    const hasNoProfiles = userProfiles.length === 0
+    const firstProfile = userProfiles[0]
+    const isSameOwner =
+      !hasNoProfiles &&
       macroProfile !== null &&
-      macroProfile !== undefined &&
-      (userMacroProfiles().length === 0 ||
-        macroProfile.owner === userMacroProfiles()[0].owner)
-    ) {
+      firstProfile !== undefined &&
+      macroProfile.owner === firstProfile.owner
+
+    if (hasResult && (hasNoProfiles || isSameOwner)) {
       await fetchUserMacroProfiles(macroProfile.owner)
     }
     return macroProfile
@@ -112,14 +117,17 @@ export async function updateMacroProfile(
       },
     )
     const firstUserMacroProfile = userMacroProfiles()[0]
-    if (
-      macroProfiles !== null &&
-      macroProfiles !== undefined &&
-      firstUserMacroProfile !== undefined &&
+    const hasResult = macroProfiles !== null
+    const hasFirstProfile = firstUserMacroProfile !== undefined
+    const isSameOwner =
+      hasResult &&
+      hasFirstProfile &&
       macroProfiles.owner === firstUserMacroProfile.owner
-    ) {
+
+    if (isSameOwner) {
       await fetchUserMacroProfiles(macroProfiles.owner)
     }
+
     return macroProfiles
   } catch (error) {
     handleApiError(error, {
@@ -141,8 +149,9 @@ export async function deleteMacroProfile(macroProfileId: number) {
         error: 'Falha ao deletar perfil de macro',
       },
     )
-    if (userMacroProfiles().length > 0) {
-      await fetchUserMacroProfiles(userMacroProfiles()[0].owner)
+    const [first] = userMacroProfiles()
+    if (first) {
+      await fetchUserMacroProfiles(first.owner)
     }
   } catch (error) {
     handleApiError(error, {

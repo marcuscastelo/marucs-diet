@@ -1,10 +1,10 @@
-import { getTodayYYYYMMDD, stringToDate } from '~/shared/utils/date'
 import {
   setTargetDay,
   targetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
 import Datepicker from '~/sections/datepicker/components/Datepicker'
 import { type DateValueType } from '~/sections/datepicker/types'
+import { getTodayYYYYMMDD, stringToDate } from '~/shared/utils/date'
 
 export function TargetDayPicker() {
   const handleDayChange = (newValue: DateValueType) => {
@@ -16,7 +16,7 @@ export function TargetDayPicker() {
 
     const dateString = newValue.startDate
     const date = stringToDate(dateString)
-    const dayString = date.toISOString().split('T')[0] // TODO:   use dateUtils when this is understood
+    const dayString = date.toISOString().split('T')[0] as string // TODO:   use dateUtils when this is understood
     setTargetDay(dayString)
   }
 

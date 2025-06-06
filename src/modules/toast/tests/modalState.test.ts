@@ -1,10 +1,10 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import {
-  openErrorModal,
-  closeErrorModal,
-  getOpenModals,
-  getModal,
   closeAllModals,
+  closeErrorModal,
+  getModal,
+  getOpenModals,
+  openErrorModal,
 } from '~/modules/toast/application/modalState'
 import type { ToastError } from '~/modules/toast/domain/toastTypes'
 
@@ -26,9 +26,9 @@ describe('modalState', () => {
     expect(typeof id).toBe('string')
     const modals = getOpenModals()
     expect(modals.length).toBe(1)
-    expect(modals[0].id).toBe(id)
-    expect(modals[0].isOpen).toBe(true)
-    expect(modals[0].errorDetails).toEqual(mockError)
+    expect(modals[0]?.id).toBe(id)
+    expect(modals[0]?.isOpen).toBe(true)
+    expect(modals[0]?.errorDetails).toEqual(mockError)
   })
 
   it('should get a modal by id', () => {

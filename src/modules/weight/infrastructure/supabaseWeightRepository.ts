@@ -1,10 +1,10 @@
+import supabase from '~/legacy/utils/supabase'
 import { type User } from '~/modules/user/domain/user'
 import {
-  type Weight,
   weightSchema,
   type NewWeight,
+  type Weight,
 } from '~/modules/weight/domain/weight'
-import supabase from '~/legacy/utils/supabase'
 import { type WeightRepository } from '~/modules/weight/domain/weightRepository'
 import {
   createInsertWeightDAOFromWeight,
@@ -47,7 +47,7 @@ async function insertWeight(newWeight: NewWeight) {
     throw error
   }
 
-  return weightSchema.parse(data?.[0])
+  return weightSchema.parse(data[0])
 }
 
 async function updateWeight(weightId: Weight['id'], weight: Weight) {
@@ -62,7 +62,7 @@ async function updateWeight(weightId: Weight['id'], weight: Weight) {
     throw error
   }
 
-  return weightSchema.parse(data?.[0])
+  return weightSchema.parse(data[0])
 }
 
 async function deleteWeight(id: Weight['id']) {

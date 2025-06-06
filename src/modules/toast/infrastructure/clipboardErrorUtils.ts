@@ -2,10 +2,10 @@
  * Utilities for formatting and copying error details to clipboard.
  * Shared between ExpandableErrorToast and ErrorDetailModal.
  */
-import { ToastError } from '~/modules/toast/domain/toastTypes'
-import { handleApiError } from '~/shared/error/errorHandler'
-import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { TOAST_MESSAGES } from '~/modules/toast/domain/toastMessages'
+import { ToastError } from '~/modules/toast/domain/toastTypes'
+import { useClipboard } from '~/sections/common/hooks/useClipboard'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 // Explicit type for context
 export type ClipboardErrorContext = { component: string; operation: string }
@@ -59,7 +59,7 @@ export async function handleCopyErrorToClipboard(
   const { write } = useClipboard()
   const clipboardContent = formatErrorForClipboard(errorDetails)
   write(clipboardContent, (error) => {
-    if (error != null) {
+    if (error !== null) {
       handleApiError(error, {
         component: context.component,
         operation: context.operation,

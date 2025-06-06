@@ -1,18 +1,18 @@
+import { describe, expect, it } from 'vitest'
+import { createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { createItem } from '~/modules/diet/item/domain/item'
+import { createMeal } from '~/modules/diet/meal/domain/meal'
 import {
-  updateMealName,
   addGroupToMeal,
   addGroupsToMeal,
-  updateGroupInMeal,
-  removeGroupFromMeal,
-  setMealGroups,
   clearMealGroups,
   findGroupInMeal,
+  removeGroupFromMeal,
   replaceMeal,
+  setMealGroups,
+  updateGroupInMeal,
+  updateMealName,
 } from './mealOperations'
-import { describe, it, expect } from 'vitest'
-import { createItem } from '~/modules/diet/item/domain/item'
-import { createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
-import { createMeal } from '~/modules/diet/meal/domain/meal'
 
 function makeItem(id: number, name = 'Arroz') {
   return {
@@ -66,7 +66,7 @@ describe('mealOperations', () => {
   it('updateGroupInMeal updates a group', () => {
     const updated = makeGroup(1, 'Novo', [baseItem])
     const result = updateGroupInMeal(baseMeal, 1, updated)
-    expect(result.groups[0].name).toBe('Novo')
+    expect(result.groups[0]?.name).toBe('Novo')
   })
 
   it('removeGroupFromMeal removes a group', () => {

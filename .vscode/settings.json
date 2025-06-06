@@ -2,7 +2,8 @@
   "editor.tabSize": 2,
   "editor.detectIndentation": false,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "always"
+    "source.fixAll.eslint": "always",
+    "source.sortImports": "explicit"
   },
   "eslint.validate": [
     "typescript",

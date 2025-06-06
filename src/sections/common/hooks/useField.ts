@@ -2,11 +2,11 @@
  * @fileoverview Core useField hook for managing form field state and transformations
  */
 
-import { createSignal, createEffect, type Accessor } from 'solid-js'
+import { createEffect, createSignal, type Accessor } from 'solid-js'
 import type { FieldTransform } from './transforms/fieldTransforms'
 import {
-  createFloatTransform,
   createDateTransform,
+  createFloatTransform,
 } from './transforms/fieldTransforms'
 
 export type UseFieldOptions<T> = {
@@ -138,7 +138,6 @@ export function useDateField<
     if (v !== undefined) return v
     if (
       typeof options === 'object' &&
-      options !== null &&
       'fallback' in options &&
       typeof options.fallback === 'function'
     ) {

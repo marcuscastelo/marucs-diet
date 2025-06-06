@@ -1,6 +1,9 @@
+import { createEffect, createSignal } from 'solid-js'
+import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
+import { showPromise } from '~/modules/toast/application/toastManager'
 import {
-  type User,
   type NewUser,
+  type User,
   demoteToNewUser,
 } from '~/modules/user/domain/user'
 import {
@@ -11,10 +14,7 @@ import {
   createSupabaseUserRepository,
   SUPABASE_TABLE_USERS,
 } from '~/modules/user/infrastructure/supabaseUserRepository'
-import { createEffect, createSignal } from 'solid-js'
-import { showPromise } from '~/modules/toast/application/toastManager'
 import { handleApiError } from '~/shared/error/errorHandler'
-import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 
 export const DEFAULT_USER_ID = 3
 
@@ -27,18 +27,16 @@ export const [currentUser, setCurrentUser] = createSignal<User | null>(null)
 export const [currentUserId, setCurrentUserId] = createSignal<number>(1)
 
 createEffect(() => {
-  if (currentUserId() !== null) {
-    setCurrentUserId(loadUserIdFromLocalStorage())
-    void showPromise(
-      fetchCurrentUser(),
-      {
-        loading: 'Carregando usuário atual...',
-        success: 'Usuário atual carregado com sucesso',
-        error: 'Falha ao carregar usuário atual',
-      },
-      { context: 'background' },
-    )
-  }
+  setCurrentUserId(loadUserIdFromLocalStorage())
+  void showPromise(
+    fetchCurrentUser(),
+    {
+      loading: 'Carregando usuário atual...',
+      success: 'Usuário atual carregado com sucesso',
+      error: 'Falha ao carregar usuário atual',
+    },
+    { context: 'background' },
+  )
 })
 
 function bootstrap() {
