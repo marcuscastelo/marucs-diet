@@ -54,7 +54,7 @@ const ToastTest: Component = () => {
       {
         loading: 'Processing...',
         success: 'Success!',
-        error: 'Operation failed',
+        error: 'Operação falhou\nPor favor, tente novamente.',
       },
       { context: 'user-action' },
     ).catch((err) => {
@@ -113,7 +113,7 @@ const ToastTest: Component = () => {
         context: 'user-action',
         loading: 'Detached operation...',
         success: 'Detached operation completed!',
-        error: 'Detached operation failed',
+        error: 'Operação destacada falhou\nPor favor, tente novamente.',
         options: toastOptions(),
       },
     )
@@ -130,7 +130,7 @@ const ToastTest: Component = () => {
         context: 'background',
         loading: 'Loading user data...',
         success: 'User data loaded!',
-        error: 'Failed to load user data',
+        error: 'Falha ao carregar dados do usuário\nTente novamente.',
         options: toastOptions(),
       },
     )
@@ -141,7 +141,7 @@ const ToastTest: Component = () => {
         context: 'background',
         loading: 'Loading settings...',
         success: 'Settings loaded!',
-        error: 'Failed to load settings',
+        error: 'Falha ao carregar configurações\nTente novamente.',
         options: toastOptions(),
       },
     )
@@ -152,7 +152,7 @@ const ToastTest: Component = () => {
         context: 'background',
         loading: 'Refreshing cache...',
         success: 'Cache refreshed!',
-        error: 'Failed to refresh cache',
+        error: 'Falha ao atualizar cache\nTente novamente.',
         options: toastOptions(),
       },
     )
@@ -199,7 +199,7 @@ const ToastTest: Component = () => {
               {
                 loading: 'Loading without success message...',
                 // No success message to test if loading toast is removed correctly
-                error: 'Operation failed (no success message)',
+                error: 'Operação falhou\nPor favor, tente novamente.',
               },
               { context: 'user-action' },
             ).catch((err) => {
@@ -301,7 +301,7 @@ const ToastTest: Component = () => {
                 context: 'user-action',
                 loading: 'Detached operation...',
                 success: 'Detached operation completed!',
-                error: 'Detached operation failed (error)',
+                error: 'Operação destacada falhou\nPor favor, tente novamente.',
                 options: toastOptions(),
               },
             )

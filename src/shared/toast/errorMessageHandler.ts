@@ -179,10 +179,13 @@ function cleanErrorMessage(
   // Handle line breaks
   if (!preserveLineBreaks) {
     cleaned = cleaned.replace(/\n\s*/g, ' ')
+  } else {
+    // Remove only trailing whitespace after line breaks, but preserve the line breaks
+    cleaned = cleaned.replace(/\n\s*/g, '\n')
   }
 
-  // Remove excessive whitespace
-  cleaned = cleaned.replace(/\s+/g, ' ').trim()
+  // Remove excessive whitespace (but not line breaks)
+  cleaned = cleaned.replace(/[ \t\f\v]+/g, ' ').trim()
 
   return cleaned
 }
