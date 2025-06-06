@@ -24,6 +24,23 @@ export type ExpandableToastProps = {
   level: ToastLevel
 }
 
+// Fallback error details for missing or incomplete error data
+const FALLBACK_ERROR_DETAILS: ToastError = {
+  message: 'Nenhum detalhe do erro fornecido',
+  stack: '',
+  context: {},
+  timestamp: Date.now(),
+  fullError: '',
+}
+
+export type ExpandableToastContentProps = {
+  message: string
+  complex: boolean
+  onCopy: () => void
+  errorDetails: ToastError
+  level: ToastLevel
+}
+
 /**
  * Expandable Error Toast Component
  *
@@ -67,9 +84,9 @@ export function ExpandableToast(props: ExpandableToastProps) {
         aria-label="Dismiss"
         class="absolute top-2 right-2 text-lg text-gray-400 hover:text-gray-200 z-10"
       >
-        ✕
+        <span class="sr-only">Fechar</span>✕
       </button>
-      <ToastContent
+      <ExpandableToastContent
         message={props.message}
         complex={isComplex()}
         onCopy={handleCopy}
@@ -93,13 +110,8 @@ export function displayExpandableErrorToast(toastItem: ToastItem): string {
           toastItem.options.expandableErrorData?.isTruncated ?? false
         }
         errorDetails={
-          toastItem.options.expandableErrorData?.errorDetails ?? {
-            message: 'Nenhum detalhe do erro fornecido',
-            stack: '',
-            context: {},
-            timestamp: Date.now(),
-            fullError: '',
-          }
+          toastItem.options.expandableErrorData?.errorDetails ??
+          FALLBACK_ERROR_DETAILS
         }
         onDismiss={() => {
           dequeueById(toastItem.id)
@@ -279,13 +291,7 @@ function ErrorIcon() {
  *
  * A SolidJS component for displaying the content of the toast.
  */
-function ToastContent(props: {
-  message: string
-  complex: boolean
-  onCopy: () => void
-  errorDetails: ToastError
-  level: ToastLevel
-}) {
+function ExpandableToastContent(props: ExpandableToastContentProps) {
   const handleShowDetails = () => {
     openErrorModal(props.errorDetails)
   }
