@@ -4,7 +4,7 @@ import { type MacroProfile } from '../../macro-profile/domain/macroProfile'
 import { userWeights } from '~/modules/weight/application/weight'
 import { inForceMacroProfile } from '~/legacy/utils/macroProfileUtils'
 import { userMacroProfiles } from '../../macro-profile/application/macroProfile'
-import { showError } from '~/shared/toast/toastManager'
+import { showError } from '~/modules/toast/application/toastManager'
 
 export const calculateMacroTarget = (
   weight: number,

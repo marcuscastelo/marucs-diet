@@ -7,8 +7,8 @@
 
 import { createSignal, Show } from 'solid-js'
 import { Portal } from 'solid-js/web'
-import { ToastError } from '../../../shared/toast/toastConfig'
-import { handleCopyErrorToClipboard } from '~/shared/toast/clipboardErrorUtils'
+import { ToastError } from '../../../modules/toast/domain/toastTypes'
+import { handleCopyErrorToClipboard } from '~/modules/toast/infrastructure/clipboardErrorUtils'
 
 export type ErrorDetailModalProps = {
   /** The error details to display */

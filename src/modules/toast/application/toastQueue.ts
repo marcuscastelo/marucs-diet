@@ -14,8 +14,8 @@ import {
   DEFAULT_QUEUE_CONFIG,
   TOAST_PRIORITY,
   TOAST_DURATION_INFINITY,
-} from './toastConfig'
-import { displayExpandableErrorToast } from './ExpandableErrorToast'
+} from '~/modules/toast/domain/toastTypes'
+import { displayExpandableErrorToast } from '~/modules/toast/ui/ExpandableErrorToast'
 
 // Global queue state
 const [queue, setQueue] = createSignal<ToastItem[]>([])

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { formatErrorForClipboard } from './clipboardErrorUtils'
-import { ToastError } from './toastConfig'
-import { TOAST_MESSAGES } from './toastMessages'
+import { formatErrorForClipboard } from '~/modules/toast/infrastructure/clipboardErrorUtils'
+import { ToastError } from '~/modules/toast/domain/toastTypes'
+import { TOAST_MESSAGES } from '~/modules/toast/domain/toastMessages'
 
 describe('formatErrorForClipboard', () => {
   it('formats all fields correctly', () => {

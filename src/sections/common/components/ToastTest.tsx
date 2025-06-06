@@ -9,8 +9,8 @@ import {
   showSuccess,
   showError,
   showLoading,
-} from '~/shared/toast/toastManager'
-import { ToastOptions } from '~/shared/toast/toastConfig'
+} from '~/modules/toast/application/toastManager'
+import { ToastOptions } from '~/modules/toast/domain/toastTypes'
 import toast from 'solid-toast'
 
 const ToastTest: Component = () => {

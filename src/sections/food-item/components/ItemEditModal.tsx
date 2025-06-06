@@ -23,7 +23,7 @@ import {
   type Setter,
   For,
 } from 'solid-js'
-import { showError } from '~/shared/toast/toastManager'
+import { showError } from '~/modules/toast/application/toastManager'
 
 export type ItemEditModalProps = {
   targetName: string

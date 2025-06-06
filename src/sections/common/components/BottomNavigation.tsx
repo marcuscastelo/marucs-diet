@@ -9,7 +9,7 @@ import {
 import { type User } from '~/modules/user/domain/user'
 import { For, type JSXElement, Show } from 'solid-js'
 import { useLocation, useNavigate } from '@solidjs/router'
-import { showError } from '~/shared/toast/toastManager'
+import { showError } from '~/modules/toast/application/toastManager'
 
 export function BottomNavigation() {
   const navigate = useNavigate()

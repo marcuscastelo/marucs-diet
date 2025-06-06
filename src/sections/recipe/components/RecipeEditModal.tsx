@@ -23,7 +23,7 @@ import {
   updateItemInRecipe,
   removeItemFromRecipe,
 } from '~/modules/diet/recipe/domain/recipeOperations'
-import { showError } from '~/shared/toast/toastManager'
+import { showError } from '~/modules/toast/application/toastManager'
 
 import { createEffect, createSignal } from 'solid-js'
 

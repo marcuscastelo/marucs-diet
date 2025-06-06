@@ -12,7 +12,7 @@ import {
   SUPABASE_TABLE_USERS,
 } from '~/modules/user/infrastructure/supabaseUserRepository'
 import { createEffect, createSignal } from 'solid-js'
-import { showPromise } from '~/shared/toast/toastManager'
+import { showPromise } from '~/modules/toast/application/toastManager'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 

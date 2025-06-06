@@ -7,7 +7,7 @@ import { markSearchAsCached } from '~/legacy/controllers/searchCache'
 import { type ApiFood } from '~/modules/diet/food/infrastructure/api/domain/apiFoodModel'
 import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
 import { handleApiError } from '~/shared/error/errorHandler'
-import { showError } from '~/shared/toast/toastManager'
+import { showError } from '~/modules/toast/application/toastManager'
 import axios from 'axios'
 
 // TODO:   Depency injection for repositories on all application files

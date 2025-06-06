@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { processErrorMessage } from './errorMessageHandler'
+import { processErrorMessage } from '~/modules/toast/domain/errorMessageHandler'
 
 describe('processErrorMessage', () => {
   it('truncates long messages and sets isTruncated', () => {

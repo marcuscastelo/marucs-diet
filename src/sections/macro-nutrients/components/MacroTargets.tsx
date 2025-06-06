@@ -14,7 +14,10 @@ import {
   userMacroProfiles,
 } from '~/modules/diet/macro-profile/application/macroProfile'
 import { calculateMacroTarget } from '~/modules/diet/macro-target/application/macroTarget'
-import { showError, showSuccess } from '~/shared/toast/toastManager'
+import {
+  showError,
+  showSuccess,
+} from '~/modules/toast/application/toastManager'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { formatError } from '~/shared/formatError'
 

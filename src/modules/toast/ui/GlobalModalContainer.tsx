@@ -7,7 +7,10 @@
  */
 
 import { For } from 'solid-js'
-import { getOpenModals, closeErrorModal } from './modalState'
+import {
+  getOpenModals,
+  closeErrorModal,
+} from '~/modules/toast/application/modalState'
 import { ErrorDetailModal } from '~/sections/common/components/ErrorDetailModal'
 
 /**

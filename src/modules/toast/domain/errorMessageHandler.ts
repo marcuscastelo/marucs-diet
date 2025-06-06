@@ -5,7 +5,7 @@
  * formatting, and providing expansion capabilities for long messages.
  */
 
-import { ToastError } from './toastConfig'
+import { ToastError } from '~/modules/toast/domain/toastTypes'
 
 /**
  * Result of error message processing

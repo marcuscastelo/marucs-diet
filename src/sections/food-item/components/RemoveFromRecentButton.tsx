@@ -1,5 +1,5 @@
 import { Show } from 'solid-js'
-import { showPromise } from '~/shared/toast/toastManager'
+import { showPromise } from '~/modules/toast/application/toastManager'
 import { deleteRecentFoodByFoodId } from '~/legacy/controllers/recentFood'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'

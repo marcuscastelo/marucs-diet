@@ -6,7 +6,7 @@ import {
   importFoodsFromApiByName,
 } from '~/modules/diet/food/infrastructure/api/application/apiFood'
 import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
-import { showPromise } from '~/shared/toast/toastManager'
+import { showPromise } from '~/modules/toast/application/toastManager'
 import { formatError } from '~/shared/formatError'
 import { handleApiError } from '~/shared/error/errorHandler'
 

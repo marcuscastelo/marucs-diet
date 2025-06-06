@@ -1,5 +1,5 @@
 import { type Accessor, type Setter } from 'solid-js'
-import { showError } from '~/shared/toast/toastManager'
+import { showError } from '~/modules/toast/application/toastManager'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
 import {

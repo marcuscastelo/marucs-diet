@@ -5,13 +5,17 @@
  * Handles toast creation, queue management, and integration with solid-toast.
  */
 
-import { enqueue, createToastItem, dequeueById } from './toastQueue'
+import {
+  enqueue,
+  createToastItem,
+  dequeueById,
+} from '~/modules/toast/application/toastQueue'
 import {
   ToastOptions,
   DEFAULT_TOAST_OPTIONS,
   TOAST_DURATION_INFINITY,
-} from './toastConfig'
-import { processErrorMessage } from './errorMessageHandler'
+} from '~/modules/toast/domain/toastTypes'
+import { processErrorMessage } from '~/modules/toast/domain/errorMessageHandler'
 
 // Type alias for common Toast options pattern
 // Used to avoid repetition and improve readability

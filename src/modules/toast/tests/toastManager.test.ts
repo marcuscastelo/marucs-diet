@@ -1,12 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import * as toastQueue from './toastQueue'
-import * as toastConfig from './toastConfig'
+import * as toastQueue from '~/modules/toast/application/toastQueue'
 import {
   showError,
   showSuccess,
   showLoading,
   showPromise,
-} from './toastManager'
+} from '~/modules/toast/application/toastManager'
 
 describe('toastManager', () => {
   beforeEach(() => {

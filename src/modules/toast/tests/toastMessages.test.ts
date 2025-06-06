@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { TOAST_MESSAGES } from './toastMessages'
+import { TOAST_MESSAGES } from '~/modules/toast/domain/toastMessages'
 
 describe('TOAST_MESSAGES', () => {
   it('should contain all required keys', () => {

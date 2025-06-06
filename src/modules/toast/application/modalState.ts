@@ -6,7 +6,7 @@
  */
 
 import { createSignal } from 'solid-js'
-import { ToastError } from './toastConfig'
+import { ToastError } from '~/modules/toast/domain/toastTypes'
 
 type ModalState = {
   id: string

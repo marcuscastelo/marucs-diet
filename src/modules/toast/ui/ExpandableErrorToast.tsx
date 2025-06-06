@@ -6,11 +6,15 @@
  */
 
 import toast from 'solid-toast'
-import { ToastError, ToastItem, ToastLevel } from './toastConfig'
-import { dequeueById } from './toastQueue'
-import { openErrorModal } from './modalState'
-import { handleCopyErrorToClipboard } from './clipboardErrorUtils'
-import { TOAST_MESSAGES } from './toastMessages'
+import {
+  ToastError,
+  ToastItem,
+  ToastLevel,
+} from '~/modules/toast/domain/toastTypes'
+import { dequeueById } from '~/modules/toast/application/toastQueue'
+import { openErrorModal } from '~/modules/toast/application/modalState'
+import { handleCopyErrorToClipboard } from '~/modules/toast/infrastructure/clipboardErrorUtils'
+import { TOAST_MESSAGES } from '~/modules/toast/domain/toastMessages'
 
 export type ExpandableToastProps = {
   /** The display message (potentially truncated) */

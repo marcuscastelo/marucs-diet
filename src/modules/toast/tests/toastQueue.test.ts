@@ -10,8 +10,11 @@ import {
   createToastItem,
   initQueue,
   disposeQueue,
-} from './toastQueue'
-import { DEFAULT_TOAST_OPTIONS, TOAST_PRIORITY } from './toastConfig'
+} from '~/modules/toast/application/toastQueue'
+import {
+  DEFAULT_TOAST_OPTIONS,
+  TOAST_PRIORITY,
+} from '~/modules/toast/domain/toastTypes'
 
 const baseOptions = DEFAULT_TOAST_OPTIONS['user-action']
 

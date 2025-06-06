@@ -5,7 +5,7 @@ import {
   SUPABASE_TABLE_WEIGHTS,
 } from '~/modules/weight/infrastructure/supabaseWeightRepository'
 import { createEffect, createSignal } from 'solid-js'
-import { showPromise } from '~/shared/toast/toastManager'
+import { showPromise } from '~/modules/toast/application/toastManager'
 import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 import { handleApiError } from '~/shared/error/errorHandler'
 

@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
-
 import {
   getToastSettings,
   updateToastSettings,
@@ -10,7 +9,7 @@ import {
   setDefaultDuration,
   setGroupSimilarToasts,
   setShowDetailedErrors,
-} from './toastSettings'
+} from '~/modules/toast/infrastructure/toastSettings'
 
 const DEFAULTS = {
   showBackgroundSuccess: false,
@@ -92,7 +91,9 @@ describe('toastSettings', () => {
     })
     vi.resetModules()
     setMockLocalStorage()
-    const toastSettingsModule = await import('./toastSettings')
+    const toastSettingsModule = await import(
+      '~/modules/toast/infrastructure/toastSettings'
+    )
     expect(toastSettingsModule.getToastSettings().showBackgroundSuccess).toBe(
       true,
     )
@@ -103,7 +104,9 @@ describe('toastSettings', () => {
     localStorageMock[STORAGE_KEY] = '{ invalid json'
     vi.resetModules()
     setMockLocalStorage()
-    const toastSettingsModule = await import('./toastSettings')
+    const toastSettingsModule = await import(
+      '~/modules/toast/infrastructure/toastSettings'
+    )
     expect(toastSettingsModule.getToastSettings()).toEqual(DEFAULTS)
   })
 })

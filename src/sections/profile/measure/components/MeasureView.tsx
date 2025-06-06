@@ -8,7 +8,7 @@ import {
   deleteMeasure,
   updateMeasure,
 } from '~/modules/measure/application/measure'
-import { showError } from '~/shared/toast/toastManager'
+import { showError } from '~/modules/toast/application/toastManager'
 import { formatError } from '~/shared/formatError'
 import { adjustToTimezone } from '~/shared/utils/date/dateUtils'
 import {

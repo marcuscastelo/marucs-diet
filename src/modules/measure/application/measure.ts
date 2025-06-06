@@ -1,4 +1,4 @@
-import { showPromise } from '~/shared/toast/toastManager'
+import { showPromise } from '~/modules/toast/application/toastManager'
 import { type Measure, type NewMeasure } from '~/modules/measure/domain/measure'
 import { createSupabaseMeasureRepository } from '~/modules/measure/infrastructure/measures'
 import { type User } from '~/modules/user/domain/user'

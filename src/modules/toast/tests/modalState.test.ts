@@ -5,8 +5,8 @@ import {
   getOpenModals,
   getModal,
   closeAllModals,
-} from './modalState'
-import type { ToastError } from './toastConfig'
+} from '~/modules/toast/application/modalState'
+import type { ToastError } from '~/modules/toast/domain/toastTypes'
 
 const mockError: ToastError = {
   message: 'Test error',
