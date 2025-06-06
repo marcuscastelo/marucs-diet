@@ -22,7 +22,7 @@ const [modals, setModals] = createSignal<ModalState[]>([])
  * Returns the modal ID for tracking
  */
 export function openErrorModal(errorDetails: ToastError): string {
-  const modalId = `modal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+  const modalId = `modal-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`
 
   setModals((prev) => [
     ...prev,
