@@ -11,6 +11,7 @@ import {
   ToastContext,
   ToastLevel,
   DEFAULT_TOAST_OPTIONS,
+  TOAST_DURATION_INFINITY,
 } from './toastConfig'
 import { processErrorMessage } from './errorMessageHandler'
 
@@ -23,21 +24,19 @@ import { processErrorMessage } from './errorMessageHandler'
  * @param options - Additional toast options to override defaults.
  * @returns The ID of the created toast.
  */
-function createAndEnqueueToast(
-  message: string,
-  level: ToastLevel,
-  context: ToastContext,
-  options: Partial<ToastOptions> = {},
-): string {
-  const defaultOptions = DEFAULT_TOAST_OPTIONS[context]
-  const finalOptions: ToastOptions = {
-    context,
-    level,
-    ...defaultOptions,
-    ...options,
-  }
-  const toastItem = createToastItem(message, finalOptions)
-  return enqueue(toastItem)
+function createAndEnqueueToast(message: string, options: ToastOptions): string {
+  console.debug('[ToastManager] createAndEnqueueToast called:', {
+    message,
+    options,
+  })
+
+  const toastItem = createToastItem(message, options)
+  console.debug('[ToastManager] toastItem created:', toastItem)
+
+  const toastId = enqueue(toastItem)
+  console.debug('[ToastManager] toast enqueued with ID:', toastId)
+
+  return toastId
 }
 
 /**
@@ -48,24 +47,24 @@ function createAndEnqueueToast(
  * @param options - Toast options, merged with defaults.
  * @returns True if the toast should be skipped, false otherwise.
  */
-function shouldSkipBackgroundToast(
-  level: ToastLevel,
-  context: ToastContext,
-  options: Partial<ToastOptions>,
-): boolean {
-  // Defensive: fallback to 'user-action' if context is undefined
-  const ctx: ToastContext = context ?? 'user-action'
+function shouldSkipBackgroundToast(options: ToastOptions): boolean {
+  console.debug('[ToastManager] shouldSkipBackgroundToast called:', options)
+
   const opts = {
-    ...DEFAULT_TOAST_OPTIONS[ctx],
+    ...DEFAULT_TOAST_OPTIONS[options.context ?? 'user-action'],
     ...options,
-    context: ctx,
-    level,
   }
-  return (
+
+  const ctx = opts.context
+  const level = opts.level
+
+  const shouldSkip =
     ctx === 'background' &&
     (level === 'success' || level === 'info') &&
     opts.showSuccess !== true
-  )
+
+  console.debug('[ToastManager] shouldSkipBackgroundToast result:', shouldSkip)
+  return shouldSkip
 }
 
 /**
@@ -83,27 +82,45 @@ function filterBackgroundPromiseMessages<T>(
     success?: string | ((data: T) => string)
     error?: string | ((error: unknown) => string)
   },
-  context: ToastContext,
-  options: Partial<ToastOptions>,
+  options: Partial<ToastOptions> & Pick<ToastOptions, 'context'>,
 ): void {
-  const optsInfo = {
-    ...DEFAULT_TOAST_OPTIONS[context],
-    ...options,
-    context,
-    level: 'info' as ToastLevel,
-  }
-  const optsSuccess = {
-    ...DEFAULT_TOAST_OPTIONS[context],
-    ...options,
-    context,
-    level: 'success' as ToastLevel,
-  }
-  if (shouldSkipBackgroundToast('info', context, optsInfo)) {
-    messages.loading = undefined
-  }
-  if (shouldSkipBackgroundToast('success', context, optsSuccess)) {
-    messages.success = undefined
-  }
+  console.debug('[ToastManager] filterBackgroundPromiseMessages called:', {
+    messages,
+    options,
+  })
+
+  // const optsInfo = {
+  //   ...DEFAULT_TOAST_OPTIONS[context],
+  //   ...options,
+  //   context,
+  //   level: 'info' as ToastLevel,
+  // }
+  // const optsSuccess = {
+  //   ...DEFAULT_TOAST_OPTIONS[context],
+  //   ...options,
+  //   context,
+  //   level: 'success' as ToastLevel,
+  // }
+
+  // const originalMessages = { ...messages }
+
+  // if (shouldSkipBackgroundToast(optsInfo)) {
+  //   messages.loading = undefined
+  //   console.debug(
+  //     '[ToastManager] loading message filtered out for background context',
+  //   )
+  // }
+  // if (shouldSkipBackgroundToast(optsSuccess)) {
+  //   messages.success = undefined
+  //   console.debug(
+  //     '[ToastManager] success message filtered out for background context',
+  //   )
+  // }
+
+  // console.debug('[ToastManager] filterBackgroundPromiseMessages result:', {
+  //   originalMessages,
+  //   filteredMessages: messages,
+  // })
 }
 
 /**
@@ -147,72 +164,54 @@ function resolveValueOrFunction<T, R>(
     : valueOrFn
 }
 
-/**
- * Shows a toast notification with intelligent filtering and queue management.
- *
- * - Skips background toasts for 'info' and 'success' unless explicitly enabled.
- * - Merges default and custom options.
- *
- * @param message - The message to display.
- * @param level - The toast level ('info', 'success', 'error', 'warning').
- * @param context - The toast context ('user-action' or 'background').
- * @param options - Additional toast options.
- */
-export function show(
+function show(
   message: string,
-  level: ToastLevel = 'info',
-  context: ToastContext = 'user-action',
-  options: Partial<ToastOptions> = {},
+  providedOptions: Partial<ToastOptions> & Pick<ToastOptions, 'context'>,
 ): string {
-  const defaultOptions = DEFAULT_TOAST_OPTIONS[context]
-  const finalOptions: ToastOptions = {
-    context,
-    level,
+  const defaultOptions = DEFAULT_TOAST_OPTIONS[providedOptions.context]
+  const options: ToastOptions = {
     ...defaultOptions,
-    ...options,
+    ...providedOptions,
   }
-  if (shouldSkipBackgroundToast(level, context, finalOptions)) {
+
+  console.debug('[ToastManager] show called:', {
+    message,
+    options: providedOptions,
+  })
+
+  if (shouldSkipBackgroundToast(options)) {
     console.debug('[ToastManager] Skipping background toast:', message)
     return ''
   }
-  return createAndEnqueueToast(message, level, context, options)
+
+  console.debug('[ToastManager] Proceeding to create and enqueue toast')
+  return createAndEnqueueToast(message, options)
 }
 
-/**
- * Shows an error toast with intelligent message processing.
- *
- * - Converts unknown errors to user-friendly messages.
- * - Uses the error toast level and merges options.
- *
- * @param error - The error to display.
- * @param context - The toast context.
- * @param options - Additional toast options.
- */
 export function showError(
   error: unknown,
-  context: ToastContext = 'user-action',
-  options: Partial<ToastOptions> = {},
+  providedOptions: Omit<Partial<ToastOptions>, 'level'> &
+    Pick<ToastOptions, 'context'>,
 ): string {
-  const defaultOptions = DEFAULT_TOAST_OPTIONS[context]
-  const finalOptions: ToastOptions = {
-    context,
+  const options: Partial<ToastOptions> & Pick<ToastOptions, 'context'> = {
+    ...providedOptions,
     level: 'error',
-    ...defaultOptions,
-    ...options,
   }
-  // Use processErrorMessage to handle truncation for error toasts
-  const processed = processErrorMessage(error as string, {
-    maxLength: finalOptions.maxLength ?? 100,
-    includeStack: true, // Include stack for expandable error toast
+
+  console.debug('[ToastManager] showError called:', {
+    error,
+    options,
   })
 
-  const duration =
-    finalOptions.duration ?? (processed.isTruncated ? 8000 : 5000)
+  // Use processErrorMessage to handle truncation for error toasts
+  const processed = processErrorMessage(error as string, {
+    maxLength: options.maxLength ?? 100,
+    includeStack: true, // Include stack for expandable error toast
+  })
+  console.debug('[ToastManager] showError processed message:', processed)
 
-  return show(processed.displayMessage, 'error', context, {
+  return show(processed.displayMessage, {
     ...options,
-    duration,
-    dismissible: true,
     expandableErrorData: {
       isTruncated: processed.isTruncated,
       errorDetails: processed.errorDetails,
@@ -220,49 +219,40 @@ export function showError(
   })
 }
 
-/**
- * Shows a success toast, typically for user actions.
- *
- * @param message - The message to display.
- * @param context - The toast context.
- * @param options - Additional toast options.
- */
 export function showSuccess(
   message: string,
-  context: ToastContext = 'user-action',
-  options: Partial<ToastOptions> = {},
+  providedOptions: Omit<Partial<ToastOptions>, 'level'> &
+    Pick<ToastOptions, 'context'>,
 ): string {
-  return show(message, 'success', context, options)
+  const options: Partial<ToastOptions> & Pick<ToastOptions, 'context'> = {
+    ...providedOptions,
+    level: 'success',
+  }
+
+  console.debug('[ToastManager] showSuccess called:', {
+    message,
+    options,
+  })
+
+  return show(message, options)
 }
 
-/**
- * Shows an info toast.
- *
- * @param message - The message to display.
- * @param context - The toast context.
- * @param options - Additional toast options.
- */
-export function showInfo(
+export function showLoading(
   message: string,
-  context: ToastContext = 'user-action',
-  options: Partial<ToastOptions> = {},
+  providedOptions: Omit<Partial<ToastOptions>, 'level'> &
+    Pick<ToastOptions, 'context'>,
 ): string {
-  return show(message, 'info', context, options)
-}
+  const options: Partial<ToastOptions> & Pick<ToastOptions, 'context'> = {
+    ...providedOptions,
+    level: 'info', // Loading is typically an info level toast
+    duration: TOAST_DURATION_INFINITY, // Infinite duration for loading
+  }
 
-/**
- * Shows a warning toast.
- *
- * @param message - The message to display.
- * @param context - The toast context.
- * @param options - Additional toast options.
- */
-export function showWarning(
-  message: string,
-  context: ToastContext = 'user-action',
-  options: Partial<ToastOptions> = {},
-): string {
-  return show(message, 'warning', context, options)
+  console.debug('[ToastManager] showLoading called:', {
+    message,
+    options,
+  })
+  return show(message, options)
 }
 
 /**
@@ -286,39 +276,85 @@ export function showPromise<T>(
     success?: string | ((data: T) => string)
     error?: string | ((error: unknown) => string)
   },
-  context: ToastContext = 'user-action',
-  options: Partial<ToastOptions> = {},
+  options: Partial<ToastOptions> & Pick<ToastOptions, 'context'>,
 ): Promise<T> {
-  filterBackgroundPromiseMessages(messages, context, options)
+  console.debug('[ToastManager] showPromise called:', {
+    promise,
+    messages,
+    options,
+  })
+
+  filterBackgroundPromiseMessages(messages, options)
+  console.debug('[ToastManager] showPromise after filtering messages:', {
+    messages,
+  })
+
   // Show loading toast if enabled and store its ID for precise removal
   let loadingToastId: string | null = null
   if (isNonEmptyString(messages.loading)) {
-    const loadingOptions = { ...options, duration: 0 }
-    loadingToastId = show(messages.loading, 'info', context, loadingOptions)
+    console.debug('[ToastManager] showPromise showing loading toast:', {
+      loadingMessage: messages.loading,
+    })
+    loadingToastId = showLoading(messages.loading, options)
+    console.debug(
+      '[ToastManager] showPromise loading toast ID:',
+      loadingToastId,
+    )
+  } else {
+    console.debug('[ToastManager] showPromise no loading toast to show')
   }
 
   // Use our custom promise handling instead of solid-toast
   return promise
     .then((data) => {
+      console.debug(
+        '[ToastManager] showPromise promise resolved with data:',
+        data,
+      )
       // Show success toast if enabled
       const successMsg = resolveValueOrFunction(messages.success, data)
+      console.debug('[ToastManager] showPromise resolved success message:', {
+        successMsg,
+      })
       if (isNonEmptyString(successMsg)) {
-        showSuccess(successMsg, context, options)
+        console.debug('[ToastManager] showPromise showing success toast')
+        showSuccess(successMsg, options)
+      } else {
+        console.debug('[ToastManager] showPromise no success toast to show')
       }
       return data
     })
     .catch((err: unknown) => {
+      console.debug(
+        '[ToastManager] showPromise promise rejected with error:',
+        err,
+      )
       // Show error toast
       const errorMsg = resolveValueOrFunction(messages.error, err)
+      console.debug('[ToastManager] showPromise resolved error message:', {
+        errorMsg,
+      })
       if (isNonEmptyString(errorMsg)) {
-        showError(err, context, options)
+        console.debug('[ToastManager] showPromise showing error toast')
+        showError(err, options)
+      } else {
+        console.debug('[ToastManager] showPromise no error toast to show')
       }
       throw err
     })
     .finally(() => {
+      console.debug(
+        '[ToastManager] showPromise finally block, removing loading toast:',
+        {
+          loadingToastId,
+        },
+      )
       // Remove the specific loading toast if it exists
       if (typeof loadingToastId === 'string' && loadingToastId.length > 0) {
+        console.debug('[ToastManager] showPromise dequeuing loading toast')
         dequeueById(loadingToastId)
+      } else {
+        console.debug('[ToastManager] showPromise no loading toast to remove')
       }
     })
 }

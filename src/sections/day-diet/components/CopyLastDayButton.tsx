@@ -39,7 +39,7 @@ export function CopyLastDayButton(props: {
               onClick={() => {
                 showError(
                   `Não foi possível encontrar um dia anterior a ${props.selectedDay}`,
-                  'user-action',
+                  { context: 'user-action' },
                 )
               }}
             >

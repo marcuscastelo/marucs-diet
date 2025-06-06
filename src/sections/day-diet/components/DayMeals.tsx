@@ -66,7 +66,9 @@ export default function DayMeals(props: { selectedDay: string }) {
 
   const handleEditItemGroup = (meal: Meal, itemGroup: ItemGroup) => {
     if (dayLocked()) {
-      showError('Dia bloqueado, não é possível editar', 'user-action')
+      showError('Dia bloqueado, não é possível editar', {
+        context: 'user-action',
+      })
       return
     }
 
@@ -76,7 +78,9 @@ export default function DayMeals(props: { selectedDay: string }) {
 
   const handleUpdateMeal = async (day: DayDiet, meal: Meal) => {
     if (dayLocked()) {
-      showError('Dia bloqueado, não é possível editar', 'user-action')
+      showError('Dia bloqueado, não é possível editar', {
+        context: 'user-action',
+      })
       return
     }
 
@@ -86,7 +90,9 @@ export default function DayMeals(props: { selectedDay: string }) {
   const handleNewItemButton = (meal: Meal) => {
     console.log('New item button clicked')
     if (dayLocked()) {
-      showError('Dia bloqueado, não é possível editar', 'user-action')
+      showError('Dia bloqueado, não é possível editar', {
+        context: 'user-action',
+      })
       return
     }
 
@@ -189,7 +195,7 @@ export default function DayMeals(props: { selectedDay: string }) {
                         console.error(e)
                         showError(
                           `Erro ao atualizar refeição: ${formatError(e)}`,
-                          'user-action',
+                          { context: 'user-action' },
                         )
                       })
                     }}

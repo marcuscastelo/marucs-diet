@@ -87,30 +87,6 @@ createEffect(() => {
   setCurrentDayDiet(dayDiet)
 })
 
-/**
- * @deprecated Not used. TODO:   Clean up dayDiet repository
- */
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export async function __unused_refetchCurrentDayDiet() {
-  const currentDayDiet_ = currentDayDiet()
-  if (currentDayDiet_ === null) {
-    return
-  }
-
-  await dayRepository
-    .fetchDayDiet(currentDayDiet_.id)
-    .then((dayDiet) => {
-      setCurrentDayDiet(dayDiet)
-    })
-    .catch((error) => {
-      showError(
-        `Falha na comunicação com o servidor ao buscar dieta do dia: ${formatError(error)}`,
-        'background',
-      )
-      console.error(error)
-    })
-}
-
 async function fetchAllUserDayDiets(userId: User['id']) {
   // TODO: Optimize fetching to only get necessary data
   try {

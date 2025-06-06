@@ -59,7 +59,9 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
     .data as unknown as ApiFood[]
 
   if (apiFoods.length === 0) {
-    showError(`Nenhum alimento encontrado para "${name}"`, 'user-action')
+    showError(`Nenhum alimento encontrado para "${name}"`, {
+      context: 'user-action',
+    })
     return []
   }
 
@@ -118,7 +120,7 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
 
       showError(
         `Erro ao importar alguns alimentos: ${relevantErrors.length} falhas. Verifique o console para mais detalhes.`,
-        'background',
+        { context: 'background' },
       )
     }
   } else {

@@ -13,7 +13,7 @@ import { showPromise } from './toastManager'
  */
 export type SmartToastPromiseOptions<T> = {
   /** Context of the operation (determines toast behavior) */
-  context?: ToastContext
+  context: ToastContext
   /** Loading message */
   loading?: string
   /** Success message or function to generate message from result */
@@ -21,7 +21,7 @@ export type SmartToastPromiseOptions<T> = {
   /** Error message or function to generate message from error */
   error?: string | ((error: unknown) => string)
   /** Additional toast options */
-  options?: Partial<ToastOptions>
+  options?: Partial<ToastOptions> & Pick<ToastOptions, 'context'>
 }
 
 /**
@@ -60,14 +60,15 @@ export type SmartToastPromiseOptions<T> = {
  */
 export async function smartToastPromise<T>(
   promise: Promise<T>,
-  toastOptions: SmartToastPromiseOptions<T> = {},
+  toastOptions: SmartToastPromiseOptions<T> = {
+    context: 'user-action',
+  },
 ): Promise<T> {
   const {
-    context = 'user-action',
     loading,
     success,
     error,
-    options = {},
+    options = { context: toastOptions.context },
   } = toastOptions
 
   return showPromise(
@@ -77,7 +78,6 @@ export async function smartToastPromise<T>(
       success,
       error,
     },
-    context,
     options,
   )
 }
@@ -90,7 +90,7 @@ export async function smartToastPromise<T>(
  * scenarios where you don't need to await the result.
  *
  * Note: "Detached" refers to promise chain detachment, not toast context.
- * You can still use any toast context ('user-action', 'background', 'system').
+ * You can still use any toast context ('user-action', 'background', {context:'system'}).
  *
  * @param promise - The promise to execute in detached mode
  * @param toastOptions - Configuration for toast behavior
@@ -117,7 +117,7 @@ export async function smartToastPromise<T>(
  */
 export function smartToastPromiseDetached<T>(
   promise: Promise<T>,
-  toastOptions: SmartToastPromiseOptions<T> = {},
+  toastOptions: SmartToastPromiseOptions<T> = { context: 'user-action' },
 ): void {
   smartToastPromise(promise, toastOptions).catch(() => {
     // Errors are already handled by smartToastPromise internally
@@ -141,7 +141,9 @@ export function userActionToast<T>(
   return smartToastPromise(promise, {
     context: 'user-action',
     ...messages,
-    options,
+    options: options
+      ? { context: 'user-action', ...options }
+      : { context: 'user-action' },
   })
 }
 
@@ -161,7 +163,9 @@ export function backgroundToast<T>(
   return smartToastPromise(promise, {
     context: 'background',
     ...messages,
-    options,
+    options: options
+      ? { context: 'background', ...options }
+      : { context: 'background' },
   })
 }
 
@@ -181,7 +185,9 @@ export function systemToast<T>(
   return smartToastPromise(promise, {
     context: 'system',
     ...messages,
-    options,
+    options: options
+      ? { context: 'system', ...options }
+      : { context: 'system' },
   })
 }
 

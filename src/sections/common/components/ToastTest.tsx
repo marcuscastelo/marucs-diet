@@ -8,12 +8,20 @@ import {
   showPromise,
   showSuccess,
   showError,
+  showLoading,
 } from '~/shared/toast/toastManager'
-import { smartToastPromise, smartToastPromiseDetached } from '~/shared/toast'
+import {
+  smartToastPromise,
+  smartToastPromiseDetached,
+  ToastOptions,
+} from '~/shared/toast'
 import toast from 'solid-toast'
 
 const ToastTest: Component = () => {
-  const [toastOptions, setToastOptions] = createSignal({
+  const [toastOptions, setToastOptions] = createSignal<
+    Partial<ToastOptions> & Pick<ToastOptions, 'context'>
+  >({
+    context: 'user-action',
     showLoading: true,
     showSuccess: true,
   })
@@ -30,7 +38,7 @@ const ToastTest: Component = () => {
         success: 'Operation completed successfully!',
         error: 'Error in operation',
       },
-      'user-action',
+      { context: 'user-action' },
     ).catch((err) => {
       console.error('Error processing promise:', err)
     })
@@ -48,7 +56,7 @@ const ToastTest: Component = () => {
         success: 'Success!',
         error: 'Operation failed',
       },
-      'user-action',
+      { context: 'user-action' },
     ).catch((err) => {
       console.error('Error processing promise:', err)
     })
@@ -65,7 +73,7 @@ const ToastTest: Component = () => {
         loading: 'Loading without success message...',
         // No success message to test if loading toast is removed correctly
       },
-      'user-action',
+      { context: 'user-action' },
     ).catch((err) => {
       console.error('Error processing promise without success message:', err)
     })
@@ -154,7 +162,7 @@ const ToastTest: Component = () => {
 
   const testLongError = () => {
     const longMessage = `This is a very long error message that will demonstrate the truncation capability of our toast system. It contains multiple sentences and will definitely exceed the maximum length allowed for display in a toast. When this happens, the message will be truncated and an option to view the complete details will be provided to the user. This helps keep the UI clean while still allowing users to access the full error information if they need it. The error details modal will display this entire message along with any stack trace or context information that may be available.`
-    showError(new Error(longMessage), 'user-action')
+    showError(new Error(longMessage), { context: 'user-action' })
   }
 
   return (
@@ -193,7 +201,7 @@ const ToastTest: Component = () => {
                 // No success message to test if loading toast is removed correctly
                 error: 'Operation failed (no success message)',
               },
-              'user-action',
+              { context: 'user-action' },
             ).catch((err) => {
               console.error(
                 'Error processing promise without success message:',
@@ -310,13 +318,33 @@ const ToastTest: Component = () => {
         </button>
         <hr style={{ margin: '10px 0', border: '1px solid #ccc' }} />
 
-        <button onClick={() => toast.error('Direct Toast')}>Test Direct</button>
+        <button onClick={() => toast.error('Direct Toast', { duration: 2000 })}>
+          Test Direct
+        </button>
 
-        <button onClick={() => showSuccess('Simple Success Toast')}>
+        <button
+          onClick={() =>
+            showSuccess('Simple Success Toast', { context: 'user-action' })
+          }
+        >
           Test Simple Success
         </button>
 
-        <button onClick={() => showError(new Error('Simple error test'))}>
+        <button
+          onClick={() =>
+            showLoading('Loading operation...', { context: 'user-action' })
+          }
+        >
+          Test Simple Loading
+        </button>
+
+        <button
+          onClick={() =>
+            showError(new Error('Simple error test'), {
+              context: 'user-action',
+            })
+          }
+        >
           Test Simple Error
         </button>
 

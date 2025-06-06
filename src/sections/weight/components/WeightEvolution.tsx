@@ -70,7 +70,9 @@ export function WeightEvolution() {
               const weight = weightField.value()
 
               if (weight === undefined) {
-                showError('Digite um peso', 'user-action')
+                showError('Digite um peso', {
+                  context: 'user-action',
+                })
                 return
               }
 
@@ -89,10 +91,9 @@ export function WeightEvolution() {
               )
                 .then(afterInsert)
                 .catch((error) => {
-                  showError(
-                    `Erro ao adicionar peso: ${formatError(error)}`,
-                    'user-action',
-                  )
+                  showError(`Erro ao adicionar peso: ${formatError(error)}`, {
+                    context: 'user-action',
+                  })
                 })
             }}
           >
@@ -128,12 +129,12 @@ function WeightView(props: { weight: Weight }) {
     weightValue: number | undefined
   }) => {
     if (weightValue === undefined) {
-      showError('Digite um peso', 'user-action')
+      showError('Digite um peso', { context: 'user-action' })
       return
     }
 
     if (dateValue === undefined) {
-      showError('Digite uma data', 'user-action')
+      showError('Digite uma data', { context: 'user-action' })
       return
     }
 
@@ -142,7 +143,9 @@ function WeightView(props: { weight: Weight }) {
       weight: weightValue,
       target_timestamp: dateValue,
     }).catch((error) => {
-      showError(`Erro ao atualizar peso: ${formatError(error)}`, 'user-action')
+      showError(`Erro ao atualizar peso: ${formatError(error)}`, {
+        context: 'user-action',
+      })
     })
   }
 
@@ -158,10 +161,9 @@ function WeightView(props: { weight: Weight }) {
             onChange={(value) => {
               // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
               if (!value?.startDate) {
-                showError(
-                  'Data inválida: \n' + JSON.stringify(value),
-                  'user-action',
-                )
+                showError('Data inválida: \n' + JSON.stringify(value), {
+                  context: 'user-action',
+                })
                 return
               }
               // Apply timezone offset
@@ -206,10 +208,9 @@ function WeightView(props: { weight: Weight }) {
             class="btn btn-ghost my-auto"
             onClick={() => {
               deleteWeight(props.weight.id).catch((error) => {
-                showError(
-                  `Erro ao deletar peso: ${formatError(error)}`,
-                  'user-action',
-                )
+                showError(`Erro ao deletar peso: ${formatError(error)}`, {
+                  context: 'user-action',
+                })
               })
             }}
           >

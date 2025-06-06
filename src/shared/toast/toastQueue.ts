@@ -3,63 +3,160 @@
  *
  * Manages a queue of toasts to ensure only one toast is visible at a time,
  * with intelligent prioritization and deduplication.
+ * Uses a fixed 100ms setInterval for processing instead of dynamic timeouts.
  */
 
-import { createSignal, createEffect } from 'solid-js'
+import { createSignal, createEffect, createRoot } from 'solid-js'
 import toast from 'solid-toast'
 import {
   ToastItem,
   ToastQueueConfig,
   DEFAULT_QUEUE_CONFIG,
   TOAST_PRIORITY,
+  TOAST_DURATION_INFINITY,
 } from './toastConfig'
 import { displayExpandableErrorToast } from './ExpandableErrorToast'
 
 // Global queue state
 const [queue, setQueue] = createSignal<ToastItem[]>([])
-const [currentToast, setCurrentToast] = createSignal<ToastItem | null>(null)
-const [isProcessing, setIsProcessing] = createSignal(false)
 let config: ToastQueueConfig = { ...DEFAULT_QUEUE_CONFIG }
-let processingTimeout: number | null = null
 
-// Map to track solid-toast IDs for our internal toast IDs
-const solidToastIdMap = new Map<string, string>()
+// Timestamp tracking for interval-based processing
+let lastTransitionTime: number = 0
+let intervalId: number | null = null
 
-// Auto-process queue when current toast changes
-createEffect(() => {
-  if (!currentToast() && !isProcessing() && queue().length > 0) {
-    processNext()
+// Derived signals
+const currentToast = () => queue()[0] ?? null
+
+// Check if we're in a transition period (waiting between toasts)
+const isInTransition = () => {
+  const now = Date.now()
+  return now - lastTransitionTime < config.transitionDelay
+}
+
+// Initialize the queue manager inside a createRoot to avoid disposal warnings
+let queueManagerDispose: (() => void) | null = null
+
+function initializeQueueManager() {
+  if (queueManagerDispose !== null) return // Already initialized
+
+  queueManagerDispose = createRoot((dispose) => {
+    // Start the interval-based processing
+    if (intervalId === null) {
+      intervalId = window.setInterval(processQueue, 100)
+      console.debug('[ToastQueue] Started interval-based processing')
+    }
+
+    // Auto-process queue when needed (immediate processing for new toasts)
+    createEffect(() => {
+      const currentItem = currentToast()
+      const inTransition = isInTransition()
+      const queueLength = queue().length
+
+      console.debug(
+        '[ToastQueue] createEffect triggered - currentToast:',
+        currentItem !== null,
+        'inTransition:',
+        inTransition,
+        'queueLength:',
+        queueLength,
+        'currentItem solidToastId:',
+        currentItem?.solidToastId,
+      )
+
+      // Process immediately if there's a current toast that hasn't been displayed yet
+      if (
+        currentItem !== null &&
+        !inTransition &&
+        currentItem.solidToastId === undefined
+      ) {
+        console.debug(
+          '[ToastQueue] createEffect calling processNext - current toast needs to be displayed',
+        )
+        processNext()
+      }
+    })
+
+    return dispose
+  })
+}
+
+/**
+ * Interval-based queue processor
+ * Runs every 100ms to check for toasts that need to be processed or dismissed
+ */
+function processQueue(): void {
+  const currentItem = currentToast()
+  const now = Date.now()
+
+  // Check if current toast should be auto-dismissed
+  if (currentItem !== null && currentItem.solidToastId !== undefined) {
+    const duration = currentItem.options.duration
+    const displayTime = currentItem.displayedAt
+
+    if (
+      duration !== undefined &&
+      duration !== null &&
+      duration !== TOAST_DURATION_INFINITY &&
+      duration > 0 &&
+      displayTime !== undefined &&
+      now - displayTime >= duration
+    ) {
+      console.debug(
+        '[ToastQueue] Auto-dismissing toast after duration:',
+        currentItem.message,
+      )
+      removeCurrentToast()
+      return
+    }
   }
-})
+
+  // Check if we can process the next toast
+  if (!isInTransition()) {
+    const nextToast = queue()[0]
+    if (nextToast !== undefined && nextToast.solidToastId === undefined) {
+      console.debug(
+        '[ToastQueue] Interval processing next toast:',
+        nextToast.message,
+      )
+      processNext()
+    }
+  }
+}
 
 /**
  * Display a toast in solid-toast with the appropriate styling
  * Returns the solid-toast ID for later dismissal
  */
 function displayToast(toastItem: ToastItem): string {
-  const { message, options, id: toastId } = toastItem
-  const { level, expandableErrorData } = options
+  const { message, options } = toastItem
+  const { level, expandableErrorData, duration } = options
   let solidToastId: string
 
   // Check if this is an expandable error toast
   if (expandableErrorData && level === 'error') {
     // Use the displayExpandableErrorToast function directly
     solidToastId = displayExpandableErrorToast(toastItem)
-    solidToastIdMap.set(toastId, solidToastId)
     return solidToastId
+  }
+
+  // Prepare solid-toast options with duration
+  const solidToastOptions = {
+    duration: duration ?? 2000,
   }
 
   // Standard toast rendering
   switch (level) {
     case 'success':
-      solidToastId = toast.success(message)
+      solidToastId = toast.success(message, solidToastOptions)
       break
     case 'error':
-      solidToastId = toast.error(message)
+      solidToastId = toast.error(message, solidToastOptions)
       break
     case 'warning':
       // solid-toast doesn't have warning, use custom or error styling
       solidToastId = toast(message, {
+        ...solidToastOptions,
         style: {
           background: '#f59e0b',
           color: 'white',
@@ -68,12 +165,10 @@ function displayToast(toastItem: ToastItem): string {
       break
     case 'info':
     default:
-      solidToastId = toast(message)
+      solidToastId = toast(message, solidToastOptions)
       break
   }
 
-  // Store the mapping between our toast ID and solid-toast ID
-  solidToastIdMap.set(toastId, solidToastId)
   return solidToastId
 }
 
@@ -81,6 +176,17 @@ function displayToast(toastItem: ToastItem): string {
  * Check for duplicate messages to avoid spam
  */
 function isDuplicateToast(newToast: ToastItem): boolean {
+  // Check current toast
+  const current = currentToast()
+  if (
+    current !== null &&
+    current.message === newToast.message &&
+    current.options.level === newToast.options.level
+  ) {
+    return true
+  }
+
+  // Check queue
   return queue().some(
     (existingToast) =>
       existingToast.message === newToast.message &&
@@ -98,70 +204,61 @@ function sortByPriority(toasts: ToastItem[]): ToastItem[] {
 /**
  * Add a toast to the queue and return the toast ID
  */
-export function enqueue(toast: ToastItem): string {
-  if (isDuplicateToast(toast)) {
-    console.debug('[ToastQueue] Duplicate toast ignored:', toast.message)
-    return toast.id
-  }
+export function enqueue(toastItem: ToastItem): string {
+  // Initialize the queue manager if not already done
+  initializeQueueManager()
 
-  // Manage queue size
-  const currentQueue = queue()
-  if (currentQueue.length >= config.maxQueueSize) {
-    // Remove lowest priority toast
-    const sorted = sortByPriority(currentQueue)
-    sorted.pop() // Remove last (lowest priority)
-    setQueue(sorted)
+  if (isDuplicateToast(toastItem)) {
+    console.debug('[ToastQueue] Duplicate toast ignored:', toastItem.message)
+    return toastItem.id
   }
 
   // Add new toast and sort by priority
-  const newQueue = [...queue(), toast]
-  setQueue(sortByPriority(newQueue))
+  const currentQueue = queue()
+  const newQueue = [...currentQueue, toastItem]
+  const sortedQueue = sortByPriority(newQueue)
+  setQueue(sortedQueue)
 
   console.debug(
     '[ToastQueue] Toast enqueued:',
-    toast.message,
+    toastItem.message,
     'ID:',
-    toast.id,
+    toastItem.id,
     'Queue length:',
-    newQueue.length,
+    sortedQueue.length,
   )
 
-  // Process immediately if no toast is currently showing
-  if (!currentToast() && !isProcessing()) {
-    processNext()
-  }
+  return toastItem.id
+}
 
-  return toast.id
+/**
+ * Remove current toast and mark transition time
+ */
+function removeCurrentToast(): void {
+  const current = currentToast()
+  if (current !== null) {
+    console.debug('[ToastQueue] Removing current toast:', current.message)
+
+    // Dismiss the actual solid-toast if it exists
+    if (current.solidToastId !== undefined) {
+      toast.dismiss(current.solidToastId)
+    }
+
+    // Remove the first item from queue (which is the current toast)
+    const currentQueue = queue()
+    const remainingQueue = currentQueue.slice(1)
+    setQueue(remainingQueue)
+
+    // Mark transition time
+    lastTransitionTime = Date.now()
+  }
 }
 
 /**
  * Remove current toast and process next in queue
  */
 export function dequeue(): void {
-  const current = currentToast()
-  if (current) {
-    console.debug('[ToastQueue] Dequeuing current toast:', current.message)
-
-    // Dismiss the actual solid-toast if it exists
-    const solidToastId = solidToastIdMap.get(current.id)
-    if (solidToastId !== undefined) {
-      toast.dismiss(solidToastId)
-      solidToastIdMap.delete(current.id)
-    }
-
-    setCurrentToast(null)
-    setIsProcessing(true)
-
-    // Wait for transition delay before showing next toast
-    if (processingTimeout !== null) {
-      clearTimeout(processingTimeout)
-    }
-
-    processingTimeout = window.setTimeout(() => {
-      setIsProcessing(false)
-      processNext()
-    }, config.transitionDelay)
-  }
+  removeCurrentToast()
 }
 
 /**
@@ -170,34 +267,14 @@ export function dequeue(): void {
 export function dequeueById(toastId: string): boolean {
   const current = currentToast()
 
-  // Check if the toast to remove is currently displayed
+  // Check if the toast to remove is currently displayed (first in queue)
   if (current?.id === toastId) {
     console.debug(
       '[ToastQueue] Dequeuing current toast by ID:',
       toastId,
       current.message,
     )
-
-    // Dismiss the actual solid-toast if it exists
-    const solidToastId = solidToastIdMap.get(toastId)
-    if (solidToastId !== undefined) {
-      toast.dismiss(solidToastId)
-      solidToastIdMap.delete(toastId)
-    }
-
-    setCurrentToast(null)
-    setIsProcessing(true)
-
-    // Wait for transition delay before showing next toast
-    if (processingTimeout !== null) {
-      clearTimeout(processingTimeout)
-    }
-
-    processingTimeout = window.setTimeout(() => {
-      setIsProcessing(false)
-      processNext()
-    }, config.transitionDelay)
-
+    removeCurrentToast()
     return true
   }
 
@@ -207,6 +284,12 @@ export function dequeueById(toastId: string): boolean {
 
   if (toastIndex >= 0) {
     const removedToast = currentQueue[toastIndex]
+
+    // Dismiss the solid-toast if it exists
+    if (removedToast.solidToastId !== undefined) {
+      toast.dismiss(removedToast.solidToastId)
+    }
+
     const newQueue = currentQueue.filter((toast) => toast.id !== toastId)
     setQueue(newQueue)
 
@@ -226,44 +309,55 @@ export function dequeueById(toastId: string): boolean {
  * Process next toast in queue
  */
 function processNext(): void {
-  if (isProcessing() || currentToast()) {
-    return
-  }
-
   const currentQueue = queue()
-  if (currentQueue.length === 0) {
+  const nextToast = currentQueue[0]
+
+  if (nextToast === undefined) {
+    console.debug('[ToastQueue] processNext early return - queue is empty')
     return
   }
 
-  const nextToast = currentQueue[0]
-  const remainingQueue = currentQueue.slice(1)
-
-  setQueue(remainingQueue)
-  setCurrentToast(nextToast)
-
-  console.debug('[ToastQueue] Processing next toast:', nextToast.message)
-
-  // Actually display the toast and store solid-toast ID
-  displayToast(nextToast)
-
-  // Auto-dismiss if duration is set
-  const duration = nextToast.options.duration
-  if (duration !== undefined && duration !== null && duration > 0) {
-    if (processingTimeout !== null) {
-      clearTimeout(processingTimeout)
-    }
-
-    processingTimeout = window.setTimeout(() => {
-      // Dequeue current toast and process next
-      setCurrentToast(null)
-      setIsProcessing(true)
-
-      setTimeout(() => {
-        setIsProcessing(false)
-        processNext()
-      }, config.transitionDelay)
-    }, duration)
+  // Check if this toast is already being displayed
+  if (nextToast.solidToastId !== undefined) {
+    console.debug(
+      '[ToastQueue] processNext early return - toast already displayed:',
+      nextToast.message,
+    )
+    return
   }
+
+  console.debug(
+    '[ToastQueue] Processing next toast:',
+    nextToast.message,
+    'Duration:',
+    nextToast.options.duration,
+    'ID:',
+    nextToast.id,
+  )
+
+  // Actually display the toast and store solid-toast ID in the queue item
+  const solidToastId = displayToast(nextToast)
+  const displayedAt = Date.now()
+
+  console.debug(
+    '[ToastQueue] Toast displayed with solid-toast ID:',
+    solidToastId,
+    'for toast:',
+    nextToast.message,
+  )
+
+  // Update the queue item with the solid-toast ID and display timestamp
+  setQueue((prevQueue) =>
+    prevQueue.map((item, index) =>
+      index === 0 ? { ...item, solidToastId, displayedAt } : item,
+    ),
+  )
+
+  console.debug(
+    '[ToastQueue] Toast will be auto-dismissed in:',
+    nextToast.options.duration ?? 'never (manual dismiss only)',
+    'ms',
+  )
 }
 
 /**
@@ -273,19 +367,14 @@ export function clear(): void {
   console.debug('[ToastQueue] Clearing all toasts')
 
   // Dismiss all solid-toasts
-  solidToastIdMap.forEach((solidToastId) => {
-    toast.dismiss(solidToastId)
+  queue().forEach((toastItem) => {
+    if (toastItem.solidToastId !== undefined) {
+      toast.dismiss(toastItem.solidToastId)
+    }
   })
-  solidToastIdMap.clear()
 
   setQueue([])
-  setCurrentToast(null)
-  setIsProcessing(false)
-
-  if (processingTimeout !== null) {
-    clearTimeout(processingTimeout)
-    processingTimeout = null
-  }
+  lastTransitionTime = 0
 }
 
 /**
@@ -302,8 +391,9 @@ export function getStatus() {
   return {
     currentToast: currentToast(),
     queueLength: queue().length,
-    isProcessing: isProcessing(),
+    isInTransition: isInTransition(),
     nextToast: queue()[0] ?? null,
+    lastTransitionTime,
   }
 }
 
@@ -331,5 +421,28 @@ export function createToastItem(
     options,
     timestamp: Date.now(),
     priority,
+  }
+}
+
+/**
+ * Manually initialize the queue manager (useful for testing or specific contexts)
+ */
+export function initQueue(): void {
+  initializeQueueManager()
+}
+
+/**
+ * Dispose the queue manager (cleanup)
+ */
+export function disposeQueue(): void {
+  if (intervalId !== null) {
+    clearInterval(intervalId)
+    intervalId = null
+    console.debug('[ToastQueue] Stopped interval-based processing')
+  }
+
+  if (queueManagerDispose !== null) {
+    queueManagerDispose()
+    queueManagerDispose = null
   }
 }

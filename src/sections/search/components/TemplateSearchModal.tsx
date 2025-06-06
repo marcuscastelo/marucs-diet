@@ -150,6 +150,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
             onClick: () => {
               showSuccess(
                 `Item "${originalAddedItem.name}" adicionado com sucesso!`,
+                { context: 'user-action' },
               )
               setSelectedTemplate(undefined)
               setItemEditModalVisible(false)
@@ -161,6 +162,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
             onClick: () => {
               showSuccess(
                 `Item "${originalAddedItem.name}" adicionado com sucesso!`,
+                { context: 'user-action' },
               )
               setSelectedTemplate(undefined)
               setItemEditModalVisible(false)
@@ -193,10 +195,9 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
                   operation: 'confirmOverMacros',
                   additionalData: { templateType: 'item' },
                 })
-                showError(
-                  `Erro ao adicionar item: ${formatError(err)}`,
-                  'user-action',
-                )
+                showError(`Erro ao adicionar item: ${formatError(err)}`, {
+                  context: 'user-action',
+                })
               })
             },
           },
@@ -217,7 +218,9 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
           operation: 'confirmItem',
           additionalData: { templateType: 'item' },
         })
-        showError(`Erro ao adicionar item: ${formatError(err)}`, 'user-action')
+        showError(`Erro ao adicionar item: ${formatError(err)}`, {
+          context: 'user-action',
+        })
       }
     }
   }

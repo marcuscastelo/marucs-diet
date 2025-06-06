@@ -65,7 +65,7 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
       })
       showError(
         'Não é possível adicionar grupos complexos a receitas, por enquanto.',
-        'user-action',
+        { context: 'user-action' },
       )
       return
     }
@@ -161,7 +161,7 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
                   if (item.__type === 'RecipeItem') {
                     showError(
                       'Ainda não é possível editar receitas dentro de receitas! Funcionalidade em desenvolvimento',
-                      'user-action',
+                      { context: 'user-action' },
                     )
                     return
                   }

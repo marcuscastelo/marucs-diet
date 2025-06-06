@@ -159,7 +159,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
 
     const currentGroup = group()
     if (currentGroup === null) {
-      showError('Grupo não encontrado', 'system')
+      showError('Grupo não encontrado', { context: 'system' })
       throw new Error('group is null')
     }
 
@@ -167,7 +167,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
       // TODO:   Handle non-simple groups on handleNewItemGroup
       showError(
         'Grupos complexos ainda não são suportados, funcionalidade em desenvolvimento',
-        'user-action',
+        { context: 'user-action' },
       )
       return
     }
@@ -239,7 +239,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   const handleItemApply = (item: TemplateItem) => {
     const group_ = group()
     if (group_ === null) {
-      showError('Grupo não encontrado', 'system')
+      showError('Grupo não encontrado', { context: 'system' })
       throw new Error('group is null')
     }
 
@@ -248,7 +248,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
     if (item.__type === 'RecipeItem') {
       showError(
         'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
-        'user-action',
+        { context: 'user-action' },
       )
       return
     }
@@ -267,7 +267,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
           (i: Item) => i.id === currentItem.id,
         )
         if (originalItem === undefined) {
-          showError('Item original não encontrado', 'system')
+          showError('Item original não encontrado', { context: 'system' })
           return { enable: false }
         }
         return { enable: true, originalItem }
@@ -321,7 +321,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   const handleItemDelete = (itemId: TemplateItem['id']) => {
     const group_ = group()
     if (group_ === null) {
-      showError('Grupo não encontrado', 'system')
+      showError('Grupo não encontrado', { context: 'system' })
       throw new Error('group is null')
     }
 
@@ -396,7 +396,9 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
                     (i: Item) => i.id === item.id,
                   )
                   if (originalItem === undefined) {
-                    showError('Item original não encontrado', 'system')
+                    showError('Item original não encontrado', {
+                      context: 'system',
+                    })
                     return { enable: false }
                   }
                   return { enable: true, originalItem }
@@ -563,7 +565,7 @@ function Body(props: {
                         if (isRecipeTooComplex(props.recipe())) {
                           showError(
                             'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
-                            'user-action',
+                            { context: 'user-action' },
                           )
                           return
                         }
@@ -584,7 +586,9 @@ function Body(props: {
                           const exec = async () => {
                             const group_ = group()
                             if (group_ === null) {
-                              showError('Grupo não encontrado', 'system')
+                              showError('Grupo não encontrado', {
+                                context: 'system',
+                              })
                               throw new Error('group is null')
                             }
 
@@ -613,7 +617,7 @@ function Body(props: {
                           exec().catch((err) => {
                             showError(
                               `Falha ao criar receita a partir de grupo: ${formatError(err)}`,
-                              'user-action',
+                              { context: 'user-action' },
                             )
                           })
                         }}
@@ -663,10 +667,9 @@ function Body(props: {
                                     }
 
                                     if (group() === null) {
-                                      showError(
-                                        'Grupo não encontrado',
-                                        'system',
-                                      )
+                                      showError('Grupo não encontrado', {
+                                        context: 'system',
+                                      })
                                       throw new Error('group is null')
                                     }
 
@@ -722,7 +725,7 @@ function Body(props: {
               if (item.__type === 'RecipeItem') {
                 showError(
                   'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
-                  'user-action',
+                  { context: 'user-action' },
                 )
                 return
               }
@@ -734,7 +737,7 @@ function Body(props: {
               if (isRecipeTooComplex(props.recipe())) {
                 showError(
                   'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
-                  'user-action',
+                  { context: 'user-action' },
                 )
                 return
               }
@@ -805,10 +808,9 @@ function Actions(props: {
             onClick={(e) => {
               e.preventDefault()
               if (group() === null) {
-                showError(
-                  'Bug detectado: group ou onDelete é nulo',
-                  'user-action',
-                )
+                showError('Bug detectado: group ou onDelete é nulo', {
+                  context: 'user-action',
+                })
               }
               showConfirmModal({
                 title: 'Excluir grupo',

@@ -225,7 +225,7 @@ const UserSelectorDropdown = () => {
 
   fetchUsers().catch((error) => {
     console.error('[UserSelectorDropdown] Error fetching users:', error)
-    showError('Erro ao buscar usuários', 'background')
+    showError('Erro ao buscar usuários', { context: 'background' })
     closeConfirmModal()
   })
 

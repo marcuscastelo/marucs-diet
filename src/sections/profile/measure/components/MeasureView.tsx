@@ -53,7 +53,9 @@ export function MeasureView(props: {
       hip === undefined ||
       neck === undefined
     ) {
-      showError('Preencha todos os campos de medidas', 'user-action')
+      showError('Preencha todos os campos de medidas', {
+        context: 'user-action',
+      })
       return
     }
     const afterUpdate = () => {
@@ -73,10 +75,9 @@ export function MeasureView(props: {
       .then(afterUpdate)
       .catch((error) => {
         console.error(error)
-        showError(
-          `Erro ao atualizar medida: ${formatError(error)}`,
-          'user-action',
-        )
+        showError(`Erro ao atualizar medida: ${formatError(error)}`, {
+          context: 'user-action',
+        })
       })
   }
 
@@ -88,10 +89,9 @@ export function MeasureView(props: {
       .then(afterDelete)
       .catch((error) => {
         console.error(error)
-        showError(
-          'Erro ao deletar: \n' + JSON.stringify(error, null, 2),
-          'user-action',
-        )
+        showError('Erro ao deletar: \n' + JSON.stringify(error, null, 2), {
+          context: 'user-action',
+        })
       })
   }
 
@@ -106,10 +106,9 @@ export function MeasureView(props: {
             }}
             onChange={(value) => {
               if (value?.startDate === undefined || value?.startDate === null) {
-                showError(
-                  `Data inválida: ${JSON.stringify(value)}`,
-                  'user-action',
-                )
+                showError(`Data inválida: ${JSON.stringify(value)}`, {
+                  context: 'user-action',
+                })
                 return
               }
               const date = adjustToTimezone(new Date(value.startDate))

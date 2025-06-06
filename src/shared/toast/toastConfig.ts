@@ -5,6 +5,11 @@
  */
 
 /**
+ * Special duration value for infinite toast duration (manual dismiss only)
+ */
+export const TOAST_DURATION_INFINITY = Infinity
+
+/**
  * Context in which a toast is triggered
  * - user-action: Direct user interaction (button clicks, form submissions)
  * - background: Automatic operations (bootstrap, realtime updates, sync)
@@ -51,9 +56,9 @@ export type ToastOptions = {
 
   /**
    * Auto-dismiss timeout in milliseconds
-   * @default 3000 for success/info, 0 (manual) for error/warning
+   * @default 3000 for success/info, TOAST_DURATION_INFINITY (manual) for error/warning
    */
-  duration?: number
+  duration: number
 
   /**
    * Whether this toast can be dismissed by user
@@ -68,31 +73,31 @@ export type ToastOptions = {
   expandableErrorData?: {
     isTruncated: boolean
     errorDetails: ToastError
-    onDismiss?: () => void
-    onCopy?: (text: string) => void
   }
 }
 
 /**
  * Default toast options based on context
  */
-export const DEFAULT_TOAST_OPTIONS: Record<
-  ToastContext,
-  Partial<ToastOptions>
-> = {
+export const DEFAULT_TOAST_OPTIONS: Record<ToastContext, ToastOptions> = {
   'user-action': {
     showLoading: true,
     showSuccess: true,
     maxLength: 100,
     duration: 3000,
     dismissible: true,
+    context: 'user-action',
+    level: 'info',
+    expandableErrorData: undefined,
   },
   background: {
     showLoading: false,
     showSuccess: false,
     maxLength: 150,
-    duration: 0, // Manual dismiss for background errors
+    duration: 2000,
     dismissible: true,
+    context: 'background',
+    level: 'info',
   },
   system: {
     showLoading: false,
@@ -100,6 +105,8 @@ export const DEFAULT_TOAST_OPTIONS: Record<
     maxLength: 200,
     duration: 5000,
     dismissible: true,
+    context: 'system',
+    level: 'info',
   },
 }
 
@@ -119,12 +126,6 @@ export const TOAST_PRIORITY: Record<ToastLevel, number> = {
  */
 export type ToastQueueConfig = {
   /**
-   * Maximum number of toasts in queue
-   * @default 10
-   */
-  maxQueueSize: number
-
-  /**
    * Delay between toast transitions in milliseconds
    * @default 300
    */
@@ -135,7 +136,6 @@ export type ToastQueueConfig = {
  * Default queue configuration
  */
 export const DEFAULT_QUEUE_CONFIG: ToastQueueConfig = {
-  maxQueueSize: 10,
   transitionDelay: 300,
 }
 
@@ -148,6 +148,8 @@ export type ToastItem = {
   options: ToastOptions
   timestamp: number
   priority: number
+  solidToastId?: string // ID returned by solid-toast when displayed
+  displayedAt?: number // Timestamp when toast was displayed (for auto-dismiss timing)
 }
 
 /**

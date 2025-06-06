@@ -87,7 +87,7 @@ export type MacroTargetProps = {
 const onSaveMacroProfile = (profile: MacroProfile) => {
   console.log('[ProfilePage] Saving profile', profile)
   if (profile.target_day.getTime() > new Date(getTodayYYYYMMDD()).getTime()) {
-    showError('Data alvo não pode ser no futuro', 'user-action')
+    showError('Data alvo não pode ser no futuro', { context: 'user-action' })
     return
   } else if (
     profile.id !== -1 && // TODO:   Better typing system for new MacroProfile instead of -1.
@@ -106,10 +106,9 @@ const onSaveMacroProfile = (profile: MacroProfile) => {
         gramsPerKgFat: profile.gramsPerKgFat,
       }),
     ).catch((error) => {
-      showError(
-        `Erro ao atualizar perfil de macro: ${formatError(error)}`,
-        'user-action',
-      )
+      showError(`Erro ao atualizar perfil de macro: ${formatError(error)}`, {
+        context: 'user-action',
+      })
     })
   } else if (
     profile.id === -1 || // TODO:   Better typing system for new MacroProfile instead of -1.
@@ -124,13 +123,14 @@ const onSaveMacroProfile = (profile: MacroProfile) => {
         target_day: new Date(getTodayYYYYMMDD()),
       }),
     ).catch((error) => {
-      showError(
-        `Erro ao inserir novo perfil de macro: ${formatError(error)}`,
-        'user-action',
-      )
+      showError(`Erro ao inserir novo perfil de macro: ${formatError(error)}`, {
+        context: 'user-action',
+      })
     })
   } else {
-    showError('Erro imprevisto ao salvar perfil de macro', 'user-action')
+    showError('Erro imprevisto ao salvar perfil de macro', {
+      context: 'user-action',
+    })
   }
 }
 
@@ -246,13 +246,13 @@ export function MacroTarget(props: MacroTargetProps) {
                                       .then(() => {
                                         showSuccess(
                                           'Perfil antigo restaurado com sucesso, se necessário, atualize a página',
-                                          'user-action',
+                                          { context: 'user-action' },
                                         )
                                       })
                                       .catch((e) => {
                                         showError(
                                           `Erro ao restaurar perfil antigo: ${formatError(e)}`,
-                                          'user-action',
+                                          { context: 'user-action' },
                                         )
                                       })
                                   },
@@ -345,7 +345,7 @@ function MacroTargetSetting(props: {
   // const makeOnSetPercentage =
   //   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   //   (macro: 'carbs' | 'protein' | 'fat') => (percentage: number) => {
-  //     showError('Direct percentage change not yet implemented', 'user-action')
+  //     showError('Direct percentage change not yet implemented', {context: 'user-action'})
   //   }
 
   return (

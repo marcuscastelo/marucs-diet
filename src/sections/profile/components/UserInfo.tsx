@@ -113,10 +113,9 @@ export function UserInfo() {
               operation: 'updateUser',
               additionalData: { userId: user.id },
             })
-            showError(
-              `Erro ao atualizar usuário: ${formatError(error)}`,
-              'user-action',
-            )
+            showError(`Erro ao atualizar usuário: ${formatError(error)}`, {
+              context: 'user-action',
+            })
           })
         }}
       >
