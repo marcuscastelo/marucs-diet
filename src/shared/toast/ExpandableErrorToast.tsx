@@ -94,7 +94,7 @@ export function displayExpandableErrorToast(toastItem: ToastItem): string {
         }
         errorDetails={
           toastItem.options.expandableErrorData?.errorDetails ?? {
-            message: 'No error details provided',
+            message: 'Nenhum detalhe do erro fornecido',
             stack: '',
             context: {},
             timestamp: Date.now(),
@@ -125,7 +125,7 @@ function SuccessCheckmarkIcon() {
       height="1.25rem"
       class="overflow-visible"
     >
-      {/* <!-- Círculo animado verde --> */}
+      {/* Animated green circle */}
       <circle cx="16" cy="16" r="0" fill="#34C759">
         <animate
           attributeName="opacity"
@@ -142,7 +142,7 @@ function SuccessCheckmarkIcon() {
           fill="freeze"
         />
       </circle>
-      {/* <!-- Expansão de fundo verde --> */}
+      {/* Expanding green background */}
       <circle cx="16" cy="16" r="12" opacity="0" fill="#34C759">
         <animate
           attributeName="opacity"
@@ -159,7 +159,7 @@ function SuccessCheckmarkIcon() {
           fill="freeze"
         />
       </circle>
-      {/* <!-- Checkmark branco --> */}
+      {/* White checkmark */}
       <path
         fill="none"
         stroke-width="4"
@@ -190,6 +190,7 @@ function ErrorIcon() {
       height="1.25rem"
       class="overflow-visible"
     >
+      {/* Animated red circle */}
       <circle cx="16" cy="16" r="0" fill="#FF3B30">
         <animate
           attributeName="opacity"
@@ -212,6 +213,7 @@ function ErrorIcon() {
           keySplines="0.25 0.71 0.4 0.88; .59 .22 .87 .63"
         />
       </circle>
+      {/* Expanding red background */}
       <circle cx="16" cy="16" r="12" opacity="0" fill="#FF3B30">
         <animate
           attributeName="opacity"
@@ -234,6 +236,7 @@ function ErrorIcon() {
           keySplines="0.0 0.0 0.2 1"
         />
       </circle>
+      {/* White exclamation mark */}
       <path
         fill="none"
         stroke-width="4"
@@ -296,6 +299,7 @@ function ToastContent(props: {
           type="button"
           class="px-2 py-1 rounded bg-gray-700 text-gray-100 text-xs hover:bg-gray-600 transition-colors"
           onClick={handleShowDetails}
+          aria-label="Mostrar detalhes do erro"
         >
           Mostrar detalhes
         </button>
@@ -303,6 +307,7 @@ function ToastContent(props: {
           type="button"
           class="px-2 py-1 rounded bg-gray-700 text-gray-100 text-xs hover:bg-gray-600 transition-colors"
           onClick={() => props.onCopy()}
+          aria-label="Copiar detalhes do erro"
         >
           Copiar erro
         </button>
