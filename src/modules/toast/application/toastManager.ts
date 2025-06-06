@@ -18,31 +18,24 @@ import {
 } from '~/modules/toast/domain/toastTypes'
 import { processErrorMessage } from '~/modules/toast/domain/errorMessageHandler'
 
+const MAX_ERROR_MESSAGE_LENGTH = 100
+
 /**
  * Creates and enqueues a toast notification with merged options.
  *
  * @param message - The message to display in the toast.
- * @param level - The toast level ('info', 'success', 'error', 'warning').
- * @param context - The toast context ('user-action' or 'background').
- * @param options - Additional toast options to override defaults.
- * @returns The ID of the created toast.
+ * @param options - Toast options to override defaults and control behavior.
+ * @returns {string} The ID of the created toast.
  */
 function createAndEnqueueToast(message: string, options: ToastOptions): string {
-  const toastItem = createToastItem(message, options)
-
-  const toastId = enqueue(toastItem)
-
-  return toastId
+  return enqueue(createToastItem(message, options))
 }
 
 /**
- * Determines if a toast should be skipped based on context, audience, and toast type.
- * - Success toasts are skipped for background context or system audience unless showSuccess is true.
- * - Loading toasts are skipped for background context or system audience unless showLoading is true.
- * - Error toasts are always shown.
+ * Returns true if the toast should be skipped based on context, audience, and type.
  *
- * @param options - ToastOptions including context, audience, level, showSuccess, showLoading
- * @returns true if the toast should be skipped, false otherwise
+ * @param options - ToastOptions including context, audience, level, showSuccess, showLoading.
+ * @returns True if the toast should be skipped, false otherwise.
  */
 function shouldSkipToast(options: ToastOptions): boolean {
   const { context, audience, level, showSuccess, showLoading } = options
@@ -50,21 +43,13 @@ function shouldSkipToast(options: ToastOptions): boolean {
   // Always show error toasts
   if (level === 'error') return false
 
-  // Skip success toasts in background/system unless explicitly enabled
-  if (
-    level === 'success' &&
-    (context === 'background' || audience === 'system') &&
-    showSuccess !== true
-  ) {
+  const isBackgroundOrSystem = context === 'background' || audience === 'system'
+
+  if (level === 'success' && isBackgroundOrSystem && showSuccess !== true) {
     return true
   }
 
-  // Skip loading toasts in background/system unless explicitly enabled
-  if (
-    level === 'info' &&
-    (context === 'background' || audience === 'system') &&
-    showLoading !== true
-  ) {
+  if (level === 'info' && isBackgroundOrSystem && showLoading !== true) {
     return true
   }
 
@@ -75,6 +60,7 @@ function shouldSkipToast(options: ToastOptions): boolean {
  * Returns a filtered copy of the toast messages object, never mutating the original.
  * Filters out loading and success messages for background/system context and audience unless explicitly enabled.
  *
+ * @template T
  * @param messages - Toast messages for loading, success, and error.
  * @param options - Toast options, may include context and audience.
  * @returns Filtered messages object.
@@ -87,60 +73,74 @@ function filterBackgroundPromiseMessages<T>(
   },
   options?: Partial<ToastOptions>,
 ): typeof messages {
-  // Merge with defaults to get effective options for each toast type
   const context = options?.context ?? DEFAULT_TOAST_CONTEXT
-  const defaultOptions = DEFAULT_TOAST_OPTIONS[context]
-  // Compose base options for merging
-  const baseOptions = {
-    ...defaultOptions,
-    ...options,
-  }
-  // For each type, check if it should be skipped
-  const showLoading = !shouldSkipToast({ ...baseOptions, level: 'info' })
-  const showSuccess = !shouldSkipToast({ ...baseOptions, level: 'success' })
-  const showError = !shouldSkipToast({ ...baseOptions, level: 'error' })
+  const mergedOptions = { ...DEFAULT_TOAST_OPTIONS[context], ...options }
 
   return {
-    loading: showLoading ? messages.loading : undefined,
-    success: showSuccess ? messages.success : undefined,
-    error: showError ? messages.error : undefined,
+    loading: !shouldSkipToast({ ...mergedOptions, level: 'info' })
+      ? messages.loading
+      : undefined,
+    success: !shouldSkipToast({ ...mergedOptions, level: 'success' })
+      ? messages.success
+      : undefined,
+    error: !shouldSkipToast({ ...mergedOptions, level: 'error' })
+      ? messages.error
+      : undefined,
   }
 }
 
 /**
  * Checks if a value is a non-empty string.
+ *
+ * @param val - Value to check.
+ * @returns {boolean} True if value is a non-empty string.
  */
 function isNonEmptyString(val: unknown): val is string {
   return typeof val === 'string' && val.length > 0
 }
 
 /**
- * Resolves a value or function with the provided argument.
- * Returns the value if not a function, or the result of the function if it is.
+ * Resolves a value or a function with the provided argument.
+ * If valueOrFn is a function, calls it with arg; otherwise, returns valueOrFn.
+ *
+ * @template T, R
+ * @param valueOrFn - Value or function to resolve.
+ * @param arg - Argument to pass if valueOrFn is a function.
+ * @returns The resolved value or undefined.
  */
 function resolveValueOrFunction<T, R>(
   valueOrFn: R | ((arg: T) => R) | undefined,
   arg: T,
 ): R | undefined {
   if (valueOrFn === undefined) return undefined
-  return typeof valueOrFn === 'function'
-    ? (valueOrFn as (arg: T) => R)(arg)
-    : valueOrFn
+  if (typeof valueOrFn === 'function') return (valueOrFn as (arg: T) => R)(arg)
+  return valueOrFn
 }
 
+/**
+ * Shows a toast with merged options, skipping if context rules apply.
+ *
+ * @param message - The message to display.
+ * @param providedOptions - Partial toast options.
+ * @returns The toast ID, or empty string if skipped.
+ */
 function show(message: string, providedOptions: Partial<ToastOptions>): string {
   const context = providedOptions.context ?? DEFAULT_TOAST_CONTEXT
-  const defaultOptions = DEFAULT_TOAST_OPTIONS[context]
   const options: ToastOptions = {
-    ...defaultOptions,
+    ...DEFAULT_TOAST_OPTIONS[context],
     ...providedOptions,
   }
-  if (shouldSkipToast(options)) {
-    return ''
-  }
+  if (shouldSkipToast(options)) return ''
   return createAndEnqueueToast(message, options)
 }
 
+/**
+ * Shows an error toast, processing the error for display and truncation.
+ *
+ * @param error - The error to display.
+ * @param providedOptions - Partial toast options (except level).
+ * @returns The toast ID.
+ */
 export function showError(
   error: unknown,
   providedOptions?: Omit<Partial<ToastOptions>, 'level'>,
@@ -150,10 +150,14 @@ export function showError(
     ...providedOptions,
   }
 
-  // Use processErrorMessage to handle truncation for error toasts
-  const processed = processErrorMessage(error as string, {
-    maxLength: options.maxLength ?? 100,
-    includeStack: true, // Include stack for expandable error toast
+  const { maxLength = MAX_ERROR_MESSAGE_LENGTH } = options
+
+  // Ensure error is a string for display
+  const errorMessage = typeof error === 'string' ? error : String(error)
+
+  const processed = processErrorMessage(errorMessage, {
+    maxLength,
+    includeStack: true,
   })
 
   return show(processed.displayMessage, {
@@ -165,6 +169,13 @@ export function showError(
   })
 }
 
+/**
+ * Shows a success toast.
+ *
+ * @param message - The message to display.
+ * @param providedOptions - Partial toast options (except level).
+ * @returns {string} The toast ID.
+ */
 export function showSuccess(
   message: string,
   providedOptions?: Omit<Partial<ToastOptions>, 'level'>,
@@ -177,6 +188,13 @@ export function showSuccess(
   return show(message, options)
 }
 
+/**
+ * Shows a loading toast with infinite duration.
+ *
+ * @param message - The message to display.
+ * @param providedOptions - Partial toast options (except level).
+ * @returns {string} The toast ID.
+ */
 export function showLoading(
   message: string,
   providedOptions?: Omit<Partial<ToastOptions>, 'level'>,
@@ -235,10 +253,11 @@ function removeLoadingToast(loadingToastId: string | null) {
  * Skips toasts in background context unless explicitly enabled.
  * Supports static or function messages for success and error.
  *
+ * @template T
  * @param promise - The promise to monitor.
  * @param messages - Toast messages for loading, success, and error. Success and error can be strings or functions.
  * @param options - Additional toast options.
- * @returns The resolved value of the promise.
+ * @returns {Promise<T>} The resolved value of the promise.
  */
 export function showPromise<T>(
   promise: Promise<T>,
