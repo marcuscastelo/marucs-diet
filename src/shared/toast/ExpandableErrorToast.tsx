@@ -74,7 +74,7 @@ export function ExpandableToast(props: ExpandableToastProps) {
         complex={isComplex()}
         onCopy={handleCopy}
         errorDetails={props.errorDetails}
-        level={props.level ?? 'error'}
+        level={props.level}
       />
     </div>
   )
