@@ -15,10 +15,7 @@ import { ToastOptions } from '~/modules/toast/domain/toastTypes'
 import toast from 'solid-toast'
 
 const ToastTest: Component = () => {
-  const [toastOptions, setToastOptions] = createSignal<
-    Partial<ToastOptions> & Pick<ToastOptions, 'context'>
-  >({
-    context: 'user-action',
+  const [toastOptions, setToastOptions] = createSignal<Partial<ToastOptions>>({
     showLoading: true,
     showSuccess: true,
   })
@@ -302,13 +299,7 @@ const ToastTest: Component = () => {
           Test Simple Loading
         </button>
 
-        <button
-          onClick={() =>
-            showError(new Error('Simple error test'), {
-              context: 'user-action',
-            })
-          }
-        >
+        <button onClick={() => showError(new Error('Simple error test'))}>
           Test Simple Error
         </button>
 

@@ -63,9 +63,7 @@ export function ExternalTemplateToItemGroupModal(
                 operation: 'addSimpleItem',
                 additionalData: { itemName: item.name, templateType: 'Item' },
               })
-              showError(`Erro ao adicionar item: ${formatError(err)}`, {
-                context: 'user-action',
-              })
+              showError(`Erro ao adicionar item: ${formatError(err)}`)
             })
           } else {
             const newGroup: RecipedItemGroup = createRecipedItemGroup({
@@ -79,9 +77,7 @@ export function ExternalTemplateToItemGroupModal(
                 operation: 'addRecipeItem',
                 additionalData: { itemName: item.name, templateType: 'Recipe' },
               })
-              showError(`Erro ao adicionar item: ${formatError(err)}`, {
-                context: 'user-action',
-              })
+              showError(`Erro ao adicionar item: ${formatError(err)}`)
             })
           }
         }}

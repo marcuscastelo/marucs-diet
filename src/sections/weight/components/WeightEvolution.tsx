@@ -70,9 +70,7 @@ export function WeightEvolution() {
               const weight = weightField.value()
 
               if (weight === undefined) {
-                showError('Digite um peso', {
-                  context: 'user-action',
-                })
+                showError('Digite um peso')
                 return
               }
 
@@ -90,11 +88,7 @@ export function WeightEvolution() {
                 }),
               )
                 .then(afterInsert)
-                .catch((error) => {
-                  showError(`Erro ao adicionar peso: ${formatError(error)}`, {
-                    context: 'user-action',
-                  })
-                })
+                .catch(() => {})
             }}
           >
             Adicionar peso
@@ -157,9 +151,7 @@ function WeightView(props: { weight: Weight }) {
             onChange={(value) => {
               // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
               if (!value?.startDate) {
-                showError('Data inválida: \n' + JSON.stringify(value), {
-                  context: 'user-action',
-                })
+                showError('Data inválida: \n' + JSON.stringify(value))
                 return
               }
               // Apply timezone offset

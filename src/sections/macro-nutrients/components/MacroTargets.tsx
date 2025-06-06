@@ -109,9 +109,7 @@ const onSaveMacroProfile = (profile: MacroProfile) => {
         gramsPerKgFat: profile.gramsPerKgFat,
       }),
     ).catch((error) => {
-      showError(`Erro ao atualizar perfil de macro: ${formatError(error)}`, {
-        context: 'user-action',
-      })
+      showError(`Erro ao atualizar perfil de macro: ${formatError(error)}`)
     })
   } else if (
     profile.id === -1 || // TODO:   Better typing system for new MacroProfile instead of -1.
@@ -120,20 +118,14 @@ const onSaveMacroProfile = (profile: MacroProfile) => {
     console.log('[ProfilePage] Inserting profile', profile)
 
     // Past day, insert with new date
-    insertMacroProfile(
+    void insertMacroProfile(
       createNewMacroProfile({
         ...profile,
         target_day: new Date(getTodayYYYYMMDD()),
       }),
-    ).catch((error) => {
-      showError(`Erro ao inserir novo perfil de macro: ${formatError(error)}`, {
-        context: 'user-action',
-      })
-    })
+    )
   } else {
-    showError('Erro imprevisto ao salvar perfil de macro', {
-      context: 'user-action',
-    })
+    showError('Erro imprevisto ao salvar perfil de macro')
   }
 }
 

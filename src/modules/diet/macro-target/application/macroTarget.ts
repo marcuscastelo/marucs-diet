@@ -24,7 +24,6 @@ export const getMacroTargetForDay = (day: Date) => {
 
   if (targetDayWeight_ === null) {
     showError(new Error('Peso não encontrado para o dia atual'), {
-      context: 'user-action',
       audience: 'system',
     })
     return null
@@ -32,7 +31,6 @@ export const getMacroTargetForDay = (day: Date) => {
 
   if (targetDayMacroProfile_ === null) {
     showError(new Error('Perfil de macros não encontrado para o dia atual'), {
-      context: 'user-action',
       audience: 'system',
     })
     return null

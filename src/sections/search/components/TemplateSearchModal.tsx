@@ -193,9 +193,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
                   operation: 'confirmOverMacros',
                   additionalData: { templateType: 'item' },
                 })
-                showError(`Erro ao adicionar item: ${formatError(err)}`, {
-                  context: 'user-action',
-                })
+                showError(`Erro ao adicionar item: ${formatError(err)}`)
               })
             },
           },
@@ -216,9 +214,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
           operation: 'confirmItem',
           additionalData: { templateType: 'item' },
         })
-        showError(`Erro ao adicionar item: ${formatError(err)}`, {
-          context: 'user-action',
-        })
+        showError(`Erro ao adicionar item: ${formatError(err)}`)
       }
     }
   }

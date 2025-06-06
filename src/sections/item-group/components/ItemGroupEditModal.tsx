@@ -160,7 +160,6 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
     const currentGroup = group()
     if (currentGroup === null) {
       showError('Grupo não encontrado', {
-        context: 'user-action',
         audience: 'system',
       })
       throw new Error('group is null')
@@ -242,7 +241,6 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
     const group_ = group()
     if (group_ === null) {
       showError('Grupo não encontrado', {
-        context: 'user-action',
         audience: 'system',
       })
       throw new Error('group is null')
@@ -272,7 +270,6 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
         )
         if (originalItem === undefined) {
           showError('Item original não encontrado', {
-            context: 'user-action',
             audience: 'system',
           })
           return { enable: false }
@@ -329,7 +326,6 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
     const group_ = group()
     if (group_ === null) {
       showError('Grupo não encontrado', {
-        context: 'user-action',
         audience: 'system',
       })
       throw new Error('group is null')
@@ -407,7 +403,6 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
                   )
                   if (originalItem === undefined) {
                     showError('Item original não encontrado', {
-                      context: 'user-action',
                       audience: 'system',
                     })
                     return { enable: false }
@@ -597,7 +592,6 @@ function Body(props: {
                             const group_ = group()
                             if (group_ === null) {
                               showError('Grupo não encontrado', {
-                                context: 'user-action',
                                 audience: 'system',
                               })
                               throw new Error('group is null')
@@ -678,7 +672,6 @@ function Body(props: {
 
                                     if (group() === null) {
                                       showError('Grupo não encontrado', {
-                                        context: 'user-action',
                                         audience: 'system',
                                       })
                                       throw new Error('group is null')
@@ -817,9 +810,7 @@ function Actions(props: {
             onClick={(e) => {
               e.preventDefault()
               if (group() === null) {
-                showError('Bug detectado: group ou onDelete é nulo', {
-                  context: 'user-action',
-                })
+                showError('Bug detectado: group ou onDelete é nulo')
               }
               showConfirmModal({
                 title: 'Excluir grupo',

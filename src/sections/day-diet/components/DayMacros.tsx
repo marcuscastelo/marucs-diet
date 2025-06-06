@@ -12,7 +12,6 @@ export default function DayMacros(props: { class?: string }) {
     const currentDayDiet_ = currentDayDiet()
     if (currentDayDiet_ === null) {
       showError(new Error('Dia atual não encontrado'), {
-        context: 'user-action',
         audience: 'system',
       })
       return null
@@ -23,7 +22,6 @@ export default function DayMacros(props: { class?: string }) {
     )
     if (macroTarget_ === null) {
       showError(new Error('Meta de macros não encontrada'), {
-        context: 'user-action',
         audience: 'system',
       })
       return null

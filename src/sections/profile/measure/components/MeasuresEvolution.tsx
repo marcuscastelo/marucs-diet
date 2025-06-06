@@ -115,9 +115,7 @@ export function MeasuresEvolution() {
                 hipField.value() === undefined ||
                 neckField.value() === undefined
               ) {
-                showError('Medidas inválidas: preencha todos os campos', {
-                  context: 'user-action',
-                })
+                showError('Medidas inválidas: preencha todos os campos')
                 return
               }
               const userId = currentUserId()
@@ -138,9 +136,7 @@ export function MeasuresEvolution() {
                 .then(afterInsert)
                 .catch((error) => {
                   console.error(error)
-                  showError(`Erro ao adicionar medida: ${formatError(error)}`, {
-                    context: 'user-action',
-                  })
+                  showError(`Erro ao adicionar medida: ${formatError(error)}`)
                 })
             }}
           >
