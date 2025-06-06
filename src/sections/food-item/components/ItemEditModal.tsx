@@ -315,7 +315,7 @@ function Body(props: {
         macroOverflow={props.macroOverflow}
         class="mt-4"
         onClick={() => {
-          showError('Alimento não editável (ainda)', { context: 'user-action' })
+          showError('Alimento não editável (ainda)')
         }}
         header={
           <HeaderWithActions

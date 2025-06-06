@@ -291,7 +291,7 @@ function TestConfirmModal() {
               text: 'Teste123',
               primary: true,
               onClick: () => {
-                showSuccess('Teste123', { context: 'user-action' })
+                showSuccess('Teste123')
               },
             },
           ],

@@ -90,7 +90,7 @@ export type MacroTargetProps = {
 const onSaveMacroProfile = (profile: MacroProfile) => {
   console.log('[ProfilePage] Saving profile', profile)
   if (profile.target_day.getTime() > new Date(getTodayYYYYMMDD()).getTime()) {
-    showError('Data alvo não pode ser no futuro', { context: 'user-action' })
+    showError('Data alvo não pode ser no futuro')
     return
   } else if (
     profile.id !== -1 && // TODO:   Better typing system for new MacroProfile instead of -1.

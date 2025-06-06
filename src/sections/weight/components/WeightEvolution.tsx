@@ -129,23 +129,19 @@ function WeightView(props: { weight: Weight }) {
     weightValue: number | undefined
   }) => {
     if (weightValue === undefined) {
-      showError('Digite um peso', { context: 'user-action' })
+      showError('Digite um peso')
       return
     }
 
     if (dateValue === undefined) {
-      showError('Digite uma data', { context: 'user-action' })
+      showError('Digite uma data')
       return
     }
 
-    updateWeight(props.weight.id, {
+    void updateWeight(props.weight.id, {
       ...props.weight,
       weight: weightValue,
       target_timestamp: dateValue,
-    }).catch((error) => {
-      showError(`Erro ao atualizar peso: ${formatError(error)}`, {
-        context: 'user-action',
-      })
     })
   }
 
@@ -207,11 +203,7 @@ function WeightView(props: { weight: Weight }) {
           <button
             class="btn btn-ghost my-auto"
             onClick={() => {
-              deleteWeight(props.weight.id).catch((error) => {
-                showError(`Erro ao deletar peso: ${formatError(error)}`, {
-                  context: 'user-action',
-                })
-              })
+              void deleteWeight(props.weight.id)
             }}
           >
             <TrashIcon />

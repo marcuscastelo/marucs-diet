@@ -22,7 +22,7 @@ describe('toastManager', () => {
     // Should enqueue an error toast with the correct context and level
     const enqueueSpy = vi.spyOn(toastQueue, 'enqueue').mockReturnValue('id1')
     const error = new Error('fail')
-    const id = showError(error, { context: 'user-action' })
+    const id = showError(error)
     expect(enqueueSpy).toHaveBeenCalled()
     const toastArg = enqueueSpy.mock.calls[0][0]
     expect(toastArg.options.level).toBe('error')
@@ -47,7 +47,7 @@ describe('toastManager', () => {
     // Should enqueue a loading toast with the correct context and level
     const enqueueSpy = vi.spyOn(toastQueue, 'enqueue').mockReturnValue('id3')
     // Use a context that will not be skipped by shouldSkipBackgroundToast
-    const id = showLoading('loading...', { context: 'user-action' })
+    const id = showLoading('loading...')
     expect(enqueueSpy).toHaveBeenCalled()
     const toastArg = enqueueSpy.mock.calls[0][0]
     expect(toastArg.options.level).toBe('info')
