@@ -1,10 +1,12 @@
-// filepath: src/shared/toast/clipboardErrorUtils.ts
 /**
  * Utilities for formatting and copying error details to clipboard.
  * Shared between ExpandableErrorToast and ErrorDetailModal.
  */
 import { ToastError } from './toastConfig'
 import { handleApiError } from '~/shared/error/errorHandler'
+
+// Explicit type for context
+export type ClipboardErrorContext = { component: string; operation: string }
 
 export function formatErrorForClipboard(errorDetails: ToastError): string {
   const sections: string[] = []
@@ -44,9 +46,23 @@ export function formatErrorForClipboard(errorDetails: ToastError): string {
 
 export async function handleCopyErrorToClipboard(
   errorDetails: ToastError,
-  context: { component: string; operation: string },
+  context: ClipboardErrorContext,
 ) {
   try {
+    // Defensive: clipboard may not be available in all environments
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: navigator may not exist in some environments
+    if (
+      typeof navigator === 'undefined' ||
+      typeof navigator.clipboard === 'undefined'
+    ) {
+      handleApiError(new Error('Clipboard API not available'), {
+        component: context.component,
+        operation: context.operation,
+        additionalData: { errorDetails },
+      })
+      return
+    }
     const clipboardContent = formatErrorForClipboard(errorDetails)
     await navigator.clipboard.writeText(clipboardContent)
   } catch (error) {
