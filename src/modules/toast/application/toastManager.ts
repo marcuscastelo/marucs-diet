@@ -165,6 +165,7 @@ export function showError(
     expandableErrorData: {
       isTruncated: processed.isTruncated,
       errorDetails: processed.errorDetails,
+      canExpand: processed.canExpand,
     },
   })
 }

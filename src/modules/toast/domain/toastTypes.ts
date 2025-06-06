@@ -56,6 +56,7 @@ export type ToastOptions = {
   expandableErrorData?: {
     isTruncated: boolean
     errorDetails: ToastError
+    canExpand: boolean
   }
 }
 

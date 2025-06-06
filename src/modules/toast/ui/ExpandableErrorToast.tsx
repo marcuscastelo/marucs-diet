@@ -23,6 +23,8 @@ export type ExpandableToastProps = {
   isTruncated: boolean
   /** Full error details for expansion */
   errorDetails: ToastError
+  /** Whether expansion is available (from domain) */
+  canExpand: boolean
   /** Optional dismiss callback */
   onDismiss?: () => void
   /** Toast type: 'error' | 'success' */
@@ -40,7 +42,7 @@ const FALLBACK_ERROR_DETAILS: ToastError = {
 
 export type ExpandableToastContentProps = {
   message: string
-  complex: boolean
+  canExpand: boolean
   onCopy: () => void
   errorDetails: ToastError
   level: ToastLevel
@@ -64,22 +66,6 @@ export function ExpandableToast(props: ExpandableToastProps) {
     })
   }
 
-  const isBig = (): boolean => {
-    return props.isTruncated || props.message.length > 100
-  }
-
-  const hasErrorDetails = (): boolean => {
-    return (
-      props.errorDetails != null &&
-      (props.errorDetails.message !== '' ||
-        props.errorDetails.fullError !== '' ||
-        props.errorDetails.stack !== '' ||
-        Object.keys(props.errorDetails.context || {}).length > 0)
-    )
-  }
-
-  const isComplex = (): boolean => isBig() || hasErrorDetails()
-
   return (
     <div
       role="alert"
@@ -97,7 +83,7 @@ export function ExpandableToast(props: ExpandableToastProps) {
       </button>
       <ExpandableToastContent
         message={props.message}
-        complex={isComplex()}
+        canExpand={props.canExpand}
         onCopy={handleCopy}
         errorDetails={props.errorDetails}
         level={props.level}
@@ -122,6 +108,7 @@ export function displayExpandableErrorToast(toastItem: ToastItem): string {
           toastItem.options.expandableErrorData?.errorDetails ??
           FALLBACK_ERROR_DETAILS
         }
+        canExpand={toastItem.options.expandableErrorData?.canExpand ?? false}
         onDismiss={() => {
           dequeueById(toastItem.id)
         }}
@@ -310,7 +297,7 @@ function ExpandableToastContent(props: ExpandableToastContentProps) {
         {props.level === 'error' ? <ErrorIcon /> : <SuccessCheckmarkIcon />}
         <span class="whitespace-pre-line">{props.message}</span>
       </div>
-      <div class={props.complex ? 'flex gap-2 mt-2' : 'hidden'}>
+      <div class={props.canExpand ? 'flex gap-2 mt-2' : 'hidden'}>
         <button
           type="button"
           class="px-2 py-1 rounded bg-gray-700 text-gray-100 text-xs hover:bg-gray-600 transition-colors"
