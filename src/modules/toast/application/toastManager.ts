@@ -18,8 +18,6 @@ import {
 } from '~/modules/toast/domain/toastTypes'
 import { createExpandableErrorData } from '~/modules/toast/domain/errorMessageHandler'
 
-const MAX_ERROR_MESSAGE_LENGTH = 100
-
 /**
  * Creates and enqueues a toast notification with merged options.
  *
@@ -137,8 +135,11 @@ function show(message: string, providedOptions: Partial<ToastOptions>): string {
 /**
  * Shows an error toast, processing the error for display and truncation.
  *
+ * Uses createExpandableErrorData and DEFAULT_ERROR_OPTIONS to ensure consistent error formatting, truncation, and stack display.
+ * Error display options can be overridden via providedOptions.
+ *
  * @param error - The error to display.
- * @param providedOptions - Partial toast options (except level).
+ * @param providedOptions - Partial toast options (except level). Error display options are merged with defaults from errorMessageHandler.ts.
  * @returns The toast ID.
  */
 export function showError(
@@ -150,14 +151,12 @@ export function showError(
     ...providedOptions,
   }
 
-  const { maxLength = MAX_ERROR_MESSAGE_LENGTH } = options
-
   // Ensure error is a string for display
   const errorMessage = typeof error === 'string' ? error : String(error)
 
   const processed = createExpandableErrorData(errorMessage, {
-    maxLength,
     includeStack: true,
+    ...options,
   })
 
   return show(processed.displayMessage, {

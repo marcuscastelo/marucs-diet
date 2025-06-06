@@ -8,26 +8,31 @@
 import {
   ToastError,
   ToastExpandableErrorData,
+  ToastOptions,
 } from '~/modules/toast/domain/toastTypes'
 
 /**
- * Options for error message processing
+ * Options for error processing in toasts.
+ *
+ * Subset of ToastOptions used for error message formatting, truncation, and stack display.
+ * Centralizes all error-related display options for consistency across the toast system.
+ *
+ * @see ToastOptions
  */
-export type ErrorProcessingOptions = {
-  /** Maximum length before truncation */
-  maxLength?: number
-  /** Whether to preserve line breaks in truncation */
-  preserveLineBreaks?: boolean
-  /** Custom truncation suffix */
-  truncationSuffix?: string
-  /** Include stack trace in error details */
-  includeStack?: boolean
-}
+export type ErrorProcessingOptions = Pick<
+  ToastOptions,
+  'maxLength' | 'preserveLineBreaks' | 'truncationSuffix' | 'includeStack'
+>
 
 /**
- * Default options for error processing
+ * Default options for error processing (truncation, formatting, stack, etc).
+ *
+ * These defaults are used throughout the toast system for error display and truncation.
+ * Centralize all error-related display defaults here for maintainability.
+ *
+ * @see ErrorProcessingOptions
  */
-const DEFAULT_ERROR_OPTIONS: Required<ErrorProcessingOptions> = {
+export const DEFAULT_ERROR_OPTIONS: Required<ErrorProcessingOptions> = {
   maxLength: 100,
   preserveLineBreaks: false,
   truncationSuffix: '...',
@@ -49,12 +54,18 @@ const NOISY_PREFIXES = [
 ]
 
 /**
- * Process an error and return all expandable error data for toasts
- * Handles truncation, formatting, and detail extraction
+ * Process an error and return all expandable error data for toasts.
+ *
+ * Handles truncation, formatting, and detail extraction for error messages.
+ * Uses DEFAULT_ERROR_OPTIONS as the default for all error display options, which can be overridden per call.
+ *
+ * @param error - The error to process (string, Error, or object)
+ * @param options - Partial error processing options (see ErrorProcessingOptions)
+ * @returns ToastExpandableErrorData for use in UI
  */
 export function createExpandableErrorData(
   error: unknown,
-  options: ErrorProcessingOptions = {},
+  options: Partial<ErrorProcessingOptions> = {},
 ): ToastExpandableErrorData {
   const opts = { ...DEFAULT_ERROR_OPTIONS, ...options }
   const errorDetails = mapUnknownToToastError(error, opts.includeStack)

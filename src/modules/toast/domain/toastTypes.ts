@@ -34,25 +34,34 @@ export type ToastLevel = 'info' | 'success' | 'warning' | 'error'
 
 /**
  * ToastOptions configures the display behavior of a toast notification.
+ *
  * @property context - The origin of the event that triggered the toast
  * @property audience - Who should see this toast
  * @property level - The severity level of the toast
- * @property showLoading - Whether to show a loading toast for promises (default: true for user-action, false for background)
- * @property showSuccess - Whether to show a success toast for promises (default: true for user-action, false for background)
- * @property maxLength - Maximum length for toast messages before truncation (default: 100)
  * @property duration - Auto-dismiss timeout in milliseconds (default: 3000 for success/info, TOAST_DURATION_INFINITY for error/warning)
  * @property dismissible - Whether this toast can be dismissed by the user (default: true)
+ * @property showLoading - Whether to show a loading toast for promises (default: true for user-action, false for background)
+ * @property showSuccess - Whether to show a success toast for promises (default: true for user-action, false for background)
+ *
+ * // Error display options (used for truncation, formatting, and stack display)
+ * @property maxLength - Maximum length for toast messages before truncation (default: 100)
+ * @property preserveLineBreaks - Whether to preserve line breaks in error messages (default: false)
+ * @property truncationSuffix - Suffix to append to truncated error messages (default: '...')
+ * @property includeStack - Whether to include stack trace in error details (default: true)
  * @property expandableErrorData - Data for expandable error toasts (used by ExpandableErrorToast component)
  */
 export type ToastOptions = {
   context: ToastContext
   audience: ToastAudience
   level: ToastLevel
+  duration: number
+  dismissible?: boolean
   showLoading?: boolean
   showSuccess?: boolean
   maxLength?: number
-  duration: number
-  dismissible?: boolean
+  preserveLineBreaks?: boolean
+  truncationSuffix?: string
+  includeStack?: boolean
   expandableErrorData?: ToastExpandableErrorData
 }
 
