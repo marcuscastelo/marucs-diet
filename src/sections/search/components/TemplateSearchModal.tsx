@@ -359,17 +359,20 @@ export function TemplateSearch(props: {
   // TODO:   Determine if user is on desktop or mobile to set autofocus
   const isDesktop = false
 
+  const [debouncedSearch, setDebouncedSearch] = createSignal(templateSearch())
+
   const { typing, onTyped } = useTyping({
     delay: TYPING_TIMEOUT_MS,
     onTypingEnd: () => {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      refetch()
+      setDebouncedSearch(templateSearch())
+      console.debug(`[TemplateSearchModal] onTyped called`)
+      void refetch()
     },
   })
 
   const [templates, { refetch }] = createResource(
     () => ({
-      search: !typing() && templateSearch(),
+      search: debouncedSearch(),
       tab: templateSearchTab(),
       userId: currentUserId(),
     }),
