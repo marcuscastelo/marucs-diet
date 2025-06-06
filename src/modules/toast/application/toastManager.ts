@@ -16,7 +16,7 @@ import {
   TOAST_DURATION_INFINITY,
   DEFAULT_TOAST_CONTEXT,
 } from '~/modules/toast/domain/toastTypes'
-import { processErrorMessage } from '~/modules/toast/domain/errorMessageHandler'
+import { createExpandableErrorData } from '~/modules/toast/domain/errorMessageHandler'
 
 const MAX_ERROR_MESSAGE_LENGTH = 100
 
@@ -155,18 +155,14 @@ export function showError(
   // Ensure error is a string for display
   const errorMessage = typeof error === 'string' ? error : String(error)
 
-  const processed = processErrorMessage(errorMessage, {
+  const processed = createExpandableErrorData(errorMessage, {
     maxLength,
     includeStack: true,
   })
 
   return show(processed.displayMessage, {
     ...options,
-    expandableErrorData: {
-      isTruncated: processed.isTruncated,
-      errorDetails: processed.errorDetails,
-      canExpand: processed.canExpand,
-    },
+    expandableErrorData: { ...processed },
   })
 }
 

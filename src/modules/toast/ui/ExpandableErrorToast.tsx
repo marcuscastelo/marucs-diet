@@ -21,6 +21,8 @@ export type ExpandableToastProps = {
   message: string
   /** Whether the message was truncated */
   isTruncated: boolean
+  /** The original full message */
+  originalMessage: string
   /** Full error details for expansion */
   errorDetails: ToastError
   /** Whether expansion is available (from domain) */
@@ -42,6 +44,8 @@ const FALLBACK_ERROR_DETAILS: ToastError = {
 
 export type ExpandableToastContentProps = {
   message: string
+  isTruncated: boolean
+  originalMessage: string
   canExpand: boolean
   onCopy: () => void
   errorDetails: ToastError
@@ -83,6 +87,8 @@ export function ExpandableToast(props: ExpandableToastProps) {
       </button>
       <ExpandableToastContent
         message={props.message}
+        isTruncated={props.isTruncated}
+        originalMessage={props.originalMessage}
         canExpand={props.canExpand}
         onCopy={handleCopy}
         errorDetails={props.errorDetails}
@@ -100,9 +106,15 @@ export function displayExpandableErrorToast(toastItem: ToastItem): string {
   return toast.custom(
     () => (
       <ExpandableToast
-        message={toastItem.message}
+        message={
+          toastItem.options.expandableErrorData?.displayMessage ??
+          toastItem.message
+        }
         isTruncated={
           toastItem.options.expandableErrorData?.isTruncated ?? false
+        }
+        originalMessage={
+          toastItem.options.expandableErrorData?.originalMessage ?? ''
         }
         errorDetails={
           toastItem.options.expandableErrorData?.errorDetails ??

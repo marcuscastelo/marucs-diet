@@ -53,11 +53,18 @@ export type ToastOptions = {
   maxLength?: number
   duration: number
   dismissible?: boolean
-  expandableErrorData?: {
-    isTruncated: boolean
-    errorDetails: ToastError
-    canExpand: boolean
-  }
+  expandableErrorData?: ToastExpandableErrorData
+}
+
+/**
+ * ToastExpandableErrorData contains processed fields for expandable error messages.
+ */
+export type ToastExpandableErrorData = {
+  displayMessage: string
+  isTruncated: boolean
+  originalMessage: string
+  errorDetails: ToastError
+  canExpand: boolean
 }
 
 /**

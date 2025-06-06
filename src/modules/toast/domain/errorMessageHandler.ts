@@ -5,23 +5,10 @@
  * formatting, and providing expansion capabilities for long messages.
  */
 
-import { ToastError } from '~/modules/toast/domain/toastTypes'
-
-/**
- * Result of error message processing
- */
-export type ProcessedErrorMessage = {
-  /** The truncated message for display */
-  displayMessage: string
-  /** Whether the message was truncated */
-  isTruncated: boolean
-  /** The original full message */
-  originalMessage: string
-  /** Full error details */
-  errorDetails: ToastError
-  /** Whether expansion is available */
-  canExpand: boolean
-}
+import {
+  ToastError,
+  ToastExpandableErrorData,
+} from '~/modules/toast/domain/toastTypes'
 
 /**
  * Options for error message processing
@@ -62,13 +49,13 @@ const NOISY_PREFIXES = [
 ]
 
 /**
- * Process an error for display in toasts
+ * Process an error and return all expandable error data for toasts
  * Handles truncation, formatting, and detail extraction
  */
-export function processErrorMessage(
+export function createExpandableErrorData(
   error: unknown,
   options: ErrorProcessingOptions = {},
-): ProcessedErrorMessage {
+): ToastExpandableErrorData {
   const opts = { ...DEFAULT_ERROR_OPTIONS, ...options }
   const errorDetails = mapUnknownToToastError(error, opts.includeStack)
   const originalMessage = errorDetails.message

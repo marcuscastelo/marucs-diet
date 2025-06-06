@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { processErrorMessage } from '~/modules/toast/domain/errorMessageHandler'
+import { createExpandableErrorData } from '~/modules/toast/domain/errorMessageHandler'
 
-describe('processErrorMessage', () => {
+describe('createExpandableErrorData', () => {
   it('truncates long messages and sets isTruncated', () => {
     const error = 'A'.repeat(200)
-    const result = processErrorMessage(error, { maxLength: 50 })
+    const result = createExpandableErrorData(error, { maxLength: 50 })
     expect(result.displayMessage.length).toBeLessThanOrEqual(50)
     expect(result.isTruncated).toBe(true)
     expect(result.displayMessage.endsWith('...')).toBe(true)
@@ -12,13 +12,13 @@ describe('processErrorMessage', () => {
 
   it('removes noisy prefixes', () => {
     const error = 'Error: Something went wrong'
-    const result = processErrorMessage(error)
+    const result = createExpandableErrorData(error)
     expect(result.displayMessage).toBe('Something went wrong')
   })
 
   it('handles Error objects with stack', () => {
     const error = new Error('fail')
-    const result = processErrorMessage(error)
+    const result = createExpandableErrorData(error)
     expect(result.errorDetails.message).toBe('fail')
     expect(result.errorDetails.stack).toBeDefined()
     expect(result.canExpand).toBe(true)
@@ -26,39 +26,41 @@ describe('processErrorMessage', () => {
 
   it('handles objects with message property', () => {
     const error = { message: 'obj error', foo: 1 }
-    const result = processErrorMessage(error)
+    const result = createExpandableErrorData(error)
     expect(result.errorDetails.message).toBe('obj error')
     expect(result.errorDetails.context).toHaveProperty('foo', 1)
   })
 
   it('handles objects with error property', () => {
     const error = { error: 'error prop', bar: 2 }
-    const result = processErrorMessage(error)
+    const result = createExpandableErrorData(error)
     expect(result.errorDetails.message).toBe('error prop')
     expect(result.errorDetails.context).toHaveProperty('bar', 2)
   })
 
   it('handles unknown types gracefully', () => {
-    const result = processErrorMessage(12345)
+    const result = createExpandableErrorData(12345)
     expect(result.errorDetails.message).toBe('An unexpected error occurred')
     expect(result.displayMessage).toBe('An unexpected error occurred')
   })
 
   it('preserves line breaks if option is set', () => {
     const error = 'line1\n   line2\nline3'
-    const result = processErrorMessage(error, { preserveLineBreaks: true })
+    const result = createExpandableErrorData(error, {
+      preserveLineBreaks: true,
+    })
     expect(result.displayMessage).toBe('line1\nline2\nline3')
   })
 
   it('removes excessive whitespace', () => {
     const error = 'Error:    lots   of   space   '
-    const result = processErrorMessage(error)
+    const result = createExpandableErrorData(error)
     expect(result.displayMessage).toBe('lots of space')
   })
 
   it('uses custom truncation suffix', () => {
     const error = 'A'.repeat(200)
-    const result = processErrorMessage(error, {
+    const result = createExpandableErrorData(error, {
       maxLength: 50,
       truncationSuffix: '[cut]',
     })
@@ -67,7 +69,7 @@ describe('processErrorMessage', () => {
 
   it('canExpand is true if context exists', () => {
     const error = { message: 'msg', foo: 'bar' }
-    const result = processErrorMessage(error, { maxLength: 5 })
+    const result = createExpandableErrorData(error, { maxLength: 5 })
     expect(result.canExpand).toBe(true)
   })
 
@@ -75,7 +77,7 @@ describe('processErrorMessage', () => {
     const error = new Error('fail')
     // Assign a circular reference to error.cause for test
     error.cause = { circular: error }
-    const result = processErrorMessage(error)
+    const result = createExpandableErrorData(error)
     expect(result.errorDetails.context).toHaveProperty('cause')
     // cause should be a string indicating unserializable, or an object if serializable
     const cause = result.errorDetails.context?.cause
