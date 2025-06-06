@@ -29,6 +29,7 @@ export async function fetchFoodById(
   id: Food['id'],
   params: FoodSearchParams = {},
 ) {
+  console.debug(`[Food] Fetching food by id: ${id}`)
   try {
     return await foodRepository.fetchFoodById(id, params)
   } catch (error) {
@@ -45,6 +46,7 @@ export async function fetchFoodsByName(
   name: Required<Food>['name'],
   params: FoodSearchParams = {},
 ) {
+  console.debug(`[Food] Fetching foods by name: ${name}`)
   if (!(await isSearchCached(name))) {
     console.debug(`[Food] Food with name ${name} not cached, importing`)
     await showPromise(
@@ -73,6 +75,7 @@ export async function fetchFoodByEan(
   ean: string,
   params: Omit<FoodSearchParams, 'limit'> = {},
 ) {
+  console.debug(`[Food] Fetching food by EAN: ${ean}`)
   await showPromise(
     importFoodFromApiByEan(ean ?? ''),
     {
