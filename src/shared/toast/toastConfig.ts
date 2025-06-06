@@ -157,7 +157,7 @@ export type ToastItem = {
  */
 export type ToastError = {
   message: string
-  fullError?: string
+  fullError: string
   stack?: string
   context?: Record<string, unknown>
   timestamp?: number

@@ -98,6 +98,7 @@ export function displayExpandableErrorToast(toastItem: ToastItem): string {
             stack: '',
             context: {},
             timestamp: Date.now(),
+            fullError: '',
           }
         }
         onDismiss={() => {

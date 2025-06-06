@@ -47,6 +47,20 @@ const DEFAULT_ERROR_OPTIONS: Required<ErrorProcessingOptions> = {
   includeStack: true,
 }
 
+// Centralized default error messages for maintainability and i18n
+const DEFAULT_UNKNOWN_ERROR = 'Unknown error occurred'
+const DEFAULT_UNEXPECTED_ERROR = 'An unexpected error occurred'
+
+// Extracted noisy prefixes to avoid recreating array on every call
+const NOISY_PREFIXES = [
+  'Error: ',
+  'TypeError: ',
+  'ReferenceError: ',
+  'SyntaxError: ',
+  'Network Error: ',
+  'Request failed: ',
+]
+
 /**
  * Process an error for display in toasts
  * Handles truncation, formatting, and detail extraction
@@ -56,7 +70,7 @@ export function processErrorMessage(
   options: ErrorProcessingOptions = {},
 ): ProcessedErrorMessage {
   const opts = { ...DEFAULT_ERROR_OPTIONS, ...options }
-  const errorDetails = extractErrorDetails(error, opts.includeStack)
+  const errorDetails = mapUnknownToToastError(error, opts.includeStack)
   const originalMessage = errorDetails.message
 
   // Clean up the message for display
@@ -85,20 +99,29 @@ export function processErrorMessage(
 }
 
 /**
- * Extract detailed error information from various error types
+ * Convert unknown error to ToastError details (adapts various error types)
  */
-function extractErrorDetails(
+function mapUnknownToToastError(
   error: unknown,
   includeStack: boolean,
 ): ToastError {
   if (error instanceof Error) {
+    // Only serialize cause if it's a primitive or stringifiable
+    let cause: unknown = error.cause
+    if (typeof cause === 'object' && cause !== null) {
+      try {
+        cause = JSON.parse(JSON.stringify(cause))
+      } catch {
+        cause = '[Unserializable cause]'
+      }
+    }
     return {
-      message: error.message || 'Unknown error occurred',
+      message: error.message || DEFAULT_UNKNOWN_ERROR,
       fullError: error.toString(),
       stack: includeStack ? error.stack : undefined,
       context: {
         name: error.name,
-        cause: error.cause,
+        cause,
       },
     }
   }
@@ -118,41 +141,35 @@ function extractErrorDetails(
     } else if (typeof errorObj.error === 'string') {
       message = errorObj.error
     } else {
-      message = 'Unknown error'
+      message = DEFAULT_UNKNOWN_ERROR
+    }
+    // Limit JSON.stringify depth/size for fullError
+    let fullError: string
+    try {
+      fullError = JSON.stringify(error, null, 2)
+    } catch {
+      fullError = '[Unserializable object]'
     }
     return {
       message,
-      fullError: JSON.stringify(error, null, 2),
+      fullError,
       context: errorObj,
     }
   }
 
   return {
-    message: 'An unexpected error occurred',
+    message: DEFAULT_UNEXPECTED_ERROR,
     fullError: String(error),
   }
 }
 
-/**
- * Clean error message for display
- */
 function cleanErrorMessage(
   message: string,
   preserveLineBreaks: boolean,
 ): string {
   let cleaned = message.trim()
 
-  // Remove common error prefixes that add noise
-  const noisyPrefixes = [
-    'Error: ',
-    'TypeError: ',
-    'ReferenceError: ',
-    'SyntaxError: ',
-    'Network Error: ',
-    'Request failed: ',
-  ]
-
-  for (const prefix of noisyPrefixes) {
+  for (const prefix of NOISY_PREFIXES) {
     if (cleaned.startsWith(prefix)) {
       cleaned = cleaned.substring(prefix.length)
       break
@@ -170,10 +187,6 @@ function cleanErrorMessage(
   return cleaned
 }
 
-/**
- * Truncate message intelligently
- * Tries to break at word boundaries when possible
- */
 function truncateMessage(
   message: string,
   maxLength: number,
@@ -190,7 +203,7 @@ function truncateMessage(
   const lastSpace = truncated.lastIndexOf(' ')
 
   // If we can break at a word boundary and it's not too short, do so
-  if (lastSpace > targetLength * 0.7) {
+  if (lastSpace > targetLength * 0.7 && lastSpace > 10) {
     return truncated.substring(0, lastSpace) + suffix
   }
 
