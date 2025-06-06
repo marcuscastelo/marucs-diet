@@ -52,15 +52,11 @@ export async function updateMeasure(
 
 export async function deleteMeasure(measureId: Measure['id']) {
   try {
-    await showPromise(
-      measureRepository.deleteMeasure(measureId),
-      {
-        loading: 'Deletando medidas...',
-        success: 'Medidas deletadas com sucesso',
-        error: 'Falha ao deletar medidas',
-      },
-      { context: 'user-action' },
-    )
+    await showPromise(measureRepository.deleteMeasure(measureId), {
+      loading: 'Deletando medidas...',
+      success: 'Medidas deletadas com sucesso',
+      error: 'Falha ao deletar medidas',
+    })
   } catch (error) {
     handleApiError(error, {
       component: 'measureApplication',

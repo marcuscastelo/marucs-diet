@@ -59,16 +59,12 @@ export async function fetchFoodsByName(
       { context: 'background' },
     )
   }
-  return await showPromise(
-    foodRepository.fetchFoodsByName(name, params),
-    {
-      loading: 'Buscando alimentos por nome...',
-      success: 'Alimentos encontrados',
-      error: (error: unknown) =>
-        `Erro ao buscar alimentos por nome: ${formatError(error)}`,
-    },
-    { context: 'user-action' },
-  )
+  return await showPromise(foodRepository.fetchFoodsByName(name, params), {
+    loading: 'Buscando alimentos por nome...',
+    success: 'Alimentos encontrados',
+    error: (error: unknown) =>
+      `Erro ao buscar alimentos por nome: ${formatError(error)}`,
+  })
 }
 
 export async function fetchFoodByEan(
@@ -85,16 +81,12 @@ export async function fetchFoodByEan(
     },
     { context: 'background' },
   )
-  return await showPromise(
-    foodRepository.fetchFoodByEan(ean ?? '', params),
-    {
-      loading: 'Buscando alimento por EAN...',
-      success: 'Alimento encontrado',
-      error: (error: unknown) =>
-        `Erro ao buscar alimento por EAN: ${formatError(error)}`,
-    },
-    { context: 'user-action' },
-  )
+  return await showPromise(foodRepository.fetchFoodByEan(ean ?? '', params), {
+    loading: 'Buscando alimento por EAN...',
+    success: 'Alimento encontrado',
+    error: (error: unknown) =>
+      `Erro ao buscar alimento por EAN: ${formatError(error)}`,
+  })
 }
 
 export async function isEanCached(ean: Required<Food>['ean']) {

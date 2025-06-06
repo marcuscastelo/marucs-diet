@@ -150,7 +150,6 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
             onClick: () => {
               showSuccess(
                 `Item "${originalAddedItem.name}" adicionado com sucesso!`,
-                { context: 'user-action' },
               )
               setSelectedTemplate(undefined)
               setItemEditModalVisible(false)
@@ -162,7 +161,6 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
             onClick: () => {
               showSuccess(
                 `Item "${originalAddedItem.name}" adicionado com sucesso!`,
-                { context: 'user-action' },
               )
               setSelectedTemplate(undefined)
               setItemEditModalVisible(false)

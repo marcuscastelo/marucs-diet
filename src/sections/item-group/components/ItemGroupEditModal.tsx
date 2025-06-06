@@ -170,7 +170,6 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
       // TODO:   Handle non-simple groups on handleNewItemGroup
       showError(
         'Grupos complexos ainda não são suportados, funcionalidade em desenvolvimento',
-        { context: 'user-action' },
       )
       return
     }
@@ -254,7 +253,6 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
     if (item.__type === 'RecipeItem') {
       showError(
         'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
-        { context: 'user-action' },
       )
       return
     }
@@ -578,7 +576,6 @@ function Body(props: {
                         if (isRecipeTooComplex(props.recipe())) {
                           showError(
                             'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
-                            { context: 'user-action' },
                           )
                           return
                         }
@@ -631,7 +628,6 @@ function Body(props: {
                           exec().catch((err) => {
                             showError(
                               `Falha ao criar receita a partir de grupo: ${formatError(err)}`,
-                              { context: 'user-action' },
                             )
                           })
                         }}
@@ -740,7 +736,6 @@ function Body(props: {
               if (item.__type === 'RecipeItem') {
                 showError(
                   'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
-                  { context: 'user-action' },
                 )
                 return
               }
@@ -752,7 +747,6 @@ function Body(props: {
               if (isRecipeTooComplex(props.recipe())) {
                 showError(
                   'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
-                  { context: 'user-action' },
                 )
                 return
               }

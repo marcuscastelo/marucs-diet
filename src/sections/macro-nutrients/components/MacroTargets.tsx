@@ -249,13 +249,11 @@ export function MacroTarget(props: MacroTargetProps) {
                                       .then(() => {
                                         showSuccess(
                                           'Perfil antigo restaurado com sucesso, se necessário, atualize a página',
-                                          { context: 'user-action' },
                                         )
                                       })
                                       .catch((e) => {
                                         showError(
                                           `Erro ao restaurar perfil antigo: ${formatError(e)}`,
-                                          { context: 'user-action' },
                                         )
                                       })
                                   },

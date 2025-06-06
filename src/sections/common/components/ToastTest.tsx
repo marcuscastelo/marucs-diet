@@ -29,15 +29,11 @@ const ToastTest: Component = () => {
       setTimeout(() => resolve('Success!'), 2000)
     })
 
-    void showPromise(
-      promise,
-      {
-        loading: 'Loading...',
-        success: 'Operation completed successfully!',
-        error: 'Error in operation',
-      },
-      { context: 'user-action' },
-    ).catch((err) => {
+    void showPromise(promise, {
+      loading: 'Loading...',
+      success: 'Operation completed successfully!',
+      error: 'Error in operation',
+    }).catch((err) => {
       console.error('Error processing promise:', err)
     })
   }
@@ -48,15 +44,11 @@ const ToastTest: Component = () => {
       setTimeout(() => reject(new Error('Simulated error')), 2000)
     })
 
-    void showPromise(
-      promise,
-      {
-        loading: 'Processing...',
-        success: 'Success!',
-        error: 'Operação falhou\nPor favor, tente novamente.',
-      },
-      { context: 'user-action' },
-    ).catch((err) => {
+    void showPromise(promise, {
+      loading: 'Processing...',
+      success: 'Success!',
+      error: 'Operação falhou\nPor favor, tente novamente.',
+    }).catch((err) => {
       console.error('Error processing promise:', err)
     })
   }
@@ -67,14 +59,10 @@ const ToastTest: Component = () => {
       setTimeout(() => resolve('OK'), 1500)
     })
 
-    void showPromise(
-      promise,
-      {
-        loading: 'Loading without success message...',
-        // No success message to test if loading toast is removed correctly
-      },
-      { context: 'user-action' },
-    ).catch((err) => {
+    void showPromise(promise, {
+      loading: 'Loading without success message...',
+      // No success message to test if loading toast is removed correctly
+    }).catch((err) => {
       console.error('Error processing promise without success message:', err)
     })
   }
@@ -91,7 +79,6 @@ const ToastTest: Component = () => {
           success: 'Smart toast completed!',
           error: 'Smart toast failed',
         },
-        { context: 'user-action' },
       )
       console.log('showPromise result:', result)
     } catch (error) {
@@ -114,7 +101,6 @@ const ToastTest: Component = () => {
         success: 'Detached operation completed!',
         error: 'Operação destacada falhou\nPor favor, tente novamente.',
       },
-      { context: 'user-action' },
     )
 
     console.log('showPromise called - continuing immediately')
@@ -190,15 +176,11 @@ const ToastTest: Component = () => {
                 1500,
               )
             })
-            void showPromise(
-              promise,
-              {
-                loading: 'Loading without success message...',
-                // No success message to test if loading toast is removed correctly
-                error: 'Operação falhou\nPor favor, tente novamente.',
-              },
-              { context: 'user-action' },
-            ).catch((err) => {
+            void showPromise(promise, {
+              loading: 'Loading without success message...',
+              // No success message to test if loading toast is removed correctly
+              error: 'Operação falhou\nPor favor, tente novamente.',
+            }).catch((err) => {
               console.error(
                 'Error processing promise without success message:',
                 err,
@@ -264,7 +246,6 @@ const ToastTest: Component = () => {
                     success: 'Smart toast completed!',
                     error: 'Smart toast failed (error)',
                   },
-                  { context: 'user-action' },
                 )
               } catch (error) {
                 console.error('showPromise error:', error)
@@ -295,7 +276,6 @@ const ToastTest: Component = () => {
                 success: 'Detached operation completed!',
                 error: 'Operação destacada falhou\nPor favor, tente novamente.',
               },
-              { context: 'user-action' },
             )
           }}
           style={{ 'background-color': '#E53935', color: 'white' }}

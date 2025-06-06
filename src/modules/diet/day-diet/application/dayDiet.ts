@@ -102,15 +102,11 @@ async function fetchAllUserDayDiets(userId: User['id']) {
 
 export async function insertDayDiet(dayDiet: NewDayDiet): Promise<void> {
   try {
-    await showPromise(
-      dayRepository.insertDayDiet(dayDiet),
-      {
-        loading: 'Criando dia de dieta...',
-        success: 'Dia de dieta criado com sucesso',
-        error: 'Erro ao criar dia de dieta',
-      },
-      { context: 'user-action' },
-    )
+    await showPromise(dayRepository.insertDayDiet(dayDiet), {
+      loading: 'Criando dia de dieta...',
+      success: 'Dia de dieta criado com sucesso',
+      error: 'Erro ao criar dia de dieta',
+    })
     // Silently refresh data without additional toast noise
     await fetchAllUserDayDiets(dayDiet.owner)
   } catch (error) {
@@ -128,15 +124,11 @@ export async function updateDayDiet(
   dayDiet: NewDayDiet,
 ): Promise<void> {
   try {
-    await showPromise(
-      dayRepository.updateDayDiet(dayId, dayDiet),
-      {
-        loading: 'Atualizando dieta...',
-        success: 'Dieta atualizada com sucesso',
-        error: 'Erro ao atualizar dieta',
-      },
-      { context: 'user-action' },
-    )
+    await showPromise(dayRepository.updateDayDiet(dayId, dayDiet), {
+      loading: 'Atualizando dieta...',
+      success: 'Dieta atualizada com sucesso',
+      error: 'Erro ao atualizar dieta',
+    })
     // Silently refresh data without additional toast noise
     await fetchAllUserDayDiets(dayDiet.owner)
   } catch (error) {
@@ -151,15 +143,11 @@ export async function updateDayDiet(
 
 export async function deleteDayDiet(dayId: DayDiet['id']): Promise<void> {
   try {
-    await showPromise(
-      dayRepository.deleteDayDiet(dayId),
-      {
-        loading: 'Deletando dieta...',
-        success: 'Dieta deletada com sucesso',
-        error: 'Erro ao deletar dieta',
-      },
-      { context: 'user-action' },
-    )
+    await showPromise(dayRepository.deleteDayDiet(dayId), {
+      loading: 'Deletando dieta...',
+      success: 'Dieta deletada com sucesso',
+      error: 'Erro ao deletar dieta',
+    })
     // Silently refresh data without additional toast noise
     await fetchAllUserDayDiets(currentUserId())
   } catch (error) {

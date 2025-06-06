@@ -101,15 +101,11 @@ export async function updateUser(
   newUser: NewUser,
 ): Promise<User | null> {
   try {
-    const user = await showPromise(
-      userRepository.updateUser(userId, newUser),
-      {
-        loading: 'Atualizando informações do usuário...',
-        success: 'Informações do usuário atualizadas com sucesso',
-        error: 'Falha ao atualizar informações do usuário',
-      },
-      { context: 'user-action' },
-    )
+    const user = await showPromise(userRepository.updateUser(userId, newUser), {
+      loading: 'Atualizando informações do usuário...',
+      success: 'Informações do usuário atualizadas com sucesso',
+      error: 'Falha ao atualizar informações do usuário',
+    })
     await fetchUsers()
     return user
   } catch (error) {
@@ -124,15 +120,11 @@ export async function updateUser(
 
 export async function deleteUser(userId: User['id']): Promise<void> {
   try {
-    await showPromise(
-      userRepository.deleteUser(userId),
-      {
-        loading: 'Removendo usuário...',
-        success: 'Usuário removido com sucesso',
-        error: 'Falha ao remover usuário',
-      },
-      { context: 'user-action' },
-    )
+    await showPromise(userRepository.deleteUser(userId), {
+      loading: 'Removendo usuário...',
+      success: 'Usuário removido com sucesso',
+      error: 'Falha ao remover usuário',
+    })
     await fetchUsers()
   } catch (error) {
     handleApiError(error, {

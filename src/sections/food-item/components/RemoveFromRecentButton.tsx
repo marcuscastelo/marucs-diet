@@ -29,7 +29,6 @@ export function RemoveFromRecentButton(props: RemoveFromRecentButtonProps) {
           return 'Erro ao remover alimento da lista de recentes.'
         },
       },
-      { context: 'user-action' },
     )
       .then(props.refetch)
       .catch(() => {})

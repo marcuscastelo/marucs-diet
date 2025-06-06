@@ -195,7 +195,6 @@ export default function DayMeals(props: { selectedDay: string }) {
                         console.error(e)
                         showError(
                           `Erro ao atualizar refeição: ${formatError(e)}`,
-                          { context: 'user-action' },
                         )
                       })
                     }}

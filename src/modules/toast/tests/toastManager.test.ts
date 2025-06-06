@@ -64,15 +64,11 @@ describe('toastManager', () => {
       .spyOn(toastQueue, 'dequeueById')
       .mockReturnValue(true)
     const promise = Promise.resolve('done')
-    const result = await showPromise(
-      promise,
-      {
-        loading: 'Loading...',
-        success: 'Success!',
-        error: 'Error!',
-      },
-      { context: 'user-action' },
-    )
+    const result = await showPromise(promise, {
+      loading: 'Loading...',
+      success: 'Success!',
+      error: 'Error!',
+    })
     expect(enqueueSpy).toHaveBeenCalled()
     expect(dequeueByIdSpy).toHaveBeenCalledWith('loading-id')
     expect(result).toBe('done')
@@ -89,15 +85,11 @@ describe('toastManager', () => {
     // Suppress unhandled rejection warning
     promise.catch(() => {})
     await expect(
-      showPromise(
-        promise,
-        {
-          loading: 'Loading...',
-          success: 'Success!',
-          error: 'Error!',
-        },
-        { context: 'user-action' },
-      ),
+      showPromise(promise, {
+        loading: 'Loading...',
+        success: 'Success!',
+        error: 'Error!',
+      }),
     ).rejects.toThrow('fail')
     expect(enqueueSpy).toHaveBeenCalled()
     expect(dequeueByIdSpy).toHaveBeenCalledWith('loading-id')

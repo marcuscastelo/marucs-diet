@@ -110,7 +110,6 @@ export async function updateMacroProfile(
         success: 'Perfil de macro atualizado com sucesso',
         error: 'Falha ao atualizar perfil de macro',
       },
-      { context: 'user-action' },
     )
     const firstUserMacroProfile = userMacroProfiles()[0]
     if (
@@ -141,7 +140,6 @@ export async function deleteMacroProfile(macroProfileId: number) {
         success: 'Perfil de macro deletado com sucesso',
         error: 'Falha ao deletar perfil de macro',
       },
-      { context: 'user-action' },
     )
     if (userMacroProfiles().length > 0) {
       await fetchUserMacroProfiles(userMacroProfiles()[0].owner)

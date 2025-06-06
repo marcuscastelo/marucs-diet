@@ -72,7 +72,6 @@ export async function updateRecipe(recipeId: Recipe['id'], newRecipe: Recipe) {
         success: 'Receita atualizada com sucesso',
         error: 'Falha ao atualizar receita',
       },
-      { context: 'user-action' },
     )
     return recipe
   } catch (error) {
@@ -87,15 +86,11 @@ export async function updateRecipe(recipeId: Recipe['id'], newRecipe: Recipe) {
 
 export async function deleteRecipe(recipeId: Recipe['id']) {
   try {
-    const recipe = await showPromise(
-      recipeRepository.deleteRecipe(recipeId),
-      {
-        loading: 'Deletando receita...',
-        success: 'Receita deletada com sucesso',
-        error: 'Falha ao deletar receita',
-      },
-      { context: 'user-action' },
-    )
+    const recipe = await showPromise(recipeRepository.deleteRecipe(recipeId), {
+      loading: 'Deletando receita...',
+      success: 'Receita deletada com sucesso',
+      error: 'Falha ao deletar receita',
+    })
     return recipe
   } catch (error) {
     handleApiError(error, {

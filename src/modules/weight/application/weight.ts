@@ -83,7 +83,6 @@ export async function updateWeight(weightId: Weight['id'], newWeight: Weight) {
         success: 'Peso atualizado com sucesso',
         error: 'Falha ao atualizar peso',
       },
-      { context: 'user-action' },
     )
     await fetchUserWeights(currentUserId())
     return weight
@@ -99,15 +98,11 @@ export async function updateWeight(weightId: Weight['id'], newWeight: Weight) {
 
 export async function deleteWeight(weightId: Weight['id']) {
   try {
-    await showPromise(
-      weightRepository.deleteWeight(weightId),
-      {
-        loading: 'Deletando peso...',
-        success: 'Peso deletado com sucesso',
-        error: 'Falha ao deletar peso',
-      },
-      { context: 'user-action' },
-    )
+    await showPromise(weightRepository.deleteWeight(weightId), {
+      loading: 'Deletando peso...',
+      success: 'Peso deletado com sucesso',
+      error: 'Falha ao deletar peso',
+    })
     await fetchUserWeights(currentUserId())
   } catch (error) {
     handleApiError(error, {

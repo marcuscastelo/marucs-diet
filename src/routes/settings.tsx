@@ -89,7 +89,6 @@ export default function Page() {
                       setChecked(newChecked)
                       showSuccess(
                         `${name} foi ${newChecked ? 'ativado' : 'desativado'}`,
-                        { context: 'user-action' },
                       )
                     }}
                   />
