@@ -7,7 +7,6 @@
  */
 
 import { createSignal, createEffect, createRoot } from 'solid-js'
-import toast from 'solid-toast'
 import {
   ToastItem,
   ToastQueueConfig,
@@ -15,7 +14,8 @@ import {
   TOAST_PRIORITY,
   TOAST_DURATION_INFINITY,
 } from '~/modules/toast/domain/toastTypes'
-import { displayExpandableErrorToast } from '~/modules/toast/ui/ExpandableErrorToast'
+import { displayToast } from '~/modules/toast/ui/displayToast'
+import { dismissToast } from '~/modules/toast/ui/dismissToast'
 
 // Global queue state
 const [queue, setQueue] = createSignal<ToastItem[]>([])
@@ -125,54 +125,6 @@ function processQueue(): void {
 }
 
 /**
- * Display a toast in solid-toast with the appropriate styling
- * Returns the solid-toast ID for later dismissal
- */
-function displayToast(toastItem: ToastItem): string {
-  const { message, options } = toastItem
-  const { level, expandableErrorData, duration } = options
-  let solidToastId: string
-
-  // Check if this is an expandable error toast
-  if (expandableErrorData && level === 'error') {
-    // Use the displayExpandableErrorToast function directly
-    solidToastId = displayExpandableErrorToast(toastItem)
-    return solidToastId
-  }
-
-  // Prepare solid-toast options with duration
-  const solidToastOptions = {
-    duration: duration ?? 2000,
-  }
-
-  // Standard toast rendering
-  switch (level) {
-    case 'success':
-      solidToastId = toast.success(message, solidToastOptions)
-      break
-    case 'error':
-      solidToastId = toast.error(message, solidToastOptions)
-      break
-    case 'warning':
-      // solid-toast doesn't have warning, use custom or error styling
-      solidToastId = toast(message, {
-        ...solidToastOptions,
-        style: {
-          background: '#f59e0b',
-          color: 'white',
-        },
-      })
-      break
-    case 'info':
-    default:
-      solidToastId = toast(message, solidToastOptions)
-      break
-  }
-
-  return solidToastId
-}
-
-/**
  * Check for duplicate messages to avoid spam
  */
 function isDuplicateToast(newToast: ToastItem): boolean {
@@ -241,7 +193,7 @@ function removeCurrentToast(): void {
 
     // Dismiss the actual solid-toast if it exists
     if (current.solidToastId !== undefined) {
-      toast.dismiss(current.solidToastId)
+      dismissToast(current.solidToastId)
     }
 
     // Remove the first item from queue (which is the current toast)
@@ -287,7 +239,7 @@ export function dequeueById(toastId: string): boolean {
 
     // Dismiss the solid-toast if it exists
     if (removedToast.solidToastId !== undefined) {
-      toast.dismiss(removedToast.solidToastId)
+      dismissToast(removedToast.solidToastId)
     }
 
     const newQueue = currentQueue.filter((toast) => toast.id !== toastId)
@@ -369,7 +321,7 @@ export function clear(): void {
   // Dismiss all solid-toasts
   queue().forEach((toastItem) => {
     if (toastItem.solidToastId !== undefined) {
-      toast.dismiss(toastItem.solidToastId)
+      dismissToast(toastItem.solidToastId)
     }
   })
 
