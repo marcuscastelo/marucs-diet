@@ -46,7 +46,7 @@ import {
   currentDayDiet,
   targetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
-import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget'
+import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import { stringToDate } from '~/shared/utils/date'
 import { isOverflowForItemGroup } from '~/legacy/utils/macroOverflow'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
@@ -91,7 +91,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
     console.log(`[TemplateSearchModal] Setting up macro overflow checking`)
 
     const currentDayDiet_ = currentDayDiet()
-    const macroTarget_ = macroTarget(stringToDate(targetDay()))
+    const macroTarget_ = getMacroTargetForDay(stringToDate(targetDay()))
 
     // Create context object once
     const macroOverflowContext = {

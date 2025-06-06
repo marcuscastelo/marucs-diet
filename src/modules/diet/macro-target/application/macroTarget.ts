@@ -4,6 +4,7 @@ import { type MacroProfile } from '../../macro-profile/domain/macroProfile'
 import { userWeights } from '~/modules/weight/application/weight'
 import { inForceMacroProfile } from '~/legacy/utils/macroProfileUtils'
 import { userMacroProfiles } from '../../macro-profile/application/macroProfile'
+import { showError } from '~/shared/toast'
 
 export const calculateMacroTarget = (
   weight: number,
@@ -17,11 +18,21 @@ export const calculateMacroTarget = (
   fat: weight * savedMacroTarget.gramsPerKgFat,
 })
 
-export const macroTarget = (day: Date) => {
+export const getMacroTargetForDay = (day: Date) => {
   const targetDayWeight_ = inForceWeight(userWeights(), day)?.weight ?? null
   const targetDayMacroProfile_ = inForceMacroProfile(userMacroProfiles(), day)
 
-  if (targetDayWeight_ === null || targetDayMacroProfile_ === null) {
+  if (targetDayWeight_ === null) {
+    showError(new Error('Peso não encontrado para o dia atual'), {
+      context: 'system',
+    })
+    return null
+  }
+
+  if (targetDayMacroProfile_ === null) {
+    showError(new Error('Perfil de macros não encontrado para o dia atual'), {
+      context: 'system',
+    })
     return null
   }
 

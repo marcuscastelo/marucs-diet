@@ -26,7 +26,7 @@ import {
   currentDayDiet,
   targetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
-import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget'
+import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import { createMacroOverflowChecker } from '~/legacy/utils/macroOverflow'
 import {
   handleApiError,
@@ -191,7 +191,7 @@ export function ItemNutritionalInfo() {
 
   const isMacroOverflowing = () => {
     const currentDayDiet_ = currentDayDiet()
-    const macroTarget_ = macroTarget(stringToDate(targetDay()))
+    const macroTarget_ = getMacroTargetForDay(stringToDate(targetDay()))
 
     return createMacroOverflowChecker(item(), {
       currentDayDiet: currentDayDiet_,
