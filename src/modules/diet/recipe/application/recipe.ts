@@ -1,7 +1,7 @@
 import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 import { type User } from '~/modules/user/domain/user'
 import { type Recipe, type NewRecipe } from '../domain/recipe'
-import { smartToastPromise } from '~/shared/toast'
+import { smartToastPromise } from '~/shared/toast/smartToastPromise'
 import { handleApiError } from '~/shared/error/errorHandler'
 
 const recipeRepository = createSupabaseRecipeRepository()

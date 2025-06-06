@@ -9,7 +9,7 @@ import {
 } from '~/modules/profile/application/profile'
 import { currentUser, updateUser } from '~/modules/user/application/user'
 import { convertString, UserInfoCapsule } from './UserInfoCapsule'
-import { showError } from '~/shared/toast'
+import { showError } from '~/shared/toast/toastManager'
 import { formatError } from '~/shared/formatError'
 import { handleApiError } from '~/shared/error/errorHandler'
 type Translation<T extends string> = { [_key in T]: string }

@@ -13,8 +13,8 @@ import {
 import {
   smartToastPromise,
   smartToastPromiseDetached,
-  ToastOptions,
-} from '~/shared/toast'
+} from '~/shared/toast/smartToastPromise'
+import { ToastOptions } from '~/shared/toast/toastConfig'
 import toast from 'solid-toast'
 
 const ToastTest: Component = () => {

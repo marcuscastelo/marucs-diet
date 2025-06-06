@@ -72,7 +72,7 @@ import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/ma
 import { stringToDate } from '~/shared/utils/date'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { isOverflow } from '~/legacy/utils/macroOverflow'
-import { showError } from '~/shared/toast'
+import { showError } from '~/shared/toast/toastManager'
 import {
   fetchRecipeById,
   insertRecipe,

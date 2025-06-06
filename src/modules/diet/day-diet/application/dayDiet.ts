@@ -14,10 +14,8 @@ import { currentUserId } from '~/modules/user/application/user'
 import {
   smartToastPromise,
   smartToastPromiseDetached,
-  showError,
-} from '~/shared/toast'
+} from '~/shared/toast/smartToastPromise'
 import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
-import { formatError } from '~/shared/formatError'
 import { handleApiError } from '~/shared/error/errorHandler'
 
 export function createDayDiet({

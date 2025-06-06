@@ -213,3 +213,5 @@ function truncateMessage(
   // Otherwise, hard truncate
   return truncated + suffix
 }
+
+// Add JSDoc for all exported types and functions for better maintainability

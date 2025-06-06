@@ -9,7 +9,10 @@ import {
 } from '~/modules/diet/macro-profile/infrastructure/supabaseMacroProfileRepository'
 import { currentUserId } from '~/modules/user/application/user'
 import { createEffect, createSignal } from 'solid-js'
-import { smartToastPromise, smartToastPromiseDetached } from '~/shared/toast'
+import {
+  smartToastPromise,
+  smartToastPromiseDetached,
+} from '~/shared/toast/smartToastPromise'
 import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 import { handleApiError } from '~/shared/error/errorHandler'
 

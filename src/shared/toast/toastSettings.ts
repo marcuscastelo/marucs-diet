@@ -116,3 +116,5 @@ export function setGroupSimilarToasts(value: boolean): void {
 export function setShowDetailedErrors(value: boolean): void {
   updateToastSettings({ showDetailedErrors: value })
 }
+
+// Add JSDoc for all exported types and functions for better maintainability

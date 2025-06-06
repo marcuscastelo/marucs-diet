@@ -1,4 +1,4 @@
-import { smartToastPromise } from '~/shared/toast'
+import { smartToastPromise } from '~/shared/toast/smartToastPromise'
 import { type Measure, type NewMeasure } from '~/modules/measure/domain/measure'
 import { createSupabaseMeasureRepository } from '~/modules/measure/infrastructure/measures'
 import { type User } from '~/modules/user/domain/user'

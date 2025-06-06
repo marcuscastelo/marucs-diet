@@ -13,7 +13,7 @@ import {
   fetchUserMeasures,
   insertMeasure,
 } from '~/modules/measure/application/measure'
-import { showError } from '~/shared/toast'
+import { showError } from '~/shared/toast/toastManager'
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { formatError } from '~/shared/formatError'
 

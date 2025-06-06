@@ -33,7 +33,7 @@ import { TemplateSearchModal } from '~/sections/search/components/TemplateSearch
 import { createEffect, createSignal, untrack } from 'solid-js'
 import DayMacros from '~/sections/day-diet/components/DayMacros'
 import { Providers } from '~/sections/common/context/Providers'
-import { showSuccess } from '~/shared/toast'
+import { showSuccess } from '~/shared/toast/toastManager'
 import { BarCodeIcon } from '~/sections/common/components/icons/BarCodeIcon'
 import ToastTest from '~/sections/common/components/ToastTest'
 

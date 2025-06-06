@@ -162,3 +162,5 @@ export type ToastError = {
   context?: Record<string, unknown>
   timestamp?: number
 }
+
+// Add JSDoc for all exported types and functions for better maintainability

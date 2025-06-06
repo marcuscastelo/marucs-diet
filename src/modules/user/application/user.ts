@@ -12,7 +12,8 @@ import {
   SUPABASE_TABLE_USERS,
 } from '~/modules/user/infrastructure/supabaseUserRepository'
 import { createEffect, createSignal } from 'solid-js'
-import { smartToastPromise, smartToastPromiseDetached } from '~/shared/toast'
+import { smartToastPromise } from '~/shared/toast/smartToastPromise'
+import { smartToastPromiseDetached } from '~/shared/toast/smartToastPromise'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 

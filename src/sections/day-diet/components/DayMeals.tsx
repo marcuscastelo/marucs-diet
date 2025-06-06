@@ -35,7 +35,7 @@ import {
   For,
 } from 'solid-js'
 import { Alert } from '~/sections/common/components/Alert'
-import { showError } from '~/shared/toast'
+import { showError } from '~/shared/toast/toastManager'
 import { formatError } from '~/shared/formatError'
 
 type EditSelection = {

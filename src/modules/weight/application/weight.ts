@@ -5,7 +5,8 @@ import {
   SUPABASE_TABLE_WEIGHTS,
 } from '~/modules/weight/infrastructure/supabaseWeightRepository'
 import { createEffect, createSignal } from 'solid-js'
-import { smartToastPromise, smartToastPromiseDetached } from '~/shared/toast'
+import { smartToastPromise } from '~/shared/toast/smartToastPromise'
+import { smartToastPromiseDetached } from '~/shared/toast/smartToastPromise'
 import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 import { handleApiError } from '~/shared/error/errorHandler'
 

@@ -5,7 +5,7 @@ import { Progress } from '~/sections/common/components/Progress'
 import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
 import { stringToDate } from '~/shared/utils/date'
-import { showError } from '~/shared/toast'
+import { showError } from '~/shared/toast/toastManager'
 
 export default function DayMacros(props: { class?: string }) {
   const macroSignals = () => {

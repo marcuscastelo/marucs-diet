@@ -8,8 +8,6 @@
 import { enqueue, createToastItem, dequeueById } from './toastQueue'
 import {
   ToastOptions,
-  ToastContext,
-  ToastLevel,
   DEFAULT_TOAST_OPTIONS,
   TOAST_DURATION_INFINITY,
 } from './toastConfig'

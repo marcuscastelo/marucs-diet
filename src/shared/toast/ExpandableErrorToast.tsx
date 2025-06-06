@@ -10,6 +10,7 @@ import { ToastError, ToastItem, ToastLevel } from './toastConfig'
 import { dequeueById } from './toastQueue'
 import { openErrorModal } from './modalState'
 import { handleCopyErrorToClipboard } from './clipboardErrorUtils'
+import { TOAST_MESSAGES } from './toastMessages'
 
 export type ExpandableToastProps = {
   /** The display message (potentially truncated) */
@@ -26,7 +27,7 @@ export type ExpandableToastProps = {
 
 // Fallback error details for missing or incomplete error data
 const FALLBACK_ERROR_DETAILS: ToastError = {
-  message: 'Nenhum detalhe do erro fornecido',
+  message: TOAST_MESSAGES.fallbackErrorDetails,
   stack: '',
   context: {},
   timestamp: Date.now(),
@@ -76,7 +77,11 @@ export function ExpandableToast(props: ExpandableToastProps) {
   const isComplex = (): boolean => isBig() || hasErrorDetails()
 
   return (
-    <div class="relative flex flex-col border-2 border-gray-600 text-gray-100 bg-gray-800 shadow-[0_3px_10px_rgba(0,0,0,0.1),_0_3px_3px_rgba(0,0,0,0.05)] max-w-[350px] pointer-events-auto px-[10px] pr-6 py-2 rounded line-height-[1.3]">
+    <div
+      role="alert"
+      aria-live="assertive"
+      class="relative flex flex-col border-2 border-gray-600 text-gray-100 bg-gray-800 shadow-[0_3px_10px_rgba(0,0,0,0.1),_0_3px_3px_rgba(0,0,0,0.05)] max-w-[350px] pointer-events-auto px-[10px] pr-6 py-2 rounded line-height-[1.3]"
+    >
       <button
         type="button"
         onClick={handleDismiss}
