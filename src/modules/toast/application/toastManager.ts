@@ -36,32 +36,48 @@ function createAndEnqueueToast(message: string, options: ToastOptions): string {
 }
 
 /**
- * Determines if a toast should be skipped in background context based on level and options.
+ * Determines if a toast should be skipped based on context, audience, and toast type.
+ * - Success toasts are skipped for background context or system audience unless showSuccess is true.
+ * - Loading toasts are skipped for background context or system audience unless showLoading is true.
+ * - Error toasts are always shown.
  *
- * @param level - The toast level ('info', 'success', etc.).
- * @param context - The toast context ('user-action' or 'background').
- * @param options - Toast options, merged with defaults.
- * @returns True if the toast should be skipped, false otherwise.
+ * @param options - ToastOptions including context, audience, level, showSuccess, showLoading
+ * @returns true if the toast should be skipped, false otherwise
  */
-function shouldSkipBackgroundToast(options: ToastOptions): boolean {
-  const opts = {
-    ...DEFAULT_TOAST_OPTIONS[options.context ?? 'user-action'],
-    ...options,
+function shouldSkipToast(options: ToastOptions): boolean {
+  const { context, audience, level, showSuccess, showLoading } = options
+
+  // Always show error toasts
+  if (level === 'error') return false
+
+  // Skip success toasts in background/system unless explicitly enabled
+  if (
+    level === 'success' &&
+    (context === 'background' || audience === 'system') &&
+    showSuccess !== true
+  ) {
+    return true
   }
 
-  const ctx = opts.context
-  const level = opts.level
+  // Skip loading toasts in background/system unless explicitly enabled
+  if (
+    level === 'info' &&
+    (context === 'background' || audience === 'system') &&
+    showLoading !== true
+  ) {
+    return true
+  }
 
-  return (
-    ctx === 'background' &&
-    (level === 'success' || level === 'info') &&
-    opts.showSuccess !== true
-  )
+  return false
 }
 
 /**
  * Returns a filtered copy of the toast messages object, never mutating the original.
- * Filters out loading and success messages for background context if not explicitly enabled.
+ * Filters out loading and success messages for background/system context and audience unless explicitly enabled.
+ *
+ * @param messages - Toast messages for loading, success, and error.
+ * @param options - Toast options, may include context and audience.
+ * @returns Filtered messages object.
  */
 function filterBackgroundPromiseMessages<T>(
   messages: {
@@ -71,8 +87,24 @@ function filterBackgroundPromiseMessages<T>(
   },
   options?: Partial<ToastOptions>,
 ): typeof messages {
-  // Otherwise, return the original messages
-  return messages
+  // Merge with defaults to get effective options for each toast type
+  const context = options?.context ?? DEFAULT_TOAST_CONTEXT
+  const defaultOptions = DEFAULT_TOAST_OPTIONS[context]
+  // Compose base options for merging
+  const baseOptions = {
+    ...defaultOptions,
+    ...options,
+  }
+  // For each type, check if it should be skipped
+  const showLoading = !shouldSkipToast({ ...baseOptions, level: 'info' })
+  const showSuccess = !shouldSkipToast({ ...baseOptions, level: 'success' })
+  const showError = !shouldSkipToast({ ...baseOptions, level: 'error' })
+
+  return {
+    loading: showLoading ? messages.loading : undefined,
+    success: showSuccess ? messages.success : undefined,
+    error: showError ? messages.error : undefined,
+  }
 }
 
 /**
@@ -103,7 +135,7 @@ function show(message: string, providedOptions: Partial<ToastOptions>): string {
     ...defaultOptions,
     ...providedOptions,
   }
-  if (shouldSkipBackgroundToast(options)) {
+  if (shouldSkipToast(options)) {
     return ''
   }
   return createAndEnqueueToast(message, options)
