@@ -77,7 +77,10 @@ export function processErrorMessage(
     originalMessage,
     errorDetails,
     canExpand:
-      needsTruncation || !!errorDetails.stack || !!errorDetails.context,
+      needsTruncation ||
+      (typeof errorDetails.stack === 'string' &&
+        errorDetails.stack.trim().length > 0) ||
+      !!errorDetails.context,
   }
 }
 
@@ -109,8 +112,16 @@ function extractErrorDetails(
 
   if (typeof error === 'object' && error !== null) {
     const errorObj = error as Record<string, unknown>
+    let message: string
+    if (typeof errorObj.message === 'string') {
+      message = errorObj.message
+    } else if (typeof errorObj.error === 'string') {
+      message = errorObj.error
+    } else {
+      message = 'Unknown error'
+    }
     return {
-      message: String(errorObj.message || errorObj.error || 'Unknown error'),
+      message,
       fullError: JSON.stringify(error, null, 2),
       context: errorObj,
     }
@@ -185,55 +196,4 @@ function truncateMessage(
 
   // Otherwise, hard truncate
   return truncated + suffix
-}
-
-/**
- * Format error details for display in modal or expanded view
- */
-export function formatErrorForDisplay(errorDetails: ToastError): string {
-  const sections: string[] = []
-
-  // Main message
-  if (errorDetails.message) {
-    sections.push(`Message: ${errorDetails.message}`)
-  }
-
-  // Full error if different from message
-  if (
-    errorDetails.fullError &&
-    errorDetails.fullError !== errorDetails.message
-  ) {
-    sections.push(`Details: ${errorDetails.fullError}`)
-  }
-
-  // Context information
-  if (errorDetails.context && Object.keys(errorDetails.context).length > 0) {
-    sections.push(`Context: ${JSON.stringify(errorDetails.context, null, 2)}`)
-  }
-
-  // Stack trace
-  if (errorDetails.stack) {
-    sections.push(`Stack Trace:\n${errorDetails.stack}`)
-  }
-
-  return sections.join('\n\n')
-}
-
-/**
- * Copy error details to clipboard
- */
-export async function copyErrorToClipboard(
-  errorDetails: ToastError,
-): Promise<boolean> {
-  try {
-    const formattedError = formatErrorForDisplay(errorDetails)
-    const timestamp = new Date().toISOString()
-    const clipboardContent = `Error Report - ${timestamp}\n\n${formattedError}`
-
-    await navigator.clipboard.writeText(clipboardContent)
-    return true
-  } catch (clipboardError) {
-    console.error('Failed to copy error to clipboard:', clipboardError)
-    return false
-  }
 }
