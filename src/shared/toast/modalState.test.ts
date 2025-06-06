@@ -9,8 +9,8 @@ import {
 import type { ToastError } from './toastConfig'
 
 const mockError: ToastError = {
-  message: 'Erro de teste',
-  fullError: 'Detalhes completos do erro',
+  message: 'Test error',
+  fullError: 'Full error details',
   stack: 'stacktrace',
   context: { foo: 'bar' },
   timestamp: Date.now(),

@@ -85,7 +85,7 @@ describe('toastSettings', () => {
   })
 
   it('persists to localStorage and loads from it', async () => {
-    // Simula valor já persistido no localStorage
+    // Simulate value already persisted in localStorage
     localStorageMock[STORAGE_KEY] = JSON.stringify({
       showBackgroundSuccess: true,
       defaultDuration: 1234,

@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import {
   enqueue,
   dequeue,
@@ -42,7 +42,7 @@ describe('toastQueue', () => {
     enqueue(toast)
     const id2 = enqueue({ ...toast })
     expect(id2).toBeDefined()
-    // Só um toast deve estar na fila (o dedup pode ser por mensagem ou id, depende da implementação)
+    // Only one toast should be in the queue (deduplication may be by message or id, depending on implementation)
     expect(getCurrentToast()?.message).toBe('msg-dup')
     dequeue()
     expect(getCurrentToast()).toBeNull()
@@ -69,10 +69,10 @@ describe('toastQueue', () => {
     const t2 = makeToast('b')
     const id1 = enqueue(t1)
     const id2 = enqueue(t2)
-    // Remove o segundo
+    // Remove the second toast
     const removed = dequeueById(id2)
     expect(removed).toBe(true)
-    // O primeiro ainda está lá
+    // The first toast should still be there
     expect(getCurrentToast()?.id).toBe(id1)
   })
 
@@ -91,7 +91,7 @@ describe('toastQueue', () => {
 
   it('updateConfig changes the queue config', () => {
     updateConfig({ transitionDelay: 999 })
-    // Não há getter, mas não deve lançar erro
+    // There is no getter, but should not throw
     expect(() => updateConfig({ transitionDelay: 123 })).not.toThrow()
   })
 

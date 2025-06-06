@@ -6,36 +6,34 @@ import { TOAST_MESSAGES } from './toastMessages'
 describe('formatErrorForClipboard', () => {
   it('formats all fields correctly', () => {
     const error: ToastError = {
-      message: 'Erro de teste',
-      fullError: 'Stacktrace completo',
+      message: 'Test error',
+      fullError: 'Full stacktrace',
       context: { foo: 'bar', num: 42 },
-      stack: 'stacktrace aqui',
+      stack: 'stacktrace here',
       timestamp: 1717600000000,
     }
     const result = formatErrorForClipboard(error)
-    expect(result).toContain(`${TOAST_MESSAGES.errorTitle}: Erro de teste`)
-    expect(result).toContain(
-      `${TOAST_MESSAGES.showDetails}: Stacktrace completo`,
-    )
+    expect(result).toContain(`${TOAST_MESSAGES.errorTitle}: Test error`)
+    expect(result).toContain(`${TOAST_MESSAGES.showDetails}: Full stacktrace`)
     expect(result).toContain(`${TOAST_MESSAGES.copyError}:`)
     expect(result).toContain('foo')
     expect(result).toContain('num')
     expect(result).toContain('Stack Trace:')
-    expect(result).toContain('stacktrace aqui')
+    expect(result).toContain('stacktrace here')
     expect(result).toContain('Timestamp: 2024-06-05T')
     expect(result).toContain('Error Report - ')
   })
 
   it('omits empty or duplicate fields', () => {
     const error: ToastError = {
-      message: 'Erro',
-      fullError: 'Erro',
+      message: 'Error',
+      fullError: 'Error',
       context: {},
       stack: '',
       timestamp: 0,
     }
     const result = formatErrorForClipboard(error)
-    expect(result).toContain(`${TOAST_MESSAGES.errorTitle}: Erro`)
+    expect(result).toContain(`${TOAST_MESSAGES.errorTitle}: Error`)
     expect(result).not.toContain(`${TOAST_MESSAGES.showDetails}:`)
     expect(result).not.toContain(`${TOAST_MESSAGES.copyError}:`)
     expect(result).not.toContain('Stack Trace:')
@@ -61,14 +59,14 @@ describe('formatErrorForClipboard', () => {
 
   it('handles only message', () => {
     const error: ToastError = {
-      message: 'Apenas mensagem',
+      message: 'Message only',
       fullError: '',
       context: {},
       stack: '',
       timestamp: 0,
     }
     const result = formatErrorForClipboard(error)
-    expect(result).toContain(`${TOAST_MESSAGES.errorTitle}: Apenas mensagem`)
+    expect(result).toContain(`${TOAST_MESSAGES.errorTitle}: Message only`)
     expect(result).not.toContain(`${TOAST_MESSAGES.showDetails}:`)
     expect(result).not.toContain(`${TOAST_MESSAGES.copyError}:`)
   })
@@ -122,14 +120,14 @@ describe('formatErrorForClipboard', () => {
 
   it('handles long message and multiline stack', () => {
     const error: ToastError = {
-      message: 'Mensagem longa'.repeat(10),
+      message: 'Long message'.repeat(10),
       fullError: '',
       context: {},
       stack: 'line1\nline2\nline3',
       timestamp: 0,
     }
     const result = formatErrorForClipboard(error)
-    expect(result).toContain('Mensagem longaMensagem longaMensagem longa')
+    expect(result).toContain('Long messageLong messageLong message')
     expect(result).toContain('Stack Trace:')
     expect(result).toContain('line1')
     expect(result).toContain('line2')
