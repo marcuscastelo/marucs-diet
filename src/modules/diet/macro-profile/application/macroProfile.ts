@@ -75,7 +75,6 @@ export async function insertMacroProfile(newMacroProfile: NewMacroProfile) {
         success: 'Perfil de macro criado com sucesso',
         error: 'Falha ao criar perfil de macro',
       },
-      { context: 'user-action' },
     )
     if (
       macroProfile !== null &&

@@ -12,15 +12,11 @@ export async function fetchUserMeasures(userId: User['id']) {
 
 export async function insertMeasure(newMeasure: NewMeasure) {
   try {
-    return await showPromise(
-      measureRepository.insertMeasure(newMeasure),
-      {
-        loading: 'Inserindo medidas...',
-        success: 'Medidas inseridas com sucesso',
-        error: 'Falha ao inserir medidas',
-      },
-      { context: 'user-action' },
-    )
+    return await showPromise(measureRepository.insertMeasure(newMeasure), {
+      loading: 'Inserindo medidas...',
+      success: 'Medidas inseridas com sucesso',
+      error: 'Falha ao inserir medidas',
+    })
   } catch (error) {
     handleApiError(error, {
       component: 'measureApplication',
@@ -43,7 +39,6 @@ export async function updateMeasure(
         success: 'Medidas atualizadas com sucesso',
         error: 'Falha ao atualizar medidas',
       },
-      { context: 'user-action' },
     )
   } catch (error) {
     handleApiError(error, {

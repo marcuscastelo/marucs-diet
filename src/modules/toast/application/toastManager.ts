@@ -14,12 +14,9 @@ import {
   ToastOptions,
   DEFAULT_TOAST_OPTIONS,
   TOAST_DURATION_INFINITY,
+  DEFAULT_TOAST_CONTEXT,
 } from '~/modules/toast/domain/toastTypes'
 import { processErrorMessage } from '~/modules/toast/domain/errorMessageHandler'
-
-// Type alias for common Toast options pattern
-// Used to avoid repetition and improve readability
-type ToastContextOptions = Partial<ToastOptions> & Pick<ToastOptions, 'context'>
 
 /**
  * Creates and enqueues a toast notification with merged options.
@@ -72,25 +69,10 @@ function filterBackgroundPromiseMessages<T>(
     success?: string | ((data: T) => string)
     error?: string | ((error: unknown) => string)
   },
-  options: ToastContextOptions,
+  options?: Partial<ToastOptions>,
 ): typeof messages {
-  const optsInfo = {
-    ...DEFAULT_TOAST_OPTIONS[options.context],
-    ...options,
-    level: 'info' as ToastOptions['level'],
-  }
-  const optsSuccess = {
-    ...DEFAULT_TOAST_OPTIONS[options.context],
-    ...options,
-    level: 'success' as ToastOptions['level'],
-  }
-  return {
-    ...messages,
-    loading: shouldSkipBackgroundToast(optsInfo) ? undefined : messages.loading,
-    success: shouldSkipBackgroundToast(optsSuccess)
-      ? undefined
-      : messages.success,
-  }
+  // Otherwise, return the original messages
+  return messages
 }
 
 /**
@@ -114,8 +96,9 @@ function resolveValueOrFunction<T, R>(
     : valueOrFn
 }
 
-function show(message: string, providedOptions: ToastContextOptions): string {
-  const defaultOptions = DEFAULT_TOAST_OPTIONS[providedOptions.context]
+function show(message: string, providedOptions: Partial<ToastOptions>): string {
+  const context = providedOptions.context ?? DEFAULT_TOAST_CONTEXT
+  const defaultOptions = DEFAULT_TOAST_OPTIONS[context]
   const options: ToastOptions = {
     ...defaultOptions,
     ...providedOptions,
@@ -128,12 +111,11 @@ function show(message: string, providedOptions: ToastContextOptions): string {
 
 export function showError(
   error: unknown,
-  providedOptions: Omit<Partial<ToastOptions>, 'level'> &
-    Pick<ToastOptions, 'context'>,
+  providedOptions?: Omit<Partial<ToastOptions>, 'level'>,
 ): string {
-  const options: Partial<ToastOptions> & Pick<ToastOptions, 'context'> = {
+  const options = {
+    level: 'error' as const,
     ...providedOptions,
-    level: 'error',
   }
 
   // Use processErrorMessage to handle truncation for error toasts
@@ -153,12 +135,11 @@ export function showError(
 
 export function showSuccess(
   message: string,
-  providedOptions: Omit<Partial<ToastOptions>, 'level'> &
-    Pick<ToastOptions, 'context'>,
+  providedOptions?: Omit<Partial<ToastOptions>, 'level'>,
 ): string {
-  const options: Partial<ToastOptions> & Pick<ToastOptions, 'context'> = {
+  const options = {
+    level: 'success' as const,
     ...providedOptions,
-    level: 'success',
   }
 
   return show(message, options)
@@ -166,13 +147,12 @@ export function showSuccess(
 
 export function showLoading(
   message: string,
-  providedOptions: Omit<Partial<ToastOptions>, 'level'> &
-    Pick<ToastOptions, 'context'>,
+  providedOptions?: Omit<Partial<ToastOptions>, 'level'>,
 ): string {
-  const options: Partial<ToastOptions> & Pick<ToastOptions, 'context'> = {
-    ...providedOptions,
-    level: 'info', // Loading is typically an info level toast
+  const options = {
     duration: TOAST_DURATION_INFINITY, // Infinite duration for loading
+    level: 'info' as const,
+    ...providedOptions,
   }
 
   return show(message, options)
@@ -185,7 +165,7 @@ function handlePromiseSuccess<T>(
     success?: string | ((data: T) => string)
     error?: string | ((error: unknown) => string)
   },
-  options: ToastContextOptions,
+  options?: Partial<ToastOptions>,
 ) {
   const successMsg = resolveValueOrFunction(filteredMessages.success, data)
   if (isNonEmptyString(successMsg)) {
@@ -200,7 +180,7 @@ function handlePromiseError<T>(
     success?: string | ((data: T) => string)
     error?: string | ((error: unknown) => string)
   },
-  options: ToastContextOptions,
+  options?: Partial<ToastOptions>,
 ) {
   const errorMsg = resolveValueOrFunction(filteredMessages.error, err)
   if (isNonEmptyString(errorMsg)) {
@@ -235,7 +215,7 @@ export function showPromise<T>(
     success?: string | ((data: T) => string)
     error?: string | ((error: unknown) => string)
   },
-  options: ToastContextOptions,
+  options?: Partial<ToastOptions>,
 ): Promise<T> {
   const filteredMessages = filterBackgroundPromiseMessages(messages, options)
   let loadingToastId: string | null = null

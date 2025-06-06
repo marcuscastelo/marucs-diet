@@ -80,15 +80,11 @@ export async function fetchCurrentUser(): Promise<User | null> {
 
 export async function insertUser(newUser: NewUser): Promise<void> {
   try {
-    await showPromise(
-      userRepository.insertUser(newUser),
-      {
-        loading: 'Inserindo usuário...',
-        success: 'Usuário inserido com sucesso',
-        error: 'Falha ao inserir usuário',
-      },
-      { context: 'user-action' },
-    )
+    await showPromise(userRepository.insertUser(newUser), {
+      loading: 'Inserindo usuário...',
+      success: 'Usuário inserido com sucesso',
+      error: 'Falha ao inserir usuário',
+    })
     await fetchUsers()
   } catch (error) {
     handleApiError(error, {

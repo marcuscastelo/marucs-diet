@@ -47,15 +47,11 @@ export async function fetchRecipeById(recipeId: Recipe['id']) {
 
 export async function insertRecipe(newRecipe: NewRecipe) {
   try {
-    const recipe = await showPromise(
-      recipeRepository.insertRecipe(newRecipe),
-      {
-        loading: 'Criando nova receita...',
-        success: 'Receita criada com sucesso',
-        error: 'Falha ao criar receita',
-      },
-      { context: 'user-action' },
-    )
+    const recipe = await showPromise(recipeRepository.insertRecipe(newRecipe), {
+      loading: 'Criando nova receita...',
+      success: 'Receita criada com sucesso',
+      error: 'Falha ao criar receita',
+    })
     return recipe
   } catch (error) {
     handleApiError(error, {

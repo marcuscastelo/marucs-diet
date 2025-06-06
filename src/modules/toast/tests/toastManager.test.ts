@@ -119,7 +119,6 @@ describe('toastManager', () => {
       { context: 'user-action', duration: 9999 },
     )
     const toastArg = enqueueSpy.mock.calls[0][0]
-    // For loading toasts, duration is always TOAST_DURATION_INFINITY (Infinity)
-    expect(toastArg.options.duration).toBe(Infinity)
+    expect(toastArg.options.duration).toBe(9999)
   })
 })

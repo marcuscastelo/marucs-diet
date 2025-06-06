@@ -59,9 +59,7 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
     .data as unknown as ApiFood[]
 
   if (apiFoods.length === 0) {
-    showError(`Nenhum alimento encontrado para "${name}"`, {
-      context: 'user-action',
-    })
+    showError(`Nenhum alimento encontrado para "${name}"`)
     return []
   }
 

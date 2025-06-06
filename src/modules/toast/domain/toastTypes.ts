@@ -60,6 +60,12 @@ export type ToastOptions = {
 }
 
 /**
+ * DEFAULT_TOAST_CONTEXT defines the default context for toasts.
+ * This is used when no specific context is provided.
+ */
+export const DEFAULT_TOAST_CONTEXT: ToastContext = 'user-action'
+
+/**
  * DEFAULT_TOAST_OPTIONS provides default options for each context.
  */
 export const DEFAULT_TOAST_OPTIONS: Record<ToastContext, ToastOptions> = {

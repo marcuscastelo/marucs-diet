@@ -58,15 +58,11 @@ export async function fetchUserWeights(userId: number) {
 export async function insertWeight(newWeight: NewWeight) {
   try {
     const weight = await weightRepository.insertWeight(newWeight)
-    await showPromise(
-      fetchUserWeights(currentUserId()),
-      {
-        loading: 'Inserindo peso...',
-        success: 'Peso inserido com sucesso',
-        error: 'Falha ao inserir peso',
-      },
-      { context: 'user-action' },
-    )
+    await showPromise(fetchUserWeights(currentUserId()), {
+      loading: 'Inserindo peso...',
+      success: 'Peso inserido com sucesso',
+      error: 'Falha ao inserir peso',
+    })
     return weight
   } catch (error) {
     handleApiError(error, {
