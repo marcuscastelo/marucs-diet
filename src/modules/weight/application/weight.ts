@@ -5,8 +5,7 @@ import {
   SUPABASE_TABLE_WEIGHTS,
 } from '~/modules/weight/infrastructure/supabaseWeightRepository'
 import { createEffect, createSignal } from 'solid-js'
-import { smartToastPromise } from '~/shared/toast/smartToastPromise'
-import { smartToastPromiseDetached } from '~/shared/toast/smartToastPromise'
+import { showPromise } from '~/shared/toast/toastManager'
 import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 import { handleApiError } from '~/shared/error/errorHandler'
 
@@ -16,12 +15,15 @@ const [userWeights_, setUserWeights] = createSignal<readonly Weight[]>([])
 export const userWeights = () => userWeights_()
 
 function bootstrap() {
-  smartToastPromiseDetached(fetchUserWeights(currentUserId()), {
-    context: 'background',
-    loading: 'Carregando pesos...',
-    success: 'Pesos carregados com sucesso',
-    error: 'Falha ao carregar pesos',
-  })
+  void showPromise(
+    fetchUserWeights(currentUserId()),
+    {
+      loading: 'Carregando pesos...',
+      success: 'Pesos carregados com sucesso',
+      error: 'Falha ao carregar pesos',
+    },
+    { context: 'background' },
+  )
 }
 
 /**
@@ -56,12 +58,15 @@ export async function fetchUserWeights(userId: number) {
 export async function insertWeight(newWeight: NewWeight) {
   try {
     const weight = await weightRepository.insertWeight(newWeight)
-    await smartToastPromise(fetchUserWeights(currentUserId()), {
-      context: 'user-action',
-      loading: 'Inserindo peso...',
-      success: 'Peso inserido com sucesso',
-      error: 'Falha ao inserir peso',
-    })
+    await showPromise(
+      fetchUserWeights(currentUserId()),
+      {
+        loading: 'Inserindo peso...',
+        success: 'Peso inserido com sucesso',
+        error: 'Falha ao inserir peso',
+      },
+      { context: 'user-action' },
+    )
     return weight
   } catch (error) {
     handleApiError(error, {
@@ -75,14 +80,14 @@ export async function insertWeight(newWeight: NewWeight) {
 
 export async function updateWeight(weightId: Weight['id'], newWeight: Weight) {
   try {
-    const weight = await smartToastPromise(
+    const weight = await showPromise(
       weightRepository.updateWeight(weightId, newWeight),
       {
-        context: 'user-action',
         loading: 'Atualizando peso...',
         success: 'Peso atualizado com sucesso',
         error: 'Falha ao atualizar peso',
       },
+      { context: 'user-action' },
     )
     await fetchUserWeights(currentUserId())
     return weight
@@ -98,12 +103,15 @@ export async function updateWeight(weightId: Weight['id'], newWeight: Weight) {
 
 export async function deleteWeight(weightId: Weight['id']) {
   try {
-    await smartToastPromise(weightRepository.deleteWeight(weightId), {
-      context: 'user-action',
-      loading: 'Deletando peso...',
-      success: 'Peso deletado com sucesso',
-      error: 'Falha ao deletar peso',
-    })
+    await showPromise(
+      weightRepository.deleteWeight(weightId),
+      {
+        loading: 'Deletando peso...',
+        success: 'Peso deletado com sucesso',
+        error: 'Falha ao deletar peso',
+      },
+      { context: 'user-action' },
+    )
     await fetchUserWeights(currentUserId())
   } catch (error) {
     handleApiError(error, {

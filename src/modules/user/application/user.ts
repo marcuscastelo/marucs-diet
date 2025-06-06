@@ -12,8 +12,7 @@ import {
   SUPABASE_TABLE_USERS,
 } from '~/modules/user/infrastructure/supabaseUserRepository'
 import { createEffect, createSignal } from 'solid-js'
-import { smartToastPromise } from '~/shared/toast/smartToastPromise'
-import { smartToastPromiseDetached } from '~/shared/toast/smartToastPromise'
+import { showPromise } from '~/shared/toast/toastManager'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 
@@ -30,12 +29,15 @@ export const [currentUserId, setCurrentUserId] = createSignal<number>(1)
 createEffect(() => {
   if (currentUserId() !== null) {
     setCurrentUserId(loadUserIdFromLocalStorage())
-    smartToastPromiseDetached(fetchCurrentUser(), {
-      context: 'background',
-      loading: 'Carregando usuário atual...',
-      success: 'Usuário atual carregado com sucesso',
-      error: 'Falha ao carregar usuário atual',
-    })
+    void showPromise(
+      fetchCurrentUser(),
+      {
+        loading: 'Carregando usuário atual...',
+        success: 'Usuário atual carregado com sucesso',
+        error: 'Falha ao carregar usuário atual',
+      },
+      { context: 'background' },
+    )
   }
 })
 
@@ -78,12 +80,15 @@ export async function fetchCurrentUser(): Promise<User | null> {
 
 export async function insertUser(newUser: NewUser): Promise<void> {
   try {
-    await smartToastPromise(userRepository.insertUser(newUser), {
-      context: 'user-action',
-      loading: 'Inserindo usuário...',
-      success: 'Usuário inserido com sucesso',
-      error: 'Falha ao inserir usuário',
-    })
+    await showPromise(
+      userRepository.insertUser(newUser),
+      {
+        loading: 'Inserindo usuário...',
+        success: 'Usuário inserido com sucesso',
+        error: 'Falha ao inserir usuário',
+      },
+      { context: 'user-action' },
+    )
     await fetchUsers()
   } catch (error) {
     handleApiError(error, {
@@ -100,14 +105,14 @@ export async function updateUser(
   newUser: NewUser,
 ): Promise<User | null> {
   try {
-    const user = await smartToastPromise(
+    const user = await showPromise(
       userRepository.updateUser(userId, newUser),
       {
-        context: 'user-action',
         loading: 'Atualizando informações do usuário...',
         success: 'Informações do usuário atualizadas com sucesso',
         error: 'Falha ao atualizar informações do usuário',
       },
+      { context: 'user-action' },
     )
     await fetchUsers()
     return user
@@ -123,12 +128,15 @@ export async function updateUser(
 
 export async function deleteUser(userId: User['id']): Promise<void> {
   try {
-    await smartToastPromise(userRepository.deleteUser(userId), {
-      context: 'user-action',
-      loading: 'Removendo usuário...',
-      success: 'Usuário removido com sucesso',
-      error: 'Falha ao remover usuário',
-    })
+    await showPromise(
+      userRepository.deleteUser(userId),
+      {
+        loading: 'Removendo usuário...',
+        success: 'Usuário removido com sucesso',
+        error: 'Falha ao remover usuário',
+      },
+      { context: 'user-action' },
+    )
     await fetchUsers()
   } catch (error) {
     handleApiError(error, {

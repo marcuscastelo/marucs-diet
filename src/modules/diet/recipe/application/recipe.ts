@@ -1,7 +1,7 @@
 import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 import { type User } from '~/modules/user/domain/user'
 import { type Recipe, type NewRecipe } from '../domain/recipe'
-import { smartToastPromise } from '~/shared/toast/smartToastPromise'
+import { showPromise } from '~/shared/toast/toastManager'
 import { handleApiError } from '~/shared/error/errorHandler'
 
 const recipeRepository = createSupabaseRecipeRepository()
@@ -47,14 +47,14 @@ export async function fetchRecipeById(recipeId: Recipe['id']) {
 
 export async function insertRecipe(newRecipe: NewRecipe) {
   try {
-    const recipe = await smartToastPromise(
+    const recipe = await showPromise(
       recipeRepository.insertRecipe(newRecipe),
       {
-        context: 'user-action',
         loading: 'Criando nova receita...',
         success: 'Receita criada com sucesso',
         error: 'Falha ao criar receita',
       },
+      { context: 'user-action' },
     )
     return recipe
   } catch (error) {
@@ -69,14 +69,14 @@ export async function insertRecipe(newRecipe: NewRecipe) {
 
 export async function updateRecipe(recipeId: Recipe['id'], newRecipe: Recipe) {
   try {
-    const recipe = await smartToastPromise(
+    const recipe = await showPromise(
       recipeRepository.updateRecipe(recipeId, newRecipe),
       {
-        context: 'user-action',
         loading: 'Atualizando receita...',
         success: 'Receita atualizada com sucesso',
         error: 'Falha ao atualizar receita',
       },
+      { context: 'user-action' },
     )
     return recipe
   } catch (error) {
@@ -91,14 +91,14 @@ export async function updateRecipe(recipeId: Recipe['id'], newRecipe: Recipe) {
 
 export async function deleteRecipe(recipeId: Recipe['id']) {
   try {
-    const recipe = await smartToastPromise(
+    const recipe = await showPromise(
       recipeRepository.deleteRecipe(recipeId),
       {
-        context: 'user-action',
         loading: 'Deletando receita...',
         success: 'Receita deletada com sucesso',
         error: 'Falha ao deletar receita',
       },
+      { context: 'user-action' },
     )
     return recipe
   } catch (error) {

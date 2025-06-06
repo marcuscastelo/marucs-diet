@@ -1,5 +1,11 @@
 # Copilot Instructions (short version)
 
+## Terminal Automation & Refactoring
+- When performing large-scale refactors (e.g., renaming, import changes, code migrations), prefer using terminal commands (find, sed, grep, awk, etc.) for speed and consistency, especially in Linux/zsh environments.
+- Document the exact commands used for reproducibility and team knowledge.
+- After running batch commands, always run `npm run lint`, `npm run type-check`, and `npm run test` to catch issues early.
+- If batch commands introduce errors that cannot be fixed automatically, resolve them manually and update or remove related tests as needed.
+
 ## Language
 - Prefer English for code, comments, and commit messages for consistency and future scalability.
 - UI text (labels, error messages, etc.) must be in Portuguese (pt-BR) if required by the product.

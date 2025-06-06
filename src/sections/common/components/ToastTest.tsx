@@ -10,10 +10,6 @@ import {
   showError,
   showLoading,
 } from '~/shared/toast/toastManager'
-import {
-  smartToastPromise,
-  smartToastPromiseDetached,
-} from '~/shared/toast/smartToastPromise'
 import { ToastOptions } from '~/shared/toast/toastConfig'
 import toast from 'solid-toast'
 
@@ -31,7 +27,7 @@ const ToastTest: Component = () => {
       setTimeout(() => resolve('Success!'), 2000)
     })
 
-    showPromise(
+    void showPromise(
       promise,
       {
         loading: 'Loading...',
@@ -49,7 +45,7 @@ const ToastTest: Component = () => {
       setTimeout(() => reject(new Error('Simulated error')), 2000)
     })
 
-    showPromise(
+    void showPromise(
       promise,
       {
         loading: 'Processing...',
@@ -67,7 +63,7 @@ const ToastTest: Component = () => {
       setTimeout(() => resolve('OK'), 1500)
     })
 
-    showPromise(
+    void showPromise(
       promise,
       {
         loading: 'Loading without success message...',
@@ -81,28 +77,28 @@ const ToastTest: Component = () => {
 
   const testSmartToastPromise = async () => {
     try {
-      console.log('Starting smartToastPromise test...')
-      const result = await smartToastPromise(
+      console.log('Starting showPromise test...')
+      const result = await showPromise(
         new Promise<string>((resolve) => {
           setTimeout(() => resolve('Data loaded!'), 2000)
         }),
         {
-          context: 'user-action',
-          loading: 'Loading with smartToastPromise...',
+          loading: 'Loading with showPromise...',
           success: 'Smart toast completed!',
           error: 'Smart toast failed',
         },
+        { context: 'user-action' },
       )
-      console.log('smartToastPromise result:', result)
+      console.log('showPromise result:', result)
     } catch (error) {
-      console.error('smartToastPromise error:', error)
+      console.error('showPromise error:', error)
     }
   }
 
   const testSmartToastPromiseDetached = () => {
-    console.log('Starting smartToastPromiseDetached test...')
+    console.log('Starting showPromise test...')
 
-    smartToastPromiseDetached(
+    void showPromise(
       new Promise<string>((resolve) => {
         setTimeout(() => {
           console.log('Detached operation completed!')
@@ -110,51 +106,47 @@ const ToastTest: Component = () => {
         }, 2000)
       }),
       {
-        context: 'user-action',
         loading: 'Detached operation...',
         success: 'Detached operation completed!',
         error: 'Operação destacada falhou\nPor favor, tente novamente.',
-        options: toastOptions(),
       },
+      { context: 'user-action' },
     )
 
-    console.log('smartToastPromiseDetached called - continuing immediately')
+    console.log('showPromise called - continuing immediately')
   }
 
   const testMultipleDetachedOperations = () => {
     console.log('Testing multiple detached operations...')
 
-    smartToastPromiseDetached(
+    void showPromise(
       new Promise((resolve) => setTimeout(() => resolve('User data'), 1000)),
       {
-        context: 'background',
         loading: 'Loading user data...',
         success: 'User data loaded!',
         error: 'Falha ao carregar dados do usuário\nTente novamente.',
-        options: toastOptions(),
       },
+      { context: 'background' },
     )
 
-    smartToastPromiseDetached(
+    void showPromise(
       new Promise((resolve) => setTimeout(() => resolve('Settings'), 1500)),
       {
-        context: 'background',
         loading: 'Loading settings...',
         success: 'Settings loaded!',
         error: 'Falha ao carregar configurações\nTente novamente.',
-        options: toastOptions(),
       },
+      { context: 'background' },
     )
 
-    smartToastPromiseDetached(
+    void showPromise(
       new Promise((resolve) => setTimeout(() => resolve('Cache'), 800)),
       {
-        context: 'background',
         loading: 'Refreshing cache...',
         success: 'Cache refreshed!',
         error: 'Falha ao atualizar cache\nTente novamente.',
-        options: toastOptions(),
       },
+      { context: 'background' },
     )
 
     console.log('All detached operations started')
@@ -194,7 +186,7 @@ const ToastTest: Component = () => {
                 1500,
               )
             })
-            showPromise(
+            void showPromise(
               promise,
               {
                 loading: 'Loading without success message...',
@@ -214,7 +206,7 @@ const ToastTest: Component = () => {
         </button>
         <hr style={{ margin: '10px 0', border: '1px solid #ccc' }} />
         <h3 style={{ margin: '10px 0 5px 0', 'font-size': '16px' }}>
-          New smartToastPromiseDetached Tests
+          New showPromise Tests
         </h3>
         <div style={{ display: 'flex', 'align-items': 'center', gap: '10px' }}>
           <label>
@@ -250,47 +242,44 @@ const ToastTest: Component = () => {
           }}
           style={{ 'background-color': '#4CAF50', color: 'white' }}
         >
-          Test smartToastPromise (awaitable)
+          Test showPromise (awaitable)
         </button>
         <button
           onClick={() => {
             void (async () => {
               try {
-                await smartToastPromise(
+                await showPromise(
                   new Promise<string>((_, reject) => {
                     setTimeout(
-                      () =>
-                        reject(
-                          new Error('Simulated error (smartToastPromise)'),
-                        ),
+                      () => reject(new Error('Simulated error (showPromise)')),
                       2000,
                     )
                   }),
                   {
-                    context: 'user-action',
-                    loading: 'Loading with smartToastPromise...',
+                    loading: 'Loading with showPromise...',
                     success: 'Smart toast completed!',
                     error: 'Smart toast failed (error)',
                   },
+                  { context: 'user-action' },
                 )
               } catch (error) {
-                console.error('smartToastPromise error:', error)
+                console.error('showPromise error:', error)
               }
             })()
           }}
           style={{ 'background-color': '#E53935', color: 'white' }}
         >
-          Test smartToastPromise (error)
+          Test showPromise (error)
         </button>
         <button
           onClick={testSmartToastPromiseDetached}
           style={{ 'background-color': '#2196F3', color: 'white' }}
         >
-          Test smartToastPromiseDetached (fire & forget)
+          Test showPromise (fire & forget)
         </button>
         <button
           onClick={() => {
-            smartToastPromiseDetached(
+            void showPromise(
               new Promise<string>((_, reject) => {
                 setTimeout(
                   () => reject(new Error('Simulated error (detached)')),
@@ -298,17 +287,16 @@ const ToastTest: Component = () => {
                 )
               }),
               {
-                context: 'user-action',
                 loading: 'Detached operation...',
                 success: 'Detached operation completed!',
                 error: 'Operação destacada falhou\nPor favor, tente novamente.',
-                options: toastOptions(),
               },
+              { context: 'user-action' },
             )
           }}
           style={{ 'background-color': '#E53935', color: 'white' }}
         >
-          Test smartToastPromiseDetached (error)
+          Test showPromise (error)
         </button>
         <button
           onClick={testMultipleDetachedOperations}
@@ -363,15 +351,15 @@ const ToastTest: Component = () => {
         </ul>
 
         <p style={{ 'margin-top': '15px' }}>
-          <strong>smartToastPromiseDetached vs smartToastPromise:</strong>
+          <strong>showPromise vs showPromise:</strong>
         </p>
         <ul>
           <li>
-            <strong>smartToastPromise:</strong> Returns Promise, can be awaited,
-            use for user actions
+            <strong>showPromise:</strong> Returns Promise, can be awaited, use
+            for user actions
           </li>
           <li>
-            <strong>smartToastPromiseDetached:</strong> Fire & forget, ideal for
+            <strong>showPromise:</strong> Fire & forget, ideal for
             bootstrap/background ops
           </li>
           <li>Check browser console for execution logs</li>

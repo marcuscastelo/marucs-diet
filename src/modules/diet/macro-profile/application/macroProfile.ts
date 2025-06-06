@@ -9,10 +9,7 @@ import {
 } from '~/modules/diet/macro-profile/infrastructure/supabaseMacroProfileRepository'
 import { currentUserId } from '~/modules/user/application/user'
 import { createEffect, createSignal } from 'solid-js'
-import {
-  smartToastPromise,
-  smartToastPromiseDetached,
-} from '~/shared/toast/smartToastPromise'
+import { showPromise } from '~/shared/toast/toastManager'
 import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 import { handleApiError } from '~/shared/error/errorHandler'
 
@@ -26,12 +23,17 @@ export const latestMacroProfile = () =>
   getLatestMacroProfile(userMacroProfiles())
 
 function bootstrap() {
-  smartToastPromiseDetached(fetchUserMacroProfiles(currentUserId()), {
-    context: 'background',
-    loading: 'Carregando perfis de macro...',
-    success: 'Perfis de macro carregados com sucesso',
-    error: 'Falha ao carregar perfis de macro',
-  })
+  void showPromise(
+    fetchUserMacroProfiles(currentUserId()),
+    {
+      loading: 'Carregando perfis de macro...',
+      success: 'Perfis de macro carregados com sucesso',
+      error: 'Falha ao carregar perfis de macro',
+    },
+    {
+      context: 'background',
+    },
+  )
 }
 
 /**
@@ -66,16 +68,15 @@ export async function fetchUserMacroProfiles(userId: number) {
 
 export async function insertMacroProfile(newMacroProfile: NewMacroProfile) {
   try {
-    const macroProfile = await smartToastPromise(
+    const macroProfile = await showPromise(
       macroProfileRepository.insertMacroProfile(newMacroProfile),
       {
-        context: 'user-action',
         loading: 'Criando perfil de macro...',
         success: 'Perfil de macro criado com sucesso',
         error: 'Falha ao criar perfil de macro',
       },
+      { context: 'user-action' },
     )
-
     if (
       macroProfile !== null &&
       macroProfile !== undefined &&
@@ -100,17 +101,17 @@ export async function updateMacroProfile(
   newMacroProfile: NewMacroProfile,
 ) {
   try {
-    const macroProfiles = await smartToastPromise(
+    const macroProfiles = await showPromise(
       macroProfileRepository.updateMacroProfile(
         macroProfileId,
         newMacroProfile,
       ),
       {
-        context: 'user-action',
         loading: 'Atualizando perfil de macro...',
         success: 'Perfil de macro atualizado com sucesso',
         error: 'Falha ao atualizar perfil de macro',
       },
+      { context: 'user-action' },
     )
     const firstUserMacroProfile = userMacroProfiles()[0]
     if (
@@ -132,16 +133,16 @@ export async function updateMacroProfile(
   }
 }
 
-export async function deleteMacroProfile(macroProfileId: MacroProfile['id']) {
+export async function deleteMacroProfile(macroProfileId: number) {
   try {
-    await smartToastPromise(
+    await showPromise(
       macroProfileRepository.deleteMacroProfile(macroProfileId),
       {
-        context: 'user-action',
         loading: 'Deletando perfil de macro...',
         success: 'Perfil de macro deletado com sucesso',
         error: 'Falha ao deletar perfil de macro',
       },
+      { context: 'user-action' },
     )
     if (userMacroProfiles().length > 0) {
       await fetchUserMacroProfiles(userMacroProfiles()[0].owner)

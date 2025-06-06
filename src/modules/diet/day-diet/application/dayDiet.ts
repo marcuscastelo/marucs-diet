@@ -11,10 +11,7 @@ import {
 import { type User } from '~/modules/user/domain/user'
 import { createEffect, createSignal } from 'solid-js'
 import { currentUserId } from '~/modules/user/application/user'
-import {
-  smartToastPromise,
-  smartToastPromiseDetached,
-} from '~/shared/toast/smartToastPromise'
+import { showPromise } from '~/shared/toast/toastManager'
 import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 import { handleApiError } from '~/shared/error/errorHandler'
 
@@ -46,12 +43,15 @@ export const [currentDayDiet, setCurrentDayDiet] = createSignal<DayDiet | null>(
 )
 
 function bootstrap() {
-  smartToastPromiseDetached(fetchAllUserDayDiets(currentUserId()), {
-    context: 'background',
-    loading: 'Buscando dietas do usuário...',
-    success: 'Dietas do usuário obtidas com sucesso',
-    error: 'Falha ao buscar dietas do usuário',
-  })
+  void showPromise(
+    fetchAllUserDayDiets(currentUserId()),
+    {
+      loading: 'Carregando dietas do usuário...',
+      success: 'Dietas do usuário obtidas com sucesso',
+      error: 'Erro ao obter dietas do usuário',
+    },
+    { context: 'background' },
+  )
 }
 
 /**
@@ -102,12 +102,15 @@ async function fetchAllUserDayDiets(userId: User['id']) {
 
 export async function insertDayDiet(dayDiet: NewDayDiet): Promise<void> {
   try {
-    await smartToastPromise(dayRepository.insertDayDiet(dayDiet), {
-      context: 'user-action',
-      loading: 'Criando novo dia de dieta...',
-      success: 'Dia de dieta criado com sucesso',
-      error: 'Falha ao criar novo dia de dieta',
-    })
+    await showPromise(
+      dayRepository.insertDayDiet(dayDiet),
+      {
+        loading: 'Criando dia de dieta...',
+        success: 'Dia de dieta criado com sucesso',
+        error: 'Erro ao criar dia de dieta',
+      },
+      { context: 'user-action' },
+    )
     // Silently refresh data without additional toast noise
     await fetchAllUserDayDiets(dayDiet.owner)
   } catch (error) {
@@ -125,12 +128,15 @@ export async function updateDayDiet(
   dayDiet: NewDayDiet,
 ): Promise<void> {
   try {
-    await smartToastPromise(dayRepository.updateDayDiet(dayId, dayDiet), {
-      context: 'user-action',
-      loading: 'Atualizando dieta...',
-      success: 'Dieta atualizada com sucesso',
-      error: 'Falha ao atualizar dieta',
-    })
+    await showPromise(
+      dayRepository.updateDayDiet(dayId, dayDiet),
+      {
+        loading: 'Atualizando dieta...',
+        success: 'Dieta atualizada com sucesso',
+        error: 'Erro ao atualizar dieta',
+      },
+      { context: 'user-action' },
+    )
     // Silently refresh data without additional toast noise
     await fetchAllUserDayDiets(dayDiet.owner)
   } catch (error) {
@@ -145,12 +151,15 @@ export async function updateDayDiet(
 
 export async function deleteDayDiet(dayId: DayDiet['id']): Promise<void> {
   try {
-    await smartToastPromise(dayRepository.deleteDayDiet(dayId), {
-      context: 'user-action',
-      loading: 'Deletando dieta...',
-      success: 'Dieta deletada com sucesso',
-      error: 'Falha ao deletar dieta',
-    })
+    await showPromise(
+      dayRepository.deleteDayDiet(dayId),
+      {
+        loading: 'Deletando dieta...',
+        success: 'Dieta deletada com sucesso',
+        error: 'Erro ao deletar dieta',
+      },
+      { context: 'user-action' },
+    )
     // Silently refresh data without additional toast noise
     await fetchAllUserDayDiets(currentUserId())
   } catch (error) {

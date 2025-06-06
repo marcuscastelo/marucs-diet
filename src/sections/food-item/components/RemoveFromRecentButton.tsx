@@ -1,5 +1,5 @@
 import { Show } from 'solid-js'
-import { smartToastPromise } from '~/shared/toast/smartToastPromise'
+import { showPromise } from '~/shared/toast/toastManager'
 import { deleteRecentFoodByFoodId } from '~/legacy/controllers/recentFood'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
@@ -15,10 +15,9 @@ export function RemoveFromRecentButton(props: RemoveFromRecentButtonProps) {
   const handleClick = (e: MouseEvent) => {
     e.stopPropagation()
     e.preventDefault()
-    smartToastPromise(
+    void showPromise(
       deleteRecentFoodByFoodId(currentUserId(), props.templateId),
       {
-        context: 'user-action',
         loading: 'Removendo alimento da lista de recentes...',
         success: 'Alimento removido da lista de recentes com sucesso!',
         error: (err: unknown) => {
@@ -30,6 +29,7 @@ export function RemoveFromRecentButton(props: RemoveFromRecentButtonProps) {
           return 'Erro ao remover alimento da lista de recentes.'
         },
       },
+      { context: 'user-action' },
     )
       .then(props.refetch)
       .catch(() => {})
