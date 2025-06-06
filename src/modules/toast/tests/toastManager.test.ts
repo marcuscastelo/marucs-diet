@@ -96,9 +96,7 @@ describe('toastManager', () => {
     const enqueueSpy = vi
       .spyOn(toastQueue, 'enqueue')
       .mockReturnValue('loading-id')
-    const dequeueByIdSpy = vi
-      .spyOn(toastQueue, 'dequeueById')
-      .mockReturnValue(true)
+
     const promise = Promise.resolve('done')
     await showPromise(
       promise,
