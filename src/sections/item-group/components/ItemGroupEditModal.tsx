@@ -159,7 +159,10 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
 
     const currentGroup = group()
     if (currentGroup === null) {
-      showError('Grupo não encontrado', { context: 'system' })
+      showError('Grupo não encontrado', {
+        context: 'user-action',
+        audience: 'system',
+      })
       throw new Error('group is null')
     }
 
@@ -239,7 +242,10 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   const handleItemApply = (item: TemplateItem) => {
     const group_ = group()
     if (group_ === null) {
-      showError('Grupo não encontrado', { context: 'system' })
+      showError('Grupo não encontrado', {
+        context: 'user-action',
+        audience: 'system',
+      })
       throw new Error('group is null')
     }
 
@@ -267,7 +273,10 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
           (i: Item) => i.id === currentItem.id,
         )
         if (originalItem === undefined) {
-          showError('Item original não encontrado', { context: 'system' })
+          showError('Item original não encontrado', {
+            context: 'user-action',
+            audience: 'system',
+          })
           return { enable: false }
         }
         return { enable: true, originalItem }
@@ -321,7 +330,10 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   const handleItemDelete = (itemId: TemplateItem['id']) => {
     const group_ = group()
     if (group_ === null) {
-      showError('Grupo não encontrado', { context: 'system' })
+      showError('Grupo não encontrado', {
+        context: 'user-action',
+        audience: 'system',
+      })
       throw new Error('group is null')
     }
 
@@ -397,7 +409,8 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
                   )
                   if (originalItem === undefined) {
                     showError('Item original não encontrado', {
-                      context: 'system',
+                      context: 'user-action',
+                      audience: 'system',
                     })
                     return { enable: false }
                   }
@@ -587,7 +600,8 @@ function Body(props: {
                             const group_ = group()
                             if (group_ === null) {
                               showError('Grupo não encontrado', {
-                                context: 'system',
+                                context: 'user-action',
+                                audience: 'system',
                               })
                               throw new Error('group is null')
                             }
@@ -668,7 +682,8 @@ function Body(props: {
 
                                     if (group() === null) {
                                       showError('Grupo não encontrado', {
-                                        context: 'system',
+                                        context: 'user-action',
+                                        audience: 'system',
                                       })
                                       throw new Error('group is null')
                                     }

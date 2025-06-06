@@ -1,6 +1,7 @@
 /**
  * Toast Test Component
- * Component to test the toast system with ID-based management
+ *
+ * Component to test the toast system with ID-based management.
  */
 
 import { Component, createSignal } from 'solid-js'
@@ -23,6 +24,7 @@ const ToastTest: Component = () => {
   })
 
   const testPromiseSuccess = () => {
+    // Test a promise that resolves successfully and shows a toast
     const promise = new Promise<string>((resolve) => {
       setTimeout(() => resolve('Success!'), 2000)
     })
@@ -41,6 +43,7 @@ const ToastTest: Component = () => {
   }
 
   const testPromiseError = () => {
+    // Test a promise that rejects and shows an error toast
     const promise = new Promise<string>((_, reject) => {
       setTimeout(() => reject(new Error('Simulated error')), 2000)
     })
@@ -59,6 +62,7 @@ const ToastTest: Component = () => {
   }
 
   const testPromiseWithoutMessages = () => {
+    // Test a promise with only a loading message and no success message
     const promise = new Promise<string>((resolve) => {
       setTimeout(() => resolve('OK'), 1500)
     })

@@ -1,27 +1,33 @@
 /**
  * Toast Settings
  *
- * User-configurable settings for the toast notification system,
- * with persistent storage in local storage.
+ * User-configurable settings for the toast notification system.
+ * Settings are persisted in local storage.
  */
 
 import { createSignal, createEffect } from 'solid-js'
 
 /**
- * User configurable toast settings
+ * User-configurable toast settings
+ * - showBackgroundSuccess: Whether to show success toasts for background operations
+ * - showBackgroundLoading: Whether to show loading toasts for background operations
+ * - autoDismissErrors: Whether to automatically dismiss error toasts
+ * - defaultDuration: Default duration for toasts in milliseconds
+ * - groupSimilarToasts: Whether to group similar toasts together
+ * - showDetailedErrors: Whether to show detailed error information in toasts
  */
 export type ToastSettings = {
-  /** Whether to show background success toasts */
+  /** Show success toasts for background operations */
   showBackgroundSuccess: boolean
-  /** Whether to show background loading toasts */
+  /** Show loading toasts for background operations */
   showBackgroundLoading: boolean
-  /** Whether to auto-dismiss error toasts */
+  /** Automatically dismiss error toasts */
   autoDismissErrors: boolean
-  /** Default duration for toasts in ms */
+  /** Default duration for toasts in milliseconds */
   defaultDuration: number
-  /** Whether to group similar toasts */
+  /** Group similar toasts together */
   groupSimilarToasts: boolean
-  /** Whether to show detailed error information */
+  /** Show detailed error information in toasts */
   showDetailedErrors: boolean
 }
 

@@ -1,3 +1,9 @@
+/**
+ * Toast Manager Tests
+ *
+ * Unit tests for the toastManager application logic.
+ */
+
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import * as toastQueue from '~/modules/toast/application/toastQueue'
 import {
@@ -13,6 +19,7 @@ describe('toastManager', () => {
   })
 
   it('showError creates an error toast with correct options', () => {
+    // Should enqueue an error toast with the correct context and level
     const enqueueSpy = vi.spyOn(toastQueue, 'enqueue').mockReturnValue('id1')
     const error = new Error('fail')
     const id = showError(error, { context: 'user-action' })
@@ -24,16 +31,20 @@ describe('toastManager', () => {
   })
 
   it('showSuccess creates a success toast', () => {
+    // Should enqueue a success toast with the correct context and level
     const enqueueSpy = vi.spyOn(toastQueue, 'enqueue').mockReturnValue('id2')
-    const id = showSuccess('ok', { context: 'system' })
+    // Use a valid context ("user-action" or "background") and optionally audience
+    const id = showSuccess('ok', { context: 'user-action', audience: 'user' })
     expect(enqueueSpy).toHaveBeenCalled()
     const toastArg = enqueueSpy.mock.calls[0][0]
     expect(toastArg.options.level).toBe('success')
-    expect(toastArg.options.context).toBe('system')
+    expect(toastArg.options.context).toBe('user-action')
+    expect(toastArg.options.audience).toBe('user')
     expect(id).toBe('id2')
   })
 
   it('showLoading creates a loading toast', () => {
+    // Should enqueue a loading toast with the correct context and level
     const enqueueSpy = vi.spyOn(toastQueue, 'enqueue').mockReturnValue('id3')
     // Use a context that will not be skipped by shouldSkipBackgroundToast
     const id = showLoading('loading...', { context: 'user-action' })

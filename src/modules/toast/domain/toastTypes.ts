@@ -10,66 +10,49 @@
 export const TOAST_DURATION_INFINITY = Infinity
 
 /**
- * Context in which a toast is triggered
- * - user-action: Direct user interaction (button clicks, form submissions)
- * - background: Automatic operations (bootstrap, realtime updates, sync)
- * - system: System-level notifications (errors, warnings)
+ * ToastAudience defines who should see this toast.
+ * - 'user': Toasts relevant to the end user (normal user-facing notifications)
+ * - 'system': Toasts relevant to system administrators or critical system operations
  */
-export type ToastContext = 'user-action' | 'background' | 'system'
+export type ToastAudience = 'user' | 'system'
 
 /**
- * Toast severity levels
+ * ToastContext defines the origin of the event that triggered the toast.
+ * - 'user-action': Direct user interaction (e.g., button click, form submit)
+ * - 'background': Automatic/background operations (e.g., sync, bootstrap, polling)
+ */
+export type ToastContext = 'user-action' | 'background'
+
+/**
+ * ToastLevel defines the severity of the toast.
+ * - 'info': Informational message
+ * - 'success': Success message
+ * - 'warning': Warning message
+ * - 'error': Error message
  */
 export type ToastLevel = 'info' | 'success' | 'warning' | 'error'
 
 /**
- * Configuration options for toast display behavior
+ * ToastOptions configures the display behavior of a toast notification.
+ * @property context - The origin of the event that triggered the toast
+ * @property audience - Who should see this toast
+ * @property level - The severity level of the toast
+ * @property showLoading - Whether to show a loading toast for promises (default: true for user-action, false for background)
+ * @property showSuccess - Whether to show a success toast for promises (default: true for user-action, false for background)
+ * @property maxLength - Maximum length for toast messages before truncation (default: 100)
+ * @property duration - Auto-dismiss timeout in milliseconds (default: 3000 for success/info, TOAST_DURATION_INFINITY for error/warning)
+ * @property dismissible - Whether this toast can be dismissed by the user (default: true)
+ * @property expandableErrorData - Data for expandable error toasts (used by ExpandableErrorToast component)
  */
 export type ToastOptions = {
-  /**
-   * Context that triggered the toast
-   */
   context: ToastContext
-
-  /**
-   * Severity level of the toast
-   */
+  audience: ToastAudience
   level: ToastLevel
-
-  /**
-   * Whether to show loading toast for promises
-   * @default true for user-action, false for background
-   */
   showLoading?: boolean
-
-  /**
-   * Whether to show success toast for promises
-   * @default true for user-action, false for background
-   */
   showSuccess?: boolean
-
-  /**
-   * Maximum length for toast messages before truncation
-   * @default 100
-   */
   maxLength?: number
-
-  /**
-   * Auto-dismiss timeout in milliseconds
-   * @default 3000 for success/info, TOAST_DURATION_INFINITY (manual) for error/warning
-   */
   duration: number
-
-  /**
-   * Whether this toast can be dismissed by user
-   * @default true
-   */
   dismissible?: boolean
-
-  /**
-   * Data for expandable error toasts
-   * @internal Used by ExpandableErrorToast component
-   */
   expandableErrorData?: {
     isTruncated: boolean
     errorDetails: ToastError
@@ -77,7 +60,7 @@ export type ToastOptions = {
 }
 
 /**
- * Default toast options based on context
+ * DEFAULT_TOAST_OPTIONS provides default options for each context.
  */
 export const DEFAULT_TOAST_OPTIONS: Record<ToastContext, ToastOptions> = {
   'user-action': {
@@ -87,6 +70,7 @@ export const DEFAULT_TOAST_OPTIONS: Record<ToastContext, ToastOptions> = {
     duration: 3000,
     dismissible: true,
     context: 'user-action',
+    audience: 'user',
     level: 'info',
     expandableErrorData: undefined,
   },
@@ -97,22 +81,14 @@ export const DEFAULT_TOAST_OPTIONS: Record<ToastContext, ToastOptions> = {
     duration: 2000,
     dismissible: true,
     context: 'background',
-    level: 'info',
-  },
-  system: {
-    showLoading: false,
-    showSuccess: true,
-    maxLength: 200,
-    duration: 5000,
-    dismissible: true,
-    context: 'system',
+    audience: 'user',
     level: 'info',
   },
 }
 
 /**
- * Priority levels for toast queue management
- * Higher numbers = higher priority
+ * TOAST_PRIORITY defines priority levels for toast queue management.
+ * Higher numbers = higher priority.
  */
 export const TOAST_PRIORITY: Record<ToastLevel, number> = {
   error: 4,
@@ -122,25 +98,22 @@ export const TOAST_PRIORITY: Record<ToastLevel, number> = {
 }
 
 /**
- * Configuration for toast queue management
+ * ToastQueueConfig configures the toast queue manager.
  */
 export type ToastQueueConfig = {
-  /**
-   * Delay between toast transitions in milliseconds
-   * @default 300
-   */
+  /** Delay between toast transitions in milliseconds (default: 300) */
   transitionDelay: number
 }
 
 /**
- * Default queue configuration
+ * DEFAULT_QUEUE_CONFIG provides the default queue configuration.
  */
 export const DEFAULT_QUEUE_CONFIG: ToastQueueConfig = {
   transitionDelay: 300,
 }
 
 /**
- * Toast item for queue management
+ * ToastItem represents a toast in the queue.
  */
 export type ToastItem = {
   id: string
@@ -153,7 +126,7 @@ export type ToastItem = {
 }
 
 /**
- * Error details for expandable error messages
+ * ToastError contains error details for expandable error messages.
  */
 export type ToastError = {
   message: string
