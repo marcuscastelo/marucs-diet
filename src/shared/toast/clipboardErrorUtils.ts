@@ -4,6 +4,7 @@
  */
 import { ToastError } from './toastConfig'
 import { handleApiError } from '~/shared/error/errorHandler'
+import { useClipboard } from '~/sections/common/hooks/useClipboard'
 
 // Explicit type for context
 export type ClipboardErrorContext = { component: string; operation: string }
@@ -48,28 +49,15 @@ export async function handleCopyErrorToClipboard(
   errorDetails: ToastError,
   context: ClipboardErrorContext,
 ) {
-  try {
-    // Defensive: clipboard may not be available in all environments
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore: navigator may not exist in some environments
-    if (
-      typeof navigator === 'undefined' ||
-      typeof navigator.clipboard === 'undefined'
-    ) {
-      handleApiError(new Error('Clipboard API not available'), {
+  const { write } = useClipboard()
+  const clipboardContent = formatErrorForClipboard(errorDetails)
+  write(clipboardContent, (error) => {
+    if (error != null) {
+      handleApiError(error, {
         component: context.component,
         operation: context.operation,
         additionalData: { errorDetails },
       })
-      return
     }
-    const clipboardContent = formatErrorForClipboard(errorDetails)
-    await navigator.clipboard.writeText(clipboardContent)
-  } catch (error) {
-    handleApiError(error, {
-      component: context.component,
-      operation: context.operation,
-      additionalData: { errorDetails },
-    })
-  }
+  })
 }
