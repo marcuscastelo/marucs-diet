@@ -55,14 +55,14 @@ export type ToastOptions = {
   audience: ToastAudience
   level: ToastLevel
   duration: number
-  dismissible?: boolean
-  showLoading?: boolean
-  showSuccess?: boolean
-  maxLength?: number
-  preserveLineBreaks?: boolean
-  truncationSuffix?: string
-  includeStack?: boolean
-  expandableErrorData?: ToastExpandableErrorData
+  dismissible: boolean
+  showLoading: boolean
+  showSuccess: boolean
+  maxLength: number
+  preserveLineBreaks: boolean
+  truncationSuffix: string
+  includeStack: boolean
+  expandableErrorData: ToastExpandableErrorData | null
 }
 
 /**
@@ -95,7 +95,10 @@ export const DEFAULT_TOAST_OPTIONS: Record<ToastContext, ToastOptions> = {
     context: 'user-action',
     audience: 'user',
     level: 'info',
-    expandableErrorData: undefined,
+    preserveLineBreaks: false,
+    truncationSuffix: '...',
+    includeStack: true,
+    expandableErrorData: null,
   },
   background: {
     showLoading: false,
@@ -106,6 +109,10 @@ export const DEFAULT_TOAST_OPTIONS: Record<ToastContext, ToastOptions> = {
     context: 'background',
     audience: 'user',
     level: 'info',
+    preserveLineBreaks: false,
+    truncationSuffix: '...',
+    includeStack: true,
+    expandableErrorData: null,
   },
 }
 

@@ -69,19 +69,17 @@ function filterBackgroundPromiseMessages<T>(
     success?: string | ((data: T) => string)
     error?: string | ((error: unknown) => string)
   },
-  options?: Partial<ToastOptions>,
+  providedOptions?: Partial<ToastOptions>,
 ): typeof messages {
-  const context = options?.context ?? DEFAULT_TOAST_CONTEXT
-  const mergedOptions = { ...DEFAULT_TOAST_OPTIONS[context], ...options }
-
+  const options = mergeToastOptions(providedOptions)
   return {
-    loading: !shouldSkipToast({ ...mergedOptions, level: 'info' })
+    loading: !shouldSkipToast({ ...options, level: 'info' })
       ? messages.loading
       : undefined,
-    success: !shouldSkipToast({ ...mergedOptions, level: 'success' })
+    success: !shouldSkipToast({ ...options, level: 'success' })
       ? messages.success
       : undefined,
-    error: !shouldSkipToast({ ...mergedOptions, level: 'error' })
+    error: !shouldSkipToast({ ...options, level: 'error' })
       ? messages.error
       : undefined,
   }
@@ -123,11 +121,7 @@ function resolveValueOrFunction<T, R>(
  * @returns The toast ID, or empty string if skipped.
  */
 function show(message: string, providedOptions: Partial<ToastOptions>): string {
-  const context = providedOptions.context ?? DEFAULT_TOAST_CONTEXT
-  const options: ToastOptions = {
-    ...DEFAULT_TOAST_OPTIONS[context],
-    ...providedOptions,
-  }
+  const options: ToastOptions = mergeToastOptions(providedOptions)
   if (shouldSkipToast(options)) return ''
   return createAndEnqueueToast(message, options)
 }
@@ -146,16 +140,12 @@ export function showError(
   error: unknown,
   providedOptions?: Omit<Partial<ToastOptions>, 'level'>,
 ): string {
-  const options = {
-    level: 'error' as const,
-    ...providedOptions,
-  }
+  const options = mergeToastOptions({ ...providedOptions, level: 'error' })
 
   // Ensure error is a string for display
   const errorMessage = typeof error === 'string' ? error : String(error)
 
   const processed = createExpandableErrorData(errorMessage, {
-    includeStack: true,
     ...options,
   })
 
@@ -176,12 +166,7 @@ export function showSuccess(
   message: string,
   providedOptions?: Omit<Partial<ToastOptions>, 'level'>,
 ): string {
-  const options = {
-    level: 'success' as const,
-    ...providedOptions,
-  }
-
-  return show(message, options)
+  return show(message, { ...providedOptions, level: 'success' as const })
 }
 
 /**
@@ -195,13 +180,11 @@ export function showLoading(
   message: string,
   providedOptions?: Omit<Partial<ToastOptions>, 'level'>,
 ): string {
-  const options = {
-    duration: TOAST_DURATION_INFINITY, // Infinite duration for loading
-    level: 'info' as const,
+  return show(message, {
+    duration: TOAST_DURATION_INFINITY,
     ...providedOptions,
-  }
-
-  return show(message, options)
+    level: 'info' as const,
+  })
 }
 
 function handlePromiseSuccess<T>(
@@ -211,11 +194,11 @@ function handlePromiseSuccess<T>(
     success?: string | ((data: T) => string)
     error?: string | ((error: unknown) => string)
   },
-  options?: Partial<ToastOptions>,
+  providedOptions?: Partial<ToastOptions>,
 ) {
   const successMsg = resolveValueOrFunction(filteredMessages.success, data)
   if (isNonEmptyString(successMsg)) {
-    showSuccess(successMsg, options)
+    showSuccess(successMsg, providedOptions)
   }
 }
 
@@ -226,13 +209,13 @@ function handlePromiseError<T>(
     success?: string | ((data: T) => string)
     error?: string | ((error: unknown) => string)
   },
-  options?: Partial<ToastOptions>,
+  providedOptions?: Partial<ToastOptions>,
 ) {
   const errorMsg = resolveValueOrFunction(filteredMessages.error, err)
   if (isNonEmptyString(errorMsg)) {
-    showError(errorMsg, options)
+    showError(errorMsg, providedOptions)
   } else {
-    showError(err, options)
+    showError(err, providedOptions)
   }
 }
 
@@ -262,23 +245,43 @@ export function showPromise<T>(
     success?: string | ((data: T) => string)
     error?: string | ((error: unknown) => string)
   },
-  options?: Partial<ToastOptions>,
+  providedOptions?: Partial<ToastOptions>,
 ): Promise<T> {
-  const filteredMessages = filterBackgroundPromiseMessages(messages, options)
+  const filteredMessages = filterBackgroundPromiseMessages(
+    messages,
+    providedOptions,
+  )
   let loadingToastId: string | null = null
   if (isNonEmptyString(filteredMessages.loading)) {
-    loadingToastId = showLoading(filteredMessages.loading, options)
+    loadingToastId = showLoading(filteredMessages.loading, providedOptions)
   }
   return promise
     .then((data) => {
-      handlePromiseSuccess(data, filteredMessages, options)
+      handlePromiseSuccess(data, filteredMessages, providedOptions)
       return data
     })
     .catch((err: unknown) => {
-      handlePromiseError(err, filteredMessages, options)
+      handlePromiseError(err, filteredMessages, providedOptions)
       throw err
     })
     .finally(() => {
       removeLoadingToast(loadingToastId)
     })
+}
+
+/**
+ * Merges provided ToastOptions with defaults for the given context.
+ * Ensures all required fields are present.
+ *
+ * @param providedOptions - Partial ToastOptions to override defaults.
+ * @returns {ToastOptions} Complete ToastOptions object.
+ */
+function mergeToastOptions(
+  providedOptions?: Partial<ToastOptions>,
+): ToastOptions {
+  const context = providedOptions?.context ?? DEFAULT_TOAST_CONTEXT
+  return {
+    ...DEFAULT_TOAST_OPTIONS[context],
+    ...providedOptions,
+  }
 }
