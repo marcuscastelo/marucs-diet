@@ -13,9 +13,9 @@ describe('formatErrorForClipboard', () => {
       timestamp: 1717600000000,
     }
     const result = formatErrorForClipboard(error)
-    expect(result).toContain(`${TOAST_MESSAGES.errorTitle}: Test error`)
-    expect(result).toContain(`${TOAST_MESSAGES.showDetails}: Full stacktrace`)
-    expect(result).toContain(`${TOAST_MESSAGES.copyError}:`)
+    expect(result).toContain(`${TOAST_MESSAGES.ERROR_TITLE}: Test error`)
+    expect(result).toContain(`${TOAST_MESSAGES.SHOW_DETAILS}: Full stacktrace`)
+    expect(result).toContain(`${TOAST_MESSAGES.COPY_ERROR}:`)
     expect(result).toContain('foo')
     expect(result).toContain('num')
     expect(result).toContain('Stack Trace:')
@@ -33,9 +33,9 @@ describe('formatErrorForClipboard', () => {
       timestamp: 0,
     }
     const result = formatErrorForClipboard(error)
-    expect(result).toContain(`${TOAST_MESSAGES.errorTitle}: Error`)
-    expect(result).not.toContain(`${TOAST_MESSAGES.showDetails}:`)
-    expect(result).not.toContain(`${TOAST_MESSAGES.copyError}:`)
+    expect(result).toContain(`${TOAST_MESSAGES.ERROR_TITLE}: Error`)
+    expect(result).not.toContain(`${TOAST_MESSAGES.SHOW_DETAILS}:`)
+    expect(result).not.toContain(`${TOAST_MESSAGES.COPY_ERROR}:`)
     expect(result).not.toContain('Stack Trace:')
     expect(result).not.toContain('Timestamp:')
   })
@@ -66,9 +66,9 @@ describe('formatErrorForClipboard', () => {
       timestamp: 0,
     }
     const result = formatErrorForClipboard(error)
-    expect(result).toContain(`${TOAST_MESSAGES.errorTitle}: Message only`)
-    expect(result).not.toContain(`${TOAST_MESSAGES.showDetails}:`)
-    expect(result).not.toContain(`${TOAST_MESSAGES.copyError}:`)
+    expect(result).toContain(`${TOAST_MESSAGES.ERROR_TITLE}: Message only`)
+    expect(result).not.toContain(`${TOAST_MESSAGES.SHOW_DETAILS}:`)
+    expect(result).not.toContain(`${TOAST_MESSAGES.COPY_ERROR}:`)
   })
 
   it('handles only stack', () => {
@@ -97,9 +97,9 @@ describe('formatErrorForClipboard', () => {
       timestamp: 0,
     }
     const result = formatErrorForClipboard(error)
-    expect(result).toContain(`${TOAST_MESSAGES.copyError}:`)
+    expect(result).toContain(`${TOAST_MESSAGES.COPY_ERROR}:`)
     expect(result).toContain('foo')
-    expect(result).not.toContain(`${TOAST_MESSAGES.errorTitle}:`)
+    expect(result).not.toContain(`${TOAST_MESSAGES.ERROR_TITLE}:`)
   })
 
   it('handles only timestamp', () => {

@@ -27,7 +27,7 @@ export type ExpandableToastProps = {
 
 // Fallback error details for missing or incomplete error data
 const FALLBACK_ERROR_DETAILS: ToastError = {
-  message: TOAST_MESSAGES.fallbackErrorDetails,
+  message: TOAST_MESSAGES.FALLBACK_ERROR_DETAILS,
   stack: '',
   context: {},
   timestamp: Date.now(),
@@ -311,17 +311,17 @@ function ExpandableToastContent(props: ExpandableToastContentProps) {
           type="button"
           class="px-2 py-1 rounded bg-gray-700 text-gray-100 text-xs hover:bg-gray-600 transition-colors"
           onClick={handleShowDetails}
-          aria-label="Mostrar detalhes do erro"
+          aria-label="Show error details"
         >
-          Mostrar detalhes
+          {TOAST_MESSAGES.SHOW_DETAILS}
         </button>
         <button
           type="button"
           class="px-2 py-1 rounded bg-gray-700 text-gray-100 text-xs hover:bg-gray-600 transition-colors"
           onClick={() => props.onCopy()}
-          aria-label="Copiar detalhes do erro"
+          aria-label="Copy error details"
         >
-          Copiar erro
+          {TOAST_MESSAGES.COPY_ERROR}
         </button>
       </div>
     </div>

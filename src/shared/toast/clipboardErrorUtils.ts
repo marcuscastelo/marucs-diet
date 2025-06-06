@@ -16,18 +16,18 @@ export function formatErrorForClipboard(errorDetails: ToastError): string {
     typeof errorDetails.message === 'string' &&
     errorDetails.message.trim() !== ''
   ) {
-    sections.push(`${TOAST_MESSAGES.errorTitle}: ${errorDetails.message}`)
+    sections.push(`${TOAST_MESSAGES.ERROR_TITLE}: ${errorDetails.message}`)
   }
   if (
     typeof errorDetails.fullError === 'string' &&
     errorDetails.fullError.trim() !== '' &&
     errorDetails.fullError !== errorDetails.message
   ) {
-    sections.push(`${TOAST_MESSAGES.showDetails}: ${errorDetails.fullError}`)
+    sections.push(`${TOAST_MESSAGES.SHOW_DETAILS}: ${errorDetails.fullError}`)
   }
   if (errorDetails.context && Object.keys(errorDetails.context).length > 0) {
     sections.push(
-      `${TOAST_MESSAGES.copyError}: ${JSON.stringify(
+      `${TOAST_MESSAGES.COPY_ERROR}: ${JSON.stringify(
         errorDetails.context,
         null,
         2,
