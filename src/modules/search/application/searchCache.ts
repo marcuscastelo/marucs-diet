@@ -3,7 +3,7 @@
 import {
   type CachedSearch,
   cachedSearchSchema,
-} from '~/legacy/model/cachedSearch'
+} from '~/modules/search/application/cachedSearch'
 import supabase from '~/legacy/utils/supabase'
 import { handleApiError } from '~/shared/error/errorHandler'
 
