@@ -1,5 +1,13 @@
-import { UserIcon } from '~/sections/common/components/icons/UserIcon'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { useLocation, useNavigate } from '@solidjs/router'
+import {
+  For,
+  type JSXElement,
+  Show,
+  createSignal,
+  onCleanup,
+  onMount,
+} from 'solid-js'
+import { showError } from '~/modules/toast/application/toastManager'
 import {
   changeToUser,
   currentUserId,
@@ -7,9 +15,8 @@ import {
   users,
 } from '~/modules/user/application/user'
 import { type User } from '~/modules/user/domain/user'
-import { For, type JSXElement, Show } from 'solid-js'
-import { useLocation, useNavigate } from '@solidjs/router'
-import { showError } from '~/modules/toast/application/toastManager'
+import { UserIcon } from '~/sections/common/components/icons/UserIcon'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 
 export function BottomNavigation() {
   const navigate = useNavigate()
@@ -17,15 +24,65 @@ export function BottomNavigation() {
   const pathname = location.pathname
   const { show: showConfirmModal } = useConfirmModalContext()
 
+  // Signal to know how much the footer is visible (0 to 1)
+  const [footerIntersection, setFooterIntersection] = createSignal(0)
+  const [footerHeight, setFooterHeight] = createSignal(0)
+  let footerRef: HTMLDivElement | undefined
+  let observer: IntersectionObserver | undefined
+  let resizeObserver: ResizeObserver | undefined
+
+  onMount(() => {
+    if (!footerRef) return
+    observer = new window.IntersectionObserver(
+      (entries) => {
+        const entry = entries[0]
+        const ratio = entry?.intersectionRatio ?? 0
+        setFooterIntersection(ratio)
+        if (ratio > 0 && footerRef) {
+          setFooterHeight(footerRef.offsetHeight)
+        }
+      },
+      {
+        root: null,
+        threshold: Array.from({ length: 101 }, (_, i) => i / 100),
+      },
+    )
+    observer.observe(footerRef)
+
+    // Updates footerHeight if the footer size changes
+    resizeObserver = new window.ResizeObserver(() => {
+      if (footerRef && footerRef.offsetHeight !== footerHeight()) {
+        setFooterHeight(footerRef.offsetHeight)
+      }
+    })
+    resizeObserver.observe(footerRef)
+  })
+
+  onCleanup(() => {
+    observer?.disconnect()
+    resizeObserver?.disconnect()
+  })
+
   console.debug('[BottomNavigation] Rendering')
   console.debug('[BottomNavigation] Current path:', pathname)
 
   return (
     <div class="">
       {/* Placeholder for bottom navigation when page is 100% scrolled */}
-      <div class="h-36 lg:h-24" />
-      <div class="fixed z-50 w-full bottom-0 left-0">
-        <div class="fixed z-50 w-full h-16 max-w-lg -translate-x-1/2 bg-white border border-gray-200 rounded-full bottom-6 left-1/2 dark:bg-slate-800 dark:border-slate-700">
+      <div class="h-24 lg:h-24" />
+      <div
+        style={{
+          position: 'fixed',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '100%',
+          'max-width': '32rem', // equivalent to max-w-lg in Tailwind
+          'z-index': 50,
+          transition: 'bottom 0.12s cubic-bezier(0.4, 0.0, 0.2, 1)',
+          bottom: `${(8 + footerHeight()) * footerIntersection() + 8}px`,
+        }}
+      >
+        <div class="z-50 w-full h-16 bg-white border border-gray-200 rounded-full dark:bg-slate-800 dark:border-slate-700 bottom-0">
           <div class="grid h-full max-w-lg grid-cols-5 mx-auto pt-1">
             <BottomNavigationTab
               active={pathname === '/diet'}
@@ -71,20 +128,24 @@ export function BottomNavigation() {
             />
           </div>
         </div>
-
-        <div class="fixed flex-wrap flex flex-row right-1/2 translate-x-1/2 lg:translate-x-0 lg:right-5 bottom-24 lg:bottom-0 gap-2 bg-slate-800 bg-opacity-80 p-2 rounded">
-          <span>Version: {process.env.APP_VERSION}</span>
-          <Show when={!window.location.href.includes('stable')}>
-            <a
-              href="https://marucs-diet-stable.vercel.app/"
-              class="align-text-bottom pt-1 text-xs text-blue-500 underline"
-              onClick={() => {}}
-            >
-              Trocar para versão estável
-            </a>{' '}
-          </Show>
-        </div>
       </div>
+      <footer
+        ref={footerRef}
+        class="w-full flex flex-col justify-center items-center gap-1 bg-slate-800 bg-opacity-80 p-2 rounded-t left-0 bottom-0 z-40 lg:static lg:rounded-none"
+      >
+        <pre class="text-xs text-white">Version: {process.env.APP_VERSION}</pre>
+        <Show when={!window.location.href.includes('stable')}>
+          <button
+            type="button"
+            class="btn btn-primary btn-xs mt-1"
+            onClick={() => {
+              window.location.href = 'https://marucs-diet-stable.vercel.app/'
+            }}
+          >
+            Trocar para versão estável
+          </button>
+        </Show>
+      </footer>
     </div>
   )
 }

@@ -2,14 +2,15 @@
   "name": "marucs-diet",
   "private": true,
   "type": "module",
-  "version": "v0.11.0-rc.158",
+  "version": "v0.11.0-dev.271.3+issue.631",
   "scripts": {
     "dev": "vinxi dev",
     "build": "vinxi build",
     "start": "vinxi start",
     "type-check": "tsc --noEmit --skipLibCheck",
     "test": "vitest run",
-    "lint": "eslint . --quiet"
+    "lint": "eslint . --quiet",
+    "check": "npm run type-check 2>&1 && npm run lint 2>&1 && npm run test 2>&1 && echo 'All checks passed' || exit 1"
   },
   "dependencies": {
     "@solidjs/router": "^0.13.3",

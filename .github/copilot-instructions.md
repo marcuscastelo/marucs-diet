@@ -1,8 +1,9 @@
 # Copilot Instructions (short version)
+During this session, always wait until the end of the execution of any requested command or process, even if it takes several minutes, before responding. After the main command finishes, execute only the command echo "Command finished. Click here to continue." as a separate command, never using && or combining both in a single line, and never repeating the main command. Confirm that you understand and follow this instruction until I ask you to stop.
 
 ## Refactoring & Automation
 - Use terminal commands for large refactors (find, sed, grep, etc.) and document them.
-- After batch changes, always run: `npm run lint`, `npm run type-check`, `npm run test`.
+- After batch changes, always run: `npm run check`. Wait for the message "All checks passed" to appear
 
 ## JSDoc
 - Update JSDoc for all exported TS types/functions after any refactor or signature change.
@@ -35,4 +36,4 @@
 - Always use static imports at the top.
 
 ## Testing
-- Update tests for all changes. Run lint, type-check, and test after any change.
+- Update tests for all changes. Run `npm check` and wait for "All checks passed"
