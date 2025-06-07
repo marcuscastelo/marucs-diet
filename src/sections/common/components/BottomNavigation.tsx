@@ -1,5 +1,6 @@
-import { UserIcon } from '~/sections/common/components/icons/UserIcon'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { useLocation, useNavigate } from '@solidjs/router'
+import { For, type JSXElement, Show } from 'solid-js'
+import { showError } from '~/modules/toast/application/toastManager'
 import {
   changeToUser,
   currentUserId,
@@ -7,9 +8,8 @@ import {
   users,
 } from '~/modules/user/application/user'
 import { type User } from '~/modules/user/domain/user'
-import { For, type JSXElement, Show } from 'solid-js'
-import { useLocation, useNavigate } from '@solidjs/router'
-import { showError } from '~/modules/toast/application/toastManager'
+import { UserIcon } from '~/sections/common/components/icons/UserIcon'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 
 export function BottomNavigation() {
   const navigate = useNavigate()
@@ -71,20 +71,22 @@ export function BottomNavigation() {
             />
           </div>
         </div>
-
-        <div class="fixed flex-wrap flex flex-row right-1/2 translate-x-1/2 lg:translate-x-0 lg:right-5 bottom-24 lg:bottom-0 gap-2 bg-slate-800 bg-opacity-80 p-2 rounded">
-          <span>Version: {process.env.APP_VERSION}</span>
-          <Show when={!window.location.href.includes('stable')}>
-            <a
-              href="https://marucs-diet-stable.vercel.app/"
-              class="align-text-bottom pt-1 text-xs text-blue-500 underline"
-              onClick={() => {}}
-            >
-              Trocar para versão estável
-            </a>{' '}
-          </Show>
-        </div>
       </div>
+      {/* Rodapé fixo no final da página */}
+      <footer class="w-full flex flex-row justify-center items-center gap-4 bg-slate-800 bg-opacity-80 p-2 rounded-t fixed left-0 bottom-0 z-40 lg:static lg:rounded-none">
+        <span class="text-xs text-white">
+          Version: {process.env.APP_VERSION}
+        </span>
+        <Show when={!window.location.href.includes('stable')}>
+          <a
+            href="https://marucs-diet-stable.vercel.app/"
+            class="align-text-bottom pt-1 text-xs text-blue-400 underline"
+            onClick={() => {}}
+          >
+            Trocar para versão estável
+          </a>
+        </Show>
+      </footer>
     </div>
   )
 }
