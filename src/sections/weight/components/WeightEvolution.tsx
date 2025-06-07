@@ -3,7 +3,7 @@ import { type ApexOptions } from 'apexcharts'
 import { SolidApexCharts } from 'solid-apexcharts'
 import { For, createMemo } from 'solid-js'
 import ptBrLocale from '~/assets/locales/apex/pt-br.json'
-import { type OHLC } from '~/legacy/model/ohlcModel'
+import { type OHLC } from '~/modules/measure/domain/ohlc'
 import {
   calculateWeightProgress,
   firstWeight,
