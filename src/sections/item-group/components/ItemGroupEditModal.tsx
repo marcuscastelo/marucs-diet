@@ -100,6 +100,7 @@ export type ItemGroupEditModalProps = {
   onRefetch: () => void
   group: Accessor<ItemGroup>
   setGroup: (group: ItemGroup | null) => void
+  mode?: 'edit' | 'read-only' | 'summary'
 }
 
 export const ItemGroupEditModal = (props: ItemGroupEditModalProps) => {
@@ -382,6 +383,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
                 setTemplateSearchModalVisible={setTemplateSearchModalVisible}
                 recipeEditModalVisible={recipeEditModalVisible}
                 setRecipeEditModalVisible={setRecipeEditModalVisible}
+                mode={props.mode}
               />
             </Modal.Content>
             <Modal.Footer>
@@ -420,6 +422,7 @@ function Body(props: {
   setItemEditModalVisible: Setter<boolean>
   templateSearchModalVisible: Accessor<boolean>
   setTemplateSearchModalVisible: Setter<boolean>
+  mode?: 'edit' | 'read-only' | 'summary'
 }) {
   const { show: showConfirmModal } = useConfirmModalContext()
 
@@ -662,18 +665,21 @@ function Body(props: {
               props.setItemEditModalVisible(true)
               // }
             }}
+            mode={props.mode}
             makeHeaderFn={(item) => (
               <HeaderWithActions
                 name={<ItemName />}
                 primaryActions={
-                  <>
-                    <ItemCopyButton
-                      onCopyItem={(item) => {
-                        writeToClipboard(JSON.stringify(item))
-                      }}
-                    />
-                    <ItemFavorite foodId={item.reference} />
-                  </>
+                  props.mode === 'summary' ? null : (
+                    <>
+                      <ItemCopyButton
+                        onCopyItem={(item) => {
+                          writeToClipboard(JSON.stringify(item))
+                        }}
+                      />
+                      <ItemFavorite foodId={item.reference} />
+                    </>
+                  )
                 }
               />
             )}

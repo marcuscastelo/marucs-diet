@@ -50,6 +50,7 @@ export type ItemViewProps = {
   nutritionalInfo?: JSXElement
   class?: string
   onClick?: (item: TemplateItem) => void
+  mode?: 'edit' | 'read-only' | 'summary'
 }
 
 export function ItemView(props: ItemViewProps) {

@@ -33,6 +33,7 @@ export type ItemGroupViewProps = {
   nutritionalInfo?: JSXElement
   className?: string
   onClick?: (itemGroup: ItemGroup) => void
+  mode?: 'edit' | 'read-only' | 'summary'
 }
 
 export function ItemGroupView(props: ItemGroupViewProps) {

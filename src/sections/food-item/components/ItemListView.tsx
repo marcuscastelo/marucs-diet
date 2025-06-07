@@ -11,12 +11,18 @@ import {
 } from '~/sections/food-item/components/ItemView'
 import { handleClipboardError } from '~/shared/error/errorHandler'
 
-export function ItemListView(_props: {
+export type ItemListViewProps = {
   items: Accessor<readonly Item[]>
   onItemClick: ItemViewProps['onClick']
   makeHeaderFn?: (item: Item) => ItemViewProps['header']
-}) {
-  const props = mergeProps({ makeHeaderFn: () => <DefaultHeader /> }, _props)
+  mode?: 'edit' | 'read-only' | 'summary'
+}
+
+export function ItemListView(_props: ItemListViewProps) {
+  const props = mergeProps(
+    { makeHeaderFn: () => <DefaultHeader mode={_props.mode} /> },
+    _props,
+  )
   return (
     <>
       <For each={props.items()}>
@@ -29,6 +35,7 @@ export function ItemListView(_props: {
                 macroOverflow={() => ({ enable: false })}
                 header={props.makeHeaderFn(item)}
                 nutritionalInfo={<ItemNutritionalInfo />}
+                mode={props.mode}
               />
             </div>
           )
@@ -38,23 +45,25 @@ export function ItemListView(_props: {
   )
 }
 
-function DefaultHeader() {
+function DefaultHeader(props: { mode?: 'edit' | 'read-only' | 'summary' }) {
   const clipboard = useClipboard()
   return (
     <HeaderWithActions
       name={<ItemName />}
       primaryActions={
-        <ItemCopyButton
-          onCopyItem={(item) => {
-            clipboard.write(JSON.stringify(item), (error) => {
-              handleClipboardError(error, {
-                component: 'ItemListView',
-                operation: 'copyItem',
-                additionalData: { itemId: item.reference },
+        props.mode === 'summary' ? null : (
+          <ItemCopyButton
+            onCopyItem={(item) => {
+              clipboard.write(JSON.stringify(item), (error) => {
+                handleClipboardError(error, {
+                  component: 'ItemListView',
+                  operation: 'copyItem',
+                  additionalData: { itemId: item.reference },
+                })
               })
-            })
-          }}
-        />
+            }}
+          />
+        )
       }
     />
   )

@@ -168,6 +168,7 @@ export default function DayMeals(props: {
               day={() => neverNullDayDiet}
               visible={itemGroupEditModalVisible}
               setVisible={setItemGroupEditModalVisible}
+              mode={props.mode}
             />
             <For each={neverNullDayDiet.meals}>
               {(meal) => (
@@ -177,6 +178,7 @@ export default function DayMeals(props: {
                   header={
                     <MealEditViewHeader
                       onUpdateMeal={(meal) => {
+                        if (props.mode === 'summary') return
                         const current = resolvedDayDiet()
                         if (current === null) {
                           console.error('resolvedDayDiet is null!')
@@ -189,31 +191,40 @@ export default function DayMeals(props: {
                           )
                         })
                       }}
+                      mode={props.mode}
                     />
                   }
                   content={
                     <MealEditViewContent
                       onEditItemGroup={(item) => {
+                        if (props.mode === 'summary') return
                         handleEditItemGroup(meal, item)
                       }}
+                      mode={props.mode}
                     />
                   }
                   actions={
-                    <MealEditViewActions
-                      onNewItem={() => {
-                        handleNewItemButton(meal)
-                      }}
-                    />
+                    props.mode === 'summary' ? undefined : (
+                      <MealEditViewActions
+                        onNewItem={() => {
+                          handleNewItemButton(meal)
+                        }}
+                      />
+                    )
                   }
                 />
               )}
             </For>
 
-            <CopyLastDayButton
-              dayDiet={() => neverNullDayDiet}
-              selectedDay={props.selectedDay}
-            />
-            <DeleteDayButton day={() => neverNullDayDiet} />
+            {props.mode !== 'summary' && (
+              <>
+                <CopyLastDayButton
+                  dayDiet={() => neverNullDayDiet}
+                  selectedDay={props.selectedDay}
+                />
+                <DeleteDayButton day={() => neverNullDayDiet} />
+              </>
+            )}
           </>
         )}
       </Show>
@@ -225,6 +236,7 @@ function ExternalItemGroupEditModal(props: {
   visible: Accessor<boolean>
   setVisible: Setter<boolean>
   day: Accessor<DayDiet>
+  mode?: 'edit' | 'read-only' | 'summary'
 }) {
   createEffect(() => {
     if (!props.visible()) {
@@ -275,6 +287,7 @@ function ExternalItemGroupEditModal(props: {
                 '[DayMeals] (<ItemGroupEditModal/>) onRefetch called!',
               )
             }}
+            mode={props.mode}
           />
         </ModalContextProvider>
       )}

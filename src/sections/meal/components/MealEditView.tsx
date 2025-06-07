@@ -65,6 +65,7 @@ export function MealEditView(props: MealEditViewProps) {
 
 export function MealEditViewHeader(props: {
   onUpdateMeal: (meal: Meal) => void
+  mode?: 'edit' | 'read-only' | 'summary'
 }) {
   const { show: showConfirmModal } = useConfirmModalContext()
   const { meal } = useMealContext()
@@ -118,16 +119,18 @@ export function MealEditViewHeader(props: {
             <h5 class="text-3xl">{mealSignal().name}</h5>
             <p class="italic text-gray-400">{mealCalories().toFixed(0)}kcal</p>
           </div>
-          <ClipboardActionButtons
-            canCopy={
-              !hasValidPastableOnClipboard() && mealSignal().groups.length > 0
-            }
-            canPaste={hasValidPastableOnClipboard()}
-            canClear={mealSignal().groups.length > 0}
-            onCopy={handleCopy}
-            onPaste={handlePaste}
-            onClear={onClearItems}
-          />
+          {props.mode !== 'summary' && (
+            <ClipboardActionButtons
+              canCopy={
+                !hasValidPastableOnClipboard() && mealSignal().groups.length > 0
+              }
+              canPaste={hasValidPastableOnClipboard()}
+              canClear={mealSignal().groups.length > 0}
+              onCopy={handleCopy}
+              onPaste={handlePaste}
+              onClear={onClearItems}
+            />
+          )}
         </div>
       )}
     </Show>
@@ -136,6 +139,7 @@ export function MealEditViewHeader(props: {
 
 export function MealEditViewContent(props: {
   onEditItemGroup: (item: ItemGroup) => void
+  mode?: 'edit' | 'read-only' | 'summary'
 }) {
   const { meal } = useMealContext()
 
@@ -149,9 +153,8 @@ export function MealEditViewContent(props: {
   return (
     <ItemGroupListView
       itemGroups={() => meal().groups}
-      onItemClick={(...args) => {
-        props.onEditItemGroup(...args)
-      }}
+      onItemClick={props.onEditItemGroup}
+      mode={props.mode}
     />
   )
 }
