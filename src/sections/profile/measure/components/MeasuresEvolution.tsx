@@ -1,12 +1,9 @@
-import { For, createEffect, createResource } from 'solid-js'
+import { For, createResource } from 'solid-js'
 import {
   fetchUserMeasures,
   insertMeasure,
 } from '~/modules/measure/application/measure'
-import {
-  type Measure,
-  createNewMeasure,
-} from '~/modules/measure/domain/measure'
+import { createNewMeasure } from '~/modules/measure/domain/measure'
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { showError } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
@@ -17,10 +14,11 @@ import { MeasureView } from '~/sections/profile/measure/components/MeasureView'
 import { formatError } from '~/shared/formatError'
 
 export function MeasuresEvolution() {
-  // TODO:   Remove `measures` signal and use use cases instead
-  const [measures, { refetch }] = createResource(() =>
+  const [{ latest }, { refetch }] = createResource(() =>
     fetchUserMeasures(currentUserId()),
   )
+  const measures = () => latest ?? []
+
   const heightField = useFloatField()
   const waistField = useFloatField()
   const hipField = useFloatField()
@@ -28,17 +26,6 @@ export function MeasuresEvolution() {
 
   const handleRefetchMeasures = () => {
     void refetch()
-  }
-
-  createEffect(() => {
-    handleRefetchMeasures()
-  })
-
-  const loadedMeasures = () => {
-    if (measures.state === 'pending' || measures.state === 'errored') {
-      return []
-    }
-    return measures() ?? []
   }
 
   return (
@@ -107,9 +94,6 @@ export function MeasuresEvolution() {
               }
               const userId = currentUserId()
 
-              const afterInsert = () => {
-                handleRefetchMeasures()
-              }
               insertMeasure(
                 createNewMeasure({
                   owner: userId,
@@ -120,7 +104,7 @@ export function MeasuresEvolution() {
                   targetTimestamp: new Date(Date.now()),
                 }),
               )
-                .then(afterInsert)
+                .then(refetch)
                 .catch((error) => {
                   console.error(error)
                   showError(`Erro ao adicionar medida: ${formatError(error)}`)
@@ -130,17 +114,16 @@ export function MeasuresEvolution() {
             Adicionar medidas
           </button>
         </div>
-        <MeasureChart measures={loadedMeasures()} />
+
+        <MeasureChart measures={measures()} />
         <div class="mx-5 lg:mx-20 pb-10">
-          <For each={[...loadedMeasures()].reverse().slice(0, 10)}>
+          {/* TODO: Implement scrollbar for big lists instead of slice */}
+          <For each={[...measures()].reverse().slice(0, 10)}>
             {(measure) => (
-              <MeasureView
-                measure={measure}
-                onRefetchMeasures={handleRefetchMeasures}
-              />
+              <MeasureView measure={measure} onRefetchMeasures={refetch} />
             )}
           </For>
-          {loadedMeasures().length === 0 && 'Não há pesos registrados'}
+          {measures().length === 0 && 'Não há pesos registrados'}
         </div>
       </div>
     </>

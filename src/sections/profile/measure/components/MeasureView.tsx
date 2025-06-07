@@ -24,7 +24,7 @@ import { adjustToTimezone } from '~/shared/utils/date/dateUtils'
  */
 export function MeasureView(props: {
   measure: Measure
-  onRefetchMeasures: () => void
+  onRefetchMeasures: () => unknown
 }) {
   const dateField = useDateField(() => props.measure.target_timestamp, {
     fallback: () => new Date(),
