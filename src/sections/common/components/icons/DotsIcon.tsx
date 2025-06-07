@@ -1,6 +1,6 @@
 import { JSX } from 'solid-js'
 
-export function PasteIcon(props: JSX.SvgSVGAttributes<SVGSVGElement>) {
+export function DotsIcon(props: JSX.SvgSVGAttributes<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -11,7 +11,9 @@ export function PasteIcon(props: JSX.SvgSVGAttributes<SVGSVGElement>) {
       stroke-linecap="round"
       stroke-linejoin="round"
     >
-      <path d="M19 21H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4l2-3h2l2 3h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2z" />
+      <circle cx="5" cy="12" r="1.5" />
+      <circle cx="12" cy="12" r="1.5" />
+      <circle cx="19" cy="12" r="1.5" />
     </svg>
   )
 }
