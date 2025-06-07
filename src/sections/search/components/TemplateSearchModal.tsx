@@ -3,7 +3,7 @@ import {
   fetchUserRecentFoods,
   insertRecentFood,
   updateRecentFood,
-} from '~/legacy/controllers/recentFood'
+} from '~/modules/recent-food/application/recentFood'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
