@@ -40,17 +40,20 @@ Remove all usage of the custom `Loadable` type and related types (`Loading`, `Lo
 - Update recipe fetching and loading states  
 - **Test**: `npm run check` after this single file change
 
-### Step 4: Refactor useFetch Hook (Breaking Change)
-**File**: `src/sections/common/hooks/useFetch.tsx`
-- Convert to return `createResource` instead of `Loadable` signal
-- Update return type and internal implementation
-- **Test**: `npm run check` (will fail due to breaking change)
+### Step 4: Inline all useFetch usages in the codebase
+- Replace all useFetch calls with their logic directly in each consumer file
+- Remove dependency on Loadable in these files
+- **Test**: `npm run check` after each file
 
-### Step 5: Update useFetch Consumers
-**File**: `src/sections/recipe/hooks/useRecipe.tsx`
-- Update to use new `useFetch` API with resource patterns
-- Update any other consumers found during analysis
-- **Test**: `npm run check` (should pass)
+### Step 4.1: Remove useFetch hook (deprecated)
+**File**: `src/sections/common/hooks/useFetch.tsx`
+- Delete the file after all usages are inlined
+- **Test**: `npm run check`
+
+### Step 5: Update inlined Loadable patterns to use createResource
+- For each file where useFetch was inlined, refactor the inlined Loadable logic to use SolidJS createResource idioms
+- Remove all remaining Loadable types and patterns
+- **Test**: `npm run check` after each file
 
 ### Step 6: Find and Update All useFetch/useRecipe Consumers
 - Search for all files importing `useRecipe` 
