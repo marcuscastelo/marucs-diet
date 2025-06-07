@@ -2,9 +2,6 @@ import { defineConfig } from '@solidjs/start/config'
 
 export default defineConfig({
   ssr: false,
-  nitro: {
-    compatibilityDate: '2025-06-07',
-  },
   server: {
     preset: 'vercel',
   },
