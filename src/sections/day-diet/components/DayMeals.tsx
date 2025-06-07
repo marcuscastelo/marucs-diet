@@ -7,10 +7,7 @@ import {
   createSignal,
   untrack,
 } from 'solid-js'
-import {
-  currentDayDiet,
-  setTargetDay,
-} from '~/modules/diet/day-diet/application/dayDiet'
+import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import {
   deleteItemGroup,
@@ -24,7 +21,6 @@ import { showError } from '~/modules/toast/application/toastManager'
 import { Alert } from '~/sections/common/components/Alert'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { CopyLastDayButton } from '~/sections/day-diet/components/CopyLastDayButton'
-import DayMacros from '~/sections/day-diet/components/DayMacros'
 import DayNotFound from '~/sections/day-diet/components/DayNotFound'
 import { DeleteDayButton } from '~/sections/day-diet/components/DeleteDayButton'
 import { ItemGroupEditModal } from '~/sections/item-group/components/ItemGroupEditModal'
@@ -65,7 +61,7 @@ export default function DayMeals(props: {
   const today = getTodayYYYYMMDD()
   const showingToday = () => today === props.selectedDay
 
-  const [dayExplicitlyUnlocked, setDayExplicitlyUnlocked] = createSignal(false)
+  const [dayExplicitlyUnlocked] = createSignal(false)
   const dayLocked = () => !showingToday() && !dayExplicitlyUnlocked()
 
   const [itemGroupEditModalVisible, setItemGroupEditModalVisible] =
@@ -141,17 +137,14 @@ export default function DayMeals(props: {
             visible={itemGroupEditModalVisible}
             setVisible={setItemGroupEditModalVisible}
           />
-          <DayMacros
-            class="mt-3 border-b-2 border-gray-800 pb-4"
-            dayDiet={props.dayDiet}
-          />
+          {/* DayMacros removed: now must be rendered independently by parent */}
           <Show when={!showingToday()}>
             {(_) => (
               <>
                 <Alert class="mt-2" color="yellow">
                   Mostrando refeições do dia {props.selectedDay}!
                 </Alert>
-                <Show when={dayLocked()}>
+                {/* <Show when={dayLocked()}>
                   {(_) => (
                     <>
                       <Alert class="mt-2 outline" color="blue">
@@ -177,7 +170,7 @@ export default function DayMeals(props: {
                       </Alert>
                     </>
                   )}
-                </Show>
+                </Show> */}
               </>
             )}
           </Show>

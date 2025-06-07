@@ -16,9 +16,6 @@ import {
 
 import DayMacros from '~/sections/day-diet/components/DayMacros'
 import DayMeals from '~/sections/day-diet/components/DayMeals'
-import { stringToDate } from '~/shared/utils/date'
-import { calcCalories, calcDayMacros } from '~/legacy/utils/macroMath'
-import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 
 export function CopyLastDayButton(props: {
   dayDiet: Accessor<DayDiet | undefined>
