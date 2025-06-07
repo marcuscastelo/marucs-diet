@@ -25,12 +25,21 @@ import {
 } from 'solid-js'
 import { showError } from '~/modules/toast/application/toastManager'
 
+/**
+ * Modal for editing a TemplateItem.
+ *
+ * @param targetName - Name of the target (meal/group/recipe)
+ * @param targetNameColor - Optional color for the target name
+ * @param item - Accessor for the TemplateItem being edited
+ * @param macroOverflow - Macro overflow context
+ * @param onApply - Called when user applies changes
+ * @param onCancel - Called when user cancels
+ * @param onDelete - Called when user deletes the item
+ */
 export type ItemEditModalProps = {
   targetName: string
   targetNameColor?: string
-  item: Accessor<
-    Partial<TemplateItem> & Pick<TemplateItem, 'name' | 'reference' | 'macros'>
-  >
+  item: Accessor<TemplateItem>
   macroOverflow: () => {
     enable: boolean
     originalItem?: TemplateItem | undefined
@@ -58,9 +67,9 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
   createEffect(() => {
     setItem({
       ...props.item(),
-      __type: props.item().__type ?? 'Item',
-      id: props.item().id ?? generateId(),
-      quantity: props.item().quantity ?? 0,
+      __type: props.item().__type,
+      id: props.item().id,
+      quantity: props.item().quantity,
       name: props.item().name,
       reference: props.item().reference,
       macros: props.item().macros,
