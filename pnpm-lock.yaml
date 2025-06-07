@@ -66,8 +66,8 @@ importers:
         specifier: ^0.3.11
         version: 0.3.14(@types/node@20.19.0)(db0@0.3.2)(ioredis@5.6.1)(terser@5.40.0)
       zod:
-        specifier: ^3.23.8
-        version: 3.25.50
+        specifier: ^3.25.56
+        version: 3.25.56
     devDependencies:
       '@eslint/js':
         specifier: ^9.28.0
@@ -5672,8 +5672,8 @@ packages:
     resolution: {integrity: sha512-zK7YHHz4ZXpW89AHXUPbQVGKI7uvkd3hzusTdotCg1UxyaVtg0zFJSTfW/Dq5f7OBBVnq6cZIaC8Ti4hb6dtCA==}
     engines: {node: '>= 14'}
 
-  zod@3.25.50:
-    resolution: {integrity: sha512-VstOnRxf4tlSq0raIwbn0n+LA34SxVoZ8r3pkwSUM0jqNiA/HCMQEVjTuS5FZmHsge+9MDGTiAuHyml5T0um6A==}
+  zod@3.25.56:
+    resolution: {integrity: sha512-rd6eEF3BTNvQnR2e2wwolfTmUTnp70aUTqr0oaGbHifzC3BKJsoV+Gat8vxUMR1hwOKBs6El+qWehrHbCpW6SQ==}
 
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
@@ -6473,7 +6473,7 @@ snapshots:
       unixify: 1.0.0
       urlpattern-polyfill: 8.0.2
       yargs: 17.7.2
-      zod: 3.25.50
+      zod: 3.25.56
     transitivePeerDependencies:
       - encoding
       - rollup
@@ -11127,7 +11127,7 @@ snapshots:
       unenv: 1.10.0
       unstorage: 1.16.0(db0@0.3.2)(ioredis@5.6.1)
       vite: 5.4.19(@types/node@20.19.0)(terser@5.40.0)
-      zod: 3.25.50
+      zod: 3.25.56
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -11495,6 +11495,6 @@ snapshots:
       compress-commons: 6.0.2
       readable-stream: 4.7.0
 
-  zod@3.25.50: {}
+  zod@3.25.56: {}
 
   zwitch@2.0.4: {}
