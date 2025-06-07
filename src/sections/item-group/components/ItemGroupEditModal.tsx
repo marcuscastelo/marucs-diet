@@ -492,185 +492,181 @@ function Body(props: {
                       ref.blur()
                     }, 0)
                   }}
+                  disabled={props.mode !== 'edit'}
                 />
               </div>
-
-              <div class="flex gap-2 px-2">
-                <Show when={hasValidPastableOnClipboardShared()}>
-                  {(_) => (
-                    <div
-                      class={
-                        'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'
-                      }
-                      onClick={() => {
-                        // TODO: Support editing complex recipes
-                        if (isRecipeTooComplex(props.recipe())) {
-                          showError(
-                            'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
-                          )
-                          return
+              {props.mode === 'edit' && (
+                <div class="flex gap-2 px-2">
+                  <Show when={hasValidPastableOnClipboardShared()}>
+                    {(_) => (
+                      <div
+                        class={
+                          'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'
                         }
-                        handlePasteShared()
-                      }}
-                    >
-                      <PasteIcon />
-                    </div>
-                  )}
-                </Show>
-
-                <Show when={isSimpleItemGroup(group())}>
-                  {(_) => (
-                    <>
-                      <button
-                        class="my-auto ml-auto"
                         onClick={() => {
-                          const exec = async () => {
-                            const newRecipe = createNewRecipe({
-                              name:
-                                group().name.length > 0
-                                  ? group().name
-                                  : 'Nova receita (a partir de um grupo)',
-                              items: deepCopy(group().items) ?? [],
-                              owner: currentUserId(),
-                            })
-
-                            const insertedRecipe = await insertRecipe(newRecipe)
-
-                            if (insertedRecipe === null) {
-                              return
-                            }
-
-                            setGroup(
-                              setItemGroupRecipe(group(), insertedRecipe.id),
-                            )
-
-                            props.setRecipeEditModalVisible(true)
-                          }
-
-                          exec().catch((err) => {
+                          // TODO: Support editing complex recipes
+                          if (isRecipeTooComplex(props.recipe())) {
                             showError(
-                              `Falha ao criar receita a partir de grupo: ${formatError(err)}`,
+                              'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
                             )
-                          })
+                            return
+                          }
+                          handlePasteShared()
                         }}
                       >
-                        <ConvertToRecipeIcon />
-                      </button>
-                    </>
-                  )}
-                </Show>
+                        <PasteIcon />
+                      </div>
+                    )}
+                  </Show>
+                  <Show when={isSimpleItemGroup(group())}>
+                    {(_) => (
+                      <>
+                        <button
+                          class="my-auto ml-auto"
+                          onClick={() => {
+                            const exec = async () => {
+                              const newRecipe = createNewRecipe({
+                                name:
+                                  group().name.length > 0
+                                    ? group().name
+                                    : 'Nova receita (a partir de um grupo)',
+                                items: deepCopy(group().items) ?? [],
+                                owner: currentUserId(),
+                              })
 
-                <Show
-                  when={(() => {
-                    const group_ = group()
-                    return isRecipedItemGroup(group_) && group_
-                  })()}
-                >
-                  {(group) => (
-                    <>
-                      <Show when={props.recipe()}>
-                        {(recipe) => (
-                          <>
-                            <Show
-                              when={isRecipedGroupUpToDate(group(), recipe())}
-                            >
-                              {(_) => (
-                                <button
-                                  class="my-auto ml-auto"
-                                  onClick={() => {
-                                    // TODO:   Create recipe for groups that don't have one
-                                    props.setRecipeEditModalVisible(true)
-                                  }}
-                                >
-                                  <RecipeIcon />
-                                </button>
-                              )}
-                            </Show>
+                              const insertedRecipe =
+                                await insertRecipe(newRecipe)
 
-                            <Show
-                              when={!isRecipedGroupUpToDate(group(), recipe())}
-                            >
-                              {(_) => (
-                                <button
-                                  class="my-auto ml-auto hover:animate-pulse"
-                                  onClick={() => {
-                                    if (props.recipe() === null) {
-                                      return
-                                    }
+                              if (insertedRecipe === null) {
+                                return
+                              }
 
-                                    const newGroup = setItemGroupItems(
-                                      group(),
-                                      recipe().items,
-                                    )
+                              setGroup(
+                                setItemGroupRecipe(group(), insertedRecipe.id),
+                              )
 
-                                    setGroup(newGroup)
-                                  }}
-                                >
-                                  <DownloadIcon />
-                                </button>
-                              )}
-                            </Show>
+                              props.setRecipeEditModalVisible(true)
+                            }
 
-                            <button
-                              class="my-auto ml-auto hover:animate-pulse"
-                              onClick={() => {
-                                askUnlinkRecipe(
-                                  'Deseja desvincular a receita?',
-                                  {
-                                    showConfirmModal,
-                                    group,
-                                    setGroup,
-                                  },
-                                )
-                              }}
-                            >
-                              <BrokenLink />
-                            </button>
-                          </>
-                        )}
-                      </Show>
-
-                      <Show when={props.recipe() === null}>
-                        <>Receita não encontrada</>
-                      </Show>
-                    </>
-                  )}
-                </Show>
-              </div>
+                            exec().catch((err) => {
+                              showError(
+                                `Falha ao criar receita a partir de grupo: ${formatError(err)}`,
+                              )
+                            })
+                          }}
+                        >
+                          <ConvertToRecipeIcon />
+                        </button>
+                      </>
+                    )}
+                  </Show>
+                  <Show
+                    when={(() => {
+                      const group_ = group()
+                      return isRecipedItemGroup(group_) && group_
+                    })()}
+                  >
+                    {(group) => (
+                      <>
+                        <Show when={props.recipe()}>
+                          {(recipe) => (
+                            <>
+                              <Show
+                                when={isRecipedGroupUpToDate(group(), recipe())}
+                              >
+                                {(_) => (
+                                  <button
+                                    class="my-auto ml-auto"
+                                    onClick={() => {
+                                      // TODO:   Create recipe for groups that don't have one
+                                      props.setRecipeEditModalVisible(true)
+                                    }}
+                                  >
+                                    <RecipeIcon />
+                                  </button>
+                                )}
+                              </Show>
+                              <Show
+                                when={
+                                  !isRecipedGroupUpToDate(group(), recipe())
+                                }
+                              >
+                                {(_) => (
+                                  <button
+                                    class="my-auto ml-auto hover:animate-pulse"
+                                    onClick={() => {
+                                      if (props.recipe() === null) {
+                                        return
+                                      }
+                                      const newGroup = setItemGroupItems(
+                                        group(),
+                                        recipe().items,
+                                      )
+                                      setGroup(newGroup)
+                                    }}
+                                  >
+                                    <DownloadIcon />
+                                  </button>
+                                )}
+                              </Show>
+                              <button
+                                class="my-auto ml-auto hover:animate-pulse"
+                                onClick={() => {
+                                  askUnlinkRecipe(
+                                    'Deseja desvincular a receita?',
+                                    {
+                                      showConfirmModal,
+                                      group,
+                                      setGroup,
+                                    },
+                                  )
+                                }}
+                              >
+                                <BrokenLink />
+                              </button>
+                            </>
+                          )}
+                        </Show>
+                        <Show when={props.recipe() === null}>
+                          <>Receita não encontrada</>
+                        </Show>
+                      </>
+                    )}
+                  </Show>
+                </div>
+              )}
             </div>
           </div>
-
           <ItemListView
             items={() => group().items}
-            // TODO:   Check if this margin was lost.
-            //   className="mt-4"
-            onItemClick={(item) => {
-              // TODO:   Allow user to edit recipe
-              if (isTemplateItemRecipe(item)) {
-                showError(
-                  'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
-                )
-                return
-              }
-
-              // TODO: Support editing complex recipes
-              if (isRecipeTooComplex(props.recipe())) {
-                showError(
-                  'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
-                )
-                return
-              }
-
-              setEditSelection({ item })
-              props.setItemEditModalVisible(true)
-              // }
-            }}
+            onItemClick={
+              props.mode === 'edit'
+                ? (item) => {
+                    if (isTemplateItemRecipe(item)) {
+                      // TODO:   Allow user to edit recipe
+                      showError(
+                        'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
+                      )
+                      return
+                    }
+                    if (isRecipeTooComplex(props.recipe())) {
+                      // TODO: Support editing complex recipes
+                      showError(
+                        'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
+                      )
+                      return
+                    }
+                    setEditSelection({ item })
+                    props.setItemEditModalVisible(true)
+                  }
+                : undefined
+            }
             mode={props.mode}
             makeHeaderFn={(item) => (
               <HeaderWithActions
                 name={<ItemName />}
                 primaryActions={
-                  props.mode === 'summary' ? null : (
+                  props.mode === 'edit' ? (
                     <>
                       <ItemCopyButton
                         onCopyItem={(item) => {
@@ -679,20 +675,21 @@ function Body(props: {
                       />
                       <ItemFavorite foodId={item.reference} />
                     </>
-                  )
+                  ) : null
                 }
               />
             )}
           />
-
-          <button
-            class="mt-3 min-w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-            onClick={() => {
-              props.setTemplateSearchModalVisible(true)
-            }}
-          >
-            Adicionar item
-          </button>
+          {props.mode === 'edit' && (
+            <button
+              class="mt-3 min-w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
+              onClick={() => {
+                props.setTemplateSearchModalVisible(true)
+              }}
+            >
+              Adicionar item
+            </button>
+          )}
           <Show when={recipedGroup()}>
             {(recipedGroup) => (
               <PreparedQuantityWrapper
