@@ -3,7 +3,7 @@ import {
   type NewFood,
   createNewFood,
 } from '~/modules/diet/food/domain/food'
-import { markSearchAsCached } from '~/legacy/controllers/searchCache'
+import { markSearchAsCached } from '~/modules/search/application/searchCache'
 import { type ApiFood } from '~/modules/diet/food/infrastructure/api/domain/apiFoodModel'
 import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
 import { handleApiError } from '~/shared/error/errorHandler'

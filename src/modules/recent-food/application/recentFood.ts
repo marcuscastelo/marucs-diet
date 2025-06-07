@@ -1,4 +1,5 @@
-// TODO: Migrate controllers to the new architecture
+// Application layer for recent food operations, migrated from legacy controller
+// All error handling is done here, domain remains pure
 import supabase from '~/legacy/utils/supabase'
 import {
   type NewRecentFood,
@@ -14,6 +15,12 @@ import { handleApiError } from '~/shared/error/errorHandler'
 
 const TABLE = 'recent_foods'
 
+/**
+ * Fetches a recent food by user and food ID.
+ * @param userId - The user ID.
+ * @param foodId - The food ID.
+ * @returns The recent food or null if not found.
+ */
 export async function fetchRecentFoodByUserIdAndFoodId(
   userId: RecentFood['user_id'],
   foodId: RecentFood['food_id'],
@@ -36,6 +43,11 @@ export async function fetchRecentFoodByUserIdAndFoodId(
   return recentFoodSchema.array().parse(data).at(0) ?? null
 }
 
+/**
+ * Fetches all recent foods for a user.
+ * @param userId - The user ID.
+ * @returns Array of recent foods.
+ */
 export async function fetchUserRecentFoods(userId: RecentFood['user_id']) {
   const { data, error } = await supabase
     .from(TABLE)
@@ -55,6 +67,11 @@ export async function fetchUserRecentFoods(userId: RecentFood['user_id']) {
   return recentFoodSchema.array().parse(data)
 }
 
+/**
+ * Inserts a new recent food.
+ * @param newRecentFood - The new recent food data.
+ * @returns The inserted recent food.
+ */
 export async function insertRecentFood(newRecentFood: NewRecentFood) {
   const createDAO: CreateRecentFoodDAO = {
     user_id: newRecentFood.user_id,
@@ -78,6 +95,12 @@ export async function insertRecentFood(newRecentFood: NewRecentFood) {
   return daoToRecentFood(recentFoodDAO)
 }
 
+/**
+ * Updates a recent food by ID.
+ * @param recentFoodId - The recent food ID.
+ * @param newRecentFood - The new recent food data.
+ * @returns The updated recent food.
+ */
 export async function updateRecentFood(
   recentFoodId: RecentFood['id'],
   newRecentFood: NewRecentFood,
@@ -108,6 +131,11 @@ export async function updateRecentFood(
   return daoToRecentFood(recentFoodDAO)
 }
 
+/**
+ * Deletes a recent food by user and food ID.
+ * @param userId - The user ID.
+ * @param foodId - The food ID.
+ */
 export async function deleteRecentFoodByFoodId(
   userId: RecentFood['user_id'],
   foodId: RecentFood['food_id'],
@@ -127,3 +155,5 @@ export async function deleteRecentFoodByFoodId(
     throw error
   }
 }
+
+export {}

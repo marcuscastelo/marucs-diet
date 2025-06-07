@@ -1,4 +1,4 @@
-import { isSearchCached } from '~/legacy/controllers/searchCache'
+import { isSearchCached } from '~/modules/search/application/searchCache'
 import { type Food } from '~/modules/diet/food/domain/food'
 import { type FoodSearchParams } from '~/modules/diet/food/domain/foodRepository'
 import {
