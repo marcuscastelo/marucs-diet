@@ -1,5 +1,4 @@
-import { For, createEffect, createSignal } from 'solid-js'
-import { type Loadable } from '~/legacy/utils/loadable'
+import { For, createEffect, createResource } from 'solid-js'
 import {
   fetchUserMeasures,
   insertMeasure,
@@ -19,23 +18,16 @@ import { formatError } from '~/shared/formatError'
 
 export function MeasuresEvolution() {
   // TODO:   Remove `measures` signal and use use cases instead
-  const [measures, setMeasures] = createSignal<Loadable<readonly Measure[]>>({
-    loading: true,
-  })
+  const [measures, { refetch }] = createResource(() =>
+    fetchUserMeasures(currentUserId()),
+  )
   const heightField = useFloatField()
   const waistField = useFloatField()
   const hipField = useFloatField()
   const neckField = useFloatField()
 
   const handleRefetchMeasures = () => {
-    fetchUserMeasures(currentUserId())
-      .then((measures) =>
-        setMeasures({ loading: false, errored: false, data: measures }),
-      )
-      .catch((error: unknown) => {
-        console.error(error)
-        setMeasures({ loading: false, errored: true, error })
-      })
+    void refetch()
   }
 
   createEffect(() => {
@@ -43,11 +35,10 @@ export function MeasuresEvolution() {
   })
 
   const loadedMeasures = () => {
-    const measures_ = measures()
-    if (measures_.loading || measures_.errored) {
+    if (measures.state === 'pending' || measures.state === 'errored') {
       return []
     }
-    return measures_.data
+    return measures() ?? []
   }
 
   return (
