@@ -60,7 +60,11 @@ export const markSearchAsCached = async (search: CachedSearch['search']) => {
  */
 export const unmarkSearchAsCached = async (search: CachedSearch['search']) => {
   try {
-    await supabase.from(TABLE).delete().match({ search }).select()
+    await supabase
+      .from(TABLE)
+      .delete()
+      .match({ search: search.toLowerCase() })
+      .select()
   } catch (error) {
     handleApiError(error, {
       component: 'searchCache',
