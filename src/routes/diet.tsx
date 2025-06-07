@@ -38,7 +38,7 @@ export default function DietPage() {
       )}
       <DayMeals
         selectedDay={targetDay()}
-        mode={mode()}
+        mode={'summary'}
         onRequestEditMode={handleRequestEditMode}
       />
       <BottomNavigation />

@@ -68,12 +68,8 @@ export default function DayMeals(props: {
 
   const [showConfirmEdit, setShowConfirmEdit] = createSignal(false)
 
-  const handleEditItemGroup = (meal: Meal, itemGroup: ItemGroup) => {
-    if (props.mode === 'summary') return
-    if (props.mode !== 'edit') {
-      setShowConfirmEdit(true)
-      return
-    }
+  const handleRequestViewItemGroup = (meal: Meal, itemGroup: ItemGroup) => {
+    // Always open the modal for any mode, but ItemGroupEditModal will respect the mode prop
     setEditSelection({ meal, itemGroup })
     setItemGroupEditModalVisible(true)
   }
@@ -196,9 +192,8 @@ export default function DayMeals(props: {
                   }
                   content={
                     <MealEditViewContent
-                      onEditItemGroup={(item) => {
-                        if (props.mode === 'summary') return
-                        handleEditItemGroup(meal, item)
+                      onRequestViewItemGroup={(item) => {
+                        handleRequestViewItemGroup(meal, item)
                       }}
                       mode={props.mode}
                     />

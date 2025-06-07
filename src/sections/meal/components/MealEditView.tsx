@@ -30,13 +30,20 @@ export type MealEditViewProps = {
   /**
    * @deprecated
    */
-  header?: JSXElement
-  content?: JSXElement
+  header?:
+    | JSXElement
+    | ((props: { mode?: 'edit' | 'read-only' | 'summary' }) => JSXElement)
+  content?:
+    | JSXElement
+    | ((props: { mode?: 'edit' | 'read-only' | 'summary' }) => JSXElement)
   /**
    * @deprecated
    */
-  actions?: JSXElement
+  actions?:
+    | JSXElement
+    | ((props: { mode?: 'edit' | 'read-only' | 'summary' }) => JSXElement)
   class?: string
+  mode?: 'edit' | 'read-only' | 'summary'
 }
 
 // TODO:   move this function
@@ -52,12 +59,16 @@ export type MealEditViewProps = {
 export function MealEditView(props: MealEditViewProps) {
   return (
     <MealContextProvider meal={() => props.meal}>
-      <div
-        class={`bg-gray-800 p-3 ${props.class ?? ''}`} // TODO:   use cn on all classes that use props.class
-      >
-        {props.header}
-        {props.content}
-        {props.actions}
+      <div class={`bg-gray-800 p-3 ${props.class ?? ''}`}>
+        {typeof props.header === 'function'
+          ? props.header({ mode: props.mode })
+          : props.header}
+        {typeof props.content === 'function'
+          ? props.content({ mode: props.mode })
+          : props.content}
+        {typeof props.actions === 'function'
+          ? props.actions({ mode: props.mode })
+          : props.actions}
       </div>
     </MealContextProvider>
   )
@@ -138,7 +149,7 @@ export function MealEditViewHeader(props: {
 }
 
 export function MealEditViewContent(props: {
-  onEditItemGroup: (item: ItemGroup) => void
+  onRequestViewItemGroup: (item: ItemGroup) => void
   mode?: 'edit' | 'read-only' | 'summary'
 }) {
   const { meal } = useMealContext()
@@ -153,7 +164,7 @@ export function MealEditViewContent(props: {
   return (
     <ItemGroupListView
       itemGroups={() => meal().groups}
-      onItemClick={props.onEditItemGroup}
+      onItemClick={props.onRequestViewItemGroup}
       mode={props.mode}
     />
   )
