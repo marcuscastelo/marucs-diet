@@ -18,7 +18,6 @@ import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { updateMeal } from '~/modules/diet/meal/application/meal'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { showError } from '~/modules/toast/application/toastManager'
-import { Alert } from '~/sections/common/components/Alert'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { CopyLastDayButton } from '~/sections/day-diet/components/CopyLastDayButton'
 import DayNotFound from '~/sections/day-diet/components/DayNotFound'
@@ -32,7 +31,6 @@ import {
 } from '~/sections/meal/components/MealEditView'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { formatError } from '~/shared/formatError'
-import { getTodayYYYYMMDD } from '~/shared/utils/date'
 
 type EditSelection = {
   meal: Meal
@@ -57,20 +55,17 @@ const [newItemSelection, setNewItemSelection] =
 export default function DayMeals(props: {
   dayDiet?: DayDiet
   selectedDay: string
+  locked?: boolean
 }) {
-  const today = getTodayYYYYMMDD()
-  const showingToday = () => today === props.selectedDay
-
-  const [dayExplicitlyUnlocked] = createSignal(false)
-  const dayLocked = () => !showingToday() && !dayExplicitlyUnlocked()
-
+  // Signals para modais (devem ser mantidos)
   const [itemGroupEditModalVisible, setItemGroupEditModalVisible] =
     createSignal(false)
+
   const [templateSearchModalVisible, setTemplateSearchModalVisible] =
     createSignal(false)
 
   const handleEditItemGroup = (meal: Meal, itemGroup: ItemGroup) => {
-    if (dayLocked()) {
+    if (props.locked === true) {
       showError('Dia bloqueado, não é possível editar')
       return
     }
@@ -79,7 +74,7 @@ export default function DayMeals(props: {
   }
 
   const handleUpdateMeal = async (day: DayDiet, meal: Meal) => {
-    if (dayLocked()) {
+    if (props.locked === true) {
       showError('Dia bloqueado, não é possível editar')
       return
     }
@@ -87,7 +82,7 @@ export default function DayMeals(props: {
   }
 
   const handleNewItemButton = (meal: Meal) => {
-    if (dayLocked()) {
+    if (props.locked === true) {
       showError('Dia bloqueado, não é possível editar')
       return
     }
@@ -137,43 +132,6 @@ export default function DayMeals(props: {
             visible={itemGroupEditModalVisible}
             setVisible={setItemGroupEditModalVisible}
           />
-          {/* DayMacros removed: now must be rendered independently by parent */}
-          <Show when={!showingToday()}>
-            {(_) => (
-              <>
-                <Alert class="mt-2" color="yellow">
-                  Mostrando refeições do dia {props.selectedDay}!
-                </Alert>
-                {/* <Show when={dayLocked()}>
-                  {(_) => (
-                    <>
-                      <Alert class="mt-2 outline" color="blue">
-                        Hoje é dia <b>{today}</b>{' '}
-                        <a
-                          class="font-bold text-blue-500 hover:cursor-pointer "
-                          onClick={() => {
-                            setTargetDay(today)
-                          }}
-                        >
-                          Mostrar refeições de hoje
-                        </a>{' '}
-                        ou{' '}
-                        <a
-                          class="font-bold text-red-600 hover:cursor-pointer "
-                          onClick={() => {
-                            setDayExplicitlyUnlocked(true)
-                          }}
-                        >
-                          {' '}
-                          Desbloquear dia {props.selectedDay}
-                        </a>
-                      </Alert>
-                    </>
-                  )}
-                </Show> */}
-              </>
-            )}
-          </Show>
           <For each={neverNullDayDiet.meals}>
             {(meal) => (
               <MealEditView
