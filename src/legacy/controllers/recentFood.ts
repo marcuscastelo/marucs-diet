@@ -1,3 +1,4 @@
+// TODO: Migrate controllers to the new architecture
 import supabase from '~/legacy/utils/supabase'
 import {
   type NewRecentFood,
