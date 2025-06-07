@@ -27,7 +27,8 @@ export function MeasureChart(props: { measures: readonly Measure[] }) {
         if (acc[day] === undefined) {
           acc[day] = []
         }
-        acc[day]?.push(measure)
+        acc[day].push(measure)
+
         return acc
       },
       {},

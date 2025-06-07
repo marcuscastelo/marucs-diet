@@ -243,7 +243,7 @@ function WeightChart(props: {
     if (acc[date] === undefined) {
       acc[date] = []
     }
-    acc[date]?.push(weight)
+    acc[date].push(weight)
 
     return acc
   }

@@ -36,9 +36,9 @@ export function BottomNavigation() {
     observer = new window.IntersectionObserver(
       (entries) => {
         const entry = entries[0]
-        const ratio = entry?.intersectionRatio ?? 0
+        const ratio = entry ? entry.intersectionRatio : 0
         setFooterIntersection(ratio)
-        if (ratio > 0 && footerRef) {
+        if (ratio > 0) {
           setFooterHeight(footerRef.offsetHeight)
         }
       },
@@ -51,7 +51,7 @@ export function BottomNavigation() {
 
     // Updates footerHeight if the footer size changes
     resizeObserver = new window.ResizeObserver(() => {
-      if (footerRef && footerRef.offsetHeight !== footerHeight()) {
+      if (footerRef.offsetHeight !== footerHeight()) {
         setFooterHeight(footerRef.offsetHeight)
       }
     })
