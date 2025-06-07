@@ -4,6 +4,7 @@ import pluginTs from '@typescript-eslint/eslint-plugin'
 import parserTs from '@typescript-eslint/parser'
 import pluginA11y from 'eslint-plugin-jsx-a11y'
 import pluginPrettier from 'eslint-plugin-prettier'
+import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import pluginSolid from 'eslint-plugin-solid'
 import globals from 'globals'
 
@@ -32,6 +33,7 @@ export default [
       solid: pluginSolid,
       prettier: pluginPrettier,
       'jsx-a11y': pluginA11y,
+      simpleImportSort
     },
     rules: {
       ...js.configs.recommended.rules,
