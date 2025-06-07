@@ -2,7 +2,6 @@ import { Show, createSignal, createEffect } from 'solid-js'
 import {
   currentDayDiet,
   targetDay,
-  setTargetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
 import { BottomNavigation } from '~/sections/common/components/BottomNavigation'
 import DayMacros from '~/sections/day-diet/components/DayMacros'
@@ -38,7 +37,7 @@ export default function DietPage() {
       )}
       <DayMeals
         selectedDay={targetDay()}
-        mode={'summary'}
+        mode={mode()}
         onRequestEditMode={handleRequestEditMode}
       />
       <BottomNavigation />

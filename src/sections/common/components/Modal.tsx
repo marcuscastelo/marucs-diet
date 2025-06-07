@@ -1,5 +1,4 @@
 import { createEffect, mergeProps, type JSXElement } from 'solid-js'
-import { BackIcon } from '~/sections/common/components/icons/BackIcon'
 import { useModalContext } from '~/sections/common/context/ModalContext'
 import { cn } from '~/shared/cn'
 import { DarkToaster } from './DarkToaster'
@@ -63,22 +62,12 @@ export const Modal = (_props: ModalProps) => {
   )
 }
 
+// TODO: Remove BackButton from ModalHeader, standardize modal closing
 function ModalHeader(_props: { title: JSXElement; backButton?: boolean }) {
   const props = mergeProps({ backButton: true }, _props)
-  const { setVisible } = useModalContext()
 
   return (
     <div class="flex gap-2">
-      {props.backButton && (
-        <button
-          class="btn btn-sm btn-ghost btn-circle"
-          onClick={() => {
-            setVisible(false)
-          }}
-        >
-          <BackIcon />
-        </button>
-      )}
       <h3 class="text-lg font-bold text-white my-auto w-full">{props.title}</h3>
     </div>
   )

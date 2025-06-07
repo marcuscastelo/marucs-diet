@@ -35,7 +35,6 @@ import {
   type Setter,
   Show,
   createEffect,
-  createMemo,
   createSignal,
 } from 'solid-js'
 import { deepCopy } from '~/legacy/utils/deepCopy'
@@ -371,6 +370,9 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
                 <Title
                   recipe={recipeSignal() ?? null}
                   targetMealName={props.targetMealName}
+                  group={group}
+                  setGroup={setGroup}
+                  mode={props.mode}
                 />
               }
             />
@@ -402,15 +404,80 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   )
 }
 
-function Title(props: { targetMealName: string; recipe: Recipe | null }) {
+function Title(props: {
+  targetMealName: string
+  recipe: Recipe | null
+  mode?: 'edit' | 'read-only' | 'summary'
+  group: Accessor<ItemGroup>
+  setGroup: (group: ItemGroup) => void
+}) {
+  const [isEditingName, setIsEditingName] = createSignal(false)
   return (
-    <>
-      <h3 class="text-lg font-bold text-white">
-        Editando grupo em
-        <span class="text-green-500"> &quot;{props.targetMealName}&quot; </span>
-      </h3>
-      Receita: {props.recipe?.name.toString() ?? 'Nenhuma'}
-    </>
+    <div class="flex flex-col gap-1">
+      <div class="flex items-center gap-2">
+        <span class="text-lg font-bold text-white">Grupo:</span>
+        <Show
+          when={isEditingName() && props.mode === 'edit'}
+          fallback={
+            <div class="flex items-center gap-2">
+              <span
+                class="truncate text-lg font-semibold text-white"
+                title={props.group().name}
+              >
+                {props.group().name}
+              </span>
+              {props.mode === 'edit' && (
+                <button
+                  class="btn btn-xs btn-ghost px-1"
+                  aria-label="Editar nome do grupo"
+                  onClick={() => setIsEditingName(true)}
+                >
+                  ✏️
+                </button>
+              )}
+            </div>
+          }
+        >
+          <div class="flex items-center gap-2 w-full">
+            <input
+              class="input input-xs w-full"
+              type="text"
+              value={props.group().name}
+              onChange={(e) =>
+                props.setGroup(
+                  updateItemGroupName(props.group(), e.target.value),
+                )
+              }
+              onBlur={() => setIsEditingName(false)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') setIsEditingName(false)
+              }}
+              ref={(ref: HTMLInputElement) => {
+                setTimeout(() => {
+                  ref.focus()
+                  ref.select()
+                }, 0)
+              }}
+              disabled={props.mode !== 'edit'}
+            />
+            <button
+              class="btn btn-xs btn-primary"
+              aria-label="Salvar nome do grupo"
+              onClick={() => setIsEditingName(false)}
+              type="button"
+            >
+              Salvar
+            </button>
+          </div>
+        </Show>
+      </div>
+      <div class="text-sm text-gray-400">
+        Em <span class="text-green-500">"{props.targetMealName}"</span>
+      </div>
+      <div class="text-xs text-gray-400">
+        Receita: {props.recipe?.name.toString() ?? 'Nenhuma'}
+      </div>
+    </div>
   )
 }
 
@@ -433,10 +500,9 @@ function Body(props: {
   ]) as unknown as z.ZodType<ItemOrGroup>
 
   const { group, setGroup } = useItemGroupEditContext()
-  const recipedGroup = createMemo(() => {
-    const currentGroup = group()
-    return isRecipedItemGroup(currentGroup) ? currentGroup : null
-  })
+  const [recipedGroup, setRecipedGroup] = createSignal<RecipedItemGroup | null>(
+    null,
+  )
 
   // Use output types for strict type-safety
   type ItemOrGroup =
@@ -479,22 +545,7 @@ function Body(props: {
         <>
           <div class="text-md mt-4">
             <div class="flex gap-4">
-              <div class="my-auto flex-1">
-                <input
-                  class="input w-full"
-                  type="text"
-                  onChange={(e) => {
-                    setGroup(updateItemGroupName(group(), e.target.value))
-                  }}
-                  value={group().name}
-                  ref={(ref) => {
-                    setTimeout(() => {
-                      ref.blur()
-                    }, 0)
-                  }}
-                  disabled={props.mode !== 'edit'}
-                />
-              </div>
+              <div class="my-auto flex-1" />
               {props.mode === 'edit' && (
                 <div class="flex gap-2 px-2">
                   <Show when={hasValidPastableOnClipboardShared()}>

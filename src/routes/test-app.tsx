@@ -231,7 +231,6 @@ export default function TestApp() {
             setTargetDay(value?.startDate as string)
           }}
         />
-        <BackIcon />
         <TestField />
         <TestModal />
         <TestConfirmModal />
