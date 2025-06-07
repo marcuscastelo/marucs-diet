@@ -25,7 +25,7 @@ export function BottomNavigation() {
       {/* Placeholder for bottom navigation when page is 100% scrolled */}
       <div class="h-36 lg:h-24" />
       <div class="fixed z-50 w-full bottom-0 left-0">
-        <div class="fixed z-50 w-full h-16 max-w-lg -translate-x-1/2 bg-white border border-gray-200 rounded-full bottom-6 left-1/2 dark:bg-slate-800 dark:border-slate-700">
+        <div class="fixed z-50 w-full h-16 max-w-lg -translate-x-1/2 bg-white border border-gray-200 rounded-full bottom-14 left-1/2 dark:bg-slate-800 dark:border-slate-700">
           <div class="grid h-full max-w-lg grid-cols-5 mx-auto pt-1">
             <BottomNavigationTab
               active={pathname === '/diet'}
@@ -72,8 +72,7 @@ export function BottomNavigation() {
           </div>
         </div>
       </div>
-      {/* Rodapé fixo no final da página */}
-      <footer class="w-full flex flex-row justify-center items-center gap-4 bg-slate-800 bg-opacity-80 p-2 rounded-t fixed left-0 bottom-0 z-40 lg:static lg:rounded-none">
+      <footer class="w-full  flex flex-row justify-center items-center gap-4 bg-slate-800 bg-opacity-80 p-2 rounded-t fixed left-0 bottom-0 z-40 lg:static lg:rounded-none">
         <span class="text-xs text-white">
           Version: {process.env.APP_VERSION}
         </span>
