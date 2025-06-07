@@ -1,6 +1,6 @@
 import { type ApexOptions } from 'apexcharts'
 import { SolidApexCharts } from 'solid-apexcharts'
-import { createMemo } from 'solid-js'
+import { createMemo, Show } from 'solid-js'
 import ptBrLocale from '~/assets/locales/apex/pt-br.json'
 import { type BodyFatInput, calculateBodyFat } from '~/legacy/utils/bfMath'
 import { type Measure } from '~/modules/measure/domain/measure'
@@ -16,18 +16,28 @@ type DayMeasures = {
 }
 
 export function MeasureChart(props: { measures: readonly Measure[] }) {
-  const measuresByDay = () =>
-    props.measures.reduce<Record<string, Measure[]>>((acc, measure) => {
-      const day = dateToYYYYMMDD(measure.target_timestamp)
-      if (acc[day] === undefined) {
-        acc[day] = []
-      }
-      acc[day]?.push(measure)
-      return acc
-    }, {})
+  // Debug: log props.measures reativamente
+  const debugMeasures = createMemo(() => {
+    console.debug('[MeasureChart] props.measures', props.measures)
+  })
+  const measuresByDay = () => {
+    const grouped = props.measures.reduce<Record<string, Measure[]>>(
+      (acc, measure) => {
+        const day = dateToYYYYMMDD(measure.target_timestamp)
+        if (acc[day] === undefined) {
+          acc[day] = []
+        }
+        acc[day]?.push(measure)
+        return acc
+      },
+      {},
+    )
+    console.debug('[MeasureChart] measuresByDay', grouped)
+    return grouped
+  }
 
-  const data = (): DayMeasures[] =>
-    Object.entries(measuresByDay())
+  const data = (): DayMeasures[] => {
+    const result = Object.entries(measuresByDay())
       .map(([day, measures]) => {
         const heightAverage =
           measures.reduce((acc, measure) => acc + measure.height, 0) /
@@ -80,9 +90,37 @@ export function MeasureChart(props: { measures: readonly Measure[] }) {
         } satisfies DayMeasures
       })
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    console.debug('[MeasureChart] data() result', result)
+    return result
+  }
 
+  const debugData = createMemo(() => {
+    console.debug(
+      '[MeasureChart] Altura data',
+      data().map((d) => d.dayAverage.height),
+    )
+    console.debug(
+      '[MeasureChart] Cintura data',
+      data().map((d) => d.dayAverage.waist),
+    )
+    console.debug(
+      '[MeasureChart] Quadril data',
+      data().map((d) => d.dayAverage.hip),
+    )
+    console.debug(
+      '[MeasureChart] Pescoço data',
+      data().map((d) => d.dayAverage.neck),
+    )
+    console.debug(
+      '[MeasureChart] BF data',
+      data().map((d) => d.dayBf),
+    )
+  })
   return (
     <>
+      {/* Debug memos to trigger logs */}
+      {debugMeasures()}
+      {debugData()}
       <ChartFor
         title="Altura"
         accessor={(day) => day.dayAverage.height}
@@ -193,14 +231,21 @@ function ChartFor(props: {
   return (
     <>
       <h1 class="text-3xl text-center">{props.title}</h1>
-      <>
+      <Show
+        when={props.data.length > 0}
+        fallback={
+          <div class="text-center text-gray-400 py-8">
+            Sem dados para exibir
+          </div>
+        }
+      >
         <SolidApexCharts
-          type="candlestick"
+          type="line"
           options={options()}
           series={series().list}
           height={200}
         />
-      </>
+      </Show>
     </>
   )
 }
