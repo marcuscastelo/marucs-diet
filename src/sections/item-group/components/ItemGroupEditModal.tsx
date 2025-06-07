@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import { type Loadable } from '~/legacy/utils/loadable'
 import {
   type ItemGroup,
   type RecipedItemGroup,
