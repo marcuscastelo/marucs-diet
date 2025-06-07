@@ -170,16 +170,15 @@ export function isOverflowForItemGroup(
     { carbs: 0, protein: 0, fat: 0 },
   )
 
-  // If originalItem is set, subtract its macros from the total (edit scenario)
-  const originalItemMacros: MacroNutrients =
-    macroOverflowOptions.originalItem !== undefined
-      ? calcItemMacros(macroOverflowOptions.originalItem)
-      : { carbs: 0, protein: 0, fat: 0 }
+  // Precompute flag and macros for originalItem
+  const hasOriginalItem = macroOverflowOptions.originalItem !== undefined
+  const originalItemMacros: MacroNutrients = hasOriginalItem
+    ? calcItemMacros(macroOverflowOptions.originalItem!)
+    : { carbs: 0, protein: 0, fat: 0 }
 
-  const difference =
-    macroOverflowOptions.originalItem !== undefined
-      ? totalMacros[property] - originalItemMacros[property]
-      : totalMacros[property]
+  const difference = hasOriginalItem
+    ? totalMacros[property] - originalItemMacros[property]
+    : totalMacros[property]
 
   const current = calcDayMacros(currentDayDiet)[property]
   const target = macroTarget[property]
