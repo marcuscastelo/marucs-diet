@@ -1,5 +1,4 @@
 import { type Accessor, type Setter } from 'solid-js'
-import { calcRecipeMacros } from '~/legacy/utils/macroMath'
 import {
   type ItemGroup,
   type RecipedItemGroup,
@@ -9,16 +8,13 @@ import {
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
-import {
-  type Template,
-  isTemplateFood,
-  isTemplateRecipe,
-} from '~/modules/diet/template/domain/template'
 import { showError } from '~/modules/toast/application/toastManager'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { formatError } from '~/shared/formatError'
+import { templateToItem } from '~/modules/diet/template/application/templateToItem'
+import { type Template } from '~/modules/diet/template/domain/template'
 
 export type ExternalTemplateToItemGroupModalProps = {
   visible: Accessor<boolean>
@@ -38,23 +34,11 @@ export function ExternalTemplateToItemGroupModal(
     <ModalContextProvider visible={props.visible} setVisible={props.setVisible}>
       <ItemEditModal
         targetName={props.targetName}
-        item={() => {
-          const template = props.selectedTemplate()
-          const macros = isTemplateFood(template)
-            ? template.macros
-            : calcRecipeMacros(template)
-          return {
-            reference: template.id,
-            name: template.name,
-            macros,
-            __type: isTemplateFood(template) ? 'Item' : 'RecipeItem', // TODO:   Refactor conversion from template type to group/item types
-          }
-        }}
+        item={() => templateToItem(props.selectedTemplate())}
         macroOverflow={() => ({
           enable: true,
         })}
         onApply={(item) => {
-          // TODO:   Refactor conversion from template type to group/item types
           if (item.__type === 'Item') {
             const newGroup: SimpleItemGroup = createSimpleItemGroup({
               name: item.name,
