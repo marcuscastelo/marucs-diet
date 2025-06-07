@@ -1,29 +1,29 @@
+import {
+  type ItemGroup,
+  isSimpleSingleGroup,
+} from '~/modules/diet/item-group/domain/itemGroup'
 import { type Item, createItem } from '~/modules/diet/item/domain/item'
-import { Modal } from '~/sections/common/components/Modal'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import {
+  addItemsToRecipe,
+  removeItemFromRecipe,
+  updateItemInRecipe,
+} from '~/modules/diet/recipe/domain/recipeOperations'
+import { showError } from '~/modules/toast/application/toastManager'
+import { Modal } from '~/sections/common/components/Modal'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import {
+  ModalContextProvider,
+  useModalContext,
+} from '~/sections/common/context/ModalContext'
+import { ExternalItemEditModal } from '~/sections/food-item/components/ExternalItemEditModal'
 import {
   RecipeEditContent,
   RecipeEditHeader,
 } from '~/sections/recipe/components/RecipeEditView'
 import { RecipeEditContextProvider } from '~/sections/recipe/context/RecipeEditContext'
-import {
-  ModalContextProvider,
-  useModalContext,
-} from '~/sections/common/context/ModalContext'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
-import { ExternalItemEditModal } from '~/sections/food-item/components/ExternalItemEditModal'
 import { handleValidationError } from '~/shared/error/errorHandler'
-import {
-  type ItemGroup,
-  isSimpleSingleGroup,
-} from '~/modules/diet/item-group/domain/itemGroup'
-import {
-  addItemsToRecipe,
-  updateItemInRecipe,
-  removeItemFromRecipe,
-} from '~/modules/diet/recipe/domain/recipeOperations'
-import toast from 'solid-toast'
 
 import { createEffect, createSignal } from 'solid-js'
 
@@ -63,7 +63,7 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
         operation: 'handleNewItemGroup',
         additionalData: { groupType: 'complex', groupId: newGroup.id },
       })
-      toast.error(
+      showError(
         'Não é possível adicionar grupos complexos a receitas, por enquanto.',
       )
       return
@@ -96,10 +96,8 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
         visible={itemEditModalVisible}
         setVisible={setItemEditModalVisible}
         item={() => selectedItem() ?? impossibleItem}
-        targetName={recipe()?.name ?? 'LOADING RECIPE'}
+        targetName={recipe().name}
         onApply={(item) => {
-          if (recipe() === null) return
-
           // Only handle regular Items, not RecipeItems
           if (item.__type !== 'Item') {
             console.warn('Cannot edit RecipeItems in recipe')
@@ -128,7 +126,7 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
         visible={templateSearchModalVisible}
         setVisible={setTemplateSearchModalVisible}
         onRefetch={props.onRefetch}
-        targetName={recipe()?.name ?? 'ERRO: Receita não especificada'}
+        targetName={recipe().name}
         onNewItemGroup={handleNewItemGroup}
       />
 
@@ -158,7 +156,7 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
                 onEditItem={(item) => {
                   // TODO:   Allow user to edit recipe.
                   if (item.__type === 'RecipeItem') {
-                    toast.error(
+                    showError(
                       'Ainda não é possível editar receitas dentro de receitas! Funcionalidade em desenvolvimento',
                     )
                     return

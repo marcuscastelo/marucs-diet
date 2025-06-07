@@ -1,21 +1,21 @@
-import {
-  updateRecipeName,
-  updateRecipePreparedMultiplier,
-  addItemToRecipe,
-  addItemsToRecipe,
-  updateItemInRecipe,
-  removeItemFromRecipe,
-  setRecipeItems,
-  clearRecipeItems,
-  findItemInRecipe,
-  replaceRecipe,
-} from './recipeOperations'
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { createItem } from '~/modules/diet/item/domain/item'
 import {
   createNewRecipe,
   promoteToRecipe,
 } from '~/modules/diet/recipe/domain/recipe'
+import {
+  addItemToRecipe,
+  addItemsToRecipe,
+  clearRecipeItems,
+  findItemInRecipe,
+  removeItemFromRecipe,
+  replaceRecipe,
+  setRecipeItems,
+  updateItemInRecipe,
+  updateRecipeName,
+  updateRecipePreparedMultiplier,
+} from './recipeOperations'
 
 function makeItem(id: number, name = 'Arroz') {
   return {
@@ -65,7 +65,7 @@ describe('recipeOperations', () => {
   it('updateItemInRecipe updates item', () => {
     const updated = makeItem(1, 'Feijão')
     const result = updateItemInRecipe(baseRecipe, 1, updated)
-    expect(result.items[0].name).toBe('Feijão')
+    expect(result.items[0]?.name).toBe('Feijão')
   })
 
   it('removeItemFromRecipe removes item', () => {

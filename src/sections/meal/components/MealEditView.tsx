@@ -1,29 +1,29 @@
-import { type Meal, mealSchema } from '~/modules/diet/meal/domain/meal'
+import { createEffect, type JSXElement, Show } from 'solid-js'
+import { regenerateId } from '~/legacy/utils/idUtils'
 import { calcMealCalories } from '~/legacy/utils/macroMath'
-import { ItemGroupListView } from '~/sections/item-group/components/ItemGroupListView'
-import {
-  type ItemGroup,
-  itemGroupSchema,
-} from '~/modules/diet/item-group/domain/itemGroup'
-import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import {
   convertToGroups,
   type GroupConvertible,
 } from '~/modules/diet/item-group/application/itemGroupService'
-import { regenerateId } from '~/legacy/utils/idUtils'
-import { itemSchema } from '~/modules/diet/item/domain/item'
-import { recipeSchema } from '~/modules/diet/recipe/domain/recipe'
-import { createEffect, Show, type JSXElement } from 'solid-js'
 import {
-  MealContextProvider,
-  useMealContext,
-} from '~/sections/meal/context/MealContext'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+  type ItemGroup,
+  itemGroupSchema,
+} from '~/modules/diet/item-group/domain/itemGroup'
+import { itemSchema } from '~/modules/diet/item/domain/item'
+import { type Meal, mealSchema } from '~/modules/diet/meal/domain/meal'
 import {
   addGroupsToMeal,
   clearMealGroups,
 } from '~/modules/diet/meal/domain/mealOperations'
+import { recipeSchema } from '~/modules/diet/recipe/domain/recipe'
 import { ClipboardActionButtons } from '~/sections/common/components/ClipboardActionButtons'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
+import { ItemGroupListView } from '~/sections/item-group/components/ItemGroupListView'
+import {
+  MealContextProvider,
+  useMealContext,
+} from '~/sections/meal/context/MealContext'
 
 export type MealEditViewProps = {
   meal: Meal
@@ -78,28 +78,18 @@ export function MealEditViewHeader(props: {
       acceptedClipboardSchema,
       getDataToCopy: () => meal(),
       onPaste: (data) => {
-        const meal_ = meal()
-        if (meal_ === null) {
-          throw new Error('mealSignal is null!')
-        }
         const groupsToAdd = convertToGroups(data as GroupConvertible)
           .map((group) => regenerateId(group))
           .map((g) => ({
             ...g,
             items: g.items.map((item) => regenerateId(item)),
           }))
-        const newMeal = addGroupsToMeal(meal_, groupsToAdd)
+        const newMeal = addGroupsToMeal(meal(), groupsToAdd)
         props.onUpdateMeal(newMeal)
       },
     })
 
-  const mealCalories = () => {
-    const meal_ = meal()
-    if (meal_ === null) {
-      return 0
-    }
-    return calcMealCalories(meal_)
-  }
+  const mealCalories = () => calcMealCalories(meal())
 
   const onClearItems = (e: MouseEvent) => {
     e.preventDefault()
@@ -112,11 +102,7 @@ export function MealEditViewHeader(props: {
           text: 'Excluir todos os itens',
           primary: true,
           onClick: () => {
-            const meal_ = meal()
-            if (meal_ === null) {
-              throw new Error('meal_ is null!')
-            }
-            const newMeal = clearMealGroups(meal_)
+            const newMeal = clearMealGroups(meal())
             props.onUpdateMeal(newMeal)
           },
         },
@@ -129,16 +115,15 @@ export function MealEditViewHeader(props: {
       {(mealSignal) => (
         <div class="flex">
           <div class="my-2">
-            <h5 class="text-3xl">{mealSignal()?.name}</h5>
+            <h5 class="text-3xl">{mealSignal().name}</h5>
             <p class="italic text-gray-400">{mealCalories().toFixed(0)}kcal</p>
           </div>
           <ClipboardActionButtons
             canCopy={
-              !hasValidPastableOnClipboard() &&
-              (mealSignal()?.groups.length ?? 0) > 0
+              !hasValidPastableOnClipboard() && mealSignal().groups.length > 0
             }
             canPaste={hasValidPastableOnClipboard()}
-            canClear={(mealSignal()?.groups.length ?? 0) > 0}
+            canClear={mealSignal().groups.length > 0}
             onCopy={handleCopy}
             onPaste={handlePaste}
             onClear={onClearItems}
@@ -163,7 +148,7 @@ export function MealEditViewContent(props: {
 
   return (
     <ItemGroupListView
-      itemGroups={() => meal()?.groups ?? []}
+      itemGroups={() => meal().groups}
       onItemClick={(...args) => {
         props.onEditItemGroup(...args)
       }}

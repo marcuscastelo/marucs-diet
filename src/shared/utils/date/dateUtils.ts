@@ -5,6 +5,8 @@
  * including timezone adjustments, formatting, and date normalization.
  */
 
+import { z } from 'zod'
+
 /**
  * Options for date formatting functions
  */
@@ -147,7 +149,7 @@ export function stringToDate(
  * ```
  */
 export function dateToYYYYMMDD(date: Date): string {
-  return date.toISOString().split('T')[0]
+  return z.string().parse(date.toISOString().split('T')[0])
 }
 
 /**

@@ -1,22 +1,25 @@
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
-import {
-  type MacroProfile,
-  createNewMacroProfile,
-} from '~/modules/diet/macro-profile/domain/macroProfile'
-import { dateToYYYYMMDD, getTodayYYYYMMDD } from '~/shared/utils/date'
+import { Show, createEffect, createMemo, createSignal } from 'solid-js'
 import { calcCalories } from '~/legacy/utils/macroMath'
 import { getLatestMacroProfile } from '~/legacy/utils/macroProfileUtils'
-import { Show, createEffect, createMemo, createSignal } from 'solid-js'
+import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   deleteMacroProfile,
   insertMacroProfile,
   updateMacroProfile,
   userMacroProfiles,
 } from '~/modules/diet/macro-profile/application/macroProfile'
+import {
+  type MacroProfile,
+  createNewMacroProfile,
+} from '~/modules/diet/macro-profile/domain/macroProfile'
 import { calculateMacroTarget } from '~/modules/diet/macro-target/application/macroTarget'
-import toast from 'solid-toast'
-import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import {
+  showError,
+  showSuccess,
+} from '~/modules/toast/application/toastManager'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { formatError } from '~/shared/formatError'
+import { dateToYYYYMMDD, getTodayYYYYMMDD } from '~/shared/utils/date'
 
 const CARBO_CALORIES = 4 as const
 const PROTEIN_CALORIES = 4 as const
@@ -87,10 +90,8 @@ export type MacroTargetProps = {
 const onSaveMacroProfile = (profile: MacroProfile) => {
   console.log('[ProfilePage] Saving profile', profile)
   if (profile.target_day.getTime() > new Date(getTodayYYYYMMDD()).getTime()) {
-    console.error(
-      `[ProfilePage] Invalid target day ${profile.target_day.toString()}: it is in the future`,
-    )
-    toast.error('Data alvo não pode ser no futuro')
+    showError('Data alvo não pode ser no futuro')
+    return
   } else if (
     profile.id !== -1 && // TODO:   Better typing system for new MacroProfile instead of -1.
     profile.target_day.getTime() === new Date(getTodayYYYYMMDD()).getTime()
@@ -98,7 +99,6 @@ const onSaveMacroProfile = (profile: MacroProfile) => {
     console.log('[ProfilePage] Updating profile', profile)
 
     // Same day, update
-    // TODO:   Change all catch console.error to toast.error (and think about Sentry as well).
     updateMacroProfile(
       profile.id,
       createNewMacroProfile({
@@ -108,7 +108,9 @@ const onSaveMacroProfile = (profile: MacroProfile) => {
         gramsPerKgProtein: profile.gramsPerKgProtein,
         gramsPerKgFat: profile.gramsPerKgFat,
       }),
-    ).catch(console.error)
+    ).catch((error) => {
+      showError(`Erro ao atualizar perfil de macro: ${formatError(error)}`)
+    })
   } else if (
     profile.id === -1 || // TODO:   Better typing system for new MacroProfile instead of -1.
     profile.target_day.getTime() < new Date(getTodayYYYYMMDD()).getTime()
@@ -116,14 +118,14 @@ const onSaveMacroProfile = (profile: MacroProfile) => {
     console.log('[ProfilePage] Inserting profile', profile)
 
     // Past day, insert with new date
-    insertMacroProfile(
+    void insertMacroProfile(
       createNewMacroProfile({
         ...profile,
         target_day: new Date(getTodayYYYYMMDD()),
       }),
-    ).catch(console.error)
+    )
   } else {
-    toast.error('Erro imprevisto ao salvar perfil de macro')
+    showError('Erro imprevisto ao salvar perfil de macro')
   }
 }
 
@@ -237,12 +239,12 @@ export function MacroTarget(props: MacroTargetProps) {
                                   onClick: () => {
                                     deleteMacroProfile(profile.id)
                                       .then(() => {
-                                        toast.success(
+                                        showSuccess(
                                           'Perfil antigo restaurado com sucesso, se necessário, atualize a página',
                                         )
                                       })
                                       .catch((e) => {
-                                        toast.error(
+                                        showError(
                                           `Erro ao restaurar perfil antigo: ${formatError(e)}`,
                                         )
                                       })
@@ -336,7 +338,7 @@ function MacroTargetSetting(props: {
   // const makeOnSetPercentage =
   //   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   //   (macro: 'carbs' | 'protein' | 'fat') => (percentage: number) => {
-  //     toast.error('Alterar porcentagem diretamente ainda não implementado')
+  //     showError('Direct percentage change not yet implemented', {context: 'user-action'})
   //   }
 
   return (

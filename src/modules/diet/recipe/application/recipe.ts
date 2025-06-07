@@ -1,48 +1,103 @@
 import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 import { type User } from '~/modules/user/domain/user'
 import { type Recipe, type NewRecipe } from '../domain/recipe'
-import toast from 'solid-toast'
+import { showPromise } from '~/modules/toast/application/toastManager'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 const recipeRepository = createSupabaseRecipeRepository()
 
 export async function fetchUserRecipes(userId: User['id']) {
-  return await recipeRepository.fetchUserRecipes(userId)
+  try {
+    return await recipeRepository.fetchUserRecipes(userId)
+  } catch (error) {
+    handleApiError(error, {
+      component: 'recipeApplication',
+      operation: 'fetchUserRecipes',
+      additionalData: { userId },
+    })
+    throw error
+  }
 }
 
 export async function fetchUserRecipeByName(userId: User['id'], name: string) {
-  return await recipeRepository.fetchUserRecipeByName(userId, name)
+  try {
+    return await recipeRepository.fetchUserRecipeByName(userId, name)
+  } catch (error) {
+    handleApiError(error, {
+      component: 'recipeApplication',
+      operation: 'fetchUserRecipeByName',
+      additionalData: { userId, name },
+    })
+    throw error
+  }
 }
 
 export async function fetchRecipeById(recipeId: Recipe['id']) {
-  return await recipeRepository.fetchRecipeById(recipeId)
+  try {
+    return await recipeRepository.fetchRecipeById(recipeId)
+  } catch (error) {
+    handleApiError(error, {
+      component: 'recipeApplication',
+      operation: 'fetchRecipeById',
+      additionalData: { recipeId },
+    })
+    throw error
+  }
 }
 
 export async function insertRecipe(newRecipe: NewRecipe) {
-  const recipe = await toast.promise(recipeRepository.insertRecipe(newRecipe), {
-    loading: 'Criando nova receita...',
-    success: 'Receita criada com sucesso',
-    error: 'Falha ao criar receita',
-  })
-  return recipe
+  try {
+    const recipe = await showPromise(recipeRepository.insertRecipe(newRecipe), {
+      loading: 'Criando nova receita...',
+      success: 'Receita criada com sucesso',
+      error: 'Falha ao criar receita',
+    })
+    return recipe
+  } catch (error) {
+    handleApiError(error, {
+      component: 'recipeApplication',
+      operation: 'insertRecipe',
+      additionalData: { newRecipe },
+    })
+    throw error
+  }
 }
 
 export async function updateRecipe(recipeId: Recipe['id'], newRecipe: Recipe) {
-  const weight = await toast.promise(
-    recipeRepository.updateRecipe(recipeId, newRecipe),
-    {
-      loading: 'Atualizando receita...',
-      success: 'Receita atualizada com sucesso',
-      error: 'Falha ao atualizar receita',
-    },
-  )
-  return weight
+  try {
+    const recipe = await showPromise(
+      recipeRepository.updateRecipe(recipeId, newRecipe),
+      {
+        loading: 'Atualizando receita...',
+        success: 'Receita atualizada com sucesso',
+        error: 'Falha ao atualizar receita',
+      },
+    )
+    return recipe
+  } catch (error) {
+    handleApiError(error, {
+      component: 'recipeApplication',
+      operation: 'updateRecipe',
+      additionalData: { recipeId, newRecipe },
+    })
+    throw error
+  }
 }
 
 export async function deleteRecipe(recipeId: Recipe['id']) {
-  const weight = await toast.promise(recipeRepository.deleteRecipe(recipeId), {
-    loading: 'Deletando receita...',
-    success: 'Receita deletada com sucesso',
-    error: 'Falha ao deletar receita',
-  })
-  return weight
+  try {
+    const recipe = await showPromise(recipeRepository.deleteRecipe(recipeId), {
+      loading: 'Deletando receita...',
+      success: 'Receita deletada com sucesso',
+      error: 'Falha ao deletar receita',
+    })
+    return recipe
+  } catch (error) {
+    handleApiError(error, {
+      component: 'recipeApplication',
+      operation: 'deleteRecipe',
+      additionalData: { recipeId },
+    })
+    throw error
+  }
 }

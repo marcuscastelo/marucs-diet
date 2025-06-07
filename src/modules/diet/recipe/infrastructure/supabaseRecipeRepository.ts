@@ -1,16 +1,16 @@
-import {
-  type Recipe,
-  type NewRecipe,
-} from '~/modules/diet/recipe/domain/recipe'
-import { type User } from '~/modules/user/domain/user'
 import supabase from '~/legacy/utils/supabase'
+import {
+  type NewRecipe,
+  type Recipe,
+} from '~/modules/diet/recipe/domain/recipe'
 import { type RecipeRepository } from '~/modules/diet/recipe/domain/recipeRepository'
 import {
-  createRecipeFromDAO,
-  recipeDAOSchema,
   createInsertRecipeDAOFromNewRecipe,
+  createRecipeFromDAO,
   createUpdateRecipeDAOFromRecipe,
+  recipeDAOSchema,
 } from '~/modules/diet/recipe/infrastructure/recipeDAO'
+import { type User } from '~/modules/user/domain/user'
 import { handleApiError } from '~/shared/error/errorHandler'
 
 const TABLE = 'recipes'
@@ -26,7 +26,7 @@ export function createSupabaseRecipeRepository(): RecipeRepository {
   }
 }
 
-// TODO:   tratar erros (também no resto dos controllers)
+// TODO: handle errors (also in the rest of the controllers)
 const fetchUserRecipes = async (userId: User['id']): Promise<Recipe[]> => {
   const { data, error } = await supabase
     .from(TABLE)
@@ -42,7 +42,7 @@ const fetchUserRecipes = async (userId: User['id']): Promise<Recipe[]> => {
     throw error
   }
 
-  const recipeDAOs = recipeDAOSchema.array().parse(data ?? [])
+  const recipeDAOs = recipeDAOSchema.array().parse(data)
   const recipes = recipeDAOs.map(createRecipeFromDAO)
 
   return recipes
@@ -60,7 +60,7 @@ const fetchRecipeById = async (id: Recipe['id']): Promise<Recipe | null> => {
     throw error
   }
 
-  const recipeDAOs = recipeDAOSchema.array().parse(data ?? [])
+  const recipeDAOs = recipeDAOSchema.array().parse(data)
   const recipes = recipeDAOs.map(createRecipeFromDAO)
 
   return recipes[0] ?? null
@@ -85,7 +85,7 @@ const fetchUserRecipeByName = async (
     throw error
   }
 
-  const recipeDAOs = recipeDAOSchema.array().parse(data ?? [])
+  const recipeDAOs = recipeDAOSchema.array().parse(data)
   const recipes = recipeDAOs.map(createRecipeFromDAO)
 
   return recipes
@@ -105,7 +105,7 @@ const insertRecipe = async (newRecipe: NewRecipe): Promise<Recipe | null> => {
     throw error
   }
 
-  const recipeDAOs = recipeDAOSchema.array().parse(data ?? [])
+  const recipeDAOs = recipeDAOSchema.array().parse(data)
   const recipes = recipeDAOs.map(createRecipeFromDAO)
 
   return recipes[0] ?? null
@@ -137,7 +137,7 @@ const updateRecipe = async (
     throw error
   }
 
-  const recipeDAOs = recipeDAOSchema.array().parse(data ?? [])
+  const recipeDAOs = recipeDAOSchema.array().parse(data)
   const recipes = recipeDAOs.map(createRecipeFromDAO)
 
   if (recipes[0] === undefined) {
@@ -147,7 +147,7 @@ const updateRecipe = async (
   return recipes[0]
 }
 
-const deleteRecipe = async (id: Recipe['id']): Promise<Recipe> => {
+const deleteRecipe = async (id: Recipe['id']): Promise<Recipe | null> => {
   const { data, error } = await supabase
     .from(TABLE)
     .delete()
@@ -163,7 +163,7 @@ const deleteRecipe = async (id: Recipe['id']): Promise<Recipe> => {
     throw error
   }
 
-  const recipeDAOs = recipeDAOSchema.array().parse(data ?? [])
+  const recipeDAOs = recipeDAOSchema.array().parse(data)
   const recipes = recipeDAOs.map(createRecipeFromDAO)
 
   return recipes[0] ?? null

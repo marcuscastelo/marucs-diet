@@ -1,18 +1,31 @@
-import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
-import { calcCalories, calcDayMacros } from '~/legacy/utils/macroMath'
 import { Show } from 'solid-js'
-import { Progress } from '~/sections/common/components/Progress'
-import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget'
+import { calcCalories, calcDayMacros } from '~/legacy/utils/macroMath'
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
+import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
+import { showError } from '~/modules/toast/application/toastManager'
+import { Progress } from '~/sections/common/components/Progress'
 import { stringToDate } from '~/shared/utils/date'
 
 export default function DayMacros(props: { class?: string }) {
   const macroSignals = () => {
     const currentDayDiet_ = currentDayDiet()
-    if (currentDayDiet_ === null) return null
+    if (currentDayDiet_ === null) {
+      showError(new Error('Dia atual não encontrado'), {
+        audience: 'system',
+      })
+      return null
+    }
 
-    const macroTarget_ = macroTarget(stringToDate(currentDayDiet_.target_day))
-    if (macroTarget_ === null) return null
+    const macroTarget_ = getMacroTargetForDay(
+      stringToDate(currentDayDiet_.target_day),
+    )
+    if (macroTarget_ === null) {
+      showError(new Error('Meta de macros não encontrada'), {
+        audience: 'system',
+      })
+      return null
+    }
 
     const dayMacros = calcDayMacros(currentDayDiet_)
 

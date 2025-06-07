@@ -1,40 +1,41 @@
+import { createEffect, createSignal, untrack } from 'solid-js'
 import {
   setTargetDay,
   targetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
-import { type Item } from '~/modules/diet/item/domain/item'
 import {
   type ItemGroup,
   createSimpleItemGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
+import { type Item } from '~/modules/diet/item/domain/item'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
-import { BackIcon } from '~/sections/common/components/icons/BackIcon'
+import { showSuccess } from '~/modules/toast/application/toastManager'
+import { TestChart } from '~/sections/common/components/charts/TestChart'
 import { FloatInput } from '~/sections/common/components/FloatInput'
+import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
+import { BackIcon } from '~/sections/common/components/icons/BackIcon'
+import { BarCodeIcon } from '~/sections/common/components/icons/BarCodeIcon'
 import { LoadingRing } from '~/sections/common/components/LoadingRing'
 import { Modal } from '~/sections/common/components/Modal'
 import { PageLoading } from '~/sections/common/components/PageLoading'
-import { TestChart } from '~/sections/common/components/charts/TestChart'
+import ToastTest from '~/sections/common/components/ToastTest'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
+import { Providers } from '~/sections/common/context/Providers'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import Datepicker from '~/sections/datepicker/components/Datepicker'
+import DayMacros from '~/sections/day-diet/components/DayMacros'
 import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
 import { ItemListView } from '~/sections/food-item/components/ItemListView'
 import { ItemGroupEditModal } from '~/sections/item-group/components/ItemGroupEditModal'
 import {
-  ItemGroupView,
   ItemGroupCopyButton,
   ItemGroupName,
+  ItemGroupView,
   ItemGroupViewNutritionalInfo,
 } from '~/sections/item-group/components/ItemGroupView'
-import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
-import { createEffect, createSignal, untrack } from 'solid-js'
-import DayMacros from '~/sections/day-diet/components/DayMacros'
-import { Providers } from '~/sections/common/context/Providers'
-import toast from 'solid-toast'
-import { BarCodeIcon } from '~/sections/common/components/icons/BarCodeIcon'
 
 export default function TestApp() {
   const [itemEditModalVisible, setItemEditModalVisible] = createSignal(false)
@@ -108,6 +109,8 @@ export default function TestApp() {
 
       <Providers>
         <DayMacros />
+
+        <ToastTest />
 
         <ModalContextProvider
           visible={templateSearchModalVisible}
@@ -288,7 +291,7 @@ function TestConfirmModal() {
               text: 'Teste123',
               primary: true,
               onClick: () => {
-                toast.success('Teste123')
+                showSuccess('Teste123')
               },
             },
           ],

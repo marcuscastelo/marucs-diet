@@ -1,7 +1,7 @@
 import { type Weight, weightSchema } from '~/modules/weight/domain/weight'
 import { z } from 'zod'
 
-// Base schema (com ID)
+// Base schema (with ID)
 export const weightDAOSchema = z.object({
   id: z.number(),
   owner: z.number(),
@@ -12,10 +12,10 @@ export const weightDAOSchema = z.object({
     .transform((v) => new Date(v)),
 })
 
-// Schema para criação (sem ID)
+// Schema for creation (without ID)
 export const createWeightDAOSchema = weightDAOSchema.omit({ id: true })
 
-// Schema para atualização (campos opcionais, sem ID)
+// Schema for update (optional fields, without ID)
 export const updateWeightDAOSchema = weightDAOSchema
   .omit({ id: true })
   .partial()

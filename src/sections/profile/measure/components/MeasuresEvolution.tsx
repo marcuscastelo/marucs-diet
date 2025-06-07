@@ -1,20 +1,20 @@
-import { type Loadable } from '~/legacy/utils/loadable'
-import {
-  type Measure,
-  createNewMeasure,
-} from '~/modules/measure/domain/measure'
-import { MeasureChart } from '~/sections/profile/measure/components/MeasureChart'
-import { MeasureView } from '~/sections/profile/measure/components/MeasureView'
-import { useFloatField } from '~/sections/common/hooks/useField'
-import { FloatInput } from '~/sections/common/components/FloatInput'
 import { For, createEffect, createSignal } from 'solid-js'
-import { currentUserId } from '~/modules/user/application/user'
+import { type Loadable } from '~/legacy/utils/loadable'
 import {
   fetchUserMeasures,
   insertMeasure,
 } from '~/modules/measure/application/measure'
-import toast from 'solid-toast'
+import {
+  type Measure,
+  createNewMeasure,
+} from '~/modules/measure/domain/measure'
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
+import { showError } from '~/modules/toast/application/toastManager'
+import { currentUserId } from '~/modules/user/application/user'
+import { FloatInput } from '~/sections/common/components/FloatInput'
+import { useFloatField } from '~/sections/common/hooks/useField'
+import { MeasureChart } from '~/sections/profile/measure/components/MeasureChart'
+import { MeasureView } from '~/sections/profile/measure/components/MeasureView'
 import { formatError } from '~/shared/formatError'
 
 export function MeasuresEvolution() {
@@ -28,11 +28,7 @@ export function MeasuresEvolution() {
   const neckField = useFloatField()
 
   const handleRefetchMeasures = () => {
-    const userId = currentUserId()
-    if (userId === null) {
-      throw new Error('User is null')
-    }
-    fetchUserMeasures(userId)
+    fetchUserMeasures(currentUserId())
       .then((measures) =>
         setMeasures({ loading: false, errored: false, data: measures }),
       )
@@ -115,7 +111,7 @@ export function MeasuresEvolution() {
                 hipField.value() === undefined ||
                 neckField.value() === undefined
               ) {
-                toast.error('Medidas inválidas: preencha todos os campos')
+                showError('Medidas inválidas: preencha todos os campos')
                 return
               }
               const userId = currentUserId()
@@ -136,7 +132,7 @@ export function MeasuresEvolution() {
                 .then(afterInsert)
                 .catch((error) => {
                   console.error(error)
-                  toast.error(`Erro ao adicionar medida: ${formatError(error)}`)
+                  showError(`Erro ao adicionar medida: ${formatError(error)}`)
                 })
             }}
           >

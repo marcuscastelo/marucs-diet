@@ -1,17 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { For, createEffect, createMemo } from 'solid-js'
-import { type Weight, createNewWeight } from '~/modules/weight/domain/weight'
-import { Capsule } from '~/sections/common/components/capsule/Capsule'
-import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
+import { type ApexOptions } from 'apexcharts'
+import { SolidApexCharts } from 'solid-apexcharts'
+import { For, createMemo } from 'solid-js'
+import ptBrLocale from '~/assets/locales/apex/pt-br.json'
 import { type OHLC } from '~/legacy/model/ohlcModel'
-import { useDateField, useFloatField } from '~/sections/common/hooks/useField'
-import { FloatInput } from '~/sections/common/components/FloatInput'
-import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
 import {
   calculateWeightProgress,
   firstWeight,
   getLatestWeight,
 } from '~/legacy/utils/weightUtils'
+import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
+import { showError } from '~/modules/toast/application/toastManager'
 import { currentUser, currentUserId } from '~/modules/user/application/user'
 import {
   deleteWeight,
@@ -19,14 +18,14 @@ import {
   updateWeight,
   userWeights,
 } from '~/modules/weight/application/weight'
+import { type Weight, createNewWeight } from '~/modules/weight/domain/weight'
+import { FloatInput } from '~/sections/common/components/FloatInput'
+import { Capsule } from '~/sections/common/components/capsule/Capsule'
+import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
+import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
+import { useDateField, useFloatField } from '~/sections/common/hooks/useField'
 import Datepicker from '~/sections/datepicker/components/Datepicker'
 import { adjustToTimezone, dateToYYYYMMDD } from '~/shared/utils/date'
-import { SolidApexCharts } from 'solid-apexcharts'
-import { type ApexOptions } from 'apexcharts'
-import toast from 'solid-toast'
-import ptBrLocale from '~/assets/locales/apex/pt-br.json'
-import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
-import { formatError } from '~/shared/formatError'
 
 export function WeightEvolution() {
   const desiredWeight = () => currentUser()?.desired_weight ?? 0
@@ -39,7 +38,7 @@ export function WeightEvolution() {
     calculateWeightProgress(userWeights(), desiredWeight())
 
   const weightProgressText = () =>
-    weightProgress === null
+    weightProgress() === null
       ? 'Erro'
       : `${((weightProgress() ?? 0) * 100).toFixed(2)}%`
 
@@ -70,7 +69,7 @@ export function WeightEvolution() {
               const weight = weightField.value()
 
               if (weight === undefined) {
-                toast.error('Digite um peso')
+                showError('Digite um peso')
                 return
               }
 
@@ -88,10 +87,7 @@ export function WeightEvolution() {
                 }),
               )
                 .then(afterInsert)
-                .catch((error) => {
-                  console.error(error)
-                  toast.error(`Erro ao adicionar peso: ${formatError(error)}`)
-                })
+                .catch(() => {})
             }}
           >
             Adicionar peso
@@ -126,24 +122,19 @@ function WeightView(props: { weight: Weight }) {
     weightValue: number | undefined
   }) => {
     if (weightValue === undefined) {
-      toast.error('Digite um peso')
-      console.error('Weight is undefined')
+      showError('Digite um peso')
       return
     }
 
     if (dateValue === undefined) {
-      toast.error('Digite uma data')
-      console.error('Date is undefined')
+      showError('Digite uma data')
       return
     }
 
-    updateWeight(props.weight.id, {
+    void updateWeight(props.weight.id, {
       ...props.weight,
       weight: weightValue,
       target_timestamp: dateValue,
-    }).catch((error) => {
-      console.error(error)
-      toast.error('Erro ao atualizar')
     })
   }
 
@@ -159,7 +150,7 @@ function WeightView(props: { weight: Weight }) {
             onChange={(value) => {
               // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
               if (!value?.startDate) {
-                toast.error('Data inválida: \n' + JSON.stringify(value))
+                showError('Data inválida: \n' + JSON.stringify(value))
                 return
               }
               // Apply timezone offset
@@ -203,10 +194,7 @@ function WeightView(props: { weight: Weight }) {
           <button
             class="btn btn-ghost my-auto"
             onClick={() => {
-              deleteWeight(props.weight.id).catch((error) => {
-                console.error(error)
-                toast.error(`Erro ao deletar peso: ${formatError(error)}`)
-              })
+              void deleteWeight(props.weight.id)
             }}
           >
             <TrashIcon />
@@ -254,7 +242,7 @@ function WeightChart(props: {
     if (acc[date] === undefined) {
       acc[date] = []
     }
-    acc[date].push(weight)
+    acc[date]?.push(weight)
 
     return acc
   }
@@ -400,10 +388,6 @@ function WeightChart(props: {
       },
     ] satisfies ApexOptions['series'],
   }))
-
-  createEffect(() => {
-    console.log('polishedData', polishedData())
-  })
 
   return (
     <>

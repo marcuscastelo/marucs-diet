@@ -18,22 +18,25 @@ export async function updateMeal(
   mealId: Meal['id'],
   newMeal: Meal,
 ) {
-  const currentDayDiet_ = currentDayDiet()
-  if (currentDayDiet_ === null) {
-    throw new Error('[meal::application] Current day diet is null')
-  }
+  try {
+    const currentDayDiet_ = currentDayDiet()
+    if (currentDayDiet_ === null) {
+      throw new Error('[meal::application] Current day diet is null')
+    }
 
-  // Update meal in day diet
-  const updatedDayDiet = updateMealInDayDiet(currentDayDiet_, mealId, newMeal)
+    // Update meal in day diet
+    const updatedDayDiet = updateMealInDayDiet(currentDayDiet_, mealId, newMeal)
 
-  // Convert to NewDayDiet
-  const newDay = convertToNewDayDiet(updatedDayDiet)
+    // Convert to NewDayDiet
+    const newDay = convertToNewDayDiet(updatedDayDiet)
 
-  updateDayDiet(currentDayDiet_.id, newDay).catch((error) => {
+    await updateDayDiet(currentDayDiet_.id, newDay)
+  } catch (error) {
     handleApiError(error, {
       component: 'mealApplication',
       operation: 'updateMeal',
       additionalData: { mealId, mealName: newMeal.name },
     })
-  })
+    throw error
+  }
 }

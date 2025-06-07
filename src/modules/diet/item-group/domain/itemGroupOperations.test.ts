@@ -1,18 +1,18 @@
+import { describe, expect, it } from 'vitest'
+import { createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { createItem } from '~/modules/diet/item/domain/item'
 import {
-  updateItemGroupName,
-  setItemGroupRecipe,
   addItemToGroup,
   addItemsToGroup,
-  updateItemInGroup,
-  removeItemFromGroup,
-  setItemGroupItems,
   clearItemGroupItems,
   findItemInGroup,
+  removeItemFromGroup,
   replaceItemGroup,
+  setItemGroupItems,
+  setItemGroupRecipe,
+  updateItemGroupName,
+  updateItemInGroup,
 } from './itemGroupOperations'
-import { describe, it, expect } from 'vitest'
-import { createItem } from '~/modules/diet/item/domain/item'
-import { createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 
 function makeItem(id: number, name = 'Arroz') {
   return {
@@ -62,7 +62,7 @@ describe('itemGroupOperations', () => {
   it('updateItemInGroup updates item', () => {
     const updated = makeItem(1, 'Feijão')
     const result = updateItemInGroup(baseGroup, 1, updated)
-    expect(result.items[0].name).toBe('Feijão')
+    expect(result.items[0]?.name).toBe('Feijão')
   })
 
   it('removeItemFromGroup removes item', () => {

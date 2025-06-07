@@ -1,5 +1,5 @@
 import { Show } from 'solid-js'
-import { toastPromise } from '~/shared/toastPromise'
+import { showPromise } from '~/modules/toast/application/toastManager'
 import { deleteRecentFoodByFoodId } from '~/legacy/controllers/recentFood'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
@@ -15,18 +15,21 @@ export function RemoveFromRecentButton(props: RemoveFromRecentButtonProps) {
   const handleClick = (e: MouseEvent) => {
     e.stopPropagation()
     e.preventDefault()
-    toastPromise(deleteRecentFoodByFoodId(currentUserId(), props.templateId), {
-      loading: 'Removendo alimento da lista de recentes...',
-      success: 'Alimento removido da lista de recentes com sucesso!',
-      error: (err) => {
-        handleApiError(err, {
-          component: 'RemoveFromRecentButton',
-          operation: 'deleteRecentFood',
-          additionalData: { foodId: props.templateId },
-        })
-        return 'Erro ao remover alimento da lista de recentes.'
+    void showPromise(
+      deleteRecentFoodByFoodId(currentUserId(), props.templateId),
+      {
+        loading: 'Removendo alimento da lista de recentes...',
+        success: 'Alimento removido da lista de recentes com sucesso!',
+        error: (err: unknown) => {
+          handleApiError(err, {
+            component: 'RemoveFromRecentButton',
+            operation: 'deleteRecentFood',
+            additionalData: { foodId: props.templateId },
+          })
+          return 'Erro ao remover alimento da lista de recentes.'
+        },
       },
-    })
+    )
       .then(props.refetch)
       .catch(() => {})
   }

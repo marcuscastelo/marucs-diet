@@ -1,7 +1,7 @@
-import { useModalContext } from '~/sections/common/context/ModalContext'
+import { createEffect, mergeProps, type JSXElement } from 'solid-js'
 import { BackIcon } from '~/sections/common/components/icons/BackIcon'
+import { useModalContext } from '~/sections/common/context/ModalContext'
 import { cn } from '~/shared/cn'
-import { mergeProps, type JSXElement, createEffect } from 'solid-js'
 import { DarkToaster } from './DarkToaster'
 
 export type ModalProps = {
@@ -36,16 +36,14 @@ export const Modal = (_props: ModalProps) => {
     <dialog
       id={`modal-${modalId++}`}
       ref={(ref) => {
-        if (ref !== null) {
-          createEffect(() => {
-            console.debug('[Modal] <effect> visible:', visible())
-            if (visible()) {
-              ref.showModal()
-            } else {
-              ref.close()
-            }
-          })
-        }
+        createEffect(() => {
+          console.debug('[Modal] <effect> visible:', visible())
+          if (visible()) {
+            ref.showModal()
+          } else {
+            ref.close()
+          }
+        })
       }}
       class={modalClass()}
       onClose={handleClose}

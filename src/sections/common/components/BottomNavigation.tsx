@@ -9,7 +9,7 @@ import {
 import { type User } from '~/modules/user/domain/user'
 import { For, type JSXElement, Show } from 'solid-js'
 import { useLocation, useNavigate } from '@solidjs/router'
-import toast from 'solid-toast'
+import { showError } from '~/modules/toast/application/toastManager'
 
 export function BottomNavigation() {
   const navigate = useNavigate()
@@ -225,7 +225,7 @@ const UserSelectorDropdown = () => {
 
   fetchUsers().catch((error) => {
     console.error('[UserSelectorDropdown] Error fetching users:', error)
-    toast.error('Erro ao buscar usuários')
+    showError('Erro ao buscar usuários', { context: 'background' })
     closeConfirmModal()
   })
 

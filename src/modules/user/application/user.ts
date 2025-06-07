@@ -1,6 +1,9 @@
+import { createEffect, createSignal } from 'solid-js'
+import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
+import { showPromise } from '~/modules/toast/application/toastManager'
 import {
-  type User,
   type NewUser,
+  type User,
   demoteToNewUser,
 } from '~/modules/user/domain/user'
 import {
@@ -11,10 +14,7 @@ import {
   createSupabaseUserRepository,
   SUPABASE_TABLE_USERS,
 } from '~/modules/user/infrastructure/supabaseUserRepository'
-import { createEffect, createSignal } from 'solid-js'
-import { toastPromise } from '~/shared/toastPromise'
 import { handleApiError } from '~/shared/error/errorHandler'
-import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 
 export const DEFAULT_USER_ID = 3
 
@@ -27,14 +27,16 @@ export const [currentUser, setCurrentUser] = createSignal<User | null>(null)
 export const [currentUserId, setCurrentUserId] = createSignal<number>(1)
 
 createEffect(() => {
-  if (currentUserId() !== null) {
-    setCurrentUserId(loadUserIdFromLocalStorage())
-    toastPromise(fetchCurrentUser(), {
+  setCurrentUserId(loadUserIdFromLocalStorage())
+  void showPromise(
+    fetchCurrentUser(),
+    {
       loading: 'Carregando usuário atual...',
       success: 'Usuário atual carregado com sucesso',
       error: 'Falha ao carregar usuário atual',
-    }).catch(() => {})
-  }
+    },
+    { context: 'background' },
+  )
 })
 
 function bootstrap() {
@@ -75,27 +77,61 @@ export async function fetchCurrentUser(): Promise<User | null> {
 }
 
 export async function insertUser(newUser: NewUser): Promise<void> {
-  await userRepository.insertUser(newUser)
-  await fetchUsers()
+  try {
+    await showPromise(userRepository.insertUser(newUser), {
+      loading: 'Inserindo usuário...',
+      success: 'Usuário inserido com sucesso',
+      error: 'Falha ao inserir usuário',
+    })
+    await fetchUsers()
+  } catch (error) {
+    handleApiError(error, {
+      component: 'userApplication',
+      operation: 'insertUser',
+      additionalData: { newUser },
+    })
+    throw error
+  }
 }
 
 export async function updateUser(
   userId: User['id'],
   newUser: NewUser,
 ): Promise<User | null> {
-  const user = await toastPromise(userRepository.updateUser(userId, newUser), {
-    loading: 'Atualizando informações do usuário...',
-    success: 'Informações do usuário atualizadas com sucesso',
-    error: 'Falha ao atualizar informações do usuário',
-  })
-
-  await fetchUsers()
-  return user
+  try {
+    const user = await showPromise(userRepository.updateUser(userId, newUser), {
+      loading: 'Atualizando informações do usuário...',
+      success: 'Informações do usuário atualizadas com sucesso',
+      error: 'Falha ao atualizar informações do usuário',
+    })
+    await fetchUsers()
+    return user
+  } catch (error) {
+    handleApiError(error, {
+      component: 'userApplication',
+      operation: 'updateUser',
+      additionalData: { userId, newUser },
+    })
+    throw error
+  }
 }
 
 export async function deleteUser(userId: User['id']): Promise<void> {
-  await userRepository.deleteUser(userId)
-  await fetchUsers()
+  try {
+    await showPromise(userRepository.deleteUser(userId), {
+      loading: 'Removendo usuário...',
+      success: 'Usuário removido com sucesso',
+      error: 'Falha ao remover usuário',
+    })
+    await fetchUsers()
+  } catch (error) {
+    handleApiError(error, {
+      component: 'userApplication',
+      operation: 'deleteUser',
+      additionalData: { userId },
+    })
+    throw error
+  }
 }
 
 export function changeToUser(userId: User['id']): void {
@@ -134,7 +170,7 @@ export function setFoodAsFavorite(foodId: number, favorite: boolean): void {
       handleApiError(error, {
         component: 'userApplication',
         operation: 'toggleFavoriteFood',
-        additionalData: { foodId },
+        additionalData: { foodId, favorite },
       })
     })
 }

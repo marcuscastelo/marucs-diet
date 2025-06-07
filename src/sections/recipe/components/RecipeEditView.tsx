@@ -1,36 +1,35 @@
 // TODO:   Unify Recipe and Recipe components into a single component?
 
-import { type Recipe, recipeSchema } from '~/modules/diet/recipe/domain/recipe'
-import { itemSchema } from '~/modules/diet/item/domain/item'
-import {
-  RecipeEditContextProvider,
-  useRecipeEditContext,
-} from '~/sections/recipe/context/RecipeEditContext'
-import { ItemListView } from '~/sections/food-item/components/ItemListView'
-import { calcRecipeCalories } from '~/legacy/utils/macroMath'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { type Accessor, type JSXElement, type Setter } from 'solid-js'
 import { regenerateId } from '~/legacy/utils/idUtils'
-import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
-import { handleValidationError } from '~/shared/error/errorHandler'
-import { mealSchema } from '~/modules/diet/meal/domain/meal'
+import { calcRecipeCalories } from '~/legacy/utils/macroMath'
+import {
+  convertToGroups,
+  type GroupConvertible,
+} from '~/modules/diet/item-group/application/itemGroupService'
 import { itemGroupSchema } from '~/modules/diet/item-group/domain/itemGroup'
-import { PreparedQuantity } from '~/sections/common/components/PreparedQuantity'
-import { useFloatField } from '~/sections/common/hooks/useField'
-import { FloatInput } from '~/sections/common/components/FloatInput'
-import { cn } from '~/shared/cn'
+import { itemSchema } from '~/modules/diet/item/domain/item'
+import { mealSchema } from '~/modules/diet/meal/domain/meal'
+import { type Recipe, recipeSchema } from '~/modules/diet/recipe/domain/recipe'
 import {
   addItemsToRecipe,
   clearRecipeItems,
   updateRecipeName,
   updateRecipePreparedMultiplier,
 } from '~/modules/diet/recipe/domain/recipeOperations'
-import { type JSXElement, type Accessor, type Setter } from 'solid-js'
-import {
-  convertToGroups,
-  type GroupConvertible,
-} from '~/modules/diet/item-group/application/itemGroupService'
-import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
+import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { ClipboardActionButtons } from '~/sections/common/components/ClipboardActionButtons'
+import { FloatInput } from '~/sections/common/components/FloatInput'
+import { PreparedQuantity } from '~/sections/common/components/PreparedQuantity'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
+import { useFloatField } from '~/sections/common/hooks/useField'
+import { ItemListView } from '~/sections/food-item/components/ItemListView'
+import {
+  RecipeEditContextProvider,
+  useRecipeEditContext,
+} from '~/sections/recipe/context/RecipeEditContext'
+import { cn } from '~/shared/cn'
 
 export type RecipeEditViewProps = {
   recipe: Accessor<Recipe>
@@ -147,20 +146,12 @@ export function RecipeEditContent(props: {
         class="input w-full"
         type="text"
         onChange={(e) => {
-          if (recipe() === null) {
-            handleValidationError('Recipe is null during name change', {
-              component: 'RecipeEditView',
-              operation: 'setName',
-              additionalData: { newName: e.target.value },
-            })
-            throw new Error('group is null')
-          }
           setRecipe(updateRecipeName(recipe(), e.target.value))
         }}
         onFocus={(e) => {
           e.target.select()
         }}
-        value={recipe().name ?? ''}
+        value={recipe().name}
       />
       <ItemListView
         items={() => recipe().items}

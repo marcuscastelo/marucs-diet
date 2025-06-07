@@ -1,13 +1,13 @@
-import { type Food, type NewFood } from '~/modules/diet/food/domain/food'
 import supabase from '~/legacy/utils/supabase'
+import { type Food, type NewFood } from '~/modules/diet/food/domain/food'
 import {
   type FoodRepository,
   type FoodSearchParams,
 } from '~/modules/diet/food/domain/foodRepository'
 import {
   createFoodFromDAO,
-  foodDAOSchema,
   createInsertFoodDAOFromNewFood,
+  foodDAOSchema,
 } from '~/modules/diet/food/infrastructure/foodDAO'
 import { handleApiError, logError } from '~/shared/error/errorHandler'
 
@@ -27,7 +27,7 @@ export function createSupabaseFoodRepository(): FoodRepository {
 async function fetchFoodById(
   id: Food['id'],
   params: Omit<FoodSearchParams, 'limit'> = {},
-) {
+): Promise<Food | null> {
   const foods = await internalCachedSearchFoods(
     { field: 'id', value: id },
     { ...params, limit: 1 },
@@ -42,7 +42,7 @@ async function fetchFoodById(
     return null
   }
 
-  return foods[0]
+  return foods[0] ?? null
 }
 
 async function fetchFoodsByName(
@@ -138,8 +138,8 @@ async function internalCachedSearchFoods(
     throw error
   }
 
-  console.debug(`[Food] Found ${data?.length ?? 0} foods`)
-  const foodDAOs = foodDAOSchema.array().parse(data ?? [])
+  console.debug(`[Food] Found ${data.length} foods`)
+  const foodDAOs = foodDAOSchema.array().parse(data)
   return foodDAOs.map(createFoodFromDAO)
 }
 
@@ -159,7 +159,7 @@ async function insertFood(newFood: NewFood): Promise<Food | null> {
     throw error
   }
 
-  const foodDAOs = foodDAOSchema.array().parse(data ?? [])
+  const foodDAOs = foodDAOSchema.array().parse(data)
   const foods = foodDAOs.map(createFoodFromDAO)
 
   return foods[0] ?? null
@@ -182,7 +182,7 @@ async function upsertFood(newFood: NewFood): Promise<Food | null> {
     throw error
   }
 
-  const foodDAOs = foodDAOSchema.array().parse(data ?? [])
+  const foodDAOs = foodDAOSchema.array().parse(data)
   const foods = foodDAOs.map(createFoodFromDAO)
 
   return foods[0] ?? null

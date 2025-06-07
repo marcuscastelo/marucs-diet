@@ -6,7 +6,7 @@ import {
 } from '~/modules/diet/recipe/domain/recipe'
 import { z } from 'zod'
 
-// Base schema (com ID)
+// Base schema (with ID)
 export const recipeDAOSchema = z.object({
   id: z.number(),
   name: z.string(),
@@ -15,10 +15,10 @@ export const recipeDAOSchema = z.object({
   prepared_multiplier: z.number(),
 })
 
-// Schema para criação (sem ID)
+// Schema for creation (without ID)
 export const createRecipeDAOSchema = recipeDAOSchema.omit({ id: true })
 
-// Schema para atualização (campos opcionais, sem ID)
+// Schema for update (optional fields, without ID)
 export const updateRecipeDAOSchema = recipeDAOSchema
   .omit({ id: true })
   .partial()

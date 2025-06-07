@@ -1,13 +1,16 @@
-import { type APIEvent } from '@solidjs/start/server'
 import { json } from '@solidjs/router'
+import { type APIEvent } from '@solidjs/start/server'
+import { type AxiosError } from 'axios'
 import { createApiFoodRepository } from '~/modules/diet/food/infrastructure/api/infrastructure/apiFoodRepository'
 import { handleApiError } from '~/shared/error/errorHandler'
-import { type AxiosError } from 'axios'
 
 const apiFoodRepository = createApiFoodRepository()
 
 export async function GET({ params }: APIEvent) {
   console.debug('GET', params)
+  if (params.name === undefined || params.name === '') {
+    return json({ error: 'Name parameter is required' }, { status: 400 })
+  }
   try {
     const apiFood = await apiFoodRepository.fetchApiFoodsByName(
       decodeURIComponent(params.name),

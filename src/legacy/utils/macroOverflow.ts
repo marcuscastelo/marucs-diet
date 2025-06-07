@@ -1,7 +1,7 @@
+import { calcDayMacros, calcItemMacros } from '~/legacy/utils/macroMath'
+import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
-import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
-import { calcItemMacros, calcDayMacros } from '~/legacy/utils/macroMath'
 import { handleValidationError, logError } from '~/shared/error/errorHandler'
 
 export type MacroOverflowOptions = {
@@ -127,6 +127,17 @@ export function isOverflowForItemGroup(
     return false
   }
 
+  const [firstItem] = items
+  if (!firstItem) {
+    logError('First item is undefined, cannot check overflow', {
+      component: 'macroOverflow',
+      operation: 'isOverflowForItemGroup',
+      additionalData: { property },
+    })
+    return false
+  }
+
   // Use the first item for calculation (as done in TemplateSearchModal)
-  return isOverflow(items[0], property, context)
+  // TODO: Review if using only the first item is appropriate
+  return isOverflow(firstItem, property, context)
 }

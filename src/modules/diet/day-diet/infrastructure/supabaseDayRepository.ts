@@ -1,20 +1,20 @@
+import { type Accessor, createSignal } from 'solid-js'
+import supabase from '~/legacy/utils/supabase'
 import {
   type DayDiet,
   dayDietSchema,
   type NewDayDiet,
 } from '~/modules/diet/day-diet/domain/dayDiet'
-import { type User } from '~/modules/user/domain/user'
-import supabase from '~/legacy/utils/supabase'
 import { type DayRepository } from '~/modules/diet/day-diet/domain/dayDietRepository'
-import { type Accessor, createSignal } from 'solid-js'
+import { type User } from '~/modules/user/domain/user'
 import {
   handleApiError,
   handleValidationError,
 } from '~/shared/error/errorHandler'
 import {
-  type DayDietDAO,
-  daoToDayDiet,
   createInsertDayDietDAOFromNewDayDiet,
+  daoToDayDiet,
+  type DayDietDAO,
 } from './dayDietDAO'
 
 // TODO:   Delete old days table and rename days_test to days
@@ -139,8 +139,8 @@ const insertDayDiet = async (newDay: NewDayDiet): Promise<DayDiet | null> => {
     throw error
   }
 
-  const dayDAO = days?.[0] as DayDietDAO | undefined
-  if (dayDAO !== null && dayDAO !== undefined) {
+  const dayDAO = days[0] as DayDietDAO | undefined
+  if (dayDAO !== undefined) {
     return daoToDayDiet(dayDAO)
   }
   return null
@@ -167,7 +167,7 @@ const updateDayDiet = async (
     throw error
   }
 
-  const dayDAO = data?.[0] as DayDietDAO
+  const dayDAO = data[0] as DayDietDAO
   return daoToDayDiet(dayDAO)
 }
 

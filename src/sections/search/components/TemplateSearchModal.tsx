@@ -1,66 +1,67 @@
-import { Modal } from '~/sections/common/components/Modal'
-import { useModalContext } from '~/sections/common/context/ModalContext'
-import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
-import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
-import {
-  TemplateSearchTabs,
-  availableTabs,
-} from '~/sections/search/components/TemplateSearchTabs'
-import { useTyping } from '~/sections/common/hooks/useTyping'
 import {
   fetchRecentFoodByUserIdAndFoodId,
   fetchUserRecentFoods,
   insertRecentFood,
   updateRecentFood,
 } from '~/legacy/controllers/recentFood'
-import { createNewRecentFood } from '~/modules/recent-food/domain/recentFood'
-import { type Template } from '~/modules/diet/template/domain/template'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import { type Template } from '~/modules/diet/template/domain/template'
+import { createNewRecentFood } from '~/modules/recent-food/domain/recentFood'
+import { showSuccess } from '~/modules/toast/application/toastManager'
+import { Modal } from '~/sections/common/components/Modal'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { useModalContext } from '~/sections/common/context/ModalContext'
+import { useTyping } from '~/sections/common/hooks/useTyping'
+import {
+  TemplateSearchTabs,
+  availableTabs,
+} from '~/sections/search/components/TemplateSearchTabs'
+import { handleApiError } from '~/shared/error/errorHandler'
 
-import { type Food } from '~/modules/diet/food/domain/food'
-import { currentUser, currentUserId } from '~/modules/user/application/user'
 import {
   type Accessor,
-  Show,
-  createSignal,
   type Setter,
-  createResource,
+  Show,
   Suspense,
   createEffect,
+  createResource,
+  createSignal,
   untrack,
 } from 'solid-js'
-import { PageLoading } from '~/sections/common/components/PageLoading'
+import { isOverflowForItemGroup } from '~/legacy/utils/macroOverflow'
 import {
-  fetchUserRecipeByName,
-  fetchUserRecipes,
-} from '~/modules/diet/recipe/application/recipe'
+  currentDayDiet,
+  targetDay,
+} from '~/modules/diet/day-diet/application/dayDiet'
 import {
   fetchFoodById,
   fetchFoods,
   fetchFoodsByName,
 } from '~/modules/diet/food/application/food'
-import {
-  currentDayDiet,
-  targetDay,
-} from '~/modules/diet/day-diet/application/dayDiet'
-import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget'
-import { stringToDate } from '~/shared/utils/date'
-import { isOverflowForItemGroup } from '~/legacy/utils/macroOverflow'
+import { type Food } from '~/modules/diet/food/domain/food'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
-import toast from 'solid-toast'
-import { TemplateSearchBar } from './TemplateSearchBar'
-import { TemplateSearchResults } from './TemplateSearchResults'
-import { BarCodeButton } from '~/sections/common/components/BarCodeButton'
+import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import {
-  templateSearch,
+  fetchUserRecipeByName,
+  fetchUserRecipes,
+} from '~/modules/diet/recipe/application/recipe'
+import {
   setTemplateSearchTab,
+  templateSearch,
   templateSearchTab,
 } from '~/modules/search/application/search'
+import { showError } from '~/modules/toast/application/toastManager'
+import { currentUser, currentUserId } from '~/modules/user/application/user'
+import { BarCodeButton } from '~/sections/common/components/BarCodeButton'
+import { PageLoading } from '~/sections/common/components/PageLoading'
 import { formatError } from '~/shared/formatError'
-import { ExternalTemplateToItemGroupModal } from './ExternalTemplateToItemGroupModal'
+import { stringToDate } from '~/shared/utils/date'
 import { ExternalBarCodeInsertModal } from './ExternalBarCodeInsertModal'
+import { ExternalTemplateToItemGroupModal } from './ExternalTemplateToItemGroupModal'
+import { TemplateSearchBar } from './TemplateSearchBar'
+import { TemplateSearchResults } from './TemplateSearchResults'
 
 const TEMPLATE_SEARCH_DEFAULT_TAB = availableTabs.Todos.id
 
@@ -90,7 +91,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
     console.log(`[TemplateSearchModal] Setting up macro overflow checking`)
 
     const currentDayDiet_ = currentDayDiet()
-    const macroTarget_ = macroTarget(stringToDate(targetDay()))
+    const macroTarget_ = getMacroTargetForDay(stringToDate(targetDay()))
 
     // Create context object once
     const macroOverflowContext = {
@@ -144,9 +145,12 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
         body: 'Deseja adicionar outro item ou finalizar a inclusão?',
         actions: [
           {
-            // TODO:   Show toast "Item <nome> adicionado com sucesso"
+            // Show success toast when adding more items
             text: 'Adicionar mais um item',
             onClick: () => {
+              showSuccess(
+                `Item "${originalAddedItem.name}" adicionado com sucesso!`,
+              )
               setSelectedTemplate(undefined)
               setItemEditModalVisible(false)
             },
@@ -155,6 +159,9 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
             text: 'Finalizar',
             primary: true,
             onClick: () => {
+              showSuccess(
+                `Item "${originalAddedItem.name}" adicionado com sucesso!`,
+              )
               setSelectedTemplate(undefined)
               setItemEditModalVisible(false)
               props.onFinish?.()
@@ -186,7 +193,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
                   operation: 'confirmOverMacros',
                   additionalData: { templateType: 'item' },
                 })
-                toast.error(`Erro ao adicionar item: ${formatError(err)}`)
+                showError(`Erro ao adicionar item: ${formatError(err)}`)
               })
             },
           },
@@ -207,7 +214,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
           operation: 'confirmItem',
           additionalData: { templateType: 'item' },
         })
-        toast.error(`Erro ao adicionar item: ${formatError(err)}`)
+        showError(`Erro ao adicionar item: ${formatError(err)}`)
       }
     }
   }
@@ -323,13 +330,11 @@ const fetchRecipes = async (): Promise<readonly Recipe[]> => {
 
 const fetchFunc = async () => {
   const tab_ = templateSearchTab()
-  if (tab_ !== 'recipes') {
-    return await fetchFoodsForModal()
-  } else if (tab_ === 'recipes') {
-    return await fetchRecipes()
-  } else {
-    tab_ satisfies never
-    throw new Error('BUG: Invalid tab selected: ' + templateSearchTab())
+  switch (tab_) {
+    case 'recipes':
+      return await fetchRecipes()
+    default:
+      return await fetchFoodsForModal()
   }
 }
 
@@ -346,17 +351,20 @@ export function TemplateSearch(props: {
   // TODO:   Determine if user is on desktop or mobile to set autofocus
   const isDesktop = false
 
+  const [debouncedSearch, setDebouncedSearch] = createSignal(templateSearch())
+
   const { typing, onTyped } = useTyping({
     delay: TYPING_TIMEOUT_MS,
     onTypingEnd: () => {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      refetch()
+      setDebouncedSearch(templateSearch())
+      console.debug(`[TemplateSearchModal] onTyped called`)
+      void refetch()
     },
   })
 
   const [templates, { refetch }] = createResource(
     () => ({
-      search: !typing() && templateSearch(),
+      search: debouncedSearch(),
       tab: templateSearchTab(),
       userId: currentUserId(),
     }),

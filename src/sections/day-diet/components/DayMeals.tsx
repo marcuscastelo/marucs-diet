@@ -1,42 +1,42 @@
+import {
+  type Accessor,
+  For,
+  type Setter,
+  Show,
+  createEffect,
+  createSignal,
+  untrack,
+} from 'solid-js'
+import {
+  currentDayDiet,
+  setTargetDay,
+} from '~/modules/diet/day-diet/application/dayDiet'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import {
+  deleteItemGroup,
+  insertItemGroup,
+  updateItemGroup,
+} from '~/modules/diet/item-group/application/itemGroup'
+import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { updateMeal } from '~/modules/diet/meal/application/meal'
+import { type Meal } from '~/modules/diet/meal/domain/meal'
+import { showError } from '~/modules/toast/application/toastManager'
+import { Alert } from '~/sections/common/components/Alert'
+import { ModalContextProvider } from '~/sections/common/context/ModalContext'
+import { CopyLastDayButton } from '~/sections/day-diet/components/CopyLastDayButton'
+import DayMacros from '~/sections/day-diet/components/DayMacros'
+import DayNotFound from '~/sections/day-diet/components/DayNotFound'
+import { DeleteDayButton } from '~/sections/day-diet/components/DeleteDayButton'
+import { ItemGroupEditModal } from '~/sections/item-group/components/ItemGroupEditModal'
 import {
   MealEditView,
   MealEditViewActions,
   MealEditViewContent,
   MealEditViewHeader,
 } from '~/sections/meal/components/MealEditView'
-import DayMacros from '~/sections/day-diet/components/DayMacros'
-import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
-import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
-import { ItemGroupEditModal } from '~/sections/item-group/components/ItemGroupEditModal'
-import { CopyLastDayButton } from '~/sections/day-diet/components/CopyLastDayButton'
-import { DeleteDayButton } from '~/sections/day-diet/components/DeleteDayButton'
-import { getTodayYYYYMMDD } from '~/shared/utils/date'
-import { ModalContextProvider } from '~/sections/common/context/ModalContext'
-import DayNotFound from '~/sections/day-diet/components/DayNotFound'
-import {
-  currentDayDiet,
-  setTargetDay,
-} from '~/modules/diet/day-diet/application/dayDiet'
-import { updateMeal } from '~/modules/diet/meal/application/meal'
-import {
-  deleteItemGroup,
-  insertItemGroup,
-  updateItemGroup,
-} from '~/modules/diet/item-group/application/itemGroup'
-import {
-  type Accessor,
-  type Setter,
-  Show,
-  createEffect,
-  createSignal,
-  untrack,
-  For,
-} from 'solid-js'
-import { Alert } from '~/sections/common/components/Alert'
-import toast from 'solid-toast'
 import { formatError } from '~/shared/formatError'
+import { getTodayYYYYMMDD } from '~/shared/utils/date'
 
 type EditSelection = {
   meal: Meal
@@ -66,7 +66,7 @@ export default function DayMeals(props: { selectedDay: string }) {
 
   const handleEditItemGroup = (meal: Meal, itemGroup: ItemGroup) => {
     if (dayLocked()) {
-      toast.error('Dia bloqueado, não é possível editar')
+      showError('Dia bloqueado, não é possível editar')
       return
     }
 
@@ -76,7 +76,7 @@ export default function DayMeals(props: { selectedDay: string }) {
 
   const handleUpdateMeal = async (day: DayDiet, meal: Meal) => {
     if (dayLocked()) {
-      toast.error('Dia bloqueado, não é possível editar')
+      showError('Dia bloqueado, não é possível editar')
       return
     }
 
@@ -86,7 +86,7 @@ export default function DayMeals(props: { selectedDay: string }) {
   const handleNewItemButton = (meal: Meal) => {
     console.log('New item button clicked')
     if (dayLocked()) {
-      toast.error('Dia bloqueado, não é possível editar')
+      showError('Dia bloqueado, não é possível editar')
       return
     }
 
@@ -101,7 +101,7 @@ export default function DayMeals(props: { selectedDay: string }) {
     if (newItemSelection_ === null) {
       throw new Error('No meal selected!')
     }
-    insertItemGroup(dayDiet.id, newItemSelection_.meal.id, newGroup)
+    void insertItemGroup(dayDiet.id, newItemSelection_.meal.id, newGroup)
   }
 
   const handleFinishSearch = () => {
@@ -187,7 +187,7 @@ export default function DayMeals(props: { selectedDay: string }) {
                       }
                       handleUpdateMeal(currentDayDiet_, meal).catch((e) => {
                         console.error(e)
-                        toast.error(
+                        showError(
                           `Erro ao atualizar refeição: ${formatError(e)}`,
                         )
                       })
@@ -253,11 +253,9 @@ function ExternalItemGroupEditModal(props: {
                 itemGroup: group,
               })
             }}
-            targetMealName={
-              editSelection().meal.name ?? 'ERROR: No meal selected'
-            }
+            targetMealName={editSelection().meal.name}
             onSaveGroup={(group) => {
-              updateItemGroup(
+              void updateItemGroup(
                 props.day().id,
                 editSelection().meal.id,
                 group.id, // TODO:   Get id from selection instead of group parameter (avoid bugs if id is changed).
@@ -269,7 +267,7 @@ function ExternalItemGroupEditModal(props: {
               props.setVisible(false)
             }}
             onDelete={(id: ItemGroup['id']) => {
-              deleteItemGroup(props.day().id, editSelection().meal.id, id)
+              void deleteItemGroup(props.day().id, editSelection().meal.id, id)
 
               setEditSelection(null)
               props.setVisible(false)

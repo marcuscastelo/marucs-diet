@@ -1,20 +1,20 @@
-import { Capsule } from '~/sections/common/components/capsule/Capsule'
-import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
-import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
-import { FloatInput } from '~/sections/common/components/FloatInput'
-import { useFloatField, useDateField } from '~/sections/common/hooks/useField'
-import Datepicker from '~/sections/datepicker/components/Datepicker'
 import {
   deleteMeasure,
   updateMeasure,
 } from '~/modules/measure/application/measure'
-import toast from 'solid-toast'
-import { formatError } from '~/shared/formatError'
-import { adjustToTimezone } from '~/shared/utils/date/dateUtils'
 import {
   createNewMeasure,
   type Measure,
 } from '~/modules/measure/domain/measure'
+import { showError } from '~/modules/toast/application/toastManager'
+import { Capsule } from '~/sections/common/components/capsule/Capsule'
+import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
+import { FloatInput } from '~/sections/common/components/FloatInput'
+import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
+import { useDateField, useFloatField } from '~/sections/common/hooks/useField'
+import Datepicker from '~/sections/datepicker/components/Datepicker'
+import { formatError } from '~/shared/formatError'
+import { adjustToTimezone } from '~/shared/utils/date/dateUtils'
 
 /**
  * Renders a capsule view for editing and saving a single Measure.
@@ -53,7 +53,7 @@ export function MeasureView(props: {
       hip === undefined ||
       neck === undefined
     ) {
-      toast.error('Preencha todos os campos de medidas')
+      showError('Preencha todos os campos de medidas')
       return
     }
     const afterUpdate = () => {
@@ -73,7 +73,7 @@ export function MeasureView(props: {
       .then(afterUpdate)
       .catch((error) => {
         console.error(error)
-        toast.error(`Erro ao atualizar medida: ${formatError(error)}`)
+        showError(`Erro ao atualizar medida: ${formatError(error)}`)
       })
   }
 
@@ -85,7 +85,7 @@ export function MeasureView(props: {
       .then(afterDelete)
       .catch((error) => {
         console.error(error)
-        toast.error('Erro ao deletar: \n' + JSON.stringify(error, null, 2))
+        showError('Erro ao deletar: \n' + JSON.stringify(error, null, 2))
       })
   }
 
@@ -99,8 +99,8 @@ export function MeasureView(props: {
               endDate: dateField.value(),
             }}
             onChange={(value) => {
-              if (value?.startDate === undefined || value?.startDate === null) {
-                toast.error(`Data inválida: ${JSON.stringify(value)}`)
+              if (value?.startDate === undefined || value.startDate === null) {
+                showError(`Data inválida: ${JSON.stringify(value)}`)
                 return
               }
               const date = adjustToTimezone(new Date(value.startDate))

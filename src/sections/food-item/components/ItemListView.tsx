@@ -1,15 +1,15 @@
+import { For, mergeProps, type Accessor } from 'solid-js'
 import { type Item } from '~/modules/diet/item/domain/item'
+import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
+import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import {
-  ItemView,
   ItemCopyButton,
   ItemName,
   ItemNutritionalInfo,
+  ItemView,
   type ItemViewProps,
 } from '~/sections/food-item/components/ItemView'
-import { mergeProps, type Accessor, For } from 'solid-js'
 import { handleClipboardError } from '~/shared/error/errorHandler'
-import { useClipboard } from '~/sections/common/hooks/useClipboard'
-import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 
 export function ItemListView(_props: {
   items: Accessor<readonly Item[]>
@@ -20,15 +20,14 @@ export function ItemListView(_props: {
   return (
     <>
       <For each={props.items()}>
-        {(_, idx) => {
-          const item = () => props.items()[idx()]
+        {(item) => {
           return (
             <div class="mt-2">
               <ItemView
-                item={item}
+                item={() => item}
                 onClick={props.onItemClick}
                 macroOverflow={() => ({ enable: false })}
-                header={props.makeHeaderFn(item())}
+                header={props.makeHeaderFn(item)}
                 nutritionalInfo={<ItemNutritionalInfo />}
               />
             </div>

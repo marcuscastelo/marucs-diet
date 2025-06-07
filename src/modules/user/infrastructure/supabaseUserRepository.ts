@@ -1,11 +1,11 @@
-import { type User, type NewUser } from '~/modules/user/domain/user'
 import supabase from '~/legacy/utils/supabase'
+import { type NewUser, type User } from '~/modules/user/domain/user'
 import { type UserRepository } from '~/modules/user/domain/userRepository'
 import {
-  createUserFromDAO,
-  userDAOSchema,
   createInsertUserDAOFromNewUser,
   createUpdateUserDAOFromNewUser,
+  createUserFromDAO,
+  userDAOSchema,
 } from '~/modules/user/infrastructure/userDAO'
 
 export const SUPABASE_TABLE_USERS = 'users'
@@ -27,7 +27,7 @@ const fetchUsers = async (): Promise<User[]> => {
     throw error
   }
 
-  const userDAOs = userDAOSchema.array().parse(data ?? [])
+  const userDAOs = userDAOSchema.array().parse(data)
   return userDAOs.map(createUserFromDAO)
 }
 
@@ -41,7 +41,7 @@ const fetchUser = async (id: User['id']): Promise<User | null> => {
     throw error
   }
 
-  const userDAOs = userDAOSchema.array().parse(data ?? [])
+  const userDAOs = userDAOSchema.array().parse(data)
   const users = userDAOs.map(createUserFromDAO)
 
   return users[0] ?? null
@@ -59,7 +59,7 @@ const insertUser = async (newUser: NewUser): Promise<User | null> => {
     throw error
   }
 
-  const userDAOs = userDAOSchema.array().parse(data ?? [])
+  const userDAOs = userDAOSchema.array().parse(data)
   const users = userDAOs.map(createUserFromDAO)
 
   return users[0] ?? null
@@ -81,7 +81,7 @@ const updateUser = async (
     throw error
   }
 
-  const userDAOs = userDAOSchema.array().parse(data ?? [])
+  const userDAOs = userDAOSchema.array().parse(data)
   const users = userDAOs.map(createUserFromDAO)
 
   return users[0] ?? null

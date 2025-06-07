@@ -1,37 +1,37 @@
-import MacroNutrientsView from '~/sections/macro-nutrients/components/MacroNutrientsView'
-import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
-import {
-  ItemContextProvider,
-  useItemContext,
-} from '~/sections/food-item/context/ItemContext'
-import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
 import { calcItemCalories, calcItemMacros } from '~/legacy/utils/macroMath'
+import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { type Template } from '~/modules/diet/template/domain/template'
 import {
   isFoodFavorite,
   setFoodAsFavorite,
 } from '~/modules/user/application/user'
-
-import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
+import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
 import {
-  type JSXElement,
+  ItemContextProvider,
+  useItemContext,
+} from '~/sections/food-item/context/ItemContext'
+import MacroNutrientsView from '~/sections/macro-nutrients/components/MacroNutrientsView'
+
+import {
   type Accessor,
-  createSignal,
   createEffect,
+  createSignal,
+  type JSXElement,
 } from 'solid-js'
-import { fetchFoodById } from '~/modules/diet/food/application/food'
-import { stringToDate } from '~/shared/utils/date'
+import { createMacroOverflowChecker } from '~/legacy/utils/macroOverflow'
 import {
   currentDayDiet,
   targetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
-import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget'
-import { createMacroOverflowChecker } from '~/legacy/utils/macroOverflow'
+import { fetchFoodById } from '~/modules/diet/food/application/food'
+import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
+import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 import {
   handleApiError,
   handleValidationError,
 } from '~/shared/error/errorHandler'
+import { stringToDate } from '~/shared/utils/date'
 
 // TODO:   Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
@@ -82,11 +82,6 @@ export function ItemName() {
     console.debug('[ItemName] item changed, fetching API:', item())
 
     const itemValue = item()
-    if (itemValue === undefined) {
-      console.warn('[ItemName] item is undefined!!')
-      return // TODO:   Remove serverActions: causing bugs with signals
-    }
-
     if (itemValue.__type === 'RecipeItem') {
       recipeRepository
         .fetchRecipeById(itemValue.reference)
@@ -114,7 +109,7 @@ export function ItemName() {
   })
 
   const templateNameColor = () => {
-    if (item()?.__type === 'Item') {
+    if (item().__type === 'Item') {
       return 'text-white'
     } else if (item().__type === 'RecipeItem') {
       return 'text-blue-500'
@@ -191,7 +186,7 @@ export function ItemNutritionalInfo() {
 
   const isMacroOverflowing = () => {
     const currentDayDiet_ = currentDayDiet()
-    const macroTarget_ = macroTarget(stringToDate(targetDay()))
+    const macroTarget_ = getMacroTargetForDay(stringToDate(targetDay()))
 
     return createMacroOverflowChecker(item(), {
       currentDayDiet: currentDayDiet_,

@@ -1,8 +1,8 @@
-import { type User } from '~/modules/user/domain/user'
 import {
   type NewRecipe,
   type Recipe,
 } from '~/modules/diet/recipe/domain/recipe'
+import { type User } from '~/modules/user/domain/user'
 
 export type RecipeRepository = {
   fetchUserRecipes: (userId: User['id']) => Promise<readonly Recipe[]>
@@ -13,5 +13,5 @@ export type RecipeRepository = {
   ) => Promise<readonly Recipe[]>
   insertRecipe: (newRecipe: NewRecipe) => Promise<Recipe | null>
   updateRecipe: (recipeId: Recipe['id'], newRecipe: Recipe) => Promise<Recipe>
-  deleteRecipe: (id: Recipe['id']) => Promise<Recipe>
+  deleteRecipe: (id: Recipe['id']) => Promise<Recipe | null>
 }

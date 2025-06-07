@@ -1,13 +1,13 @@
-import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import {
   createContext,
-  type Accessor,
-  type Setter,
-  useContext,
   createSignal,
   untrack,
+  useContext,
+  type Accessor,
   type JSXElement,
+  type Setter,
 } from 'solid-js'
+import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 
 export type ItemGroupEditContext = {
   group: Accessor<ItemGroup>
@@ -52,9 +52,6 @@ export function ItemGroupEditContextProvider(props: {
 
   const handleSaveGroup = () => {
     const group_ = props.group()
-    if (group_ === null) {
-      throw new Error('Group is null')
-    }
     props.onSaveGroup(group_)
     setPersistentGroup(group_)
   }

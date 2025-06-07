@@ -1,5 +1,5 @@
-import { type MacroProfile } from '~/modules/diet/macro-profile/domain/macroProfile'
 import { inForceGeneric } from '~/legacy/utils/generic/inForce'
+import { type MacroProfile } from '~/modules/diet/macro-profile/domain/macroProfile'
 
 export function getLatestMacroProfile(
   macroProfiles: readonly MacroProfile[],
@@ -9,7 +9,7 @@ export function getLatestMacroProfile(
     return null
   }
 
-  return macroProfiles[macroProfiles.length - (1 + reverseIndex)]
+  return macroProfiles[macroProfiles.length - (1 + reverseIndex)] ?? null
 }
 
 export function getFirstMacroProfile(macroProfiles: readonly MacroProfile[]) {

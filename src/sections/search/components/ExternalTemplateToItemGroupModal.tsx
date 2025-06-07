@@ -1,5 +1,5 @@
 import { type Accessor, type Setter } from 'solid-js'
-import toast from 'solid-toast'
+import { showError } from '~/modules/toast/application/toastManager'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
 import {
@@ -63,7 +63,7 @@ export function ExternalTemplateToItemGroupModal(
                 operation: 'addSimpleItem',
                 additionalData: { itemName: item.name, templateType: 'Item' },
               })
-              toast.error(`Erro ao adicionar item: ${formatError(err)}`)
+              showError(`Erro ao adicionar item: ${formatError(err)}`)
             })
           } else {
             const newGroup: RecipedItemGroup = createRecipedItemGroup({
@@ -77,7 +77,7 @@ export function ExternalTemplateToItemGroupModal(
                 operation: 'addRecipeItem',
                 additionalData: { itemName: item.name, templateType: 'Recipe' },
               })
-              toast.error(`Erro ao adicionar item: ${formatError(err)}`)
+              showError(`Erro ao adicionar item: ${formatError(err)}`)
             })
           }
         }}
