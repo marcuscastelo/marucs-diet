@@ -117,6 +117,17 @@ export default [
     },
   },
   {
-    ignores: ['node_modules', 'src/sections/datepicker', '.vercel', '.vinxi', 'dist', 'build', 'coverage', 'public', 'out'],
+    ignores: [
+      'node_modules',
+      'src/sections/datepicker',
+      '.vercel',
+      '.vinxi',
+      'dist',
+      'build',
+      'coverage',
+      'public',
+      'out',
+      '.output', 
+    ],
   },
 ]
