@@ -105,10 +105,10 @@ export function createMacroOverflowChecker(
 }
 
 /**
- * Specialized version for ItemGroup scenarios where we check the first item.
- * This handles the specific case from TemplateSearchModal.
+ * Checks if adding a group of items would cause a macro nutrient to exceed the target.
+ * Sums the macros of all items in the group and checks overflow for the total.
  *
- * @param items - Array of template items (uses first item for calculation)
+ * @param items - Array of template items (all items are summed for calculation)
  * @param property - The macro nutrient property to check
  * @param context - Context containing current day diet, macro target, and overflow options
  * @returns true if the macro would exceed the target, false otherwise
@@ -127,17 +127,62 @@ export function isOverflowForItemGroup(
     return false
   }
 
-  const [firstItem] = items
-  if (!firstItem) {
-    logError('First item is undefined, cannot check overflow', {
-      component: 'macroOverflow',
-      operation: 'isOverflowForItemGroup',
-      additionalData: { property },
-    })
+  const { currentDayDiet, macroTarget, macroOverflowOptions } = context
+
+  if (!macroOverflowOptions.enable) {
     return false
   }
 
-  // Use the first item for calculation (as done in TemplateSearchModal)
-  // TODO: Review if using only the first item is appropriate
-  return isOverflow(firstItem, property, context)
+  if (currentDayDiet === null) {
+    handleValidationError(
+      'currentDayDiet is undefined, cannot calculate overflow',
+      {
+        component: 'macroOverflow',
+        operation: 'isOverflowForItemGroup',
+        additionalData: { property },
+      },
+    )
+    return false
+  }
+
+  if (macroTarget === null) {
+    handleValidationError(
+      'macroTarget is undefined, cannot calculate overflow',
+      {
+        component: 'macroOverflow',
+        operation: 'isOverflowForItemGroup',
+        additionalData: { property },
+      },
+    )
+    return false
+  }
+
+  // Sum macros for all items in the group
+  const totalMacros = items.reduce<MacroNutrients>(
+    (acc, item) => {
+      const macros = calcItemMacros(item)
+      return {
+        carbs: acc.carbs + macros.carbs,
+        protein: acc.protein + macros.protein,
+        fat: acc.fat + macros.fat,
+      }
+    },
+    { carbs: 0, protein: 0, fat: 0 },
+  )
+
+  // If originalItem is set, subtract its macros from the total (edit scenario)
+  const originalItemMacros: MacroNutrients =
+    macroOverflowOptions.originalItem !== undefined
+      ? calcItemMacros(macroOverflowOptions.originalItem)
+      : { carbs: 0, protein: 0, fat: 0 }
+
+  const difference =
+    macroOverflowOptions.originalItem !== undefined
+      ? totalMacros[property] - originalItemMacros[property]
+      : totalMacros[property]
+
+  const current = calcDayMacros(currentDayDiet)[property]
+  const target = macroTarget[property]
+
+  return current + difference > target
 }
