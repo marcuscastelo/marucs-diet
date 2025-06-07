@@ -419,7 +419,7 @@ function Title(props: {
         <Show
           when={isEditingName() && props.mode === 'edit'}
           fallback={
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1 min-w-0">
               <span
                 class="truncate text-lg font-semibold text-white"
                 title={props.group().name}
@@ -431,6 +431,7 @@ function Title(props: {
                   class="btn btn-xs btn-ghost px-1"
                   aria-label="Editar nome do grupo"
                   onClick={() => setIsEditingName(true)}
+                  style={{ 'line-height': '1' }}
                 >
                   ✏️
                 </button>
@@ -438,9 +439,15 @@ function Title(props: {
             </div>
           }
         >
-          <div class="flex items-center gap-2 w-full">
+          <form
+            class="flex items-center gap-1 min-w-0 w-full"
+            onSubmit={(e) => {
+              e.preventDefault()
+              setIsEditingName(false)
+            }}
+          >
             <input
-              class="input input-xs w-full"
+              class="input input-xs w-full max-w-[180px]"
               type="text"
               value={props.group().name}
               onChange={(e) =>
@@ -459,19 +466,25 @@ function Title(props: {
                 }, 0)
               }}
               disabled={props.mode !== 'edit'}
+              style={{
+                'padding-top': '2px',
+                'padding-bottom': '2px',
+                'font-size': '1rem',
+              }}
             />
             <button
-              class="btn btn-xs btn-primary"
+              class="btn btn-xs btn-primary px-2"
               aria-label="Salvar nome do grupo"
               onClick={() => setIsEditingName(false)}
-              type="button"
+              type="submit"
+              style={{ 'min-width': '48px', height: '28px' }}
             >
               Salvar
             </button>
-          </div>
+          </form>
         </Show>
       </div>
-      <div class="text-sm text-gray-400">
+      <div class="text-sm text-gray-400 mt-1">
         Em <span class="text-green-500">"{props.targetMealName}"</span>
       </div>
       <div class="text-xs text-gray-400">
