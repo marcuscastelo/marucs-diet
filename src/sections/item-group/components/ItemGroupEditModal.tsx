@@ -29,6 +29,7 @@ import {
 } from '~/sections/food-item/components/ItemView'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { ExternalRecipeEditModal } from './ExternalRecipeEditModal'
+import { createResource } from 'solid-js'
 
 import {
   type Accessor,
@@ -37,7 +38,6 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  untrack,
 } from 'solid-js'
 import { deepCopy } from '~/legacy/utils/deepCopy'
 import { regenerateId } from '~/legacy/utils/idUtils'
@@ -183,31 +183,16 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
     setGroup(finalGroup)
   }
 
-  // TODO: Stop using loadable for recipeSignal, use a simple signal
-  const [recipeSignal, setRecipeSignal] = createSignal<Loadable<Recipe | null>>(
-    {
-      loading: true,
-    },
-  )
-
-  createEffect(() => {
+  const [recipeSignal] = createResource(async () => {
     const group_ = group()
     if (!isRecipedItemGroup(group_)) {
-      setRecipeSignal({ loading: false, errored: false, data: null })
-      return
+      return null
     }
-
-    fetchRecipeById(group_.recipe)
-      .then((recipe) => {
-        setRecipeSignal({ loading: false, errored: false, data: recipe })
-      })
-      .catch((e: unknown) => {
-        setRecipeSignal({
-          loading: false,
-          errored: true,
-          error: e instanceof Error ? e : new Error(String(e)),
-        })
-      })
+    try {
+      return await fetchRecipeById(group_.recipe)
+    } catch {
+      return null
+    }
   })
 
   createEffect(() => {
@@ -217,12 +202,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
 
     if (groupHasRecipe) {
       setTimeout(() => {
-        const recipe_ = untrack(recipeSignal)
-
-        const recipeNotFound =
-          !recipe_.loading && !recipe_.errored && recipe_.data === null
-
-        if (recipeNotFound) {
+        if (recipeSignal.state === 'ready' && recipeSignal() === null) {
           setTimeout(() => {
             askUnlinkRecipe(
               'A receita atrelada a esse grupo não foi encontrada. Deseja desvincular o grupo da receita?',
@@ -323,111 +303,98 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   }
 
   return (
-    <Show
-      when={(() => {
-        const recipe_ = recipeSignal()
-        return !recipe_.loading && !recipe_.errored && recipe_
-      })()}
-    >
-      {(recipeSignal) => (
-        <>
-          <ExternalRecipeEditModal
-            recipe={recipeSignal().data}
-            setRecipe={(recipe) =>
-              setRecipeSignal({
-                loading: false,
-                errored: false,
-                data: recipe,
-              })
-            }
-            visible={recipeEditModalVisible}
-            setVisible={setRecipeEditModalVisible}
-            onRefetch={props.onRefetch}
-          />
-          <Show when={editSelection()?.item}>
-            {(selectedItem) => (
-              <ExternalItemEditModal
-                visible={itemEditModalVisible}
-                setVisible={setItemEditModalVisible}
-                item={() => {
-                  console.debug(
-                    '[ExternalItemEditModal] <computed> item: ',
-                    selectedItem(),
-                  )
-                  return selectedItem()
-                }}
-                targetName={(() => {
-                  const receivedName = isSimpleSingleGroup(group())
-                    ? props.targetMealName
-                    : group().name
-                  return receivedName.length > 0
-                    ? receivedName
-                    : 'Erro: Nome vazio'
-                })()}
-                targetNameColor={(() => {
-                  return isSimpleSingleGroup(group())
-                    ? 'text-green-500'
-                    : 'text-orange-400'
-                })()}
-                macroOverflow={() => {
-                  const originalItem = persistentGroup().items.find(
-                    (i: Item) => i.id === selectedItem().id,
-                  )
-                  if (originalItem === undefined) {
-                    showError('Item original não encontrado', {
-                      audience: 'system',
-                    })
-                    return { enable: false }
-                  }
-                  return { enable: true, originalItem }
-                }}
-                onApply={handleItemApply}
-                onDelete={handleItemDelete}
-                onClose={() => setEditSelection(null)}
-              />
-            )}
-          </Show>
-          <ExternalTemplateSearchModal
-            visible={templateSearchModalVisible}
-            setVisible={setTemplateSearchModalVisible}
-            onRefetch={props.onRefetch}
-            targetName={group().name}
-            onNewItemGroup={handleNewItemGroup}
-          />
-          <ModalContextProvider visible={visible} setVisible={setVisible}>
-            <Modal class="border-2 border-orange-800" hasBackdrop={true}>
-              <Modal.Header
-                title={
-                  <Title
-                    recipe={recipeSignal().data}
-                    targetMealName={props.targetMealName}
-                  />
+    <Show when={recipeSignal.state === 'ready'} keyed>
+      <>
+        <ExternalRecipeEditModal
+          recipe={recipeSignal() ?? null}
+          setRecipe={() => {}}
+          visible={recipeEditModalVisible}
+          setVisible={setRecipeEditModalVisible}
+          onRefetch={props.onRefetch}
+        />
+        <Show when={editSelection()?.item}>
+          {(selectedItem) => (
+            <ExternalItemEditModal
+              visible={itemEditModalVisible}
+              setVisible={setItemEditModalVisible}
+              item={() => {
+                console.debug(
+                  '[ExternalItemEditModal] <computed> item: ',
+                  selectedItem(),
+                )
+                return selectedItem()
+              }}
+              targetName={(() => {
+                const receivedName = isSimpleSingleGroup(group())
+                  ? props.targetMealName
+                  : group().name
+                return receivedName.length > 0
+                  ? receivedName
+                  : 'Erro: Nome vazio'
+              })()}
+              targetNameColor={(() => {
+                return isSimpleSingleGroup(group())
+                  ? 'text-green-500'
+                  : 'text-orange-400'
+              })()}
+              macroOverflow={() => {
+                const originalItem = persistentGroup().items.find(
+                  (i: Item) => i.id === selectedItem().id,
+                )
+                if (originalItem === undefined) {
+                  showError('Item original não encontrado', {
+                    audience: 'system',
+                  })
+                  return { enable: false }
                 }
+                return { enable: true, originalItem }
+              }}
+              onApply={handleItemApply}
+              onDelete={handleItemDelete}
+              onClose={() => setEditSelection(null)}
+            />
+          )}
+        </Show>
+        <ExternalTemplateSearchModal
+          visible={templateSearchModalVisible}
+          setVisible={setTemplateSearchModalVisible}
+          onRefetch={props.onRefetch}
+          targetName={group().name}
+          onNewItemGroup={handleNewItemGroup}
+        />
+        <ModalContextProvider visible={visible} setVisible={setVisible}>
+          <Modal class="border-2 border-orange-800" hasBackdrop={true}>
+            <Modal.Header
+              title={
+                <Title
+                  recipe={recipeSignal() ?? null}
+                  targetMealName={props.targetMealName}
+                />
+              }
+            />
+            <Modal.Content>
+              <Body
+                recipe={() => recipeSignal() ?? null}
+                itemEditModalVisible={itemEditModalVisible}
+                setItemEditModalVisible={setItemEditModalVisible}
+                templateSearchModalVisible={templateSearchModalVisible}
+                setTemplateSearchModalVisible={setTemplateSearchModalVisible}
+                recipeEditModalVisible={recipeEditModalVisible}
+                setRecipeEditModalVisible={setRecipeEditModalVisible}
               />
-              <Modal.Content>
-                <Body
-                  recipe={() => recipeSignal().data}
-                  itemEditModalVisible={itemEditModalVisible}
-                  setItemEditModalVisible={setItemEditModalVisible}
-                  templateSearchModalVisible={templateSearchModalVisible}
-                  setTemplateSearchModalVisible={setTemplateSearchModalVisible}
-                  recipeEditModalVisible={recipeEditModalVisible}
-                  setRecipeEditModalVisible={setRecipeEditModalVisible}
-                />
-              </Modal.Content>
-              <Modal.Footer>
-                <Actions
-                  canApply={canApply}
-                  visible={visible}
-                  setVisible={setVisible}
-                  onCancel={props.onCancel}
-                  onDelete={props.onDelete}
-                />
-              </Modal.Footer>
-            </Modal>
-          </ModalContextProvider>
-        </>
-      )}
+            </Modal.Content>
+            <Modal.Footer>
+              <Actions
+                canApply={canApply}
+                visible={visible}
+                setVisible={setVisible}
+                onCancel={props.onCancel}
+                onDelete={props.onDelete}
+              />
+            </Modal.Footer>
+          </Modal>
+        </ModalContextProvider>
+      </>
     </Show>
   )
 }
