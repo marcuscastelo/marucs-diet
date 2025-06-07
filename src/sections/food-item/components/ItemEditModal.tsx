@@ -1,4 +1,3 @@
-import { generateId } from '~/legacy/utils/idUtils'
 import { type Item } from '~/modules/diet/item/domain/item'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { FloatInput } from '~/sections/common/components/FloatInput'
@@ -54,27 +53,8 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
   const { setVisible } = useModalContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
-  // TODO:   Better initial state for item on ItemEditModal
-  const fallbackItem: TemplateItem = {
-    __type: 'Item',
-    id: generateId(),
-    name: '',
-    quantity: 0,
-    reference: 0, // assuming number, adjust if needed
-    macros: { carbs: 0, protein: 0, fat: 0 },
-  }
-  const [item, setItem] = createSignal<TemplateItem>(fallbackItem)
-  createEffect(() => {
-    setItem({
-      ...props.item(),
-      __type: props.item().__type,
-      id: props.item().id,
-      quantity: props.item().quantity,
-      name: props.item().name,
-      reference: props.item().reference,
-      macros: props.item().macros,
-    })
-  })
+  const [item, setItem] = createSignal(untrack(() => props.item()))
+  createEffect(() => setItem(props.item()))
 
   const canApply = () => item().quantity > 0
 
