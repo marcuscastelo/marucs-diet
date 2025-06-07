@@ -14,8 +14,8 @@ import {
 import { ErrorDetailModal } from '~/sections/common/components/ErrorDetailModal'
 
 /**
- * Container component that renders all active error modals
- * This should be mounted at the app level (e.g., in App.tsx)
+ * Container component that renders all active error modals.
+ * This should be mounted at the app level (e.g., in App.tsx).
  */
 export function GlobalModalContainer() {
   const openModals = getOpenModals

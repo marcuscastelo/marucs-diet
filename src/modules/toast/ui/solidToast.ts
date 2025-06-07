@@ -4,8 +4,9 @@ import { displayExpandableErrorToast } from '~/modules/toast/ui/ExpandableErrorT
 import { handleApiError } from '~/shared/error/errorHandler'
 
 /**
- * Display a toast in solid-toast with the appropriate styling
- * Returns the solid-toast ID for later dismissal
+ * Displays a toast in solid-toast with the appropriate styling.
+ * @param toastItem The toast item to display.
+ * @returns The solid-toast ID for later dismissal.
  */
 export function displaySolidToast(toastItem: ToastItem): string {
   const { message, options } = toastItem
@@ -59,7 +60,8 @@ export function displaySolidToast(toastItem: ToastItem): string {
 }
 
 /**
- * Dismiss a toast by its solid-toast ID
+ * Dismisses a toast by its solid-toast ID.
+ * @param solidToastId The solid-toast ID to dismiss.
  */
 export function dismissSolidToast(solidToastId: string): void {
   toast.dismiss(solidToastId)

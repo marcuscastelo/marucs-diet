@@ -6,13 +6,9 @@
  * Uses a fixed 100ms setInterval for processing instead of dynamic timeouts.
  */
 
-import { createEffect, createRoot, createSignal } from 'solid-js'
-import { set } from 'zod'
+import { createEffect, createSignal } from 'solid-js'
 import {
-  createToastItem,
-  DEFAULT_TOAST_OPTIONS,
   TOAST_DURATION_INFINITY,
-  TOAST_PRIORITY,
   ToastItem,
 } from '~/modules/toast/domain/toastTypes'
 import {
@@ -111,7 +107,11 @@ async function processToastItem(toastItem: ToastItem) {
   })
 }
 
-export function registerToast(toastItem: ToastItem) {
+/**
+ * Registers a toast item (enqueue and process).
+ * @param toastItem The toast item to register.
+ */
+export function registerToast(toastItem: ToastItem): void {
   // TODO: Implement toast deduplication logic
   // TODO: Implement priority sorting if needed (avoid infinite loading toasts preventing others)
   debug(
@@ -121,10 +121,14 @@ export function registerToast(toastItem: ToastItem) {
   enqueue(toastItem)
 }
 
-export function killToast(toastId: ToastItem['id']) {
-  debug('Killing toast:', toastId)
-  dequeue(toastId)
-  const toastInHistory = findInHistory(toastId) // Check if it's in history
+/**
+ * Kills (removes) a toast by ID, dismissing it if visible.
+ * @param id The ID of the toast to kill.
+ */
+export function killToast(id: ToastItem['id']): void {
+  debug('Killing toast:', id)
+  dequeue(id)
+  const toastInHistory = findInHistory(id) // Check if it's in history
   if (toastInHistory) {
     toastInHistory.dismiss()
   }

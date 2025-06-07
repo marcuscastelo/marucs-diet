@@ -15,9 +15,6 @@ import {
  * Options for error processing in toasts.
  *
  * Subset of ToastOptions used for error message formatting, truncation, and stack display.
- * Centralizes all error-related display options for consistency across the toast system.
- *
- * @see ToastOptions
  */
 export type ErrorProcessingOptions = Pick<
   ToastOptions,
@@ -61,6 +58,7 @@ const NOISY_PREFIXES = [
  *
  * @param error - The error to process (string, Error, or object)
  * @param options - Partial error processing options (see ErrorProcessingOptions)
+ * @param providedDisplayMessage - Optional display message override
  * @returns ToastExpandableErrorData for use in UI
  */
 export function createExpandableErrorData(

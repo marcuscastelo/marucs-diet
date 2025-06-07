@@ -34,19 +34,18 @@ export type ToastType = 'success' | 'loading' | 'error' | 'info'
 
 /**
  * ToastOptions configures the display behavior of a toast notification.
- *
- * @property context - The origin of the event that triggered the toast
- * @property audience - Who should see this toast
- * @property type - The type of the toast
- * @property duration - Auto-dismiss timeout in milliseconds (default: 3000 for success/info, TOAST_DURATION_INFINITY for error/loading)
- * @property dismissible - Whether this toast can be dismissed by the user (default: true)
- * @property showLoading - Whether to show a loading toast for promises (default: true for user-action, false for background)
- * @property showSuccess - Whether to show a success toast for promises (default: true for user-action, false for background)
- * @property maxLength - Maximum length for toast messages before truncation (default: 100)
- * @property preserveLineBreaks - Whether to preserve line breaks in error messages (default: false)
- * @property truncationSuffix - Suffix to append to truncated error messages (default: '...')
- * @property includeStack - Whether to include stack trace in error details (default: true)
- * @property expandableErrorData - Data for expandable error toasts (used by ExpandableErrorToast component)
+ * @property context The origin of the event that triggered the toast
+ * @property audience Who should see this toast
+ * @property type The type of the toast
+ * @property duration Auto-dismiss timeout in milliseconds
+ * @property dismissible Whether this toast can be dismissed by the user
+ * @property showLoading Whether to show a loading toast for promises
+ * @property showSuccess Whether to show a success toast for promises
+ * @property maxLength Maximum length for toast messages before truncation
+ * @property preserveLineBreaks Whether to preserve line breaks in error messages
+ * @property truncationSuffix Suffix to append to truncated error messages
+ * @property includeStack Whether to include stack trace in error details
+ * @property expandableErrorData Data for expandable error toasts
  */
 export type ToastOptions = {
   context: ToastContext
@@ -65,12 +64,11 @@ export type ToastOptions = {
 
 /**
  * ToastExpandableErrorData contains processed fields for expandable error messages.
- *
- * @property displayMessage - The message to display in the toast
- * @property isTruncated - Whether the message was truncated
- * @property originalMessage - The original, untruncated message
- * @property errorDetails - The error details object
- * @property canExpand - Whether the error message can be expanded
+ * @property displayMessage The message to display in the toast
+ * @property isTruncated Whether the message was truncated
+ * @property originalMessage The original, untruncated message
+ * @property errorDetails The error details object
+ * @property canExpand Whether the error message can be expanded
  */
 export type ToastExpandableErrorData = {
   displayMessage: string
@@ -82,7 +80,6 @@ export type ToastExpandableErrorData = {
 
 /**
  * DEFAULT_TOAST_CONTEXT defines the default context for toasts.
- * This is used when no specific context is provided.
  */
 export const DEFAULT_TOAST_CONTEXT: ToastContext = 'user-action'
 

@@ -87,12 +87,14 @@ function resolveValueOrFunction<T, R>(
 
 /**
  * Shows a toast with merged options, skipping if context rules apply.
- *
- * @param message - The message to display.
- * @param providedOptions - Partial toast options.
+ * @param message The message to display.
+ * @param providedOptions Partial toast options.
  * @returns The toast ID, or empty string if skipped.
  */
-function show(message: string, providedOptions: Partial<ToastOptions>): string {
+export function show(
+  message: string,
+  providedOptions: Partial<ToastOptions>,
+): string {
   const options: ToastOptions = mergeToastOptions(providedOptions)
   if (shouldSkipToast(options)) return ''
 

@@ -8,13 +8,13 @@
 import { createEffect, createSignal } from 'solid-js'
 
 /**
- * User-configurable toast settings
- * - showBackgroundSuccess: Whether to show success toasts for background operations
- * - showBackgroundLoading: Whether to show loading toasts for background operations
- * - autoDismissErrors: Whether to automatically dismiss error toasts
- * - defaultDuration: Default duration for toasts in milliseconds
- * - groupSimilarToasts: Whether to group similar toasts together
- * - showDetailedErrors: Whether to show detailed error information in toasts
+ * User-configurable toast settings.
+ * @property showBackgroundSuccess Whether to show success toasts for background operations
+ * @property showBackgroundLoading Whether to show loading toasts for background operations
+ * @property autoDismissErrors Whether to automatically dismiss error toasts
+ * @property defaultDuration Default duration for toasts in milliseconds
+ * @property groupSimilarToasts Whether to group similar toasts together
+ * @property showDetailedErrors Whether to show detailed error information in toasts
  */
 export type ToastSettings = {
   /** Show success toasts for background operations */
@@ -75,21 +75,23 @@ createEffect(() => {
 })
 
 /**
- * Get the current toast settings
+ * Gets the current toast settings.
+ * @returns The current ToastSettings object.
  */
 export function getToastSettings(): ToastSettings {
   return settings()
 }
 
 /**
- * Update toast settings
+ * Updates toast settings.
+ * @param updates Partial settings to update.
  */
 export function updateToastSettings(updates: Partial<ToastSettings>): void {
   setSettings((current) => ({ ...current, ...updates }))
 }
 
 /**
- * Reset toast settings to defaults
+ * Resets toast settings to defaults.
  */
 export function resetToastSettings(): void {
   setSettings({ ...DEFAULT_SETTINGS })

@@ -7,9 +7,18 @@ import { ToastError } from '~/modules/toast/domain/toastTypes'
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { handleApiError } from '~/shared/error/errorHandler'
 
-// Explicit type for context
+/**
+ * Context for clipboard error operations.
+ * @property component The component name.
+ * @property operation The operation being performed.
+ */
 export type ClipboardErrorContext = { component: string; operation: string }
 
+/**
+ * Formats error details for copying to clipboard.
+ * @param errorDetails The error details to format.
+ * @returns A formatted string for clipboard.
+ */
 export function formatErrorForClipboard(errorDetails: ToastError): string {
   const sections: string[] = []
   if (
@@ -52,6 +61,11 @@ export function formatErrorForClipboard(errorDetails: ToastError): string {
   return `Error Report - ${new Date().toISOString()}\n` + sections.join('\n')
 }
 
+/**
+ * Handles copying error details to clipboard and error reporting.
+ * @param errorDetails The error details to copy.
+ * @param context The context for error handling.
+ */
 export async function handleCopyErrorToClipboard(
   errorDetails: ToastError,
   context: ClipboardErrorContext,

@@ -16,6 +16,9 @@ import {
 import { handleCopyErrorToClipboard } from '~/modules/toast/infrastructure/clipboardErrorUtils'
 import { killToast } from '../application/toastQueue'
 
+/**
+ * Props for ExpandableToast component.
+ */
 export type ExpandableToastProps = {
   message: string
   isTruncated: boolean
@@ -35,6 +38,9 @@ const FALLBACK_ERROR_DETAILS: ToastError = {
   fullError: '',
 }
 
+/**
+ * Props for ExpandableToastContent component.
+ */
 export type ExpandableToastContentProps = {
   message: string
   isTruncated: boolean
@@ -46,9 +52,10 @@ export type ExpandableToastContentProps = {
 }
 
 /**
- * Expandable Error Toast Component
+ * Expandable Error Toast Component.
  *
  * Shows a truncated error message with an option to open a modal with details.
+ * @param props ExpandableToastProps
  */
 export function ExpandableToast(props: ExpandableToastProps) {
   const handleDismiss = () => {
@@ -92,8 +99,10 @@ export function ExpandableToast(props: ExpandableToastProps) {
 }
 
 /**
- * Display an expandable error toast using solid-toast directly
- * This function is called from the toast queue system
+ * Display an expandable error toast using solid-toast directly.
+ * This function is called from the toast queue system.
+ * @param toastItem The toast item to display.
+ * @returns The solid-toast ID.
  */
 export function displayExpandableErrorToast(toastItem: ToastItem): string {
   return toast.custom(
