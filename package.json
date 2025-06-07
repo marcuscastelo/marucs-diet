@@ -2,7 +2,7 @@
   "name": "marucs-diet",
   "private": true,
   "type": "module",
-  "version": "v0.11.0-dev.280.1+issue.175",
+  "version": "v0.11.0-dev.281.2+issue.175",
   "scripts": {
     "dev": "vinxi dev",
     "build": "vinxi build",
@@ -53,6 +53,7 @@
     "eslint-plugin-n": "^15.0.0 || ^16.0.0 ",
     "eslint-plugin-prettier": "5.0.0-alpha.2",
     "eslint-plugin-promise": "^6.0.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
     "eslint-plugin-solid": "^0.14.5",
     "eslint-plugin-unicorn": "^59.0.1",
     "globals": "^16.2.0",
