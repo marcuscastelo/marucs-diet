@@ -159,3 +159,19 @@ export async function deleteDayDiet(dayId: DayDiet['id']): Promise<void> {
     throw error
   }
 }
+
+/**
+ * Returns all previous DayDiet objects before the given target day, ordered by descending date.
+ *
+ * @param dayDiets - List of all DayDiet objects (should be sorted ascending by date)
+ * @param selectedDay - The YYYY-MM-DD string to compare against
+ * @returns Array of DayDiet objects before selectedDay, ordered by descending date
+ */
+export function getPreviousDayDiets(
+  dayDiets: readonly DayDiet[],
+  selectedDay: string,
+): DayDiet[] {
+  return dayDiets
+    .filter((day) => Date.parse(day.target_day) < Date.parse(selectedDay))
+    .sort((a, b) => Date.parse(b.target_day) - Date.parse(a.target_day))
+}

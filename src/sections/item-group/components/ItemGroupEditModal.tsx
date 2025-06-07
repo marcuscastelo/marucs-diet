@@ -2,7 +2,6 @@ import { z } from 'zod'
 import {
   type ItemGroup,
   type RecipedItemGroup,
-  getItemGroupQuantity,
   isRecipedItemGroup,
   isSimpleItemGroup,
   isSimpleSingleGroup,
@@ -35,7 +34,6 @@ import {
   type Setter,
   Show,
   createEffect,
-  createMemo,
   createSignal,
 } from 'solid-js'
 import { deepCopy } from '~/legacy/utils/deepCopy'
@@ -68,7 +66,6 @@ import { BrokenLink } from '~/sections/common/components/icons/BrokenLinkIcon'
 import { ConvertToRecipeIcon } from '~/sections/common/components/icons/ConvertToRecipeIcon'
 import { DownloadIcon } from '~/sections/common/components/icons/DownloadIcon'
 import { PasteIcon } from '~/sections/common/components/icons/PasteIcon'
-import { PreparedQuantity } from '~/sections/common/components/PreparedQuantity'
 import {
   type ConfirmModalContext,
   useConfirmModalContext,
@@ -85,6 +82,13 @@ import {
 import { formatError } from '~/shared/formatError'
 import { stringToDate } from '~/shared/utils/date'
 
+// Type alias para clipboard e schema
+/**
+ * Represents either a single Item or an ItemGroup, for clipboard and schema operations.
+ * @typedef {object} ItemOrGroup
+ */
+type ItemOrGroup = z.infer<typeof itemSchema> | z.infer<typeof itemGroupSchema>
+
 type EditSelection = {
   item: Item
 } | null
@@ -100,6 +104,7 @@ export type ItemGroupEditModalProps = {
   onRefetch: () => void
   group: Accessor<ItemGroup>
   setGroup: (group: ItemGroup | null) => void
+  mode?: 'edit' | 'read-only' | 'summary'
 }
 
 export const ItemGroupEditModal = (props: ItemGroupEditModalProps) => {
@@ -157,6 +162,32 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   const [itemEditModalVisible, setItemEditModalVisible] = createSignal(false)
   const [templateSearchModalVisible, setTemplateSearchModalVisible] =
     createSignal(false)
+
+  // Definição do schema aceito para clipboard
+  const acceptedClipboardSchema = z.union([
+    itemSchema,
+    itemGroupSchema,
+  ]) as z.ZodType<ItemOrGroup>
+
+  // Clipboard actions for group-level (header) actions
+  const {
+    handlePaste: handlePasteShared,
+    hasValidPastableOnClipboard: hasValidPastableOnClipboardShared,
+  } = useCopyPasteActions<ItemOrGroup>({
+    acceptedClipboardSchema,
+    getDataToCopy: () => group() as ItemOrGroup,
+    onPaste: (data) => {
+      if (isClipboardItemGroup(data)) {
+        // Only add items that are valid Items
+        const validItems = data.items.filter(isClipboardItem).map(regenerateId)
+        setGroup(addItemsToGroup(group(), validItems))
+      } else if (isClipboardItem(data)) {
+        setGroup(addItemToGroup(group(), regenerateId(data)))
+      } else {
+        showError('Clipboard data is not a valid item or group')
+      }
+    },
+  })
 
   const handleNewItemGroup = (newGroup: ItemGroup) => {
     console.debug('handleNewItemGroup', newGroup)
@@ -318,13 +349,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
             <ExternalItemEditModal
               visible={itemEditModalVisible}
               setVisible={setItemEditModalVisible}
-              item={() => {
-                console.debug(
-                  '[ExternalItemEditModal] <computed> item: ',
-                  selectedItem(),
-                )
-                return selectedItem()
-              }}
+              item={() => selectedItem()}
               targetName={(() => {
                 const receivedName = isSimpleSingleGroup(group())
                   ? props.targetMealName
@@ -339,15 +364,12 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
                   : 'text-orange-400'
               })()}
               macroOverflow={() => {
+                const currentItem = editSelection()?.item
+                if (!currentItem) return { enable: false }
                 const originalItem = persistentGroup().items.find(
-                  (i: Item) => i.id === selectedItem().id,
+                  (i: Item) => i.id === currentItem.id,
                 )
-                if (originalItem === undefined) {
-                  showError('Item original não encontrado', {
-                    audience: 'system',
-                  })
-                  return { enable: false }
-                }
+                if (!originalItem) return { enable: false }
                 return { enable: true, originalItem }
               }}
               onApply={handleItemApply}
@@ -370,6 +392,15 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
                 <Title
                   recipe={recipeSignal() ?? null}
                   targetMealName={props.targetMealName}
+                  group={group}
+                  setGroup={setGroup}
+                  mode={props.mode}
+                  hasValidPastableOnClipboard={
+                    hasValidPastableOnClipboardShared
+                  }
+                  handlePaste={handlePasteShared}
+                  setRecipeEditModalVisible={setRecipeEditModalVisible}
+                  showConfirmModal={showConfirmModal}
                 />
               }
             />
@@ -382,6 +413,10 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
                 setTemplateSearchModalVisible={setTemplateSearchModalVisible}
                 recipeEditModalVisible={recipeEditModalVisible}
                 setRecipeEditModalVisible={setRecipeEditModalVisible}
+                mode={props.mode}
+                writeToClipboard={(text: string) => {
+                  void navigator.clipboard.writeText(text)
+                }}
               />
             </Modal.Content>
             <Modal.Footer>
@@ -400,308 +435,243 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   )
 }
 
-function Title(props: { targetMealName: string; recipe: Recipe | null }) {
+function GroupNameEdit(props: {
+  group: Accessor<ItemGroup>
+  setGroup: Setter<ItemGroup>
+  mode?: 'edit' | 'read-only' | 'summary'
+}) {
+  const [isEditingName, setIsEditingName] = createSignal(false)
   return (
-    <>
-      <h3 class="text-lg font-bold text-white">
-        Editando grupo em
-        <span class="text-green-500"> &quot;{props.targetMealName}&quot; </span>
-      </h3>
-      Receita: {props.recipe?.name.toString() ?? 'Nenhuma'}
-    </>
+    <Show
+      when={isEditingName() && props.mode === 'edit'}
+      fallback={
+        <div class="flex items-center gap-1 min-w-0">
+          <span
+            class="truncate text-lg font-semibold text-white"
+            title={props.group().name}
+          >
+            {props.group().name}
+          </span>
+          {props.mode === 'edit' && (
+            <button
+              class="btn btn-xs btn-ghost px-1"
+              aria-label="Editar nome do grupo"
+              onClick={() => setIsEditingName(true)}
+              style={{ 'line-height': '1' }}
+            >
+              ✏️
+            </button>
+          )}
+        </div>
+      }
+    >
+      <form
+        class="flex items-center gap-1 min-w-0 w-full"
+        onSubmit={(e) => {
+          e.preventDefault()
+          setIsEditingName(false)
+        }}
+      >
+        <input
+          class="input input-xs w-full max-w-[180px]"
+          type="text"
+          value={props.group().name}
+          onChange={(e) =>
+            props.setGroup(updateItemGroupName(props.group(), e.target.value))
+          }
+          onBlur={() => setIsEditingName(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') setIsEditingName(false)
+          }}
+          ref={(ref: HTMLInputElement) => {
+            setTimeout(() => {
+              ref.focus()
+              ref.select()
+            }, 0)
+          }}
+          disabled={props.mode !== 'edit'}
+          style={{
+            'padding-top': '2px',
+            'padding-bottom': '2px',
+            'font-size': '1rem',
+          }}
+        />
+        <button
+          class="btn btn-xs btn-primary px-2"
+          aria-label="Salvar nome do grupo"
+          onClick={() => setIsEditingName(false)}
+          type="submit"
+          style={{ 'min-width': '48px', height: '28px' }}
+        >
+          Salvar
+        </button>
+      </form>
+    </Show>
   )
 }
 
-function Body(props: {
-  recipe: Accessor<Recipe | null>
-  recipeEditModalVisible: Accessor<boolean>
+function GroupHeaderActions(props: {
+  group: Accessor<ItemGroup>
+  setGroup: Setter<ItemGroup>
+  mode?: 'edit' | 'read-only' | 'summary'
+  recipe: Recipe | null
+  hasValidPastableOnClipboard: () => boolean
+  handlePaste: () => void
   setRecipeEditModalVisible: Setter<boolean>
-  itemEditModalVisible: Accessor<boolean>
-  setItemEditModalVisible: Setter<boolean>
-  templateSearchModalVisible: Accessor<boolean>
-  setTemplateSearchModalVisible: Setter<boolean>
+  showConfirmModal: ConfirmModalContext['show']
 }) {
-  const { show: showConfirmModal } = useConfirmModalContext()
-
-  // Use output types for clipboard schema
-  const acceptedClipboardSchema = z.union([
-    itemSchema,
-    itemGroupSchema,
-  ]) as unknown as z.ZodType<ItemOrGroup>
-
-  const { group, setGroup } = useItemGroupEditContext()
-  const recipedGroup = createMemo(() => {
-    const currentGroup = group()
-    return isRecipedItemGroup(currentGroup) ? currentGroup : null
-  })
-
-  // Use output types for strict type-safety
-  type ItemOrGroup =
-    | z.output<typeof itemSchema>
-    | z.output<typeof itemGroupSchema>
-
-  function isItemGroup(
-    data: ItemOrGroup,
-  ): data is z.output<typeof itemGroupSchema> {
-    return (
-      typeof data === 'object' && 'items' in data && Array.isArray(data.items)
-    )
-  }
-
-  const {
-    writeToClipboard,
-    handlePaste: handlePasteShared,
-    hasValidPastableOnClipboard: hasValidPastableOnClipboardShared,
-  } = useCopyPasteActions<ItemOrGroup>({
-    acceptedClipboardSchema,
-    getDataToCopy: () => group() as ItemOrGroup,
-    onPaste: (data) => {
-      const group_ = group()
-      if (isItemGroup(data)) {
-        const newGroup = addItemsToGroup(
-          group_,
-          data.items.map((item) => regenerateId(item)),
-        )
-        setGroup(newGroup)
-      } else {
-        const newGroup = addItemToGroup(group_, regenerateId(data))
-        setGroup(newGroup)
-      }
-    },
-  })
-
   return (
-    <Show when={group()}>
-      {(group) => (
-        <>
-          <div class="text-md mt-4">
-            <div class="flex gap-4">
-              <div class="my-auto flex-1">
-                <input
-                  class="input w-full"
-                  type="text"
-                  onChange={(e) => {
-                    setGroup(updateItemGroupName(group(), e.target.value))
-                  }}
-                  value={group().name}
-                  ref={(ref) => {
-                    setTimeout(() => {
-                      ref.blur()
-                    }, 0)
-                  }}
-                />
-              </div>
-
-              <div class="flex gap-2 px-2">
-                <Show when={hasValidPastableOnClipboardShared()}>
-                  {(_) => (
-                    <div
-                      class={
-                        'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'
-                      }
-                      onClick={() => {
-                        // TODO: Support editing complex recipes
-                        if (isRecipeTooComplex(props.recipe())) {
-                          showError(
-                            'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
-                          )
-                          return
-                        }
-                        handlePasteShared()
-                      }}
-                    >
-                      <PasteIcon />
-                    </div>
-                  )}
-                </Show>
-
-                <Show when={isSimpleItemGroup(group())}>
-                  {(_) => (
-                    <>
-                      <button
-                        class="my-auto ml-auto"
-                        onClick={() => {
-                          const exec = async () => {
-                            const newRecipe = createNewRecipe({
-                              name:
-                                group().name.length > 0
-                                  ? group().name
-                                  : 'Nova receita (a partir de um grupo)',
-                              items: deepCopy(group().items) ?? [],
-                              owner: currentUserId(),
-                            })
-
-                            const insertedRecipe = await insertRecipe(newRecipe)
-
-                            if (insertedRecipe === null) {
-                              return
-                            }
-
-                            setGroup(
-                              setItemGroupRecipe(group(), insertedRecipe.id),
-                            )
-
-                            props.setRecipeEditModalVisible(true)
-                          }
-
-                          exec().catch((err) => {
-                            showError(
-                              `Falha ao criar receita a partir de grupo: ${formatError(err)}`,
-                            )
-                          })
-                        }}
-                      >
-                        <ConvertToRecipeIcon />
-                      </button>
-                    </>
-                  )}
-                </Show>
-
-                <Show
-                  when={(() => {
-                    const group_ = group()
-                    return isRecipedItemGroup(group_) && group_
-                  })()}
-                >
-                  {(group) => (
-                    <>
-                      <Show when={props.recipe()}>
-                        {(recipe) => (
-                          <>
-                            <Show
-                              when={isRecipedGroupUpToDate(group(), recipe())}
-                            >
-                              {(_) => (
-                                <button
-                                  class="my-auto ml-auto"
-                                  onClick={() => {
-                                    // TODO:   Create recipe for groups that don't have one
-                                    props.setRecipeEditModalVisible(true)
-                                  }}
-                                >
-                                  <RecipeIcon />
-                                </button>
-                              )}
-                            </Show>
-
-                            <Show
-                              when={!isRecipedGroupUpToDate(group(), recipe())}
-                            >
-                              {(_) => (
-                                <button
-                                  class="my-auto ml-auto hover:animate-pulse"
-                                  onClick={() => {
-                                    if (props.recipe() === null) {
-                                      return
-                                    }
-
-                                    const newGroup = setItemGroupItems(
-                                      group(),
-                                      recipe().items,
-                                    )
-
-                                    setGroup(newGroup)
-                                  }}
-                                >
-                                  <DownloadIcon />
-                                </button>
-                              )}
-                            </Show>
-
-                            <button
-                              class="my-auto ml-auto hover:animate-pulse"
-                              onClick={() => {
-                                askUnlinkRecipe(
-                                  'Deseja desvincular a receita?',
-                                  {
-                                    showConfirmModal,
-                                    group,
-                                    setGroup,
-                                  },
-                                )
-                              }}
-                            >
-                              <BrokenLink />
-                            </button>
-                          </>
-                        )}
-                      </Show>
-
-                      <Show when={props.recipe() === null}>
-                        <>Receita não encontrada</>
-                      </Show>
-                    </>
-                  )}
-                </Show>
-              </div>
-            </div>
-          </div>
-
-          <ItemListView
-            items={() => group().items}
-            // TODO:   Check if this margin was lost.
-            //   className="mt-4"
-            onItemClick={(item) => {
-              // TODO:   Allow user to edit recipe
-              if (isTemplateItemRecipe(item)) {
-                showError(
-                  'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
-                )
-                return
-              }
-
-              // TODO: Support editing complex recipes
-              if (isRecipeTooComplex(props.recipe())) {
+    <Show when={props.mode === 'edit'}>
+      <div class="flex gap-2 ml-4">
+        <Show when={props.hasValidPastableOnClipboard()}>
+          <button
+            class="btn-ghost btn px-2 text-white hover:scale-105"
+            onClick={() => {
+              if (isRecipeTooComplex(props.recipe)) {
                 showError(
                   'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
                 )
                 return
               }
-
-              setEditSelection({ item })
-              props.setItemEditModalVisible(true)
-              // }
-            }}
-            makeHeaderFn={(item) => (
-              <HeaderWithActions
-                name={<ItemName />}
-                primaryActions={
-                  <>
-                    <ItemCopyButton
-                      onCopyItem={(item) => {
-                        writeToClipboard(JSON.stringify(item))
-                      }}
-                    />
-                    <ItemFavorite foodId={item.reference} />
-                  </>
-                }
-              />
-            )}
-          />
-
-          <button
-            class="mt-3 min-w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-            onClick={() => {
-              props.setTemplateSearchModalVisible(true)
+              props.handlePaste()
             }}
           >
-            Adicionar item
+            <PasteIcon />
           </button>
-          <Show when={recipedGroup()}>
-            {(recipedGroup) => (
-              <PreparedQuantityWrapper
-                recipedGroup={recipedGroup}
-                setRecipedGroup={setGroup}
-                recipe={props.recipe()}
-              />
-            )}
-          </Show>
-        </>
-      )}
+        </Show>
+        <Show when={isSimpleItemGroup(props.group())}>
+          <button
+            class="my-auto"
+            onClick={() => {
+              const exec = async () => {
+                const newRecipe = createNewRecipe({
+                  name:
+                    props.group().name.length > 0
+                      ? props.group().name
+                      : 'Nova receita (a partir de um grupo)',
+                  items: deepCopy(props.group().items) ?? [],
+                  owner: currentUserId(),
+                })
+                const insertedRecipe = await insertRecipe(newRecipe)
+                if (insertedRecipe === null) return
+                props.setGroup(
+                  setItemGroupRecipe(props.group(), insertedRecipe.id),
+                )
+                props.setRecipeEditModalVisible(true)
+              }
+              exec().catch((err) => {
+                showError(
+                  `Falha ao criar receita a partir de grupo: ${formatError(err)}`,
+                )
+              })
+            }}
+          >
+            <ConvertToRecipeIcon />
+          </button>
+        </Show>
+        <Show
+          when={(() => {
+            const group_ = props.group()
+            return isRecipedItemGroup(group_) && group_
+          })()}
+        >
+          {(group) => (
+            <>
+              <Show when={props.recipe}>
+                {(recipe) => (
+                  <>
+                    <Show when={isRecipedGroupUpToDate(group(), recipe())}>
+                      <button
+                        class="my-auto"
+                        onClick={() => {
+                          props.setRecipeEditModalVisible(true)
+                        }}
+                      >
+                        <RecipeIcon />
+                      </button>
+                    </Show>
+                    <Show when={!isRecipedGroupUpToDate(group(), recipe())}>
+                      <button
+                        class="my-auto hover:animate-pulse"
+                        onClick={() => {
+                          if (!props.recipe) return
+                          const newGroup = setItemGroupItems(
+                            group(),
+                            props.recipe.items,
+                          )
+                          props.setGroup(newGroup)
+                        }}
+                      >
+                        <DownloadIcon />
+                      </button>
+                    </Show>
+                    <button
+                      class="my-auto hover:animate-pulse"
+                      onClick={() => {
+                        askUnlinkRecipe('Deseja desvincular a receita?', {
+                          showConfirmModal: props.showConfirmModal,
+                          group: () => group(),
+                          setGroup: props.setGroup,
+                        })
+                      }}
+                    >
+                      <BrokenLink />
+                    </button>
+                  </>
+                )}
+              </Show>
+              <Show when={!props.recipe}>
+                <>Receita não encontrada</>
+              </Show>
+            </>
+          )}
+        </Show>
+      </div>
     </Show>
   )
 }
 
+function Title(props: {
+  targetMealName: string
+  recipe: Recipe | null
+  mode?: 'edit' | 'read-only' | 'summary'
+  group: Accessor<ItemGroup>
+  setGroup: Setter<ItemGroup>
+  hasValidPastableOnClipboard: () => boolean
+  handlePaste: () => void
+  setRecipeEditModalVisible: Setter<boolean>
+  showConfirmModal: ConfirmModalContext['show']
+}) {
+  return (
+    <div class="flex flex-col gap-1">
+      <div class="flex items-center justify-between gap-2">
+        <GroupNameEdit
+          group={props.group}
+          setGroup={props.setGroup}
+          mode={props.mode}
+        />
+        <GroupHeaderActions
+          group={props.group}
+          setGroup={props.setGroup}
+          mode={props.mode}
+          recipe={props.recipe}
+          hasValidPastableOnClipboard={props.hasValidPastableOnClipboard}
+          handlePaste={props.handlePaste}
+          setRecipeEditModalVisible={props.setRecipeEditModalVisible}
+          showConfirmModal={props.showConfirmModal}
+        />
+      </div>
+      <div class="text-sm text-gray-400 mt-1">
+        Em <span class="text-green-500">"{props.targetMealName}"</span>
+      </div>
+      <div class="text-xs text-gray-400">
+        Receita: {props.recipe?.name.toString() ?? 'Nenhuma'}
+      </div>
+    </div>
+  )
+}
+
+// Actions: garantir acesso ao contexto
 function Actions(props: {
   onDelete?: (groupId: number) => void
   onCancel?: () => void
@@ -709,14 +679,12 @@ function Actions(props: {
   visible: Accessor<boolean>
   setVisible: Setter<boolean>
 }) {
-  // TODO:   Make itemGroup not nullable? Reflect changes on all group?. and itemGroup?. and ?? everywhere
+  // Corrigido: importa do contexto
   const { group, saveGroup } = useItemGroupEditContext()
-
   const { show: showConfirmModal } = useConfirmModalContext()
 
   return (
     <>
-      {/* if there is a button in form, it will close the modal */}
       <Show when={props.onDelete}>
         {(onDelete) => (
           <button
@@ -770,46 +738,114 @@ function Actions(props: {
   )
 }
 
-function PreparedQuantityWrapper(props: {
-  recipedGroup: Accessor<RecipedItemGroup>
-  setRecipedGroup: Setter<ItemGroup>
-  recipe: Recipe | null
+// Body: garantir acesso ao contexto
+function Body(props: {
+  recipe: Accessor<Recipe | null>
+  recipeEditModalVisible: Accessor<boolean>
+  setRecipeEditModalVisible: Setter<boolean>
+  itemEditModalVisible: Accessor<boolean>
+  setItemEditModalVisible: Setter<boolean>
+  templateSearchModalVisible: Accessor<boolean>
+  setTemplateSearchModalVisible: Setter<boolean>
+  mode?: 'edit' | 'read-only' | 'summary'
+  writeToClipboard: (text: string) => void
 }) {
-  const rawQuantity = () => getItemGroupQuantity(props.recipedGroup())
-
+  const { group } = useItemGroupEditContext()
   return (
-    <PreparedQuantity
-      rawQuantity={rawQuantity()}
-      preparedMultiplier={props.recipe?.prepared_multiplier ?? 1}
-      onPreparedQuantityChange={({
-        newPreparedQuantity,
-        newMultiplier,
-        newRawQuantity,
-      }) => {
-        console.debug(
-          '[PreparedQuantity] onPreparedQuantityChange: ',
-          newPreparedQuantity(),
-          'newMultiplier:',
-          newMultiplier(),
-          'newRawQuantity:',
-          newRawQuantity(),
-        )
-
-        const newItems = props.recipedGroup().items.map((item) => {
-          return {
-            ...item,
-            quantity: item.quantity * newMultiplier(),
-          }
-        })
-
-        const newGroup = setItemGroupItems(props.recipedGroup(), newItems)
-
-        props.setRecipedGroup(newGroup)
-      }}
-    />
+    <Show when={group()}>
+      {(group) => (
+        <>
+          <div class="text-md mt-4">
+            <div class="flex gap-4">
+              <div class="my-auto flex-1" />
+            </div>
+          </div>
+          <ItemListView
+            items={() => group().items}
+            onItemClick={
+              props.mode === 'edit'
+                ? (item) => {
+                    if (isTemplateItemRecipe(item)) {
+                      // TODO:   Allow user to edit recipe
+                      showError(
+                        'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
+                      )
+                      return
+                    }
+                    if (isRecipeTooComplex(props.recipe())) {
+                      // TODO: Support editing complex recipes
+                      showError(
+                        'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
+                      )
+                      return
+                    }
+                    setEditSelection({ item })
+                    props.setItemEditModalVisible(true)
+                  }
+                : undefined
+            }
+            mode={props.mode}
+            makeHeaderFn={(item) => (
+              <HeaderWithActions
+                name={<ItemName />}
+                primaryActions={
+                  props.mode === 'edit' ? (
+                    <>
+                      <ItemCopyButton
+                        onCopyItem={(item) => {
+                          props.writeToClipboard(JSON.stringify(item))
+                        }}
+                      />
+                      <ItemFavorite foodId={item.reference} />
+                    </>
+                  ) : null
+                }
+              />
+            )}
+          />
+          {props.mode === 'edit' && (
+            <button
+              class="mt-3 min-w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
+              onClick={() => {
+                props.setTemplateSearchModalVisible(true)
+              }}
+            >
+              Adicionar item
+            </button>
+          )}
+        </>
+      )}
+    </Show>
   )
 }
 
 function isRecipeTooComplex(recipe: Recipe | null) {
   return recipe !== null && recipe.prepared_multiplier !== 1
+}
+
+// Add type guards at the top after type ItemOrGroup
+function isClipboardItem(data: unknown): data is z.infer<typeof itemSchema> {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    '__type' in data &&
+    (data as { __type?: string }).__type === 'Item' &&
+    'id' in data &&
+    'name' in data &&
+    'reference' in data &&
+    'quantity' in data &&
+    'macros' in data
+  )
+}
+function isClipboardItemGroup(
+  data: unknown,
+): data is z.infer<typeof itemGroupSchema> {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    '__type' in data &&
+    (data as { __type?: string }).__type === 'ItemGroup' &&
+    'items' in data &&
+    Array.isArray((data as { items?: unknown[] }).items)
+  )
 }
