@@ -54,7 +54,7 @@ export async function fetchFoodsByName(
       {
         loading: 'Importando alimentos...',
         success: 'Alimentos importados com sucesso',
-        error: 'Erro ao importar alimentos',
+        error: `Erro ao importar alimentos por nome: ${name}`,
       },
       { context: 'background' },
     )
@@ -83,7 +83,7 @@ export async function fetchFoodByEan(
     {
       loading: 'Importando alimento...',
       success: 'Alimento importado com sucesso',
-      error: 'Erro ao importar alimento',
+      error: `Erro ao importar alimento por EAN: ${ean}`,
     },
     { context: 'background' },
   )
