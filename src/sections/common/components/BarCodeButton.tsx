@@ -1,4 +1,4 @@
-import { BarCodeIcon } from './icons/BarCodeIcon'
+import { BarCodeIcon } from '~/sections/common/components/icons/BarCodeIcon'
 
 export function BarCodeButton(props: { showBarCodeModal: () => void }) {
   return (

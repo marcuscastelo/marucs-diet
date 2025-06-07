@@ -13,7 +13,7 @@ import {
   isSameDay,
   toLocalDate,
   toUTCDate,
-} from './dateUtils'
+} from '~/shared/utils/date/dateUtils'
 
 describe('dateUtils', () => {
   let mockDate: Date

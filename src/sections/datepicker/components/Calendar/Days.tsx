@@ -2,10 +2,10 @@ import dayjs from 'dayjs'
 import isBetween from 'dayjs/plugin/isBetween'
 
 import { For, useContext } from 'solid-js'
-import { BG_COLOR, TEXT_COLOR } from '../../constants'
-import DatepickerContext from '../../contexts/DatepickerContext'
-import { classNames as cn, formatDate, nextMonth, previousMonth } from '../../helpers'
-import { type Period } from '../../types'
+import { BG_COLOR, TEXT_COLOR } from '~/sections/datepicker/constants'
+import DatepickerContext from '~/sections/datepicker/contexts/DatepickerContext'
+import { classNames as cn, formatDate, nextMonth, previousMonth } from '~/sections/datepicker/helpers'
+import { type Period } from '~/sections/datepicker/types'
 
 dayjs.extend(isBetween)
 

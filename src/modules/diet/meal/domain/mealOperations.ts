@@ -1,5 +1,5 @@
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
-import { type Meal } from './meal'
+import { type Meal } from '~/modules/diet/meal/domain/meal'
 
 /**
  * Pure functions for meal operations

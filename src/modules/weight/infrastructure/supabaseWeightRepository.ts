@@ -9,7 +9,7 @@ import { type WeightRepository } from '~/modules/weight/domain/weightRepository'
 import {
   createInsertWeightDAOFromWeight,
   createUpdateWeightDAOFromWeight,
-} from './weightDAO'
+} from '~/modules/weight/infrastructure/weightDAO'
 
 export const SUPABASE_TABLE_WEIGHTS = 'weights'
 

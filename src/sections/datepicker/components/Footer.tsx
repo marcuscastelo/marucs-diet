@@ -1,9 +1,9 @@
 import dayjs from 'dayjs'
 
-import { DATE_FORMAT } from '../constants'
-import DatepickerContext from '../contexts/DatepickerContext'
+import { DATE_FORMAT } from '~/sections/datepicker/constants'
+import DatepickerContext from '~/sections/datepicker/contexts/DatepickerContext'
 
-import { PrimaryButton, SecondaryButton } from './utils'
+import { PrimaryButton, SecondaryButton } from '~/sections/datepicker/components/utils'
 import { useContext } from 'solid-js'
 
 const Footer = () => {

@@ -1,5 +1,5 @@
 import { JSXElement, Accessor } from 'solid-js'
-import { CopyIcon } from './icons/CopyIcon'
+import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
 
 export type CopyButtonProps<T> = {
   onCopy: (value: T) => void

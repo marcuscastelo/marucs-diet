@@ -12,7 +12,7 @@ import {
   setItemGroupRecipe,
   updateItemGroupName,
   updateItemInGroup,
-} from './itemGroupOperations'
+} from '~/modules/diet/item-group/domain/itemGroupOperations'
 
 function makeItem(id: number, name = 'Arroz') {
   return {

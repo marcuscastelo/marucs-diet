@@ -1,4 +1,4 @@
-import { type ColorKeys, type Colors } from '../types'
+import { type ColorKeys, type Colors } from '~/sections/datepicker/types'
 
 export const COLORS = [
   'blue',

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getPreviousDayDiets } from './dayDiet'
+import { getPreviousDayDiets } from '~/modules/diet/day-diet/application/dayDiet'
 import type { DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 
 const makeDay = (target_day: string, id: number): DayDiet => ({

@@ -1,5 +1,8 @@
 import { type Meal } from '~/modules/diet/meal/domain/meal'
-import { type DayDiet, type NewDayDiet } from './dayDiet'
+import {
+  type DayDiet,
+  type NewDayDiet,
+} from '~/modules/diet/day-diet/domain/dayDiet'
 
 /**
  * Pure functions for day diet operations

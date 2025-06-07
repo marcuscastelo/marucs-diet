@@ -1,7 +1,7 @@
 import { createEffect, mergeProps, type JSXElement } from 'solid-js'
 import { useModalContext } from '~/sections/common/context/ModalContext'
 import { cn } from '~/shared/cn'
-import { DarkToaster } from './DarkToaster'
+import { DarkToaster } from '~/sections/common/components/DarkToaster'
 
 export type ModalProps = {
   children: JSXElement

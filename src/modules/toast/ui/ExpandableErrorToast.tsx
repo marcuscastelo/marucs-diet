@@ -14,7 +14,7 @@ import {
   ToastType,
 } from '~/modules/toast/domain/toastTypes'
 import { handleCopyErrorToClipboard } from '~/modules/toast/infrastructure/clipboardErrorUtils'
-import { killToast } from '../application/toastQueue'
+import { killToast } from '~/modules/toast/application/toastQueue'
 
 /**
  * Props for ExpandableToast component.

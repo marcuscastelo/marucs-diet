@@ -7,7 +7,7 @@ import pluginPrettier from 'eslint-plugin-prettier'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import pluginSolid from 'eslint-plugin-solid'
 import globals from 'globals'
-
+import eslintPluginImport from 'eslint-plugin-import'
 /** @type {import('eslint').Linter.Config} */
 export default [
   {
@@ -33,11 +33,20 @@ export default [
       solid: pluginSolid,
       prettier: pluginPrettier,
       'jsx-a11y': pluginA11y,
-      simpleImportSort
+      simpleImportSort,
+      import: eslintPluginImport
     },
     rules: {
       ...js.configs.recommended.rules,
       ...pluginTs.configs['recommended-type-checked'].rules,
+
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: ['../*', './*'],
+        },
+      ],
+      'import/no-unresolved': ['error', { ignore: ['^~'] }],
 
       eqeqeq: ["error", "always"],
 

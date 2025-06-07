@@ -15,7 +15,7 @@ import {
   createInsertDayDietDAOFromNewDayDiet,
   daoToDayDiet,
   type DayDietDAO,
-} from './dayDietDAO'
+} from '~/modules/diet/day-diet/infrastructure/dayDietDAO'
 
 // TODO:   Delete old days table and rename days_test to days
 export const SUPABASE_TABLE_DAYS = 'days_test'

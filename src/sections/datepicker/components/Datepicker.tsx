@@ -1,17 +1,17 @@
 // Original implementation: https://github.com/onesine/react-tailwindcss-datepicker/tree/bf063fe6458787622ca500ec9a33d9b2feb955d1
 import dayjs from 'dayjs'
 
-import Calendar from '../components/Calendar'
-import Footer from '../components/Footer'
-import Input from '../components/Input'
-import Shortcuts from '../components/Shortcuts'
-import { COLORS, DATE_FORMAT, DEFAULT_COLOR, LANGUAGE } from '../constants'
-import DatepickerContext, { type DatepickerStore } from '../contexts/DatepickerContext'
-import { formatDate, nextMonth, previousMonth } from '../helpers'
-import useOnClickOutside from '../hooks'
-import { type Period, type DatepickerType, type ColorKeys } from '../types'
+import Calendar from '~/sections/datepicker/components/Calendar'
+import Footer from '~/sections/datepicker/components/Footer'
+import Input from '~/sections/datepicker/components/Input'
+import Shortcuts from '~/sections/datepicker/components/Shortcuts'
+import { COLORS, DATE_FORMAT, DEFAULT_COLOR, LANGUAGE } from '~/sections/datepicker/constants'
+import DatepickerContext, { type DatepickerStore } from '~/sections/datepicker/contexts/DatepickerContext'
+import { formatDate, nextMonth, previousMonth } from '~/sections/datepicker/helpers'
+import useOnClickOutside from '~/sections/datepicker/hooks'
+import { type Period, type DatepickerType, type ColorKeys } from '~/sections/datepicker/types'
 
-import { Arrow, VerticalDash } from './utils'
+import { Arrow, VerticalDash } from '~/sections/datepicker/components/utils'
 import { createEffect, createSignal, mergeProps } from 'solid-js'
 
 const Datepicker = (_props: DatepickerType) => {

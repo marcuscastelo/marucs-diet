@@ -8,7 +8,10 @@ import {
   type UnsavedFields,
 } from '~/modules/profile/application/profile'
 import { currentUser, updateUser } from '~/modules/user/application/user'
-import { convertString, UserInfoCapsule } from './UserInfoCapsule'
+import {
+  convertString,
+  UserInfoCapsule,
+} from '~/sections/profile/components/UserInfoCapsule'
 import { showError } from '~/modules/toast/application/toastManager'
 import { formatError } from '~/shared/formatError'
 import { handleApiError } from '~/shared/error/errorHandler'

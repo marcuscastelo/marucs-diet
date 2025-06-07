@@ -3,8 +3,8 @@ import {
   updateItemName,
   updateItemMacros,
   replaceItem,
-} from './itemOperations'
-import { createItem } from './item'
+} from '~/modules/diet/item/domain/itemOperations'
+import { createItem } from '~/modules/diet/item/domain/item'
 import { describe, it, expect } from 'vitest'
 
 const baseItem = createItem({

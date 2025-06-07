@@ -1,7 +1,7 @@
 import { JSXElement } from 'solid-js'
-import { CopyIcon } from './icons/CopyIcon'
-import { PasteIcon } from './icons/PasteIcon'
-import { TrashIcon } from './icons/TrashIcon'
+import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
+import { PasteIcon } from '~/sections/common/components/icons/PasteIcon'
+import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 
 export type ClipboardActionButtonsProps = {
   canCopy: boolean

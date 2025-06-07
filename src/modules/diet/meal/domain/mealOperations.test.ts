@@ -12,7 +12,7 @@ import {
   setMealGroups,
   updateGroupInMeal,
   updateMealName,
-} from './mealOperations'
+} from '~/modules/diet/meal/domain/mealOperations'
 
 function makeItem(id: number, name = 'Arroz') {
   return {

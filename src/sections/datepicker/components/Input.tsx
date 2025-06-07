@@ -1,10 +1,10 @@
 import dayjs from 'dayjs'
 
-import { BORDER_COLOR, DATE_FORMAT, RING_COLOR } from '../constants'
-import DatepickerContext from '../contexts/DatepickerContext'
-import { dateIsValid, parseFormattedDate } from '../helpers'
+import { BORDER_COLOR, DATE_FORMAT, RING_COLOR } from '~/sections/datepicker/constants'
+import DatepickerContext from '~/sections/datepicker/contexts/DatepickerContext'
+import { dateIsValid, parseFormattedDate } from '~/sections/datepicker/helpers'
 
-import DatepickerToggleButton from './ToggleButton'
+import DatepickerToggleButton from '~/sections/datepicker/components/ToggleButton'
 import { createEffect, useContext } from 'solid-js'
 
 type Props = {

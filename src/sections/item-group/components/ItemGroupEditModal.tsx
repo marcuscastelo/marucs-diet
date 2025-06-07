@@ -26,7 +26,7 @@ import {
   ItemName,
 } from '~/sections/food-item/components/ItemView'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
-import { ExternalRecipeEditModal } from './ExternalRecipeEditModal'
+import { ExternalRecipeEditModal } from '~/sections/item-group/components/ExternalRecipeEditModal'
 import { createResource } from 'solid-js'
 
 import {

@@ -2,7 +2,7 @@ import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import weekday from 'dayjs/plugin/weekday'
 
-import { DATE_FORMAT, LANGUAGE } from '../constants'
+import { DATE_FORMAT, LANGUAGE } from '~/sections/datepicker/constants'
 
 dayjs.extend(weekday)
 dayjs.extend(customParseFormat)

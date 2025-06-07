@@ -15,7 +15,7 @@ import {
   updateItemInRecipe,
   updateRecipeName,
   updateRecipePreparedMultiplier,
-} from './recipeOperations'
+} from '~/modules/diet/recipe/domain/recipeOperations'
 
 function makeItem(id: number, name = 'Arroz') {
   return {

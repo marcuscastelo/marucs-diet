@@ -1,6 +1,9 @@
 import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 import { type User } from '~/modules/user/domain/user'
-import { type Recipe, type NewRecipe } from '../domain/recipe'
+import {
+  type Recipe,
+  type NewRecipe,
+} from '~/modules/diet/recipe/domain/recipe'
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { handleApiError } from '~/shared/error/errorHandler'
 

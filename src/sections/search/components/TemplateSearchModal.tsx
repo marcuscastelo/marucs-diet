@@ -58,10 +58,10 @@ import { BarCodeButton } from '~/sections/common/components/BarCodeButton'
 import { PageLoading } from '~/sections/common/components/PageLoading'
 import { formatError } from '~/shared/formatError'
 import { stringToDate } from '~/shared/utils/date'
-import { ExternalBarCodeInsertModal } from './ExternalBarCodeInsertModal'
-import { ExternalTemplateToItemGroupModal } from './ExternalTemplateToItemGroupModal'
-import { TemplateSearchBar } from './TemplateSearchBar'
-import { TemplateSearchResults } from './TemplateSearchResults'
+import { ExternalBarCodeInsertModal } from '~/sections/search/components/ExternalBarCodeInsertModal'
+import { ExternalTemplateToItemGroupModal } from '~/sections/search/components/ExternalTemplateToItemGroupModal'
+import { TemplateSearchBar } from '~/sections/search/components/TemplateSearchBar'
+import { TemplateSearchResults } from '~/sections/search/components/TemplateSearchResults'
 
 const TEMPLATE_SEARCH_DEFAULT_TAB = availableTabs.Todos.id
 

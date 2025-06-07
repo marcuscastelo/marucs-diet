@@ -3,7 +3,7 @@ import {
   createSimpleItemGroup,
   createRecipedItemGroup,
   itemGroupSchema,
-} from '../domain/itemGroup'
+} from '~/modules/diet/item-group/domain/itemGroup'
 import { type Item, itemSchema } from '~/modules/diet/item/domain/item'
 import { type Recipe, recipeSchema } from '~/modules/diet/recipe/domain/recipe'
 import { handleApiError } from '~/shared/error/errorHandler'

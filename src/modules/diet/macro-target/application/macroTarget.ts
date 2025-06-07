@@ -1,9 +1,9 @@
 import { inForceWeight } from '~/legacy/utils/weightUtils'
-import { type MacroNutrients } from '../../macro-nutrients/domain/macroNutrients'
-import { type MacroProfile } from '../../macro-profile/domain/macroProfile'
+import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { type MacroProfile } from '~/modules/diet/macro-profile/domain/macroProfile'
 import { userWeights } from '~/modules/weight/application/weight'
 import { inForceMacroProfile } from '~/legacy/utils/macroProfileUtils'
-import { userMacroProfiles } from '../../macro-profile/application/macroProfile'
+import { userMacroProfiles } from '~/modules/diet/macro-profile/application/macroProfile'
 import { showError } from '~/modules/toast/application/toastManager'
 
 export const calculateMacroTarget = (

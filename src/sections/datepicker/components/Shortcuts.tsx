@@ -1,10 +1,10 @@
 import dayjs from 'dayjs'
 import { For, type JSXElement, Show, useContext } from 'solid-js'
 
-import { DATE_FORMAT, TEXT_COLOR } from '../constants'
-import DEFAULT_SHORTCUTS from '../constants/shortcuts'
-import DatepickerContext from '../contexts/DatepickerContext'
-import { type Period, type ShortcutsItem } from '../types'
+import { DATE_FORMAT, TEXT_COLOR } from '~/sections/datepicker/constants'
+import DEFAULT_SHORTCUTS from '~/sections/datepicker/constants/shortcuts'
+import DatepickerContext from '~/sections/datepicker/contexts/DatepickerContext'
+import { type Period, type ShortcutsItem } from '~/sections/datepicker/types'
 
 type ItemTemplateProps = {
   children: JSXElement
