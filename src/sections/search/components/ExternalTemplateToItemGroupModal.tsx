@@ -1,20 +1,14 @@
 import { type Accessor, type Setter } from 'solid-js'
-import { showError } from '~/modules/toast/application/toastManager'
-import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
-import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
-import {
-  type ItemGroup,
-  type RecipedItemGroup,
-  type SimpleItemGroup,
-  createSimpleItemGroup,
-  createRecipedItemGroup,
-} from '~/modules/diet/item-group/domain/itemGroup'
-import { type Template } from '~/modules/diet/template/domain/template'
+import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import { createGroupFromTemplate } from '~/modules/diet/template/application/createGroupFromTemplate'
+import { templateToItem } from '~/modules/diet/template/application/templateToItem'
+import { type Template } from '~/modules/diet/template/domain/template'
+import { showError } from '~/modules/toast/application/toastManager'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
-import { formatError } from '~/shared/formatError'
+import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
 import { handleApiError } from '~/shared/error/errorHandler'
-import { calcRecipeMacros } from '~/legacy/utils/macroMath'
+import { formatError } from '~/shared/formatError'
 
 export type ExternalTemplateToItemGroupModalProps = {
   visible: Accessor<boolean>
@@ -34,52 +28,25 @@ export function ExternalTemplateToItemGroupModal(
     <ModalContextProvider visible={props.visible} setVisible={props.setVisible}>
       <ItemEditModal
         targetName={props.targetName}
-        item={() => {
-          const template = props.selectedTemplate()
-          const macros =
-            template.__type === 'Food'
-              ? template.macros
-              : calcRecipeMacros(template)
-          return {
-            reference: template.id,
-            name: template.name,
-            macros,
-            __type: template.__type === 'Food' ? 'Item' : 'RecipeItem', // TODO:   Refactor conversion from template type to group/item types
-          }
-        }}
+        item={() => templateToItem(props.selectedTemplate())}
         macroOverflow={() => ({
           enable: true,
         })}
         onApply={(item) => {
-          // TODO:   Refactor conversion from template type to group/item types
-          if (item.__type === 'Item') {
-            const newGroup: SimpleItemGroup = createSimpleItemGroup({
-              name: item.name,
-              items: [item],
+          const template = props.selectedTemplate()
+          const { newGroup, operation, templateType } = createGroupFromTemplate(
+            template,
+            item,
+          )
+
+          props.onNewItemGroup(newGroup, item).catch((err) => {
+            handleApiError(err, {
+              component: 'ExternalTemplateToItemGroupModal',
+              operation,
+              additionalData: { itemName: item.name, templateType },
             })
-            props.onNewItemGroup(newGroup, item).catch((err) => {
-              handleApiError(err, {
-                component: 'ExternalTemplateToItemGroupModal',
-                operation: 'addSimpleItem',
-                additionalData: { itemName: item.name, templateType: 'Item' },
-              })
-              showError(`Erro ao adicionar item: ${formatError(err)}`)
-            })
-          } else {
-            const newGroup: RecipedItemGroup = createRecipedItemGroup({
-              name: item.name,
-              recipe: (props.selectedTemplate() as Recipe).id,
-              items: [...(props.selectedTemplate() as Recipe).items],
-            })
-            props.onNewItemGroup(newGroup, item).catch((err) => {
-              handleApiError(err, {
-                component: 'ExternalTemplateToItemGroupModal',
-                operation: 'addRecipeItem',
-                additionalData: { itemName: item.name, templateType: 'Recipe' },
-              })
-              showError(`Erro ao adicionar item: ${formatError(err)}`)
-            })
-          }
+            showError(`Erro ao adicionar item: ${formatError(err)}`)
+          })
         }}
       />
     </ModalContextProvider>

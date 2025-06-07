@@ -1,4 +1,3 @@
-import { generateId } from '~/legacy/utils/idUtils'
 import { type Item } from '~/modules/diet/item/domain/item'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { FloatInput } from '~/sections/common/components/FloatInput'
@@ -25,12 +24,21 @@ import {
 } from 'solid-js'
 import { showError } from '~/modules/toast/application/toastManager'
 
+/**
+ * Modal for editing a TemplateItem.
+ *
+ * @param targetName - Name of the target (meal/group/recipe)
+ * @param targetNameColor - Optional color for the target name
+ * @param item - Accessor for the TemplateItem being edited
+ * @param macroOverflow - Macro overflow context
+ * @param onApply - Called when user applies changes
+ * @param onCancel - Called when user cancels
+ * @param onDelete - Called when user deletes the item
+ */
 export type ItemEditModalProps = {
   targetName: string
   targetNameColor?: string
-  item: Accessor<
-    Partial<TemplateItem> & Pick<TemplateItem, 'name' | 'reference' | 'macros'>
-  >
+  item: Accessor<TemplateItem>
   macroOverflow: () => {
     enable: boolean
     originalItem?: TemplateItem | undefined
@@ -45,27 +53,8 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
   const { setVisible } = useModalContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
-  // TODO:   Better initial state for item on ItemEditModal
-  const fallbackItem: TemplateItem = {
-    __type: 'Item',
-    id: generateId(),
-    name: '',
-    quantity: 0,
-    reference: 0, // assuming number, adjust if needed
-    macros: { carbs: 0, protein: 0, fat: 0 },
-  }
-  const [item, setItem] = createSignal<TemplateItem>(fallbackItem)
-  createEffect(() => {
-    setItem({
-      ...props.item(),
-      __type: props.item().__type ?? 'Item',
-      id: props.item().id ?? generateId(),
-      quantity: props.item().quantity ?? 0,
-      name: props.item().name,
-      reference: props.item().reference,
-      macros: props.item().macros,
-    })
-  })
+  const [item, setItem] = createSignal(untrack(() => props.item()))
+  createEffect(() => setItem(props.item()))
 
   const canApply = () => item().quantity > 0
 

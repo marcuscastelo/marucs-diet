@@ -29,10 +29,30 @@ export const recipedItemGroupSchema = z.object({
   __type: z.literal('ItemGroup').default('ItemGroup'),
 })
 
-export const itemGroupSchema = z.discriminatedUnion('type', [
+export const itemGroupSchema = z.union([
   simpleItemGroupSchema,
   recipedItemGroupSchema,
 ])
+
+/**
+ * Type guard for SimpleItemGroup.
+ * @param group - The ItemGroup to check
+ * @returns True if group is SimpleItemGroup
+ */
+export function isSimpleItemGroup(group: ItemGroup): group is SimpleItemGroup {
+  return group.type === 'simple'
+}
+
+/**
+ * Type guard for RecipedItemGroup.
+ * @param group - The ItemGroup to check
+ * @returns True if group is RecipedItemGroup
+ */
+export function isRecipedItemGroup(
+  group: ItemGroup,
+): group is RecipedItemGroup {
+  return group.type === 'recipe'
+}
 
 // Use output type for strict clipboard unions
 export type SimpleItemGroup = Readonly<z.output<typeof simpleItemGroupSchema>>
@@ -42,7 +62,7 @@ export type ItemGroup = Readonly<z.output<typeof itemGroupSchema>>
 export function isSimpleSingleGroup(
   group: ItemGroup,
 ): group is SimpleItemGroup {
-  return group.type === 'simple' && group.items.length === 1
+  return isSimpleItemGroup(group) && group.items.length === 1
 }
 
 /**

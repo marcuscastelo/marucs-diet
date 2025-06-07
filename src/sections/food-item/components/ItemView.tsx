@@ -1,6 +1,10 @@
 import { calcItemCalories, calcItemMacros } from '~/legacy/utils/macroMath'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
-import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import {
+  isTemplateItemFood,
+  isTemplateItemRecipe,
+  type TemplateItem,
+} from '~/modules/diet/template-item/domain/templateItem'
 import { type Template } from '~/modules/diet/template/domain/template'
 import {
   isFoodFavorite,
@@ -82,7 +86,7 @@ export function ItemName() {
     console.debug('[ItemName] item changed, fetching API:', item())
 
     const itemValue = item()
-    if (itemValue.__type === 'RecipeItem') {
+    if (isTemplateItemRecipe(itemValue)) {
       recipeRepository
         .fetchRecipeById(itemValue.reference)
         .then(setTemplate)
@@ -94,7 +98,7 @@ export function ItemName() {
           })
           setTemplate(null)
         })
-    } else {
+    } else if (isTemplateItemFood(itemValue)) {
       fetchFoodById(itemValue.reference)
         .then(setTemplate)
         .catch((err) => {
@@ -109,9 +113,9 @@ export function ItemName() {
   })
 
   const templateNameColor = () => {
-    if (item().__type === 'Item') {
+    if (isTemplateItemFood(item())) {
       return 'text-white'
-    } else if (item().__type === 'RecipeItem') {
+    } else if (isTemplateItemRecipe(item())) {
       return 'text-blue-500'
     } else {
       handleValidationError(

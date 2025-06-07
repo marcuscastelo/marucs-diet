@@ -9,6 +9,10 @@ import {
   removeItemFromRecipe,
   updateItemInRecipe,
 } from '~/modules/diet/recipe/domain/recipeOperations'
+import {
+  isTemplateItemFood,
+  isTemplateItemRecipe,
+} from '~/modules/diet/template-item/domain/templateItem'
 import { showError } from '~/modules/toast/application/toastManager'
 import { Modal } from '~/sections/common/components/Modal'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
@@ -99,7 +103,7 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
         targetName={recipe().name}
         onApply={(item) => {
           // Only handle regular Items, not RecipeItems
-          if (item.__type !== 'Item') {
+          if (!isTemplateItemFood(item)) {
             console.warn('Cannot edit RecipeItems in recipe')
             return
           }
@@ -155,7 +159,7 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
                 }}
                 onEditItem={(item) => {
                   // TODO:   Allow user to edit recipe.
-                  if (item.__type === 'RecipeItem') {
+                  if (isTemplateItemRecipe(item)) {
                     showError(
                       'Ainda não é possível editar receitas dentro de receitas! Funcionalidade em desenvolvimento',
                     )
