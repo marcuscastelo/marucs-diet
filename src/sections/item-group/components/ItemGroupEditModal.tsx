@@ -645,7 +645,6 @@ function Title(props: {
   return (
     <div class="flex flex-col gap-1">
       <div class="flex items-center justify-between gap-2">
-        <span class="text-lg font-bold text-white">Grupo:</span>
         <GroupNameEdit
           group={props.group}
           setGroup={props.setGroup}
