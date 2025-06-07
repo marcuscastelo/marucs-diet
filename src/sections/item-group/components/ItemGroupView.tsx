@@ -2,9 +2,8 @@ import {
   type Accessor,
   type JSXElement,
   createEffect,
-  createSignal,
+  createResource,
 } from 'solid-js'
-import { type Loadable } from '~/legacy/utils/loadable'
 import { calcGroupCalories, calcGroupMacros } from '~/legacy/utils/macroMath'
 import {
   type ItemGroup,
@@ -58,42 +57,31 @@ export function ItemGroupView(props: ItemGroupViewProps) {
 }
 
 export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
-  const [recipe, setRecipe] = createSignal<Loadable<Recipe | null>>({
-    loading: true,
-  })
-
-  createEffect(() => {
-    console.debug('[ItemGroupName] item changed, fetching API:', props.group)
+  const [recipe] = createResource(async () => {
     const group = props.group()
     if (isRecipedItemGroup(group)) {
-      recipeRepository
-        .fetchRecipeById(group.recipe)
-        .then((foundRecipe) => {
-          setRecipe({ loading: false, errored: false, data: foundRecipe })
+      try {
+        return await recipeRepository.fetchRecipeById(group.recipe)
+      } catch (err) {
+        handleApiError(err, {
+          component: 'ItemGroupView::ItemGroupName',
+          operation: 'fetchRecipeById',
+          additionalData: { recipeId: group.recipe },
         })
-        .catch((err: unknown) => {
-          handleApiError(err, {
-            component: 'ItemGroupView::ItemGroupName',
-            operation: 'fetchRecipeById',
-            additionalData: { recipeId: group.recipe },
-          })
-          setRecipe({ loading: false, errored: true, error: err })
-        })
-    } else {
-      setRecipe({ loading: false, errored: false, data: null })
+        throw err
+      }
     }
+    return null
   })
 
   const nameColor = () => {
     const group_ = props.group()
-    const recipe_ = recipe()
-
-    if (recipe_.loading) return 'text-gray-500 animate-pulse'
-    if (recipe_.errored) {
+    if (recipe.state === 'pending') return 'text-gray-500 animate-pulse'
+    if (recipe.state === 'errored') {
       handleValidationError(new Error('Recipe loading failed'), {
         component: 'ItemGroupView::ItemGroupName',
         operation: 'nameColor',
-        additionalData: { recipeError: recipe_.error },
+        additionalData: { recipeError: recipe.error },
       })
       return 'text-red-900 bg-red-200 bg-opacity-50'
     }
@@ -106,8 +94,11 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
       }
     }
 
-    const handleRecipe = (recipedGroup: RecipedItemGroup, recipe: Recipe) => {
-      if (isRecipedGroupUpToDate(recipedGroup, recipe)) {
+    const handleRecipe = (
+      recipedGroup: RecipedItemGroup,
+      recipeData: Recipe,
+    ) => {
+      if (isRecipedGroupUpToDate(recipedGroup, recipeData)) {
         return 'text-yellow-200'
       } else {
         // Strike-through text in red
@@ -119,14 +110,13 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
     if (isSimpleItemGroup(group_)) {
       return handleSimple(group_)
     } else if (isRecipedItemGroup(group_)) {
-      if (recipe_.data !== null) {
-        return handleRecipe(group_, recipe_.data)
+      if (recipe() !== null) {
+        return handleRecipe(group_, recipe()!)
       } else {
         return 'text-red-400'
       }
     } else {
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      handleValidationError(new Error(`Unknown ItemGroup: ${group_}`), {
+      handleValidationError(new Error(`Unknown ItemGroup: ${String(group_)}`), {
         component: 'ItemGroupView::ItemGroupName',
         operation: 'nameColor',
         additionalData: { group: group_ },
@@ -137,10 +127,6 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
 
   return (
     <div class="">
-      {/*
-        //TODO:   ItemGroupView id is random, but it should be an entry on the database (meal too)
-      */}
-      {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.ItemGroupView.id}]</h5> */}
       <h5 class={`mb-2 text-lg font-bold tracking-tight ${nameColor()}`}>
         {props.group().name}{' '}
       </h5>
