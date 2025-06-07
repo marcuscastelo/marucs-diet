@@ -112,7 +112,13 @@ async function processToastItem(toastItem: ToastItem) {
  * @param toastItem The toast item to register.
  */
 export function registerToast(toastItem: ToastItem): void {
-  // TODO: Implement toast deduplication logic
+  if (isDuplicateToast(toastItem)) {
+    debug(
+      `Duplicate toast detected: "${toastItem.message}", ID: ${toastItem.id}`,
+      toastItem,
+    )
+    return
+  }
   // TODO: Implement priority sorting if needed (avoid infinite loading toasts preventing others)
   debug(
     `Registering toast: "${toastItem.message}", ID: ${toastItem.id}\n\tDetails:`,
@@ -138,21 +144,26 @@ export function killToast(id: ToastItem['id']): void {
  * Check for duplicate messages to avoid spam
  */
 function isDuplicateToast(newToast: ToastItem): boolean {
-  // // Check current toast
-  // const current = currentToast()
-  // if (
-  //   current !== null &&
-  //   current.message === newToast.message &&
-  //   current.options.type === newToast.options.type
-  // ) {
-  //   return true
-  // }
-  // // Check queue
-  // return queue().some(
-  //   (existingToast) =>
-  //     existingToast.message === newToast.message &&
-  //     existingToast.options.type === newToast.options.type,
-  // )
+  // Check if a toast with the same message and type is currently visible (in history)
+  if (
+    history().some(
+      (toast) =>
+        toast.message === newToast.message &&
+        toast.options.type === newToast.options.type,
+    )
+  ) {
+    return true
+  }
+  // Check if a toast with the same message and type is already in the queue
+  if (
+    queue().some(
+      (toast) =>
+        toast.message === newToast.message &&
+        toast.options.type === newToast.options.type,
+    )
+  ) {
+    return true
+  }
   return false
 }
 
