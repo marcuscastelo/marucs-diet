@@ -182,17 +182,19 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
     setGroup(finalGroup)
   }
 
-  const [recipeSignal] = createResource(async () => {
-    const group_ = group()
-    if (!isRecipedItemGroup(group_)) {
-      return null
-    }
-    try {
-      return await fetchRecipeById(group_.recipe)
-    } catch {
-      return null
-    }
-  })
+  const [recipeSignal, { mutate: setRecipeSignal }] = createResource(
+    async () => {
+      const group_ = group()
+      if (!isRecipedItemGroup(group_)) {
+        return null
+      }
+      try {
+        return await fetchRecipeById(group_.recipe)
+      } catch {
+        return null
+      }
+    },
+  )
 
   createEffect(() => {
     const group_ = group()
@@ -306,7 +308,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
       <>
         <ExternalRecipeEditModal
           recipe={recipeSignal() ?? null}
-          setRecipe={() => {}}
+          setRecipe={setRecipeSignal}
           visible={recipeEditModalVisible}
           setVisible={setRecipeEditModalVisible}
           onRefetch={props.onRefetch}

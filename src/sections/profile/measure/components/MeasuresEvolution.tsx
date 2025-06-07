@@ -24,10 +24,6 @@ export function MeasuresEvolution() {
   const hipField = useFloatField()
   const neckField = useFloatField()
 
-  const handleRefetchMeasures = () => {
-    void refetch()
-  }
-
   return (
     <>
       <div class={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>
