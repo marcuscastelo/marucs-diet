@@ -12,24 +12,22 @@ import { Alert } from '~/sections/common/components/Alert'
 
 export default function DietPage() {
   const today = getTodayYYYYMMDD()
-  const locked = () => targetDay() !== today
+  const mode = () => (targetDay() === today ? 'edit' : 'read-only')
 
   return (
     <div class="mx-auto sm:w-3/4 md:w-4/5 lg:w-1/2 xl:w-1/3">
-      {/* Top bar with date picker and user icon */}
       <TopBar selectedDay={targetDay()} />
       <Show when={currentDayDiet()} fallback={<div>Loading...</div>}>
         {(currentDayDiet) => (
           <DayMacros dayDiet={currentDayDiet()} class="mb-4" />
         )}
       </Show>
-      {/* Display meals for the selected day */}
-      {locked() && (
+      {mode() !== 'edit' && (
         <Alert class="mt-2" color="yellow">
           Mostrando refeições do dia {targetDay()}!
         </Alert>
       )}
-      <DayMeals selectedDay={targetDay()} locked={locked()} />
+      <DayMeals selectedDay={targetDay()} mode={mode()} />
       <BottomNavigation />
     </div>
   )

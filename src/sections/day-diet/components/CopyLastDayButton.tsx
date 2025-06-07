@@ -72,6 +72,7 @@ export function CopyLastDayButton(props: {
                 <DayMeals
                   dayDiet={selectedDayDiet()}
                   selectedDay={selectedDayDiet()?.target_day ?? ''}
+                  mode="summary"
                 />
               </div>
             </Show>

@@ -51,13 +51,13 @@ const [newItemSelection, setNewItemSelection] =
  * If dayDiet is provided, uses it; otherwise, uses the currentDayDiet from application state.
  * @param props.dayDiet Optional DayDiet to display (overrides selectedDay)
  * @param props.selectedDay The day string (YYYY-MM-DD) to display
+ * @param props.mode Display mode: 'edit', 'read-only', or 'summary'.
  */
 export default function DayMeals(props: {
   dayDiet?: DayDiet
   selectedDay: string
-  locked?: boolean
+  mode?: 'edit' | 'read-only' | 'summary'
 }) {
-  // Signals para modais (devem ser mantidos)
   const [itemGroupEditModalVisible, setItemGroupEditModalVisible] =
     createSignal(false)
 
@@ -65,7 +65,7 @@ export default function DayMeals(props: {
     createSignal(false)
 
   const handleEditItemGroup = (meal: Meal, itemGroup: ItemGroup) => {
-    if (props.locked === true) {
+    if (props.mode !== 'edit') {
       showError('Dia bloqueado, não é possível editar')
       return
     }
@@ -74,7 +74,7 @@ export default function DayMeals(props: {
   }
 
   const handleUpdateMeal = async (day: DayDiet, meal: Meal) => {
-    if (props.locked === true) {
+    if (props.mode !== 'edit') {
       showError('Dia bloqueado, não é possível editar')
       return
     }
@@ -82,7 +82,7 @@ export default function DayMeals(props: {
   }
 
   const handleNewItemButton = (meal: Meal) => {
-    if (props.locked === true) {
+    if (props.mode !== 'edit') {
       showError('Dia bloqueado, não é possível editar')
       return
     }
