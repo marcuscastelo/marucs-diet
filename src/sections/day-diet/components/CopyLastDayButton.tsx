@@ -1,7 +1,7 @@
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { Modal } from '~/sections/common/components/Modal'
 import Datepicker from '~/sections/datepicker/components/Datepicker'
-import { createSignal, type Accessor } from 'solid-js'
+import { createSignal, type Accessor, Show } from 'solid-js'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import {
   getPreviousDayDiets,
@@ -9,63 +9,16 @@ import {
   updateDayDiet,
   dayDiets,
 } from '~/modules/diet/day-diet/application/dayDiet'
-import { calcCalories, calcDayMacros } from '~/legacy/utils/macroMath'
-import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
-import { stringToDate } from '~/shared/utils/date'
-import DayMacros from '~/sections/day-diet/components/DayMacros'
-import DayMeals from '~/sections/day-diet/components/DayMeals'
-import { For, Show } from 'solid-js'
 import {
   showError,
   showSuccess,
 } from '~/modules/toast/application/toastManager'
 
-function DayMacrosResumo(props: { dayDiet: DayDiet }) {
-  const macroTarget = getMacroTargetForDay(
-    stringToDate(props.dayDiet.target_day),
-  )
-  if (!macroTarget) return <div>Sem meta de macros</div>
-  const macros = calcDayMacros(props.dayDiet)
-  const targetCalories = calcCalories(macroTarget)
-  return (
-    <div class="mb-2">
-      <div class="font-bold mb-1">Macros</div>
-      <div>
-        Calorias: {Math.round(calcCalories(macros))} /{' '}
-        {Math.round(targetCalories)} kcal
-      </div>
-      <div>
-        Carboidrato: {Math.round(macros.carbs)} /{' '}
-        {Math.round(macroTarget.carbs)}g
-      </div>
-      <div>
-        Proteína: {Math.round(macros.protein)} /{' '}
-        {Math.round(macroTarget.protein)}g
-      </div>
-      <div>
-        Gordura: {Math.round(macros.fat)} / {Math.round(macroTarget.fat)}g
-      </div>
-    </div>
-  )
-}
-
-function DayMealsResumo(props: { dayDiet: DayDiet }) {
-  return (
-    <div>
-      <div class="font-bold mb-1">Refeições</div>
-      <For each={props.dayDiet.meals}>
-        {(meal) => (
-          <div class="mb-1">
-            <div class="font-semibold">{meal.name}</div>
-            <ul class="ml-4 list-disc">
-              <For each={meal.groups}>{(group) => <li>{group.name}</li>}</For>
-            </ul>
-          </div>
-        )}
-      </For>
-    </div>
-  )
-}
+import DayMacros from '~/sections/day-diet/components/DayMacros'
+import DayMeals from '~/sections/day-diet/components/DayMeals'
+import { stringToDate } from '~/shared/utils/date'
+import { calcCalories, calcDayMacros } from '~/legacy/utils/macroMath'
+import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 
 export function CopyLastDayButton(props: {
   dayDiet: Accessor<DayDiet | undefined>
@@ -118,8 +71,11 @@ export function CopyLastDayButton(props: {
             <Show when={selectedDayDiet()}>
               <div class="border-t pt-4 mt-2">
                 <h3 class="font-semibold mb-2">Resumo do dia selecionado</h3>
-                <DayMacrosResumo dayDiet={selectedDayDiet()!} />
-                <DayMealsResumo dayDiet={selectedDayDiet()!} />
+                <DayMacros dayDiet={selectedDayDiet()} />
+                <DayMeals
+                  dayDiet={selectedDayDiet()}
+                  selectedDay={selectedDayDiet()?.target_day ?? ''}
+                />
               </div>
             </Show>
             {/* Botão de confirmação/cópia */}

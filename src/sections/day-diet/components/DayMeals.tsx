@@ -52,7 +52,16 @@ const [editSelection, setEditSelection] = createSignal<EditSelection>(null)
 const [newItemSelection, setNewItemSelection] =
   createSignal<NewItemSelection>(null)
 
-export default function DayMeals(props: { selectedDay: string }) {
+/**
+ * Displays and manages the meals for a given day.
+ * If dayDiet is provided, uses it; otherwise, uses the currentDayDiet from application state.
+ * @param props.dayDiet Optional DayDiet to display (overrides selectedDay)
+ * @param props.selectedDay The day string (YYYY-MM-DD) to display
+ */
+export default function DayMeals(props: {
+  dayDiet?: DayDiet
+  selectedDay: string
+}) {
   const today = getTodayYYYYMMDD()
   const showingToday = () => today === props.selectedDay
 
@@ -69,7 +78,6 @@ export default function DayMeals(props: { selectedDay: string }) {
       showError('Dia bloqueado, não é possível editar')
       return
     }
-
     setEditSelection({ meal, itemGroup })
     setItemGroupEditModalVisible(true)
   }
@@ -79,20 +87,15 @@ export default function DayMeals(props: { selectedDay: string }) {
       showError('Dia bloqueado, não é possível editar')
       return
     }
-
     await updateMeal(day.id, meal.id, meal)
   }
 
   const handleNewItemButton = (meal: Meal) => {
-    console.log('New item button clicked')
     if (dayLocked()) {
       showError('Dia bloqueado, não é possível editar')
       return
     }
-
     setNewItemSelection({ meal })
-
-    console.debug('Setting selected meal to', meal)
     setTemplateSearchModalVisible(true)
   }
 
@@ -108,9 +111,12 @@ export default function DayMeals(props: { selectedDay: string }) {
     setNewItemSelection(null)
   }
 
+  // Use the provided dayDiet prop if present, otherwise fallback to currentDayDiet
+  const resolvedDayDiet = () => props.dayDiet ?? currentDayDiet()
+
   return (
     <Show
-      when={currentDayDiet()}
+      when={resolvedDayDiet()}
       fallback={<DayNotFound selectedDay={props.selectedDay} />}
       keyed
     >
@@ -135,7 +141,10 @@ export default function DayMeals(props: { selectedDay: string }) {
             visible={itemGroupEditModalVisible}
             setVisible={setItemGroupEditModalVisible}
           />
-          <DayMacros class="mt-3 border-b-2 border-gray-800 pb-4" />
+          <DayMacros
+            class="mt-3 border-b-2 border-gray-800 pb-4"
+            dayDiet={props.dayDiet}
+          />
           <Show when={!showingToday()}>
             {(_) => (
               <>
@@ -180,12 +189,12 @@ export default function DayMeals(props: { selectedDay: string }) {
                 header={
                   <MealEditViewHeader
                     onUpdateMeal={(meal) => {
-                      const currentDayDiet_ = currentDayDiet()
-                      if (currentDayDiet_ === null) {
-                        console.error('currentDayDiet is null!')
-                        throw new Error('currentDayDiet is null!')
+                      const current = resolvedDayDiet()
+                      if (current === null) {
+                        console.error('resolvedDayDiet is null!')
+                        throw new Error('resolvedDayDiet is null!')
                       }
-                      handleUpdateMeal(currentDayDiet_, meal).catch((e) => {
+                      handleUpdateMeal(current, meal).catch((e) => {
                         console.error(e)
                         showError(
                           `Erro ao atualizar refeição: ${formatError(e)}`,

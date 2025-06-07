@@ -6,29 +6,28 @@ import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/ma
 import { showError } from '~/modules/toast/application/toastManager'
 import { Progress } from '~/sections/common/components/Progress'
 import { stringToDate } from '~/shared/utils/date'
+import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 
-export default function DayMacros(props: { class?: string }) {
+export default function DayMacros(props: {
+  class?: string
+  dayDiet?: DayDiet
+}) {
   const macroSignals = () => {
-    const currentDayDiet_ = currentDayDiet()
-    if (currentDayDiet_ === null) {
+    const day = props.dayDiet ?? currentDayDiet()
+    if (!day) {
       showError(new Error('Dia atual não encontrado'), {
         audience: 'system',
       })
       return null
     }
-
-    const macroTarget_ = getMacroTargetForDay(
-      stringToDate(currentDayDiet_.target_day),
-    )
+    const macroTarget_ = getMacroTargetForDay(stringToDate(day.target_day))
     if (macroTarget_ === null) {
       showError(new Error('Meta de macros não encontrada'), {
         audience: 'system',
       })
       return null
     }
-
-    const dayMacros = calcDayMacros(currentDayDiet_)
-
+    const dayMacros = calcDayMacros(day)
     return {
       macroTarget: macroTarget_,
       macros: dayMacros,
