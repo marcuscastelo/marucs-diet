@@ -3,7 +3,11 @@ import { calcRecipeMacros } from '~/legacy/utils/macroMath'
 import { type Food } from '~/modules/diet/food/domain/food'
 import { createItem } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
-import { type Template } from '~/modules/diet/template/domain/template'
+import {
+  type Template,
+  isTemplateFood,
+  isTemplateRecipe,
+} from '~/modules/diet/template/domain/template'
 import { Alert } from '~/sections/common/components/Alert'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import {
@@ -43,13 +47,12 @@ export function TemplateSearchResults(props: {
                     ...createItem({
                       name: template.name,
                       quantity: 100,
-                      macros:
-                        template.__type === 'Food'
-                          ? (template as Food).macros
-                          : calcRecipeMacros(template as Recipe),
+                      macros: isTemplateFood(template)
+                        ? (template as Food).macros
+                        : calcRecipeMacros(template as Recipe),
                       reference: template.id,
                     }),
-                    __type: template.__type === 'Food' ? 'Item' : 'RecipeItem', // TODO:   Refactor conversion from template type to group/item types
+                    __type: isTemplateFood(template) ? 'Item' : 'RecipeItem', // TODO:   Refactor conversion from template type to group/item types
                   })}
                   class="mt-1"
                   macroOverflow={() => ({

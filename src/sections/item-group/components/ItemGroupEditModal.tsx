@@ -4,6 +4,8 @@ import {
   type ItemGroup,
   type RecipedItemGroup,
   getItemGroupQuantity,
+  isRecipedItemGroup,
+  isSimpleItemGroup,
   isSimpleSingleGroup,
   itemGroupSchema,
 } from '~/modules/diet/item-group/domain/itemGroup'
@@ -12,7 +14,10 @@ import {
   type Recipe,
   createNewRecipe,
 } from '~/modules/diet/recipe/domain/recipe'
-import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import {
+  type TemplateItem,
+  isTemplateItemRecipe,
+} from '~/modules/diet/template-item/domain/templateItem'
 import { RecipeIcon } from '~/sections/common/components/icons/RecipeIcon'
 import { Modal } from '~/sections/common/components/Modal'
 import { ExternalItemEditModal } from '~/sections/food-item/components/ExternalItemEditModal'
@@ -187,7 +192,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
 
   createEffect(() => {
     const group_ = group()
-    if (group_.type !== 'recipe') {
+    if (!isRecipedItemGroup(group_)) {
       setRecipeSignal({ loading: false, errored: false, data: null })
       return
     }
@@ -207,7 +212,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
 
   createEffect(() => {
     const group_ = group()
-    const groupHasRecipe = group_.type === 'recipe'
+    const groupHasRecipe = isRecipedItemGroup(group_)
     console.debug('Group changed:', group())
 
     if (groupHasRecipe) {
@@ -239,7 +244,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
     const group_ = group()
     // TODO:   Allow user to edit recipe.
     // TODO:   Allow user to edit recipe inside a group.
-    if (item.__type === 'RecipeItem') {
+    if (isTemplateItemRecipe(item)) {
       showError(
         'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
       )
@@ -459,7 +464,7 @@ function Body(props: {
   const { group, setGroup } = useItemGroupEditContext()
   const recipedGroup = createMemo(() => {
     const currentGroup = group()
-    return currentGroup.type === 'recipe' ? currentGroup : null
+    return isRecipedItemGroup(currentGroup) ? currentGroup : null
   })
 
   // Use output types for strict type-safety
@@ -542,7 +547,7 @@ function Body(props: {
                   )}
                 </Show>
 
-                <Show when={group().type === 'simple'}>
+                <Show when={isSimpleItemGroup(group())}>
                   {(_) => (
                     <>
                       <button
@@ -587,7 +592,7 @@ function Body(props: {
                 <Show
                   when={(() => {
                     const group_ = group()
-                    return group_.type === 'recipe' && group_
+                    return isRecipedItemGroup(group_) && group_
                   })()}
                 >
                   {(group) => (
@@ -655,7 +660,6 @@ function Body(props: {
                       </Show>
 
                       <Show when={props.recipe() === null}>
-                        {/* Direct JSX child, not a function */}
                         <>Receita não encontrada</>
                       </Show>
                     </>
@@ -671,15 +675,12 @@ function Body(props: {
             //   className="mt-4"
             onItemClick={(item) => {
               // TODO:   Allow user to edit recipe
-              if (item.__type === 'RecipeItem') {
+              if (isTemplateItemRecipe(item)) {
                 showError(
                   'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
                 )
                 return
               }
-              // if (group?.type === 'recipe') {
-              //   recipeEditModalRef.current?.showModal()
-              // } else {
 
               // TODO: Support editing complex recipes
               if (isRecipeTooComplex(props.recipe())) {

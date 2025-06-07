@@ -12,6 +12,8 @@ import {
   SimpleItemGroup,
   getItemGroupQuantity,
   isRecipedGroupUpToDate,
+  isRecipedItemGroup,
+  isSimpleItemGroup,
   isSimpleSingleGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
@@ -63,7 +65,7 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
   createEffect(() => {
     console.debug('[ItemGroupName] item changed, fetching API:', props.group)
     const group = props.group()
-    if (group.type === 'recipe') {
+    if (isRecipedItemGroup(group)) {
       recipeRepository
         .fetchRecipeById(group.recipe)
         .then((foundRecipe) => {
@@ -114,23 +116,22 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
       }
     }
 
-    switch (group_.type) {
-      case 'simple':
-        return handleSimple(group_ as SimpleItemGroup)
-      case 'recipe':
-        if (recipe_.data !== null) {
-          return handleRecipe(group_ as RecipedItemGroup, recipe_.data)
-        } else {
-          return 'text-red-400'
-        }
-      default:
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        handleValidationError(new Error(`Unknown ItemGroup: ${group_}`), {
-          component: 'ItemGroupView::ItemGroupName',
-          operation: 'nameColor',
-          additionalData: { group: group_ },
-        })
+    if (isSimpleItemGroup(group_)) {
+      return handleSimple(group_)
+    } else if (isRecipedItemGroup(group_)) {
+      if (recipe_.data !== null) {
+        return handleRecipe(group_, recipe_.data)
+      } else {
         return 'text-red-400'
+      }
+    } else {
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      handleValidationError(new Error(`Unknown ItemGroup: ${group_}`), {
+        component: 'ItemGroupView::ItemGroupName',
+        operation: 'nameColor',
+        additionalData: { group: group_ },
+      })
+      return 'text-red-400'
     }
   }
 

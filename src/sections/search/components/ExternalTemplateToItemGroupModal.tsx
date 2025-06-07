@@ -1,20 +1,24 @@
 import { type Accessor, type Setter } from 'solid-js'
-import { showError } from '~/modules/toast/application/toastManager'
-import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
-import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
+import { calcRecipeMacros } from '~/legacy/utils/macroMath'
 import {
   type ItemGroup,
   type RecipedItemGroup,
   type SimpleItemGroup,
-  createSimpleItemGroup,
   createRecipedItemGroup,
+  createSimpleItemGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
-import { type Template } from '~/modules/diet/template/domain/template'
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import {
+  type Template,
+  isTemplateFood,
+  isTemplateRecipe,
+} from '~/modules/diet/template/domain/template'
+import { showError } from '~/modules/toast/application/toastManager'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
-import { formatError } from '~/shared/formatError'
+import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
 import { handleApiError } from '~/shared/error/errorHandler'
-import { calcRecipeMacros } from '~/legacy/utils/macroMath'
+import { formatError } from '~/shared/formatError'
 
 export type ExternalTemplateToItemGroupModalProps = {
   visible: Accessor<boolean>
@@ -36,15 +40,14 @@ export function ExternalTemplateToItemGroupModal(
         targetName={props.targetName}
         item={() => {
           const template = props.selectedTemplate()
-          const macros =
-            template.__type === 'Food'
-              ? template.macros
-              : calcRecipeMacros(template)
+          const macros = isTemplateFood(template)
+            ? template.macros
+            : calcRecipeMacros(template)
           return {
             reference: template.id,
             name: template.name,
             macros,
-            __type: template.__type === 'Food' ? 'Item' : 'RecipeItem', // TODO:   Refactor conversion from template type to group/item types
+            __type: isTemplateFood(template) ? 'Item' : 'RecipeItem', // TODO:   Refactor conversion from template type to group/item types
           }
         }}
         macroOverflow={() => ({
