@@ -32,13 +32,15 @@ type ToastItemWithDismiss = ToastItem & {
   dismiss: () => void
 }
 
-const [history, setHistory] = createSignal<ToastItemWithDismiss[]>([])
-const addToHistory = (toastItem: ToastItemWithDismiss) =>
-  setHistory((prevHistory) => [...prevHistory, toastItem])
-const removeFromHistory = (id: ToastItemWithDismiss['id']) =>
-  setHistory((prevHistory) => prevHistory.filter((toast) => toast.id !== id))
-const findInHistory = (id: ToastItemWithDismiss['id']) =>
-  history().find((toast) => toast.id === id) ?? null
+const [visibleToasts, setVisibleToasts] = createSignal<ToastItemWithDismiss[]>(
+  [],
+)
+const addToVisibleToasts = (toastItem: ToastItemWithDismiss) =>
+  setVisibleToasts((prev) => [...prev, toastItem])
+const removeFromVisibleToasts = (id: ToastItemWithDismiss['id']) =>
+  setVisibleToasts((prev) => prev.filter((toast) => toast.id !== id))
+const findInVisibleToasts = (id: ToastItemWithDismiss['id']) =>
+  visibleToasts().find((toast) => toast.id === id) ?? null
 
 const debug = createDebug('ToastQueue')
 
@@ -54,8 +56,8 @@ createEffect(() => {
 })
 
 createEffect(() => {
-  const currentHistory = history()
-  debug(`Current history length: ${currentHistory.length}`)
+  const currentVisibleToasts = visibleToasts()
+  debug(`Current visibleToasts length: ${currentVisibleToasts.length}`)
 })
 
 // Auto-process queue when needed (immediate processing for new toasts)
@@ -89,7 +91,7 @@ async function processToastItem(toastItem: ToastItem) {
 
     debug(`Dismiss toast: "${toastItem.message}", ID: ${toastItem.id}`)
     dismissSolidToast(solidToastId)
-    removeFromHistory(toastItem.id)
+    removeFromVisibleToasts(toastItem.id)
     resumeProcess()
   }
 
@@ -101,7 +103,7 @@ async function processToastItem(toastItem: ToastItem) {
     }, toastItem.options.duration)
   }
 
-  addToHistory({
+  addToVisibleToasts({
     ...toastItem,
     dismiss,
   })
@@ -134,9 +136,9 @@ export function registerToast(toastItem: ToastItem): void {
 export function killToast(id: ToastItem['id']): void {
   debug('Killing toast:', id)
   dequeue(id)
-  const toastInHistory = findInHistory(id) // Check if it's in history
-  if (toastInHistory) {
-    toastInHistory.dismiss()
+  const toastInVisibleToasts = findInVisibleToasts(id) // Check if it's visible
+  if (toastInVisibleToasts) {
+    toastInVisibleToasts.dismiss()
   }
 }
 
@@ -144,9 +146,9 @@ export function killToast(id: ToastItem['id']): void {
  * Check for duplicate messages to avoid spam
  */
 function isDuplicateToast(newToast: ToastItem): boolean {
-  // Check if a toast with the same message and type is currently visible (in history)
+  // Check if a toast with the same message and type is currently visible
   if (
-    history().some(
+    visibleToasts().some(
       (toast) =>
         toast.message === newToast.message &&
         toast.options.type === newToast.options.type,
