@@ -12,7 +12,7 @@ import { Show, createEffect, createSignal, type Accessor } from 'solid-js'
 import { showError } from '~/modules/toast/application/toastManager'
 
 export function CopyLastDayButton(props: {
-  dayDiet: Accessor<DayDiet | undefined> // TODO:   Rename all 'day' to 'dayDiet' on entire project.
+  dayDiet: Accessor<DayDiet | undefined>
   selectedDay: string
 }) {
   const { show: showConfirmModal } = useConfirmModalContext()
