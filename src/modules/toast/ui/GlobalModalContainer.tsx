@@ -8,8 +8,8 @@
 
 import { For } from 'solid-js'
 import {
-  getOpenModals,
   closeErrorModal,
+  getOpenModals,
 } from '~/modules/toast/application/modalState'
 import { ErrorDetailModal } from '~/sections/common/components/ErrorDetailModal'
 
