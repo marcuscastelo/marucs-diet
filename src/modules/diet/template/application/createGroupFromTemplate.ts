@@ -3,12 +3,14 @@ import {
   createSimpleItemGroup,
   type ItemGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
-import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import {
   isTemplateItemFood,
   type TemplateItem,
 } from '~/modules/diet/template-item/domain/templateItem'
-import { type Template } from '~/modules/diet/template/domain/template'
+import {
+  isTemplateRecipe,
+  type Template,
+} from '~/modules/diet/template/domain/template'
 
 /**
  * Creates an ItemGroup from a Template and TemplateItem, returning group, operation and templateType.
@@ -30,13 +32,18 @@ export function createGroupFromTemplate(
       templateType: 'Item',
     }
   }
-  return {
-    newGroup: createRecipedItemGroup({
-      name: item.name,
-      recipe: (template as Recipe).id,
-      items: [...(template as Recipe).items],
-    }),
-    operation: 'addRecipeItem',
-    templateType: 'Recipe',
+
+  if (isTemplateRecipe(template)) {
+    return {
+      newGroup: createRecipedItemGroup({
+        name: item.name,
+        recipe: template.id,
+        items: [...template.items],
+      }),
+      operation: 'addRecipeItem',
+      templateType: 'Recipe',
+    }
   }
+
+  throw new Error('Template is not a Recipe')
 }
