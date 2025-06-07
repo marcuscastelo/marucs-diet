@@ -1,7 +1,8 @@
-import { Show } from 'solid-js'
+import { Show, createSignal, createEffect } from 'solid-js'
 import {
   currentDayDiet,
   targetDay,
+  setTargetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
 import { BottomNavigation } from '~/sections/common/components/BottomNavigation'
 import DayMacros from '~/sections/day-diet/components/DayMacros'
@@ -12,7 +13,15 @@ import { Alert } from '~/sections/common/components/Alert'
 
 export default function DietPage() {
   const today = getTodayYYYYMMDD()
-  const mode = () => (targetDay() === today ? 'edit' : 'read-only')
+  const [mode, setMode] = createSignal<'edit' | 'read-only' | 'summary'>('edit')
+
+  function handleRequestEditMode() {
+    setMode('edit')
+  }
+
+  createEffect(() => {
+    setMode(targetDay() === today ? 'edit' : 'read-only')
+  })
 
   return (
     <div class="mx-auto sm:w-3/4 md:w-4/5 lg:w-1/2 xl:w-1/3">
@@ -27,7 +36,11 @@ export default function DietPage() {
           Mostrando refeições do dia {targetDay()}!
         </Alert>
       )}
-      <DayMeals selectedDay={targetDay()} mode={mode()} />
+      <DayMeals
+        selectedDay={targetDay()}
+        mode={mode()}
+        onRequestEditMode={handleRequestEditMode}
+      />
       <BottomNavigation />
     </div>
   )
