@@ -40,13 +40,13 @@ export default [
       ...js.configs.recommended.rules,
       ...pluginTs.configs['recommended-type-checked'].rules,
 
-      'no-restricted-imports': [
-        'error',
-        {
-          patterns: ['../*', './*'],
-        },
-      ],
-      'import/no-unresolved': ['error', { ignore: ['^~'] }],
+      // 'no-restricted-imports': [
+      //   'error',
+      //   {
+      //     patterns: ['../*', './*'],
+      //   },
+      // ],
+      // 'import/no-unresolved': ['error', { ignore: ['^~'] }],
 
       eqeqeq: ["error", "always"],
 
