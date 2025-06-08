@@ -9,7 +9,7 @@
     "start": "vinxi start",
     "type-check": "tsc --noEmit --skipLibCheck",
     "test": "vitest run",
-    "lint": "eslint . --quiet",
+    "lint": "eslint . --quiet --fix",
     "check": "npm run lint 2>&1 && npm run type-check 2>&1 && npm run test 2>&1 && echo 'All checks passed' || exit 1"
   },
   "dependencies": {
