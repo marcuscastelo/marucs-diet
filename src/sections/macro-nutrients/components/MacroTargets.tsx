@@ -170,7 +170,7 @@ export function MacroTarget(props: MacroTargetProps) {
           value={targetCalories()}
           type="search"
           id="default-search"
-          class="input-bordered input text-center font-bold"
+          class="input text-center font-bold"
           style={{ width: '100%' }}
           placeholder="Insira a meta de calorias diárias"
           disabled={true} // TODO:   Enable changing target calories directly (and update macros accordingly).
@@ -418,7 +418,7 @@ function MacroField(props: {
           }}
           type="number"
           // className={`block text-center w-full p-2 pl-10 text-md bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 ${className || ''}`}
-          class="input-bordered input text-center font-bold"
+          class="input text-center font-bold"
           style={{ width: '100%' }}
           disabled={props.disabled}
           placeholder=""
