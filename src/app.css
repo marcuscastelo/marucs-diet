@@ -45,3 +45,12 @@
   scale: 1;
   transition: all 0.2s ease;
 }
+
+/* Datepicker patch */
+/* https://github.com/onesine/react-tailwindcss-datepicker/issues/308 */
+@layer utilities {
+
+.opacity-1 {
+     opacity: 100%;
+ }
+}
