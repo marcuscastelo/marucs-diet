@@ -9,11 +9,13 @@ import pluginSolid from 'eslint-plugin-solid'
 import globals from 'globals'
 import eslintPluginImport from 'eslint-plugin-import'
 import love from 'eslint-config-love'
+
 /** @type {import('eslint').Linter.Config} */
 export default [
   {
     ...love,
     files: ['**/*.ts', '**/*.tsx'],
+
     languageOptions: {
       parser: parserTs,
       parserOptions: {
@@ -42,13 +44,15 @@ export default [
       ...js.configs.recommended.rules,
       ...pluginTs.configs['recommended-type-checked'].rules,
 
-      // 'no-restricted-imports': [
-      //   'error',
-      //   {
-      //     patterns: ['../*', './*'],
-      //   },
-      // ],
-      // 'import/no-unresolved': ['error', { ignore: ['^~'] }],
+      'simpleImportSort/imports': 'error',
+
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: ['../*', './*'],
+        },
+      ],
+      'import/no-unresolved': ['error' ],
 
       eqeqeq: ["error", "always"],
 
@@ -109,6 +113,12 @@ export default [
       'import/parsers': {
         [parserTs]: ['.ts', '.tsx', '.d.ts'],
       },
+      'import/resolver': {
+        typescript: {
+          alwaysTryTypes: true,
+          project: ['./tsconfig.json'],
+        },
+      },
     },
   },
   {
@@ -129,7 +139,7 @@ export default [
       'coverage',
       'public',
       'out',
-      '.output', 
+      '.output',
     ],
   },
 ]
