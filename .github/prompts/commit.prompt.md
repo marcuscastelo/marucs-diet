@@ -17,3 +17,11 @@ Then, analyze the changes and generate a short, clear, conventional commit messa
 
 Output:
 - A single commit message in English, following the conventional commits style, summarizing the main change.
+
+Then, automatically execute shell command for the user to commit the changes with the generated message:
+
+```
+git commit -am "<generated commit message>"
+```
+
+Replace <generated commit message> with the actual message you generated. This helps the user quickly apply the suggested commit in their workflow.
