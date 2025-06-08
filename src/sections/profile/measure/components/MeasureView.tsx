@@ -162,7 +162,7 @@ function MeasureFields(props: {
         <span class="my-auto">Altura:</span>
         <FloatInput
           field={props.heightField}
-          class="input text-center btn-ghost px-0 shrink"
+          class="input bg-transparent text-center btn-ghost px-0 shrink"
           style={{ width: '100%' }}
           onFocus={(event) => {
             event.target.select()
@@ -183,7 +183,7 @@ function MeasureFields(props: {
         <span class="my-auto">Cintura:</span>
         <FloatInput
           field={props.waistField}
-          class="input text-center btn-ghost px-0 shrink"
+          class="input bg-transparent text-center btn-ghost px-0 shrink"
           style={{ width: '100%' }}
           onFocus={(event) => {
             event.target.select()
@@ -204,7 +204,7 @@ function MeasureFields(props: {
         <span class="my-auto">Quadril:</span>
         <FloatInput
           field={props.hipField}
-          class="input text-center btn-ghost px-0 shrink"
+          class="input bg-transparent text-center btn-ghost px-0 shrink"
           style={{ width: '100%' }}
           onFocus={(event) => {
             event.target.select()
@@ -225,7 +225,7 @@ function MeasureFields(props: {
         <span class="my-auto">Pescoço:</span>
         <FloatInput
           field={props.neckField}
-          class="input text-center btn-ghost px-0 shrink"
+          class="input bg-transparent text-center btn-ghost px-0 shrink"
           style={{ width: '100%' }}
           onFocus={(event) => {
             event.target.select()

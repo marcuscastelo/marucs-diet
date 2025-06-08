@@ -14,3 +14,7 @@ All code generation instructions have been split into focused instruction files 
 - [Promises, Formatting, Imports, Testing](./instructions/promises-formatting-testing.instructions.md)
 
 These are automatically applied according to their `applyTo` context.
+
+For suggested commits:
+
+- [Commit Guidelines](./prompts/commit-guidelines.md)

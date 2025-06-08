@@ -117,7 +117,7 @@ function RightContent<T extends keyof Omit<User, '__type'>>(props: {
       <Show when={innerData()}>
         {(innerData) => (
           <input
-            class={'btn-ghost input px-0 pl-5 text-xl'}
+            class={'btn-ghost input bg-transparent px-0 pl-5 text-xl'}
             value={innerData()[props.field].toString()}
             onChange={makeOnChange(props.field, convertString)}
             onBlur={makeOnBlur(props.field, props.convert)}
