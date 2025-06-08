@@ -210,10 +210,10 @@ const Days = (props: Props) => {
           !activeDateData(day).active
             ? hoverClassByDay(day)
             : activeDateData(day).className,
-          isDateDisabled(day, type) && 'line-through'
+          isDateDisabled(day, type) && 'line-through text-gray-300 font-light text-xs'
         )
       }
-      return cn(baseClass, isDateDisabled(day, type) && 'line-through', 'text-gray-400')
+      return cn(baseClass, isDateDisabled(day, type) && 'text-gray-300 font-light text', 'text-gray-600')
     }
 
   const checkIfHoverPeriodContainsDisabledPeriod =
