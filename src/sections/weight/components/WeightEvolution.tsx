@@ -57,7 +57,7 @@ export function WeightEvolution() {
           />
           <FloatInput
             field={weightField}
-            class="input bg-transparent px-0 pl-5 text-xl mb-3"
+            class="input bg-transparent text-center px-0 pl-5 text-xl mb-3"
             onFocus={(event) => {
               event.target.select()
             }}
@@ -174,23 +174,27 @@ function WeightView(props: { weight: Weight }) {
         </CapsuleContent>
       }
       rightContent={
-        <div class={'ml-2 p-2 text-xl flex justify-between'}>
-          <div class="flex justify-between sm:gap-10 px-2">
-            <FloatInput
-              field={weightField}
-              class="input bg-transparent text-center btn-ghost px-0 shrink"
-              style={{ width: '100%' }}
-              onFocus={(event) => {
-                event.target.select()
-              }}
-              onFieldCommit={(value) => {
-                handleSave({
-                  dateValue: dateField.value(),
-                  weightValue: value,
-                })
-              }}
-            />
-            <span class="my-auto flex-1 hidden sm:block">kg</span>
+        <div class={'ml-2 p-2 text-xl flex items-center justify-center w-full'}>
+          <div class={'flex items-center justify-center sm:gap-10 px-2 w-full'}>
+            <div class="relative w-full flex items-center">
+              <FloatInput
+                field={weightField}
+                class="input bg-transparent text-center btn-ghost px-0 shrink pr-8 text-xl font-inherit"
+                style={{ width: '100%' }}
+                onFocus={(event) => {
+                  event.target.select()
+                }}
+                onFieldCommit={(value) => {
+                  handleSave({
+                    dateValue: dateField.value(),
+                    weightValue: value,
+                  })
+                }}
+              />
+              <span class="absolute right-2 pointer-events-none select-none text-xl font-inherit text-inherit">
+                kg
+              </span>
+            </div>
           </div>
           <button
             class="btn cursor-pointer uppercase btn-ghost my-auto focus:ring-2 focus:ring-blue-400 border-none text-white bg-slate-700 hover:bg-slate-800"

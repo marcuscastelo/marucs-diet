@@ -124,7 +124,7 @@ export function MeasureView(props: {
       }
       rightContent={
         <CapsuleContent>
-          <div class="flex justify-between sm:gap-10 px-2">
+          <div class="flex items-center justify-center sm:gap-10 px-2 w-full">
             <MeasureFields
               heightField={heightField}
               waistField={waistField}
