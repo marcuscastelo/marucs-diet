@@ -7,6 +7,7 @@
  */
 
 import { createEffect, createSignal } from 'solid-js'
+
 import {
   TOAST_DURATION_INFINITY,
   ToastItem,

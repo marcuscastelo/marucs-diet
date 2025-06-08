@@ -2,7 +2,8 @@
  * @fileoverview Core useField hook for managing form field state and transformations
  */
 
-import { createEffect, createSignal, type Accessor } from 'solid-js'
+import { type Accessor, createEffect, createSignal } from 'solid-js'
+
 import type { FieldTransform } from '~/sections/common/hooks/transforms/fieldTransforms'
 import {
   createDateTransform,

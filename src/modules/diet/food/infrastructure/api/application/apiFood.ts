@@ -1,14 +1,15 @@
+import axios from 'axios'
+
 import {
+  createNewFood,
   type Food,
   type NewFood,
-  createNewFood,
 } from '~/modules/diet/food/domain/food'
-import { markSearchAsCached } from '~/modules/search/application/searchCache'
 import { type ApiFood } from '~/modules/diet/food/infrastructure/api/domain/apiFoodModel'
 import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { markSearchAsCached } from '~/modules/search/application/searchCache'
 import { showError } from '~/modules/toast/application/toastManager'
-import axios from 'axios'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 // TODO:   Depency injection for repositories on all application files
 const foodRepository = createSupabaseFoodRepository()

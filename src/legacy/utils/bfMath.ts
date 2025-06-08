@@ -1,7 +1,8 @@
+import { z } from 'zod'
+
 import { type Measure } from '~/modules/measure/domain/measure'
 import { type User } from '~/modules/user/domain/user'
 import { type Weight } from '~/modules/weight/domain/weight'
-import { z } from 'zod'
 
 // TODO: Migrate utils folder to the new architecture
 export type BodyFatInput<T extends User['gender']> = {

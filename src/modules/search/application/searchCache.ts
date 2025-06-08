@@ -1,10 +1,10 @@
 // Application layer for search cache operations, migrated from legacy controller
 // All error handling is done here, domain remains pure
+import supabase from '~/legacy/utils/supabase'
 import {
   type CachedSearch,
   cachedSearchSchema,
 } from '~/modules/search/application/cachedSearch'
-import supabase from '~/legacy/utils/supabase'
 import { handleApiError } from '~/shared/error/errorHandler'
 
 const TABLE = 'cached_searches'

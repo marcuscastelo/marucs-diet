@@ -1,11 +1,26 @@
+import {
+  type Accessor,
+  createEffect,
+  createSignal,
+  type JSXElement,
+} from 'solid-js'
+
 import { calcItemCalories, calcItemMacros } from '~/legacy/utils/macroMath'
+import { createMacroOverflowChecker } from '~/legacy/utils/macroOverflow'
+import {
+  currentDayDiet,
+  targetDay,
+} from '~/modules/diet/day-diet/application/dayDiet'
+import { fetchFoodById } from '~/modules/diet/food/application/food'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
+import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
+import { type Template } from '~/modules/diet/template/domain/template'
 import {
   isTemplateItemFood,
   isTemplateItemRecipe,
   type TemplateItem,
 } from '~/modules/diet/template-item/domain/templateItem'
-import { type Template } from '~/modules/diet/template/domain/template'
 import {
   isFoodFavorite,
   setFoodAsFavorite,
@@ -16,21 +31,6 @@ import {
   useItemContext,
 } from '~/sections/food-item/context/ItemContext'
 import MacroNutrientsView from '~/sections/macro-nutrients/components/MacroNutrientsView'
-
-import {
-  type Accessor,
-  createEffect,
-  createSignal,
-  type JSXElement,
-} from 'solid-js'
-import { createMacroOverflowChecker } from '~/legacy/utils/macroOverflow'
-import {
-  currentDayDiet,
-  targetDay,
-} from '~/modules/diet/day-diet/application/dayDiet'
-import { fetchFoodById } from '~/modules/diet/food/application/food'
-import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
-import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 import {
   handleApiError,
   handleValidationError,

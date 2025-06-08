@@ -7,6 +7,7 @@
 
 import { createSignal, Show } from 'solid-js'
 import { Portal } from 'solid-js/web'
+
 import { ToastError } from '~/modules/toast/domain/toastTypes'
 import { handleCopyErrorToClipboard } from '~/modules/toast/infrastructure/clipboardErrorUtils'
 

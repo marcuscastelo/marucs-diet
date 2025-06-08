@@ -1,11 +1,12 @@
-import { LoadingRing } from '~/sections/common/components/LoadingRing'
 import {
   Html5Qrcode,
   type Html5QrcodeFullConfig,
   type Html5QrcodeResult,
   Html5QrcodeSupportedFormats,
 } from 'html5-qrcode'
-import { Show, createEffect, createSignal, onCleanup } from 'solid-js'
+import { createEffect, createSignal, onCleanup, Show } from 'solid-js'
+
+import { LoadingRing } from '~/sections/common/components/LoadingRing'
 import { handleScannerError } from '~/shared/error/errorHandler'
 
 export function BarCodeReader(props: {

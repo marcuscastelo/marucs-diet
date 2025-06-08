@@ -1,6 +1,8 @@
 import { createEffect, type JSXElement, Show } from 'solid-js'
+
 import { regenerateId } from '~/legacy/utils/idUtils'
 import { calcMealCalories } from '~/legacy/utils/macroMath'
+import { itemSchema } from '~/modules/diet/item/domain/item'
 import {
   convertToGroups,
   type GroupConvertible,
@@ -9,7 +11,6 @@ import {
   type ItemGroup,
   itemGroupSchema,
 } from '~/modules/diet/item-group/domain/itemGroup'
-import { itemSchema } from '~/modules/diet/item/domain/item'
 import { type Meal, mealSchema } from '~/modules/diet/meal/domain/meal'
 import {
   addGroupsToMeal,

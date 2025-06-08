@@ -1,14 +1,3 @@
-import { type Food } from '~/modules/diet/food/domain/food'
-import { createItem } from '~/modules/diet/item/domain/item'
-import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
-import {
-  ItemFavorite,
-  ItemName,
-  ItemNutritionalInfo,
-  ItemView,
-} from '~/sections/food-item/components/ItemView'
-import { handleApiError } from '~/shared/error/errorHandler'
-
 import {
   type Accessor,
   createEffect,
@@ -16,8 +5,19 @@ import {
   type Setter,
   Show,
 } from 'solid-js'
+
 import { fetchFoodByEan } from '~/modules/diet/food/application/food'
+import { type Food } from '~/modules/diet/food/domain/food'
+import { createItem } from '~/modules/diet/item/domain/item'
+import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import {
+  ItemFavorite,
+  ItemName,
+  ItemNutritionalInfo,
+  ItemView,
+} from '~/sections/food-item/components/ItemView'
+import { handleApiError } from '~/shared/error/errorHandler'
 import { formatError } from '~/shared/formatError'
 
 export type BarCodeSearchProps = {

@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
+
 import { getPreviousDayDiets } from '~/modules/diet/day-diet/application/dayDiet'
 import type { DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 

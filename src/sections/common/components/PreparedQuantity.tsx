@@ -1,7 +1,8 @@
-import { useFloatField } from '~/sections/common/hooks/useField'
-import { FloatInput } from '~/sections/common/components/FloatInput'
-import { cn } from '~/shared/cn'
 import { type Accessor, createMemo } from 'solid-js'
+
+import { FloatInput } from '~/sections/common/components/FloatInput'
+import { useFloatField } from '~/sections/common/hooks/useField'
+import { cn } from '~/shared/cn'
 
 export type PreparedQuantityProps = {
   /**

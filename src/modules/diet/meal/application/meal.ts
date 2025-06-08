@@ -4,8 +4,8 @@ import {
 } from '~/modules/diet/day-diet/application/dayDiet'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import {
-  updateMealInDayDiet,
   convertToNewDayDiet,
+  updateMealInDayDiet,
 } from '~/modules/diet/day-diet/domain/dayDietOperations'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { handleApiError } from '~/shared/error/errorHandler'

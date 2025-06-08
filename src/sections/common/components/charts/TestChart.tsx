@@ -1,5 +1,6 @@
 import { SolidApexCharts } from 'solid-apexcharts'
 import { createSignal } from 'solid-js'
+
 import ptBrLocale from '~/assets/locales/apex/pt-br.json'
 
 export function TestChart() {

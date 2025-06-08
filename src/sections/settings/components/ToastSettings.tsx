@@ -4,10 +4,11 @@
  * A component for managing toast notification preferences.
  */
 import { createSignal, onMount } from 'solid-js'
+
 import {
   getToastSettings,
-  updateToastSettings,
   resetToastSettings,
+  updateToastSettings,
 } from '~/modules/toast/infrastructure/toastSettings'
 
 export function ToastSettings() {

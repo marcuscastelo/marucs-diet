@@ -1,19 +1,20 @@
 import {
   type Accessor,
-  type JSXElement,
   createEffect,
   createResource,
+  type JSXElement,
 } from 'solid-js'
+
 import { calcGroupCalories, calcGroupMacros } from '~/legacy/utils/macroMath'
 import {
-  type ItemGroup,
-  RecipedItemGroup,
-  SimpleItemGroup,
   getItemGroupQuantity,
   isRecipedGroupUpToDate,
   isRecipedItemGroup,
   isSimpleItemGroup,
   isSimpleSingleGroup,
+  type ItemGroup,
+  RecipedItemGroup,
+  SimpleItemGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'

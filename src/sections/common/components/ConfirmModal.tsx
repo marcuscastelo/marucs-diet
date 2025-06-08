@@ -1,7 +1,8 @@
-import { Modal } from '~/sections/common/components/Modal'
-import { ModalContextProvider } from '~/sections/common/context/ModalContext'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { For } from 'solid-js'
+
+import { Modal } from '~/sections/common/components/Modal'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 
 export function ConfirmModal() {
   const {

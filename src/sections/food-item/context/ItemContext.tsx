@@ -1,9 +1,10 @@
 import {
   type Accessor,
-  type JSXElement,
   createContext,
+  type JSXElement,
   useContext,
 } from 'solid-js'
+
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 
 // TODO:   Rename to TemplateItemContext

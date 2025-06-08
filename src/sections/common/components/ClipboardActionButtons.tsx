@@ -1,4 +1,5 @@
 import { JSXElement } from 'solid-js'
+
 import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
 import { PasteIcon } from '~/sections/common/components/icons/PasteIcon'
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'

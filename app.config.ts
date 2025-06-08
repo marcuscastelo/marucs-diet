@@ -1,7 +1,7 @@
 import { defineConfig } from '@solidjs/start/config'
 import tailwindcss from '@tailwindcss/vite'
 import { execSync } from 'child_process'
-import { resolve, dirname } from 'path'
+import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 
 export default defineConfig({

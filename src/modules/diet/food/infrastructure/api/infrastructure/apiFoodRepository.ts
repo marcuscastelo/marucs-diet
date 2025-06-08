@@ -1,3 +1,6 @@
+import axios from 'axios'
+import rateLimit from 'axios-rate-limit'
+
 import {
   EXTERNAL_API_AUTHORIZATION,
   EXTERNAL_API_BASE_URL,
@@ -8,13 +11,11 @@ import {
   EXTERNAL_API_REFERER,
 } from '~/modules/diet/api/constants/apiSecrets'
 import {
-  apiFoodSchema,
   type ApiFood,
+  apiFoodSchema,
 } from '~/modules/diet/food/infrastructure/api/domain/apiFoodModel'
 import { type ApiFoodRepository } from '~/modules/diet/food/infrastructure/api/domain/apiFoodRepository'
 import { handleApiError } from '~/shared/error/errorHandler'
-import rateLimit from 'axios-rate-limit'
-import axios from 'axios'
 
 const API = rateLimit(axios.create(), {
   maxRequests: 2,

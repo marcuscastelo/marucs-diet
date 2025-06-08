@@ -1,9 +1,10 @@
+import { type Accessor } from 'solid-js'
+
 import {
   type DayDiet,
   type NewDayDiet,
 } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type User } from '~/modules/user/domain/user'
-import { type Accessor } from 'solid-js'
 
 export type DayRepository = {
   // fetchAllUserDayIndexes: (

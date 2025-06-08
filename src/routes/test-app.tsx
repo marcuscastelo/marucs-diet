@@ -1,14 +1,15 @@
 import { createEffect, createSignal, untrack } from 'solid-js'
+
 import {
   setTargetDay,
   targetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
-import {
-  type ItemGroup,
-  createSimpleItemGroup,
-} from '~/modules/diet/item-group/domain/itemGroup'
 import { type Item } from '~/modules/diet/item/domain/item'
+import {
+  createSimpleItemGroup,
+  type ItemGroup,
+} from '~/modules/diet/item-group/domain/itemGroup'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { showSuccess } from '~/modules/toast/application/toastManager'
 import { TestChart } from '~/sections/common/components/charts/TestChart'

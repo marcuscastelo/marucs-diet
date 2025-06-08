@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+
 import { createItem } from '~/modules/diet/item/domain/item'
+import { createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { createMeal } from '~/modules/diet/meal/domain/meal'
 import {
-  addGroupToMeal,
   addGroupsToMeal,
+  addGroupToMeal,
   clearMealGroups,
   findGroupInMeal,
   removeGroupFromMeal,

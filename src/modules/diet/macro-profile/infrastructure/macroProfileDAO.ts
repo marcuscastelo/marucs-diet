@@ -1,8 +1,9 @@
 import { z } from 'zod'
+
 import {
   type MacroProfile,
-  type NewMacroProfile,
   macroProfileSchema,
+  type NewMacroProfile,
 } from '~/modules/diet/macro-profile/domain/macroProfile'
 
 // DAO schemas for database operations

@@ -1,10 +1,11 @@
 import { Show } from 'solid-js'
-import { showPromise } from '~/modules/toast/application/toastManager'
+
 import { deleteRecentFoodByFoodId } from '~/modules/recent-food/application/recentFood'
-import { handleApiError } from '~/shared/error/errorHandler'
-import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import { templateSearchTab } from '~/modules/search/application/search'
+import { showPromise } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
+import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 type RemoveFromRecentButtonProps = {
   templateId: number

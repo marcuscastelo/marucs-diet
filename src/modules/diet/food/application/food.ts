@@ -1,4 +1,3 @@
-import { isSearchCached } from '~/modules/search/application/searchCache'
 import { type Food } from '~/modules/diet/food/domain/food'
 import { type FoodSearchParams } from '~/modules/diet/food/domain/foodRepository'
 import {
@@ -6,6 +5,7 @@ import {
   importFoodsFromApiByName,
 } from '~/modules/diet/food/infrastructure/api/application/apiFood'
 import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
+import { isSearchCached } from '~/modules/search/application/searchCache'
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { formatError } from '~/shared/formatError'

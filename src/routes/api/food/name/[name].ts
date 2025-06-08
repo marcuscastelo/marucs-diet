@@ -1,6 +1,7 @@
 import { json } from '@solidjs/router'
 import { type APIEvent } from '@solidjs/start/server'
 import { type AxiosError } from 'axios'
+
 import { createApiFoodRepository } from '~/modules/diet/food/infrastructure/api/infrastructure/apiFoodRepository'
 import { handleApiError } from '~/shared/error/errorHandler'
 

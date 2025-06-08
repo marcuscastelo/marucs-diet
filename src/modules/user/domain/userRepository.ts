@@ -1,4 +1,4 @@
-import { type User, type NewUser } from '~/modules/user/domain/user'
+import { type NewUser, type User } from '~/modules/user/domain/user'
 
 export type UserRepository = {
   fetchUsers: () => Promise<readonly User[]>

@@ -1,14 +1,15 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
 import {
   getToastSettings,
-  updateToastSettings,
   resetToastSettings,
-  setShowBackgroundSuccess,
-  setShowBackgroundLoading,
   setAutoDismissErrors,
   setDefaultDuration,
   setGroupSimilarToasts,
+  setShowBackgroundLoading,
+  setShowBackgroundSuccess,
   setShowDetailedErrors,
+  updateToastSettings,
 } from '~/modules/toast/infrastructure/toastSettings'
 
 const DEFAULTS = {

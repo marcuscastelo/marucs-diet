@@ -1,10 +1,11 @@
+import { z } from 'zod'
+
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import {
+  type NewRecipe,
   type Recipe,
   recipeSchema,
-  type NewRecipe,
 } from '~/modules/diet/recipe/domain/recipe'
-import { z } from 'zod'
 
 // Base schema (with ID)
 export const recipeDAOSchema = z.object({

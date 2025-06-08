@@ -1,5 +1,6 @@
-import { cn } from '~/shared/cn'
 import { type JSXElement, mergeProps } from 'solid-js'
+
+import { cn } from '~/shared/cn'
 
 // https://flowbite.com/docs/components/alerts/
 export function Alert(props_: {

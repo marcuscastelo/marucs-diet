@@ -1,5 +1,16 @@
+import {
+  type Accessor,
+  createEffect,
+  createSignal,
+  For,
+  mergeProps,
+  type Setter,
+  untrack,
+} from 'solid-js'
+
 import { type Item } from '~/modules/diet/item/domain/item'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import { showError } from '~/modules/toast/application/toastManager'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import { Modal } from '~/sections/common/components/Modal'
@@ -12,17 +23,6 @@ import {
   ItemNutritionalInfo,
   ItemView,
 } from '~/sections/food-item/components/ItemView'
-
-import {
-  createEffect,
-  createSignal,
-  For,
-  mergeProps,
-  untrack,
-  type Accessor,
-  type Setter,
-} from 'solid-js'
-import { showError } from '~/modules/toast/application/toastManager'
 
 /**
  * Modal for editing a TemplateItem.

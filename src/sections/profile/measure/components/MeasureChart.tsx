@@ -1,6 +1,7 @@
 import { type ApexOptions } from 'apexcharts'
 import { SolidApexCharts } from 'solid-apexcharts'
 import { createMemo, Show } from 'solid-js'
+
 import ptBrLocale from '~/assets/locales/apex/pt-br.json'
 import { type BodyFatInput, calculateBodyFat } from '~/legacy/utils/bfMath'
 import { type Measure } from '~/modules/measure/domain/measure'

@@ -1,4 +1,5 @@
 import { createMemo } from 'solid-js'
+
 import { inForceGeneric } from '~/legacy/utils/generic/inForce'
 import { userWeights } from '~/modules/weight/application/weight'
 import { type Weight } from '~/modules/weight/domain/weight'

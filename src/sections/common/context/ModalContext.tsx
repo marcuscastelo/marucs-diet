@@ -1,9 +1,9 @@
 import {
-  type JSXElement,
-  createContext,
-  useContext,
   type Accessor,
+  createContext,
+  type JSXElement,
   type Setter,
+  useContext,
 } from 'solid-js'
 
 type ModalContext = {

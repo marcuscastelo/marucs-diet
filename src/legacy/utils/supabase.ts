@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { z } from 'zod'
+
 import env from '~/shared/config/env'
 const supabaseUrl = z
   .string({

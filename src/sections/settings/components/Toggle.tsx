@@ -1,4 +1,4 @@
-import { type JSXElement, type Accessor } from 'solid-js'
+import { type Accessor, type JSXElement } from 'solid-js'
 
 export function Toggle(props: {
   label: JSXElement

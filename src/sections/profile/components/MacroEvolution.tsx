@@ -1,5 +1,3 @@
-import { Capsule } from '~/sections/common/components/capsule/Capsule'
-
 import {
   calcCalories,
   calcDayCalories,
@@ -15,6 +13,7 @@ import { calculateMacroTarget } from '~/modules/diet/macro-target/application/ma
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { userWeights } from '~/modules/weight/application/weight'
 import { type Weight } from '~/modules/weight/domain/weight'
+import { Capsule } from '~/sections/common/components/capsule/Capsule'
 import { dateToDDMM } from '~/shared/utils/date'
 
 export function MacroEvolution() {

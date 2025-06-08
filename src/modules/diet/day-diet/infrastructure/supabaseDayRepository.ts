@@ -1,4 +1,5 @@
 import { type Accessor, createSignal } from 'solid-js'
+
 import supabase from '~/legacy/utils/supabase'
 import {
   type DayDiet,
@@ -6,16 +7,16 @@ import {
   type NewDayDiet,
 } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type DayRepository } from '~/modules/diet/day-diet/domain/dayDietRepository'
-import { type User } from '~/modules/user/domain/user'
-import {
-  handleApiError,
-  handleValidationError,
-} from '~/shared/error/errorHandler'
 import {
   createInsertDayDietDAOFromNewDayDiet,
   daoToDayDiet,
   type DayDietDAO,
 } from '~/modules/diet/day-diet/infrastructure/dayDietDAO'
+import { type User } from '~/modules/user/domain/user'
+import {
+  handleApiError,
+  handleValidationError,
+} from '~/shared/error/errorHandler'
 
 // TODO:   Delete old days table and rename days_test to days
 export const SUPABASE_TABLE_DAYS = 'days_test'

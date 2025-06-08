@@ -1,12 +1,13 @@
 import { type Accessor, For, type Setter } from 'solid-js'
+
 import { calcRecipeMacros } from '~/legacy/utils/macroMath'
 import { type Food } from '~/modules/diet/food/domain/food'
 import { createItem } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import {
-  type Template,
   isTemplateFood,
   isTemplateRecipe,
+  type Template,
 } from '~/modules/diet/template/domain/template'
 import { Alert } from '~/sections/common/components/Alert'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'

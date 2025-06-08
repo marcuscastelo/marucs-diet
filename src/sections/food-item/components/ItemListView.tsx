@@ -1,4 +1,5 @@
-import { For, mergeProps, type Accessor } from 'solid-js'
+import { type Accessor, For, mergeProps } from 'solid-js'
+
 import { type Item } from '~/modules/diet/item/domain/item'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import { useClipboard } from '~/sections/common/hooks/useClipboard'

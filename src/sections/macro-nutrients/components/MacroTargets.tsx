@@ -1,4 +1,5 @@
-import { Show, createEffect, createMemo, createSignal } from 'solid-js'
+import { createEffect, createMemo, createSignal, Show } from 'solid-js'
+
 import { calcCalories } from '~/legacy/utils/macroMath'
 import { getLatestMacroProfile } from '~/legacy/utils/macroProfileUtils'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
@@ -9,8 +10,8 @@ import {
   userMacroProfiles,
 } from '~/modules/diet/macro-profile/application/macroProfile'
 import {
-  type MacroProfile,
   createNewMacroProfile,
+  type MacroProfile,
 } from '~/modules/diet/macro-profile/domain/macroProfile'
 import { calculateMacroTarget } from '~/modules/diet/macro-target/application/macroTarget'
 import {

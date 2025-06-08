@@ -1,6 +1,6 @@
 import {
-  templateSearch,
   setTemplateSearch,
+  templateSearch,
 } from '~/modules/search/application/search'
 
 export function TemplateSearchBar(props: { isDesktop: boolean }) {

@@ -4,13 +4,13 @@ import {
   type ItemGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import {
-  isTemplateItemFood,
-  type TemplateItem,
-} from '~/modules/diet/template-item/domain/templateItem'
-import {
   isTemplateRecipe,
   type Template,
 } from '~/modules/diet/template/domain/template'
+import {
+  isTemplateItemFood,
+  type TemplateItem,
+} from '~/modules/diet/template-item/domain/templateItem'
 
 /**
  * Creates an ItemGroup from a Template and TemplateItem, returning group, operation and templateType.

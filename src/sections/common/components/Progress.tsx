@@ -1,7 +1,8 @@
 // https://flowbite.com/docs/components/progress/
 
+import { mergeProps, Show } from 'solid-js'
+
 import { cn } from '~/shared/cn'
-import { Show, mergeProps } from 'solid-js'
 
 export function Progress(props_: {
   class?: string

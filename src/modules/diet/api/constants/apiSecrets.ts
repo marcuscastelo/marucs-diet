@@ -1,4 +1,5 @@
 import { z } from 'zod'
+
 import env from '~/shared/config/env'
 
 export const EXTERNAL_API_BASE_URL = z

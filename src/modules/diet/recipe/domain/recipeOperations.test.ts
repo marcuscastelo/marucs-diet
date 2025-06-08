@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest'
+
 import { createItem } from '~/modules/diet/item/domain/item'
 import {
   createNewRecipe,
   promoteToRecipe,
 } from '~/modules/diet/recipe/domain/recipe'
 import {
-  addItemToRecipe,
   addItemsToRecipe,
+  addItemToRecipe,
   clearRecipeItems,
   findItemInRecipe,
   removeItemFromRecipe,

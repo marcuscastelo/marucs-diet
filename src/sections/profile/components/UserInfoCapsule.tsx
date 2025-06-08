@@ -1,11 +1,12 @@
 import { Show } from 'solid-js'
+
 import { type Mutable } from '~/legacy/utils/typeUtils'
 import {
   innerData,
   setInnerData,
   unsavedFields,
 } from '~/modules/profile/application/profile'
-import { userSchema, type User } from '~/modules/user/domain/user'
+import { type User, userSchema } from '~/modules/user/domain/user'
 import { Capsule } from '~/sections/common/components/capsule/Capsule'
 import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
 

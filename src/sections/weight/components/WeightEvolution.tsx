@@ -1,14 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { type ApexOptions } from 'apexcharts'
 import { SolidApexCharts } from 'solid-apexcharts'
-import { For, createMemo } from 'solid-js'
+import { createMemo, For } from 'solid-js'
+
 import ptBrLocale from '~/assets/locales/apex/pt-br.json'
-import { type OHLC } from '~/modules/measure/domain/ohlc'
 import {
   calculateWeightProgress,
   firstWeight,
   getLatestWeight,
 } from '~/legacy/utils/weightUtils'
+import { type OHLC } from '~/modules/measure/domain/ohlc'
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { showError } from '~/modules/toast/application/toastManager'
 import { currentUser, currentUserId } from '~/modules/user/application/user'
@@ -18,10 +19,10 @@ import {
   updateWeight,
   userWeights,
 } from '~/modules/weight/application/weight'
-import { type Weight, createNewWeight } from '~/modules/weight/domain/weight'
-import { FloatInput } from '~/sections/common/components/FloatInput'
+import { createNewWeight, type Weight } from '~/modules/weight/domain/weight'
 import { Capsule } from '~/sections/common/components/capsule/Capsule'
 import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
+import { FloatInput } from '~/sections/common/components/FloatInput'
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import { useDateField, useFloatField } from '~/sections/common/hooks/useField'
 import Datepicker from '~/sections/datepicker/components/Datepicker'

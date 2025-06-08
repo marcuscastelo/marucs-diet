@@ -1,11 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
-import { createItem } from '~/modules/diet/item/domain/item'
-import { createMeal } from '~/modules/diet/meal/domain/meal'
+
 import type { DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import {
-  addMealToDayDiet,
   addMealsToDayDiet,
+  addMealToDayDiet,
   clearDayDietMeals,
   convertToNewDayDiet,
   findMealInDayDiet,
@@ -14,6 +12,9 @@ import {
   setDayDietMeals,
   updateMealInDayDiet,
 } from '~/modules/diet/day-diet/domain/dayDietOperations'
+import { createItem } from '~/modules/diet/item/domain/item'
+import { createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { createMeal } from '~/modules/diet/meal/domain/meal'
 
 function makeItem(id: number, name = 'Arroz') {
   return {
