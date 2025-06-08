@@ -11,17 +11,16 @@ import { Providers } from '~/sections/common/context/Providers'
  */
 export default function App() {
   return (
-    <>Oi</>
-    // <Router
-    //   root={(props) => (
-    //     <>
-    //       <Suspense>
-    //         <Providers>{props.children}</Providers>
-    //       </Suspense>
-    //     </>
-    //   )}
-    // >
-    //   <FileRoutes />
-    // </Router>
+    <Router
+      root={(props) => (
+        <>
+          <Suspense>
+            <Providers>{props.children}</Providers>
+          </Suspense>
+        </>
+      )}
+    >
+      <FileRoutes />
+    </Router>
   )
 }
