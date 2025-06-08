@@ -149,61 +149,56 @@ function WeightView(props: { weight: Weight }) {
               endDate: dateField.rawValue(),
             }}
             onChange={(value) => {
-              // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-              if (!value?.startDate) {
+              if (value === null || value.startDate === null) {
                 showError('Data inválida: \n' + JSON.stringify(value))
                 return
               }
-              // Apply timezone offset
-              const date = adjustToTimezone(new Date(value.startDate))
+              const date = adjustToTimezone(new Date(value.startDate as string))
               dateField.setRawValue(dateToYYYYMMDD(date))
               handleSave({
                 dateValue: date,
                 weightValue: weightField.value(),
               })
             }}
-            // Timezone = GMT-3
             displayFormat="DD/MM/YYYY HH:mm"
             asSingle={true}
             useRange={false}
             readOnly={true}
             toggleIcon={() => <></>}
-            containerClassName="relative w-full text-gray-700 "
+            containerClassName="relative w-full text-gray-700"
             inputClassName="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full dark:bg-slate-700 dark:text-white/80 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed border-none"
           />
         </CapsuleContent>
       }
       rightContent={
-        <div class={'ml-2 p-2 text-xl flex items-center justify-center w-full'}>
-          <div class={'flex items-center justify-center sm:gap-1  w-full'}>
-            <div class="relative w-full flex items-center">
-              <FloatInput
-                field={weightField}
-                class="input bg-transparent text-end btn-ghost px-0 shrink pr-9 text-xl font-inherit"
-                style={{ width: '100%' }}
-                onFocus={(event) => {
-                  event.target.select()
-                }}
-                onFieldCommit={(value) => {
-                  handleSave({
-                    dateValue: dateField.value(),
-                    weightValue: value,
-                  })
-                }}
-              />
-              <span class="absolute right-2 pointer-events-none select-none text-xl font-inherit text-inherit">
-                kg
-              </span>
-            </div>
-            <button
-              class="btn cursor-pointer uppercase btn-ghost my-auto focus:ring-2 focus:ring-blue-400 border-none text-white bg-ghost hover:bg-slate-800 py-2 px-2 "
-              onClick={() => {
-                void deleteWeight(props.weight.id)
+        <div class="ml-0 p-2 text-xl flex flex-col sm:flex-row items-stretch sm:items-center justify-center w-full gap-2 sm:gap-1">
+          <div class="relative w-full flex items-center">
+            <FloatInput
+              field={weightField}
+              class="input bg-transparent text-end btn-ghost px-0 shrink pr-9 text-xl font-inherit w-full"
+              style={{ width: '100%' }}
+              onFocus={(event) => {
+                event.target.select()
               }}
-            >
-              <TrashIcon />
-            </button>
+              onFieldCommit={(value) => {
+                handleSave({
+                  dateValue: dateField.value(),
+                  weightValue: value,
+                })
+              }}
+            />
+            <span class="absolute right-2 pointer-events-none select-none text-xl font-inherit text-inherit">
+              kg
+            </span>
           </div>
+          <button
+            class="btn cursor-pointer uppercase btn-ghost my-auto focus:ring-2 focus:ring-blue-400 border-none text-white bg-ghost hover:bg-slate-800 py-2 px-2 w-full sm:w-auto"
+            onClick={() => {
+              void deleteWeight(props.weight.id)
+            }}
+          >
+            <TrashIcon />
+          </button>
         </div>
       }
       class={'mb-2'}
