@@ -163,7 +163,6 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   const [templateSearchModalVisible, setTemplateSearchModalVisible] =
     createSignal(false)
 
-  // Definição do schema aceito para clipboard
   const acceptedClipboardSchema = z.union([
     itemSchema,
     itemGroupSchema,

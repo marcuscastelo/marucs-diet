@@ -1,8 +1,20 @@
 ---
 applyTo: "**"
 ---
+# IMPORTANT INSTRUCTIONS - MUST BE FOLLOWED STRICTLY
+
+- UNDER NO CIRCUMSTANCES add explanatory comments in the code.  
+  This includes comments explaining bug fixes, refactors, or suggestions.  
+  Comments should only document *what* is done if absolutely necessary, never *why* or explanations.
+
+- NEVER generate code in English, except for UI strings.  
+  All code identifiers, variables, function names, and comments (if any) must be in Portuguese.  
+  UI text strings are the only exception and must remain in English or pt-BR as required.
+
+---
+
 # Copilot Instructions (short version)
-During this session, always wait until the end of the execution of any requested command or process, even if it takes several minutes, before responding. For every command, redirect both stdout and stderr to `/tmp/copilot-terminal` using `| tee /tmp/copilot-terminal 2>&1`. After the main command finishes, check `cat /tmp/copilot-terminal`. Never repeat the main command. Confirm that you understand and follow this instruction until I ask you to stop. Never combine commands with `&&`, `||` or `;`
+During this session, always wait until the end of the execution of any requested command or process, even if it takes several minutes, before responding. For every command, redirect both stdout and stderr to `/tmp/copilot-terminal-[N]` using `<command> 2>&1 | tee /tmp/copilot-terminal-[N] 2>&1`. After the main command finishes, check `cat /tmp/copilot-terminal-[N]`. N is the current command number (start with 1). Never repeat the main command. Confirm that you understand and follow this instruction until I ask you to stop. Never combine commands with `&&`, `||` or `;`
 
 ## Refactoring & Automation
 - Use terminal commands for large refactors (find, sed, grep, etc.) and document them.

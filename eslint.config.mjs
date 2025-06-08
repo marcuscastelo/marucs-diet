@@ -20,7 +20,7 @@ export default [
         ecmaVersion: 'latest',
         sourceType: 'module',
         ecmaFeatures: { jsx: true },
-        project: ['./tsconfig.json'], // necessário para 'standard-with-typescript'
+        project: ['./tsconfig.json'],
       },
       globals: {
         ...globals.browser,
