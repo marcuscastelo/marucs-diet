@@ -82,6 +82,7 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
             class="btn-error btn mr-auto"
             onClick={(e) => {
               e.preventDefault()
+              // eslint-disable-next-line @typescript-eslint/no-unused-expressions
               props.onDelete !== undefined &&
                 showConfirmModal({
                   title: 'Excluir item',

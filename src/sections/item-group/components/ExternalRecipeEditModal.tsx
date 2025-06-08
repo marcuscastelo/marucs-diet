@@ -23,7 +23,6 @@ export function ExternalRecipeEditModal(props: {
         >
           <RecipeEditModal
             recipe={recipe()}
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises
             onSaveRecipe={(recipe) => {
               console.debug(
                 '[ItemGroupEditModal::ExternalRecipeEditModal] onSaveRecipe:',
@@ -40,7 +39,6 @@ export function ExternalRecipeEditModal(props: {
                 })
             }}
             onRefetch={props.onRefetch}
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises
             onDelete={(recipeId) => {
               console.debug(
                 '[ItemGroupEditModal::ExternalRecipeEditModal] onDelete:',

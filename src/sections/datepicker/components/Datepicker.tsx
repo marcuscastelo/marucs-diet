@@ -16,7 +16,7 @@ import { createEffect, createSignal, mergeProps } from 'solid-js'
 
 const Datepicker = (_props: DatepickerType) => {
   // Ref
-  const props = mergeProps({ primaryColor: 'blue', value: null, useRange: true, showFooter: false, showShortcuts: false, configs: undefined, asSingle: false, placeholder: null, separator: '~', startFrom: null, i18n: LANGUAGE, disabled: false, inputClassName: null, containerClassName: null, toggleClassName: null, toggleIcon: undefined, displayFormat: DATE_FORMAT, readOnly: false, minDate: null, maxDate: null, dateLooking: 'forward' as const, disabledDates: null, startWeekOn: 'sun', classNames: undefined, popoverDirection: undefined }, _props)
+  const props = mergeProps({ primaryColor: 'blue' as const, value: null, useRange: true, showFooter: false, showShortcuts: false, configs: undefined, asSingle: false, placeholder: null, separator: '~', startFrom: null, i18n: LANGUAGE, disabled: false, inputClassName: null, containerClassName: null, toggleClassName: null, toggleIcon: undefined, displayFormat: DATE_FORMAT, readOnly: false, minDate: null, maxDate: null, dateLooking: 'forward' as const, disabledDates: null, startWeekOn: 'sun', classNames: undefined, popoverDirection: undefined }, _props)
   // eslint-disable-next-line prefer-const
   let containerRef = undefined as HTMLDivElement | undefined
   // eslint-disable-next-line prefer-const

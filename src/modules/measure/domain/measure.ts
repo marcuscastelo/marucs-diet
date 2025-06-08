@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import { z } from 'zod'
 
 // TODO:   Create discriminate union type for Male and Female measures

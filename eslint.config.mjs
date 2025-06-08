@@ -8,9 +8,11 @@ import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import pluginSolid from 'eslint-plugin-solid'
 import globals from 'globals'
 import eslintPluginImport from 'eslint-plugin-import'
+import love from 'eslint-config-love'
 /** @type {import('eslint').Linter.Config} */
 export default [
   {
+    ...love,
     files: ['**/*.ts', '**/*.tsx'],
     languageOptions: {
       parser: parserTs,

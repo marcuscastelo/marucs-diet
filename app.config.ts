@@ -1,5 +1,13 @@
 import { defineConfig } from '@solidjs/start/config'
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
-  // Nenhuma opção extra, SSR já não será ativado sem handler server-side
+  ssr: false,
+  vite: {
+    plugins: [tailwindcss()],
+  },
+  server: {
+    preset: 'vercel',
+    compatibilityDate: 'latest',
+  },
 })

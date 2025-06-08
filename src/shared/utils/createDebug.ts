@@ -8,7 +8,6 @@ export function createDebug(moduleName: string) {
   }
 
   return (message: string, ...args: unknown[]) => {
-    // eslint-disable-next-line no-console
     console.debug(`[${moduleName}] ${message}`, ...args)
   }
 }

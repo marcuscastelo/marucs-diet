@@ -1,5 +1,7 @@
-import { type ParentProps, Suspense } from 'solid-js'
-import '~/assets/styles/globals.css'
+import { Router } from '@solidjs/router'
+import { FileRoutes } from '@solidjs/start/router'
+import { Suspense } from 'solid-js'
+import './app.css'
 import { Providers } from '~/sections/common/context/Providers'
 
 /**
@@ -7,10 +9,19 @@ import { Providers } from '~/sections/common/context/Providers'
  * @param props - Children to render inside providers
  * @returns App layout
  */
-export default function App(props: ParentProps) {
+export default function App() {
   return (
-    <Suspense>
-      <Providers>{props.children}</Providers>
-    </Suspense>
+    <>Oi</>
+    // <Router
+    //   root={(props) => (
+    //     <>
+    //       <Suspense>
+    //         <Providers>{props.children}</Providers>
+    //       </Suspense>
+    //     </>
+    //   )}
+    // >
+    //   <FileRoutes />
+    // </Router>
   )
 }
