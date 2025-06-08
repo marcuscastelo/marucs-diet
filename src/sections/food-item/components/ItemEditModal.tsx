@@ -253,7 +253,7 @@ function Body(props: {
             }`}
           />
         </div>
-        <div class="my-1 ml-1 flex flex-shrink justify-around gap-1">
+        <div class="my-1 ml-1 flex shrink justify-around gap-1">
           <div
             class="btn-primary btn-xs btn h-full w-10 px-6 text-4xl text-red-600"
             onClick={decrement}

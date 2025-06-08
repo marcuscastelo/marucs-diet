@@ -178,7 +178,7 @@ function WeightView(props: { weight: Weight }) {
           <div class="flex justify-between sm:gap-10 px-2">
             <FloatInput
               field={weightField}
-              class="input text-center btn-ghost px-0 flex-shrink"
+              class="input text-center btn-ghost px-0 shrink"
               style={{ width: '100%' }}
               onFocus={(event) => {
                 event.target.select()

@@ -356,7 +356,7 @@ function MacroTargetSetting(props: {
           <span class="ml-2 text-slate-300 text-lg">({percentage()}%)</span>
         </span>
       </div>
-      <div class="mt-5 flex flex-1 flex-shrink flex-col gap-1">
+      <div class="mt-5 flex flex-1 shrink flex-col gap-1">
         {/* <MacroField
           fieldName="Porcentagem (%)"
           field={percentage}
