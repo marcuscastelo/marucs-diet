@@ -20,7 +20,7 @@ export function ClipboardActionButtons(
       {props.canCopy && (
         <div
           class={
-            'btn-ghost btn uppercase ml-auto mt-1 px-2 text-white hover:scale-105'
+            'btn-ghost btn cursor-pointer uppercase ml-auto mt-1 px-2 text-white hover:scale-105'
           }
           onClick={props.onCopy}
         >
@@ -30,7 +30,7 @@ export function ClipboardActionButtons(
       {props.canPaste && (
         <div
           class={
-            'btn-ghost btn uppercase ml-auto mt-1 px-2 text-white hover:scale-105'
+            'btn-ghost btn cursor-pointer uppercase ml-auto mt-1 px-2 text-white hover:scale-105'
           }
           onClick={props.onPaste}
         >
@@ -40,7 +40,7 @@ export function ClipboardActionButtons(
       {props.canClear && (
         <div
           class={
-            'btn-ghost btn uppercase ml-auto mt-1 px-2 text-white hover:scale-105'
+            'btn-ghost btn cursor-pointer uppercase ml-auto mt-1 px-2 text-white hover:scale-105'
           }
           onClick={props.onClear}
         >

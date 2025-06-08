@@ -454,7 +454,7 @@ function GroupNameEdit(props: {
           </span>
           {props.mode === 'edit' && (
             <button
-              class="btn uppercase btn-xs btn-ghost px-1"
+              class="btn cursor-pointer uppercase btn-xs btn-ghost px-1"
               aria-label="Editar nome do grupo"
               onClick={() => setIsEditingName(true)}
               style={{ 'line-height': '1' }}
@@ -497,7 +497,7 @@ function GroupNameEdit(props: {
           }}
         />
         <button
-          class="btn uppercase btn-xs btn-primary px-2"
+          class="btn cursor-pointer uppercase btn-xs btn-primary px-2"
           aria-label="Salvar nome do grupo"
           onClick={() => setIsEditingName(false)}
           type="submit"
@@ -525,7 +525,7 @@ function GroupHeaderActions(props: {
       <div class="flex gap-2 ml-4">
         <Show when={props.hasValidPastableOnClipboard()}>
           <button
-            class="btn-ghost btn uppercase px-2 text-white hover:scale-105"
+            class="btn-ghost btn cursor-pointer uppercase px-2 text-white hover:scale-105"
             onClick={() => {
               if (isRecipeTooComplex(props.recipe)) {
                 showError(
@@ -688,7 +688,7 @@ function Actions(props: {
       <Show when={props.onDelete}>
         {(onDelete) => (
           <button
-            class="btn-error btn uppercase mr-auto"
+            class="btn-error btn cursor-pointer uppercase mr-auto"
             onClick={(e) => {
               e.preventDefault()
               showConfirmModal({
@@ -715,7 +715,7 @@ function Actions(props: {
         )}
       </Show>
       <button
-        class="btn uppercase"
+        class="btn cursor-pointer uppercase"
         onClick={(e) => {
           e.preventDefault()
           props.setVisible(false)
@@ -725,7 +725,7 @@ function Actions(props: {
         Cancelar
       </button>
       <button
-        class="btn uppercase"
+        class="btn cursor-pointer uppercase"
         disabled={!props.canApply}
         onClick={(e) => {
           e.preventDefault()

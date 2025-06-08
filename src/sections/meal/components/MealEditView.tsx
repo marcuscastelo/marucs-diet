@@ -173,7 +173,7 @@ export function MealEditViewContent(props: {
 export function MealEditViewActions(props: { onNewItem: () => void }) {
   return (
     <button
-      class="mt-3 min-w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
+      class="mt-3 cursor-pointer min-w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
       onClick={() => {
         props.onNewItem()
       }}

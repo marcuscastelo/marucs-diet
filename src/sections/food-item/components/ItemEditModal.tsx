@@ -79,7 +79,7 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
       <Modal.Footer>
         {props.onDelete !== undefined && (
           <button
-            class="btn-error btn uppercase mr-auto"
+            class="btn-error btn cursor-pointer uppercase mr-auto"
             onClick={(e) => {
               e.preventDefault()
               // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -107,7 +107,7 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
           </button>
         )}
         <button
-          class="btn uppercase"
+          class="btn cursor-pointer uppercase"
           onClick={(e) => {
             e.preventDefault()
             e.stopPropagation()
@@ -118,7 +118,7 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
           Cancelar
         </button>
         <button
-          class="btn uppercase"
+          class="btn cursor-pointer uppercase"
           disabled={!canApply()}
           onClick={(e) => {
             e.preventDefault()
@@ -217,7 +217,7 @@ function Body(props: {
             <For each={row}>
               {(value) => (
                 <div
-                  class="btn-primary btn-sm btn uppercase flex-1"
+                  class="btn-primary btn-sm btn cursor-pointer uppercase flex-1"
                   onClick={() => {
                     quantityField.setRawValue(value.toString())
                   }}
@@ -255,7 +255,7 @@ function Body(props: {
         </div>
         <div class="my-1 ml-1 flex shrink justify-around gap-1">
           <div
-            class="btn-primary btn-xs btn uppercase h-full w-10 px-6 text-4xl text-red-600"
+            class="btn-primary btn-xs btn cursor-pointer uppercase h-full w-10 px-6 text-4xl text-red-600"
             onClick={decrement}
             onMouseDown={() => {
               holdRepeatStart(decrement)
@@ -270,7 +270,7 @@ function Body(props: {
             -{' '}
           </div>
           <div
-            class="btn-primary btn-xs btn uppercase ml-1 h-full w-10 px-6 text-4xl text-green-400"
+            class="btn-primary btn-xs btn cursor-pointer uppercase ml-1 h-full w-10 px-6 text-4xl text-green-400"
             onClick={increment}
             onMouseDown={() => {
               holdRepeatStart(increment)

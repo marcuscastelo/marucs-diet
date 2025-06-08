@@ -81,7 +81,7 @@ export function ExpandableToast(props: ExpandableToastProps) {
         onClick={handleDismiss}
         title="Dismiss"
         aria-label="Dismiss"
-        class="absolute top-2 right-2 text-lg text-gray-400 hover:text-gray-200 z-10"
+        class="absolute top-2 right-2 text-lg text-gray-400 hover:text-gray-200 z-10 cursor-pointer"
       >
         <span class="sr-only">Fechar</span>✕
       </button>

@@ -8,7 +8,7 @@ export function DeleteDayButton(props: { day: Accessor<DayDiet> }) {
 
   return (
     <button
-      class="btn-error btn uppercase mt-3 min-w-full rounded px-4 py-2 font-bold text-white hover:bg-red-400"
+      class="btn-error btn cursor-pointer uppercase mt-3 min-w-full rounded px-4 py-2 font-bold text-white hover:bg-red-400"
       onClick={() => {
         showConfirmModal({
           title: 'Excluir dia',

@@ -170,7 +170,7 @@ export default function TestApp() {
         </ModalContextProvider>
         <h1 class="text-lg">Oi</h1>
         <button
-          class="btn uppercase"
+          class="btn cursor-pointer uppercase"
           onClick={() => {
             setTemplateSearchModalVisible(true)
           }}
@@ -179,7 +179,7 @@ export default function TestApp() {
         </button>
 
         <button
-          class="btn uppercase"
+          class="btn cursor-pointer uppercase"
           onClick={() => {
             setItemGroupEditModalVisible(true)
           }}
@@ -263,7 +263,7 @@ function TestModal() {
         <Modal.Content>
           <h1>This is a test modal</h1>
           <button
-            class="btn uppercase btn-primary"
+            class="btn cursor-pointer uppercase btn-primary"
             onClick={() => {
               setVisible(false)
             }}

@@ -214,7 +214,7 @@ export function ErrorDetailModal(props: ErrorDetailModalProps) {
                 </button>
                 <button
                   type="button"
-                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400"
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400 cursor-pointer"
                   onClick={() => props.onClose()}
                 >
                   Close

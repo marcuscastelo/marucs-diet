@@ -10,7 +10,7 @@ export function CopyButton<T>(props: CopyButtonProps<T>): JSXElement {
   return (
     <div
       class={
-        'btn-ghost btn uppercase ml-auto mt-1 px-2 text-white hover:scale-105'
+        'btn-ghost btn cursor-pointer uppercase ml-auto mt-1 px-2 text-white hover:scale-105'
       }
       onClick={(e) => {
         e.stopPropagation()

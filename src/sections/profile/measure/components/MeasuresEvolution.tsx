@@ -78,7 +78,7 @@ export function MeasuresEvolution() {
           </div>
 
           <button
-            class="btn uppercase btn-primary no-animation w-full"
+            class="btn cursor-pointer uppercase btn-primary no-animation w-full"
             onClick={() => {
               if (
                 heightField.value() === undefined ||

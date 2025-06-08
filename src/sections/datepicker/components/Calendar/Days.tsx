@@ -340,9 +340,8 @@ const Days = (props: Props) => {
         {((item, _index) => (
           <button
             type="button"
-
             disabled={isDateDisabled(item, 'previous')}
-            class={`${buttonClass(item, 'previous')}`}
+            class={`${buttonClass(item, 'previous')} cursor-pointer`}
             onClick={() => { handleClickDay(item, 'previous') }}
             onMouseOver={() => {
               hoverDay(item, 'previous')
@@ -357,9 +356,8 @@ const Days = (props: Props) => {
         {((item, _index) => (
           <button
             type="button"
-
             disabled={isDateDisabled(item, 'current')}
-            class={`${buttonClass(item, 'current')}`}
+            class={`${buttonClass(item, 'current')} cursor-pointer`}
             onClick={() => { handleClickDay(item, 'current') }}
             onMouseOver={() => {
               hoverDay(item, 'current')
@@ -374,9 +372,8 @@ const Days = (props: Props) => {
         {((item, _index) => (
           <button
             type="button"
-
             disabled={isDateDisabled(item, 'next')}
-            class={`${buttonClass(item, 'next')}`}
+            class={`${buttonClass(item, 'next')} cursor-pointer`}
             onClick={() => { handleClickDay(item, 'next') }}
             onMouseOver={() => {
               hoverDay(item, 'next')
