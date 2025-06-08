@@ -14,7 +14,6 @@ import { showSuccess } from '~/modules/toast/application/toastManager'
 import { TestChart } from '~/sections/common/components/charts/TestChart'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
-import { BackIcon } from '~/sections/common/components/icons/BackIcon'
 import { BarCodeIcon } from '~/sections/common/components/icons/BarCodeIcon'
 import { LoadingRing } from '~/sections/common/components/LoadingRing'
 import { Modal } from '~/sections/common/components/Modal'
@@ -104,138 +103,175 @@ export default function TestApp() {
   // const [food, setFood] = createSignal<Food | null>(null)
   return (
     <>
-      <BarCodeIcon />
-      <TestChart />
-
       <Providers>
         <DayMacros />
 
-        <ToastTest />
+        {/* Modals */}
+        <details open>
+          <summary class="text-lg cursor-pointer select-none">Modals</summary>
+          <div class="pl-4 flex flex-col gap-2">
+            <ModalContextProvider
+              visible={templateSearchModalVisible}
+              setVisible={setTemplateSearchModalVisible}
+            >
+              <TemplateSearchModal
+                targetName="Teste"
+                onFinish={() => {
+                  console.debug(item)
+                }}
+                onNewItemGroup={() => {
+                  console.debug()
+                }}
+              />
+            </ModalContextProvider>
 
-        <ModalContextProvider
-          visible={templateSearchModalVisible}
-          setVisible={setTemplateSearchModalVisible}
-        >
-          <TemplateSearchModal
-            targetName="Teste"
-            onFinish={() => {
-              console.debug(item)
-            }}
-            onNewItemGroup={() => {
-              console.debug()
-            }}
-          />
-        </ModalContextProvider>
+            <ModalContextProvider
+              visible={itemGroupEditModalVisible}
+              setVisible={setItemGroupEditModalVisible}
+            >
+              <ItemGroupEditModal
+                group={group}
+                setGroup={(group: ItemGroup | null) =>
+                  group !== null && setGroup(group)
+                }
+                onRefetch={() => {
+                  console.debug('refetch')
+                }}
+                onSaveGroup={(group) => {
+                  setGroup(group)
+                  setItemGroupEditModalVisible(false)
+                }}
+                targetMealName="Teste"
+                onCancel={() => {
+                  console.debug('cancel')
+                }}
+                onDelete={() => {
+                  console.debug('delete')
+                }}
+              />
+            </ModalContextProvider>
 
-        <ModalContextProvider
-          visible={itemGroupEditModalVisible}
-          setVisible={setItemGroupEditModalVisible}
-        >
-          <ItemGroupEditModal
-            group={group}
-            setGroup={(group: ItemGroup | null) =>
-              group !== null && setGroup(group)
-            }
-            onRefetch={() => {
-              console.debug('refetch')
-            }}
-            onSaveGroup={(group) => {
-              setGroup(group)
-              setItemGroupEditModalVisible(false)
-            }}
-            targetMealName="Teste"
-            onCancel={() => {
-              console.debug('cancel')
-            }}
-            onDelete={() => {
-              console.debug('delete')
-            }}
-          />
-        </ModalContextProvider>
+            <ModalContextProvider
+              visible={itemEditModalVisible}
+              setVisible={setItemEditModalVisible}
+            >
+              <ItemEditModal
+                item={item}
+                targetName="Teste"
+                macroOverflow={() => ({
+                  enable: false,
+                })}
+                onApply={(item) => {
+                  console.debug(item)
+                }}
+              />
+            </ModalContextProvider>
+            <TestModal />
+            <TestConfirmModal />
+            <button
+              class="btn cursor-pointer uppercase"
+              onClick={() => {
+                setTemplateSearchModalVisible(true)
+              }}
+            >
+              setTemplateSearchModalVisible
+            </button>
+            <button
+              class="btn cursor-pointer uppercase"
+              onClick={() => {
+                setItemGroupEditModalVisible(true)
+              }}
+            >
+              setItemGroupEditModalVisible
+            </button>
+          </div>
+        </details>
 
-        <ModalContextProvider
-          visible={itemEditModalVisible}
-          setVisible={setItemEditModalVisible}
-        >
-          <ItemEditModal
-            item={item}
-            targetName="Teste"
-            macroOverflow={() => ({
-              enable: false,
-            })}
-            onApply={(item) => {
-              console.debug(item)
-            }}
-          />
-        </ModalContextProvider>
-        <h1 class="text-lg">Oi</h1>
-        <button
-          class="btn cursor-pointer uppercase"
-          onClick={() => {
-            setTemplateSearchModalVisible(true)
-          }}
-        >
-          setTemplateSearchModalVisible
-        </button>
-
-        <button
-          class="btn cursor-pointer uppercase"
-          onClick={() => {
-            setItemGroupEditModalVisible(true)
-          }}
-        >
-          setItemGroupEditModalVisible
-        </button>
-
-        <h1>ItemListView</h1>
-        <ItemListView
-          items={() => group().items}
-          onItemClick={() => {
-            setItemEditModalVisible(true)
-          }}
-        />
-        <h1>ItemGroupView</h1>
-        <ItemGroupView
-          itemGroup={group}
-          header={
-            <HeaderWithActions
-              name={<ItemGroupName group={group} />}
-              primaryActions={
-                <ItemGroupCopyButton
-                  group={group}
-                  onCopyItemGroup={(item) => {
-                    console.debug(item)
-                  }}
+        {/* Item Group & List */}
+        <details>
+          <summary class="text-lg cursor-pointer select-none">
+            Item Group & List
+          </summary>
+          <div class="pl-4 flex flex-col gap-2">
+            <h1>ItemListView</h1>
+            <ItemListView
+              items={() => group().items}
+              onItemClick={() => {
+                setItemEditModalVisible(true)
+              }}
+            />
+            <h1>ItemGroupView</h1>
+            <ItemGroupView
+              itemGroup={group}
+              header={
+                <HeaderWithActions
+                  name={<ItemGroupName group={group} />}
+                  primaryActions={
+                    <ItemGroupCopyButton
+                      group={group}
+                      onCopyItemGroup={(item) => {
+                        console.debug(item)
+                      }}
+                    />
+                  }
                 />
               }
+              nutritionalInfo={<ItemGroupViewNutritionalInfo group={group} />}
+              onClick={() => {
+                setItemGroupEditModalVisible(true)
+              }}
             />
-          }
-          nutritionalInfo={<ItemGroupViewNutritionalInfo group={group} />}
-          onClick={() => {
-            setItemGroupEditModalVisible(true)
-          }}
-        />
+          </div>
+        </details>
 
-        {/* <BarCodeReader id='123' onScanned={setBarCode}/>
-        <BarCodeSearch barCode={barCode} setBarCode={setBarCode} food={food} setFood={setFood} /> */}
-        <Datepicker
-          asSingle={true}
-          useRange={false}
-          readOnly={true}
-          displayFormat="DD/MM/YYYY"
-          value={{
-            startDate: targetDay(),
-            endDate: targetDay(),
-          }}
-          onChange={(value) => {
-            setTargetDay(value?.startDate as string)
-          }}
-        />
-        <TestField />
-        <TestModal />
-        <TestConfirmModal />
-        <LoadingRing />
-        <PageLoading message="Carregando bugigangas" />
+        {/* Datepicker */}
+        <details>
+          <summary class="text-lg cursor-pointer select-none">
+            Datepicker
+          </summary>
+          <div class="pl-4 flex flex-col gap-2">
+            <Datepicker
+              asSingle={true}
+              useRange={false}
+              readOnly={true}
+              displayFormat="DD/MM/YYYY"
+              value={{
+                startDate: targetDay(),
+                endDate: targetDay(),
+              }}
+              onChange={(value) => {
+                setTargetDay(value?.startDate as string)
+              }}
+            />
+          </div>
+        </details>
+
+        {/* Toasts */}
+        <details>
+          <summary class="text-lg cursor-pointer select-none">Toasts</summary>
+          <div
+            class="pl-4 flex flex-col gap-2 items-center justify-center mx-auto"
+            style={{ 'min-height': '20vh', 'max-width': '33vw' }}
+          >
+            <ToastTest />
+          </div>
+        </details>
+
+        {/* Outros */}
+        <details>
+          <summary class="text-lg cursor-pointer select-none">Outros</summary>
+          <div
+            class="pl-4 flex flex-col gap-2 items-center justify-center mx-auto"
+            style={{ 'min-height': '33vh', 'max-width': '33vw' }}
+          >
+            <BarCodeIcon />
+            <TestChart />
+            <TestField />
+            <DayMacros />
+            <LoadingRing />
+            <PageLoading message="Carregando bugigangas" />
+          </div>
+        </details>
       </Providers>
     </>
   )
