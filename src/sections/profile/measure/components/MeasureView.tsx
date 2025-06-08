@@ -249,7 +249,7 @@ function MeasureFields(props: {
 function DeleteButton(props: { onDelete: () => void }) {
   return (
     <button
-      class="btn btn-ghost my-auto"
+      class="btn uppercase btn-ghost my-auto"
       onClick={() => {
         props.onDelete()
       }}

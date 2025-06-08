@@ -66,7 +66,7 @@ const BarCodeInsertModal = (props: BarCodeInsertModalProps) => {
       </Modal.Content>
       <Modal.Footer>
         <button
-          class="btn"
+          class="btn uppercase"
           onClick={(e) => {
             e.preventDefault()
             setVisible(false)
@@ -75,7 +75,7 @@ const BarCodeInsertModal = (props: BarCodeInsertModalProps) => {
           Cancelar
         </button>
         <button
-          class="btn-primary btn"
+          class="btn-primary btn uppercase"
           disabled={food() === null}
           onClick={handleSelect}
         >

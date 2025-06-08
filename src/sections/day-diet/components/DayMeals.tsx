@@ -121,7 +121,7 @@ export default function DayMeals(props: {
             </div>
             <div class="flex gap-2 justify-end mt-4">
               <button
-                class="btn btn-primary"
+                class="btn uppercase btn-primary"
                 onClick={() => {
                   setShowConfirmEdit(false)
                   props.onRequestEditMode?.()
@@ -130,7 +130,7 @@ export default function DayMeals(props: {
                 Desbloquear dia para edição
               </button>
               <button
-                class="btn btn-ghost"
+                class="btn uppercase btn-ghost"
                 onClick={() => setShowConfirmEdit(false)}
               >
                 Cancelar

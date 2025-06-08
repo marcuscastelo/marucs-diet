@@ -64,7 +64,7 @@ export function WeightEvolution() {
             style={{ width: '100%' }}
           />
           <button
-            class="btn btn-primary w-full focus:ring-2 focus:ring-blue-400 bg-blue-700 hover:bg-blue-800 border-none text-white"
+            class="btn uppercase btn-primary w-full focus:ring-2 focus:ring-blue-400 bg-blue-700 hover:bg-blue-800 border-none text-white"
             onClick={() => {
               const weight = weightField.value()
 
@@ -193,7 +193,7 @@ function WeightView(props: { weight: Weight }) {
             <span class="my-auto flex-1 hidden sm:block">kg</span>
           </div>
           <button
-            class="btn btn-ghost my-auto focus:ring-2 focus:ring-blue-400 border-none text-white bg-slate-700 hover:bg-slate-800"
+            class="btn uppercase btn-ghost my-auto focus:ring-2 focus:ring-blue-400 border-none text-white bg-slate-700 hover:bg-slate-800"
             onClick={() => {
               void deleteWeight(props.weight.id)
             }}

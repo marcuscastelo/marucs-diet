@@ -36,7 +36,7 @@ export function CopyLastDayButton(props: {
     <>
       {/* Botão para abrir modal de cópia */}
       <button
-        class="btn-primary btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white"
+        class="btn-primary btn uppercase mt-3 min-w-full rounded px-4 py-2 font-bold text-white"
         onClick={() => setModalOpen(true)}
       >
         Copiar dia anterior
@@ -78,7 +78,7 @@ export function CopyLastDayButton(props: {
             </Show>
             {/* Botão de confirmação/cópia */}
             <button
-              class="btn-primary btn mt-4 w-full"
+              class="btn-primary btn uppercase mt-4 w-full"
               disabled={!selectedDayDiet()}
               onClick={() => {
                 if (!selectedDayDiet()) return
