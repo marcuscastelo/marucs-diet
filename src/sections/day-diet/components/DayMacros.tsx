@@ -43,7 +43,7 @@ export default function DayMacros(props: {
       {(macroSignals) => (
         <>
           <div class={`flex pt-3 ${props.class} flex-col xs:flex-row `}>
-            <div class="flex-shrink">
+            <div class="shrink">
               <Calories
                 class="w-full"
                 macros={macroSignals().macros}

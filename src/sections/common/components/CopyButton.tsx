@@ -9,7 +9,9 @@ export type CopyButtonProps<T> = {
 export function CopyButton<T>(props: CopyButtonProps<T>): JSXElement {
   return (
     <div
-      class={'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'}
+      class={
+        'btn-ghost btn cursor-pointer uppercase ml-auto mt-1 px-2 text-white hover:scale-105'
+      }
       onClick={(e) => {
         e.stopPropagation()
         e.preventDefault()

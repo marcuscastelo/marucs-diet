@@ -199,7 +199,7 @@ function Actions(props: {
   return (
     <>
       <button
-        class="btn-error btn mr-auto"
+        class="btn-error btn cursor-pointer uppercase mr-auto"
         onClick={(e) => {
           e.preventDefault()
 
@@ -225,7 +225,7 @@ function Actions(props: {
         Excluir
       </button>
       <button
-        class="btn"
+        class="btn cursor-pointer uppercase"
         onClick={(e) => {
           e.preventDefault()
           setVisible(false)
@@ -235,7 +235,7 @@ function Actions(props: {
         Cancelar
       </button>
       <button
-        class="btn"
+        class="btn cursor-pointer uppercase"
         onClick={(e) => {
           e.preventDefault()
           props.onApply()

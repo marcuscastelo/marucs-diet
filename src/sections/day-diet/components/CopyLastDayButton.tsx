@@ -21,12 +21,20 @@ export function CopyLastDayButton(props: {
   dayDiet: Accessor<DayDiet | undefined>
   selectedDay: string
 }) {
-  // Estado do modal
+  // Modal state
   const [modalOpen, setModalOpen] = createSignal(false)
-  // Estado para data selecionada no datepicker
+  // State for selected date in datepicker
   const [selectedCopyDay, setSelectedCopyDay] = createSignal<string | null>(
     null,
   )
+
+  // Fixes maxDate to avoid day cutoff in datepicker
+  const maxDate = () => {
+    const now = new Date()
+    return new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+    )
+  }
 
   const previousDays = () => getPreviousDayDiets(dayDiets(), props.selectedDay)
   const selectedDayDiet = () =>
@@ -34,14 +42,14 @@ export function CopyLastDayButton(props: {
 
   return (
     <>
-      {/* Botão para abrir modal de cópia */}
+      {/* Button to open copy modal */}
       <button
-        class="btn-primary btn mt-3 min-w-full rounded px-4 py-2 font-bold text-white"
+        class="btn-primary btn cursor-pointer uppercase mt-3 min-w-full rounded px-4 py-2 font-bold text-white"
         onClick={() => setModalOpen(true)}
       >
         Copiar dia anterior
       </button>
-      {/* Modal de seleção de dia anterior */}
+      {/* Modal for selecting previous day to copy */}
       <ModalContextProvider visible={modalOpen} setVisible={setModalOpen}>
         <Modal>
           <div class="flex flex-col gap-4 min-h-[500px]">
@@ -63,7 +71,7 @@ export function CopyLastDayButton(props: {
                 }
                 setSelectedCopyDay(val)
               }}
-              maxDate={new Date(props.selectedDay)}
+              maxDate={maxDate()}
             />
             <Show when={selectedDayDiet()}>
               <div class="border-t pt-4 mt-2">
@@ -76,9 +84,9 @@ export function CopyLastDayButton(props: {
                 />
               </div>
             </Show>
-            {/* Botão de confirmação/cópia */}
+            {/* Confirm/copy button */}
             <button
-              class="btn-primary btn mt-4 w-full"
+              class="btn-primary btn cursor-pointer uppercase mt-4 w-full"
               disabled={!selectedDayDiet()}
               onClick={() => {
                 if (!selectedDayDiet()) return

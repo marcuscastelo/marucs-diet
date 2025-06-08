@@ -170,7 +170,7 @@ export function ErrorDetailModal(props: ErrorDetailModalProps) {
               <div class="bg-slate-900 px-6 py-3 flex justify-end border-t border-red-800 dark:bg-slate-800">
                 <button
                   type="button"
-                  class="mr-2 inline-flex items-center px-4 py-2 border border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-200 bg-slate-800 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  class="mr-2 inline-flex items-center px-4 py-2 border border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-200 bg-slate-800 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400"
                   onClick={() => void handleCopy()}
                 >
                   <Show
@@ -214,7 +214,7 @@ export function ErrorDetailModal(props: ErrorDetailModalProps) {
                 </button>
                 <button
                   type="button"
-                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400 cursor-pointer"
                   onClick={() => props.onClose()}
                 >
                   Close

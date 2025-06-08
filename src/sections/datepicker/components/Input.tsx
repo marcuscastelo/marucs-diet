@@ -305,7 +305,7 @@ const Input = (e: Props) => {
                 type="button"
                 ref={buttonRef}
                 disabled={datepickerStore().disabled}
-                class={getToggleClassName()}
+                class={`${getToggleClassName()} cursor-pointer`}
             >
       { /* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */ }
                 {renderToggleIcon(!datepickerStore().inputText?.length)}

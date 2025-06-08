@@ -141,7 +141,9 @@ export function ItemGroupCopyButton(props: {
 }) {
   return (
     <div
-      class={'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'}
+      class={
+        'btn-ghost btn cursor-pointer uppercase ml-auto mt-1 px-2 text-white hover:scale-105'
+      }
       onClick={(e) => {
         e.stopPropagation()
         e.preventDefault()

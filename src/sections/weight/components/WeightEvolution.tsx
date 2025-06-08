@@ -57,14 +57,14 @@ export function WeightEvolution() {
           />
           <FloatInput
             field={weightField}
-            class="input px-0 pl-5 text-xl mb-3"
+            class="input bg-transparent text-center px-0 pl-5 text-xl mb-3"
             onFocus={(event) => {
               event.target.select()
             }}
             style={{ width: '100%' }}
           />
           <button
-            class="btn btn-primary no-animation w-full"
+            class="btn cursor-pointer uppercase btn-primary w-full focus:ring-2 focus:ring-blue-400 bg-blue-700 hover:bg-blue-800 border-none text-white"
             onClick={() => {
               const weight = weightField.value()
 
@@ -149,36 +149,33 @@ function WeightView(props: { weight: Weight }) {
               endDate: dateField.rawValue(),
             }}
             onChange={(value) => {
-              // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-              if (!value?.startDate) {
+              if (value === null || value.startDate === null) {
                 showError('Data inválida: \n' + JSON.stringify(value))
                 return
               }
-              // Apply timezone offset
-              const date = adjustToTimezone(new Date(value.startDate))
+              const date = adjustToTimezone(new Date(value.startDate as string))
               dateField.setRawValue(dateToYYYYMMDD(date))
               handleSave({
                 dateValue: date,
                 weightValue: weightField.value(),
               })
             }}
-            // Timezone = GMT-3
             displayFormat="DD/MM/YYYY HH:mm"
             asSingle={true}
             useRange={false}
             readOnly={true}
             toggleIcon={() => <></>}
-            containerClassName="relative w-full text-gray-700 "
+            containerClassName="relative w-full text-gray-700"
             inputClassName="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full dark:bg-slate-700 dark:text-white/80 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed border-none"
           />
         </CapsuleContent>
       }
       rightContent={
-        <div class={'ml-2 p-2 text-xl flex justify-between'}>
-          <div class="flex justify-between sm:gap-10 px-2">
+        <div class="ml-0 p-2 text-xl flex flex-col sm:flex-row items-stretch sm:items-center justify-center w-full gap-2 sm:gap-1">
+          <div class="relative w-full flex items-center">
             <FloatInput
               field={weightField}
-              class="input text-center btn-ghost px-0 flex-shrink"
+              class="input bg-transparent text-end btn-ghost px-0 shrink pr-9 text-xl font-inherit w-full"
               style={{ width: '100%' }}
               onFocus={(event) => {
                 event.target.select()
@@ -190,10 +187,12 @@ function WeightView(props: { weight: Weight }) {
                 })
               }}
             />
-            <span class="my-auto flex-1 hidden sm:block">kg</span>
+            <span class="absolute right-2 pointer-events-none select-none text-xl font-inherit text-inherit">
+              kg
+            </span>
           </div>
           <button
-            class="btn btn-ghost my-auto"
+            class="btn cursor-pointer uppercase btn-ghost my-auto focus:ring-2 focus:ring-blue-400 border-none text-white bg-ghost hover:bg-slate-800 py-2 px-2 w-full sm:w-auto"
             onClick={() => {
               void deleteWeight(props.weight.id)
             }}

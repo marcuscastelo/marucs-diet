@@ -21,7 +21,7 @@ export function ConfirmModal() {
                   action.primary !== undefined && action.primary
                     ? 'btn-primary'
                     : 'btn-ghost'
-                }`}
+                } cursor-pointer`}
                 onClick={action.onClick}
               >
                 {action.text}
