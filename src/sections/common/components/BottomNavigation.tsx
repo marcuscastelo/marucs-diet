@@ -83,7 +83,7 @@ export function BottomNavigation() {
         }}
       >
         <div class="z-50 w-full h-16 bg-white border border-gray-200 rounded-full dark:bg-slate-800 dark:border-slate-700 bottom-0">
-          <div class="grid h-full max-w-lg grid-cols-5 mx-auto pt-1">
+          <div class="grid h-full max-w-lg grid-cols-5 mx-auto">
             <BottomNavigationTab
               active={pathname === '/diet'}
               label="Home"
