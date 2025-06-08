@@ -249,10 +249,7 @@ export default function TestApp() {
         {/* Toasts */}
         <details>
           <summary class="text-lg cursor-pointer select-none">Toasts</summary>
-          <div
-            class="pl-4 flex flex-col gap-2 items-center justify-center mx-auto"
-            style={{ 'min-height': '20vh', 'max-width': '33vw' }}
-          >
+          <div class="pl-4 flex flex-col gap-2 items-center justify-center mx-auto min-h-[20vh] max-w-[33vw]">
             <ToastTest />
           </div>
         </details>
