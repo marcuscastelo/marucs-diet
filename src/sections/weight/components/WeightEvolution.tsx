@@ -175,11 +175,11 @@ function WeightView(props: { weight: Weight }) {
       }
       rightContent={
         <div class={'ml-2 p-2 text-xl flex items-center justify-center w-full'}>
-          <div class={'flex items-center justify-center sm:gap-10 px-2 w-full'}>
+          <div class={'flex items-center justify-center sm:gap-1  w-full'}>
             <div class="relative w-full flex items-center">
               <FloatInput
                 field={weightField}
-                class="input bg-transparent text-center btn-ghost px-0 shrink pr-8 text-xl font-inherit"
+                class="input bg-transparent text-end btn-ghost px-0 shrink pr-9 text-xl font-inherit"
                 style={{ width: '100%' }}
                 onFocus={(event) => {
                   event.target.select()
@@ -195,15 +195,15 @@ function WeightView(props: { weight: Weight }) {
                 kg
               </span>
             </div>
+            <button
+              class="btn cursor-pointer uppercase btn-ghost my-auto focus:ring-2 focus:ring-blue-400 border-none text-white bg-ghost hover:bg-slate-800 py-2 px-2 "
+              onClick={() => {
+                void deleteWeight(props.weight.id)
+              }}
+            >
+              <TrashIcon />
+            </button>
           </div>
-          <button
-            class="btn cursor-pointer uppercase btn-ghost my-auto focus:ring-2 focus:ring-blue-400 border-none text-white bg-slate-700 hover:bg-slate-800"
-            onClick={() => {
-              void deleteWeight(props.weight.id)
-            }}
-          >
-            <TrashIcon />
-          </button>
         </div>
       }
       class={'mb-2'}
