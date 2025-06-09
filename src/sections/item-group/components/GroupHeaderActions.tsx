@@ -170,10 +170,6 @@ export function GroupHeaderActions(props: {
             const group_ = props.group()
             return isRecipedItemGroup(group_) && group_
           })()}
-          when={(() => {
-            const group_ = props.group()
-            return isRecipedItemGroup(group_) && group_
-          })()}
         >
           {(group) => (
             <>
