@@ -173,12 +173,27 @@ function buildChartData(
 }
 
 function getYAxisConfig(min: number, max: number) {
-  const diff = max - min
-  if (diff < 2) return { tickAmount: 10, decimalsInFloat: 2, tickInterval: 0.1 }
-  if (diff < 5) return { tickAmount: 8, decimalsInFloat: 1, tickInterval: 0.25 }
-  if (diff < 10) return { tickAmount: 6, decimalsInFloat: 1, tickInterval: 0.5 }
+  const diff = max - min + 2
+  if (diff <= 2)
+    return {
+      tickAmount: Math.round(diff * 10),
+      decimalsInFloat: 2,
+      tickInterval: 0.1,
+    }
+  if (diff < 4)
+    return {
+      tickAmount: Math.round(diff * 4),
+      decimalsInFloat: 2,
+      tickInterval: 0.25,
+    }
+  if (diff < 10)
+    return {
+      tickAmount: Math.round(diff * 2),
+      decimalsInFloat: 1,
+      tickInterval: 0.5,
+    }
   if (diff < 20)
-    return { tickAmount: Math.ceil(diff), decimalsInFloat: 1, tickInterval: 1 }
+    return { tickAmount: Math.ceil(diff), decimalsInFloat: 0, tickInterval: 1 }
   if (diff < 40) {
     return {
       tickAmount: Math.ceil(diff / 2),
@@ -420,7 +435,7 @@ function WeightChart(props: {
         labels: {
           formatter: (val: number) => val.toFixed(y.decimalsInFloat),
         },
-        ...yAxisExtra,
+        // ...yAxisExtra,
       },
       stroke: { width: 3, curve: 'straight' },
       dataLabels: { enabled: false },
