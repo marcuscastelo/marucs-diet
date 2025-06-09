@@ -94,4 +94,36 @@ describe('recipeOperations', () => {
     const result = replaceRecipe(baseRecipe, { name: 'Novo' })
     expect(result.name).toBe('Novo')
   })
+
+  it('addItemToRecipe works for complex recipes (prepared_multiplier !== 1)', () => {
+    const complexRecipe = promoteToRecipe(
+      createNewRecipe({
+        name: 'Complexa',
+        owner: 1,
+        items: [baseItem],
+        preparedMultiplier: 2,
+      }),
+      2,
+    )
+    const item = makeItem(99, 'Novo')
+    const result = addItemToRecipe(complexRecipe, item)
+    expect(result.items).toHaveLength(2)
+    expect(result.prepared_multiplier).toBe(2)
+  })
+
+  it('addItemsToRecipe works for complex recipes (prepared_multiplier !== 1)', () => {
+    const complexRecipe = promoteToRecipe(
+      createNewRecipe({
+        name: 'Complexa',
+        owner: 1,
+        items: [baseItem],
+        preparedMultiplier: 3,
+      }),
+      3,
+    )
+    const items = [makeItem(100, 'A'), makeItem(101, 'B')]
+    const result = addItemsToRecipe(complexRecipe, items)
+    expect(result.items).toHaveLength(3)
+    expect(result.prepared_multiplier).toBe(3)
+  })
 })
