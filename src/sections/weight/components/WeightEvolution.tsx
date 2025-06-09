@@ -404,14 +404,7 @@ function WeightChart(props: {
     return filled
   })
 
-  const movingAverage = createMemo(() =>
-    data().map((_, index) => {
-      const weights = data().slice(Math.max(0, index - 7), index + 1) // 7 days
-      const avgWeight =
-        weights.reduce((acc, weight) => acc + weight.low, 0) / weights.length
-      return avgWeight
-    }),
-  )
+  const movingAverage = createMemo(() => calculateMovingAverage(data(), 7))
 
   const polishedData = createMemo(() =>
     data().map((weight, index) => {
@@ -588,4 +581,20 @@ function WeightChart(props: {
       height={600}
     />
   )
+}
+
+/**
+ * Calculates the moving average for the given array of OHLC data.
+ * @param data Array of OHLC data.
+ * @param window Number of periods for the moving average window.
+ * @returns Array of moving average values.
+ */
+export function calculateMovingAverage(
+  data: readonly { low: number }[],
+  window: number = 7,
+): number[] {
+  return data.map((_, index) => {
+    const weights = data.slice(Math.max(0, index - window), index + 1)
+    return weights.reduce((acc, weight) => acc + weight.low, 0) / weights.length
+  })
 }
