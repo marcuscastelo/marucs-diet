@@ -8,12 +8,25 @@ You are a programming assistant specialized in SolidJS, Tailwind, daisyUI, and C
 - **Domain:** Pure logic only, no side effects, no `handleApiError`.
 - **Application:** Orchestrates, catches domain errors, always calls `handleApiError` with context.
 - **UI/Components:** Rendering only, delegates logic to hooks/utilities.
+- Remove business logic (effects, validations, side effects) from UI components and delegate to hooks/utilities in the application layer.
+- Use utility hooks for domain-related side effects, keeping components clean.
+- Modularize handlers for editing, deleting, and creating groups/items into utility files in the application layer.
+- Setter typings must follow the SolidJS `Setter<T>` pattern.
+- Delegate all item selection and edit modal opening logic to the Body component, keeping the main modal as an orchestrator only.
+- UI/Components must never call `handleApiError` directly.
+- Never use early returns in SolidJS component roots; always place conditions inside JSX or fragments to preserve reactivity.
+- Always ensure type safety when narrowing types for conditional rendering.
+- For event handlers that depend on possibly undefined values, always guard with an `if` check before calling downstream logic.
+- Never leave SolidJS warnings about early returns or reactivity in the codebase.
 
 ### 2. **Modularization & Organization**
 - Extract large components, utility functions, and type guards into their own files.
 - Centralize logic for clipboard, validation, overflow, etc. in reusable hooks/utilities.
 - Never duplicate code. Prefer shared hooks/utilities.
 - Use absolute imports (`~/...`).
+- When splitting large components, extract all event handler logic and conditional rendering into small, focused subcomponents.
+- When a component is split, ensure all new subcomponents are documented and follow the same architectural and modularization rules.
+- Always keep JSX as clean as possible, moving logic to hooks/utilities or subcomponents.
 
 ### 3. **Code Standards**
 - **JSDoc:** Document only exported types/functions. Always in English, concise.
@@ -21,75 +34,32 @@ You are a programming assistant specialized in SolidJS, Tailwind, daisyUI, and C
 - **Imports:** Always static and at the top of the file.
 - **Fire-and-forget:** Only use `void` in handlers/events, never `.catch(() => {})`.
 - **Prettier/ESLint:** Code must always be formatted and free of warnings/errors.
-- **Tests:** Always update/create tests for changes. Run `npm run check` and proceed only if “All checks passed”.
-
-### 4. **Refactoring**
-- Use terminal commands for large-scale refactoring (find, sed, grep, etc.) and document them.
-- After batch refactoring, always run: `npm run check | tee /tmp/copilot-terminal 2>&1` and proceed only if “All checks passed”.
-
-### 5. **Errors & Preferences**
+- **Tests:** Always update/create tests for changes. Run `npm run check | tee /tmp/copilot-terminal 2>&1` and proceed only if “All checks passed”.
+- Never use `any`, always prefer explicit types and reuse context types.
 - Never leave unused imports, variables, or types.
-- Never use explanatory comments in code, only what’s necessary for export documentation.
+- Never use explanatory comments in code, only export documentation.
 - Never use Portuguese identifiers (except for UI text, if needed).
 - Never use dynamic imports.
 - Prefer small, atomic commits. Always suggest a commit message after changes.
+- Never duplicate logic, always centralize in reusable hooks/utilities.
+- Update or remove related tests for any code change.
+- Always ensure the project is clean after each change.
+- Never use `.catch(() => {})` in Promises, only `void` in non-critical handlers/events.
 
-### 6. **Modularization Example**
+### 4. **Refactoring & Workflow**
+- Use terminal commands for large-scale refactoring (find, sed, grep, etc.) and document them.
+- After batch refactoring, always run: `npm run check | tee /tmp/copilot-terminal 2>&1` and proceed only if “All checks passed”.
+- Always collect context from files before editing.
+- Never repeat existing code when editing files; use `// ...existing code...`.
+- Always validate changes with `npm run check | tee /tmp/copilot-terminal 2>&1` after each atomic change and only proceed if all checks pass.
+- Commit messages must always be in English, concise, and action-based.
+
+### 5. **Modularization Example**
 - Components: `ItemGroupEditModalTitle.tsx`, `ItemGroupEditModalBody.tsx`, `ItemGroupEditModalActions.tsx`
 - Utilities: `itemGroupEditUtils.ts`, `useItemGroupClipboardActions.ts`
 - Type guards: `clipboardGuards.ts`
-
-### 7. **Workflow**
-- Always collect context from files before editing.
-- Never repeat existing code when editing files; use `// ...existing code...`.
-- Always validate changes with `npm run check | tee /tmp/copilot-terminal 2>&1` and proceed only if “All checks passed”.
-
----
-
-**Current context summary:**
-- SolidJS + Tailwind + daisyUI project.
-- Advanced modularization of item group editing modals.
-- Clipboard, overflow, validation, and group operations logic extracted into hooks/utilities.
-- All absolute imports, no code duplication, following Clean Architecture.
-- Always ensure the project is clean after each change.
 
 ---
 
 **Instruction for the assistant:**
 > Follow all the rules above for any task, refactoring, or implementation in this workspace. Always modularize, document, test, and validate as described. Never break conventions or skip validation steps.
-
----
-
-### Copilot Session Learnings - 2025-06-09
-- Always remove business logic (effects, validations, side effects) from UI components and delegate to hooks/utilities in the application layer.
-- Use utility hooks like `useUnlinkRecipeIfNotFound` for domain-related side effects, keeping the component clean.
-- Modularize handlers for editing, deleting, and creating groups/items into utility files in the application layer.
-- Ensure setter typings follow the SolidJS `Setter<T>` pattern for maximum compatibility and clarity.
-- Delegate all item selection and edit modal opening logic to the Body component, keeping the main modal as an orchestrator only.
-- Validate all changes with `npm run check | tee /tmp/copilot-terminal 2>&1` and only proceed if "All checks passed".
-- Remove unused imports immediately after refactoring.
-- Follow Clean Architecture: pure domain, application orchestrates, UI only renders.
-- Never use `any`, always prefer explicit types and reuse context types.
-- Never leave explanatory comments in code, only export documentation.
-- Prefer small, atomic commits, always suggesting a commit message after changes.
-- Never duplicate logic, always centralize in reusable hooks/utilities.
-- Use absolute imports (`~/`) and never dynamic imports.
-- Update or remove related tests for any code change.
-- Never use `.catch(() => {})` in Promises, only `void` in non-critical handlers/events.
-- UI/Components must never call `handleApiError` directly.
-- Always document exported functions/types with concise English JSDoc.
-- Never use Portuguese identifiers, except for UI text.
-- Never leave unused variables, types, or imports.
-- Always ensure the project is clean after each change.
-
-### Copilot Session Learnings - 2025-06-09 (Session Additions)
-- When splitting large components, extract all event handler logic and conditional rendering into small, focused subcomponents.
-- Never use early returns in SolidJS component roots; always place conditions inside JSX or fragments to preserve reactivity.
-- Always ensure type safety when narrowing types for conditional rendering (e.g., cast to `RecipedItemGroup` only after checking `type === 'recipe'`).
-- For event handlers that depend on possibly undefined values, always guard with an `if` check before calling downstream logic.
-- When refactoring, always validate with `npm run check | tee /tmp/copilot-terminal 2>&1` after each atomic change and only proceed if all checks pass.
-- Commit messages must always be in English, concise, and action-based.
-- When a component is split, ensure all new subcomponents are documented and follow the same architectural and modularization rules.
-- Never use dynamic imports or any code pattern that breaks static analysis or modularization.
-- Always keep JSX as clean as possible, moving logic to hooks/utilities or subcomponents.
-- Never leave SolidJS warnings about early returns or reactivity in the codebase; always resolve them before finishing a refactor.
