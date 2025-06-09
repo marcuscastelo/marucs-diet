@@ -1,9 +1,7 @@
 ---
-ContentId: 16c73175-a606-4aab-8ae5-a507fe8947eb
-DateApproved: 05/08/2025
-MetaDescription: Learn how to customize GitHub Copilot Chat with custom instructions and reusable prompt files to align AI responses with your coding practices and project requirements.
-MetaSocialImage: images/shared/github-copilot-social.png
+applyTo: '.github/**/*.md'
 ---
+
 # Customize chat responses in VS Code
 
 Copilot can provide you with responses that match your coding practices and project requirements if you give it the right context. Custom instructions enable you to define and automatically apply the guidelines and rules for tasks like generating code, or performing code reviews. Prompt files let you craft complete chat prompts in Markdown files, which you can then reference in chat or share with others. In this article, you will learn how to use custom instructions and prompt files to customize your chat responses in Visual Studio Code.
@@ -12,7 +10,7 @@ Copilot can provide you with responses that match your coding practices and proj
 
 To enable instructions and prompt files in VS Code, enable the `setting(chat.promptFiles)` setting.
 
-To centrally enable or disable this setting within your organization, check [Centrally Manage VS Code Settings](/docs/setup/enterprise.md#centrally-manage-vs-code-settings) in the enterprise documentation.
+To centrally enable or disable this setting within your organization, check [Centrally Manage VS Code Settings](https://github.com/microsoft/vscode-docs/blob/main/docs/setup/enterprise.md#centrally-manage-vs-code-settings) in the enterprise documentation.
 
 ## Instruction files
 
@@ -22,7 +20,7 @@ VS Code supports several types of custom instructions, targeted at different sce
 
 You can define custom instructions in two ways:
 
-1. **Instruction files**: specify code-generation instructions in Markdown files for your workspace or [VS Code profile](/docs/configure/profiles.md).
+1. **Instruction files**: specify code-generation instructions in Markdown files for your workspace or [VS Code profile](https://github.com/microsoft/vscode-docs/blob/main/docs/configure/profiles.md).
 1. **Settings**: specify instructions in VS Code user or workspace settings.
 
 ### Use instruction files
@@ -38,7 +36,7 @@ There are two types of instruction files:
 If you specify both types of instruction files, both are included in the chat request. No particular order or priority is applied to the instructions. Make sure to avoid conflicting instructions in the files.
 
 > [!NOTE]
-> Instruction files are only used for code generation and are not used for [code completions](/docs/copilot/ai-powered-suggestions.md).
+> Instruction files are only used for code generation and are not used for [code completions](https://github.com/microsoft/vscode-docs/blob/main/docs/copilot/ai-powered-suggestions.md).
 
 #### Use a `.github/copilot-instructions.md` file
 
@@ -66,7 +64,7 @@ You can also create one or more `.instructions.md` files to store custom instruc
 VS Code supports two types of scopes for instruction files:
 
 * **Workspace instructions files**: are only available within the workspace and are stored in the `.github/instructions` folder of the workspace.
-* **User instruction files**: are available across multiple workspaces and are stored in the current [VS Code profile](/docs/configure/profiles.md).
+* **User instruction files**: are available across multiple workspaces and are stored in the current [VS Code profile](https://github.com/microsoft/vscode-docs/blob/main/docs/configure/profiles.md).
 
 An instructions file is a Markdown file with the `.instructions.md` file suffix. The instruction file consists of two sections:
 
@@ -97,7 +95,7 @@ To create an instructions file:
 
 1. Choose the location where the instruction file should be created.
 
-    User instruction files are stored in the [current profile folder](/docs/configure/profiles.md). You can sync your user instruction files across multiple devices by using [Settings Sync](/docs/configure/settings-sync.md). Make sure to configure the **Prompts and Instructions** setting in the **Settings Sync: Configure** command.
+    User instruction files are stored in the [current profile folder](https://github.com/microsoft/vscode-docs/blob/main/docs/configure/profiles.md). You can sync your user instruction files across multiple devices by using [Settings Sync](https://github.com/microsoft/vscode-docs/blob/main/docs/configure/settings-sync.md). Make sure to configure the **Prompts and Instructions** setting in the **Settings Sync: Configure** command.
 
     Workspace instruction files are, by default, stored in the `.github/instructions` folder of your workspace. Add more instruction folders for your workspace with the `setting(chat.instructionsFilesLocations)` setting.
 
@@ -218,7 +216,7 @@ Prompt files allow you to craft complete prompts in Markdown files, which you ca
 VS Code supports two types of scopes for prompt files:
 
 * **Workspace prompt files**: are only available within the workspace and are stored in the `.github/prompts` folder of the workspace.
-* **User prompt files**: are available across multiple workspaces and are stored in the current [VS Code profile](/docs/configure/profiles.md).
+* **User prompt files**: are available across multiple workspaces and are stored in the current [VS Code profile](https://github.com/microsoft/vscode-docs/blob/main/docs/configure/profiles.md).
 
 Common use cases include:
 
@@ -269,7 +267,7 @@ Within a prompt file, you can reference variables by using the `${variableName}`
     Ask for the form name and fields if not provided.
 
     Requirements for the form:
-    * Use form design system components: [design-system/Form.md](../docs/design-system/Form.md)
+    * Use form design system components: [design-system/Form.md](..https://github.com/microsoft/vscode-docs/blob/main/docs/design-system/Form.md)
     * Use `react-hook-form` for form state management:
     * Always define TypeScript types for your form data
     * Prefer *uncontrolled* components using register
@@ -320,11 +318,11 @@ To create a workspace prompt file:
 
     Within a prompt file, reference additional workspace files as Markdown links (`[index](../index.ts)`), or as `#index.ts` references within the prompt file.
 
-    You can also reference other `.prompt.md` files to create a hierarchy of prompts. You can also reference [instructions files](#custom-instructions) in the same way.
+    You can also reference other `.prompt.md` files to create a hierarchy of prompts. You can also reference [instructions files](https://code.visualstudio.com/docs/copilot/copilot-customization#custom-instructions) in the same way.
 
 ### Create a user prompt file
 
-User prompt files are stored in your [user profile](/docs/configure/profiles.md). With user prompt files, you can share reusable prompts across multiple workspaces.
+User prompt files are stored in your [user profile](https://github.com/microsoft/vscode-docs/blob/main/docs/configure/profiles.md). With user prompt files, you can share reusable prompts across multiple workspaces.
 
 To create a user prompt file:
 
@@ -332,7 +330,7 @@ To create a user prompt file:
 
 1. Select **User Data Folder** as the location for the prompt file.
 
-    If you use multiple [VS Code profiles](/docs/configure/profiles.md), the prompt file is created in the current profile's user data folder.
+    If you use multiple [VS Code profiles](https://github.com/microsoft/vscode-docs/blob/main/docs/configure/profiles.md), the prompt file is created in the current profile's user data folder.
 
 1. Enter a name for your prompt file.
 
@@ -342,11 +340,11 @@ To create a user prompt file:
 
 #### Sync user prompt files across devices
 
-VS Code can sync your user prompt files across multiple devices by using [Settings Sync](/docs/configure/settings-sync.md).
+VS Code can sync your user prompt files across multiple devices by using [Settings Sync](https://github.com/microsoft/vscode-docs/blob/main/docs/configure/settings-sync.md).
 
 To sync your user prompt files, enable Settings Sync for prompt and instruction files:
 
-1. Make sure you have [Settings Sync](/docs/configure/settings-sync.md) enabled.
+1. Make sure you have [Settings Sync](https://github.com/microsoft/vscode-docs/blob/main/docs/configure/settings-sync.md) enabled.
 
 1. Run **Settings Sync: Configure** from the Command Palette (`kb(workbench.action.showCommands)`).
 
@@ -398,4 +396,4 @@ You have multiple options to run a prompt file:
 
 ## Related content
 
-* [Get started with chat in VS Code](/docs/copilot/chat/copilot-chat.md)
+* [Get started with chat in VS Code](https://github.com/microsoft/vscode-docs/blob/main/docs/copilot/chat/copilot-chat.md)

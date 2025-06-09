@@ -1,8 +1,10 @@
 ---
 mode: 'agent'
 description: 'Prioritize an open GitHub issue for the current milestone and automate branch creation.'
+tools: ['githubRepo']
 ---
 
+The repository is `marcuscastelo/marucs-diet` and the milestone is `v0.11.0`.
 Given a milestone (e.g., v0.11.0), use #githubRepo to:
 
 1. List all open issues for the milestone.
