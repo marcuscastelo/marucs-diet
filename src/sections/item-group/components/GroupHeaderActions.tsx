@@ -29,12 +29,6 @@ import { type ConfirmModalContext } from '~/sections/common/context/ConfirmModal
 import { formatError } from '~/shared/formatError'
 
 // Helper for recipe complexity
-function isRecipeTooComplex(recipe: Recipe | undefined | null): boolean {
-  return (
-    recipe !== undefined && recipe !== null && recipe.prepared_multiplier !== 1
-  )
-}
-
 function PasteButton(props: { disabled: boolean; onPaste: () => void }) {
   return (
     <button
@@ -113,13 +107,6 @@ export function GroupHeaderActions(props: {
   showConfirmModal: ConfirmModalContext['show']
 }) {
   function handlePasteClick() {
-    if (isRecipeTooComplex(props.recipe())) {
-      // TODO: Support editing complex recipes
-      showError(
-        'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
-      )
-      return
-    }
     props.handlePaste()
   }
 
@@ -162,10 +149,7 @@ export function GroupHeaderActions(props: {
     <Show when={props.mode === 'edit'}>
       <div class="flex gap-2 ml-4">
         <Show when={props.hasValidPastableOnClipboard()}>
-          <PasteButton
-            disabled={isRecipeTooComplex(props.recipe())}
-            onPaste={handlePasteClick}
-          />
+          <PasteButton disabled={false} onPaste={handlePasteClick} />
         </Show>
         <Show when={isSimpleItemGroup(props.group())}>
           <ConvertToRecipeButton

@@ -35,16 +35,8 @@ export function ItemGroupEditModalBody(props: {
   function handleItemClick(item: Item) {
     if (props.mode !== 'edit') return
     if (isTemplateItemRecipe(item)) {
-      // TODO: Allow user to edit recipe
       showError(
         'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
-      )
-      return
-    }
-    if (props.recipe() && props.recipe()!.prepared_multiplier !== 1) {
-      // TODO: Support editing complex recipes
-      showError(
-        'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
       )
       return
     }
