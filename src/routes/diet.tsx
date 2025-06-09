@@ -24,7 +24,7 @@ export default function DietPage() {
   })
 
   return (
-    <div class="mx-auto sm:w-3/4 md:w-4/5 lg:w-1/2 xl:w-1/3">
+    <>
       <TopBar selectedDay={targetDay()} />
       <Show when={currentDayDiet()} fallback={<div>Loading...</div>}>
         {(currentDayDiet) => (
@@ -41,7 +41,6 @@ export default function DietPage() {
         mode={mode()}
         onRequestEditMode={handleRequestEditMode}
       />
-      <BottomNavigation />
-    </div>
+    </>
   )
 }

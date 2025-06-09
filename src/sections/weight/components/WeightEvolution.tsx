@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { type ApexOptions } from 'apexcharts'
 import { SolidApexCharts } from 'solid-apexcharts'
-import { createMemo, For } from 'solid-js'
+import { createEffect, createMemo, createSignal, For } from 'solid-js'
 
 import ptBrLocale from '~/assets/locales/apex/pt-br.json'
 import {
@@ -22,19 +22,240 @@ import {
 import { createNewWeight, type Weight } from '~/modules/weight/domain/weight'
 import { Capsule } from '~/sections/common/components/capsule/Capsule'
 import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
+import { ComboBox } from '~/sections/common/components/ComboBox'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import { useDateField, useFloatField } from '~/sections/common/hooks/useField'
 import Datepicker from '~/sections/datepicker/components/Datepicker'
 import { adjustToTimezone, dateToYYYYMMDD } from '~/shared/utils/date'
 
+// Utils
+function getCandlePeriod(type: string): { days: number; count: number } {
+  switch (type) {
+    case '7d':
+      return { days: 1, count: 7 }
+    case '14d':
+      return { days: 1, count: 14 }
+    case '30d':
+      return { days: 1, count: 30 }
+    case '6m':
+      return { days: 15, count: 12 }
+    case '1y':
+      return { days: 30, count: 12 }
+    case 'all':
+      return { days: 0, count: 12 }
+    default:
+      return { days: 1, count: 7 }
+  }
+}
+
+function groupWeights(
+  weights: readonly Weight[],
+  type: string,
+): Record<string, Weight[]> {
+  if (!weights.length) return {}
+  const sorted = [...weights].sort(
+    (a, b) => a.target_timestamp.getTime() - b.target_timestamp.getTime(),
+  )
+  if (type === 'all') {
+    const firstObj = sorted[0]
+    const lastObj = sorted[sorted.length - 1]
+    if (!firstObj || !lastObj) return {}
+    const first = firstObj.target_timestamp.getTime()
+    const last = lastObj.target_timestamp.getTime()
+    const totalDays = Math.max(
+      1,
+      Math.round((last - first) / (1000 * 60 * 60 * 24)),
+    )
+    const daysPerCandle = Math.max(1, Math.round(totalDays / 12))
+    const result: Record<string, Weight[]> = {}
+    for (let i = 0; i < 12; i++) {
+      const start = new Date(first + i * daysPerCandle * 24 * 60 * 60 * 1000)
+      const end = new Date(
+        first + (i + 1) * daysPerCandle * 24 * 60 * 60 * 1000,
+      )
+      const key = `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`
+      result[key] = sorted.filter(
+        (w) => w.target_timestamp >= start && w.target_timestamp < end,
+      )
+    }
+    return result
+  }
+  const { days, count } = getCandlePeriod(type)
+  const lastObj = sorted[sorted.length - 1]
+  if (!lastObj) return {}
+  const last = lastObj.target_timestamp
+  const result: Record<string, Weight[]> = {}
+  for (let i = count - 1; i >= 0; i--) {
+    let start: Date, end: Date
+    if (days === 1) {
+      start = new Date(last)
+      start.setDate(start.getDate() - i)
+      end = new Date(start)
+      end.setDate(end.getDate() + 1)
+    } else {
+      start = new Date(last)
+      start.setDate(start.getDate() - i * days)
+      end = new Date(start)
+      end.setDate(end.getDate() + days)
+    }
+    const key = `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`
+    result[key] = sorted.filter(
+      (w) => w.target_timestamp >= start && w.target_timestamp < end,
+    )
+  }
+  return result
+}
+
+function buildChartData(
+  weightsByPeriod: Record<string, Weight[]>,
+): Array<OHLC & { date: string; isInterpolated?: boolean }> {
+  const entries = Object.entries(weightsByPeriod)
+  const filled: Array<OHLC & { date: string; isInterpolated?: boolean }> = []
+  let lastValue: number | undefined
+  let i = 0
+  let firstNonEmptyIdx = entries.findIndex(([, ws]) => ws.length > 0)
+  let firstNonEmptyValue: number | undefined =
+    firstNonEmptyIdx !== -1 && entries[firstNonEmptyIdx]
+      ? firstWeight(entries[firstNonEmptyIdx][1])?.weight
+      : undefined
+  while (i < entries.length) {
+    const entry = entries[i]
+    if (!entry) break
+    const [period, weights] = entry
+    if (weights.length > 0) {
+      const open = firstWeight(weights)?.weight ?? 0
+      const low = Math.min(...weights.map((w) => w.weight))
+      const high = Math.max(...weights.map((w) => w.weight))
+      const close = getLatestWeight(weights)?.weight ?? 0
+      lastValue = close
+      filled.push({ date: period, open, close, high, low })
+      i++
+    } else {
+      let nextIdx = i + 1
+      while (
+        nextIdx < entries.length &&
+        entries[nextIdx] !== undefined &&
+        Array.isArray(entries[nextIdx]?.[1]) &&
+        (entries[nextIdx]?.[1] as Weight[] | undefined)?.length === 0
+      )
+        nextIdx++
+      const nextEntry = entries[nextIdx]
+      const nextWeights = nextEntry ? nextEntry[1] : undefined
+      let nextValue: number | undefined = lastValue
+      if (nextWeights && nextWeights.length > 0)
+        nextValue = firstWeight(nextWeights)?.weight
+      const steps = nextIdx - i + 1
+      for (let j = 0; j < nextIdx - i; j++) {
+        let interp = lastValue
+        if (lastValue === undefined && firstNonEmptyValue !== undefined)
+          interp = firstNonEmptyValue
+        else if (
+          lastValue !== undefined &&
+          nextValue !== undefined &&
+          steps > 1
+        )
+          interp = lastValue + ((nextValue - lastValue) * (j + 1)) / steps
+        const fakeEntry = entries[i + j]
+        filled.push({
+          date: fakeEntry ? fakeEntry[0] : '',
+          open: interp ?? 0,
+          close: interp ?? 0,
+          high: interp ?? 0,
+          low: interp ?? 0,
+          isInterpolated: true,
+        })
+      }
+      i = nextIdx
+    }
+  }
+  return filled
+}
+
+function getYAxisConfig(min: number, max: number) {
+  const diff = max - min + 2
+  if (diff <= 2)
+    return {
+      tickAmount: Math.round(diff * 10),
+      decimalsInFloat: 2,
+      tickInterval: 0.1,
+    }
+  if (diff < 4)
+    return {
+      tickAmount: Math.round(diff * 4),
+      decimalsInFloat: 2,
+      tickInterval: 0.25,
+    }
+  if (diff < 10)
+    return {
+      tickAmount: Math.round(diff * 2),
+      decimalsInFloat: 1,
+      tickInterval: 0.5,
+    }
+  if (diff < 20)
+    return { tickAmount: Math.ceil(diff), decimalsInFloat: 0, tickInterval: 1 }
+  if (diff < 40) {
+    return {
+      tickAmount: Math.ceil(diff / 2),
+      decimalsInFloat: 0,
+      tickInterval: 2,
+    }
+  }
+  if (diff < 60) {
+    return {
+      tickAmount: Math.ceil(diff / 4),
+      decimalsInFloat: 0,
+      tickInterval: 4,
+    }
+  }
+  return { tickAmount: undefined, decimalsInFloat: 0, tickInterval: undefined }
+}
+
+export function calculateMovingAverage(
+  data: readonly { low: number }[],
+  window: number = 7,
+): number[] {
+  return data.map((_, index) => {
+    const weights = data.slice(Math.max(0, index - window), index + 1)
+    return weights.reduce((acc, weight) => acc + weight.low, 0) / weights.length
+  })
+}
+
 export function WeightEvolution() {
   const desiredWeight = () => currentUser()?.desired_weight ?? 0
-
-  const weightField = useFloatField(undefined, {
-    maxValue: 200,
+  const initialChartType = (() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('weight-evolution-chart-type')
+      if (
+        stored === '7d' ||
+        stored === '14d' ||
+        stored === '30d' ||
+        stored === '6m' ||
+        stored === '1y' ||
+        stored === 'all'
+      ) {
+        return stored
+      }
+    }
+    return 'all'
+  })()
+  const [chartType, setChartType] = createSignal<
+    '7d' | '14d' | '30d' | '6m' | '1y' | 'all'
+  >(initialChartType)
+  createEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('weight-evolution-chart-type', chartType())
+    }
   })
-
+  const chartOptions = [
+    { value: '7d', label: 'Últimos 7 dias' },
+    { value: '14d', label: 'Últimos 14 dias' },
+    { value: '30d', label: 'Últimos 30 dias' },
+    { value: '6m', label: 'Últimos 6 meses' },
+    { value: '1y', label: 'Último ano' },
+    { value: 'all', label: 'Todo o período' },
+  ]
+  const weightField = useFloatField(undefined, { maxValue: 200 })
   const weightProgress = () =>
     calculateWeightProgress(userWeights(), desiredWeight())
 
@@ -42,7 +263,6 @@ export function WeightEvolution() {
     weightProgress() === null
       ? 'Erro'
       : `${((weightProgress() ?? 0) * 100).toFixed(2)}%`
-
   return (
     <>
       <div class={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>
@@ -50,17 +270,24 @@ export function WeightEvolution() {
           Progresso do peso ({weightProgressText()})
         </h5>
         <div class="mx-5 lg:mx-20 pb-10">
-          {/* // TODO:   Create combo box to select weight chart variant (7 days or all time)  */}
+          <div class="mb-4 flex justify-end">
+            <ComboBox
+              options={chartOptions}
+              value={chartType()}
+              onChange={setChartType}
+              class="w-48"
+            />
+          </div>
           <WeightChart
             weights={userWeights()}
             desiredWeight={desiredWeight()}
-            type="all-time"
+            type={chartType()}
           />
           <FloatInput
             field={weightField}
             class="input bg-transparent text-center px-0 pl-5 text-xl mb-3"
-            onFocus={(event) => {
-              event.target.select()
+            onFocus={(e) => {
+              e.target.select()
             }}
             style={{ width: '100%' }}
           />
@@ -68,18 +295,14 @@ export function WeightEvolution() {
             class="btn cursor-pointer uppercase btn-primary w-full focus:ring-2 focus:ring-blue-400 bg-blue-700 hover:bg-blue-800 border-none text-white"
             onClick={() => {
               const weight = weightField.value()
-
               if (weight === undefined) {
                 showError('Digite um peso')
                 return
               }
-
               const userId = currentUserId()
-
               const afterInsert = () => {
                 weightField.setRawValue('')
               }
-
               insertWeight(
                 createNewWeight({
                   owner: userId,
@@ -94,13 +317,10 @@ export function WeightEvolution() {
             Adicionar peso
           </button>
         </div>
-
         <div class="mx-5 lg:mx-20 pb-10">
           {/* TODO: Implement scrollbar for big lists instead of slice */}
           <For each={[...userWeights()].reverse().slice(0, 10)}>
-            {(weight) => {
-              return <WeightView weight={weight} />
-            }}
+            {(weight) => <WeightView weight={weight} />}
           </For>
           {userWeights().length === 0 && 'Não há pesos registrados'}
         </div>
@@ -112,10 +332,8 @@ export function WeightEvolution() {
 function WeightView(props: { weight: Weight }) {
   const targetTimestampSignal = () => props.weight.target_timestamp
   const dateField = useDateField(targetTimestampSignal)
-
   const weightSignal = () => props.weight.weight
   const weightField = useFloatField(weightSignal)
-
   const handleSave = ({
     dateValue,
     weightValue,
@@ -127,19 +345,16 @@ function WeightView(props: { weight: Weight }) {
       showError('Digite um peso')
       return
     }
-
     if (dateValue === undefined) {
       showError('Digite uma data')
       return
     }
-
     void updateWeight(props.weight.id, {
       ...props.weight,
       weight: weightValue,
       target_timestamp: dateValue,
     })
   }
-
   return (
     <Capsule
       leftContent={
@@ -156,10 +371,7 @@ function WeightView(props: { weight: Weight }) {
               }
               const date = adjustToTimezone(new Date(value.startDate as string))
               dateField.setRawValue(dateToYYYYMMDD(date))
-              handleSave({
-                dateValue: date,
-                weightValue: weightField.value(),
-              })
+              handleSave({ dateValue: date, weightValue: weightField.value() })
             }}
             displayFormat="DD/MM/YYYY HH:mm"
             asSingle={true}
@@ -178,15 +390,10 @@ function WeightView(props: { weight: Weight }) {
               field={weightField}
               class="input bg-transparent text-end btn-ghost px-0 shrink pr-9 text-xl font-inherit w-full"
               style={{ width: '100%' }}
-              onFocus={(event) => {
-                event.target.select()
-              }}
-              onFieldCommit={(value) => {
-                handleSave({
-                  dateValue: dateField.value(),
-                  weightValue: value,
-                })
-              }}
+              onFocus={(e) => e.target.select()}
+              onFieldCommit={(value) =>
+                handleSave({ dateValue: dateField.value(), weightValue: value })
+              }
             />
             <span class="absolute right-2 pointer-events-none select-none text-xl font-inherit text-inherit">
               kg
@@ -210,123 +417,43 @@ function WeightView(props: { weight: Weight }) {
 function WeightChart(props: {
   weights: readonly Weight[]
   desiredWeight: number
-  type: 'last-30-days' | 'all-time'
+  type: '7d' | '14d' | '30d' | '6m' | '1y' | 'all'
 }) {
-  type TickWeight = OHLC & {
-    movingAverage?: number
-    desiredWeight?: number
-  }
-
-  const reduceFunc = (acc: Record<string, Weight[]>, weight: Weight) => {
-    const half = (() => {
-      // 1 to 4 weeks of a month
-      const date = new Date(weight.target_timestamp)
-      const month = date.toLocaleString('default', { month: 'short' })
-      const year = date.getFullYear()
-      const twoDigitYear = year % 100
-      // const weekNumber = Math.min(4, Math.ceil(date.getDate() / 7))
-
-      // 1 to 2 half of a month (1 -> 1-15, 2 -> 16-31)
-      const halfNumber = Math.min(2, Math.ceil(date.getDate() / 15))
-
-      return `${month} ${twoDigitYear} (${halfNumber}/2)`
-    })()
-    const day = weight.target_timestamp.getDate()
-    const month = weight.target_timestamp.getMonth() + 1
-    const year = weight.target_timestamp.getFullYear()
-    const twoDigitYear = year % 100
-
-    // TODO:   create weight chart types: Daily, Weekly, Monthly, Semianually, Anually, Auto
-
-    const date_ = `${day}/${month}/${twoDigitYear}`
-    const date = props.type === 'last-30-days' ? date_ : half
-    if (acc[date] === undefined) {
-      acc[date] = []
-    }
-    acc[date].push(weight)
-
-    return acc
-  }
-
-  const weightsByDay = createMemo(() =>
-    props.weights.reduce<Record<string, Weight[]>>(reduceFunc, {}),
+  const weightsByPeriod = createMemo(() =>
+    groupWeights(props.weights, props.type),
   )
-
-  const data = createMemo(
-    (): readonly TickWeight[] =>
-      Object.entries(weightsByDay()).map(([day, weights]) => {
-        const open = firstWeight(weights)?.weight ?? 0
-        const low = Math.min(...weights.map((weight) => weight.weight))
-        const high = Math.max(...weights.map((weight) => weight.weight))
-        const close = getLatestWeight(weights)?.weight ?? 0
-
-        return {
-          date: day,
-          open,
-          close,
-          high,
-          low,
-        }
-      }),
-    // .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
-  )
-
-  const movingAverage = createMemo(() =>
-    data().map((_, index) => {
-      const weights = data().slice(Math.max(0, index - 7), index + 1) // 7 days
-      const avgWeight =
-        weights.reduce((acc, weight) => acc + weight.low, 0) / weights.length
-      return avgWeight
-    }),
-  )
-
+  const data = createMemo(() => buildChartData(weightsByPeriod()))
+  const movingAverage = createMemo(() => calculateMovingAverage(data(), 7))
   const polishedData = createMemo(() =>
-    data().map((weight, index) => {
-      return {
-        ...weight,
-        movingAverage: movingAverage()[index],
-        desiredWeight: props.desiredWeight,
-      }
-    }),
+    data().map((weight, index) => ({
+      ...weight,
+      movingAverage: movingAverage()[index],
+      desiredWeight: props.desiredWeight,
+    })),
   )
-
   const max = createMemo(() =>
-    polishedData().reduce(
-      (acc, weight) =>
-        Math.max(acc, Math.max(weight.desiredWeight, weight.high)),
-      -Infinity,
-    ),
+    Math.max(...polishedData().map((w) => Math.max(w.desiredWeight, w.high))),
   )
   const min = createMemo(() =>
-    polishedData().reduce(
-      (acc, weight) =>
-        Math.min(acc, Math.min(weight.desiredWeight, weight.low)),
-      Infinity,
-    ),
+    Math.min(...polishedData().map((w) => Math.min(w.desiredWeight, w.low))),
   )
-
-  const options = () =>
-    ({
-      theme: {
-        mode: 'dark',
-      },
-      xaxis: {
-        type: 'category',
-        range: props.type === 'last-30-days' ? 30 : undefined,
-      },
+  const yAxis = createMemo(() => getYAxisConfig(min(), max()))
+  const options = () => {
+    const y = yAxis()
+    return {
+      theme: { mode: 'dark' },
+      xaxis: { type: 'category' },
       yaxis: {
-        decimalsInFloat: 0,
+        decimalsInFloat: y.decimalsInFloat,
         min: min() - 1,
         max: max() + 1,
-        tickAmount: Math.min((max() - min()) / 2, 20),
+        tickAmount: y.tickAmount,
+        labels: {
+          formatter: (val: number) => `${val.toFixed(y.decimalsInFloat)} kg`,
+        },
       },
-      stroke: {
-        width: 3,
-        curve: 'straight',
-      },
-      dataLabels: {
-        enabled: false,
-      },
+      stroke: { width: 3, curve: 'straight' },
+      dataLabels: { enabled: false },
       chart: {
         id: 'solidchart-example',
         locales: [ptBrLocale],
@@ -334,16 +461,11 @@ function WeightChart(props: {
         background: '#1E293B',
         events: {
           beforeZoom: function (ctx) {
-            // we need to clear the range as we only need it on the initial load.
             ctx.w.config.xaxis.range = undefined
           },
         },
-        zoom: {
-          autoScaleYaxis: true,
-        },
-        animations: {
-          enabled: true,
-        },
+        zoom: { autoScaleYaxis: true },
+        animations: { enabled: true },
         toolbar: {
           tools: {
             download: false,
@@ -357,47 +479,124 @@ function WeightChart(props: {
           autoSelected: 'pan',
         },
       },
-    }) satisfies ApexOptions
-
-  const series = createMemo(() => ({
-    list: [
-      {
-        name: 'Pesos',
-        type: 'candlestick',
-        data: polishedData().map((weight) => ({
+      tooltip: {
+        shared: true,
+        custom({ dataPointIndex, w }: { dataPointIndex: number; w: unknown }) {
+          const chartW = w as {
+            config?: {
+              series?: Array<{
+                data?: Array<{ x: string; y: number[] | number }>
+              }>
+            }
+          }
+          const point =
+            chartW.config &&
+            chartW.config.series &&
+            chartW.config.series[0] &&
+            chartW.config.series[0].data
+              ? (chartW.config.series[0].data[dataPointIndex] as
+                  | { x: string; y: number[] }
+                  | undefined)
+              : undefined
+          const avg =
+            chartW.config &&
+            chartW.config.series &&
+            chartW.config.series[1] &&
+            chartW.config.series[1].data &&
+            typeof chartW.config.series[1].data[dataPointIndex]?.y === 'number'
+              ? chartW.config.series[1].data[dataPointIndex].y
+              : undefined
+          const desired =
+            chartW.config &&
+            chartW.config.series &&
+            chartW.config.series[2] &&
+            chartW.config.series[2].data &&
+            typeof chartW.config.series[2].data[dataPointIndex]?.y === 'number'
+              ? chartW.config.series[2].data[dataPointIndex].y
+              : undefined
+          let range = ''
+          if (point && Array.isArray(point.y) && point.y.length >= 3) {
+            const low = point.y[2]
+            const high = point.y[1]
+            if (typeof low === 'number' && typeof high === 'number') {
+              range = `${low.toFixed(2)}~${high.toFixed(2)}`
+            }
+          }
+          let progress = ''
+          // Calculate progress as distance from first ever weight to target
+          let firstWeightValue: number | undefined
+          if (Array.isArray(props.weights) && props.weights.length > 0) {
+            // Find the earliest weight in the full dataset
+            const sorted = [...props.weights].sort(
+              (a, b) =>
+                a.target_timestamp.getTime() - b.target_timestamp.getTime(),
+            )
+            firstWeightValue = sorted[0]?.weight
+          }
+          if (
+            typeof desired === 'number' &&
+            typeof firstWeightValue === 'number' &&
+            point &&
+            Array.isArray(point.y) &&
+            typeof point.y[3] === 'number' &&
+            desired !== firstWeightValue
+          ) {
+            const close = point.y[3]
+            const progress_ =
+              (firstWeightValue - close) / (firstWeightValue - desired)
+            progress = (progress_ * 100).toFixed(2) + '%'
+          }
+          return `<div style='padding:8px'>
+            <div><b>${point?.x ?? ''}</b></div>
+            <div><b>${range}</b></div>
+            <div>Média: <b>${avg !== undefined ? avg.toFixed(2) : '-'}</b></div>
+            <div>Peso desejado: <b>${desired !== undefined ? desired.toFixed(2) : '-'}</b></div>
+            <div>Progresso: <b>${progress}</b></div>
+          </div>`
+        },
+      },
+    } satisfies ApexOptions
+  }
+  const series = createMemo(() => [
+    {
+      type: 'candlestick',
+      name: 'Pesos',
+      data: polishedData().map((weight) => {
+        const isInterpolated =
+          (weight as { isInterpolated?: boolean }).isInterpolated === true
+        return {
           x: weight.date,
           y: [weight.open, weight.high, weight.low, weight.close],
-        })),
-      },
-      {
-        name: 'Média',
-        type: 'line',
-        color: '#FFA50055',
-        data: polishedData().map((weight) => ({
-          x: weight.date,
-          y: [weight.movingAverage],
-        })),
-      },
-      {
-        name: 'Peso desejado',
-        type: 'line',
-        color: '#FF00FF',
-        data: polishedData().map((weight) => ({
-          x: weight.date,
-          y: [weight.desiredWeight],
-        })),
-      },
-    ] satisfies ApexOptions['series'],
-  }))
-
+          fillColor: isInterpolated ? '#888888' : undefined,
+          strokeColor: isInterpolated ? '#888888' : undefined,
+        }
+      }),
+    },
+    {
+      type: 'line',
+      name: 'Média',
+      color: '#FFA50055',
+      data: polishedData().map((weight) => ({
+        x: weight.date,
+        y: weight.movingAverage,
+      })),
+    },
+    {
+      type: 'line',
+      name: 'Peso desejado',
+      color: '#FF00FF',
+      data: polishedData().map((weight) => ({
+        x: weight.date,
+        y: weight.desiredWeight,
+      })),
+    },
+  ])
   return (
-    <>
-      <SolidApexCharts
-        type="candlestick"
-        options={options()}
-        series={series().list}
-        height={600}
-      />
-    </>
+    <SolidApexCharts
+      type="candlestick"
+      options={options()}
+      series={series()}
+      height={600}
+    />
   )
 }
