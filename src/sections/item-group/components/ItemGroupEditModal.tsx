@@ -1,23 +1,18 @@
 import { createResource } from 'solid-js'
 import { type Accessor, createEffect, createSignal, Show } from 'solid-js'
-import { z } from 'zod'
 
-import { regenerateId } from '~/legacy/utils/idUtils'
 import { isOverflow } from '~/legacy/utils/macroOverflow'
 import {
   currentDayDiet,
   targetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
-import { type Item, itemSchema } from '~/modules/diet/item/domain/item'
+import { type Item } from '~/modules/diet/item/domain/item'
 import {
   isRecipedItemGroup,
   type ItemGroup,
-  itemGroupSchema,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { isSimpleSingleGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import {
-  addItemsToGroup,
-  addItemToGroup,
   removeItemFromGroup,
   updateItemInGroup,
 } from '~/modules/diet/item-group/domain/itemGroupOperations'
@@ -35,17 +30,14 @@ import {
   ModalContextProvider,
   useModalContext,
 } from '~/sections/common/context/ModalContext'
-import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { ExternalItemEditModal } from '~/sections/food-item/components/ExternalItemEditModal'
-import {
-  isClipboardItem,
-  isClipboardItemGroup,
-} from '~/sections/item-group/components/clipboardGuards'
 import { ExternalRecipeEditModal } from '~/sections/item-group/components/ExternalRecipeEditModal'
 import { ItemGroupEditModalActions } from '~/sections/item-group/components/ItemGroupEditModalActions'
 import { ItemGroupEditModalBody } from '~/sections/item-group/components/ItemGroupEditModalBody'
 import { ItemGroupEditModalTitle } from '~/sections/item-group/components/ItemGroupEditModalTitle'
+import { handleNewItemGroup } from '~/sections/item-group/components/itemGroupEditUtils'
 import { askUnlinkRecipe } from '~/sections/item-group/components/itemGroupModals'
+import { useItemGroupClipboardActions } from '~/sections/item-group/components/useItemGroupClipboardActions'
 import {
   ItemGroupEditContextProvider,
   useItemGroupEditContext,
@@ -53,12 +45,7 @@ import {
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { stringToDate } from '~/shared/utils/date'
 
-type ItemOrGroup = z.infer<typeof itemSchema> | z.infer<typeof itemGroupSchema>
-
-type EditSelection = {
-  item: Item
-} | null
-
+type EditSelection = { item: Item } | null
 const [editSelection, setEditSelection] = createSignal<EditSelection>(null)
 
 export type ItemGroupEditModalProps = {
@@ -95,54 +82,11 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   const [templateSearchModalVisible, setTemplateSearchModalVisible] =
     createSignal(false)
 
-  const acceptedClipboardSchema = z.union([
-    itemSchema,
-    itemGroupSchema,
-  ]) as z.ZodType<ItemOrGroup>
-
   // Clipboard actions for group-level (header) actions
-  const {
-    handlePaste: handlePasteShared,
-    hasValidPastableOnClipboard: hasValidPastableOnClipboardShared,
-  } = useCopyPasteActions<ItemOrGroup>({
-    acceptedClipboardSchema,
-    getDataToCopy: () => group() as ItemOrGroup,
-    onPaste: (data) => {
-      if (isClipboardItemGroup(data)) {
-        // Only add items that are valid Items
-        const validItems = data.items.filter(isClipboardItem).map(regenerateId)
-        setGroup(addItemsToGroup(group(), validItems))
-      } else if (isClipboardItem(data)) {
-        setGroup(addItemToGroup(group(), regenerateId(data)))
-      } else {
-        showError('Clipboard data is not a valid item or group')
-      }
-    },
-  })
+  const clipboard = useItemGroupClipboardActions({ group, setGroup })
 
-  const handleNewItemGroup = (newGroup: ItemGroup) => {
-    console.debug('handleNewItemGroup', newGroup)
-
-    if (!isSimpleSingleGroup(newGroup)) {
-      // TODO:   Handle non-simple groups on handleNewItemGroup
-      showError(
-        'Grupos complexos ainda não são suportados, funcionalidade em desenvolvimento',
-      )
-      return
-    }
-
-    const newItem = newGroup.items[0]
-    if (newItem === undefined) {
-      showError('Grupo vazio, não é possível adicionar grupo vazio', {
-        audience: 'system',
-      })
-      return
-    }
-
-    const finalGroup: ItemGroup = addItemToGroup(group(), newItem)
-
-    setGroup(finalGroup)
-  }
+  // Handler factories (curried)
+  const handleNewItemGroupHandler = handleNewItemGroup({ group, setGroup })
 
   const [recipeSignal, { mutate: setRecipeSignal }] = createResource(
     async () => {
@@ -314,7 +258,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
           setVisible={setTemplateSearchModalVisible}
           onRefetch={props.onRefetch}
           targetName={group().name}
-          onNewItemGroup={handleNewItemGroup}
+          onNewItemGroup={handleNewItemGroupHandler}
         />
         <ModalContextProvider visible={visible} setVisible={setVisible}>
           <Modal class="border-2 border-orange-800" hasBackdrop={true}>
@@ -327,9 +271,9 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
                   setGroup={setGroup}
                   mode={props.mode}
                   hasValidPastableOnClipboard={
-                    hasValidPastableOnClipboardShared
+                    clipboard.hasValidPastableOnClipboard
                   }
-                  handlePaste={handlePasteShared}
+                  handlePaste={clipboard.handlePaste}
                   setRecipeEditModalVisible={setRecipeEditModalVisible}
                   showConfirmModal={showConfirmModal}
                 />
