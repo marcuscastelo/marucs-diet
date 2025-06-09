@@ -42,21 +42,55 @@ export function GroupHeaderActions(props: {
   setRecipeEditModalVisible: Setter<boolean>
   showConfirmModal: ConfirmModalContext['show']
 }) {
+  function handlePasteClick() {
+    if (isRecipeTooComplex(props.recipe)) {
+      showError(
+        'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
+      )
+      return
+    }
+    props.handlePaste()
+  }
+
+  async function handleConvertToRecipe() {
+    try {
+      const newRecipe = createNewRecipe({
+        name:
+          props.group().name.length > 0
+            ? props.group().name
+            : 'Nova receita (a partir de um grupo)',
+        items: deepCopy(props.group().items) ?? [],
+        owner: currentUserId(),
+      })
+      const insertedRecipe = await insertRecipe(newRecipe)
+      if (insertedRecipe === null) return
+      props.setGroup(setItemGroupRecipe(props.group(), insertedRecipe.id))
+      props.setRecipeEditModalVisible(true)
+    } catch (err) {
+      showError(`Falha ao criar receita a partir de grupo: ${formatError(err)}`)
+    }
+  }
+
+  function handleSyncGroupItems(group: ItemGroup, recipe: Recipe) {
+    const newGroup = setItemGroupItems(group, recipe.items)
+    props.setGroup(newGroup)
+  }
+
+  function handleUnlinkRecipe(group: ItemGroup) {
+    askUnlinkRecipe('Deseja desvincular a receita?', {
+      showConfirmModal: props.showConfirmModal,
+      group: () => group,
+      setGroup: props.setGroup,
+    })
+  }
+
   return (
     <Show when={props.mode === 'edit'}>
       <div class="flex gap-2 ml-4">
         <Show when={props.hasValidPastableOnClipboard()}>
           <button
             class="btn-ghost btn cursor-pointer uppercase px-2 text-white hover:scale-105"
-            onClick={() => {
-              if (isRecipeTooComplex(props.recipe)) {
-                showError(
-                  'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
-                )
-                return
-              }
-              props.handlePaste()
-            }}
+            onClick={handlePasteClick}
           >
             <PasteIcon />
           </button>
@@ -65,27 +99,7 @@ export function GroupHeaderActions(props: {
           <button
             class="my-auto"
             onClick={() => {
-              const exec = async () => {
-                const newRecipe = createNewRecipe({
-                  name:
-                    props.group().name.length > 0
-                      ? props.group().name
-                      : 'Nova receita (a partir de um grupo)',
-                  items: deepCopy(props.group().items) ?? [],
-                  owner: currentUserId(),
-                })
-                const insertedRecipe = await insertRecipe(newRecipe)
-                if (insertedRecipe === null) return
-                props.setGroup(
-                  setItemGroupRecipe(props.group(), insertedRecipe.id),
-                )
-                props.setRecipeEditModalVisible(true)
-              }
-              exec().catch((err) => {
-                showError(
-                  `Falha ao criar receita a partir de grupo: ${formatError(err)}`,
-                )
-              })
+              void handleConvertToRecipe()
             }}
           >
             <ConvertToRecipeIcon />
@@ -105,9 +119,7 @@ export function GroupHeaderActions(props: {
                     <Show when={isRecipedGroupUpToDate(group(), recipe())}>
                       <button
                         class="my-auto"
-                        onClick={() => {
-                          props.setRecipeEditModalVisible(true)
-                        }}
+                        onClick={() => props.setRecipeEditModalVisible(true)}
                       >
                         <RecipeIcon />
                       </button>
@@ -115,27 +127,14 @@ export function GroupHeaderActions(props: {
                     <Show when={!isRecipedGroupUpToDate(group(), recipe())}>
                       <button
                         class="my-auto hover:animate-pulse"
-                        onClick={() => {
-                          if (!props.recipe) return
-                          const newGroup = setItemGroupItems(
-                            group(),
-                            props.recipe.items,
-                          )
-                          props.setGroup(newGroup)
-                        }}
+                        onClick={() => handleSyncGroupItems(group(), recipe())}
                       >
                         <DownloadIcon />
                       </button>
                     </Show>
                     <button
                       class="my-auto hover:animate-pulse"
-                      onClick={() => {
-                        askUnlinkRecipe('Deseja desvincular a receita?', {
-                          showConfirmModal: props.showConfirmModal,
-                          group: () => group(),
-                          setGroup: props.setGroup,
-                        })
-                      }}
+                      onClick={() => handleUnlinkRecipe(group())}
                     >
                       <BrokenLink />
                     </button>
