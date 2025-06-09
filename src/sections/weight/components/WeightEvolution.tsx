@@ -328,6 +328,15 @@ function WeightChart(props: {
     const filled: TickWeight[] = []
     let lastValue: number | undefined = undefined
     let i = 0
+    // Find first non-empty value for leading interpolation
+    let firstNonEmptyIdx = entries.findIndex(
+      ([, weights]) => weights.length > 0,
+    )
+    let firstNonEmptyValue: number | undefined = undefined
+    if (firstNonEmptyIdx !== -1 && entries[firstNonEmptyIdx]) {
+      const firstWeights = entries[firstNonEmptyIdx][1]
+      firstNonEmptyValue = firstWeight(firstWeights)?.weight ?? 0
+    }
     while (i < entries.length) {
       const entry = entries[i]
       if (!entry) break
@@ -367,9 +376,15 @@ function WeightChart(props: {
         }
         const steps = nextIdx - i + 1
         for (let j = 0; j < nextIdx - i; j++) {
-          // Linear interpolation between lastValue and nextValue
+          // If there is no previous value, use the first available value for leading interpolation
           let interp = lastValue
-          if (lastValue !== undefined && nextValue !== undefined && steps > 1) {
+          if (lastValue === undefined && firstNonEmptyValue !== undefined) {
+            interp = firstNonEmptyValue
+          } else if (
+            lastValue !== undefined &&
+            nextValue !== undefined &&
+            steps > 1
+          ) {
             interp = lastValue + ((nextValue - lastValue) * (j + 1)) / steps
           }
           const fakeEntry = entries[i + j]
