@@ -37,6 +37,10 @@ import {
 } from '~/sections/common/context/ModalContext'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { ExternalItemEditModal } from '~/sections/food-item/components/ExternalItemEditModal'
+import {
+  isClipboardItem,
+  isClipboardItemGroup,
+} from '~/sections/item-group/components/clipboardGuards'
 import { ExternalRecipeEditModal } from '~/sections/item-group/components/ExternalRecipeEditModal'
 import { ItemGroupEditModalActions } from '~/sections/item-group/components/ItemGroupEditModalActions'
 import { ItemGroupEditModalBody } from '~/sections/item-group/components/ItemGroupEditModalBody'
@@ -360,32 +364,5 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
         </ModalContextProvider>
       </>
     </Show>
-  )
-}
-
-// Add type guards at the top after type ItemOrGroup
-function isClipboardItem(data: unknown): data is z.infer<typeof itemSchema> {
-  return (
-    typeof data === 'object' &&
-    data !== null &&
-    '__type' in data &&
-    (data as { __type?: string }).__type === 'Item' &&
-    'id' in data &&
-    'name' in data &&
-    'reference' in data &&
-    'quantity' in data &&
-    'macros' in data
-  )
-}
-function isClipboardItemGroup(
-  data: unknown,
-): data is z.infer<typeof itemGroupSchema> {
-  return (
-    typeof data === 'object' &&
-    data !== null &&
-    '__type' in data &&
-    (data as { __type?: string }).__type === 'ItemGroup' &&
-    'items' in data &&
-    Array.isArray((data as { items?: unknown[] }).items)
   )
 }
