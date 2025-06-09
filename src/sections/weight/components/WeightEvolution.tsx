@@ -423,18 +423,59 @@ function WeightChart(props: {
     ),
   )
 
-  // Custom tickAmount logic
-  const tickAmount = createMemo(() => {
+  // Custom yAxis config logic
+  const yAxisConfig = createMemo(() => {
     const minValue = min()
     const maxValue = max()
     const diff = maxValue - minValue
-    if (diff < 20) return Math.max(2, Math.floor(diff))
-    if (diff < 40) return Math.max(2, Math.floor(diff / 2))
-    if (diff < 60) return Math.max(2, Math.floor(diff / 4))
-    return undefined // let ApexCharts decide
+    if (diff < 2) {
+      return { tickAmount: 10, decimalsInFloat: 2, tickInterval: 0.1 }
+    }
+    if (diff < 5) {
+      return { tickAmount: 8, decimalsInFloat: 1, tickInterval: 0.25 }
+    }
+    if (diff < 10) {
+      return { tickAmount: 6, decimalsInFloat: 1, tickInterval: 0.5 }
+    }
+    if (diff < 20) {
+      return {
+        tickAmount: Math.ceil(diff),
+        decimalsInFloat: 1,
+        tickInterval: 1,
+      }
+    }
+    if (diff < 40) {
+      return {
+        tickAmount: Math.ceil(diff / 2),
+        decimalsInFloat: 0,
+        tickInterval: 2,
+      }
+    }
+    if (diff < 60) {
+      return {
+        tickAmount: Math.ceil(diff / 4),
+        decimalsInFloat: 0,
+        tickInterval: 4,
+      }
+    }
+    return {
+      tickAmount: undefined,
+      decimalsInFloat: 0,
+      tickInterval: undefined,
+    }
   })
 
   const options = () => {
+    const yAxis = yAxisConfig()
+    const yAxisExtra =
+      typeof yAxis.tickInterval === 'number' &&
+      !isNaN(yAxis.tickInterval) &&
+      yAxis.tickInterval > 0
+        ? {
+            forceNiceScale: false,
+            stepSize: yAxis.tickInterval,
+          }
+        : {}
     return {
       theme: {
         mode: 'dark',
@@ -443,10 +484,14 @@ function WeightChart(props: {
         type: 'category',
       },
       yaxis: {
-        decimalsInFloat: 0,
+        decimalsInFloat: yAxis.decimalsInFloat,
         min: min() - 1,
         max: max() + 1,
-        tickAmount: tickAmount(),
+        tickAmount: yAxis.tickAmount,
+        labels: {
+          formatter: (val: number) => val.toFixed(yAxis.decimalsInFloat),
+        },
+        ...yAxisExtra,
       },
       stroke: {
         width: 3,
@@ -486,52 +531,46 @@ function WeightChart(props: {
       },
     } satisfies ApexOptions
   }
-
-  const series = createMemo(() => ({
-    list: [
-      {
-        name: 'Pesos',
-        type: 'candlestick',
-        data: polishedData().map((weight) => {
-          const isInterpolated =
-            (weight as { isInterpolated?: boolean }).isInterpolated === true
-          return {
-            x: weight.date,
-            y: [weight.open, weight.high, weight.low, weight.close],
-            fillColor: isInterpolated ? '#888888' : undefined,
-            strokeColor: isInterpolated ? '#888888' : undefined,
-          }
-        }),
-      },
-      {
-        name: 'Média',
-        type: 'line',
-        color: '#FFA50055',
-        data: polishedData().map((weight) => ({
+  const series = createMemo(() => [
+    {
+      type: 'candlestick',
+      name: 'Pesos',
+      data: polishedData().map((weight) => {
+        const isInterpolated =
+          (weight as { isInterpolated?: boolean }).isInterpolated === true
+        return {
           x: weight.date,
-          y: [weight.movingAverage],
-        })),
-      },
-      {
-        name: 'Peso desejado',
-        type: 'line',
-        color: '#FF00FF',
-        data: polishedData().map((weight) => ({
-          x: weight.date,
-          y: [weight.desiredWeight],
-        })),
-      },
-    ] satisfies ApexOptions['series'],
-  }))
-
+          y: [weight.open, weight.high, weight.low, weight.close],
+          fillColor: isInterpolated ? '#888888' : undefined,
+          strokeColor: isInterpolated ? '#888888' : undefined,
+        }
+      }),
+    },
+    {
+      type: 'line',
+      name: 'Média',
+      color: '#FFA50055',
+      data: polishedData().map((weight) => ({
+        x: weight.date,
+        y: weight.movingAverage,
+      })),
+    },
+    {
+      type: 'line',
+      name: 'Peso desejado',
+      color: '#FF00FF',
+      data: polishedData().map((weight) => ({
+        x: weight.date,
+        y: weight.desiredWeight,
+      })),
+    },
+  ])
   return (
-    <>
-      <SolidApexCharts
-        type="candlestick"
-        options={options()}
-        series={series().list}
-        height={600}
-      />
-    </>
+    <SolidApexCharts
+      type="candlestick"
+      options={options()}
+      series={series()}
+      height={600}
+    />
   )
 }
