@@ -418,12 +418,6 @@ function WeightChart(props: {
   const yAxis = createMemo(() => getYAxisConfig(min(), max()))
   const options = () => {
     const y = yAxis()
-    const yAxisExtra =
-      typeof y.tickInterval === 'number' &&
-      !isNaN(y.tickInterval) &&
-      y.tickInterval > 0
-        ? { forceNiceScale: false, stepSize: y.tickInterval }
-        : {}
     return {
       theme: { mode: 'dark' },
       xaxis: { type: 'category' },
@@ -433,9 +427,8 @@ function WeightChart(props: {
         max: max() + 1,
         tickAmount: y.tickAmount,
         labels: {
-          formatter: (val: number) => val.toFixed(y.decimalsInFloat),
+          formatter: (val: number) => `${val.toFixed(y.decimalsInFloat)} kg`,
         },
-        // ...yAxisExtra,
       },
       stroke: { width: 3, curve: 'straight' },
       dataLabels: { enabled: false },
