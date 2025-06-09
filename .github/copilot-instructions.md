@@ -50,3 +50,12 @@ During this session, always wait until the end of the execution of any requested
 - Application layer must always call handleApiError with context.
 - Never use handleApiError in domain code.
 - Never use `.catch(() => {})` in promises.
+
+## Commit Message Output
+- When generating a commit message, always output it using four backticks and markdown, like this:
+
+````markdown
+<commit message in English, following the conventional commits style, summarizing the main change>
+````
+
+- When referencing the current changes, use `#changes`.
