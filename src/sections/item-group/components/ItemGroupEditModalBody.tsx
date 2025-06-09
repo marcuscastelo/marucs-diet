@@ -35,6 +35,7 @@ export function ItemGroupEditModalBody(props: {
   function handleItemClick(item: Item) {
     if (props.mode !== 'edit') return
     if (isTemplateItemRecipe(item)) {
+      // TODO: Allow user to edit recipe
       showError(
         'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
       )
