@@ -1,6 +1,7 @@
 import { type Accessor, type Setter, Show } from 'solid-js'
 
 import { deepCopy } from '~/legacy/utils/deepCopy'
+import { askUnlinkRecipe } from '~/modules/diet/item-group/application/itemGroupModals'
 import {
   isRecipedGroupUpToDate,
   isRecipedItemGroup,
@@ -24,7 +25,6 @@ import { DownloadIcon } from '~/sections/common/components/icons/DownloadIcon'
 import { PasteIcon } from '~/sections/common/components/icons/PasteIcon'
 import { RecipeIcon } from '~/sections/common/components/icons/RecipeIcon'
 import { type ConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
-import { askUnlinkRecipe } from '~/sections/item-group/components/itemGroupModals'
 import { formatError } from '~/shared/formatError'
 
 // Helper for recipe complexity

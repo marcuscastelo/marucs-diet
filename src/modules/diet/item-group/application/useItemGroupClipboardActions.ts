@@ -2,7 +2,11 @@ import { type Accessor, type Setter } from 'solid-js'
 import { z } from 'zod'
 
 import { regenerateId } from '~/legacy/utils/idUtils'
-import { type Item, itemSchema } from '~/modules/diet/item/domain/item'
+import { itemSchema } from '~/modules/diet/item/domain/item'
+import {
+  isClipboardItem,
+  isClipboardItemGroup,
+} from '~/modules/diet/item-group/application/clipboardGuards'
 import {
   type ItemGroup,
   itemGroupSchema,
@@ -13,10 +17,6 @@ import {
 } from '~/modules/diet/item-group/domain/itemGroupOperations'
 import { showError } from '~/modules/toast/application/toastManager'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
-import {
-  isClipboardItem,
-  isClipboardItemGroup,
-} from '~/sections/item-group/components/clipboardGuards'
 
 export type ItemOrGroup =
   | z.infer<typeof itemSchema>

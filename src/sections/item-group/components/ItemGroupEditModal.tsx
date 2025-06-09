@@ -7,6 +7,9 @@ import {
   targetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
 import { type Item } from '~/modules/diet/item/domain/item'
+import { handleNewItemGroup } from '~/modules/diet/item-group/application/itemGroupEditUtils'
+import { askUnlinkRecipe } from '~/modules/diet/item-group/application/itemGroupModals'
+import { useItemGroupClipboardActions } from '~/modules/diet/item-group/application/useItemGroupClipboardActions'
 import {
   isRecipedItemGroup,
   type ItemGroup,
@@ -35,9 +38,6 @@ import { ExternalRecipeEditModal } from '~/sections/item-group/components/Extern
 import { ItemGroupEditModalActions } from '~/sections/item-group/components/ItemGroupEditModalActions'
 import { ItemGroupEditModalBody } from '~/sections/item-group/components/ItemGroupEditModalBody'
 import { ItemGroupEditModalTitle } from '~/sections/item-group/components/ItemGroupEditModalTitle'
-import { handleNewItemGroup } from '~/sections/item-group/components/itemGroupEditUtils'
-import { askUnlinkRecipe } from '~/sections/item-group/components/itemGroupModals'
-import { useItemGroupClipboardActions } from '~/sections/item-group/components/useItemGroupClipboardActions'
 import {
   ItemGroupEditContextProvider,
   useItemGroupEditContext,
