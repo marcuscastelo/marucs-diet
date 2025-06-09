@@ -324,26 +324,69 @@ function WeightChart(props: {
   )
 
   const data = createMemo((): readonly TickWeight[] => {
-    return Object.entries(weightsByPeriod()).reduce<TickWeight[]>(
-      (acc, [period, weights]) => {
-        if (!weights.length) {
-          return acc
-        }
+    const entries = Object.entries(weightsByPeriod()) as [string, Weight[]][]
+    const filled: TickWeight[] = []
+    let lastValue: number | undefined = undefined
+    let i = 0
+    while (i < entries.length) {
+      const entry = entries[i]
+      if (!entry) break
+      const [period, weights] = entry
+      if (weights.length > 0) {
         const open = firstWeight(weights)?.weight ?? 0
-        const low = Math.min(...weights.map((weight) => weight.weight))
-        const high = Math.max(...weights.map((weight) => weight.weight))
+        const low = Math.min(...weights.map((weight: Weight) => weight.weight))
+        const high = Math.max(...weights.map((weight: Weight) => weight.weight))
         const close = getLatestWeight(weights)?.weight ?? 0
-        acc.push({
+        lastValue = close
+        filled.push({
           date: period,
           open,
           close,
           high,
           low,
         })
-        return acc
-      },
-      [] as TickWeight[],
-    )
+        i++
+      } else {
+        // Interpolation
+        // Find next non-empty value
+        let nextIdx = i + 1
+        while (nextIdx < entries.length) {
+          const nextEntry = entries[nextIdx]
+          let nextArr: Weight[] | undefined = undefined
+          if (nextEntry && Array.isArray(nextEntry[1])) {
+            nextArr = nextEntry[1]
+          }
+          if (!nextArr || nextArr.length > 0) break
+          nextIdx++
+        }
+        const nextEntry = entries[nextIdx]
+        const nextWeights = nextEntry ? nextEntry[1] : undefined
+        let nextValue: number | undefined = lastValue
+        if (nextWeights && nextWeights.length > 0) {
+          nextValue = firstWeight(nextWeights)?.weight
+        }
+        const steps = nextIdx - i + 1
+        for (let j = 0; j < nextIdx - i; j++) {
+          // Linear interpolation between lastValue and nextValue
+          let interp = lastValue
+          if (lastValue !== undefined && nextValue !== undefined && steps > 1) {
+            interp = lastValue + ((nextValue - lastValue) * (j + 1)) / steps
+          }
+          const fakeEntry = entries[i + j]
+          filled.push({
+            date: fakeEntry ? fakeEntry[0] : '',
+            open: interp ?? 0,
+            close: interp ?? 0,
+            high: interp ?? 0,
+            low: interp ?? 0,
+            // @ts-expect-error: custom property for UI
+            isInterpolated: true,
+          })
+        }
+        i = nextIdx
+      }
+    }
+    return filled
   })
 
   const movingAverage = createMemo(() =>
