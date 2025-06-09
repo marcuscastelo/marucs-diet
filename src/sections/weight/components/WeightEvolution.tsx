@@ -323,30 +323,28 @@ function WeightChart(props: {
     groupWeights(props.weights, props.type),
   )
 
-  const data = createMemo((): readonly TickWeight[] =>
-    Object.entries(weightsByPeriod()).map(([period, weights]) => {
-      if (!weights.length) {
-        return {
-          date: period,
-          open: 0,
-          close: 0,
-          high: 0,
-          low: 0,
+  const data = createMemo((): readonly TickWeight[] => {
+    return Object.entries(weightsByPeriod()).reduce<TickWeight[]>(
+      (acc, [period, weights]) => {
+        if (!weights.length) {
+          return acc
         }
-      }
-      const open = firstWeight(weights)?.weight ?? 0
-      const low = Math.min(...weights.map((weight) => weight.weight))
-      const high = Math.max(...weights.map((weight) => weight.weight))
-      const close = getLatestWeight(weights)?.weight ?? 0
-      return {
-        date: period,
-        open,
-        close,
-        high,
-        low,
-      }
-    }),
-  )
+        const open = firstWeight(weights)?.weight ?? 0
+        const low = Math.min(...weights.map((weight) => weight.weight))
+        const high = Math.max(...weights.map((weight) => weight.weight))
+        const close = getLatestWeight(weights)?.weight ?? 0
+        acc.push({
+          date: period,
+          open,
+          close,
+          high,
+          low,
+        })
+        return acc
+      },
+      [] as TickWeight[],
+    )
+  })
 
   const movingAverage = createMemo(() =>
     data().map((_, index) => {
