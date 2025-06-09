@@ -48,7 +48,7 @@ const fetchUserRecipes = async (userId: User['id']): Promise<Recipe[]> => {
   return recipes
 }
 
-const fetchRecipeById = async (id: Recipe['id']): Promise<Recipe | null> => {
+const fetchRecipeById = async (id: Recipe['id']): Promise<Recipe> => {
   const { data, error } = await supabase.from(TABLE).select().eq('id', id)
 
   if (error !== null) {
@@ -63,7 +63,10 @@ const fetchRecipeById = async (id: Recipe['id']): Promise<Recipe | null> => {
   const recipeDAOs = recipeDAOSchema.array().parse(data)
   const recipes = recipeDAOs.map(createRecipeFromDAO)
 
-  return recipes[0] ?? null
+  if (!recipes[0]) {
+    throw new Error(`Recipe with id ${id} not found`)
+  }
+  return recipes[0]
 }
 
 const fetchUserRecipeByName = async (
@@ -91,7 +94,7 @@ const fetchUserRecipeByName = async (
   return recipes
 }
 
-const insertRecipe = async (newRecipe: NewRecipe): Promise<Recipe | null> => {
+const insertRecipe = async (newRecipe: NewRecipe): Promise<Recipe> => {
   const createDAO = createInsertRecipeDAOFromNewRecipe(newRecipe)
 
   const { data, error } = await supabase.from(TABLE).insert(createDAO).select()
@@ -108,7 +111,10 @@ const insertRecipe = async (newRecipe: NewRecipe): Promise<Recipe | null> => {
   const recipeDAOs = recipeDAOSchema.array().parse(data)
   const recipes = recipeDAOs.map(createRecipeFromDAO)
 
-  return recipes[0] ?? null
+  if (!recipes[0]) {
+    throw new Error('Recipe not created')
+  }
+  return recipes[0]
 }
 
 const updateRecipe = async (
@@ -147,7 +153,7 @@ const updateRecipe = async (
   return recipes[0]
 }
 
-const deleteRecipe = async (id: Recipe['id']): Promise<Recipe | null> => {
+const deleteRecipe = async (id: Recipe['id']): Promise<Recipe> => {
   const { data, error } = await supabase
     .from(TABLE)
     .delete()
@@ -166,5 +172,8 @@ const deleteRecipe = async (id: Recipe['id']): Promise<Recipe | null> => {
   const recipeDAOs = recipeDAOSchema.array().parse(data)
   const recipes = recipeDAOs.map(createRecipeFromDAO)
 
-  return recipes[0] ?? null
+  if (!recipes[0]) {
+    throw new Error('Recipe not found after delete')
+  }
+  return recipes[0]
 }

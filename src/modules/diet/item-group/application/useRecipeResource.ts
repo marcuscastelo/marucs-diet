@@ -15,10 +15,6 @@ export function useRecipeResource(group: () => ItemGroup) {
   return createResource(async () => {
     const group_ = group()
     if (!isRecipedItemGroup(group_)) return null
-    try {
-      return await fetchRecipeById(group_.recipe)
-    } catch {
-      return null
-    }
+    return await fetchRecipeById(group_.recipe)
   })
 }

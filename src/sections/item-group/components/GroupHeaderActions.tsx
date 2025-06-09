@@ -130,7 +130,6 @@ export function GroupHeaderActions(props: {
         owner: currentUserId(),
       })
       const insertedRecipe = await insertRecipe(newRecipe)
-      if (insertedRecipe === null) return
       props.setGroup(setItemGroupRecipe(props.group(), insertedRecipe.id))
       props.setRecipeEditModalVisible(true)
     } catch (err) {

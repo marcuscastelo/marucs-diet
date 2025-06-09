@@ -6,12 +6,12 @@ import { type User } from '~/modules/user/domain/user'
 
 export type RecipeRepository = {
   fetchUserRecipes: (userId: User['id']) => Promise<readonly Recipe[]>
-  fetchRecipeById: (id: Recipe['id']) => Promise<Recipe | null>
+  fetchRecipeById: (id: Recipe['id']) => Promise<Recipe>
   fetchUserRecipeByName: (
     userId: User['id'],
     name: Recipe['name'],
   ) => Promise<readonly Recipe[]>
-  insertRecipe: (newRecipe: NewRecipe) => Promise<Recipe | null>
+  insertRecipe: (newRecipe: NewRecipe) => Promise<Recipe>
   updateRecipe: (recipeId: Recipe['id'], newRecipe: Recipe) => Promise<Recipe>
-  deleteRecipe: (id: Recipe['id']) => Promise<Recipe | null>
+  deleteRecipe: (id: Recipe['id']) => Promise<Recipe>
 }

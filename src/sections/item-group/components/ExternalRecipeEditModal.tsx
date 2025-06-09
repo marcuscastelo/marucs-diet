@@ -25,10 +25,6 @@ export function ExternalRecipeEditModal(props: {
           <RecipeEditModal
             recipe={recipe()}
             onSaveRecipe={(recipe) => {
-              console.debug(
-                '[ItemGroupEditModal::ExternalRecipeEditModal] onSaveRecipe:',
-                recipe,
-              )
               updateRecipe(recipe.id, recipe)
                 .then(props.setRecipe)
                 .catch((e) => {
@@ -41,15 +37,9 @@ export function ExternalRecipeEditModal(props: {
             }}
             onRefetch={props.onRefetch}
             onDelete={(recipeId) => {
-              console.debug(
-                '[ItemGroupEditModal::ExternalRecipeEditModal] onDelete:',
-                recipeId,
-              )
-
               const afterDelete = () => {
                 props.setRecipe(null)
               }
-
               deleteRecipe(recipeId)
                 .then(afterDelete)
                 .catch((e) => {
