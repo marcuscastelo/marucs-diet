@@ -53,52 +53,49 @@ function ConvertToRecipeButton(props: { onConvert: () => void }) {
   )
 }
 
+function RecipeButton(props: { onClick: () => void }) {
+  return (
+    <button class="my-auto" onClick={() => props.onClick()}>
+      <RecipeIcon />
+    </button>
+  )
+}
+
+function SyncRecipeButton(props: { onClick: () => void }) {
+  return (
+    <button class="my-auto hover:animate-pulse" onClick={() => props.onClick()}>
+      <DownloadIcon />
+    </button>
+  )
+}
+
+function UnlinkRecipeButton(props: { onClick: () => void }) {
+  return (
+    <button class="my-auto hover:animate-pulse" onClick={() => props.onClick()}>
+      <BrokenLink />
+    </button>
+  )
+}
+
 function RecipeActions(props: {
-  group: ItemGroup
+  group: RecipedItemGroup
   recipe: Recipe
   setRecipeEditModalVisible: Setter<boolean>
   onSync: () => void
   onUnlink: () => void
 }) {
+  const upToDate = () => isRecipedGroupUpToDate(props.group, props.recipe)
+
   return (
-    <Show when={props.group.type === 'recipe'} keyed fallback={null}>
-      <>
-        <Show
-          when={isRecipedGroupUpToDate(
-            props.group as RecipedItemGroup,
-            props.recipe,
-          )}
-        >
-          <button
-            class="my-auto"
-            onClick={() => props.setRecipeEditModalVisible(true)}
-          >
-            <RecipeIcon />
-          </button>
-        </Show>
-        <Show
-          when={
-            !isRecipedGroupUpToDate(
-              props.group as RecipedItemGroup,
-              props.recipe,
-            )
-          }
-        >
-          <button
-            class="my-auto hover:animate-pulse"
-            onClick={() => props.onSync()}
-          >
-            <DownloadIcon />
-          </button>
-        </Show>
-        <button
-          class="my-auto hover:animate-pulse"
-          onClick={() => props.onUnlink()}
-        >
-          <BrokenLink />
-        </button>
-      </>
-    </Show>
+    <>
+      <Show
+        when={upToDate()}
+        fallback={<SyncRecipeButton onClick={props.onSync} />}
+      >
+        <RecipeButton onClick={() => props.setRecipeEditModalVisible(true)} />
+      </Show>
+      <UnlinkRecipeButton onClick={props.onUnlink} />
+    </>
   )
 }
 
@@ -169,6 +166,10 @@ export function GroupHeaderActions(props: {
           />
         </Show>
         <Show
+          when={(() => {
+            const group_ = props.group()
+            return isRecipedItemGroup(group_) && group_
+          })()}
           when={(() => {
             const group_ = props.group()
             return isRecipedItemGroup(group_) && group_
