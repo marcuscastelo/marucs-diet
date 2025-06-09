@@ -18,11 +18,11 @@ export function ConfirmModal() {
           <For each={actions()}>
             {(action) => (
               <button
-                class={`btn ${
+                class={`btn cursor-pointer ${
                   action.primary !== undefined && action.primary
                     ? 'btn-primary'
                     : 'btn-ghost'
-                } cursor-pointer`}
+                }`}
                 onClick={action.onClick}
               >
                 {action.text}
