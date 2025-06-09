@@ -481,10 +481,16 @@ function WeightChart(props: {
       {
         name: 'Pesos',
         type: 'candlestick',
-        data: polishedData().map((weight) => ({
-          x: weight.date,
-          y: [weight.open, weight.high, weight.low, weight.close],
-        })),
+        data: polishedData().map((weight) => {
+          const isInterpolated =
+            (weight as { isInterpolated?: boolean }).isInterpolated === true
+          return {
+            x: weight.date,
+            y: [weight.open, weight.high, weight.low, weight.close],
+            fillColor: isInterpolated ? '#888888' : undefined,
+            strokeColor: isInterpolated ? '#888888' : undefined,
+          }
+        }),
       },
       {
         name: 'Média',
