@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { type ApexOptions } from 'apexcharts'
 import { SolidApexCharts } from 'solid-apexcharts'
-import { createMemo, For } from 'solid-js'
+import { createMemo, createSignal, For } from 'solid-js'
 
 import ptBrLocale from '~/assets/locales/apex/pt-br.json'
 import {
@@ -22,6 +22,7 @@ import {
 import { createNewWeight, type Weight } from '~/modules/weight/domain/weight'
 import { Capsule } from '~/sections/common/components/capsule/Capsule'
 import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
+import { ComboBox } from '~/sections/common/components/ComboBox'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import { useDateField, useFloatField } from '~/sections/common/hooks/useField'
@@ -30,6 +31,15 @@ import { adjustToTimezone, dateToYYYYMMDD } from '~/shared/utils/date'
 
 export function WeightEvolution() {
   const desiredWeight = () => currentUser()?.desired_weight ?? 0
+
+  const [chartType, setChartType] = createSignal<'last-30-days' | 'all-time'>(
+    'all-time',
+  )
+
+  const chartOptions = [
+    { value: 'last-30-days', label: 'Últimos 7 dias' },
+    { value: 'all-time', label: 'Todo o período' },
+  ]
 
   const weightField = useFloatField(undefined, {
     maxValue: 200,
@@ -50,11 +60,18 @@ export function WeightEvolution() {
           Progresso do peso ({weightProgressText()})
         </h5>
         <div class="mx-5 lg:mx-20 pb-10">
-          {/* // TODO:   Create combo box to select weight chart variant (7 days or all time)  */}
+          <div class="mb-4 flex justify-end">
+            <ComboBox
+              options={chartOptions}
+              value={chartType()}
+              onChange={setChartType}
+              class="w-48"
+            />
+          </div>
           <WeightChart
             weights={userWeights()}
             desiredWeight={desiredWeight()}
-            type="all-time"
+            type={chartType()}
           />
           <FloatInput
             field={weightField}
