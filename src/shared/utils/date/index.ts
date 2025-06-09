@@ -5,5 +5,5 @@
  * for consistent date handling across the application.
  */
 
-export * from '~/shared/utils/date/dateUtils'
 export type { DateFormatOptions } from '~/shared/utils/date/dateUtils'
+export * from '~/shared/utils/date/dateUtils'
