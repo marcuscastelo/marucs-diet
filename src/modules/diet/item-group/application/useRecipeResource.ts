@@ -11,6 +11,10 @@ export function useRecipeResource(recipeId: () => number | undefined) {
   return createResource(recipeId, async () => {
     const id = recipeId()
     if (typeof id !== 'number') return null
-    return await fetchRecipeById(id)
+    try {
+      return await fetchRecipeById(id)
+    } catch {
+      return null
+    }
   })
 }
