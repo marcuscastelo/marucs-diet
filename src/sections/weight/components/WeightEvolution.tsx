@@ -423,6 +423,17 @@ function WeightChart(props: {
     ),
   )
 
+  // Custom tickAmount logic
+  const tickAmount = createMemo(() => {
+    const minValue = min()
+    const maxValue = max()
+    const diff = maxValue - minValue
+    if (diff < 20) return Math.max(2, Math.floor(diff))
+    if (diff < 40) return Math.max(2, Math.floor(diff / 2))
+    if (diff < 60) return Math.max(2, Math.floor(diff / 4))
+    return undefined // let ApexCharts decide
+  })
+
   const options = () => {
     return {
       theme: {
@@ -435,7 +446,7 @@ function WeightChart(props: {
         decimalsInFloat: 0,
         min: min() - 1,
         max: max() + 1,
-        tickAmount: Math.min((max() - min()) / 2, 20),
+        tickAmount: tickAmount(),
       },
       stroke: {
         width: 3,
