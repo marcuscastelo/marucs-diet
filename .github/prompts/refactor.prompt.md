@@ -51,7 +51,7 @@ You are a programming assistant specialized in SolidJS, Tailwind, daisyUI, and C
 
 **Example commit:**
 ````markdown
-refactor(weight): optimize period grouping in WeightEvolution to O(n) #changes
+refactor(weight): optimize period grouping in WeightEvolution to O(n) 
 ````
 
 ---
