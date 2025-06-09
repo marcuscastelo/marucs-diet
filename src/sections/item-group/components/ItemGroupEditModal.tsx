@@ -43,10 +43,7 @@ import {
 import { showError } from '~/modules/toast/application/toastManager'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import { Modal } from '~/sections/common/components/Modal'
-import {
-  type ConfirmModalContext,
-  useConfirmModalContext,
-} from '~/sections/common/context/ConfirmModalContext'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import {
   ModalContextProvider,
   useModalContext,
@@ -60,8 +57,7 @@ import {
   ItemName,
 } from '~/sections/food-item/components/ItemView'
 import { ExternalRecipeEditModal } from '~/sections/item-group/components/ExternalRecipeEditModal'
-import { GroupHeaderActions } from '~/sections/item-group/components/GroupHeaderActions'
-import { GroupNameEdit } from '~/sections/item-group/components/GroupNameEdit'
+import { ItemGroupEditModalTitle } from '~/sections/item-group/components/ItemGroupEditModalTitle'
 import { askUnlinkRecipe } from '~/sections/item-group/components/itemGroupModals'
 import {
   ItemGroupEditContextProvider,
@@ -337,7 +333,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
           <Modal class="border-2 border-orange-800" hasBackdrop={true}>
             <Modal.Header
               title={
-                <Title
+                <ItemGroupEditModalTitle
                   recipe={recipeSignal() ?? null}
                   targetMealName={props.targetMealName}
                   group={group}
@@ -380,46 +376,6 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
         </ModalContextProvider>
       </>
     </Show>
-  )
-}
-
-function Title(props: {
-  targetMealName: string
-  recipe: Recipe | null
-  mode?: 'edit' | 'read-only' | 'summary'
-  group: Accessor<ItemGroup>
-  setGroup: Setter<ItemGroup>
-  hasValidPastableOnClipboard: () => boolean
-  handlePaste: () => void
-  setRecipeEditModalVisible: Setter<boolean>
-  showConfirmModal: ConfirmModalContext['show']
-}) {
-  return (
-    <div class="flex flex-col gap-1">
-      <div class="flex items-center justify-between gap-2">
-        <GroupNameEdit
-          group={props.group}
-          setGroup={props.setGroup}
-          mode={props.mode}
-        />
-        <GroupHeaderActions
-          group={props.group}
-          setGroup={props.setGroup}
-          mode={props.mode}
-          recipe={props.recipe}
-          hasValidPastableOnClipboard={props.hasValidPastableOnClipboard}
-          handlePaste={props.handlePaste}
-          setRecipeEditModalVisible={props.setRecipeEditModalVisible}
-          showConfirmModal={props.showConfirmModal}
-        />
-      </div>
-      <div class="text-sm text-gray-400 mt-1">
-        Em <span class="text-green-500">"{props.targetMealName}"</span>
-      </div>
-      <div class="text-xs text-gray-400">
-        Receita: {props.recipe?.name.toString() ?? 'Nenhuma'}
-      </div>
-    </div>
   )
 }
 
