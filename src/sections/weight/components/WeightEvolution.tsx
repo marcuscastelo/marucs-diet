@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { type ApexOptions } from 'apexcharts'
 import { SolidApexCharts } from 'solid-apexcharts'
-import { createMemo, createSignal, For } from 'solid-js'
+import { createEffect, createMemo, createSignal, For } from 'solid-js'
 
 import ptBrLocale from '~/assets/locales/apex/pt-br.json'
 import {
@@ -223,9 +223,30 @@ export function calculateMovingAverage(
 
 export function WeightEvolution() {
   const desiredWeight = () => currentUser()?.desired_weight ?? 0
+  const initialChartType = (() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('weight-evolution-chart-type')
+      if (
+        stored === '7d' ||
+        stored === '14d' ||
+        stored === '30d' ||
+        stored === '6m' ||
+        stored === '1y' ||
+        stored === 'all'
+      ) {
+        return stored
+      }
+    }
+    return 'all'
+  })()
   const [chartType, setChartType] = createSignal<
     '7d' | '14d' | '30d' | '6m' | '1y' | 'all'
-  >('all')
+  >(initialChartType)
+  createEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('weight-evolution-chart-type', chartType())
+    }
+  })
   const chartOptions = [
     { value: '7d', label: 'Últimos 7 dias' },
     { value: '14d', label: 'Últimos 14 dias' },
