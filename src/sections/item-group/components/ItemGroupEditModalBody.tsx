@@ -41,13 +41,6 @@ export function ItemGroupEditModalBody(props: {
       )
       return
     }
-    if (props.recipe() && props.recipe()!.prepared_multiplier !== 1) {
-      // TODO: Support editing complex recipes
-      showError(
-        'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
-      )
-      return
-    }
     props.setEditSelection({ item })
     props.setItemEditModalVisible(true)
   }
