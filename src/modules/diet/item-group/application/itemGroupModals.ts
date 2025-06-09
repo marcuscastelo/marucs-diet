@@ -1,7 +1,8 @@
-import { type Accessor, type Setter } from 'solid-js'
+import { type Accessor, Resource, type Setter } from 'solid-js'
 
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { setItemGroupRecipe } from '~/modules/diet/item-group/domain/itemGroupOperations'
+import { Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { type ConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 
 /**
@@ -11,8 +12,11 @@ import { type ConfirmModalContext } from '~/sections/common/context/ConfirmModal
 export function unlinkRecipe(signals: {
   group: Accessor<ItemGroup>
   setGroup: Setter<ItemGroup>
+  recipe: Resource<Recipe | null>
+  mutateRecipe: (recipe: Recipe | null) => void
 }): void {
   signals.setGroup(setItemGroupRecipe(signals.group(), undefined))
+  signals.mutateRecipe(null)
 }
 
 /**
@@ -26,6 +30,8 @@ export function askUnlinkRecipe(
     showConfirmModal: ConfirmModalContext['show']
     group: Accessor<ItemGroup>
     setGroup: Setter<ItemGroup>
+    recipe: Resource<Recipe | null>
+    mutateRecipe: (recipe: Recipe | null) => void
   },
 ): void {
   signals.showConfirmModal({

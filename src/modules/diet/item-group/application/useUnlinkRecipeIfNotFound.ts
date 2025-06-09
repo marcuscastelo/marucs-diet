@@ -1,4 +1,4 @@
-import { createEffect } from 'solid-js'
+import { createEffect, Resource } from 'solid-js'
 import { Accessor, type Setter } from 'solid-js'
 
 import { askUnlinkRecipe } from '~/modules/diet/item-group/application/itemGroupModals'
@@ -6,6 +6,7 @@ import {
   isRecipedItemGroup,
   ItemGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
+import { Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { type ConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 
 /**
@@ -17,12 +18,14 @@ import { type ConfirmModalContext } from '~/sections/common/context/ConfirmModal
  */
 export function useUnlinkRecipeIfNotFound({
   group,
-  recipeSignal,
+  recipe,
+  mutateRecipe,
   showConfirmModal,
   setGroup,
 }: {
   group: Accessor<ItemGroup>
-  recipeSignal: { state: string; (): unknown }
+  recipe: Resource<Recipe | null>
+  mutateRecipe: (recipe: Recipe | null) => void
   showConfirmModal: ConfirmModalContext['show']
   setGroup: Setter<ItemGroup>
 }) {
@@ -31,7 +34,7 @@ export function useUnlinkRecipeIfNotFound({
     const groupHasRecipe = isRecipedItemGroup(group_)
     if (groupHasRecipe) {
       setTimeout(() => {
-        if (recipeSignal.state === 'ready' && recipeSignal() === null) {
+        if (recipe.state === 'ready' && recipe() === null) {
           setTimeout(() => {
             askUnlinkRecipe(
               'A receita atrelada a esse grupo não foi encontrada. Deseja desvincular o grupo da receita?',
@@ -39,6 +42,8 @@ export function useUnlinkRecipeIfNotFound({
                 showConfirmModal,
                 group,
                 setGroup,
+                recipe,
+                mutateRecipe,
               },
             )
           }, 0)

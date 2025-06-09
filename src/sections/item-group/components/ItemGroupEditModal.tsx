@@ -1,4 +1,4 @@
-import { type Accessor, createSignal, Show } from 'solid-js'
+import { type Accessor, createSignal, Show, Suspense } from 'solid-js'
 
 import { type Item } from '~/modules/diet/item/domain/item'
 import { canApplyGroup } from '~/modules/diet/item-group/application/canApplyGroup'
@@ -11,7 +11,10 @@ import { useItemGroupClipboardActions } from '~/modules/diet/item-group/applicat
 import { useRecipeResource } from '~/modules/diet/item-group/application/useRecipeResource'
 import { useUnlinkRecipeIfNotFound } from '~/modules/diet/item-group/application/useUnlinkRecipeIfNotFound'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
-import { isSimpleSingleGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import {
+  isRecipedItemGroup,
+  isSimpleSingleGroup,
+} from '~/modules/diet/item-group/domain/itemGroup'
 import { Modal } from '~/sections/common/components/Modal'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import {
@@ -58,7 +61,8 @@ export const ItemGroupEditModal = (props: ItemGroupEditModalProps) => {
 
 const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   const { visible, setVisible } = useModalContext()
-  const { group, persistentGroup, setGroup } = useItemGroupEditContext()
+  const { group, recipe, mutateRecipe, persistentGroup, setGroup } =
+    useItemGroupEditContext()
   const { show: showConfirmModal } = useConfirmModalContext()
   const [recipeEditModalVisible, setRecipeEditModalVisible] =
     createSignal(false)
@@ -82,11 +86,10 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
     setEditSelection,
   })
 
-  const [recipeSignal, { mutate: setRecipeSignal }] = useRecipeResource(group)
-
   useUnlinkRecipeIfNotFound({
     group,
-    recipeSignal,
+    recipe,
+    mutateRecipe,
     showConfirmModal,
     setGroup,
   })
@@ -94,103 +97,100 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   const canApply = canApplyGroup(group, editSelection)
 
   return (
-    <Show when={recipeSignal.state === 'ready'} keyed>
-      <>
-        <ExternalRecipeEditModal
-          recipe={recipeSignal() ?? null}
-          setRecipe={setRecipeSignal}
-          visible={recipeEditModalVisible}
-          setVisible={setRecipeEditModalVisible}
-          onRefetch={props.onRefetch}
-        />
-        <Show when={editSelection()?.item}>
-          {(selectedItem) => (
-            <ExternalItemEditModal
-              visible={itemEditModalVisible}
-              setVisible={setItemEditModalVisible}
-              item={() => selectedItem()}
-              targetName={(() => {
-                const receivedName = isSimpleSingleGroup(group())
-                  ? props.targetMealName
-                  : group().name
-                return receivedName.length > 0
-                  ? receivedName
-                  : 'Erro: Nome vazio'
-              })()}
-              targetNameColor={(() => {
-                return isSimpleSingleGroup(group())
-                  ? 'text-green-500'
-                  : 'text-orange-400'
-              })()}
-              macroOverflow={() => {
-                const currentItem = editSelection()?.item
-                if (!currentItem) return { enable: false }
-                const originalItem = persistentGroup().items.find(
-                  (i: Item) => i.id === currentItem.id,
-                )
-                if (!originalItem) return { enable: false }
-                return { enable: true, originalItem }
-              }}
-              onApply={handleItemApplyHandler}
-              onDelete={handleItemDeleteHandler}
-              onClose={() => setEditSelection(null)}
-            />
-          )}
-        </Show>
-        <ExternalTemplateSearchModal
-          visible={templateSearchModalVisible}
-          setVisible={setTemplateSearchModalVisible}
-          onRefetch={props.onRefetch}
-          targetName={group().name}
-          onNewItemGroup={handleNewItemGroupHandler}
-        />
-        <ModalContextProvider visible={visible} setVisible={setVisible}>
-          <Modal class="border-2 border-orange-800" hasBackdrop={true}>
-            <Modal.Header
-              title={
-                <ItemGroupEditModalTitle
-                  recipe={recipeSignal() ?? null}
-                  targetMealName={props.targetMealName}
-                  group={group}
-                  setGroup={setGroup}
-                  mode={props.mode}
-                  hasValidPastableOnClipboard={
-                    clipboard.hasValidPastableOnClipboard
-                  }
-                  handlePaste={clipboard.handlePaste}
-                  setRecipeEditModalVisible={setRecipeEditModalVisible}
-                  showConfirmModal={showConfirmModal}
-                />
-              }
-            />
-            <Modal.Content>
-              <ItemGroupEditModalBody
-                recipe={() => recipeSignal() ?? null}
-                itemEditModalVisible={itemEditModalVisible}
-                setItemEditModalVisible={setItemEditModalVisible}
-                templateSearchModalVisible={templateSearchModalVisible}
-                setTemplateSearchModalVisible={setTemplateSearchModalVisible}
-                recipeEditModalVisible={recipeEditModalVisible}
-                setRecipeEditModalVisible={setRecipeEditModalVisible}
+    <Suspense>
+      <ExternalRecipeEditModal
+        recipe={recipe() ?? null}
+        setRecipe={mutateRecipe}
+        visible={recipeEditModalVisible}
+        setVisible={setRecipeEditModalVisible}
+        onRefetch={props.onRefetch}
+      />
+      <Show when={editSelection()?.item}>
+        {(selectedItem) => (
+          <ExternalItemEditModal
+            visible={itemEditModalVisible}
+            setVisible={setItemEditModalVisible}
+            item={() => selectedItem()}
+            targetName={(() => {
+              const receivedName = isSimpleSingleGroup(group())
+                ? props.targetMealName
+                : group().name
+              return receivedName.length > 0 ? receivedName : 'Erro: Nome vazio'
+            })()}
+            targetNameColor={(() => {
+              return isSimpleSingleGroup(group())
+                ? 'text-green-500'
+                : 'text-orange-400'
+            })()}
+            macroOverflow={() => {
+              const currentItem = editSelection()?.item
+              if (!currentItem) return { enable: false }
+              const originalItem = persistentGroup().items.find(
+                (i: Item) => i.id === currentItem.id,
+              )
+              if (!originalItem) return { enable: false }
+              return { enable: true, originalItem }
+            }}
+            onApply={handleItemApplyHandler}
+            onDelete={handleItemDeleteHandler}
+            onClose={() => setEditSelection(null)}
+          />
+        )}
+      </Show>
+      <ExternalTemplateSearchModal
+        visible={templateSearchModalVisible}
+        setVisible={setTemplateSearchModalVisible}
+        onRefetch={props.onRefetch}
+        targetName={group().name}
+        onNewItemGroup={handleNewItemGroupHandler}
+      />
+      <ModalContextProvider visible={visible} setVisible={setVisible}>
+        <Modal class="border-2 border-orange-800" hasBackdrop={true}>
+          <Modal.Header
+            title={
+              <ItemGroupEditModalTitle
+                recipe={recipe}
+                mutateRecipe={mutateRecipe}
+                targetMealName={props.targetMealName}
+                group={group}
+                setGroup={setGroup}
                 mode={props.mode}
-                writeToClipboard={(text: string) => {
-                  void navigator.clipboard.writeText(text)
-                }}
-                setEditSelection={setEditSelection}
+                hasValidPastableOnClipboard={
+                  clipboard.hasValidPastableOnClipboard
+                }
+                handlePaste={clipboard.handlePaste}
+                setRecipeEditModalVisible={setRecipeEditModalVisible}
+                showConfirmModal={showConfirmModal}
               />
-            </Modal.Content>
-            <Modal.Footer>
-              <ItemGroupEditModalActions
-                canApply={canApply}
-                visible={visible}
-                setVisible={setVisible}
-                onCancel={props.onCancel}
-                onDelete={props.onDelete}
-              />
-            </Modal.Footer>
-          </Modal>
-        </ModalContextProvider>
-      </>
-    </Show>
+            }
+          />
+          <Modal.Content>
+            <ItemGroupEditModalBody
+              recipe={() => recipe() ?? null}
+              itemEditModalVisible={itemEditModalVisible}
+              setItemEditModalVisible={setItemEditModalVisible}
+              templateSearchModalVisible={templateSearchModalVisible}
+              setTemplateSearchModalVisible={setTemplateSearchModalVisible}
+              recipeEditModalVisible={recipeEditModalVisible}
+              setRecipeEditModalVisible={setRecipeEditModalVisible}
+              mode={props.mode}
+              writeToClipboard={(text: string) => {
+                void navigator.clipboard.writeText(text)
+              }}
+              setEditSelection={setEditSelection}
+            />
+          </Modal.Content>
+          <Modal.Footer>
+            <ItemGroupEditModalActions
+              canApply={canApply}
+              visible={visible}
+              setVisible={setVisible}
+              onCancel={props.onCancel}
+              onDelete={props.onDelete}
+            />
+          </Modal.Footer>
+        </Modal>
+      </ModalContextProvider>
+    </Suspense>
   )
 }

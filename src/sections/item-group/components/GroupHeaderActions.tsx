@@ -1,4 +1,4 @@
-import { type Accessor, type Setter, Show } from 'solid-js'
+import { type Accessor, Resource, type Setter, Show } from 'solid-js'
 
 import { deepCopy } from '~/legacy/utils/deepCopy'
 import { askUnlinkRecipe } from '~/modules/diet/item-group/application/itemGroupModals'
@@ -29,8 +29,10 @@ import { type ConfirmModalContext } from '~/sections/common/context/ConfirmModal
 import { formatError } from '~/shared/formatError'
 
 // Helper for recipe complexity
-function isRecipeTooComplex(recipe: Recipe | null) {
-  return recipe !== null && recipe.prepared_multiplier !== 1
+function isRecipeTooComplex(recipe: Recipe | undefined | null): boolean {
+  return (
+    recipe !== undefined && recipe !== null && recipe.prepared_multiplier !== 1
+  )
 }
 
 function PasteButton(props: { disabled: boolean; onPaste: () => void }) {
@@ -103,14 +105,15 @@ export function GroupHeaderActions(props: {
   group: Accessor<ItemGroup>
   setGroup: Setter<ItemGroup>
   mode?: 'edit' | 'read-only' | 'summary'
-  recipe: Recipe | null
+  recipe: Resource<Recipe | null>
+  mutateRecipe: (recipe: Recipe | null) => void
   hasValidPastableOnClipboard: () => boolean
   handlePaste: () => void
   setRecipeEditModalVisible: Setter<boolean>
   showConfirmModal: ConfirmModalContext['show']
 }) {
   function handlePasteClick() {
-    if (isRecipeTooComplex(props.recipe)) {
+    if (isRecipeTooComplex(props.recipe())) {
       showError(
         'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
       )
@@ -147,6 +150,8 @@ export function GroupHeaderActions(props: {
   function handleUnlinkRecipe(group: ItemGroup) {
     askUnlinkRecipe('Deseja desvincular a receita?', {
       showConfirmModal: props.showConfirmModal,
+      recipe: props.recipe,
+      mutateRecipe: props.mutateRecipe,
       group: () => group,
       setGroup: props.setGroup,
     })
@@ -157,7 +162,7 @@ export function GroupHeaderActions(props: {
       <div class="flex gap-2 ml-4">
         <Show when={props.hasValidPastableOnClipboard()}>
           <PasteButton
-            disabled={isRecipeTooComplex(props.recipe)}
+            disabled={isRecipeTooComplex(props.recipe())}
             onPaste={handlePasteClick}
           />
         </Show>
@@ -174,7 +179,7 @@ export function GroupHeaderActions(props: {
         >
           {(group) => (
             <>
-              <Show when={props.recipe}>
+              <Show when={props.recipe()}>
                 {(recipe) => (
                   <RecipeActions
                     group={group()}
@@ -185,7 +190,7 @@ export function GroupHeaderActions(props: {
                   />
                 )}
               </Show>
-              <Show when={!props.recipe}>
+              <Show when={!props.recipe()}>
                 <>Receita não encontrada</>
               </Show>
             </>
