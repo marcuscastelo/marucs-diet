@@ -7,6 +7,7 @@ import {
   isRecipedItemGroup,
   isSimpleItemGroup,
   type ItemGroup,
+  type RecipedItemGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import {
   setItemGroupItems,
@@ -30,6 +31,75 @@ import { formatError } from '~/shared/formatError'
 // Helper for recipe complexity
 function isRecipeTooComplex(recipe: Recipe | null) {
   return recipe !== null && recipe.prepared_multiplier !== 1
+}
+
+function PasteButton(props: { disabled: boolean; onPaste: () => void }) {
+  return (
+    <button
+      class="btn-ghost btn cursor-pointer uppercase px-2 text-white hover:scale-105"
+      onClick={() => props.onPaste()}
+      disabled={props.disabled}
+    >
+      <PasteIcon />
+    </button>
+  )
+}
+
+function ConvertToRecipeButton(props: { onConvert: () => void }) {
+  return (
+    <button class="my-auto" onClick={() => props.onConvert()}>
+      <ConvertToRecipeIcon />
+    </button>
+  )
+}
+
+function RecipeActions(props: {
+  group: ItemGroup
+  recipe: Recipe
+  setRecipeEditModalVisible: Setter<boolean>
+  onSync: () => void
+  onUnlink: () => void
+}) {
+  return (
+    <Show when={props.group.type === 'recipe'} keyed fallback={null}>
+      <>
+        <Show
+          when={isRecipedGroupUpToDate(
+            props.group as RecipedItemGroup,
+            props.recipe,
+          )}
+        >
+          <button
+            class="my-auto"
+            onClick={() => props.setRecipeEditModalVisible(true)}
+          >
+            <RecipeIcon />
+          </button>
+        </Show>
+        <Show
+          when={
+            !isRecipedGroupUpToDate(
+              props.group as RecipedItemGroup,
+              props.recipe,
+            )
+          }
+        >
+          <button
+            class="my-auto hover:animate-pulse"
+            onClick={() => props.onSync()}
+          >
+            <DownloadIcon />
+          </button>
+        </Show>
+        <button
+          class="my-auto hover:animate-pulse"
+          onClick={() => props.onUnlink()}
+        >
+          <BrokenLink />
+        </button>
+      </>
+    </Show>
+  )
 }
 
 export function GroupHeaderActions(props: {
@@ -88,22 +158,15 @@ export function GroupHeaderActions(props: {
     <Show when={props.mode === 'edit'}>
       <div class="flex gap-2 ml-4">
         <Show when={props.hasValidPastableOnClipboard()}>
-          <button
-            class="btn-ghost btn cursor-pointer uppercase px-2 text-white hover:scale-105"
-            onClick={handlePasteClick}
-          >
-            <PasteIcon />
-          </button>
+          <PasteButton
+            disabled={isRecipeTooComplex(props.recipe)}
+            onPaste={handlePasteClick}
+          />
         </Show>
         <Show when={isSimpleItemGroup(props.group())}>
-          <button
-            class="my-auto"
-            onClick={() => {
-              void handleConvertToRecipe()
-            }}
-          >
-            <ConvertToRecipeIcon />
-          </button>
+          <ConvertToRecipeButton
+            onConvert={() => void handleConvertToRecipe()}
+          />
         </Show>
         <Show
           when={(() => {
@@ -115,30 +178,13 @@ export function GroupHeaderActions(props: {
             <>
               <Show when={props.recipe}>
                 {(recipe) => (
-                  <>
-                    <Show when={isRecipedGroupUpToDate(group(), recipe())}>
-                      <button
-                        class="my-auto"
-                        onClick={() => props.setRecipeEditModalVisible(true)}
-                      >
-                        <RecipeIcon />
-                      </button>
-                    </Show>
-                    <Show when={!isRecipedGroupUpToDate(group(), recipe())}>
-                      <button
-                        class="my-auto hover:animate-pulse"
-                        onClick={() => handleSyncGroupItems(group(), recipe())}
-                      >
-                        <DownloadIcon />
-                      </button>
-                    </Show>
-                    <button
-                      class="my-auto hover:animate-pulse"
-                      onClick={() => handleUnlinkRecipe(group())}
-                    >
-                      <BrokenLink />
-                    </button>
-                  </>
+                  <RecipeActions
+                    group={group()}
+                    recipe={recipe()}
+                    setRecipeEditModalVisible={props.setRecipeEditModalVisible}
+                    onSync={() => handleSyncGroupItems(group(), recipe())}
+                    onUnlink={() => handleUnlinkRecipe(group())}
+                  />
                 )}
               </Show>
               <Show when={!props.recipe}>
