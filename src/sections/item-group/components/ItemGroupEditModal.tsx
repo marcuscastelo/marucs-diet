@@ -35,13 +35,11 @@ import {
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import { fetchRecipeById } from '~/modules/diet/recipe/application/recipe'
-import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import {
   isTemplateItemRecipe,
   type TemplateItem,
 } from '~/modules/diet/template-item/domain/templateItem'
 import { showError } from '~/modules/toast/application/toastManager'
-import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import { Modal } from '~/sections/common/components/Modal'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import {
@@ -50,13 +48,8 @@ import {
 } from '~/sections/common/context/ModalContext'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { ExternalItemEditModal } from '~/sections/food-item/components/ExternalItemEditModal'
-import { ItemListView } from '~/sections/food-item/components/ItemListView'
-import {
-  ItemCopyButton,
-  ItemFavorite,
-  ItemName,
-} from '~/sections/food-item/components/ItemView'
 import { ExternalRecipeEditModal } from '~/sections/item-group/components/ExternalRecipeEditModal'
+import { ItemGroupEditModalBody } from '~/sections/item-group/components/ItemGroupEditModalBody'
 import { ItemGroupEditModalTitle } from '~/sections/item-group/components/ItemGroupEditModalTitle'
 import { askUnlinkRecipe } from '~/sections/item-group/components/itemGroupModals'
 import {
@@ -349,7 +342,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
               }
             />
             <Modal.Content>
-              <Body
+              <ItemGroupEditModalBody
                 recipe={() => recipeSignal() ?? null}
                 itemEditModalVisible={itemEditModalVisible}
                 setItemEditModalVisible={setItemEditModalVisible}
@@ -361,6 +354,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
                 writeToClipboard={(text: string) => {
                   void navigator.clipboard.writeText(text)
                 }}
+                setEditSelection={setEditSelection}
               />
             </Modal.Content>
             <Modal.Footer>
@@ -442,91 +436,6 @@ function Actions(props: {
       </button>
     </>
   )
-}
-
-// Body: garantir acesso ao contexto
-function Body(props: {
-  recipe: Accessor<Recipe | null>
-  recipeEditModalVisible: Accessor<boolean>
-  setRecipeEditModalVisible: Setter<boolean>
-  itemEditModalVisible: Accessor<boolean>
-  setItemEditModalVisible: Setter<boolean>
-  templateSearchModalVisible: Accessor<boolean>
-  setTemplateSearchModalVisible: Setter<boolean>
-  mode?: 'edit' | 'read-only' | 'summary'
-  writeToClipboard: (text: string) => void
-}) {
-  const { group } = useItemGroupEditContext()
-  return (
-    <Show when={group()}>
-      {(group) => (
-        <>
-          <div class="text-md mt-4">
-            <div class="flex gap-4">
-              <div class="my-auto flex-1" />
-            </div>
-          </div>
-          <ItemListView
-            items={() => group().items}
-            onItemClick={
-              props.mode === 'edit'
-                ? (item) => {
-                    if (isTemplateItemRecipe(item)) {
-                      // TODO:   Allow user to edit recipe
-                      showError(
-                        'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
-                      )
-                      return
-                    }
-                    if (isRecipeTooComplex(props.recipe())) {
-                      // TODO: Support editing complex recipes
-                      showError(
-                        'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
-                      )
-                      return
-                    }
-                    setEditSelection({ item })
-                    props.setItemEditModalVisible(true)
-                  }
-                : undefined
-            }
-            mode={props.mode}
-            makeHeaderFn={(item) => (
-              <HeaderWithActions
-                name={<ItemName />}
-                primaryActions={
-                  props.mode === 'edit' ? (
-                    <>
-                      <ItemCopyButton
-                        onCopyItem={(item) => {
-                          props.writeToClipboard(JSON.stringify(item))
-                        }}
-                      />
-                      <ItemFavorite foodId={item.reference} />
-                    </>
-                  ) : null
-                }
-              />
-            )}
-          />
-          {props.mode === 'edit' && (
-            <button
-              class="mt-3 min-w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-              onClick={() => {
-                props.setTemplateSearchModalVisible(true)
-              }}
-            >
-              Adicionar item
-            </button>
-          )}
-        </>
-      )}
-    </Show>
-  )
-}
-
-function isRecipeTooComplex(recipe: Recipe | null) {
-  return recipe !== null && recipe.prepared_multiplier !== 1
 }
 
 // Add type guards at the top after type ItemOrGroup
