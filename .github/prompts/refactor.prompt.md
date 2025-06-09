@@ -57,3 +57,27 @@ You are a programming assistant specialized in SolidJS, Tailwind, daisyUI, and C
 
 **Instruction for the assistant:**
 > Follow all the rules above for any task, refactoring, or implementation in this workspace. Always modularize, document, test, and validate as described. Never break conventions or skip validation steps.
+
+---
+
+### Copilot Session Learnings - 2025-06-09
+- Always remove business logic (effects, validations, side effects) from UI components and delegate to hooks/utilities in the application layer.
+- Use utility hooks like `useUnlinkRecipeIfNotFound` for domain-related side effects, keeping the component clean.
+- Modularize handlers for editing, deleting, and creating groups/items into utility files in the application layer.
+- Ensure setter typings follow the SolidJS `Setter<T>` pattern for maximum compatibility and clarity.
+- Delegate all item selection and edit modal opening logic to the Body component, keeping the main modal as an orchestrator only.
+- Validate all changes with `npm run check | tee /tmp/copilot-terminal 2>&1` and only proceed if "All checks passed".
+- Remove unused imports immediately after refactoring.
+- Follow Clean Architecture: pure domain, application orchestrates, UI only renders.
+- Never use `any`, always prefer explicit types and reuse context types.
+- Never leave explanatory comments in code, only export documentation.
+- Prefer small, atomic commits, always suggesting a commit message after changes.
+- Never duplicate logic, always centralize in reusable hooks/utilities.
+- Use absolute imports (`~/`) and never dynamic imports.
+- Update or remove related tests for any code change.
+- Never use `.catch(() => {})` in Promises, only `void` in non-critical handlers/events.
+- UI/Components must never call `handleApiError` directly.
+- Always document exported functions/types with concise English JSDoc.
+- Never use Portuguese identifiers, except for UI text.
+- Never leave unused variables, types, or imports.
+- Always ensure the project is clean after each change.
