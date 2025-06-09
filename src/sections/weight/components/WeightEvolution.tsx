@@ -318,6 +318,7 @@ export function WeightEvolution() {
           </button>
         </div>
         <div class="mx-5 lg:mx-20 pb-10">
+          {/* TODO: Implement scrollbar for big lists instead of slice */}
           <For each={[...userWeights()].reverse().slice(0, 10)}>
             {(weight) => <WeightView weight={weight} />}
           </For>
