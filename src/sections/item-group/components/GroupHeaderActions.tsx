@@ -114,6 +114,7 @@ export function GroupHeaderActions(props: {
 }) {
   function handlePasteClick() {
     if (isRecipeTooComplex(props.recipe())) {
+      // TODO: Support editing complex recipes
       showError(
         'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
       )

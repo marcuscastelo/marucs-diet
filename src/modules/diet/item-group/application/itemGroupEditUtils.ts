@@ -30,6 +30,7 @@ export function handleNewItemGroup({
 }) {
   return (newGroup: ItemGroup) => {
     if (!isSimpleSingleGroup(newGroup)) {
+      // TODO: Implement complex group support
       showError(
         'Grupos complexos ainda não são suportados, funcionalidade em desenvolvimento',
       )
@@ -69,6 +70,7 @@ export function handleItemApply({
 }) {
   return (item: TemplateItem) => {
     if (isTemplateItemRecipe(item)) {
+      // TODO: Allow user to edit recipe
       showError(
         'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
       )

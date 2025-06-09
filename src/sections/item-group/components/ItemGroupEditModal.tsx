@@ -8,13 +8,9 @@ import {
   handleNewItemGroup,
 } from '~/modules/diet/item-group/application/itemGroupEditUtils'
 import { useItemGroupClipboardActions } from '~/modules/diet/item-group/application/useItemGroupClipboardActions'
-import { useRecipeResource } from '~/modules/diet/item-group/application/useRecipeResource'
 import { useUnlinkRecipeIfNotFound } from '~/modules/diet/item-group/application/useUnlinkRecipeIfNotFound'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
-import {
-  isRecipedItemGroup,
-  isSimpleSingleGroup,
-} from '~/modules/diet/item-group/domain/itemGroup'
+import { isSimpleSingleGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { Modal } from '~/sections/common/components/Modal'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import {
@@ -73,6 +69,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   const clipboard = useItemGroupClipboardActions({ group, setGroup })
 
   const handleNewItemGroupHandler = handleNewItemGroup({ group, setGroup })
+  // TODO: Handle non-simple groups on handleNewItemGroup
   const handleItemApplyHandler = handleItemApply({
     group,
     persistentGroup,
