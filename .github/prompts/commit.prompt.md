@@ -25,5 +25,3 @@ git commit -am "<generated commit message>"
 ```
 
 Replace <generated commit message> with the actual message you generated. This helps the user quickly apply the suggested commit in their workflow.
-
-Note: It is not necessary to use /tmp/copilot-terminal-[N] for output redirection, as the commands are instantaneous.
