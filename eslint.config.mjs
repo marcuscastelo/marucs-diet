@@ -38,21 +38,22 @@ export default [
       prettier: pluginPrettier,
       'jsx-a11y': pluginA11y,
       simpleImportSort,
-      import: eslintPluginImport
+      import: eslintPluginImport,
+      "simple-import-sort": simpleImportSort,
     },
     rules: {
       ...js.configs.recommended.rules,
       ...pluginTs.configs['recommended-type-checked'].rules,
 
-      'simpleImportSort/imports': 'error',
-
+      "simple-import-sort/imports": "warn",
+      "simple-import-sort/exports": "warn",
       'no-restricted-imports': [
         'error',
         {
           patterns: ['../*', './*'],
         },
       ],
-      'import/no-unresolved': ['error' ],
+      'import/no-unresolved': ['error'],
 
       eqeqeq: ["error", "always"],
 

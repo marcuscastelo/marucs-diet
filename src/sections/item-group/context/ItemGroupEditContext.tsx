@@ -3,15 +3,21 @@ import {
   createContext,
   createSignal,
   type JSXElement,
+  Resource,
   type Setter,
   untrack,
   useContext,
 } from 'solid-js'
 
+import { useRecipeResource } from '~/modules/diet/item-group/application/useRecipeResource'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { Recipe } from '~/modules/diet/recipe/domain/recipe'
 
 export type ItemGroupEditContext = {
   group: Accessor<ItemGroup>
+  recipe: Resource<Recipe | null>
+  refetchRecipe: (info?: unknown) => Promise<Recipe | undefined | null>
+  mutateRecipe: (recipe: Recipe | null) => void
   persistentGroup: Accessor<ItemGroup>
   setGroup: Setter<ItemGroup>
   saveGroup: () => void
@@ -47,7 +53,7 @@ export function ItemGroupEditContextProvider(props: {
     const newValue =
       typeof value === 'function'
         ? (value as (prev: ItemGroup) => ItemGroup)(props.group())
-        : (value as ItemGroup)
+        : value
     props.setGroup(newValue)
   }
 
@@ -57,10 +63,16 @@ export function ItemGroupEditContextProvider(props: {
     setPersistentGroup(group_)
   }
 
+  const [recipe, { refetch: refetchRecipe, mutate: mutateRecipe }] =
+    useRecipeResource(() => props.group().recipe)
+
   return (
     <itemGroupEditContext.Provider
       value={{
-        group: props.group,
+        group: () => props.group(),
+        recipe: recipe,
+        refetchRecipe: async (info?: unknown) => refetchRecipe(info),
+        mutateRecipe,
         persistentGroup,
         setGroup,
         saveGroup: handleSaveGroup,

@@ -158,7 +158,7 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
                   setTemplateSearchModalVisible(true)
                 }}
                 onEditItem={(item) => {
-                  // TODO:   Allow user to edit recipe.
+                  // TODO: Allow user to edit recipes inside recipes
                   if (isTemplateItemRecipe(item)) {
                     showError(
                       'Ainda não é possível editar receitas dentro de receitas! Funcionalidade em desenvolvimento',

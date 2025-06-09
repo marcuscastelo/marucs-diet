@@ -301,6 +301,7 @@ function Body(props: {
         macroOverflow={props.macroOverflow}
         class="mt-4"
         onClick={() => {
+          // TODO: Implement item editing
           showError('Alimento não editável (ainda)')
         }}
         header={
