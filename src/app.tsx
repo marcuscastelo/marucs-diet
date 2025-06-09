@@ -37,7 +37,7 @@ export default function App() {
                 class="mx-auto flex flex-col justify-between bg-black h-screen w-screen rounded-none"
                 style={{ width: `${width()}px` }}
               >
-                <div class="mx-auto w-full flex flex-col justify-between p-1 px-1 -mt-5 sm:mt-0 sm:px-5 xs">
+                <div class="mx-auto w-full flex flex-col justify-between p-1 px-1 -mt-5 sm:mt-0 sm:px-5">
                   {props.children}
                 </div>
                 <BottomNavigation />
