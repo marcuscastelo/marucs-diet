@@ -81,3 +81,15 @@ You are a programming assistant specialized in SolidJS, Tailwind, daisyUI, and C
 - Never use Portuguese identifiers, except for UI text.
 - Never leave unused variables, types, or imports.
 - Always ensure the project is clean after each change.
+
+### Copilot Session Learnings - 2025-06-09 (Session Additions)
+- When splitting large components, extract all event handler logic and conditional rendering into small, focused subcomponents.
+- Never use early returns in SolidJS component roots; always place conditions inside JSX or fragments to preserve reactivity.
+- Always ensure type safety when narrowing types for conditional rendering (e.g., cast to `RecipedItemGroup` only after checking `type === 'recipe'`).
+- For event handlers that depend on possibly undefined values, always guard with an `if` check before calling downstream logic.
+- When refactoring, always validate with `npm run check | tee /tmp/copilot-terminal 2>&1` after each atomic change and only proceed if all checks pass.
+- Commit messages must always be in English, concise, and action-based.
+- When a component is split, ensure all new subcomponents are documented and follow the same architectural and modularization rules.
+- Never use dynamic imports or any code pattern that breaks static analysis or modularization.
+- Always keep JSX as clean as possible, moving logic to hooks/utilities or subcomponents.
+- Never leave SolidJS warnings about early returns or reactivity in the codebase; always resolve them before finishing a refactor.
