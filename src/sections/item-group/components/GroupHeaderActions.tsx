@@ -29,7 +29,7 @@ import { type ConfirmModalContext } from '~/sections/common/context/ConfirmModal
 import { formatError } from '~/shared/formatError'
 
 // Helper for recipe complexity
-function PasteButton(props: { disabled: boolean; onPaste: () => void }) {
+function PasteButton(props: { disabled?: boolean; onPaste: () => void }) {
   return (
     <button
       class="btn-ghost btn cursor-pointer uppercase px-2 text-white hover:scale-105"
@@ -149,7 +149,7 @@ export function GroupHeaderActions(props: {
     <Show when={props.mode === 'edit'}>
       <div class="flex gap-2 ml-4">
         <Show when={props.hasValidPastableOnClipboard()}>
-          <PasteButton disabled={false} onPaste={handlePasteClick} />
+          <PasteButton onPaste={handlePasteClick} />
         </Show>
         <Show when={isSimpleItemGroup(props.group())}>
           <ConvertToRecipeButton

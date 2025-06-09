@@ -15,7 +15,7 @@ export function useRecipeResource(recipeId: () => number | undefined) {
     try {
       return await fetchRecipeById(id)
     } catch (error) {
-      handleApiError(error, { operation: 'mutateRecipe' })
+      handleApiError(error, { operation: 'fetchRecipe' })
       return null
     }
   })
