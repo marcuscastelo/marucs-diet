@@ -1,20 +1,17 @@
-import { createResource } from 'solid-js'
 import { type Accessor, createSignal, Show } from 'solid-js'
 
 import { type Item } from '~/modules/diet/item/domain/item'
+import { canApplyGroup } from '~/modules/diet/item-group/application/canApplyGroup'
 import {
   handleItemApply,
   handleItemDelete,
   handleNewItemGroup,
 } from '~/modules/diet/item-group/application/itemGroupEditUtils'
 import { useItemGroupClipboardActions } from '~/modules/diet/item-group/application/useItemGroupClipboardActions'
+import { useRecipeResource } from '~/modules/diet/item-group/application/useRecipeResource'
 import { useUnlinkRecipeIfNotFound } from '~/modules/diet/item-group/application/useUnlinkRecipeIfNotFound'
-import {
-  isRecipedItemGroup,
-  type ItemGroup,
-} from '~/modules/diet/item-group/domain/itemGroup'
+import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { isSimpleSingleGroup } from '~/modules/diet/item-group/domain/itemGroup'
-import { fetchRecipeById } from '~/modules/diet/recipe/application/recipe'
 import { Modal } from '~/sections/common/components/Modal'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import {
@@ -69,10 +66,8 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   const [templateSearchModalVisible, setTemplateSearchModalVisible] =
     createSignal(false)
 
-  // Clipboard actions for group-level (header) actions
   const clipboard = useItemGroupClipboardActions({ group, setGroup })
 
-  // Handler factories (curried)
   const handleNewItemGroupHandler = handleNewItemGroup({ group, setGroup })
   const handleItemApplyHandler = handleItemApply({
     group,
@@ -87,19 +82,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
     setEditSelection,
   })
 
-  const [recipeSignal, { mutate: setRecipeSignal }] = createResource(
-    async () => {
-      const group_ = group()
-      if (!isRecipedItemGroup(group_)) {
-        return null
-      }
-      try {
-        return await fetchRecipeById(group_.recipe)
-      } catch {
-        return null
-      }
-    },
-  )
+  const [recipeSignal, { mutate: setRecipeSignal }] = useRecipeResource(group)
 
   useUnlinkRecipeIfNotFound({
     group,
@@ -108,7 +91,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
     setGroup,
   })
 
-  const canApply = group().name.length > 0 && editSelection() === null
+  const canApply = canApplyGroup(group, editSelection)
 
   return (
     <Show when={recipeSignal.state === 'ready'} keyed>
