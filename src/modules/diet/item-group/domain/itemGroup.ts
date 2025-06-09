@@ -1,4 +1,5 @@
 import { z } from 'zod'
+
 import { generateId } from '~/legacy/utils/idUtils'
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'

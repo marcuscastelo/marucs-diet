@@ -1,10 +1,10 @@
 import { calcRecipeMacros } from '~/legacy/utils/macroMath'
 import { type Item } from '~/modules/diet/item/domain/item'
-import { type RecipeItem } from '~/modules/diet/recipe-item/domain/recipeItem'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import { type RecipeItem } from '~/modules/diet/recipe-item/domain/recipeItem'
 import {
-  type Template,
   isTemplateFood,
+  type Template,
 } from '~/modules/diet/template/domain/template'
 
 /**

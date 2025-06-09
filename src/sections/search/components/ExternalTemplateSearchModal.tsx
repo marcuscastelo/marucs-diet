@@ -1,7 +1,8 @@
 import { type Accessor, createEffect, type Setter } from 'solid-js'
+
+import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
-import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 
 export type ExternalTemplateSearchModalProps = {
   visible: Accessor<boolean>

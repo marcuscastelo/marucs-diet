@@ -1,19 +1,20 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
 import {
-  getToday,
-  getTodayYYYYMMDD,
+  addDays,
   adjustToTimezone,
-  getMidnight,
-  stringToDate,
-  dateToYYYYMMDD,
   dateToDDMM,
   dateToString,
+  dateToYYYYMMDD,
   daysBetween,
-  addDays,
+  getMidnight,
+  getToday,
+  getTodayYYYYMMDD,
   isSameDay,
+  stringToDate,
   toLocalDate,
   toUTCDate,
-} from './dateUtils'
+} from '~/shared/utils/date/dateUtils'
 
 describe('dateUtils', () => {
   let mockDate: Date

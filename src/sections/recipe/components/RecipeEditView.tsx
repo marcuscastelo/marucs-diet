@@ -1,14 +1,15 @@
 // TODO:   Unify Recipe and Recipe components into a single component?
 
 import { type Accessor, type JSXElement, type Setter } from 'solid-js'
+
 import { regenerateId } from '~/legacy/utils/idUtils'
 import { calcRecipeCalories } from '~/legacy/utils/macroMath'
+import { itemSchema } from '~/modules/diet/item/domain/item'
 import {
   convertToGroups,
   type GroupConvertible,
 } from '~/modules/diet/item-group/application/itemGroupService'
 import { itemGroupSchema } from '~/modules/diet/item-group/domain/itemGroup'
-import { itemSchema } from '~/modules/diet/item/domain/item'
 import { mealSchema } from '~/modules/diet/meal/domain/meal'
 import { type Recipe, recipeSchema } from '~/modules/diet/recipe/domain/recipe'
 import {

@@ -1,5 +1,6 @@
-import { type ObjectValues } from '~/legacy/utils/typeUtils'
 import { type Accessor, For, type Setter } from 'solid-js'
+
+import { type ObjectValues } from '~/legacy/utils/typeUtils'
 import { cn } from '~/shared/cn'
 
 type TabDefinition = {
@@ -40,7 +41,7 @@ export function TemplateSearchTabs(props: {
             <a
               href="#"
               class={cn(
-                'flex min-h-full items-center justify-center px-4 py-2 text-sm font-medium first:ml-0 disabled:cursor-not-allowed disabled:text-gray-400 disabled:dark:text-gray-500 focus:outline-none hover:scale-110 transition-transform bg-gray-800 dark:bg-gray-800',
+                'flex min-h-full items-center justify-center px-4 py-2 text-sm font-medium first:ml-0 disabled:cursor-not-allowed disabled:text-gray-400 disabled:dark:text-gray-500 focus:outline-hidden hover:scale-110 transition-transform bg-gray-800 dark:bg-gray-800',
                 {
                   'text-gray-100 bg-gray-600 dark:bg-gray-600 dark:text-gray-300':
                     props.tab() ===

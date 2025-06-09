@@ -1,5 +1,9 @@
 import { z } from 'zod'
-import { type RecentFood, recentFoodSchema } from '../domain/recentFood'
+
+import {
+  type RecentFood,
+  recentFoodSchema,
+} from '~/modules/recent-food/domain/recentFood'
 
 // DAO schema for creating new recent food
 export const createRecentFoodDAOSchema = z.object({

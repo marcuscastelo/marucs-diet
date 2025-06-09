@@ -1,8 +1,8 @@
-import { type User } from '~/modules/user/domain/user'
 import {
   type MacroProfile,
   type NewMacroProfile,
 } from '~/modules/diet/macro-profile/domain/macroProfile'
+import { type User } from '~/modules/user/domain/user'
 
 export type MacroProfileRepository = {
   fetchUserMacroProfiles: (

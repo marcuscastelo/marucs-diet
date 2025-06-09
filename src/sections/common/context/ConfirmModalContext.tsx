@@ -1,10 +1,10 @@
 import {
-  type JSXElement,
   type Accessor,
   createContext,
-  useContext,
   createSignal,
+  type JSXElement,
   type Setter,
+  useContext,
 } from 'solid-js'
 
 // TODO:   simplify types, use Accessor<Title> and Accessor<Body> where needed instead of functions in the type definitions

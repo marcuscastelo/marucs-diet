@@ -1,5 +1,5 @@
-import { type User } from '~/modules/user/domain/user'
 import { type Measure, type NewMeasure } from '~/modules/measure/domain/measure'
+import { type User } from '~/modules/user/domain/user'
 
 export type MeasureRepository = {
   fetchUserMeasures: (userId: User['id']) => Promise<readonly Measure[]>

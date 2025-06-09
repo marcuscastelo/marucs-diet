@@ -1,11 +1,12 @@
 import { Show } from 'solid-js'
+
 import { type Mutable } from '~/legacy/utils/typeUtils'
 import {
   innerData,
   setInnerData,
   unsavedFields,
 } from '~/modules/profile/application/profile'
-import { userSchema, type User } from '~/modules/user/domain/user'
+import { type User, userSchema } from '~/modules/user/domain/user'
 import { Capsule } from '~/sections/common/components/capsule/Capsule'
 import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
 
@@ -114,17 +115,21 @@ function RightContent<T extends keyof Omit<User, '__type'>>(props: {
 }) {
   return (
     <CapsuleContent>
-      <Show when={innerData()}>
-        {(innerData) => (
-          <input
-            class={'btn-ghost input px-0 pl-5 text-xl'}
-            value={innerData()[props.field].toString()}
-            onChange={makeOnChange(props.field, convertString)}
-            onBlur={makeOnBlur(props.field, props.convert)}
-            style={{ width: '100%' }}
-          />
-        )}
-      </Show>
+      <div class="flex items-center justify-center w-full">
+        <Show when={innerData()}>
+          {(innerData) => (
+            <input
+              class={
+                'btn-ghost input bg-transparent text-center px-0 pl-5 text-xl my-auto'
+              }
+              value={innerData()[props.field].toString()}
+              onChange={makeOnChange(props.field, convertString)}
+              onBlur={makeOnBlur(props.field, props.convert)}
+              style={{ width: '100%' }}
+            />
+          )}
+        </Show>
+      </div>
     </CapsuleContent>
   )
 }

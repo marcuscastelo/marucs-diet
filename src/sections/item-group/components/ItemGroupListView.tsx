@@ -1,15 +1,16 @@
+import { type Accessor, For } from 'solid-js'
+
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
+import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import {
-  ItemGroupView,
   ItemGroupCopyButton,
   ItemGroupName,
+  ItemGroupView,
   ItemGroupViewNutritionalInfo,
   type ItemGroupViewProps,
 } from '~/sections/item-group/components/ItemGroupView'
 import { handleClipboardError } from '~/shared/error/errorHandler'
-import { useClipboard } from '~/sections/common/hooks/useClipboard'
-import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
-import { type Accessor, For } from 'solid-js'
 
 export type ItemGroupListViewProps = {
   itemGroups: Accessor<ItemGroup[]>

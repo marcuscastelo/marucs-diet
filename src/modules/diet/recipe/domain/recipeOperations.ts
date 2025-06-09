@@ -1,5 +1,5 @@
 import { type Item } from '~/modules/diet/item/domain/item'
-import { type Recipe } from './recipe'
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 
 /**
  * Pure functions for recipe operations

@@ -1,5 +1,6 @@
-import { cn } from '~/shared/cn'
 import { type JSXElement, mergeProps } from 'solid-js'
+
+import { cn } from '~/shared/cn'
 
 // https://flowbite.com/docs/components/alerts/
 export function Alert(props_: {
@@ -29,7 +30,7 @@ export function Alert(props_: {
       role="alert"
     >
       <svg
-        class="flex-shrink-0 inline w-4 h-4 mr-3"
+        class="shrink-0 inline w-4 h-4 mr-3"
         aria-hidden="true"
         xmlns="http://www.w3.org/2000/svg"
         fill="currentColor"

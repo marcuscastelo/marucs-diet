@@ -1,17 +1,21 @@
-import { type User, userSchema } from '~/modules/user/domain/user'
-import { UserIcon } from '~/sections/common/components/icons/UserIcon'
 import { createEffect, Show } from 'solid-js'
-import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
+
 import {
   innerData,
   setUnsavedFields,
   type UnsavedFields,
 } from '~/modules/profile/application/profile'
-import { currentUser, updateUser } from '~/modules/user/application/user'
-import { convertString, UserInfoCapsule } from './UserInfoCapsule'
+import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { showError } from '~/modules/toast/application/toastManager'
-import { formatError } from '~/shared/formatError'
+import { currentUser, updateUser } from '~/modules/user/application/user'
+import { type User, userSchema } from '~/modules/user/domain/user'
+import { UserIcon } from '~/sections/common/components/icons/UserIcon'
+import {
+  convertString,
+  UserInfoCapsule,
+} from '~/sections/profile/components/UserInfoCapsule'
 import { handleApiError } from '~/shared/error/errorHandler'
+import { formatError } from '~/shared/formatError'
 type Translation<T extends string> = { [_key in T]: string }
 // TODO:   Create module for translations
 // TODO:   Make diet translations appear in the UI
@@ -91,7 +95,9 @@ export function UserInfo() {
         </div>
       </div>
       <button
-        class={'btn-primary no-animation btn w-full rounded-t-none'}
+        class={
+          'btn-primary no-animation btn cursor-pointer uppercase w-full rounded-t-none'
+        }
         onClick={() => {
           const user = innerData()
           if (user === null) {

@@ -1,41 +1,13 @@
-import { z } from 'zod'
-import {
-  type ItemGroup,
-  type RecipedItemGroup,
-  isRecipedItemGroup,
-  isSimpleItemGroup,
-  isSimpleSingleGroup,
-  itemGroupSchema,
-} from '~/modules/diet/item-group/domain/itemGroup'
-import { type Item, itemSchema } from '~/modules/diet/item/domain/item'
-import {
-  type Recipe,
-  createNewRecipe,
-} from '~/modules/diet/recipe/domain/recipe'
-import {
-  type TemplateItem,
-  isTemplateItemRecipe,
-} from '~/modules/diet/template-item/domain/templateItem'
-import { RecipeIcon } from '~/sections/common/components/icons/RecipeIcon'
-import { Modal } from '~/sections/common/components/Modal'
-import { ExternalItemEditModal } from '~/sections/food-item/components/ExternalItemEditModal'
-import { ItemListView } from '~/sections/food-item/components/ItemListView'
-import {
-  ItemCopyButton,
-  ItemFavorite,
-  ItemName,
-} from '~/sections/food-item/components/ItemView'
-import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
-import { ExternalRecipeEditModal } from './ExternalRecipeEditModal'
 import { createResource } from 'solid-js'
-
 import {
   type Accessor,
-  type Setter,
-  Show,
   createEffect,
   createSignal,
+  type Setter,
+  Show,
 } from 'solid-js'
+import { z } from 'zod'
+
 import { deepCopy } from '~/legacy/utils/deepCopy'
 import { regenerateId } from '~/legacy/utils/idUtils'
 import { isOverflow } from '~/legacy/utils/macroOverflow'
@@ -43,10 +15,19 @@ import {
   currentDayDiet,
   targetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
+import { type Item, itemSchema } from '~/modules/diet/item/domain/item'
+import {
+  isRecipedItemGroup,
+  isSimpleItemGroup,
+  isSimpleSingleGroup,
+  type ItemGroup,
+  itemGroupSchema,
+  type RecipedItemGroup,
+} from '~/modules/diet/item-group/domain/itemGroup'
 import { isRecipedGroupUpToDate } from '~/modules/diet/item-group/domain/itemGroup'
 import {
-  addItemToGroup,
   addItemsToGroup,
+  addItemToGroup,
   removeItemFromGroup,
   setItemGroupItems,
   setItemGroupRecipe,
@@ -59,6 +40,14 @@ import {
   fetchRecipeById,
   insertRecipe,
 } from '~/modules/diet/recipe/application/recipe'
+import {
+  createNewRecipe,
+  type Recipe,
+} from '~/modules/diet/recipe/domain/recipe'
+import {
+  isTemplateItemRecipe,
+  type TemplateItem,
+} from '~/modules/diet/template-item/domain/templateItem'
 import { showError } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
@@ -66,6 +55,8 @@ import { BrokenLink } from '~/sections/common/components/icons/BrokenLinkIcon'
 import { ConvertToRecipeIcon } from '~/sections/common/components/icons/ConvertToRecipeIcon'
 import { DownloadIcon } from '~/sections/common/components/icons/DownloadIcon'
 import { PasteIcon } from '~/sections/common/components/icons/PasteIcon'
+import { RecipeIcon } from '~/sections/common/components/icons/RecipeIcon'
+import { Modal } from '~/sections/common/components/Modal'
 import {
   type ConfirmModalContext,
   useConfirmModalContext,
@@ -75,10 +66,19 @@ import {
   useModalContext,
 } from '~/sections/common/context/ModalContext'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
+import { ExternalItemEditModal } from '~/sections/food-item/components/ExternalItemEditModal'
+import { ItemListView } from '~/sections/food-item/components/ItemListView'
+import {
+  ItemCopyButton,
+  ItemFavorite,
+  ItemName,
+} from '~/sections/food-item/components/ItemView'
+import { ExternalRecipeEditModal } from '~/sections/item-group/components/ExternalRecipeEditModal'
 import {
   ItemGroupEditContextProvider,
   useItemGroupEditContext,
 } from '~/sections/item-group/context/ItemGroupEditContext'
+import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { formatError } from '~/shared/formatError'
 import { stringToDate } from '~/shared/utils/date'
 
@@ -163,7 +163,6 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   const [templateSearchModalVisible, setTemplateSearchModalVisible] =
     createSignal(false)
 
-  // Definição do schema aceito para clipboard
   const acceptedClipboardSchema = z.union([
     itemSchema,
     itemGroupSchema,
@@ -454,7 +453,7 @@ function GroupNameEdit(props: {
           </span>
           {props.mode === 'edit' && (
             <button
-              class="btn btn-xs btn-ghost px-1"
+              class="btn cursor-pointer uppercase btn-xs btn-ghost px-1"
               aria-label="Editar nome do grupo"
               onClick={() => setIsEditingName(true)}
               style={{ 'line-height': '1' }}
@@ -497,7 +496,7 @@ function GroupNameEdit(props: {
           }}
         />
         <button
-          class="btn btn-xs btn-primary px-2"
+          class="btn cursor-pointer uppercase btn-xs btn-primary px-2"
           aria-label="Salvar nome do grupo"
           onClick={() => setIsEditingName(false)}
           type="submit"
@@ -525,7 +524,7 @@ function GroupHeaderActions(props: {
       <div class="flex gap-2 ml-4">
         <Show when={props.hasValidPastableOnClipboard()}>
           <button
-            class="btn-ghost btn px-2 text-white hover:scale-105"
+            class="btn-ghost btn cursor-pointer uppercase px-2 text-white hover:scale-105"
             onClick={() => {
               if (isRecipeTooComplex(props.recipe)) {
                 showError(
@@ -688,7 +687,7 @@ function Actions(props: {
       <Show when={props.onDelete}>
         {(onDelete) => (
           <button
-            class="btn-error btn mr-auto"
+            class="btn-error btn cursor-pointer uppercase mr-auto"
             onClick={(e) => {
               e.preventDefault()
               showConfirmModal({
@@ -715,7 +714,7 @@ function Actions(props: {
         )}
       </Show>
       <button
-        class="btn"
+        class="btn cursor-pointer uppercase"
         onClick={(e) => {
           e.preventDefault()
           props.setVisible(false)
@@ -725,7 +724,7 @@ function Actions(props: {
         Cancelar
       </button>
       <button
-        class="btn"
+        class="btn cursor-pointer uppercase"
         disabled={!props.canApply}
         onClick={(e) => {
           e.preventDefault()

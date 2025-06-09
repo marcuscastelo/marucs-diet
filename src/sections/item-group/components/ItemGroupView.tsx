@@ -1,19 +1,20 @@
 import {
   type Accessor,
-  type JSXElement,
   createEffect,
   createResource,
+  type JSXElement,
 } from 'solid-js'
+
 import { calcGroupCalories, calcGroupMacros } from '~/legacy/utils/macroMath'
 import {
-  type ItemGroup,
-  RecipedItemGroup,
-  SimpleItemGroup,
   getItemGroupQuantity,
   isRecipedGroupUpToDate,
   isRecipedItemGroup,
   isSimpleItemGroup,
   isSimpleSingleGroup,
+  type ItemGroup,
+  RecipedItemGroup,
+  SimpleItemGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
@@ -84,7 +85,7 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
         operation: 'nameColor',
         additionalData: { recipeError: recipe.error },
       })
-      return 'text-red-900 bg-red-200 bg-opacity-50'
+      return 'text-red-900 bg-red-200/50'
     }
 
     const handleSimple = (simpleGroup: SimpleItemGroup) => {
@@ -141,7 +142,9 @@ export function ItemGroupCopyButton(props: {
 }) {
   return (
     <div
-      class={'btn-ghost btn ml-auto mt-1 px-2 text-white hover:scale-105'}
+      class={
+        'btn-ghost btn cursor-pointer uppercase ml-auto mt-1 px-2 text-white hover:scale-105'
+      }
       onClick={(e) => {
         e.stopPropagation()
         e.preventDefault()

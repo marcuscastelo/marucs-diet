@@ -10,6 +10,7 @@ import {
   ToastExpandableErrorData,
   ToastOptions,
 } from '~/modules/toast/domain/toastTypes'
+import { isNonEmptyString } from '~/shared/utils/isNonEmptyString'
 
 /**
  * Options for error processing in toasts.
@@ -73,22 +74,22 @@ export function createExpandableErrorData(
   let displayMessage: string
   let needsTruncation: boolean
 
-  if (providedDisplayMessage !== undefined) {
-    displayMessage = providedDisplayMessage
-    needsTruncation = displayMessage.length > opts.maxLength
+  let cleanMessage = originalMessage
+  // Clean up the message for display
+  if (isNonEmptyString(providedDisplayMessage)) {
+    cleanMessage =
+      providedDisplayMessage +
+      ': ' +
+      cleanErrorMessage(originalMessage, opts.preserveLineBreaks)
   } else {
-    // Clean up the message for display
-    const cleanMessage = cleanErrorMessage(
-      originalMessage,
-      opts.preserveLineBreaks,
-    )
-
-    // Check if truncation is needed
-    needsTruncation = cleanMessage.length > opts.maxLength
-    displayMessage = needsTruncation
-      ? truncateMessage(cleanMessage, opts.maxLength, opts.truncationSuffix)
-      : cleanMessage
+    cleanMessage = cleanErrorMessage(originalMessage, opts.preserveLineBreaks)
   }
+
+  // Check if truncation is needed
+  needsTruncation = cleanMessage.length > opts.maxLength
+  displayMessage = needsTruncation
+    ? truncateMessage(cleanMessage, opts.maxLength, opts.truncationSuffix)
+    : cleanMessage
 
   return {
     displayMessage,

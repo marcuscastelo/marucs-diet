@@ -1,9 +1,10 @@
+import { createEffect, createSignal, onMount } from 'solid-js'
+
 import { type Food } from '~/modules/diet/food/domain/food'
-import { Modal } from '~/sections/common/components/Modal'
 import { BarCodeReader } from '~/sections/barcode/components/BarCodeReader'
 import BarCodeSearch from '~/sections/barcode/components/BarCodeSearch'
+import { Modal } from '~/sections/common/components/Modal'
 import { useModalContext } from '~/sections/common/context/ModalContext'
-import { createEffect, createSignal, onMount } from 'solid-js'
 
 export type BarCodeInsertModalProps = {
   onSelect: (apiFood: Food) => void
@@ -66,7 +67,7 @@ const BarCodeInsertModal = (props: BarCodeInsertModalProps) => {
       </Modal.Content>
       <Modal.Footer>
         <button
-          class="btn"
+          class="btn cursor-pointer uppercase"
           onClick={(e) => {
             e.preventDefault()
             setVisible(false)
@@ -75,7 +76,7 @@ const BarCodeInsertModal = (props: BarCodeInsertModalProps) => {
           Cancelar
         </button>
         <button
-          class="btn-primary btn"
+          class="btn-primary btn cursor-pointer uppercase"
           disabled={food() === null}
           onClick={handleSelect}
         >

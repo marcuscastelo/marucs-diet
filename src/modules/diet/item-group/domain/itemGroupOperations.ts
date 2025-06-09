@@ -1,5 +1,5 @@
 import { type Item } from '~/modules/diet/item/domain/item'
-import { type ItemGroup } from './itemGroup'
+import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 
 /**
  * Pure functions for item group operations

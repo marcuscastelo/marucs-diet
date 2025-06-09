@@ -1,7 +1,8 @@
-import { Modal } from '~/sections/common/components/Modal'
-import { ModalContextProvider } from '~/sections/common/context/ModalContext'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { For } from 'solid-js'
+
+import { Modal } from '~/sections/common/components/Modal'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 
 export function ConfirmModal() {
   const {
@@ -17,7 +18,7 @@ export function ConfirmModal() {
           <For each={actions()}>
             {(action) => (
               <button
-                class={`btn ${
+                class={`btn cursor-pointer ${
                   action.primary !== undefined && action.primary
                     ? 'btn-primary'
                     : 'btn-ghost'

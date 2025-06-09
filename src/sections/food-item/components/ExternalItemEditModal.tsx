@@ -1,4 +1,5 @@
-import { type Accessor, type Setter, Show, createEffect } from 'solid-js'
+import { type Accessor, createEffect, type Setter, Show } from 'solid-js'
+
 import { type Item } from '~/modules/diet/item/domain/item'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'

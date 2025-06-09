@@ -1,10 +1,11 @@
-import { For, createSignal } from 'solid-js'
-import { showSuccess } from '~/modules/toast/application/toastManager'
+import { createSignal, For } from 'solid-js'
+
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
+import { showSuccess } from '~/modules/toast/application/toastManager'
 import { BottomNavigation } from '~/sections/common/components/BottomNavigation'
 import { Providers } from '~/sections/common/context/Providers'
-import { Toggle } from '~/sections/settings/components/Toggle'
 import { ToastSettings } from '~/sections/settings/components/ToastSettings'
+import { Toggle } from '~/sections/settings/components/Toggle'
 
 export default function Page() {
   const toggleSettings = [

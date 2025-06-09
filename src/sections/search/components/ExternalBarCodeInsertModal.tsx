@@ -1,6 +1,7 @@
 import { type Accessor, type Setter } from 'solid-js'
-import BarCodeInsertModal from '~/sections/barcode/components/BarCodeInsertModal'
+
 import { type Template } from '~/modules/diet/template/domain/template'
+import BarCodeInsertModal from '~/sections/barcode/components/BarCodeInsertModal'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 
 export function ExternalBarCodeInsertModal(props: {

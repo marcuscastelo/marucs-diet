@@ -40,3 +40,13 @@ During this session, always wait until the end of the execution of any requested
 
 ## Testing
 - Update tests for all changes. Run `npm check` and wait for "All checks passed"
+
+# Additional Enforcement
+- Never add explanatory comments in the code. Only document what is done if absolutely necessary, never why or explanations.
+- Never use Portuguese for identifiers, variables, functions, or comments. Only UI text may be in English or pt-BR as required.
+- Never use dynamic imports. Always use static imports at the top of the file.
+- Prefer small, atomic commits. Always suggest a commit message after making changes.
+- Always update or remove related tests when changing code.
+- Application layer must always call handleApiError with context.
+- Never use handleApiError in domain code.
+- Never use `.catch(() => {})` in promises.

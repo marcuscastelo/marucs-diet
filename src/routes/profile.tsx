@@ -1,9 +1,9 @@
-import { UserInfo } from '~/sections/profile/components/UserInfo'
-import { WeightEvolution } from '~/sections/weight/components/WeightEvolution'
-import { MeasuresEvolution } from '~/sections/profile/measure/components/MeasuresEvolution'
-import { MacroEvolution } from '~/sections/profile/components/MacroEvolution'
 import { BottomNavigation } from '~/sections/common/components/BottomNavigation'
+import { MacroEvolution } from '~/sections/profile/components/MacroEvolution'
 import { MacroProfileComp } from '~/sections/profile/components/MacroProfile'
+import { UserInfo } from '~/sections/profile/components/UserInfo'
+import { MeasuresEvolution } from '~/sections/profile/measure/components/MeasuresEvolution'
+import { WeightEvolution } from '~/sections/weight/components/WeightEvolution'
 
 export default function Page() {
   return (

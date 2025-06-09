@@ -1,12 +1,13 @@
 import {
+  type Accessor,
   createContext,
   createSignal,
-  untrack,
-  useContext,
-  type Accessor,
   type JSXElement,
   type Setter,
+  untrack,
+  useContext,
 } from 'solid-js'
+
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 
 export type ItemGroupEditContext = {

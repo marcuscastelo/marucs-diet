@@ -1,11 +1,12 @@
+import { describe, expect, it } from 'vitest'
+
+import { createItem } from '~/modules/diet/item/domain/item'
 import {
-  updateItemQuantity,
-  updateItemName,
-  updateItemMacros,
   replaceItem,
-} from './itemOperations'
-import { createItem } from './item'
-import { describe, it, expect } from 'vitest'
+  updateItemMacros,
+  updateItemName,
+  updateItemQuantity,
+} from '~/modules/diet/item/domain/itemOperations'
 
 const baseItem = createItem({
   name: 'Arroz',

@@ -1,15 +1,15 @@
 import supabase from '~/legacy/utils/supabase'
 import { type User } from '~/modules/user/domain/user'
 import {
-  weightSchema,
   type NewWeight,
   type Weight,
+  weightSchema,
 } from '~/modules/weight/domain/weight'
 import { type WeightRepository } from '~/modules/weight/domain/weightRepository'
 import {
   createInsertWeightDAOFromWeight,
   createUpdateWeightDAOFromWeight,
-} from './weightDAO'
+} from '~/modules/weight/infrastructure/weightDAO'
 
 export const SUPABASE_TABLE_WEIGHTS = 'weights'
 

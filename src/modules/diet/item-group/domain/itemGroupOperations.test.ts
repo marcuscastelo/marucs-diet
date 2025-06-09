@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+
 import { createItem } from '~/modules/diet/item/domain/item'
+import { createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import {
-  addItemToGroup,
   addItemsToGroup,
+  addItemToGroup,
   clearItemGroupItems,
   findItemInGroup,
   removeItemFromGroup,
@@ -12,7 +13,7 @@ import {
   setItemGroupRecipe,
   updateItemGroupName,
   updateItemInGroup,
-} from './itemGroupOperations'
+} from '~/modules/diet/item-group/domain/itemGroupOperations'
 
 function makeItem(id: number, name = 'Arroz') {
   return {

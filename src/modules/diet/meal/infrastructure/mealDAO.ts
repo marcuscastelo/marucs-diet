@@ -1,6 +1,7 @@
 import { z } from 'zod'
-import { type Meal, mealSchema } from '~/modules/diet/meal/domain/meal'
+
 import { itemGroupSchema } from '~/modules/diet/item-group/domain/itemGroup'
+import { type Meal, mealSchema } from '~/modules/diet/meal/domain/meal'
 
 // DAO schema for creating new meals
 export const createMealDAOSchema = z.object({

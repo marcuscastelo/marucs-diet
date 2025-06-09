@@ -1,10 +1,11 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest'
+
+import type { MacroOverflowContext } from '~/legacy/utils/macroOverflow'
+import { isOverflowForItemGroup } from '~/legacy/utils/macroOverflow'
 import type { DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { createItem, type Item } from '~/modules/diet/item/domain/item'
 import { TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
-import type { MacroOverflowContext } from './macroOverflow'
-import { isOverflowForItemGroup } from './macroOverflow'
 
 function makeItem(macros: Item['macros']): TemplateItem {
   return createItem({

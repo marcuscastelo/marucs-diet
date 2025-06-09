@@ -1,5 +1,16 @@
+import {
+  type Accessor,
+  createEffect,
+  createSignal,
+  For,
+  mergeProps,
+  type Setter,
+  untrack,
+} from 'solid-js'
+
 import { type Item } from '~/modules/diet/item/domain/item'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import { showError } from '~/modules/toast/application/toastManager'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import { Modal } from '~/sections/common/components/Modal'
@@ -12,17 +23,6 @@ import {
   ItemNutritionalInfo,
   ItemView,
 } from '~/sections/food-item/components/ItemView'
-
-import {
-  createEffect,
-  createSignal,
-  For,
-  mergeProps,
-  untrack,
-  type Accessor,
-  type Setter,
-} from 'solid-js'
-import { showError } from '~/modules/toast/application/toastManager'
 
 /**
  * Modal for editing a TemplateItem.
@@ -79,9 +79,10 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
       <Modal.Footer>
         {props.onDelete !== undefined && (
           <button
-            class="btn-error btn mr-auto"
+            class="btn-error btn cursor-pointer uppercase mr-auto"
             onClick={(e) => {
               e.preventDefault()
+              // eslint-disable-next-line @typescript-eslint/no-unused-expressions
               props.onDelete !== undefined &&
                 showConfirmModal({
                   title: 'Excluir item',
@@ -106,7 +107,7 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
           </button>
         )}
         <button
-          class="btn"
+          class="btn cursor-pointer uppercase"
           onClick={(e) => {
             e.preventDefault()
             e.stopPropagation()
@@ -117,7 +118,7 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
           Cancelar
         </button>
         <button
-          class="btn"
+          class="btn cursor-pointer uppercase"
           disabled={!canApply()}
           onClick={(e) => {
             e.preventDefault()
@@ -216,7 +217,7 @@ function Body(props: {
             <For each={row}>
               {(value) => (
                 <div
-                  class="btn-primary btn-sm btn flex-1"
+                  class="btn-primary btn-sm btn cursor-pointer uppercase flex-1"
                   onClick={() => {
                     quantityField.setRawValue(value.toString())
                   }}
@@ -252,9 +253,9 @@ function Body(props: {
             }`}
           />
         </div>
-        <div class="my-1 ml-1 flex flex-shrink justify-around gap-1">
+        <div class="my-1 ml-1 flex shrink justify-around gap-1">
           <div
-            class="btn-primary btn-xs btn h-full w-10 px-6 text-4xl text-red-600"
+            class="btn-primary btn-xs btn cursor-pointer uppercase h-full w-10 px-6 text-4xl text-red-600"
             onClick={decrement}
             onMouseDown={() => {
               holdRepeatStart(decrement)
@@ -269,7 +270,7 @@ function Body(props: {
             -{' '}
           </div>
           <div
-            class="btn-primary btn-xs btn ml-1 h-full w-10 px-6 text-4xl text-green-400"
+            class="btn-primary btn-xs btn cursor-pointer uppercase ml-1 h-full w-10 px-6 text-4xl text-green-400"
             onClick={increment}
             onMouseDown={() => {
               holdRepeatStart(increment)

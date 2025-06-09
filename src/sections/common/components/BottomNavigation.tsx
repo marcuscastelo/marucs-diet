@@ -1,12 +1,13 @@
 import { useLocation, useNavigate } from '@solidjs/router'
 import {
+  createSignal,
   For,
   type JSXElement,
-  Show,
-  createSignal,
   onCleanup,
   onMount,
+  Show,
 } from 'solid-js'
+
 import { showError } from '~/modules/toast/application/toastManager'
 import {
   changeToUser,
@@ -36,9 +37,9 @@ export function BottomNavigation() {
     observer = new window.IntersectionObserver(
       (entries) => {
         const entry = entries[0]
-        const ratio = entry?.intersectionRatio ?? 0
+        const ratio = entry ? entry.intersectionRatio : 0
         setFooterIntersection(ratio)
-        if (ratio > 0 && footerRef) {
+        if (ratio > 0) {
           setFooterHeight(footerRef.offsetHeight)
         }
       },
@@ -51,7 +52,7 @@ export function BottomNavigation() {
 
     // Updates footerHeight if the footer size changes
     resizeObserver = new window.ResizeObserver(() => {
-      if (footerRef && footerRef.offsetHeight !== footerHeight()) {
+      if (footerRef.offsetHeight !== footerHeight()) {
         setFooterHeight(footerRef.offsetHeight)
       }
     })
@@ -83,7 +84,7 @@ export function BottomNavigation() {
         }}
       >
         <div class="z-50 w-full h-16 bg-white border border-gray-200 rounded-full dark:bg-slate-800 dark:border-slate-700 bottom-0">
-          <div class="grid h-full max-w-lg grid-cols-5 mx-auto pt-1">
+          <div class="grid h-full max-w-lg grid-cols-5 mx-auto">
             <BottomNavigationTab
               active={pathname === '/diet'}
               label="Home"
@@ -131,13 +132,13 @@ export function BottomNavigation() {
       </div>
       <footer
         ref={footerRef}
-        class="w-full flex flex-col justify-center items-center gap-1 bg-slate-800 bg-opacity-80 p-2 rounded-t left-0 bottom-0 z-40 lg:static lg:rounded-none"
+        class="w-full flex flex-col justify-center items-center gap-1 bg-slate-800/80 p-2 rounded-t left-0 bottom-0 z-40 lg:static lg:rounded-none"
       >
         <pre class="text-xs text-white">Version: {process.env.APP_VERSION}</pre>
         <Show when={!window.location.href.includes('stable')}>
           <button
             type="button"
-            class="btn btn-primary btn-xs mt-1"
+            class="btn cursor-pointer uppercase btn-primary btn-xs mt-1"
             onClick={() => {
               window.location.href = 'https://marucs-diet-stable.vercel.app/'
             }}
@@ -173,7 +174,7 @@ function BottomNavigationTab(props: {
       <button
         data-tooltip-target={`tooltip-${props.label}`}
         type="button"
-        class={`${getRound()} inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-slate-900 group`}
+        class={`${getRound()} inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-slate-900 group cursor-pointer`}
         onClick={() => {
           props.onClick()
         }}
@@ -248,7 +249,7 @@ function CTAButton() {
         <button
           data-tooltip-target="tooltip-new"
           type="button"
-          class="focus:animate-spin inline-flex items-center justify-center w-10 h-10 font-medium bg-blue-600 rounded-full hover:bg-blue-700 group focus:ring-4 focus:ring-blue-300 focus-none dark:focus:ring-blue-800"
+          class="inline-flex items-center justify-center w-10 h-10 font-medium bg-blue-700 rounded-full hover:bg-blue-800 group focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-900 cursor-pointer"
         >
           <svg
             class="w-4 h-4 text-white"
@@ -320,7 +321,7 @@ const UserSelectorDropdown = () => {
       <For each={users()}>
         {(user) => (
           <div
-            class="btn btn-ghost flex justify-between"
+            class="btn cursor-pointer uppercase btn-ghost flex justify-between"
             onClick={() => {
               handleChangeUser(user)
               // Force dropdown to close without having to click outside setting aria

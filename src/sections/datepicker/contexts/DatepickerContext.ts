@@ -1,6 +1,6 @@
 import type dayjs from 'dayjs'
 
-import { DATE_FORMAT, LANGUAGE, START_WEEK } from '../constants'
+import { DATE_FORMAT, LANGUAGE, START_WEEK } from '~/sections/datepicker/constants'
 import {
   type Configs,
   type Period,
@@ -10,7 +10,7 @@ import {
   type ClassNamesTypeProp,
   type PopoverDirectionType,
   type ColorKeys
-} from '../types'
+} from '~/sections/datepicker/types'
 import { type Accessor, createContext, type JSXElement } from 'solid-js'
 
 export type DatepickerStore = {

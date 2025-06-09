@@ -1,11 +1,12 @@
-import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import {
   type Accessor,
+  createContext,
   type JSXElement,
   type Setter,
-  createContext,
   useContext,
 } from 'solid-js'
+
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 
 export type RecipeContext = {
   recipe: Accessor<Recipe>

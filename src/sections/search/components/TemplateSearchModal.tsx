@@ -1,35 +1,14 @@
 import {
-  fetchRecentFoodByUserIdAndFoodId,
-  fetchUserRecentFoods,
-  insertRecentFood,
-  updateRecentFood,
-} from '~/modules/recent-food/application/recentFood'
-import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
-import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
-import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
-import { type Template } from '~/modules/diet/template/domain/template'
-import { createNewRecentFood } from '~/modules/recent-food/domain/recentFood'
-import { showSuccess } from '~/modules/toast/application/toastManager'
-import { Modal } from '~/sections/common/components/Modal'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
-import { useModalContext } from '~/sections/common/context/ModalContext'
-import { useTyping } from '~/sections/common/hooks/useTyping'
-import {
-  TemplateSearchTabs,
-  availableTabs,
-} from '~/sections/search/components/TemplateSearchTabs'
-import { handleApiError } from '~/shared/error/errorHandler'
-
-import {
   type Accessor,
-  type Setter,
-  Show,
-  Suspense,
   createEffect,
   createResource,
   createSignal,
+  type Setter,
+  Show,
+  Suspense,
   untrack,
 } from 'solid-js'
+
 import { isOverflowForItemGroup } from '~/legacy/utils/macroOverflow'
 import {
   currentDayDiet,
@@ -41,27 +20,48 @@ import {
   fetchFoodsByName,
 } from '~/modules/diet/food/application/food'
 import { type Food } from '~/modules/diet/food/domain/food'
+import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import {
   fetchUserRecipeByName,
   fetchUserRecipes,
 } from '~/modules/diet/recipe/application/recipe'
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import { type Template } from '~/modules/diet/template/domain/template'
+import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import {
+  fetchRecentFoodByUserIdAndFoodId,
+  fetchUserRecentFoods,
+  insertRecentFood,
+  updateRecentFood,
+} from '~/modules/recent-food/application/recentFood'
+import { createNewRecentFood } from '~/modules/recent-food/domain/recentFood'
 import {
   setTemplateSearchTab,
   templateSearch,
   templateSearchTab,
 } from '~/modules/search/application/search'
+import { showSuccess } from '~/modules/toast/application/toastManager'
 import { showError } from '~/modules/toast/application/toastManager'
 import { currentUser, currentUserId } from '~/modules/user/application/user'
 import { BarCodeButton } from '~/sections/common/components/BarCodeButton'
+import { Modal } from '~/sections/common/components/Modal'
 import { PageLoading } from '~/sections/common/components/PageLoading'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { useModalContext } from '~/sections/common/context/ModalContext'
+import { useTyping } from '~/sections/common/hooks/useTyping'
+import { ExternalBarCodeInsertModal } from '~/sections/search/components/ExternalBarCodeInsertModal'
+import { ExternalTemplateToItemGroupModal } from '~/sections/search/components/ExternalTemplateToItemGroupModal'
+import { TemplateSearchBar } from '~/sections/search/components/TemplateSearchBar'
+import { TemplateSearchResults } from '~/sections/search/components/TemplateSearchResults'
+import {
+  availableTabs,
+  TemplateSearchTabs,
+} from '~/sections/search/components/TemplateSearchTabs'
+import { handleApiError } from '~/shared/error/errorHandler'
 import { formatError } from '~/shared/formatError'
 import { stringToDate } from '~/shared/utils/date'
-import { ExternalBarCodeInsertModal } from './ExternalBarCodeInsertModal'
-import { ExternalTemplateToItemGroupModal } from './ExternalTemplateToItemGroupModal'
-import { TemplateSearchBar } from './TemplateSearchBar'
-import { TemplateSearchResults } from './TemplateSearchResults'
 
 const TEMPLATE_SEARCH_DEFAULT_TAB = availableTabs.Todos.id
 

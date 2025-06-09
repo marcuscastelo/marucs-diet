@@ -1,10 +1,10 @@
 import { For, useContext } from 'solid-js'
 import dayjs from 'dayjs'
 
-import { MONTHS } from '../../constants'
-import DatepickerContext from '../../contexts/DatepickerContext'
-import { loadLanguageModule } from '../../helpers'
-import { RoundedButton } from '../utils'
+import { MONTHS } from '~/sections/datepicker/constants'
+import DatepickerContext from '~/sections/datepicker/contexts/DatepickerContext'
+import { loadLanguageModule } from '~/sections/datepicker/helpers'
+import { RoundedButton } from '~/sections/datepicker/components/utils'
 
 type Props = {
   currentMonth: number

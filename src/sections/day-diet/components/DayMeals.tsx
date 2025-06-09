@@ -1,12 +1,13 @@
 import {
   type Accessor,
+  createEffect,
+  createSignal,
   For,
   type Setter,
   Show,
-  createEffect,
-  createSignal,
   untrack,
 } from 'solid-js'
+
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import {
@@ -18,6 +19,7 @@ import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { updateMeal } from '~/modules/diet/meal/application/meal'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { showError } from '~/modules/toast/application/toastManager'
+import { Modal } from '~/sections/common/components/Modal'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { CopyLastDayButton } from '~/sections/day-diet/components/CopyLastDayButton'
 import DayNotFound from '~/sections/day-diet/components/DayNotFound'
@@ -31,7 +33,6 @@ import {
 } from '~/sections/meal/components/MealEditView'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { formatError } from '~/shared/formatError'
-import { Modal } from '~/sections/common/components/Modal'
 
 type EditSelection = {
   meal: Meal
@@ -121,7 +122,7 @@ export default function DayMeals(props: {
             </div>
             <div class="flex gap-2 justify-end mt-4">
               <button
-                class="btn btn-primary"
+                class="btn cursor-pointer uppercase btn-primary"
                 onClick={() => {
                   setShowConfirmEdit(false)
                   props.onRequestEditMode?.()
@@ -130,7 +131,7 @@ export default function DayMeals(props: {
                 Desbloquear dia para edição
               </button>
               <button
-                class="btn btn-ghost"
+                class="btn cursor-pointer uppercase btn-ghost"
                 onClick={() => setShowConfirmEdit(false)}
               >
                 Cancelar

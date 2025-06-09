@@ -2,10 +2,10 @@ import dayjs from 'dayjs'
 import isBetween from 'dayjs/plugin/isBetween'
 
 import { For, useContext } from 'solid-js'
-import { BG_COLOR, TEXT_COLOR } from '../../constants'
-import DatepickerContext from '../../contexts/DatepickerContext'
-import { classNames as cn, formatDate, nextMonth, previousMonth } from '../../helpers'
-import { type Period } from '../../types'
+import { BG_COLOR, TEXT_COLOR } from '~/sections/datepicker/constants'
+import DatepickerContext from '~/sections/datepicker/contexts/DatepickerContext'
+import { classNames as cn, formatDate, nextMonth, previousMonth } from '~/sections/datepicker/helpers'
+import { type Period } from '~/sections/datepicker/types'
 
 dayjs.extend(isBetween)
 
@@ -210,10 +210,10 @@ const Days = (props: Props) => {
           !activeDateData(day).active
             ? hoverClassByDay(day)
             : activeDateData(day).className,
-          isDateDisabled(day, type) && 'line-through'
+          isDateDisabled(day, type) && 'line-through text-gray-300 font-light text-xs'
         )
       }
-      return cn(baseClass, isDateDisabled(day, type) && 'line-through', 'text-gray-400')
+      return cn(baseClass, isDateDisabled(day, type) && 'text-gray-300 font-light text', 'text-gray-600')
     }
 
   const checkIfHoverPeriodContainsDisabledPeriod =
@@ -340,9 +340,8 @@ const Days = (props: Props) => {
         {((item, _index) => (
           <button
             type="button"
-
             disabled={isDateDisabled(item, 'previous')}
-            class={`${buttonClass(item, 'previous')}`}
+            class={`${buttonClass(item, 'previous')} cursor-pointer`}
             onClick={() => { handleClickDay(item, 'previous') }}
             onMouseOver={() => {
               hoverDay(item, 'previous')
@@ -357,9 +356,8 @@ const Days = (props: Props) => {
         {((item, _index) => (
           <button
             type="button"
-
             disabled={isDateDisabled(item, 'current')}
-            class={`${buttonClass(item, 'current')}`}
+            class={`${buttonClass(item, 'current')} cursor-pointer`}
             onClick={() => { handleClickDay(item, 'current') }}
             onMouseOver={() => {
               hoverDay(item, 'current')
@@ -374,9 +372,8 @@ const Days = (props: Props) => {
         {((item, _index) => (
           <button
             type="button"
-
             disabled={isDateDisabled(item, 'next')}
-            class={`${buttonClass(item, 'next')}`}
+            class={`${buttonClass(item, 'next')} cursor-pointer`}
             onClick={() => { handleClickDay(item, 'next') }}
             onMouseOver={() => {
               hoverDay(item, 'next')

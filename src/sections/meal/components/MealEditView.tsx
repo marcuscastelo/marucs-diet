@@ -1,6 +1,8 @@
 import { createEffect, type JSXElement, Show } from 'solid-js'
+
 import { regenerateId } from '~/legacy/utils/idUtils'
 import { calcMealCalories } from '~/legacy/utils/macroMath'
+import { itemSchema } from '~/modules/diet/item/domain/item'
 import {
   convertToGroups,
   type GroupConvertible,
@@ -9,7 +11,6 @@ import {
   type ItemGroup,
   itemGroupSchema,
 } from '~/modules/diet/item-group/domain/itemGroup'
-import { itemSchema } from '~/modules/diet/item/domain/item'
 import { type Meal, mealSchema } from '~/modules/diet/meal/domain/meal'
 import {
   addGroupsToMeal,
@@ -173,7 +174,7 @@ export function MealEditViewContent(props: {
 export function MealEditViewActions(props: { onNewItem: () => void }) {
   return (
     <button
-      class="mt-3 min-w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
+      class="mt-3 cursor-pointer min-w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
       onClick={() => {
         props.onNewItem()
       }}

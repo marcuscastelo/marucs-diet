@@ -1,9 +1,10 @@
 import { type Accessor, type Setter } from 'solid-js'
+
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
-import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { createGroupFromTemplate } from '~/modules/diet/template/application/createGroupFromTemplate'
 import { templateToItem } from '~/modules/diet/template/application/templateToItem'
 import { type Template } from '~/modules/diet/template/domain/template'
+import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { showError } from '~/modules/toast/application/toastManager'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'

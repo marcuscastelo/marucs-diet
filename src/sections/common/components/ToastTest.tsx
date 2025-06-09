@@ -6,6 +6,7 @@
 
 import { Component, createSignal } from 'solid-js'
 import toast from 'solid-toast'
+
 import {
   showError,
   showLoading,
@@ -169,17 +170,18 @@ const ToastTest: Component = () => {
           'max-width': '300px',
         }}
       >
-        <button onClick={testPromiseSuccess}>
+        <button class="btn cursor-pointer" onClick={testPromiseSuccess}>
           Test Promise Success (2s loading)
         </button>
-        <button onClick={testPromiseError}>
+        <button class="btn cursor-pointer" onClick={testPromiseError}>
           Test Promise Error (2s loading)
         </button>
         {/* Failed promise for Promise without messages */}
-        <button onClick={testPromiseWithoutMessages}>
+        <button class="btn cursor-pointer" onClick={testPromiseWithoutMessages}>
           Test Promise without Success Message
         </button>
         <button
+          class="btn cursor-pointer"
           onClick={() => {
             const promise = new Promise<string>((_, reject) => {
               setTimeout(
@@ -238,6 +240,7 @@ const ToastTest: Component = () => {
           </label>
         </div>
         <button
+          class="btn cursor-pointer"
           onClick={() => {
             void testSmartToastPromise()
           }}
@@ -246,6 +249,7 @@ const ToastTest: Component = () => {
           Test showPromise (awaitable)
         </button>
         <button
+          class="btn cursor-pointer"
           onClick={() => {
             void (async () => {
               try {
@@ -273,12 +277,14 @@ const ToastTest: Component = () => {
           Test showPromise (error)
         </button>
         <button
+          class="btn cursor-pointer"
           onClick={testSmartToastPromiseDetached}
           style={{ 'background-color': '#2196F3', color: 'white' }}
         >
           Test showPromise (fire & forget)
         </button>
         <button
+          class="btn cursor-pointer"
           onClick={() => {
             void showPromise(
               new Promise<string>((_, reject) => {
@@ -300,6 +306,7 @@ const ToastTest: Component = () => {
           Test showPromise (error)
         </button>
         <button
+          class="btn cursor-pointer"
           onClick={testMultipleDetachedOperations}
           style={{ 'background-color': '#FF9800', color: 'white' }}
         >
@@ -307,23 +314,29 @@ const ToastTest: Component = () => {
         </button>
         <hr style={{ margin: '10px 0', border: '1px solid #ccc' }} />
 
-        <button onClick={() => toast.error('Direct Toast', { duration: 2000 })}>
+        <button
+          class="btn cursor-pointer"
+          onClick={() => toast.error('Direct Toast', { duration: 2000 })}
+        >
           Test Direct
         </button>
 
         <button
+          class="btn cursor-pointer"
           onClick={() => showSuccess('Simple Success Toast', toastOptions())}
         >
           Test Simple Success
         </button>
 
         <button
+          class="btn cursor-pointer"
           onClick={() => showLoading('Loading operation...', toastOptions())}
         >
           Test Simple Loading
         </button>
 
         <button
+          class="btn cursor-pointer"
           onClick={() =>
             showError(new Error('Simple error test'), toastOptions())
           }
@@ -331,7 +344,9 @@ const ToastTest: Component = () => {
           Test Simple Error
         </button>
 
-        <button onClick={testLongError}>Test Long Error (truncate/copy)</button>
+        <button class="btn cursor-pointer" onClick={testLongError}>
+          Test Long Error (truncate/copy)
+        </button>
       </div>
 
       <div style={{ 'margin-top': '20px', 'font-size': '14px', color: '#666' }}>

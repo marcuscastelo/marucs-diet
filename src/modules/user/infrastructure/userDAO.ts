@@ -1,5 +1,6 @@
 import { z } from 'zod'
-import { type User, type NewUser, userSchema } from '~/modules/user/domain/user'
+
+import { type NewUser, type User, userSchema } from '~/modules/user/domain/user'
 
 // DAO schemas for database operations
 export const createUserDAOSchema = z.object({

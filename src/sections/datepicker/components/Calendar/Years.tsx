@@ -1,6 +1,6 @@
 import { For, useContext } from 'solid-js'
-import { generateArrayNumber } from '../../helpers'
-import { RoundedButton } from '../utils'
+import { generateArrayNumber } from '~/sections/datepicker/helpers'
+import { RoundedButton } from '~/sections/datepicker/components/utils'
 
 import DatepickerContext from '~/sections/datepicker/contexts/DatepickerContext'
 

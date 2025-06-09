@@ -7,18 +7,22 @@ import pluginPrettier from 'eslint-plugin-prettier'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import pluginSolid from 'eslint-plugin-solid'
 import globals from 'globals'
+import eslintPluginImport from 'eslint-plugin-import'
+import love from 'eslint-config-love'
 
 /** @type {import('eslint').Linter.Config} */
 export default [
   {
+    ...love,
     files: ['**/*.ts', '**/*.tsx'],
+
     languageOptions: {
       parser: parserTs,
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
         ecmaFeatures: { jsx: true },
-        project: ['./tsconfig.json'], // necessário para 'standard-with-typescript'
+        project: ['./tsconfig.json'],
       },
       globals: {
         ...globals.browser,
@@ -33,11 +37,22 @@ export default [
       solid: pluginSolid,
       prettier: pluginPrettier,
       'jsx-a11y': pluginA11y,
-      simpleImportSort
+      simpleImportSort,
+      import: eslintPluginImport
     },
     rules: {
       ...js.configs.recommended.rules,
       ...pluginTs.configs['recommended-type-checked'].rules,
+
+      'simpleImportSort/imports': 'error',
+
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: ['../*', './*'],
+        },
+      ],
+      'import/no-unresolved': ['error' ],
 
       eqeqeq: ["error", "always"],
 
@@ -98,6 +113,12 @@ export default [
       'import/parsers': {
         [parserTs]: ['.ts', '.tsx', '.d.ts'],
       },
+      'import/resolver': {
+        typescript: {
+          alwaysTryTypes: true,
+          project: ['./tsconfig.json'],
+        },
+      },
     },
   },
   {
@@ -108,6 +129,17 @@ export default [
     },
   },
   {
-    ignores: ['node_modules', 'src/sections/datepicker', '.vercel', '.vinxi', 'dist', 'build', 'coverage', 'public', 'out'],
+    ignores: [
+      'node_modules',
+      'src/sections/datepicker',
+      '.vercel',
+      '.vinxi',
+      'dist',
+      'build',
+      'coverage',
+      'public',
+      'out',
+      '.output',
+    ],
   },
 ]

@@ -1,10 +1,10 @@
-import {
-  type ItemGroup,
-  createSimpleItemGroup,
-  createRecipedItemGroup,
-  itemGroupSchema,
-} from '../domain/itemGroup'
 import { type Item, itemSchema } from '~/modules/diet/item/domain/item'
+import {
+  createRecipedItemGroup,
+  createSimpleItemGroup,
+  type ItemGroup,
+  itemGroupSchema,
+} from '~/modules/diet/item-group/domain/itemGroup'
 import { type Recipe, recipeSchema } from '~/modules/diet/recipe/domain/recipe'
 import { handleApiError } from '~/shared/error/errorHandler'
 

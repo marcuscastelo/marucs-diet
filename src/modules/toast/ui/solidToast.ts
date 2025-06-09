@@ -1,4 +1,5 @@
 import toast from 'solid-toast'
+
 import { ToastItem } from '~/modules/toast/domain/toastTypes'
 import { displayExpandableErrorToast } from '~/modules/toast/ui/ExpandableErrorToast'
 import { handleApiError } from '~/shared/error/errorHandler'

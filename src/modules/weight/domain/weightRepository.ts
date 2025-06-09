@@ -1,5 +1,5 @@
-import { type Weight, type NewWeight } from '~/modules/weight/domain/weight'
 import { type User } from '~/modules/user/domain/user'
+import { type NewWeight, type Weight } from '~/modules/weight/domain/weight'
 
 export type WeightRepository = {
   fetchUserWeights: (userId: User['id']) => Promise<readonly Weight[]>

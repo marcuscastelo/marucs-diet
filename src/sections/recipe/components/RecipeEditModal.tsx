@@ -1,8 +1,10 @@
+import { createEffect, createSignal } from 'solid-js'
+
+import { createItem, type Item } from '~/modules/diet/item/domain/item'
 import {
-  type ItemGroup,
   isSimpleSingleGroup,
+  type ItemGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
-import { type Item, createItem } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import {
   addItemsToRecipe,
@@ -28,8 +30,6 @@ import {
 import { RecipeEditContextProvider } from '~/sections/recipe/context/RecipeEditContext'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { handleValidationError } from '~/shared/error/errorHandler'
-
-import { createEffect, createSignal } from 'solid-js'
 
 export type RecipeEditModalProps = {
   show?: boolean
@@ -199,7 +199,7 @@ function Actions(props: {
   return (
     <>
       <button
-        class="btn-error btn mr-auto"
+        class="btn-error btn cursor-pointer uppercase mr-auto"
         onClick={(e) => {
           e.preventDefault()
 
@@ -225,7 +225,7 @@ function Actions(props: {
         Excluir
       </button>
       <button
-        class="btn"
+        class="btn cursor-pointer uppercase"
         onClick={(e) => {
           e.preventDefault()
           setVisible(false)
@@ -235,7 +235,7 @@ function Actions(props: {
         Cancelar
       </button>
       <button
-        class="btn"
+        class="btn cursor-pointer uppercase"
         onClick={(e) => {
           e.preventDefault()
           props.onApply()

@@ -1,12 +1,13 @@
+import { createEffect, createSignal } from 'solid-js'
+
+import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
+import { showPromise } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
-import { type Weight, type NewWeight } from '~/modules/weight/domain/weight'
+import { type NewWeight, type Weight } from '~/modules/weight/domain/weight'
 import {
   createSupabaseWeightRepository,
   SUPABASE_TABLE_WEIGHTS,
 } from '~/modules/weight/infrastructure/supabaseWeightRepository'
-import { createEffect, createSignal } from 'solid-js'
-import { showPromise } from '~/modules/toast/application/toastManager'
-import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 import { handleApiError } from '~/shared/error/errorHandler'
 
 const weightRepository = createSupabaseWeightRepository()

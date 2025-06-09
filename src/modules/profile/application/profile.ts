@@ -1,4 +1,5 @@
-import { createSignal, createEffect } from 'solid-js'
+import { createEffect, createSignal } from 'solid-js'
+
 import { type Mutable } from '~/legacy/utils/typeUtils'
 import { currentUser } from '~/modules/user/application/user'
 import { type User } from '~/modules/user/domain/user'

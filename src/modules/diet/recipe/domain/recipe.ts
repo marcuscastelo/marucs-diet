@@ -1,7 +1,7 @@
-import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
-import { itemSchema } from '~/modules/diet/item/domain/item'
-
 import { z } from 'zod'
+
+import { itemSchema } from '~/modules/diet/item/domain/item'
+import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 
 export const newRecipeSchema = z.object({
   name: z.string(),

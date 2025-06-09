@@ -1,9 +1,10 @@
 import { createEffect, createSignal } from 'solid-js'
+
 import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 import {
+  createNewDayDiet,
   type DayDiet,
   type NewDayDiet,
-  createNewDayDiet,
 } from '~/modules/diet/day-diet/domain/dayDiet'
 import {
   createSupabaseDayRepository,

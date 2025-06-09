@@ -1,4 +1,5 @@
-import { For, createResource } from 'solid-js'
+import { createResource, For, Show } from 'solid-js'
+
 import {
   fetchUserMeasures,
   insertMeasure,
@@ -14,10 +15,11 @@ import { MeasureView } from '~/sections/profile/measure/components/MeasureView'
 import { formatError } from '~/shared/formatError'
 
 export function MeasuresEvolution() {
-  const [{ latest }, { refetch }] = createResource(() =>
-    fetchUserMeasures(currentUserId()),
+  const [measuresResource, { refetch }] = createResource(
+    currentUserId,
+    fetchUserMeasures,
   )
-  const measures = () => latest ?? []
+  const measures = () => measuresResource() ?? []
 
   const heightField = useFloatField()
   const waistField = useFloatField()
@@ -77,7 +79,7 @@ export function MeasuresEvolution() {
           </div>
 
           <button
-            class="btn btn-primary no-animation w-full"
+            class="btn cursor-pointer uppercase btn-primary no-animation w-full"
             onClick={() => {
               if (
                 heightField.value() === undefined ||
@@ -111,16 +113,24 @@ export function MeasuresEvolution() {
           </button>
         </div>
 
-        <MeasureChart measures={measures()} />
-        <div class="mx-5 lg:mx-20 pb-10">
-          {/* TODO: Implement scrollbar for big lists instead of slice */}
-          <For each={[...measures()].reverse().slice(0, 10)}>
-            {(measure) => (
-              <MeasureView measure={measure} onRefetchMeasures={refetch} />
-            )}
-          </For>
-          {measures().length === 0 && 'Não há pesos registrados'}
-        </div>
+        <Show
+          when={!measuresResource.loading}
+          fallback={
+            <div class="text-center text-gray-400 py-8">
+              Carregando medidas...
+            </div>
+          }
+        >
+          <MeasureChart measures={measures()} />
+          <div class="mx-5 lg:mx-20 pb-10">
+            <For each={[...measures()].reverse().slice(0, 10)}>
+              {(measure) => (
+                <MeasureView measure={measure} onRefetchMeasures={refetch} />
+              )}
+            </For>
+            {measures().length === 0 && 'Não há pesos registrados'}
+          </div>
+        </Show>
       </div>
     </>
   )

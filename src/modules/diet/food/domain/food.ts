@@ -1,8 +1,9 @@
-import {
-  macroNutrientsSchema,
-  type MacroNutrients,
-} from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { z } from 'zod'
+
+import {
+  type MacroNutrients,
+  macroNutrientsSchema,
+} from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 
 export const newFoodSchema = z.object({
   name: z.string(),

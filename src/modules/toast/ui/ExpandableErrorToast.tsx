@@ -6,7 +6,9 @@
  */
 
 import toast from 'solid-toast'
+
 import { openErrorModal } from '~/modules/toast/application/modalState'
+import { killToast } from '~/modules/toast/application/toastQueue'
 import { TOAST_MESSAGES } from '~/modules/toast/domain/toastMessages'
 import {
   ToastError,
@@ -14,7 +16,6 @@ import {
   ToastType,
 } from '~/modules/toast/domain/toastTypes'
 import { handleCopyErrorToClipboard } from '~/modules/toast/infrastructure/clipboardErrorUtils'
-import { killToast } from '../application/toastQueue'
 
 /**
  * Props for ExpandableToast component.
@@ -74,14 +75,14 @@ export function ExpandableToast(props: ExpandableToastProps) {
     <div
       role="alert"
       aria-live="assertive"
-      class="relative flex flex-col border-2 border-gray-600 text-gray-100 bg-gray-800 shadow-[0_3px_10px_rgba(0,0,0,0.1),_0_3px_3px_rgba(0,0,0,0.05)] max-w-[350px] pointer-events-auto px-[10px] pr-6 py-2 rounded line-height-[1.3]"
+      class="relative flex flex-col border-2 border-gray-600 text-gray-100 bg-gray-800 shadow-[0_3px_10px_rgba(0,0,0,0.1),0_3px_3px_rgba(0,0,0,0.05)] max-w-[350px] pointer-events-auto px-[10px] pr-6 py-2 rounded line-height-[1.3]"
     >
       <button
         type="button"
         onClick={handleDismiss}
         title="Dismiss"
         aria-label="Dismiss"
-        class="absolute top-2 right-2 text-lg text-gray-400 hover:text-gray-200 z-10"
+        class="absolute top-2 right-2 text-lg text-gray-400 hover:text-gray-200 z-10 cursor-pointer"
       >
         <span class="sr-only">Fechar</span>✕
       </button>

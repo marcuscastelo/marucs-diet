@@ -1,9 +1,9 @@
 import { For, useContext } from 'solid-js'
 import dayjs from 'dayjs'
 
-import { DAYS } from '../../constants'
-import DatepickerContext from '../../contexts/DatepickerContext'
-import { loadLanguageModule, shortString, ucFirst } from '../../helpers'
+import { DAYS } from '~/sections/datepicker/constants'
+import DatepickerContext from '~/sections/datepicker/contexts/DatepickerContext'
+import { loadLanguageModule, shortString, ucFirst } from '~/sections/datepicker/helpers'
 
 const Week = () => {
   const datepickerStore = useContext(DatepickerContext)

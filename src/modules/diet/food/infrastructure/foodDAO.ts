@@ -1,10 +1,11 @@
-import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { z } from 'zod'
+
 import {
   type Food,
   foodSchema,
   type NewFood,
 } from '~/modules/diet/food/domain/food'
-import { z } from 'zod'
+import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 
 // Base schema (with ID)
 export const foodDAOSchema = z.object({

@@ -1,5 +1,6 @@
-import { type Weight, weightSchema } from '~/modules/weight/domain/weight'
 import { z } from 'zod'
+
+import { type Weight, weightSchema } from '~/modules/weight/domain/weight'
 
 // Base schema (with ID)
 export const weightDAOSchema = z.object({

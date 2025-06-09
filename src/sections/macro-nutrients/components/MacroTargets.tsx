@@ -1,4 +1,5 @@
-import { Show, createEffect, createMemo, createSignal } from 'solid-js'
+import { createEffect, createMemo, createSignal, Show } from 'solid-js'
+
 import { calcCalories } from '~/legacy/utils/macroMath'
 import { getLatestMacroProfile } from '~/legacy/utils/macroProfileUtils'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
@@ -9,8 +10,8 @@ import {
   userMacroProfiles,
 } from '~/modules/diet/macro-profile/application/macroProfile'
 import {
-  type MacroProfile,
   createNewMacroProfile,
+  type MacroProfile,
 } from '~/modules/diet/macro-profile/domain/macroProfile'
 import { calculateMacroTarget } from '~/modules/diet/macro-target/application/macroTarget'
 import {
@@ -169,7 +170,7 @@ export function MacroTarget(props: MacroTargetProps) {
           value={targetCalories()}
           type="search"
           id="default-search"
-          class="input-bordered input text-center font-bold"
+          class="input text-center font-bold"
           style={{ width: '100%' }}
           placeholder="Insira a meta de calorias diárias"
           disabled={true} // TODO:   Enable changing target calories directly (and update macros accordingly).
@@ -198,7 +199,7 @@ export function MacroTarget(props: MacroTargetProps) {
                           {'Sim, de ' + dateToYYYYMMDD(oldProfile.target_day)}
                         </span>
                         <button
-                          class="btn btn-primary btn-sm"
+                          class="btn cursor-pointer uppercase btn-primary btn-sm"
                           onClick={() => {
                             showConfirmModal({
                               title: () => (
@@ -351,15 +352,12 @@ function MacroTargetSetting(props: {
           <span class="hidden sm:inline">:</span>
         </span>
         <span class="my-auto flex-1 text-xl text-center">
-          {
-            // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-            (props.target.calorieMultiplier * (Number(grams) || 0)).toFixed(0)
-          }{' '}
+          {(props.target.calorieMultiplier * (Number(grams) || 0)).toFixed(0)}{' '}
           kcal
           <span class="ml-2 text-slate-300 text-lg">({percentage()}%)</span>
         </span>
       </div>
-      <div class="mt-5 flex flex-1 flex-shrink flex-col gap-1">
+      <div class="mt-5 flex flex-1 shrink flex-col gap-1">
         {/* <MacroField
           fieldName="Porcentagem (%)"
           field={percentage}
@@ -420,7 +418,7 @@ function MacroField(props: {
           }}
           type="number"
           // className={`block text-center w-full p-2 pl-10 text-md bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 ${className || ''}`}
-          class="input-bordered input text-center font-bold"
+          class="input text-center font-bold"
           style={{ width: '100%' }}
           disabled={props.disabled}
           placeholder=""

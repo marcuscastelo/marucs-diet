@@ -1,4 +1,5 @@
 import { createEffect, createSignal } from 'solid-js'
+
 import { getLatestMacroProfile } from '~/legacy/utils/macroProfileUtils'
 import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 import {

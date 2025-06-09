@@ -1,10 +1,11 @@
 import { createEffect, createSignal } from 'solid-js'
+
 import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 import { showPromise } from '~/modules/toast/application/toastManager'
 import {
+  demoteToNewUser,
   type NewUser,
   type User,
-  demoteToNewUser,
 } from '~/modules/user/domain/user'
 import {
   loadUserIdFromLocalStorage,

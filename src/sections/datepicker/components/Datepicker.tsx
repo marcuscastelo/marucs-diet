@@ -1,22 +1,22 @@
 // Original implementation: https://github.com/onesine/react-tailwindcss-datepicker/tree/bf063fe6458787622ca500ec9a33d9b2feb955d1
 import dayjs from 'dayjs'
 
-import Calendar from '../components/Calendar'
-import Footer from '../components/Footer'
-import Input from '../components/Input'
-import Shortcuts from '../components/Shortcuts'
-import { COLORS, DATE_FORMAT, DEFAULT_COLOR, LANGUAGE } from '../constants'
-import DatepickerContext, { type DatepickerStore } from '../contexts/DatepickerContext'
-import { formatDate, nextMonth, previousMonth } from '../helpers'
-import useOnClickOutside from '../hooks'
-import { type Period, type DatepickerType, type ColorKeys } from '../types'
+import Calendar from '~/sections/datepicker/components/Calendar'
+import Footer from '~/sections/datepicker/components/Footer'
+import Input from '~/sections/datepicker/components/Input'
+import Shortcuts from '~/sections/datepicker/components/Shortcuts'
+import { COLORS, DATE_FORMAT, DEFAULT_COLOR, LANGUAGE } from '~/sections/datepicker/constants'
+import DatepickerContext, { type DatepickerStore } from '~/sections/datepicker/contexts/DatepickerContext'
+import { formatDate, nextMonth, previousMonth } from '~/sections/datepicker/helpers'
+import useOnClickOutside from '~/sections/datepicker/hooks'
+import { type Period, type DatepickerType, type ColorKeys } from '~/sections/datepicker/types'
 
-import { Arrow, VerticalDash } from './utils'
+import { Arrow, VerticalDash } from '~/sections/datepicker/components/utils'
 import { createEffect, createSignal, mergeProps } from 'solid-js'
 
 const Datepicker = (_props: DatepickerType) => {
   // Ref
-  const props = mergeProps({ primaryColor: 'blue', value: null, useRange: true, showFooter: false, showShortcuts: false, configs: undefined, asSingle: false, placeholder: null, separator: '~', startFrom: null, i18n: LANGUAGE, disabled: false, inputClassName: null, containerClassName: null, toggleClassName: null, toggleIcon: undefined, displayFormat: DATE_FORMAT, readOnly: false, minDate: null, maxDate: null, dateLooking: 'forward' as const, disabledDates: null, startWeekOn: 'sun', classNames: undefined, popoverDirection: undefined }, _props)
+  const props = mergeProps({ primaryColor: 'blue' as const, value: null, useRange: true, showFooter: false, showShortcuts: false, configs: undefined, asSingle: false, placeholder: null, separator: '~', startFrom: null, i18n: LANGUAGE, disabled: false, inputClassName: null, containerClassName: null, toggleClassName: null, toggleIcon: undefined, displayFormat: DATE_FORMAT, readOnly: false, minDate: null, maxDate: null, dateLooking: 'forward' as const, disabledDates: null, startWeekOn: 'sun', classNames: undefined, popoverDirection: undefined }, _props)
   // eslint-disable-next-line prefer-const
   let containerRef = undefined as HTMLDivElement | undefined
   // eslint-disable-next-line prefer-const
@@ -276,7 +276,7 @@ const Datepicker = (_props: DatepickerType) => {
         <Input setContextRef={setInputRef} />
 
         <div
-          class="transition-all ease-out duration-300 absolute z-10 mt-[1px] text-sm lg:text-xs 2xl:text-sm translate-y-4 opacity-0 hidden"
+          class="transition-all ease-out duration-300 absolute z-10 mt-px text-sm lg:text-xs 2xl:text-sm translate-y-4 opacity-0 hidden"
           ref={calendarContainerRef}
         >
           <Arrow ref={arrowRef} />

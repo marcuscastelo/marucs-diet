@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
 
-import { CALENDAR_SIZE, DATE_FORMAT } from '../../constants'
-import DatepickerContext from '../../contexts/DatepickerContext'
+import { CALENDAR_SIZE, DATE_FORMAT } from '~/sections/datepicker/constants'
+import DatepickerContext from '~/sections/datepicker/contexts/DatepickerContext'
 import {
   formatDate,
   getDaysInMonth,
@@ -12,19 +12,19 @@ import {
   loadLanguageModule,
   nextMonth,
   previousMonth
-} from '../../helpers'
+} from '~/sections/datepicker/helpers'
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
   DoubleChevronLeftIcon,
   DoubleChevronRightIcon,
   RoundedButton
-} from '../utils'
+} from '~/sections/datepicker/components/utils'
 
-import Days from './Days'
-import Months from './Months'
-import Week from './Week'
-import Years from './Years'
+import Days from '~/sections/datepicker/components/Calendar/Days'
+import Months from '~/sections/datepicker/components/Calendar/Months'
+import Week from '~/sections/datepicker/components/Calendar/Week'
+import Years from '~/sections/datepicker/components/Calendar/Years'
 
 import { type DateType } from '~/sections/datepicker/types'
 import { createEffect, createSignal, useContext } from 'solid-js'
