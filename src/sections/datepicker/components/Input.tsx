@@ -155,7 +155,7 @@ const Input = (e: Props) => {
     }
 
     const defaultToggleClassName =
-            'absolute right-0 h-full px-3 text-gray-400 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed'
+            'absolute right-0 h-full px-3 text-gray-400 focus:outline-hidden disabled:opacity-40 disabled:cursor-not-allowed'
 
     return typeof toggleClassName === 'function'
       ? toggleClassName(defaultToggleClassName)

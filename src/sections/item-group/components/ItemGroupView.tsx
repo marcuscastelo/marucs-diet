@@ -85,7 +85,7 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
         operation: 'nameColor',
         additionalData: { recipeError: recipe.error },
       })
-      return 'text-red-900 bg-red-200 bg-opacity-50'
+      return 'text-red-900 bg-red-200/50'
     }
 
     const handleSimple = (simpleGroup: SimpleItemGroup) => {

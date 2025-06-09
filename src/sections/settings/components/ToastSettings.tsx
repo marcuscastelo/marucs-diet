@@ -125,7 +125,7 @@ export function ToastSettings() {
             onChange={(e) =>
               handleChange('defaultDuration', parseInt(e.target.value, 10))
             }
-            class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-400 focus:border-blue-400 sm:text-sm"
+            class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-hidden focus:ring-blue-400 focus:border-blue-400 sm:text-sm"
           />
         </div>
       </div>
@@ -134,7 +134,7 @@ export function ToastSettings() {
         <button
           type="button"
           onClick={handleReset}
-          class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-800 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 cursor-pointer"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-800 bg-white hover:bg-gray-100 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 cursor-pointer"
         >
           Restaurar padrões
         </button>
@@ -142,7 +142,7 @@ export function ToastSettings() {
         <button
           type="button"
           onClick={saveSettings}
-          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 cursor-pointer"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-700 hover:bg-blue-800 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 cursor-pointer"
         >
           {saved() ? 'Salvo!' : 'Salvar mudanças'}
         </button>

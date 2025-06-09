@@ -132,7 +132,7 @@ export function BottomNavigation() {
       </div>
       <footer
         ref={footerRef}
-        class="w-full flex flex-col justify-center items-center gap-1 bg-slate-800 bg-opacity-80 p-2 rounded-t left-0 bottom-0 z-40 lg:static lg:rounded-none"
+        class="w-full flex flex-col justify-center items-center gap-1 bg-slate-800/80 p-2 rounded-t left-0 bottom-0 z-40 lg:static lg:rounded-none"
       >
         <pre class="text-xs text-white">Version: {process.env.APP_VERSION}</pre>
         <Show when={!window.location.href.includes('stable')}>
