@@ -120,17 +120,19 @@ export function GroupHeaderActions(props: {
   }
 
   async function handleConvertToRecipe() {
+    const group = props.group()
     try {
       const newRecipe = createNewRecipe({
         name:
-          props.group().name.length > 0
-            ? props.group().name
+          group.name.length > 0
+            ? group.name
             : 'Nova receita (a partir de um grupo)',
-        items: deepCopy(props.group().items) ?? [],
+        items: deepCopy(group.items) ?? [],
         owner: currentUserId(),
       })
       const insertedRecipe = await insertRecipe(newRecipe)
-      props.setGroup(setItemGroupRecipe(props.group(), insertedRecipe.id))
+      const newGroup = setItemGroupRecipe(group, insertedRecipe.id)
+      props.setGroup(newGroup)
       props.setRecipeEditModalVisible(true)
     } catch (err) {
       showError(`Falha ao criar receita a partir de grupo: ${formatError(err)}`)
