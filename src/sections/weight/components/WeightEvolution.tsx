@@ -136,8 +136,8 @@ function buildChartData(
       while (
         nextIdx < entries.length &&
         entries[nextIdx] !== undefined &&
-        Array.isArray(entries[nextIdx][1]) &&
-        entries[nextIdx][1].length === 0
+        Array.isArray(entries[nextIdx]?.[1]) &&
+        (entries[nextIdx]?.[1] as Weight[] | undefined)?.length === 0
       )
         nextIdx++
       const nextEntry = entries[nextIdx]
