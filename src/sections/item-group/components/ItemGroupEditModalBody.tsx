@@ -1,5 +1,6 @@
 import { type Accessor, type Setter, Show } from 'solid-js'
 
+import { type Item } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { isTemplateItemRecipe } from '~/modules/diet/template-item/domain/templateItem'
 import { showError } from '~/modules/toast/application/toastManager'
@@ -27,11 +28,28 @@ export function ItemGroupEditModalBody(props: {
   setTemplateSearchModalVisible: Setter<boolean>
   mode?: 'edit' | 'read-only' | 'summary'
   writeToClipboard: (text: string) => void
-  setEditSelection: (
-    sel: { item: import('~/modules/diet/item/domain/item').Item } | null,
-  ) => void
+  setEditSelection: (sel: { item: Item } | null) => void
 }) {
   const { group } = useItemGroupEditContext()
+
+  function handleItemClick(item: Item) {
+    if (props.mode !== 'edit') return
+    if (isTemplateItemRecipe(item)) {
+      showError(
+        'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
+      )
+      return
+    }
+    if (props.recipe() && props.recipe()!.prepared_multiplier !== 1) {
+      showError(
+        'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
+      )
+      return
+    }
+    props.setEditSelection({ item })
+    props.setItemEditModalVisible(true)
+  }
+
   return (
     <Show when={group()}>
       {(group) => (
@@ -45,25 +63,7 @@ export function ItemGroupEditModalBody(props: {
             items={() => group().items}
             onItemClick={
               props.mode === 'edit'
-                ? (item) => {
-                    if (isTemplateItemRecipe(item)) {
-                      showError(
-                        'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
-                      )
-                      return
-                    }
-                    if (
-                      props.recipe() &&
-                      props.recipe()!.prepared_multiplier !== 1
-                    ) {
-                      showError(
-                        'Os itens desse grupo não podem ser editados. Motivo: a receita é muito complexa, ainda não é possível editar receitas complexas',
-                      )
-                      return
-                    }
-                    props.setEditSelection({ item })
-                    props.setItemEditModalVisible(true)
-                  }
+                ? (item) => handleItemClick(item as Item)
                 : undefined
             }
             mode={props.mode}
