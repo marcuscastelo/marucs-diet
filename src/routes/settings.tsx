@@ -66,8 +66,8 @@ export default function Page() {
   })
 
   return (
-    <Providers>
-      <div class={'mx-1 md:mx-40 lg:mx-auto lg:w-1/3 pt-1'}>
+    <>
+      <div>
         <div
           class={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE} rounded-b-none pb-6`}
         >
@@ -109,7 +109,6 @@ export default function Page() {
           </div>
         </div>
       </div>
-      <BottomNavigation />
-    </Providers>
+    </>
   )
 }

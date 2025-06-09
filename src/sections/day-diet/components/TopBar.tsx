@@ -10,7 +10,7 @@ export default function TopBar(props: { selectedDay: string }) {
   })
   return (
     <>
-      <div class="flex items-center justify-between gap-4 bg-slate-900 px-4 py-2">
+      <div class="pt-6 flex items-center justify-between gap-4 bg-slate-900 px-4 py-2">
         <div class="flex-1">
           <TargetDayPicker />
         </div>
