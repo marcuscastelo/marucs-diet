@@ -10,7 +10,7 @@ import { WeightEvolution } from '~/sections/weight/components/WeightEvolution'
 function useAspectWidth() {
   const [width, setWidth] = createSignal(getWidth())
   function getWidth() {
-    return Math.min((window.innerHeight * 9) / 16, window.innerWidth)
+    return Math.min((window.innerHeight * 16) / 16, window.innerWidth)
   }
   function onResize() {
     setWidth(getWidth())
@@ -25,7 +25,9 @@ export default function Page() {
   return (
     <div>
       <div
-        class={'mx-auto w-full flex flex-col justify-between pt-1'}
+        class={
+          'mx-auto w-full flex flex-col justify-between px-0 -mt-5 sm:mt-0 sm:px-5 xs'
+        }
         style={{ width: `${width()}px` }}
       >
         <UserInfo />
