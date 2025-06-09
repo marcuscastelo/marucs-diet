@@ -1,14 +1,7 @@
 import { createResource } from 'solid-js'
-import {
-  type Accessor,
-  createEffect,
-  createSignal,
-  type Setter,
-  Show,
-} from 'solid-js'
+import { type Accessor, createEffect, createSignal, Show } from 'solid-js'
 import { z } from 'zod'
 
-import { deepCopy } from '~/legacy/utils/deepCopy'
 import { regenerateId } from '~/legacy/utils/idUtils'
 import { isOverflow } from '~/legacy/utils/macroOverflow'
 import {
@@ -18,18 +11,14 @@ import {
 import { type Item, itemSchema } from '~/modules/diet/item/domain/item'
 import {
   isRecipedItemGroup,
-  isSimpleItemGroup,
-  isSimpleSingleGroup,
   type ItemGroup,
   itemGroupSchema,
-  type RecipedItemGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
-import { isRecipedGroupUpToDate } from '~/modules/diet/item-group/domain/itemGroup'
+import { isSimpleSingleGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import {
   addItemsToGroup,
   addItemToGroup,
   removeItemFromGroup,
-  setItemGroupItems,
   updateItemInGroup,
 } from '~/modules/diet/item-group/domain/itemGroupOperations'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
@@ -49,6 +38,7 @@ import {
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { ExternalItemEditModal } from '~/sections/food-item/components/ExternalItemEditModal'
 import { ExternalRecipeEditModal } from '~/sections/item-group/components/ExternalRecipeEditModal'
+import { ItemGroupEditModalActions } from '~/sections/item-group/components/ItemGroupEditModalActions'
 import { ItemGroupEditModalBody } from '~/sections/item-group/components/ItemGroupEditModalBody'
 import { ItemGroupEditModalTitle } from '~/sections/item-group/components/ItemGroupEditModalTitle'
 import { askUnlinkRecipe } from '~/sections/item-group/components/itemGroupModals'
@@ -358,7 +348,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
               />
             </Modal.Content>
             <Modal.Footer>
-              <Actions
+              <ItemGroupEditModalActions
                 canApply={canApply}
                 visible={visible}
                 setVisible={setVisible}
@@ -370,71 +360,6 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
         </ModalContextProvider>
       </>
     </Show>
-  )
-}
-
-function Actions(props: {
-  onDelete?: (groupId: number) => void
-  onCancel?: () => void
-  canApply: boolean
-  visible: Accessor<boolean>
-  setVisible: Setter<boolean>
-}) {
-  const { group, saveGroup } = useItemGroupEditContext()
-  const { show: showConfirmModal } = useConfirmModalContext()
-
-  return (
-    <>
-      <Show when={props.onDelete}>
-        {(onDelete) => (
-          <button
-            class="btn-error btn cursor-pointer uppercase mr-auto"
-            onClick={(e) => {
-              e.preventDefault()
-              showConfirmModal({
-                title: 'Excluir grupo',
-                body: `Tem certeza que deseja excluir o grupo ${group().name}?`,
-                actions: [
-                  {
-                    text: 'Cancelar',
-                    onClick: () => undefined,
-                  },
-                  {
-                    text: 'Excluir',
-                    primary: true,
-                    onClick: () => {
-                      onDelete()(group().id)
-                    },
-                  },
-                ],
-              })
-            }}
-          >
-            Excluir
-          </button>
-        )}
-      </Show>
-      <button
-        class="btn cursor-pointer uppercase"
-        onClick={(e) => {
-          e.preventDefault()
-          props.setVisible(false)
-          props.onCancel?.()
-        }}
-      >
-        Cancelar
-      </button>
-      <button
-        class="btn cursor-pointer uppercase"
-        disabled={!props.canApply}
-        onClick={(e) => {
-          e.preventDefault()
-          saveGroup()
-        }}
-      >
-        Aplicar
-      </button>
-    </>
   )
 }
 
