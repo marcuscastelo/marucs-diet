@@ -18,6 +18,24 @@ export function ItemGroupEditModalActions(props: {
   const { group, saveGroup } = useItemGroupEditContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
+  const handleDelete = (onDelete: (groupId: number) => void) => {
+    showConfirmModal({
+      title: 'Excluir grupo',
+      body: `Tem certeza que deseja excluir o grupo ${group().name}?`,
+      actions: [
+        {
+          text: 'Cancelar',
+          onClick: () => undefined,
+        },
+        {
+          text: 'Excluir',
+          primary: true,
+          onClick: () => onDelete(group().id),
+        },
+      ],
+    })
+  }
+
   return (
     <>
       <Show when={props.onDelete}>
@@ -26,23 +44,7 @@ export function ItemGroupEditModalActions(props: {
             class="btn-error btn cursor-pointer uppercase mr-auto"
             onClick={(e) => {
               e.preventDefault()
-              showConfirmModal({
-                title: 'Excluir grupo',
-                body: `Tem certeza que deseja excluir o grupo ${group().name}?`,
-                actions: [
-                  {
-                    text: 'Cancelar',
-                    onClick: () => undefined,
-                  },
-                  {
-                    text: 'Excluir',
-                    primary: true,
-                    onClick: () => {
-                      onDelete()(group().id)
-                    },
-                  },
-                ],
-              })
+              handleDelete(onDelete)
             }}
           >
             Excluir
