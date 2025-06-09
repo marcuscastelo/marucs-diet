@@ -1,6 +1,7 @@
 import { createResource } from 'solid-js'
 
 import { fetchRecipeById } from '~/modules/diet/recipe/application/recipe'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 /**
  * Provides a SolidJS resource for fetching a recipe by id.
@@ -13,7 +14,8 @@ export function useRecipeResource(recipeId: () => number | undefined) {
     if (typeof id !== 'number') return null
     try {
       return await fetchRecipeById(id)
-    } catch {
+    } catch (error) {
+      handleApiError(error, { operation: 'mutateRecipe' })
       return null
     }
   })
