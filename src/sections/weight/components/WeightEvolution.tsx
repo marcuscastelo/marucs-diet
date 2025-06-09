@@ -32,13 +32,17 @@ import { adjustToTimezone, dateToYYYYMMDD } from '~/shared/utils/date'
 export function WeightEvolution() {
   const desiredWeight = () => currentUser()?.desired_weight ?? 0
 
-  const [chartType, setChartType] = createSignal<'last-30-days' | 'all-time'>(
-    'all-time',
-  )
+  const [chartType, setChartType] = createSignal<
+    '7d' | '14d' | '30d' | '6m' | '1y' | 'all'
+  >('all')
 
   const chartOptions = [
-    { value: 'last-30-days', label: 'Últimos 7 dias' },
-    { value: 'all-time', label: 'Todo o período' },
+    { value: '7d', label: 'Últimos 7 dias' },
+    { value: '14d', label: 'Últimos 14 dias' },
+    { value: '30d', label: 'Últimos 30 dias' },
+    { value: '6m', label: 'Últimos 6 meses' },
+    { value: '1y', label: 'Último ano' },
+    { value: 'all', label: 'Todo o período' },
   ]
 
   const weightField = useFloatField(undefined, {
@@ -227,65 +231,121 @@ function WeightView(props: { weight: Weight }) {
 function WeightChart(props: {
   weights: readonly Weight[]
   desiredWeight: number
-  type: 'last-30-days' | 'all-time'
+  type: '7d' | '14d' | '30d' | '6m' | '1y' | 'all'
 }) {
   type TickWeight = OHLC & {
     movingAverage?: number
     desiredWeight?: number
   }
 
-  const reduceFunc = (acc: Record<string, Weight[]>, weight: Weight) => {
-    const half = (() => {
-      // 1 to 4 weeks of a month
-      const date = new Date(weight.target_timestamp)
-      const month = date.toLocaleString('default', { month: 'short' })
-      const year = date.getFullYear()
-      const twoDigitYear = year % 100
-      // const weekNumber = Math.min(4, Math.ceil(date.getDate() / 7))
-
-      // 1 to 2 half of a month (1 -> 1-15, 2 -> 16-31)
-      const halfNumber = Math.min(2, Math.ceil(date.getDate() / 15))
-
-      return `${month} ${twoDigitYear} (${halfNumber}/2)`
-    })()
-    const day = weight.target_timestamp.getDate()
-    const month = weight.target_timestamp.getMonth() + 1
-    const year = weight.target_timestamp.getFullYear()
-    const twoDigitYear = year % 100
-
-    // TODO:   create weight chart types: Daily, Weekly, Monthly, Semianually, Anually, Auto
-
-    const date_ = `${day}/${month}/${twoDigitYear}`
-    const date = props.type === 'last-30-days' ? date_ : half
-    if (acc[date] === undefined) {
-      acc[date] = []
+  function getCandlePeriod(type: string): { days: number; count: number } {
+    switch (type) {
+      case '7d':
+        return { days: 1, count: 7 }
+      case '14d':
+        return { days: 1, count: 14 }
+      case '30d':
+        return { days: 1, count: 30 }
+      case '6m':
+        return { days: 15, count: 12 }
+      case '1y':
+        return { days: 30, count: 12 }
+      case 'all':
+        return { days: 0, count: 12 }
+      default:
+        return { days: 1, count: 7 }
     }
-    acc[date].push(weight)
-
-    return acc
   }
 
-  const weightsByDay = createMemo(() =>
-    props.weights.reduce<Record<string, Weight[]>>(reduceFunc, {}),
+  function groupWeights(
+    weights: readonly Weight[],
+    type: string,
+  ): Record<string, Weight[]> {
+    if (type === 'all') {
+      if (!weights.length) return {}
+      const sorted = [...weights].sort(
+        (a, b) => a.target_timestamp.getTime() - b.target_timestamp.getTime(),
+      )
+      const firstObj = sorted[0]
+      const lastObj = sorted[sorted.length - 1]
+      if (!firstObj || !lastObj) return {}
+      const first = firstObj.target_timestamp.getTime()
+      const last = lastObj.target_timestamp.getTime()
+      const totalDays = Math.max(
+        1,
+        Math.round((last - first) / (1000 * 60 * 60 * 24)),
+      )
+      const daysPerCandle = Math.max(1, Math.round(totalDays / 12))
+      const result: Record<string, Weight[]> = {}
+      for (let i = 0; i < 12; i++) {
+        const start = new Date(first + i * daysPerCandle * 24 * 60 * 60 * 1000)
+        const end = new Date(
+          first + (i + 1) * daysPerCandle * 24 * 60 * 60 * 1000,
+        )
+        const key = `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`
+        result[key] = sorted.filter(
+          (w) => w.target_timestamp >= start && w.target_timestamp < end,
+        )
+      }
+      return result
+    }
+    const { days, count } = getCandlePeriod(type)
+    if (!weights.length) return {}
+    const sorted = [...weights].sort(
+      (a, b) => a.target_timestamp.getTime() - b.target_timestamp.getTime(),
+    )
+    const lastObj = sorted[sorted.length - 1]
+    if (!lastObj) return {}
+    const last = lastObj.target_timestamp
+    const result: Record<string, Weight[]> = {}
+    for (let i = count - 1; i >= 0; i--) {
+      let start: Date, end: Date
+      if (days === 1) {
+        start = new Date(last)
+        start.setDate(start.getDate() - i)
+        end = new Date(start)
+        end.setDate(end.getDate() + 1)
+      } else {
+        start = new Date(last)
+        start.setDate(start.getDate() - i * days)
+        end = new Date(start)
+        end.setDate(end.getDate() + days)
+      }
+      const key = `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`
+      result[key] = sorted.filter(
+        (w) => w.target_timestamp >= start && w.target_timestamp < end,
+      )
+    }
+    return result
+  }
+
+  const weightsByPeriod = createMemo(() =>
+    groupWeights(props.weights, props.type),
   )
 
-  const data = createMemo(
-    (): readonly TickWeight[] =>
-      Object.entries(weightsByDay()).map(([day, weights]) => {
-        const open = firstWeight(weights)?.weight ?? 0
-        const low = Math.min(...weights.map((weight) => weight.weight))
-        const high = Math.max(...weights.map((weight) => weight.weight))
-        const close = getLatestWeight(weights)?.weight ?? 0
-
+  const data = createMemo((): readonly TickWeight[] =>
+    Object.entries(weightsByPeriod()).map(([period, weights]) => {
+      if (!weights.length) {
         return {
-          date: day,
-          open,
-          close,
-          high,
-          low,
+          date: period,
+          open: 0,
+          close: 0,
+          high: 0,
+          low: 0,
         }
-      }),
-    // .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
+      }
+      const open = firstWeight(weights)?.weight ?? 0
+      const low = Math.min(...weights.map((weight) => weight.weight))
+      const high = Math.max(...weights.map((weight) => weight.weight))
+      const close = getLatestWeight(weights)?.weight ?? 0
+      return {
+        date: period,
+        open,
+        close,
+        high,
+        low,
+      }
+    }),
   )
 
   const movingAverage = createMemo(() =>
@@ -322,14 +382,13 @@ function WeightChart(props: {
     ),
   )
 
-  const options = () =>
-    ({
+  const options = () => {
+    return {
       theme: {
         mode: 'dark',
       },
       xaxis: {
         type: 'category',
-        range: props.type === 'last-30-days' ? 30 : undefined,
       },
       yaxis: {
         decimalsInFloat: 0,
@@ -351,7 +410,6 @@ function WeightChart(props: {
         background: '#1E293B',
         events: {
           beforeZoom: function (ctx) {
-            // we need to clear the range as we only need it on the initial load.
             ctx.w.config.xaxis.range = undefined
           },
         },
@@ -374,7 +432,8 @@ function WeightChart(props: {
           autoSelected: 'pan',
         },
       },
-    }) satisfies ApexOptions
+    } satisfies ApexOptions
+  }
 
   const series = createMemo(() => ({
     list: [
