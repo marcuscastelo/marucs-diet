@@ -24,6 +24,7 @@ import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import {
+  fetchRecipeById,
   fetchUserRecipeByName,
   fetchUserRecipes,
 } from '~/modules/diet/recipe/application/recipe'
@@ -274,6 +275,51 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
   )
 }
 
+const fetchRecentsForModal = async (): Promise<readonly Template[]> => {
+  const recentItems = await fetchUserRecentFoods(currentUserId())
+  const foodIds = recentItems
+    .filter((r) => r.type === 'food')
+    .map((r) => r.reference_id)
+  const recipeIds = recentItems
+    .filter((r) => r.type === 'recipe')
+    .map((r) => r.reference_id)
+
+  // Fetch foods and recipes in parallel
+  const foods =
+    foodIds.length > 0
+      ? await Promise.all(
+          foodIds.map((id) => fetchFoodById(id).catch(() => null)),
+        )
+      : []
+  const recipes =
+    recipeIds.length > 0
+      ? await Promise.all(
+          recipeIds.map((id) => fetchRecipeById(id).catch(() => null)),
+        )
+      : []
+
+  // Filter out nulls (not found)
+  const validFoods = (foods as (Food | null)[]).filter(
+    (f): f is Food => f !== null,
+  )
+  const validRecipes = (recipes as (Recipe | null)[]).filter(
+    (r): r is Recipe => r !== null,
+  )
+
+  // Sort by recency (last_used)
+  const templates: Template[] = []
+  for (const recent of recentItems) {
+    if (recent.type === 'food') {
+      const food = validFoods.find((f) => f.id === recent.reference_id)
+      if (food) templates.push(food)
+    } else {
+      const recipe = validRecipes.find((r) => r.id === recent.reference_id)
+      if (recipe) templates.push(recipe)
+    }
+  }
+  return templates
+}
+
 const fetchFoodsForModal = async (): Promise<readonly Food[]> => {
   const getAllowedFoods = async () => {
     switch (templateSearchTab()) {
@@ -344,6 +390,8 @@ const fetchRecipes = async (): Promise<readonly Recipe[]> => {
 const fetchFunc = async () => {
   const tab_ = templateSearchTab()
   switch (tab_) {
+    case 'recent':
+      return await fetchRecentsForModal()
     case 'recipes':
       return await fetchRecipes()
     default:
