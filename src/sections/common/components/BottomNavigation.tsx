@@ -8,6 +8,7 @@ import {
   Show,
 } from 'solid-js'
 
+import { APP_VERSION } from '~/app-version'
 import { showError } from '~/modules/toast/application/toastManager'
 import {
   changeToUser,
@@ -134,7 +135,7 @@ export function BottomNavigation() {
         ref={footerRef}
         class="w-full flex flex-col justify-center items-center gap-1  p-2 rounded-t left-0 bottom-0 z-40 lg:static lg:rounded-none"
       >
-        <pre class="text-xs text-white">Version: {process.env.APP_VERSION}</pre>
+        <pre class="text-xs text-white">Version: {APP_VERSION}</pre>
         <Show when={!window.location.href.includes('stable')}>
           <button
             type="button"
