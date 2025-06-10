@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+# Debug: print each command as it executes
+env | grep GIT
+set -x
+
 git fetch --all --tags
 if git ls-remote --exit-code origin stable &>/dev/null; then
   git fetch origin stable:refs/remotes/origin/stable || true
