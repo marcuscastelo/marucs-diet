@@ -58,4 +58,4 @@ During this session, always wait until the end of the execution of any requested
 <commit message in English, following the conventional commits style, summarizing the main change>
 ````
 
-- When referencing the current changes, use `#changes`.
+- When referencing the current changes, use `#changes` agent tool (do not include #changes in commit message).
