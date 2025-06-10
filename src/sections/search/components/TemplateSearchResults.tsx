@@ -8,6 +8,7 @@ import {
   isTemplateFood,
   type Template,
 } from '~/modules/diet/template/domain/template'
+import { templateSearchTab } from '~/modules/search/application/search'
 import { Alert } from '~/sections/common/components/Alert'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import {
@@ -33,7 +34,9 @@ export function TemplateSearchResults(props: {
     <>
       {!props.typing() && props.filteredTemplates.length === 0 && (
         <Alert color="yellow" class="mt-2">
-          Nenhum alimento encontrado para a busca &quot;{props.search}&quot;.
+          {templateSearchTab() === 'recent' && props.search === ''
+            ? 'Sem alimentos recentes. Eles aparecerão aqui assim que você adicionar seu primeiro alimento'
+            : `Nenhum alimento encontrado para a busca "${props.search}".`}
         </Alert>
       )}
 
