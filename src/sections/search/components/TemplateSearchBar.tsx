@@ -31,7 +31,7 @@ export function TemplateSearchBar(props: { isDesktop: boolean }) {
         }}
         type="search"
         id="default-search"
-        class="block w-full border-gray-600 bg-gray-700 px-4 pl-10 text-sm text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500 hover:border-white transition-transform"
+        class="block w-full border-gray-600 bg-gray-700 px-4 pl-10 text-sm text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500 hover:border-white transition-transform h-12 py-3 rounded-b-lg"
         placeholder="Buscar alimentos"
         required
       />

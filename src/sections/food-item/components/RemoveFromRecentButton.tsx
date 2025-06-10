@@ -1,6 +1,6 @@
 import { Show } from 'solid-js'
 
-import { deleteRecentFoodByFoodId } from '~/modules/recent-food/application/recentFood'
+import { deleteRecentFoodByReference } from '~/modules/recent-food/application/recentFood'
 import { templateSearchTab } from '~/modules/search/application/search'
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
@@ -9,25 +9,31 @@ import { handleApiError } from '~/shared/error/errorHandler'
 
 type RemoveFromRecentButtonProps = {
   templateId: number
-  refetch: () => Promise<void>
+  refetch: (info?: unknown) => unknown
 }
 
-export function RemoveFromRecentButton(props: RemoveFromRecentButtonProps) {
+export function RemoveFromRecentButton(
+  props: RemoveFromRecentButtonProps & { type: 'food' | 'recipe' },
+) {
   const handleClick = (e: MouseEvent) => {
     e.stopPropagation()
     e.preventDefault()
     void showPromise(
-      deleteRecentFoodByFoodId(currentUserId(), props.templateId),
+      deleteRecentFoodByReference(
+        currentUserId(),
+        props.type,
+        props.templateId,
+      ),
       {
-        loading: 'Removendo alimento da lista de recentes...',
-        success: 'Alimento removido da lista de recentes com sucesso!',
+        loading: 'Removendo item da lista de recentes...',
+        success: 'Item removido da lista de recentes com sucesso!',
         error: (err: unknown) => {
           handleApiError(err, {
             component: 'RemoveFromRecentButton',
             operation: 'deleteRecentFood',
-            additionalData: { foodId: props.templateId },
+            additionalData: { type: props.type, referenceId: props.templateId },
           })
-          return 'Erro ao remover alimento da lista de recentes.'
+          return 'Erro ao remover item da lista de recentes.'
         },
       },
     )

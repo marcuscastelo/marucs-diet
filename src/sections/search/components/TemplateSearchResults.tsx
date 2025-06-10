@@ -8,6 +8,7 @@ import {
   isTemplateFood,
   type Template,
 } from '~/modules/diet/template/domain/template'
+import { templateSearchTab } from '~/modules/search/application/search'
 import { Alert } from '~/sections/common/components/Alert'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import {
@@ -27,17 +28,21 @@ export function TemplateSearchResults(props: {
   setBarCodeModalVisible: Setter<boolean>
   itemEditModalVisible: Accessor<boolean>
   setItemEditModalVisible: Setter<boolean>
-  refetch: () => Promise<void>
+  refetch: (info?: unknown) => unknown
 }) {
   return (
     <>
       {!props.typing() && props.filteredTemplates.length === 0 && (
         <Alert color="yellow" class="mt-2">
-          Nenhum alimento encontrado para a busca &quot;{props.search}&quot;.
+          {templateSearchTab() === 'recent' && props.search === ''
+            ? 'Sem alimentos recentes. Eles aparecerão aqui assim que você adicionar seu primeiro alimento'
+            : templateSearchTab() === 'favorites' && props.search === ''
+              ? 'Sem favoritos. Adicione alimentos ou receitas aos favoritos para vê-los aqui.'
+              : `Nenhum alimento encontrado para a busca "${props.search}".`}
         </Alert>
       )}
 
-      <div class="bg-gray-800 p-1">
+      <div class="flex-1 min-h-0 max-h-[60vh] overflow-y-auto scrollbar-gutter-outside scrollbar-clean bg-gray-800 mt-1 pr-4">
         <For each={props.filteredTemplates}>
           {(template) => {
             return (
@@ -70,6 +75,7 @@ export function TemplateSearchResults(props: {
                       secondaryActions={
                         <RemoveFromRecentButton
                           templateId={template.id}
+                          type={isTemplateFood(template) ? 'food' : 'recipe'}
                           refetch={props.refetch}
                         />
                       }

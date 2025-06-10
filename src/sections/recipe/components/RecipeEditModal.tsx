@@ -202,10 +202,9 @@ function Actions(props: {
         class="btn-error btn cursor-pointer uppercase mr-auto"
         onClick={(e) => {
           e.preventDefault()
-
           showConfirmModal({
-            title: 'Excluir item',
-            body: 'Tem certeza que deseja excluir este item?',
+            title: 'Excluir receita',
+            body: 'Tem certeza que deseja excluir esta receita? Esta ação não pode ser desfeita.',
             actions: [
               {
                 text: 'Cancelar',
@@ -216,6 +215,7 @@ function Actions(props: {
                 primary: true,
                 onClick: () => {
                   props.onDelete()
+                  setVisible(false)
                 },
               },
             ],

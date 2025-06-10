@@ -97,6 +97,7 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
                       primary: true,
                       onClick: () => {
                         props.onDelete?.(item().id)
+                        setVisible(false)
                       },
                     },
                   ],

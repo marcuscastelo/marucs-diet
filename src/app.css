@@ -63,3 +63,60 @@
     opacity: 1;
   }
 }
+
+@layer utilities {
+  .scrollbar-gutter-outside {
+    scrollbar-gutter: stable both-edges;
+  }
+}
+
+.scrollbar-clean::-webkit-scrollbar {
+  width: 10px;
+  background: transparent;
+}
+.scrollbar-clean::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 4px 0;
+  border-radius: 8px;
+}
+.scrollbar-clean::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(80,120,255,0.18) 0%, rgba(80,120,255,0.32) 100%);
+  border-radius: 8px;
+  min-height: 40px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.scrollbar-clean::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(80,120,255,0.32) 0%, rgba(80,120,255,0.48) 100%);
+}
+.scrollbar-clean::-webkit-scrollbar-button {
+  display: none;
+  height: 0;
+  width: 0;
+}
+.scrollbar-clean::-webkit-scrollbar-button:single-button {
+  display: none;
+  height: 0;
+  width: 0;
+}
+.scrollbar-clean::-webkit-scrollbar-button:vertical {
+  display: none;
+  height: 0;
+  width: 0;
+}
+.scrollbar-clean::-webkit-scrollbar-button:horizontal {
+  display: none;
+  height: 0;
+  width: 0;
+}
+@supports (scrollbar-width: thin) {
+  .scrollbar-clean {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(80,120,255,0.32) transparent;
+  }
+  .scrollbar-clean::-webkit-scrollbar-button {
+    display: none;
+    height: 0;
+    width: 0;
+  }
+}
