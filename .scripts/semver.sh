@@ -2,10 +2,16 @@
 set -e
 
 git fetch --all --tags
+if git ls-remote --exit-code origin stable &>/dev/null; then
+  git fetch origin stable:refs/remotes/origin/stable || true
+fi
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 
-# Detecta se estamos em um branch rc/*
-rc_count=$(git rev-list --count HEAD ^stable)
+if git show-ref --verify --quiet refs/heads/stable || git show-ref --verify --quiet refs/remotes/origin/stable || git show-ref --verify --quiet refs/tags/stable; then
+  rc_count=$(git rev-list --count HEAD ^stable)
+else
+  rc_count=$(git rev-list --count HEAD)
+fi
 if [[ "$current_branch" =~ ^rc\/(v[0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
   version="${BASH_REMATCH[1]}"
   echo "$version-rc.$rc_count"
