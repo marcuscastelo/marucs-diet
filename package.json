@@ -2,7 +2,7 @@
   "name": "marucs-diet",
   "private": true,
   "type": "module",
-  "version": "v0.11.0-rc",
+  "version": "v0.11.0",
   "packageManager": "pnpm@10.12.1",
   "scripts": {
     "dev": "npm run gen-app-version && vinxi dev",

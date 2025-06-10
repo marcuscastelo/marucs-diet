@@ -1,25 +1,41 @@
 #!/bin/bash
 set -e
-
-# Debug: print each command as it executes
-set -x
-
-# Usa VERCEL_GIT_COMMIT_REF se existir, senão usa git rev-parse
-if [ -n "$VERCEL_GIT_COMMIT_REF" ]; then
-  current_branch="$VERCEL_GIT_COMMIT_REF"
-else
-  current_branch=$(git rev-parse --abbrev-ref HEAD)
-fi
+# set -x
 
 REPO_URL="https://github.com/marcuscastelo/marucs-diet"
 
-if [[ "$current_branch" =~ ^rc\/(v[0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+get_current_branch() {
+  if [ -n "$VERCEL_GIT_COMMIT_REF" ]; then
+    echo "$VERCEL_GIT_COMMIT_REF"
+  else
+    git rev-parse --abbrev-ref HEAD
+  fi
+}
+
+get_sha_for_branch() {
+  local branch="$1"
+  git ls-remote "$REPO_URL" "refs/heads/$branch" | awk '{print $1}'
+}
+
+get_commit_count_between() {
+  local from_sha="$1"
+  local to_sha="$2"
+  curl -s "https://api.github.com/repos/marcuscastelo/marucs-diet/compare/$from_sha...$to_sha" | grep 'total_commits' | head -1 | awk '{print $2}' | tr -d ','
+}
+
+get_issue_number() {
+  local branch="$1"
+  echo "$branch" | sed -E 's|.*/[^0-9]*([0-9]+).*|\1|'
+}
+
+get_rc_version() {
+  local current_branch="$1"
+  local version stable_sha branch_sha rc_count
   version="${BASH_REMATCH[1]}"
-  # Get commit counts between stable and rc/* using GitHub API
-  stable_sha=$(git ls-remote "$REPO_URL" refs/heads/stable | awk '{print $1}')
-  branch_sha=$(git ls-remote "$REPO_URL" "refs/heads/$current_branch" | awk '{print $1}')
+  stable_sha=$(get_sha_for_branch stable)
+  branch_sha=$(get_sha_for_branch "$current_branch")
   if [[ -n "$stable_sha" && -n "$branch_sha" ]]; then
-    rc_count=$(curl -s "https://api.github.com/repos/marcuscastelo/marucs-diet/compare/$stable_sha...$branch_sha" | grep 'total_commits' | head -1 | awk '{print $2}' | tr -d ',')
+    rc_count=$(get_commit_count_between "$stable_sha" "$branch_sha")
     if [[ -z "$rc_count" ]]; then
       rc_count='unavailable'
     fi
@@ -27,47 +43,104 @@ if [[ "$current_branch" =~ ^rc\/(v[0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
     rc_count='error'
   fi
   echo "$version-rc.$rc_count"
-  exit 0
-fi
+}
 
-# Caso contrário: estamos em um branch de desenvolvimento
-# Vamos encontrar a rc/* mais próxima
-closest_rc=$(git for-each-ref --format='%(refname:short)' refs/heads/ |
-  grep '^rc/' |
-  while read branch; do
-    echo "$(git merge-base $current_branch $branch) $branch"
-  done |
-  sort -r |
-  head -n1 |
-  awk '{print $2}')
+get_dev_version() {
+  local current_branch="$1"
+  local closest_rc version merge_base count issue_number version_str
+  closest_rc=$(git for-each-ref --format='%(refname:short)' refs/heads/ |
+    grep '^rc/' |
+    while read branch; do
+      echo "$(git merge-base $current_branch $branch) $branch"
+    done |
+    sort -r |
+    head -n1 |
+    awk '{print $2}')
 
-if [ -z "$closest_rc" ]; then
-  # Fallback: nenhum rc/* existe, usar versão base 0.0.0-dev.<commitcount>
-  count=$(git rev-list --count HEAD)
-  echo "0.0.0-dev.$count"
-  exit 0
-fi
+  if [ -z "$closest_rc" ]; then
+    count=$(git rev-list --count HEAD)
+    echo "0.0.0-dev.$count"
+    return
+  fi
 
-# Extrai a versão da rc/vX.Y.Z
-version=$(echo "$closest_rc" | sed -E 's|rc/(v[0-9]+\.[0-9]+\.[0-9]+)|\1|')
+  version=$(echo "$closest_rc" | sed -E 's|rc/(v[0-9]+\.[0-9]+\.[0-9]+)|\1|')
+  merge_base=$(git merge-base HEAD "$closest_rc")
+  count=$(git rev-list --count "$merge_base"..HEAD)
+  issue_number=$(get_issue_number "$current_branch")
 
-# Conta commits desde o ponto de divergência com a rc
-merge_base=$(git merge-base HEAD "$closest_rc")
-count=$(git rev-list --count "$merge_base"..HEAD)
+  if [ "$count" -eq 0 ]; then
+    version_str="$version-dev.0"
+  else
+    version_str="$version-dev.$rc_count.$count"
+  fi
 
-# Extrai o número da issue (primeiro número após a barra do nome do branch)
-issue_number=$(echo "$current_branch" | sed -E 's|.*/[^0-9]*([0-9]+).*|\1|')
+  if [[ -n "$issue_number" ]]; then
+    version_str="$version_str+issue.$issue_number"
+  fi
 
-# Constrói a versão final
-if [ "$count" -eq 0 ]; then
-  version_str="$version-dev.0"
-else
-  version_str="$version-dev.$rc_count.$count"
-fi
+  echo "$version_str"
+}
 
-# Anexa +issue.<numero> se extraído com sucesso
-if [[ -n "$issue_number" ]]; then
-  version_str="$version_str+issue.$issue_number"
-fi
+main() {
+  current_branch=$(get_current_branch)
 
-echo "$version_str"
+  if [[ "$current_branch" =~ ^rc\/(v[0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+    get_rc_version "$current_branch"
+    exit 0
+  fi
+
+  get_dev_version "$current_branch"
+}
+
+show_help() {
+  echo "Usage: $0 [--help] [--test] [--verbose]"
+  echo "  --help      Show this help message and exit."
+  echo "  --test      Run simple function tests and exit."
+  echo "  --verbose   Enable verbose output (set -x)."
+}
+
+# Parse arguments
+for arg in "$@"; do
+  case $arg in
+    --help)
+      show_help
+      exit 0
+      ;;
+    --test)
+      echo "Testing get_current_branch..."
+      branch=$(get_current_branch)
+      echo "Result: $branch"
+      if [ -z "$branch" ]; then echo 'FAIL: get_current_branch'; exit 1; fi
+      echo "Testing get_sha_for_branch stable..."
+      sha=$(get_sha_for_branch stable)
+      echo "Result: $sha"
+      if [ -z "$sha" ]; then echo 'FAIL: get_sha_for_branch'; exit 1; fi
+      echo "Testing get_issue_number for 'feature/123-description'..."
+      issue=$(get_issue_number 'feature/123-description')
+      echo "Result: $issue"
+      if [ "$issue" != "123" ]; then echo 'FAIL: get_issue_number'; exit 1; fi
+      echo "Testing get_rc_version for rc/v0.0.1..."
+      export BASH_REMATCH=("" "v0.0.1")
+      rc_version=$(get_rc_version 'rc/v0.0.1')
+      echo "Result: $rc_version"
+      if [[ ! "$rc_version" =~ ^v0\.0\.1-rc\. ]]; then echo 'FAIL: get_rc_version'; exit 1; fi
+      echo "Testing get_dev_version for current branch..."
+      dev_version=$(get_dev_version "$branch")
+      echo "Result: $dev_version"
+      if [[ -z "$dev_version" ]]; then echo 'FAIL: get_dev_version'; exit 1; fi
+      echo 'All tests passed.'
+      exit 0
+      ;;
+    --verbose)
+      set -x
+      ;;
+  esac
+  shift
+  break
+  # Only process the first argument for these flags
+  # Remaining args are passed to main
+  # This avoids running main multiple times if multiple flags are passed
+  # If you want to support multiple flags together, remove 'break'
+done
+
+main "$@"
