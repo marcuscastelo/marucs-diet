@@ -9,11 +9,7 @@ import {
   createInsertFoodDAOFromNewFood,
   foodDAOSchema,
 } from '~/modules/diet/food/infrastructure/foodDAO'
-import {
-  handleApiError,
-  logError,
-  wrapErrorWithStack,
-} from '~/shared/error/errorHandler'
+import { handleApiError, wrapErrorWithStack } from '~/shared/error/errorHandler'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 const TABLE = 'foods'
@@ -29,25 +25,144 @@ export function createSupabaseFoodRepository(): FoodRepository {
   }
 }
 
+/**
+ * Fetches a Food by its ID.
+ * Throws on error or if not found.
+ * @param id - The Food ID
+ * @param params - Optional search params
+ * @returns The Food
+ * @throws Error if not found or on API/validation error
+ */
 async function fetchFoodById(
   id: Food['id'],
   params: Omit<FoodSearchParams, 'limit'> = {},
-): Promise<Food | null> {
-  const foods = await internalCachedSearchFoods(
-    { field: 'id', value: id },
-    { ...params, limit: 1 },
-  )
-
-  if (foods.length === 0) {
-    logError(`Food with id ${id} not found`, {
+): Promise<Food> {
+  try {
+    const foods = await internalCachedSearchFoods(
+      { field: 'id', value: id },
+      { ...params, limit: 1 },
+    )
+    if (foods.length === 0 || foods[0] === undefined) {
+      handleApiError('Food not found', {
+        component: 'supabaseFoodRepository',
+        operation: 'fetchFoodById',
+        additionalData: { id, params },
+      })
+      throw new Error('Food not found')
+    }
+    return foods[0]
+  } catch (err) {
+    handleApiError(err, {
       component: 'supabaseFoodRepository',
       operation: 'fetchFoodById',
       additionalData: { id, params },
     })
-    return null
+    throw err
   }
+}
 
-  return foods[0] ?? null
+/**
+ * Fetches a Food by its EAN.
+ * Throws on error or if not found.
+ * @param ean - The Food EAN
+ * @param params - Optional search params
+ * @returns The Food
+ * @throws Error if not found or on API/validation error
+ */
+async function fetchFoodByEan(
+  ean: Required<Food>['ean'],
+  params: Omit<FoodSearchParams, 'limit'> = {},
+): Promise<Food> {
+  try {
+    const foods = await internalCachedSearchFoods(
+      { field: 'ean', value: ean },
+      { ...params, limit: 1 },
+    )
+    if (foods.length === 0 || foods[0] === undefined) {
+      handleApiError('Food not found', {
+        component: 'supabaseFoodRepository',
+        operation: 'fetchFoodByEan',
+        additionalData: { ean, params },
+      })
+      throw new Error('Food not found')
+    }
+    return foods[0]
+  } catch (err) {
+    handleApiError(err, {
+      component: 'supabaseFoodRepository',
+      operation: 'fetchFoodByEan',
+      additionalData: { ean, params },
+    })
+    throw err
+  }
+}
+
+/**
+ * Inserts a new Food.
+ * Throws on error or if not created.
+ * @param newFood - The new Food
+ * @returns The created Food
+ * @throws Error if not created or on API/validation error
+ */
+async function insertFood(newFood: NewFood): Promise<Food> {
+  const createDAO = createInsertFoodDAOFromNewFood(newFood)
+  const { data, error } = await supabase
+    .from(TABLE)
+    .insert(createDAO)
+    .select('*')
+  if (error !== null) {
+    handleApiError(error, {
+      component: 'supabaseFoodRepository',
+      operation: 'insertFood',
+      additionalData: { food: newFood },
+    })
+    throw wrapErrorWithStack(error)
+  }
+  const foodDAOs = parseWithStack(foodDAOSchema.array(), data)
+  const foods = foodDAOs.map(createFoodFromDAO)
+  if (foods.length === 0 || foods[0] === undefined) {
+    handleApiError('Food not created', {
+      component: 'supabaseFoodRepository',
+      operation: 'insertFood',
+      additionalData: { food: newFood },
+    })
+    throw new Error('Food not created')
+  }
+  return foods[0]
+}
+
+/**
+ * Upserts a Food.
+ * Throws on error or if not created.
+ * @param newFood - The new Food
+ * @returns The upserted Food
+ * @throws Error if not created or on API/validation error
+ */
+async function upsertFood(newFood: NewFood): Promise<Food> {
+  const createDAO = createInsertFoodDAOFromNewFood(newFood)
+  const { data, error } = await supabase
+    .from(TABLE)
+    .upsert(createDAO)
+    .select('*')
+  if (error !== null) {
+    handleApiError(error, {
+      component: 'supabaseFoodRepository',
+      operation: 'upsertFood',
+      additionalData: { food: newFood },
+    })
+    throw wrapErrorWithStack(error)
+  }
+  const foodDAOs = parseWithStack(foodDAOSchema.array(), data)
+  const foods = foodDAOs.map(createFoodFromDAO)
+  if (foods.length === 0 || foods[0] === undefined) {
+    handleApiError('Food not created', {
+      component: 'supabaseFoodRepository',
+      operation: 'upsertFood',
+      additionalData: { food: newFood },
+    })
+    throw new Error('Food not created')
+  }
+  return foods[0]
 }
 
 async function fetchFoodsByName(
@@ -58,17 +173,6 @@ async function fetchFoodsByName(
     { field: 'name', value: name, operator: 'ilike' },
     params,
   )
-}
-
-async function fetchFoodByEan(
-  ean: Required<Food>['ean'],
-  params: Omit<FoodSearchParams, 'limit'> = {},
-) {
-  const foods = await internalCachedSearchFoods(
-    { field: 'ean', value: ean },
-    { ...params, limit: 1 },
-  )
-  return foods[0] ?? null
 }
 
 async function fetchFoods(params: FoodSearchParams = {}) {
@@ -146,49 +250,4 @@ async function internalCachedSearchFoods(
   console.debug(`[Food] Found ${data.length} foods`)
   const foodDAOs = parseWithStack(foodDAOSchema.array(), data)
   return foodDAOs.map(createFoodFromDAO)
-}
-
-async function insertFood(newFood: NewFood): Promise<Food | null> {
-  const createDAO = createInsertFoodDAOFromNewFood(newFood)
-
-  const { data, error } = await supabase
-    .from(TABLE)
-    .insert(createDAO)
-    .select('*')
-  if (error !== null) {
-    handleApiError(error, {
-      component: 'supabaseFoodRepository',
-      operation: 'insertFood',
-      additionalData: { food: newFood },
-    })
-    throw wrapErrorWithStack(error)
-  }
-
-  const foodDAOs = parseWithStack(foodDAOSchema.array(), data)
-  const foods = foodDAOs.map(createFoodFromDAO)
-
-  return foods[0] ?? null
-}
-
-async function upsertFood(newFood: NewFood): Promise<Food | null> {
-  const createDAO = createInsertFoodDAOFromNewFood(newFood)
-
-  const { data, error } = await supabase
-    .from(TABLE)
-    .upsert(createDAO)
-    .select('*')
-
-  if (error !== null) {
-    handleApiError(error, {
-      component: 'supabaseFoodRepository',
-      operation: 'upsertFood',
-      additionalData: { food: newFood },
-    })
-    throw wrapErrorWithStack(error)
-  }
-
-  const foodDAOs = parseWithStack(foodDAOSchema.array(), data)
-  const foods = foodDAOs.map(createFoodFromDAO)
-
-  return foods[0] ?? null
 }
