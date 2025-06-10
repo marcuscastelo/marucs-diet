@@ -111,8 +111,8 @@ export default [
       'no-restricted-syntax': [
         'error',
         {
-          selector: "CallExpression[callee.property.name='parse']",
-          message: 'Direct .parse() calls are forbidden. Use parseWithStack for stack trace and consistency.'
+          selector: "CallExpression[callee.object.name='JSON'][callee.property.name='parse'], CallExpression[callee.object.type='Identifier'][callee.property.name='parse']",
+          message: 'Direct JSON.parse or Zod schema .parse() calls are forbidden. Use parseWithStack for stack trace and consistency.'
         },
       ],
 
