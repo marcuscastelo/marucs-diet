@@ -11,11 +11,11 @@ import { Capsule } from '~/sections/common/components/capsule/Capsule'
 import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useDateField, useFloatField } from '~/sections/common/hooks/useField'
 import Datepicker from '~/sections/datepicker/components/Datepicker'
 import { formatError } from '~/shared/formatError'
 import { adjustToTimezone } from '~/shared/utils/date/dateUtils'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 
 /**
  * Renders a capsule view for editing and saving a single Measure.

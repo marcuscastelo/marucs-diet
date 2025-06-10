@@ -25,10 +25,10 @@ import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleCont
 import { ComboBox } from '~/sections/common/components/ComboBox'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useDateField, useFloatField } from '~/sections/common/hooks/useField'
 import Datepicker from '~/sections/datepicker/components/Datepicker'
 import { adjustToTimezone, dateToYYYYMMDD } from '~/shared/utils/date'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 
 // Utils
 function getCandlePeriod(type: string): { days: number; count: number } {

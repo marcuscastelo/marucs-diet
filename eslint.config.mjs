@@ -151,4 +151,21 @@ export default [
       '.output',
     ],
   },
+  {
+    files: ['src/app-version.ts'],
+    rules: {
+      'import/no-unresolved': 'off',
+      'no-restricted-imports': 'off',
+      '@typescript-eslint/no-var-requires': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      'import/order': 'off',
+      'simple-import-sort/imports': 'off',
+      'simple-import-sort/exports': 'off',
+      'prettier/prettier': 'off',
+    },
+  },
 ]

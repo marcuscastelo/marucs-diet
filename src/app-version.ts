@@ -1,8 +1,4 @@
-/* eslint-disable */
-let version = 'unknown'
-try {
-  version = (await import('./app-version.json')).version
-} catch {
-  // fallback to unknown
-}
-export const APP_VERSION = version
+// @ts-expect-error Cannot find module '~/src/app-version.json' or its corresponding type declarations
+import appVersionJson from '~/src/app-version.json'
+
+export const APP_VERSION = appVersionJson.version
