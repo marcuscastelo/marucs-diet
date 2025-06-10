@@ -19,7 +19,8 @@ type Translation<T extends string> = { [_key in T]: string }
 // TODO:   Create module for translations
 // TODO:   Make diet translations appear in the UI
 // TODO:   Make select input for diet (cut, normo, bulk)
-const DIET_TRANSLATION: Translation<User['diet']> = {
+// Export DIET_TRANSLATION for use in UserInfoCapsule
+export const DIET_TRANSLATION: Translation<User['diet']> = {
   cut: 'Cutting',
   normo: 'Normocalórica',
   bulk: 'Bulking',

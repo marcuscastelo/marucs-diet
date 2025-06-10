@@ -1,4 +1,4 @@
-import { Show } from 'solid-js'
+import { For, Show } from 'solid-js'
 
 import { type Mutable } from '~/legacy/utils/typeUtils'
 import {
@@ -9,6 +9,7 @@ import {
 import { type User, userSchema } from '~/modules/user/domain/user'
 import { Capsule } from '~/sections/common/components/capsule/Capsule'
 import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
+import { DIET_TRANSLATION } from '~/sections/profile/components/UserInfo'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 type Translation<T extends string> = { [key in T]: string }
@@ -114,21 +115,51 @@ function RightContent<T extends keyof Omit<User, '__type'>>(props: {
   field: T
   convert: (value: string) => User[T]
 }) {
+  // Render select for diet, input for others
   return (
     <CapsuleContent>
       <div class="flex items-center justify-center w-full">
         <Show when={innerData()}>
-          {(innerData) => (
-            <input
-              class={
-                'btn-ghost input bg-transparent text-center px-0 pl-5 text-xl my-auto'
-              }
-              value={innerData()[props.field].toString()}
-              onChange={makeOnChange(props.field, convertString)}
-              onBlur={makeOnBlur(props.field, props.convert)}
-              style={{ width: '100%' }}
-            />
-          )}
+          {(innerData) => {
+            return props.field === 'diet' ? (
+              <select
+                class={
+                  'btn-ghost input bg-transparent text-center px-0 pl-5 text-xl my-auto'
+                }
+                value={innerData()[props.field].toString()}
+                onChange={(event) => {
+                  const value = (event.target as HTMLSelectElement).value
+                  const newUser = {
+                    ...innerData(),
+                    diet: value as User['diet'],
+                  }
+                  setInnerData(parseWithStack(userSchema, newUser))
+                }}
+                style={{ width: '100%' }}
+              >
+                <For each={Object.entries(DIET_TRANSLATION)}>
+                  {([key, label]) => (
+                    <option
+                      value={key}
+                      selected={innerData()[props.field] === key}
+                    >
+                      {label}
+                    </option>
+                  )}
+                </For>
+              </select>
+            ) : (
+              <input
+                class={
+                  'btn-ghost input bg-transparent text-center px-0 pl-5 text-xl my-auto'
+                }
+                value={innerData()[props.field].toString()}
+                onChange={makeOnChange(props.field, convertString)}
+                onBlur={makeOnBlur(props.field, props.convert)}
+                style={{ width: '100%' }}
+              />
+            )
+          }}
         </Show>
       </div>
     </CapsuleContent>
