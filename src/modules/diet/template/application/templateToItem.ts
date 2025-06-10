@@ -8,6 +8,8 @@ import {
   type Template,
 } from '~/modules/diet/template/domain/template'
 
+const DEFAULT_QUANTITY = 100
+
 /**
  * Converts a Template (FoodTemplate or RecipeTemplate) to an Item or RecipeItem for use in item groups.
  * @param template - The Template to convert
@@ -21,7 +23,7 @@ export function templateToItem(template: Template): Item | RecipeItem {
       name: template.name,
       macros: template.macros,
       __type: 'Item',
-      quantity: 100, // Default quantity for food items
+      quantity: DEFAULT_QUANTITY, // Default quantity for food items
     } satisfies Item
   }
   return {
@@ -30,6 +32,6 @@ export function templateToItem(template: Template): Item | RecipeItem {
     name: template.name,
     macros: calcRecipeMacros(template as Recipe),
     __type: 'RecipeItem',
-    quantity: 100, // Default quantity for recipe items
+    quantity: DEFAULT_QUANTITY, // Default quantity for recipe items
   } satisfies RecipeItem
 }
