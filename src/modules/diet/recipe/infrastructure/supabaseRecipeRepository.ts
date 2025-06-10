@@ -11,7 +11,7 @@ import {
   recipeDAOSchema,
 } from '~/modules/diet/recipe/infrastructure/recipeDAO'
 import { type User } from '~/modules/user/domain/user'
-import { handleApiError, wrapErrorWithStack } from '~/shared/error/errorHandler'
+import { handleApiError } from '~/shared/error/errorHandler'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 const TABLE = 'recipes'
@@ -27,142 +27,230 @@ export function createSupabaseRecipeRepository(): RecipeRepository {
   }
 }
 
-// TODO: handle errors (also in the rest of the controllers)
+/**
+ * Fetches all recipes for a user.
+ * Throws on error.
+ * @param userId - The user ID
+ * @returns Array of recipes
+ * @throws Error on API/validation error
+ */
 const fetchUserRecipes = async (userId: User['id']): Promise<Recipe[]> => {
-  const { data, error } = await supabase
-    .from(TABLE)
-    .select()
-    .eq('owner', userId)
-
-  if (error !== null) {
-    handleApiError(error, {
+  try {
+    const { data, error } = await supabase
+      .from(TABLE)
+      .select()
+      .eq('owner', userId)
+    if (error !== null) {
+      handleApiError(error, {
+        component: 'supabaseRecipeRepository',
+        operation: 'fetchUserRecipes',
+        additionalData: { userId },
+      })
+      throw error
+    }
+    const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
+    return recipeDAOs.map(createRecipeFromDAO)
+  } catch (err) {
+    handleApiError(err, {
       component: 'supabaseRecipeRepository',
       operation: 'fetchUserRecipes',
       additionalData: { userId },
     })
-    throw wrapErrorWithStack(error)
+    throw err
   }
-
-  const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
-  const recipes = recipeDAOs.map(createRecipeFromDAO)
-
-  return recipes
 }
 
+/**
+ * Fetches a recipe by its ID.
+ * Throws on error or if not found.
+ * @param id - The recipe ID
+ * @returns The recipe
+ * @throws Error if not found or on API/validation error
+ */
 const fetchRecipeById = async (id: Recipe['id']): Promise<Recipe> => {
-  const { data, error } = await supabase.from(TABLE).select().eq('id', id)
-
-  if (error !== null) {
-    handleApiError(error, {
+  try {
+    const { data, error } = await supabase.from(TABLE).select().eq('id', id)
+    if (error !== null) {
+      handleApiError(error, {
+        component: 'supabaseRecipeRepository',
+        operation: 'fetchRecipeById',
+        additionalData: { id },
+      })
+      throw error
+    }
+    const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
+    const recipes = recipeDAOs.map(createRecipeFromDAO)
+    if (!recipes[0]) {
+      handleApiError('Recipe not found', {
+        component: 'supabaseRecipeRepository',
+        operation: 'fetchRecipeById',
+        additionalData: { id },
+      })
+      throw new Error(`Recipe with id ${id} not found`)
+    }
+    return recipes[0]
+  } catch (err) {
+    handleApiError(err, {
       component: 'supabaseRecipeRepository',
       operation: 'fetchRecipeById',
       additionalData: { id },
     })
-    throw wrapErrorWithStack(error)
+    throw err
   }
-
-  const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
-  const recipes = recipeDAOs.map(createRecipeFromDAO)
-
-  if (!recipes[0]) {
-    throw new Error(`Recipe with id ${id} not found`)
-  }
-  return recipes[0]
 }
 
+/**
+ * Fetches a user's recipe by name.
+ * Throws on error.
+ * @param userId - The user ID
+ * @param name - The recipe name
+ * @returns Array of recipes
+ * @throws Error on API/validation error
+ */
 const fetchUserRecipeByName = async (
   userId: User['id'],
   name: Recipe['name'],
 ): Promise<Recipe[]> => {
-  const { data, error } = await supabase
-    .from(TABLE)
-    .select()
-    .eq('owner', userId)
-    .eq('name', name)
-
-  if (error !== null) {
-    handleApiError(error, {
+  try {
+    const { data, error } = await supabase
+      .from(TABLE)
+      .select()
+      .eq('owner', userId)
+      .eq('name', name)
+    if (error !== null) {
+      handleApiError(error, {
+        component: 'supabaseRecipeRepository',
+        operation: 'fetchUserRecipeByName',
+        additionalData: { userId, name },
+      })
+      throw error
+    }
+    const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
+    return recipeDAOs.map(createRecipeFromDAO)
+  } catch (err) {
+    handleApiError(err, {
       component: 'supabaseRecipeRepository',
       operation: 'fetchUserRecipeByName',
       additionalData: { userId, name },
     })
-    throw wrapErrorWithStack(error)
+    throw err
   }
-
-  const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
-  const recipes = recipeDAOs.map(createRecipeFromDAO)
-
-  return recipes
 }
 
+/**
+ * Inserts a new recipe.
+ * Throws on error or if not created.
+ * @param newRecipe - The new recipe
+ * @returns The created recipe
+ * @throws Error if not created or on API/validation error
+ */
 const insertRecipe = async (newRecipe: NewRecipe): Promise<Recipe> => {
-  const createDAO = createInsertRecipeDAOFromNewRecipe(newRecipe)
-
-  const { data, error } = await supabase.from(TABLE).insert(createDAO).select()
-
-  if (error !== null) {
-    handleApiError(error, {
+  try {
+    const createDAO = createInsertRecipeDAOFromNewRecipe(newRecipe)
+    const { data, error } = await supabase
+      .from(TABLE)
+      .insert(createDAO)
+      .select()
+    if (error !== null) {
+      handleApiError(error, {
+        component: 'supabaseRecipeRepository',
+        operation: 'insertRecipe',
+        additionalData: { recipe: newRecipe },
+      })
+      throw error
+    }
+    const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
+    const recipes = recipeDAOs.map(createRecipeFromDAO)
+    if (!recipes[0]) {
+      handleApiError('Recipe not created', {
+        component: 'supabaseRecipeRepository',
+        operation: 'insertRecipe',
+        additionalData: { recipe: newRecipe },
+      })
+      throw new Error('Recipe not created')
+    }
+    return recipes[0]
+  } catch (err) {
+    handleApiError(err, {
       component: 'supabaseRecipeRepository',
       operation: 'insertRecipe',
       additionalData: { recipe: newRecipe },
     })
-    throw wrapErrorWithStack(error)
+    throw err
   }
-
-  const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
-  const recipes = recipeDAOs.map(createRecipeFromDAO)
-
-  if (!recipes[0]) {
-    throw new Error('Recipe not created')
-  }
-  return recipes[0]
 }
 
+/**
+ * Updates a recipe.
+ * Throws on error or if not found after update.
+ * @param recipeId - The recipe ID
+ * @param newRecipe - The new recipe data
+ * @returns The updated recipe
+ * @throws Error if not found or on API/validation error
+ */
 const updateRecipe = async (
   recipeId: Recipe['id'],
   newRecipe: Recipe,
 ): Promise<Recipe> => {
-  console.debug(
-    `[RecipeController] Updating recipe ${recipeId} with`,
-    newRecipe,
-  )
-
-  const updateDAO = createUpdateRecipeDAOFromRecipe(newRecipe)
-
-  const { data, error } = await supabase
-    .from(TABLE)
-    .update(updateDAO)
-    .eq('id', recipeId)
-    .select()
-
-  if (error !== null) {
-    handleApiError(error, {
+  try {
+    const updateDAO = createUpdateRecipeDAOFromRecipe(newRecipe)
+    const { data, error } = await supabase
+      .from(TABLE)
+      .update(updateDAO)
+      .eq('id', recipeId)
+      .select()
+    if (error !== null) {
+      handleApiError(error, {
+        component: 'supabaseRecipeRepository',
+        operation: 'updateRecipe',
+        additionalData: { id: recipeId, recipe: newRecipe },
+      })
+      throw error
+    }
+    const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
+    const recipes = recipeDAOs.map(createRecipeFromDAO)
+    if (!recipes[0]) {
+      handleApiError('Recipe not found after update', {
+        component: 'supabaseRecipeRepository',
+        operation: 'updateRecipe',
+        additionalData: { id: recipeId, recipe: newRecipe },
+      })
+      throw new Error(`Recipe with id ${recipeId} not found after update`)
+    }
+    return recipes[0]
+  } catch (err) {
+    handleApiError(err, {
       component: 'supabaseRecipeRepository',
       operation: 'updateRecipe',
       additionalData: { id: recipeId, recipe: newRecipe },
     })
-    throw wrapErrorWithStack(error)
+    throw err
   }
-
-  const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
-  const recipes = recipeDAOs.map(createRecipeFromDAO)
-
-  if (recipes[0] === undefined) {
-    throw new Error(`Recipe with id ${recipeId} not found after update`)
-  }
-
-  return recipes[0]
 }
 
+/**
+ * Deletes a recipe by ID.
+ * Throws on error.
+ * @param id - The recipe ID
+ * @throws Error on API error
+ */
 const deleteRecipe = async (id: Recipe['id']): Promise<void> => {
-  const { error } = await supabase.from(TABLE).delete().eq('id', id)
-
-  if (error !== null) {
-    handleApiError(error, {
+  try {
+    const { error } = await supabase.from(TABLE).delete().eq('id', id)
+    if (error !== null) {
+      handleApiError(error, {
+        component: 'supabaseRecipeRepository',
+        operation: 'deleteRecipe',
+        additionalData: { id },
+      })
+      throw error
+    }
+  } catch (err) {
+    handleApiError(err, {
       component: 'supabaseRecipeRepository',
       operation: 'deleteRecipe',
       additionalData: { id },
     })
-    throw wrapErrorWithStack(error)
+    throw err
   }
 }
