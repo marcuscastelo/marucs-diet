@@ -1,7 +1,6 @@
 let version = 'unknown'
 try {
-  // @ts-expect-error: dynamic import of json for build-time version injection
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, import/no-unresolved
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, import/no-unresolved, @typescript-eslint/no-unsafe-member-access
   version = (await import('./app-version.json')).version
 } catch {
   // fallback to unknown
