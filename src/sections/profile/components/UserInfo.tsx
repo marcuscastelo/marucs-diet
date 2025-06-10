@@ -17,12 +17,17 @@ import {
 import { handleApiError } from '~/shared/error/errorHandler'
 type Translation<T extends string> = { [_key in T]: string }
 // TODO:   Create module for translations
-// TODO:   Make diet translations appear in the UI
-// TODO:   Make select input for diet (cut, normo, bulk)
-const DIET_TRANSLATION: Translation<User['diet']> = {
+// Export DIET_TRANSLATION for use in UserInfoCapsule
+export const DIET_TRANSLATION: Translation<User['diet']> = {
   cut: 'Cutting',
   normo: 'Normocalórica',
   bulk: 'Bulking',
+}
+
+// Export GENDER_TRANSLATION for use in UserInfoCapsule
+export const GENDER_TRANSLATION: Translation<User['gender']> = {
+  male: 'Masculino',
+  female: 'Feminino',
 }
 
 export function UserInfo() {
@@ -43,7 +48,6 @@ export function UserInfo() {
         innerData_[key as keyof UnsavedFields] !== user_[key as keyof User]
       return acc
     }
-
     setUnsavedFields(
       Object.keys(innerData_).reduce<UnsavedFields>(
         reduceFunc,

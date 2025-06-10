@@ -9,6 +9,11 @@ import {
 import { type User, userSchema } from '~/modules/user/domain/user'
 import { Capsule } from '~/sections/common/components/capsule/Capsule'
 import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
+import { ComboBox } from '~/sections/common/components/ComboBox'
+import {
+  DIET_TRANSLATION,
+  GENDER_TRANSLATION,
+} from '~/sections/profile/components/UserInfo'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 type Translation<T extends string> = { [key in T]: string }
@@ -78,6 +83,32 @@ const USER_FIELD_TRANSLATION: Translation<keyof Omit<User, '__type'>> = {
   desired_weight: 'Peso Alvo',
 }
 
+function renderComboBox<T extends keyof User>(
+  field: T,
+  translation: Translation<string>,
+  innerData: () => User,
+  setInnerData: (user: User) => void,
+) {
+  const options = Object.entries(translation).map(([key, label]) => ({
+    value: key,
+    label,
+  }))
+  return (
+    <ComboBox
+      options={options}
+      value={innerData()[field].toString()}
+      onChange={(value) => {
+        const newUser = {
+          ...innerData(),
+          [field]: value,
+        }
+        setInnerData(parseWithStack(userSchema, newUser))
+      }}
+      class="w-full text-xl text-center bg-slate-900"
+    />
+  )
+}
+
 export function UserInfoCapsule<T extends keyof Omit<User, '__type'>>(props: {
   field: T
   convert: (value: string) => User[T]
@@ -99,7 +130,7 @@ function LeftContent(props: {
   return (
     <CapsuleContent>
       <h5
-        class={`pl-5 text-xl ${
+        class={`text-xl ${
           unsavedFields()[props.field] === true ? 'text-red-500 italic' : ''
         }`}
       >
@@ -114,21 +145,34 @@ function RightContent<T extends keyof Omit<User, '__type'>>(props: {
   field: T
   convert: (value: string) => User[T]
 }) {
+  // Render ComboBox for diet and gender, input for others
   return (
     <CapsuleContent>
       <div class="flex items-center justify-center w-full">
         <Show when={innerData()}>
-          {(innerData) => (
-            <input
-              class={
-                'btn-ghost input bg-transparent text-center px-0 pl-5 text-xl my-auto'
-              }
-              value={innerData()[props.field].toString()}
-              onChange={makeOnChange(props.field, convertString)}
-              onBlur={makeOnBlur(props.field, props.convert)}
-              style={{ width: '100%' }}
-            />
-          )}
+          {(innerData) => {
+            if (props.field === 'diet' || props.field === 'gender') {
+              const translation =
+                props.field === 'diet' ? DIET_TRANSLATION : GENDER_TRANSLATION
+              return renderComboBox(
+                props.field,
+                translation,
+                innerData,
+                setInnerData,
+              )
+            }
+            return (
+              <input
+                class={
+                  'btn-ghost input bg-transparent text-center px-0 text-xl my-auto'
+                }
+                value={innerData()[props.field].toString()}
+                onChange={makeOnChange(props.field, convertString)}
+                onBlur={makeOnBlur(props.field, props.convert)}
+                style={{ width: '100%' }}
+              />
+            )
+          }}
         </Show>
       </div>
     </CapsuleContent>
