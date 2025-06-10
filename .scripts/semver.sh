@@ -5,17 +5,23 @@ set -e
 set -x
 
 git fetch --all --tags
-if git ls-remote --exit-code origin stable &>/dev/null; then
-  stable_ref="origin/stable"
-  rc_count=$(git rev-list --count "$stable_ref"..HEAD)
-else
-  rc_count=$(git rev-list --count HEAD)
-fi
 # Usa VERCEL_GIT_COMMIT_REF se existir, senão usa git rev-parse
 if [ -n "$VERCEL_GIT_COMMIT_REF" ]; then
   current_branch="$VERCEL_GIT_COMMIT_REF"
 else
   current_branch=$(git rev-parse --abbrev-ref HEAD)
+fi
+
+if git ls-remote --exit-code origin stable &>/dev/null; then
+  stable_ref="origin/stable"
+  if git ls-remote --exit-code origin "$current_branch" &>/dev/null; then
+    branch_ref="origin/$current_branch"
+  else
+    branch_ref="HEAD"
+  fi
+  rc_count=$(git rev-list --count "$stable_ref".."$branch_ref")
+else
+  rc_count=$(git rev-list --count HEAD)
 fi
 
 if [[ "$current_branch" =~ ^rc\/(v[0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
