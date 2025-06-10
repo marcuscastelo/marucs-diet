@@ -1,6 +1,6 @@
 ---
 description: 'Clean Architecture, Modularization, and Refactoring for SolidJS/DaisyUI/Tailwind projects.'
-mode: 'copilot'
+mode: 'agent'
 tools: ['codebase', 'terminalLastCommand']
 ---
 
