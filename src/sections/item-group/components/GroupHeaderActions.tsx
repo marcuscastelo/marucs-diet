@@ -26,7 +26,7 @@ import { DownloadIcon } from '~/sections/common/components/icons/DownloadIcon'
 import { PasteIcon } from '~/sections/common/components/icons/PasteIcon'
 import { RecipeIcon } from '~/sections/common/components/icons/RecipeIcon'
 import { type ConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
-import { formatError } from '~/shared/formatError'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 // Helper for recipe complexity
 function PasteButton(props: { disabled?: boolean; onPaste: () => void }) {
@@ -126,7 +126,12 @@ export function GroupHeaderActions(props: {
       props.setGroup(newGroup)
       props.setRecipeEditModalVisible(true)
     } catch (err) {
-      showError(`Falha ao criar receita a partir de grupo: ${formatError(err)}`)
+      handleApiError(err, {
+        component: 'GroupHeaderActions',
+        operation: 'handleConvertToRecipe',
+        additionalData: { groupId: group.id },
+      })
+      showError(err, undefined, 'Falha ao criar receita a partir de grupo')
     }
   }
 

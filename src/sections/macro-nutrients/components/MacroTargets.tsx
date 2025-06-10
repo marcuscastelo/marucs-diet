@@ -19,7 +19,6 @@ import {
   showSuccess,
 } from '~/modules/toast/application/toastManager'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
-import { formatError } from '~/shared/formatError'
 import { dateToYYYYMMDD, getTodayYYYYMMDD } from '~/shared/utils/date'
 
 const CARBO_CALORIES = 4 as const
@@ -110,7 +109,7 @@ const onSaveMacroProfile = (profile: MacroProfile) => {
         gramsPerKgFat: profile.gramsPerKgFat,
       }),
     ).catch((error) => {
-      showError(`Erro ao atualizar perfil de macro: ${formatError(error)}`)
+      showError(error, {}, 'Erro ao atualizar perfil de macro')
     })
   } else if (
     profile.id === -1 || // TODO:   Better typing system for new MacroProfile instead of -1.
@@ -246,7 +245,9 @@ export function MacroTarget(props: MacroTargetProps) {
                                       })
                                       .catch((e) => {
                                         showError(
-                                          `Erro ao restaurar perfil antigo: ${formatError(e)}`,
+                                          e,
+                                          undefined,
+                                          'Erro ao restaurar perfil antigo',
                                         )
                                       })
                                   },

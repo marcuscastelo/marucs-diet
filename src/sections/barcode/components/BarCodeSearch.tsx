@@ -18,7 +18,6 @@ import {
   ItemView,
 } from '~/sections/food-item/components/ItemView'
 import { handleApiError } from '~/shared/error/errorHandler'
-import { formatError } from '~/shared/formatError'
 
 export type BarCodeSearchProps = {
   barCode: Accessor<string>
@@ -65,7 +64,7 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
       })
       showConfirmModal({
         title: `Erro ao buscar alimento de EAN ${props.barCode()}`,
-        body: `Erro: ${formatError(err)}`,
+        body: 'Erro ao buscar alimento',
         actions: [{ text: 'OK', primary: true, onClick: () => {} }],
       })
       props.setFood(null)
