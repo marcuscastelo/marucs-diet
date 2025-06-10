@@ -11,7 +11,10 @@ import {
   recipeDAOSchema,
 } from '~/modules/diet/recipe/infrastructure/recipeDAO'
 import { type User } from '~/modules/user/domain/user'
-import { handleApiError } from '~/shared/error/errorHandler'
+import {
+  handleApiError,
+  handleValidationError,
+} from '~/shared/error/errorHandler'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 const TABLE = 'recipes'
@@ -48,7 +51,17 @@ const fetchUserRecipes = async (userId: User['id']): Promise<Recipe[]> => {
       })
       throw error
     }
-    const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
+    let recipeDAOs
+    try {
+      recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
+    } catch (validationError) {
+      handleValidationError(validationError, {
+        component: 'supabaseRecipeRepository',
+        operation: 'fetchUserRecipes',
+        additionalData: { userId },
+      })
+      throw validationError
+    }
     return recipeDAOs.map(createRecipeFromDAO)
   } catch (err) {
     handleApiError(err, {
@@ -78,7 +91,17 @@ const fetchRecipeById = async (id: Recipe['id']): Promise<Recipe> => {
       })
       throw error
     }
-    const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
+    let recipeDAOs
+    try {
+      recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
+    } catch (validationError) {
+      handleValidationError(validationError, {
+        component: 'supabaseRecipeRepository',
+        operation: 'fetchRecipeById',
+        additionalData: { id },
+      })
+      throw validationError
+    }
     const recipes = recipeDAOs.map(createRecipeFromDAO)
     if (!recipes[0]) {
       handleApiError('Recipe not found', {
@@ -125,7 +148,17 @@ const fetchUserRecipeByName = async (
       })
       throw error
     }
-    const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
+    let recipeDAOs
+    try {
+      recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
+    } catch (validationError) {
+      handleValidationError(validationError, {
+        component: 'supabaseRecipeRepository',
+        operation: 'fetchUserRecipeByName',
+        additionalData: { userId, name },
+      })
+      throw validationError
+    }
     return recipeDAOs.map(createRecipeFromDAO)
   } catch (err) {
     handleApiError(err, {
@@ -159,7 +192,17 @@ const insertRecipe = async (newRecipe: NewRecipe): Promise<Recipe> => {
       })
       throw error
     }
-    const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
+    let recipeDAOs
+    try {
+      recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
+    } catch (validationError) {
+      handleValidationError(validationError, {
+        component: 'supabaseRecipeRepository',
+        operation: 'insertRecipe',
+        additionalData: { recipe: newRecipe },
+      })
+      throw validationError
+    }
     const recipes = recipeDAOs.map(createRecipeFromDAO)
     if (!recipes[0]) {
       handleApiError('Recipe not created', {
@@ -207,7 +250,17 @@ const updateRecipe = async (
       })
       throw error
     }
-    const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
+    let recipeDAOs
+    try {
+      recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
+    } catch (validationError) {
+      handleValidationError(validationError, {
+        component: 'supabaseRecipeRepository',
+        operation: 'updateRecipe',
+        additionalData: { id: recipeId, recipe: newRecipe },
+      })
+      throw validationError
+    }
     const recipes = recipeDAOs.map(createRecipeFromDAO)
     if (!recipes[0]) {
       handleApiError('Recipe not found after update', {
