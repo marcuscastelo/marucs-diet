@@ -12,7 +12,6 @@ export const simpleItemGroupSchema = z.object({
   id: z.number(),
   name: z.string(),
   items: itemSchema.array(), // TODO:   Support nested groups and recipes
-  type: z.literal('simple'),
   recipe: z
     .number()
     .nullable()
@@ -25,7 +24,6 @@ export const recipedItemGroupSchema = z.object({
   id: z.number(),
   name: z.string(),
   items: itemSchema.array().readonly(), // TODO:   Support nested groups and recipes
-  type: z.literal('recipe'),
   recipe: z.number(),
   __type: z.literal('ItemGroup').default('ItemGroup'),
 })
@@ -41,7 +39,7 @@ export const itemGroupSchema = z.union([
  * @returns True if group is SimpleItemGroup
  */
 export function isSimpleItemGroup(group: ItemGroup): group is SimpleItemGroup {
-  return group.type === 'simple'
+  return typeof group.recipe !== 'number' || isNaN(group.recipe)
 }
 
 /**
@@ -52,7 +50,7 @@ export function isSimpleItemGroup(group: ItemGroup): group is SimpleItemGroup {
 export function isRecipedItemGroup(
   group: ItemGroup,
 ): group is RecipedItemGroup {
-  return group.type === 'recipe'
+  return typeof group.recipe === 'number' && !isNaN(group.recipe)
 }
 
 // Use output type for strict clipboard unions
@@ -98,7 +96,6 @@ export function createSimpleItemGroup({
     id: generateId(),
     name,
     items,
-    type: 'simple',
     recipe: undefined,
     __type: 'ItemGroup',
   }
@@ -126,7 +123,6 @@ export function createRecipedItemGroup({
     id: generateId(),
     name,
     items,
-    type: 'recipe',
     recipe,
     __type: 'ItemGroup',
   }
@@ -135,6 +131,10 @@ export function createRecipedItemGroup({
 /**
  * Checks if a RecipedItemGroup is up to date with its associated Recipe.
  * Returns false if any item reference, quantity, or macros differ.
+ *
+ * @param group - The RecipedItemGroup to check
+ * @param groupRecipe - The Recipe to compare against
+ * @returns True if up to date
  */
 export function isRecipedGroupUpToDate(
   group: RecipedItemGroup,
@@ -175,7 +175,6 @@ export function isRecipedGroupUpToDate(
     if (recipeItem.quantity !== groupItem.quantity) {
       return false
     }
-
     // TODO:   Compare macros when they are implemented in the recipe
   }
   return true

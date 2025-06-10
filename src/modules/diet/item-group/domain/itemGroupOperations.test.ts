@@ -46,7 +46,6 @@ describe('itemGroupOperations', () => {
 
   it('setItemGroupRecipe sets recipe', () => {
     const result = setItemGroupRecipe(baseGroup, 2)
-    expect(result.type).toBe('recipe')
     expect(result.recipe).toBe(2)
   })
 
