@@ -64,47 +64,97 @@ registerSubapabaseRealtimeCallback(SUPABASE_TABLE_USERS, () => {
   bootstrap()
 })
 
-export async function fetchUsers(): Promise<void> {
-  const users = await userRepository.fetchUsers()
-  const newCurrentUser = users.find((user) => user.id === currentUserId())
-  setUsers(users)
-  setCurrentUser(newCurrentUser ?? null)
-}
-
-export async function fetchCurrentUser(): Promise<User | null> {
-  const user = await userRepository.fetchUser(currentUserId())
-  setCurrentUser(user)
-  return user
-}
-
-export async function insertUser(newUser: NewUser): Promise<void> {
+/**
+ * Fetches all users and sets current user.
+ * @returns Array of users or empty array on error.
+ */
+export async function fetchUsers(): Promise<readonly User[]> {
   try {
-    await showPromise(userRepository.insertUser(newUser), {
-      loading: 'Inserindo usuário...',
-      success: 'Usuário inserido com sucesso',
-      error: 'Falha ao inserir usuário',
+    const users = await userRepository.fetchUsers()
+    const newCurrentUser = users.find((user) => user.id === currentUserId())
+    setUsers(users)
+    setCurrentUser(newCurrentUser ?? null)
+    return users
+  } catch (error) {
+    handleApiError(error, {
+      component: 'userApplication',
+      operation: 'fetchUsers',
+      additionalData: {},
     })
+    setUsers([])
+    setCurrentUser(null)
+    return []
+  }
+}
+
+/**
+ * Fetches the current user.
+ * @returns The current user or null on error.
+ */
+export async function fetchCurrentUser(): Promise<User | null> {
+  try {
+    const user = await userRepository.fetchUser(currentUserId())
+    setCurrentUser(user)
+    return user
+  } catch (error) {
+    handleApiError(error, {
+      component: 'userApplication',
+      operation: 'fetchCurrentUser',
+      additionalData: {},
+    })
+    setCurrentUser(null)
+    return null
+  }
+}
+
+/**
+ * Inserts a new user.
+ * @param newUser - The new user data.
+ * @returns True if inserted, false otherwise.
+ */
+export async function insertUser(newUser: NewUser): Promise<boolean> {
+  try {
+    await showPromise(
+      userRepository.insertUser(newUser),
+      {
+        loading: 'Inserindo usuário...',
+        success: 'Usuário inserido com sucesso',
+        error: 'Falha ao inserir usuário',
+      },
+      { context: 'user-action', audience: 'user' },
+    )
     await fetchUsers()
+    return true
   } catch (error) {
     handleApiError(error, {
       component: 'userApplication',
       operation: 'insertUser',
       additionalData: { newUser },
     })
-    throw error
+    return false
   }
 }
 
+/**
+ * Updates a user by ID.
+ * @param userId - The user ID.
+ * @param newUser - The new user data.
+ * @returns The updated user or null on error.
+ */
 export async function updateUser(
   userId: User['id'],
   newUser: NewUser,
 ): Promise<User | null> {
   try {
-    const user = await showPromise(userRepository.updateUser(userId, newUser), {
-      loading: 'Atualizando informações do usuário...',
-      success: 'Informações do usuário atualizadas com sucesso',
-      error: 'Falha ao atualizar informações do usuário',
-    })
+    const user = await showPromise(
+      userRepository.updateUser(userId, newUser),
+      {
+        loading: 'Atualizando informações do usuário...',
+        success: 'Informações do usuário atualizadas com sucesso',
+        error: 'Falha ao atualizar informações do usuário',
+      },
+      { context: 'user-action', audience: 'user' },
+    )
     await fetchUsers()
     return user
   } catch (error) {
@@ -113,25 +163,35 @@ export async function updateUser(
       operation: 'updateUser',
       additionalData: { userId, newUser },
     })
-    throw error
+    return null
   }
 }
 
-export async function deleteUser(userId: User['id']): Promise<void> {
+/**
+ * Deletes a user by ID.
+ * @param userId - The user ID.
+ * @returns True if deleted, false otherwise.
+ */
+export async function deleteUser(userId: User['id']): Promise<boolean> {
   try {
-    await showPromise(userRepository.deleteUser(userId), {
-      loading: 'Removendo usuário...',
-      success: 'Usuário removido com sucesso',
-      error: 'Falha ao remover usuário',
-    })
+    await showPromise(
+      userRepository.deleteUser(userId),
+      {
+        loading: 'Removendo usuário...',
+        success: 'Usuário removido com sucesso',
+        error: 'Falha ao remover usuário',
+      },
+      { context: 'user-action', audience: 'user' },
+    )
     await fetchUsers()
+    return true
   } catch (error) {
     handleApiError(error, {
       component: 'userApplication',
       operation: 'deleteUser',
       additionalData: { userId },
     })
-    throw error
+    return false
   }
 }
 
@@ -148,7 +208,12 @@ export function isFoodFavorite(foodId: number): boolean {
 export function setFoodAsFavorite(foodId: number, favorite: boolean): void {
   const currentUser_ = currentUser()
   if (currentUser_ === null) {
-    throw new Error('User not initialized')
+    handleApiError('User not initialized', {
+      component: 'userApplication',
+      operation: 'toggleFavoriteFood',
+      additionalData: { foodId, favorite },
+    })
+    return
   }
   const favoriteFoods = currentUser_.favorite_foods
   if (favorite) {
@@ -161,8 +226,7 @@ export function setFoodAsFavorite(foodId: number, favorite: boolean): void {
       favoriteFoods.splice(index, 1)
     }
   }
-
-  updateUser(currentUser_.id, {
+  void updateUser(currentUser_.id, {
     ...demoteToNewUser(currentUser_),
     favorite_foods: favoriteFoods,
   })

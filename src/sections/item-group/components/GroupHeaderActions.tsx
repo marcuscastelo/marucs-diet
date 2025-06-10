@@ -122,6 +122,10 @@ export function GroupHeaderActions(props: {
         owner: currentUserId(),
       })
       const insertedRecipe = await insertRecipe(newRecipe)
+      if (!insertedRecipe) {
+        showError('Falha ao criar receita a partir de grupo')
+        return
+      }
       const newGroup = setItemGroupRecipe(group, insertedRecipe.id)
       props.setGroup(newGroup)
       props.setRecipeEditModalVisible(true)

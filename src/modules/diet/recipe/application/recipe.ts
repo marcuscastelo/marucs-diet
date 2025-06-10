@@ -11,96 +11,126 @@ const recipeRepository = createSupabaseRecipeRepository()
 
 export async function fetchUserRecipes(userId: User['id']) {
   try {
-    return await recipeRepository.fetchUserRecipes(userId)
+    return await showPromise(
+      recipeRepository.fetchUserRecipes(userId),
+      {
+        loading: 'Carregando receitas...',
+        success: 'Receitas carregadas com sucesso',
+        error: 'Falha ao carregar receitas',
+      },
+      { context: 'background', audience: 'user' },
+    )
   } catch (error) {
     handleApiError(error, {
       component: 'recipeApplication',
       operation: 'fetchUserRecipes',
       additionalData: { userId },
     })
-    throw error
+    return []
   }
 }
 
 export async function fetchUserRecipeByName(userId: User['id'], name: string) {
   try {
-    return await recipeRepository.fetchUserRecipeByName(userId, name)
+    return await showPromise(
+      recipeRepository.fetchUserRecipeByName(userId, name),
+      {
+        loading: 'Carregando receitas...',
+        success: 'Receitas carregadas com sucesso',
+        error: 'Falha ao carregar receitas',
+      },
+      { context: 'background', audience: 'user' },
+    )
   } catch (error) {
     handleApiError(error, {
       component: 'recipeApplication',
       operation: 'fetchUserRecipeByName',
       additionalData: { userId, name },
     })
-    throw error
+    return []
   }
 }
 
 export async function fetchRecipeById(recipeId: Recipe['id']) {
   try {
-    return await recipeRepository.fetchRecipeById(recipeId)
+    return await showPromise(
+      recipeRepository.fetchRecipeById(recipeId),
+      {
+        loading: 'Carregando receita...',
+        success: 'Receita carregada com sucesso',
+        error: 'Falha ao carregar receita',
+      },
+      { context: 'background', audience: 'user' },
+    )
   } catch (error) {
     handleApiError(error, {
       component: 'recipeApplication',
       operation: 'fetchRecipeById',
       additionalData: { recipeId },
     })
-    throw error
+    return null
   }
 }
 
 export async function insertRecipe(newRecipe: NewRecipe) {
   try {
-    const recipe = await showPromise(recipeRepository.insertRecipe(newRecipe), {
-      loading: 'Criando nova receita...',
-      success: (recipe) => `Receita '${recipe.name}' criada com sucesso`,
-      error: 'Falha ao criar receita',
-    })
-    return recipe
+    return await showPromise(
+      recipeRepository.insertRecipe(newRecipe),
+      {
+        loading: 'Criando nova receita...',
+        success: (recipe) => `Receita '${recipe.name}' criada com sucesso`,
+        error: 'Falha ao criar receita',
+      },
+      { context: 'background', audience: 'user' },
+    )
   } catch (error) {
     handleApiError(error, {
       component: 'recipeApplication',
       operation: 'insertRecipe',
       additionalData: { newRecipe },
     })
-    throw error
+    return null
   }
 }
 
 export async function updateRecipe(recipeId: Recipe['id'], newRecipe: Recipe) {
   try {
-    const recipe = await showPromise(
+    return await showPromise(
       recipeRepository.updateRecipe(recipeId, newRecipe),
       {
         loading: 'Atualizando receita...',
         success: 'Receita atualizada com sucesso',
         error: 'Falha ao atualizar receita',
       },
+      { context: 'background', audience: 'user' },
     )
-    return recipe
   } catch (error) {
     handleApiError(error, {
       component: 'recipeApplication',
       operation: 'updateRecipe',
       additionalData: { recipeId, newRecipe },
     })
-    throw error
+    return null
   }
 }
 
 export async function deleteRecipe(recipeId: Recipe['id']) {
   try {
-    console.debug('recipeApplication.deleteRecipe', { recipeId })
-    return await showPromise(recipeRepository.deleteRecipe(recipeId), {
-      loading: 'Deletando receita...',
-      success: 'Receita deletada com sucesso',
-      error: 'Falha ao deletar receita',
-    })
+    return await showPromise(
+      recipeRepository.deleteRecipe(recipeId),
+      {
+        loading: 'Deletando receita...',
+        success: 'Receita deletada com sucesso',
+        error: 'Falha ao deletar receita',
+      },
+      { context: 'background', audience: 'user' },
+    )
   } catch (error) {
     handleApiError(error, {
       component: 'recipeApplication',
       operation: 'deleteRecipe',
       additionalData: { recipeId },
     })
-    throw error
+    return null
   }
 }

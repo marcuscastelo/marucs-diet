@@ -86,8 +86,7 @@ createEffect(() => {
   setCurrentDayDiet(dayDiet)
 })
 
-async function fetchAllUserDayDiets(userId: User['id']) {
-  // TODO: Optimize fetching to only get necessary data
+async function fetchAllUserDayDiets(userId: User['id']): Promise<void> {
   try {
     const newDayDiets = await dayRepository.fetchAllUserDayDiets(userId)
     setDayDiets(newDayDiets)
@@ -97,67 +96,95 @@ async function fetchAllUserDayDiets(userId: User['id']) {
       operation: 'fetchAllUserDayDiets',
       additionalData: { userId },
     })
-    throw error
+    setDayDiets([])
   }
 }
 
-export async function insertDayDiet(dayDiet: NewDayDiet): Promise<void> {
+/**
+ * Inserts a new day diet.
+ * @param dayDiet - The new day diet data.
+ * @returns True if inserted, false otherwise.
+ */
+export async function insertDayDiet(dayDiet: NewDayDiet): Promise<boolean> {
   try {
-    await showPromise(dayRepository.insertDayDiet(dayDiet), {
-      loading: 'Criando dia de dieta...',
-      success: 'Dia de dieta criado com sucesso',
-      error: 'Erro ao criar dia de dieta',
-    })
-    // Silently refresh data without additional toast noise
+    await showPromise(
+      dayRepository.insertDayDiet(dayDiet),
+      {
+        loading: 'Criando dia de dieta...',
+        success: 'Dia de dieta criado com sucesso',
+        error: 'Erro ao criar dia de dieta',
+      },
+      { context: 'user-action', audience: 'user' },
+    )
     await fetchAllUserDayDiets(dayDiet.owner)
+    return true
   } catch (error) {
     handleApiError(error, {
       component: 'dayDietApplication',
       operation: 'insertDayDiet',
       additionalData: { owner: dayDiet.owner },
     })
-    throw error
+    return false
   }
 }
 
+/**
+ * Updates a day diet by ID.
+ * @param dayId - The day diet ID.
+ * @param dayDiet - The new day diet data.
+ * @returns True if updated, false otherwise.
+ */
 export async function updateDayDiet(
   dayId: DayDiet['id'],
   dayDiet: NewDayDiet,
-): Promise<void> {
+): Promise<boolean> {
   try {
-    await showPromise(dayRepository.updateDayDiet(dayId, dayDiet), {
-      loading: 'Atualizando dieta...',
-      success: 'Dieta atualizada com sucesso',
-      error: 'Erro ao atualizar dieta',
-    })
-    // Silently refresh data without additional toast noise
+    await showPromise(
+      dayRepository.updateDayDiet(dayId, dayDiet),
+      {
+        loading: 'Atualizando dieta...',
+        success: 'Dieta atualizada com sucesso',
+        error: 'Erro ao atualizar dieta',
+      },
+      { context: 'user-action', audience: 'user' },
+    )
     await fetchAllUserDayDiets(dayDiet.owner)
+    return true
   } catch (error) {
     handleApiError(error, {
       component: 'dayDietApplication',
       operation: 'updateDayDiet',
       additionalData: { dayId, owner: dayDiet.owner },
     })
-    throw error
+    return false
   }
 }
 
-export async function deleteDayDiet(dayId: DayDiet['id']): Promise<void> {
+/**
+ * Deletes a day diet by ID.
+ * @param dayId - The day diet ID.
+ * @returns True if deleted, false otherwise.
+ */
+export async function deleteDayDiet(dayId: DayDiet['id']): Promise<boolean> {
   try {
-    await showPromise(dayRepository.deleteDayDiet(dayId), {
-      loading: 'Deletando dieta...',
-      success: 'Dieta deletada com sucesso',
-      error: 'Erro ao deletar dieta',
-    })
-    // Silently refresh data without additional toast noise
+    await showPromise(
+      dayRepository.deleteDayDiet(dayId),
+      {
+        loading: 'Deletando dieta...',
+        success: 'Dieta deletada com sucesso',
+        error: 'Erro ao deletar dieta',
+      },
+      { context: 'user-action', audience: 'user' },
+    )
     await fetchAllUserDayDiets(currentUserId())
+    return true
   } catch (error) {
     handleApiError(error, {
       component: 'dayDietApplication',
       operation: 'deleteDayDiet',
       additionalData: { dayId },
     })
-    throw error
+    return false
   }
 }
 
