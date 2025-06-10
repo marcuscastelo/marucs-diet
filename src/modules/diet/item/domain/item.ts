@@ -5,10 +5,22 @@ import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macr
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 export const itemSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  reference: z.number(),
-  quantity: z.number(),
+  id: z.number({
+    required_error: "O campo 'id' é obrigatório.",
+    invalid_type_error: "O campo 'id' deve ser um número.",
+  }),
+  name: z.string({
+    required_error: "O campo 'name' é obrigatório.",
+    invalid_type_error: "O campo 'name' deve ser uma string.",
+  }),
+  reference: z.number({
+    required_error: "O campo 'reference' é obrigatório.",
+    invalid_type_error: "O campo 'reference' deve ser um número.",
+  }),
+  quantity: z.number({
+    required_error: "O campo 'quantity' é obrigatório.",
+    invalid_type_error: "O campo 'quantity' deve ser um número.",
+  }),
   /**
    * @deprecated Should be derived from the quantity and the reference
    */

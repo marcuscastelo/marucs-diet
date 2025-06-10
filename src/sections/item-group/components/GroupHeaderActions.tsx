@@ -118,7 +118,7 @@ export function GroupHeaderActions(props: {
           group.name.length > 0
             ? group.name
             : 'Nova receita (a partir de um grupo)',
-        items: deepCopy(group.items) ?? [],
+        items: Array.from(deepCopy(group.items) ?? []),
         owner: currentUserId(),
       })
       const insertedRecipe = await insertRecipe(newRecipe)

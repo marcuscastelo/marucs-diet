@@ -9,11 +9,26 @@ import { handleApiError } from '~/shared/error/errorHandler'
 // TODO:   In the future, it seems like discriminated unions will deprecated (https://github.com/colinhacks/zod/issues/2106)
 
 export const simpleItemGroupSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  items: itemSchema.array(), // TODO:   Support nested groups and recipes
+  id: z.number({
+    required_error: "O campo 'id' do grupo é obrigatório.",
+    invalid_type_error: "O campo 'id' do grupo deve ser um número.",
+  }),
+  name: z.string({
+    required_error: "O campo 'name' do grupo é obrigatório.",
+    invalid_type_error: "O campo 'name' do grupo deve ser uma string.",
+  }),
+  items: itemSchema
+    .array()
+    .refine((arr) => Array.isArray(arr) && arr.length > 0, {
+      message:
+        "O campo 'items' do grupo deve ser uma lista de itens e não pode ser vazio.",
+    }),
   recipe: z
-    .number()
+    .number({
+      required_error:
+        "O campo 'recipe' do grupo é obrigatório quando presente.",
+      invalid_type_error: "O campo 'recipe' do grupo deve ser um número.",
+    })
     .nullable()
     .optional()
     .transform((recipe) => recipe ?? undefined),
@@ -21,10 +36,25 @@ export const simpleItemGroupSchema = z.object({
 })
 
 export const recipedItemGroupSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  items: itemSchema.array().readonly(), // TODO:   Support nested groups and recipes
-  recipe: z.number(),
+  id: z.number({
+    required_error: "O campo 'id' do grupo é obrigatório.",
+    invalid_type_error: "O campo 'id' do grupo deve ser um número.",
+  }),
+  name: z.string({
+    required_error: "O campo 'name' do grupo é obrigatório.",
+    invalid_type_error: "O campo 'name' do grupo deve ser uma string.",
+  }),
+  items: itemSchema
+    .array()
+    .refine((arr) => Array.isArray(arr) && arr.length > 0, {
+      message:
+        "O campo 'items' do grupo deve ser uma lista de itens e não pode ser vazio.",
+    })
+    .readonly(),
+  recipe: z.number({
+    required_error: "O campo 'recipe' do grupo é obrigatório.",
+    invalid_type_error: "O campo 'recipe' do grupo deve ser um número.",
+  }),
   __type: z.literal('ItemGroup').default('ItemGroup'),
 })
 

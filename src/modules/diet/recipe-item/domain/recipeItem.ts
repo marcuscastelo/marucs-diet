@@ -5,10 +5,25 @@ import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macr
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 export const recipeItemSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  reference: z.number(),
-  quantity: z.number(),
+  id: z.number({
+    required_error: "O campo 'id' do item de receita é obrigatório.",
+    invalid_type_error: "O campo 'id' do item de receita deve ser um número.",
+  }),
+  name: z.string({
+    required_error: "O campo 'name' do item de receita é obrigatório.",
+    invalid_type_error:
+      "O campo 'name' do item de receita deve ser uma string.",
+  }),
+  reference: z.number({
+    required_error: "O campo 'reference' do item de receita é obrigatório.",
+    invalid_type_error:
+      "O campo 'reference' do item de receita deve ser um número.",
+  }),
+  quantity: z.number({
+    required_error: "O campo 'quantity' do item de receita é obrigatório.",
+    invalid_type_error:
+      "O campo 'quantity' do item de receita deve ser um número.",
+  }),
   macros: macroNutrientsSchema, // TODO:   Rename to foodMacros for clarity
   __type: z
     .string()
