@@ -28,6 +28,7 @@ import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import { useDateField, useFloatField } from '~/sections/common/hooks/useField'
 import Datepicker from '~/sections/datepicker/components/Datepicker'
 import { adjustToTimezone, dateToYYYYMMDD } from '~/shared/utils/date'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 
 // Utils
 function getCandlePeriod(type: string): { days: number; count: number } {
@@ -334,6 +335,7 @@ function WeightView(props: { weight: Weight }) {
   const dateField = useDateField(targetTimestampSignal)
   const weightSignal = () => props.weight.weight
   const weightField = useFloatField(weightSignal)
+  const { show: showConfirmModal } = useConfirmModalContext()
   const handleSave = ({
     dateValue,
     weightValue,
@@ -402,7 +404,24 @@ function WeightView(props: { weight: Weight }) {
           <button
             class="btn cursor-pointer uppercase btn-ghost my-auto focus:ring-2 focus:ring-blue-400 border-none text-white bg-ghost hover:bg-slate-800 py-2 px-2 w-full sm:w-auto"
             onClick={() => {
-              void deleteWeight(props.weight.id)
+              showConfirmModal({
+                title: 'Confirmar exclusão',
+                body: 'Tem certeza que deseja excluir este peso? Esta ação não pode ser desfeita.',
+                actions: [
+                  {
+                    text: 'Cancelar',
+                    onClick: () => {},
+                  },
+                  {
+                    text: 'Excluir',
+                    primary: true,
+                    onClick: () => {
+                      void deleteWeight(props.weight.id)
+                    },
+                  },
+                ],
+                hasBackdrop: true,
+              })
             }}
           >
             <TrashIcon />

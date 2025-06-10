@@ -15,6 +15,7 @@ import { useDateField, useFloatField } from '~/sections/common/hooks/useField'
 import Datepicker from '~/sections/datepicker/components/Datepicker'
 import { formatError } from '~/shared/formatError'
 import { adjustToTimezone } from '~/shared/utils/date/dateUtils'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 
 /**
  * Renders a capsule view for editing and saving a single Measure.
@@ -33,6 +34,7 @@ export function MeasureView(props: {
   const waistField = useFloatField(() => props.measure.waist)
   const hipField = useFloatField(() => props.measure.hip)
   const neckField = useFloatField(() => props.measure.neck)
+  const { show: showConfirmModal } = useConfirmModalContext()
 
   const handleSave = ({
     date,
@@ -78,15 +80,33 @@ export function MeasureView(props: {
   }
 
   const handleDelete = () => {
-    const afterDelete = () => {
-      props.onRefetchMeasures()
-    }
-    deleteMeasure(props.measure.id)
-      .then(afterDelete)
-      .catch((error) => {
-        console.error(error)
-        showError('Erro ao deletar: \n' + JSON.stringify(error, null, 2))
-      })
+    showConfirmModal({
+      title: 'Confirmar exclusão',
+      body: 'Tem certeza que deseja excluir esta medida? Esta ação não pode ser desfeita.',
+      actions: [
+        {
+          text: 'Cancelar',
+          onClick: () => {},
+        },
+        {
+          text: 'Excluir',
+          primary: true,
+          onClick: () => {
+            const afterDelete = () => {
+              props.onRefetchMeasures()
+            }
+            deleteMeasure(props.measure.id)
+              .then(afterDelete)
+              .catch((error) => {
+                showError(
+                  'Erro ao deletar: \n' + JSON.stringify(error, null, 2),
+                )
+              })
+          },
+        },
+      ],
+      hasBackdrop: true,
+    })
   }
 
   return (
