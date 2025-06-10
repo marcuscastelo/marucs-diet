@@ -31,7 +31,11 @@ import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { type Template } from '~/modules/diet/template/domain/template'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import {
-  fetchRecentFoodByUserIdAndFoodId,
+  isTemplateItemFood,
+  isTemplateItemRecipe,
+} from '~/modules/diet/template-item/domain/templateItem'
+import {
+  fetchRecentFoodByUserTypeAndReferenceId,
   fetchUserRecentFoods,
   insertRecentFood,
   updateRecentFood,
@@ -111,24 +115,37 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
     const onConfirm = async () => {
       props.onNewItemGroup?.(newGroup, originalAddedItem)
 
-      const recentFood = await fetchRecentFoodByUserIdAndFoodId(
+      let type: 'food' | 'recipe'
+      if (isTemplateItemFood(originalAddedItem)) {
+        type = 'food'
+      } else if (isTemplateItemRecipe(originalAddedItem)) {
+        type = 'recipe'
+      } else {
+        throw new Error('Invalid template item type')
+      }
+
+      const recentFood = await fetchRecentFoodByUserTypeAndReferenceId(
         currentUserId(),
+        type,
         originalAddedItem.reference,
       )
 
       if (
         recentFood !== null &&
         (recentFood.user_id !== currentUserId() ||
-          recentFood.food_id !== originalAddedItem.reference)
+          recentFood.type !== type ||
+          recentFood.reference_id !== originalAddedItem.reference)
       ) {
-        // TODO:   Remove recent food assertion once unit tests are in place
-        throw new Error('BUG: recentFood fetched does not match user and food')
+        throw new Error(
+          'BUG: recentFood fetched does not match user/type/reference',
+        )
       }
 
       const newRecentFood = createNewRecentFood({
-        ...recentFood,
+        ...(recentFood ?? {}),
         user_id: currentUserId(),
-        food_id: originalAddedItem.reference,
+        type,
+        reference_id: originalAddedItem.reference,
       })
 
       if (recentFood !== null) {
@@ -137,14 +154,11 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
         await insertRecentFood(newRecentFood)
       }
 
-      // Prompt if user wants to add another item or go back (Yes/No)
-      // TODO:   Show Yes/No instead of Ok/Cancel on modal
       showConfirmModal({
         title: 'Item adicionado com sucesso',
         body: 'Deseja adicionar outro item ou finalizar a inclusão?',
         actions: [
           {
-            // Show success toast when adding more items
             text: 'Adicionar mais um item',
             onClick: () => {
               showSuccess(
@@ -267,7 +281,7 @@ const fetchFoodsForModal = async (): Promise<readonly Food[]> => {
         return currentUser()?.favorite_foods ?? []
       case 'recent':
         return (await fetchUserRecentFoods(currentUserId())).map(
-          (food) => food.food_id,
+          (food) => food.reference_id,
         )
       default:
         return undefined // Allow any food

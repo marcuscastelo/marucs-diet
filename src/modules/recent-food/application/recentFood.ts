@@ -19,26 +19,29 @@ const TABLE = 'recent_foods'
 // TODO: Implement proper infrastructure folder for recent food
 
 /**
- * Fetches a recent food by user and food ID.
+ * Fetches a recent food by user, type and reference ID.
  * @param userId - The user ID.
- * @param foodId - The food ID.
+ * @param type - The type ('food' | 'recipe').
+ * @param referenceId - The reference ID (foods.id ou recipes.id).
  * @returns The recent food or null if not found.
  */
-export async function fetchRecentFoodByUserIdAndFoodId(
+export async function fetchRecentFoodByUserTypeAndReferenceId(
   userId: RecentFood['user_id'],
-  foodId: RecentFood['food_id'],
+  type: RecentFood['type'],
+  referenceId: RecentFood['reference_id'],
 ) {
   const { data, error } = await supabase
     .from(TABLE)
     .select('*')
     .eq('user_id', userId)
-    .eq('food_id', foodId)
+    .eq('type', type)
+    .eq('reference_id', referenceId)
 
   if (error !== null) {
     handleApiError(error, {
       component: 'recentFood',
-      operation: 'fetchRecentFoodByUserIdAndFoodId',
-      additionalData: { userId, foodId },
+      operation: 'fetchRecentFoodByUserTypeAndReferenceId',
+      additionalData: { userId, type, referenceId },
     })
     throw wrapErrorWithStack(error)
   }
@@ -78,7 +81,8 @@ export async function fetchUserRecentFoods(userId: RecentFood['user_id']) {
 export async function insertRecentFood(newRecentFood: NewRecentFood) {
   const createDAO: CreateRecentFoodDAO = {
     user_id: newRecentFood.user_id,
-    food_id: newRecentFood.food_id,
+    type: newRecentFood.type,
+    reference_id: newRecentFood.reference_id,
     last_used: newRecentFood.last_used,
     times_used: newRecentFood.times_used,
   }
@@ -110,7 +114,8 @@ export async function updateRecentFood(
 ) {
   const updateDAO = {
     user_id: newRecentFood.user_id,
-    food_id: newRecentFood.food_id,
+    type: newRecentFood.type,
+    reference_id: newRecentFood.reference_id,
     last_used: newRecentFood.last_used,
     times_used: newRecentFood.times_used,
   }
@@ -135,25 +140,28 @@ export async function updateRecentFood(
 }
 
 /**
- * Deletes a recent food by user and food ID.
+ * Deletes a recent food by user, type e reference_id.
  * @param userId - The user ID.
- * @param foodId - The food ID.
+ * @param type - The type ('food' | 'recipe').
+ * @param referenceId - The reference ID.
  */
-export async function deleteRecentFoodByFoodId(
+export async function deleteRecentFoodByReference(
   userId: RecentFood['user_id'],
-  foodId: RecentFood['food_id'],
+  type: RecentFood['type'],
+  referenceId: RecentFood['reference_id'],
 ) {
   const { error } = await supabase
     .from(TABLE)
     .delete()
     .eq('user_id', userId)
-    .eq('food_id', foodId)
+    .eq('type', type)
+    .eq('reference_id', referenceId)
 
   if (error !== null) {
     handleApiError(error, {
       component: 'recentFood',
-      operation: 'deleteRecentFoodByFoodId',
-      additionalData: { userId, foodId },
+      operation: 'deleteRecentFoodByReference',
+      additionalData: { userId, type, referenceId },
     })
     throw wrapErrorWithStack(error)
   }
