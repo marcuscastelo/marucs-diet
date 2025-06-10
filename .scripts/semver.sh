@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+git fetch --all --tags
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 
 # Detecta se estamos em um branch rc/*
