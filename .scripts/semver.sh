@@ -12,10 +12,18 @@ else
   current_branch=$(git rev-parse --abbrev-ref HEAD)
 fi
 
+# Garante que os branches remotos existam localmente
 if git ls-remote --exit-code origin stable &>/dev/null; then
-  stable_ref="origin/stable"
-  if git ls-remote --exit-code origin "$current_branch" &>/dev/null; then
-    branch_ref="origin/$current_branch"
+  git fetch origin stable:refs/remotes/origin/stable || true
+fi
+if git ls-remote --exit-code origin "$current_branch" &>/dev/null; then
+  git fetch origin "$current_branch":refs/remotes/origin/"$current_branch" || true
+fi
+
+if git show-ref --verify --quiet refs/remotes/origin/stable; then
+  stable_ref="refs/remotes/origin/stable"
+  if git show-ref --verify --quiet "refs/remotes/origin/$current_branch"; then
+    branch_ref="refs/remotes/origin/$current_branch"
     rc_count=$(git rev-list --count "$stable_ref".."$branch_ref")
   elif git show-ref --verify --quiet "refs/heads/$current_branch"; then
     branch_ref="$current_branch"
