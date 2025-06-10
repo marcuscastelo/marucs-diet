@@ -18,10 +18,7 @@ import {
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { updateMeal } from '~/modules/diet/meal/application/meal'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
-import {
-  showError,
-  showPromise,
-} from '~/modules/toast/application/toastManager'
+import { showError } from '~/modules/toast/application/toastManager'
 import { Modal } from '~/sections/common/components/Modal'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { CopyLastDayButton } from '~/sections/day-diet/components/CopyLastDayButton'
