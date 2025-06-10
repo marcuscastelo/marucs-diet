@@ -14,4 +14,3 @@ tools: ['codebase']
 - Format the output for clarity and readability.
 - Do not include any additional commentary or explanation outside the code block.
 - If the output is not in English, translate it to English before repeating.
-- Reference [copilot-customization.instructions.md](../instructions/copilot/copilot-customization.instructions.md) for best practices.
