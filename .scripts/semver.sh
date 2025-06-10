@@ -20,22 +20,24 @@ if git ls-remote --exit-code origin "$current_branch" &>/dev/null; then
   git fetch origin "$current_branch":refs/remotes/origin/"$current_branch" || true
 fi
 
-if git show-ref --verify --quiet refs/remotes/origin/stable; then
-  stable_ref="refs/remotes/origin/stable"
-  if git show-ref --verify --quiet "refs/remotes/origin/$current_branch"; then
+# Always create local tracking branches for remote refs if on rc/*
+if [[ "$current_branch" =~ ^rc\/(v[0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+  if git show-ref --verify --quiet refs/remotes/origin/stable && git show-ref --verify --quiet refs/remotes/origin/$current_branch; then
+    stable_ref="refs/remotes/origin/stable"
     branch_ref="refs/remotes/origin/$current_branch"
     rc_count=$(git rev-list --count "$stable_ref".."$branch_ref")
-  elif git show-ref --verify --quiet "refs/heads/$current_branch"; then
-    branch_ref="$current_branch"
-    rc_count=$(git rev-list --count "$stable_ref".."$branch_ref")
   else
-    rc_count=$(git rev-list --count "$stable_ref"..HEAD)
+    # Fallback: fetch both branches explicitly and retry
+    git fetch origin stable:refs/remotes/origin/stable || true
+    git fetch origin "$current_branch":refs/remotes/origin/"$current_branch" || true
+    if git show-ref --verify --quiet refs/remotes/origin/stable && git show-ref --verify --quiet refs/remotes/origin/$current_branch; then
+      stable_ref="refs/remotes/origin/stable"
+      branch_ref="refs/remotes/origin/$current_branch"
+      rc_count=$(git rev-list --count "$stable_ref".."$branch_ref")
+    else
+      rc_count=$(git rev-list --count HEAD)
+    fi
   fi
-else
-  rc_count=$(git rev-list --count HEAD)
-fi
-
-if [[ "$current_branch" =~ ^rc\/(v[0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
   version="${BASH_REMATCH[1]}"
   echo "$version-rc.$rc_count"
   exit 0
