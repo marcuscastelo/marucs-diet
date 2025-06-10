@@ -1,4 +1,4 @@
-import { For, Show } from 'solid-js'
+import { Show } from 'solid-js'
 
 import { type Mutable } from '~/legacy/utils/typeUtils'
 import {
@@ -14,6 +14,7 @@ import {
   GENDER_TRANSLATION,
 } from '~/sections/profile/components/UserInfo'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
+import { ComboBox } from '~/sections/common/components/ComboBox'
 
 type Translation<T extends string> = { [key in T]: string }
 
@@ -118,70 +119,48 @@ function RightContent<T extends keyof Omit<User, '__type'>>(props: {
   field: T
   convert: (value: string) => User[T]
 }) {
-  // Render select for diet and gender, input for others
+  // Render ComboBox for diet and gender, input for others
   return (
     <CapsuleContent>
       <div class="flex items-center justify-center w-full">
         <Show when={innerData()}>
           {(innerData) => {
             if (props.field === 'diet') {
+              const options = Object.entries(DIET_TRANSLATION).map(
+                ([key, label]) => ({ value: key, label }),
+              )
               return (
-                <select
-                  class={
-                    'btn-ghost input bg-transparent text-center px-0 pl-5 text-xl my-auto'
-                  }
+                <ComboBox
+                  options={options}
                   value={innerData()[props.field].toString()}
-                  onChange={(event) => {
-                    const value = (event.target as HTMLSelectElement).value
+                  onChange={(value) => {
                     const newUser = {
                       ...innerData(),
                       diet: value as User['diet'],
                     }
                     setInnerData(parseWithStack(userSchema, newUser))
                   }}
-                  style={{ width: '100%' }}
-                >
-                  <For each={Object.entries(DIET_TRANSLATION)}>
-                    {([key, label]) => (
-                      <option
-                        value={key}
-                        selected={innerData()[props.field] === key}
-                      >
-                        {label}
-                      </option>
-                    )}
-                  </For>
-                </select>
+                  class="w-full text-xl"
+                />
               )
             }
             if (props.field === 'gender') {
+              const options = Object.entries(GENDER_TRANSLATION).map(
+                ([key, label]) => ({ value: key, label }),
+              )
               return (
-                <select
-                  class={
-                    'btn-ghost input bg-transparent text-center px-0 pl-5 text-xl my-auto'
-                  }
+                <ComboBox
+                  options={options}
                   value={innerData()[props.field].toString()}
-                  onChange={(event) => {
-                    const value = (event.target as HTMLSelectElement).value
+                  onChange={(value) => {
                     const newUser = {
                       ...innerData(),
                       gender: value as User['gender'],
                     }
                     setInnerData(parseWithStack(userSchema, newUser))
                   }}
-                  style={{ width: '100%' }}
-                >
-                  <For each={Object.entries(GENDER_TRANSLATION)}>
-                    {([key, label]) => (
-                      <option
-                        value={key}
-                        selected={innerData()[props.field] === key}
-                      >
-                        {label}
-                      </option>
-                    )}
-                  </For>
-                </select>
+                  class="w-full text-xl"
+                />
               )
             }
             return (
