@@ -44,7 +44,7 @@ export function ItemGroupEditModalActions(props: {
             class="btn-error btn cursor-pointer uppercase mr-auto"
             onClick={(e) => {
               e.preventDefault()
-              handleDelete(onDelete)
+              handleDelete(onDelete())
             }}
           >
             Excluir
