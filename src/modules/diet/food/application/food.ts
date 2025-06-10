@@ -12,7 +12,14 @@ import { formatError } from '~/shared/formatError'
 
 const foodRepository = createSupabaseFoodRepository()
 
-export async function fetchFoods(params: FoodSearchParams = {}) {
+/**
+ * Fetches foods by search params.
+ * @param params - Search parameters.
+ * @returns Array of foods or empty array on error.
+ */
+export async function fetchFoods(
+  params: FoodSearchParams = {},
+): Promise<readonly Food[]> {
   try {
     return await foodRepository.fetchFoods(params)
   } catch (error) {
@@ -21,15 +28,20 @@ export async function fetchFoods(params: FoodSearchParams = {}) {
       operation: 'fetchFoods',
       additionalData: { params },
     })
-    throw error
+    return []
   }
 }
 
+/**
+ * Fetches a food by ID.
+ * @param id - Food ID.
+ * @param params - Search parameters.
+ * @returns Food or null on error.
+ */
 export async function fetchFoodById(
   id: Food['id'],
   params: FoodSearchParams = {},
-) {
-  console.debug(`[Food] Fetching food by id: ${id}`)
+): Promise<Food | null> {
   try {
     return await foodRepository.fetchFoodById(id, params)
   } catch (error) {
@@ -38,67 +50,102 @@ export async function fetchFoodById(
       operation: 'fetchFoodById',
       additionalData: { id, params },
     })
-    throw error
+    return null
   }
 }
 
+/**
+ * Fetches foods by name, importing if not cached.
+ * @param name - Food name.
+ * @param params - Search parameters.
+ * @returns Array of foods or empty array on error.
+ */
 export async function fetchFoodsByName(
   name: Required<Food>['name'],
   params: FoodSearchParams = {},
-) {
-  console.debug(`[Food] Fetching foods by name: ${name}`)
-  if (!(await isSearchCached(name))) {
-    console.debug(`[Food] Food with name ${name} not cached, importing`)
-    await showPromise(
-      importFoodsFromApiByName(name),
+): Promise<readonly Food[]> {
+  try {
+    if (!(await isSearchCached(name))) {
+      await showPromise(
+        importFoodsFromApiByName(name),
+        {
+          loading: 'Importando alimentos...',
+          success: 'Alimentos importados com sucesso',
+          error: `Erro ao importar alimentos por nome: ${name}`,
+        },
+        { context: 'background', audience: 'system' },
+      )
+    }
+    return await showPromise(
+      foodRepository.fetchFoodsByName(name, params),
       {
-        loading: 'Importando alimentos...',
-        success: 'Alimentos importados com sucesso',
-        error: `Erro ao importar alimentos por nome: ${name}`,
+        loading: 'Buscando alimentos por nome...',
+        success: 'Alimentos encontrados',
+        error: (error: unknown) =>
+          `Erro ao buscar alimentos por nome: ${formatError(error)}`,
       },
-      { context: 'background' },
+      { context: 'user-action', audience: 'user' },
     )
+  } catch (error) {
+    handleApiError(error, {
+      component: 'foodApplication',
+      operation: 'fetchFoodsByName',
+      additionalData: { name, params },
+    })
+    return []
   }
-  return await showPromise(
-    foodRepository.fetchFoodsByName(name, params),
-    {
-      loading: 'Buscando alimentos por nome...',
-      success: 'Alimentos encontrados',
-      error: (error: unknown) =>
-        `Erro ao buscar alimentos por nome: ${formatError(error)}`,
-    },
-    {
-      audience: 'system',
-    },
-  )
 }
 
+/**
+ * Fetches a food by EAN, importing if not cached.
+ * @param ean - Food EAN.
+ * @param params - Search parameters.
+ * @returns Food or null on error.
+ */
 export async function fetchFoodByEan(
   ean: string,
   params: Omit<FoodSearchParams, 'limit'> = {},
-) {
-  console.debug(`[Food] Fetching food by EAN: ${ean}`)
-  await showPromise(
-    importFoodFromApiByEan(ean),
-    {
-      loading: 'Importando alimento...',
-      success: 'Alimento importado com sucesso',
-      error: `Erro ao importar alimento por EAN: ${ean}`,
-    },
-    { context: 'background' },
-  )
-  return await showPromise(foodRepository.fetchFoodByEan(ean, params), {
-    loading: 'Buscando alimento por EAN...',
-    success: 'Alimento encontrado',
-    error: (error: unknown) =>
-      `Erro ao buscar alimento por EAN: ${formatError(error)}`,
-  })
+): Promise<Food | null> {
+  try {
+    await showPromise(
+      importFoodFromApiByEan(ean),
+      {
+        loading: 'Importando alimento...',
+        success: 'Alimento importado com sucesso',
+        error: `Erro ao importar alimento por EAN: ${ean}`,
+      },
+      { context: 'background', audience: 'system' },
+    )
+    return await showPromise(
+      foodRepository.fetchFoodByEan(ean, params),
+      {
+        loading: 'Buscando alimento por EAN...',
+        success: 'Alimento encontrado',
+        error: (error: unknown) =>
+          `Erro ao buscar alimento por EAN: ${formatError(error)}`,
+      },
+      { context: 'user-action', audience: 'user' },
+    )
+  } catch (error) {
+    handleApiError(error, {
+      component: 'foodApplication',
+      operation: 'fetchFoodByEan',
+      additionalData: { ean, params },
+    })
+    return null
+  }
 }
 
-export async function isEanCached(ean: Required<Food>['ean']) {
+/**
+ * Checks if a food EAN is cached.
+ * @param ean - Food EAN.
+ * @returns True if cached, false otherwise.
+ */
+export async function isEanCached(
+  ean: Required<Food>['ean'],
+): Promise<boolean> {
   try {
     const cached = (await foodRepository.fetchFoodByEan(ean, {})) !== null
-    console.debug(`[Food] EAN ${ean} cached: ${cached}`)
     return cached
   } catch (error) {
     handleApiError(error, {
@@ -106,7 +153,6 @@ export async function isEanCached(ean: Required<Food>['ean']) {
       operation: 'isEanCached',
       additionalData: { ean },
     })
-    // Return false as default for caching check failure
     return false
   }
 }
