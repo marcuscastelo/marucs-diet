@@ -7,6 +7,8 @@
 
 import { createEffect, createSignal } from 'solid-js'
 
+import { jsonParseWithStack } from '~/shared/utils/jsonParseWithStack'
+
 /**
  * User-configurable toast settings.
  * @property showBackgroundSuccess Whether to show success toasts for background operations
@@ -53,8 +55,11 @@ function loadSettings(): ToastSettings {
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored !== null && stored.length > 0) {
-      const parsed = JSON.parse(stored) as Partial<ToastSettings>
-      return { ...DEFAULT_SETTINGS, ...parsed }
+      const parsed = jsonParseWithStack(stored)
+      if (typeof parsed === 'object' && parsed !== null) {
+        return { ...DEFAULT_SETTINGS, ...parsed }
+      }
+      return { ...DEFAULT_SETTINGS }
     }
   } catch (error) {
     console.error('Failed to load toast settings:', error)

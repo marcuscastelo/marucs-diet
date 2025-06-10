@@ -11,6 +11,7 @@ import {
   ToastOptions,
 } from '~/modules/toast/domain/toastTypes'
 import { isNonEmptyString } from '~/shared/utils/isNonEmptyString'
+import { jsonParseWithStack } from '~/shared/utils/jsonParseWithStack'
 
 /**
  * Options for error processing in toasts.
@@ -116,7 +117,7 @@ function mapUnknownToToastError(
     let cause: unknown = error.cause
     if (typeof cause === 'object' && cause !== null) {
       try {
-        cause = JSON.parse(JSON.stringify(cause))
+        cause = jsonParseWithStack(JSON.stringify(cause))
       } catch {
         cause = '[Unserializable cause]'
       }

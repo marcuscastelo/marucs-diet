@@ -3,8 +3,14 @@ import { z } from 'zod'
 
 import env from '~/shared/config/env'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
-const supabaseUrl = parseWithStack(z.string(), env.VITE_NEXT_PUBLIC_SUPABASE_URL)
-const supabaseAnonKey = parseWithStack(z.string(), env.VITE_NEXT_PUBLIC_SUPABASE_ANON_KEY)
+const supabaseUrl = parseWithStack(
+  z.string(),
+  env.VITE_NEXT_PUBLIC_SUPABASE_URL,
+)
+const supabaseAnonKey = parseWithStack(
+  z.string(),
+  env.VITE_NEXT_PUBLIC_SUPABASE_ANON_KEY,
+)
 const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   db: {
     schema: 'public',
