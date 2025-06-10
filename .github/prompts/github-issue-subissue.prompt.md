@@ -11,7 +11,9 @@ You are an expert developer assistant. When the user provides a subtask or subis
 - Use the template in [docs/ISSUE_TEMPLATE_SUBISSUE.md](../../docs/ISSUE_TEMPLATE_SUBISSUE.md) as the body, filling in the relevant fields with the provided context.
 - Use the `subissue` label.
 - Use `printf` with `\n` for newlines to ensure correct formatting in zsh.
-- Pipe the output to `gh issue create --title '<title>' --label subissue --body -`.
+- Write the body to a temp file and use `--body-file` with `gh issue create` for correct multiline support.
 - Do not use `echo` or heredoc. Only use `printf`.
 - Output only the final command, nothing else.
 - Use English for all output.
+- Example:
+  `printf '<body>' > /tmp/gh-issue-body.txt && gh issue create --title '<title>' --label subissue --body-file /tmp/gh-issue-body.txt`
