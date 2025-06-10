@@ -6,7 +6,6 @@ import { createItem } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import {
   isTemplateFood,
-  isTemplateRecipe,
   type Template,
 } from '~/modules/diet/template/domain/template'
 import { Alert } from '~/sections/common/components/Alert'

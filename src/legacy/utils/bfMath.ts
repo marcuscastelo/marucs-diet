@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { type Measure } from '~/modules/measure/domain/measure'
 import { type User } from '~/modules/user/domain/user'
 import { type Weight } from '~/modules/weight/domain/weight'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 // TODO: Migrate utils folder to the new architecture
 export type BodyFatInput<T extends User['gender']> = {
@@ -26,7 +27,7 @@ export function calculateBodyFat<T extends User['gender']>(
     return calculateFemaleBodyFat({
       ...input,
       gender: 'female',
-      hip: z.number().parse(input.hip),
+      hip: parseWithStack(z.number(), input.hip),
     })
   }
 }

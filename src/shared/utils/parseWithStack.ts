@@ -12,7 +12,7 @@ export function parseWithStack<S extends ZodTypeAny>(
   data: unknown,
 ): z.output<S> {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    // eslint-disable-next-line no-restricted-syntax, @typescript-eslint/no-unsafe-return
     return schema.parse(data)
   } catch (err) {
     if (err instanceof ZodError) {
