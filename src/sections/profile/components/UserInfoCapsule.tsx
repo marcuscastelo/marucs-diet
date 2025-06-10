@@ -9,12 +9,12 @@ import {
 import { type User, userSchema } from '~/modules/user/domain/user'
 import { Capsule } from '~/sections/common/components/capsule/Capsule'
 import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
+import { ComboBox } from '~/sections/common/components/ComboBox'
 import {
   DIET_TRANSLATION,
   GENDER_TRANSLATION,
 } from '~/sections/profile/components/UserInfo'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
-import { ComboBox } from '~/sections/common/components/ComboBox'
 
 type Translation<T extends string> = { [key in T]: string }
 
@@ -104,7 +104,7 @@ function LeftContent(props: {
   return (
     <CapsuleContent>
       <h5
-        class={`pl-5 text-xl ${
+        class={`text-xl ${
           unsavedFields()[props.field] === true ? 'text-red-500 italic' : ''
         }`}
       >
@@ -140,7 +140,7 @@ function RightContent<T extends keyof Omit<User, '__type'>>(props: {
                     }
                     setInnerData(parseWithStack(userSchema, newUser))
                   }}
-                  class="w-full text-xl"
+                  class="w-full text-xl text-center bg-transparent"
                 />
               )
             }
@@ -159,14 +159,14 @@ function RightContent<T extends keyof Omit<User, '__type'>>(props: {
                     }
                     setInnerData(parseWithStack(userSchema, newUser))
                   }}
-                  class="w-full text-xl"
+                  class="w-full text-xl text-center bg-transparent"
                 />
               )
             }
             return (
               <input
                 class={
-                  'btn-ghost input bg-transparent text-center px-0 pl-5 text-xl my-auto'
+                  'btn-ghost input bg-transparent text-center px-0 text-xl my-auto'
                 }
                 value={innerData()[props.field].toString()}
                 onChange={makeOnChange(props.field, convertString)}
