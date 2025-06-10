@@ -6,7 +6,10 @@ set -x
 
 git fetch --all --tags
 if git ls-remote --exit-code origin stable &>/dev/null; then
-  git fetch origin stable:refs/remotes/origin/stable || true
+  stable_ref="origin/stable"
+  rc_count=$(git rev-list --count "$stable_ref"..HEAD)
+else
+  rc_count=$(git rev-list --count HEAD)
 fi
 # Usa VERCEL_GIT_COMMIT_REF se existir, senão usa git rev-parse
 if [ -n "$VERCEL_GIT_COMMIT_REF" ]; then
@@ -16,7 +19,7 @@ else
 fi
 
 if git show-ref --verify --quiet refs/heads/stable || git show-ref --verify --quiet refs/remotes/origin/stable || git show-ref --verify --quiet refs/tags/stable; then
-  rc_count=$(git rev-list --count HEAD ^stable)
+  rc_count=$(git rev-list --count origin/stable..origin/$current_branch)
 else
   rc_count=$(git rev-list --count HEAD)
 fi
