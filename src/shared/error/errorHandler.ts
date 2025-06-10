@@ -37,12 +37,45 @@ export function logError(error: unknown, context?: ErrorContext): void {
 }
 
 /**
+ * Helper to wrap a non-Error object in an Error and attach the original error as a symbol property.
+ */
+const ORIGINAL_ERROR_SYMBOL = Symbol('originalError')
+export function wrapErrorWithStack(error: unknown): Error {
+  let message = 'Unknown error'
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as Record<string, unknown>).message === 'string'
+  ) {
+    message = (error as { message: string }).message
+  }
+  const wrapped: Error = new Error(message)
+  // Attach the original error as a symbol property for traceability
+  Object.defineProperty(wrapped, ORIGINAL_ERROR_SYMBOL, {
+    value: error,
+    enumerable: false,
+    configurable: true,
+    writable: true,
+  })
+  return wrapped
+}
+
+/**
  * Handle errors related to API operations
  */
 export function handleApiError(error: unknown, context?: ErrorContext): void {
-  logError(error, {
+  let errorToLog = error
+  if (!(error instanceof Error)) {
+    errorToLog = wrapErrorWithStack(error)
+  }
+  logError(errorToLog, {
     ...context,
     operation: `${context?.operation ?? 'API'} request`,
+    additionalData: {
+      ...(context?.additionalData ?? {}),
+      originalError: error,
+    },
   })
 }
 

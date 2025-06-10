@@ -15,7 +15,7 @@ import {
   apiFoodSchema,
 } from '~/modules/diet/food/infrastructure/api/domain/apiFoodModel'
 import { type ApiFoodRepository } from '~/modules/diet/food/infrastructure/api/domain/apiFoodRepository'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { handleApiError, wrapErrorWithStack } from '~/shared/error/errorHandler'
 import { jsonParseWithStack } from '~/shared/utils/jsonParseWithStack'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
@@ -85,7 +85,7 @@ async function fetchApiFoodsByName(
       operation: 'fetchApiFoodsByName',
       additionalData: { url, name },
     })
-    throw error
+    throw wrapErrorWithStack(error)
   }
 
   console.debug(`[ApiFood] Response from url ${url}`, response.data)
