@@ -6,6 +6,7 @@ import {
   cachedSearchSchema,
 } from '~/modules/search/application/cachedSearch'
 import { handleApiError } from '~/shared/error/errorHandler'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 const TABLE = 'cached_searches'
 
@@ -17,7 +18,7 @@ const TABLE = 'cached_searches'
 export const isSearchCached = async (search: CachedSearch['search']) => {
   try {
     const cached = ((await supabase.from(TABLE).select()).data ?? []).map(
-      (data) => cachedSearchSchema.parse(data),
+      (data) => parseWithStack(cachedSearchSchema, data),
     )
     return cached.some(
       (cache) =>

@@ -16,6 +16,7 @@ import {
 } from '~/modules/diet/food/infrastructure/api/domain/apiFoodModel'
 import { type ApiFoodRepository } from '~/modules/diet/food/infrastructure/api/domain/apiFoodRepository'
 import { handleApiError } from '~/shared/error/errorHandler'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 const API = rateLimit(axios.create(), {
   maxRequests: 2,
@@ -82,7 +83,7 @@ async function fetchApiFoodsByName(
     })
     return []
   }
-  return apiFoodSchema.array().parse(alimentos)
+  return parseWithStack(apiFoodSchema.array(), alimentos)
 }
 
 async function fetchApiFoodByEan(
@@ -103,5 +104,5 @@ async function fetchApiFoodByEan(
   })
   console.log(response.data)
   console.dir(response.data)
-  return apiFoodSchema.parse(response.data)
+  return parseWithStack(apiFoodSchema, response.data)
 }

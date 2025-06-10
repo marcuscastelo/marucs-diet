@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 import { generateId } from '~/legacy/utils/idUtils'
 import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 export const itemSchema = z.object({
   id: z.number(),
@@ -32,7 +33,7 @@ export function createItem({
   quantity?: number
   macros?: Partial<Item['macros']>
 }) {
-  return itemSchema.parse({
+  return parseWithStack(itemSchema, {
     __type: 'Item',
     id: generateId(), // TODO:   Remove id generation from createItem and use it only in the database
     name,

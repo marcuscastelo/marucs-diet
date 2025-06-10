@@ -12,6 +12,7 @@ import {
 } from '~/modules/diet/recipe/infrastructure/recipeDAO'
 import { type User } from '~/modules/user/domain/user'
 import { handleApiError } from '~/shared/error/errorHandler'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 const TABLE = 'recipes'
 
@@ -42,7 +43,7 @@ const fetchUserRecipes = async (userId: User['id']): Promise<Recipe[]> => {
     throw error
   }
 
-  const recipeDAOs = recipeDAOSchema.array().parse(data)
+  const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
   const recipes = recipeDAOs.map(createRecipeFromDAO)
 
   return recipes
@@ -60,7 +61,7 @@ const fetchRecipeById = async (id: Recipe['id']): Promise<Recipe> => {
     throw error
   }
 
-  const recipeDAOs = recipeDAOSchema.array().parse(data)
+  const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
   const recipes = recipeDAOs.map(createRecipeFromDAO)
 
   if (!recipes[0]) {
@@ -88,7 +89,7 @@ const fetchUserRecipeByName = async (
     throw error
   }
 
-  const recipeDAOs = recipeDAOSchema.array().parse(data)
+  const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
   const recipes = recipeDAOs.map(createRecipeFromDAO)
 
   return recipes
@@ -108,7 +109,7 @@ const insertRecipe = async (newRecipe: NewRecipe): Promise<Recipe> => {
     throw error
   }
 
-  const recipeDAOs = recipeDAOSchema.array().parse(data)
+  const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
   const recipes = recipeDAOs.map(createRecipeFromDAO)
 
   if (!recipes[0]) {
@@ -143,7 +144,7 @@ const updateRecipe = async (
     throw error
   }
 
-  const recipeDAOs = recipeDAOSchema.array().parse(data)
+  const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
   const recipes = recipeDAOs.map(createRecipeFromDAO)
 
   if (recipes[0] === undefined) {
@@ -169,7 +170,7 @@ const deleteRecipe = async (id: Recipe['id']): Promise<Recipe> => {
     throw error
   }
 
-  const recipeDAOs = recipeDAOSchema.array().parse(data)
+  const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
   const recipes = recipeDAOs.map(createRecipeFromDAO)
 
   if (!recipes[0]) {

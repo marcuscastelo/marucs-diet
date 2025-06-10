@@ -12,6 +12,7 @@ import {
   type RecentFoodDAO,
 } from '~/modules/recent-food/infrastructure/recentFoodDAO'
 import { handleApiError } from '~/shared/error/errorHandler'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 const TABLE = 'recent_foods'
 
@@ -40,7 +41,7 @@ export async function fetchRecentFoodByUserIdAndFoodId(
     throw error
   }
 
-  return recentFoodSchema.array().parse(data).at(0) ?? null
+  return parseWithStack(recentFoodSchema.array(), data).at(0) ?? null
 }
 
 /**
@@ -64,7 +65,7 @@ export async function fetchUserRecentFoods(userId: RecentFood['user_id']) {
     throw error
   }
 
-  return recentFoodSchema.array().parse(data)
+  return parseWithStack(recentFoodSchema.array(), data)
 }
 
 /**

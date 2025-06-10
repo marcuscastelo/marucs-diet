@@ -6,6 +6,7 @@ import {
   type Recipe,
   recipeSchema,
 } from '~/modules/diet/recipe/domain/recipe'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 // Base schema (with ID)
 export const recipeDAOSchema = z.object({
@@ -31,7 +32,7 @@ export type UpdateRecipeDAO = z.infer<typeof updateRecipeDAOSchema>
 
 // Conversions
 export function createRecipeDAO(recipe: Recipe): RecipeDAO {
-  return recipeDAOSchema.parse({
+  return parseWithStack(recipeDAOSchema, {
     id: recipe.id,
     name: recipe.name,
     owner: recipe.owner,
@@ -43,7 +44,7 @@ export function createRecipeDAO(recipe: Recipe): RecipeDAO {
 export function createInsertRecipeDAO(
   recipe: Omit<Recipe, 'id' | '__type'>,
 ): CreateRecipeDAO {
-  return createRecipeDAOSchema.parse({
+  return parseWithStack(createRecipeDAOSchema, {
     name: recipe.name,
     owner: recipe.owner,
     items: [...recipe.items],
@@ -52,7 +53,7 @@ export function createInsertRecipeDAO(
 }
 
 export function createRecipeFromDAO(dao: RecipeDAO): Recipe {
-  return recipeSchema.parse({
+  return parseWithStack(recipeSchema, {
     ...dao,
     items: [...dao.items],
   })
@@ -61,7 +62,7 @@ export function createRecipeFromDAO(dao: RecipeDAO): Recipe {
 export function createInsertRecipeDAOFromNewRecipe(
   newRecipe: NewRecipe,
 ): CreateRecipeDAO {
-  return createRecipeDAOSchema.parse({
+  return parseWithStack(createRecipeDAOSchema, {
     name: newRecipe.name,
     owner: newRecipe.owner,
     items: [...newRecipe.items],
@@ -72,7 +73,7 @@ export function createInsertRecipeDAOFromNewRecipe(
 export function createUpdateRecipeDAOFromRecipe(
   recipe: Recipe,
 ): UpdateRecipeDAO {
-  return updateRecipeDAOSchema.parse({
+  return parseWithStack(updateRecipeDAOSchema, {
     name: recipe.name,
     owner: recipe.owner,
     items: [...recipe.items],

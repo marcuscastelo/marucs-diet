@@ -7,6 +7,7 @@ import {
   createUserFromDAO,
   userDAOSchema,
 } from '~/modules/user/infrastructure/userDAO'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 export const SUPABASE_TABLE_USERS = 'users'
 
@@ -27,7 +28,7 @@ const fetchUsers = async (): Promise<User[]> => {
     throw error
   }
 
-  const userDAOs = userDAOSchema.array().parse(data)
+  const userDAOs = parseWithStack(userDAOSchema.array(), data)
   return userDAOs.map(createUserFromDAO)
 }
 
@@ -41,7 +42,7 @@ const fetchUser = async (id: User['id']): Promise<User | null> => {
     throw error
   }
 
-  const userDAOs = userDAOSchema.array().parse(data)
+  const userDAOs = parseWithStack(userDAOSchema.array(), data)
   const users = userDAOs.map(createUserFromDAO)
 
   return users[0] ?? null
@@ -59,7 +60,7 @@ const insertUser = async (newUser: NewUser): Promise<User | null> => {
     throw error
   }
 
-  const userDAOs = userDAOSchema.array().parse(data)
+  const userDAOs = parseWithStack(userDAOSchema.array(), data)
   const users = userDAOs.map(createUserFromDAO)
 
   return users[0] ?? null
@@ -81,7 +82,7 @@ const updateUser = async (
     throw error
   }
 
-  const userDAOs = userDAOSchema.array().parse(data)
+  const userDAOs = parseWithStack(userDAOSchema.array(), data)
   const users = userDAOs.map(createUserFromDAO)
 
   return users[0] ?? null

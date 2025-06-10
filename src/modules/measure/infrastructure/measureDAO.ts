@@ -5,6 +5,7 @@ import {
   measureSchema,
   type NewMeasure,
 } from '~/modules/measure/domain/measure'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 // DAO schemas for database operations
 export const createMeasureDAOSchema = z.object({
@@ -44,7 +45,7 @@ export function createUpdateMeasureDAOFromNewMeasure(
 }
 
 export function createMeasureFromDAO(dao: MeasureDAO): Measure {
-  return measureSchema.parse({
+  return parseWithStack(measureSchema, {
     id: dao.id,
     height: dao.height,
     waist: dao.waist,

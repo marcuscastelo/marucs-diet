@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { parseWithStack } from '~/shared/utils/parseWithStack'
+
 export const userSchema = z.object({
   id: z.number({ required_error: 'User ID is required' }),
   name: z.string({ required_error: 'Name is required' }),
@@ -58,7 +60,7 @@ export function createNewUser({
   gender: 'male' | 'female'
   desiredWeight: number
 }): NewUser {
-  return newUserSchema.parse({
+  return parseWithStack(newUserSchema, {
     name,
     favorite_foods: favoriteFoods ?? [],
     diet,
@@ -70,7 +72,7 @@ export function createNewUser({
 }
 
 export function promoteToUser(newUser: NewUser, id: number): User {
-  return userSchema.parse({
+  return parseWithStack(userSchema, {
     ...newUser,
     id,
   })
@@ -81,7 +83,7 @@ export function promoteToUser(newUser: NewUser, id: number): User {
  * Used when converting a persisted User back to NewUser for database operations.
  */
 export function demoteToNewUser(user: User): NewUser {
-  return newUserSchema.parse({
+  return parseWithStack(newUserSchema, {
     name: user.name,
     favorite_foods: user.favorite_foods,
     diet: user.diet,

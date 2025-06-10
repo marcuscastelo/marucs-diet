@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import { type NewUser, type User, userSchema } from '~/modules/user/domain/user'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 // DAO schemas for database operations
 export const createUserDAOSchema = z.object({
@@ -40,7 +41,7 @@ export function createUpdateUserDAOFromNewUser(
 }
 
 export function createUserFromDAO(dao: UserDAO): User {
-  return userSchema.parse({
+  return parseWithStack(userSchema, {
     id: dao.id,
     name: dao.name,
     favorite_foods: dao.favorite_foods ?? [],

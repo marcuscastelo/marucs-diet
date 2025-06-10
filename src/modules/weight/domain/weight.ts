@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { parseWithStack } from '~/shared/utils/parseWithStack'
+
 export const newWeightSchema = z.object({
   owner: z.number(),
   weight: z.number(),
@@ -65,7 +67,7 @@ export function promoteToWeight(newWeight: NewWeight, id: number): Weight {
  * Used when converting a persisted Weight back to NewWeight for database operations.
  */
 export function demoteToNewWeight(weight: Weight): NewWeight {
-  return newWeightSchema.parse({
+  return parseWithStack(newWeightSchema, {
     owner: weight.owner,
     weight: weight.weight,
     target_timestamp: weight.target_timestamp,

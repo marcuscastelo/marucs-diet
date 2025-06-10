@@ -49,7 +49,7 @@ async function fetchDayDiet(_dayId: DayDiet['id']): Promise<DayDiet | null> {
   //     throw error
   //   }
 
-  //   const dayDiets = dayDietSchema.array().parse(data ?? [])
+  //   const dayDiets = parseWithStack(dayDietSchema.array(), data ?? [])
 
   //   console.debug(
   //     `[supabaseDayRepository] fetchDayDiet returned ${dayDiets.length} days`
@@ -74,7 +74,7 @@ async function fetchDayDiet(_dayId: DayDiet['id']): Promise<DayDiet | null> {
   //     throw error
   //   }
 
-  //   const dayIndexes = dayIndexSchema.array().parse(data ?? [])
+  //   const dayIndexes = parseWithStack(dayIndexSchema.array(), data ?? [])
 
   //   console.debug(
   //     `[supabaseDayRepository] fetchUserDayIndexes returned ${dayIndexes.length} days`

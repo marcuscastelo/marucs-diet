@@ -10,6 +10,7 @@ import {
   foodDAOSchema,
 } from '~/modules/diet/food/infrastructure/foodDAO'
 import { handleApiError, logError } from '~/shared/error/errorHandler'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 const TABLE = 'foods'
 
@@ -139,7 +140,7 @@ async function internalCachedSearchFoods(
   }
 
   console.debug(`[Food] Found ${data.length} foods`)
-  const foodDAOs = foodDAOSchema.array().parse(data)
+  const foodDAOs = parseWithStack(foodDAOSchema.array(), data)
   return foodDAOs.map(createFoodFromDAO)
 }
 
@@ -159,7 +160,7 @@ async function insertFood(newFood: NewFood): Promise<Food | null> {
     throw error
   }
 
-  const foodDAOs = foodDAOSchema.array().parse(data)
+  const foodDAOs = parseWithStack(foodDAOSchema.array(), data)
   const foods = foodDAOs.map(createFoodFromDAO)
 
   return foods[0] ?? null
@@ -182,7 +183,7 @@ async function upsertFood(newFood: NewFood): Promise<Food | null> {
     throw error
   }
 
-  const foodDAOs = foodDAOSchema.array().parse(data)
+  const foodDAOs = parseWithStack(foodDAOSchema.array(), data)
   const foods = foodDAOs.map(createFoodFromDAO)
 
   return foods[0] ?? null

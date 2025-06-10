@@ -4,6 +4,7 @@ import {
   type RecentFood,
   recentFoodSchema,
 } from '~/modules/recent-food/domain/recentFood'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 // DAO schema for creating new recent food
 export const createRecentFoodDAOSchema = z.object({
@@ -52,7 +53,7 @@ export function recentFoodToDAO(recentFood: RecentFood): RecentFoodDAO {
  * Converts a DAO object from database to domain RecentFood object
  */
 export function daoToRecentFood(dao: RecentFoodDAO): RecentFood {
-  return recentFoodSchema.parse({
+  return parseWithStack(recentFoodSchema, {
     id: dao.id,
     user_id: dao.user_id,
     food_id: dao.food_id,
@@ -68,7 +69,7 @@ export function createRecentFoodDAOToDAO(
   createDAO: CreateRecentFoodDAO,
   id: number,
 ): RecentFoodDAO {
-  return recentFoodDAOSchema.parse({
+  return parseWithStack(recentFoodDAOSchema, {
     id,
     user_id: createDAO.user_id,
     food_id: createDAO.food_id,
@@ -84,7 +85,7 @@ export function mergeUpdateRecentFoodDAO(
   existing: RecentFoodDAO,
   update: UpdateRecentFoodDAO,
 ): RecentFoodDAO {
-  return recentFoodDAOSchema.parse({
+  return parseWithStack(recentFoodDAOSchema, {
     ...existing,
     ...update,
   })

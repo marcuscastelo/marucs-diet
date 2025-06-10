@@ -10,6 +10,7 @@ import {
   createInsertWeightDAOFromWeight,
   createUpdateWeightDAOFromWeight,
 } from '~/modules/weight/infrastructure/weightDAO'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 export const SUPABASE_TABLE_WEIGHTS = 'weights'
 
@@ -33,7 +34,7 @@ async function fetchUserWeights(userId: User['id']) {
     throw error
   }
 
-  return weightSchema.array().parse(data)
+  return parseWithStack(weightSchema.array(), data)
 }
 
 async function insertWeight(newWeight: NewWeight) {
@@ -47,7 +48,7 @@ async function insertWeight(newWeight: NewWeight) {
     throw error
   }
 
-  return weightSchema.parse(data[0])
+  return parseWithStack(weightSchema, data[0])
 }
 
 async function updateWeight(weightId: Weight['id'], weight: Weight) {
@@ -62,7 +63,7 @@ async function updateWeight(weightId: Weight['id'], weight: Weight) {
     throw error
   }
 
-  return weightSchema.parse(data[0])
+  return parseWithStack(weightSchema, data[0])
 }
 
 async function deleteWeight(id: Weight['id']) {

@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 import { mealSchema } from '~/modules/diet/meal/domain/meal'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 export const dayDietSchema = z.object({
   id: z.number(),
@@ -38,7 +39,7 @@ export function createNewDayDiet({
   owner: number
   meals?: Meal[]
 }): NewDayDiet {
-  return newDayDietSchema.parse({
+  return parseWithStack(newDayDietSchema, {
     target_day: targetDay,
     owner,
     meals,
@@ -47,7 +48,7 @@ export function createNewDayDiet({
 }
 
 export function demoteToNewDayDiet(dayDiet: DayDiet): NewDayDiet {
-  return newDayDietSchema.parse({
+  return parseWithStack(newDayDietSchema, {
     target_day: dayDiet.target_day,
     owner: dayDiet.owner,
     meals: dayDiet.meals,

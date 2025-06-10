@@ -4,6 +4,7 @@ import {
   type MacroNutrients,
   macroNutrientsSchema,
 } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 export const newFoodSchema = z.object({
   name: z.string(),
@@ -81,7 +82,7 @@ export function promoteToFood(newFood: NewFood, id: number): Food {
  * Used when converting a persisted Food back to NewFood for database operations.
  */
 export function demoteToNewFood(food: Food): NewFood {
-  return newFoodSchema.parse({
+  return parseWithStack(newFoodSchema, {
     name: food.name,
     macros: food.macros,
     ean: food.ean,

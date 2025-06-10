@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { parseWithStack } from '~/shared/utils/parseWithStack'
+
 const requiredEnv = [
   'VITE_NEXT_PUBLIC_SUPABASE_ANON_KEY',
   'VITE_NEXT_PUBLIC_SUPABASE_URL',
@@ -43,6 +45,6 @@ const getEnvVars = (): Record<EnvKeys, string> => {
   ) as Record<EnvKeys, string>
 }
 
-const env = envSchema.parse(getEnvVars())
+const env = parseWithStack(envSchema, getEnvVars())
 
 export default env

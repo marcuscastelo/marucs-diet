@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { parseWithStack } from '~/shared/utils/parseWithStack'
+
 export const recentFoodSchema = z.object({
   id: z.number(),
   user_id: z.number(),
@@ -36,7 +38,7 @@ export type RecentFoodCreationParams = Partial<RecentFood> &
 export function createNewRecentFood(
   params: RecentFoodCreationParams,
 ): NewRecentFood {
-  return newRecentFoodSchema.parse({
+  return parseWithStack(newRecentFoodSchema, {
     user_id: params.user_id,
     food_id: params.food_id,
     last_used: new Date(),
@@ -46,7 +48,7 @@ export function createNewRecentFood(
 }
 
 export function demoteToNewRecentFood(recentFood: RecentFood): NewRecentFood {
-  return newRecentFoodSchema.parse({
+  return parseWithStack(newRecentFoodSchema, {
     user_id: recentFood.user_id,
     food_id: recentFood.food_id,
     last_used: recentFood.last_used,

@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { parseWithStack } from '~/shared/utils/parseWithStack'
+
 // TODO:   Create discriminate union type for Male and Female measures
 export const measureSchema = z.object({
   id: z.number(),
@@ -47,7 +49,7 @@ export function createNewMeasure({
   neck: number
   targetTimestamp: Date | string
 }): NewMeasure {
-  return newMeasureSchema.parse({
+  return parseWithStack(newMeasureSchema, {
     owner,
     height,
     waist,
@@ -59,7 +61,7 @@ export function createNewMeasure({
 }
 
 export function promoteToMeasure(newMeasure: NewMeasure, id: number): Measure {
-  return measureSchema.parse({
+  return parseWithStack(measureSchema, {
     ...newMeasure,
     id,
   })
@@ -70,7 +72,7 @@ export function promoteToMeasure(newMeasure: NewMeasure, id: number): Measure {
  * Used when converting a persisted Measure back to NewMeasure for database operations.
  */
 export function demoteToNewMeasure(measure: Measure): NewMeasure {
-  return newMeasureSchema.parse({
+  return parseWithStack(newMeasureSchema, {
     height: measure.height,
     waist: measure.waist,
     hip: measure.hip,

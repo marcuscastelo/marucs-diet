@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 export const newRecipeSchema = z.object({
   name: z.string(),
@@ -96,7 +97,7 @@ export function promoteToRecipe(newRecipe: NewRecipe, id: number): Recipe {
  * Used when converting a persisted Recipe back to NewRecipe for database operations.
  */
 export function demoteToNewRecipe(recipe: Recipe): NewRecipe {
-  return newRecipeSchema.parse({
+  return parseWithStack(newRecipeSchema, {
     name: recipe.name,
     owner: recipe.owner,
     items: recipe.items,
