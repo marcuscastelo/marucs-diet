@@ -9,7 +9,12 @@ git fetch --all --tags
 if git ls-remote --exit-code origin stable &>/dev/null; then
   git fetch origin stable:refs/remotes/origin/stable || true
 fi
-current_branch=$(git rev-parse --abbrev-ref HEAD)
+# Usa VERCEL_GIT_COMMIT_REF se existir, senão usa git rev-parse
+if [ -n "$VERCEL_GIT_COMMIT_REF" ]; then
+  current_branch="$VERCEL_GIT_COMMIT_REF"
+else
+  current_branch=$(git rev-parse --abbrev-ref HEAD)
+fi
 
 if git show-ref --verify --quiet refs/heads/stable || git show-ref --verify --quiet refs/remotes/origin/stable || git show-ref --verify --quiet refs/tags/stable; then
   rc_count=$(git rev-list --count HEAD ^stable)
@@ -34,8 +39,10 @@ closest_rc=$(git for-each-ref --format='%(refname:short)' refs/heads/ |
   awk '{print $2}')
 
 if [ -z "$closest_rc" ]; then
-  echo "Erro: Nenhum branch rc/ encontrado como base para o branch atual."
-  exit 1
+  # Fallback: nenhum rc/* existe, usar versão base 0.0.0-dev.<commitcount>
+  count=$(git rev-list --count HEAD)
+  echo "0.0.0-dev.$count"
+  exit 0
 fi
 
 # Extrai a versão da rc/vX.Y.Z
