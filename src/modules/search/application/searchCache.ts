@@ -15,7 +15,9 @@ const TABLE = 'cached_searches'
  * @param search - The search string.
  * @returns True if cached, false otherwise.
  */
-export const isSearchCached = async (search: CachedSearch['search']) => {
+export const isSearchCached = async (
+  search: CachedSearch['search'],
+): Promise<boolean> => {
   try {
     const cached = ((await supabase.from(TABLE).select()).data ?? []).map(
       (data) => parseWithStack(cachedSearchSchema, data),
@@ -31,48 +33,56 @@ export const isSearchCached = async (search: CachedSearch['search']) => {
       operation: 'isSearchCached',
       additionalData: { search },
     })
-    throw error
+    return false
   }
 }
 
 /**
  * Marks a search as cached.
  * @param search - The search string.
+ * @returns True if marked, false otherwise.
  */
-export const markSearchAsCached = async (search: CachedSearch['search']) => {
+export const markSearchAsCached = async (
+  search: CachedSearch['search'],
+): Promise<boolean> => {
   try {
     if (await isSearchCached(search)) {
-      return
+      return true
     }
     await supabase.from(TABLE).upsert({ search: search.toLowerCase() }).select()
+    return true
   } catch (error) {
     handleApiError(error, {
       component: 'searchCache',
       operation: 'markSearchAsCached',
       additionalData: { search },
     })
-    throw error
+    return false
   }
 }
 
 /**
  * Unmarks a search as cached.
  * @param search - The search string.
+ * @returns True if unmarked, false otherwise.
  */
-export const unmarkSearchAsCached = async (search: CachedSearch['search']) => {
+export const unmarkSearchAsCached = async (
+  search: CachedSearch['search'],
+): Promise<boolean> => {
   try {
     await supabase
       .from(TABLE)
       .delete()
       .match({ search: search.toLowerCase() })
       .select()
+    return true
   } catch (error) {
     handleApiError(error, {
       component: 'searchCache',
       operation: 'unmarkSearchAsCached',
       additionalData: { search },
     })
-    throw error
+    return false
   }
 }
 
