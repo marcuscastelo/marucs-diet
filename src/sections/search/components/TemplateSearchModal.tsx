@@ -239,7 +239,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
       <Modal>
         <Modal.Header title="Adicionar um novo alimento" />
         <Modal.Content>
-          <div class="max-h-full">
+          <div class="flex flex-col h-[60vh] sm:h-[80vh] p-2">
             <Show when={visible}>
               <TemplateSearch
                 barCodeModalVisible={barCodeModalVisible}
@@ -444,7 +444,7 @@ export function TemplateSearch(props: {
 
   return (
     <>
-      <div class="mb-2 flex justify-end">
+      <div class="mb-2 flex gap-1 justify-end">
         <h3 class="text-md text-white my-auto w-full">
           Busca por nome ou código de barras
         </h3>
@@ -461,10 +461,6 @@ export function TemplateSearch(props: {
         setTab={setTemplateSearchTab}
       />
       <TemplateSearchBar isDesktop={isDesktop} />
-
-      <Show when={typing()}>
-        <>...</>
-      </Show>
 
       <Suspense
         fallback={

@@ -36,11 +36,13 @@ export function TemplateSearchResults(props: {
         <Alert color="yellow" class="mt-2">
           {templateSearchTab() === 'recent' && props.search === ''
             ? 'Sem alimentos recentes. Eles aparecerão aqui assim que você adicionar seu primeiro alimento'
-            : `Nenhum alimento encontrado para a busca "${props.search}".`}
+            : templateSearchTab() === 'favorites' && props.search === ''
+              ? 'Sem favoritos. Adicione alimentos ou receitas aos favoritos para vê-los aqui.'
+              : `Nenhum alimento encontrado para a busca "${props.search}".`}
         </Alert>
       )}
 
-      <div class="bg-gray-800 p-1">
+      <div class="flex-1 min-h-0 max-h-[60vh] overflow-y-auto scrollbar-gutter-outside scrollbar-clean bg-gray-800 mt-1 pr-4">
         <For each={props.filteredTemplates}>
           {(template) => {
             return (
