@@ -14,5 +14,6 @@ You are an expert developer assistant. When the user provides a subtask or subis
 - Pipe the output to `gh issue create --title '<title>' --label subissue --body -`.
 - Do not use `echo` or heredoc. Only use `printf`.
 - Output only the final command, nothing else.
+- Use English for all output.
 
 Reference: [copilot-customization.instructions.md](../instructions/copilot/copilot-customization.instructions.md)

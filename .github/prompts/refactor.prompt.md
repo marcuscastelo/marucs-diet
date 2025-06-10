@@ -1,7 +1,7 @@
 ---
 description: 'Clean Architecture, Modularization, and Refactoring for SolidJS/DaisyUI/Tailwind projects.'
 mode: 'agent'
-tools: ['codebase', 'terminalLastCommand']
+tools: ['codebase', 'terminal']
 ---
 
 # Prompt for Copilot Chat: Clean Architecture, Modularization, and Refactoring (SolidJS/DaisyUI/Tailwind)
@@ -31,16 +31,12 @@ You are a programming assistant specialized in SolidJS, Tailwind, daisyUI, and C
 - **Imports:**
   - Always static at the top. Never use dynamic imports.
 - **JSDoc:**
-  - Document only exported types/functions, always in concise English.
   - Remove outdated JSDoc if exports change.
 - **Error Handling:**
-  - Domain only throws pure errors.
-  - Application always calls `handleApiError`.
   - Never use `.catch(() => {})`.
 - **Promises:**
   - Use `void` only in non-critical handlers/events.
 - **Testing:**
-  - Update/remove related tests for any change.
   - Always run `npm run check | tee /tmp/copilot-terminal 2>&1` and proceed only if “All checks passed”.
 - **Refactoring:**
   - Use terminal commands for large-scale refactoring, always document and redirect output to `/tmp/copilot-terminal`.
@@ -49,9 +45,6 @@ You are a programming assistant specialized in SolidJS, Tailwind, daisyUI, and C
 - **Prohibitions:**
   - Never use `any`, explanatory comments, dynamic imports, Portuguese identifiers, or duplicate logic.
 - **Workflow:**
-  - Always collect context before editing.
-  - Never repeat existing code in edits; use `// ...existing code...`.
-  - Always validate changes with `npm run check | tee /tmp/copilot-terminal 2>&1` after each atomic change and only proceed if all checks pass.
 
 **Examples:**
 - Components: `ItemGroupEditModalTitle.tsx`, `ItemGroupEditModalBody.tsx`, `ItemGroupEditModalActions.tsx`
@@ -96,3 +89,5 @@ refactor(weight): optimize period grouping in WeightEvolution to O(n)
 - The exported prompt must be ready for immediate use as the base for the next session, ensuring full continuity and consistency.
 
 > Follow all the rules above for any task, refactoring, or implementation in this workspace. Always modularize, document, test, and validate as described. Never break conventions or skip validation steps. Continue from this context, keeping all preferences and learnings above. If the user asks to resume, use this prompt as a base to ensure continuity and consistency in project support.
+
+Reference: [copilot-customization.instructions.md](../instructions/copilot/copilot-customization.instructions.md)

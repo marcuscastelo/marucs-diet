@@ -1,9 +1,10 @@
 ---
 description: 'Analyze a GitHub Issue to determine if it should be broken down into subissues. If so, suggest subissues using the template in docs/ISSUE_TEMPLATE_SUBISSUE.md.'
-tools: []
+mode: 'agent'
+tools: ['terminal']
 ---
 
-# Issue Breakdown Candidate Prompt
+# Issue Breakdown Candidate Agent
 
 Given a GitHub Issue number (e.g., #655), use the `gh` CLI to:
 
@@ -19,7 +20,7 @@ Given a GitHub Issue number (e.g., #655), use the `gh` CLI to:
    - Use the structure and fields from the template in `docs/ISSUE_TEMPLATE_SUBISSUE.md` (Parent Issue, Title, Description, Acceptance Criteria, Additional Context).
    - Output the exact `gh issue create` command, using `printf` with `\n` for newlines to fill in the template fields in the body, referencing the parent issue, and using the `subissue` label. Do not use `echo` or heredoc.
 
-**Requirements:**
-- Use only the `gh` CLI for all repository queries and issue creation.
-- The summary must be in English, concise, and focused on technical or organizational impact.
+## Output
 - Output only the analysis, the list of possible subissues/steps, and the `gh issue create` commands, with each subissue body formatted according to the template in `docs/ISSUE_TEMPLATE_SUBISSUE.md`.
+- Use English for all output.
+- Reference: [copilot-customization.instructions.md](../instructions/copilot/copilot-customization.instructions.md)
