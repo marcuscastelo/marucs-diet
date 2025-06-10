@@ -42,7 +42,7 @@ export function ExternalTemplateToItemGroupModal(
         operation,
         additionalData: { itemName: item.name, templateType },
       })
-      showError(`Erro ao adicionar item: ${formatError(err)}`)
+      showError(err, {}, `Erro ao adicionar item: ${formatError(err)}`)
     })
   }
 
