@@ -17,6 +17,9 @@ if git ls-remote --exit-code origin stable &>/dev/null; then
   if git ls-remote --exit-code origin "$current_branch" &>/dev/null; then
     branch_ref="origin/$current_branch"
     rc_count=$(git rev-list --count "$stable_ref".."$branch_ref")
+  elif git show-ref --verify --quiet "refs/heads/$current_branch"; then
+    branch_ref="$current_branch"
+    rc_count=$(git rev-list --count "$stable_ref".."$branch_ref")
   else
     rc_count=$(git rev-list --count "$stable_ref"..HEAD)
   fi
