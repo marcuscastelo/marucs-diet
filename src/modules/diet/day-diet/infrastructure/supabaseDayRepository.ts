@@ -16,6 +16,7 @@ import { type User } from '~/modules/user/domain/user'
 import {
   handleApiError,
   handleValidationError,
+  wrapErrorWithStack,
 } from '~/shared/error/errorHandler'
 
 // TODO:   Delete old days table and rename days_test to days
@@ -49,7 +50,7 @@ async function fetchDayDiet(_dayId: DayDiet['id']): Promise<DayDiet | null> {
   //     throw error
   //   }
 
-  //   const dayDiets = dayDietSchema.array().parse(data ?? [])
+  //   const dayDiets = parseWithStack(dayDietSchema.array(), data ?? [])
 
   //   console.debug(
   //     `[supabaseDayRepository] fetchDayDiet returned ${dayDiets.length} days`
@@ -74,7 +75,7 @@ async function fetchDayDiet(_dayId: DayDiet['id']): Promise<DayDiet | null> {
   //     throw error
   //   }
 
-  //   const dayIndexes = dayIndexSchema.array().parse(data ?? [])
+  //   const dayIndexes = parseWithStack(dayIndexSchema.array(), data ?? [])
 
   //   console.debug(
   //     `[supabaseDayRepository] fetchUserDayIndexes returned ${dayIndexes.length} days`
@@ -115,7 +116,7 @@ async function fetchAllUserDayDiets(
         operation: 'fetchAllUserDayDiets',
         additionalData: { parseError: result.error },
       })
-      throw result.error
+      throw wrapErrorWithStack(result.error)
     })
 
   console.log('days', days)
@@ -137,7 +138,7 @@ const insertDayDiet = async (newDay: NewDayDiet): Promise<DayDiet | null> => {
     .insert(createDAO)
     .select()
   if (error !== null) {
-    throw error
+    throw wrapErrorWithStack(error)
   }
 
   const dayDAO = days[0] as DayDietDAO | undefined
@@ -180,7 +181,7 @@ const deleteDayDiet = async (id: DayDiet['id']): Promise<void> => {
     .select()
 
   if (error !== null) {
-    throw error
+    throw wrapErrorWithStack(error)
   }
 
   const userId = userDays().find((day) => day.id === id)?.owner

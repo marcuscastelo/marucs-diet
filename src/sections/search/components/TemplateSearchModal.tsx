@@ -60,7 +60,6 @@ import {
   TemplateSearchTabs,
 } from '~/sections/search/components/TemplateSearchTabs'
 import { handleApiError } from '~/shared/error/errorHandler'
-import { formatError } from '~/shared/formatError'
 import { stringToDate } from '~/shared/utils/date'
 
 const TEMPLATE_SEARCH_DEFAULT_TAB = availableTabs.Todos.id
@@ -193,7 +192,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
                   operation: 'confirmOverMacros',
                   additionalData: { templateType: 'item' },
                 })
-                showError(`Erro ao adicionar item: ${formatError(err)}`)
+                showError(err, {}, 'Erro ao adicionar item')
               })
             },
           },
@@ -214,7 +213,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
           operation: 'confirmItem',
           additionalData: { templateType: 'item' },
         })
-        showError(`Erro ao adicionar item: ${formatError(err)}`)
+        showError(err, {}, 'Erro ao adicionar item')
       }
     }
   }

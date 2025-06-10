@@ -7,6 +7,8 @@ import {
   createUserFromDAO,
   userDAOSchema,
 } from '~/modules/user/infrastructure/userDAO'
+import { wrapErrorWithStack } from '~/shared/error/errorHandler'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 export const SUPABASE_TABLE_USERS = 'users'
 
@@ -24,10 +26,10 @@ const fetchUsers = async (): Promise<User[]> => {
   const { data, error } = await supabase.from(SUPABASE_TABLE_USERS).select()
 
   if (error !== null) {
-    throw error
+    throw wrapErrorWithStack(error)
   }
 
-  const userDAOs = userDAOSchema.array().parse(data)
+  const userDAOs = parseWithStack(userDAOSchema.array(), data)
   return userDAOs.map(createUserFromDAO)
 }
 
@@ -38,10 +40,10 @@ const fetchUser = async (id: User['id']): Promise<User | null> => {
     .eq('id', id)
 
   if (error !== null) {
-    throw error
+    throw wrapErrorWithStack(error)
   }
 
-  const userDAOs = userDAOSchema.array().parse(data)
+  const userDAOs = parseWithStack(userDAOSchema.array(), data)
   const users = userDAOs.map(createUserFromDAO)
 
   return users[0] ?? null
@@ -56,10 +58,10 @@ const insertUser = async (newUser: NewUser): Promise<User | null> => {
     .select()
 
   if (error !== null) {
-    throw error
+    throw wrapErrorWithStack(error)
   }
 
-  const userDAOs = userDAOSchema.array().parse(data)
+  const userDAOs = parseWithStack(userDAOSchema.array(), data)
   const users = userDAOs.map(createUserFromDAO)
 
   return users[0] ?? null
@@ -78,10 +80,10 @@ const updateUser = async (
     .select()
 
   if (error !== null) {
-    throw error
+    throw wrapErrorWithStack(error)
   }
 
-  const userDAOs = userDAOSchema.array().parse(data)
+  const userDAOs = parseWithStack(userDAOSchema.array(), data)
   const users = userDAOs.map(createUserFromDAO)
 
   return users[0] ?? null
@@ -94,6 +96,6 @@ const deleteUser = async (id: User['id']): Promise<void> => {
     .eq('id', id)
 
   if (error !== null) {
-    throw error
+    throw wrapErrorWithStack(error)
   }
 }

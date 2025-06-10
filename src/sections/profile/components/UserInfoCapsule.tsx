@@ -9,6 +9,7 @@ import {
 import { type User, userSchema } from '~/modules/user/domain/user'
 import { Capsule } from '~/sections/common/components/capsule/Capsule'
 import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 type Translation<T extends string> = { [key in T]: string }
 
@@ -60,7 +61,7 @@ const makeOnBlur = <T extends keyof User>(
     newUser[field] = convert(event.target.value)
 
     // TODO:   Move to server onSave(newProfile)
-    setInnerData(userSchema.parse(newUser))
+    setInnerData(parseWithStack(userSchema, newUser))
   }
 }
 

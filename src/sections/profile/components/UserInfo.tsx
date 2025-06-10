@@ -15,7 +15,6 @@ import {
   UserInfoCapsule,
 } from '~/sections/profile/components/UserInfoCapsule'
 import { handleApiError } from '~/shared/error/errorHandler'
-import { formatError } from '~/shared/formatError'
 type Translation<T extends string> = { [_key in T]: string }
 // TODO:   Create module for translations
 // TODO:   Make diet translations appear in the UI
@@ -119,7 +118,7 @@ export function UserInfo() {
               operation: 'updateUser',
               additionalData: { userId: user.id },
             })
-            showError(`Erro ao atualizar usuário: ${formatError(error)}`)
+            showError(error, {}, 'Erro ao atualizar usuário')
           })
         }}
       >

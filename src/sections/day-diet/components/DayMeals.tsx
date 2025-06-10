@@ -32,7 +32,6 @@ import {
   MealEditViewHeader,
 } from '~/sections/meal/components/MealEditView'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
-import { formatError } from '~/shared/formatError'
 
 type EditSelection = {
   meal: Meal
@@ -182,10 +181,7 @@ export default function DayMeals(props: {
                           throw new Error('resolvedDayDiet is null!')
                         }
                         handleUpdateMeal(current, meal).catch((e) => {
-                          console.error(e)
-                          showError(
-                            `Erro ao atualizar refeição: ${formatError(e)}`,
-                          )
+                          showError(e, {}, 'Erro ao atualizar refeição')
                         })
                       }}
                       mode={props.mode}

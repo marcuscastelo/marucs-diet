@@ -120,11 +120,9 @@ export function showError(
 ): string {
   const options = mergeToastOptions({ ...providedOptions, type: 'error' })
 
-  // Ensure error is a string for display
-  const errorMessage = typeof error === 'string' ? error : String(error)
-
+  // Pass the original error object to preserve stack/context
   const expandableErrorData = createExpandableErrorData(
-    errorMessage,
+    error,
     options,
     providedDisplayMessage,
   )

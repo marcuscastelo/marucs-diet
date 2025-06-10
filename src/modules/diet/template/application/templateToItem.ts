@@ -1,3 +1,4 @@
+import { generateId } from '~/legacy/utils/idUtils'
 import { calcRecipeMacros } from '~/legacy/utils/macroMath'
 import { type Item } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
@@ -15,6 +16,7 @@ import {
 export function templateToItem(template: Template): Item | RecipeItem {
   if (isTemplateFood(template)) {
     return {
+      id: generateId(),
       reference: template.id,
       name: template.name,
       macros: template.macros,
@@ -22,6 +24,7 @@ export function templateToItem(template: Template): Item | RecipeItem {
     } as Item
   }
   return {
+    id: generateId(),
     reference: template.id,
     name: template.name,
     macros: calcRecipeMacros(template as Recipe),

@@ -17,17 +17,8 @@ export function setItemGroupRecipe(
   group: ItemGroup,
   recipeId: ItemGroup['recipe'],
 ): ItemGroup {
-  if (recipeId === undefined) {
-    return {
-      ...group,
-      type: 'simple' as const,
-      recipe: undefined,
-      items: [...group.items],
-    }
-  }
   return {
     ...group,
-    type: 'recipe' as const,
     recipe: recipeId,
     items: [...group.items],
   }

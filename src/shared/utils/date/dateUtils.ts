@@ -7,6 +7,8 @@
 
 import { z } from 'zod'
 
+import { parseWithStack } from '~/shared/utils/parseWithStack'
+
 /**
  * Options for date formatting functions
  */
@@ -149,7 +151,7 @@ export function stringToDate(
  * ```
  */
 export function dateToYYYYMMDD(date: Date): string {
-  return z.string().parse(date.toISOString().split('T')[0])
+  return parseWithStack(z.string(), date.toISOString().split('T')[0])
 }
 
 /**

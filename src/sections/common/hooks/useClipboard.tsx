@@ -1,6 +1,8 @@
 import { createEffect, createSignal } from 'solid-js'
 import { type z } from 'zod'
 
+import { jsonParseWithStack } from '~/shared/utils/jsonParseWithStack'
+
 // Utility to check if an error is a NotAllowedError DOMException
 function isClipboardNotAllowedError(error: unknown): boolean {
   return error instanceof DOMException && error.name === 'NotAllowedError'
@@ -73,7 +75,7 @@ export function createClipboardSchemaFilter(
     if (clipboard === '') return false
     let parsedClipboard: unknown
     try {
-      parsedClipboard = JSON.parse(clipboard)
+      parsedClipboard = jsonParseWithStack(clipboard)
     } catch {
       // Error parsing JSON. Probably clipboard is some random text from the user
       return false

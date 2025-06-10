@@ -1,6 +1,7 @@
 import { type z } from 'zod'
 
 import { handleValidationError } from '~/shared/error/errorHandler'
+import { jsonParseWithStack } from '~/shared/utils/jsonParseWithStack'
 
 export function deserializeClipboard<T extends z.ZodType<unknown>>(
   clipboard: string,
@@ -8,7 +9,15 @@ export function deserializeClipboard<T extends z.ZodType<unknown>>(
 ): z.infer<T> | null {
   let parsed: unknown
   try {
-    parsed = JSON.parse(clipboard)
+    parsed = jsonParseWithStack(clipboard)
+    if (typeof parsed !== 'object' || parsed === null) {
+      handleValidationError('Clipboard JSON is not an object', {
+        component: 'clipboardUtils',
+        operation: 'deserializeClipboard',
+        additionalData: { clipboard, parsed },
+      })
+      return null
+    }
   } catch (error) {
     handleValidationError('Invalid JSON in clipboard', {
       component: 'clipboardUtils',

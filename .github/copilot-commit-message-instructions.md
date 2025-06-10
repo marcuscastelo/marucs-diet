@@ -15,6 +15,7 @@ If the commit message contains vague phrases such as "for clarity", "for specifi
 - **ci** - Continuous integration configs and pipelines (GitHub Actions, etc)  
 - **chore** - Dependency bumps, configs, minor tooling not affecting runtime  
 - **revert** - Reverts of previous commits  
+- **rename** - Use only when a file or symbol is renamed. Never use add, implement, or similar for renames.  
 
 ## Scope conventions
 
@@ -32,6 +33,7 @@ If the commit message contains vague phrases such as "for clarity", "for specifi
   - **Do NOT use vague or filler phrases such as "for clarity", "for specificity", "for better understanding", "improve", or similar.**  
   - Focus strictly on the actual change or feature.  
   - **Never include explanations like "for clarity and specificity".**
+  - If a file or symbol was renamed, always use the type `rename` in the commit message. Never use `add`, `implement`, or similar for renames.
 
 - Use `!` after the type for breaking changes, and explain them in the body.  
 - Optional body (after a blank line) ONLY FOR complex changes:  
@@ -49,6 +51,8 @@ If the commit message contains vague phrases such as "for clarity", "for specifi
 - docs: update README with build instructions  
 - feat(day-diet-ui): add summary card to day view  
 - fix(day-diet,meal): fix meal duplication bug  
+- rename(profile): rename ProfileCard to UserProfileCard  
+- rename(diet): rename diet-summary.ts to diet-overview.ts  
 
 ## Examples of incorrect commit subjects (DO NOT generate these):
 
@@ -56,8 +60,11 @@ If the commit message contains vague phrases such as "for clarity", "for specifi
 - fix(ui): change styling for better understanding  
 - chore(build): improve Dockerfile for clarity  
 - refactor(code): update formatting for specificity  
+- add(profile): add UserProfileCard (if it was actually a rename)  
+- implement(diet): implement diet-overview.ts (if it was actually a rename)  
 
 Always avoid generating commit messages with vague or filler explanations like those above.
+Always use `rename` as the type if a file or symbol was renamed.
 
 ---
 

@@ -5,6 +5,7 @@ import {
   macroProfileSchema,
   type NewMacroProfile,
 } from '~/modules/diet/macro-profile/domain/macroProfile'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 // DAO schemas for database operations
 export const createMacroProfileDAOSchema = z.object({
@@ -42,7 +43,7 @@ export function createUpdateMacroProfileDAOFromNewMacroProfile(
 }
 
 export function createMacroProfileFromDAO(dao: MacroProfileDAO): MacroProfile {
-  return macroProfileSchema.parse({
+  return parseWithStack(macroProfileSchema, {
     id: dao.id,
     owner: dao.owner,
     target_day: new Date(dao.target_day),

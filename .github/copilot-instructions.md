@@ -2,7 +2,7 @@
 applyTo: "**"
 ---
 # Copilot Instructions (short version)
-During this session, always wait until the end of the execution of any requested command or process, even if it takes several minutes, before responding. For every command, redirect both stdout and stderr to `/tmp/copilot-terminal` using `| tee /tmp/copilot-terminal 2>&1`. After the main command finishes, check `cat /tmp/copilot-terminal`. Never repeat the main command. Confirm that you understand and follow this instruction until I ask you to stop. Never combine commands with `&&`, `||` or `;`
+During this session, always wait until the end of the execution of any requested command or process, even if it takes several minutes, before responding. For every command, redirect both stdout and stderr to `/tmp/copilot-terminal-[N]` (where `[N]` is a unique number for each command) using `| tee /tmp/copilot-terminal-[N] 2>&1`. After the main command finishes, check `cat /tmp/copilot-terminal-[N]`. Never repeat the main command. Confirm that you understand and follow this instruction until I ask you to stop. Never combine commands with `&&`, `||` or `;`
 
 ## Refactoring & Automation
 - Use terminal commands for large refactors (find, sed, grep, etc.) and document them.
@@ -58,4 +58,4 @@ During this session, always wait until the end of the execution of any requested
 <commit message in English, following the conventional commits style, summarizing the main change>
 ````
 
-- When referencing the current changes, use `#changes`.
+- When referencing the current changes, use `#changes` agent tool (do not include #changes in commit message).

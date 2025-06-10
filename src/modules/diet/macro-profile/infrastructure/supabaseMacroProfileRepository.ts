@@ -12,6 +12,7 @@ import {
 } from '~/modules/diet/macro-profile/infrastructure/macroProfileDAO'
 import { type User } from '~/modules/user/domain/user'
 import { handleApiError } from '~/shared/error/errorHandler'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 export const SUPABASE_TABLE_MACRO_PROFILES = 'macro_profiles'
 
@@ -40,7 +41,7 @@ async function fetchUserMacroProfiles(userId: User['id']) {
     throw error
   }
 
-  const macroProfileDAOs = macroProfileDAOSchema.array().parse(data)
+  const macroProfileDAOs = parseWithStack(macroProfileDAOSchema.array(), data)
   return macroProfileDAOs.map(createMacroProfileFromDAO)
 }
 
@@ -63,7 +64,7 @@ async function insertMacroProfile(
     throw error
   }
 
-  const macroProfileDAOs = macroProfileDAOSchema.array().parse(data)
+  const macroProfileDAOs = parseWithStack(macroProfileDAOSchema.array(), data)
   const macroProfiles = macroProfileDAOs.map(createMacroProfileFromDAO)
 
   return macroProfiles[0] ?? null
@@ -90,7 +91,7 @@ async function updateMacroProfile(
     throw error
   }
 
-  const macroProfileDAOs = macroProfileDAOSchema.array().parse(data)
+  const macroProfileDAOs = parseWithStack(macroProfileDAOSchema.array(), data)
   const macroProfiles = macroProfileDAOs.map(createMacroProfileFromDAO)
 
   return macroProfiles[0] ?? null

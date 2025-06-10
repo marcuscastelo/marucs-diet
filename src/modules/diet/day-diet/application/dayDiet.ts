@@ -173,6 +173,12 @@ export function getPreviousDayDiets(
   selectedDay: string,
 ): DayDiet[] {
   return dayDiets
-    .filter((day) => Date.parse(day.target_day) < Date.parse(selectedDay))
-    .sort((a, b) => Date.parse(b.target_day) - Date.parse(a.target_day))
+    .filter(
+      (day) =>
+        new Date(day.target_day).getTime() < new Date(selectedDay).getTime(),
+    )
+    .sort(
+      (a, b) =>
+        new Date(b.target_day).getTime() - new Date(a.target_day).getTime(),
+    )
 }

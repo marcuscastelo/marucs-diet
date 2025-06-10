@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { parseWithStack } from '~/shared/utils/parseWithStack'
+
 export const macroProfileSchema = z.object({
   id: z.number(),
   owner: z.number(),
@@ -39,7 +41,7 @@ export function createNewMacroProfile({
   gramsPerKgProtein: number
   gramsPerKgFat: number
 }): NewMacroProfile {
-  return newMacroProfileSchema.parse({
+  return parseWithStack(newMacroProfileSchema, {
     owner,
     target_day: targetDay,
     gramsPerKgCarbs,
@@ -53,7 +55,7 @@ export function promoteToMacroProfile(
   newMacroProfile: NewMacroProfile,
   id: number,
 ): MacroProfile {
-  return macroProfileSchema.parse({
+  return parseWithStack(macroProfileSchema, {
     ...newMacroProfile,
     id,
     __type: 'MacroProfile',
@@ -67,7 +69,7 @@ export function promoteToMacroProfile(
 export function demoteToNewMacroProfile(
   macroProfile: MacroProfile,
 ): NewMacroProfile {
-  return newMacroProfileSchema.parse({
+  return parseWithStack(newMacroProfileSchema, {
     owner: macroProfile.owner,
     target_day: macroProfile.target_day,
     gramsPerKgCarbs: macroProfile.gramsPerKgCarbs,

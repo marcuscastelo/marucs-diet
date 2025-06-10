@@ -6,6 +6,7 @@ import {
   type NewDayDiet,
 } from '~/modules/diet/day-diet/domain/dayDiet'
 import { mealDAOSchema } from '~/modules/diet/meal/infrastructure/mealDAO'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 // DAO schema for creating new day diets
 export const createDayDietDAOSchema = z.object({
@@ -56,7 +57,7 @@ export function dayDietToDAO(dayDiet: DayDiet): DayDietDAO {
 export function createInsertDayDietDAOFromNewDayDiet(
   newDayDiet: NewDayDiet,
 ): CreateDayDietDAO {
-  return createDayDietDAOSchema.parse({
+  return parseWithStack(createDayDietDAOSchema, {
     target_day: newDayDiet.target_day,
     owner: newDayDiet.owner,
     meals: newDayDiet.meals.map((meal) => ({
@@ -71,7 +72,7 @@ export function createInsertDayDietDAOFromNewDayDiet(
  * Converts a DAO object from database to domain DayDiet object
  */
 export function daoToDayDiet(dao: DayDietDAO): DayDiet {
-  return dayDietSchema.parse({
+  return parseWithStack(dayDietSchema, {
     id: dao.id,
     target_day: dao.target_day,
     owner: dao.owner,
@@ -86,7 +87,7 @@ export function createDayDietDAOToDAO(
   createDAO: CreateDayDietDAO,
   id: number,
 ): DayDietDAO {
-  return dayDietDAOSchema.parse({
+  return parseWithStack(dayDietDAOSchema, {
     id,
     target_day: createDAO.target_day,
     owner: createDAO.owner,
@@ -101,7 +102,7 @@ export function mergeUpdateDayDietDAO(
   existing: DayDietDAO,
   update: UpdateDayDietDAO,
 ): DayDietDAO {
-  return dayDietDAOSchema.parse({
+  return parseWithStack(dayDietDAOSchema, {
     ...existing,
     ...update,
   })

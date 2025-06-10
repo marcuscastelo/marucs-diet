@@ -11,7 +11,8 @@ import {
   recipeDAOSchema,
 } from '~/modules/diet/recipe/infrastructure/recipeDAO'
 import { type User } from '~/modules/user/domain/user'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { handleApiError, wrapErrorWithStack } from '~/shared/error/errorHandler'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 const TABLE = 'recipes'
 
@@ -39,10 +40,10 @@ const fetchUserRecipes = async (userId: User['id']): Promise<Recipe[]> => {
       operation: 'fetchUserRecipes',
       additionalData: { userId },
     })
-    throw error
+    throw wrapErrorWithStack(error)
   }
 
-  const recipeDAOs = recipeDAOSchema.array().parse(data)
+  const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
   const recipes = recipeDAOs.map(createRecipeFromDAO)
 
   return recipes
@@ -57,10 +58,10 @@ const fetchRecipeById = async (id: Recipe['id']): Promise<Recipe> => {
       operation: 'fetchRecipeById',
       additionalData: { id },
     })
-    throw error
+    throw wrapErrorWithStack(error)
   }
 
-  const recipeDAOs = recipeDAOSchema.array().parse(data)
+  const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
   const recipes = recipeDAOs.map(createRecipeFromDAO)
 
   if (!recipes[0]) {
@@ -85,10 +86,10 @@ const fetchUserRecipeByName = async (
       operation: 'fetchUserRecipeByName',
       additionalData: { userId, name },
     })
-    throw error
+    throw wrapErrorWithStack(error)
   }
 
-  const recipeDAOs = recipeDAOSchema.array().parse(data)
+  const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
   const recipes = recipeDAOs.map(createRecipeFromDAO)
 
   return recipes
@@ -105,10 +106,10 @@ const insertRecipe = async (newRecipe: NewRecipe): Promise<Recipe> => {
       operation: 'insertRecipe',
       additionalData: { recipe: newRecipe },
     })
-    throw error
+    throw wrapErrorWithStack(error)
   }
 
-  const recipeDAOs = recipeDAOSchema.array().parse(data)
+  const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
   const recipes = recipeDAOs.map(createRecipeFromDAO)
 
   if (!recipes[0]) {
@@ -140,10 +141,10 @@ const updateRecipe = async (
       operation: 'updateRecipe',
       additionalData: { id: recipeId, recipe: newRecipe },
     })
-    throw error
+    throw wrapErrorWithStack(error)
   }
 
-  const recipeDAOs = recipeDAOSchema.array().parse(data)
+  const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
   const recipes = recipeDAOs.map(createRecipeFromDAO)
 
   if (recipes[0] === undefined) {
@@ -166,10 +167,10 @@ const deleteRecipe = async (id: Recipe['id']): Promise<Recipe> => {
       operation: 'deleteRecipe',
       additionalData: { id },
     })
-    throw error
+    throw wrapErrorWithStack(error)
   }
 
-  const recipeDAOs = recipeDAOSchema.array().parse(data)
+  const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
   const recipes = recipeDAOs.map(createRecipeFromDAO)
 
   if (!recipes[0]) {
