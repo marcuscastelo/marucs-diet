@@ -83,6 +83,32 @@ const USER_FIELD_TRANSLATION: Translation<keyof Omit<User, '__type'>> = {
   desired_weight: 'Peso Alvo',
 }
 
+function renderComboBox<T extends keyof User>(
+  field: T,
+  translation: Translation<string>,
+  innerData: () => User,
+  setInnerData: (user: User) => void,
+) {
+  const options = Object.entries(translation).map(([key, label]) => ({
+    value: key,
+    label,
+  }))
+  return (
+    <ComboBox
+      options={options}
+      value={innerData()[field].toString()}
+      onChange={(value) => {
+        const newUser = {
+          ...innerData(),
+          [field]: value,
+        }
+        setInnerData(parseWithStack(userSchema, newUser))
+      }}
+      class="w-full text-xl text-center bg-slate-900"
+    />
+  )
+}
+
 export function UserInfoCapsule<T extends keyof Omit<User, '__type'>>(props: {
   field: T
   convert: (value: string) => User[T]
@@ -125,42 +151,14 @@ function RightContent<T extends keyof Omit<User, '__type'>>(props: {
       <div class="flex items-center justify-center w-full">
         <Show when={innerData()}>
           {(innerData) => {
-            if (props.field === 'diet') {
-              const options = Object.entries(DIET_TRANSLATION).map(
-                ([key, label]) => ({ value: key, label }),
-              )
-              return (
-                <ComboBox
-                  options={options}
-                  value={innerData()[props.field].toString()}
-                  onChange={(value) => {
-                    const newUser = {
-                      ...innerData(),
-                      diet: value as User['diet'],
-                    }
-                    setInnerData(parseWithStack(userSchema, newUser))
-                  }}
-                  class="w-full text-xl text-center bg-transparent"
-                />
-              )
-            }
-            if (props.field === 'gender') {
-              const options = Object.entries(GENDER_TRANSLATION).map(
-                ([key, label]) => ({ value: key, label }),
-              )
-              return (
-                <ComboBox
-                  options={options}
-                  value={innerData()[props.field].toString()}
-                  onChange={(value) => {
-                    const newUser = {
-                      ...innerData(),
-                      gender: value as User['gender'],
-                    }
-                    setInnerData(parseWithStack(userSchema, newUser))
-                  }}
-                  class="w-full text-xl text-center bg-transparent"
-                />
+            if (props.field === 'diet' || props.field === 'gender') {
+              const translation =
+                props.field === 'diet' ? DIET_TRANSLATION : GENDER_TRANSLATION
+              return renderComboBox(
+                props.field,
+                translation,
+                innerData,
+                setInnerData,
               )
             }
             return (

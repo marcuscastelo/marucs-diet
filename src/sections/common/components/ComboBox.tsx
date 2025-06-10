@@ -10,6 +10,7 @@ export type ComboBoxProps<T extends string> = {
   value: T
   onChange: (value: T) => void
   class?: string
+  optionClass?: string
 }
 
 /**
@@ -29,7 +30,11 @@ export function ComboBox<T extends string>(
       onInput={(e) => props.onChange(e.currentTarget.value as T)}
     >
       <For each={props.options}>
-        {(option) => <option value={option.value}>{option.label}</option>}
+        {(option) => (
+          <option value={option.value} class={props.optionClass}>
+            {option.label}
+          </option>
+        )}
       </For>
     </select>
   )
