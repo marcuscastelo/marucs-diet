@@ -2,7 +2,6 @@
 set -e
 
 # Debug: print each command as it executes
-env | grep GIT
 set -x
 
 git fetch --all --tags
