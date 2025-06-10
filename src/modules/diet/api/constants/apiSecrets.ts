@@ -1,7 +1,7 @@
 import { z } from 'zod'
-import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 import env from '~/shared/config/env'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 export const EXTERNAL_API_BASE_URL = parseWithStack(
   z.string({

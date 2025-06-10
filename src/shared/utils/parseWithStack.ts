@@ -17,6 +17,7 @@ export function parseWithStack<S extends ZodTypeAny>(
   } catch (err) {
     if (err instanceof ZodError) {
       const error = new Error(err.message)
+      error.stack = err.stack // preserve original stack trace
       // Attach Zod issues for debugging
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
       ;(error as any).issues = err.issues
