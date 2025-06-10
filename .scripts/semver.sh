@@ -18,11 +18,6 @@ else
   current_branch=$(git rev-parse --abbrev-ref HEAD)
 fi
 
-if git show-ref --verify --quiet refs/heads/stable || git show-ref --verify --quiet refs/remotes/origin/stable || git show-ref --verify --quiet refs/tags/stable; then
-  rc_count=$(git rev-list --count origin/stable..origin/$current_branch)
-else
-  rc_count=$(git rev-list --count HEAD)
-fi
 if [[ "$current_branch" =~ ^rc\/(v[0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
   version="${BASH_REMATCH[1]}"
   echo "$version-rc.$rc_count"
