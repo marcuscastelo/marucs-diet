@@ -7,8 +7,8 @@ import {
   createUserFromDAO,
   userDAOSchema,
 } from '~/modules/user/infrastructure/userDAO'
-import { parseWithStack } from '~/shared/utils/parseWithStack'
 import { wrapErrorWithStack } from '~/shared/error/errorHandler'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 export const SUPABASE_TABLE_USERS = 'users'
 
