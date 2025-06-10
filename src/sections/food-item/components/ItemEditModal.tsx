@@ -14,6 +14,7 @@ import { showError } from '~/modules/toast/application/toastManager'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import { Modal } from '~/sections/common/components/Modal'
+import { MaxQuantityButton } from '~/sections/common/components/MaxQuantityButton'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useModalContext } from '~/sections/common/context/ModalContext'
 import { useFloatField } from '~/sections/common/hooks/useField'
@@ -231,7 +232,10 @@ function Body(props: {
         )}
       </For>
       <div class="mt-3 flex w-full justify-between gap-1">
-        <div class="my-1 flex flex-1 justify-around">
+        <div
+          class="my-1 flex flex-1 justify-around"
+          style={{ position: 'relative' }}
+        >
           <FloatInput
             field={quantityField}
             style={{ width: '100%' }}
@@ -252,6 +256,19 @@ function Body(props: {
             class={`input-bordered  input mt-1  border-gray-300 bg-gray-800 ${
               !props.canApply ? 'input-error border-red-500' : ''
             }`}
+          />
+          <MaxQuantityButton
+            currentValue={quantityField.value() ?? 0}
+            macroTargets={{
+              carbs: Number(props.item().macros.carbs) || 0,
+              protein: Number(props.item().macros.protein) || 0,
+              fat: Number(props.item().macros.fat) || 0,
+            }}
+            itemMacros={props.item().macros}
+            onMaxSelected={(maxValue: number) => {
+              quantityField.setRawValue(String(maxValue))
+            }}
+            disabled={!props.canApply}
           />
         </div>
         <div class="my-1 ml-1 flex shrink justify-around gap-1">
