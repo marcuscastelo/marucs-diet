@@ -112,6 +112,8 @@ function mapUnknownToToastError(
   error: unknown,
   includeStack: boolean,
 ): ToastError {
+  // DEBUG: Log error and stack for investigation
+  console.debug('[mapUnknownToToastError] error:', error)
   if (error instanceof Error) {
     // Only serialize cause if it's a primitive or stringifiable
     let cause: unknown = error.cause
@@ -121,6 +123,14 @@ function mapUnknownToToastError(
       } catch {
         cause = '[Unserializable cause]'
       }
+    }
+    if (typeof error.stack === 'string') {
+      console.debug('[mapUnknownToToastError] error.stack:', error.stack)
+    } else {
+      console.debug(
+        '[mapUnknownToToastError] error.stack is not a string:',
+        error.stack,
+      )
     }
     return {
       message: error.message || DEFAULT_UNKNOWN_ERROR,

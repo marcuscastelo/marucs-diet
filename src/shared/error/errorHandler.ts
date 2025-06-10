@@ -42,13 +42,24 @@ export function logError(error: unknown, context?: ErrorContext): void {
 const ORIGINAL_ERROR_SYMBOL = Symbol('originalError')
 export function wrapErrorWithStack(error: unknown): Error {
   let message = 'Unknown error'
-  if (
-    typeof error === 'object' &&
-    error !== null &&
-    'message' in error &&
-    typeof (error as Record<string, unknown>).message === 'string'
-  ) {
-    message = (error as { message: string }).message
+  if (typeof error === 'object' && error !== null) {
+    // If error has a message and other properties, serialize all
+    const keys = Object.keys(error)
+    if (
+      'message' in error &&
+      typeof (error as Record<string, unknown>).message === 'string'
+    ) {
+      if (keys.length > 1) {
+        message = `${(error as { message: string }).message}: ${JSON.stringify(
+          error,
+        )}`
+      } else {
+        message = (error as { message: string }).message
+      }
+    } else {
+      // No .message, serialize everything
+      message = JSON.stringify(error)
+    }
   }
   const wrapped: Error = new Error(message)
   // Attach the original error as a symbol property for traceability

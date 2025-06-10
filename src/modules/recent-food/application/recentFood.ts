@@ -11,10 +11,12 @@ import {
   daoToRecentFood,
   type RecentFoodDAO,
 } from '~/modules/recent-food/infrastructure/recentFoodDAO'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { handleApiError, wrapErrorWithStack } from '~/shared/error/errorHandler'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 const TABLE = 'recent_foods'
+
+// TODO: Implement proper infrastructure folder for recent food
 
 /**
  * Fetches a recent food by user and food ID.
@@ -38,7 +40,7 @@ export async function fetchRecentFoodByUserIdAndFoodId(
       operation: 'fetchRecentFoodByUserIdAndFoodId',
       additionalData: { userId, foodId },
     })
-    throw error
+    throw wrapErrorWithStack(error)
   }
 
   return parseWithStack(recentFoodSchema.array(), data).at(0) ?? null
@@ -62,7 +64,7 @@ export async function fetchUserRecentFoods(userId: RecentFood['user_id']) {
       operation: 'fetchUserRecentFoods',
       additionalData: { userId },
     })
-    throw error
+    throw wrapErrorWithStack(error)
   }
 
   return parseWithStack(recentFoodSchema.array(), data)
@@ -89,7 +91,7 @@ export async function insertRecentFood(newRecentFood: NewRecentFood) {
       operation: 'insertRecentFood',
       additionalData: { createDAO },
     })
-    throw error
+    throw wrapErrorWithStack(error)
   }
 
   const recentFoodDAO = data[0] as RecentFoodDAO
@@ -125,7 +127,7 @@ export async function updateRecentFood(
       operation: 'updateRecentFood',
       additionalData: { recentFoodId, updateDAO },
     })
-    throw error
+    throw wrapErrorWithStack(error)
   }
 
   const recentFoodDAO = data[0] as RecentFoodDAO
@@ -153,7 +155,7 @@ export async function deleteRecentFoodByFoodId(
       operation: 'deleteRecentFoodByFoodId',
       additionalData: { userId, foodId },
     })
-    throw error
+    throw wrapErrorWithStack(error)
   }
 }
 
