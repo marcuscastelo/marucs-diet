@@ -17,6 +17,7 @@ Analyze all modifications in the codebase from the current `HEAD` to the nearest
    - Notable implementation details or breaking changes.
    - References to related documentation or issues.
    - A list of issues that this PR closes (e.g., `closes #123`), included at the end of the description. **If no issues are closed, omit this section.**
+     - If the current branch name matches the pattern `issue<number>` (e.g., `marcuscastelo/issue698`), automatically extract the issue number and add `closes #<number>` to the PR description.
 3. **Labels**: Output as a plain list (not Markdown) for user copy-paste.
 4. **Milestone**: Output as a plain value (not Markdown) for user copy-paste.
 
