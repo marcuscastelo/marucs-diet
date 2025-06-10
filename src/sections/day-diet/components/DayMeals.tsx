@@ -20,7 +20,6 @@ import { updateMeal } from '~/modules/diet/meal/application/meal'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import {
   showError,
-  showInfo,
   showPromise,
 } from '~/modules/toast/application/toastManager'
 import { Modal } from '~/sections/common/components/Modal'
@@ -277,18 +276,7 @@ function ExternalItemGroupEditModal(props: {
               props.setVisible(false)
             }}
             onDelete={(id: ItemGroup['id']) => {
-              console.debug(
-                '[DayMeals] (<ItemGroupEditModal/>) onDelete called with id:',
-                id,
-              )
-              void showPromise(
-                deleteItemGroup(props.day().id, editSelection().meal.id, id),
-                {
-                  success: 'Grupo excluído com sucesso!',
-                  loading: 'Excluindo grupo...',
-                  error: (e) => `Erro ao excluir grupo: ${formatError(e)}`,
-                },
-              )
+              void deleteItemGroup(props.day().id, editSelection().meal.id, id)
 
               setEditSelection(null)
               props.setVisible(false)
