@@ -51,7 +51,14 @@ registerSubapabaseRealtimeCallback(SUPABASE_TABLE_MACRO_PROFILES, () => {
   bootstrap()
 })
 
-export async function fetchUserMacroProfiles(userId: number) {
+/**
+ * Fetches all macro profiles for a user.
+ * @param userId - The user ID.
+ * @returns Array of macro profiles or empty array on error.
+ */
+export async function fetchUserMacroProfiles(
+  userId: number,
+): Promise<readonly MacroProfile[]> {
   try {
     const macroProfiles =
       await macroProfileRepository.fetchUserMacroProfiles(userId)
@@ -63,11 +70,19 @@ export async function fetchUserMacroProfiles(userId: number) {
       operation: 'fetchUserMacroProfiles',
       additionalData: { userId },
     })
-    throw error
+    setUserMacroProfiles([])
+    return []
   }
 }
 
-export async function insertMacroProfile(newMacroProfile: NewMacroProfile) {
+/**
+ * Inserts a new macro profile.
+ * @param newMacroProfile - The new macro profile data.
+ * @returns The inserted macro profile or null on error.
+ */
+export async function insertMacroProfile(
+  newMacroProfile: NewMacroProfile,
+): Promise<MacroProfile | null> {
   try {
     const macroProfile = await showPromise(
       macroProfileRepository.insertMacroProfile(newMacroProfile),
@@ -76,6 +91,7 @@ export async function insertMacroProfile(newMacroProfile: NewMacroProfile) {
         success: 'Perfil de macro criado com sucesso',
         error: 'Falha ao criar perfil de macro',
       },
+      { context: 'user-action', audience: 'user' },
     )
     const userProfiles = userMacroProfiles()
     const hasResult = macroProfile !== null
@@ -86,7 +102,6 @@ export async function insertMacroProfile(newMacroProfile: NewMacroProfile) {
       macroProfile !== null &&
       firstProfile !== undefined &&
       macroProfile.owner === firstProfile.owner
-
     if (hasResult && (hasNoProfiles || isSameOwner)) {
       await fetchUserMacroProfiles(macroProfile.owner)
     }
@@ -97,16 +112,22 @@ export async function insertMacroProfile(newMacroProfile: NewMacroProfile) {
       operation: 'insertMacroProfile',
       additionalData: { newMacroProfile },
     })
-    throw error
+    return null
   }
 }
 
+/**
+ * Updates a macro profile by ID.
+ * @param macroProfileId - The macro profile ID.
+ * @param newMacroProfile - The new macro profile data.
+ * @returns The updated macro profile or null on error.
+ */
 export async function updateMacroProfile(
   macroProfileId: MacroProfile['id'],
   newMacroProfile: NewMacroProfile,
-) {
+): Promise<MacroProfile | null> {
   try {
-    const macroProfiles = await showPromise(
+    const macroProfile = await showPromise(
       macroProfileRepository.updateMacroProfile(
         macroProfileId,
         newMacroProfile,
@@ -116,31 +137,37 @@ export async function updateMacroProfile(
         success: 'Perfil de macro atualizado com sucesso',
         error: 'Falha ao atualizar perfil de macro',
       },
+      { context: 'user-action', audience: 'user' },
     )
     const firstUserMacroProfile = userMacroProfiles()[0]
-    const hasResult = macroProfiles !== null
+    const hasResult = macroProfile !== null
     const hasFirstProfile = firstUserMacroProfile !== undefined
     const isSameOwner =
       hasResult &&
       hasFirstProfile &&
-      macroProfiles.owner === firstUserMacroProfile.owner
-
+      macroProfile.owner === firstUserMacroProfile.owner
     if (isSameOwner) {
-      await fetchUserMacroProfiles(macroProfiles.owner)
+      await fetchUserMacroProfiles(macroProfile.owner)
     }
-
-    return macroProfiles
+    return macroProfile
   } catch (error) {
     handleApiError(error, {
       component: 'macroProfileApplication',
       operation: 'updateMacroProfile',
       additionalData: { macroProfileId, newMacroProfile },
     })
-    throw error
+    return null
   }
 }
 
-export async function deleteMacroProfile(macroProfileId: number) {
+/**
+ * Deletes a macro profile by ID.
+ * @param macroProfileId - The macro profile ID.
+ * @returns True if deleted, false otherwise.
+ */
+export async function deleteMacroProfile(
+  macroProfileId: number,
+): Promise<boolean> {
   try {
     await showPromise(
       macroProfileRepository.deleteMacroProfile(macroProfileId),
@@ -149,17 +176,19 @@ export async function deleteMacroProfile(macroProfileId: number) {
         success: 'Perfil de macro deletado com sucesso',
         error: 'Falha ao deletar perfil de macro',
       },
+      { context: 'user-action', audience: 'user' },
     )
     const [first] = userMacroProfiles()
     if (first) {
       await fetchUserMacroProfiles(first.owner)
     }
+    return true
   } catch (error) {
     handleApiError(error, {
       component: 'macroProfileApplication',
       operation: 'deleteMacroProfile',
       additionalData: { macroProfileId },
     })
-    throw error
+    return false
   }
 }
