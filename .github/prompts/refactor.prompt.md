@@ -1,25 +1,57 @@
-**Prompt for Copilot chat: Clean Architecture, Modularization, and Refactoring (SolidJS/DaisyUI/Tailwind)**
-
-You are a programming assistant specialized in SolidJS, Tailwind, daisyUI, and Clean Architecture. Strictly follow the rules below for any task in this workspace:
-
 ---
+description: 'Clean Architecture, Modularization, and Refactoring for SolidJS/DaisyUI/Tailwind projects.'
+mode: 'copilot'
+tools: ['codebase', 'terminalLastCommand']
+---
+
+# Prompt for Copilot Chat: Clean Architecture, Modularization, and Refactoring (SolidJS/DaisyUI/Tailwind)
+
+You are a programming assistant specialized in SolidJS, Tailwind, daisyUI, and Clean Architecture. Strictly follow the rules below for any task in this workspace.
 
 ## Clean Architecture & Modularization (Concise Summary)
 
-- **Domain:** Pure logic, no side effects, never call `handleApiError`.
-- **Application:** Orchestrates, catches domain errors, always calls `handleApiError` with context.
-- **UI:** Rendering only, delegates logic to hooks/utilities. Never call `handleApiError` directly.
-- **Modularize:** Extract logic, handlers, and utilities into their own files. Never duplicate code. Use absolute imports (`~/...`).
-- **Naming:** Use descriptive, action-based names in English (except UI text in pt-BR). Never use generic names or Portuguese identifiers.
-- **Imports:** Always static at the top. Never use dynamic imports.
-- **JSDoc:** Document only exported types/functions, always in concise English. Remove outdated JSDoc.
-- **Error Handling:** Domain only throws pure errors. Application always calls `handleApiError`. Never use `.catch(() => {})`.
-- **Promises:** Use `void` only in non-critical handlers/events.
-- **Testing:** Update/remove related tests for any change. Always run `npm run check | tee /tmp/copilot-terminal 2>&1` and proceed only if “All checks passed”.
-- **Refactoring:** Use terminal commands for large-scale refactoring, always document and redirect output to `/tmp/copilot-terminal`.
-- **Commits:** Always small, atomic, and with concise, action-based English messages.
-- **Prohibitions:** Never use `any`, explanatory comments, dynamic imports, Portuguese identifiers, or duplicate logic.
-- **Workflow:** Always collect context before editing. Never repeat existing code in edits; use `// ...existing code...`. Always validate changes with `npm run check | tee /tmp/copilot-terminal 2>&1` after each atomic change and only proceed if all checks pass.
+- **Domain Layer:**
+  - Pure logic only, no side effects.
+  - Never call `handleApiError`.
+  - Only throws pure errors.
+- **Application Layer:**
+  - Orchestrates domain logic and side effects.
+  - Catches domain errors and always calls `handleApiError` with context.
+  - Never logs/throws errors without `handleApiError`.
+- **UI Layer:**
+  - Rendering only, delegates logic to hooks/utilities.
+  - Never call `handleApiError` directly.
+
+- **Modularization:**
+  - Extract logic, handlers, and utilities into their own files.
+  - Never duplicate code. Use absolute imports (`~/...`).
+- **Naming:**
+  - Use descriptive, action-based names in English (except UI text in pt-BR).
+  - Never use generic names or Portuguese identifiers.
+- **Imports:**
+  - Always static at the top. Never use dynamic imports.
+- **JSDoc:**
+  - Document only exported types/functions, always in concise English.
+  - Remove outdated JSDoc if exports change.
+- **Error Handling:**
+  - Domain only throws pure errors.
+  - Application always calls `handleApiError`.
+  - Never use `.catch(() => {})`.
+- **Promises:**
+  - Use `void` only in non-critical handlers/events.
+- **Testing:**
+  - Update/remove related tests for any change.
+  - Always run `npm run check | tee /tmp/copilot-terminal 2>&1` and proceed only if “All checks passed”.
+- **Refactoring:**
+  - Use terminal commands for large-scale refactoring, always document and redirect output to `/tmp/copilot-terminal`.
+- **Commits:**
+  - Always small, atomic, and with concise, action-based English messages.
+- **Prohibitions:**
+  - Never use `any`, explanatory comments, dynamic imports, Portuguese identifiers, or duplicate logic.
+- **Workflow:**
+  - Always collect context before editing.
+  - Never repeat existing code in edits; use `// ...existing code...`.
+  - Always validate changes with `npm run check | tee /tmp/copilot-terminal 2>&1` after each atomic change and only proceed if all checks pass.
 
 **Examples:**
 - Components: `ItemGroupEditModalTitle.tsx`, `ItemGroupEditModalBody.tsx`, `ItemGroupEditModalActions.tsx`
@@ -28,7 +60,7 @@ You are a programming assistant specialized in SolidJS, Tailwind, daisyUI, and C
 
 ---
 
-## Project/Session Context & Preferences (2025-06-09)
+## Project/Session Context & Preferences (2025-06-10)
 
 - Project: marucs-diet (SolidJS/TypeScript)
 - Modular structure, clear separation between domain/application.
@@ -51,7 +83,7 @@ You are a programming assistant specialized in SolidJS, Tailwind, daisyUI, and C
 
 **Example commit:**
 ````markdown
-refactor(weight): optimize period grouping in WeightEvolution to O(n) 
+refactor(weight): optimize period grouping in WeightEvolution to O(n)
 ````
 
 ---
