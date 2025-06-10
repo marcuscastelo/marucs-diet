@@ -17,12 +17,7 @@ export const simpleItemGroupSchema = z.object({
     required_error: "O campo 'name' do grupo é obrigatório.",
     invalid_type_error: "O campo 'name' do grupo deve ser uma string.",
   }),
-  items: itemSchema
-    .array()
-    .refine((arr) => Array.isArray(arr) && arr.length > 0, {
-      message:
-        "O campo 'items' do grupo deve ser uma lista de itens e não pode ser vazio.",
-    }),
+  items: itemSchema.array(),
   recipe: z
     .number({
       required_error:
