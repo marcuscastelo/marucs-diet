@@ -23,4 +23,3 @@ Given a GitHub Issue number (e.g., #655), use the `gh` CLI to:
 ## Output
 - Output only the analysis, the list of possible subissues/steps, and the `gh issue create` commands, with each subissue body formatted according to the template in `docs/ISSUE_TEMPLATE_SUBISSUE.md`.
 - Use English for all output.
-- Reference: [copilot-customization.instructions.md](../instructions/copilot/copilot-customization.instructions.md)

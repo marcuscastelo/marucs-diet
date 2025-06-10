@@ -89,5 +89,3 @@ refactor(weight): optimize period grouping in WeightEvolution to O(n)
 - The exported prompt must be ready for immediate use as the base for the next session, ensuring full continuity and consistency.
 
 > Follow all the rules above for any task, refactoring, or implementation in this workspace. Always modularize, document, test, and validate as described. Never break conventions or skip validation steps. Continue from this context, keeping all preferences and learnings above. If the user asks to resume, use this prompt as a base to ensure continuity and consistency in project support.
-
-Reference: [copilot-customization.instructions.md](../instructions/copilot/copilot-customization.instructions.md)

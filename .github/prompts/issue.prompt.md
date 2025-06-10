@@ -18,4 +18,3 @@ Given a milestone (e.g., v0.11.0), use the `gh` CLI to:
 - Output only one shell command for branch creation, in a markdown code block.
 - Use English for all output.
 - Do not perform any code changes in this prompt.
-- Reference: [copilot-customization.instructions.md](../instructions/copilot/copilot-customization.instructions.md)

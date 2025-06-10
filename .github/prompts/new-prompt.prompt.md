@@ -19,4 +19,3 @@ Your task is to create a new prompt file that captures the user's intentions in 
 ## Output
 - Output the new prompt as a markdown code block.
 - Use English for all output.
-- Reference: [copilot-customization.instructions.md](../instructions/copilot/copilot-customization.instructions.md)

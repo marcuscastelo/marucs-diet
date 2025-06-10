@@ -44,4 +44,3 @@ Replace <generated commit message> with the actual message you generated. This h
 - Always use English for code, comments, and commit messages.
 - Never include code or diffs in the commit message.
 - Review the current file version before editing.
-- Reference: [copilot-customization.instructions.md](../instructions/copilot/copilot-customization.instructions.md)
