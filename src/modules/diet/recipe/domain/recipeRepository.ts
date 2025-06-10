@@ -13,5 +13,5 @@ export type RecipeRepository = {
   ) => Promise<readonly Recipe[]>
   insertRecipe: (newRecipe: NewRecipe) => Promise<Recipe>
   updateRecipe: (recipeId: Recipe['id'], newRecipe: Recipe) => Promise<Recipe>
-  deleteRecipe: (id: Recipe['id']) => Promise<Recipe>
+  deleteRecipe: (id: Recipe['id']) => Promise<void>
 }

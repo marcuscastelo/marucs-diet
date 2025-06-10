@@ -9,7 +9,7 @@ import { handleApiError } from '~/shared/error/errorHandler'
 
 type RemoveFromRecentButtonProps = {
   templateId: number
-  refetch: () => Promise<void>
+  refetch: (info?: unknown) => unknown
 }
 
 export function RemoveFromRecentButton(

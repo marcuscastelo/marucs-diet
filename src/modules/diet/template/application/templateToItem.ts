@@ -21,7 +21,8 @@ export function templateToItem(template: Template): Item | RecipeItem {
       name: template.name,
       macros: template.macros,
       __type: 'Item',
-    } as Item
+      quantity: 100, // Default quantity for food items
+    } satisfies Item
   }
   return {
     id: generateId(),
@@ -29,5 +30,6 @@ export function templateToItem(template: Template): Item | RecipeItem {
     name: template.name,
     macros: calcRecipeMacros(template as Recipe),
     __type: 'RecipeItem',
-  } as RecipeItem
+    quantity: 100, // Default quantity for recipe items
+  } satisfies RecipeItem
 }

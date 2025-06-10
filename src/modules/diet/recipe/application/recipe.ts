@@ -89,12 +89,12 @@ export async function updateRecipe(recipeId: Recipe['id'], newRecipe: Recipe) {
 
 export async function deleteRecipe(recipeId: Recipe['id']) {
   try {
-    const recipe = await showPromise(recipeRepository.deleteRecipe(recipeId), {
+    console.debug('recipeApplication.deleteRecipe', { recipeId })
+    return await showPromise(recipeRepository.deleteRecipe(recipeId), {
       loading: 'Deletando receita...',
       success: 'Receita deletada com sucesso',
       error: 'Falha ao deletar receita',
     })
-    return recipe
   } catch (error) {
     handleApiError(error, {
       component: 'recipeApplication',

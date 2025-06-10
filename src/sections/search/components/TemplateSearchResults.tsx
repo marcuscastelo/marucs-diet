@@ -28,7 +28,7 @@ export function TemplateSearchResults(props: {
   setBarCodeModalVisible: Setter<boolean>
   itemEditModalVisible: Accessor<boolean>
   setItemEditModalVisible: Setter<boolean>
-  refetch: () => Promise<void>
+  refetch: (info?: unknown) => unknown
 }) {
   return (
     <>

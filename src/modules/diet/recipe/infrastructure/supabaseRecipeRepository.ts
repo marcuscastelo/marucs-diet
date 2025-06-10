@@ -154,12 +154,8 @@ const updateRecipe = async (
   return recipes[0]
 }
 
-const deleteRecipe = async (id: Recipe['id']): Promise<Recipe> => {
-  const { data, error } = await supabase
-    .from(TABLE)
-    .delete()
-    .eq('id', id)
-    .select()
+const deleteRecipe = async (id: Recipe['id']): Promise<void> => {
+  const { error } = await supabase.from(TABLE).delete().eq('id', id)
 
   if (error !== null) {
     handleApiError(error, {
@@ -169,12 +165,4 @@ const deleteRecipe = async (id: Recipe['id']): Promise<Recipe> => {
     })
     throw wrapErrorWithStack(error)
   }
-
-  const recipeDAOs = parseWithStack(recipeDAOSchema.array(), data)
-  const recipes = recipeDAOs.map(createRecipeFromDAO)
-
-  if (!recipes[0]) {
-    throw new Error('Recipe not found after delete')
-  }
-  return recipes[0]
 }
