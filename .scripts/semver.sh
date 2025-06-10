@@ -1,26 +1,58 @@
 #!/bin/bash
 set -e
-# set -x
 
-REPO_URL="https://github.com/marcuscastelo/marucs-diet"
+OWNER_REPO="marcuscastelo/marucs-diet"
+REPO_URL="https://github.com/$OWNER_REPO"
 
 get_current_branch() {
   if [ -n "$VERCEL_GIT_COMMIT_REF" ]; then
     echo "$VERCEL_GIT_COMMIT_REF"
   else
-    git rev-parse --abbrev-ref HEAD
+    local branch
+    branch=$(git rev-parse --abbrev-ref HEAD)
+    if [ $? -ne 0 ] || [ -z "$branch" ]; then
+      echo "Error: failed to get current branch from git" >&2
+      exit 1
+    fi
+    echo "$branch"
   fi
 }
 
 get_sha_for_branch() {
   local branch="$1"
-  git ls-remote "$REPO_URL" "refs/heads/$branch" | awk '{print $1}'
+  local sha
+  sha=$(git ls-remote "$REPO_URL" "refs/heads/$branch" | awk '{print $1}')
+  if [ -z "$sha" ]; then
+    echo "Error: branch '$branch' does not exist in remote $REPO_URL" >&2
+    exit 1
+  fi
+  echo "$sha"
 }
 
 get_commit_count_between() {
   local from_sha="$1"
   local to_sha="$2"
-  curl -s "https://api.github.com/repos/marcuscastelo/marucs-diet/compare/$from_sha...$to_sha" | grep 'total_commits' | head -1 | awk '{print $2}' | tr -d ','
+  local response
+  response=$(curl -s "https://api.github.com/repos/$OWNER_REPO/compare/$from_sha...$to_sha")
+  if [ $? -ne 0 ] || [ -z "$response" ]; then
+    echo "Error: failed to fetch commit comparison from GitHub API" >&2
+    exit 1
+  fi
+  local message
+  message=$(echo "$response" | grep -o '"message"[^"]*"[^"]*"' | head -1)
+  if [ -n "$message" ]; then
+    echo "GitHub API error: $message" >&2
+    echo "$response" >&2
+    exit 1
+  fi
+  local count
+  count=$(echo "$response" | grep 'total_commits' | head -1 | awk '{print $2}' | tr -d ',')
+  if [ -z "$count" ]; then
+    echo "Error: could not parse commit count from GitHub API response" >&2
+    echo "$response" >&2
+    exit 1
+  fi
+  echo "$count"
 }
 
 get_issue_number() {
@@ -100,47 +132,56 @@ show_help() {
 }
 
 # Parse arguments
-for arg in "$@"; do
-  case $arg in
-    --help)
-      show_help
-      exit 0
-      ;;
-    --test)
-      echo "Testing get_current_branch..."
-      branch=$(get_current_branch)
-      echo "Result: $branch"
-      if [ -z "$branch" ]; then echo 'FAIL: get_current_branch'; exit 1; fi
-      echo "Testing get_sha_for_branch stable..."
-      sha=$(get_sha_for_branch stable)
-      echo "Result: $sha"
-      if [ -z "$sha" ]; then echo 'FAIL: get_sha_for_branch'; exit 1; fi
-      echo "Testing get_issue_number for 'feature/123-description'..."
-      issue=$(get_issue_number 'feature/123-description')
-      echo "Result: $issue"
-      if [ "$issue" != "123" ]; then echo 'FAIL: get_issue_number'; exit 1; fi
-      echo "Testing get_rc_version for rc/v0.0.1..."
-      export BASH_REMATCH=("" "v0.0.1")
-      rc_version=$(get_rc_version 'rc/v0.0.1')
-      echo "Result: $rc_version"
-      if [[ ! "$rc_version" =~ ^v0\.0\.1-rc\. ]]; then echo 'FAIL: get_rc_version'; exit 1; fi
-      echo "Testing get_dev_version for current branch..."
-      dev_version=$(get_dev_version "$branch")
-      echo "Result: $dev_version"
-      if [[ -z "$dev_version" ]]; then echo 'FAIL: get_dev_version'; exit 1; fi
-      echo 'All tests passed.'
-      exit 0
-      ;;
-    --verbose)
-      set -x
-      ;;
-  esac
-  shift
-  break
-  # Only process the first argument for these flags
-  # Remaining args are passed to main
-  # This avoids running main multiple times if multiple flags are passed
-  # If you want to support multiple flags together, remove 'break'
-done
+if [ "$1" = "--help" ]; then
+  show_help
+  exit 0
+fi
+
+if [ "$1" = "--test" ]; then
+  echo "Testing get_current_branch"
+  if [ -n "$(get_current_branch)" ]; then
+    echo "PASS: get_current_branch"
+  else
+    echo "FAIL: get_current_branch"
+    exit 1
+  fi
+  echo "Testing get_sha_for_branch stable"
+  if [ -n "$(get_sha_for_branch stable)" ]; then
+    echo "PASS: get_sha_for_branch stable"
+  else
+    echo "FAIL: get_sha_for_branch stable"
+    exit 1
+  fi
+  echo "Testing get_issue_number for 'feature/123-description'"
+  if [ "$(get_issue_number 'feature/123-description')" = '123' ]; then
+    echo "PASS: get_issue_number"
+  else
+    echo "FAIL: get_issue_number"
+    exit 1
+  fi
+  export BASH_REMATCH=("" "v0.0.1")
+  echo "Testing get_rc_version for rc/v0.0.1"
+  if [[ "$(get_rc_version 'rc/v0.0.1')" =~ ^v0\.0\.1-rc\.[0-9a-zA-Z_-]+$ ]]; then
+    echo "PASS: get_rc_version"
+  else
+    echo "FAIL: get_rc_version"
+    exit 1
+  fi
+  branch=$(get_current_branch)
+  echo "Testing get_dev_version for current branch"
+  devver=$(get_dev_version "$branch")
+  if [[ $devver =~ ^v?[0-9]+\.[0-9]+\.[0-9]+-dev\.[0-9]+(\.[0-9]+)?(\+issue\.[0-9]+)?$ || $devver =~ ^0\.0\.0-dev\.[0-9]+$ ]]; then
+    echo "PASS: get_dev_version"
+  else
+    echo "FAIL: get_dev_version"
+    exit 1
+  fi
+  echo 'All tests passed.'
+  exit 0
+fi
+
+if [ "$1" = "--verbose" ]; then
+  set -x
+fi
 
 main "$@"

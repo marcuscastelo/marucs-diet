@@ -1,0 +1,16 @@
+name: Script tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Run script tests
+        run: |
+          chmod +x ./.scripts/tests.sh
+          ./.scripts/tests.sh
