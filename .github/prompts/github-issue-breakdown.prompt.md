@@ -1,5 +1,5 @@
 ---
-description: 'Analyze a GitHub Issue to determine if it should be broken down into subissues.'
+description: 'Analyze a GitHub Issue to determine if it should be broken down into subissues. If so, suggest subissues using the template in docs/ISSUE_TEMPLATE_SUBISSUE.md.'
 tools: []
 ---
 
@@ -15,9 +15,11 @@ Given a GitHub Issue number (e.g., #655), use the `gh` CLI to:
 4. If the Issue is a candidate for breakdown, output a concise summary explaining why it should be split and what criteria indicate this need (e.g., multiple modules affected, many steps, broad refactor, etc).
 5. List the main modules, areas, or steps suggested for subissues, based on the Issue description and comments.
 6. Do not perform any code changes or create subissues in this prompt; only analyze and suggest the breakdown.
-7. If subissues are suggested, output the exact `gh issue create` commands (using `printf` for newlines in the body) that should be run to create each subissue on GitHub, with the correct title and body for each.
+7. If subissues are suggested, for each subissue:
+   - Use the structure and fields from the template in `docs/ISSUE_TEMPLATE_SUBISSUE.md` (Parent Issue, Title, Description, Acceptance Criteria, Additional Context).
+   - Output the exact `gh issue create` command, using `printf` with `\n` for newlines to fill in the template fields in the body, referencing the parent issue, and using the `subissue` label. Do not use `echo` or heredoc.
 
 **Requirements:**
 - Use only the `gh` CLI for all repository queries and issue creation.
 - The summary must be in English, concise, and focused on technical or organizational impact.
-- Output only the analysis, the list of possible subissues/steps, and the `gh issue create` commands.
+- Output only the analysis, the list of possible subissues/steps, and the `gh issue create` commands, with each subissue body formatted according to the template in `docs/ISSUE_TEMPLATE_SUBISSUE.md`.

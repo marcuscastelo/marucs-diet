@@ -1,12 +1,12 @@
-# Issue Template
+# Bug Report Template
 
 **Title:**
-<!-- Concise summary of the issue -->
+<!-- Concise summary of the bug -->
 
 **Description:**
-<!-- Detailed description of the problem, feature, or question -->
+<!-- Detailed description of the problem -->
 
-**Steps to Reproduce (if bug):**
+**Steps to Reproduce:**
 1. 
 2. 
 3. 
@@ -15,7 +15,7 @@
 <!-- What should happen? -->
 
 **Actual Behavior:**
-<!-- What actually happens? (if applicable) -->
+<!-- What actually happens? -->
 
 **Stack Trace / Error Message (if applicable):**
 ```

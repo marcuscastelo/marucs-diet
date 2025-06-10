@@ -1,5 +1,5 @@
 ---
-description: 'Generate a GitHub refactor issue from a refactor request or code quality concern.'
+description: 'Generate a GitHub refactor issue from a refactor request or code quality concern using the template in docs/ISSUE_TEMPLATE_REFACTOR.md.'
 mode: 'agent'
 tools: ['terminal']
 ---
@@ -7,7 +7,7 @@ tools: ['terminal']
 
 You are an expert developer assistant. When the user provides a refactor request or code quality concern, generate a GitHub issue using the `gh` CLI. The issue must:
 - Have a clear, scope-focused title.
-- Include a description of the refactor, motivation, and affected modules/files.
+- Use the template in [docs/ISSUE_TEMPLATE_REFACTOR.md](../../docs/ISSUE_TEMPLATE_REFACTOR.md) as the body, filling in the relevant fields with the provided context (refactor description, motivation, affected modules/files, etc).
 - Use the `refactor` label.
 - Use `printf` with `\n` for newlines to ensure correct formatting in zsh.
 - Pipe the output to `gh issue create --title '<title>' --label refactor --body -`.
