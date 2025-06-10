@@ -1,12 +1,12 @@
 ---
-description: 'Review all changes from HEAD to the nearest stable or rc/** branch, and generate a PR title, description, labels, milestone, and closes issues.'
+description: 'Review all changes from HEAD to the nearest rc/** branch, and generate a PR title, description, labels, milestone, and closes issues.'
 mode: 'agent'
 tools: ['codebase', 'git', 'gh']
 ---
 
 # Pull Request Review & Generation Agent
 
-Analyze all modifications in the codebase from the current `HEAD` to the nearest base branch matching either `stable` or `rc/**` (e.g., `rc/v0.11.0`). Based on this analysis, generate the following for a Pull Request:
+Analyze all modifications in the codebase from the current `HEAD` to the nearest base branch matching `rc/**` (e.g., `rc/v0.11.0`). Based on this analysis, generate the following for a Pull Request:
 
 ## Required Output
 
@@ -22,7 +22,7 @@ Analyze all modifications in the codebase from the current `HEAD` to the nearest
 
 ## Instructions
 
-- Use `git` to determine the diff from `HEAD` to the nearest `stable` or `rc/**` branch.
+- Use `git` to determine the diff from `HEAD` to the nearest `rc/**` branch.
 - Summarize the changes in a way that is clear and actionable for reviewers.
 - Output all results in English.
 - Format the output as a Markdown code block.
