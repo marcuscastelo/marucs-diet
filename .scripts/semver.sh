@@ -4,7 +4,6 @@ set -e
 # Debug: print each command as it executes
 set -x
 
-git fetch --all --tags
 # Usa VERCEL_GIT_COMMIT_REF se existir, senão usa git rev-parse
 if [ -n "$VERCEL_GIT_COMMIT_REF" ]; then
   current_branch="$VERCEL_GIT_COMMIT_REF"
@@ -12,33 +11,21 @@ else
   current_branch=$(git rev-parse --abbrev-ref HEAD)
 fi
 
-# Garante que os branches remotos existam localmente
-if git ls-remote --exit-code origin stable &>/dev/null; then
-  git fetch origin stable:refs/remotes/origin/stable || true
-fi
-if git ls-remote --exit-code origin "$current_branch" &>/dev/null; then
-  git fetch origin "$current_branch":refs/remotes/origin/"$current_branch" || true
-fi
+REPO_URL="https://github.com/marcuscastelo/marucs-diet"
 
-# Always create local tracking branches for remote refs if on rc/*
 if [[ "$current_branch" =~ ^rc\/(v[0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
-  if git show-ref --verify --quiet refs/remotes/origin/stable && git show-ref --verify --quiet refs/remotes/origin/$current_branch; then
-    stable_ref="refs/remotes/origin/stable"
-    branch_ref="refs/remotes/origin/$current_branch"
-    rc_count=$(git rev-list --count "$stable_ref".."$branch_ref")
-  else
-    # Fallback: fetch both branches explicitly and retry
-    git fetch origin stable:refs/remotes/origin/stable || true
-    git fetch origin "$current_branch":refs/remotes/origin/"$current_branch" || true
-    if git show-ref --verify --quiet refs/remotes/origin/stable && git show-ref --verify --quiet refs/remotes/origin/$current_branch; then
-      stable_ref="refs/remotes/origin/stable"
-      branch_ref="refs/remotes/origin/$current_branch"
-      rc_count=$(git rev-list --count "$stable_ref".."$branch_ref")
-    else
-      rc_count=$(git rev-list --count HEAD)
-    fi
-  fi
   version="${BASH_REMATCH[1]}"
+  # Get commit counts between stable and rc/* using GitHub API
+  stable_sha=$(git ls-remote "$REPO_URL" refs/heads/stable | awk '{print $1}')
+  branch_sha=$(git ls-remote "$REPO_URL" "refs/heads/$current_branch" | awk '{print $1}')
+  if [[ -n "$stable_sha" && -n "$branch_sha" ]]; then
+    rc_count=$(curl -s "https://api.github.com/repos/marcuscastelo/marucs-diet/compare/$stable_sha...$branch_sha" | grep 'total_commits' | head -1 | awk '{print $2}' | tr -d ',')
+    if [[ -z "$rc_count" ]]; then
+      rc_count='unavailable'
+    fi
+  else
+    rc_count='error'
+  fi
   echo "$version-rc.$rc_count"
   exit 0
 fi
