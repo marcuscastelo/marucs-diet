@@ -15,6 +15,7 @@ import {
   ItemView,
 } from '~/sections/food-item/components/ItemView'
 import { stringToDate } from '~/shared/utils/date/dateUtils'
+import { getTopContributors } from '~/modules/diet/item-group/application/getTopContributors'
 
 /**
  * Renders a single macro contributor card with controls.
@@ -127,54 +128,7 @@ export function DayMacrosContributorsModal(props: {
    * @param n - Number of top contributors to return
    * @returns Array of { item, handleApply }
    */
-  function getTopContributors(macro: 'carbs' | 'protein' | 'fat', n = 3) {
-    // For each item, calculate: total macro, macro density, macro proportion
-    const scored = allItems().map((item) => {
-      const macros = calcItemMacros(item)
-      const macroTotal = macros[macro] * item.quantity
-      const macroDensity = macros[macro]
-      const macroSum = macros.carbs + macros.protein + macros.fat
-      const macroProportion = macroSum > 0 ? macros[macro] / macroSum : 0
-      return {
-        item,
-        macroTotal,
-        macroDensity,
-        macroProportion,
-      }
-    })
-
-    // Sort: by macroProportion (desc), then macroTotal (desc), then macroDensity (desc)
-    scored.sort((a, b) => {
-      if (b.macroProportion !== a.macroProportion)
-        return b.macroProportion - a.macroProportion
-      if (b.macroTotal !== a.macroTotal) return b.macroTotal - a.macroTotal
-      return b.macroDensity - a.macroDensity
-    })
-
-    return scored.slice(0, n).map(({ item }) => ({
-      item,
-      handleApply: async (edited: TemplateItem) => {
-        const dayDiet = currentDayDiet()
-        if (!dayDiet) return
-        for (const meal of dayDiet.meals) {
-          for (const group of meal.groups) {
-            const idx = group.items.findIndex((i) => i.id === edited.id)
-            if (idx !== -1) {
-              const updatedItems = group.items.map((i) =>
-                i.id === edited.id && i.__type === edited.__type ? edited : i,
-              )
-              await updateItemGroup(dayDiet.id, meal.id, group.id, {
-                ...group,
-                items: updatedItems,
-              })
-              return
-            }
-          }
-        }
-      },
-    }))
-  }
-
+  // function getTopContributors(macro: 'carbs' | 'protein' | 'fat', n = 3) { ... }
   const [editing, setEditing] = createSignal<{
     macro: 'carbs' | 'protein' | 'fat'
     items: {
