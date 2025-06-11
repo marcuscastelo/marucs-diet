@@ -35,7 +35,7 @@ import {
   ItemGroupView,
   ItemGroupViewNutritionalInfo,
 } from '~/sections/item-group/components/ItemGroupView'
-import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
+import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 
 export default function TestApp() {
   const [itemEditModalVisible, setItemEditModalVisible] = createSignal(false)
@@ -115,9 +115,11 @@ export default function TestApp() {
               visible={templateSearchModalVisible}
               setVisible={setTemplateSearchModalVisible}
             >
-              <TemplateSearchModal
+              <ExternalTemplateSearchModal
+                visible={templateSearchModalVisible}
+                setVisible={setTemplateSearchModalVisible}
                 targetName="Teste"
-                onFinish={() => {
+                onRefetch={() => {
                   console.debug(item)
                 }}
                 onNewItemGroup={() => {

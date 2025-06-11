@@ -13,8 +13,8 @@ import { type TemplateItem } from '~/modules/diet/template-item/domain/templateI
 import { showError } from '~/modules/toast/application/toastManager'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
-import { Modal } from '~/sections/common/components/Modal'
 import { MaxQuantityButton } from '~/sections/common/components/MaxQuantityButton'
+import { Modal } from '~/sections/common/components/Modal'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useModalContext } from '~/sections/common/context/ModalContext'
 import { useFloatField } from '~/sections/common/hooks/useField'
@@ -24,6 +24,11 @@ import {
   ItemNutritionalInfo,
   ItemView,
 } from '~/sections/food-item/components/ItemView'
+import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
+import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
+import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { calcDayMacros, calcItemMacros } from '~/legacy/utils/macroMath'
 
 /**
  * Modal for editing a TemplateItem.
@@ -205,6 +210,27 @@ function Body(props: {
     }
   }
 
+  // Cálculo do restante disponível de macros
+  function getAvailableMacros(): Record<string, number> {
+    const dayDiet = currentDayDiet()
+    const macroTarget = dayDiet
+      ? getMacroTargetForDay(new Date(dayDiet.target_day))
+      : null
+    const originalItem = props.macroOverflow().originalItem
+    if (!dayDiet || !macroTarget) {
+      return { carbs: 0, protein: 0, fat: 0 }
+    }
+    const dayMacros = calcDayMacros(dayDiet)
+    const originalMacros = originalItem
+      ? calcItemMacros(originalItem)
+      : { carbs: 0, protein: 0, fat: 0 }
+    return {
+      carbs: macroTarget.carbs - dayMacros.carbs + originalMacros.carbs,
+      protein: macroTarget.protein - dayMacros.protein + originalMacros.protein,
+      fat: macroTarget.fat - dayMacros.fat + originalMacros.fat,
+    }
+  }
+
   return (
     <>
       <p class="mt-1 text-gray-400">Atalhos</p>
@@ -259,11 +285,7 @@ function Body(props: {
           />
           <MaxQuantityButton
             currentValue={quantityField.value() ?? 0}
-            macroTargets={{
-              carbs: Number(props.item().macros.carbs) || 0,
-              protein: Number(props.item().macros.protein) || 0,
-              fat: Number(props.item().macros.fat) || 0,
-            }}
+            macroTargets={getAvailableMacros()}
             itemMacros={props.item().macros}
             onMaxSelected={(maxValue: number) => {
               quantityField.setRawValue(String(maxValue))
