@@ -1,5 +1,5 @@
 ---
-description: 'Process session summaries and improve all prompt and instruction files in .github, following the refinement policies in refine-prompt.prompt.md. Never update refine-prompt.prompt.md itself.'
+description: 'Process session summaries and improve all prompt and instruction files in .github, following the refinement policies in refine-prompt.prompt.md. Never update refine-prompt.prompt.md itself. Delete processed summaries after integration.'
 mode: 'agent'
 tools: ['codebase', 'insert_edit_into_file']
 ---
@@ -15,7 +15,8 @@ Given a session summary or actionable learnings, your task is to:
 5. Make all outputs self-contained, actionable, and in English (except for UI text, which may be in pt-BR if required).
 6. If you encounter unclear or incomplete feedback, ask clarifying questions before making changes.
 7. After improvements, remove any legacy or boilerplate content that does not serve the current workflow.
-8. Output the improved prompt or instruction file as a valid Markdown `.prompt.md` or `.instructions.md` file, with an optional front matter section for metadata.
+8. **After integrating a summary, delete the processed summary file to prevent redundant processing.**
+9. Output the improved prompt or instruction file as a valid Markdown `.prompt.md` or `.instructions.md` file, with an optional front matter section for metadata.
 
 ## Additional Requirements
 
