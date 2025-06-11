@@ -92,3 +92,10 @@ During this session, always wait until the end of the execution of any requested
 ````
 
 - When referencing the current changes, use `#changes` agent tool (do not include #changes in commit message).
+
+# Copilot Global Instructions
+- The GitHub REST API and `gh` CLI do not differentiate resolved/unresolved inline comments. If filtering is required, fallback to the GraphQL API. (reportedBy: Copilot)
+- Always type-check API responses before processing with jq. (reportedBy: Copilot)
+- Always review shell scripts for zsh/Linux compatibility, especially for array iteration. (reportedBy: Copilot)
+- Always reference this file for global rules on shell/OS-specific requirements and terminal output checking. (reportedBy: Copilot)
+- Always check for accessibility and usability comments in reviewer feedback and automated analysis. (reportedBy: Copilot)

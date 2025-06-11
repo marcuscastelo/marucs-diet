@@ -39,3 +39,6 @@ Replace <generated commit message> with the actual message you generated. This h
 - Always use English for code, comments, and commit messages.
 - Never include code or diffs in the commit message.
 - Review the current file version before editing.
+- Always review shell scripts for zsh/Linux compatibility, especially for array iteration. (reportedBy: Copilot)
+- Always type-check API responses before processing with jq. (reportedBy: Copilot)
+- Reference [copilot-instructions.md](../copilot-instructions.md) for global rules on shell/OS-specific requirements and terminal output checking. (reportedBy: Copilot)
