@@ -1,4 +1,4 @@
-import { Show } from 'solid-js'
+import { createSignal, Show } from 'solid-js'
 
 import { calcCalories, calcDayMacros } from '~/legacy/utils/macroMath'
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
@@ -7,6 +7,7 @@ import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macro
 import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import { showError } from '~/modules/toast/application/toastManager'
 import { Progress } from '~/sections/common/components/Progress'
+import { DayMacrosContributorsModal } from '~/sections/day-diet/components/DayMacrosContributorsModal'
 import { stringToDate } from '~/shared/utils/date'
 
 export default function DayMacros(props: {
@@ -36,6 +37,9 @@ export default function DayMacros(props: {
     }
   }
 
+  const [contributorsModalVisible, setContributorsModalVisible] =
+    createSignal(false)
+
   return (
     <Show
       when={macroSignals()}
@@ -58,7 +62,17 @@ export default function DayMacros(props: {
                 targetMacros={macroSignals().macroTarget}
               />
             </div>
+            <button
+              class="btn btn-primary ml-4 mt-4"
+              onClick={() => setContributorsModalVisible(true)}
+            >
+              Ajustar macros do dia
+            </button>
           </div>
+          <DayMacrosContributorsModal
+            visible={contributorsModalVisible}
+            setVisible={setContributorsModalVisible}
+          />
         </>
       )}
     </Show>
