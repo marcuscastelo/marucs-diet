@@ -26,13 +26,4 @@ When performing a code review, always:
 - Workflow blockers such as ambiguous instructions or missing acceptance criteria
 - User frustration signals (e.g., all-caps/yelling) must be flagged for prompt review
 
-## Checklist Format for Session Learnings
-
-- [ ] New user preferences or workflow adjustments
-- [ ] Coding conventions or process clarifications
-- [ ] Issues encountered (e.g., missing commands, lint errors, blockers)
-- [ ] Information/context to provide at next session start
-- [ ] Prompt metadata or workflow issues to flag
-- [ ] Shell/OS-specific requirements
-
 > After a code review or end-session declaration, the agent must act immediately without waiting for further user input.

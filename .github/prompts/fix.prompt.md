@@ -15,7 +15,6 @@ Your task is to ensure the codebase passes all checks and is error-free.
 3. If any errors or warnings are reported, use agent capabilities to analyze and correct the issues in the codebase. After making corrections, repeat from step 1.
 4. Only stop when the message "All checks passed" appears.
 
-- Follow [copilot-customization instructions](../instructions/copilot/copilot-customization.instructions.md) for best practices.
 - Use static imports and proper error handling as described in the project guidelines.
 - Do not proceed to other tasks until all checks pass.
 
@@ -23,5 +22,3 @@ Your task is to ensure the codebase passes all checks and is error-free.
 
 - Report the final status of the codebase.
 - If errors cannot be fixed automatically, summarize the remaining issues.
-
-Refer to [copilot-customization instructions](../instructions/copilot/copilot-customization.instructions.md) for further details.
