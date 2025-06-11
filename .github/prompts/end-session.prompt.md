@@ -28,5 +28,6 @@ At the end of a session, your task is to:
 
 ## Output
 
-- Output the summary as a markdown code block.
+- Save the summary as a markdown code block in the folder: docs/.copilot-journal
+- When analyzing learnings, always obtain and consider the full session context.
 - Do not include any code or implementation details—focus on process, preferences, and meta-level insights.
