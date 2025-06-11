@@ -2,10 +2,16 @@ import type { JSX } from 'solid-js'
 
 import { latestWeight } from '~/legacy/utils/weightUtils'
 
+export type MacroValues = {
+  carbs: number
+  protein: number
+  fat: number
+}
+
 export type MaxQuantityButtonProps = {
   currentValue: number
-  macroTargets: Record<string, number>
-  itemMacros: Record<string, number>
+  macroTargets: MacroValues
+  itemMacros: MacroValues
   onMaxSelected: (maxValue: number) => void
   disabled?: boolean
 }
@@ -33,8 +39,8 @@ export function MaxQuantityButton(props: MaxQuantityButtonProps): JSX.Element {
     }
 
     console.debug('User weight (kg):', userWeightKg)
-    for (const macro in props.itemMacros) {
-      // per100g: macro por 100g de comida
+    const macroKeys: (keyof MacroValues)[] = ['carbs', 'protein', 'fat']
+    for (const macro of macroKeys) {
       const per100g = props.itemMacros[macro]
       const macroTargetPerKg = props.macroTargets[macro]
       if (typeof macroTargetPerKg !== 'number' || macroTargetPerKg <= 0) {

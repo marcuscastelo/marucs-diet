@@ -10,15 +10,16 @@ import {
 
 import { calcDayMacros, calcItemMacros } from '~/legacy/utils/macroMath'
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
-import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type Item } from '~/modules/diet/item/domain/item'
-import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { showError } from '~/modules/toast/application/toastManager'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
-import { MaxQuantityButton } from '~/sections/common/components/MaxQuantityButton'
+import {
+  MacroValues,
+  MaxQuantityButton,
+} from '~/sections/common/components/MaxQuantityButton'
 import { Modal } from '~/sections/common/components/Modal'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useModalContext } from '~/sections/common/context/ModalContext'
@@ -211,7 +212,7 @@ function Body(props: {
   }
 
   // Cálculo do restante disponível de macros
-  function getAvailableMacros(): Record<string, number> {
+  function getAvailableMacros(): MacroValues {
     const dayDiet = currentDayDiet()
     const macroTarget = dayDiet
       ? getMacroTargetForDay(new Date(dayDiet.target_day))
