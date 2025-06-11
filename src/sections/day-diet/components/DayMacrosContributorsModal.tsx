@@ -16,6 +16,101 @@ import {
 } from '~/sections/food-item/components/ItemView'
 import { stringToDate } from '~/shared/utils/date/dateUtils'
 
+/**
+ * Renders a single macro contributor card with controls.
+ * @param props - The macro, entry, and handlers for actions.
+ * @returns JSX.Element
+ */
+function MacroContributorCard(props: {
+  macro: 'carbs' | 'protein' | 'fat'
+  entry: {
+    item: TemplateItem
+    handleApply: (item: TemplateItem) => Promise<void>
+  }
+  onNext: () => void
+  onMax: (entry: {
+    item: TemplateItem
+    handleApply: (item: TemplateItem) => Promise<void>
+  }) => void
+  onEdit: () => void
+}) {
+  return (
+    <div class="flex-1">
+      <ItemView
+        item={() => props.entry.item}
+        header={<HeaderWithActions name={props.entry.item.name} />}
+        nutritionalInfo={
+          <div class="flex flex-col gap-3 justify-between">
+            <ItemNutritionalInfo />
+            <div class="flex gap-2">
+              <button
+                class="btn btn-secondary"
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  props.onNext()
+                }}
+              >
+                Próximo
+              </button>
+              <button
+                class="btn btn-accent"
+                type="button"
+                onClick={(e: MouseEvent) => {
+                  e.stopPropagation()
+                  props.onMax(props.entry)
+                }}
+              >
+                Max
+              </button>
+            </div>
+          </div>
+        }
+        macroOverflow={() => ({ enable: false })}
+        mode="summary"
+        onClick={props.onEdit}
+      />
+    </div>
+  )
+}
+
+/**
+ * Renders a macro group section with its top contributor card.
+ * @param props - Macro group label, macro key, items, and handlers.
+ * @returns JSX.Element
+ */
+function MacroGroupSection(props: {
+  macro: 'carbs' | 'protein' | 'fat'
+  label: string
+  items: Array<{
+    item: TemplateItem
+    handleApply: (item: TemplateItem) => Promise<void>
+  }>
+  onNext: (itemId: number) => void
+  onMax: (entry: {
+    item: TemplateItem
+    handleApply: (item: TemplateItem) => Promise<void>
+  }) => void
+  onEdit: () => void
+}) {
+  return (
+    <div>
+      <div class="font-bold text-lg mb-2">{props.label}</div>
+      <div class="flex gap-2 flex-col">
+        <Show when={props.items.length > 0}>
+          <MacroContributorCard
+            macro={props.macro}
+            entry={props.items[0]!}
+            onNext={() => props.onNext(props.items[0]!.item.id)}
+            onMax={props.onMax}
+            onEdit={props.onEdit}
+          />
+        </Show>
+      </div>
+    </div>
+  )
+}
+
 export function DayMacrosContributorsModal(props: {
   visible: Accessor<boolean>
   setVisible: Setter<boolean>
@@ -82,7 +177,10 @@ export function DayMacrosContributorsModal(props: {
 
   const [editing, setEditing] = createSignal<{
     macro: 'carbs' | 'protein' | 'fat'
-    items: { item: TemplateItem; handleApply: (item: TemplateItem) => void }[]
+    items: {
+      item: TemplateItem
+      handleApply: (item: TemplateItem) => Promise<void>
+    }[]
     currentIdx: number
   } | null>(null)
 
@@ -102,7 +200,10 @@ export function DayMacrosContributorsModal(props: {
 
   function handleEditStart(
     macro: 'carbs' | 'protein' | 'fat',
-    items: { item: TemplateItem; handleApply: (item: TemplateItem) => void }[],
+    items: {
+      item: TemplateItem
+      handleApply: (item: TemplateItem) => Promise<void>
+    }[],
   ) {
     setEditing({ macro, items, currentIdx: 0 })
   }
@@ -126,6 +227,42 @@ export function DayMacrosContributorsModal(props: {
     })
   }
 
+  // Handlers for MacroContributorCard actions
+  function handleMaxQuantity(entry: {
+    item: TemplateItem
+    handleApply: (item: TemplateItem) => Promise<void>
+  }) {
+    const dayDiet = currentDayDiet()
+    if (!dayDiet) return
+    const macroTargets = getMacroTargetForDay(stringToDate(dayDiet.target_day))
+    if (!macroTargets) return
+    const itemMacros = calcItemMacros(entry.item)
+    const macroKeys: (keyof typeof itemMacros)[] = ['carbs', 'protein', 'fat']
+    let max = Infinity
+    for (const macro of macroKeys) {
+      const per100g = itemMacros[macro]
+      const macroTarget = macroTargets[macro]
+      if (
+        typeof per100g === 'number' &&
+        per100g > 0 &&
+        typeof macroTarget === 'number'
+      ) {
+        const allowed = Math.floor(macroTarget / per100g)
+        if (allowed < max) {
+          max = allowed
+        }
+      }
+    }
+    const maxQuantity = max === Infinity ? 0 : max * 0.96
+    const edited = {
+      ...entry.item,
+      quantity: maxQuantity,
+    }
+    void entry.handleApply(edited)
+  }
+
+  const [isOpen, setIsOpen] = createSignal(false)
+
   return (
     <Show when={props.visible}>
       <ModalContextProvider
@@ -139,112 +276,16 @@ export function DayMacrosContributorsModal(props: {
           <div class="flex flex-col gap-4 p-4">
             <For each={macroGroups()}>
               {(macroGroup) => (
-                <div>
-                  <div class="font-bold text-lg mb-2">{macroGroup.label}</div>
-                  <div class="flex gap-2 flex-col">
-                    <For
-                      each={
-                        macroGroup.items().length > 0
-                          ? [macroGroup.items()[0]]
-                          : []
-                      }
-                    >
-                      {(entry) =>
-                        entry && (
-                          <div class="flex-1">
-                            <ItemView
-                              item={() => entry.item}
-                              header={
-                                <HeaderWithActions name={entry.item.name} />
-                              }
-                              nutritionalInfo={
-                                <div class="flex flex-col gap-3 justify-between">
-                                  <ItemNutritionalInfo />
-                                  <div class="flex gap-2">
-                                    <button
-                                      class="btn btn-secondary"
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.stopPropagation()
-                                        handleDismiss(
-                                          macroGroup.macro,
-                                          entry.item.id,
-                                        )
-                                      }}
-                                    >
-                                      Próximo
-                                    </button>
-                                    <button
-                                      class="btn btn-accent"
-                                      type="button"
-                                      onClick={(e: MouseEvent) => {
-                                        e.stopPropagation()
-                                        const dayDiet = currentDayDiet()
-                                        if (!dayDiet) return
-                                        const macroTargets =
-                                          getMacroTargetForDay(
-                                            stringToDate(dayDiet.target_day),
-                                          )
-                                        if (!macroTargets) return
-                                        const itemMacros = calcItemMacros(
-                                          entry.item,
-                                        )
-                                        const macroKeys: (keyof typeof itemMacros)[] =
-                                          ['carbs', 'protein', 'fat']
-                                        let max = Infinity
-                                        for (const macro of macroKeys) {
-                                          const per100g = itemMacros[macro]
-                                          const macroTarget =
-                                            macroTargets[macro]
-                                          if (
-                                            typeof per100g === 'number' &&
-                                            per100g > 0 &&
-                                            typeof macroTarget === 'number'
-                                          ) {
-                                            const allowed = Math.floor(
-                                              macroTarget / per100g,
-                                            )
-                                            if (allowed < max) {
-                                              max = allowed
-                                            }
-                                          }
-                                        }
-                                        const maxQuantity =
-                                          max === Infinity ? 0 : max * 0.96
-                                        const edited = {
-                                          ...entry.item,
-                                          quantity: maxQuantity,
-                                        }
-                                        entry
-                                          .handleApply(edited)
-                                          .catch((err) => {
-                                            console.error(
-                                              'Erro ao aplicar edição:',
-                                              err,
-                                            )
-                                          })
-                                      }}
-                                    >
-                                      Max
-                                    </button>
-                                  </div>
-                                </div>
-                              }
-                              macroOverflow={() => ({ enable: false })}
-                              mode="summary"
-                              onClick={() =>
-                                handleEditStart(
-                                  macroGroup.macro,
-                                  macroGroup.items(),
-                                )
-                              }
-                            />
-                          </div>
-                        )
-                      }
-                    </For>
-                  </div>
-                </div>
+                <MacroGroupSection
+                  macro={macroGroup.macro}
+                  label={macroGroup.label}
+                  items={macroGroup.items()}
+                  onNext={(itemId) => handleDismiss(macroGroup.macro, itemId)}
+                  onMax={handleMaxQuantity}
+                  onEdit={() =>
+                    handleEditStart(macroGroup.macro, macroGroup.items())
+                  }
+                />
               )}
             </For>
           </div>
@@ -278,7 +319,9 @@ export function DayMacrosContributorsModal(props: {
                       enable: true,
                       originalItem: current.item,
                     })}
-                    onApply={current.handleApply}
+                    onApply={(item) => {
+                      void current.handleApply(item)
+                    }}
                     onCancel={() => setEditing(null)}
                   />
                 </>
