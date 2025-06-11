@@ -3,6 +3,8 @@ import { Accessor, createSignal, For, Setter, Show } from 'solid-js'
 import { calcItemMacros } from '~/legacy/utils/macroMath'
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
 import { updateItemGroup } from '~/modules/diet/item-group/application/itemGroup'
+import { MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import { Modal } from '~/sections/common/components/Modal'
@@ -12,6 +14,7 @@ import {
   ItemNutritionalInfo,
   ItemView,
 } from '~/sections/food-item/components/ItemView'
+import { stringToDate } from '~/shared/utils/date/dateUtils'
 
 export function DayMacrosContributorsModal(props: {
   visible: Accessor<boolean>
@@ -25,7 +28,7 @@ export function DayMacrosContributorsModal(props: {
   /**
    * Returns the top N items that, if reduced, most effectively decrease a single macro (carbs, protein, or fat) with minimal impact on others.
    * Ranks by total macro contribution, then by macro density (macro per gram).
-   * @param macro - The macro nutrient to analyze ('carbs', 'protein', or 'fat')
+   * @param macro - The macro nutrient to analyze ('carbs', 'protein' | 'fat')
    * @param n - Number of top contributors to return
    * @returns Array of { item, handleApply }
    */
@@ -82,13 +85,16 @@ export function DayMacrosContributorsModal(props: {
 
   const [editing, setEditing] = createSignal<{
     macro: 'carbs' | 'protein' | 'fat'
-    item: TemplateItem
-    handleApply: (item: TemplateItem) => void
+    items: { item: TemplateItem; handleApply: (item: TemplateItem) => void }[]
+    currentIdx: number
   } | null>(null)
 
-  const topCarbs = () => getTopContributors('carbs', 2)
-  const topProtein = () => getTopContributors('protein', 2)
-  const topFat = () => getTopContributors('fat', 2)
+  // Signals para top contributors editáveis
+  const [topCarbs, setTopCarbs] = createSignal(getTopContributors('carbs', 5))
+  const [topProtein, setTopProtein] = createSignal(
+    getTopContributors('protein', 5),
+  )
+  const [topFat, setTopFat] = createSignal(getTopContributors('fat', 5))
 
   const macroGroups = () =>
     [
@@ -96,6 +102,32 @@ export function DayMacrosContributorsModal(props: {
       { macro: 'protein', label: 'Proteína', items: topProtein },
       { macro: 'fat', label: 'Gordura', items: topFat },
     ] as const
+
+  function handleEditStart(
+    macro: 'carbs' | 'protein' | 'fat',
+    items: { item: TemplateItem; handleApply: (item: TemplateItem) => void }[],
+  ) {
+    setEditing({ macro, items, currentIdx: 0 })
+  }
+
+  function handleDismiss(macro: keyof MacroNutrients, itemId: number) {
+    if (macro === 'carbs') {
+      setTopCarbs((prev) => prev.filter((e) => e.item.id !== itemId))
+    }
+    if (macro === 'protein') {
+      setTopProtein((prev) => prev.filter((e) => e.item.id !== itemId))
+    }
+    if (macro === 'fat') {
+      setTopFat((prev) => prev.filter((e) => e.item.id !== itemId))
+    }
+    // Se o usuário está editando esse macro, avance para o próximo
+    setEditing((prev) => {
+      if (!prev || prev.macro !== macro) return prev
+      const newItems = prev.items.filter((e) => e.item.id !== itemId)
+      if (newItems.length === 0) return null
+      return { ...prev, items: newItems, currentIdx: 0 }
+    })
+  }
 
   return (
     <Show when={props.visible}>
@@ -113,27 +145,106 @@ export function DayMacrosContributorsModal(props: {
                 <div>
                   <div class="font-bold text-lg mb-2">{macroGroup.label}</div>
                   <div class="flex gap-2 flex-col">
-                    <For each={macroGroup.items()}>
-                      {(entry) => (
-                        <div class="flex-1">
-                          <ItemView
-                            item={() => entry.item}
-                            header={
-                              <HeaderWithActions name={entry.item.name} />
-                            }
-                            nutritionalInfo={<ItemNutritionalInfo />}
-                            macroOverflow={() => ({ enable: false })}
-                            mode="summary"
-                            onClick={() =>
-                              setEditing({
-                                macro: macroGroup.macro,
-                                item: entry.item,
-                                handleApply: entry.handleApply,
-                              })
-                            }
-                          />
-                        </div>
-                      )}
+                    <For
+                      each={
+                        macroGroup.items().length > 0
+                          ? [macroGroup.items()[0]]
+                          : []
+                      }
+                    >
+                      {(entry) =>
+                        entry && (
+                          <div class="flex-1">
+                            <ItemView
+                              item={() => entry.item}
+                              header={
+                                <HeaderWithActions name={entry.item.name} />
+                              }
+                              nutritionalInfo={
+                                <div class="flex flex-col gap-3 justify-between">
+                                  <ItemNutritionalInfo />
+                                  <div class="flex gap-2">
+                                    <button
+                                      class="btn btn-secondary"
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleDismiss(
+                                          macroGroup.macro,
+                                          entry.item.id,
+                                        )
+                                      }}
+                                    >
+                                      Próximo
+                                    </button>
+                                    <button
+                                      class="btn btn-accent"
+                                      type="button"
+                                      onClick={(e: MouseEvent) => {
+                                        e.stopPropagation()
+                                        const dayDiet = currentDayDiet()
+                                        if (!dayDiet) return
+                                        const macroTargets =
+                                          getMacroTargetForDay(
+                                            stringToDate(dayDiet.target_day),
+                                          )
+                                        if (!macroTargets) return
+                                        const itemMacros = calcItemMacros(
+                                          entry.item,
+                                        )
+                                        const macroKeys: (keyof typeof itemMacros)[] =
+                                          ['carbs', 'protein', 'fat']
+                                        let max = Infinity
+                                        for (const macro of macroKeys) {
+                                          const per100g = itemMacros[macro]
+                                          const macroTarget =
+                                            macroTargets[macro]
+                                          if (
+                                            typeof per100g === 'number' &&
+                                            per100g > 0 &&
+                                            typeof macroTarget === 'number'
+                                          ) {
+                                            const allowed = Math.floor(
+                                              macroTarget / per100g,
+                                            )
+                                            if (allowed < max) {
+                                              max = allowed
+                                            }
+                                          }
+                                        }
+                                        const maxQuantity =
+                                          max === Infinity ? 0 : max * 0.96
+                                        const edited = {
+                                          ...entry.item,
+                                          quantity: maxQuantity,
+                                        }
+                                        entry
+                                          .handleApply(edited)
+                                          .catch((err) => {
+                                            console.error(
+                                              'Erro ao aplicar edição:',
+                                              err,
+                                            )
+                                          })
+                                      }}
+                                    >
+                                      Max
+                                    </button>
+                                  </div>
+                                </div>
+                              }
+                              macroOverflow={() => ({ enable: false })}
+                              mode="summary"
+                              onClick={() =>
+                                handleEditStart(
+                                  macroGroup.macro,
+                                  macroGroup.items(),
+                                )
+                              }
+                            />
+                          </div>
+                        )
+                      }
                     </For>
                   </div>
                 </div>
@@ -149,25 +260,35 @@ export function DayMacrosContributorsModal(props: {
             </button>
           </Modal.Footer>
         </Modal>
-        <Show when={editing()}>
-          <ExternalItemEditModal
-            visible={() => !!editing()}
-            setVisible={(value) => {
-              const resolved =
-                typeof value === 'function' ? value(!!editing()) : value
-              props.setVisible(value)
-              if (!resolved) setEditing(null)
-            }}
-            targetName={editing()?.item.name ?? ''}
-            item={() => editing()!.item}
-            macroOverflow={() => ({
-              enable: true,
-              originalItem: editing()!.item,
-            })}
-            onApply={editing() ? editing()!.handleApply : () => {}}
-            onCancel={() => setEditing(null)}
-          />
-        </Show>
+        {(() => {
+          const e = editing()
+          const current = e && e.items[e.currentIdx]
+          return (
+            <>
+              {e && current && (
+                <>
+                  <ExternalItemEditModal
+                    visible={() => !!editing()}
+                    setVisible={(value) => {
+                      const resolved =
+                        typeof value === 'function' ? value(!!editing()) : value
+                      props.setVisible(value)
+                      if (!resolved) setEditing(null)
+                    }}
+                    targetName={current.item.name}
+                    item={() => current.item}
+                    macroOverflow={() => ({
+                      enable: true,
+                      originalItem: current.item,
+                    })}
+                    onApply={current.handleApply}
+                    onCancel={() => setEditing(null)}
+                  />
+                </>
+              )}
+            </>
+          )
+        })()}
       </ModalContextProvider>
     </Show>
   )
