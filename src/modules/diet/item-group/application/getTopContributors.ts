@@ -2,7 +2,6 @@ import { calcItemMacros } from '~/legacy/utils/macroMath'
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
 import { applyItemEdit } from '~/modules/diet/item-group/application/applyItemEdit'
 import { type MacroContributorEntry } from '~/modules/diet/item-group/domain/types'
-import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 
 /**
  * Returns the top N items that, if reduced, most effectively decrease a single macro (carbs, protein, or fat) with minimal impact on others.

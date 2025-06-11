@@ -60,6 +60,30 @@ During this session, always wait until the end of the execution of any requested
 - Never use handleApiError in domain code.
 - Never use `.catch(() => {})` in promises.
 
+## Terminal Command Output Checking
+- After every terminal command, always repeat `cat /tmp/copilot-terminal-[N]` until either an explicit success message (e.g., "All checks passed") or an error appears. Never stop after a single check. Never repeat the main command.
+- Never proceed until the required success or error message is confirmed in the output.
+
+## Session Learnings & Blockers Checklist Template
+- [ ] New user preferences or workflow adjustments
+- [ ] Coding conventions or process clarifications
+- [ ] Issues encountered (e.g., missing commands, lint errors, blockers)
+- [ ] Information/context to provide at next session start
+- [ ] Prompt metadata or workflow issues to flag
+- [ ] Shell/OS-specific requirements
+
+## User Frustration Signals
+- Always document and flag any moments of user frustration (e.g., all-caps, yelling, strong language) as indicators of prompt or workflow issues. These must be reviewed and addressed in future prompt improvements.
+
+## Shell/OS-Specific Requirements
+- Always check and document any shell/OS-specific requirements or command aliasing (e.g., zsh, Linux, git aliases like `ga` for `git add`).
+
+## Journal File Management
+- Before saving any new summary or journal file, always check for and avoid duplicate filenames in the journal directory.
+
+## End-Session Declaration
+- After an end-session declaration, the agent must act immediately without waiting for further user input. Actions must be immediate and self-contained.
+
 ## Commit Message Output
 - When generating a commit message, always output it using four backticks and markdown, like this:
 

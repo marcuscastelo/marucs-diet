@@ -18,18 +18,24 @@ describe('getTopContributors', () => {
     // Mock data for deterministic test
     const mockContributors = [
       { item: { id: 1, macros: { carbs: 30 } }, macroValue: 30 },
-      { item: { id: 2, macros: { carbs: 20 } }, macroValue: 20 },
       { item: { id: 3, macros: { carbs: 10 } }, macroValue: 10 },
+      { item: { id: 2, macros: { carbs: 20 } }, macroValue: 20 },
     ]
     // Simulate getTopContributors output
     const result = mockContributors.sort((a, b) => b.macroValue - a.macroValue)
     expect(result.length).toBe(3)
+    expect(result[0]?.macroValue).toBe(30)
+    expect(result[1]?.macroValue).toBe(20)
+    expect(result[2]?.macroValue).toBe(10)
     expect(result[0]?.macroValue).toBeGreaterThanOrEqual(
       result[1]?.macroValue ?? -Infinity,
     )
     expect(result[1]?.macroValue).toBeGreaterThanOrEqual(
       result[2]?.macroValue ?? -Infinity,
     )
+    // Check order is correct
+    const macroValues = result.map((c) => c.macroValue)
+    expect(macroValues).toEqual([30, 20, 10])
   })
 })
 

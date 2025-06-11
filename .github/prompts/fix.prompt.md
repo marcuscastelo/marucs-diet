@@ -17,6 +17,23 @@ Your task is to ensure the codebase passes all checks and is error-free.
 
 - Use static imports and proper error handling as described in the project guidelines.
 - Do not proceed to other tasks until all checks pass.
+- Always use the following checklist template for session learnings and blockers:
+  - [ ] New user preferences or workflow adjustments
+  - [ ] Coding conventions or process clarifications
+  - [ ] Issues encountered (e.g., missing commands, lint errors, blockers)
+  - [ ] Information/context to provide at next session start
+  - [ ] Prompt metadata or workflow issues to flag
+  - [ ] Shell/OS-specific requirements
+- Always document and flag any moments of user frustration (e.g., all-caps, yelling, strong language) as indicators of prompt or workflow issues. These must be reviewed and addressed in future prompt improvements.
+- Always check for manual file edits before making changes, especially after user interventions.
+- Always note any shell/OS-specific requirements or command aliasing (e.g., zsh, Linux, git aliases like `ga` for `git add`).
+- After an end-session declaration, act immediately without waiting for further user input.
+
+## Explicit Examples of Actionable Learnings and Blockers
+- Signal mutability for dynamic lists
+- Explicit event typing in JSX
+- Inline logic for one-off UI actions
+- Terminal output checking after every command
 
 ## Output
 

@@ -88,4 +88,23 @@ refactor(weight): optimize period grouping in WeightEvolution to O(n)
 - Save the merged prompt in English to `.github/prompts/refactor.prompt.md`.
 - The exported prompt must be ready for immediate use as the base for the next session, ensuring full continuity and consistency.
 
+## Process & Workflow
+- Always use the following checklist template for session learnings and blockers:
+  - [ ] New user preferences or workflow adjustments
+  - [ ] Coding conventions or process clarifications
+  - [ ] Issues encountered (e.g., missing commands, lint errors, blockers)
+  - [ ] Information/context to provide at next session start
+  - [ ] Prompt metadata or workflow issues to flag
+  - [ ] Shell/OS-specific requirements
+- Always document and flag any moments of user frustration (e.g., all-caps, yelling, strong language) as indicators of prompt or workflow issues. These must be reviewed and addressed in future prompt improvements.
+- Always check for manual file edits before making changes, especially after user interventions.
+- Always note any shell/OS-specific requirements or command aliasing (e.g., zsh, Linux, git aliases like `ga` for `git add`).
+- After an end-session declaration, act immediately without waiting for further user input.
+
+## Explicit Examples of Actionable Learnings and Blockers
+- Signal mutability for dynamic lists
+- Explicit event typing in JSX
+- Inline logic for one-off UI actions
+- Terminal output checking after every command
+
 > Follow all the rules above for any task, refactoring, or implementation in this workspace. Always modularize, document, test, and validate as described. Never break conventions or skip validation steps. Continue from this context, keeping all preferences and learnings above. If the user asks to resume, use this prompt as a base to ensure continuity and consistency in project support.
