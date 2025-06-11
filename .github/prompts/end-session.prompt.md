@@ -25,17 +25,21 @@ This prompt serves as the explicit declaration of session end. When invoked, imm
 - Recommend a checklist format for session learnings to ensure completeness and consistency.
 - Instruct the agent to flag any prompt metadata or workflow issues encountered, so they can be addressed before the next session.
 - Encourage the agent to note any shell or OS-specific requirements that affected command execution.
+- Generate a section with insights about the user's mind model (specific thinking style, preferences, and communication patterns) to improve future agent communication and effectiveness. Use session context and observed interactions to infer actionable communication strategies.
+- Save all moments where the user yelled back (e.g., used all caps, exclamation, or strong language) as indicators of potential misprogrammed prompts. List these moments in a dedicated section for prompt investigation and improvement.
 
 ## Guidelines
 
-- Use clear, structured Markdown with sections for "Session Learnings for Next Input" and "Prompt/Instruction Improvement Suggestions".
+- Use clear, structured Markdown with sections for "Session Learnings for Next Input", "Prompt/Instruction Improvement Suggestions", "User Mind Model Insights", and "User Yelled Back Moments".
 - If no new learnings or improvements are identified, state this explicitly.
 - Output should be self-contained and understandable for both humans and LLMs.
 - Use English for all output.
 
 ## Output
 
-- Save the summary as a markdown code block in the folder: docs/.copilot-journal
+- Before saving, always check for duplicate files in docs/.copilot-journal. Never overwrite an existing file.
+- Save the summary as a markdown file in the folder: docs/.copilot-journal. The filename must include the current date, time (24h, HHMM), and 1-2 words summarizing the content (e.g., `2025-06-11-1530-end-session-summary.md`).
+- Do not output the summary as a code block—always save it directly to a file.
 - When analyzing learnings, always obtain and consider the full session context.
 - Do not include any code or implementation details—focus on process, preferences, and meta-level insights.
 - Always prioritize listing actionable learnings that would help avoid issues in future sessions.
