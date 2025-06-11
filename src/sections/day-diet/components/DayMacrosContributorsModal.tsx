@@ -16,6 +16,7 @@ import {
 } from '~/sections/food-item/components/ItemView'
 import { stringToDate } from '~/shared/utils/date/dateUtils'
 import { getTopContributors } from '~/modules/diet/item-group/application/getTopContributors'
+import { calcMaxItemQuantity } from '~/modules/diet/item-group/application/calcMaxItemQuantity'
 
 /**
  * Renders a single macro contributor card with controls.
@@ -186,28 +187,7 @@ export function DayMacrosContributorsModal(props: {
     item: TemplateItem
     handleApply: (item: TemplateItem) => Promise<void>
   }) {
-    const dayDiet = currentDayDiet()
-    if (!dayDiet) return
-    const macroTargets = getMacroTargetForDay(stringToDate(dayDiet.target_day))
-    if (!macroTargets) return
-    const itemMacros = calcItemMacros(entry.item)
-    const macroKeys: (keyof typeof itemMacros)[] = ['carbs', 'protein', 'fat']
-    let max = Infinity
-    for (const macro of macroKeys) {
-      const per100g = itemMacros[macro]
-      const macroTarget = macroTargets[macro]
-      if (
-        typeof per100g === 'number' &&
-        per100g > 0 &&
-        typeof macroTarget === 'number'
-      ) {
-        const allowed = Math.floor(macroTarget / per100g)
-        if (allowed < max) {
-          max = allowed
-        }
-      }
-    }
-    const maxQuantity = max === Infinity ? 0 : max * 0.96
+    const maxQuantity = calcMaxItemQuantity(entry.item)
     const edited = {
       ...entry.item,
       quantity: maxQuantity,
