@@ -106,11 +106,6 @@ export function DayMacrosContributorsModal(props: {
   visible: Accessor<boolean>
   setVisible: Setter<boolean>
 }) {
-  const allItems = () =>
-    currentDayDiet()?.meals.flatMap((meal) =>
-      meal.groups.flatMap((group) => group.items),
-    ) ?? []
-
   /**
    * Returns the top N items that, if reduced, most effectively decrease a single macro (carbs, protein, or fat) with minimal impact on others.
    * Ranks by total macro contribution, then by macro density (macro per gram).
@@ -177,8 +172,6 @@ export function DayMacrosContributorsModal(props: {
     }
     void entry.handleApply(edited)
   }
-
-  const [isOpen, setIsOpen] = createSignal(false)
 
   return (
     <Show when={props.visible}>
