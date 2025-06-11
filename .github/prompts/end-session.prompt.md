@@ -18,6 +18,14 @@ This prompt serves as the explicit declaration of session end. When invoked, imm
    - Reference specific files or sections if relevant.
    - Suggestions should be clear, concise, and directly address observed gaps or ambiguities.
 
+## Additional Requirements
+
+- Add explicit examples of actionable learnings and blockers to guide future agents (e.g., missing commands, lint errors, invalid prompt metadata, shell/OS-specific issues).
+- Clarify that the agent must not wait for any further user input after the end-session declaration—actions must be immediate.
+- Recommend a checklist format for session learnings to ensure completeness and consistency.
+- Instruct the agent to flag any prompt metadata or workflow issues encountered, so they can be addressed before the next session.
+- Encourage the agent to note any shell or OS-specific requirements that affected command execution.
+
 ## Guidelines
 
 - Use clear, structured Markdown with sections for "Session Learnings for Next Input" and "Prompt/Instruction Improvement Suggestions".

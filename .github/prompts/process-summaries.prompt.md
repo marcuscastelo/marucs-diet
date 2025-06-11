@@ -17,6 +17,14 @@ Given a session summary or actionable learnings, your task is to:
 7. After improvements, remove any legacy or boilerplate content that does not serve the current workflow.
 8. Output the improved prompt or instruction file as a valid Markdown `.prompt.md` or `.instructions.md` file, with an optional front matter section for metadata.
 
+## Additional Requirements
+
+- Add explicit examples of actionable learnings and blockers to guide future agents (e.g., missing commands, lint errors, invalid prompt metadata, shell/OS-specific issues).
+- Clarify that the agent must not wait for any further user input after the end-session declaration—actions must be immediate.
+- Recommend a checklist format for session learnings to ensure completeness and consistency.
+- Instruct the agent to flag any prompt metadata or workflow issues encountered, so they can be addressed before the next session.
+- Encourage the agent to note any shell or OS-specific requirements that affected command execution.
+
 ## Output
 
 - Output only the improved prompt or instruction file(s) as Markdown code blocks.
