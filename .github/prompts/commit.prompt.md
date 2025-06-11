@@ -26,8 +26,8 @@ done
   - Be a single line unless a body is required for context.
   - Never include code, diffs, or sensitive data in the commit message.
   - Do not generate a commit if there are no staged changes.
-- For multi-line commit messages, always use a temporary file and `git commit -F <file>` to avoid shell interpretation issues, especially in zsh.
-- If you encounter shell errors (e.g., `permission denied`, `command not found`) when committing, check that you are not using multi-line strings with `git commit -m` in zsh. Use a temp file and `git commit -F <file>` instead.
+- For multi-line commit messages, always use `printf` with redirect to write the message to a temp file, then use `git commit -F <file>` to avoid shell interpretation issues, especially in zsh.
+- If you encounter shell errors (e.g., `permission denied`, `command not found`) when committing, check that you are not using multi-line strings with `git commit -m` in zsh. Use `printf` to a temp file and `git commit -F <file>` instead.
 
 ## Output
 

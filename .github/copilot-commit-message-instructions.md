@@ -68,6 +68,6 @@ Always use `rename` as the type if a file or symbol was renamed.
 
 ## Troubleshooting
 
-- If you encounter shell errors (e.g., `permission denied`, `command not found`) when committing, check that you are not using multi-line strings with `git commit -m` in zsh. Use a temp file and `git commit -F <file>` instead for multi-line commit messages.
+- If you encounter shell errors (e.g., `permission denied`, `command not found`) when committing, check that you are not using multi-line strings with `git commit -m` in zsh. Use `printf` with redirect to a temp file and `git commit -F <file>` instead for multi-line commit messages.
 
 

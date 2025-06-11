@@ -41,7 +41,7 @@ Your task is to analyze the current code changes in the repository, check for an
      git commit -am "<generated commit message>"
      ````
      ```
-   - For multi-line commit messages, always use a temporary file and `git commit -F <file>` to avoid shell interpretation issues, especially in zsh.
+   - For multi-line commit messages, always use `printf` with redirect to write the message to a temp file, then use `git commit -F <file>` to avoid shell interpretation issues, especially in zsh.
 
 ## References
 
