@@ -23,7 +23,7 @@ export function getTopContributors(
 
   const scored = allItems.map((item) => {
     const macros = calcItemMacros(item)
-    const macroTotal = macros[macro] * item.quantity
+    const macroTotal = macros[macro]
     const macroDensity = macros[macro]
     const macroSum = macros.carbs + macros.protein + macros.fat
     const macroProportion = macroSum > 0 ? macros[macro] / macroSum : 0

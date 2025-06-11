@@ -4,6 +4,8 @@ import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/ma
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { stringToDate } from '~/shared/utils/date/dateUtils'
 
+const SAFETY_MARGIN = 0.96 // Safety margin to avoid overfilling macros
+
 /**
  * Calculates the maximum allowed quantity for a food item based on macro targets for the current day.
  * @param item - The item to calculate the max quantity for
@@ -31,5 +33,5 @@ export function calcMaxItemQuantity(item: TemplateItem): number {
       }
     }
   }
-  return max === Infinity ? 0 : max * 0.96
+  return max === Infinity ? 0 : max * SAFETY_MARGIN
 }

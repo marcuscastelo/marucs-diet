@@ -10,7 +10,7 @@ git status --porcelain=v1 | tee /tmp/copilot-terminal-2 2>&1
 staged_files=($(git diff --cached --name-only --diff-filter=AM))
 
 # 4. Show full contents of each staged file
-for file in $staged_files; do
+for file in "${staged_files[@]}"; do
   echo "===== $file ====="
   cat "$file"
 done | tee /tmp/copilot-terminal-3 2>&1

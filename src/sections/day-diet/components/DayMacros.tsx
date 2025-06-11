@@ -65,6 +65,7 @@ export default function DayMacros(props: {
             <button
               class="btn btn-primary ml-4 mt-4"
               onClick={() => setContributorsModalVisible(true)}
+              aria-label="Ajustar macros do dia"
             >
               Ajustar macros do dia
             </button>
