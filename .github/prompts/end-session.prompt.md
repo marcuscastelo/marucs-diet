@@ -1,27 +1,26 @@
 ---
-description: 'Summarize all new learnings from the session and suggest improvements for prompts and instructions.'
-mode: 'agent'
-tools: ['codebase']
+description: 'Declare the end of session and immediately trigger end-session actions: list all actionable learnings and suggest improvements for future sessions.'
 ---
 
-# End-Session Summary Agent
+# End-Session Declaration
 
-## Task
+This prompt serves as the explicit declaration of session end. When invoked, immediately perform all end-session actions:
 
-At the end of a session, your task is to:
+## Actions
 
-1. **Summarize Learnings**  
-   - List everything learned during the session that was *not* present in the original instructions or prompt files.
-   - Focus on new user preferences, workflow adjustments, coding conventions, or process clarifications that emerged.
+1. **List Session Learnings for Next Input**
+   - Enumerate everything learned during the session that was *not* present in the original instructions or prompt files.
+   - Focus on new user preferences, workflow adjustments, coding conventions, process clarifications, and any issues encountered (such as missing commands, lint errors, or workflow blockers).
+   - Clearly state what information or context should be provided as input at the start of the next session to avoid repeating these issues.
 
-2. **Suggest Improvements**  
+2. **Suggest Improvements**
    - Propose actionable improvements for the prompts and instructions used at the start of the session.
    - Reference specific files or sections if relevant.
    - Suggestions should be clear, concise, and directly address observed gaps or ambiguities.
 
 ## Guidelines
 
-- Use clear, structured Markdown with sections for "Session Learnings" and "Prompt/Instruction Improvement Suggestions".
+- Use clear, structured Markdown with sections for "Session Learnings for Next Input" and "Prompt/Instruction Improvement Suggestions".
 - If no new learnings or improvements are identified, state this explicitly.
 - Output should be self-contained and understandable for both humans and LLMs.
 - Use English for all output.
@@ -31,3 +30,4 @@ At the end of a session, your task is to:
 - Save the summary as a markdown code block in the folder: docs/.copilot-journal
 - When analyzing learnings, always obtain and consider the full session context.
 - Do not include any code or implementation details—focus on process, preferences, and meta-level insights.
+- Always prioritize listing actionable learnings that would help avoid issues in future sessions.
