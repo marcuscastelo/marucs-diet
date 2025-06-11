@@ -36,7 +36,7 @@ Your task is to automate the process of implementing a GitHub issue, following t
 - Use static imports at the top of files.
 - Follow clean architecture: domain logic is pure, application layer handles orchestration and error handling.
 - Update or remove related tests as needed.
-- Use Prettier/ESLint for formatting.
+- Use ESLint for formatting.
 - Never use dynamic imports or `.catch(() => {})` for promises.
 - UI text may be in English or pt-BR as required.
 - Never add explanatory comments in code unless absolutely necessary.

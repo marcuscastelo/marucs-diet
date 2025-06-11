@@ -34,7 +34,7 @@ During this session, always wait until the end of the execution of any requested
 - Use `void` for fire-and-forget only in event handlers/non-critical effects, never `.catch(() => {})`.
 
 ## Formatting & Style
-- Use Prettier/ESLint for JS/TS. Prefer type aliases, never any.
+- Use ESLint for JS/TS. Prefer type aliases, never any.
 
 ## Imports
 - Always use static imports at the top.

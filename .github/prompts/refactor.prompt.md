@@ -66,7 +66,7 @@ You are a programming assistant specialized in SolidJS, Tailwind, daisyUI, and C
 - Weight grouping by period must avoid O(n²), using a sliding window index instead of filter in each iteration.
 - The project uses hooks like `useFloatField`, `useDateField` and components like `ComboBox`, `FloatInput`, `Capsule`, `SolidApexCharts`.
 - The user values performance, clarity, and easy maintenance.
-- Code must avoid duplication, prefer small and atomic functions, and follow Prettier/ESLint formatting standards.
+- Code must avoid duplication, prefer small and atomic functions, and follow ESLint formatting standards.
 - The user may request to export all session knowledge for future continuity.
 - Always review the current file version before editing, as the user may have made manual changes.
 - When optimizing code, prioritize O(n) complexity algorithms when possible.
