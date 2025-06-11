@@ -31,3 +31,5 @@ Thumbs.db
 yarn.lock
 package-lock.json
 src/app-version.json
+
+docs/.copilot-journal

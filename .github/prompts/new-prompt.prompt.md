@@ -17,5 +17,5 @@ Your task is to create a new prompt file that captures the user's intentions in 
 - Reference any relevant instruction files or documentation as Markdown links.
 
 ## Output
-- Output the new prompt as a markdown code block.
+- Always save the new prompt file to disk. Never display the prompt content directly to the user.
 - Use English for all output.
