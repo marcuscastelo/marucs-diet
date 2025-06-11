@@ -5,6 +5,19 @@ import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 
+export function calcMacroDirection(current: MacroNutrients): MacroNutrients {
+  // Normalize the macros to a range of 0-1
+  const total = current.carbs + current.fat + current.protein
+  const normalizedCarbs = total ? current.carbs / total : 0
+  const normalizedFat = total ? current.fat / total : 0
+  const normalizedProtein = total ? current.protein / total : 0
+  return {
+    carbs: normalizedCarbs,
+    fat: normalizedFat,
+    protein: normalizedProtein,
+  }
+}
+
 export function calcItemMacros(item: TemplateItem): MacroNutrients {
   return {
     carbs: (item.macros.carbs * item.quantity) / 100,

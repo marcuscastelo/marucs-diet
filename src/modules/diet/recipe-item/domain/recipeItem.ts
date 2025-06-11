@@ -24,6 +24,10 @@ export const recipeItemSchema = z.object({
     invalid_type_error:
       "O campo 'quantity' do item de receita deve ser um número.",
   }),
+  /**
+   * TODO: Calculate macros based on the quantity and reference.
+   * @deprecated Should be derived from the quantity and the reference
+   */
   macros: macroNutrientsSchema, // TODO:   Rename to foodMacros for clarity
   __type: z
     .string()

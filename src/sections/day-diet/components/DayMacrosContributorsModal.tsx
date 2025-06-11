@@ -23,38 +23,61 @@ export function DayMacrosContributorsModal(props: {
     ) ?? []
 
   /**
-   * Returns the top N contributors for a given macro, each with a handleApply callback that updates the item in allItems.
+   * Returns the top N items that, if reduced, most effectively decrease a single macro (carbs, protein, or fat) with minimal impact on others.
+   * Ranks by total macro contribution, then by macro density (macro per gram).
    * @param macro - The macro nutrient to analyze ('carbs', 'protein', or 'fat')
    * @param n - Number of top contributors to return
    * @returns Array of { item, handleApply }
    */
   function getTopContributors(macro: 'carbs' | 'protein' | 'fat', n = 3) {
-    return [...allItems()]
-      .sort((a, b) => calcItemMacros(b)[macro] - calcItemMacros(a)[macro])
-      .slice(0, n)
-      .map((item) => ({
+    // For each item, calculate: total macro, macro density, macro proportion
+    const scored = allItems().map((item) => {
+      const macros = calcItemMacros(item)
+      const macroTotal = macros[macro] * item.quantity
+      const macroDensity = macros[macro]
+      const macroSum = macros.carbs + macros.protein + macros.fat
+      const macroProportion = macroSum > 0 ? macros[macro] / macroSum : 0
+      return {
         item,
-        handleApply: async (edited: TemplateItem) => {
-          const dayDiet = currentDayDiet()
-          if (!dayDiet) return
-          for (const meal of dayDiet.meals) {
-            for (const group of meal.groups) {
-              const idx = group.items.findIndex((i) => i.id === edited.id)
-              if (idx !== -1) {
-                // Only update if the type matches
-                const updatedItems = group.items.map((i) =>
-                  i.id === edited.id && i.__type === edited.__type ? edited : i,
-                )
-                await updateItemGroup(dayDiet.id, meal.id, group.id, {
-                  ...group,
-                  items: updatedItems,
-                })
-                return
-              }
+        macroTotal,
+        macroDensity,
+        macroProportion,
+      }
+    })
+
+    // Filter: only items where this macro is the dominant macro (proportion > 0.7)
+    const filtered = scored.filter(
+      (s) => s.macroProportion > 0.7 && s.macroTotal > 0,
+    )
+
+    // Sort: first by macroTotal (desc), then by macroDensity (desc)
+    filtered.sort((a, b) => {
+      if (b.macroTotal !== a.macroTotal) return b.macroTotal - a.macroTotal
+      return b.macroDensity - a.macroDensity
+    })
+
+    return filtered.slice(0, n).map(({ item }) => ({
+      item,
+      handleApply: async (edited: TemplateItem) => {
+        const dayDiet = currentDayDiet()
+        if (!dayDiet) return
+        for (const meal of dayDiet.meals) {
+          for (const group of meal.groups) {
+            const idx = group.items.findIndex((i) => i.id === edited.id)
+            if (idx !== -1) {
+              const updatedItems = group.items.map((i) =>
+                i.id === edited.id && i.__type === edited.__type ? edited : i,
+              )
+              await updateItemGroup(dayDiet.id, meal.id, group.id, {
+                ...group,
+                items: updatedItems,
+              })
+              return
             }
           }
-        },
-      }))
+        }
+      },
+    }))
   }
 
   const [editing, setEditing] = createSignal<{
@@ -129,10 +152,11 @@ export function DayMacrosContributorsModal(props: {
         <Show when={editing()}>
           <ExternalItemEditModal
             visible={() => !!editing()}
-            setVisible={(visible) => {
-              if (!visible) {
-                setEditing(null)
-              }
+            setVisible={(value) => {
+              const resolved =
+                typeof value === 'function' ? value(!!editing()) : value
+              props.setVisible(value)
+              if (!resolved) setEditing(null)
             }}
             targetName={editing()?.item.name ?? ''}
             item={() => editing()!.item}

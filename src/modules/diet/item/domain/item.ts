@@ -22,6 +22,7 @@ export const itemSchema = z.object({
     invalid_type_error: "O campo 'quantity' deve ser um número.",
   }),
   /**
+   * TODO: Calculate macros based on the quantity and reference.
    * @deprecated Should be derived from the quantity and the reference
    */
   macros: macroNutrientsSchema,
