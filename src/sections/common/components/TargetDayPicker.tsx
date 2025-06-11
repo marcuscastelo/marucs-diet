@@ -39,11 +39,6 @@ export function TargetDayPicker() {
           startDate: targetDay(),
           endDate: targetDay(),
         },
-        // Disable future dates
-        {
-          startDate: new Date(getToday().getTime() + 24 * 60 * 60 * 1000), // Tomorrow
-          endDate: new Date('9999-12-31'),
-        },
       ]}
       value={{
         startDate: targetDay(),
