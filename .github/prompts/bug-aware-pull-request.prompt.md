@@ -31,6 +31,7 @@ Your task is to analyze all code changes in the repository from the current `HEA
        - If the current branch name matches the pattern `issue<number>`, automatically extract the issue number and add `closes #<number>` to the PR description.
    - **Labels**: Output as a plain list (not Markdown) for user copy-paste.
    - **Milestone**: Output as a plain value (not Markdown) for user copy-paste.
+   - For multi-line PR descriptions or commit messages, always use a temporary file and the appropriate command-line flag (e.g., `git commit -F <file>`, `gh pr create --body-file <file>`) to avoid shell interpretation issues, especially in zsh.
 
 4. **Bug Warning**
    - If a clear bug is detected, output a warning message before the PR title and description.

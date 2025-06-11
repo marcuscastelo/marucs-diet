@@ -66,7 +66,7 @@ If the commit message contains vague phrases such as "for clarity", "for specifi
 Always avoid generating commit messages with vague or filler explanations like those above.
 Always use `rename` as the type if a file or symbol was renamed.
 
----
+## Troubleshooting
 
-Now, generate a commit message for the following change:
+- If you encounter shell errors (e.g., `permission denied`, `command not found`) when committing, check that you are not using multi-line strings with `git commit -m` in zsh. Use a temp file and `git commit -F <file>` instead for multi-line commit messages.
 
