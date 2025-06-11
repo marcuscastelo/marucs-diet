@@ -3,12 +3,15 @@ description: 'Guide the agent to create an effective prompt file, formatting use
 mode: 'agent'
 tools: ['codebase']
 ---
+# Front matter
+
+Reference the copilot customization instructions in [copilot-customization.instructions.md](../instructions/copilot/copilot-customization.instructions.md) for best practices.
+
 # Prompt Creation Agent
 
 Your task is to create a new prompt file that captures the user's intentions in a way that is clear, actionable, and effective for a large language model (LLM).
 
 ## Instructions
-- Reference the copilot customization instructions in [copilot-customization.instructions.md](../instructions/copilot/copilot-customization.instructions.md) for best practices.
 - Structure the prompt using Markdown, with clear sections and concise language.
 - Ensure the prompt is self-contained and easy to understand for both humans and LLMs.
 - Use explicit requirements, avoid ambiguity, and clarify any missing details.
