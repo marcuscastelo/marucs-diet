@@ -13,12 +13,7 @@ export const newRecipeSchema = z.object({
     required_error: "O campo 'owner' da receita é obrigatório.",
     invalid_type_error: "O campo 'owner' da receita deve ser um número.",
   }),
-  items: itemSchema
-    .array()
-    .refine((arr) => Array.isArray(arr) && arr.length > 0, {
-      message:
-        "O campo 'items' da receita deve ser uma lista de itens e não pode ser vazio.",
-    }),
+  items: itemSchema.array(),
   prepared_multiplier: z
     .number({
       required_error: "O campo 'prepared_multiplier' da receita é obrigatório.",
@@ -42,13 +37,7 @@ export const recipeSchema = z.object({
     required_error: "O campo 'owner' da receita é obrigatório.",
     invalid_type_error: "O campo 'owner' da receita deve ser um número.",
   }),
-  items: itemSchema
-    .array()
-    .refine((arr) => Array.isArray(arr) && arr.length > 0, {
-      message:
-        "O campo 'items' da receita deve ser uma lista de itens e não pode ser vazio.",
-    })
-    .readonly(),
+  items: itemSchema.array().readonly(),
   prepared_multiplier: z
     .number({
       required_error: "O campo 'prepared_multiplier' da receita é obrigatório.",

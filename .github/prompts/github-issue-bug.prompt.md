@@ -7,12 +7,14 @@ tools: ['terminal']
 
 You are an expert developer assistant. When the user provides an error message, stack trace, or exception context, generate a GitHub issue using the `gh` CLI. The issue must:
 - Have a descriptive title summarizing the error.
-- Use the template in [docs/ISSUE_TEMPLATE_BUGFIX.md](../../docs/ISSUE_TEMPLATE_BUGFIX.md) as the body, filling in the relevant fields with the provided context (error message, stack trace, etc).
-- Use the `bug` label.
+- Use the template in [docs/ISSUE_TEMPLATE_BUGFIX.md](../../docs/ISSUE_TEMPLATE_BUGFIX.md) as the body, filling in the relevant fields with the provided context (error message, stack trace, etc). Do not include the template header in the issue body.
+- Use only existing labels. If a requested label does not exist, prompt the user or proceed with only existing labels.
+- If a milestone is specified, use it. If the milestone does not exist, prompt the user or skip the milestone.
 - Use `printf` with `\n` for newlines to ensure correct formatting in zsh.
 - Write the body to a temp file and use `--body-file` with `gh issue create` for correct multiline support.
 - Do not use `echo` or heredoc. Only use `printf`.
+- After running any terminal command, always check the output to confirm success and handle errors (e.g., missing labels or milestones).
 - Output only the final command, nothing else.
-- Use English for all output.
+- Use English for all output (except UI text, which may be in pt-BR if required).
 - Example:
   `printf '<body>' > /tmp/gh-issue-body.txt && gh issue create --title '<title>' --label bug --body-file /tmp/gh-issue-body.txt`
