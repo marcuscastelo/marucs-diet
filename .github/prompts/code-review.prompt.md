@@ -1,5 +1,5 @@
 ---
-description: 'Generate a code review, incorporating both automated analysis and reviewer feedback from open PRs.'
+description: 'Generate a code review, incorporating both automated analysis and reviewer feedback from open PRs. Present a table of discarded and truly relevant suggestions, and only implement suggestions after user confirmation.'
 mode: 'agent'
 ---
 
@@ -10,8 +10,10 @@ When performing a code review, always:
 1. Use the `gh` CLI to check if there is an open Pull Request (PR) for the current branch or changes.
 2. If an open PR exists, fetch all reviewer suggestions and comments from the PR using `gh`.
 3. Incorporate the reviewers' analyses, suggestions, and comments into your own generated code review, clearly distinguishing between automated findings and reviewer feedback.
-4. Provide a comprehensive, actionable, and concise review that merges both sources of analysis.
-5. Output the review in English. Use pt-BR only for UI text if required.
+4. Present a table with two columns: one for discarded suggestions (with reasons for discarding) and one for truly relevant suggestions (with actionable details).
+5. After presenting the table, wait for explicit user confirmation before implementing any suggestions. Do not make any changes until the user confirms which suggestions to apply.
+6. Provide a comprehensive, actionable, and concise review that merges both sources of analysis.
+7. Output the review in English. Use pt-BR only for UI text if required.
 
 - Never include implementation details or code in the review output—focus on meta-level and process improvements.
 - Ensure the review is self-contained, unambiguous, and directly actionable for the user.

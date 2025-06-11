@@ -24,6 +24,7 @@ export const itemSchema = z.object({
   /**
    * @deprecated since 2025-06-11 Use foodMacros instead. This field will be removed in a future release.
    * Should be derived from the quantity and the reference.
+   * @see foodMacros
    */
   macros: macroNutrientsSchema,
   __type: z

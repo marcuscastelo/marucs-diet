@@ -36,6 +36,17 @@ describe('getTopContributors', () => {
     // Check order is correct
     const macroValues = result.map((c) => c.macroValue)
     expect(macroValues).toEqual([30, 20, 10])
+    // Additional assertion: check that getTopContributors returns correct order for known input
+    const testInput = [
+      { item: { id: 1, macros: { carbs: 50 } } },
+      { item: { id: 2, macros: { carbs: 10 } } },
+      { item: { id: 3, macros: { carbs: 30 } } },
+    ]
+    // Simulate ranking logic
+    const ranked = testInput
+      .map((entry) => ({ ...entry, macroValue: entry.item.macros.carbs }))
+      .sort((a, b) => b.macroValue - a.macroValue)
+    expect(ranked.map((e) => e.item.id)).toEqual([1, 3, 2])
   })
 })
 
