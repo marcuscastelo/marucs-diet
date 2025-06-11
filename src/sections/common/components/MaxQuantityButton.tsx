@@ -1,5 +1,7 @@
 import type { JSX } from 'solid-js'
 
+import { latestWeight } from '~/legacy/utils/weightUtils'
+
 export type MaxQuantityButtonProps = {
   currentValue: number
   macroTargets: Record<string, number>
@@ -19,20 +21,63 @@ export type MaxQuantityButtonProps = {
  */
 export function MaxQuantityButton(props: MaxQuantityButtonProps): JSX.Element {
   function calculateMaxQuantity(): number {
+    // DEBUG: Start calculation
+
+    console.debug('calculateMaxQuantity called')
     let max = Infinity
+
+    const userWeightKg = latestWeight()?.weight
+    if (typeof userWeightKg !== 'number' || userWeightKg <= 0) {
+      console.debug('Invalid user weight:', userWeightKg)
+      return 0
+    }
+
+    console.debug('User weight (kg):', userWeightKg)
     for (const macro in props.itemMacros) {
-      const perUnit = props.itemMacros[macro]
-      const macroTarget = props.macroTargets[macro]
+      // per100g: macro por 100g de comida
+      const per100g = props.itemMacros[macro]
+      const macroTargetPerKg = props.macroTargets[macro]
+      if (typeof macroTargetPerKg !== 'number' || macroTargetPerKg <= 0) {
+        console.debug(
+          `Skipping macro ${macro}: macroTargetPerKg invalid (macroTargetPerKg: ${macroTargetPerKg})`,
+        )
+        continue
+      }
+      // macroTarget em g/kg, precisa multiplicar pelo peso do usuário
+      const macroTarget = macroTargetPerKg * userWeightKg
+
+      console.debug(
+        `Macro: ${macro}, per100g: ${per100g}, macroTarget (total): ${macroTarget}`,
+      )
       if (
-        typeof perUnit === 'number' &&
-        perUnit > 0 &&
+        typeof per100g === 'number' &&
+        per100g > 0 &&
         typeof macroTarget === 'number'
       ) {
-        const allowed = Math.floor(macroTarget / perUnit)
-        if (allowed < max) max = allowed
+        // Quantidade máxima em porções de 100g
+        const allowed = Math.floor(macroTarget / per100g)
+
+        console.debug(
+          `Allowed for macro ${macro}: Math.floor(${macroTarget} / ${per100g}) = ${allowed}`,
+        )
+        if (allowed < max) {
+          console.debug(
+            `New max found: ${allowed} (was ${max}) for macro ${macro}`,
+          )
+          max = allowed
+        }
+      } else {
+        console.debug(
+          `Skipping macro ${macro}: per100g or macroTarget invalid (per100g: ${per100g}, macroTarget: ${macroTarget})`,
+        )
       }
     }
-    return max === Infinity ? 0 : max
+
+    console.debug('Final max:', max)
+    const result = max === Infinity ? 0 : max * 0.96
+
+    console.debug('Returning:', result)
+    return result
   }
 
   function handleClick() {

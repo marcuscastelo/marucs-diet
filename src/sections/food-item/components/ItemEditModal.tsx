@@ -8,7 +8,12 @@ import {
   untrack,
 } from 'solid-js'
 
+import { calcDayMacros, calcItemMacros } from '~/legacy/utils/macroMath'
+import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
+import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type Item } from '~/modules/diet/item/domain/item'
+import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { showError } from '~/modules/toast/application/toastManager'
 import { FloatInput } from '~/sections/common/components/FloatInput'
@@ -24,11 +29,6 @@ import {
   ItemNutritionalInfo,
   ItemView,
 } from '~/sections/food-item/components/ItemView'
-import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
-import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
-import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
-import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
-import { calcDayMacros, calcItemMacros } from '~/legacy/utils/macroMath'
 
 /**
  * Modal for editing a TemplateItem.
@@ -288,7 +288,8 @@ function Body(props: {
             macroTargets={getAvailableMacros()}
             itemMacros={props.item().macros}
             onMaxSelected={(maxValue: number) => {
-              quantityField.setRawValue(String(maxValue))
+              console.debug('[ItemEditModal] onMaxSelected', maxValue)
+              quantityField.setRawValue(maxValue.toFixed(2))
             }}
             disabled={!props.canApply}
           />
