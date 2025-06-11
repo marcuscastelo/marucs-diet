@@ -1,8 +1,8 @@
 import { calcItemMacros } from '~/legacy/utils/macroMath'
-import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
-import { stringToDate } from '~/shared/utils/date/dateUtils'
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
+import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import { stringToDate } from '~/shared/utils/date/dateUtils'
 
 /**
  * Calculates the maximum allowed quantity for a food item based on macro targets for the current day.

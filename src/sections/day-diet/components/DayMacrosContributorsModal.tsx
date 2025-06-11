@@ -2,7 +2,10 @@ import { Accessor, createMemo, createSignal, For, Setter, Show } from 'solid-js'
 
 import { calcItemMacros } from '~/legacy/utils/macroMath'
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
+import { calcMaxItemQuantity } from '~/modules/diet/item-group/application/calcMaxItemQuantity'
+import { getTopContributors } from '~/modules/diet/item-group/application/getTopContributors'
 import { updateItemGroup } from '~/modules/diet/item-group/application/itemGroup'
+import { type MacroContributorEntry } from '~/modules/diet/item-group/domain/types'
 import { MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
@@ -15,9 +18,6 @@ import {
   ItemView,
 } from '~/sections/food-item/components/ItemView'
 import { stringToDate } from '~/shared/utils/date/dateUtils'
-import { getTopContributors } from '~/modules/diet/item-group/application/getTopContributors'
-import { calcMaxItemQuantity } from '~/modules/diet/item-group/application/calcMaxItemQuantity'
-import { type MacroContributorEntry } from '~/modules/diet/item-group/domain/types'
 
 /**
  * Renders a single macro contributor card with controls.
@@ -125,11 +125,12 @@ export function DayMacrosContributorsModal(props: {
   const topProtein = createMemo(() => getTopContributors('protein', 100))
   const topFat = createMemo(() => getTopContributors('fat', 100))
 
-  const macroGroups = () => [
-    { macro: 'carbs', label: 'Carboidrato', items: topCarbs },
-    { macro: 'protein', label: 'Proteína', items: topProtein },
-    { macro: 'fat', label: 'Gordura', items: topFat },
-  ] as const
+  const macroGroups = () =>
+    [
+      { macro: 'carbs', label: 'Carboidrato', items: topCarbs },
+      { macro: 'protein', label: 'Proteína', items: topProtein },
+      { macro: 'fat', label: 'Gordura', items: topFat },
+    ] as const
 
   function handleEditStart(
     macro: 'carbs' | 'protein' | 'fat',
