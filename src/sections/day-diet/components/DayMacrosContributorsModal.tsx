@@ -17,6 +17,7 @@ import {
 import { stringToDate } from '~/shared/utils/date/dateUtils'
 import { getTopContributors } from '~/modules/diet/item-group/application/getTopContributors'
 import { calcMaxItemQuantity } from '~/modules/diet/item-group/application/calcMaxItemQuantity'
+import { type MacroContributorEntry } from '~/modules/diet/item-group/domain/types'
 
 /**
  * Renders a single macro contributor card with controls.
@@ -25,15 +26,9 @@ import { calcMaxItemQuantity } from '~/modules/diet/item-group/application/calcM
  */
 function MacroContributorCard(props: {
   macro: 'carbs' | 'protein' | 'fat'
-  entry: {
-    item: TemplateItem
-    handleApply: (item: TemplateItem) => Promise<void>
-  }
+  entry: MacroContributorEntry
   onNext: () => void
-  onMax: (entry: {
-    item: TemplateItem
-    handleApply: (item: TemplateItem) => Promise<void>
-  }) => void
+  onMax: (entry: MacroContributorEntry) => void
   onEdit: () => void
 }) {
   return (
@@ -84,15 +79,9 @@ function MacroContributorCard(props: {
 function MacroGroupSection(props: {
   macro: 'carbs' | 'protein' | 'fat'
   label: string
-  items: Array<{
-    item: TemplateItem
-    handleApply: (item: TemplateItem) => Promise<void>
-  }>
+  items: MacroContributorEntry[]
   onNext: (itemId: number) => void
-  onMax: (entry: {
-    item: TemplateItem
-    handleApply: (item: TemplateItem) => Promise<void>
-  }) => void
+  onMax: (entry: MacroContributorEntry) => void
   onEdit: () => void
 }) {
   return (
@@ -132,10 +121,7 @@ export function DayMacrosContributorsModal(props: {
   // function getTopContributors(macro: 'carbs' | 'protein' | 'fat', n = 3) { ... }
   const [editing, setEditing] = createSignal<{
     macro: 'carbs' | 'protein' | 'fat'
-    items: {
-      item: TemplateItem
-      handleApply: (item: TemplateItem) => Promise<void>
-    }[]
+    items: MacroContributorEntry[]
     currentIdx: number
   } | null>(null)
 
@@ -155,10 +141,7 @@ export function DayMacrosContributorsModal(props: {
 
   function handleEditStart(
     macro: 'carbs' | 'protein' | 'fat',
-    items: {
-      item: TemplateItem
-      handleApply: (item: TemplateItem) => Promise<void>
-    }[],
+    items: MacroContributorEntry[],
   ) {
     setEditing({ macro, items, currentIdx: 0 })
   }
