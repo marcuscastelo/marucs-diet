@@ -28,6 +28,26 @@ This prompt serves as the explicit declaration of session end. When invoked, imm
 - Generate a section with insights about the user's mind model (specific thinking style, preferences, and communication patterns) to improve future agent communication and effectiveness. Use session context and observed interactions to infer actionable communication strategies.
 - Save all moments where the user yelled back (e.g., used all caps, exclamation, or strong language) as indicators of potential misprogrammed prompts. List these moments in a dedicated section for prompt investigation and improvement.
 
+## Explicit Examples of Actionable Learnings and Blockers
+
+- Missing or incorrect shell commands (e.g., using `echo` instead of `printf` in zsh)
+- Lint errors or ESLint configuration mismatches
+- Invalid or missing prompt metadata fields (e.g., `mode` not set to `ask`, `edit`, or `agent`)
+- Shell/OS-specific issues (e.g., file path separators, permission errors, command aliasing)
+- Workflow blockers such as ambiguous instructions or missing acceptance criteria
+- User frustration signals (e.g., all-caps/yelling) must be flagged for prompt review
+
+## Checklist Format for Session Learnings
+
+- [ ] New user preferences or workflow adjustments
+- [ ] Coding conventions or process clarifications
+- [ ] Issues encountered (e.g., missing commands, lint errors, blockers)
+- [ ] Information/context to provide at next session start
+- [ ] Prompt metadata or workflow issues to flag
+- [ ] Shell/OS-specific requirements
+
+> After an end-session declaration, the agent must act immediately without waiting for further user input.
+
 ## Guidelines
 
 - Use clear, structured Markdown with sections for "Session Learnings for Next Input", "Prompt/Instruction Improvement Suggestions", "User Mind Model Insights", and "User Yelled Back Moments".
