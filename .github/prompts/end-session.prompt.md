@@ -39,7 +39,6 @@ This prompt is the explicit declaration of session end. When invoked, the agent 
 
 - Add explicit examples of actionable learnings and blockers to guide future agents (e.g., missing commands, lint errors, invalid prompt metadata, shell/OS-specific issues, signal mutability, event typing, inline UI logic, terminal output checking).
 - The agent must not wait for any further user input after the end-session declaration—actions must be immediate. (reportedBy: Copilot)
-- Reference [copilot-instructions.md](../copilot-instructions.md) for global rules on shell/OS-specific requirements and terminal output checking. (reportedBy: Copilot)
 - Instruct the agent to flag any prompt metadata or workflow issues encountered, so they can be addressed before the next session.
 - Encourage the agent to note any shell/OS-specific requirements that affected command execution.
 - Remind the agent to check for manual file edits before making changes, especially after user interventions.
