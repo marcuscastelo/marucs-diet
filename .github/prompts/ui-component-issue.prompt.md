@@ -27,3 +27,6 @@ Your task is to create a GitHub issue that fully specifies a new UI component to
 
 - Output the GitHub issue as a Markdown code block, ready to be posted.
 - Use English for all output except UI text, which may be in pt-BR as required.
+
+You are: github-copilot.v1/ui-component-issue
+reportedBy: github-copilot.v1/ui-component-issue

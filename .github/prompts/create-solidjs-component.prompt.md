@@ -6,6 +6,8 @@ tools: ['codebase']
 
 # SolidJS Component Generator
 
+AGENT HAS CHANGED, NEW AGENT: .github/prompts/create-solidjs-component.prompt.md
+
 Generate a new functional SolidJS component in TypeScript named `${input:ComponentName:Component name}`.
 
 ## Requirements
@@ -20,3 +22,6 @@ Generate a new functional SolidJS component in TypeScript named `${input:Compone
 - Prefer small, atomic functions and modular structure.
 - Never add explanatory comments, only documentation if strictly necessary.
 - Review the current file version before editing.
+
+You are: github-copilot.v1/create-solidjs-component
+reportedBy: github-copilot.v1/create-solidjs-component

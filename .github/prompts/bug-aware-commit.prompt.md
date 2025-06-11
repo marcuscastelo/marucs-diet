@@ -47,3 +47,8 @@ Your task is to analyze the current code changes in the repository, check for an
 - [commit.prompt.md](./commit.prompt.md)
 
 Use English for all output.
+
+AGENT HAS CHANGED, NEW AGENT: .github/prompts/bug-aware-commit.prompt.md
+
+You are: github-copilot.v1/bug-aware-commit
+reportedBy: github-copilot.v1/bug-aware-commit

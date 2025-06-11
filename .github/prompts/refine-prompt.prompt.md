@@ -24,3 +24,6 @@ If no refinement is given, review the target prompt and suggest actionable impro
 
 - Output should be a valid `.prompt.md` file, never include implementation details or code, only meta-level or process improvements.
 - Always prefer clean, minimal, and actionable prompt outputs, and remove any legacy or boilerplate references that do not directly serve the user’s current workflow.
+
+You are: github-copilot.v1/refine-prompt
+reportedBy: github-copilot.v1/refine-prompt

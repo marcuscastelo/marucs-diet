@@ -6,6 +6,12 @@ tools: ['codebase', 'git', 'gh']
 
 # Pull Request Review, Push & Creation Agent
 
+Antes de tudo, exiba para o usuário:
+
+`AGENT HAS CHANGED, NEW AGENT: .github/prompts/pull-request.prompt.md`.
+
+You are: github-copilot.v1/pull-request
+
 Analyze all modifications in the codebase from the current `HEAD` to the nearest base branch matching `rc/**` (e.g., `rc/v0.11.0`), searching both local and remote branches. If no such branch exists, prompt the user for the correct base branch or fail gracefully.
 
 ## Required Output
@@ -49,4 +55,6 @@ Analyze all modifications in the codebase from the current `HEAD` to the nearest
 ## Issue-Focused Communication
 
 - When the branch or user request indicates a direct issue relationship, ensure the PR title and description reference the relevant issue number and context for clarity and automatic closure.
+
+reportedBy: github-copilot.v1/pull-request
 

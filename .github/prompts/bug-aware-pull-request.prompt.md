@@ -1,4 +1,3 @@
-// filepath: .github/prompts/bug-aware-pull-request.prompt.md
 ---
 description: 'Review all changes from HEAD to the nearest rc/** branch, check for clear bugs, and generate a bug-aware PR (title, description, labels, milestone, closes issues). Warn if a clear bug is detected.'
 mode: 'agent'
@@ -6,6 +5,8 @@ tools: ['codebase', 'git', 'gh', 'terminal']
 ---
 
 # Bug-Aware Pull Request Agent
+
+AGENT HAS CHANGED, NEW AGENT: .github/prompts/bug-aware-pull-request.prompt.md
 
 Your task is to analyze all code changes in the repository from the current `HEAD` to the nearest base branch matching `rc/**` (local or remote), check for any clear or obvious bugs, and generate a bug-aware pull request.
 
@@ -46,3 +47,6 @@ Your task is to analyze all code changes in the repository from the current `HEA
    - Use English for all output.
 
 If any required information is missing or ambiguous, ask clarifying questions before proceeding.
+
+You are: github-copilot.v1/bug-aware-pull-request
+reportedBy: github-copilot.v1/bug-aware-pull-request
