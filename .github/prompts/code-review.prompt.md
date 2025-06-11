@@ -23,6 +23,7 @@ Analyze all modifications in the codebase from the current `HEAD` to the nearest
 - If any required information is missing or ambiguous, ask clarifying questions before proceeding.
 - Output the review and planned actions as a Markdown bullet list, grouped by commit.
 - Use English for all output.
+- Never output comments that state the absence of issues (e.g., no usage of `any` found, no usage of `handleApiError` found, etc.).
 
 ## Output
 
