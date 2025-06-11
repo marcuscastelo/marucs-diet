@@ -2,24 +2,28 @@ import { calcItemMacros } from '~/legacy/utils/macroMath'
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
 import { applyItemEdit } from '~/modules/diet/item-group/application/applyItemEdit'
 import { type MacroContributorEntry } from '~/modules/diet/item-group/domain/types'
+import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 
 /**
  * Returns the top N items that, if reduced, most effectively decrease a single macro (carbs, protein, or fat) with minimal impact on others.
  * Ranks by total macro contribution, then by macro density (macro per gram).
  * @param macro - The macro nutrient to analyze ('carbs', 'protein' | 'fat')
  * @param n - Number of top contributors to return
+ * @param items - Optional array of items to use instead of currentDayDiet (for testing)
  * @returns Array of { item, handleApply }
  */
 // getTopContributors.ts
 export function getTopContributors(
   macro: 'carbs' | 'protein' | 'fat',
   n = 3,
+  items?: TemplateItem[],
 ): MacroContributorEntry[] {
-  const dayDiet = currentDayDiet()
   const allItems =
-    dayDiet?.meals.flatMap((meal) =>
+    items ??
+    currentDayDiet()?.meals.flatMap((meal) =>
       meal.groups.flatMap((group) => group.items),
-    ) ?? []
+    ) ??
+    []
 
   const scored = allItems.map((item) => {
     const macros = calcItemMacros(item)

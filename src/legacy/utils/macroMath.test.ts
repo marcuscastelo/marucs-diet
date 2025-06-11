@@ -143,4 +143,18 @@ describe('macroMath', () => {
       calcCalories({ carbs: 70, fat: 40, protein: 30 }),
     )
   })
+  it('calcItemCalories returns correct calories for known macros', () => {
+    // Use a valid FoodTemplateItem (Item)
+    const item = {
+      id: 1,
+      name: 'Test',
+      reference: 1,
+      quantity: 100,
+      macros: { carbs: 10, fat: 5, protein: 2 },
+      __type: 'Item',
+    } as const
+    const calories = calcItemCalories(item)
+    // 1g carbs = 4 kcal, 1g protein = 4 kcal, 1g fat = 9 kcal
+    expect(calories).toBe(10 * 4 + 2 * 4 + 5 * 9)
+  })
 })

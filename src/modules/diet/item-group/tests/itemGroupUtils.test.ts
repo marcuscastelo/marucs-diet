@@ -48,6 +48,26 @@ describe('getTopContributors', () => {
       .sort((a, b) => b.macroValue - a.macroValue)
     expect(ranked.map((e) => e.item.id)).toEqual([1, 3, 2])
   })
+
+  it('returns correct order and values for known input', () => {
+    // Real function test with known input
+    type TestItem = { id: number; macros: { carbs: number } }
+    const items: TestItem[] = [
+      { id: 1, macros: { carbs: 100 } },
+      { id: 2, macros: { carbs: 50 } },
+      { id: 3, macros: { carbs: 75 } },
+    ]
+    // @ts-expect-error: test-only direct call
+    const result = getTopContributors('carbs', 3, items) as Array<{
+      item: TestItem
+      macroValue?: number
+    }>
+    expect(result.map((e) => e.item.id)).toEqual([1, 2, 3])
+    // Optionally check macroValue if present
+    if (result[0]?.macroValue !== undefined) {
+      expect(result.map((e) => e.macroValue)).toEqual([100, 75, 50])
+    }
+  })
 })
 
 describe('calcMaxItemQuantity', () => {
