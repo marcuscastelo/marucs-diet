@@ -48,18 +48,15 @@ export function DayMacrosContributorsModal(props: {
       }
     })
 
-    // Filter: only items where this macro is the dominant macro (proportion > 0.7)
-    const filtered = scored.filter(
-      (s) => s.macroProportion > 0.7 && s.macroTotal > 0,
-    )
-
-    // Sort: first by macroTotal (desc), then by macroDensity (desc)
-    filtered.sort((a, b) => {
+    // Sort: by macroProportion (desc), then macroTotal (desc), then macroDensity (desc)
+    scored.sort((a, b) => {
+      if (b.macroProportion !== a.macroProportion)
+        return b.macroProportion - a.macroProportion
       if (b.macroTotal !== a.macroTotal) return b.macroTotal - a.macroTotal
       return b.macroDensity - a.macroDensity
     })
 
-    return filtered.slice(0, n).map(({ item }) => ({
+    return scored.slice(0, n).map(({ item }) => ({
       item,
       handleApply: async (edited: TemplateItem) => {
         const dayDiet = currentDayDiet()
@@ -90,11 +87,11 @@ export function DayMacrosContributorsModal(props: {
   } | null>(null)
 
   // Signals para top contributors editáveis
-  const [topCarbs, setTopCarbs] = createSignal(getTopContributors('carbs', 5))
+  const [topCarbs, setTopCarbs] = createSignal(getTopContributors('carbs', 100))
   const [topProtein, setTopProtein] = createSignal(
-    getTopContributors('protein', 5),
+    getTopContributors('protein', 100),
   )
-  const [topFat, setTopFat] = createSignal(getTopContributors('fat', 5))
+  const [topFat, setTopFat] = createSignal(getTopContributors('fat', 100))
 
   const macroGroups = () =>
     [
