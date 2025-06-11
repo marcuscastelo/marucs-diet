@@ -1,15 +1,15 @@
 ---
-description: 'Analyze modified files and diffs, then generate a concise, conventional commit message in English. Ensure clarity, security, and adherence to best practices.'
+description: 'Analyze staged changes and generate a concise, conventional commit message in English. Ensure clarity, security, and adherence to best practices.'
 mode: 'agent'
 tools: ['terminal']
 ---
 
 # Commit Message Agent
 
-Automatically execute the necessary git commands to obtain the list of modified, added, or deleted files and their before/after contents in the current repository.
+Automatically execute the necessary git commands to obtain the list of staged, modified, added, or deleted files and their before/after contents in the current repository.
 
-- Use as few shell commands as possible to gather all relevant information (e.g., `git diff --patch-with-stat --summary HEAD` and `git status --porcelain=v1`).
-- For new or modified files, generate a list of relevant file paths and use a shell for-loop to display their full contents, for example:
+- Use as few shell commands as possible to gather all relevant information about staged changes (e.g., `git diff --cached --patch-with-stat --summary HEAD` and `git status --porcelain=v1`).
+- For new or modified staged files, generate a list of relevant file paths and use a shell for-loop to display their full contents, for example:
 
 ```zsh
 for file in <file1> <file2> <file3>; do
@@ -17,7 +17,7 @@ for file in <file1> <file2> <file3>; do
 done
 ```
 
-- Analyze the changes and generate a short, clear, conventional commit message in English. The message must:
+- Analyze the staged changes and generate a short, clear, conventional commit message in English. The message must:
   - Summarize the main purpose of the changes.
   - Mention relevant files or modules if needed.
   - Follow the [conventional commits](https://www.conventionalcommits.org/) style (e.g., feat:, fix:, refactor:, test:, chore:).
@@ -33,10 +33,10 @@ Output the commit message as a markdown code block:
 <commit message in English, following the conventional commits style, summarizing the main change>
 ````
 
-Then, automatically execute the shell command to commit the changes with the generated message:
+Then, always execute the shell command to commit the staged changes with the generated message using the terminal (do not just print the command), unless you have a doubt and need to ask the user for clarification. Use:
 
 ````shell
-git commit -am "<generated commit message>"
+git commit -m "<generated commit message>"
 ````
 
 Replace <generated commit message> with the actual message you generated. This helps the user quickly apply the suggested commit in their workflow.
