@@ -1,4 +1,4 @@
-import { Accessor, createSignal, For, Setter, Show } from 'solid-js'
+import { Accessor, createMemo, createSignal, For, Setter, Show } from 'solid-js'
 
 import { calcItemMacros } from '~/legacy/utils/macroMath'
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
@@ -120,19 +120,16 @@ export function DayMacrosContributorsModal(props: {
     currentIdx: number
   } | null>(null)
 
-  // Signals para top contributors editáveis
-  const [topCarbs, setTopCarbs] = createSignal(getTopContributors('carbs', 100))
-  const [topProtein, setTopProtein] = createSignal(
-    getTopContributors('protein', 100),
-  )
-  const [topFat, setTopFat] = createSignal(getTopContributors('fat', 100))
+  // Memoize top contributors
+  const topCarbs = createMemo(() => getTopContributors('carbs', 100))
+  const topProtein = createMemo(() => getTopContributors('protein', 100))
+  const topFat = createMemo(() => getTopContributors('fat', 100))
 
-  const macroGroups = () =>
-    [
-      { macro: 'carbs', label: 'Carboidrato', items: topCarbs },
-      { macro: 'protein', label: 'Proteína', items: topProtein },
-      { macro: 'fat', label: 'Gordura', items: topFat },
-    ] as const
+  const macroGroups = () => [
+    { macro: 'carbs', label: 'Carboidrato', items: topCarbs },
+    { macro: 'protein', label: 'Proteína', items: topProtein },
+    { macro: 'fat', label: 'Gordura', items: topFat },
+  ] as const
 
   function handleEditStart(
     macro: 'carbs' | 'protein' | 'fat',
@@ -142,16 +139,7 @@ export function DayMacrosContributorsModal(props: {
   }
 
   function handleDismiss(macro: keyof MacroNutrients, itemId: number) {
-    if (macro === 'carbs') {
-      setTopCarbs((prev) => prev.filter((e) => e.item.id !== itemId))
-    }
-    if (macro === 'protein') {
-      setTopProtein((prev) => prev.filter((e) => e.item.id !== itemId))
-    }
-    if (macro === 'fat') {
-      setTopFat((prev) => prev.filter((e) => e.item.id !== itemId))
-    }
-    // Se o usuário está editando esse macro, avance para o próximo
+    // Avança para o próximo apenas no array de edição
     setEditing((prev) => {
       if (!prev || prev.macro !== macro) return prev
       const newItems = prev.items.filter((e) => e.item.id !== itemId)
