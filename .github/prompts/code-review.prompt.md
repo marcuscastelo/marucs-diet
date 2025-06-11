@@ -55,3 +55,21 @@ When performing a code review, always:
 - [ ] Shell/OS-specific requirements
 
 > After an end-session declaration, the agent must act immediately without waiting for further user input.
+
+---
+
+# Code Audit Prompt
+
+For a deep code audit, ensure to:
+
+- For the current pull request, use the `gh` CLI to identify the commit hashes at the start and end of the PR. Use these hashes to determine the full diff for the PR.
+- List all changes in each affected file based on this diff.
+- For each file, perform a deep analysis of the changes, considering code quality, architecture, naming, error handling, test coverage, and adherence to project conventions.
+- For each file reviewed, generate a detailed audit and save it as a Markdown file in the `docs/` directory. The filename should follow the pattern `audit_code_review_<filename>.md`.
+- In addition, generate or update the summary Markdown file in `docs/RESUMO_AUDITORIAS.md` with the following tables:
+    - **Main Changes:** Key topics and a brief summary of each change.
+    - **General Recommendations:** Actionable recommendations and details.
+    - **Points of Attention:** Risks or concerns and observations.
+- Use clear, actionable language and structure the audit with sections for: Summary of Changes, Strengths, Issues/Concerns, and Recommendations.
+- Use English for all output.
+- Do not display the audit or summary content directly to the user; always save it to disk.
