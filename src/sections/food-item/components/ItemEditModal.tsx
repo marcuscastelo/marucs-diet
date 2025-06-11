@@ -8,11 +8,18 @@ import {
   untrack,
 } from 'solid-js'
 
+import { calcDayMacros, calcItemMacros } from '~/legacy/utils/macroMath'
+import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
 import { type Item } from '~/modules/diet/item/domain/item'
+import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { showError } from '~/modules/toast/application/toastManager'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
+import {
+  MacroValues,
+  MaxQuantityButton,
+} from '~/sections/common/components/MaxQuantityButton'
 import { Modal } from '~/sections/common/components/Modal'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useModalContext } from '~/sections/common/context/ModalContext'
@@ -204,6 +211,27 @@ function Body(props: {
     }
   }
 
+  // Cálculo do restante disponível de macros
+  function getAvailableMacros(): MacroValues {
+    const dayDiet = currentDayDiet()
+    const macroTarget = dayDiet
+      ? getMacroTargetForDay(new Date(dayDiet.target_day))
+      : null
+    const originalItem = props.macroOverflow().originalItem
+    if (!dayDiet || !macroTarget) {
+      return { carbs: 0, protein: 0, fat: 0 }
+    }
+    const dayMacros = calcDayMacros(dayDiet)
+    const originalMacros = originalItem
+      ? calcItemMacros(originalItem)
+      : { carbs: 0, protein: 0, fat: 0 }
+    return {
+      carbs: macroTarget.carbs - dayMacros.carbs + originalMacros.carbs,
+      protein: macroTarget.protein - dayMacros.protein + originalMacros.protein,
+      fat: macroTarget.fat - dayMacros.fat + originalMacros.fat,
+    }
+  }
+
   return (
     <>
       <p class="mt-1 text-gray-400">Atalhos</p>
@@ -231,7 +259,10 @@ function Body(props: {
         )}
       </For>
       <div class="mt-3 flex w-full justify-between gap-1">
-        <div class="my-1 flex flex-1 justify-around">
+        <div
+          class="my-1 flex flex-1 justify-around"
+          style={{ position: 'relative' }}
+        >
           <FloatInput
             field={quantityField}
             style={{ width: '100%' }}
@@ -252,6 +283,16 @@ function Body(props: {
             class={`input-bordered  input mt-1  border-gray-300 bg-gray-800 ${
               !props.canApply ? 'input-error border-red-500' : ''
             }`}
+          />
+          <MaxQuantityButton
+            currentValue={quantityField.value() ?? 0}
+            macroTargets={getAvailableMacros()}
+            itemMacros={props.item().macros}
+            onMaxSelected={(maxValue: number) => {
+              console.debug('[ItemEditModal] onMaxSelected', maxValue)
+              quantityField.setRawValue(maxValue.toFixed(2))
+            }}
+            disabled={!props.canApply}
           />
         </div>
         <div class="my-1 ml-1 flex shrink justify-around gap-1">

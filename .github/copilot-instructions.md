@@ -7,6 +7,7 @@ During this session, always wait until the end of the execution of any requested
 ## Refactoring & Automation
 - Use terminal commands for large refactors (find, sed, grep, etc.) and document them.
 - After batch changes, always run: `npm run check`. Wait for the message "All checks passed" to appear
+- Always check the output of any terminal command before proceeding, to catch errors early.
 
 ## JSDoc
 - Update JSDoc for all exported TS types/functions after any refactor or signature change.
@@ -37,15 +38,22 @@ During this session, always wait until the end of the execution of any requested
 
 ## Imports
 - Always use static imports at the top.
+- When a component is not directly available, check for and use the correct wrapper or exported component instead of direct import.
+- NEVER use relative imports. Always use ~/<fullpath> for imports.
+- Never use dynamic imports. Always use static imports at the top of the file.
+
+## Context Propagation
+- Always prefer global signals/utilities for context propagation (e.g., macro context) over property drilling, especially for shared state.
 
 ## Testing
 - Update tests for all changes. Run `npm check` and wait for "All checks passed"
 
+## Cleanup After Refactor
+- After any API or context change, search for and remove all unused props, imports, and signals in affected files.
+
 # Additional Enforcement
 - Never add explanatory comments in the code. Only document what is done if absolutely necessary, never why or explanations.
 - Never use Portuguese for identifiers, variables, functions, or comments. Only UI text may be in English or pt-BR as required.
-- Never use dynamic imports. Always use static imports at the top of the file.
-- NEVER use relative imports. Always use ~/<fullpath> for imports.
 - Prefer small, atomic commits. Always suggest a commit message after making changes.
 - Always update or remove related tests when changing code.
 - Application layer must always call handleApiError with context.
