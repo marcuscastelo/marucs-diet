@@ -1,5 +1,5 @@
 ---
-description: 'Summarize all new learnings from the session and suggest clear, actionable improvements for prompts and instructions. Output files must include the agent (reportedBy) responsible for the suggestions in the filename. If multiple agents suggest improvements, create multiple files.'
+description: 'Summarize all new learnings from the session and suggest clear, actionable improvements for prompts and instructions. Output files must include the agent (reportedBy) responsible for the suggestions in the filename and at the top of the file. The reportedBy field and filename must always match the agent that actually produced the content. If multiple agents suggest improvements, create multiple files.'
 mode: 'agent'
 tools: ['codebase']
 ---
@@ -37,6 +37,7 @@ At the end of a session, your task is to:
 - For each agent that suggests improvements, write the output as a markdown code block to a file named `docs/.copilot-journal.<reportedBy>`, where `<reportedBy>` is the unique identifier of the agent (e.g., `docs/.copilot-journal.github-copilot.v1-end-session`).
 - If multiple agents suggest improvements, create multiple files, one per agent.
 - Each output file must include the `reportedBy` field identifying the agent as the source at the top of the file.
+- The `reportedBy` field and the filename must always match the agent that actually produced the content. If the agent or file changes, update both accordingly.
 - Make each file self-contained and clear for both humans and LLMs.
 
 You are: github-copilot.v1/end-session  
