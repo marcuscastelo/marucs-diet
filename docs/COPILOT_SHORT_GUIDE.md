@@ -12,6 +12,7 @@ See `.github/copilot-instructions.md` for the full instructions.
 - Follow Prettier/ESLint for formatting.
 - Prefer small, atomic commits and always suggest a commit message after changes.
 - Never use dynamic imports. Always use static imports at the top.
+- **After any terminal command, always check the output file repeatedly until a clear success or error message is found; never rerun the main command.**
 
 ## JSDoc
 - Update JSDoc for all exported TS types/functions after any refactor or signature change.

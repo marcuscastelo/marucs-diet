@@ -22,7 +22,6 @@ At the end of a session, your task is to:
 ## Guidelines
 
 - Use clear, structured Markdown with sections for "Session Learnings" and "Prompt/Instruction Improvement Suggestions".
-- Reference [copilot-customization.instructions.md](../instructions/copilot/copilot-customization.instructions.md) for best practices.
 - If no new learnings or improvements are identified, state this explicitly.
 - Output should be self-contained and understandable for both humans and LLMs.
 - Use English for all output.
