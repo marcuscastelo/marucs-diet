@@ -34,11 +34,8 @@ At the end of a session, your task is to:
 
 ## Output
 
-- For each agent that suggests improvements, write the output as a markdown code block to a file named `docs/.copilot-journal/.copilot-journal.<reportedBy>.<timestamp>`, where `<reportedBy>` is the unique identifier of the agent (e.g., `docs/.copilot-journal.github-copilot.v1-end-session.250611_200237`). And `<timestamp>` is the current timestamp in `YYYYMMDD_HHMMSS` format.
+- For each agent that suggests improvements, write the output as a markdown code block to a file named `docs/.copilot-journal/.copilot-journal.<reportedBy>.<timestamp>`, where `<reportedBy>` is the unique identifier of the agent and `<timestamp>` is the current timestamp (use `date +'%Y%m%dT%H%M%S'`). (e.g., `docs/.copilot-journal.github-copilot.v1-refactor.250611_200237`).
 - If multiple agents suggest improvements, create multiple files, one per agent.
 - Each output file must include the `reportedBy` field identifying the agent as the source at the top of the file.
 - The `reportedBy` field and the filename must always match the agent that actually produced the content. If the agent or file changes, update both accordingly.
 - Make each file self-contained and clear for both humans and LLMs.
-
-You are: github-copilot.v1/end-session  
-reportedBy: github-copilot.v1/end-session
