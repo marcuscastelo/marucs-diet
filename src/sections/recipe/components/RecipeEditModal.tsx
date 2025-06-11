@@ -118,6 +118,9 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
           setRecipe(updatedRecipe)
           setSelectedItem(null)
         }}
+        macroOverflow={() => ({
+          enable: false,
+        })}
         onDelete={(itemId) => {
           const updatedRecipe = removeItemFromRecipe(recipe(), itemId)
 

@@ -6,18 +6,13 @@ tools: ['terminal']
 
 # Commit Message Agent
 
-Automatically execute the necessary git commands to obtain the list of staged, modified, added, or deleted files and their before/after contents in the current repository.
+Execute the script `scripts/collect-commit-info.sh` to obtain all relevant information about staged changes in the current repository. This script will:
 
-- Use as few shell commands as possible to gather all relevant information about staged changes (e.g., `git diff --cached --patch-with-stat --summary HEAD` and `git status --porcelain=v1`).
-- For new or modified staged files, generate a list of relevant file paths and use a shell for-loop to display their full contents, for example:
+- Show the staged diff with stats and summary.
+- Show the staged status (porcelain).
+- For new or modified staged files, display their full contents.
 
-```zsh
-for file in <file1> <file2> <file3>; do
-  cat "$file"
-done
-```
-
-- Analyze the staged changes and generate a short, clear, conventional commit message in English. The message must:
+After running the script, analyze the output and generate a short, clear, conventional commit message in English. The message must:
   - Summarize the main purpose of the changes.
   - Mention relevant files or modules if needed.
   - Follow the [conventional commits](https://www.conventionalcommits.org/) style (e.g., feat:, fix:, refactor:, test:, chore:).
@@ -44,3 +39,5 @@ Replace <generated commit message> with the actual message you generated. This h
 - Always use English for code, comments, and commit messages.
 - Never include code or diffs in the commit message.
 - Review the current file version before editing.
+- Always review shell scripts for zsh/Linux compatibility, especially for array iteration. (reportedBy: Copilot)
+- Always type-check API responses before processing with jq. (reportedBy: Copilot)

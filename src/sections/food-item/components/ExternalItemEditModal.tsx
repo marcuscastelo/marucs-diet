@@ -1,24 +1,16 @@
 import { type Accessor, createEffect, type Setter, Show } from 'solid-js'
 
-import { type Item } from '~/modules/diet/item/domain/item'
-import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
-import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
+import {
+  ItemEditModal,
+  ItemEditModalProps,
+} from '~/sections/food-item/components/ItemEditModal'
 
 export type ExternalItemEditModalProps = {
   visible: Accessor<boolean>
   setVisible: Setter<boolean>
-  item: Accessor<Item>
-  targetName: string
-  targetNameColor?: string
-  macroOverflow?: () => {
-    enable: boolean
-    originalItem?: Item
-  }
-  onApply: (item: TemplateItem) => void
-  onDelete?: (itemId: TemplateItem['id']) => void
   onClose?: () => void
-}
+} & ItemEditModalProps
 
 export function ExternalItemEditModal(props: ExternalItemEditModalProps) {
   const handleCloseWithNoChanges = () => {
@@ -42,7 +34,7 @@ export function ExternalItemEditModal(props: ExternalItemEditModalProps) {
           item={props.item}
           targetName={props.targetName}
           targetNameColor={props.targetNameColor}
-          macroOverflow={props.macroOverflow ?? (() => ({ enable: false }))}
+          macroOverflow={props.macroOverflow}
           onApply={props.onApply}
           onDelete={props.onDelete}
         />

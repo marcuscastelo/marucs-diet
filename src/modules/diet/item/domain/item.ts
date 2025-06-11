@@ -22,7 +22,9 @@ export const itemSchema = z.object({
     invalid_type_error: "O campo 'quantity' deve ser um número.",
   }),
   /**
-   * @deprecated Should be derived from the quantity and the reference
+   * @deprecated since 2025-06-11 Use foodMacros instead. This field will be removed in a future release.
+   * Should be derived from the quantity and the reference.
+   * @see foodMacros
    */
   macros: macroNutrientsSchema,
   __type: z

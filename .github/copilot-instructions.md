@@ -2,7 +2,7 @@
 applyTo: "**"
 ---
 # Copilot Instructions (short version)
-During this session, always wait until the end of the execution of any requested command or process, even if it takes several minutes, before responding. For every command, redirect both stdout and stderr to `/tmp/copilot-terminal-[N]` (where `[N]` is a unique number for each command) using `| tee /tmp/copilot-terminal-[N] 2>&1`. After the main command finishes, check `cat /tmp/copilot-terminal-[N]`. Never repeat the main command. Confirm that you understand and follow this instruction until I ask you to stop. Never combine commands with `&&`, `||` or `;`
+During this session, always wait until the end of the execution of any requested command or process, even if it takes several minutes, before responding. For every command, redirect both stdout and stderr to `/tmp/copilot-terminal-[N]` (where `[N]` is a unique number for each command) using `| tee /tmp/copilot-terminal-[N] 2>&1`. After the main command finishes, repeatedly run `cat /tmp/copilot-terminal-[N]` until either an error appears or the message "All checks passed" appears. Never repeat the main command. Confirm that you understand and follow this instruction until I ask you to stop. Never combine commands with `&&`, `||` or `;`
 
 ## Refactoring & Automation
 - Use terminal commands for large refactors (find, sed, grep, etc.) and document them.
@@ -34,7 +34,7 @@ During this session, always wait until the end of the execution of any requested
 - Use `void` for fire-and-forget only in event handlers/non-critical effects, never `.catch(() => {})`.
 
 ## Formatting & Style
-- Use Prettier/ESLint for JS/TS. Prefer type aliases, never any.
+- Use ESLint for JS/TS. Prefer type aliases, never any.
 
 ## Imports
 - Always use static imports at the top.
@@ -60,6 +60,30 @@ During this session, always wait until the end of the execution of any requested
 - Never use handleApiError in domain code.
 - Never use `.catch(() => {})` in promises.
 
+## Terminal Command Output Checking
+- After every terminal command, always repeat `cat /tmp/copilot-terminal-[N]` until either an explicit success message (e.g., "All checks passed") or an error appears. Never stop after a single check. Never repeat the main command.
+- Never proceed until the required success or error message is confirmed in the output.
+
+## Session Learnings & Blockers Checklist Template
+- [ ] New user preferences or workflow adjustments
+- [ ] Coding conventions or process clarifications
+- [ ] Issues encountered (e.g., missing commands, lint errors, blockers)
+- [ ] Information/context to provide at next session start
+- [ ] Prompt metadata or workflow issues to flag
+- [ ] Shell/OS-specific requirements
+
+## User Frustration Signals
+- Always document and flag any moments of user frustration (e.g., all-caps, yelling, strong language) as indicators of prompt or workflow issues. These must be reviewed and addressed in future prompt improvements.
+
+## Shell/OS-Specific Requirements
+- Always check and document any shell/OS-specific requirements or command aliasing (e.g., zsh, Linux, git aliases like `ga` for `git add`).
+
+## Journal File Management
+- Before saving any new summary or journal file, always check for and avoid duplicate filenames in the journal directory.
+
+## End-Session Declaration
+- After an end-session declaration, the agent must act immediately without waiting for further user input. Actions must be immediate and self-contained.
+
 ## Commit Message Output
 - When generating a commit message, always output it using four backticks and markdown, like this:
 
@@ -68,3 +92,10 @@ During this session, always wait until the end of the execution of any requested
 ````
 
 - When referencing the current changes, use `#changes` agent tool (do not include #changes in commit message).
+
+# Copilot Global Instructions
+- The GitHub REST API and `gh` CLI do not differentiate resolved/unresolved inline comments. If filtering is required, fallback to the GraphQL API. (reportedBy: Copilot)
+- Always type-check API responses before processing with jq. (reportedBy: Copilot)
+- Always review shell scripts for zsh/Linux compatibility, especially for array iteration. (reportedBy: Copilot)
+- Always reference this file for global rules on shell/OS-specific requirements and terminal output checking. (reportedBy: Copilot)
+- Always check for accessibility and usability comments in reviewer feedback and automated analysis. (reportedBy: Copilot)
