@@ -152,11 +152,11 @@ const fetchFunc = async () => {
   const tab_ = templateSearchTab()
   switch (tab_) {
     case 'recent':
-      return await fetchRecentsForModal(templateSearch())
+      return fetchRecentsForModal(templateSearch())
     case 'recipes':
-      return await fetchRecipes()
+      return fetchRecipes()
     default:
-      return await fetchFoodsForModal()
+      return fetchFoodsForModal()
   }
 }
 export const [templateSearch, setTemplateSearch] = createSignal<string>('')
