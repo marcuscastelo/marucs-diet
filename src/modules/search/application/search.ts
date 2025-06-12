@@ -20,7 +20,9 @@ import {
   availableTabs,
 } from '~/sections/search/components/TemplateSearchTabs'
 
-const fetchRecentsForModal = async (): Promise<readonly Template[]> => {
+const fetchRecentsForModal = async (
+  search: string = '',
+): Promise<readonly Template[]> => {
   const recentItems = await fetchUserRecentFoods(currentUserId())
   const foodIds = recentItems
     .filter((r) => r.type === 'food')
@@ -51,15 +53,29 @@ const fetchRecentsForModal = async (): Promise<readonly Template[]> => {
     (r): r is Recipe => r !== null,
   )
 
+  // Filter by search string (case-insensitive, name or barcode)
+  const lowerSearch = search.trim().toLowerCase()
+  const filterFn = (item: { name: string; barcode?: string | null }) => {
+    if (lowerSearch === '') return true
+    if (item.name.toLowerCase().includes(lowerSearch)) return true
+    if (
+      typeof item.barcode === 'string' &&
+      item.barcode &&
+      item.barcode.toLowerCase().includes(lowerSearch)
+    )
+      return true
+    return false
+  }
+
   // Sort by recency (last_used)
   const templates: Template[] = []
   for (const recent of recentItems) {
     if (recent.type === 'food') {
       const food = validFoods.find((f) => f.id === recent.reference_id)
-      if (food) templates.push(food)
+      if (food !== undefined && filterFn(food)) templates.push(food)
     } else {
       const recipe = validRecipes.find((r) => r.id === recent.reference_id)
-      if (recipe) templates.push(recipe)
+      if (recipe !== undefined && filterFn(recipe)) templates.push(recipe)
     }
   }
   return templates
@@ -136,7 +152,7 @@ const fetchFunc = async () => {
   const tab_ = templateSearchTab()
   switch (tab_) {
     case 'recent':
-      return await fetchRecentsForModal()
+      return await fetchRecentsForModal(templateSearch())
     case 'recipes':
       return await fetchRecipes()
     default:
