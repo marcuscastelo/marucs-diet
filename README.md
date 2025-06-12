@@ -1,3 +1,6 @@
+<!-- TEMPORARY: Refactor in Progress -->
+> **Notice:** The codebase is currently undergoing a major refactor to improve domain/UI separation, remove legacy utilities, standardize repository interfaces, and enhance test coverage. See `docs/PLANO_REFATORACAO_5H.md` and `docs/REFATORACAO_PROGRESSO.md` for details and progress.
+
 # Marucs Diet
 
 **A nutrition tracking platform built with modular architecture and modern web technologies.**
