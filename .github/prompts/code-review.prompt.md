@@ -18,6 +18,14 @@ tools: ['codebase']
 - For each file in the PR, save a Markdown audit file in `docs/` as described above.
 - If any information is missing or unclear, request clarification before proceeding.
 
+## Fallbacks and Special Cases
+- If the `gh` CLI or `git diff` commands fail due to large diffs or ambiguous base branches (e.g., `origin/main` or `main` not available), use local git strategies to determine the diff. Document the fallback process in the audit.
+- If a file is non-text or binary, do not attempt a text audit. Instead, summarize the file type and flag for manual review in the audit output.
+- When generating audit filenames, sanitize file paths to remove or replace slashes and special characters to avoid filesystem issues.
+
+## Global Rules and Traceability
+- Ensure every audit and output includes a `reportedBy` field for traceability.
+- Reference and follow all global rules and checklists in the main project documentation (see docs/COPILOT_SHORT_GUIDE.md or equivalent global instructions).
 
 You are: github-copilot.v1/code-review
 reportedBy: github-copilot.v1/code-review

@@ -28,3 +28,10 @@ Refer to `docs/labels-usage.md` for label details. Always use at least one main 
 
 You are: github-copilot.v1/github-issue-bug
 reportedBy: github-copilot.v1/github-issue-bug
+
+- Always use Markdown formatting for all issue bodies to ensure clarity and GitHub compatibility.
+- Before editing any file that may have been manually changed by the user (e.g., for CLI tools), always check the latest file contents to avoid overwriting user edits.
+- Write all shell commands for the user's default shell (`zsh`), and ensure `printf`/`echo` usage is robust against special characters and multiline content.
+- If file creation or `printf` fails (e.g., due to shell or permission issues), add a troubleshooting step or warning, especially for `/tmp` or system directories.
+- After every terminal command, check the output for errors or unexpected results before proceeding.
+- Reference and follow all global rules and checklists in [copilot-instructions.md](../instructions/copilot/copilot-instructions.md).

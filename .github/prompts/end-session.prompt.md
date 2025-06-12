@@ -39,3 +39,20 @@ At the end of a session, your task is to:
 - Each output file must include the `reportedBy` field identifying the agent as the source at the top of the file.
 - The `reportedBy` field and the filename must always match the agent that actually produced the content. If the agent or file changes, update both accordingly.
 - Make each file self-contained and clear for both humans and LLMs.
+
+## Template Output for No New Learnings
+If no new learnings or improvements are identified, output the following template:
+
+```
+reportedBy: <agent-name.vXX>
+
+### Session Learnings
+- No new learnings identified.
+
+### Prompt/Instruction Improvement Suggestions
+- No improvements suggested.
+```
+
+## Referencing and Traceability
+- When suggesting improvements, always reference specific files, sections, or lines for clarity and traceability.
+- Ensure all outputs include the `reportedBy` field at the top, matching the agent and filename.
