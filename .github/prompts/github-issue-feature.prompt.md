@@ -1,7 +1,7 @@
 ---
 description: 'Generate a GitHub feature request issue from a user idea or feature request using the template in docs/ISSUE_TEMPLATE_FEATURE.md.'
 mode: 'agent'
-tools: ['terminal']
+tools: ['terminal', 'codebase']
 ---
 # GitHub Issue: Feature Request
 
