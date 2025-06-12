@@ -16,6 +16,7 @@ import {
   handleValidationError,
 } from '~/shared/error/errorHandler'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
+import { removeDiacritics } from '~/shared/utils/removeDiacritics'
 
 const TABLE = 'recipes'
 
@@ -123,10 +124,10 @@ const fetchRecipeById = async (id: Recipe['id']): Promise<Recipe> => {
 }
 
 /**
- * Fetches a user's recipe by name.
+ * Fetches a user's recipe by name (partial, case-insensitive, diacritic-insensitive).
  * Throws on error.
  * @param userId - The user ID
- * @param name - The recipe name
+ * @param name - The recipe name (partial or full)
  * @returns Array of recipes
  * @throws Error on API/validation error
  */
@@ -135,11 +136,13 @@ const fetchUserRecipeByName = async (
   name: Recipe['name'],
 ): Promise<Recipe[]> => {
   try {
+    // Normalize diacritics for search
+    const normalizedName = removeDiacritics(name)
     const { data, error } = await supabase
       .from(TABLE)
       .select()
       .eq('owner', userId)
-      .eq('name', name)
+      .ilike('name', `%${normalizedName}%`)
     if (error !== null) {
       handleApiError(error, {
         component: 'supabaseRecipeRepository',
