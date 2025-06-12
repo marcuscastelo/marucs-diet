@@ -119,3 +119,43 @@ export function handleValidationError(
 ): void {
   logError(error, { ...context, operation: 'Validation' })
 }
+
+/**
+ * Detects if an error is a backend outage/network error (e.g., fetch failed, CORS, DNS, etc).
+ * @param error - The error to check
+ * @returns True if the error is a backend outage/network error
+ */
+export function isBackendOutageError(error: unknown): boolean {
+  if (typeof error === 'string') {
+    return (
+      error.includes('Failed to fetch') ||
+      error.includes('NetworkError') ||
+      error.includes('CORS') ||
+      error.includes('net::ERR') ||
+      error.includes('Network request failed')
+    )
+  }
+  if (typeof error === 'object' && error !== null) {
+    const msg =
+      typeof (error as { message?: unknown }).message === 'string'
+        ? (error as { message: string }).message
+        : ''
+    const details =
+      typeof (error as { details?: unknown }).details === 'string'
+        ? (error as { details: string }).details
+        : ''
+    return (
+      msg.includes('Failed to fetch') ||
+      msg.includes('NetworkError') ||
+      msg.includes('CORS') ||
+      msg.includes('net::ERR') ||
+      msg.includes('Network request failed') ||
+      details.includes('Failed to fetch') ||
+      details.includes('NetworkError') ||
+      details.includes('CORS') ||
+      details.includes('net::ERR') ||
+      details.includes('Network request failed')
+    )
+  }
+  return false
+}

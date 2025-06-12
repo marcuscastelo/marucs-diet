@@ -32,8 +32,17 @@ export function convertApi2Food(food: ApiFood): NewFood {
 }
 
 export async function importFoodFromApiByEan(
-  ean: string,
+  ean: Food['ean'],
 ): Promise<Food | null> {
+  if (ean === null) {
+    handleApiError(new Error('EAN is required to import food from API'), {
+      component: 'apiFood',
+      operation: 'importFoodFromApiByEan',
+      additionalData: { ean },
+    })
+    return null
+  }
+
   const apiFood = (await axios.get(`/api/food/ean/${ean}`))
     .data as unknown as ApiFood
 
