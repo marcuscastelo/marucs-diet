@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
-import { parseWithStack } from '~/shared/utils/parseWithStack'
+import { transformItem } from '~/shared/domainTransformers/itemTransformers'
 
 export const itemSchema = z.object({
   id: z.number({
@@ -24,11 +24,7 @@ export const itemSchema = z.object({
    * @deprecated Should be derived from the quantity and the reference
    */
   macros: macroNutrientsSchema,
-  __type: z
-    .string()
-    .nullable()
-    .optional()
-    .transform(() => 'Item' as const),
+  __type: z.string().nullable().optional(),
 })
 
 export type Item = Readonly<z.output<typeof itemSchema>>
@@ -46,8 +42,7 @@ export function createItem({
   quantity?: number
   macros?: Partial<Item['macros']>
 }) {
-  return parseWithStack(itemSchema, {
-    __type: 'Item',
+  return transformItem({
     id,
     name,
     reference,
@@ -57,5 +52,5 @@ export function createItem({
       carbs: macros.carbs ?? 0,
       fat: macros.fat ?? 0,
     },
-  } satisfies Item)
+  })
 }
