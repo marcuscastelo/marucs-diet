@@ -177,12 +177,31 @@ async function fetchFoodsByName(
   name: Required<Food>['name'],
   params: FoodSearchParams = {},
 ) {
-  // Normalize diacritics for search
   const normalizedName = removeDiacritics(name)
-  return await internalCachedSearchFoods(
+  // Busca exata
+  const exactMatches = await internalCachedSearchFoods(
     { field: 'name', value: normalizedName, operator: 'ilike' },
     params,
   )
+
+  // Busca parcial por cada palavra
+  const words = normalizedName.split(/\s+/).filter(Boolean)
+  let partialMatches: Food[] = []
+  if (words.length > 1) {
+    const partialResults = await Promise.all(
+      words.map((word) =>
+        internalCachedSearchFoods(
+          { field: 'name', value: word, operator: 'ilike' },
+          params,
+        ),
+      ),
+    )
+    partialMatches = partialResults
+      .flat()
+      .filter((food) => !exactMatches.some((f) => f.id === food.id))
+  }
+
+  return [...exactMatches, ...partialMatches]
 }
 
 async function fetchFoods(params: FoodSearchParams = {}) {
