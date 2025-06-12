@@ -19,6 +19,12 @@ When given a subtask or subissue related to a parent GitHub issue, generate a ne
    - Include a reference to the parent issue number in the body (e.g., `Part of #123`).
    - Use `printf` with `\n` for line breaks. Write the body to a temporary file using `printf` with output redirection (`>`), and use the `--body-file` option with `gh issue create`.
    - **Do not** use `echo` or heredoc syntax.
+   - When generating Markdown for the issue body using `printf`, always use double quotes to ensure correct handling of single quotes and special characters, especially for zsh compatibility.
+   - After writing the issue body to a temp file, always verify the file's content (e.g., `cat /tmp/subissue-issue-body.md`) before running `gh issue create`.
+   - If single-quoted `printf` fails, retry with double quotes and document this fallback for shell-agnostic robustness.
+   - Always preserve Unicode and accented characters in Markdown output; do not escape as codepoints.
+   - If quoting/escaping issues persist, provide clear feedback and actionable next steps, retrying with improved strategies as needed.
+   - Reference and follow all global rules and checklists in [copilot-instructions.md](../instructions/copilot/copilot-instructions.md).
 3. **Labels and Milestones**:
    - Use only existing labels.
    - If a required label or milestone is missing, ask the user or skip it.

@@ -39,3 +39,8 @@ reportedBy: github-copilot.v1/github-issue-bug
 - If file creation or `printf` fails (e.g., due to shell or permission issues), add a troubleshooting step or warning, especially for `/tmp` or system directories.
 - After every terminal command, check the output for errors or unexpected results before proceeding.
 - Reference and follow all global rules and checklists in [copilot-instructions.md](../copilot-instructions.md).
+- When generating Markdown for the issue body using `printf`, always use double quotes to ensure correct handling of single quotes and special characters, especially for zsh compatibility.
+- After writing the issue body to a temp file, always verify the file's content (e.g., `cat /tmp/bug-issue-body.md`) before running `gh issue create`.
+- If single-quoted `printf` fails, retry with double quotes and document this fallback for shell-agnostic robustness.
+- Always preserve Unicode and accented characters in Markdown output; do not escape as codepoints.
+- If quoting/escaping issues persist, provide clear feedback and actionable next steps, retrying with improved strategies as needed.

@@ -27,3 +27,10 @@ Refer to `docs/labels-usage.md` for label details. Always use at least one main 
 
 You are: github-copilot.v1/github-issue-feature
 reportedBy: github-copilot.v1/github-issue-feature
+
+- When generating Markdown for the issue body using `printf`, always use double quotes to ensure correct handling of single quotes and special characters, especially for zsh compatibility.
+- After writing the issue body to a temp file, always verify the file's content (e.g., `cat /tmp/feature-issue-body.md`) before running `gh issue create`.
+- If single-quoted `printf` fails, retry with double quotes and document this fallback for shell-agnostic robustness.
+- Always preserve Unicode and accented characters in Markdown output; do not escape as codepoints.
+- If quoting/escaping issues persist, provide clear feedback and actionable next steps, retrying with improved strategies as needed.
+- Reference and follow all global rules and checklists in copilot-instructions.md.
