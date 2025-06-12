@@ -1,5 +1,7 @@
 # Label Usage Instructions for Creating Issues
 
+> **Note:** All label names and descriptions should always be in English for consistency, unless a project-specific exception is documented.
+
 ## How to Use Labels
 
 - Always add at least one main type label: `bug`, `feature`, `refactor`, `task`, `improvement`, `documentation`, `chore`, `epic`, `idea`.
