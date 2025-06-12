@@ -4,6 +4,7 @@ import { Router } from '@solidjs/router'
 import { FileRoutes } from '@solidjs/start/router'
 import { createSignal, onCleanup, Suspense } from 'solid-js'
 
+import { BackendOutageBanner } from '~/sections/common/components/BackendOutageBanner'
 import { BottomNavigation } from '~/sections/common/components/BottomNavigation'
 import { Providers } from '~/sections/common/context/Providers'
 
@@ -33,6 +34,7 @@ export default function App() {
         <>
           <Suspense>
             <Providers>
+              <BackendOutageBanner />
               <div
                 class="mx-auto flex flex-col justify-between bg-black h-screen w-screen rounded-none"
                 style={{ width: `${width()}px` }}

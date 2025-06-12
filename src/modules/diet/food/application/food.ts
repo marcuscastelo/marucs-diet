@@ -7,7 +7,11 @@ import {
 import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
 import { isSearchCached } from '~/modules/search/application/searchCache'
 import { showPromise } from '~/modules/toast/application/toastManager'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { setBackendOutage } from '~/shared/error/backendOutageSignal'
+import {
+  handleApiError,
+  isBackendOutageError,
+} from '~/shared/error/errorHandler'
 import { formatError } from '~/shared/formatError'
 
 const foodRepository = createSupabaseFoodRepository()
@@ -28,6 +32,7 @@ export async function fetchFoods(
       operation: 'fetchFoods',
       additionalData: { params },
     })
+    if (isBackendOutageError(error)) setBackendOutage(true)
     return []
   }
 }
@@ -50,6 +55,7 @@ export async function fetchFoodById(
       operation: 'fetchFoodById',
       additionalData: { id, params },
     })
+    if (isBackendOutageError(error)) setBackendOutage(true)
     return null
   }
 }
@@ -92,6 +98,7 @@ export async function fetchFoodsByName(
       operation: 'fetchFoodsByName',
       additionalData: { name, params },
     })
+    if (isBackendOutageError(error)) setBackendOutage(true)
     return []
   }
 }
@@ -103,8 +110,8 @@ export async function fetchFoodsByName(
  * @returns Food or null on error.
  */
 export async function fetchFoodByEan(
-  ean: string,
-  params: Omit<FoodSearchParams, 'limit'> = {},
+  ean: Food['ean'],
+  params: FoodSearchParams = {},
 ): Promise<Food | null> {
   try {
     await showPromise(
@@ -132,6 +139,7 @@ export async function fetchFoodByEan(
       operation: 'fetchFoodByEan',
       additionalData: { ean, params },
     })
+    if (isBackendOutageError(error)) setBackendOutage(true)
     return null
   }
 }
@@ -153,6 +161,7 @@ export async function isEanCached(
       operation: 'isEanCached',
       additionalData: { ean },
     })
+    if (isBackendOutageError(error)) setBackendOutage(true)
     return false
   }
 }

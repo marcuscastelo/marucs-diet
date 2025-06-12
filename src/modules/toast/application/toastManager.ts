@@ -17,6 +17,8 @@ import {
   TOAST_DURATION_INFINITY,
   ToastOptions,
 } from '~/modules/toast/domain/toastTypes'
+import { setBackendOutage } from '~/shared/error/backendOutageSignal'
+import { isBackendOutageError } from '~/shared/error/errorHandler'
 import { createDebug } from '~/shared/utils/createDebug'
 import { isNonEmptyString } from '~/shared/utils/isNonEmptyString'
 
@@ -118,6 +120,22 @@ export function showError(
   providedOptions?: Omit<Partial<ToastOptions>, 'type'>,
   providedDisplayMessage?: string,
 ): string {
+  if (isBackendOutageError(error)) {
+    setBackendOutage(true)
+    // Show a custom outage toast (pt-BR):
+    return show(
+      'Falha de conexão com o servidor. Algumas funções podem estar indisponíveis.',
+      {
+        ...mergeToastOptions({
+          ...providedOptions,
+          type: 'error',
+          context: 'background',
+          audience: 'user',
+        }),
+        duration: 8000,
+      },
+    )
+  }
   const options = mergeToastOptions({ ...providedOptions, type: 'error' })
 
   // Pass the original error object to preserve stack/context
