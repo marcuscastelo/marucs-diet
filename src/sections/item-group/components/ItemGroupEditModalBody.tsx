@@ -1,4 +1,4 @@
-import { type Accessor, type Setter, Show } from 'solid-js'
+import { type Accessor, batch, type Setter, Show } from 'solid-js'
 
 import { type Item } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
@@ -41,8 +41,10 @@ export function ItemGroupEditModalBody(props: {
       )
       return
     }
-    props.setEditSelection({ item })
-    props.setItemEditModalVisible(true)
+    batch(() => {
+      props.setEditSelection({ item })
+      props.setItemEditModalVisible(true)
+    })
   }
 
   return (
