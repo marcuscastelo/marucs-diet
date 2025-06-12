@@ -1,6 +1,5 @@
 import { z } from 'zod'
 
-import { generateId } from '~/legacy/utils/idUtils'
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { handleApiError } from '~/shared/error/errorHandler'
@@ -111,14 +110,16 @@ export function getItemGroupQuantity(group: ItemGroup): number {
  * @returns A new SimpleItemGroup
  */
 export function createSimpleItemGroup({
+  id,
   name,
   items = [],
 }: {
+  id: number
   name: string
   items?: SimpleItemGroup['items']
 }): SimpleItemGroup {
   return {
-    id: generateId(),
+    id,
     name,
     items,
     recipe: undefined,
@@ -136,16 +137,18 @@ export function createSimpleItemGroup({
  * @returns A new RecipedItemGroup
  */
 export function createRecipedItemGroup({
+  id,
   name,
   recipe,
   items = [],
 }: {
+  id: number
   name: string
   recipe: number
   items?: RecipedItemGroup['items']
 }): RecipedItemGroup {
   return {
-    id: generateId(),
+    id,
     name,
     items,
     recipe,
