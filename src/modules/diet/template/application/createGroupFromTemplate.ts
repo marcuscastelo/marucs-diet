@@ -23,10 +23,11 @@ export function createGroupFromTemplate(
   item: TemplateItem,
 ): { newGroup: ItemGroup; operation: string; templateType: string } {
   if (isTemplateItemFood(item)) {
+    const name = (item as { name: string }).name
     return {
       newGroup: createSimpleItemGroup({
         id: 1,
-        name: item.name,
+        name,
         items: [item],
       }),
       operation: 'addSimpleItem',
@@ -35,10 +36,12 @@ export function createGroupFromTemplate(
   }
 
   if (isTemplateRecipe(template)) {
+    // item is a RecipeTemplateItem, which has a name property
+    const name = (item as { name: string }).name
     return {
       newGroup: createRecipedItemGroup({
         id: 1,
-        name: item.name,
+        name,
         recipe: template.id,
         items: [...template.items],
       }),

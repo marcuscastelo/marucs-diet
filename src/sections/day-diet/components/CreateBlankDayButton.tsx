@@ -6,6 +6,7 @@ import {
 } from '~/modules/diet/day-diet/application/dayDiet'
 import { createMeal } from '~/modules/diet/meal/domain/meal'
 import { currentUser } from '~/modules/user/application/user'
+import { transformMeal } from '~/shared/domainTransformers/mealTransformers'
 
 // TODO:   Make meal names editable and persistent by user
 const DEFAULT_MEALS = [
@@ -27,7 +28,7 @@ export function CreateBlankDayButton(props: { selectedDay: string }) {
               createDayDiet({
                 owner: currentUser().id,
                 target_day: props.selectedDay,
-                meals: DEFAULT_MEALS,
+                meals: DEFAULT_MEALS.map(transformMeal),
               }),
             )
           }}

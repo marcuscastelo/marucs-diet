@@ -2,8 +2,8 @@ import { z } from 'zod'
 
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
-import { handleApiError } from '~/shared/error/errorHandler'
 import { transformItemGroup } from '~/shared/domainTransformers/itemGroupTransformers'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 // TODO:   Add support for nested groups and recipes (recursive schema: https://github.com/colinhacks/zod#recursive-types)
 // TODO:   In the future, it seems like discriminated unions will deprecated (https://github.com/colinhacks/zod/issues/2106)
@@ -44,8 +44,7 @@ export const recipedItemGroupSchema = z.object({
     .refine((arr) => Array.isArray(arr) && arr.length > 0, {
       message:
         "O campo 'items' do grupo deve ser uma lista de itens e não pode ser vazio.",
-    })
-    .readonly(),
+    }),
   recipe: z.number({
     required_error: "O campo 'recipe' do grupo é obrigatório.",
     invalid_type_error: "O campo 'recipe' do grupo deve ser um número.",
@@ -122,8 +121,8 @@ export function createSimpleItemGroup({
   return transformItemGroup({
     id,
     name,
-    items,
-    recipe: undefined,
+    items: [...items], // ensure mutable array
+    recipe: null, // always null for simple groups
     __type: 'ItemGroup',
   })
 }
@@ -151,10 +150,10 @@ export function createRecipedItemGroup({
   return transformItemGroup({
     id,
     name,
-    items,
-    recipe,
+    items: [...items], // ensure mutable array
+    recipe, // always present, type is number
     __type: 'ItemGroup',
-  })
+  }) as RecipedItemGroup
 }
 
 /**

@@ -7,6 +7,7 @@ import {
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { RecipeEditModal } from '~/sections/recipe/components/RecipeEditModal'
+import { transformRecipe } from '~/shared/domainTransformers/recipeTransformers'
 
 export function ExternalRecipeEditModal(props: {
   recipe: Recipe | null
@@ -23,7 +24,7 @@ export function ExternalRecipeEditModal(props: {
           setVisible={props.setVisible}
         >
           <RecipeEditModal
-            recipe={recipe()}
+            recipe={transformRecipe(recipe())}
             onSaveRecipe={(recipe) => {
               updateRecipe(recipe.id, recipe)
                 .then(props.setRecipe)

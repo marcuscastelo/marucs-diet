@@ -31,6 +31,7 @@ import {
   useRecipeEditContext,
 } from '~/sections/recipe/context/RecipeEditContext'
 import { cn } from '~/shared/cn'
+import { transformRecipe } from '~/shared/domainTransformers/recipeTransformers'
 
 export type RecipeEditViewProps = {
   recipe: Accessor<Recipe>
@@ -82,7 +83,7 @@ export function RecipeEditHeader(props: {
   const { handleCopy, handlePaste, hasValidPastableOnClipboard } =
     useCopyPasteActions({
       acceptedClipboardSchema,
-      getDataToCopy: () => recipe(),
+      getDataToCopy: () => transformRecipe(recipe()),
       onPaste: (data) => {
         const groupsToAdd = convertToGroups(data as GroupConvertible)
           .map((group) => regenerateId(group))

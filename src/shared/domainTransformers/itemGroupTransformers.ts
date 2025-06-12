@@ -1,6 +1,7 @@
+import { z } from 'zod'
+
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
-import { z } from 'zod'
 
 export const simpleItemGroupTransformSchema = z.object({
   id: z.number(),
@@ -17,7 +18,7 @@ export const simpleItemGroupTransformSchema = z.object({
 export const recipedItemGroupTransformSchema = z.object({
   id: z.number(),
   name: z.string(),
-  items: itemSchema.array().readonly(),
+  items: itemSchema.array(), // remove .readonly()
   recipe: z.number(),
   __type: z.literal('ItemGroup').default('ItemGroup'),
 })
@@ -35,13 +36,18 @@ export function transformItemGroup(input: unknown) {
       items: unknown[]
       recipe: number
     }
-    return parseWithStack(recipedItemGroupTransformSchema, {
-      id,
-      name,
-      items: Array.isArray(items) ? [...items] : [],
+    // Ensure recipe is always present and items is mutable
+    return {
+      ...parseWithStack(recipedItemGroupTransformSchema, {
+        id,
+        name,
+        items: Array.isArray(items) ? [...items] : [],
+        recipe,
+        __type: 'ItemGroup',
+      }),
       recipe,
-      __type: 'ItemGroup',
-    })
+      items: Array.isArray(items) ? [...items] : [],
+    }
   } else if (
     typeof input === 'object' &&
     input !== null &&
@@ -58,7 +64,7 @@ export function transformItemGroup(input: unknown) {
       id,
       name,
       items: Array.isArray(items) ? [...items] : [],
-      recipe: undefined,
+      recipe: null, // always null for simple groups
       __type: 'ItemGroup',
     })
   }
