@@ -32,17 +32,12 @@ get_sha_for_branch() {
 get_commit_count_between() {
   local from_sha="$1"
   local to_sha="$2"
-  local response
-  response=$(curl -s "https://api.github.com/repos/$OWNER_REPO/compare/$from_sha...$to_sha")
-  if [ $? -ne 0 ] || [ -z "$response" ]; then
-    echo "Error: failed to fetch commit comparison from GitHub API" >&2
-    exit 1
-  fi
-  local message
-  message=$(echo "$response" | grep -o '"message"[^"]*"[^"]*"' | head -1)
-  if [ -n "$message" ]; then
-    echo "GitHub API message: $message" >&2
-    echo "?"    
+  local response http_status
+  response=$(curl -s -w "\n%{http_code}" "https://api.github.com/repos/$OWNER_REPO/compare/$from_sha...$to_sha")
+  http_status=$(echo "$response" | tail -n1)
+  response=$(echo "$response" | sed '$d')
+  if [ "$http_status" != "200" ]; then
+    echo "?"
     return
   fi
   local count
