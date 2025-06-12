@@ -41,6 +41,7 @@ Your task is to automate the process of implementing a GitHub issue, following t
 - UI text may be in English or pt-BR as required.
 - Never add explanatory comments in code unless absolutely necessary.
 - Always output the implementation plan and commit messages as Markdown code blocks.
+- Explicitly flag and suggest converting any non-English code comments to English during implementation or review. See [copilot-instructions.md](../instructions/copilot/copilot-instructions.md) for global rules.
 
 ## References
 
