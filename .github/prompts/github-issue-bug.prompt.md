@@ -21,6 +21,10 @@ When provided with an error message, stack trace, or exception context:
   - After running any terminal command, check the output for success and handle errors.
   - Output only the final command.
   - Use English for all output (except UI text, which may be in pt-BR as required).
+  - **Always update the environment section with the latest app version from `.scripts/semver.sh` before submitting or editing an issue.**
+  - **Check for the existence of `.scripts/semver.sh` before using it. If missing, suggest alternatives or prompt the user.**
+  - **Verify the correct script directory (e.g., `.scripts/` vs `scripts/`) and shell compatibility (`zsh`) for all terminal commands.**
+  - **If `.scripts/semver.sh` is missing or not executable, add a troubleshooting step or warning.**
 
 ## Label Usage
 
@@ -34,4 +38,4 @@ reportedBy: github-copilot.v1/github-issue-bug
 - Write all shell commands for the user's default shell (`zsh`), and ensure `printf`/`echo` usage is robust against special characters and multiline content.
 - If file creation or `printf` fails (e.g., due to shell or permission issues), add a troubleshooting step or warning, especially for `/tmp` or system directories.
 - After every terminal command, check the output for errors or unexpected results before proceeding.
-- Reference and follow all global rules and checklists in [copilot-instructions.md](../instructions/copilot/copilot-instructions.md).
+- Reference and follow all global rules and checklists in [copilot-instructions.md](../copilot-instructions.md).

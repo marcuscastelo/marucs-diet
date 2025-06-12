@@ -4,6 +4,12 @@ applyTo: "**"
 # Copilot Instructions (short version)
 During this session, always wait until the end of the execution of any requested command or process, even if it takes several minutes, before responding. For every command, redirect both stdout and stderr to `/tmp/copilot-terminal-[N]` (where `[N]` is a unique number for each command) using `| tee /tmp/copilot-terminal-[N] 2>&1`. After the main command finishes, check `cat /tmp/copilot-terminal-[N]`. Never repeat the main command. Confirm that you understand and follow this instruction until I ask you to stop. Never combine commands with `&&`, `||` or `;`
 
+## Terminal & Script Usage
+- Always check for the existence of referenced scripts (e.g., `.scripts/semver.sh`) before using them. If missing, suggest alternatives or prompt the user.
+- The preferred method for app version reporting is `.scripts/semver.sh`, not `git describe --tags --always`.
+- Always verify the correct script directory (e.g., `.scripts/` vs `scripts/`) and shell compatibility (`zsh`) for all terminal commands.
+- If a script is missing or not executable, add a troubleshooting step or warning.
+
 ## Reporting and Attribution
 
 - This session will have multiple agents. Everytime a new agent takes palace, it should announce it to the user
