@@ -12,6 +12,7 @@ import {
 import { handleApiError, wrapErrorWithStack } from '~/shared/error/errorHandler'
 import { isSupabaseDuplicateEanError } from '~/shared/supabase/supabaseErrorUtils'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
+import { removeDiacritics } from '~/shared/utils/removeDiacritics'
 
 const TABLE = 'foods'
 
@@ -176,8 +177,10 @@ async function fetchFoodsByName(
   name: Required<Food>['name'],
   params: FoodSearchParams = {},
 ) {
+  // Normalize diacritics for search
+  const normalizedName = removeDiacritics(name)
   return await internalCachedSearchFoods(
-    { field: 'name', value: name, operator: 'ilike' },
+    { field: 'name', value: normalizedName, operator: 'ilike' },
     params,
   )
 }
@@ -220,14 +223,15 @@ async function internalCachedSearchFoods(
   let query = base
 
   if (field !== '' && value !== '') {
-    console.debug(`[Food] Searching for foods with ${field} = ${value}`)
-
+    // Normalize diacritics for search in DB as well
+    const normalizedValue =
+      typeof value === 'string' ? removeDiacritics(value) : value
     switch (operator) {
       case 'eq':
-        query = query.eq(field, value)
+        query = query.eq(field, normalizedValue)
         break
       case 'ilike':
-        query = query.ilike(field, `%${value}%`)
+        query = query.ilike(field, `%${normalizedValue}%`)
         break
       default:
         ;((_: never) => _)(operator) // TODO:   Create a better function for exhaustive checks
