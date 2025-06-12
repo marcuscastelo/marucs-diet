@@ -17,8 +17,7 @@ When given a subtask or subissue related to a parent GitHub issue, generate a ne
    - Use the template in `docs/ISSUE_TEMPLATE_SUBISSUE.md`, but exclude the template header.
    - Fill in all relevant fields.
    - Include a reference to the parent issue number in the body (e.g., `Part of #123`).
-   - Use `printf` with `\n` for line breaks.
-   - Write the body to a temporary file and use the `--body-file` option with `gh issue create`.
+   - Use `printf` with `\n` for line breaks. Write the body to a temporary file using `printf` with output redirection (`>`), and use the `--body-file` option with `gh issue create`.
    - **Do not** use `echo` or heredoc syntax.
 3. **Labels and Milestones**:
    - Use only existing labels.

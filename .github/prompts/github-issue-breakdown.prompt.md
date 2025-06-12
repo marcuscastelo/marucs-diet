@@ -13,7 +13,7 @@ Analyze a GitHub Issue number provided by the user to determine if it should be 
 - Use the `gh` CLI to fetch the issue details and comments.
 - Assess if the issue is large, complex, or multi-step and could benefit from subissues.
 - If breakdown is needed, summarize why and list suggested subissues, referencing the main modules or steps.
-- For each subissue, output the `gh issue create` command, using `printf` with `\n` for newlines, and fill in the template fields. Reference the parent issue and use the `subissue` label.
+- For each subissue, output the `gh issue create` command, using `printf` with `\n` for newlines, and fill in the template fields. Reference the parent issue and use the `subissue` label. Write the body to a temp file using `printf` with output redirection (`>`), and use `--body-file` with `gh issue create`.
 - Do not perform code changes or create subissues in this prompt; only analyze and suggest.
 - Use English for all output.
 

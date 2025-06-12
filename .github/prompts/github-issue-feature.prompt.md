@@ -12,7 +12,7 @@ When provided with a feature request or idea, generate a GitHub issue using the 
 - Body: use the template in `docs/ISSUE_TEMPLATE_FEATURE.md`, filling in relevant fields. Do not include the template header.
 - Always use the label `feature`.
 - If a milestone is specified and exists, use it; otherwise, prompt or skip.
-- Use `printf` with `\n` for newlines. Write the body to a temp file and use `--body-file` with `gh issue create`.
+- Use `printf` with `\n` for newlines. Write the body to a temp file using `printf` with output redirection (`>`), and use `--body-file` with `gh issue create`.
 - Do not use `echo` or heredoc.
 - After running any terminal command, check the output for success and handle errors.
 - Output only the final command.

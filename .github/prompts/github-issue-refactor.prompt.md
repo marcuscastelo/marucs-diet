@@ -16,8 +16,7 @@ When provided with a refactor request or a code quality concern, generate a GitH
 2. **Body**:
    - Use the template in `docs/ISSUE_TEMPLATE_REFACTOR.md`, but **exclude the template header**.
    - Fill in the relevant fields only.
-   - Use `printf` with `\n` for newlines.
-   - Write the issue body to a temporary file and use the `--body-file` option with `gh issue create`.
+   - Use `printf` with `\n` for newlines. Write the issue body to a temporary file using `printf` with output redirection (`>`), and use the `--body-file` option with `gh issue create`.
    - **Do not** use `echo` or heredoc syntax.
 3. **Labels and Milestones**:
    - Use only existing labels and milestones.
