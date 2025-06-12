@@ -42,6 +42,8 @@ reportedBy: <agent-name.vXX>
 
 ## Language
 - Code/comments/commits in English. UI text in pt-BR if required.
+- All code comments, including minor or nitpick comments, must be in English for consistency across the codebase, regardless of the original language of the code or user input.
+- When reviewing or refactoring, explicitly flag and suggest converting any non-English comments to English.
 
 ## Naming & Structure
 - Use descriptive, action-based names. Avoid generic names. Organize by module.

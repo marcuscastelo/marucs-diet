@@ -13,6 +13,7 @@ tools: ['codebase']
 - Use clear, actionable language and structure the audit with sections for: Summary of Changes, Strengths, Issues/Concerns, and Recommendations.
 - Use English for all output.
 - Do not display the audit content directly to the user; always save it to disk.
+- Explicitly flag and suggest converting any non-English code comments to English during review. See [copilot-instructions.md](../instructions/copilot/copilot-instructions.md) for global rules.
 
 ## Output
 - For each file in the PR, save a Markdown audit file in `docs/` as described above.
