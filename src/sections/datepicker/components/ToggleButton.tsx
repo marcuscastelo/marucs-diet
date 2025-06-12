@@ -1,5 +1,5 @@
 import { type JSXElement } from 'solid-js'
-import { CloseIcon, DateIcon } from './utils'
+import { CloseIcon, DateIcon } from '~/sections/datepicker/components/utils'
 
 type ToggleButtonProps = {
   isEmpty: boolean

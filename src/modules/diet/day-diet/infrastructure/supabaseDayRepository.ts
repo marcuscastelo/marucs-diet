@@ -1,20 +1,25 @@
+import { type Accessor, createSignal } from 'solid-js'
+
+import supabase from '~/legacy/utils/supabase'
 import {
   type DayDiet,
   dayDietSchema,
   type NewDayDiet,
 } from '~/modules/diet/day-diet/domain/dayDiet'
-import { type User } from '~/modules/user/domain/user'
-import supabase from '~/legacy/utils/supabase'
 import { type DayRepository } from '~/modules/diet/day-diet/domain/dayDietRepository'
-import { type Accessor, createSignal } from 'solid-js'
-import { handleApiError, handleValidationError } from '~/shared/error/errorHandler'
 import {
-  type DayDietDAO,
-  daoToDayDiet,
   createInsertDayDietDAOFromNewDayDiet,
-} from './dayDietDAO'
+  daoToDayDiet,
+  type DayDietDAO,
+} from '~/modules/diet/day-diet/infrastructure/dayDietDAO'
+import { type User } from '~/modules/user/domain/user'
+import {
+  handleApiError,
+  handleValidationError,
+  wrapErrorWithStack,
+} from '~/shared/error/errorHandler'
 
-// TODO: Delete old days table and rename days_test to days
+// TODO:   Delete old days table and rename days_test to days
 export const SUPABASE_TABLE_DAYS = 'days_test'
 
 export function createSupabaseDayRepository(): DayRepository {
@@ -29,58 +34,66 @@ export function createSupabaseDayRepository(): DayRepository {
 }
 
 /**
- * // TODO: Replace userDays with userDayIndexes
+ * // TODO:   Replace userDays with userDayIndexes
  * @deprecated should be replaced by userDayIndexes
  */
 const [userDays, setUserDays] = createSignal<readonly DayDiet[]>([])
 // const [userDayIndexes, setUserDayIndexes] = createSignal<readonly DayIndex[]>([])
 
-// TODO: better error handling
-async function fetchDayDiet(_dayId: DayDiet['id']): Promise<DayDiet | null> {
-  //   // TODO: filter userId in query
-  //   console.debug(`[supabaseDayRepository] fetchDayDiet(${dayId})`)
-  //   const { data, error } = await supabase.from(SUPABASE_TABLE_DAYS).select().eq('id', dayId)
+// TODO:   better error handling
+/**
+ * Fetches a DayDiet by its ID.
+ * Throws on error or if not found.
+ * @param dayId - The DayDiet ID
+ * @returns The DayDiet
+ * @throws Error if not found or on API/validation error
+ */
+async function fetchDayDiet(dayId: DayDiet['id']): Promise<DayDiet> {
+  try {
+    const { data, error } = await supabase
+      .from(SUPABASE_TABLE_DAYS)
+      .select()
+      .eq('id', dayId)
 
-  //   if (error !== null) {
-  //     throw error
-  //   }
+    if (error !== null) {
+      handleApiError(error, {
+        component: 'supabaseDayRepository',
+        operation: 'fetchDayDiet',
+        additionalData: { dayId },
+      })
+      throw error
+    }
 
-  //   const dayDiets = dayDietSchema.array().parse(data ?? [])
-
-  //   console.debug(
-  //     `[supabaseDayRepository] fetchDayDiet returned ${dayDiets.length} days`
-  //   )
-
-  //   return dayDiets[0] ?? null
-  // }
-
-  // // TODO: better error handling
-  // async function fetchUserDayIndexes (
-  //   userId: User['id']
-  // ): Promise<Accessor<readonly DayIndex[]>> {
-  //   // TODO: filter userId in query
-  //   console.debug(`[supabaseDayRepository] fetchUserDayIndexes(${userId})`)
-  //   const { data, error } = await supabase
-  //     .from(SUPABASE_TABLE_DAYS)
-  //     .select('id, target_day, owner')
-  //     .eq('owner', userId)
-
-  //   if (error !== null) {
-  //     console.error('Error while fetching user day indexes: ', error)
-  //     throw error
-  //   }
-
-  //   const dayIndexes = dayIndexSchema.array().parse(data ?? [])
-
-  //   console.debug(
-  //     `[supabaseDayRepository] fetchUserDayIndexes returned ${dayIndexes.length} days`
-  //   )
-  //   setUserDayIndexes(dayIndexes)
-  //   return userDayIndexes
-  return null
+    const dayDiets = Array.isArray(data) ? data : []
+    if (dayDiets.length === 0) {
+      handleValidationError('DayDiet not found', {
+        component: 'supabaseDayRepository',
+        operation: 'fetchDayDiet',
+        additionalData: { dayId },
+      })
+      throw new Error('DayDiet not found')
+    }
+    const result = dayDietSchema.safeParse(dayDiets[0])
+    if (!result.success) {
+      handleValidationError('DayDiet invalid', {
+        component: 'supabaseDayRepository',
+        operation: 'fetchDayDiet',
+        additionalData: { dayId, parseError: result.error },
+      })
+      throw new Error('DayDiet invalid')
+    }
+    return result.data
+  } catch (err) {
+    handleApiError(err, {
+      component: 'supabaseDayRepository',
+      operation: 'fetchDayDiet',
+      additionalData: { dayId },
+    })
+    throw err
+  }
 }
 
-// TODO: better error handling
+// TODO:   better error handling
 async function fetchAllUserDayDiets(
   userId: User['id'],
 ): Promise<Accessor<readonly DayDiet[]>> {
@@ -92,6 +105,11 @@ async function fetchAllUserDayDiets(
     .order('target_day', { ascending: true })
 
   if (error !== null) {
+    handleApiError(error, {
+      component: 'supabaseDayRepository',
+      operation: 'fetchAllUserDayDiets',
+      additionalData: { userId },
+    })
     throw error
   }
 
@@ -104,9 +122,9 @@ async function fetchAllUserDayDiets(
       handleValidationError('Error while parsing day', {
         component: 'supabaseDayRepository',
         operation: 'fetchAllUserDayDiets',
-        additionalData: { parseError: result.error }
+        additionalData: { parseError: result.error },
       })
-      throw result.error
+      throw wrapErrorWithStack(result.error)
     })
 
   console.log('days', days)
@@ -119,10 +137,8 @@ async function fetchAllUserDayDiets(
   return userDays
 }
 
-// TODO: Change upserts to inserts on the entire app
-const insertDayDiet = async (
-  newDay: NewDayDiet,
-): Promise<DayDiet | null> => {
+// TODO:   Change upserts to inserts on the entire app
+const insertDayDiet = async (newDay: NewDayDiet): Promise<DayDiet | null> => {
   const createDAO = createInsertDayDietDAOFromNewDayDiet(newDay)
 
   const { data: days, error } = await supabase
@@ -130,11 +146,14 @@ const insertDayDiet = async (
     .insert(createDAO)
     .select()
   if (error !== null) {
-    throw error
+    throw wrapErrorWithStack(error)
   }
 
-  const dayDAO = days?.[0] as DayDietDAO | undefined
-  return dayDAO ? daoToDayDiet(dayDAO) : null
+  const dayDAO = days[0] as DayDietDAO | undefined
+  if (dayDAO !== undefined) {
+    return daoToDayDiet(dayDAO)
+  }
+  return null
 }
 
 const updateDayDiet = async (
@@ -142,7 +161,7 @@ const updateDayDiet = async (
   newDay: NewDayDiet,
 ): Promise<DayDiet> => {
   const updateDAO = createInsertDayDietDAOFromNewDayDiet(newDay)
-  
+
   const { data, error } = await supabase
     .from(SUPABASE_TABLE_DAYS)
     .update(updateDAO)
@@ -153,12 +172,12 @@ const updateDayDiet = async (
     handleApiError(error, {
       component: 'supabaseDayRepository',
       operation: 'updateDayDiet',
-      additionalData: { id, dayData: updateDAO }
+      additionalData: { id, dayData: updateDAO },
     })
     throw error
   }
 
-  const dayDAO = data?.[0] as DayDietDAO
+  const dayDAO = data[0] as DayDietDAO
   return daoToDayDiet(dayDAO)
 }
 
@@ -170,7 +189,7 @@ const deleteDayDiet = async (id: DayDiet['id']): Promise<void> => {
     .select()
 
   if (error !== null) {
-    throw error
+    throw wrapErrorWithStack(error)
   }
 
   const userId = userDays().find((day) => day.id === id)?.owner

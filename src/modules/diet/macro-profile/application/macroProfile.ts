@@ -1,13 +1,18 @@
+import { createEffect, createSignal } from 'solid-js'
+
 import { getLatestMacroProfile } from '~/legacy/utils/macroProfileUtils'
-import { type MacroProfile, type NewMacroProfile } from '~/modules/diet/macro-profile/domain/macroProfile'
+import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
+import {
+  type MacroProfile,
+  type NewMacroProfile,
+} from '~/modules/diet/macro-profile/domain/macroProfile'
 import {
   createSupabaseMacroProfileRepository,
   SUPABASE_TABLE_MACRO_PROFILES,
 } from '~/modules/diet/macro-profile/infrastructure/supabaseMacroProfileRepository'
+import { showPromise } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
-import { createEffect, createSignal } from 'solid-js'
-import toast from 'solid-toast'
-import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 const macroProfileRepository = createSupabaseMacroProfileRepository()
 
@@ -18,12 +23,18 @@ export const [userMacroProfiles, setUserMacroProfiles] = createSignal<
 export const latestMacroProfile = () =>
   getLatestMacroProfile(userMacroProfiles())
 
-async function bootstrap() {
-  await toast.promise(fetchUserMacroProfiles(currentUserId()), {
-    loading: 'Carregando perfis de macro...',
-    success: 'Perfis de macro carregados com sucesso',
-    error: 'Falha ao carregar perfis de macro',
-  })
+function bootstrap() {
+  void showPromise(
+    fetchUserMacroProfiles(currentUserId()),
+    {
+      loading: 'Carregando perfis de macro...',
+      success: 'Perfis de macro carregados com sucesso',
+      error: 'Falha ao carregar perfis de macro',
+    },
+    {
+      context: 'background',
+    },
+  )
 }
 
 /**
@@ -40,62 +51,144 @@ registerSubapabaseRealtimeCallback(SUPABASE_TABLE_MACRO_PROFILES, () => {
   bootstrap()
 })
 
-export async function fetchUserMacroProfiles(userId: number) {
-  const macroProfiles =
-    await macroProfileRepository.fetchUserMacroProfiles(userId)
-  setUserMacroProfiles(macroProfiles)
-  return macroProfiles
+/**
+ * Fetches all macro profiles for a user.
+ * @param userId - The user ID.
+ * @returns Array of macro profiles or empty array on error.
+ */
+export async function fetchUserMacroProfiles(
+  userId: number,
+): Promise<readonly MacroProfile[]> {
+  try {
+    const macroProfiles =
+      await macroProfileRepository.fetchUserMacroProfiles(userId)
+    setUserMacroProfiles(macroProfiles)
+    return macroProfiles
+  } catch (error) {
+    handleApiError(error, {
+      component: 'macroProfileApplication',
+      operation: 'fetchUserMacroProfiles',
+      additionalData: { userId },
+    })
+    setUserMacroProfiles([])
+    return []
+  }
 }
 
+/**
+ * Inserts a new macro profile.
+ * @param newMacroProfile - The new macro profile data.
+ * @returns The inserted macro profile or null on error.
+ */
 export async function insertMacroProfile(
   newMacroProfile: NewMacroProfile,
-) {
-  const macroProfile = await toast.promise(
-    macroProfileRepository.insertMacroProfile(newMacroProfile),
-    {
-      loading: 'Criando perfil de macro...',
-      success: 'Perfil de macro criado com sucesso',
-      error: 'Falha ao criar perfil de macro',
-    },
-  )
-
-  if (macroProfile && (
-    userMacroProfiles().length === 0 ||
-    macroProfile.owner === userMacroProfiles()[0].owner
-  )) {
-    await fetchUserMacroProfiles(macroProfile.owner)
+): Promise<MacroProfile | null> {
+  try {
+    const macroProfile = await showPromise(
+      macroProfileRepository.insertMacroProfile(newMacroProfile),
+      {
+        loading: 'Criando perfil de macro...',
+        success: 'Perfil de macro criado com sucesso',
+        error: 'Falha ao criar perfil de macro',
+      },
+      { context: 'user-action', audience: 'user' },
+    )
+    const userProfiles = userMacroProfiles()
+    const hasResult = macroProfile !== null
+    const hasNoProfiles = userProfiles.length === 0
+    const firstProfile = userProfiles[0]
+    const isSameOwner =
+      !hasNoProfiles &&
+      macroProfile !== null &&
+      firstProfile !== undefined &&
+      macroProfile.owner === firstProfile.owner
+    if (hasResult && (hasNoProfiles || isSameOwner)) {
+      await fetchUserMacroProfiles(macroProfile.owner)
+    }
+    return macroProfile
+  } catch (error) {
+    handleApiError(error, {
+      component: 'macroProfileApplication',
+      operation: 'insertMacroProfile',
+      additionalData: { newMacroProfile },
+    })
+    return null
   }
-  return macroProfile
 }
 
+/**
+ * Updates a macro profile by ID.
+ * @param macroProfileId - The macro profile ID.
+ * @param newMacroProfile - The new macro profile data.
+ * @returns The updated macro profile or null on error.
+ */
 export async function updateMacroProfile(
   macroProfileId: MacroProfile['id'],
   newMacroProfile: NewMacroProfile,
-) {
-  const macroProfiles = await toast.promise(
-    macroProfileRepository.updateMacroProfile(macroProfileId, newMacroProfile),
-    {
-      loading: 'Atualizando perfil de macro...',
-      success: 'Perfil de macro atualizado com sucesso',
-      error: 'Falha ao atualizar perfil de macro',
-    },
-  )
-  if (macroProfiles && macroProfiles.owner === userMacroProfiles()[0].owner) {
-    await fetchUserMacroProfiles(macroProfiles.owner)
+): Promise<MacroProfile | null> {
+  try {
+    const macroProfile = await showPromise(
+      macroProfileRepository.updateMacroProfile(
+        macroProfileId,
+        newMacroProfile,
+      ),
+      {
+        loading: 'Atualizando perfil de macro...',
+        success: 'Perfil de macro atualizado com sucesso',
+        error: 'Falha ao atualizar perfil de macro',
+      },
+      { context: 'user-action', audience: 'user' },
+    )
+    const firstUserMacroProfile = userMacroProfiles()[0]
+    const hasResult = macroProfile !== null
+    const hasFirstProfile = firstUserMacroProfile !== undefined
+    const isSameOwner =
+      hasResult &&
+      hasFirstProfile &&
+      macroProfile.owner === firstUserMacroProfile.owner
+    if (isSameOwner) {
+      await fetchUserMacroProfiles(macroProfile.owner)
+    }
+    return macroProfile
+  } catch (error) {
+    handleApiError(error, {
+      component: 'macroProfileApplication',
+      operation: 'updateMacroProfile',
+      additionalData: { macroProfileId, newMacroProfile },
+    })
+    return null
   }
-  return macroProfiles
 }
 
-export async function deleteMacroProfile(macroProfileId: MacroProfile['id']) {
-  await toast.promise(
-    macroProfileRepository.deleteMacroProfile(macroProfileId),
-    {
-      loading: 'Deletando perfil de macro...',
-      success: 'Perfil de macro deletado com sucesso',
-      error: 'Falha ao deletar perfil de macro',
-    },
-  )
-  if (userMacroProfiles().length > 0) {
-    await fetchUserMacroProfiles(userMacroProfiles()[0].owner)
+/**
+ * Deletes a macro profile by ID.
+ * @param macroProfileId - The macro profile ID.
+ * @returns True if deleted, false otherwise.
+ */
+export async function deleteMacroProfile(
+  macroProfileId: number,
+): Promise<boolean> {
+  try {
+    await showPromise(
+      macroProfileRepository.deleteMacroProfile(macroProfileId),
+      {
+        loading: 'Deletando perfil de macro...',
+        success: 'Perfil de macro deletado com sucesso',
+        error: 'Falha ao deletar perfil de macro',
+      },
+      { context: 'user-action', audience: 'user' },
+    )
+    const [first] = userMacroProfiles()
+    if (first) {
+      await fetchUserMacroProfiles(first.owner)
+    }
+    return true
+  } catch (error) {
+    handleApiError(error, {
+      component: 'macroProfileApplication',
+      operation: 'deleteMacroProfile',
+      additionalData: { macroProfileId },
+    })
+    return false
   }
 }

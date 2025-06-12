@@ -1,21 +1,34 @@
-import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
-import { calcCalories, calcDayMacros } from '~/legacy/utils/macroMath'
 import { Show } from 'solid-js'
-import { Progress } from '~/sections/common/components/Progress'
-import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget'
+
+import { calcCalories, calcDayMacros } from '~/legacy/utils/macroMath'
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
-import { stringToDate } from '~/legacy/utils/dateUtils'
+import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
+import { showError } from '~/modules/toast/application/toastManager'
+import { Progress } from '~/sections/common/components/Progress'
+import { stringToDate } from '~/shared/utils/date'
 
-export default function DayMacros(props: { class?: string }) {
+export default function DayMacros(props: {
+  class?: string
+  dayDiet?: DayDiet
+}) {
   const macroSignals = () => {
-    const currentDayDiet_ = currentDayDiet()
-    if (currentDayDiet_ === null) return null
-
-    const macroTarget_ = macroTarget(stringToDate(currentDayDiet_.target_day))
-    if (macroTarget_ === null) return null
-
-    const dayMacros = calcDayMacros(currentDayDiet_)
-
+    const day = props.dayDiet ?? currentDayDiet()
+    if (!day) {
+      showError(new Error('Dia atual não encontrado'), {
+        audience: 'system',
+      })
+      return null
+    }
+    const macroTarget_ = getMacroTargetForDay(stringToDate(day.target_day))
+    if (macroTarget_ === null) {
+      showError(new Error('Meta de macros não encontrada'), {
+        audience: 'system',
+      })
+      return null
+    }
+    const dayMacros = calcDayMacros(day)
     return {
       macroTarget: macroTarget_,
       macros: dayMacros,
@@ -31,7 +44,7 @@ export default function DayMacros(props: { class?: string }) {
       {(macroSignals) => (
         <>
           <div class={`flex pt-3 ${props.class} flex-col xs:flex-row `}>
-            <div class="flex-shrink">
+            <div class="shrink">
               <Calories
                 class="w-full"
                 macros={macroSignals().macros}
@@ -91,7 +104,7 @@ function Macros(props: {
   targetMacros: MacroNutrients
   class?: string
 }) {
-  // TODO: Add Progress component
+  // TODO:   Add Progress component
   return (
     <div class={`mx-2 ${props.class}`}>
       <Progress

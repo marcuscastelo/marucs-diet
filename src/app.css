@@ -1,0 +1,122 @@
+@import 'tailwindcss';
+@plugin "daisyui";
+
+@theme {
+  --breakpoint-3xs: 200px;
+  --breakpoint-2xs: 300px;
+  --breakpoint-xs: 475px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+
+@layer utilities {
+  /* :root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+} */
+
+  /* @media (prefers-color-scheme: dark) { */
+  :root {
+    --foreground-rgb: 255, 255, 255;
+  }
+
+  /* } */
+
+  html {
+    background: black;
+  }
+
+  body {
+    color: rgb(var(--foreground-rgb));
+    min-height: 100vh;
+  }
+}
+
+@layer base {
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+.modal>.modal-box {
+  scale: 0.1;
+  transition: all 0.2s ease;
+}
+
+.modal.modal-active>.modal-box {
+  scale: 1;
+  transition: all 0.2s ease;
+}
+
+/* Datepicker patch */
+/* https://github.com/onesine/react-tailwindcss-datepicker/issues/308 */
+@layer utilities {
+
+  .opacity-1 {
+    opacity: 1;
+  }
+}
+
+@layer utilities {
+  .scrollbar-gutter-outside {
+    scrollbar-gutter: stable both-edges;
+  }
+}
+
+.scrollbar-clean::-webkit-scrollbar {
+  width: 10px;
+  background: transparent;
+}
+.scrollbar-clean::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 4px 0;
+  border-radius: 8px;
+}
+.scrollbar-clean::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(80,120,255,0.18) 0%, rgba(80,120,255,0.32) 100%);
+  border-radius: 8px;
+  min-height: 40px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.scrollbar-clean::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(80,120,255,0.32) 0%, rgba(80,120,255,0.48) 100%);
+}
+.scrollbar-clean::-webkit-scrollbar-button {
+  display: none;
+  height: 0;
+  width: 0;
+}
+.scrollbar-clean::-webkit-scrollbar-button:single-button {
+  display: none;
+  height: 0;
+  width: 0;
+}
+.scrollbar-clean::-webkit-scrollbar-button:vertical {
+  display: none;
+  height: 0;
+  width: 0;
+}
+.scrollbar-clean::-webkit-scrollbar-button:horizontal {
+  display: none;
+  height: 0;
+  width: 0;
+}
+@supports (scrollbar-width: thin) {
+  .scrollbar-clean {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(80,120,255,0.32) transparent;
+  }
+  .scrollbar-clean::-webkit-scrollbar-button {
+    display: none;
+    height: 0;
+    width: 0;
+  }
+}

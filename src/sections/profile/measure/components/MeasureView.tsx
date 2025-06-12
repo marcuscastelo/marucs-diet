@@ -1,31 +1,40 @@
-import { Capsule } from '~/sections/common/components/capsule/Capsule'
-import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
-import { createNewMeasure, type Measure } from '~/modules/measure/domain/measure'
-import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
-import { useFloatField } from '~/sections/common/hooks/useField'
-import { FloatInput } from '~/sections/common/components/FloatInput'
-import Datepicker from '~/sections/datepicker/components/Datepicker'
 import {
   deleteMeasure,
   updateMeasure,
 } from '~/modules/measure/application/measure'
-import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
-import toast from 'solid-toast'
+import {
+  createNewMeasure,
+  type Measure,
+} from '~/modules/measure/domain/measure'
+import { showError } from '~/modules/toast/application/toastManager'
+import { Capsule } from '~/sections/common/components/capsule/Capsule'
+import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
+import { FloatInput } from '~/sections/common/components/FloatInput'
+import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { useDateField, useFloatField } from '~/sections/common/hooks/useField'
+import Datepicker from '~/sections/datepicker/components/Datepicker'
 import { formatError } from '~/shared/formatError'
+import { adjustToTimezone } from '~/shared/utils/date/dateUtils'
 
+/**
+ * Renders a capsule view for editing and saving a single Measure.
+ *
+ * @param props.measure - The measure to display and edit
+ * @param props.onRefetchMeasures - Callback to refetch measures after update/delete
+ */
 export function MeasureView(props: {
   measure: Measure
-  onRefetchMeasures: () => void
+  onRefetchMeasures: () => unknown
 }) {
-  // TODO: Replace this with useDateField
-  const [dateFieldValue, setDateFieldValue] = createMirrorSignal(
-    () => props.measure.target_timestamp,
-  )
-
+  const dateField = useDateField(() => props.measure.target_timestamp, {
+    fallback: () => new Date(),
+  })
   const heightField = useFloatField(() => props.measure.height)
   const waistField = useFloatField(() => props.measure.waist)
   const hipField = useFloatField(() => props.measure.hip)
   const neckField = useFloatField(() => props.measure.neck)
+  const { show: showConfirmModal } = useConfirmModalContext()
 
   const handleSave = ({
     date,
@@ -46,29 +55,58 @@ export function MeasureView(props: {
       hip === undefined ||
       neck === undefined
     ) {
-      toast.error('Preencha todos os campos de medidas')
+      showError('Preencha todos os campos de medidas')
       return
     }
-
     const afterUpdate = () => {
       props.onRefetchMeasures()
     }
-
-    updateMeasure(props.measure.id, createNewMeasure({
-      ...props.measure,
-      height,
-      waist,
-      hip,
-      neck,
-      target_timestamp: date,
-    }))
+    updateMeasure(
+      props.measure.id,
+      createNewMeasure({
+        ...props.measure,
+        height,
+        waist,
+        hip,
+        neck,
+        targetTimestamp: date,
+      }),
+    )
       .then(afterUpdate)
       .catch((error) => {
         console.error(error)
-        toast.error(
-          `Erro ao atualizar medida: ${formatError(error)}`
-        )
+        showError(`Erro ao atualizar medida: ${formatError(error)}`)
       })
+  }
+
+  const handleDelete = () => {
+    showConfirmModal({
+      title: 'Confirmar exclusão',
+      body: 'Tem certeza que deseja excluir esta medida? Esta ação não pode ser desfeita.',
+      actions: [
+        {
+          text: 'Cancelar',
+          onClick: () => {},
+        },
+        {
+          text: 'Excluir',
+          primary: true,
+          onClick: () => {
+            const afterDelete = () => {
+              props.onRefetchMeasures()
+            }
+            deleteMeasure(props.measure.id)
+              .then(afterDelete)
+              .catch((error) => {
+                showError(
+                  'Erro ao deletar: \n' + JSON.stringify(error, null, 2),
+                )
+              })
+          },
+        },
+      ],
+      hasBackdrop: true,
+    })
   }
 
   return (
@@ -77,20 +115,16 @@ export function MeasureView(props: {
         <CapsuleContent>
           <Datepicker
             value={{
-              startDate: dateFieldValue(),
-              endDate: dateFieldValue(),
+              startDate: dateField.value(),
+              endDate: dateField.value(),
             }}
             onChange={(value) => {
-              // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-              if (!value?.startDate) {
-                toast.error(`Data inválida: ${JSON.stringify(value)}`)
+              if (value?.startDate === undefined || value.startDate === null) {
+                showError(`Data inválida: ${JSON.stringify(value)}`)
                 return
               }
-              // Apply timezone offset
-              const date = new Date(value.startDate)
-              date.setHours(date.getHours() + 3)
-              setDateFieldValue(date)
-
+              const date = adjustToTimezone(new Date(value.startDate))
+              dateField.setRawValue(date.toISOString())
               handleSave({
                 date,
                 height: heightField.value(),
@@ -99,7 +133,6 @@ export function MeasureView(props: {
                 neck: neckField.value(),
               })
             }}
-            // Timezone = GMT-3
             displayFormat="DD/MM/YYYY HH:mm"
             asSingle={true}
             useRange={false}
@@ -111,115 +144,137 @@ export function MeasureView(props: {
       }
       rightContent={
         <CapsuleContent>
-          <div class="flex justify-between sm:gap-10 px-2">
-            <div class="flex flex-col">
-              <div class="flex">
-                <span class="my-auto">Altura:</span>
-                <FloatInput
-                  field={heightField}
-                  class="input text-center btn-ghost px-0 flex-shrink"
-                  style={{ width: '100%' }}
-                  onFocus={(event) => {
-                    event.target.select()
-                  }}
-                  onFieldCommit={(value) => {
-                    handleSave({
-                      date: dateFieldValue(),
-                      height: value,
-                      waist: waistField.value(),
-                      hip: hipField.value(),
-                      neck: neckField.value(),
-                    })
-                  }}
-                />
-                <span class="my-auto flex-1 hidden sm:block">cm</span>
-              </div>
-              <div class="flex">
-                <span class="my-auto">Cintura:</span>
-                <FloatInput
-                  field={waistField}
-                  class="input text-center btn-ghost px-0 flex-shrink"
-                  style={{ width: '100%' }}
-                  onFocus={(event) => {
-                    event.target.select()
-                  }}
-                  onFieldCommit={(value) => {
-                    handleSave({
-                      date: dateFieldValue(),
-                      height: heightField.value(),
-                      waist: value,
-                      hip: hipField.value(),
-                      neck: neckField.value(),
-                    })
-                  }}
-                />
-                <span class="my-auto flex-1 hidden sm:block">cm</span>
-              </div>
-              <div class="flex">
-                <span class="my-auto">Quadril:</span>
-                <FloatInput
-                  field={hipField}
-                  class="input text-center btn-ghost px-0 flex-shrink"
-                  style={{ width: '100%' }}
-                  onFocus={(event) => {
-                    event.target.select()
-                  }}
-                  onFieldCommit={(value) => {
-                    handleSave({
-                      date: dateFieldValue(),
-                      height: heightField.value(),
-                      waist: waistField.value(),
-                      hip: value,
-                      neck: neckField.value(),
-                    })
-                  }}
-                />
-                <span class="my-auto flex-1 hidden sm:block">cm</span>
-              </div>
-              <div class="flex">
-                <span class="my-auto">Pescoço:</span>
-                <FloatInput
-                  field={neckField}
-                  class="input text-center btn-ghost px-0 flex-shrink"
-                  style={{ width: '100%' }}
-                  onFocus={(event) => {
-                    event.target.select()
-                  }}
-                  onFieldCommit={(value) => {
-                    handleSave({
-                      date: dateFieldValue(),
-                      height: heightField.value(),
-                      waist: waistField.value(),
-                      hip: hipField.value(),
-                      neck: value,
-                    })
-                  }}
-                />
-                <span class="my-auto flex-1 hidden sm:block">cm</span>
-              </div>
-            </div>
+          <div class="flex items-center justify-center sm:gap-10 px-2 w-full">
+            <MeasureFields
+              heightField={heightField}
+              waistField={waistField}
+              hipField={hipField}
+              neckField={neckField}
+              onSave={handleSave}
+              getDate={dateField.value}
+            />
           </div>
-          <button
-            class="btn btn-ghost my-auto"
-            onClick={() => {
-              const afterDelete = () => {
-                props.onRefetchMeasures()
-              }
-              deleteMeasure(props.measure.id)
-                .then(afterDelete)
-                .catch((error) => {
-                  console.error(error)
-                  toast.error(
-                    'Erro ao deletar: \n' + JSON.stringify(error, null, 2),
-                  )
-                })
-            }}
-          >
-            <TrashIcon />
-          </button>
+          <DeleteButton onDelete={handleDelete} />
         </CapsuleContent>
       }
       class={'mb-2'}
     />
+  )
+}
+
+function MeasureFields(props: {
+  heightField: ReturnType<typeof useFloatField>
+  waistField: ReturnType<typeof useFloatField>
+  hipField: ReturnType<typeof useFloatField>
+  neckField: ReturnType<typeof useFloatField>
+  onSave: (field: {
+    date: Date
+    height: number | undefined
+    waist: number | undefined
+    hip: number | undefined
+    neck: number | undefined
+  }) => void
+  getDate: () => Date
+}) {
+  return (
+    <div class="flex flex-col">
+      <div class="flex">
+        <span class="my-auto">Altura:</span>
+        <FloatInput
+          field={props.heightField}
+          class="input bg-transparent text-center btn-ghost px-0 shrink"
+          style={{ width: '100%' }}
+          onFocus={(event) => {
+            event.target.select()
+          }}
+          onFieldCommit={(value) => {
+            props.onSave({
+              date: props.getDate(),
+              height: value,
+              waist: props.waistField.value(),
+              hip: props.hipField.value(),
+              neck: props.neckField.value(),
+            })
+          }}
+        />
+        <span class="my-auto flex-1 hidden sm:block">cm</span>
+      </div>
+      <div class="flex">
+        <span class="my-auto">Cintura:</span>
+        <FloatInput
+          field={props.waistField}
+          class="input bg-transparent text-center btn-ghost px-0 shrink"
+          style={{ width: '100%' }}
+          onFocus={(event) => {
+            event.target.select()
+          }}
+          onFieldCommit={(value) => {
+            props.onSave({
+              date: props.getDate(),
+              height: props.heightField.value(),
+              waist: value,
+              hip: props.hipField.value(),
+              neck: props.neckField.value(),
+            })
+          }}
+        />
+        <span class="my-auto flex-1 hidden sm:block">cm</span>
+      </div>
+      <div class="flex">
+        <span class="my-auto">Quadril:</span>
+        <FloatInput
+          field={props.hipField}
+          class="input bg-transparent text-center btn-ghost px-0 shrink"
+          style={{ width: '100%' }}
+          onFocus={(event) => {
+            event.target.select()
+          }}
+          onFieldCommit={(value) => {
+            props.onSave({
+              date: props.getDate(),
+              height: props.heightField.value(),
+              waist: props.waistField.value(),
+              hip: value,
+              neck: props.neckField.value(),
+            })
+          }}
+        />
+        <span class="my-auto flex-1 hidden sm:block">cm</span>
+      </div>
+      <div class="flex">
+        <span class="my-auto">Pescoço:</span>
+        <FloatInput
+          field={props.neckField}
+          class="input bg-transparent text-center btn-ghost px-0 shrink"
+          style={{ width: '100%' }}
+          onFocus={(event) => {
+            event.target.select()
+          }}
+          onFieldCommit={(value) => {
+            props.onSave({
+              date: props.getDate(),
+              height: props.heightField.value(),
+              waist: props.waistField.value(),
+              hip: props.hipField.value(),
+              neck: value,
+            })
+          }}
+        />
+        <span class="my-auto flex-1 hidden sm:block">cm</span>
+      </div>
+    </div>
+  )
+}
+
+function DeleteButton(props: { onDelete: () => void }) {
+  return (
+    <button
+      class="btn cursor-pointer uppercase btn-ghost my-auto"
+      onClick={() => {
+        props.onDelete()
+      }}
+    >
+      <TrashIcon />
+    </button>
   )
 }

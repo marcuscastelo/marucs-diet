@@ -1,40 +1,51 @@
 import {
+  type Accessor,
+  createEffect,
+  createSignal,
+  For,
+  mergeProps,
+  type Setter,
+  untrack,
+} from 'solid-js'
+
+import { calcDayMacros, calcItemMacros } from '~/legacy/utils/macroMath'
+import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
+import { type Item } from '~/modules/diet/item/domain/item'
+import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
+import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import { showError } from '~/modules/toast/application/toastManager'
+import { FloatInput } from '~/sections/common/components/FloatInput'
+import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
+import {
+  MacroValues,
+  MaxQuantityButton,
+} from '~/sections/common/components/MaxQuantityButton'
+import { Modal } from '~/sections/common/components/Modal'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { useModalContext } from '~/sections/common/context/ModalContext'
+import { useFloatField } from '~/sections/common/hooks/useField'
+import {
   ItemFavorite,
-  ItemHeader,
   ItemName,
   ItemNutritionalInfo,
   ItemView,
 } from '~/sections/food-item/components/ItemView'
-import { type Item } from '~/modules/diet/item/domain/item'
-import { Modal } from '~/sections/common/components/Modal'
-import { useModalContext } from '~/sections/common/context/ModalContext'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
-import { generateId } from '~/legacy/utils/idUtils'
-import { useFloatField } from '~/sections/common/hooks/useField'
-import { FloatInput } from '~/sections/common/components/FloatInput'
-import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 
-import {
-  isFoodFavorite,
-  setFoodAsFavorite,
-} from '~/modules/user/application/user'
-import {
-  mergeProps,
-  type Accessor,
-  createSignal,
-  createEffect,
-  untrack,
-  type Setter,
-  For,
-} from 'solid-js'
-import toast from 'solid-toast'
-
+/**
+ * Modal for editing a TemplateItem.
+ *
+ * @param targetName - Name of the target (meal/group/recipe)
+ * @param targetNameColor - Optional color for the target name
+ * @param item - Accessor for the TemplateItem being edited
+ * @param macroOverflow - Macro overflow context
+ * @param onApply - Called when user applies changes
+ * @param onCancel - Called when user cancels
+ * @param onDelete - Called when user deletes the item
+ */
 export type ItemEditModalProps = {
   targetName: string
   targetNameColor?: string
-  item: Accessor<
-    Partial<TemplateItem> & Pick<TemplateItem, 'name' | 'reference' | 'macros'>
-  >
+  item: Accessor<TemplateItem>
   macroOverflow: () => {
     enable: boolean
     originalItem?: TemplateItem | undefined
@@ -49,33 +60,18 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
   const { setVisible } = useModalContext()
   const { show: showConfirmModal } = useConfirmModalContext()
 
-  // TODO: Better initial state for item on ItemEditModal
-  const [item, setItem] = createSignal<TemplateItem>({
-    __type: props.item()?.__type ?? 'Item',
-    id: props.item()?.id ?? generateId(),
-    quantity: props.item()?.quantity ?? 0,
-    ...props.item(),
-  } satisfies TemplateItem)
-
-  createEffect(() => {
-    setItem({
-      ...untrack(item),
-      ...props.item(),
-    })
-  })
+  const [item, setItem] = createSignal(untrack(() => props.item()))
+  createEffect(() => setItem(props.item()))
 
   const canApply = () => item().quantity > 0
 
   return (
     <Modal class="border-2 border-white">
-      <Modal.Header 
+      <Modal.Header
         title={
           <span>
             Editando item em
-            <span class={props.targetNameColor}>
-              {' '}
-              &quot;{props.targetName ?? 'ERRO: destino desconhecido'}&quot;{' '}
-            </span>
+            <span class={props.targetNameColor}>"{props.targetName}"</span>
           </span>
         }
       />
@@ -90,9 +86,10 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
       <Modal.Footer>
         {props.onDelete !== undefined && (
           <button
-            class="btn-error btn mr-auto"
+            class="btn-error btn cursor-pointer uppercase mr-auto"
             onClick={(e) => {
               e.preventDefault()
+              // eslint-disable-next-line @typescript-eslint/no-unused-expressions
               props.onDelete !== undefined &&
                 showConfirmModal({
                   title: 'Excluir item',
@@ -107,6 +104,7 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
                       primary: true,
                       onClick: () => {
                         props.onDelete?.(item().id)
+                        setVisible(false)
                       },
                     },
                   ],
@@ -117,7 +115,7 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
           </button>
         )}
         <button
-          class="btn"
+          class="btn cursor-pointer uppercase"
           onClick={(e) => {
             e.preventDefault()
             e.stopPropagation()
@@ -128,7 +126,7 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
           Cancelar
         </button>
         <button
-          class="btn"
+          class="btn cursor-pointer uppercase"
           disabled={!canApply()}
           onClick={(e) => {
             e.preventDefault()
@@ -160,8 +158,10 @@ function Body(props: {
 
   const quantitySignal = () =>
     props.item().quantity === 0 ? undefined : props.item().quantity
+
   const quantityField = useFloatField(quantitySignal, {
     decimalPlaces: 0,
+    // eslint-disable-next-line solid/reactivity
     defaultValue: props.item().quantity,
   })
 
@@ -177,12 +177,14 @@ function Body(props: {
   const [currentHoldInterval, setCurrentHoldInterval] =
     createSignal<NodeJS.Timeout | null>(null)
 
-  const increment = () =>
+  const increment = () => {
     quantityField.setRawValue(((quantityField.value() ?? 0) + 1).toString())
-  const decrement = () =>
+  }
+  const decrement = () => {
     quantityField.setRawValue(
       Math.max(0, (quantityField.value() ?? 0) - 1).toString(),
     )
+  }
 
   const holdRepeatStart = (action: () => void) => {
     setCurrentHoldTimeout(
@@ -209,28 +211,58 @@ function Body(props: {
     }
   }
 
+  // Cálculo do restante disponível de macros
+  function getAvailableMacros(): MacroValues {
+    const dayDiet = currentDayDiet()
+    const macroTarget = dayDiet
+      ? getMacroTargetForDay(new Date(dayDiet.target_day))
+      : null
+    const originalItem = props.macroOverflow().originalItem
+    if (!dayDiet || !macroTarget) {
+      return { carbs: 0, protein: 0, fat: 0 }
+    }
+    const dayMacros = calcDayMacros(dayDiet)
+    const originalMacros = originalItem
+      ? calcItemMacros(originalItem)
+      : { carbs: 0, protein: 0, fat: 0 }
+    return {
+      carbs: macroTarget.carbs - dayMacros.carbs + originalMacros.carbs,
+      protein: macroTarget.protein - dayMacros.protein + originalMacros.protein,
+      fat: macroTarget.fat - dayMacros.fat + originalMacros.fat,
+    }
+  }
+
   return (
     <>
       <p class="mt-1 text-gray-400">Atalhos</p>
-      {[
-        [10, 20, 30, 40, 50],
-        [100, 150, 200, 250, 300],
-      ].map((row) => (
-        <div class="mt-1 flex w-full gap-1">
-          <For each={row}>
-            {(value) => (
-              <div
-                class="btn-primary btn-sm btn flex-1"
-                onClick={() => quantityField.setRawValue(value.toString())}
-              >
-                {value}g
-              </div>
-            )}
-          </For>
-        </div>
-      ))}
+      <For
+        each={[
+          [10, 20, 30, 40, 50],
+          [100, 150, 200, 250, 300],
+        ]}
+      >
+        {(row) => (
+          <div class="mt-1 flex w-full gap-1">
+            <For each={row}>
+              {(value) => (
+                <div
+                  class="btn-primary btn-sm btn cursor-pointer uppercase flex-1"
+                  onClick={() => {
+                    quantityField.setRawValue(value.toString())
+                  }}
+                >
+                  {value}g
+                </div>
+              )}
+            </For>
+          </div>
+        )}
+      </For>
       <div class="mt-3 flex w-full justify-between gap-1">
-        <div class="my-1 flex flex-1 justify-around">
+        <div
+          class="my-1 flex flex-1 justify-around"
+          style={{ position: 'relative' }}
+        >
           <FloatInput
             field={quantityField}
             style={{ width: '100%' }}
@@ -252,10 +284,20 @@ function Body(props: {
               !props.canApply ? 'input-error border-red-500' : ''
             }`}
           />
+          <MaxQuantityButton
+            currentValue={quantityField.value() ?? 0}
+            macroTargets={getAvailableMacros()}
+            itemMacros={props.item().macros}
+            onMaxSelected={(maxValue: number) => {
+              console.debug('[ItemEditModal] onMaxSelected', maxValue)
+              quantityField.setRawValue(maxValue.toFixed(2))
+            }}
+            disabled={!props.canApply}
+          />
         </div>
-        <div class="my-1 ml-1 flex flex-shrink justify-around gap-1">
+        <div class="my-1 ml-1 flex shrink justify-around gap-1">
           <div
-            class="btn-primary btn-xs btn h-full w-10 px-6 text-4xl text-red-600"
+            class="btn-primary btn-xs btn cursor-pointer uppercase h-full w-10 px-6 text-4xl text-red-600"
             onClick={decrement}
             onMouseDown={() => {
               holdRepeatStart(decrement)
@@ -270,7 +312,7 @@ function Body(props: {
             -{' '}
           </div>
           <div
-            class="btn-primary btn-xs btn ml-1 h-full w-10 px-6 text-4xl text-green-400"
+            class="btn-primary btn-xs btn cursor-pointer uppercase ml-1 h-full w-10 px-6 text-4xl text-green-400"
             onClick={increment}
             onMouseDown={() => {
               holdRepeatStart(increment)
@@ -292,8 +334,7 @@ function Body(props: {
           ({
             __type: props.item().__type,
             id: id(),
-            name:
-              props.item().name ?? 'Sem nome (itemData && ItemView)',
+            name: props.item().name,
             quantity: quantityField.value() ?? props.item().quantity,
             reference: props.item().reference,
             macros: props.item().macros,
@@ -302,26 +343,16 @@ function Body(props: {
         macroOverflow={props.macroOverflow}
         class="mt-4"
         onClick={() => {
-          toast.error('Alimento não editável (ainda)')
+          // TODO: Implement item editing
+          showError('Alimento não editável (ainda)')
         }}
         header={
-          <ItemHeader
+          <HeaderWithActions
             name={<ItemName />}
-            favorite={
-              <ItemFavorite
-                favorite={
-                  // TODO: [Feature] Add recipe favorite
-                  isFoodFavorite(props.item().reference) || false
-                }
-                onSetFavorite={(favorite) => {
-                  // TODO: [Feature] Add recipe favorite
-                  setFoodAsFavorite(props.item().reference, favorite)
-                }}
-              />
-            }
+            primaryActions={<ItemFavorite foodId={props.item().reference} />}
           />
         }
-        nutritionalInfo={<ItemNutritionalInfo/>}
+        nutritionalInfo={<ItemNutritionalInfo />}
       />
     </>
   )

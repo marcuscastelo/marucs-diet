@@ -21,4 +21,5 @@ export type FoodRepository = {
   ) => Promise<Food | null>
 
   insertFood: (newFood: NewFood) => Promise<Food | null>
+  upsertFood: (newFood: NewFood) => Promise<Food | null>
 }

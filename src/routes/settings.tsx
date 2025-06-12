@@ -1,8 +1,10 @@
-import { For, createSignal } from 'solid-js'
-import toast from 'solid-toast'
+import { createSignal, For } from 'solid-js'
+
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
+import { showSuccess } from '~/modules/toast/application/toastManager'
 import { BottomNavigation } from '~/sections/common/components/BottomNavigation'
 import { Providers } from '~/sections/common/context/Providers'
+import { ToastSettings } from '~/sections/settings/components/ToastSettings'
 import { Toggle } from '~/sections/settings/components/Toggle'
 
 export default function Page() {
@@ -64,8 +66,8 @@ export default function Page() {
   })
 
   return (
-    <Providers>
-      <div class={'mx-1 md:mx-40 lg:mx-auto lg:w-1/3 pt-1'}>
+    <>
+      <div>
         <div
           class={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE} rounded-b-none pb-6`}
         >
@@ -86,7 +88,7 @@ export default function Page() {
                     checked={checked}
                     setChecked={(newChecked) => {
                       setChecked(newChecked)
-                      toast.success(
+                      showSuccess(
                         `${name} foi ${newChecked ? 'ativado' : 'desativado'}`,
                       )
                     }}
@@ -97,10 +99,16 @@ export default function Page() {
                 </div>
               )}
             </For>
+
+            <div class="mt-8">
+              <h2 class="text-xl font-semibold mb-4">
+                Configurações de Notificações
+              </h2>
+              <ToastSettings />
+            </div>
           </div>
         </div>
       </div>
-      <BottomNavigation />
-    </Providers>
+    </>
   )
 }

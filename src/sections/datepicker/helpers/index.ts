@@ -2,7 +2,7 @@ import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import weekday from 'dayjs/plugin/weekday'
 
-import { DATE_FORMAT, LANGUAGE } from '../constants'
+import { DATE_FORMAT, LANGUAGE } from '~/sections/datepicker/constants'
 
 dayjs.extend(weekday)
 dayjs.extend(customParseFormat)
@@ -66,7 +66,7 @@ export function shortString (value: string, limit = 3) {
 }
 
 export function ucFirst (value: string) {
-  return `${value[0].toUpperCase()}${value.slice(1, value.length)}`
+  return `${value[0]?.toUpperCase()}${value.slice(1, value.length)}`
 }
 
 export function formatDate (date: dayjs.Dayjs, format = DATE_FORMAT) {
@@ -131,7 +131,7 @@ export function getLastElementsInArray (array: number[] = [], size = 0) {
 
     let y = array.length - 1
     for (let i = 0; i < size; i++) {
-      result.push(array[y])
+      result.push(array[y] ?? 0)
       y--
     }
   }

@@ -1,42 +1,37 @@
+import {
+  type Accessor,
+  createEffect,
+  createSignal,
+  For,
+  type Setter,
+  Show,
+  untrack,
+} from 'solid-js'
+
+import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import {
+  deleteItemGroup,
+  insertItemGroup,
+  updateItemGroup,
+} from '~/modules/diet/item-group/application/itemGroup'
+import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { updateMeal } from '~/modules/diet/meal/application/meal'
+import { type Meal } from '~/modules/diet/meal/domain/meal'
+import { showError } from '~/modules/toast/application/toastManager'
+import { Modal } from '~/sections/common/components/Modal'
+import { ModalContextProvider } from '~/sections/common/context/ModalContext'
+import { CopyLastDayButton } from '~/sections/day-diet/components/CopyLastDayButton'
+import DayNotFound from '~/sections/day-diet/components/DayNotFound'
+import { DeleteDayButton } from '~/sections/day-diet/components/DeleteDayButton'
+import { ItemGroupEditModal } from '~/sections/item-group/components/ItemGroupEditModal'
 import {
   MealEditView,
   MealEditViewActions,
   MealEditViewContent,
   MealEditViewHeader,
 } from '~/sections/meal/components/MealEditView'
-import DayMacros from '~/sections/day-diet/components/DayMacros'
-import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
-import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
-import { ItemGroupEditModal } from '~/sections/item-group/components/ItemGroupEditModal'
-import { CopyLastDayButton } from '~/sections/day-diet/components/CopyLastDayButton'
-import { DeleteDayButton } from '~/sections/day-diet/components/DeleteDayButton'
-import { getTodayYYYMMDD } from '~/legacy/utils/dateUtils'
-import { ModalContextProvider } from '~/sections/common/context/ModalContext'
-import DayNotFound from '~/sections/day-diet/components/DayNotFound'
-import {
-  currentDayDiet,
-  setTargetDay,
-} from '~/modules/diet/day-diet/application/dayDiet'
-import { updateMeal } from '~/modules/diet/meal/application/meal'
-import {
-  deleteItemGroup,
-  insertItemGroup,
-  updateItemGroup,
-} from '~/modules/diet/item-group/application/itemGroup'
-import {
-  type Accessor,
-  type Setter,
-  Show,
-  createEffect,
-  createSignal,
-  untrack,
-  For,
-} from 'solid-js'
-import { Alert } from '~/sections/common/components/Alert'
-import toast from 'solid-toast'
-import { formatError } from '~/shared/formatError'
 
 type EditSelection = {
   meal: Meal
@@ -52,171 +47,180 @@ const [editSelection, setEditSelection] = createSignal<EditSelection>(null)
 const [newItemSelection, setNewItemSelection] =
   createSignal<NewItemSelection>(null)
 
-export default function DayMeals(props: { selectedDay: string }) {
-  const today = getTodayYYYMMDD()
-  const showingToday = () => today === props.selectedDay
-
-  const [dayExplicitlyUnlocked, setDayExplicitlyUnlocked] = createSignal(false)
-  const dayLocked = () => !showingToday() && !dayExplicitlyUnlocked()
-
+/**
+ * Displays and manages the meals for a given day.
+ * If dayDiet is provided, uses it; otherwise, uses the currentDayDiet from application state.
+ * @param props.dayDiet Optional DayDiet to display (overrides selectedDay)
+ * @param props.selectedDay The day string (YYYY-MM-DD) to display
+ * @param props.mode Display mode: 'edit', 'read-only' or 'summary'.
+ */
+export default function DayMeals(props: {
+  dayDiet?: DayDiet
+  selectedDay: string
+  mode?: 'edit' | 'read-only' | 'summary'
+  onRequestEditMode?: () => void
+}) {
   const [itemGroupEditModalVisible, setItemGroupEditModalVisible] =
     createSignal(false)
+
   const [templateSearchModalVisible, setTemplateSearchModalVisible] =
     createSignal(false)
 
-  const handleEditItemGroup = (meal: Meal, itemGroup: ItemGroup) => {
-    if (dayLocked()) {
-      toast.error('Dia bloqueado, não é possível editar')
-      return
-    }
+  const [showConfirmEdit, setShowConfirmEdit] = createSignal(false)
 
+  const handleRequestViewItemGroup = (meal: Meal, itemGroup: ItemGroup) => {
+    // Always open the modal for any mode, but ItemGroupEditModal will respect the mode prop
     setEditSelection({ meal, itemGroup })
     setItemGroupEditModalVisible(true)
   }
 
   const handleUpdateMeal = async (day: DayDiet, meal: Meal) => {
-    if (dayLocked()) {
-      toast.error('Dia bloqueado, não é possível editar')
+    if (props.mode === 'summary') return
+    if (props.mode !== 'edit') {
+      setShowConfirmEdit(true)
       return
     }
-
     await updateMeal(day.id, meal.id, meal)
   }
 
   const handleNewItemButton = (meal: Meal) => {
-    console.log('New item button clicked')
-    if (dayLocked()) {
-      toast.error('Dia bloqueado, não é possível editar')
+    if (props.mode === 'summary') return
+    if (props.mode !== 'edit') {
+      setShowConfirmEdit(true)
       return
     }
-
     setNewItemSelection({ meal })
-
-    console.debug('Setting selected meal to', meal)
     setTemplateSearchModalVisible(true)
   }
 
-  const handleNewItemGroup = (dayDiet: DayDiet) => (newGroup: ItemGroup) => {
+  const handleNewItemGroup = (dayDiet: DayDiet, newGroup: ItemGroup) => {
     const newItemSelection_ = newItemSelection()
     if (newItemSelection_ === null) {
       throw new Error('No meal selected!')
     }
-
-    insertItemGroup(dayDiet.id, newItemSelection_.meal.id, newGroup)
+    void insertItemGroup(dayDiet.id, newItemSelection_.meal.id, newGroup)
   }
 
   const handleFinishSearch = () => {
     setNewItemSelection(null)
   }
 
+  // Use the provided dayDiet prop if present, otherwise fallback to currentDayDiet
+  const resolvedDayDiet = () => props.dayDiet ?? currentDayDiet()
+
   return (
-    <Show
-      when={currentDayDiet()}
-      fallback={<DayNotFound selectedDay={props.selectedDay} />}
-      keyed
-    >
-      {(neverNullDayDiet) => (
-        <>
-          <ExternalTemplateSearchModal
-            visible={templateSearchModalVisible}
-            setVisible={setTemplateSearchModalVisible}
-            onRefetch={() => {
-              console.warn('[DayMeals] onRefetch called!')
-            }}
-            targetName={newItemSelection()?.meal.name ?? 'Nenhuma refeição selecionada'}
-            onNewItemGroup={handleNewItemGroup(neverNullDayDiet)}
-            onFinish={handleFinishSearch}
-          />
-          <ExternalItemGroupEditModal
-            day={() => neverNullDayDiet}
-            visible={itemGroupEditModalVisible}
-            setVisible={setItemGroupEditModalVisible}
-          />
-          <DayMacros class="mt-3 border-b-2 border-gray-800 pb-4" />
-          <Show when={!showingToday()}>
-            {(_) => (
+    <>
+      <ModalContextProvider
+        visible={showConfirmEdit}
+        setVisible={setShowConfirmEdit}
+      >
+        <Modal>
+          <div class="p-4">
+            <div class="font-bold mb-2">
+              Deseja desbloquear este dia para edição?
+            </div>
+            <div class="flex gap-2 justify-end mt-4">
+              <button
+                class="btn cursor-pointer uppercase btn-primary"
+                onClick={() => {
+                  setShowConfirmEdit(false)
+                  props.onRequestEditMode?.()
+                }}
+              >
+                Desbloquear dia para edição
+              </button>
+              <button
+                class="btn cursor-pointer uppercase btn-ghost"
+                onClick={() => setShowConfirmEdit(false)}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </Modal>
+      </ModalContextProvider>
+      <Show
+        when={resolvedDayDiet()}
+        fallback={<DayNotFound selectedDay={props.selectedDay} />}
+        keyed
+      >
+        {(neverNullDayDiet) => (
+          <>
+            <ExternalTemplateSearchModal
+              visible={templateSearchModalVisible}
+              setVisible={setTemplateSearchModalVisible}
+              onRefetch={() => {
+                console.warn('[DayMeals] onRefetch called!')
+              }}
+              targetName={
+                newItemSelection()?.meal.name ?? 'Nenhuma refeição selecionada'
+              }
+              onNewItemGroup={(newGroup) => {
+                handleNewItemGroup(neverNullDayDiet, newGroup)
+              }}
+              onFinish={handleFinishSearch}
+            />
+            <ExternalItemGroupEditModal
+              day={() => neverNullDayDiet}
+              visible={itemGroupEditModalVisible}
+              setVisible={setItemGroupEditModalVisible}
+              mode={props.mode}
+            />
+            <For each={neverNullDayDiet.meals}>
+              {(meal) => (
+                <MealEditView
+                  class="mt-5"
+                  meal={meal}
+                  header={
+                    <MealEditViewHeader
+                      onUpdateMeal={(meal) => {
+                        if (props.mode === 'summary') return
+                        const current = resolvedDayDiet()
+                        if (current === null) {
+                          console.error('resolvedDayDiet is null!')
+                          throw new Error('resolvedDayDiet is null!')
+                        }
+                        handleUpdateMeal(current, meal).catch((e) => {
+                          showError(e, {}, 'Erro ao atualizar refeição')
+                        })
+                      }}
+                      mode={props.mode}
+                    />
+                  }
+                  content={
+                    <MealEditViewContent
+                      onRequestViewItemGroup={(item) => {
+                        handleRequestViewItemGroup(meal, item)
+                      }}
+                      mode={props.mode}
+                    />
+                  }
+                  actions={
+                    props.mode === 'summary' ? undefined : (
+                      <MealEditViewActions
+                        onNewItem={() => {
+                          handleNewItemButton(meal)
+                        }}
+                      />
+                    )
+                  }
+                />
+              )}
+            </For>
+
+            {props.mode !== 'summary' && (
               <>
-                <Alert class="mt-2" color="yellow">
-                  Mostrando refeições do dia {props.selectedDay}!
-                </Alert>
-                <Show when={dayLocked()}>
-                  {(_) => (
-                    <>
-                      <Alert class="mt-2 outline" color="blue">
-                        Hoje é dia <b>{today}</b>{' '}
-                        <a
-                          class="font-bold text-blue-500 hover:cursor-pointer "
-                          onClick={() => {
-                            setTargetDay(today)
-                          }}
-                        >
-                          Mostrar refeições de hoje
-                        </a>{' '}
-                        ou{' '}
-                        <a
-                          class="font-bold text-red-600 hover:cursor-pointer "
-                          onClick={() => {
-                            setDayExplicitlyUnlocked(true)
-                          }}
-                        >
-                          {' '}
-                          Desbloquear dia {props.selectedDay}
-                        </a>
-                      </Alert>
-                    </>
-                  )}
-                </Show>
+                <CopyLastDayButton
+                  dayDiet={() => neverNullDayDiet}
+                  selectedDay={props.selectedDay}
+                />
+                <DeleteDayButton day={() => neverNullDayDiet} />
               </>
             )}
-          </Show>
-          <For each={neverNullDayDiet.meals}>
-            {(meal) => (
-              <MealEditView
-                class="mt-5"
-                meal={meal}
-                header={
-                  <MealEditViewHeader
-                    onUpdateMeal={(meal) => {
-                      const currentDayDiet_ = currentDayDiet()
-                      if (currentDayDiet_ === null) {
-                        console.error('currentDayDiet is null!')
-                        throw new Error('currentDayDiet is null!')
-                      }
-                      handleUpdateMeal(currentDayDiet_, meal).catch((e) => {
-                        console.error(e)
-                        toast.error(
-                          `Erro ao atualizar refeição: ${formatError(e)}`,
-                        )
-                      })
-                    }}
-                  />
-                }
-                content={
-                  <MealEditViewContent
-                    onEditItemGroup={(item) => {
-                      handleEditItemGroup(meal, item)
-                    }}
-                  />
-                }
-                actions={
-                  <MealEditViewActions
-                    onNewItem={() => {
-                      handleNewItemButton(meal)
-                    }}
-                  />
-                }
-              />
-            )}
-          </For>
-
-          <CopyLastDayButton
-            dayDiet={() => neverNullDayDiet}
-            selectedDay={props.selectedDay}
-          />
-          <DeleteDayButton day={() => neverNullDayDiet} />
-        </>
-      )}
-    </Show>
+          </>
+        )}
+      </Show>
+    </>
   )
 }
 
@@ -224,6 +228,7 @@ function ExternalItemGroupEditModal(props: {
   visible: Accessor<boolean>
   setVisible: Setter<boolean>
   day: Accessor<DayDiet>
+  mode?: 'edit' | 'read-only' | 'summary'
 }) {
   createEffect(() => {
     if (!props.visible()) {
@@ -250,23 +255,21 @@ function ExternalItemGroupEditModal(props: {
                 itemGroup: group,
               })
             }}
-            targetMealName={
-              editSelection().meal.name ?? 'ERROR: No meal selected'
-            }
+            targetMealName={editSelection().meal.name}
             onSaveGroup={(group) => {
-              updateItemGroup(
+              void updateItemGroup(
                 props.day().id,
                 editSelection().meal.id,
-                group.id, // TODO: Get id from selection instead of group parameter (avoid bugs if id is changed).
+                group.id, // TODO:   Get id from selection instead of group parameter (avoid bugs if id is changed).
                 group,
               )
 
-              // TODO: Analyze if these commands are troublesome
+              // TODO:   Analyze if these commands are troublesome
               setEditSelection(null)
               props.setVisible(false)
             }}
             onDelete={(id: ItemGroup['id']) => {
-              deleteItemGroup(props.day().id, editSelection().meal.id, id)
+              void deleteItemGroup(props.day().id, editSelection().meal.id, id)
 
               setEditSelection(null)
               props.setVisible(false)
@@ -276,6 +279,7 @@ function ExternalItemGroupEditModal(props: {
                 '[DayMeals] (<ItemGroupEditModal/>) onRefetch called!',
               )
             }}
+            mode={props.mode}
           />
         </ModalContextProvider>
       )}

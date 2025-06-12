@@ -1,8 +1,8 @@
+import { createEffect, type JSXElement, mergeProps } from 'solid-js'
+
+import { DarkToaster } from '~/sections/common/components/DarkToaster'
 import { useModalContext } from '~/sections/common/context/ModalContext'
-import { BackIcon } from '~/sections/common/components/icons/BackIcon'
 import { cn } from '~/shared/cn'
-import { mergeProps, type JSXElement, createEffect } from 'solid-js'
-import { DarkToaster } from './DarkToaster'
 
 export type ModalProps = {
   children: JSXElement
@@ -36,16 +36,14 @@ export const Modal = (_props: ModalProps) => {
     <dialog
       id={`modal-${modalId++}`}
       ref={(ref) => {
-        if (ref !== null) {
-          createEffect(() => {
-            console.debug('[Modal] <effect> visible:', visible())
-            if (visible()) {
-              ref.showModal()
-            } else {
-              ref.close()
-            }
-          })
-        }
+        createEffect(() => {
+          console.debug('[Modal] <effect> visible:', visible())
+          if (visible()) {
+            ref.showModal()
+          } else {
+            ref.close()
+          }
+        })
       }}
       class={modalClass()}
       onClose={handleClose}
@@ -65,26 +63,12 @@ export const Modal = (_props: ModalProps) => {
   )
 }
 
-// Modern composition-based modal components
-export function ModalHeader(_props: {
-  title: JSXElement
-  backButton?: boolean
-}) {
+// TODO: Remove BackButton from ModalHeader, standardize modal closing
+function ModalHeader(_props: { title: JSXElement; backButton?: boolean }) {
   const props = mergeProps({ backButton: true }, _props)
-  const { setVisible } = useModalContext()
 
   return (
     <div class="flex gap-2">
-      {props.backButton && (
-        <button
-          class="btn btn-sm btn-ghost btn-circle"
-          onClick={() => {
-            setVisible(false)
-          }}
-        >
-          <BackIcon />
-        </button>
-      )}
       <h3 class="text-lg font-bold text-white my-auto w-full">{props.title}</h3>
     </div>
   )

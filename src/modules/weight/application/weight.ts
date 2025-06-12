@@ -1,24 +1,30 @@
+import { createEffect, createSignal } from 'solid-js'
+
+import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
+import { showPromise } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
-import { type Weight, type NewWeight } from '~/modules/weight/domain/weight'
+import { type NewWeight, type Weight } from '~/modules/weight/domain/weight'
 import {
   createSupabaseWeightRepository,
   SUPABASE_TABLE_WEIGHTS,
 } from '~/modules/weight/infrastructure/supabaseWeightRepository'
-import { createEffect, createSignal } from 'solid-js'
-import toast from 'solid-toast'
-import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 const weightRepository = createSupabaseWeightRepository()
 
 const [userWeights_, setUserWeights] = createSignal<readonly Weight[]>([])
 export const userWeights = () => userWeights_()
 
-async function bootstrap() {
-  await toast.promise(fetchUserWeights(currentUserId()), {
-    loading: 'Carregando pesos...',
-    success: 'Pesos carregados com sucesso',
-    error: 'Falha ao carregar pesos',
-  })
+function bootstrap() {
+  void showPromise(
+    fetchUserWeights(currentUserId()),
+    {
+      loading: 'Carregando pesos...',
+      success: 'Pesos carregados com sucesso',
+      error: 'Falha ao carregar pesos',
+    },
+    { context: 'background' },
+  )
 }
 
 /**
@@ -36,39 +42,75 @@ registerSubapabaseRealtimeCallback(SUPABASE_TABLE_WEIGHTS, () => {
 })
 
 export async function fetchUserWeights(userId: number) {
-  const weights = await weightRepository.fetchUserWeights(userId)
-  setUserWeights(weights)
-  return weights
+  try {
+    const weights = await weightRepository.fetchUserWeights(userId)
+    setUserWeights(weights)
+    return weights
+  } catch (error) {
+    handleApiError(error, {
+      component: 'weightApplication',
+      operation: 'fetchUserWeights',
+      additionalData: { userId },
+    })
+    throw error
+  }
 }
 
 export async function insertWeight(newWeight: NewWeight) {
-  const weight = await weightRepository.insertWeight(newWeight)
-  await toast.promise(fetchUserWeights(currentUserId()), {
-    loading: 'Inserindo peso...',
-    success: 'Peso inserido com sucesso',
-    error: 'Falha ao inserir peso',
-  })
-  return weight
+  try {
+    const weight = await weightRepository.insertWeight(newWeight)
+    await showPromise(fetchUserWeights(currentUserId()), {
+      loading: 'Inserindo peso...',
+      success: 'Peso inserido com sucesso',
+      error: 'Falha ao inserir peso',
+    })
+    return weight
+  } catch (error) {
+    handleApiError(error, {
+      component: 'weightApplication',
+      operation: 'insertWeight',
+      additionalData: { newWeight },
+    })
+    throw error
+  }
 }
 
 export async function updateWeight(weightId: Weight['id'], newWeight: Weight) {
-  const weight = await toast.promise(
-    weightRepository.updateWeight(weightId, newWeight),
-    {
-      loading: 'Atualizando peso...',
-      success: 'Peso atualizado com sucesso',
-      error: 'Falha ao atualizar peso',
-    },
-  )
-  await fetchUserWeights(currentUserId())
-  return weight
+  try {
+    const weight = await showPromise(
+      weightRepository.updateWeight(weightId, newWeight),
+      {
+        loading: 'Atualizando peso...',
+        success: 'Peso atualizado com sucesso',
+        error: 'Falha ao atualizar peso',
+      },
+    )
+    await fetchUserWeights(currentUserId())
+    return weight
+  } catch (error) {
+    handleApiError(error, {
+      component: 'weightApplication',
+      operation: 'updateWeight',
+      additionalData: { weightId, newWeight },
+    })
+    throw error
+  }
 }
 
 export async function deleteWeight(weightId: Weight['id']) {
-  await toast.promise(weightRepository.deleteWeight(weightId), {
-    loading: 'Deletando peso...',
-    success: 'Peso deletado com sucesso',
-    error: 'Falha ao deletar peso',
-  })
-  await fetchUserWeights(currentUserId())
+  try {
+    await showPromise(weightRepository.deleteWeight(weightId), {
+      loading: 'Deletando peso...',
+      success: 'Peso deletado com sucesso',
+      error: 'Falha ao deletar peso',
+    })
+    await fetchUserWeights(currentUserId())
+  } catch (error) {
+    handleApiError(error, {
+      component: 'weightApplication',
+      operation: 'deleteWeight',
+      additionalData: { weightId },
+    })
+    throw error
+  }
 }

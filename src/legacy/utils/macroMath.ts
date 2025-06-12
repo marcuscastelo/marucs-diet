@@ -36,6 +36,7 @@ export function calcRecipeMacros(recipe: Recipe): MacroNutrients {
   return calcItemContainerMacros(recipe)
 }
 
+// TODO:   Remove deprecated calcGroupMacros - Use group.macros directly
 /**
  * @deprecated should already be in group.macros (check)
  */

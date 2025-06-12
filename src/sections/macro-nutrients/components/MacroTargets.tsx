@@ -1,29 +1,25 @@
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
-import {
-  type MacroProfile,
-  createNewMacroProfile
-} from '~/modules/diet/macro-profile/domain/macroProfile'
-import {
-  dateToYYYYMMDD,
-  getTodayYYYMMDD,
-  stringToDate,
-} from '~/legacy/utils/dateUtils'
+import { createEffect, createMemo, createSignal, Show } from 'solid-js'
+
 import { calcCalories } from '~/legacy/utils/macroMath'
 import { getLatestMacroProfile } from '~/legacy/utils/macroProfileUtils'
-import { Show, createEffect } from 'solid-js'
+import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   deleteMacroProfile,
   insertMacroProfile,
   updateMacroProfile,
   userMacroProfiles,
 } from '~/modules/diet/macro-profile/application/macroProfile'
-import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
+import {
+  createNewMacroProfile,
+  type MacroProfile,
+} from '~/modules/diet/macro-profile/domain/macroProfile'
 import { calculateMacroTarget } from '~/modules/diet/macro-target/application/macroTarget'
-import toast from 'solid-toast'
-import { currentUserId } from '~/modules/user/application/user'
-import { targetDay } from '~/modules/diet/day-diet/application/dayDiet'
-import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
-import { formatError } from '~/shared/formatError'
+import {
+  showError,
+  showSuccess,
+} from '~/modules/toast/application/toastManager'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { dateToYYYYMMDD, getTodayYYYYMMDD } from '~/shared/utils/date'
 
 const CARBO_CALORIES = 4 as const
 const PROTEIN_CALORIES = 4 as const
@@ -72,7 +68,7 @@ const calculateMacroRepresentation = (
   }
 }
 
-// TODO: Enable changing target calories directly (and update macros accordingly)
+// TODO:   Enable changing target calories directly (and update macros accordingly)
 // const calculateDifferenceInCarbs = (
 //   targetCalories: number,
 //   weight: number,
@@ -93,33 +89,43 @@ export type MacroTargetProps = {
 
 const onSaveMacroProfile = (profile: MacroProfile) => {
   console.log('[ProfilePage] Saving profile', profile)
-  if (profile.target_day.getTime() > new Date(getTodayYYYMMDD()).getTime()) {
-    console.error(
-      `[ProfilePage] Invalid target day ${profile.target_day.toString()}: it is in the future`,
-    )
-    toast.error('Data alvo não pode ser no futuro')
+  if (profile.target_day.getTime() > new Date(getTodayYYYYMMDD()).getTime()) {
+    showError('Data alvo não pode ser no futuro')
+    return
   } else if (
-    profile.id !== -1 && // TODO: Better typing system for new MacroProfile instead of -1.
-    profile.target_day.getTime() === new Date(getTodayYYYMMDD()).getTime()
+    profile.id !== -1 && // TODO:   Better typing system for new MacroProfile instead of -1.
+    profile.target_day.getTime() === new Date(getTodayYYYYMMDD()).getTime()
   ) {
     console.log('[ProfilePage] Updating profile', profile)
 
     // Same day, update
-    // TODO: Change all catch console.error to toast.error (and think about Sentry as well).
-    updateMacroProfile(profile.id, createNewMacroProfile(profile)).catch(console.error)
+    updateMacroProfile(
+      profile.id,
+      createNewMacroProfile({
+        owner: profile.owner,
+        target_day: profile.target_day,
+        gramsPerKgCarbs: profile.gramsPerKgCarbs,
+        gramsPerKgProtein: profile.gramsPerKgProtein,
+        gramsPerKgFat: profile.gramsPerKgFat,
+      }),
+    ).catch((error) => {
+      showError(error, {}, 'Erro ao atualizar perfil de macro')
+    })
   } else if (
-    profile.id === -1 || // TODO: Better typing system for new MacroProfile instead of -1.
-    profile.target_day.getTime() < new Date(getTodayYYYMMDD()).getTime()
+    profile.id === -1 || // TODO:   Better typing system for new MacroProfile instead of -1.
+    profile.target_day.getTime() < new Date(getTodayYYYYMMDD()).getTime()
   ) {
     console.log('[ProfilePage] Inserting profile', profile)
 
     // Past day, insert with new date
-    insertMacroProfile(createNewMacroProfile({
-      ...profile,
-      target_day: new Date(getTodayYYYMMDD()),
-    })).catch(console.error)
+    void insertMacroProfile(
+      createNewMacroProfile({
+        ...profile,
+        target_day: new Date(getTodayYYYYMMDD()),
+      }),
+    )
   } else {
-    toast.error('Erro imprevisto ao salvar perfil de macro')
+    showError('Erro imprevisto ao salvar perfil de macro')
   }
 }
 
@@ -143,7 +149,7 @@ export function MacroTarget(props: MacroTargetProps) {
     return calculateMacroRepresentation(profile_, props.weight())
   }
 
-  const [targetCalories, setTargetCalories] = createMirrorSignal(() => {
+  const targetCalories = createMemo(() => {
     const profile_ = currentProfile()
     if (profile_ === null) {
       return 'Sem meta, preencha os campos abaixo'
@@ -161,13 +167,12 @@ export function MacroTarget(props: MacroTargetProps) {
       <div class="mx-5">
         <input
           value={targetCalories()}
-          onChange={setTargetCalories}
           type="search"
           id="default-search"
-          class="input-bordered input text-center font-bold"
+          class="input text-center font-bold"
           style={{ width: '100%' }}
           placeholder="Insira a meta de calorias diárias"
-          disabled={true} // TODO: Enable changing target calories directly (and update macros accordingly).
+          disabled={true} // TODO:   Enable changing target calories directly (and update macros accordingly).
           required
         />
       </div>
@@ -193,7 +198,7 @@ export function MacroTarget(props: MacroTargetProps) {
                           {'Sim, de ' + dateToYYYYMMDD(oldProfile.target_day)}
                         </span>
                         <button
-                          class="btn btn-primary btn-sm"
+                          class="btn cursor-pointer uppercase btn-primary btn-sm"
                           onClick={() => {
                             showConfirmModal({
                               title: () => (
@@ -234,15 +239,15 @@ export function MacroTarget(props: MacroTargetProps) {
                                   onClick: () => {
                                     deleteMacroProfile(profile.id)
                                       .then(() => {
-                                        // router.refresh()
-                                        // TODO: refresh page? probably not
-                                        toast.success(
+                                        showSuccess(
                                           'Perfil antigo restaurado com sucesso, se necessário, atualize a página',
                                         )
                                       })
                                       .catch((e) => {
-                                        toast.error(
-                                          `Erro ao restaurar perfil antigo: ${formatError(e)}`,
+                                        showError(
+                                          e,
+                                          undefined,
+                                          'Erro ao restaurar perfil antigo',
                                         )
                                       })
                                   },
@@ -312,7 +317,7 @@ function MacroTargetSetting(props: {
   const gramsPerKg = () => emptyIfZeroElse2Decimals(props.target.gramsPerKg)
 
   const onSetGramsPerKg = (gramsPerKg: number) => {
-    const profile_ = props.currentProfile 
+    const profile_ = props.currentProfile
 
     onSaveMacroProfile({
       ...profile_,
@@ -322,7 +327,7 @@ function MacroTargetSetting(props: {
   }
 
   const onSetGrams = (grams: number) => {
-    const profile_ = props.currentProfile 
+    const profile_ = props.currentProfile
 
     onSaveMacroProfile({
       ...profile_,
@@ -331,12 +336,12 @@ function MacroTargetSetting(props: {
     })
   }
 
-  // TODO: Allow changing percentage directly
-  const makeOnSetPercentage =
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (macro: 'carbs' | 'protein' | 'fat') => (percentage: number) => {
-      toast.error('Alterar porcentagem diretamente ainda não implementado')
-    }
+  // TODO:   Allow changing percentage directly
+  // const makeOnSetPercentage =
+  //   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  //   (macro: 'carbs' | 'protein' | 'fat') => (percentage: number) => {
+  //     showError('Direct percentage change not yet implemented', {context: 'user-action'})
+  //   }
 
   return (
     <div class="my-2 flex flex-col p-2 border-t border-slate-900">
@@ -348,15 +353,12 @@ function MacroTargetSetting(props: {
           <span class="hidden sm:inline">:</span>
         </span>
         <span class="my-auto flex-1 text-xl text-center">
-          {
-            // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-            (props.target.calorieMultiplier * (Number(grams) || 0)).toFixed(0)
-          }{' '}
+          {(props.target.calorieMultiplier * (Number(grams) || 0)).toFixed(0)}{' '}
           kcal
           <span class="ml-2 text-slate-300 text-lg">({percentage()}%)</span>
         </span>
       </div>
-      <div class="mt-5 flex flex-1 flex-shrink flex-col gap-1">
+      <div class="mt-5 flex flex-1 shrink flex-col gap-1">
         {/* <MacroField
           fieldName="Porcentagem (%)"
           field={percentage}
@@ -400,7 +402,7 @@ function MacroField(props: {
   disabled?: boolean
   className?: string
 }) {
-  const [innerField, setInnerField] = createMirrorSignal(() => props.field)
+  const [innerField, setInnerField] = createSignal(props.field)
 
   createEffect(() => {
     setInnerField(props.field)
@@ -417,7 +419,7 @@ function MacroField(props: {
           }}
           type="number"
           // className={`block text-center w-full p-2 pl-10 text-md bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 ${className || ''}`}
-          class="input-bordered input text-center font-bold"
+          class="input text-center font-bold"
           style={{ width: '100%' }}
           disabled={props.disabled}
           placeholder=""

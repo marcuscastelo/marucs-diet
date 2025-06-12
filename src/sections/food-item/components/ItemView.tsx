@@ -1,37 +1,43 @@
-import MacroNutrientsView from '~/sections/macro-nutrients/components/MacroNutrientsView'
-import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
-  ItemContextProvider,
-  useItemContext,
-} from '~/sections/food-item/context/ItemContext'
-import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
-import {
-  calcDayMacros,
-  calcItemCalories,
-  calcItemMacros,
-} from '~/legacy/utils/macroMath'
-import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
-import { type Template } from '~/modules/diet/template/domain/template'
-
-import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
-import {
-  type JSXElement,
   type Accessor,
-  createSignal,
   createEffect,
+  createSignal,
+  type JSXElement,
 } from 'solid-js'
-import { cn } from '~/shared/cn'
-import { fetchFoodById } from '~/modules/diet/food/application/food'
-import { stringToDate } from '~/legacy/utils/dateUtils'
+
+import { calcItemCalories, calcItemMacros } from '~/legacy/utils/macroMath'
+import { createMacroOverflowChecker } from '~/legacy/utils/macroOverflow'
 import {
   currentDayDiet,
   targetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
-import { macroTarget } from '~/modules/diet/macro-target/application/macroTarget'
-import { createMacroOverflowChecker } from '~/legacy/utils/macroOverflow'
-import { handleApiError, handleValidationError } from '~/shared/error/errorHandler'
+import { fetchFoodById } from '~/modules/diet/food/application/food'
+import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
+import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
+import { type Template } from '~/modules/diet/template/domain/template'
+import {
+  isTemplateItemFood,
+  isTemplateItemRecipe,
+  type TemplateItem,
+} from '~/modules/diet/template-item/domain/templateItem'
+import {
+  isFoodFavorite,
+  setFoodAsFavorite,
+} from '~/modules/user/application/user'
+import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
+import {
+  ItemContextProvider,
+  useItemContext,
+} from '~/sections/food-item/context/ItemContext'
+import MacroNutrientsView from '~/sections/macro-nutrients/components/MacroNutrientsView'
+import {
+  handleApiError,
+  handleValidationError,
+} from '~/shared/error/errorHandler'
+import { stringToDate } from '~/shared/utils/date'
 
-// TODO: Use repository pattern through use cases instead of directly using repositories
+// TODO:   Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
 
 export type ItemViewProps = {
@@ -44,6 +50,7 @@ export type ItemViewProps = {
   nutritionalInfo?: JSXElement
   class?: string
   onClick?: (item: TemplateItem) => void
+  mode?: 'edit' | 'read-only' | 'summary'
 }
 
 export function ItemView(props: ItemViewProps) {
@@ -71,32 +78,8 @@ export function ItemView(props: ItemViewProps) {
   )
 }
 
-export type ItemHeaderProps = {
-  name?: JSXElement
-  favorite?: JSXElement
-  copyButton?: JSXElement
-  removeFromListButton?: JSXElement
-}
-
-export function ItemHeader(props: ItemHeaderProps) {
-  return (
-    <div class="flex">
-      {/* //TODO: Item id is random, but it should be an entry on the database (meal too) */}
-      {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.Item.id}]</h5> */}
-      <div class="my-2">{props.name}</div>
-      <div class="ml-auto flex flex-col">
-        <div class="my-auto">{props.removeFromListButton}</div>
-        <div class={'ml-auto flex gap-2'}>
-          <div class="my-auto">{props.copyButton}</div>
-          <div class="my-auto">{props.favorite}</div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 export function ItemName() {
-  const { item: item } = useItemContext()
+  const { item } = useItemContext()
 
   const [template, setTemplate] = createSignal<Template | null>(null)
 
@@ -104,12 +87,7 @@ export function ItemName() {
     console.debug('[ItemName] item changed, fetching API:', item())
 
     const itemValue = item()
-    if (itemValue === undefined) {
-      console.warn('[ItemName] item is undefined!!')
-      return // TODO: Remove serverActions: causing bugs with signals
-    }
-
-    if (itemValue.__type === 'RecipeItem') {
+    if (isTemplateItemRecipe(itemValue)) {
       recipeRepository
         .fetchRecipeById(itemValue.reference)
         .then(setTemplate)
@@ -117,18 +95,18 @@ export function ItemName() {
           handleApiError(err, {
             component: 'ItemView::ItemName',
             operation: 'fetchRecipeById',
-            additionalData: { recipeId: itemValue.reference }
+            additionalData: { recipeId: itemValue.reference },
           })
           setTemplate(null)
         })
-    } else {
+    } else if (isTemplateItemFood(itemValue)) {
       fetchFoodById(itemValue.reference)
         .then(setTemplate)
         .catch((err) => {
           handleApiError(err, {
             component: 'ItemView::ItemName',
             operation: 'fetchFoodById',
-            additionalData: { foodId: itemValue.reference }
+            additionalData: { foodId: itemValue.reference },
           })
           setTemplate(null)
         })
@@ -136,18 +114,20 @@ export function ItemName() {
   })
 
   const templateNameColor = () => {
-    if (item()?.__type === 'Item') {
+    if (isTemplateItemFood(item())) {
       return 'text-white'
-    } else if (item().__type === 'RecipeItem') {
+    } else if (isTemplateItemRecipe(item())) {
       return 'text-blue-500'
     } else {
       handleValidationError(
-        new Error(`Item is not a Item or RecipeItem! Item: ${JSON.stringify(item())}`),
+        new Error(
+          `Item is not a Item or RecipeItem! Item: ${JSON.stringify(item())}`,
+        ),
         {
           component: 'ItemView::ItemName',
           operation: 'templateNameColor',
-          additionalData: { item: item() }
-        }
+          additionalData: { item: item() },
+        },
       )
       return 'text-red-500 bg-red-100'
     }
@@ -157,7 +137,7 @@ export function ItemName() {
 
   return (
     <div class="">
-      {/* //TODO: Item id is random, but it should be an entry on the database (meal too) */}
+      {/* //TODO:   Item id is random, but it should be an entry on the database (meal too) */}
       {/* <h5 className="mb-2 text-lg font-bold tracking-tight text-white">ID: [{props.Item.id}]</h5> */}
       <h5
         class={`mb-2 text-lg font-bold tracking-tight ${templateNameColor()}`}
@@ -187,41 +167,36 @@ export function ItemCopyButton(props: {
   )
 }
 
-export function ItemFavorite(props: {
-  favorite: boolean
-  onSetFavorite?: (favorite: boolean) => void
-}) {
+export function ItemFavorite(props: { foodId: number }) {
   const toggleFavorite = (e: MouseEvent) => {
-    props.onSetFavorite?.(!props.favorite)
+    setFoodAsFavorite(props.foodId, !isFoodFavorite(props.foodId))
     e.stopPropagation()
     e.preventDefault()
   }
 
   return (
     <div
-      class={cn('ml-auto mt-1 text-3xl text-orange-400 active:scale-105', {
-        'hover:text-blue-200': props.onSetFavorite !== undefined,
-      })}
+      class="ml-auto mt-1 text-3xl text-orange-400 active:scale-105 hover:text-blue-200"
       onClick={toggleFavorite}
     >
-      {props.favorite ? '★' : '☆'}
+      {isFoodFavorite(props.foodId) ? '★' : '☆'}
     </div>
   )
 }
 
 export function ItemNutritionalInfo() {
-  const { item: item, macroOverflow } = useItemContext()
+  const { item, macroOverflow } = useItemContext()
 
   const multipliedMacros = (): MacroNutrients => calcItemMacros(item())
 
   const isMacroOverflowing = () => {
     const currentDayDiet_ = currentDayDiet()
-    const macroTarget_ = macroTarget(stringToDate(targetDay()))
-    
+    const macroTarget_ = getMacroTargetForDay(stringToDate(targetDay()))
+
     return createMacroOverflowChecker(item(), {
       currentDayDiet: currentDayDiet_,
       macroTarget: macroTarget_,
-      macroOverflowOptions: macroOverflow()
+      macroOverflowOptions: macroOverflow(),
     })
   }
 

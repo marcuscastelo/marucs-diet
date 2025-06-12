@@ -1,23 +1,30 @@
-import { getTodayYYYMMDD, stringToDate } from '~/legacy/utils/dateUtils'
 import {
   setTargetDay,
   targetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
 import Datepicker from '~/sections/datepicker/components/Datepicker'
 import { type DateValueType } from '~/sections/datepicker/types'
+import { getToday, getTodayYYYYMMDD, stringToDate } from '~/shared/utils/date'
 
 export function TargetDayPicker() {
-  const handleDayChange = (newValue: DateValueType) => {
-    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-    if (!newValue?.startDate) {
-      setTargetDay(getTodayYYYMMDD())
-      return
+  const handleDayChange = (
+    newValue: DateValueType,
+    element?: HTMLInputElement | null,
+  ) => {
+    let dayString: string
+    if (newValue === null || newValue.startDate === null) {
+      dayString = getTodayYYYYMMDD()
+    } else {
+      const dateString = newValue.startDate
+      const date = stringToDate(dateString)
+      dayString = date.toISOString().split('T')[0] as string // TODO:   use dateUtils when this is understood
     }
 
-    const dateString = newValue.startDate
-    const date = stringToDate(dateString)
-    const dayString = date.toISOString().split('T')[0] // TODO: retriggered: use dateUtils when this is understood
     setTargetDay(dayString)
+    if (element) {
+      element.blur() // Remove focus from the datepicker input
+      element.value = dayString // Update the input value
+    }
   }
 
   return (
@@ -26,6 +33,13 @@ export function TargetDayPicker() {
       useRange={false}
       readOnly={true}
       displayFormat="DD/MM/YYYY"
+      disabledDates={[
+        // targetDay(), future days are disabled
+        {
+          startDate: targetDay(),
+          endDate: targetDay(),
+        },
+      ]}
       value={{
         startDate: targetDay(),
         endDate: targetDay(),

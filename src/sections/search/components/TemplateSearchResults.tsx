@@ -1,27 +1,23 @@
-import { type Accessor, For, type Setter, Show } from 'solid-js'
-import toast from 'solid-toast'
-import { deleteRecentFoodByFoodId } from '~/legacy/controllers/recentFood'
+import { type Accessor, For, type Setter } from 'solid-js'
+
 import { calcRecipeMacros } from '~/legacy/utils/macroMath'
-import { createItem } from '~/modules/diet/item/domain/item'
 import { type Food } from '~/modules/diet/food/domain/food'
+import { createItem } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
-import { type Template } from '~/modules/diet/template/domain/template'
-import { templateSearchTab } from '~/modules/search/application/search'
 import {
-  currentUserId,
-  isFoodFavorite,
-  setFoodAsFavorite,
-} from '~/modules/user/application/user'
+  isTemplateFood,
+  type Template,
+} from '~/modules/diet/template/domain/template'
+import { templateSearchTab } from '~/modules/search/application/search'
 import { Alert } from '~/sections/common/components/Alert'
-import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
+import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import {
   ItemFavorite,
-  ItemHeader,
   ItemName,
   ItemNutritionalInfo,
   ItemView,
 } from '~/sections/food-item/components/ItemView'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { RemoveFromRecentButton } from '~/sections/food-item/components/RemoveFromRecentButton'
 
 export function TemplateSearchResults(props: {
   search: string
@@ -32,91 +28,56 @@ export function TemplateSearchResults(props: {
   setBarCodeModalVisible: Setter<boolean>
   itemEditModalVisible: Accessor<boolean>
   setItemEditModalVisible: Setter<boolean>
-  refetch: () => Promise<void>
+  refetch: (info?: unknown) => unknown
 }) {
   return (
     <>
       {!props.typing() && props.filteredTemplates.length === 0 && (
         <Alert color="yellow" class="mt-2">
-          Nenhum alimento encontrado para a busca &quot;{props.search}&quot;.
+          {templateSearchTab() === 'recent' && props.search === ''
+            ? 'Sem alimentos recentes. Eles aparecerão aqui assim que você adicionar seu primeiro alimento'
+            : templateSearchTab() === 'favorites' && props.search === ''
+              ? 'Sem favoritos. Adicione alimentos ou receitas aos favoritos para vê-los aqui.'
+              : `Nenhum alimento encontrado para a busca "${props.search}".`}
         </Alert>
       )}
 
-      <div class="bg-gray-800 p-1">
+      <div class="flex-1 min-h-0 max-h-[60vh] overflow-y-auto scrollbar-gutter-outside scrollbar-clean bg-gray-800 mt-1 pr-4">
         <For each={props.filteredTemplates}>
-          {(_, idx) => {
-            const template = () => props.filteredTemplates[idx()]
+          {(template) => {
             return (
               <>
                 <ItemView
                   item={() => ({
                     ...createItem({
-                      name: template().name,
+                      name: template.name,
                       quantity: 100,
-                      macros: template().__type === 'Food' 
-                        ? (template() as Food).macros 
-                        : calcRecipeMacros(template() as Recipe),
-                      reference: template().id,
+                      macros: isTemplateFood(template)
+                        ? (template as Food).macros
+                        : calcRecipeMacros(template as Recipe),
+                      reference: template.id,
                     }),
-                    __type:
-                      template().__type === 'Food' ? 'Item' : 'RecipeItem', // TODO: Refactor conversion from template type to group/item types
+                    __type: isTemplateFood(template) ? 'Item' : 'RecipeItem', // TODO:   Refactor conversion from template type to group/item types
                   })}
                   class="mt-1"
                   macroOverflow={() => ({
                     enable: false,
                   })}
                   onClick={() => {
-                    props.setSelectedTemplate(template())
+                    props.setSelectedTemplate(template)
                     props.setItemEditModalVisible(true)
                     props.setBarCodeModalVisible(false)
                   }}
                   header={
-                    <ItemHeader
+                    <HeaderWithActions
                       name={<ItemName />}
-                      favorite={
-                        <ItemFavorite
-                          favorite={isFoodFavorite(template().id)}
-                          onSetFavorite={(favorite) => {
-                            setFoodAsFavorite(template().id, favorite)
-                          }}
+                      primaryActions={<ItemFavorite foodId={template.id} />}
+                      secondaryActions={
+                        <RemoveFromRecentButton
+                          templateId={template.id}
+                          type={isTemplateFood(template) ? 'food' : 'recipe'}
+                          refetch={props.refetch}
                         />
-                      }
-                      // Removes from recent list
-                      removeFromListButton={
-                        <Show when={templateSearchTab() === 'recent'}>
-                          <button
-                            class="my-auto pt-2 pl-1 hover:animate-pulse"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              e.preventDefault()
-                              toast
-                                .promise(
-                                  deleteRecentFoodByFoodId(
-                                    currentUserId(),
-                                    template().id,
-                                  ),
-                                  {
-                                    loading:
-                                      'Removendo alimento da lista de recentes...',
-                                    success:
-                                      'Alimento removido da lista de recentes com sucesso!',
-                                    error:
-                                      'Erro ao remover alimento da lista de recentes.',
-                                  },
-                                )
-                                .then(props.refetch)
-                                .catch((err) => {
-                                  handleApiError(err, {
-                                    component: 'TemplateSearchResults',
-                                    operation: 'deleteRecentFood',
-                                    additionalData: { foodId: template().id }
-                                  })
-                                })
-                            }}
-                          >
-                            <TrashIcon size={20} />
-                          </button>
-                        </Show>
                       }
                     />
                   }

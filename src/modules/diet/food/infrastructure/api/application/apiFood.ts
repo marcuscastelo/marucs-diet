@@ -1,14 +1,20 @@
-import { type Food, foodSchema, type NewFood, createNewFood } from '~/modules/diet/food/domain/food'
-import { markSearchAsCached } from '~/legacy/controllers/searchCache'
-import { type ApiFood } from '~/modules/diet/food/infrastructure/api/domain/apiFoodModel'
-import { createApiFoodRepository } from '~/modules/diet/food/infrastructure/api/infrastructure/apiFoodRepository'
-import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
 import axios from 'axios'
 
-// TODO: Depency injection for repositories on all application files
+import {
+  createNewFood,
+  type Food,
+  type NewFood,
+} from '~/modules/diet/food/domain/food'
+import { type ApiFood } from '~/modules/diet/food/infrastructure/api/domain/apiFoodModel'
+import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
+import { markSearchAsCached } from '~/modules/search/application/searchCache'
+import { showError } from '~/modules/toast/application/toastManager'
+import { handleApiError } from '~/shared/error/errorHandler'
+
+// TODO:   Depency injection for repositories on all application files
 const foodRepository = createSupabaseFoodRepository()
 
-// TODO: Move `convertApi2Food` to a more appropriate place
+// TODO:   Move `convertApi2Food` to a more appropriate place
 export function convertApi2Food(food: ApiFood): NewFood {
   return createNewFood({
     name: food.nome,
@@ -16,7 +22,7 @@ export function convertApi2Food(food: ApiFood): NewFood {
       type: 'api',
       id: food.id.toString(),
     },
-    ean: food.ean,
+    ean: food.ean === '' ? null : food.ean, // Convert EAN to null if not provided
     macros: {
       carbs: food.carboidratos * 100,
       protein: food.proteinas * 100,
@@ -32,13 +38,20 @@ export async function importFoodFromApiByEan(
     .data as unknown as ApiFood
 
   if (apiFood.id === 0) {
-    console.debug(`[ApiFood] Food with EAN ${ean} not found`)
+    handleApiError(
+      new Error(`Food with ean ${ean} not found on external api`),
+      {
+        component: 'apiFood',
+        operation: 'importFoodFromApiByEan',
+        additionalData: { ean },
+      },
+    )
     return null
   }
 
   const food = convertApi2Food(apiFood)
-  const insertedFood = await foodRepository.insertFood(food)
-  return insertedFood
+  const upsertedFood = await foodRepository.upsertFood(food)
+  return upsertedFood
 }
 
 export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
@@ -47,54 +60,83 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
     .data as unknown as ApiFood[]
 
   if (apiFoods.length === 0) {
-    console.debug(`[ApiFood] No foods found with name "${name}"`)
+    showError(`Nenhum alimento encontrado para "${name}"`)
     return []
   }
 
   console.debug(`[ApiFood] Found ${apiFoods.length} foods`)
-  const foodsToInsert = apiFoods.map(convertApi2Food)
+  const foodsToupsert = apiFoods.map(convertApi2Food)
 
-  const insertPromises = foodsToInsert.map(foodRepository.insertFood)
+  const upsertPromises = foodsToupsert.map(foodRepository.upsertFood)
 
-  const insertionResults = await Promise.allSettled(insertPromises)
+  const upsertionResults = await Promise.allSettled(upsertPromises)
   console.debug(
-    `[ApiFood] Inserted ${insertionResults.length} foods. ${
-      insertionResults.filter((result) => result.status === 'fulfilled').length
+    `[ApiFood] upserted ${upsertionResults.length} foods. ${
+      upsertionResults.filter((result) => result.status === 'fulfilled').length
     } succeeded, ${
-      insertionResults.filter((result) => result.status === 'rejected').length
+      upsertionResults.filter((result) => result.status === 'rejected').length
     } failed`,
   )
 
-  if (insertionResults.some((result) => result.status === 'rejected')) {
-    const allRejected = insertionResults.filter(
+  if (upsertionResults.some((result) => result.status === 'rejected')) {
+    const allRejected = upsertionResults.filter(
       (result): result is PromiseRejectedResult => result.status === 'rejected',
     )
 
-    const reasons = allRejected.map((result) => result.reason)
-    const errors = reasons.map((reason) => (reason as { code: string }).code)
+    type Reason = { code: string }
+    const reasons = allRejected.map((result) => {
+      const reason: unknown = result.reason
+      if (typeof reason === 'object' && reason !== null && 'code' in reason) {
+        return reason as Reason
+      }
+      return { code: 'unknown' }
+    })
+    const errors = reasons.map((reason) => reason.code)
 
     const ignoredErrors = [
       '23505', // Unique violation: food already exists, ignore
     ]
 
-    if (errors.some((error) => !ignoredErrors.includes(error))) {
-      console.error(
-        `Failed to insert some foods: ${JSON.stringify(allRejected)}`,
+    const relevantErrors = errors.filter(
+      (error) => !ignoredErrors.includes(error),
+    )
+
+    if (relevantErrors.length > 0) {
+      const errorDetails = {
+        rejectedCount: relevantErrors.length,
+        errors: relevantErrors,
+        searchName: name,
+      }
+
+      handleApiError(
+        new Error(`Failed to upsert ${relevantErrors.length} foods`),
+        {
+          component: 'ApiFood',
+          operation: 'importFoodsFromApiByName',
+          additionalData: errorDetails,
+        },
       )
-      throw new Error('Failed to insert some foods. See console for details.')
+
+      showError(
+        `Erro ao importar alguns alimentos: ${relevantErrors.length} falhas. Verifique o console para mais detalhes.`,
+        { context: 'background' },
+      )
     }
   } else {
-    console.debug('[ApiFood] No failed insertions, marking search as cached')
+    console.debug('[ApiFood] No failed upsertions, marking search as cached')
     await markSearchAsCached(name)
   }
 
-  const insertedFoods: ReadonlyArray<Food | null> = insertionResults
-    .filter((result): result is PromiseFulfilledResult<Food | null> => result.status === 'fulfilled')
+  const upsertedFoods: ReadonlyArray<Food | null> = upsertionResults
+    .filter(
+      (result): result is PromiseFulfilledResult<Food | null> =>
+        result.status === 'fulfilled',
+    )
     .map((result) => result.value)
 
   console.debug(
-    `[ApiFood] Returning ${insertedFoods.length}/${apiFoods.length} foods`,
+    `[ApiFood] Returning ${upsertedFoods.length}/${apiFoods.length} foods`,
   )
 
-  return insertedFoods.filter((food): food is Food => food !== null)
+  return upsertedFoods.filter((food): food is Food => food !== null)
 }

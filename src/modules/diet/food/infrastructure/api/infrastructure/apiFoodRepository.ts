@@ -1,3 +1,6 @@
+import axios from 'axios'
+import rateLimit from 'axios-rate-limit'
+
 import {
   EXTERNAL_API_AUTHORIZATION,
   EXTERNAL_API_BASE_URL,
@@ -8,12 +11,13 @@ import {
   EXTERNAL_API_REFERER,
 } from '~/modules/diet/api/constants/apiSecrets'
 import {
-  apiFoodSchema,
   type ApiFood,
+  apiFoodSchema,
 } from '~/modules/diet/food/infrastructure/api/domain/apiFoodModel'
 import { type ApiFoodRepository } from '~/modules/diet/food/infrastructure/api/domain/apiFoodRepository'
-import rateLimit from 'axios-rate-limit'
-import axios from 'axios'
+import { handleApiError, wrapErrorWithStack } from '~/shared/error/errorHandler'
+import { jsonParseWithStack } from '~/shared/utils/jsonParseWithStack'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 const API = rateLimit(axios.create(), {
   maxRequests: 2,
@@ -38,6 +42,22 @@ async function fetchApiFoodsByName(
 ): Promise<readonly ApiFood[]> {
   const url = `${EXTERNAL_API_BASE_URL}/${EXTERNAL_API_FOOD_ENDPOINT}`
 
+  let parsedParams: unknown
+  try {
+    parsedParams = jsonParseWithStack(EXTERNAL_API_FOOD_PARAMS)
+  } catch (err) {
+    handleApiError(err, {
+      component: 'ApiFoodRepository',
+      operation: 'fetchApiFoodsByName',
+      additionalData: { url, name, paramsString: EXTERNAL_API_FOOD_PARAMS },
+    })
+    parsedParams = {}
+  }
+  const params =
+    typeof parsedParams === 'object' && parsedParams !== null
+      ? parsedParams
+      : {}
+
   const config = {
     headers: {
       accept: 'application/json, text/plain, */*',
@@ -50,7 +70,7 @@ async function fetchApiFoodsByName(
       'user-agent': 'okhttp/4.9.2',
     },
     params: {
-      ...(JSON.parse(EXTERNAL_API_FOOD_PARAMS) as object),
+      ...params,
       search: name,
     },
   }
@@ -60,15 +80,27 @@ async function fetchApiFoodsByName(
   try {
     response = await API.get(url, config)
   } catch (error) {
-    console.error(`[ApiFood] Error fetching foods with name from url ${url}`, {
-      error,
+    handleApiError(error, {
+      component: 'ApiFoodRepository',
+      operation: 'fetchApiFoodsByName',
+      additionalData: { url, name },
     })
-    throw error
+    throw wrapErrorWithStack(error)
   }
 
   console.debug(`[ApiFood] Response from url ${url}`, response.data)
 
-  return apiFoodSchema.array().parse(response.data.alimentos)
+  const data = response.data as Record<string, unknown>
+  const alimentosRaw = data.alimentos
+  if (!Array.isArray(alimentosRaw)) {
+    handleApiError(new Error('Invalid alimentos array in API response'), {
+      component: 'ApiFoodRepository',
+      operation: 'fetchApiFoodsByName',
+      additionalData: { url, name, data },
+    })
+    return []
+  }
+  return parseWithStack(apiFoodSchema.array(), alimentosRaw)
 }
 
 async function fetchApiFoodByEan(
@@ -89,5 +121,5 @@ async function fetchApiFoodByEan(
   })
   console.log(response.data)
   console.dir(response.data)
-  return apiFoodSchema.parse(response.data)
+  return parseWithStack(apiFoodSchema, response.data)
 }

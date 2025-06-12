@@ -1,22 +1,20 @@
 import { type Accessor, type Setter } from 'solid-js'
-import toast from 'solid-toast'
-import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
-import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
-import {
-  type ItemGroup,
-  type RecipedItemGroup,
-  type SimpleItemGroup,
-  createSimpleItemGroup,
-  createRecipedItemGroup,
-} from '~/modules/diet/item-group/domain/itemGroup'
-import { type Template } from '~/modules/diet/template/domain/template'
-import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
-import { ModalContextProvider } from '~/sections/common/context/ModalContext'
-import { formatError } from '~/shared/formatError'
-import { handleApiError } from '~/shared/error/errorHandler'
-import { calcRecipeMacros } from '~/legacy/utils/macroMath'
 
-export interface ExternalTemplateToItemGroupModalProps {
+import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { deleteRecipe } from '~/modules/diet/recipe/application/recipe'
+import { createGroupFromTemplate } from '~/modules/diet/template/application/createGroupFromTemplate'
+import { templateToItem } from '~/modules/diet/template/application/templateToItem'
+import { type Template } from '~/modules/diet/template/domain/template'
+import { isTemplateRecipe } from '~/modules/diet/template/domain/template'
+import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import { mutateTemplates } from '~/modules/search/application/search'
+import { showError } from '~/modules/toast/application/toastManager'
+import { ModalContextProvider } from '~/sections/common/context/ModalContext'
+import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
+import { handleApiError } from '~/shared/error/errorHandler'
+import { formatError } from '~/shared/formatError'
+
+export type ExternalTemplateToItemGroupModalProps = {
   visible: Accessor<boolean>
   setVisible: Setter<boolean>
   selectedTemplate: Accessor<Template>
@@ -27,61 +25,45 @@ export interface ExternalTemplateToItemGroupModalProps {
   ) => Promise<void>
 }
 
-export function ExternalTemplateToItemGroupModal(props: ExternalTemplateToItemGroupModalProps) {
+export function ExternalTemplateToItemGroupModal(
+  props: ExternalTemplateToItemGroupModalProps,
+) {
+  const template = () => props.selectedTemplate()
+
+  const handleApply = (item: TemplateItem) => {
+    const { newGroup, operation, templateType } = createGroupFromTemplate(
+      template(),
+      item,
+    )
+
+    props.onNewItemGroup(newGroup, item).catch((err) => {
+      handleApiError(err, {
+        component: 'ExternalTemplateToItemGroupModal',
+        operation,
+        additionalData: { itemName: item.name, templateType },
+      })
+      showError(err, {}, `Erro ao adicionar item: ${formatError(err)}`)
+    })
+  }
+
+  const handleDeleteRecipe = () => {
+    const id = template().id
+    void deleteRecipe(id).then(() => {
+      mutateTemplates((templates) => templates?.filter((t) => t.id !== id))
+    })
+  }
+
   return (
     <ModalContextProvider visible={props.visible} setVisible={props.setVisible}>
       <ItemEditModal
         targetName={props.targetName}
-        item={() => {
-          const template = props.selectedTemplate()
-          const macros = template.__type === 'Food' 
-            ? template.macros 
-            : calcRecipeMacros(template)
-          return {
-            reference: template.id,
-            name: template.name,
-            macros,
-            __type: template.__type === 'Food' ? 'Item' : 'RecipeItem', // TODO: Refactor conversion from template type to group/item types
-          }
-        }}
-        macroOverflow={() => ({
-          enable: true,
-        })}
-        onApply={(item) => {
-          // TODO: Refactor conversion from template type to group/item types
-          if (item.__type === 'Item') {
-            const newGroup: SimpleItemGroup = createSimpleItemGroup({
-              name: item.name,
-              items: [item],
-            })
-            props.onNewItemGroup(newGroup, item).catch((err) => {
-              handleApiError(err, {
-                component: 'ExternalTemplateToItemGroupModal',
-                operation: 'addSimpleItem',
-                additionalData: { itemName: item.name, templateType: 'Item' }
-              })
-              toast.error(
-                `Erro ao adicionar item: ${formatError(err)}`,
-              )
-            })
-          } else {
-            const newGroup: RecipedItemGroup = createRecipedItemGroup({
-              name: item.name,
-              recipe: (props.selectedTemplate() as Recipe).id,
-              items: [...(props.selectedTemplate() as Recipe).items],
-            })
-            props.onNewItemGroup(newGroup, item).catch((err) => {
-              handleApiError(err, {
-                component: 'ExternalTemplateToItemGroupModal',
-                operation: 'addRecipeItem',
-                additionalData: { itemName: item.name, templateType: 'Recipe' }
-              })
-              toast.error(
-                `Erro ao adicionar item: ${formatError(err)}`,
-              )
-            })
-          }
-        }}
+        item={() => templateToItem(template())}
+        macroOverflow={() => ({ enable: true })}
+        onApply={handleApply}
+        onDelete={() =>
+          // TODO: Remove this delete button when ItemEditModal supports editing and deleting recipes directly for UI consistency
+          isTemplateRecipe(template()) ? handleDeleteRecipe() : undefined
+        }
       />
     </ModalContextProvider>
   )

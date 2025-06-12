@@ -1,35 +1,35 @@
+import { createEffect, createSignal } from 'solid-js'
+
+import { createItem, type Item } from '~/modules/diet/item/domain/item'
 import {
-  type Item,
-  createItem,
-} from '~/modules/diet/item/domain/item'
-import { Modal } from '~/sections/common/components/Modal'
+  isSimpleSingleGroup,
+  type ItemGroup,
+} from '~/modules/diet/item-group/domain/itemGroup'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import {
+  addItemsToRecipe,
+  removeItemFromRecipe,
+  updateItemInRecipe,
+} from '~/modules/diet/recipe/domain/recipeOperations'
+import {
+  isTemplateItemFood,
+  isTemplateItemRecipe,
+} from '~/modules/diet/template-item/domain/templateItem'
+import { showError } from '~/modules/toast/application/toastManager'
+import { Modal } from '~/sections/common/components/Modal'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import {
+  ModalContextProvider,
+  useModalContext,
+} from '~/sections/common/context/ModalContext'
+import { ExternalItemEditModal } from '~/sections/food-item/components/ExternalItemEditModal'
 import {
   RecipeEditContent,
   RecipeEditHeader,
 } from '~/sections/recipe/components/RecipeEditView'
 import { RecipeEditContextProvider } from '~/sections/recipe/context/RecipeEditContext'
-import {
-  ModalContextProvider,
-  useModalContext,
-} from '~/sections/common/context/ModalContext'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
-import { ExternalItemEditModal } from '~/sections/food-item/components/ExternalItemEditModal'
 import { handleValidationError } from '~/shared/error/errorHandler'
-import {
-  type ItemGroup,
-  isSimpleSingleGroup,
-} from '~/modules/diet/item-group/domain/itemGroup'
-import { RecipeEditor } from '~/legacy/utils/data/recipeEditor'
-import toast from 'solid-toast'
-
-import { currentUserId } from '~/modules/user/application/user'
-import {
-  createEffect,
-  createSignal,
-} from 'solid-js'
-import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 
 export type RecipeEditModalProps = {
   show?: boolean
@@ -44,19 +44,16 @@ export type RecipeEditModalProps = {
 export function RecipeEditModal(props: RecipeEditModalProps) {
   const { visible, setVisible } = useModalContext()
 
-  const [recipe, setRecipe] = createMirrorSignal(() => props.recipe)
+  const [recipe, setRecipe] = createSignal(props.recipe)
 
-  const [selectedItem, setSelectedItem] = createSignal<Item | null>(
-    null,
-  )
+  const [selectedItem, setSelectedItem] = createSignal<Item | null>(null)
 
   const impossibleItem = createItem({
     name: 'IMPOSSIBLE ITEM',
     reference: 0,
   })
 
-  const [itemEditModalVisible, setItemEditModalVisible] =
-    createSignal(false)
+  const [itemEditModalVisible, setItemEditModalVisible] = createSignal(false)
   const [templateSearchModalVisible, setTemplateSearchModalVisible] =
     createSignal(false)
 
@@ -64,32 +61,30 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
     console.debug('onNewItemGroup', newGroup)
 
     if (!isSimpleSingleGroup(newGroup)) {
-      // TODO: Handle non-simple groups on handleNewItemGroup
-      handleValidationError(
-        'Cannot add complex groups to recipes',
-        {
-          component: 'RecipeEditModal',
-          operation: 'handleNewItemGroup',
-          additionalData: { groupType: 'complex', groupId: newGroup.id }
-        }
-      )
-      toast.error(
+      // TODO:   Handle non-simple groups on handleNewItemGroup
+      handleValidationError('Cannot add complex groups to recipes', {
+        component: 'RecipeEditModal',
+        operation: 'handleNewItemGroup',
+        additionalData: { groupType: 'complex', groupId: newGroup.id },
+      })
+      showError(
         'Não é possível adicionar grupos complexos a receitas, por enquanto.',
       )
       return
     }
 
-    const newRecipe = new RecipeEditor(recipe())
-      .addItems(newGroup.items)
-      .finish()
+    const updatedRecipe = addItemsToRecipe(recipe(), newGroup.items)
 
-    console.debug('handleNewItemGroup: applying', JSON.stringify(newRecipe, null, 2))
+    console.debug(
+      'handleNewItemGroup: applying',
+      JSON.stringify(updatedRecipe, null, 2),
+    )
 
-    setRecipe(newRecipe)
+    setRecipe(updatedRecipe)
   }
 
   createEffect(() => {
-    // TODO: Replace itemEditModalVisible with a derived signal
+    // TODO:   Replace itemEditModalVisible with a derived signal
     setItemEditModalVisible(selectedItem() !== null)
   })
 
@@ -105,27 +100,28 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
         visible={itemEditModalVisible}
         setVisible={setItemEditModalVisible}
         item={() => selectedItem() ?? impossibleItem}
-        targetName={recipe()?.name ?? 'LOADING RECIPE'}
+        targetName={recipe().name}
         onApply={(item) => {
-          if (recipe() === null) return
+          // Only handle regular Items, not RecipeItems
+          if (!isTemplateItemFood(item)) {
+            console.warn('Cannot edit RecipeItems in recipe')
+            return
+          }
 
-          const recipeEditor = new RecipeEditor(recipe())
+          const updatedItem: Item = { ...item, quantity: item.quantity }
+          const updatedRecipe = updateItemInRecipe(
+            recipe(),
+            item.id,
+            updatedItem,
+          )
 
-          const newRecipe = recipeEditor
-            .editItem(item.id, (itemEditor) => {
-              itemEditor?.setQuantity(item.quantity)
-            })
-            .finish()
-
-          setRecipe(newRecipe)
+          setRecipe(updatedRecipe)
           setSelectedItem(null)
         }}
         onDelete={(itemId) => {
-          const recipeEditor = new RecipeEditor(recipe())
+          const updatedRecipe = removeItemFromRecipe(recipe(), itemId)
 
-          const newRecipe = recipeEditor.deleteItem(itemId).finish()
-
-          setRecipe(newRecipe)
+          setRecipe(updatedRecipe)
           setSelectedItem(null)
         }}
       />
@@ -134,7 +130,7 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
         visible={templateSearchModalVisible}
         setVisible={setTemplateSearchModalVisible}
         onRefetch={props.onRefetch}
-        targetName={recipe()?.name ?? 'ERRO: Receita não especificada'}
+        targetName={recipe().name}
         onNewItemGroup={handleNewItemGroup}
       />
 
@@ -145,7 +141,10 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
               <RecipeEditContextProvider recipe={recipe} setRecipe={setRecipe}>
                 <RecipeEditHeader
                   onUpdateRecipe={(newRecipe) => {
-                    console.debug('[RecipeEditModal] onUpdateRecipe: ', newRecipe)
+                    console.debug(
+                      '[RecipeEditModal] onUpdateRecipe: ',
+                      newRecipe,
+                    )
                     setRecipe(newRecipe)
                   }}
                 />
@@ -159,9 +158,9 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
                   setTemplateSearchModalVisible(true)
                 }}
                 onEditItem={(item) => {
-                  // TODO: Allow user to edit recipe.
-                  if (item.__type === 'RecipeItem') {
-                    toast.error(
+                  // TODO: Allow user to edit recipes inside recipes
+                  if (isTemplateItemRecipe(item)) {
+                    showError(
                       'Ainda não é possível editar receitas dentro de receitas! Funcionalidade em desenvolvimento',
                     )
                     return
@@ -189,7 +188,6 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
   )
 }
 
-
 function Actions(props: {
   onApply: () => void
   onDelete: () => void
@@ -201,13 +199,12 @@ function Actions(props: {
   return (
     <>
       <button
-        class="btn-error btn mr-auto"
+        class="btn-error btn cursor-pointer uppercase mr-auto"
         onClick={(e) => {
           e.preventDefault()
-
           showConfirmModal({
-            title: 'Excluir item',
-            body: 'Tem certeza que deseja excluir este item?',
+            title: 'Excluir receita',
+            body: 'Tem certeza que deseja excluir esta receita? Esta ação não pode ser desfeita.',
             actions: [
               {
                 text: 'Cancelar',
@@ -218,6 +215,7 @@ function Actions(props: {
                 primary: true,
                 onClick: () => {
                   props.onDelete()
+                  setVisible(false)
                 },
               },
             ],
@@ -227,7 +225,7 @@ function Actions(props: {
         Excluir
       </button>
       <button
-        class="btn"
+        class="btn cursor-pointer uppercase"
         onClick={(e) => {
           e.preventDefault()
           setVisible(false)
@@ -237,7 +235,7 @@ function Actions(props: {
         Cancelar
       </button>
       <button
-        class="btn"
+        class="btn cursor-pointer uppercase"
         onClick={(e) => {
           e.preventDefault()
           props.onApply()

@@ -1,6 +1,6 @@
 import { mergeProps, type JSXElement, useContext } from 'solid-js'
-import { BG_COLOR, BORDER_COLOR, BUTTON_COLOR, RING_COLOR } from '../constants'
-import DatepickerContext from '../contexts/DatepickerContext'
+import { BG_COLOR, BORDER_COLOR, BUTTON_COLOR, RING_COLOR } from '~/sections/datepicker/constants'
+import DatepickerContext from '~/sections/datepicker/contexts/DatepickerContext'
 
 type IconProps = {
   class: string
@@ -8,7 +8,7 @@ type IconProps = {
 
 type Button = {
   children: JSXElement | JSXElement[]
-  onClick: any // TODO: Fix any
+  onClick: any // TODO:   Fix any
   disabled?: boolean
   roundedFull?: boolean
   padding?: string

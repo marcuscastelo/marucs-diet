@@ -1,6 +1,8 @@
 import { z } from 'zod'
-import { type Meal, mealSchema } from '~/modules/diet/meal/domain/meal'
+
 import { itemGroupSchema } from '~/modules/diet/item-group/domain/itemGroup'
+import { type Meal, mealSchema } from '~/modules/diet/meal/domain/meal'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 // DAO schema for creating new meals
 export const createMealDAOSchema = z.object({
@@ -41,7 +43,7 @@ export function mealToDAO(meal: Meal): MealDAO {
  * Converts a DAO object from database to domain Meal object
  */
 export function daoToMeal(dao: MealDAO): Meal {
-  return mealSchema.parse({
+  return parseWithStack(mealSchema, {
     id: dao.id,
     name: dao.name,
     groups: dao.groups,
@@ -51,8 +53,11 @@ export function daoToMeal(dao: MealDAO): Meal {
 /**
  * Converts CreateMealDAO to MealDAO for database operations
  */
-export function createMealDAOToDAO(createDAO: CreateMealDAO, id: number): MealDAO {
-  return mealDAOSchema.parse({
+export function createMealDAOToDAO(
+  createDAO: CreateMealDAO,
+  id: number,
+): MealDAO {
+  return parseWithStack(mealDAOSchema, {
     id,
     name: createDAO.name,
     groups: createDAO.groups,
@@ -62,8 +67,11 @@ export function createMealDAOToDAO(createDAO: CreateMealDAO, id: number): MealDA
 /**
  * Merges UpdateMealDAO with existing MealDAO for database updates
  */
-export function mergeUpdateMealDAO(existing: MealDAO, update: UpdateMealDAO): MealDAO {
-  return mealDAOSchema.parse({
+export function mergeUpdateMealDAO(
+  existing: MealDAO,
+  update: UpdateMealDAO,
+): MealDAO {
+  return parseWithStack(mealDAOSchema, {
     ...existing,
     ...update,
   })

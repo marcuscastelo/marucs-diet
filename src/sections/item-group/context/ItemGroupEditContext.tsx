@@ -1,16 +1,23 @@
-import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import {
-  createContext,
   type Accessor,
-  type Setter,
-  useContext,
+  createContext,
   createSignal,
   type JSXElement,
+  Resource,
+  type Setter,
+  untrack,
+  useContext,
 } from 'solid-js'
-import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
+
+import { useRecipeResource } from '~/modules/diet/item-group/application/useRecipeResource'
+import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { Recipe } from '~/modules/diet/recipe/domain/recipe'
 
 export type ItemGroupEditContext = {
   group: Accessor<ItemGroup>
+  recipe: Resource<Recipe | null>
+  refetchRecipe: (info?: unknown) => Promise<Recipe | undefined | null>
+  mutateRecipe: (recipe: Recipe | null) => void
   persistentGroup: Accessor<ItemGroup>
   setGroup: Setter<ItemGroup>
   saveGroup: () => void
@@ -36,25 +43,40 @@ export function ItemGroupEditContextProvider(props: {
   onSaveGroup: (group: ItemGroup) => void
   children: JSXElement
 }) {
-  const [group, setGroup] = createMirrorSignal<ItemGroup>(() => props.group())
-
+  // Initialize with untracked read to avoid reactivity warning
   const [persistentGroup, setPersistentGroup] = createSignal<ItemGroup>(
-    // eslint-disable-next-line solid/reactivity
-    props.group(),
+    untrack(() => props.group()),
   )
 
+  // Wrapper to convert props.setGroup to a Setter
+  const setGroup: Setter<ItemGroup> = (value) => {
+    const newValue =
+      typeof value === 'function'
+        ? (value as (prev: ItemGroup) => ItemGroup)(props.group())
+        : value
+    props.setGroup(newValue)
+  }
+
   const handleSaveGroup = () => {
-    const group_ = group()
-    if (group_ === null) {
-      throw new Error('Group is null')
-    }
+    const group_ = props.group()
     props.onSaveGroup(group_)
     setPersistentGroup(group_)
   }
 
+  const [recipe, { refetch: refetchRecipe, mutate: mutateRecipe }] =
+    useRecipeResource(() => props.group().recipe)
+
   return (
     <itemGroupEditContext.Provider
-      value={{ group, persistentGroup, setGroup, saveGroup: handleSaveGroup }}
+      value={{
+        group: () => props.group(),
+        recipe: recipe,
+        refetchRecipe: async (info?: unknown) => refetchRecipe(info),
+        mutateRecipe,
+        persistentGroup,
+        setGroup,
+        saveGroup: handleSaveGroup,
+      }}
     >
       {props.children}
     </itemGroupEditContext.Provider>

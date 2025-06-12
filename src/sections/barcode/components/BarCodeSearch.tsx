@@ -1,29 +1,23 @@
 import {
+  type Accessor,
+  createEffect,
+  createSignal,
+  type Setter,
+  Show,
+} from 'solid-js'
+
+import { fetchFoodByEan } from '~/modules/diet/food/application/food'
+import { type Food } from '~/modules/diet/food/domain/food'
+import { createItem } from '~/modules/diet/item/domain/item'
+import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import {
   ItemFavorite,
-  ItemHeader,
   ItemName,
   ItemNutritionalInfo,
   ItemView,
 } from '~/sections/food-item/components/ItemView'
-import { type Food } from '~/modules/diet/food/domain/food'
-import { createItem } from '~/modules/diet/item/domain/item'
-import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { handleApiError } from '~/shared/error/errorHandler'
-
-import {
-  isFoodFavorite,
-  setFoodAsFavorite,
-} from '~/modules/user/application/user'
-import {
-  type Accessor,
-  createSignal,
-  createEffect,
-  type Setter,
-  Show,
-} from 'solid-js'
-import { fetchFoodByEan } from '~/modules/diet/food/application/food'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
-import { formatError } from '~/shared/formatError'
 
 export type BarCodeSearchProps = {
   barCode: Accessor<string>
@@ -50,44 +44,42 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
 
     const afterFetch = (food: Food | null) => {
       console.log('afterFetch food', food)
-      if (!food) {
+      if (food === null) {
         showConfirmModal({
           title: `Não encontrado`,
           body: `Alimento de EAN ${props.barCode()} não encontrado`,
-          actions: [
-            { text: 'OK', primary: true, onClick: () => {} },
-          ]
+          actions: [{ text: 'OK', primary: true, onClick: () => {} }],
         })
         return
       }
       props.setFood(food)
     }
 
-    const catchFetch = (err: any) => {
+    const catchFetch = (err: unknown) => {
       console.log('catchFetch err', err)
       handleApiError(err, {
         component: 'BarCodeSearch',
         operation: 'fetchFoodByEan',
-        additionalData: { barCode: props.barCode() }
+        additionalData: { barCode: props.barCode() },
       })
       showConfirmModal({
         title: `Erro ao buscar alimento de EAN ${props.barCode()}`,
-        body: `Erro: ${formatError(err)}`,
-        actions: [
-          { text: 'OK', primary: true, onClick: () => {} },
-        ]
+        body: 'Erro ao buscar alimento',
+        actions: [{ text: 'OK', primary: true, onClick: () => {} }],
       })
       props.setFood(null)
+    }
+
+    const finallyFetch = () => {
+      console.log('finallyFetch')
+      setLoading(false)
+      props.setBarCode('')
     }
 
     fetchFoodByEan(props.barCode())
       .then(afterFetch)
       .catch(catchFetch)
-      .finally(() => {
-        console.log('finally')
-        setLoading(false)
-        props.setBarCode('')
-      })
+      .finally(finallyFetch)
   })
 
   return (
@@ -117,29 +109,16 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
                         name: food().name,
                         reference: food().id,
                         quantity: 100,
-                        macros: {
-                          ...(food().macros ??
-                            createItem({
-                              name: food().name,
-                              reference: food().id,
-                            }).macros),
-                        } satisfies MacroNutrients,
+                        macros: { ...food().macros },
                       })
                     }
                     macroOverflow={() => ({
                       enable: false,
                     })}
                     header={
-                      <ItemHeader
+                      <HeaderWithActions
                         name={<ItemName />}
-                        favorite={
-                          <ItemFavorite
-                            favorite={isFoodFavorite(food().id)}
-                            onSetFavorite={(favorite) => {
-                              setFoodAsFavorite(food().id, favorite)
-                            }}
-                          />
-                        }
+                        primaryActions={<ItemFavorite foodId={food().id} />}
                       />
                     }
                     nutritionalInfo={<ItemNutritionalInfo />}

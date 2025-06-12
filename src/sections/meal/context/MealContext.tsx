@@ -1,12 +1,13 @@
-import { type Meal } from '~/modules/diet/meal/domain/meal'
 import {
   type Accessor,
-  type JSXElement,
   createContext,
+  type JSXElement,
   useContext,
 } from 'solid-js'
 
-// TODO: Rename to TemplateItemContext
+import { type Meal } from '~/modules/diet/meal/domain/meal'
+
+// TODO:   Rename to TemplateItemContext
 const mealContext = createContext<{
   meal: Accessor<Meal>
 } | null>(null)

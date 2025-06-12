@@ -1,42 +1,64 @@
-import { macroNutrientsSchema, type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { z } from 'zod'
 
+import {
+  type MacroNutrients,
+  macroNutrientsSchema,
+} from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
+
 export const newFoodSchema = z.object({
-  name: z.string(),
-  ean: z.string().optional(),
+  name: z.string({
+    required_error: "O campo 'name' do alimento é obrigatório.",
+    invalid_type_error: "O campo 'name' do alimento deve ser uma string.",
+  }),
+  ean: z
+    .string({
+      required_error: "O campo 'ean' do alimento é obrigatório.",
+      invalid_type_error: "O campo 'ean' do alimento deve ser uma string.",
+    })
+    .nullable(),
   macros: macroNutrientsSchema,
   source: z
     .object({
       type: z.literal('api'),
-      id: z.string(),
+      id: z.string({
+        required_error: "O campo 'id' da fonte do alimento é obrigatório.",
+        invalid_type_error:
+          "O campo 'id' da fonte do alimento deve ser uma string.",
+      }),
     })
     .optional(),
-  recipeId: z.number().optional(),
   __type: z.literal('NewFood'),
 })
 
 export const foodSchema = z.object({
-  id: z.number(),
+  id: z.number({
+    required_error: "O campo 'id' do alimento é obrigatório.",
+    invalid_type_error: "O campo 'id' do alimento deve ser um número.",
+  }),
   source: z
     .object({
       type: z.literal('api'),
-      id: z.string(),
+      id: z.string({
+        required_error: "O campo 'id' da fonte do alimento é obrigatório.",
+        invalid_type_error:
+          "O campo 'id' da fonte do alimento deve ser uma string.",
+      }),
     })
     .nullable()
     .transform((val) => val ?? undefined)
     .optional(),
-  name: z.string(),
+  name: z.string({
+    required_error: "O campo 'name' do alimento é obrigatório.",
+    invalid_type_error: "O campo 'name' do alimento deve ser uma string.",
+  }),
   ean: z
-    .string()
-    .nullable()
-    .transform((val) => val ?? undefined)
-    .optional(),
+    .string({
+      required_error: "O campo 'ean' do alimento é obrigatório.",
+      invalid_type_error: "O campo 'ean' do alimento deve ser uma string.",
+    })
+    .nullable(),
   macros: macroNutrientsSchema,
-  recipeId: z
-    .number()
-    .nullable()
-    .transform((val) => val ?? undefined)
-    .optional(),
   __type: z
     .string()
     .nullable()
@@ -56,20 +78,17 @@ export function createNewFood({
   macros,
   ean,
   source,
-  recipeId,
 }: {
   name: string
   macros: MacroNutrients
-  ean?: string
+  ean: string | null
   source?: NewFood['source']
-  recipeId?: number
 }): NewFood {
   return {
     name,
     macros,
     ean,
     source,
-    recipeId,
     __type: 'NewFood',
   }
 }
@@ -90,24 +109,11 @@ export function promoteToFood(newFood: NewFood, id: number): Food {
  * Used when converting a persisted Food back to NewFood for database operations.
  */
 export function demoteToNewFood(food: Food): NewFood {
-  return newFoodSchema.parse({
+  return parseWithStack(newFoodSchema, {
     name: food.name,
     macros: food.macros,
     ean: food.ean,
     source: food.source,
-    recipeId: food.recipeId,
     __type: 'NewFood',
-  })
-}
-
-// TODO: Make createFood function more than a mock
-export function createFood({ name }: { name: string }): NewFood {
-  return createNewFood({
-    name,
-    macros: {
-      protein: 1234,
-      carbs: 4321,
-      fat: 666,
-    },
   })
 }

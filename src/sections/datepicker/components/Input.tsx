@@ -1,10 +1,10 @@
 import dayjs from 'dayjs'
 
-import { BORDER_COLOR, DATE_FORMAT, RING_COLOR } from '../constants'
-import DatepickerContext from '../contexts/DatepickerContext'
-import { dateIsValid, parseFormattedDate } from '../helpers'
+import { BORDER_COLOR, DATE_FORMAT, RING_COLOR } from '~/sections/datepicker/constants'
+import DatepickerContext from '~/sections/datepicker/contexts/DatepickerContext'
+import { dateIsValid, parseFormattedDate } from '~/sections/datepicker/helpers'
 
-import DatepickerToggleButton from './ToggleButton'
+import DatepickerToggleButton from '~/sections/datepicker/components/ToggleButton'
 import { createEffect, useContext } from 'solid-js'
 
 type Props = {
@@ -155,7 +155,7 @@ const Input = (e: Props) => {
     }
 
     const defaultToggleClassName =
-            'absolute right-0 h-full px-3 text-gray-400 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed'
+            'absolute right-0 h-full px-3 text-gray-400 focus:outline-hidden disabled:opacity-40 disabled:cursor-not-allowed'
 
     return typeof toggleClassName === 'function'
       ? toggleClassName(defaultToggleClassName)
@@ -305,7 +305,7 @@ const Input = (e: Props) => {
                 type="button"
                 ref={buttonRef}
                 disabled={datepickerStore().disabled}
-                class={getToggleClassName()}
+                class={`${getToggleClassName()} cursor-pointer`}
             >
       { /* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */ }
                 {renderToggleIcon(!datepickerStore().inputText?.length)}

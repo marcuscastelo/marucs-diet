@@ -1,22 +1,50 @@
-import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
-import { itemSchema } from '~/modules/diet/item/domain/item'
-
 import { z } from 'zod'
 
+import { itemSchema } from '~/modules/diet/item/domain/item'
+import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
+
 export const newRecipeSchema = z.object({
-  name: z.string(),
-  owner: z.number(),
-  items: z.array(itemSchema).readonly(),
-  prepared_multiplier: z.number().default(1),
+  name: z.string({
+    required_error: "O campo 'name' da receita é obrigatório.",
+    invalid_type_error: "O campo 'name' da receita deve ser uma string.",
+  }),
+  owner: z.number({
+    required_error: "O campo 'owner' da receita é obrigatório.",
+    invalid_type_error: "O campo 'owner' da receita deve ser um número.",
+  }),
+  items: itemSchema.array(),
+  prepared_multiplier: z
+    .number({
+      required_error: "O campo 'prepared_multiplier' da receita é obrigatório.",
+      invalid_type_error:
+        "O campo 'prepared_multiplier' da receita deve ser um número.",
+    })
+    .default(1),
   __type: z.literal('NewRecipe'),
 })
 
 export const recipeSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  owner: z.number(),
-  items: z.array(itemSchema).readonly(), // TODO: Think of a way to avoid id reuse on each item and bugs
-  prepared_multiplier: z.number().default(1), // TODO: Rename all snake_case to camelCase (also in db)
+  id: z.number({
+    required_error: "O campo 'id' da receita é obrigatório.",
+    invalid_type_error: "O campo 'id' da receita deve ser um número.",
+  }),
+  name: z.string({
+    required_error: "O campo 'name' da receita é obrigatório.",
+    invalid_type_error: "O campo 'name' da receita deve ser uma string.",
+  }),
+  owner: z.number({
+    required_error: "O campo 'owner' da receita é obrigatório.",
+    invalid_type_error: "O campo 'owner' da receita deve ser um número.",
+  }),
+  items: itemSchema.array().readonly(),
+  prepared_multiplier: z
+    .number({
+      required_error: "O campo 'prepared_multiplier' da receita é obrigatório.",
+      invalid_type_error:
+        "O campo 'prepared_multiplier' da receita deve ser um número.",
+    })
+    .default(1),
   __type: z
     .string()
     .nullable()
@@ -35,7 +63,10 @@ export type Recipe = Readonly<z.infer<typeof recipeSchema>>
  * @param owner - User ID who will own this recipe
  * @returns A new Recipe created from the group
  */
-export function createNewRecipeFromGroup(group: ItemGroup, owner: number): NewRecipe {
+export function createNewRecipeFromGroup(
+  group: ItemGroup,
+  owner: number,
+): NewRecipe {
   return createNewRecipe({
     name: group.name,
     items: [...group.items],
@@ -93,7 +124,7 @@ export function promoteToRecipe(newRecipe: NewRecipe, id: number): Recipe {
  * Used when converting a persisted Recipe back to NewRecipe for database operations.
  */
 export function demoteToNewRecipe(recipe: Recipe): NewRecipe {
-  return newRecipeSchema.parse({
+  return parseWithStack(newRecipeSchema, {
     name: recipe.name,
     owner: recipe.owner,
     items: recipe.items,

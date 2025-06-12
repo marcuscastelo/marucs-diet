@@ -1,20 +1,28 @@
+import supabase from '~/legacy/utils/supabase'
 import {
   type MacroProfile,
   type NewMacroProfile,
 } from '~/modules/diet/macro-profile/domain/macroProfile'
-import { type User } from '~/modules/user/domain/user'
-import supabase from '~/legacy/utils/supabase'
 import { type MacroProfileRepository } from '~/modules/diet/macro-profile/domain/macroProfileRepository'
-import { handleApiError } from '~/shared/error/errorHandler'
 import {
-  createMacroProfileFromDAO,
-  macroProfileDAOSchema,
   createInsertMacroProfileDAOFromNewMacroProfile,
+  createMacroProfileFromDAO,
   createUpdateMacroProfileDAOFromNewMacroProfile,
+  macroProfileDAOSchema,
 } from '~/modules/diet/macro-profile/infrastructure/macroProfileDAO'
+import { type User } from '~/modules/user/domain/user'
+import { handleApiError } from '~/shared/error/errorHandler'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
+/**
+ * Supabase table name for macro profiles.
+ */
 export const SUPABASE_TABLE_MACRO_PROFILES = 'macro_profiles'
 
+/**
+ * Creates a MacroProfileRepository implementation using Supabase as backend.
+ * @returns {MacroProfileRepository} The repository instance.
+ */
 export function createSupabaseMacroProfileRepository(): MacroProfileRepository {
   return {
     fetchUserMacroProfiles,
@@ -24,7 +32,15 @@ export function createSupabaseMacroProfileRepository(): MacroProfileRepository {
   }
 }
 
-async function fetchUserMacroProfiles(userId: User['id']) {
+/**
+ * Fetches all macro profiles for a user.
+ * @param {User['id']} userId - The user ID.
+ * @returns {Promise<readonly MacroProfile[]>} Array of macro profiles. Throws on error.
+ * @throws {Error} On API or validation error.
+ */
+async function fetchUserMacroProfiles(
+  userId: User['id'],
+): Promise<readonly MacroProfile[]> {
   const { data, error } = await supabase
     .from(SUPABASE_TABLE_MACRO_PROFILES)
     .select('*')
@@ -35,17 +51,36 @@ async function fetchUserMacroProfiles(userId: User['id']) {
     handleApiError(error, {
       component: 'supabaseMacroProfileRepository',
       operation: 'fetchUserMacroProfiles',
-      additionalData: { userId }
+      additionalData: { userId },
     })
     throw error
   }
 
-  const macroProfileDAOs = macroProfileDAOSchema.array().parse(data)
+  let macroProfileDAOs
+  try {
+    macroProfileDAOs = parseWithStack(macroProfileDAOSchema.array(), data)
+  } catch (validationError) {
+    handleApiError(validationError, {
+      component: 'supabaseMacroProfileRepository',
+      operation: 'fetchUserMacroProfiles',
+      additionalData: { userId },
+    })
+    throw validationError
+  }
   return macroProfileDAOs.map(createMacroProfileFromDAO)
 }
 
-async function insertMacroProfile(newMacroProfile: NewMacroProfile): Promise<MacroProfile | null> {
-  const createDAO = createInsertMacroProfileDAOFromNewMacroProfile(newMacroProfile)
+/**
+ * Inserts a new macro profile.
+ * @param {NewMacroProfile} newMacroProfile - The macro profile to insert.
+ * @returns {Promise<MacroProfile>} The inserted macro profile. Throws on error.
+ * @throws {Error} On API or validation error.
+ */
+async function insertMacroProfile(
+  newMacroProfile: NewMacroProfile,
+): Promise<MacroProfile> {
+  const createDAO =
+    createInsertMacroProfileDAOFromNewMacroProfile(newMacroProfile)
   const { data, error } = await supabase
     .from(SUPABASE_TABLE_MACRO_PROFILES)
     .insert(createDAO)
@@ -55,22 +90,49 @@ async function insertMacroProfile(newMacroProfile: NewMacroProfile): Promise<Mac
     handleApiError(error, {
       component: 'supabaseMacroProfileRepository',
       operation: 'insertMacroProfile',
-      additionalData: { macroProfile: newMacroProfile }
+      additionalData: { macroProfile: newMacroProfile },
     })
     throw error
   }
 
-  const macroProfileDAOs = macroProfileDAOSchema.array().parse(data ?? [])
-  const macroProfiles = macroProfileDAOs.map(createMacroProfileFromDAO)
-
-  return macroProfiles[0] ?? null
+  let macroProfileDAOs
+  try {
+    macroProfileDAOs = parseWithStack(macroProfileDAOSchema.array(), data)
+  } catch (validationError) {
+    handleApiError(validationError, {
+      component: 'supabaseMacroProfileRepository',
+      operation: 'insertMacroProfile',
+      additionalData: { macroProfile: newMacroProfile },
+    })
+    throw validationError
+  }
+  if (!macroProfileDAOs[0]) {
+    const notFoundError = new Error(
+      'Inserted macro profile not found in response',
+    )
+    handleApiError(notFoundError, {
+      component: 'supabaseMacroProfileRepository',
+      operation: 'insertMacroProfile',
+      additionalData: { macroProfile: newMacroProfile },
+    })
+    throw notFoundError
+  }
+  return createMacroProfileFromDAO(macroProfileDAOs[0])
 }
 
+/**
+ * Updates an existing macro profile.
+ * @param {MacroProfile['id']} profileId - The macro profile ID.
+ * @param {NewMacroProfile} newMacroProfile - The new macro profile data.
+ * @returns {Promise<MacroProfile>} The updated macro profile. Throws on error.
+ * @throws {Error} On API or validation error.
+ */
 async function updateMacroProfile(
   profileId: MacroProfile['id'],
   newMacroProfile: NewMacroProfile,
-): Promise<MacroProfile | null> {
-  const updateDAO = createUpdateMacroProfileDAOFromNewMacroProfile(newMacroProfile)
+): Promise<MacroProfile> {
+  const updateDAO =
+    createUpdateMacroProfileDAOFromNewMacroProfile(newMacroProfile)
   const { data, error } = await supabase
     .from(SUPABASE_TABLE_MACRO_PROFILES)
     .update(updateDAO)
@@ -81,18 +143,43 @@ async function updateMacroProfile(
     handleApiError(error, {
       component: 'supabaseMacroProfileRepository',
       operation: 'updateMacroProfile',
-      additionalData: { profileId, macroProfile: newMacroProfile }
+      additionalData: { profileId, macroProfile: newMacroProfile },
     })
     throw error
   }
 
-  const macroProfileDAOs = macroProfileDAOSchema.array().parse(data ?? [])
-  const macroProfiles = macroProfileDAOs.map(createMacroProfileFromDAO)
-
-  return macroProfiles[0] ?? null
+  let macroProfileDAOs
+  try {
+    macroProfileDAOs = parseWithStack(macroProfileDAOSchema.array(), data)
+  } catch (validationError) {
+    handleApiError(validationError, {
+      component: 'supabaseMacroProfileRepository',
+      operation: 'updateMacroProfile',
+      additionalData: { profileId, macroProfile: newMacroProfile },
+    })
+    throw validationError
+  }
+  if (!macroProfileDAOs[0]) {
+    const notFoundError = new Error(
+      'Updated macro profile not found in response',
+    )
+    handleApiError(notFoundError, {
+      component: 'supabaseMacroProfileRepository',
+      operation: 'updateMacroProfile',
+      additionalData: { profileId, macroProfile: newMacroProfile },
+    })
+    throw notFoundError
+  }
+  return createMacroProfileFromDAO(macroProfileDAOs[0])
 }
 
-async function deleteMacroProfile(id: MacroProfile['id']) {
+/**
+ * Deletes a macro profile by ID.
+ * @param {MacroProfile['id']} id - The macro profile ID.
+ * @returns {Promise<void>} Resolves on success. Throws on error.
+ * @throws {Error} On API error.
+ */
+async function deleteMacroProfile(id: MacroProfile['id']): Promise<void> {
   const { error } = await supabase
     .from(SUPABASE_TABLE_MACRO_PROFILES)
     .delete()
@@ -102,7 +189,7 @@ async function deleteMacroProfile(id: MacroProfile['id']) {
     handleApiError(error, {
       component: 'supabaseMacroProfileRepository',
       operation: 'deleteMacroProfile',
-      additionalData: { id }
+      additionalData: { id },
     })
     throw error
   }

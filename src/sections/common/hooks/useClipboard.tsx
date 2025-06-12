@@ -1,6 +1,13 @@
 import { createEffect, createSignal } from 'solid-js'
 import { type z } from 'zod'
 
+import { jsonParseWithStack } from '~/shared/utils/jsonParseWithStack'
+
+// Utility to check if an error is a NotAllowedError DOMException
+function isClipboardNotAllowedError(error: unknown): boolean {
+  return error instanceof DOMException && error.name === 'NotAllowedError'
+}
+
 export type ClipboardFilter = (clipboard: string) => boolean
 
 export function useClipboard(props?: {
@@ -11,12 +18,16 @@ export function useClipboard(props?: {
   const periodicRead = () => props?.periodicRead ?? true
   const [clipboard, setClipboard] = createSignal('')
 
-  const handleWrite = (text: string) => {
+  const handleWrite = (text: string, onError?: (error: unknown) => void) => {
     window.navigator.clipboard
       .writeText(text)
       .then(() => setClipboard(text))
-      .catch(() => {
-        // Do nothing. This is expected when the DOM is not focused
+      .catch((err) => {
+        if (isClipboardNotAllowedError(err)) {
+          // Ignore NotAllowedError (likely DOM not focused)
+          return
+        }
+        if (onError !== undefined) onError(err)
       })
   }
 
@@ -64,8 +75,8 @@ export function createClipboardSchemaFilter(
     if (clipboard === '') return false
     let parsedClipboard: unknown
     try {
-      parsedClipboard = JSON.parse(clipboard)
-    } catch (e) {
+      parsedClipboard = jsonParseWithStack(clipboard)
+    } catch {
       // Error parsing JSON. Probably clipboard is some random text from the user
       return false
     }

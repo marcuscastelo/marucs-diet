@@ -1,13 +1,12 @@
-import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import {
   type Accessor,
+  createContext,
   type JSXElement,
   type Setter,
-  createContext,
   useContext,
-  createSignal,
-  createEffect,
 } from 'solid-js'
+
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 
 export type RecipeContext = {
   recipe: Accessor<Recipe>
@@ -33,22 +32,11 @@ export function RecipeEditContextProvider(props: {
   setRecipe: Setter<Recipe>
   children: JSXElement
 }) {
-  // TODO: Stop creating a new signal on every context provider
-  const [innerRecipe, setInnerRecipe] = createSignal(props.recipe())
-
-  createEffect(() => {
-    setInnerRecipe(props.recipe())
-  })
-
-  createEffect(() => {
-    props.setRecipe(innerRecipe())
-  })
-
   return (
     <recipeContext.Provider
       value={{
-        recipe: innerRecipe,
-        setRecipe: setInnerRecipe,
+        recipe: props.recipe,
+        setRecipe: props.setRecipe,
       }}
     >
       {props.children}

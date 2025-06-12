@@ -1,14 +1,15 @@
-import { type Measure, type NewMeasure } from '~/modules/measure/domain/measure'
-import { type User } from '~/modules/user/domain/user'
 import supabase from '~/legacy/utils/supabase'
+import { type Measure, type NewMeasure } from '~/modules/measure/domain/measure'
 import { type MeasureRepository } from '~/modules/measure/domain/measureRepository'
-import { handleApiError } from '~/shared/error/errorHandler'
 import {
-  createMeasureFromDAO,
-  measureDAOSchema,
   createInsertMeasureDAOFromNewMeasure,
+  createMeasureFromDAO,
   createUpdateMeasureDAOFromNewMeasure,
+  measureDAOSchema,
 } from '~/modules/measure/infrastructure/measureDAO'
+import { type User } from '~/modules/user/domain/user'
+import { handleApiError, wrapErrorWithStack } from '~/shared/error/errorHandler'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 const TABLE = 'body_measures'
 
@@ -32,12 +33,12 @@ async function fetchUserMeasures(userId: User['id']) {
     handleApiError(error, {
       component: 'supabaseMeasureRepository',
       operation: 'fetchUserMeasures',
-      additionalData: { userId }
+      additionalData: { userId },
     })
-    throw error
+    throw wrapErrorWithStack(error)
   }
 
-  const measureDAOs = measureDAOSchema.array().parse(data)
+  const measureDAOs = parseWithStack(measureDAOSchema.array(), data)
   return measureDAOs.map(createMeasureFromDAO)
 }
 
@@ -49,12 +50,12 @@ async function insertMeasure(newMeasure: NewMeasure): Promise<Measure | null> {
     handleApiError(error, {
       component: 'supabaseMeasureRepository',
       operation: 'insertMeasure',
-      additionalData: { measure: newMeasure }
+      additionalData: { measure: newMeasure },
     })
-    throw error
+    throw wrapErrorWithStack(error)
   }
 
-  const measureDAOs = measureDAOSchema.array().parse(data ?? [])
+  const measureDAOs = parseWithStack(measureDAOSchema.array(), data)
   const measures = measureDAOs.map(createMeasureFromDAO)
 
   return measures[0] ?? null
@@ -75,12 +76,12 @@ async function updateMeasure(
     handleApiError(error, {
       component: 'supabaseMeasureRepository',
       operation: 'updateMeasure',
-      additionalData: { measureId, measure: newMeasure }
+      additionalData: { measureId, measure: newMeasure },
     })
-    throw error
+    throw wrapErrorWithStack(error)
   }
 
-  const measureDAOs = measureDAOSchema.array().parse(data ?? [])
+  const measureDAOs = parseWithStack(measureDAOSchema.array(), data)
   const measures = measureDAOs.map(createMeasureFromDAO)
 
   return measures[0] ?? null
@@ -93,8 +94,8 @@ async function deleteMeasure(id: Measure['id']) {
     handleApiError(error, {
       component: 'supabaseMeasureRepository',
       operation: 'deleteMeasure',
-      additionalData: { id }
+      additionalData: { id },
     })
-    throw error
+    throw wrapErrorWithStack(error)
   }
 }

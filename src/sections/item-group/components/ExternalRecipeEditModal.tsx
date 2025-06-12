@@ -1,17 +1,12 @@
-import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
-import { RecipeEditModal } from '~/sections/recipe/components/RecipeEditModal'
-import {
-  ModalContextProvider,
-} from '~/sections/common/context/ModalContext'
+import { type Accessor, type Setter, Show } from 'solid-js'
+
 import {
   deleteRecipe,
   updateRecipe,
 } from '~/modules/diet/recipe/application/recipe'
-import {
-  type Accessor,
-  type Setter,
-  Show,
-} from 'solid-js'
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import { ModalContextProvider } from '~/sections/common/context/ModalContext'
+import { RecipeEditModal } from '~/sections/recipe/components/RecipeEditModal'
 
 export function ExternalRecipeEditModal(props: {
   recipe: Recipe | null
@@ -29,12 +24,7 @@ export function ExternalRecipeEditModal(props: {
         >
           <RecipeEditModal
             recipe={recipe()}
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises
             onSaveRecipe={(recipe) => {
-              console.debug(
-                '[ItemGroupEditModal::ExternalRecipeEditModal] onSaveRecipe:',
-                recipe,
-              )
               updateRecipe(recipe.id, recipe)
                 .then(props.setRecipe)
                 .catch((e) => {
@@ -46,17 +36,10 @@ export function ExternalRecipeEditModal(props: {
                 })
             }}
             onRefetch={props.onRefetch}
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises
             onDelete={(recipeId) => {
-              console.debug(
-                '[ItemGroupEditModal::ExternalRecipeEditModal] onDelete:',
-                recipeId,
-              )
-
               const afterDelete = () => {
                 props.setRecipe(null)
               }
-
               deleteRecipe(recipeId)
                 .then(afterDelete)
                 .catch((e) => {

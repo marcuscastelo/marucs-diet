@@ -1,8 +1,16 @@
-import { type User } from '~/modules/user/domain/user'
-import { type Weight, weightSchema, type NewWeight } from '~/modules/weight/domain/weight'
 import supabase from '~/legacy/utils/supabase'
+import { type User } from '~/modules/user/domain/user'
+import {
+  type NewWeight,
+  type Weight,
+  weightSchema,
+} from '~/modules/weight/domain/weight'
 import { type WeightRepository } from '~/modules/weight/domain/weightRepository'
-import { createInsertWeightDAOFromWeight, createUpdateWeightDAOFromWeight, weightDAOSchema } from './weightDAO'
+import {
+  createInsertWeightDAOFromWeight,
+  createUpdateWeightDAOFromWeight,
+} from '~/modules/weight/infrastructure/weightDAO'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 export const SUPABASE_TABLE_WEIGHTS = 'weights'
 
@@ -23,11 +31,10 @@ async function fetchUserWeights(userId: User['id']) {
     .order('target_timestamp', { ascending: true })
 
   if (error !== null) {
-    console.error(error)
     throw error
   }
 
-  return weightSchema.array().parse(data)
+  return parseWithStack(weightSchema.array(), data)
 }
 
 async function insertWeight(newWeight: NewWeight) {
@@ -38,17 +45,13 @@ async function insertWeight(newWeight: NewWeight) {
     .select()
 
   if (error !== null) {
-    console.error(error)
     throw error
   }
 
-  return weightSchema.parse(data?.[0])
+  return parseWithStack(weightSchema, data[0])
 }
 
-async function updateWeight(
-  weightId: Weight['id'],
-  weight: Weight,
-) {
+async function updateWeight(weightId: Weight['id'], weight: Weight) {
   const weightDAO = createUpdateWeightDAOFromWeight(weight)
   const { data, error } = await supabase
     .from(SUPABASE_TABLE_WEIGHTS)
@@ -57,11 +60,10 @@ async function updateWeight(
     .select()
 
   if (error !== null) {
-    console.error(error)
     throw error
   }
 
-  return weightSchema.parse(data?.[0])
+  return parseWithStack(weightSchema, data[0])
 }
 
 async function deleteWeight(id: Weight['id']) {
@@ -71,7 +73,6 @@ async function deleteWeight(id: Weight['id']) {
     .eq('id', id)
 
   if (error !== null) {
-    console.error(error)
     throw error
   }
 }

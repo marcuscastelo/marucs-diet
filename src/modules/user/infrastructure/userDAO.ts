@@ -1,5 +1,7 @@
 import { z } from 'zod'
-import { type User, type NewUser, userSchema } from '~/modules/user/domain/user'
+
+import { type NewUser, type User, userSchema } from '~/modules/user/domain/user'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 // DAO schemas for database operations
 export const createUserDAOSchema = z.object({
@@ -19,7 +21,9 @@ export type CreateUserDAO = z.infer<typeof createUserDAOSchema>
 export type UserDAO = z.infer<typeof userDAOSchema>
 
 // Conversion functions
-export function createInsertUserDAOFromNewUser(newUser: NewUser): CreateUserDAO {
+export function createInsertUserDAOFromNewUser(
+  newUser: NewUser,
+): CreateUserDAO {
   return {
     name: newUser.name,
     favorite_foods: newUser.favorite_foods,
@@ -30,12 +34,14 @@ export function createInsertUserDAOFromNewUser(newUser: NewUser): CreateUserDAO 
   }
 }
 
-export function createUpdateUserDAOFromNewUser(newUser: NewUser): CreateUserDAO {
+export function createUpdateUserDAOFromNewUser(
+  newUser: NewUser,
+): CreateUserDAO {
   return createInsertUserDAOFromNewUser(newUser)
 }
 
 export function createUserFromDAO(dao: UserDAO): User {
-  return userSchema.parse({
+  return parseWithStack(userSchema, {
     id: dao.id,
     name: dao.name,
     favorite_foods: dao.favorite_foods ?? [],

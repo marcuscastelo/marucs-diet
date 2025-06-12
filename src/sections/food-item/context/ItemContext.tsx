@@ -1,13 +1,13 @@
-import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import {
   type Accessor,
-  type JSXElement,
   createContext,
+  type JSXElement,
   useContext,
 } from 'solid-js'
-import { createMirrorSignal } from '~/sections/common/hooks/createMirrorSignal'
 
-// TODO: Rename to TemplateItemContext
+import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+
+// TODO:   Rename to TemplateItemContext
 const ItemContext = createContext<{
   item: Accessor<TemplateItem>
   macroOverflow: () => {
@@ -20,15 +20,13 @@ export function useItemContext() {
   const context = useContext(ItemContext)
 
   if (context === null) {
-    throw new Error(
-      'useItemContext must be used within a ItemContextProvider',
-    )
+    throw new Error('useItemContext must be used within a ItemContextProvider')
   }
 
   return context
 }
 
-// TODO: Rename to TemplateItemContext
+// TODO:   Rename to TemplateItemContext
 export function ItemContextProvider(props: {
   item: Accessor<TemplateItem>
   macroOverflow: () => {
@@ -37,15 +35,11 @@ export function ItemContextProvider(props: {
   }
   children: JSXElement
 }) {
-  const defaultOptions = {
-    enable: () => false,
-  }
-
   return (
     <ItemContext.Provider
       value={{
         item: () => props.item(),
-        macroOverflow: () => props.macroOverflow() ?? defaultOptions,
+        macroOverflow: () => props.macroOverflow(),
       }}
     >
       {props.children}

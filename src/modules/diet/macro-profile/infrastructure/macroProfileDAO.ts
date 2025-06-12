@@ -1,5 +1,11 @@
 import { z } from 'zod'
-import { type MacroProfile, type NewMacroProfile, macroProfileSchema } from '~/modules/diet/macro-profile/domain/macroProfile'
+
+import {
+  type MacroProfile,
+  macroProfileSchema,
+  type NewMacroProfile,
+} from '~/modules/diet/macro-profile/domain/macroProfile'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 // DAO schemas for database operations
 export const createMacroProfileDAOSchema = z.object({
@@ -18,7 +24,9 @@ export type CreateMacroProfileDAO = z.infer<typeof createMacroProfileDAOSchema>
 export type MacroProfileDAO = z.infer<typeof macroProfileDAOSchema>
 
 // Conversion functions
-export function createInsertMacroProfileDAOFromNewMacroProfile(newMacroProfile: NewMacroProfile): CreateMacroProfileDAO {
+export function createInsertMacroProfileDAOFromNewMacroProfile(
+  newMacroProfile: NewMacroProfile,
+): CreateMacroProfileDAO {
   return {
     owner: newMacroProfile.owner,
     target_day: newMacroProfile.target_day,
@@ -28,12 +36,14 @@ export function createInsertMacroProfileDAOFromNewMacroProfile(newMacroProfile: 
   }
 }
 
-export function createUpdateMacroProfileDAOFromNewMacroProfile(newMacroProfile: NewMacroProfile): CreateMacroProfileDAO {
+export function createUpdateMacroProfileDAOFromNewMacroProfile(
+  newMacroProfile: NewMacroProfile,
+): CreateMacroProfileDAO {
   return createInsertMacroProfileDAOFromNewMacroProfile(newMacroProfile)
 }
 
 export function createMacroProfileFromDAO(dao: MacroProfileDAO): MacroProfile {
-  return macroProfileSchema.parse({
+  return parseWithStack(macroProfileSchema, {
     id: dao.id,
     owner: dao.owner,
     target_day: new Date(dao.target_day),

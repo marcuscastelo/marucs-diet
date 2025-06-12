@@ -1,11 +1,9 @@
 import {
-  type JSXElement,
-  createContext,
-  useContext,
-  createSignal,
-  createEffect,
   type Accessor,
+  createContext,
+  type JSXElement,
   type Setter,
+  useContext,
 } from 'solid-js'
 
 type ModalContext = {
@@ -32,31 +30,12 @@ export function ModalContextProvider(props: {
   setVisible: Setter<boolean>
   children: JSXElement
 }) {
-  // eslint-disable-next-line solid/reactivity
-
-  const [innerVisible, setInnerVisible] = createSignal(false)
-
-  createEffect(() => {
-    console.debug(
-      '[ModalContextProvider] <effect> visible -> innerVisible: ',
-      props.visible(),
-    )
-
-    setInnerVisible(props.visible())
-  })
-
-  createEffect(() => {
-    console.debug(
-      '[ModalContextProvider] <effect> innerVisible -> visible: ',
-      innerVisible(),
-    )
-
-    props.setVisible(innerVisible())
-  })
-
   return (
     <modalContext.Provider
-      value={{ visible: innerVisible, setVisible: setInnerVisible }}
+      value={{
+        visible: props.visible,
+        setVisible: props.setVisible,
+      }}
     >
       {props.children}
     </modalContext.Provider>

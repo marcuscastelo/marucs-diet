@@ -1,36 +1,65 @@
 {
-    "editor.tabSize": 2,
-    "editor.detectIndentation": false,
-    "cSpell.words": [
-      "apexcharts",
-      "camelcase",
-      "CODABAR",
-      "datamax",
-      "datamin",
-      "datepicker",
-      "Datepicker",
-      "dayjs",
-      "DDMM",
-      "flowbite",
-      "Kg",
-      "MAXICODE",
-      "normo",
-      "Normocalórica",
-      "ohlc",
-      "Pastable",
-      "qrbox",
-      "qrcode",
-      "Qrcode",
-      "reciped",
-      "Reciped",
-      "solidchart",
-      "solidjs",
-      "supabase",
-      "unmark",
-      "xaxis",
-      "yaxis",
-      "Yaxis",
-      "zoomin",
-      "zoomout"
-    ],
+  "editor.tabSize": 2,
+  "editor.detectIndentation": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always",
+  },
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.preferences.importModuleSpecifierEnding": "auto",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "eslint.validate": [
+    "typescript",
+    "typescriptreact",
+    "javascript",
+    "javascriptreact"
+  ],
+  // "chat.editing.autoAcceptDelay": 100,
+  // "chat.extensionTools.enabled": true,
+  // "chat.commandCenter.enabled": true,
+  // "chat.instructionsFilesLocations": {
+  //   ".github/instructions": true,
+  //   "/Users/vscode/repos/instructions": true
+  // },
+  // "chat.mcp.discovery.enabled": true,
+  // "chat.edits2.enabled": true,
+  "inlineChat.enableV2": true,
+  "chat.agent.maxRequests": 2000,
+  "chat.tools.autoApprove": true,
+  "chat.extensionTools.enabled": true,
+  // "github.copilot.chat.agent.runTasks": true,
+  // "github.copilot.chat.agent.thinkingTool": true,
+  "github.copilot.chat.languageContext.typescript.enabled": true,
+  "github.copilot.chat.languageContext.inline.typescript.enabled": true,
+  // "github.copilot.chat.summarizeAgentConversationHistory.enabled": true,
+  // "github.copilot.chat.edits.temporalContext.enabled": true,
+  // "github.copilot.chat.followUps": "always",
+  // "github.copilot.chat.generateTests.codeLens": true,
+  // "github.copilot.chat.search.keywordSuggestions": true,
+  // "github.copilot.chat.terminalChatLocation": "terminal",
+  // "github.copilot.advanced": {
+  //   "useLanguageServer": true,
+  // },
+  "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+  // "github.copilot.chat.testGeneration.instructions": [
+  //   {
+  //     "file": "docs/COPILOT_TESTS_GUIDE.md"
+  //   }
+  // ],
+  // "github.copilot.chat.reviewSelection.enabled": true,
+  // "github.copilot.chat.reviewSelection.instructions": [
+  //   {
+  //     "file": ".copilot-review-instructions.md"
+  //   }
+  // ],
+  // "github.copilot.chat.pullRequestDescriptionGeneration.instructions": [
+  //   {
+  //     "file": ".copilot-pull-request-description-instructions.md"
+  //   }
+  // ],
+  "github.copilot.chat.commitMessageGeneration.instructions": [
+    {
+      "file": ".github/copilot-commit-message-instructions.md"
+    }
+  ],
+  "gitlens.experimental.generateCommitMessagePrompt": "Generate a commit message strictly following this extended Conventional Commits format: Use a specific type (e.g., feat, fix, refactor). Use a descriptive scope in parentheses (e.g., feat(auth): ...). Do not use vague terms like 'update' or 'wip'. If the change affects the UI, append '-ui' to the scope. If it's a breaking change, add '!' after the type (e.g., feat(api)!: ...). Message must be in technical English and concise. Example: feat(meal-ui): add macro summary card to meal view",
 }

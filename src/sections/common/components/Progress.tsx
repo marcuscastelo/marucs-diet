@@ -1,7 +1,8 @@
 // https://flowbite.com/docs/components/progress/
 
+import { mergeProps, Show } from 'solid-js'
+
 import { cn } from '~/shared/cn'
-import { Show, mergeProps } from 'solid-js'
 
 export function Progress(props_: {
   class?: string
@@ -46,8 +47,8 @@ export function Progress(props_: {
     'dark:bg-green-500': props.color === 'green',
 
     // Blue
-    'bg-blue-600': props.color === 'blue',
-    'dark:bg-blue-500': props.color === 'blue',
+    'bg-blue-700': props.color === 'blue',
+    'dark:bg-blue-600': props.color === 'blue',
 
     // Yellow
     'bg-yellow-600': props.color === 'yellow',
@@ -77,7 +78,7 @@ export function Progress(props_: {
         <div class="flex justify-between mt-1">
           <span
             class={cn(
-              'text-base text-md font-medium text-blue-700 dark:text-white',
+              'text-base text-md font-medium text-blue-800 dark:text-white',
               over100Classes(),
             )}
           >
@@ -94,7 +95,7 @@ export function Progress(props_: {
       >
         <div
           class={cn(
-            'bg-blue-600 rounded-full dark:bg-blue-500',
+            'bg-blue-700 rounded-full dark:bg-blue-600',
             props.sizeClass,
             colorInnerClasses(),
             over100Classes(),

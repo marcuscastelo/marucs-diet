@@ -1,10 +1,11 @@
-import { Accessor, Setter, Show, createEffect } from 'solid-js'
-import { Item } from '~/modules/diet/item/domain/item'
-import { TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import { type Accessor, createEffect, type Setter, Show } from 'solid-js'
+
+import { type Item } from '~/modules/diet/item/domain/item'
+import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
 
-export interface ExternalItemEditModalProps {
+export type ExternalItemEditModalProps = {
   visible: Accessor<boolean>
   setVisible: Setter<boolean>
   item: Accessor<Item>

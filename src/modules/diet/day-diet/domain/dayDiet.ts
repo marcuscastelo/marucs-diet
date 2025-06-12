@@ -1,10 +1,12 @@
 import { z } from 'zod'
+
 import { mealSchema } from '~/modules/diet/meal/domain/meal'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 export const dayDietSchema = z.object({
   id: z.number(),
-  target_day: z.string(), // TODO: Change target_day to supabase date type
+  target_day: z.string(), // TODO:   Change target_day to supabase date type
   owner: z.number(),
   meals: z.array(mealSchema),
   __type: z
@@ -29,7 +31,7 @@ export type NewDayDiet = Readonly<z.infer<typeof newDayDietSchema>>
  * Creates a NewDayDiet object for day diet creation without generating an ID
  */
 export function createNewDayDiet({
-  target_day,
+  target_day: targetDay,
   owner,
   meals = [],
 }: {
@@ -37,8 +39,8 @@ export function createNewDayDiet({
   owner: number
   meals?: Meal[]
 }): NewDayDiet {
-  return newDayDietSchema.parse({
-    target_day,
+  return parseWithStack(newDayDietSchema, {
+    target_day: targetDay,
     owner,
     meals,
     __type: 'NewDayDiet',
@@ -46,7 +48,7 @@ export function createNewDayDiet({
 }
 
 export function demoteToNewDayDiet(dayDiet: DayDiet): NewDayDiet {
-  return newDayDietSchema.parse({
+  return parseWithStack(newDayDietSchema, {
     target_day: dayDiet.target_day,
     owner: dayDiet.owner,
     meals: dayDiet.meals,
