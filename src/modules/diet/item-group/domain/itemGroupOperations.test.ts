@@ -18,6 +18,7 @@ import {
 function makeItem(id: number, name = 'Arroz') {
   return {
     ...createItem({
+      id: 1,
       name,
       reference: id,
       quantity: 100,
@@ -28,7 +29,11 @@ function makeItem(id: number, name = 'Arroz') {
 }
 function makeGroup(id: number, name = 'G1', items = [makeItem(1)]) {
   return {
-    ...createSimpleItemGroup({ name, items }),
+    ...createSimpleItemGroup({
+      id: 1,
+      name,
+      items,
+    }),
     id,
   }
 }

@@ -49,6 +49,7 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
   const [selectedItem, setSelectedItem] = createSignal<Item | null>(null)
 
   const impossibleItem = createItem({
+    id: 1,
     name: 'IMPOSSIBLE ITEM',
     reference: 0,
   })

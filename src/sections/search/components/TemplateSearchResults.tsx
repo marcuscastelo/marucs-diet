@@ -50,6 +50,7 @@ export function TemplateSearchResults(props: {
                 <ItemView
                   item={() => ({
                     ...createItem({
+                      id: 1,
                       name: template.name,
                       quantity: 100,
                       macros: isTemplateFood(template)

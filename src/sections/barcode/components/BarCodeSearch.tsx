@@ -106,6 +106,7 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
                   <ItemView
                     item={() =>
                       createItem({
+                        id: 1,
                         name: food().name,
                         reference: food().id,
                         quantity: 100,

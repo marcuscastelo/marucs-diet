@@ -21,6 +21,7 @@ import {
 function makeItem(id: number, name = 'Arroz') {
   return {
     ...createItem({
+      id: 1,
       name,
       reference: id,
       quantity: 100,

@@ -19,6 +19,7 @@ import { createMeal } from '~/modules/diet/meal/domain/meal'
 function makeItem(id: number, name = 'Arroz') {
   return {
     ...createItem({
+      id: 1,
       name,
       reference: id,
       quantity: 100,
@@ -29,13 +30,21 @@ function makeItem(id: number, name = 'Arroz') {
 }
 function makeGroup(id: number, name = 'G1', items = [makeItem(1)]) {
   return {
-    ...createSimpleItemGroup({ name, items }),
+    ...createSimpleItemGroup({
+      id: 1,
+      name,
+      items,
+    }),
     id,
   }
 }
 function makeMeal(id: number, name = 'Almoço', groups = [makeGroup(1)]) {
   return {
-    ...createMeal({ name, groups }),
+    ...createMeal({
+      id: 1,
+      name,
+      groups,
+    }),
     id,
   }
 }

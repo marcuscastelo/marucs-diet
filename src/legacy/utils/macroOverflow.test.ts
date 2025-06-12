@@ -9,6 +9,7 @@ import { TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 
 function makeItem(macros: Item['macros']): TemplateItem {
   return createItem({
+    id: 1,
     name: 'item',
     reference: 1,
     quantity: 100,

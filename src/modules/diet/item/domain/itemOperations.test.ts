@@ -9,6 +9,7 @@ import {
 } from '~/modules/diet/item/domain/itemOperations'
 
 const baseItem = createItem({
+  id: 1,
   name: 'Arroz',
   reference: 1,
   quantity: 100,

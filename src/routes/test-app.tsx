@@ -59,6 +59,7 @@ export default function TestApp() {
 
   const [group, setGroup] = createSignal<ItemGroup>(
     createSimpleItemGroup({
+      id: 1,
       name: 'Teste',
       items: [],
     }),

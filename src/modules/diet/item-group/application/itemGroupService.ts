@@ -38,6 +38,7 @@ export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
   if (isRecipe(convertible)) {
     return [
       createRecipedItemGroup({
+        id: 1,
         name: convertible.name,
         items: [...convertible.items],
         recipe: convertible.id,
@@ -50,6 +51,7 @@ export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
   if (isItem(convertible)) {
     return [
       createSimpleItemGroup({
+        id: 1,
         name: convertible.name,
         items: [{ ...convertible }],
       }),
