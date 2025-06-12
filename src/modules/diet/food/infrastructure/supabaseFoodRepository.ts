@@ -178,13 +178,13 @@ async function fetchFoodsByName(
   params: FoodSearchParams = {},
 ) {
   const normalizedName = removeDiacritics(name)
-  // Busca exata
+  // Exact search.
   const exactMatches = await internalCachedSearchFoods(
     { field: 'name', value: normalizedName, operator: 'ilike' },
     params,
   )
 
-  // Busca parcial por cada palavra
+  // Partial search per word.
   const words = normalizedName.split(/\s+/).filter(Boolean)
   let partialMatches: Food[] = []
   if (words.length > 1) {
