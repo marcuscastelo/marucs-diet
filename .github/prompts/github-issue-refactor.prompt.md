@@ -24,13 +24,25 @@ When provided with a refactor request or a code quality concern, generate a GitH
    - Always preserve Unicode and accented characters in Markdown output; do not escape as codepoints.
    - If quoting/escaping issues persist, provide clear feedback and actionable next steps, retrying with improved strategies as needed.
    - Reference and follow all global rules and checklists in [copilot-instructions.md](../instructions/copilot/copilot-instructions.md).
+   - **Explicitly reference all affected files and modules in the issue body for clarity and implementation readiness.**
+   - **After any label or content change, always re-validate and, if necessary, re-edit the issue body before final creation.**
 3. **Labels and Milestones**:
    - Use only existing labels and milestones.
-   - If a required label or milestone is missing, ask the user or skip it.
+   - **Always validate the existence of all labels before attempting to create issues. Remove or skip any that are missing.**
+   - If a required label or milestone is missing, **automatically retry without it** rather than asking the user or halting.
    - Refer to `docs/labels-usage.md` for label conventions. Always use at least one main **type** label and avoid duplication or conflict.
 4. **Validation**:
    - After running any CLI command, check the output for success.
+   - **Report and handle all CLI errors (e.g., missing labels) and retry with corrected parameters as needed.**
    - Handle any errors gracefully and report them to the user if necessary.
+   - **Report all CLI errors and their resolutions in the session summary for traceability.**
+
+## Troubleshooting
+
+- If you encounter common CLI errors (e.g., missing labels, permission issues), consult the troubleshooting section below for recommended actions:
+  - **Missing label**: Remove the label and retry issue creation.
+  - **Permission denied**: Check authentication and repository access, then retry.
+  - **Other errors**: Log the error, attempt a fix if possible, and report in the session summary.
 
 ## Output Format
 
