@@ -10,6 +10,7 @@ import {
   foodDAOSchema,
 } from '~/modules/diet/food/infrastructure/foodDAO'
 import { handleApiError, wrapErrorWithStack } from '~/shared/error/errorHandler'
+import { isSupabaseDuplicateEanError } from '~/shared/supabase/supabaseErrorUtils'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 const TABLE = 'foods'
@@ -111,6 +112,9 @@ async function insertFood(newFood: NewFood): Promise<Food> {
     .insert(createDAO)
     .select('*')
   if (error !== null) {
+    if (isSupabaseDuplicateEanError(error, newFood.ean)) {
+      return await fetchFoodByEan(newFood.ean)
+    }
     handleApiError(error, {
       component: 'supabaseFoodRepository',
       operation: 'insertFood',
@@ -145,6 +149,9 @@ async function upsertFood(newFood: NewFood): Promise<Food> {
     .upsert(createDAO)
     .select('*')
   if (error !== null) {
+    if (isSupabaseDuplicateEanError(error, newFood.ean)) {
+      return await fetchFoodByEan(newFood.ean)
+    }
     handleApiError(error, {
       component: 'supabaseFoodRepository',
       operation: 'upsertFood',
