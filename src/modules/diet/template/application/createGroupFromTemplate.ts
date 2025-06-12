@@ -25,6 +25,7 @@ export function createGroupFromTemplate(
   if (isTemplateItemFood(item)) {
     return {
       newGroup: createSimpleItemGroup({
+        id: 1,
         name: item.name,
         items: [item],
       }),
@@ -36,6 +37,7 @@ export function createGroupFromTemplate(
   if (isTemplateRecipe(template)) {
     return {
       newGroup: createRecipedItemGroup({
+        id: 1,
         name: item.name,
         recipe: template.id,
         items: [...template.items],
