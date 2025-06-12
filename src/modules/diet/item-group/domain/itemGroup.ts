@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { handleApiError } from '~/shared/error/errorHandler'
+import { transformItemGroup } from '~/shared/domainTransformers/itemGroupTransformers'
 
 // TODO:   Add support for nested groups and recipes (recursive schema: https://github.com/colinhacks/zod#recursive-types)
 // TODO:   In the future, it seems like discriminated unions will deprecated (https://github.com/colinhacks/zod/issues/2106)
@@ -118,13 +119,13 @@ export function createSimpleItemGroup({
   name: string
   items?: SimpleItemGroup['items']
 }): SimpleItemGroup {
-  return {
+  return transformItemGroup({
     id,
     name,
     items,
     recipe: undefined,
     __type: 'ItemGroup',
-  }
+  })
 }
 
 /**
@@ -147,13 +148,13 @@ export function createRecipedItemGroup({
   recipe: number
   items?: RecipedItemGroup['items']
 }): RecipedItemGroup {
-  return {
+  return transformItemGroup({
     id,
     name,
     items,
     recipe,
     __type: 'ItemGroup',
-  }
+  })
 }
 
 /**
