@@ -1,6 +1,5 @@
 import { z } from 'zod'
 
-import { generateId } from '~/legacy/utils/idUtils'
 import { itemGroupSchema } from '~/modules/diet/item-group/domain/itemGroup'
 
 export const mealSchema = z.object({
@@ -17,14 +16,16 @@ export const mealSchema = z.object({
 export type Meal = Readonly<z.infer<typeof mealSchema>>
 
 export function createMeal({
+  id,
   name,
   groups,
 }: {
+  id: number
   name: string
   groups: Meal['groups']
 }): Meal {
   return {
-    id: generateId(),
+    id,
     name,
     groups,
     __type: 'Meal',
