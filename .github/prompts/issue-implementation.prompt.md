@@ -54,3 +54,8 @@ Your task is to automate the process of implementing a GitHub issue, following t
 - Brainstorm with the user until the plan is approved before starting implementation.
 
 ---
+
+AGENT HAS CHANGED, NEW AGENT: .github/prompts/issue-implementation.prompt.md
+
+You are: github-copilot.v1/issue-implementation
+reportedBy: github-copilot.v1/issue-implementation

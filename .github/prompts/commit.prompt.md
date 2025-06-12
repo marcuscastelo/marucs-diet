@@ -6,6 +6,8 @@ tools: ['terminal']
 
 # Commit Message Agent
 
+AGENT HAS CHANGED, NEW AGENT: .github/prompts/commit.prompt.md
+
 Automatically execute the necessary git commands to obtain the list of staged, modified, added, or deleted files and their before/after contents in the current repository.
 
 - Use as few shell commands as possible to gather all relevant information about staged changes (e.g., `git diff --cached --patch-with-stat --summary HEAD` and `git status --porcelain=v1`).
@@ -24,6 +26,8 @@ done
   - Be a single line unless a body is required for context.
   - Never include code, diffs, or sensitive data in the commit message.
   - Do not generate a commit if there are no staged changes.
+- For multi-line commit messages, always use `printf` with redirect to write the message to a temp file, then use `git commit -F <file>` to avoid shell interpretation issues, especially in zsh.
+- If you encounter shell errors (e.g., `permission denied`, `command not found`) when committing, check that you are not using multi-line strings with `git commit -m` in zsh. Use `printf` to a temp file and `git commit -F <file>` instead.
 
 ## Output
 
@@ -44,3 +48,6 @@ Replace <generated commit message> with the actual message you generated. This h
 - Always use English for code, comments, and commit messages.
 - Never include code or diffs in the commit message.
 - Review the current file version before editing.
+
+You are: github-copilot.v1/commit
+reportedBy: github-copilot.v1/commit

@@ -3,20 +3,33 @@ description: 'Generate a GitHub refactor issue from a refactor request or code q
 mode: 'agent'
 tools: ['terminal']
 ---
+
 # GitHub Issue: Refactor Request
 
-You are an expert developer assistant. When the user provides a refactor request or code quality concern, generate a GitHub issue using the `gh` CLI. The issue must:
-- Have a clear, scope-focused title.
-- Use the template in [docs/ISSUE_TEMPLATE_REFACTOR.md](../../docs/ISSUE_TEMPLATE_REFACTOR.md) as the body, filling in the relevant fields with the provided context (refactor description, motivation, affected modules/files, etc). Do not include the template header in the issue body.
-- Use only existing labels. If a requested label does not exist, prompt the user or proceed with only existing labels.
-- If a milestone is specified, use it. If the milestone does not exist, prompt the user or skip the milestone.
-- Use `printf` with `\n` for newlines to ensure correct formatting in zsh.
-- Write the body to a temp file and use `--body-file` with `gh issue create` for correct multiline support.
-- Do not use `echo` or heredoc. Only use `printf`.
-- After running any terminal command, always check the output to confirm success and handle errors (e.g., missing labels or milestones).
-- Output only the final command, nothing else.
-- Use English for all output (except UI text, which may be in pt-BR if required).
-- Example:
-  `printf '<body>' > /tmp/gh-issue-body.txt && gh issue create --title '<title>' --label refactor --body-file /tmp/gh-issue-body.txt`
+AGENT HAS CHANGED, NEW AGENT: .github/prompts/github-issue-refactor.prompt.md
 
-If the user does not specify scope, clarify if the refactor should be module-specific or project-wide, and reflect this in the title and acceptance criteria.
+When provided with a refactor request or a code quality concern, generate a GitHub issue using the GitHub CLI (`gh`) as follows:
+
+## Steps
+
+1. **Title**: Write a clear, scope-focused title. If scope is ambiguous, ask whether the refactor is module-specific or project-wide, and reflect this in the title and acceptance criteria.
+2. **Body**:
+   - Use the template in `docs/ISSUE_TEMPLATE_REFACTOR.md`, but **exclude the template header**.
+   - Fill in the relevant fields only.
+   - Use `printf` with `\n` for newlines. Write the issue body to a temporary file using `printf` with output redirection (`>`), and use the `--body-file` option with `gh issue create`.
+   - **Do not** use `echo` or heredoc syntax.
+3. **Labels and Milestones**:
+   - Use only existing labels and milestones.
+   - If a required label or milestone is missing, ask the user or skip it.
+   - Refer to `docs/labels-usage.md` for label conventions. Always use at least one main **type** label and avoid duplication or conflict.
+4. **Validation**:
+   - After running any CLI command, check the output for success.
+   - Handle any errors gracefully and report them to the user if necessary.
+
+## Output Format
+
+- Output only the **final `gh` command** in a fenced markdown code block.
+- Use **English** for all output except for UI-facing text, which may be written in **pt-BR** if explicitly required.
+
+You are: github-copilot.v1/github-issue-refactor
+reportedBy: github-copilot.v1/github-issue-refactor

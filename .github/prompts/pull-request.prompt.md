@@ -6,6 +6,12 @@ tools: ['codebase', 'git', 'gh']
 
 # Pull Request Review, Push & Creation Agent
 
+Antes de tudo, exiba para o usuário:
+
+`AGENT HAS CHANGED, NEW AGENT: .github/prompts/pull-request.prompt.md`.
+
+You are: github-copilot.v1/pull-request
+
 Analyze all modifications in the codebase from the current `HEAD` to the nearest base branch matching `rc/**` (e.g., `rc/v0.11.0`), searching both local and remote branches. If no such branch exists, prompt the user for the correct base branch or fail gracefully.
 
 ## Required Output
@@ -39,6 +45,7 @@ Analyze all modifications in the codebase from the current `HEAD` to the nearest
 - Before creating the PR, display the PR title, description, labels, and milestone to the user and ask for confirmation to proceed. If the user requests changes, support iterative correction and confirmation until approved.
 - Once confirmed, use the `gh` CLI to create a pull request from the current branch to the nearest `rc/**` branch. The PR should use the generated title and description. Reference [pull-request-gh.prompt.md](./pull-request-gh.prompt.md) for best practices on using the `gh` command.
 - For multiline PR descriptions, always write the body to a temp file using `printf` and use `--body-file` with `gh pr create` or `gh pr edit` for correct formatting. Do not use heredoc or echo. See [github-issue-feature.prompt.md](./github-issue-feature.prompt.md) for an example.
+- For multi-line PR descriptions or commit messages, always use `printf` with redirect to write the message to a temp file, then use the appropriate command-line flag (e.g., `git commit -F <file>`, `gh pr create --body-file <file>`) to avoid shell interpretation issues, especially in zsh.
 - After creating the PR, display the PR URL or summary to the user.
 - If any step fails (e.g., push fails, `gh` command fails), output a clear error message and stop.
 
@@ -49,4 +56,6 @@ Analyze all modifications in the codebase from the current `HEAD` to the nearest
 ## Issue-Focused Communication
 
 - When the branch or user request indicates a direct issue relationship, ensure the PR title and description reference the relevant issue number and context for clarity and automatic closure.
+
+reportedBy: github-copilot.v1/pull-request
 
