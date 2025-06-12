@@ -10,7 +10,7 @@ AGENT HAS CHANGED, NEW AGENT: .github/prompts/github-issue-prioritization.prompt
 
 Use the GitHub CLI (`gh`) to:
 
-1. List all open issues for the current milestone.
+1. List all open issues for the current milestone (ask user what is the current milestone).
 2. Analyze each issue’s title and description to determine which should be prioritized next, considering:
    - User impact
    - Severity
