@@ -23,6 +23,7 @@ Your task is to automate the process of implementing a GitHub issue, following t
 4. **Understand and Plan**
    - Analyze the issue and all related information.
    - Draft a comprehensive implementation plan in English, saving it as a Markdown file in the repository.
+   - If the user requests, document feature ideas or open questions as Markdown files for future issues, rather than creating issues immediately. See [copilot-instructions.md](../instructions/copilot/copilot-instructions.md) for global rules.
    - Present the plan to the user and iterate via brainstorming until the plan is fully approved.
 
 5. **Implement with User Review**

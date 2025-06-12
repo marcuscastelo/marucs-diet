@@ -48,6 +48,7 @@ Analyze all modifications in the codebase from the current `HEAD` to the nearest
 - For multi-line PR descriptions or commit messages, always use `printf` with redirect to write the message to a temp file, then use the appropriate command-line flag (e.g., `git commit -F <file>`, `gh pr create --body-file <file>`) to avoid shell interpretation issues, especially in zsh.
 - After creating the PR, display the PR URL or summary to the user.
 - If any step fails (e.g., push fails, `gh` command fails), output a clear error message and stop.
+- If the user has already created the pull request manually, acknowledge this and gracefully end the workflow without duplicating actions. See [copilot-instructions.md](../instructions/copilot/copilot-instructions.md) for global rules.
 
 ## PR Update Workflow
 

@@ -112,3 +112,6 @@ See `docs/labels-usage.md` for detailed instructions on how to use labels when c
 - Do not use duplicate or conflicting labels.
 
 For the full label table and descriptions, refer to `docs/labels-usage.md`.
+
+## Search Features (pt-BR/Portuguese)
+- All user-facing search features must be both diacritic-insensitive and case-insensitive for pt-BR/Portuguese contexts.
