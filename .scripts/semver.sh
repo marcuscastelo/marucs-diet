@@ -43,7 +43,7 @@ get_commit_count_between() {
   if [ -n "$message" ]; then
     echo "GitHub API message: $message" >&2
     echo "?"    
-    exit 1
+    return
   fi
   local count
   count=$(echo "$response" | grep 'total_commits' | head -1 | awk '{print $2}' | tr -d ',')
