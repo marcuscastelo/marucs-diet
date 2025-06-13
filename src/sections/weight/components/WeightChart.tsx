@@ -94,14 +94,25 @@ export function WeightChart(props: WeightChartProps) {
       tooltip: {
         shared: true,
         custom({
-          dataPointIndex: _dataPointIndex,
-          w: _w,
+          dataPointIndex,
+          w,
         }: {
           dataPointIndex: number
-          w: unknown
+          w: { globals: { seriesCandleO?: number[][][]; labels?: string[] } }
         }) {
-          // ...existing code for tooltip...
-          return '' // Placeholder, will move logic from original file
+          const data = w.globals.seriesCandleO?.[0]?.[dataPointIndex]
+          const date = w.globals.labels?.[dataPointIndex]
+          if (!Array.isArray(data) || typeof date !== 'string') return ''
+          const [open, high, low, close] = data
+          return `
+            <div style="padding: 10px; color: #fff; background: #1E293B; border-radius: 5px;">
+              <strong>Date:</strong> ${date}<br />
+              <strong>Open:</strong> ${open} kg<br />
+              <strong>High:</strong> ${high} kg<br />
+              <strong>Low:</strong> ${low} kg<br />
+              <strong>Close:</strong> ${close} kg
+            </div>
+          `
         },
       },
     } satisfies ApexOptions
