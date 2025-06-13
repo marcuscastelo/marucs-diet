@@ -1,11 +1,15 @@
 // Pure domain logic for weight evolution (no side effects)
 // All functions here must be pure and not reference application or UI code
-import { type OHLC } from '~/modules/measure/domain/ohlc'
 import { type Weight } from '~/modules/weight/domain/weight'
 
 /**
+ * Type for grouped weights by period.
+ */
+export type GroupedWeightsByPeriod = Record<string, Weight[]>
+
+/**
  * Returns the period configuration for a given chart type.
- * @param type Chart type string
+ * @param type - Chart type string
  * @returns Object with days and count
  */
 export function getCandlePeriod(type: string): { days: number; count: number } {
@@ -29,14 +33,14 @@ export function getCandlePeriod(type: string): { days: number; count: number } {
 
 /**
  * Groups weights by period for charting.
- * @param weights List of weights
- * @param type Chart type string
- * @returns Record of period label to weights
+ * @param weights - List of weights
+ * @param type - Chart type string
+ * @returns GroupedWeightsByPeriod
  */
 export function groupWeightsByPeriod(
   weights: readonly Weight[],
   type: string,
-): Record<string, Weight[]> {
+): GroupedWeightsByPeriod {
   if (!weights.length) return {}
   const sorted = [...weights].sort(
     (a, b) => a.target_timestamp.getTime() - b.target_timestamp.getTime(),
@@ -93,8 +97,8 @@ export function groupWeightsByPeriod(
 
 /**
  * Calculates the moving average for a data array.
- * @param data Array of objects with a low property
- * @param window Window size
+ * @param data - Array of objects with a low property
+ * @param window - Window size
  * @returns Array of moving averages
  */
 export function calculateMovingAverage(

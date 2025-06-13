@@ -12,6 +12,10 @@ import { useFloatField } from '~/sections/common/hooks/useField'
 import { WeightChart } from '~/sections/weight/components/WeightChart'
 import { WeightView } from '~/sections/weight/components/WeightView'
 
+/**
+ * Renders the weight evolution view, including progress, chart, and entry form.
+ * @returns SolidJS component
+ */
 export function WeightEvolution() {
   const desiredWeight = () => currentUser()?.desired_weight ?? 0
   const initialChartType = (() => {

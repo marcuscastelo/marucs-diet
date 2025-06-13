@@ -4,13 +4,18 @@ import { type OHLC } from '~/modules/measure/domain/ohlc'
 import { type Weight } from '~/modules/weight/domain/weight'
 
 /**
+ * Type for chart data with OHLC and date, used in buildChartData.
+ */
+export type WeightChartOHLC = OHLC & { date: string; isInterpolated?: boolean }
+
+/**
  * Builds chart data from grouped weights, interpolating missing periods.
- * @param weightsByPeriod Record of period label to weights
- * @returns Array of OHLC data with date and interpolation info
+ * @param weightsByPeriod - Record of period label to weights
+ * @returns Array of WeightChartOHLC
  */
 export function buildChartData(
   weightsByPeriod: Record<string, Weight[]>,
-): Array<OHLC & { date: string; isInterpolated?: boolean }> {
+): WeightChartOHLC[] {
   const entries = Object.entries(weightsByPeriod)
   const filled: Array<OHLC & { date: string; isInterpolated?: boolean }> = []
   let lastValue: number | undefined
@@ -75,8 +80,8 @@ export function buildChartData(
 
 /**
  * Returns y-axis config for chart based on min/max values.
- * @param min Minimum value
- * @param max Maximum value
+ * @param min - Minimum value
+ * @param max - Maximum value
  * @returns Y-axis config object
  */
 export function getYAxisConfig(min: number, max: number) {

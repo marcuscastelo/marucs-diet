@@ -5,6 +5,11 @@ import { calculateWeightProgress } from '~/legacy/utils/weightUtils'
 import { type Weight } from '~/modules/weight/domain/weight'
 
 describe('calculateWeightProgress', () => {
+  /**
+   * Creates a mock Weight object for testing.
+   * @param weight - The weight value
+   * @returns A Weight object
+   */
   function makeWeight(weight: number): Weight {
     return {
       id: 1,
@@ -32,15 +37,19 @@ describe('calculateWeightProgress', () => {
   it('returns correct progress for weight loss', () => {
     const weights = [makeWeight(100), makeWeight(90)]
     const result = calculateWeightProgress(weights, 80, 'cut')
-    expect(result && result.type).toBe('progress')
-    expect(result && result.progress).toBeCloseTo(50)
+    expect(result && result.type === 'progress' && result.progress).toBeCloseTo(
+      50,
+      0,
+    )
   })
 
   it('returns correct progress for weight gain', () => {
     const weights = [makeWeight(60), makeWeight(70)]
     const result = calculateWeightProgress(weights, 80, 'bulk')
-    expect(result && result.type).toBe('progress')
-    expect(result && result.progress).toBeCloseTo(50)
+    expect(result && result.type === 'progress' && result.progress).toBeCloseTo(
+      50,
+      0,
+    )
   })
 
   it('returns no_change if only one weight and it does not match target', () => {

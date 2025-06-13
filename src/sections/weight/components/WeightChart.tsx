@@ -3,7 +3,6 @@ import { SolidApexCharts } from 'solid-apexcharts'
 import { createMemo } from 'solid-js'
 
 import ptBrLocale from '~/assets/locales/apex/pt-br.json'
-import { type OHLC } from '~/modules/measure/domain/ohlc'
 import {
   buildChartData,
   getYAxisConfig,
@@ -14,11 +13,21 @@ import {
   groupWeightsByPeriod,
 } from '~/modules/weight/domain/weightEvolutionDomain'
 
-export function WeightChart(props: {
+/**
+ * Props for the WeightChart component.
+ */
+export type WeightChartProps = {
   weights: readonly Weight[]
   desiredWeight: number
   type: '7d' | '14d' | '30d' | '6m' | '1y' | 'all'
-}) {
+}
+
+/**
+ * Renders a candlestick and line chart for weight evolution.
+ * @param props - WeightChartProps
+ * @returns SolidJS component
+ */
+export function WeightChart(props: WeightChartProps) {
   // Grouping and chart data
   const weightsByPeriod = createMemo(() =>
     groupWeightsByPeriod(props.weights, props.type),
@@ -84,7 +93,13 @@ export function WeightChart(props: {
       },
       tooltip: {
         shared: true,
-        custom({ dataPointIndex, w }: { dataPointIndex: number; w: unknown }) {
+        custom({
+          dataPointIndex: _dataPointIndex,
+          w: _w,
+        }: {
+          dataPointIndex: number
+          w: unknown
+        }) {
           // ...existing code for tooltip...
           return '' // Placeholder, will move logic from original file
         },

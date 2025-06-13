@@ -10,13 +10,25 @@ function sortWeightsByDate(weights: readonly Weight[]): readonly Weight[] {
   )
 }
 
-export function getFirstWeight(weights: readonly Weight[]) {
+export function getFirstWeight(weights: readonly Weight[]): Weight | null {
+  /**
+   * Returns the first weight entry from a sorted list.
+   * @param weights - Array of Weight objects
+   * @returns The first Weight or null if empty
+   */
+
   const sorted = sortWeightsByDate(weights)
   return sorted[0] ?? null
 }
 
 export const latestWeight = createMemo(() => getLatestWeight(userWeights()))
-export function getLatestWeight(weights: readonly Weight[]) {
+export function getLatestWeight(weights: readonly Weight[]): Weight | null {
+  /**
+   * Returns the latest weight entry from a sorted list.
+   * @param weights - Array of Weight objects
+   * @returns The latest Weight or null if empty
+   */
+
   const sorted = sortWeightsByDate(weights)
   return sorted[sorted.length - 1] ?? null
 }
@@ -76,11 +88,56 @@ function getTotalAndChange(
   }
 }
 
+/**
+ * Type for the result of calculateWeightProgress.
+ */
+export type WeightProgressResult =
+  | {
+      type: 'no_weights'
+    }
+  | {
+      type: 'progress'
+      progress: number
+      currentChange: { change: number; direction: 'gain' | 'loss' | 'none' }
+      goalWeightChange: { change: number; direction: 'gain' | 'loss' | 'none' }
+    }
+  | {
+      type: 'no_change'
+      currentChange: { change: number; direction: 'gain' | 'loss' | 'none' }
+      goalWeightChange: { change: number; direction: 'gain' | 'loss' | 'none' }
+    }
+  | {
+      type: 'exceeded'
+      exceeded: number
+      currentChange: { change: number; direction: 'gain' | 'loss' | 'none' }
+      goalWeightChange: { change: number; direction: 'gain' | 'loss' | 'none' }
+    }
+  | {
+      type: 'reversal'
+      reversal: number
+      currentChange: { change: number; direction: 'gain' | 'loss' | 'none' }
+      goalWeightChange: { change: number; direction: 'gain' | 'loss' | 'none' }
+    }
+  | {
+      type: 'normo'
+      difference: number
+      direction: 'gain' | 'loss' | 'none'
+      currentChange: { change: number; direction: 'gain' | 'loss' | 'none' }
+      goalWeightChange: { change: number; direction: 'gain' | 'loss' | 'none' }
+    }
+
+/**
+ * Calculates the user's weight progress towards a target.
+ * @param weights - Array of Weight objects
+ * @param desiredWeight - Target weight
+ * @param diet - Diet type ('cut', 'normo', 'bulk')
+ * @returns WeightProgressResult or null if invalid input
+ */
 export function calculateWeightProgress(
   weights: readonly Weight[],
   desiredWeight: number,
   diet: 'cut' | 'normo' | 'bulk',
-) {
+): WeightProgressResult | null {
   if (weights.length === 0) {
     return {
       type: 'no_weights' as const,
@@ -149,6 +206,16 @@ export function calculateWeightProgress(
   }
 }
 
-export function inForceWeight(weights: readonly Weight[], date: Date) {
-  return inForceGeneric(weights, 'target_timestamp', date)
+/**
+ * Returns the weight entry in force for a given date.
+ * @param weights - Array of Weight objects
+ * @param date - Date to check
+ * @returns The Weight in force or undefined
+ */
+export function inForceWeight(
+  weights: readonly Weight[],
+  date: Date,
+): Weight | undefined {
+  const result = inForceGeneric(weights, 'target_timestamp', date)
+  return result === null ? undefined : result
 }

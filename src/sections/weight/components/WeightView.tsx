@@ -10,7 +10,19 @@ import { useDateField, useFloatField } from '~/sections/common/hooks/useField'
 import Datepicker from '~/sections/datepicker/components/Datepicker'
 import { adjustToTimezone, dateToYYYYMMDD } from '~/shared/utils/date'
 
-export function WeightView(props: { weight: Weight }) {
+/**
+ * Props for the WeightView component.
+ */
+export type WeightViewProps = {
+  weight: Weight
+}
+
+/**
+ * Renders a view for displaying and editing a single weight entry.
+ * @param props - WeightViewProps
+ * @returns SolidJS component
+ */
+export function WeightView(props: WeightViewProps) {
   const targetTimestampSignal = () => props.weight.target_timestamp
   const dateField = useDateField(targetTimestampSignal)
   const weightSignal = () => props.weight.weight
