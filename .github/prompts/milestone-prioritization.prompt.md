@@ -1,7 +1,7 @@
 ---
 description: 'Prompt to review a milestone, determine issue priorities, and manage deferrals to the next milestone, confirming all steps with the user.'
 mode: 'agent'
-tools: ['codebase', 'github-api', 'gh', 'terminal']
+tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
 
 # Milestone Issue Prioritization and Deferral Agent

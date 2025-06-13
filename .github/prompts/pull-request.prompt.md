@@ -1,7 +1,7 @@
 ---
 description: 'Review all changes from HEAD to the nearest rc/** branch (local or remote), push unpushed commits, and generate and open a PR using gh. Confirm PR details with the user before creation. PR is created to the nearest rc/** branch.'
 mode: 'agent'
-tools: ['codebase', 'git', 'gh']
+tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
 
 # Pull Request Review, Push & Creation Agent
