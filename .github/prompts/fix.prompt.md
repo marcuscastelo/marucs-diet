@@ -35,6 +35,17 @@ Your task is to ensure the codebase passes all checks and is error-free.
 - Inline logic for one-off UI actions
 - Terminal output checking after every command
 
+## Additional Guidance (from reportedBy: fix-agent.v1)
+
+- **Explicit null/undefined checks:** Always use explicit checks (e.g., `typeof x === 'string'`, `Array.isArray(x)`, `x !== null && x !== undefined`) for all possibly missing or undefined values, especially in callback arguments and when required by strict lint rules. Avoid relying solely on `if (!x)` for validation.
+- **Charting library callback types:** When working with charting libraries (e.g., ApexCharts), always specify callback argument types as precisely as possible. Avoid `any`; use the expected object structure or type alias.
+- **Troubleshooting strict lint rules:** If lint rules require more explicit null/empty checks than expected, update your code to use the most specific check (e.g., check for both `null` and empty string separately). Example:
+  ```ts
+  if (value !== null && value !== undefined && value !== '') { /* ... */ }
+  ```
+- **Output polling and check reruns:** After every fix, always rerun the full check process and poll the output until completion, even if the previous error was only a lint warning. Do not stop until "All checks passed" appears.
+- **Polling the latest output file:** In multi-step or long-running sessions, always use the latest output file for polling terminal output, not just the first one, to avoid confusion.
+
 ## Output
 
 - Report the final status of the codebase.
