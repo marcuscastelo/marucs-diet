@@ -93,26 +93,79 @@ export function WeightChart(props: WeightChartProps) {
       },
       tooltip: {
         shared: true,
-        custom({
-          dataPointIndex,
-          w,
-        }: {
-          dataPointIndex: number
-          w: { globals: { seriesCandleO?: number[][][]; labels?: string[] } }
-        }) {
-          const data = w.globals.seriesCandleO?.[0]?.[dataPointIndex]
-          const date = w.globals.labels?.[dataPointIndex]
-          if (!Array.isArray(data) || typeof date !== 'string') return ''
-          const [open, high, low, close] = data
-          return `
-            <div style="padding: 10px; color: #fff; background: #1E293B; border-radius: 5px;">
-              <strong>Date:</strong> ${date}<br />
-              <strong>Open:</strong> ${open} kg<br />
-              <strong>High:</strong> ${high} kg<br />
-              <strong>Low:</strong> ${low} kg<br />
-              <strong>Close:</strong> ${close} kg
-            </div>
-          `
+        custom({ dataPointIndex, w }: { dataPointIndex: number; w: unknown }) {
+          // Restore original tooltip logic
+          const chartW = w as {
+            config?: {
+              series?: Array<{
+                data?: Array<{ x: string; y: number[] | number }>
+              }>
+            }
+          }
+          const point =
+            chartW.config &&
+            chartW.config.series &&
+            chartW.config.series[0] &&
+            chartW.config.series[0].data
+              ? (chartW.config.series[0].data[dataPointIndex] as
+                  | { x: string; y: number[] }
+                  | undefined)
+              : undefined
+          const avg =
+            chartW.config &&
+            chartW.config.series &&
+            chartW.config.series[1] &&
+            chartW.config.series[1].data &&
+            typeof chartW.config.series[1].data[dataPointIndex]?.y === 'number'
+              ? chartW.config.series[1].data[dataPointIndex].y
+              : undefined
+          const desired =
+            chartW.config &&
+            chartW.config.series &&
+            chartW.config.series[2] &&
+            chartW.config.series[2].data &&
+            typeof chartW.config.series[2].data[dataPointIndex]?.y === 'number'
+              ? chartW.config.series[2].data[dataPointIndex].y
+              : undefined
+          let range = ''
+          if (point && Array.isArray(point.y) && point.y.length >= 3) {
+            const low = point.y[2]
+            const high = point.y[1]
+            if (typeof low === 'number' && typeof high === 'number') {
+              range = `${low.toFixed(2)}~${high.toFixed(2)}`
+            }
+          }
+          let progress = ''
+          // Calculate progress as distance from first ever weight to target
+          let firstWeightValue: number | undefined
+          if (Array.isArray(props.weights) && props.weights.length > 0) {
+            // Find the earliest weight in the full dataset
+            const sorted = [...props.weights].sort(
+              (a, b) =>
+                a.target_timestamp.getTime() - b.target_timestamp.getTime(),
+            )
+            firstWeightValue = sorted[0]?.weight
+          }
+          if (
+            typeof desired === 'number' &&
+            typeof firstWeightValue === 'number' &&
+            point &&
+            Array.isArray(point.y) &&
+            typeof point.y[3] === 'number' &&
+            desired !== firstWeightValue
+          ) {
+            const close = point.y[3]
+            const progress_ =
+              (firstWeightValue - close) / (firstWeightValue - desired)
+            progress = (progress_ * 100).toFixed(2) + '%'
+          }
+          return `<div style='padding:8px'>
+            <div><b>${point?.x ?? ''}</b></div>
+            <div><b>${range}</b></div>
+            <div>Média: <b>${avg !== undefined ? avg.toFixed(2) : '-'}</b></div>
+            <div>Peso desejado: <b>${desired !== undefined ? desired.toFixed(2) : '-'}</b></div>
+            <div>Progresso: <b>${progress}</b></div>
+          </div>`
         },
       },
     } satisfies ApexOptions
