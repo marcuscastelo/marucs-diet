@@ -1,7 +1,7 @@
 ---
 description: 'Prioritize an open GitHub issue for the current milestone and automate branch creation.'
 mode: 'agent'
-tools: ['terminal']
+tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
 
 # GitHub Issue Prioritization Agent

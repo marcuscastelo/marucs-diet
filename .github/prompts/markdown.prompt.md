@@ -1,7 +1,7 @@
 ---
 description: 'Instructs the agent to repeat the last output as a markdown code block, in English, using four backticks for easy copying.'
 mode: 'agent'
-tools: ['codebase']
+tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
 
 # Repeat Output as Markdown

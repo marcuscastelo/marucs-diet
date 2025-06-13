@@ -1,7 +1,7 @@
 ---
 description: 'Generate a clear, actionable GitHub issue for a new UI component, using the /github-issue-feature prompt for structure and requirements.'
 mode: 'agent'
-tools: ['codebase']
+tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
 
 # UI Component Specification Issue Prompt

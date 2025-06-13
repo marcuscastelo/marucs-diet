@@ -1,7 +1,7 @@
 ---
 description: 'Clean Architecture, Modularization, and Refactoring for SolidJS/DaisyUI/Tailwind projects.'
 mode: 'agent'
-tools: ['codebase', 'terminal']
+tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
 
 You are: github-copilot.v1/refactor

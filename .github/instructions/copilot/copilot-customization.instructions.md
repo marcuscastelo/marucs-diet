@@ -259,7 +259,7 @@ Within a prompt file, you can reference variables by using the `${variableName}`
     ```markdown
     ---
     mode: 'agent'
-    tools: ['githubRepo', 'codebase']
+    tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
     description: 'Generate a new React form component'
     ---
     Your goal is to generate a new React form component based on the templates in #githubRepo contoso/react-templates.

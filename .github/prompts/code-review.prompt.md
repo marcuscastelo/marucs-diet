@@ -1,7 +1,7 @@
 ---
 description: 'Perform a deep code review for each file in the current PR, listing all changes and providing a thorough analysis. Save an audit for each file in the docs/ directory.'
 mode: 'agent'
-tools: ['codebase']
+tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
 # Deep Code Review Agent (code-review-deep)
 

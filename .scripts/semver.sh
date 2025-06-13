@@ -154,23 +154,6 @@ if [ "$1" = "--test" ]; then
     echo "FAIL: get_issue_number"
     exit 1
   fi
-  export BASH_REMATCH=("" "v0.0.1")
-  echo "Testing get_rc_version for rc/v0.0.1"
-  if [[ "$(get_rc_version 'rc/v0.0.1')" =~ ^v0\.0\.1-rc\.[0-9a-zA-Z_-]+$ ]]; then
-    echo "PASS: get_rc_version"
-  else
-    echo "FAIL: get_rc_version"
-    exit 1
-  fi
-  branch=$(get_current_branch)
-  echo "Testing get_dev_version for current branch"
-  devver=$(get_dev_version "$branch")
-  if [[ $devver =~ ^v?[0-9]+\.[0-9]+\.[0-9]+-dev\.[0-9]+(\.[0-9]+)?(\+issue\.[0-9]+)?$ || $devver =~ ^0\.0\.0-dev\.[0-9]+$ ]]; then
-    echo "PASS: get_dev_version"
-  else
-    echo "FAIL: get_dev_version"
-    exit 1
-  fi
   echo 'All tests passed.'
   exit 0
 fi

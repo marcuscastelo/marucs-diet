@@ -1,7 +1,7 @@
 ---
 description: 'Generate a GitHub Task issue from a user request using the template in docs/ISSUE_TEMPLATE_TASK.md.'
 mode: 'agent'
-tools: ['terminal']
+tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
 # GitHub Issue: Task
 

@@ -1,7 +1,7 @@
 ---
 description: 'Guide the agent to create an effective prompt file, formatting user intentions for optimal LLM performance. Reference copilot customization best practices.'
 mode: 'agent'
-tools: ['codebase']
+tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
 # Prompt Creation Agent
 
