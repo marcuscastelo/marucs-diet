@@ -1,10 +1,6 @@
 import { createEffect, createSignal, For } from 'solid-js'
 
-import {
-  calculateWeightProgress,
-  firstWeight,
-  getLatestWeight,
-} from '~/legacy/utils/weightUtils'
+import { calculateWeightProgress } from '~/legacy/utils/weightUtils'
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { showError } from '~/modules/toast/application/toastManager'
 import { currentUser, currentUserId } from '~/modules/user/application/user'
@@ -52,57 +48,48 @@ export function WeightEvolution() {
   ]
   const weightField = useFloatField(undefined, { maxValue: 200 })
   const weightProgress = () =>
-    calculateWeightProgress(userWeights(), desiredWeight())
+    calculateWeightProgress(
+      userWeights(),
+      desiredWeight(),
+      currentUser()?.diet ?? 'cut',
+    )
   const weightProgressText = () => {
     const progress = weightProgress()
-    if (userWeights().length === 0) return '-'
-    if (progress === null) return '-'
-    const user = currentUser()
-    const diet = user?.diet ?? 'cut'
-    if (progress < 0) {
-      const first = firstWeight(userWeights())
-      const latest = getLatestWeight(userWeights())
-      if (
-        first &&
-        latest &&
-        ((diet === 'cut' && latest.weight > first.weight) ||
-          (diet === 'bulk' && latest.weight < first.weight))
-      ) {
-        const diff = Math.abs(latest.weight - first.weight)
-        return `Regressão: +${diff.toFixed(2)} kg`
-      }
-      // Se não houve regressão real, mostra progresso normal
-      const clamped = Math.max(0, Math.min(progress, 1))
-      const isOverAchieved = progress > 1
-      if (isOverAchieved) {
-        const desired = user?.desired_weight
-        if (typeof desired === 'number' && latest) {
-          const extra = Math.abs(latest.weight - desired)
-          return `${(clamped * 100).toFixed(2)}% 🎉  Extra: ${extra.toFixed(2)} kg`
+    if (progress === null) return 'N/A'
+
+    switch (progress.type) {
+      case 'no_weights':
+        return 'Nenhum peso registrado'
+      case 'progress':
+        if (progress.progress >= 100) {
+          return `100% 🎉`
+        } else {
+          return `${progress.progress.toFixed(1)}%`
         }
-        return `${(clamped * 100).toFixed(2)}% 🎉`
+      case 'exceeded':
+        return `100% + ${progress.exceeded.toFixed(1)}kg 🎉`
+      case 'no_change':
+        return 'Sem mudança'
+      case 'reversal': {
+        const signal = progress.currentChange.direction === 'gain' ? '+' : '-'
+        return `Diverge ${signal}${progress.currentChange.change.toFixed(1)}kg`
       }
-      return `${(clamped * 100).toFixed(2)}%`
+      case 'normo':
+        if (progress.difference === 0) {
+          return 'Peso ideal atingido 🎉'
+        } else {
+          const signal = progress.direction === 'gain' ? '+' : '-'
+          return `Variação: ${signal}${progress.difference.toFixed(1)}kg`
+        }
+      default:
+        progress satisfies never // Ensure all cases are handled
     }
-    // Clamp entre 0% e 100%
-    const clamped = Math.max(0, Math.min(progress, 1))
-    const isOverAchieved = progress > 1
-    if (isOverAchieved) {
-      const latest = getLatestWeight(userWeights())
-      const desired = user?.desired_weight
-      if (typeof desired === 'number' && latest) {
-        const extra = Math.abs(latest.weight - desired)
-        return `${(clamped * 100).toFixed(2)}% 🎉  Extra: ${extra.toFixed(2)} kg`
-      }
-      return `${(clamped * 100).toFixed(2)}% 🎉`
-    }
-    return `${(clamped * 100).toFixed(2)}%`
   }
   return (
     <>
       <div class={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>
         <h5 class={'mx-auto mb-5 text-center text-3xl font-bold'}>
-          Progresso do peso ({weightProgressText()})
+          Progresso: {weightProgressText()}
         </h5>
         <div class="mx-5 lg:mx-20 pb-10">
           <div class="mb-4 flex justify-end">

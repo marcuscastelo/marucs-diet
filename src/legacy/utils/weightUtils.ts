@@ -10,102 +10,142 @@ function sortWeightsByDate(weights: readonly Weight[]): readonly Weight[] {
   )
 }
 
-export function firstWeight(weights: readonly Weight[]) {
+export function getFirstWeight(weights: readonly Weight[]) {
   const sorted = sortWeightsByDate(weights)
-  if (sorted.length === 0) {
-    return null
-  }
   return sorted[0] ?? null
 }
 
+export const latestWeight = createMemo(() => getLatestWeight(userWeights()))
 export function getLatestWeight(weights: readonly Weight[]) {
   const sorted = sortWeightsByDate(weights)
-  if (sorted.length === 0) {
-    return null
-  }
   return sorted[sorted.length - 1] ?? null
 }
 
-// Reactive signal that returns the latest weight from userWeights
-export const latestWeight = createMemo(() => {
-  const weights = userWeights()
-  if (weights.length === 0) {
-    return null
-  }
-  return weights[weights.length - 1]
-})
+function floatEqual(a: number, b: number, epsilon = 1e-3): boolean {
+  return Math.abs(a - b) < epsilon
+}
 
-export function calculateWeightChange(weights: readonly Weight[]) {
-  const first = firstWeight(weights)
-  if (first === null) {
-    return null
+function calcDirection(end: number, start: number, precision = 1) {
+  const factor = Math.pow(10, precision)
+  const rounded = {
+    end: Math.round(end * factor) / factor,
+    start: Math.round(start * factor) / factor,
+  }
+  return floatEqual(rounded.end, rounded.start)
+    ? ('none' as const)
+    : rounded.end > rounded.start
+      ? ('gain' as const)
+      : ('loss' as const)
+}
+
+function getTotalAndChange(
+  firstWeight: number,
+  latestWeight: number,
+  desiredWeight: number,
+  diet: 'cut' | 'normo' | 'bulk',
+) {
+  let goalDirection: 'gain' | 'loss' | 'none'
+  switch (diet) {
+    case 'cut':
+      goalDirection = 'loss'
+      break
+    case 'bulk':
+      goalDirection = 'gain'
+      break
+    case 'normo':
+      goalDirection = 'none'
+      break
+    default:
+      diet satisfies never
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      throw new Error(`Unknown diet type: ${diet}`)
   }
 
-  const latest = getLatestWeight(weights)
-  if (latest === null) {
-    return null
+  return {
+    goalWeightChange: {
+      change:
+        goalDirection === 'none'
+          ? 0
+          : Math.round(Math.abs(desiredWeight - firstWeight) * 10) / 10,
+      direction: goalDirection,
+    },
+    currentChange: {
+      change: Math.round(Math.abs(latestWeight - firstWeight) * 10) / 10,
+      direction: calcDirection(latestWeight, firstWeight),
+    },
   }
-
-  return latest.weight - first.weight
 }
 
 export function calculateWeightProgress(
   weights: readonly Weight[],
   desiredWeight: number,
-  diet: 'cut' | 'normo' | 'bulk' = 'cut',
+  diet: 'cut' | 'normo' | 'bulk',
 ) {
   if (weights.length === 0) {
-    return null
-  }
-  if (weights.length === 1) {
-    const first = firstWeight(weights)
-    if (first && first.weight === desiredWeight) {
-      return 0
+    return {
+      type: 'no_weights' as const,
     }
-    return null
   }
-  const first = firstWeight(weights)
+  const first = getFirstWeight(weights)
   const latest = getLatestWeight(weights)
-  if (!first || !latest) {
-    return null
-  }
-  // Handle edge case: if direction of goal is inverted, swap logic
-  let effectiveDiet = diet
-  if (diet === 'cut' && desiredWeight > first.weight) {
-    effectiveDiet = 'bulk'
-  } else if (diet === 'bulk' && desiredWeight < first.weight) {
-    effectiveDiet = 'cut'
-  }
-  // Para cutting, progresso positivo = perdeu peso em direção à meta
-  // Para bulking, progresso positivo = ganhou peso em direção à meta
-  // Para normo, usar lógica de aproximação
-  let totalChange = desiredWeight - first.weight
-  let change = latest.weight - first.weight
-  if (effectiveDiet === 'bulk') {
-    totalChange = desiredWeight - first.weight
-    change = latest.weight - first.weight
-  } else if (effectiveDiet === 'cut') {
-    totalChange = first.weight - desiredWeight
-    change = first.weight - latest.weight
-  } else {
-    // normo: progresso é a aproximação do peso inicial ao desejado
-    totalChange = Math.abs(desiredWeight - first.weight)
-    change = Math.abs(latest.weight - first.weight)
-  }
-  if (totalChange === 0) {
-    // If already at target, progress is 1 if latest == desired, else 0 if unchanged, else >1 if passed
-    if (latest.weight === desiredWeight) return 0
-    if (
-      (effectiveDiet === 'cut' && latest.weight < desiredWeight) ||
-      (effectiveDiet === 'bulk' && latest.weight > desiredWeight)
-    ) {
-      return change + 1 // >100%
+  if (!first || !latest) return null
+  const { goalWeightChange, currentChange } = getTotalAndChange(
+    first.weight,
+    latest.weight,
+    desiredWeight,
+    diet,
+  )
+
+  if (goalWeightChange.direction === 'none') {
+    return {
+      type: 'normo' as const,
+      difference: Math.abs(latest.weight - desiredWeight),
+      direction: calcDirection(latest.weight, desiredWeight, 1),
+      currentChange,
+      goalWeightChange,
     }
-    if (latest.weight === first.weight) return 0
-    return 0
   }
-  const percentageChange = change / totalChange
-  return percentageChange
+
+  if (goalWeightChange.change === 0) {
+    return {
+      type: 'progress' as const,
+      progress: 100,
+      currentChange,
+      goalWeightChange,
+    }
+  }
+
+  if (weights.length === 1 || currentChange.change === 0) {
+    return {
+      type: 'no_change' as const,
+      currentChange,
+      goalWeightChange,
+    }
+  }
+
+  if (currentChange.direction !== goalWeightChange.direction) {
+    return {
+      type: 'reversal' as const,
+      currentChange,
+      goalWeightChange,
+    }
+  }
+
+  if (currentChange.change > goalWeightChange.change) {
+    return {
+      type: 'exceeded' as const,
+      exceeded: Math.abs(goalWeightChange.change - currentChange.change),
+      currentChange,
+      goalWeightChange,
+    }
+  }
+
+  return {
+    type: 'progress' as const,
+    progress: (currentChange.change / goalWeightChange.change) * 100,
+    currentChange,
+    goalWeightChange,
+  }
 }
 
 export function inForceWeight(weights: readonly Weight[], date: Date) {
