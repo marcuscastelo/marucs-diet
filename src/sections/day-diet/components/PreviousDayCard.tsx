@@ -1,9 +1,11 @@
 import { format } from 'date-fns'
 import { createSignal } from 'solid-js'
 
+import { calcCalories, calcDayMacros } from '~/legacy/utils/macroMath'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import PreviousDayCardActions from '~/sections/day-diet/components/PreviousDayCardActions'
 import PreviousDayDetailsModal from '~/sections/day-diet/components/PreviousDayDetailsModal'
+import MacroNutrientsView from '~/sections/macro-nutrients/components/MacroNutrientsView'
 
 type PreviousDayCardProps = {
   dayDiet: DayDiet
@@ -14,10 +16,22 @@ type PreviousDayCardProps = {
 
 function PreviousDayCard(props: PreviousDayCardProps) {
   const [showDetails, setShowDetails] = createSignal(false)
+  const macros = () => calcDayMacros(props.dayDiet)
+  const calories = () => calcCalories(macros())
   return (
     <div class="border rounded p-3 flex flex-col gap-2">
-      <div class="font-semibold">
-        {format(new Date(props.dayDiet.target_day), 'dd/MM/yyyy')}
+      <div class="flex justify-between">
+        <div class="font-semibold">
+          {format(new Date(props.dayDiet.target_day), 'dd/MM/yyyy')}
+        </div>
+        <div class="flex gap-2 text-sm text-gray-600 justify-between px-2 items-center">
+          <div>
+            <MacroNutrientsView macros={macros()} />
+          </div>
+          <span class="ml-2 text-sm text-white">
+            {calories().toFixed(2)} kcal
+          </span>
+        </div>
       </div>
       <PreviousDayCardActions
         dayDiet={props.dayDiet}
@@ -26,6 +40,7 @@ function PreviousDayCard(props: PreviousDayCardProps) {
         onShowDetails={() => setShowDetails(true)}
         onCopy={props.onCopy}
       />
+
       <PreviousDayDetailsModal
         visible={showDetails()}
         setVisible={setShowDetails}
