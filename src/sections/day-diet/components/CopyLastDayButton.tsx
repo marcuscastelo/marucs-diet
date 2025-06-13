@@ -29,6 +29,10 @@ export function CopyLastDayButton(props: {
     const copyFrom = previousDays().find((d) => d.target_day === day)
     if (!copyFrom) {
       setCopying(false)
+      setModalOpen(false)
+      showError('No matching previous day found to copy.', {
+        context: 'user-action',
+      })
       return
     }
     const allDays = dayDiets()
