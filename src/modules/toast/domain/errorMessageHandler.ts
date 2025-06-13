@@ -132,6 +132,14 @@ function mapUnknownToToastError(
         error.stack,
       )
     }
+    // Copia todas as propriedades próprias do erro customizado
+    const customProps: Record<string, unknown> = {}
+    for (const key of Object.keys(error)) {
+      if (!['name', 'message', 'stack', 'cause'].includes(key)) {
+        // @ts-expect-error: acesso dinâmico
+        customProps[key] = error[key]
+      }
+    }
     return {
       message: error.message || DEFAULT_UNKNOWN_ERROR,
       fullError: error.toString(),
@@ -139,6 +147,7 @@ function mapUnknownToToastError(
       context: {
         name: error.name,
         cause,
+        ...customProps,
       },
     }
   }
