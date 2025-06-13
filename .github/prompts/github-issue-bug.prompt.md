@@ -1,7 +1,7 @@
 ---
 description: 'Generate a GitHub bug issue from an error message, stack trace, or exception context using the template in docs/ISSUE_TEMPLATE_BUGFIX.md. Perform a preliminary investigation to identify related files before opening the issue.'
 mode: 'agent'
-tools: ['terminal', 'codebase']
+tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
 # GitHub Issue: Bug Report
 

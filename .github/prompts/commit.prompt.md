@@ -1,7 +1,7 @@
 ---
 description: 'Analyze staged changes and generate a concise, conventional commit message in English. Ensure clarity, security, and adherence to best practices.'
 mode: 'agent'
-tools: ['terminal']
+tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
 
 # Commit Message Agent
