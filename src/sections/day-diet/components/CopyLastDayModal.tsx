@@ -31,7 +31,7 @@ function CopyLastDayModal(props: CopyLastDayModalProps) {
             }
           >
             <div class="flex flex-col gap-4 max-h-96 overflow-y-auto">
-              <For each={props.previousDays.slice(0, 10)}>
+              <For each={props.previousDays}>
                 {(dayDiet) => (
                   <PreviousDayCard
                     dayDiet={dayDiet}
