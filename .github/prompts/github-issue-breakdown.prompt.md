@@ -1,7 +1,7 @@
 ---
 description: 'Analyze a GitHub Issue to determine if it should be broken down into subissues. If so, suggest subissues using the template in docs/ISSUE_TEMPLATE_SUBISSUE.md.'
 mode: 'agent'
-tools: ['terminal']
+tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
 
 # Issue Breakdown Agent

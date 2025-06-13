@@ -1,8 +1,7 @@
-// filepath: .github/prompts/github-issue-improvement-build.prompt.md
 ---
 description: 'Generate a GitHub improvement/build issue from a build warning, inefficiency, or technical debt, using the improvement templates and best practices. Reference docs/issue-improvement-*.md for examples.'
 mode: 'agent'
-tools: ['terminal', 'codebase']
+tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
 
 # GitHub Issue: Improvement/Build

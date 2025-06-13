@@ -1,7 +1,7 @@
 ---
 description: 'Prompt to identify issues in a milestone, assess their complexity, and apply appropriate complexity labels.'
 mode: 'agent'
-tools: ['codebase', 'github-api', 'gh', 'terminal']
+tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
 
 # Milestone Issue Complexity Labeling Agent

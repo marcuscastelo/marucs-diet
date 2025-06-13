@@ -1,7 +1,7 @@
 ---
 description: 'Automate codebase checks and error correction using npm run check, explicit output polling, and agent-driven fixes.'
 mode: 'agent'
-tools: ['codebase']
+tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
 
 # Automated Code Check and Fix Agent

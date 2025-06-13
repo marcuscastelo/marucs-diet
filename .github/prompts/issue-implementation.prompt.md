@@ -1,7 +1,7 @@
 ---
 description: 'Automate issue-based workflow: checkout, branch, fetch issue details, plan, brainstorm, and implement with user review.'
 mode: 'agent'
-tools: ['codebase', 'terminal', 'gh']
+tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
 
 # Issue Implementation Agent

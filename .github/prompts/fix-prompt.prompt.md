@@ -1,7 +1,7 @@
 ---
 description: 'Diagnose and fix misconfigured prompt files based on user complaints, ensuring the corrected prompt aligns with explicit user expectations. Always confirm expected behaviors with the user before applying changes.'
 mode: 'agent'
-tools: ['codebase']
+tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
 
 # Prompt Fix Agent
