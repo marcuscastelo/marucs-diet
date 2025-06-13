@@ -3,6 +3,7 @@ import { SolidApexCharts } from 'solid-apexcharts'
 import { createMemo } from 'solid-js'
 
 import ptBrLocale from '~/assets/locales/apex/pt-br.json'
+import { calculateWeightProgress } from '~/legacy/utils/weightUtils'
 import {
   buildChartData,
   getYAxisConfig,
@@ -94,7 +95,6 @@ export function WeightChart(props: WeightChartProps) {
       tooltip: {
         shared: true,
         custom({ dataPointIndex, w }: { dataPointIndex: number; w: unknown }) {
-          // Restore original tooltip logic
           const chartW = w as {
             config?: {
               series?: Array<{
@@ -135,29 +135,58 @@ export function WeightChart(props: WeightChartProps) {
               range = `${low.toFixed(2)}~${high.toFixed(2)}`
             }
           }
+          // Use calculateWeightProgress for progress
           let progress = ''
-          // Calculate progress as distance from first ever weight to target
-          let firstWeightValue: number | undefined
-          if (Array.isArray(props.weights) && props.weights.length > 0) {
-            // Find the earliest weight in the full dataset
-            const sorted = [...props.weights].sort(
-              (a, b) =>
-                a.target_timestamp.getTime() - b.target_timestamp.getTime(),
-            )
-            firstWeightValue = sorted[0]?.weight
-          }
           if (
             typeof desired === 'number' &&
-            typeof firstWeightValue === 'number' &&
             point &&
             Array.isArray(point.y) &&
-            typeof point.y[3] === 'number' &&
-            desired !== firstWeightValue
+            typeof point.y[3] === 'number'
           ) {
-            const close = point.y[3]
-            const progress_ =
-              (firstWeightValue - close) / (firstWeightValue - desired)
-            progress = (progress_ * 100).toFixed(2) + '%'
+            const idx = polishedData().findIndex((w) => w.date === point.x)
+            if (idx !== -1) {
+              const weightsByPeriod = groupWeightsByPeriod(
+                props.weights,
+                props.type,
+              )
+              const periodKeys = Object.keys(weightsByPeriod)
+              const periodKey = periodKeys[idx]
+              const periodWeights: readonly Weight[] =
+                periodKey !== undefined &&
+                Array.isArray(weightsByPeriod[periodKey])
+                  ? (weightsByPeriod[periodKey] as readonly Weight[])
+                  : []
+              // Use the domain logic for progress
+              let diet: 'cut' | 'normo' | 'bulk' = 'cut'
+              if (
+                typeof window !== 'undefined' &&
+                typeof (
+                  window as unknown as { currentUser?: { diet?: string } }
+                ).currentUser?.diet === 'string'
+              ) {
+                const d = (
+                  window as unknown as { currentUser?: { diet?: string } }
+                ).currentUser?.diet
+                if (d === 'cut' || d === 'normo' || d === 'bulk') diet = d
+              }
+              const progressResult = calculateWeightProgress(
+                periodWeights,
+                desired,
+                diet,
+              )
+              if (progressResult && progressResult.type === 'progress') {
+                progress = progressResult.progress.toFixed(2) + '%'
+              } else if (progressResult && progressResult.type === 'exceeded') {
+                progress = '100%+'
+              } else if (
+                progressResult &&
+                progressResult.type === 'no_change'
+              ) {
+                progress = '0%'
+              } else {
+                progress = ''
+              }
+            }
           }
           return `<div style='padding:8px'>
             <div><b>${point?.x ?? ''}</b></div>
