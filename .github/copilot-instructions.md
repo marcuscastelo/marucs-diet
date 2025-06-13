@@ -10,6 +10,20 @@ During this session, always wait until the end of the execution of any requested
 - Always verify the correct script directory (e.g., `.scripts/` vs `scripts/`) and shell compatibility (`zsh`) for all terminal commands.
 - If a script is missing or not executable, add a troubleshooting step or warning.
 
+## Codebase Check & Output Validation
+1. Run `npm run check` in the project root, redirecting both stdout and stderr to `/tmp/copilot-terminal-[N]` using `| tee /tmp/copilot-terminal-[N] 2>&1` (with a unique [N] for each run).
+2. After the command finishes, run each of the following custom scripts (each should simply output the contents of `/tmp/copilot-terminal-[N]`):
+   - `.scripts/cat1.sh /tmp/copilot-terminal-[N]`
+   - `.scripts/cat2.sh /tmp/copilot-terminal-[N]`
+   - `.scripts/cat3.sh /tmp/copilot-terminal-[N]`
+   Check the output of each script, in order, until either:
+   - The message "All checks passed" appears in the output, or
+   - Any of the following error patterns (case-insensitive) appear: `failed`, `at constructor`, `error`, `replace`, or similar.
+   - Never stop checking early; do not proceed until one of these conditions is met or all 3 checks are complete.
+   - Always use the latest output file for checking.
+3. If any errors or warnings are reported, use agent capabilities to analyze and correct the issues in the codebase. After making corrections, repeat from step 1.
+4. Only stop when the message "All checks passed" appears.
+
 ## Reporting and Attribution
 
 - This session will have multiple agents. Everytime a new agent takes palace, it should announce it to the user
@@ -31,7 +45,7 @@ reportedBy: <agent-name.vXX>
 
 ## Refactoring & Automation
 - Use terminal commands for large refactors (find, sed, grep, etc.) and document them.
-- After batch changes, always run: `npm run check`. Wait for the message "All checks passed" to appear
+- After batch changes, always run: `npm run check` and follow the output validation process above. Wait for the message "All checks passed" to appear.
 - Always check the output of any terminal command before proceeding, to catch errors early.
 
 ## JSDoc
@@ -73,7 +87,7 @@ reportedBy: <agent-name.vXX>
 - Always prefer global signals/utilities for context propagation (e.g., macro context) over property drilling, especially for shared state.
 
 ## Testing
-- Update tests for all changes. Run `npm check` and wait for "All checks passed"
+- Update tests for all changes. Run `npm run check` and follow the output validation process above. Wait for "All checks passed".
 
 ## Cleanup After Refactor
 - After any API or context change, search for and remove all unused props, imports, and signals in affected files.
