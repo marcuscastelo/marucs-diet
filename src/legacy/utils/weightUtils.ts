@@ -106,7 +106,7 @@ export function calculateWeightProgress(
     }
   }
 
-  if (goalWeightChange.change === 0) {
+  if (goalWeightChange.change === 0 && currentChange.change === 0) {
     return {
       type: 'progress' as const,
       progress: 100,
@@ -126,6 +126,7 @@ export function calculateWeightProgress(
   if (currentChange.direction !== goalWeightChange.direction) {
     return {
       type: 'reversal' as const,
+      reversal: Math.abs(latest.weight - first.weight),
       currentChange,
       goalWeightChange,
     }
@@ -134,7 +135,7 @@ export function calculateWeightProgress(
   if (currentChange.change > goalWeightChange.change) {
     return {
       type: 'exceeded' as const,
-      exceeded: Math.abs(goalWeightChange.change - currentChange.change),
+      exceeded: Math.abs(latest.weight - desiredWeight),
       currentChange,
       goalWeightChange,
     }

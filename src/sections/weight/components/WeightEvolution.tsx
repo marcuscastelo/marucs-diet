@@ -72,7 +72,7 @@ export function WeightEvolution() {
         return 'Sem mudança'
       case 'reversal': {
         const signal = progress.currentChange.direction === 'gain' ? '+' : '-'
-        return `Diverge ${signal}${progress.currentChange.change.toFixed(1)}kg`
+        return `Diverge ${signal}${progress.reversal.toFixed(1)}kg`
       }
       case 'normo':
         if (progress.difference === 0) {
