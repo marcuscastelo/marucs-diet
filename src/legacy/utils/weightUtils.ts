@@ -45,19 +45,40 @@ export function calculateWeightProgress(
   weights: readonly Weight[],
   desiredWeight: number,
 ) {
+  if (weights.length === 0) {
+    return null
+  }
+  if (weights.length === 1) {
+    const first = firstWeight(weights)
+    if (first && first.weight === desiredWeight) {
+      return 0
+    }
+    return null
+  }
   const change = calculateWeightChange(weights)
   if (change === null) {
     return null
   }
-
   const first = firstWeight(weights)
   if (first === null) {
     return null
   }
-
-  const totalChange = desiredWeight - first.weight // 100 - 101 = -1
-  const percentageChange = change / totalChange // 0 / -1 = 0
-  return percentageChange // 0
+  const totalChange = desiredWeight - first.weight
+  if (totalChange === 0) {
+    return 0
+  }
+  if (!isFinite(totalChange)) {
+    return null
+  }
+  let percentageChange = change / totalChange
+  if (!isFinite(percentageChange) || isNaN(percentageChange)) {
+    return 0
+  }
+  // Always return +0 for zero progress
+  if (Object.is(percentageChange, -0)) {
+    return 0
+  }
+  return percentageChange
 }
 
 export function inForceWeight(weights: readonly Weight[], date: Date) {
