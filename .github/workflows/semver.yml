@@ -10,6 +10,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Ensure correct branch and update
+        run: |
+          git fetch --all
+          git checkout ${{ github.ref_name }}
+          git pull origin ${{ github.ref_name }}
       - name: Run script tests
         run: |
           chmod +x ./.scripts/tests.sh
