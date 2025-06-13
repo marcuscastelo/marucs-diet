@@ -260,10 +260,51 @@ export function WeightEvolution() {
   const weightProgress = () =>
     calculateWeightProgress(userWeights(), desiredWeight())
 
-  const weightProgressText = () =>
-    weightProgress() === null
-      ? 'Erro'
-      : `${((weightProgress() ?? 0) * 100).toFixed(2)}%`
+  const weightProgressText = () => {
+    const progress = weightProgress()
+    if (userWeights().length === 0) return '-'
+    if (progress === null) return '-'
+    const user = currentUser()
+    const diet = user?.diet ?? 'cut'
+    if (progress < 0) {
+      const first = firstWeight(userWeights())
+      const latest = getLatestWeight(userWeights())
+      if (
+        first &&
+        latest &&
+        ((diet === 'cut' && latest.weight > first.weight) ||
+          (diet === 'bulk' && latest.weight < first.weight))
+      ) {
+        const diff = Math.abs(latest.weight - first.weight)
+        return `Regressão: +${diff.toFixed(2)} kg`
+      }
+      // Se não houve regressão real, mostra progresso normal
+      const clamped = Math.max(0, Math.min(progress, 1))
+      const isOverAchieved = progress > 1
+      if (isOverAchieved) {
+        const desired = user?.desired_weight
+        if (typeof desired === 'number' && latest) {
+          const extra = Math.abs(latest.weight - desired)
+          return `${(clamped * 100).toFixed(2)}% 🎉  Extra: ${extra.toFixed(2)} kg`
+        }
+        return `${(clamped * 100).toFixed(2)}% 🎉`
+      }
+      return `${(clamped * 100).toFixed(2)}%`
+    }
+    // Clamp entre 0% e 100%
+    const clamped = Math.max(0, Math.min(progress, 1))
+    const isOverAchieved = progress > 1
+    if (isOverAchieved) {
+      const latest = getLatestWeight(userWeights())
+      const desired = user?.desired_weight
+      if (typeof desired === 'number' && latest) {
+        const extra = Math.abs(latest.weight - desired)
+        return `${(clamped * 100).toFixed(2)}% 🎉  Extra: ${extra.toFixed(2)} kg`
+      }
+      return `${(clamped * 100).toFixed(2)}% 🎉`
+    }
+    return `${(clamped * 100).toFixed(2)}%`
+  }
   return (
     <>
       <div class={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>

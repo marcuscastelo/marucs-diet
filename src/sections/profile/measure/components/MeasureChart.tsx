@@ -104,7 +104,7 @@ export function MeasureChart(props: { measures: readonly Measure[] }) {
         } satisfies DayMeasures
       })
       .filter(Boolean)
-      .sort((a, b) => new Date(a!.date).getTime() - new Date(b!.date).getTime())
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     return result
   }
 
