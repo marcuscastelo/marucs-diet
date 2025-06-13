@@ -41,45 +41,57 @@ export function MeasureChart(props: { measures: readonly Measure[] }) {
   const data = (): DayMeasures[] => {
     const result = Object.entries(measuresByDay())
       .map(([day, measures]) => {
+        // Filter out invalid/negative/NaN values for all measures
+        const validMeasures = measures.filter((m) => {
+          return (
+            isFinite(m.height) &&
+            m.height > 0 &&
+            isFinite(m.waist) &&
+            m.waist > 0 &&
+            (m.hip === undefined || (isFinite(m.hip) && m.hip > 0)) &&
+            isFinite(m.neck) &&
+            m.neck > 0
+          )
+        })
+        if (validMeasures.length === 0) return null
         const heightAverage =
-          measures.reduce((acc, measure) => acc + measure.height, 0) /
-          measures.length
-
+          validMeasures.reduce((acc, m) => acc + m.height, 0) /
+          validMeasures.length
         const waistAverage =
-          measures.reduce((acc, measure) => acc + measure.waist, 0) /
-          measures.length
-
+          validMeasures.reduce((acc, m) => acc + m.waist, 0) /
+          validMeasures.length
         const hipAverage =
-          measures.reduce((acc, measure) => acc + (measure.hip ?? 0), 0) /
-          measures.filter((measure) => measure.hip).length
-
+          validMeasures.filter((m) => m.hip !== undefined).length > 0
+            ? validMeasures.reduce((acc, m) => acc + (m.hip ?? 0), 0) /
+              validMeasures.filter((m) => m.hip !== undefined).length
+            : undefined
         const neckAverage =
-          measures.reduce((acc, measure) => acc + measure.neck, 0) /
-          measures.length
-
+          validMeasures.reduce((acc, m) => acc + m.neck, 0) /
+          validMeasures.length
         const weightsOfTheDay = () =>
-          userWeights().filter(
-            (weight) =>
+          userWeights().filter((weight) => {
+            return (
               weight.target_timestamp.toLocaleDateString() === day &&
-              weight.weight,
-          )
-
+              isFinite(weight.weight) &&
+              weight.weight > 0
+            )
+          })
         const weightAverage = () =>
-          weightsOfTheDay().reduce((acc, weight) => acc + weight.weight, 0) /
-          weightsOfTheDay().length
-
-        const dayBf = () =>
-          parseFloat(
-            calculateBodyFat({
-              gender: currentUser()?.gender ?? 'female',
-              height: heightAverage,
-              waist: waistAverage,
-              hip: hipAverage,
-              neck: neckAverage,
-              weight: weightAverage(),
-            } satisfies BodyFatInput<'male' | 'female'>).toFixed(2),
-          )
-
+          weightsOfTheDay().length > 0
+            ? weightsOfTheDay().reduce((acc, w) => acc + w.weight, 0) /
+              weightsOfTheDay().length
+            : 0
+        const dayBf = () => {
+          const bf = calculateBodyFat({
+            gender: currentUser()?.gender ?? 'female',
+            height: heightAverage,
+            waist: waistAverage,
+            hip: hipAverage,
+            neck: neckAverage,
+            weight: weightAverage(),
+          } satisfies BodyFatInput<'male' | 'female'>)
+          return isFinite(bf) && bf > 0 ? parseFloat(bf.toFixed(2)) : 0
+        }
         return {
           date: day,
           dayBf: dayBf(),
@@ -91,8 +103,8 @@ export function MeasureChart(props: { measures: readonly Measure[] }) {
           } satisfies DayAverage,
         } satisfies DayMeasures
       })
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    console.debug('[MeasureChart] data() result', result)
+      .filter(Boolean)
+      .sort((a, b) => new Date(a!.date).getTime() - new Date(b!.date).getTime())
     return result
   }
 
