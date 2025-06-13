@@ -6,7 +6,6 @@ import { type Meal } from '~/modules/diet/meal/domain/meal'
 
 /**
  * Pure functions for day diet operations
- * Replaces the deprecated DayDietEditor pattern
  */
 
 export function addMealToDayDiet(dayDiet: DayDiet, meal: Meal): DayDiet {
