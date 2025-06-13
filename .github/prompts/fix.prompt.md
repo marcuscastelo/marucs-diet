@@ -1,5 +1,5 @@
 ---
-description: 'Automate codebase checks and error correction using npm run check, explicit output polling, and agent-driven fixes.'
+description: 'Automate codebase checks and error correction using npm run check, explicit output checking via custom scripts, and agent-driven fixes. Enforces strict output checking for check results.'
 mode: 'agent'
 tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
@@ -11,7 +11,15 @@ Your task is to ensure the codebase passes all checks and is error-free.
 ## Instructions
 
 1. Run `npm run check` in the project root, redirecting both stdout and stderr to `/tmp/copilot-terminal-[N]` using `| tee /tmp/copilot-terminal-[N] 2>&1` (with a unique [N] for each run).
-2. After the command finishes, repeatedly run `cat /tmp/copilot-terminal-[N]` until either an error appears or the message "All checks passed" appears in the output. Do not repeat the main command.
+2. After the command finishes, run each of the following custom scripts (each should simply output the contents of `/tmp/copilot-terminal-[N]`):
+   - `.scripts/cat1.sh /tmp/copilot-terminal-[N]`
+   - `.scripts/cat2.sh /tmp/copilot-terminal-[N]`
+   - `.scripts/cat3.sh /tmp/copilot-terminal-[N]`
+   Check the output of each script, in order, until either:
+   - The message "All checks passed" appears in the output, or
+   - Any of the following error patterns (case-insensitive) appear: `failed`, `at constructor`, `error`, `replace`, or similar.
+   - Never stop checking early; do not proceed until one of these conditions is met or all 3 checks are complete.
+   - Always use the latest output file for checking.
 3. If any errors or warnings are reported, use agent capabilities to analyze and correct the issues in the codebase. After making corrections, repeat from step 1.
 4. Only stop when the message "All checks passed" appears.
 
@@ -43,8 +51,8 @@ Your task is to ensure the codebase passes all checks and is error-free.
   ```ts
   if (value !== null && value !== undefined && value !== '') { /* ... */ }
   ```
-- **Output polling and check reruns:** After every fix, always rerun the full check process and poll the output until completion, even if the previous error was only a lint warning. Do not stop until "All checks passed" appears.
-- **Polling the latest output file:** In multi-step or long-running sessions, always use the latest output file for polling terminal output, not just the first one, to avoid confusion.
+- **Output checking and check reruns:** After every fix, always rerun the full check process and check the output until completion, even if the previous error was only a lint warning. Do not stop until "All checks passed" appears.
+- **Checking the latest output file:** In multi-step or long-running sessions, always use the latest output file for checking terminal output, not just the first one, to avoid confusion.
 
 ## Output
 
