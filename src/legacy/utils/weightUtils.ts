@@ -93,16 +93,14 @@ export function calculateWeightProgress(
     change = Math.abs(latest.weight - first.weight)
   }
   if (totalChange === 0) {
-    // Se já está na meta, progresso é 100% se latest == desired, senão >100% se passou
-    if (latest.weight === desiredWeight) return 1
-    // Se passou da meta (cutting: ficou abaixo, bulking: ficou acima)
+    // If already at target, progress is 1 if latest == desired, else 0 if unchanged, else >1 if passed
+    if (latest.weight === desiredWeight) return 0
     if (
       (effectiveDiet === 'cut' && latest.weight < desiredWeight) ||
       (effectiveDiet === 'bulk' && latest.weight > desiredWeight)
     ) {
       return change + 1 // >100%
     }
-    // Se não mudou nada, progresso é 0
     if (latest.weight === first.weight) return 0
     return 0
   }
