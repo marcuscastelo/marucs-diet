@@ -1,7 +1,6 @@
 import { type Accessor, type Setter } from 'solid-js'
 import { z } from 'zod'
 
-import { regenerateId } from '~/legacy/utils/idUtils'
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import {
   isClipboardItem,
@@ -17,6 +16,7 @@ import {
 } from '~/modules/diet/item-group/domain/itemGroupOperations'
 import { showError } from '~/modules/toast/application/toastManager'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
+import { regenerateId } from '~/shared/utils/idUtils'
 
 export type ItemOrGroup =
   | z.infer<typeof itemSchema>

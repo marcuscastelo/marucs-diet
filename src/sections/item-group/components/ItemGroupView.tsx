@@ -5,7 +5,6 @@ import {
   type JSXElement,
 } from 'solid-js'
 
-import { calcGroupCalories, calcGroupMacros } from '~/legacy/utils/macroMath'
 import {
   getItemGroupQuantity,
   isRecipedGroupUpToDate,
@@ -24,6 +23,7 @@ import {
   handleApiError,
   handleValidationError,
 } from '~/shared/error/errorHandler'
+import { calcGroupCalories, calcGroupMacros } from '~/shared/utils/macroMath'
 
 // TODO:   Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()

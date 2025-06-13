@@ -2,8 +2,6 @@
 
 import { type Accessor, type JSXElement, type Setter } from 'solid-js'
 
-import { regenerateId } from '~/legacy/utils/idUtils'
-import { calcRecipeCalories } from '~/legacy/utils/macroMath'
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import {
   convertToGroups,
@@ -31,6 +29,8 @@ import {
   useRecipeEditContext,
 } from '~/sections/recipe/context/RecipeEditContext'
 import { cn } from '~/shared/cn'
+import { regenerateId } from '~/shared/utils/idUtils'
+import { calcRecipeCalories } from '~/shared/utils/macroMath'
 
 export type RecipeEditViewProps = {
   recipe: Accessor<Recipe>

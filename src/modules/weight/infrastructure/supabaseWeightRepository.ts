@@ -1,4 +1,3 @@
-import supabase from '~/legacy/utils/supabase'
 import { type User } from '~/modules/user/domain/user'
 import {
   type NewWeight,
@@ -11,6 +10,7 @@ import {
   createUpdateWeightDAOFromWeight,
 } from '~/modules/weight/infrastructure/weightDAO'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
+import supabase from '~/shared/utils/supabase'
 
 export const SUPABASE_TABLE_WEIGHTS = 'weights'
 

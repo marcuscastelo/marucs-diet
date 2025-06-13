@@ -1,7 +1,7 @@
 // Application-level chart utilities for weight evolution
-import { getFirstWeight, getLatestWeight } from '~/legacy/utils/weightUtils'
 import { type OHLC } from '~/modules/measure/domain/ohlc'
 import { type Weight } from '~/modules/weight/domain/weight'
+import { getFirstWeight, getLatestWeight } from '~/shared/utils/weightUtils'
 
 /**
  * Type for chart data with OHLC and date, used in buildChartData.

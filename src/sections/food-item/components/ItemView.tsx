@@ -5,8 +5,6 @@ import {
   type JSXElement,
 } from 'solid-js'
 
-import { calcItemCalories, calcItemMacros } from '~/legacy/utils/macroMath'
-import { createMacroOverflowChecker } from '~/legacy/utils/macroOverflow'
 import {
   currentDayDiet,
   targetDay,
@@ -36,6 +34,8 @@ import {
   handleValidationError,
 } from '~/shared/error/errorHandler'
 import { stringToDate } from '~/shared/utils/date'
+import { calcItemCalories, calcItemMacros } from '~/shared/utils/macroMath'
+import { isOverflow } from '~/shared/utils/macroOverflow'
 
 // TODO:   Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
@@ -119,6 +119,7 @@ export function ItemName() {
     } else if (isTemplateItemRecipe(item())) {
       return 'text-blue-500'
     } else {
+      // No need for unnecessary conditional, just stringify item
       handleValidationError(
         new Error(
           `Item is not a Item or RecipeItem! Item: ${JSON.stringify(item())}`,
@@ -133,7 +134,18 @@ export function ItemName() {
     }
   }
 
-  const name = () => template()?.name ?? 'food not found'
+  const name = () => {
+    const t = template()
+    if (
+      t &&
+      typeof t === 'object' &&
+      'name' in t &&
+      typeof t.name === 'string'
+    ) {
+      return t.name
+    }
+    return 'food not found'
+  }
 
   return (
     <div class="">
@@ -189,15 +201,20 @@ export function ItemNutritionalInfo() {
 
   const multipliedMacros = (): MacroNutrients => calcItemMacros(item())
 
+  // Provide explicit macro overflow checker object for MacroNutrientsView
   const isMacroOverflowing = () => {
     const currentDayDiet_ = currentDayDiet()
     const macroTarget_ = getMacroTargetForDay(stringToDate(targetDay()))
-
-    return createMacroOverflowChecker(item(), {
+    const context = {
       currentDayDiet: currentDayDiet_,
       macroTarget: macroTarget_,
       macroOverflowOptions: macroOverflow(),
-    })
+    }
+    return {
+      carbs: () => isOverflow(item(), 'carbs', context),
+      protein: () => isOverflow(item(), 'protein', context),
+      fat: () => isOverflow(item(), 'fat', context),
+    }
   }
 
   return (

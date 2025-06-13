@@ -1,5 +1,3 @@
-import { generateId } from '~/legacy/utils/idUtils'
-import { calcRecipeMacros } from '~/legacy/utils/macroMath'
 import { type Item } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { type RecipeItem } from '~/modules/diet/recipe-item/domain/recipeItem'
@@ -7,6 +5,8 @@ import {
   isTemplateFood,
   type Template,
 } from '~/modules/diet/template/domain/template'
+import { generateId } from '~/shared/utils/idUtils'
+import { calcRecipeMacros } from '~/shared/utils/macroMath'
 
 const DEFAULT_QUANTITY = 100
 

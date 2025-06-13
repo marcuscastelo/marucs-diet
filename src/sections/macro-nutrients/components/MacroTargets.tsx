@@ -1,7 +1,5 @@
 import { createEffect, createMemo, createSignal, Show } from 'solid-js'
 
-import { calcCalories } from '~/legacy/utils/macroMath'
-import { getLatestMacroProfile } from '~/legacy/utils/macroProfileUtils'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   deleteMacroProfile,
@@ -20,6 +18,8 @@ import {
 } from '~/modules/toast/application/toastManager'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { dateToYYYYMMDD, getTodayYYYYMMDD } from '~/shared/utils/date'
+import { calcCalories } from '~/shared/utils/macroMath'
+import { getLatestMacroProfile } from '~/shared/utils/macroProfileUtils'
 
 const CARBO_CALORIES = 4 as const
 const PROTEIN_CALORIES = 4 as const

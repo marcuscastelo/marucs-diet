@@ -10,10 +10,8 @@ export function inForceGeneric<TObj extends object, TKey extends keyof TObj>(
   const firstItemAfterDate = [...array]
     .reverse()
     .find((item) => item[key].getTime() <= date.getTime())
-
   if (firstItemAfterDate === undefined) {
     return null
   }
-
   return firstItemAfterDate
 }

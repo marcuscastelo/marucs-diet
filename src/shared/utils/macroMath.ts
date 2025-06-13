@@ -29,14 +29,10 @@ export function calcItemContainerMacros<
   )
 }
 
-/**
- * Calculates the macros for a recipe based on its items.
- */
 export function calcRecipeMacros(recipe: Recipe): MacroNutrients {
   return calcItemContainerMacros(recipe)
 }
 
-// TODO:   Remove deprecated calcGroupMacros - Use group.macros directly
 /**
  * @deprecated should already be in group.macros (check)
  */
@@ -75,8 +71,8 @@ export function calcDayMacros(day: DayDiet): MacroNutrients {
 export function calcCalories(macroNutrients: MacroNutrients): number {
   return (
     macroNutrients.carbs * 4 +
-    macroNutrients.fat * 9 +
-    macroNutrients.protein * 4
+    macroNutrients.protein * 4 +
+    macroNutrients.fat * 9
   )
 }
 

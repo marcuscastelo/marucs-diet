@@ -1,6 +1,5 @@
 import { type Accessor, Resource, type Setter, Show } from 'solid-js'
 
-import { deepCopy } from '~/legacy/utils/deepCopy'
 import { askUnlinkRecipe } from '~/modules/diet/item-group/application/itemGroupModals'
 import {
   isRecipedGroupUpToDate,
@@ -27,6 +26,7 @@ import { PasteIcon } from '~/sections/common/components/icons/PasteIcon'
 import { RecipeIcon } from '~/sections/common/components/icons/RecipeIcon'
 import { type ConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { handleApiError } from '~/shared/error/errorHandler'
+import { deepCopy } from '~/shared/utils/deepCopy'
 
 // Helper for recipe complexity
 function PasteButton(props: { disabled?: boolean; onPaste: () => void }) {

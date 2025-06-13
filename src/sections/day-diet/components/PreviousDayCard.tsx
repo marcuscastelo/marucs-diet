@@ -1,11 +1,11 @@
 import { format } from 'date-fns'
 import { createSignal } from 'solid-js'
 
-import { calcCalories, calcDayMacros } from '~/legacy/utils/macroMath'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import PreviousDayCardActions from '~/sections/day-diet/components/PreviousDayCardActions'
 import PreviousDayDetailsModal from '~/sections/day-diet/components/PreviousDayDetailsModal'
 import MacroNutrientsView from '~/sections/macro-nutrients/components/MacroNutrientsView'
+import { calcCalories, calcDayMacros } from '~/shared/utils/macroMath'
 
 type PreviousDayCardProps = {
   dayDiet: DayDiet

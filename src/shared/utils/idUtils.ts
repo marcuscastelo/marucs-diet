@@ -1,4 +1,3 @@
-// TODO:   remove id utils and find a way to generate ids in the database
 export type Identifiable = { id: number }
 
 /**

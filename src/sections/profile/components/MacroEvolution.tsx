@@ -1,10 +1,3 @@
-import {
-  calcCalories,
-  calcDayCalories,
-  calcDayMacros,
-} from '~/legacy/utils/macroMath'
-import { inForceMacroProfile } from '~/legacy/utils/macroProfileUtils'
-import { inForceWeight } from '~/legacy/utils/weightUtils'
 import { dayDiets } from '~/modules/diet/day-diet/application/dayDiet'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { userMacroProfiles } from '~/modules/diet/macro-profile/application/macroProfile'
@@ -15,6 +8,13 @@ import { userWeights } from '~/modules/weight/application/weight'
 import { type Weight } from '~/modules/weight/domain/weight'
 import { Capsule } from '~/sections/common/components/capsule/Capsule'
 import { dateToDDMM } from '~/shared/utils/date'
+import {
+  calcCalories,
+  calcDayCalories,
+  calcDayMacros,
+} from '~/shared/utils/macroMath'
+import { inForceMacroProfile } from '~/shared/utils/macroProfileUtils'
+import { inForceWeight } from '~/shared/utils/weightUtils'
 
 export function MacroEvolution() {
   return (

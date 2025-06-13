@@ -1,7 +1,7 @@
-import { calculateWeightProgress } from '~/legacy/utils/weightUtils'
 import { type WeightChartOHLC } from '~/modules/weight/application/weightChartUtils'
 import { type Weight } from '~/modules/weight/domain/weight'
 import { groupWeightsByPeriod } from '~/modules/weight/domain/weightEvolutionDomain'
+import { calculateWeightProgress } from '~/shared/utils/weightUtils'
 
 /**
  * Renders the custom tooltip HTML for the weight chart.

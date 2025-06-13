@@ -8,7 +8,6 @@ import {
   untrack,
 } from 'solid-js'
 
-import { isOverflowForItemGroup } from '~/legacy/utils/macroOverflow'
 import {
   currentDayDiet,
   targetDay,
@@ -55,6 +54,7 @@ import {
 } from '~/sections/search/components/TemplateSearchTabs'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { stringToDate } from '~/shared/utils/date'
+import { isOverflow } from '~/shared/utils/macroOverflow'
 
 const TEMPLATE_SEARCH_DEFAULT_TAB = availableTabs.Todos.id
 
@@ -95,10 +95,10 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
 
     // Helper function for checking individual macro properties
     const checkMacroOverflow = (property: keyof MacroNutrients) => {
-      return isOverflowForItemGroup(
-        newGroup.items,
-        property,
-        macroOverflowContext,
+      if (!Array.isArray(newGroup.items)) return false
+      // macroOverflowContext is always an object here, so no need to check
+      return newGroup.items.some((item) =>
+        isOverflow(item, property, macroOverflowContext),
       )
     }
 
@@ -111,6 +111,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
       } else if (isTemplateItemRecipe(originalAddedItem)) {
         type = 'recipe'
       } else {
+        // Throw a typed error for safety
         throw new Error('Invalid template item type')
       }
 
@@ -126,6 +127,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
           recentFood.type !== type ||
           recentFood.reference_id !== originalAddedItem.reference)
       ) {
+        // Throw a typed error for safety
         throw new Error(
           'BUG: recentFood fetched does not match user/type/reference',
         )
@@ -176,9 +178,9 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
 
     // Check if any macro nutrient would overflow
     const isOverflowing =
-      checkMacroOverflow('carbs') ||
-      checkMacroOverflow('protein') ||
-      checkMacroOverflow('fat')
+      Boolean(checkMacroOverflow('carbs')) ||
+      Boolean(checkMacroOverflow('protein')) ||
+      Boolean(checkMacroOverflow('fat'))
 
     if (isOverflowing) {
       // Prompt if user wants to add item even if it overflows

@@ -1,6 +1,5 @@
 // Application layer for recent food operations, migrated from legacy controller
 // All error handling is done here, domain remains pure
-import supabase from '~/legacy/utils/supabase'
 import {
   type NewRecentFood,
   type RecentFood,
@@ -14,6 +13,7 @@ import {
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
+import supabase from '~/shared/utils/supabase'
 
 const TABLE = 'recent_foods'
 
