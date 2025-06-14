@@ -7,6 +7,7 @@ import { insertWeight, userWeights } from '~/modules/weight/application/weight'
 import { createNewWeight } from '~/modules/weight/domain/weight'
 import { ComboBox } from '~/sections/common/components/ComboBox'
 import { FloatInput } from '~/sections/common/components/FloatInput'
+import { Progress } from '~/sections/common/components/Progress'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import { WeightChart } from '~/sections/weight/components/WeightChart'
 import { WeightView } from '~/sections/weight/components/WeightView'
@@ -95,6 +96,18 @@ export function WeightEvolution() {
         <h5 class={'mx-auto mb-5 text-center text-3xl font-bold'}>
           Progresso: {weightProgressText()}
         </h5>
+        <div class="mx-auto max-w-lg mb-5">
+          <Progress
+            progress={(() => {
+              const p = weightProgress()
+              return p && p.type === 'progress' ? p.progress : 0
+            })()}
+            color="blue"
+            textLabelPosition="outside"
+            textLabel={weightProgressText()}
+            sizeClass="h-2"
+          />
+        </div>
         <div class="mx-5 lg:mx-20 pb-10">
           <div class="mb-4 flex justify-end">
             <ComboBox

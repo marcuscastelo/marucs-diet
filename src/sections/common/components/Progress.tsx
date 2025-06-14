@@ -1,5 +1,19 @@
 // https://flowbite.com/docs/components/progress/
 
+/**
+ * Linear progress bar component for displaying progress visually.
+ *
+ * @param props - Progress bar properties
+ * @param props.class - Additional CSS classes for the outer container
+ * @param props.sizeClass - Height class for the progress bar (e.g., 'h-1.5')
+ * @param props.textLabelPosition - Position of the label ('outside' or 'inside')
+ * @param props.color - Color of the progress bar
+ * @param props.textLabel - Optional label to display
+ * @param props.labelText - Whether to show the label text
+ * @param props.progress - Progress value (0-100)
+ * @returns Linear progress bar JSX element
+ */
+
 import { mergeProps, Show } from 'solid-js'
 
 import { cn } from '~/shared/cn'
