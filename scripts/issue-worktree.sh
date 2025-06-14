@@ -90,6 +90,16 @@ if [[ $# -ge 1 && "$1" != "clear-merged" ]]; then
       fi
       cd "$WORKTREE_PATH"
     fi
+    # Create immediate.prompt.md focused on this issue
+    PROMPT_DIR="$WORKTREE_PATH/.github/prompts"
+    PROMPT_FILE="$PROMPT_DIR/.immediate.prompt.md"
+    TEMPLATE_FILE="$REPO_ROOT/.github/prompts/issue-implementation.prompt.md"
+    mkdir -p "$PROMPT_DIR"
+    if [[ -f "$TEMPLATE_FILE" ]]; then
+      sed "s/Issue Implementation Agent/Immediate Issue Agent for Issue #${ISSUE_NUMBER}/; s/implementing a GitHub issue/implementing GitHub issue #${ISSUE_NUMBER}/g; s/<ISSUE_NUMBER>/${ISSUE_NUMBER}/g" "$TEMPLATE_FILE" > "$PROMPT_FILE"
+    else
+      echo "Warning: Template $TEMPLATE_FILE not found. Skipping immediate.prompt.md creation." >&2
+    fi
     echo "Repository root: $REPO_ROOT"
     echo "Using base branch: $BASE_BRANCH"
     echo "Using feature branch: $FEATURE_BRANCH"
@@ -100,7 +110,7 @@ if [[ $# -ge 1 && "$1" != "clear-merged" ]]; then
       cp "$REPO_ROOT/.env" "$WORKTREE_PATH/.env"
       cd "$WORKTREE_PATH"
       pnpm install &
-      code "$WORKTREE_PATH" &
+      code "$WORKTREE_PATH/.github/prompts/.immediate.prompt.md" "$WORKTREE_PATH" &
     fi
   done
   cd "$REPO_ROOT/scripts"
