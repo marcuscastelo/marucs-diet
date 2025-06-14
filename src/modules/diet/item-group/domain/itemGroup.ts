@@ -170,11 +170,6 @@ export function isRecipedGroupUpToDate(
       new Error(
         'Invalid state! Group recipe is not the same as the recipe in the group!',
       ),
-      {
-        component: 'itemGroupDomain',
-        operation: 'isRecipedGroupUpToDate',
-        additionalData: { groupId: group.id, groupRecipeId: groupRecipe.id },
-      },
     )
     // Defensive: always throw after logging for invalid state
     throw new Error(

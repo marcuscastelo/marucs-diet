@@ -33,11 +33,7 @@ async function fetchUserBodyMeasures(userId: User['id']) {
     .order('target_timestamp', { ascending: true })
 
   if (error !== null) {
-    handleApiError(error, {
-      component: 'supabaseBodyMeasureRepository',
-      operation: 'fetchUserBodyMeasures',
-      additionalData: { userId },
-    })
+    handleApiError(error)
     throw wrapErrorWithStack(error)
   }
 
@@ -52,11 +48,7 @@ async function insertBodyMeasure(
   const { data, error } = await supabase.from(TABLE).insert(createDAO).select()
 
   if (error !== null) {
-    handleApiError(error, {
-      component: 'supabaseBodyMeasureRepository',
-      operation: 'insertBodyMeasure',
-      additionalData: { bodyMeasure: newBodyMeasure },
-    })
+    handleApiError(error)
     throw wrapErrorWithStack(error)
   }
 
@@ -78,11 +70,7 @@ async function updateBodyMeasure(
     .select()
 
   if (error !== null) {
-    handleApiError(error, {
-      component: 'supabaseBodyMeasureRepository',
-      operation: 'updateBodyMeasure',
-      additionalData: { bodyMeasureId, bodyMeasure: newBodyMeasure },
-    })
+    handleApiError(error)
     throw wrapErrorWithStack(error)
   }
 
@@ -96,11 +84,7 @@ async function deleteBodyMeasure(id: BodyMeasure['id']) {
   const { error } = await supabase.from(TABLE).delete().eq('id', id)
 
   if (error !== null) {
-    handleApiError(error, {
-      component: 'supabaseBodyMeasureRepository',
-      operation: 'deleteBodyMeasure',
-      additionalData: { id },
-    })
+    handleApiError(error)
     throw wrapErrorWithStack(error)
   }
 }

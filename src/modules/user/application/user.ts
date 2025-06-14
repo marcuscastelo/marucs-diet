@@ -42,11 +42,7 @@ createEffect(() => {
 
 function bootstrap() {
   fetchUsers().catch((error) => {
-    handleApiError(error, {
-      component: 'userApplication',
-      operation: 'bootstrap',
-      additionalData: {},
-    })
+    handleApiError(error)
   })
 }
 
@@ -76,11 +72,7 @@ export async function fetchUsers(): Promise<readonly User[]> {
     setCurrentUser(newCurrentUser ?? null)
     return users
   } catch (error) {
-    handleApiError(error, {
-      component: 'userApplication',
-      operation: 'fetchUsers',
-      additionalData: {},
-    })
+    handleApiError(error)
     setUsers([])
     setCurrentUser(null)
     return []
@@ -97,11 +89,7 @@ export async function fetchCurrentUser(): Promise<User | null> {
     setCurrentUser(user)
     return user
   } catch (error) {
-    handleApiError(error, {
-      component: 'userApplication',
-      operation: 'fetchCurrentUser',
-      additionalData: {},
-    })
+    handleApiError(error)
     setCurrentUser(null)
     return null
   }
@@ -126,11 +114,7 @@ export async function insertUser(newUser: NewUser): Promise<boolean> {
     await fetchUsers()
     return true
   } catch (error) {
-    handleApiError(error, {
-      component: 'userApplication',
-      operation: 'insertUser',
-      additionalData: { newUser },
-    })
+    handleApiError(error)
     return false
   }
 }
@@ -158,11 +142,7 @@ export async function updateUser(
     await fetchUsers()
     return user
   } catch (error) {
-    handleApiError(error, {
-      component: 'userApplication',
-      operation: 'updateUser',
-      additionalData: { userId, newUser },
-    })
+    handleApiError(error)
     return null
   }
 }
@@ -186,11 +166,7 @@ export async function deleteUser(userId: User['id']): Promise<boolean> {
     await fetchUsers()
     return true
   } catch (error) {
-    handleApiError(error, {
-      component: 'userApplication',
-      operation: 'deleteUser',
-      additionalData: { userId },
-    })
+    handleApiError(error)
     return false
   }
 }
@@ -208,11 +184,7 @@ export function isFoodFavorite(foodId: number): boolean {
 export function setFoodAsFavorite(foodId: number, favorite: boolean): void {
   const currentUser_ = currentUser()
   if (currentUser_ === null) {
-    handleApiError('User not initialized', {
-      component: 'userApplication',
-      operation: 'toggleFavoriteFood',
-      additionalData: { foodId, favorite },
-    })
+    handleApiError('User not initialized')
     return
   }
   const favoriteFoods = currentUser_.favorite_foods
@@ -232,10 +204,6 @@ export function setFoodAsFavorite(foodId: number, favorite: boolean): void {
   })
     .then(fetchCurrentUser)
     .catch((error) => {
-      handleApiError(error, {
-        component: 'userApplication',
-        operation: 'toggleFavoriteFood',
-        additionalData: { foodId, favorite },
-      })
+      handleApiError(error)
     })
 }

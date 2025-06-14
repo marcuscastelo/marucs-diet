@@ -76,10 +76,7 @@ export async function fetchTemplatesByTabLogic(
           ? await Promise.all(
               recipeIds.map((id) =>
                 deps.fetchRecipeById(id).catch((error) => {
-                  handleApiError(error, {
-                    component: 'fetchTemplatesByTabLogic',
-                    operation: `fetchRecipeById for recipeId ${id}`,
-                  })
+                  handleApiError(error)
                   return null
                 }),
               ),

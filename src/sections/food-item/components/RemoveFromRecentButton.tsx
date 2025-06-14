@@ -28,11 +28,7 @@ export function RemoveFromRecentButton(
         loading: 'Removendo item da lista de recentes...',
         success: 'Item removido da lista de recentes com sucesso!',
         error: (err: unknown) => {
-          handleApiError(err, {
-            component: 'RemoveFromRecentButton',
-            operation: 'deleteRecentFood',
-            additionalData: { type: props.type, referenceId: props.templateId },
-          })
+          handleApiError(err)
           return 'Erro ao remover item da lista de recentes.'
         },
       },

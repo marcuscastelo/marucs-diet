@@ -18,11 +18,7 @@ export async function GET({ params }: APIEvent) {
 
     return json(apiFood)
   } catch (error) {
-    handleApiError(error, {
-      component: 'ApiRoute',
-      operation: 'fetchApiFoodByEan',
-      additionalData: { ean: params.ean },
-    })
+    handleApiError(error)
     return json(
       {
         error:
