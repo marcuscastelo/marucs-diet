@@ -1,4 +1,4 @@
-import { createResource, createSignal, untrack } from 'solid-js'
+import { createResource, createSignal } from 'solid-js'
 
 import {
   fetchFoodById,
@@ -16,6 +16,7 @@ import { Template } from '~/modules/diet/template/domain/template'
 import { fetchUserRecentFoods } from '~/modules/recent-food/application/recentFood'
 import { currentUser, currentUserId } from '~/modules/user/application/user'
 import { type TemplateSearchTab } from '~/sections/search/components/TemplateSearchTabs'
+import { createDebouncedSignal } from '~/shared/utils/createDebouncedSignal'
 
 const fetchRecentsForModal = async (
   search: string = '',
@@ -80,7 +81,7 @@ const fetchRecentsForModal = async (
 
 const fetchFoodsForModal = async (): Promise<readonly Food[]> => {
   const getAllowedFoods = async () => {
-    switch (templateSearchTab()) {
+    switch (debouncedTab()) {
       case 'favorites':
         return currentUser()?.favorite_foods ?? []
       case 'recent':
@@ -93,13 +94,13 @@ const fetchFoodsForModal = async (): Promise<readonly Food[]> => {
   }
 
   const limit =
-    templateSearchTab() === 'favorites'
+    debouncedTab() === 'favorites'
       ? undefined // Show all favorites
       : 50 // Show 50 results
 
   const allowedFoods = await getAllowedFoods()
   console.debug('[TemplateSearchModal] fetchFunc', {
-    tab: templateSearchTab(),
+    tab: debouncedTab(),
     search: templateSearch(),
     limit,
     allowedFoods,
@@ -112,7 +113,7 @@ const fetchFoodsForModal = async (): Promise<readonly Food[]> => {
     foods = await fetchFoodsByName(templateSearch(), { limit, allowedFoods })
   }
 
-  if (templateSearchTab() === 'recent') {
+  if (debouncedTab() === 'recent') {
     foods = (
       await Promise.all(
         allowedFoods?.map(async (foodId) => {
@@ -146,7 +147,7 @@ const fetchRecipes = async (): Promise<readonly Recipe[]> => {
 }
 
 const fetchFunc = async () => {
-  const tab_ = templateSearchTab()
+  const tab_ = debouncedTab()
   switch (tab_) {
     case 'recent':
       return fetchRecentsForModal(templateSearch())
@@ -156,31 +157,20 @@ const fetchFunc = async () => {
       return fetchFoodsForModal()
   }
 }
+export const DEFAULT_DEBOUNCE_MS = 500
+
 export const [templateSearch, setTemplateSearch] = createSignal<string>('')
-export const [debouncedSearch, setDebouncedSearch] = createSignal(
-  untrack(templateSearch),
+export const [debouncedSearch] = createDebouncedSignal(
+  templateSearch,
+  DEFAULT_DEBOUNCE_MS,
 )
 
-export const [templateSearchTab, immediateSetTemplateSearchTab] =
+export const [templateSearchTab, setTemplateSearchTab] =
   createSignal<TemplateSearchTab>('hidden')
-export const [debouncedTab, setDebouncedTab] = createSignal(
-  untrack(templateSearchTab),
+export const [debouncedTab] = createDebouncedSignal(
+  templateSearchTab,
+  DEFAULT_DEBOUNCE_MS,
 )
-
-export const DEFAULT_TAB_DEBOUNCE_MS = 500
-
-let tabDebounceTimeout: NodeJS.Timeout | null = null
-
-export function setTemplateSearchTab(
-  newTab: TemplateSearchTab,
-  delay = DEFAULT_TAB_DEBOUNCE_MS,
-) {
-  immediateSetTemplateSearchTab(newTab)
-  if (tabDebounceTimeout) clearTimeout(tabDebounceTimeout)
-  tabDebounceTimeout = setTimeout(() => {
-    setDebouncedTab(newTab)
-  }, delay)
-}
 
 export const [
   templates,
