@@ -76,6 +76,9 @@ src/
 
 ### Setup
 
+> **Environment Variables:**
+> Copy `.env.example` to `.env.local` and fill in the required values. This file lists all environment variables needed to run the project. Do not commit secrets to version control.
+
 ```bash
 git clone https://github.com/marcuscastelo/marucs-diet.git
 cd marucs-diet
