@@ -16,16 +16,36 @@ export type MacroOverflowContext = {
 }
 
 /**
+ * Computes the difference and overflow status for a macro nutrient property.
+ * @param current - The current macro value for the day
+ * @param itemValue - The macro value for the item or group
+ * @param originalValue - The macro value for the original item (if editing)
+ * @param target - The macro target value
+ * @returns true if overflow, false otherwise
+ */
+function computeOverflow(
+  current: number,
+  itemValue: number,
+  originalValue: number,
+  target: number,
+): boolean {
+  const difference = itemValue - originalValue
+  return current + difference > target
+}
+
+/**
  * Checks if adding/editing an item would cause a macro nutrient to exceed the target.
  * @param item - The item being added or edited
  * @param property - The macro nutrient property to check ('carbs', 'protein', 'fat')
  * @param context - Context containing current day diet, macro target, and overflow options
+ * @param dayMacros - (Optional) Precomputed day macros to avoid redundant calculation
  * @returns true if the macro would exceed the target, false otherwise
  */
 export function isOverflow(
   item: TemplateItem,
   property: keyof MacroNutrients,
   context: MacroOverflowContext,
+  dayMacros?: MacroNutrients | null,
 ): boolean {
   const { currentDayDiet, macroTarget, macroOverflowOptions } = context
   if (!macroOverflowOptions.enable) {
@@ -58,13 +78,14 @@ export function isOverflow(
     macroOverflowOptions.originalItem !== undefined
       ? calcItemMacros(macroOverflowOptions.originalItem)
       : { carbs: 0, protein: 0, fat: 0 }
-  const difference =
-    macroOverflowOptions.originalItem !== undefined
-      ? itemMacros[property] - originalItemMacros[property]
-      : itemMacros[property]
-  const current = calcDayMacros(currentDayDiet)[property]
+  const current = (dayMacros ?? calcDayMacros(currentDayDiet))[property]
   const target = macroTarget[property]
-  return current + difference > target
+  return computeOverflow(
+    current,
+    itemMacros[property],
+    originalItemMacros[property],
+    target,
+  )
 }
 
 /**
@@ -77,10 +98,13 @@ export function createMacroOverflowChecker(
   item: TemplateItem,
   context: MacroOverflowContext,
 ) {
+  const dayMacros = context.currentDayDiet
+    ? calcDayMacros(context.currentDayDiet)
+    : null
   return {
-    carbs: () => isOverflow(item, 'carbs', context),
-    protein: () => isOverflow(item, 'protein', context),
-    fat: () => isOverflow(item, 'fat', context),
+    carbs: () => isOverflow(item, 'carbs', context, dayMacros),
+    protein: () => isOverflow(item, 'protein', context, dayMacros),
+    fat: () => isOverflow(item, 'fat', context, dayMacros),
   }
 }
 
@@ -140,10 +164,12 @@ export function isOverflowForItemGroup(
   const originalItemMacros: MacroNutrients = hasOriginalItem
     ? calcItemMacros(macroOverflowOptions.originalItem!)
     : { carbs: 0, protein: 0, fat: 0 }
-  const difference = hasOriginalItem
-    ? totalMacros[property] - originalItemMacros[property]
-    : totalMacros[property]
   const current = calcDayMacros(currentDayDiet)[property]
   const target = macroTarget[property]
-  return current + difference > target
+  return computeOverflow(
+    current,
+    totalMacros[property],
+    originalItemMacros[property],
+    target,
+  )
 }
