@@ -9,12 +9,12 @@ import { availableTabs } from '~/sections/search/components/TemplateSearchTabs'
 describe('fetchTemplatesByTabLogic', () => {
   const mockFood = { id: 1, name: 'Banana', __type: 'Food', EAN: '123' }
   const mockRecipe = { id: 2, name: 'Bolo', __type: 'Recipe' }
-  const mockRecentFoodFood = {
+  const mockRecentFood = {
     type: 'food',
     reference_id: 1,
     last_used: new Date(),
   }
-  const mockRecentFoodRecipe = {
+  const mockRecentRecipe = {
     type: 'recipe',
     reference_id: 2,
     last_used: new Date(),
@@ -28,7 +28,7 @@ describe('fetchTemplatesByTabLogic', () => {
       fetchUserRecipeByName: vi.fn().mockResolvedValue([mockRecipe]),
       fetchUserRecentFoods: vi
         .fn()
-        .mockResolvedValue([mockRecentFoodFood, mockRecentFoodRecipe]),
+        .mockResolvedValue([mockRecentFood, mockRecentRecipe]),
       fetchFoodById: vi.fn().mockResolvedValue(mockFood),
       fetchRecipeById: vi.fn().mockResolvedValue(mockRecipe),
       fetchFoods: vi.fn().mockResolvedValue([mockFood]),
