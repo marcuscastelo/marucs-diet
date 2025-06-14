@@ -17,5 +17,9 @@ version=$(bash .scripts/semver.sh | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+")
 
 # Replace version in package.json
 sed -i "s/\"version\": \".*\"/\"version\": \"$version\"/" package.json
-git add package.json
-git commit --no-verify -m "[RC $version] Finish RC: set version to $version"
+
+# Replace version badge in README.md
+sed -i "s/\(version-\)[0-9]\+\.[0-9]\+\.[0-9]\+\(-blue.svg\)/\1$version\2/" README.md
+
+git add package.json README.md
+git commit --no-verify -m "[RC $version] Finish RC: set version to $version and update README badge"
