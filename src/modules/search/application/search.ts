@@ -1,4 +1,4 @@
-import { createResource, createSignal, untrack } from 'solid-js'
+import { createResource, createSignal } from 'solid-js'
 
 import {
   fetchFoodById,
@@ -16,10 +16,8 @@ import { Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { Template } from '~/modules/diet/template/domain/template'
 import { fetchUserRecentFoods } from '~/modules/recent-food/application/recentFood'
 import { currentUser, currentUserId } from '~/modules/user/application/user'
-import {
-  type AvailableTab,
-  availableTabs,
-} from '~/sections/search/components/TemplateSearchTabs'
+import { type TemplateSearchTab } from '~/sections/search/components/TemplateSearchTabs'
+import { createDebouncedSignal } from '~/shared/utils/createDebouncedSignal'
 
 const fetchRecentsForModal = async (
   search: string = '',
@@ -84,7 +82,7 @@ const fetchRecentsForModal = async (
 
 const fetchFoodsForModal = async (): Promise<readonly Food[]> => {
   const getAllowedFoods = async () => {
-    switch (templateSearchTab()) {
+    switch (debouncedTab()) {
       case 'favorites':
         return currentUser()?.favorite_foods ?? []
       case 'recent':
@@ -97,13 +95,13 @@ const fetchFoodsForModal = async (): Promise<readonly Food[]> => {
   }
 
   const limit =
-    templateSearchTab() === 'favorites'
+    debouncedTab() === 'favorites'
       ? undefined // Show all favorites
       : 50 // Show 50 results
 
   const allowedFoods = await getAllowedFoods()
   console.debug('[TemplateSearchModal] fetchFunc', {
-    tab: templateSearchTab(),
+    tab: debouncedTab(),
     search: templateSearch(),
     limit,
     allowedFoods,
@@ -117,7 +115,7 @@ const fetchFoodsForModal = async (): Promise<readonly Food[]> => {
   }
 
   // Refactored: For 'recent' tab, ensure all required foods are present by batch fetching any missing ones
-  if (templateSearchTab() === 'recent' && Array.isArray(allowedFoods)) {
+  if (debouncedTab() === 'recent' && Array.isArray(allowedFoods)) {
     const fetchedIds = new Set(foods.map((food) => food.id))
     const missingIds = allowedFoods.filter((id) => !fetchedIds.has(id))
     if (missingIds.length > 0) {
@@ -141,7 +139,7 @@ const fetchRecipes = async (): Promise<readonly Recipe[]> => {
 }
 
 const fetchFunc = async () => {
-  const tab_ = templateSearchTab()
+  const tab_ = debouncedTab()
   switch (tab_) {
     case 'recent':
       return fetchRecentsForModal(templateSearch())
@@ -151,13 +149,20 @@ const fetchFunc = async () => {
       return fetchFoodsForModal()
   }
 }
+export const DEFAULT_DEBOUNCE_MS = 500
+
 export const [templateSearch, setTemplateSearch] = createSignal<string>('')
-export const [debouncedSearch, setDebouncedSearch] = createSignal(
-  untrack(templateSearch),
+export const [debouncedSearch] = createDebouncedSignal(
+  templateSearch,
+  DEFAULT_DEBOUNCE_MS,
 )
 
 export const [templateSearchTab, setTemplateSearchTab] =
-  createSignal<AvailableTab>(availableTabs.Todos.id)
+  createSignal<TemplateSearchTab>('hidden')
+export const [debouncedTab] = createDebouncedSignal(
+  templateSearchTab,
+  DEFAULT_DEBOUNCE_MS,
+)
 
 export const [
   templates,
@@ -165,7 +170,7 @@ export const [
 ] = createResource(
   () => ({
     search: debouncedSearch(),
-    tab: templateSearchTab(),
+    tab: debouncedTab(),
     userId: currentUserId(),
   }),
   fetchFunc,
