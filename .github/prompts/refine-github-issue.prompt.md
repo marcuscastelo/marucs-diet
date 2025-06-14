@@ -1,5 +1,5 @@
 ---
-description: 'Agent to refine a GitHub issue by interactively clarifying and structuring it for optimal LLM implementation, leveraging available issue templates.'
+description: 'Agent to refine a GitHub issue by interactively clarifying and structuring it for optimal LLM implementation, leveraging available issue templates. Automatically deduces the correct template when possible.'
 mode: 'agent'
 tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
@@ -20,8 +20,9 @@ This agent receives a GitHub issue (by number or content) as input and guides th
    - Always fetch and process both the issue body and all comments before starting the refinement process.
 
 2. **Template Selection**
-   - Present the user with a list of available issue templates from `docs/` (e.g., `ISSUE_TEMPLATE_BUGFIX.md`, `ISSUE_TEMPLATE_FEATURE.md`, etc.).
-   - Ask the user to select the most appropriate template for the issue type.
+   - Analyze the issue content and context to deduce the most appropriate template from `docs/` (e.g., `ISSUE_TEMPLATE_BUGFIX.md`, `ISSUE_TEMPLATE_FEATURE.md`, etc.).
+   - If the correct template can be confidently determined, proceed with that template and inform the user of the choice.
+   - If the template cannot be confidently deduced, clearly explain the ambiguity or missing information that prevents automatic selection, then present the user with the available templates and ask them to choose.
 
 3. **Interactive Refinement**
    - For each required field in the selected template, prompt the user for missing or unclear information.
@@ -54,8 +55,9 @@ This agent receives a GitHub issue (by number or content) as input and guides th
 ## Example Workflow
 
 1. User: "Refine issue 325"
-2. Agent: Fetches issue 325, presents template options, and begins interactive questioning.
-3. Agent: Outputs a fully refined, template-based issue in Markdown.
+2. Agent: Fetches issue 325, attempts to deduce the template, and proceeds if possible.
+3. If not possible, agent explains why and asks the user to choose a template.
+4. Agent: Outputs a fully refined, template-based issue in Markdown.
 
 ---
 
