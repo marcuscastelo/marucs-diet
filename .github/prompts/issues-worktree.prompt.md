@@ -19,17 +19,21 @@ This agent receives a list of GitHub issue numbers, fetches their content using 
    - Limit the number of issues to 1000 per run.
 
 2. **Fetch Issues**
-   - For each issue number, use the GitHub CLI (`gh issue view <number> --json ...`) to fetch the full issue content and comments.
+   - For each issue number, use the GitHub CLI (`gh issue view <number> --json ... --jq ...`) to fetch the latest issue body and comments. **Always use `--jq` for precise field extraction and never rely on cached or previously loaded content.**
    - If fetching fails, report the error and skip that issue.
 
 3. **Template Compliance & Refinement**
    - For each fetched issue, check if it **strictly matches the required project issue template** (see `docs/` for templates and required fields/sections).
    - If any issue does not comply (missing required fields, not matching structure, or generated from TODOs), require refinement using the [refine-github-issue prompt](refine-github-issue.prompt.md).
+   - If a TODO-generated issue has been fully rewritten and now matches the template, it should be considered compliant.
+   - For any missing or insufficient template section (e.g., Motivation), propose specific, actionable text and offer to update both local files and the GitHub issue upon user approval.
    - **Block worktree creation for all issues until every issue is compliant/refined.**
    - Confirm with the user before making any changes to the issue content or labels.
+   - After any edit, always verify updates by re-fetching the issue from GitHub and confirming compliance before proceeding.
+   - Be explicit in output about what is blocking worktree creation and when the block is lifted.
 
 4. **Worktree Setup**
-   - Only after all issues are confirmed/refined and compliant, execute the following command to create and open worktrees for all issues:
+   - Once all issues are compliant, proceed directly to worktree creation without further user confirmation. Execute the following command to create and open worktrees for all issues:
      ```
      scripts/issue-worktree.sh <issue1> <issue2> ... <issueN>
      ```
@@ -49,6 +53,7 @@ This agent receives a list of GitHub issue numbers, fetches their content using 
 - [Labels Usage Guide](../../docs/labels-usage.md)
 - [copilot-instructions.md](../copilot-instructions.md)
 - See `docs/` for required issue templates and structure.
+- See [./refine-prompt.prompt.md](./refine-prompt.prompt.md) and [copilot-instructions.md](../copilot-instructions.md) for global rules and checklists.
 
 ---
 
