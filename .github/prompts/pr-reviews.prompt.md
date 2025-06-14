@@ -1,5 +1,5 @@
 ---
-description: 'Prompt for reviewing all pull request reviews, ensuring every approved suggestion is implemented, and reporting only after all are addressed or explicitly deferred/skipped with reasons. Each suggestion must be implemented in a separate, atomic commit.'
+description: 'Prompt for reviewing all pull request reviews, ensuring every approved suggestion is implemented, and reporting only after all are addressed or explicitly deferred/skipped with reasons. Each suggestion must be implemented in a separate, atomic commit. For each suggestion, always run code checks and validation scripts, stage the file, and only commit if all checks pass.'
 mode: 'agent'
 tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
@@ -33,6 +33,13 @@ You are an agent responsible for processing pull request (PR) reviews using the 
 
 4. **Implement Approved Suggestions**  
    - For each suggestion approved by the user (or all, if blanket approval is given), implement the change in the codebase.
+   - **For each suggestion:**
+     - Make the code change.
+     - Run `npm run copilot:check` and all custom output validation scripts.
+     - If any errors or warnings are reported, automatically analyze and correct the issues in the codebase, then re-run the checks.
+     - Repeat the fix/check cycle until the message "COPILOT: All checks passed!" appears.
+     - Once all checks pass, stage the modified file(s) (`git add`).
+     - Only then generate and run the commit for that suggestion.
    - **You must implement every approved suggestion unless it is impossible or explicitly deferred.**
    - **Each suggestion must be implemented in a separate, atomic commit.**
    - If any suggestion cannot be implemented, is deferred, or is skipped, you must:
