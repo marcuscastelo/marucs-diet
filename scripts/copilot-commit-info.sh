@@ -40,6 +40,7 @@ OUTFILE="/tmp/copilot-commit-information"
       echo
     fi
   done
-} > "$OUTFILE"
+  echo "==== END OF FILES ===="
+} | tee "$OUTFILE"
 
 echo "copilot-commit-info.sh: All information written to $OUTFILE"
