@@ -1,21 +1,21 @@
 import { createEffect, createSignal, onMount } from 'solid-js'
 
 import { type Food } from '~/modules/diet/food/domain/food'
-import { BarCodeReader } from '~/sections/barcode/components/BarCodeReader'
-import BarCodeSearch from '~/sections/barcode/components/BarCodeSearch'
 import { Modal } from '~/sections/common/components/Modal'
 import { useModalContext } from '~/sections/common/context/ModalContext'
+import { EANReader } from '~/sections/ean/components/EANReader'
+import EANSearch from '~/sections/ean/components/EANSearch'
 
-export type BarCodeInsertModalProps = {
+export type EANInsertModalProps = {
   onSelect: (apiFood: Food) => void
 }
 
 let currentId = 1
 
-const BarCodeInsertModal = (props: BarCodeInsertModalProps) => {
+const EANInsertModal = (props: EANInsertModalProps) => {
   const { visible, setVisible } = useModalContext()
 
-  const [barCode, setBarCode] = createSignal<string>('')
+  const [EAN, setEAN] = createSignal<string>('')
   const [food, setFood] = createSignal<Food | null>(null)
 
   const handleSelect = (
@@ -53,17 +53,12 @@ const BarCodeInsertModal = (props: BarCodeInsertModalProps) => {
         {/*
           // TODO:   Apply Show when visible for all modals?
         */}
-        <BarCodeReader
+        <EANReader
           enabled={visible()}
-          id={`barcode-reader-${currentId++}`}
-          onScanned={setBarCode}
+          id={`EAN-reader-${currentId++}`}
+          onScanned={setEAN}
         />
-        <BarCodeSearch
-          barCode={barCode}
-          setBarCode={setBarCode}
-          food={food}
-          setFood={setFood}
-        />
+        <EANSearch EAN={EAN} setEAN={setEAN} food={food} setFood={setFood} />
       </Modal.Content>
       <Modal.Footer>
         <button
@@ -87,4 +82,4 @@ const BarCodeInsertModal = (props: BarCodeInsertModalProps) => {
   )
 }
 
-export default BarCodeInsertModal
+export default EANInsertModal

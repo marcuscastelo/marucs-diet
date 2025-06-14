@@ -15,7 +15,7 @@ import { showSuccess } from '~/modules/toast/application/toastManager'
 import { TestChart } from '~/sections/common/components/charts/TestChart'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
-import { BarCodeIcon } from '~/sections/common/components/icons/BarCodeIcon'
+import { EANIcon } from '~/sections/common/components/icons/EANIcon'
 import { LoadingRing } from '~/sections/common/components/LoadingRing'
 import { Modal } from '~/sections/common/components/Modal'
 import { PageLoading } from '~/sections/common/components/PageLoading'
@@ -100,7 +100,7 @@ export default function TestApp() {
     })
   })
 
-  // const [barCode, setBarCode] = createSignal('')
+  // const [EAN, setEAN] = createSignal('')
   // const [food, setFood] = createSignal<Food | null>(null)
   return (
     <>
@@ -264,7 +264,7 @@ export default function TestApp() {
             class="pl-4 flex flex-col gap-2 items-center justify-center mx-auto"
             style={{ 'min-height': '33vh', 'max-width': '33vw' }}
           >
-            <BarCodeIcon />
+            <EANIcon />
             <TestChart />
             <TestField />
             <DayMacros />

@@ -19,22 +19,22 @@ import {
 } from '~/sections/food-item/components/ItemView'
 import { handleApiError } from '~/shared/error/errorHandler'
 
-export type BarCodeSearchProps = {
-  barCode: Accessor<string>
-  setBarCode: Setter<string>
+export type EANSearchProps = {
+  EAN: Accessor<string>
+  setEAN: Setter<string>
   food: Accessor<Food | null>
   setFood: Setter<Food | null>
 }
 
-export default function BarCodeSearch(props: BarCodeSearchProps) {
+export default function EANSearch(props: EANSearchProps) {
   const [loading, setLoading] = createSignal(false)
   const { show: showConfirmModal } = useConfirmModalContext()
 
   const EAN_LENGTH = 13
 
   createEffect(() => {
-    if (props.barCode().length !== EAN_LENGTH) {
-      if (props.barCode().length > 0) {
+    if (props.EAN().length !== EAN_LENGTH) {
+      if (props.EAN().length > 0) {
         props.setFood(null)
       }
       return
@@ -47,7 +47,7 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
       if (food === null) {
         showConfirmModal({
           title: `Não encontrado`,
-          body: `Alimento de EAN ${props.barCode()} não encontrado`,
+          body: `Alimento de EAN ${props.EAN()} não encontrado`,
           actions: [{ text: 'OK', primary: true, onClick: () => {} }],
         })
         return
@@ -58,12 +58,12 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
     const catchFetch = (err: unknown) => {
       console.log('catchFetch err', err)
       handleApiError(err, {
-        component: 'BarCodeSearch',
+        component: 'EANSearch',
         operation: 'fetchFoodByEan',
-        additionalData: { barCode: props.barCode() },
+        additionalData: { EAN: props.EAN() },
       })
       showConfirmModal({
-        title: `Erro ao buscar alimento de EAN ${props.barCode()}`,
+        title: `Erro ao buscar alimento de EAN ${props.EAN()}`,
         body: 'Erro ao buscar alimento',
         actions: [{ text: 'OK', primary: true, onClick: () => {} }],
       })
@@ -73,10 +73,10 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
     const finallyFetch = () => {
       console.log('finallyFetch')
       setLoading(false)
-      props.setBarCode('')
+      props.setEAN('')
     }
 
-    fetchFoodByEan(props.barCode())
+    fetchFoodByEan(props.EAN())
       .then(afterFetch)
       .catch(catchFetch)
       .finally(finallyFetch)
@@ -135,8 +135,8 @@ export default function BarCodeSearch(props: BarCodeSearchProps) {
           type="number"
           placeholder="Código de barras (Ex: 7891234567890)"
           class={'input-bordered input mt-1 flex-1 border-gray-300 bg-gray-800'}
-          value={props.barCode()}
-          onChange={(e) => props.setBarCode(e.target.value.slice(0, 13))}
+          value={props.EAN()}
+          onChange={(e) => props.setEAN(e.target.value.slice(0, 13))}
         />
       </div>
     </div>

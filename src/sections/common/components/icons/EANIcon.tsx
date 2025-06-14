@@ -1,4 +1,4 @@
-export const BarCodeIcon = () => (
+export const EANIcon = () => (
   <svg
     version="1.1"
     id="Layer_1"
