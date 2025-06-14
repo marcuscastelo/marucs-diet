@@ -7,7 +7,10 @@ import { type BodyMeasure } from '~/modules/measure/domain/measure'
 import { currentUser } from '~/modules/user/application/user'
 import { userWeights } from '~/modules/weight/application/weight'
 import { type BodyFatInput, calculateBodyFat } from '~/shared/utils/bfMath'
+import { createDebug } from '~/shared/utils/createDebug'
 import { dateToYYYYMMDD } from '~/shared/utils/date'
+
+const debug = createDebug('BodyMeasureChart')
 
 type DayAverage = Omit<
   BodyMeasure,
@@ -32,10 +35,6 @@ export type BodyMeasureChartProps = {
  * @returns SolidJS component
  */
 export function BodyMeasureChart(props: BodyMeasureChartProps) {
-  // Debug: log props.measures reativamente
-  const debugMeasures = createMemo(() => {
-    console.debug('[MeasureChart] props.measures', props.measures)
-  })
   const measuresByDay = () => {
     const grouped = props.measures.reduce<Record<string, BodyMeasure[]>>(
       (acc, measure) => {
@@ -49,7 +48,7 @@ export function BodyMeasureChart(props: BodyMeasureChartProps) {
       },
       {},
     )
-    console.debug('[MeasureChart] measuresByDay', grouped)
+    debug('measuresByDay', grouped)
     return grouped
   }
 
@@ -123,33 +122,8 @@ export function BodyMeasureChart(props: BodyMeasureChartProps) {
     return result
   }
 
-  const debugData = createMemo(() => {
-    console.debug(
-      '[MeasureChart] Altura data',
-      data().map((d) => d.dayAverage.height),
-    )
-    console.debug(
-      '[MeasureChart] Cintura data',
-      data().map((d) => d.dayAverage.waist),
-    )
-    console.debug(
-      '[MeasureChart] Quadril data',
-      data().map((d) => d.dayAverage.hip),
-    )
-    console.debug(
-      '[MeasureChart] Pescoço data',
-      data().map((d) => d.dayAverage.neck),
-    )
-    console.debug(
-      '[MeasureChart] BF data',
-      data().map((d) => d.dayBf),
-    )
-  })
   return (
     <>
-      {/* Debug memos to trigger logs */}
-      {debugMeasures()}
-      {debugData()}
       <ChartFor
         title="Altura"
         accessor={(day) => day.dayAverage.height}

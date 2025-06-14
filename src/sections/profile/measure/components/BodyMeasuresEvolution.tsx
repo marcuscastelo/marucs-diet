@@ -104,7 +104,6 @@ export function BodyMeasuresEvolution() {
               )
                 .then(refetch)
                 .catch((error) => {
-                  console.error(error)
                   showError(`Erro ao adicionar medida: ${formatError(error)}`)
                 })
             }}
