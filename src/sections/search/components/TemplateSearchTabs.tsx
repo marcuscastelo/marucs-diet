@@ -27,11 +27,13 @@ export const availableTabs = {
   } as const satisfies TabDefinition,
 } as const satisfies Record<string, TabDefinition>
 
-export type AvailableTab = ObjectValues<typeof availableTabs>['id']
+export type TemplateSearchTab =
+  | ObjectValues<typeof availableTabs>['id']
+  | 'hidden'
 
 export function TemplateSearchTabs(props: {
-  tab: Accessor<AvailableTab>
-  setTab: Setter<AvailableTab>
+  tab: Accessor<TemplateSearchTab>
+  setTab: Setter<TemplateSearchTab>
 }) {
   return (
     <ul class="flex text-font-medium text-center text-gray-500 divide-x divide-gray-600 rounded-lg shadow dark:divide-gray-600 dark:text-gray-300 bg-gray-900 dark:bg-gray-900">

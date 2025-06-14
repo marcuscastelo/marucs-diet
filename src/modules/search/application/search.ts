@@ -1,4 +1,4 @@
-import { createResource, createSignal, untrack } from 'solid-js'
+import { createResource, createSignal } from 'solid-js'
 
 import {
   fetchFoodById as fetchFoodByIdRaw,
@@ -13,17 +13,22 @@ import {
 import { fetchUserRecentFoods as fetchUserRecentFoodsRaw } from '~/modules/recent-food/application/recentFood'
 import { fetchTemplatesByTabLogic } from '~/modules/search/application/searchLogic'
 import { currentUser, currentUserId } from '~/modules/user/application/user'
-import {
-  type AvailableTab,
-  availableTabs,
-} from '~/sections/search/components/TemplateSearchTabs'
+import { type TemplateSearchTab } from '~/sections/search/components/TemplateSearchTabs'
+import { createDebouncedSignal } from '~/shared/utils/createDebouncedSignal'
+
+export const DEFAULT_DEBOUNCE_MS = 500
 
 export const [templateSearch, setTemplateSearch] = createSignal<string>('')
-export const [debouncedSearch, setDebouncedSearch] = createSignal(
-  untrack(templateSearch),
+export const [debouncedSearch] = createDebouncedSignal(
+  templateSearch,
+  DEFAULT_DEBOUNCE_MS,
 )
 export const [templateSearchTab, setTemplateSearchTab] =
-  createSignal<AvailableTab>(availableTabs.Todos.id)
+  createSignal<TemplateSearchTab>('hidden')
+export const [debouncedTab] = createDebouncedSignal(
+  templateSearchTab,
+  DEFAULT_DEBOUNCE_MS,
+)
 
 const getFavoriteFoods = () => currentUser()?.favorite_foods ?? []
 
@@ -54,7 +59,7 @@ export const [
   { refetch: refetchTemplates, mutate: mutateTemplates },
 ] = createResource(
   () => ({
-    tab: templateSearchTab(),
+    tab: debouncedTab(),
     search: debouncedSearch(),
     userId: currentUserId(),
   }),

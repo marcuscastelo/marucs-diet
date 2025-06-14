@@ -5,7 +5,6 @@ import {
   type Setter,
   Show,
   Suspense,
-  untrack,
 } from 'solid-js'
 
 import {
@@ -28,11 +27,10 @@ import {
 } from '~/modules/recent-food/application/recentFood'
 import { createNewRecentFood } from '~/modules/recent-food/domain/recentFood'
 import {
+  debouncedSearch,
   refetchTemplates,
-  setDebouncedSearch,
   setTemplateSearchTab,
   templates,
-  templateSearch,
   templateSearchTab,
 } from '~/modules/search/application/search'
 import { showSuccess } from '~/modules/toast/application/toastManager'
@@ -43,7 +41,6 @@ import { Modal } from '~/sections/common/components/Modal'
 import { PageLoading } from '~/sections/common/components/PageLoading'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useModalContext } from '~/sections/common/context/ModalContext'
-import { useTyping } from '~/sections/common/hooks/useTyping'
 import { ExternalEANInsertModal } from '~/sections/search/components/ExternalEANInsertModal'
 import { ExternalTemplateToItemGroupModal } from '~/sections/search/components/ExternalTemplateToItemGroupModal'
 import { TemplateSearchBar } from '~/sections/search/components/TemplateSearchBar'
@@ -271,28 +268,13 @@ export function TemplateSearch(props: {
   setItemEditModalVisible: Setter<boolean>
   setSelectedTemplate: (food: Template | undefined) => void
 }) {
-  const TYPING_TIMEOUT_MS = 2000
-
   // TODO:   Determine if user is on desktop or mobile to set autofocus
   const isDesktop = false
 
-  const { typing, onTyped } = useTyping({
-    delay: TYPING_TIMEOUT_MS,
-    onTypingEnd: () => {
-      setDebouncedSearch(templateSearch())
-      console.debug(`[TemplateSearchModal] onTyped called`)
-      void refetchTemplates()
-    },
-  })
-
   createEffect(() => {
-    templateSearch()
-    untrack(onTyped)
-  })
-
-  createEffect(() => {
-    props.modalVisible()
-    setTemplateSearchTab(TEMPLATE_SEARCH_DEFAULT_TAB)
+    setTemplateSearchTab(
+      props.modalVisible() ? TEMPLATE_SEARCH_DEFAULT_TAB : 'hidden',
+    )
   })
 
   return (
@@ -323,14 +305,13 @@ export function TemplateSearch(props: {
         }
       >
         <TemplateSearchResults
-          search={templateSearch()}
+          search={debouncedSearch()}
           filteredTemplates={templates() ?? []}
           EANModalVisible={props.EANModalVisible}
           setEANModalVisible={props.setEANModalVisible}
           itemEditModalVisible={props.itemEditModalVisible}
           setItemEditModalVisible={props.setItemEditModalVisible}
           setSelectedTemplate={props.setSelectedTemplate}
-          typing={typing}
           refetch={refetchTemplates}
         />
       </Suspense>
