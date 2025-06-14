@@ -23,7 +23,7 @@ export function displaySolidToast(toastItem: ToastItem): string {
 
   // Prepare solid-toast options with duration
   const solidToastOptions = {
-    duration: duration,
+    duration,
   }
 
   // Standard toast rendering

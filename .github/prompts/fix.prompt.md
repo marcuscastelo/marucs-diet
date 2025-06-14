@@ -1,5 +1,5 @@
 ---
-description: 'Automate codebase checks and error correction using npm run check, explicit output checking via custom scripts, and agent-driven fixes. Enforces strict output checking for check results. Never produce "Next step:" and always fix all errors in one go, without prompting the user.'
+description: 'Automate codebase checks and error correction using npm run check, explicit output checking via custom scripts, and agent-driven fixes. Enforces strict output checking for check results. After every code correction, always re-run npm run copilot:check and validation scripts until "COPILOT: All checks passed!" appears. Never produce "Next step:" and always fix all errors in one go, without prompting the user.'
 mode: 'agent'
 tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
@@ -10,18 +10,18 @@ Your task is to ensure the codebase passes all checks and is error-free. Never o
 
 ## Instructions
 
-1. Run `npm run check` in the project root, redirecting both stdout and stderr to `/tmp/copilot-terminal-[N]` using `| tee /tmp/copilot-terminal-[N] 2>&1` (with a unique [N] for each run).
+1. Run `npm run copilot:check` in the project root, redirecting both stdout and stderr to `/tmp/copilot-terminal-[N]` using `| tee /tmp/copilot-terminal-[N] 2>&1` (with a unique [N] for each run).
 2. After the command finishes, run each of the following custom scripts (each should simply output the contents of `/tmp/copilot-terminal-[N]`):
    - `.scripts/cat1.sh /tmp/copilot-terminal-[N]`
    - `.scripts/cat2.sh /tmp/copilot-terminal-[N]`
-   - `.scripts/cat3.sh /tmp/copilot-terminal-[N]`
    Check the output of each script, in order, until either:
-   - The message "All checks passed" appears in the output, or
+   - The message "COPILOT: All checks passed!" appears in the output, or
    - Any of the following error patterns (case-insensitive) appear: `failed`, `at constructor`, `error`, `replace`, or similar.
    - Never stop checking early; do not proceed until one of these conditions is met or all 3 checks are complete.
    - Always use the latest output file for checking.
-3. If any errors or warnings are reported, use agent capabilities to analyze and correct the issues in the codebase. After making corrections, repeat from step 1. Do not prompt the user for next steps or confirmations.
-4. Only stop when the message "All checks passed" appears.
+3. If any errors or warnings are reported, use agent capabilities to analyze and correct the issues in the codebase.
+4. **After every code correction, always repeat from step 1. Never skip the check rerun. Never stop or report success until "COPILOT: All checks passed!" appears in the output of the check scripts.**
+5. Only stop when the message "COPILOT: All checks passed!" appears.
 
 - Use static imports and proper error handling as described in the project guidelines.
 - Do not proceed to other tasks until all checks pass.
@@ -51,7 +51,7 @@ Your task is to ensure the codebase passes all checks and is error-free. Never o
   ```ts
   if (value !== null && value !== undefined && value !== '') { /* ... */ }
   ```
-- **Output checking and check reruns:** After every fix, always rerun the full check process and check the output until completion, even if the previous error was only a lint warning. Do not stop until "All checks passed" appears.
+- **Output checking and check reruns:** After every fix, always rerun the full check process and check the output until completion, even if the previous error was only a lint warning. Do not stop until "COPILOT: All checks passed!" appears.
 - **Checking the latest output file:** In multi-step or long-running sessions, always use the latest output file for checking terminal output, not just the first one, to avoid confusion.
 
 ## Output

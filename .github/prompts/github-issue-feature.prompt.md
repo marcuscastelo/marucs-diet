@@ -12,7 +12,7 @@ When provided with a feature request or idea, generate a GitHub issue using the 
 - Body: use the template in `docs/ISSUE_TEMPLATE_FEATURE.md`, filling in relevant fields. **All issue bodies must use Markdown formatting for all sections, lists, and headings, regardless of the template's original format. All content must be in English unless the user requests otherwise.**
 - Always use the label `feature`.
 - If a milestone is specified and exists, use it; otherwise, prompt or skip.
-- Use `printf` with `\n` for newlines. Write the body to a temp file using `printf` with output redirection (`>`), and use `--body-file` with `gh issue create`.
+- Use `printf` with heredoc (<<EOF ... EOF) for newlines and Markdown formatting. Write the body to a temp file, and use `--body-file` with `gh issue create`.
 - Do not use `echo` or heredoc.
 - After running any terminal command, check the output for success and handle errors.
 - Output only the final command.
@@ -20,7 +20,7 @@ When provided with a feature request or idea, generate a GitHub issue using the 
 - **Always preview or validate Markdown rendering before submitting or updating issues via the `gh` CLI.**
 - **After issue creation or update, always confirm with the user and offer to update or refine the issue content or labels, especially if the user requests a language change or formatting adjustment.**
 - **Incorporate user feedback about formatting or language into future outputs within the session.**
-- Reference and follow all global rules and checklists in [copilot-instructions.md](../instructions/copilot/copilot-instructions.md).
+- Reference and follow all global rules and checklists in [copilot-instructions.md](../copilot-instructions.md).
 - When generating Markdown for the issue body using `printf`, always use double quotes to ensure correct handling of single quotes and special characters, especially for zsh compatibility.
 - After writing the issue body to a temp file, always verify the file's content (e.g., `cat /tmp/feature-issue-body.md`) before running `gh issue create`.
 - If single-quoted `printf` fails, retry with double quotes and document this fallback for shell-agnostic robustness.

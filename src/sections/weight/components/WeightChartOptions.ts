@@ -46,9 +46,7 @@ export function buildWeightChartOptions({
       defaultLocale: 'pt-br',
       background: '#1E293B',
       events: {
-        beforeZoom: function (ctx: {
-          w: { config: { xaxis: { range?: unknown } } }
-        }) {
+        beforeZoom(ctx: { w: { config: { xaxis: { range?: unknown } } } }) {
           ctx.w.config.xaxis.range = undefined
         },
       },

@@ -11,8 +11,9 @@ Your task is to automate the process of implementing a GitHub issue, following t
 ## Workflow
 
 1. **Checkout Base Branch**
-   - Identify the highest `rc/` branch (e.g., `rc/v0.11.0`) or, if easier, use the default remote branch.
-   - Checkout this branch and perform a `git pull` to ensure it is up to date.
+   - Perform a `git fetch` to update the local repository.
+   - Identify the highest remote `rc/` branch (e.g., `origin/rc/v0.11.0`) or, if easier, use the default remote branch.
+   - Checkout this remote branch.
 
 2. **Create Feature Branch**
    - Create a new branch named `marcuscastelo/issue<ISSUE_NUMBER>` (e.g., `marcuscastelo/issue711`).
@@ -22,14 +23,20 @@ Your task is to automate the process of implementing a GitHub issue, following t
 
 4. **Understand and Plan**
    - Analyze the issue and all related information.
+   - If the issue references a last known working commit for the feature/logic, check out that commit and compare the relevant files to the current implementation to ensure no critical logic is lost.
+   - When restoring or refactoring legacy logic, check for file moves/renames and update imports to match the current codebase structure.
+   - Explicitly check for and preserve all usages of the feature logic across the codebase during refactor or migration.
    - Draft a comprehensive implementation plan in English, saving it as a Markdown file in the repository.
-   - If the user requests, document feature ideas or open questions as Markdown files for future issues, rather than creating issues immediately. See [copilot-instructions.md](../instructions/copilot/copilot-instructions.md) for global rules.
+   - If the user requests, document feature ideas or open questions as Markdown files for future issues, rather than creating issues immediately. See [copilot-instructions.md](../copilot-instructions.md) for global rules.
    - Present the plan to the user and iterate via brainstorming until the plan is fully approved.
 
 5. **Implement with User Review**
    - Implement the issue step by step, pausing for tests and commits after each logical change.
+   - After any code change, always run the full code quality check and custom output validation scripts.
    - The agent leads the implementation; the user acts as a reviewer.
    - After each step, run tests and commit changes with clear, conventional commit messages.
+   - Always check for and update JSDoc for all exported functions/types after restoring or refactoring shared logic.
+   - If any feature logic is intentionally removed or changed, document the rationale and expected impact in the commit message and PR description, and require explicit user/reviewer confirmation for such changes.
 
 ## Requirements
 
@@ -42,7 +49,7 @@ Your task is to automate the process of implementing a GitHub issue, following t
 - UI text may be in English or pt-BR as required.
 - Never add explanatory comments in code unless absolutely necessary.
 - Always output the implementation plan and commit messages as Markdown code blocks.
-- Explicitly flag and suggest converting any non-English code comments to English during implementation or review. See [copilot-instructions.md](../instructions/copilot/copilot-instructions.md) for global rules.
+- Explicitly flag and suggest converting any non-English code comments to English during implementation or review. See [copilot-instructions.md](../copilot-instructions.md) for global rules.
 
 ## References
 

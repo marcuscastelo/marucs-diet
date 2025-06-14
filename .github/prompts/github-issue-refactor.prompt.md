@@ -16,14 +16,14 @@ When provided with a refactor request or a code quality concern, generate a GitH
 2. **Body**:
    - Use the template in `docs/ISSUE_TEMPLATE_REFACTOR.md`, but **exclude the template header**.
    - Fill in the relevant fields only.
-   - Use `printf` with `\n` for newlines. Write the issue body to a temporary file using `printf` with output redirection (`>`), and use the `--body-file` option with `gh issue create`.
-   - **Do not** use `echo` or heredoc syntax.
+   - Use `printf` with heredoc (<<EOF ... EOF) for newlines and Markdown formatting. Write the issue body to a temporary file, and use the `--body-file` option with `gh issue create`.
+   - Do not use `echo` or heredoc syntax.
    - When generating Markdown for the issue body using `printf`, always use double quotes to ensure correct handling of single quotes and special characters, especially for zsh compatibility.
    - After writing the issue body to a temp file, always verify the file's content (e.g., `cat /tmp/refactor-issue-body.md`) before running `gh issue create`.
    - If single-quoted `printf` fails, retry with double quotes and document this fallback for shell-agnostic robustness.
    - Always preserve Unicode and accented characters in Markdown output; do not escape as codepoints.
    - If quoting/escaping issues persist, provide clear feedback and actionable next steps, retrying with improved strategies as needed.
-   - Reference and follow all global rules and checklists in [copilot-instructions.md](../instructions/copilot/copilot-instructions.md).
+   - Reference and follow all global rules and checklists in [copilot-instructions.md](../copilot-instructions.md).
    - **Explicitly reference all affected files and modules in the issue body for clarity and implementation readiness.**
    - **After any label or content change, always re-validate and, if necessary, re-edit the issue body before final creation.**
 3. **Labels and Milestones**:

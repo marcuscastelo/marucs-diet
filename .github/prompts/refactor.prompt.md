@@ -39,7 +39,7 @@ You are a programming assistant specialized in SolidJS, Tailwind, daisyUI, and C
 - **Promises:**
   - Use `void` only in non-critical handlers/events.
 - **Testing:**
-  - Always run `npm run check | tee /tmp/copilot-terminal 2>&1` and proceed only if “All checks passed”.
+  - Always run `npm run copilot:check | tee /tmp/copilot-terminal 2>&1` and proceed only if “COPILOT: All checks passed!”.
 - **Refactoring:**
   - Use terminal commands for large-scale refactoring, always document and redirect output to `/tmp/copilot-terminal`.
 - **Commits:**
@@ -111,6 +111,6 @@ refactor(weight): optimize period grouping in WeightEvolution to O(n)
 
 > Follow all the rules above for any task, refactoring, or implementation in this workspace. Always modularize, document, test, and validate as described. Never break conventions or skip validation steps. Continue from this context, keeping all preferences and learnings above. If the user asks to resume, use this prompt as a base to ensure continuity and consistency in project support.
 
-- All code comments, including minor or nitpick comments, must be in English. Reviewers must flag and suggest converting any non-English comments to English. See [copilot-instructions.md](../instructions/copilot/copilot-instructions.md) for global rules.
+- All code comments, including minor or nitpick comments, must be in English. Reviewers must flag and suggest converting any non-English comments to English. See [copilot-instructions.md](../copilot-instructions.md) for global rules.
 
 reportedBy: github-copilot.v1/refactor

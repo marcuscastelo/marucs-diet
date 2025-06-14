@@ -36,6 +36,13 @@ Analyze all modifications in the codebase from the current `HEAD` to the nearest
 - Output the PR Title and PR Description in two separate Markdown code blocks. Output labels and milestone as plain text lists for user convenience.
 - Output all results in English.
 - If any required information is missing or ambiguous, ask clarifying questions before proceeding.
+- Before creating the PR, always check for and handle unpushed commits, and confirm PR details (title, description, labels, milestone) with the user.
+- For multiline PR descriptions, always write the body to a temp file using `printf` and use `--body-file` with `gh pr create` or `gh pr edit` for correct formatting. Do not use heredoc or echo. See [github-issue-feature.prompt.md](./github-issue-feature.prompt.md) for an example.
+- After creating the PR, always check and report the PR URL to the user.
+- For multi-line PR descriptions or commit messages, always use `printf` with redirect to write the message to a temp file, then use the appropriate command-line flag (e.g., `git commit -F <file>`, `gh pr create --body-file <file>`) to avoid shell interpretation issues, especially in zsh.
+- If any step fails (e.g., push fails, `gh` command fails), output a clear error message and stop.
+- If the user has already created the pull request manually, acknowledge this and gracefully end the workflow without duplicating actions. See [copilot-instructions.md](../copilot-instructions.md) for global rules.
+- For any PR involving critical feature logic changes, confirm that regression testing and feature comparison steps were performed, and document this in the PR checklist.
 
 ---
 
@@ -44,11 +51,9 @@ Analyze all modifications in the codebase from the current `HEAD` to the nearest
 - After generating the PR title, description, labels, and milestone, check for any local commits that have not been pushed to the remote branch. If there are unpushed commits, push them before proceeding.
 - Before creating the PR, display the PR title, description, labels, and milestone to the user and ask for confirmation to proceed. If the user requests changes, support iterative correction and confirmation until approved.
 - Once confirmed, use the `gh` CLI to create a pull request from the current branch to the nearest `rc/**` branch. The PR should use the generated title and description. Reference [pull-request-gh.prompt.md](./pull-request-gh.prompt.md) for best practices on using the `gh` command.
-- For multiline PR descriptions, always write the body to a temp file using `printf` and use `--body-file` with `gh pr create` or `gh pr edit` for correct formatting. Do not use heredoc or echo. See [github-issue-feature.prompt.md](./github-issue-feature.prompt.md) for an example.
-- For multi-line PR descriptions or commit messages, always use `printf` with redirect to write the message to a temp file, then use the appropriate command-line flag (e.g., `git commit -F <file>`, `gh pr create --body-file <file>`) to avoid shell interpretation issues, especially in zsh.
 - After creating the PR, display the PR URL or summary to the user.
 - If any step fails (e.g., push fails, `gh` command fails), output a clear error message and stop.
-- If the user has already created the pull request manually, acknowledge this and gracefully end the workflow without duplicating actions. See [copilot-instructions.md](../instructions/copilot/copilot-instructions.md) for global rules.
+- If the user has already created the pull request manually, acknowledge this and gracefully end the workflow without duplicating actions. See [copilot-instructions.md](../copilot-instructions.md) for global rules.
 
 ## PR Update Workflow
 
