@@ -56,6 +56,7 @@ else
   cd "$WORKTREE_PATH"
 fi
 
+echo "Repository root: $REPO_ROOT"
 echo "Using base branch: $BASE_BRANCH"
 echo "Using feature branch: $FEATURE_BRANCH"
 echo "Worktree path: $WORKTREE_PATH"
@@ -63,7 +64,7 @@ echo "Worktree path: $WORKTREE_PATH"
 if ! command -v code >/dev/null 2>&1; then
   echo "Warning: VS Code ('code') command not found in PATH. Please open $WORKTREE_PATH manually."
 else
-  cp .env "$WORKTREE_PATH"
+  cp "$REPO_ROOT/.env" "$WORKTREE_PATH/.env"
   cd "$WORKTREE_PATH"
   pnpm install &
   code "$WORKTREE_PATH"
