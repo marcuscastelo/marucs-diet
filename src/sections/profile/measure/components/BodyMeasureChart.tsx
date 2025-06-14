@@ -10,7 +10,7 @@ import { type BodyFatInput, calculateBodyFat } from '~/shared/utils/bfMath'
 import { createDebug } from '~/shared/utils/createDebug'
 import { dateToYYYYMMDD } from '~/shared/utils/date'
 
-const debug = createDebug('BodyMeasureChart')
+const debug = createDebug()
 
 type DayAverage = Omit<
   BodyMeasure,

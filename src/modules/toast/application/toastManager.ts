@@ -22,7 +22,7 @@ import { isBackendOutageError } from '~/shared/error/errorHandler'
 import { createDebug } from '~/shared/utils/createDebug'
 import { isNonEmptyString } from '~/shared/utils/isNonEmptyString'
 
-const debug = createDebug('ToastManager')
+const debug = createDebug()
 
 /**
  * Returns true if the toast should be skipped based on context, audience, and type.
