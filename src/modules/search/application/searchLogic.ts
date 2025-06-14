@@ -60,13 +60,23 @@ export async function fetchTemplatesByTabLogic(
       const foods =
         foodIds.length > 0
           ? await Promise.all(
-              foodIds.map((id) => deps.fetchFoodById(id).catch(() => null)),
+              foodIds.map((id) =>
+                deps.fetchFoodById(id).catch((error) => {
+                  console.error(`Error fetching food by ID ${id}:`, error)
+                  return null // Return null for all errors for now
+                }),
+              ),
             )
           : []
       const recipes =
         recipeIds.length > 0
           ? await Promise.all(
-              recipeIds.map((id) => deps.fetchRecipeById(id).catch(() => null)),
+              recipeIds.map((id) =>
+                deps.fetchRecipeById(id).catch((error) => {
+                  console.error(`Error fetching recipe by ID ${id}:`, error)
+                  return null // Return null for all errors for now
+                }),
+              ),
             )
           : []
       const validFoods = (foods as (Food | null)[]).filter(
