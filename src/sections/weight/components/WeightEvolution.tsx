@@ -9,6 +9,7 @@ import { ComboBox } from '~/sections/common/components/ComboBox'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import { WeightChart } from '~/sections/weight/components/WeightChart'
+import { WeightProgress } from '~/sections/weight/components/WeightProgress'
 import { WeightView } from '~/sections/weight/components/WeightView'
 import { calculateWeightProgress } from '~/shared/utils/weightUtils'
 
@@ -89,14 +90,13 @@ export function WeightEvolution() {
         progress satisfies never // Ensure all cases are handled
     }
   }
+
   return (
     <>
       <div class={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>
-        <h5 class={'mx-auto mb-5 text-center text-3xl font-bold'}>
-          Progresso: {weightProgressText()}
-        </h5>
-        <div class="mx-5 lg:mx-20 pb-10">
-          <div class="mb-4 flex justify-end">
+        <div class="px-5 lg:px-5 pb-10">
+          <div class="flex justify-between items-center px-4">
+            <span class="text-2xl font-bold">Gráfico de evolução do peso</span>
             <ComboBox
               options={chartOptions}
               value={chartType()}
@@ -104,6 +104,10 @@ export function WeightEvolution() {
               class="w-48"
             />
           </div>
+          <WeightProgress
+            weightProgress={weightProgress()}
+            weightProgressText={weightProgressText}
+          />
           <WeightChart
             weights={userWeights()}
             desiredWeight={desiredWeight()}

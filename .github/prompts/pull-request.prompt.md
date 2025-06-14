@@ -37,9 +37,9 @@ Analyze all modifications in the codebase from the current `HEAD` to the nearest
 - Output all results in English.
 - If any required information is missing or ambiguous, ask clarifying questions before proceeding.
 - Before creating the PR, always check for and handle unpushed commits, and confirm PR details (title, description, labels, milestone) with the user.
-- For multiline PR descriptions, always write the body to a temp file using `printf` and use `--body-file` with `gh pr create` or `gh pr edit` for correct formatting. Do not use heredoc or echo. See [github-issue-feature.prompt.md](./github-issue-feature.prompt.md) for an example.
+- For multiline PR descriptions, **always write the body to a temp file using `cat` with heredoc and single quotes for the delimiter** (e.g., `cat <<'EOF' > file`). This ensures that any backticks or variables inside the heredoc are not interpreted by the shell. Backticks are allowed inside the heredoc for Markdown/code, but the heredoc delimiter must always use single quotes. Never use `printf` or `echo` for this purpose.
 - After creating the PR, always check and report the PR URL to the user.
-- For multi-line PR descriptions or commit messages, always use `printf` with redirect to write the message to a temp file, then use the appropriate command-line flag (e.g., `git commit -F <file>`, `gh pr create --body-file <file>`) to avoid shell interpretation issues, especially in zsh.
+- For multi-line PR descriptions or commit messages, **always use `cat` with heredoc and single quotes for the delimiter** to write the message to a temp file. Backticks are allowed inside the heredoc, but the delimiter must be single quotes to prevent shell interpretation. Never use `printf` for this purpose.
 - If any step fails (e.g., push fails, `gh` command fails), output a clear error message and stop.
 - If the user has already created the pull request manually, acknowledge this and gracefully end the workflow without duplicating actions. See [copilot-instructions.md](../copilot-instructions.md) for global rules.
 - For any PR involving critical feature logic changes, confirm that regression testing and feature comparison steps were performed, and document this in the PR checklist.
@@ -58,6 +58,13 @@ Analyze all modifications in the codebase from the current `HEAD` to the nearest
 ## PR Update Workflow
 
 - If the PR description needs to be updated after creation, use `gh pr edit <number> --body-file <file>` with the body file prepared as above. Always confirm the update with the user.
+
+## PR Body Formatting and Verification (added per reportedBy: github-copilot.v1/pull-request)
+
+- PR body formatting must be visually and functionally verified on GitHub, not just locally. If the user reports formatting issues (e.g., stray `\n` or literal escape sequences), the agent must retry using `cat` and heredoc to rewrite the body and update the PR again.
+- Add a troubleshooting step: if the PR body appears with literal `\n` or other formatting issues, rewrite the body using heredoc and update the PR again.
+- When formatting issues are suspected, display the PR body with `cat` and heredoc for user verification before updating with `gh`.
+- The agent must always update the PR on GitHub after correcting formatting, not just display the fixed content locally.
 
 ## Issue-Focused Communication
 
