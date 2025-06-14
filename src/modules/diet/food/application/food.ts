@@ -165,3 +165,24 @@ export async function isEanCached(
     return false
   }
 }
+
+/**
+ * Fetches foods by IDs.
+ * @param ids - Array of food IDs.
+ * @returns Array of foods or empty array on error.
+ */
+export async function fetchFoodsByIds(
+  ids: Food['id'][],
+): Promise<readonly Food[]> {
+  try {
+    return await foodRepository.fetchFoodsByIds(ids)
+  } catch (error) {
+    handleApiError(error, {
+      component: 'foodApplication',
+      operation: 'fetchFoodsByIds',
+      additionalData: { ids },
+    })
+    if (isBackendOutageError(error)) setBackendOutage(true)
+    return []
+  }
+}

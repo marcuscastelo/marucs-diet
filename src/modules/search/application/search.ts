@@ -3,6 +3,7 @@ import { createResource, createSignal } from 'solid-js'
 import {
   fetchFoodById,
   fetchFoods,
+  fetchFoodsByIds,
   fetchFoodsByName,
 } from '~/modules/diet/food/application/food'
 import { Food } from '~/modules/diet/food/domain/food'
@@ -113,27 +114,18 @@ const fetchFoodsForModal = async (): Promise<readonly Food[]> => {
     foods = await fetchFoodsByName(templateSearch(), { limit, allowedFoods })
   }
 
-  if (debouncedTab() === 'recent') {
-    foods = (
-      await Promise.all(
-        allowedFoods?.map(async (foodId) => {
-          let food: Food | null = null
-          const alreadyFechedFood = foods.find((food) => food.id === foodId)
-          if (alreadyFechedFood === undefined) {
-            console.debug(
-              `[TemplateSearchModal] Food is not already fetched: ${foodId}`,
-            )
-            food = await fetchFoodById(foodId)
-          } else {
-            console.debug(
-              `[TemplateSearchModal] Food is already fetched: ${foodId}`,
-            )
-            food = alreadyFechedFood
-          }
-          return food
-        }) ?? [],
-      )
-    ).filter((food): food is Food => food !== null)
+  // Refactored: For 'recent' tab, ensure all required foods are present by batch fetching any missing ones
+  if (debouncedTab() === 'recent' && Array.isArray(allowedFoods)) {
+    const fetchedIds = new Set(foods.map((food) => food.id))
+    const missingIds = allowedFoods.filter((id) => !fetchedIds.has(id))
+    if (missingIds.length > 0) {
+      const batchFoods = await fetchFoodsByIds(missingIds)
+      foods = [...foods, ...batchFoods]
+    }
+    // Ensure order matches allowedFoods
+    foods = allowedFoods
+      .map((id) => foods.find((food) => food.id === id))
+      .filter((food): food is Food => food !== undefined)
   }
   return foods
 }
