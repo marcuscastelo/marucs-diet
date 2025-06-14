@@ -53,15 +53,15 @@ const fetchRecentsForModal = async (
     (r): r is Recipe => r !== null,
   )
 
-  // Filter by search string (case-insensitive, name or barcode)
+  // Filter by search string (case-insensitive, name or EAN)
   const lowerSearch = search.trim().toLowerCase()
-  const filterFn = (item: { name: string; barcode?: string | null }) => {
+  const filterFn = (item: { name: string; EAN?: string | null }) => {
     if (lowerSearch === '') return true
     if (item.name.toLowerCase().includes(lowerSearch)) return true
     if (
-      typeof item.barcode === 'string' &&
-      item.barcode &&
-      item.barcode.toLowerCase().includes(lowerSearch)
+      typeof item.EAN === 'string' &&
+      item.EAN &&
+      item.EAN.toLowerCase().includes(lowerSearch)
     )
       return true
     return false

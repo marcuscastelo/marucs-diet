@@ -24,8 +24,8 @@ export function TemplateSearchResults(props: {
   typing: Accessor<boolean>
   filteredTemplates: readonly Template[]
   setSelectedTemplate: (food: Template | undefined) => void
-  barCodeModalVisible: Accessor<boolean>
-  setBarCodeModalVisible: Setter<boolean>
+  EANModalVisible: Accessor<boolean>
+  setEANModalVisible: Setter<boolean>
   itemEditModalVisible: Accessor<boolean>
   setItemEditModalVisible: Setter<boolean>
   refetch: (info?: unknown) => unknown
@@ -66,7 +66,7 @@ export function TemplateSearchResults(props: {
                   onClick={() => {
                     props.setSelectedTemplate(template)
                     props.setItemEditModalVisible(true)
-                    props.setBarCodeModalVisible(false)
+                    props.setEANModalVisible(false)
                   }}
                   header={
                     <HeaderWithActions

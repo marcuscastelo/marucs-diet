@@ -9,10 +9,10 @@ import { createEffect, createSignal, onCleanup, Show } from 'solid-js'
 import { LoadingRing } from '~/sections/common/components/LoadingRing'
 import { handleScannerError } from '~/shared/error/errorHandler'
 
-export function BarCodeReader(props: {
+export function EANReader(props: {
   id: string
   enabled: boolean
-  onScanned: (barcode: string) => void
+  onScanned: (EAN: string) => void
 }) {
   const [loadingScanner, setLoadingScanner] = createSignal(true)
 
@@ -87,7 +87,7 @@ export function BarCodeReader(props: {
       })
       .catch((err) => {
         handleScannerError(err, {
-          component: 'BarCodeReader',
+          component: 'EANReader',
           operation: 'startScanner',
         })
         return false
@@ -98,7 +98,7 @@ export function BarCodeReader(props: {
         .then(async () => {
           await html5QrcodeScanner.stop().catch((err) => {
             handleScannerError(err, {
-              component: 'BarCodeReader',
+              component: 'EANReader',
               operation: 'stopScanner',
             })
           })
