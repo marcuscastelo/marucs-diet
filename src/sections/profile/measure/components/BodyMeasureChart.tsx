@@ -20,18 +20,18 @@ type DayMeasures = {
 }
 
 /**
- * Props for the MeasureChart component.
+ * Props for the BodyMeasureChart component.
  */
-export type MeasureChartProps = {
+export type BodyMeasureChartProps = {
   measures: readonly BodyMeasure[]
 }
 
 /**
  * Renders a chart for body measurements and body fat percentage.
- * @param props - MeasureChartProps
+ * @param props - BodyMeasureChartProps
  * @returns SolidJS component
  */
-export function MeasureChart(props: MeasureChartProps) {
+export function BodyMeasureChart(props: BodyMeasureChartProps) {
   // Debug: log props.measures reativamente
   const debugMeasures = createMemo(() => {
     console.debug('[MeasureChart] props.measures', props.measures)

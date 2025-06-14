@@ -10,11 +10,11 @@ import { showError } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { useFloatField } from '~/sections/common/hooks/useField'
-import { MeasureChart } from '~/sections/profile/measure/components/MeasureChart'
-import { MeasureView } from '~/sections/profile/measure/components/MeasureView'
+import { BodyMeasureChart } from '~/sections/profile/measure/components/BodyMeasureChart'
+import { BodyMeasureView } from '~/sections/profile/measure/components/BodyMeasureView'
 import { formatError } from '~/shared/formatError'
 
-export function MeasuresEvolution() {
+export function BodyMeasuresEvolution() {
   const [bodyMeasuresResource, { refetch }] = createResource(
     currentUserId,
     fetchUserBodyMeasures,
@@ -121,13 +121,13 @@ export function MeasuresEvolution() {
             </div>
           }
         >
-          <MeasureChart measures={bodyMeasures()} />
+          <BodyMeasureChart measures={bodyMeasures()} />
           <div class="mx-5 lg:mx-20 pb-10">
             <For each={[...bodyMeasures()].reverse().slice(0, 10)}>
               {(bodyMeasure) => (
-                <MeasureView
+                <BodyMeasureView
                   measure={bodyMeasure}
-                  onRefetchMeasures={refetch}
+                  onRefetchBodyMeasures={refetch}
                 />
               )}
             </For>

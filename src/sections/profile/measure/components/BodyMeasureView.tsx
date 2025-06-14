@@ -21,11 +21,11 @@ import { adjustToTimezone } from '~/shared/utils/date/dateUtils'
  * Renders a capsule view for editing and saving a single BodyMeasure.
  *
  * @param props.measure - The body measure to display and edit
- * @param props.onRefetchMeasures - Callback to refetch body measures after update/delete
+ * @param props.onRefetchBodyMeasures - Callback to refetch body measures after update/delete
  */
-export function MeasureView(props: {
+export function BodyMeasureView(props: {
   measure: BodyMeasure
-  onRefetchMeasures: () => unknown
+  onRefetchBodyMeasures: () => unknown
 }) {
   const dateField = useDateField(() => props.measure.target_timestamp, {
     fallback: () => new Date(),
@@ -59,7 +59,7 @@ export function MeasureView(props: {
       return
     }
     const afterUpdate = () => {
-      props.onRefetchMeasures()
+      props.onRefetchBodyMeasures()
     }
     updateBodyMeasure(
       props.measure.id,
@@ -93,7 +93,7 @@ export function MeasureView(props: {
           primary: true,
           onClick: () => {
             const afterDelete = () => {
-              props.onRefetchMeasures()
+              props.onRefetchBodyMeasures()
             }
             deleteBodyMeasure(props.measure.id)
               .then(afterDelete)
