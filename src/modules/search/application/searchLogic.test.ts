@@ -97,6 +97,16 @@ describe('fetchTemplatesByTabLogic', () => {
     expect(result).toEqual([mockFood])
   })
 
+  it('filters by EAN in Recentes tab', async () => {
+    const result = await fetchTemplatesByTabLogic(
+      availableTabs.Recentes.id,
+      mockFood.EAN,
+      userId,
+      deps,
+    )
+    expect(result).toEqual([mockFood])
+  })
+
   it('calls fetchFoodsByName with correct args for Todos tab and non-empty search', async () => {
     const search = 'Banana'
     await fetchTemplatesByTabLogic(availableTabs.Todos.id, search, userId, deps)
