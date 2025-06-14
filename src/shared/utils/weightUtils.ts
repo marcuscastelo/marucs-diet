@@ -11,12 +11,24 @@ function sortWeightsByDate(weights: readonly Weight[]): readonly Weight[] {
 }
 
 export function getFirstWeight(weights: readonly Weight[]): Weight | null {
+  /**
+   * Returns the first weight entry from a sorted list.
+   * @param weights - Array of Weight objects
+   * @returns The first Weight or null if empty
+   */
+
   const sorted = sortWeightsByDate(weights)
   return sorted[0] ?? null
 }
 
 export const latestWeight = createMemo(() => getLatestWeight(userWeights()))
 export function getLatestWeight(weights: readonly Weight[]): Weight | null {
+  /**
+   * Returns the latest weight entry from a sorted list.
+   * @param weights - Array of Weight objects
+   * @returns The latest Weight or null if empty
+   */
+
   const sorted = sortWeightsByDate(weights)
   return sorted[sorted.length - 1] ?? null
 }
@@ -52,23 +64,33 @@ function getTotalAndChange(
     case 'bulk':
       goalDirection = 'gain'
       break
-    default:
+    case 'normo':
       goalDirection = 'none'
+      break
+    default:
+      diet satisfies never
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      throw new Error(`Unknown diet type: ${diet}`)
   }
-  const totalChange = latestWeight - firstWeight
-  const desiredChange = desiredWeight - firstWeight
-  const changeDirection = calcDirection(desiredChange, totalChange)
-  return { totalChange, desiredChange, changeDirection, goalDirection }
+
+  return {
+    goalWeightChange: {
+      change:
+        goalDirection === 'none'
+          ? 0
+          : Math.round(Math.abs(desiredWeight - firstWeight) * 10) / 10,
+      direction: goalDirection,
+    },
+    currentChange: {
+      change: Math.round(Math.abs(latestWeight - firstWeight) * 10) / 10,
+      direction: calcDirection(latestWeight, firstWeight),
+    },
+  }
 }
 
-export function inForceWeight(
-  weights: readonly Weight[],
-  date: Date,
-): Weight | null {
-  return inForceGeneric(weights, 'target_timestamp', date)
-}
-
-// Add calculateWeightProgress implementation for weight progress calculation
+/**
+ * Type for the result of calculateWeightProgress.
+ */
 export type WeightProgressResult =
   | {
       type: 'no_weights'
@@ -118,73 +140,82 @@ export function calculateWeightProgress(
 ): WeightProgressResult | null {
   if (weights.length === 0) {
     return {
-      type: 'no_weights',
+      type: 'no_weights' as const,
     }
   }
   const first = getFirstWeight(weights)
   const latest = getLatestWeight(weights)
   if (!first || !latest) return null
-  const { goalDirection } = getTotalAndChange(
+  const { goalWeightChange, currentChange } = getTotalAndChange(
     first.weight,
     latest.weight,
     desiredWeight,
     diet,
   )
-  const goalWeightChange = {
-    change:
-      goalDirection === 'none'
-        ? 0
-        : Math.round(Math.abs(desiredWeight - first.weight) * 10) / 10,
-    direction: goalDirection,
-  }
-  const currentChange = {
-    change: Math.round(Math.abs(latest.weight - first.weight) * 10) / 10,
-    direction: calcDirection(latest.weight, first.weight, 1),
-  }
+
   if (goalWeightChange.direction === 'none') {
     return {
-      type: 'normo',
+      type: 'normo' as const,
       difference: Math.abs(latest.weight - desiredWeight),
       direction: calcDirection(latest.weight, desiredWeight, 1),
       currentChange,
       goalWeightChange,
     }
   }
+
   if (goalWeightChange.change === 0 && currentChange.change === 0) {
     return {
-      type: 'progress',
+      type: 'progress' as const,
       progress: 100,
       currentChange,
       goalWeightChange,
     }
   }
+
   if (weights.length === 1 || currentChange.change === 0) {
     return {
-      type: 'no_change',
+      type: 'no_change' as const,
       currentChange,
       goalWeightChange,
     }
   }
+
   if (currentChange.direction !== goalWeightChange.direction) {
     return {
-      type: 'reversal',
+      type: 'reversal' as const,
       reversal: Math.abs(latest.weight - first.weight),
       currentChange,
       goalWeightChange,
     }
   }
+
   if (currentChange.change > goalWeightChange.change) {
     return {
-      type: 'exceeded',
+      type: 'exceeded' as const,
       exceeded: Math.abs(latest.weight - desiredWeight),
       currentChange,
       goalWeightChange,
     }
   }
+
   return {
-    type: 'progress',
+    type: 'progress' as const,
     progress: (currentChange.change / goalWeightChange.change) * 100,
     currentChange,
     goalWeightChange,
   }
+}
+
+/**
+ * Returns the weight entry in force for a given date.
+ * @param weights - Array of Weight objects
+ * @param date - Date to check
+ * @returns The Weight in force or undefined
+ */
+export function inForceWeight(
+  weights: readonly Weight[],
+  date: Date,
+): Weight | undefined {
+  const result = inForceGeneric(weights, 'target_timestamp', date)
+  return result === null ? undefined : result
 }

@@ -178,9 +178,9 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
 
     // Check if any macro nutrient would overflow
     const isOverflowing =
-      Boolean(checkMacroOverflow('carbs')) ||
-      Boolean(checkMacroOverflow('protein')) ||
-      Boolean(checkMacroOverflow('fat'))
+      checkMacroOverflow('carbs') ||
+      checkMacroOverflow('protein') ||
+      checkMacroOverflow('fat')
 
     if (isOverflowing) {
       // Prompt if user wants to add item even if it overflows
