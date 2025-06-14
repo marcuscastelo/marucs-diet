@@ -2,46 +2,52 @@ import { z } from 'zod'
 
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
-// TODO:   Create discriminate union type for Male and Female measures
-export const measureSchema = z.object({
+// TODO:   Create discriminate union type for Male and Female body measures
+export const bodyMeasureSchema = z.object({
   id: z.number({
-    required_error: "O campo 'id' da medida é obrigatório.",
-    invalid_type_error: "O campo 'id' da medida deve ser um número.",
+    required_error: "O campo 'id' da medida corporal é obrigatório.",
+    invalid_type_error: "O campo 'id' da medida corporal deve ser um número.",
   }),
   height: z.number({
-    required_error: "O campo 'height' da medida é obrigatório.",
-    invalid_type_error: "O campo 'height' da medida deve ser um número.",
+    required_error: "O campo 'height' da medida corporal é obrigatório.",
+    invalid_type_error:
+      "O campo 'height' da medida corporal deve ser um número.",
   }),
   waist: z.number({
-    required_error: "O campo 'waist' da medida é obrigatório.",
-    invalid_type_error: "O campo 'waist' da medida deve ser um número.",
+    required_error: "O campo 'waist' da medida corporal é obrigatório.",
+    invalid_type_error:
+      "O campo 'waist' da medida corporal deve ser um número.",
   }),
   hip: z
     .number({
-      required_error: "O campo 'hip' da medida é obrigatório.",
-      invalid_type_error: "O campo 'hip' da medida deve ser um número.",
+      required_error: "O campo 'hip' da medida corporal é obrigatório.",
+      invalid_type_error:
+        "O campo 'hip' da medida corporal deve ser um número.",
     })
     .nullish()
     .transform((v) => (v === null ? undefined : v)),
   neck: z.number({
-    required_error: "O campo 'neck' da medida é obrigatório.",
-    invalid_type_error: "O campo 'neck' da medida deve ser um número.",
+    required_error: "O campo 'neck' da medida corporal é obrigatório.",
+    invalid_type_error: "O campo 'neck' da medida corporal deve ser um número.",
   }),
   owner: z.number({
-    required_error: "O campo 'owner' da medida é obrigatório.",
-    invalid_type_error: "O campo 'owner' da medida deve ser um número.",
+    required_error: "O campo 'owner' da medida corporal é obrigatório.",
+    invalid_type_error:
+      "O campo 'owner' da medida corporal deve ser um número.",
   }),
   target_timestamp: z
     .date({
-      required_error: "O campo 'target_timestamp' da medida é obrigatório.",
+      required_error:
+        "O campo 'target_timestamp' da medida corporal é obrigatório.",
       invalid_type_error:
-        "O campo 'target_timestamp' da medida deve ser uma data ou string.",
+        "O campo 'target_timestamp' da medida corporal deve ser uma data ou string.",
     })
     .or(
       z.string({
-        required_error: "O campo 'target_timestamp' da medida é obrigatório.",
+        required_error:
+          "O campo 'target_timestamp' da medida corporal é obrigatório.",
         invalid_type_error:
-          "O campo 'target_timestamp' da medida deve ser uma data ou string.",
+          "O campo 'target_timestamp' da medida corporal deve ser uma data ou string.",
       }),
     )
     .transform((v) => new Date(v)),
@@ -49,20 +55,19 @@ export const measureSchema = z.object({
     .string()
     .nullable()
     .optional()
-    .transform(() => 'Measure' as const),
+    .transform(() => 'BodyMeasure' as const),
 })
 
-export const newMeasureSchema = measureSchema
+export const newBodyMeasureSchema = bodyMeasureSchema
   .omit({ id: true, __type: true })
   .extend({
-    __type: z.literal('NewMeasure'),
+    __type: z.literal('NewBodyMeasure'),
   })
 
-// TODO:   rename to BodyMeasure
-export type Measure = Readonly<z.infer<typeof measureSchema>>
-export type NewMeasure = Readonly<z.infer<typeof newMeasureSchema>>
+export type BodyMeasure = Readonly<z.infer<typeof bodyMeasureSchema>>
+export type NewBodyMeasure = Readonly<z.infer<typeof newBodyMeasureSchema>>
 
-export function createNewMeasure({
+export function createNewBodyMeasure({
   owner,
   height,
   waist,
@@ -76,37 +81,42 @@ export function createNewMeasure({
   hip?: number | null | undefined
   neck: number
   targetTimestamp: Date | string
-}): NewMeasure {
-  return parseWithStack(newMeasureSchema, {
+}): NewBodyMeasure {
+  return parseWithStack(newBodyMeasureSchema, {
     owner,
     height,
     waist,
     hip,
     neck,
     target_timestamp: targetTimestamp,
-    __type: 'NewMeasure',
+    __type: 'NewBodyMeasure',
   })
 }
 
-export function promoteToMeasure(newMeasure: NewMeasure, id: number): Measure {
-  return parseWithStack(measureSchema, {
-    ...newMeasure,
+export function promoteToBodyMeasure(
+  newBodyMeasure: NewBodyMeasure,
+  id: number,
+): BodyMeasure {
+  return parseWithStack(bodyMeasureSchema, {
+    ...newBodyMeasure,
     id,
   })
 }
 
 /**
- * Demotes a Measure to a NewMeasure for updates.
- * Used when converting a persisted Measure back to NewMeasure for database operations.
+ * Demotes a BodyMeasure to a NewBodyMeasure for updates.
+ * Used when converting a persisted BodyMeasure back to NewBodyMeasure for database operations.
  */
-export function demoteToNewMeasure(measure: Measure): NewMeasure {
-  return parseWithStack(newMeasureSchema, {
-    height: measure.height,
-    waist: measure.waist,
-    hip: measure.hip,
-    neck: measure.neck,
-    owner: measure.owner,
-    target_timestamp: measure.target_timestamp,
-    __type: 'NewMeasure',
+export function demoteToNewBodyMeasure(
+  bodyMeasure: BodyMeasure,
+): NewBodyMeasure {
+  return parseWithStack(newBodyMeasureSchema, {
+    height: bodyMeasure.height,
+    waist: bodyMeasure.waist,
+    hip: bodyMeasure.hip,
+    neck: bodyMeasure.neck,
+    owner: bodyMeasure.owner,
+    target_timestamp: bodyMeasure.target_timestamp,
+    __type: 'NewBodyMeasure',
   })
 }

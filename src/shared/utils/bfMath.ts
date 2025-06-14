@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { type Measure } from '~/modules/measure/domain/measure'
+import { type BodyMeasure } from '~/modules/measure/domain/measure'
 import { type User } from '~/modules/user/domain/user'
 import { type Weight } from '~/modules/weight/domain/weight'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
@@ -8,10 +8,10 @@ import { parseWithStack } from '~/shared/utils/parseWithStack'
 export type BodyFatInput<T extends User['gender']> = {
   gender: T
   weight: Weight['weight']
-  waist: Measure['waist']
-  neck: Measure['neck']
-  hip: T extends 'male' ? Measure['hip'] : NonNullable<Measure['hip']>
-  height: Measure['height']
+  waist: BodyMeasure['waist']
+  neck: BodyMeasure['neck']
+  hip: T extends 'male' ? BodyMeasure['hip'] : NonNullable<BodyMeasure['hip']>
+  height: BodyMeasure['height']
 }
 
 export function calculateBodyFat<T extends User['gender']>(

@@ -1,10 +1,10 @@
 import {
-  deleteMeasure,
-  updateMeasure,
+  deleteBodyMeasure,
+  updateBodyMeasure,
 } from '~/modules/measure/application/measure'
 import {
-  createNewMeasure,
-  type Measure,
+  type BodyMeasure,
+  createNewBodyMeasure,
 } from '~/modules/measure/domain/measure'
 import { showError } from '~/modules/toast/application/toastManager'
 import { Capsule } from '~/sections/common/components/capsule/Capsule'
@@ -18,14 +18,14 @@ import { formatError } from '~/shared/formatError'
 import { normalizeDateToLocalMidnightPlusOne } from '~/shared/utils/date/normalizeDateToLocalMidnightPlusOne'
 
 /**
- * Renders a capsule view for editing and saving a single Measure.
+ * Renders a capsule view for editing and saving a single BodyMeasure.
  *
- * @param props.measure - The measure to display and edit
- * @param props.onRefetchMeasures - Callback to refetch measures after update/delete
+ * @param props.measure - The body measure to display and edit
+ * @param props.onRefetchBodyMeasures - Callback to refetch body measures after update/delete
  */
-export function MeasureView(props: {
-  measure: Measure
-  onRefetchMeasures: () => unknown
+export function BodyMeasureView(props: {
+  measure: BodyMeasure
+  onRefetchBodyMeasures: () => unknown
 }) {
   const dateField = useDateField(() => props.measure.target_timestamp, {
     fallback: () => new Date(),
@@ -59,11 +59,11 @@ export function MeasureView(props: {
       return
     }
     const afterUpdate = () => {
-      props.onRefetchMeasures()
+      props.onRefetchBodyMeasures()
     }
-    updateMeasure(
+    updateBodyMeasure(
       props.measure.id,
-      createNewMeasure({
+      createNewBodyMeasure({
         ...props.measure,
         height,
         waist,
@@ -93,9 +93,9 @@ export function MeasureView(props: {
           primary: true,
           onClick: () => {
             const afterDelete = () => {
-              props.onRefetchMeasures()
+              props.onRefetchBodyMeasures()
             }
-            deleteMeasure(props.measure.id)
+            deleteBodyMeasure(props.measure.id)
               .then(afterDelete)
               .catch((error) => {
                 showError(

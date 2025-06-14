@@ -3,13 +3,19 @@ import { SolidApexCharts } from 'solid-apexcharts'
 import { createMemo, Show } from 'solid-js'
 
 import ptBrLocale from '~/assets/locales/apex/pt-br.json'
-import { type Measure } from '~/modules/measure/domain/measure'
+import { type BodyMeasure } from '~/modules/measure/domain/measure'
 import { currentUser } from '~/modules/user/application/user'
 import { userWeights } from '~/modules/weight/application/weight'
 import { type BodyFatInput, calculateBodyFat } from '~/shared/utils/bfMath'
+import { createDebug } from '~/shared/utils/createDebug'
 import { dateToYYYYMMDD } from '~/shared/utils/date'
 
-type DayAverage = Omit<Measure, '__type' | 'id' | 'owner' | 'target_timestamp'>
+const debug = createDebug()
+
+type DayAverage = Omit<
+  BodyMeasure,
+  '__type' | 'id' | 'owner' | 'target_timestamp'
+>
 type DayMeasures = {
   date: string
   dayAverage: DayAverage
@@ -17,24 +23,20 @@ type DayMeasures = {
 }
 
 /**
- * Props for the MeasureChart component.
+ * Props for the BodyMeasureChart component.
  */
-export type MeasureChartProps = {
-  measures: readonly Measure[]
+export type BodyMeasureChartProps = {
+  measures: readonly BodyMeasure[]
 }
 
 /**
  * Renders a chart for body measurements and body fat percentage.
- * @param props - MeasureChartProps
+ * @param props - BodyMeasureChartProps
  * @returns SolidJS component
  */
-export function MeasureChart(props: MeasureChartProps) {
-  // Debug: log props.measures reativamente
-  const debugMeasures = createMemo(() => {
-    console.debug('[MeasureChart] props.measures', props.measures)
-  })
+export function BodyMeasureChart(props: BodyMeasureChartProps) {
   const measuresByDay = () => {
-    const grouped = props.measures.reduce<Record<string, Measure[]>>(
+    const grouped = props.measures.reduce<Record<string, BodyMeasure[]>>(
       (acc, measure) => {
         const day = dateToYYYYMMDD(measure.target_timestamp)
         if (acc[day] === undefined) {
@@ -46,7 +48,7 @@ export function MeasureChart(props: MeasureChartProps) {
       },
       {},
     )
-    console.debug('[MeasureChart] measuresByDay', grouped)
+    debug('measuresByDay', grouped)
     return grouped
   }
 
@@ -120,33 +122,8 @@ export function MeasureChart(props: MeasureChartProps) {
     return result
   }
 
-  const debugData = createMemo(() => {
-    console.debug(
-      '[MeasureChart] Altura data',
-      data().map((d) => d.dayAverage.height),
-    )
-    console.debug(
-      '[MeasureChart] Cintura data',
-      data().map((d) => d.dayAverage.waist),
-    )
-    console.debug(
-      '[MeasureChart] Quadril data',
-      data().map((d) => d.dayAverage.hip),
-    )
-    console.debug(
-      '[MeasureChart] Pescoço data',
-      data().map((d) => d.dayAverage.neck),
-    )
-    console.debug(
-      '[MeasureChart] BF data',
-      data().map((d) => d.dayBf),
-    )
-  })
   return (
     <>
-      {/* Debug memos to trigger logs */}
-      {debugMeasures()}
-      {debugData()}
       <ChartFor
         title="Altura"
         accessor={(day) => day.dayAverage.height}

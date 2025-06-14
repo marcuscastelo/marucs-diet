@@ -1,14 +1,14 @@
 import { z } from 'zod'
 
 import {
-  type Measure,
-  measureSchema,
-  type NewMeasure,
+  type BodyMeasure,
+  bodyMeasureSchema,
+  type NewBodyMeasure,
 } from '~/modules/measure/domain/measure'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 // DAO schemas for database operations
-export const createMeasureDAOSchema = z.object({
+export const createBodyMeasureDAOSchema = z.object({
   height: z.number(),
   waist: z.number(),
   hip: z.number().nullish(),
@@ -17,35 +17,35 @@ export const createMeasureDAOSchema = z.object({
   target_timestamp: z.date().or(z.string()),
 })
 
-export const measureDAOSchema = createMeasureDAOSchema.extend({
+export const bodyMeasureDAOSchema = createBodyMeasureDAOSchema.extend({
   id: z.number(),
 })
 
-export type CreateMeasureDAO = z.infer<typeof createMeasureDAOSchema>
-export type MeasureDAO = z.infer<typeof measureDAOSchema>
+export type CreateBodyMeasureDAO = z.infer<typeof createBodyMeasureDAOSchema>
+export type BodyMeasureDAO = z.infer<typeof bodyMeasureDAOSchema>
 
 // Conversion functions
-export function createInsertMeasureDAOFromNewMeasure(
-  newMeasure: NewMeasure,
-): CreateMeasureDAO {
+export function createInsertBodyMeasureDAOFromNewBodyMeasure(
+  newBodyMeasure: NewBodyMeasure,
+): CreateBodyMeasureDAO {
   return {
-    height: newMeasure.height,
-    waist: newMeasure.waist,
-    hip: newMeasure.hip,
-    neck: newMeasure.neck,
-    owner: newMeasure.owner,
-    target_timestamp: newMeasure.target_timestamp,
+    height: newBodyMeasure.height,
+    waist: newBodyMeasure.waist,
+    hip: newBodyMeasure.hip,
+    neck: newBodyMeasure.neck,
+    owner: newBodyMeasure.owner,
+    target_timestamp: newBodyMeasure.target_timestamp,
   }
 }
 
-export function createUpdateMeasureDAOFromNewMeasure(
-  newMeasure: NewMeasure,
-): CreateMeasureDAO {
-  return createInsertMeasureDAOFromNewMeasure(newMeasure)
+export function createUpdateBodyMeasureDAOFromNewBodyMeasure(
+  newBodyMeasure: NewBodyMeasure,
+): CreateBodyMeasureDAO {
+  return createInsertBodyMeasureDAOFromNewBodyMeasure(newBodyMeasure)
 }
 
-export function createMeasureFromDAO(dao: MeasureDAO): Measure {
-  return parseWithStack(measureSchema, {
+export function createBodyMeasureFromDAO(dao: BodyMeasureDAO): BodyMeasure {
+  return parseWithStack(bodyMeasureSchema, {
     id: dao.id,
     height: dao.height,
     waist: dao.waist,

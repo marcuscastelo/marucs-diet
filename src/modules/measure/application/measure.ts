@@ -1,25 +1,28 @@
-import { type Measure, type NewMeasure } from '~/modules/measure/domain/measure'
-import { createSupabaseMeasureRepository } from '~/modules/measure/infrastructure/measures'
+import {
+  type BodyMeasure,
+  type NewBodyMeasure,
+} from '~/modules/measure/domain/measure'
+import { createSupabaseBodyMeasureRepository } from '~/modules/measure/infrastructure/measures'
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { type User } from '~/modules/user/domain/user'
 import { handleApiError } from '~/shared/error/errorHandler'
 
-const measureRepository = createSupabaseMeasureRepository()
+const bodyMeasureRepository = createSupabaseBodyMeasureRepository()
 
 /**
- * Fetches all measures for a user.
+ * Fetches all body measures for a user.
  * @param userId - The user ID.
- * @returns Array of measures or empty array on error.
+ * @returns Array of body measures or empty array on error.
  */
-export async function fetchUserMeasures(
+export async function fetchUserBodyMeasures(
   userId: User['id'],
-): Promise<readonly Measure[]> {
+): Promise<readonly BodyMeasure[]> {
   try {
-    return await measureRepository.fetchUserMeasures(userId)
+    return await bodyMeasureRepository.fetchUserBodyMeasures(userId)
   } catch (error) {
     handleApiError(error, {
-      component: 'measureApplication',
-      operation: 'fetchUserMeasures',
+      component: 'bodyMeasureApplication',
+      operation: 'fetchUserBodyMeasures',
       additionalData: { userId },
     })
     return []
@@ -27,16 +30,16 @@ export async function fetchUserMeasures(
 }
 
 /**
- * Inserts a new measure.
- * @param newMeasure - The new measure data.
- * @returns The inserted measure or null on error.
+ * Inserts a new body measure.
+ * @param newBodyMeasure - The new body measure data.
+ * @returns The inserted body measure or null on error.
  */
-export async function insertMeasure(
-  newMeasure: NewMeasure,
-): Promise<Measure | null> {
+export async function insertBodyMeasure(
+  newBodyMeasure: NewBodyMeasure,
+): Promise<BodyMeasure | null> {
   try {
     return await showPromise(
-      measureRepository.insertMeasure(newMeasure),
+      bodyMeasureRepository.insertBodyMeasure(newBodyMeasure),
       {
         loading: 'Inserindo medidas...',
         success: 'Medidas inseridas com sucesso',
@@ -46,27 +49,27 @@ export async function insertMeasure(
     )
   } catch (error) {
     handleApiError(error, {
-      component: 'measureApplication',
-      operation: 'insertMeasure',
-      additionalData: { newMeasure },
+      component: 'bodyMeasureApplication',
+      operation: 'insertBodyMeasure',
+      additionalData: { newBodyMeasure },
     })
     return null
   }
 }
 
 /**
- * Updates a measure by ID.
- * @param measureId - The measure ID.
- * @param newMeasure - The new measure data.
- * @returns The updated measure or null on error.
+ * Updates a body measure by ID.
+ * @param bodyMeasureId - The body measure ID.
+ * @param newBodyMeasure - The new body measure data.
+ * @returns The updated body measure or null on error.
  */
-export async function updateMeasure(
-  measureId: Measure['id'],
-  newMeasure: NewMeasure,
-): Promise<Measure | null> {
+export async function updateBodyMeasure(
+  bodyMeasureId: BodyMeasure['id'],
+  newBodyMeasure: NewBodyMeasure,
+): Promise<BodyMeasure | null> {
   try {
     return await showPromise(
-      measureRepository.updateMeasure(measureId, newMeasure),
+      bodyMeasureRepository.updateBodyMeasure(bodyMeasureId, newBodyMeasure),
       {
         loading: 'Atualizando medidas...',
         success: 'Medidas atualizadas com sucesso',
@@ -76,25 +79,25 @@ export async function updateMeasure(
     )
   } catch (error) {
     handleApiError(error, {
-      component: 'measureApplication',
-      operation: 'updateMeasure',
-      additionalData: { measureId, newMeasure },
+      component: 'bodyMeasureApplication',
+      operation: 'updateBodyMeasure',
+      additionalData: { bodyMeasureId, newBodyMeasure },
     })
     return null
   }
 }
 
 /**
- * Deletes a measure by ID.
- * @param measureId - The measure ID.
+ * Deletes a body measure by ID.
+ * @param bodyMeasureId - The body measure ID.
  * @returns True if deleted, false otherwise.
  */
-export async function deleteMeasure(
-  measureId: Measure['id'],
+export async function deleteBodyMeasure(
+  bodyMeasureId: BodyMeasure['id'],
 ): Promise<boolean> {
   try {
     await showPromise(
-      measureRepository.deleteMeasure(measureId),
+      bodyMeasureRepository.deleteBodyMeasure(bodyMeasureId),
       {
         loading: 'Deletando medidas...',
         success: 'Medidas deletadas com sucesso',
@@ -105,9 +108,9 @@ export async function deleteMeasure(
     return true
   } catch (error) {
     handleApiError(error, {
-      component: 'measureApplication',
-      operation: 'deleteMeasure',
-      additionalData: { measureId },
+      component: 'bodyMeasureApplication',
+      operation: 'deleteBodyMeasure',
+      additionalData: { bodyMeasureId },
     })
     return false
   }

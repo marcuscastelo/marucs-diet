@@ -43,7 +43,7 @@ const removeFromVisibleToasts = (id: ToastItemWithDismiss['id']) =>
 const findInVisibleToasts = (id: ToastItemWithDismiss['id']) =>
   visibleToasts().find((toast) => toast.id === id) ?? null
 
-const debug = createDebug('ToastQueue')
+const debug = createDebug()
 
 createEffect(() => {
   debug('Initialized')

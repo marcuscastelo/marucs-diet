@@ -1,25 +1,25 @@
 import { createResource, For, Show } from 'solid-js'
 
 import {
-  fetchUserMeasures,
-  insertMeasure,
+  fetchUserBodyMeasures,
+  insertBodyMeasure,
 } from '~/modules/measure/application/measure'
-import { createNewMeasure } from '~/modules/measure/domain/measure'
+import { createNewBodyMeasure } from '~/modules/measure/domain/measure'
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { showError } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { useFloatField } from '~/sections/common/hooks/useField'
-import { MeasureChart } from '~/sections/profile/measure/components/MeasureChart'
-import { MeasureView } from '~/sections/profile/measure/components/MeasureView'
+import { BodyMeasureChart } from '~/sections/profile/measure/components/BodyMeasureChart'
+import { BodyMeasureView } from '~/sections/profile/measure/components/BodyMeasureView'
 import { formatError } from '~/shared/formatError'
 
-export function MeasuresEvolution() {
-  const [measuresResource, { refetch }] = createResource(
+export function BodyMeasuresEvolution() {
+  const [bodyMeasuresResource, { refetch }] = createResource(
     currentUserId,
-    fetchUserMeasures,
+    fetchUserBodyMeasures,
   )
-  const measures = () => measuresResource() ?? []
+  const bodyMeasures = () => bodyMeasuresResource() ?? []
 
   const heightField = useFloatField()
   const waistField = useFloatField()
@@ -92,8 +92,8 @@ export function MeasuresEvolution() {
               }
               const userId = currentUserId()
 
-              insertMeasure(
-                createNewMeasure({
+              insertBodyMeasure(
+                createNewBodyMeasure({
                   owner: userId,
                   height: heightField.value() ?? 0,
                   waist: waistField.value() ?? 0,
@@ -104,7 +104,6 @@ export function MeasuresEvolution() {
               )
                 .then(refetch)
                 .catch((error) => {
-                  console.error(error)
                   showError(`Erro ao adicionar medida: ${formatError(error)}`)
                 })
             }}
@@ -114,21 +113,24 @@ export function MeasuresEvolution() {
         </div>
 
         <Show
-          when={!measuresResource.loading}
+          when={!bodyMeasuresResource.loading}
           fallback={
             <div class="text-center text-gray-400 py-8">
               Carregando medidas...
             </div>
           }
         >
-          <MeasureChart measures={measures()} />
+          <BodyMeasureChart measures={bodyMeasures()} />
           <div class="mx-5 lg:mx-20 pb-10">
-            <For each={[...measures()].reverse().slice(0, 10)}>
-              {(measure) => (
-                <MeasureView measure={measure} onRefetchMeasures={refetch} />
+            <For each={[...bodyMeasures()].reverse().slice(0, 10)}>
+              {(bodyMeasure) => (
+                <BodyMeasureView
+                  measure={bodyMeasure}
+                  onRefetchBodyMeasures={refetch}
+                />
               )}
             </For>
-            {measures().length === 0 && 'Não há pesos registrados'}
+            {bodyMeasures().length === 0 && 'Não há medidas registradas'}
           </div>
         </Show>
       </div>
