@@ -7,7 +7,7 @@ import {
   isTemplateFood,
   type Template,
 } from '~/modules/diet/template/domain/template'
-import { templateSearchTab } from '~/modules/search/application/search'
+import { debouncedTab } from '~/modules/search/application/search'
 import { Alert } from '~/sections/common/components/Alert'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import {
@@ -21,22 +21,21 @@ import { calcRecipeMacros } from '~/shared/utils/macroMath'
 
 export function TemplateSearchResults(props: {
   search: string
-  typing: Accessor<boolean>
   filteredTemplates: readonly Template[]
   setSelectedTemplate: (food: Template | undefined) => void
-  barCodeModalVisible: Accessor<boolean>
-  setBarCodeModalVisible: Setter<boolean>
+  EANModalVisible: Accessor<boolean>
+  setEANModalVisible: Setter<boolean>
   itemEditModalVisible: Accessor<boolean>
   setItemEditModalVisible: Setter<boolean>
   refetch: (info?: unknown) => unknown
 }) {
   return (
     <>
-      {!props.typing() && props.filteredTemplates.length === 0 && (
+      {props.filteredTemplates.length === 0 && (
         <Alert color="yellow" class="mt-2">
-          {templateSearchTab() === 'recent' && props.search === ''
+          {debouncedTab() === 'recent' && props.search === ''
             ? 'Sem alimentos recentes. Eles aparecerão aqui assim que você adicionar seu primeiro alimento'
-            : templateSearchTab() === 'favorites' && props.search === ''
+            : debouncedTab() === 'favorites' && props.search === ''
               ? 'Sem favoritos. Adicione alimentos ou receitas aos favoritos para vê-los aqui.'
               : `Nenhum alimento encontrado para a busca "${props.search}".`}
         </Alert>
@@ -66,7 +65,7 @@ export function TemplateSearchResults(props: {
                   onClick={() => {
                     props.setSelectedTemplate(template)
                     props.setItemEditModalVisible(true)
-                    props.setBarCodeModalVisible(false)
+                    props.setEANModalVisible(false)
                   }}
                   header={
                     <HeaderWithActions

@@ -4,14 +4,16 @@ import { CreateBlankDayButton } from '~/sections/day-diet/components/CreateBlank
 export default function DayNotFound(props: { selectedDay: string }) {
   return (
     <>
-      <h1 class="mt-2" color="warning">
-        Nenhum dado encontrado para o dia {props.selectedDay}
+      <h1 class="mt-2 text-warning font-bold text-lg text-center">
+        Nenhuma dieta encontrada para hoje
       </h1>
-      <CreateBlankDayButton selectedDay={props.selectedDay} />
-      <CopyLastDayButton
-        dayDiet={() => undefined}
-        selectedDay={props.selectedDay}
-      />
+      <div class="flex flex-col gap-2 mt-4">
+        <CreateBlankDayButton selectedDay={props.selectedDay} />
+        <CopyLastDayButton
+          dayDiet={() => undefined}
+          selectedDay={props.selectedDay}
+        />
+      </div>
     </>
   )
 }

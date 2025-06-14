@@ -31,7 +31,7 @@ For now, it is focused on being a personal project to track my own nutrition, bu
 - Weight tracking with trends
 
 ### Food Management
-- Barcode scanning for quick entry
+- EAN scanning for quick entry
 - Searchable food database
 - Custom recipe builder with automatic macros
 - Meal planning and reusable templates
