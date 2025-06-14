@@ -1,5 +1,5 @@
 ---
-description: 'Agent to refine a GitHub issue by interactively clarifying and structuring it for optimal LLM implementation, leveraging available issue templates. Automatically deduces the correct template when possible.'
+description: 'Agent to refine a GitHub issue by interactively clarifying and structuring it for optimal LLM implementation, leveraging available issue templates. Automatically deduces the correct template when possible. Always use heredoc + --body-file for GitHub CLI issue updates.'
 mode: 'agent'
 tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
@@ -41,6 +41,10 @@ This agent receives a GitHub issue (by number or content) as input and guides th
 5. **Output and Update**
    - Output the refined issue as a Markdown code block, ready for submission or further review.
    - Before updating the issue on GitHub, confirm with the user to avoid unintended changes.
+   - When updating or creating issues via the GitHub CLI, always:
+     - Write the issue body to a temporary file using a heredoc (e.g., `cat <<EOF > /tmp/issue-body-123.md ... EOF`).
+     - Use the `--body-file` flag with `gh issue edit` or `gh issue create` to set the issue body.
+     - This ensures robust handling of multi-line Markdown and avoids shell quoting issues.
    - Once confirmed, handle label changes directly (not just suggest them) and update both the issue content and labels in a single workflow, unless the user requests otherwise.
    - Handle errors from the GitHub CLI (e.g., missing files) by creating the necessary files automatically before retrying the command.
    - Include a `reportedBy` metadata field at the top for traceability. See [copilot-instructions.md](../copilot-instructions.md) for global reporting and attribution rules.
@@ -58,6 +62,7 @@ This agent receives a GitHub issue (by number or content) as input and guides th
 2. Agent: Fetches issue 325, attempts to deduce the template, and proceeds if possible.
 3. If not possible, agent explains why and asks the user to choose a template.
 4. Agent: Outputs a fully refined, template-based issue in Markdown.
+5. When updating the issue, writes the body to a temp file with heredoc and uses `--body-file`.
 
 ---
 
