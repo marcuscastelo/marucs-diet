@@ -24,6 +24,7 @@ export function createSupabaseFoodRepository(): FoodRepository {
     fetchFoodByEan,
     insertFood,
     upsertFood,
+    fetchFoodsByIds,
   }
 }
 
@@ -278,6 +279,26 @@ async function internalCachedSearchFoods(
   }
 
   console.debug(`[Food] Found ${data.length} foods`)
+  const foodDAOs = parseWithStack(foodDAOSchema.array(), data)
+  return foodDAOs.map(createFoodFromDAO)
+}
+
+/**
+ * Fetches foods by an array of IDs.
+ * @param ids - Array of Food IDs.
+ * @returns Array of foods matching the IDs.
+ */
+async function fetchFoodsByIds(ids: Food['id'][]): Promise<readonly Food[]> {
+  if (!Array.isArray(ids) || ids.length === 0) return []
+  const { data, error } = await supabase.from(TABLE).select('*').in('id', ids)
+  if (error !== null) {
+    handleApiError(error, {
+      component: 'supabaseFoodRepository',
+      operation: 'fetchFoodsByIds',
+      additionalData: { ids },
+    })
+    throw wrapErrorWithStack(error)
+  }
   const foodDAOs = parseWithStack(foodDAOSchema.array(), data)
   return foodDAOs.map(createFoodFromDAO)
 }
