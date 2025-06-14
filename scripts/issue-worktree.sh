@@ -26,9 +26,14 @@ if [[ $# -eq 1 && "$1" == "clear-merged" ]]; then
       if [[ "$BRANCH" =~ ^marcuscastelo/issue[0-9]+$ ]]; then
         # Check if branch is merged
         if git branch --merged "$BASE_BRANCH" | grep -q " $BRANCH$"; then
-          echo "[MERGED] Removing worktree: $WT_PATH (branch: $BRANCH)"
-          git worktree remove --force "$WT_PATH"
-          git branch -D "$BRANCH"
+          # Check if branch is merged in remote base branch
+          if git branch -r --merged origin/$BASE_BRANCH | grep -q "origin/$BRANCH$"; then
+            echo "[MERGED] Removing worktree: $WT_PATH (branch: $BRANCH)"
+            git worktree remove --force "$WT_PATH"
+            git branch -D "$BRANCH"
+          else
+            echo "[NOT MERGED] Worktree $WT_PATH (branch: $BRANCH) will be kept."
+          fi
         else
           echo "[NOT MERGED] Worktree $WT_PATH (branch: $BRANCH) will be kept."
         fi
