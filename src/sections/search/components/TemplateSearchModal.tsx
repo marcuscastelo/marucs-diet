@@ -34,7 +34,7 @@ import {
   templateSearch,
   templateSearchTab,
 } from '~/modules/search/application/search'
-import { setTempalteSearchTab } from '~/modules/search/application/search'
+import { setTemplateSearchTab } from '~/modules/search/application/search'
 import { showSuccess } from '~/modules/toast/application/toastManager'
 import { showError } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
@@ -291,7 +291,7 @@ export function TemplateSearch(props: {
   })
 
   createEffect(() => {
-    setTempalteSearchTab(
+    setTemplateSearchTab(
       props.modalVisible() ? TEMPLATE_SEARCH_DEFAULT_TAB : 'hidden',
     )
   })
@@ -313,7 +313,7 @@ export function TemplateSearch(props: {
       <TemplateSearchTabs
         tab={templateSearchTab}
         setTab={(tab) => {
-          if (typeof tab === 'string') setTempalteSearchTab(tab)
+          if (typeof tab === 'string') setTemplateSearchTab(tab)
         }}
       />
       <TemplateSearchBar isDesktop={isDesktop} />

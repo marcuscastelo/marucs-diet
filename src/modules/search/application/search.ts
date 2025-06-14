@@ -15,7 +15,7 @@ import { Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { Template } from '~/modules/diet/template/domain/template'
 import { fetchUserRecentFoods } from '~/modules/recent-food/application/recentFood'
 import { currentUser, currentUserId } from '~/modules/user/application/user'
-import { type Tab } from '~/sections/search/components/TemplateSearchTabs'
+import { type TemplateSearchTab } from '~/sections/search/components/TemplateSearchTabs'
 
 const fetchRecentsForModal = async (
   search: string = '',
@@ -162,14 +162,19 @@ export const [debouncedSearch, setDebouncedSearch] = createSignal(
 )
 
 export const [templateSearchTab, immediateSetTemplateSearchTab] =
-  createSignal<Tab>('hidden')
+  createSignal<TemplateSearchTab>('hidden')
 export const [debouncedTab, setDebouncedTab] = createSignal(
   untrack(templateSearchTab),
 )
 
+export const DEFAULT_TAB_DEBOUNCE_MS = 500
+
 let tabDebounceTimeout: NodeJS.Timeout | null = null
 
-export function setTempalteSearchTab(newTab: Tab, delay = 500) {
+export function setTemplateSearchTab(
+  newTab: TemplateSearchTab,
+  delay = DEFAULT_TAB_DEBOUNCE_MS,
+) {
   immediateSetTemplateSearchTab(newTab)
   if (tabDebounceTimeout) clearTimeout(tabDebounceTimeout)
   tabDebounceTimeout = setTimeout(() => {
