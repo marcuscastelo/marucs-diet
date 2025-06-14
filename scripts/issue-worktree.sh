@@ -3,7 +3,7 @@
 # Usage: zsh scripts/issue-worktree.sh <ISSUE_NUMBER>
 # Automates worktree and branch setup for issue-based workflow.
 
-set -xeuo pipefail
+set -euo pipefail
 
 if [[ $# -eq 1 && "$1" == "clear-merged" ]]; then
   REPO_ROOT="$(git rev-parse --show-toplevel)"
@@ -104,7 +104,7 @@ if [[ $# -ge 1 && "$1" != "clear-merged" ]]; then
     fi
   done
   cd "$REPO_ROOT/scripts"
-  zsh issue-worktree.sh clear-merged
+  zsh clear-merged-worktrees.sh --merged
   exit 0
 fi
 
