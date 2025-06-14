@@ -96,4 +96,10 @@ describe('fetchTemplatesByTabLogic', () => {
     )
     expect(result).toEqual([mockFood])
   })
+
+  it('calls fetchFoodsByName with correct args for Todos tab and non-empty search', async () => {
+    const search = 'Banana'
+    await fetchTemplatesByTabLogic(availableTabs.Todos.id, search, userId, deps)
+    expect(deps.fetchFoodsByName).toHaveBeenCalledWith(search, { limit: 50 })
+  })
 })
