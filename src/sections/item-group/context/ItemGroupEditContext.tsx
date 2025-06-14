@@ -70,7 +70,7 @@ export function ItemGroupEditContextProvider(props: {
     <itemGroupEditContext.Provider
       value={{
         group: () => props.group(),
-        recipe: recipe,
+        recipe,
         refetchRecipe: async (info?: unknown) => refetchRecipe(info),
         mutateRecipe,
         persistentGroup,
