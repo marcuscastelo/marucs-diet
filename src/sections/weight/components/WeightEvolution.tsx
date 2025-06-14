@@ -1,4 +1,4 @@
-import { createEffect, createSignal, For } from 'solid-js'
+import { createEffect, createSignal, For, Show } from 'solid-js'
 
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { showError } from '~/modules/toast/application/toastManager'
@@ -12,6 +12,51 @@ import { useFloatField } from '~/sections/common/hooks/useField'
 import { WeightChart } from '~/sections/weight/components/WeightChart'
 import { WeightView } from '~/sections/weight/components/WeightView'
 import { calculateWeightProgress } from '~/shared/utils/weightUtils'
+
+function WeightProgress(props: {
+  weightProgress: ReturnType<typeof calculateWeightProgress> | null
+  weightProgressText: () => string | undefined
+}) {
+  const showProgressBar = () => props.weightProgress?.type !== 'normo'
+  return (
+    <>
+      <Show when={!showProgressBar()}>
+        <h5 class={'mx-auto mb-5 text-center text-2xl font-bold'}>
+          Progresso: {props.weightProgressText()}
+        </h5>
+      </Show>
+      <Show when={showProgressBar() && props.weightProgress}>
+        {(weightProgress) => (
+          <div class="mx-auto max-w-lg mb-5">
+            <Progress
+              progress={(() => {
+                const weightProgress_ = weightProgress()
+                if (weightProgress_.type === 'no_weights') {
+                  return 0
+                }
+                if (weightProgress_.type === 'progress') {
+                  return weightProgress_.progress
+                }
+                if (weightProgress_.type === 'exceeded') {
+                  return 100
+                }
+                if (weightProgress_.type === 'reversal') {
+                  return 0
+                }
+                return 0 // Fallback case
+              })()}
+              color="blue"
+              textLabelPosition="outside"
+              textLabel={props.weightProgressText()}
+              sizeClass="h-2"
+              labelClass="text-center"
+            />
+          </div>
+        )}
+      </Show>
+    </>
+  )
+}
 
 /**
  * Renders the weight evolution view, including progress, chart, and entry form.
@@ -90,26 +135,13 @@ export function WeightEvolution() {
         progress satisfies never // Ensure all cases are handled
     }
   }
+
   return (
     <>
       <div class={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>
-        <h5 class={'mx-auto mb-5 text-center text-3xl font-bold'}>
-          Progresso: {weightProgressText()}
-        </h5>
-        <div class="mx-auto max-w-lg mb-5">
-          <Progress
-            progress={(() => {
-              const p = weightProgress()
-              return p && p.type === 'progress' ? p.progress : 0
-            })()}
-            color="blue"
-            textLabelPosition="outside"
-            textLabel={weightProgressText()}
-            sizeClass="h-2"
-          />
-        </div>
-        <div class="mx-5 lg:mx-20 pb-10">
-          <div class="mb-4 flex justify-end">
+        <div class="px-5 lg:px-5 pb-10">
+          <div class="flex justify-between items-center px-4">
+            <span class="text-2xl font-bold">Gráfico de evolução do peso</span>
             <ComboBox
               options={chartOptions}
               value={chartType()}
@@ -117,6 +149,10 @@ export function WeightEvolution() {
               class="w-48"
             />
           </div>
+          <WeightProgress
+            weightProgress={weightProgress()}
+            weightProgressText={weightProgressText}
+          />
           <WeightChart
             weights={userWeights()}
             desiredWeight={desiredWeight()}

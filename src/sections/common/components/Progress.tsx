@@ -21,6 +21,7 @@ import { cn } from '~/shared/cn'
 export function Progress(props_: {
   class?: string
   sizeClass?: `h-${string}`
+  labelClass?: string
   textLabelPosition?: 'outside' | 'inside'
   color?:
     | 'red'
@@ -32,7 +33,7 @@ export function Progress(props_: {
     | 'purple'
     | 'pink'
   textLabel?: string
-  labelText?: boolean
+  showLabel?: boolean
   progress?: number
 }) {
   const props = mergeProps(
@@ -92,8 +93,9 @@ export function Progress(props_: {
         <div class="flex justify-between mt-1">
           <span
             class={cn(
-              'text-base text-md font-medium text-blue-800 dark:text-white',
+              'text-base text-md font-medium text-blue-800 dark:text-white w-full',
               over100Classes(),
+              props.labelClass,
             )}
           >
             {props.textLabel}

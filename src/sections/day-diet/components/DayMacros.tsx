@@ -116,7 +116,7 @@ function Macros(props: {
         textLabel={`Carboidrato (${
           Math.round(props.macros.carbs * 100) / 100
         }/${Math.round(props.targetMacros.carbs * 100) / 100}g)`}
-        labelText={true}
+        showLabel={true}
         progress={(100 * props.macros.carbs) / props.targetMacros.carbs}
       />
       <Progress
@@ -127,7 +127,7 @@ function Macros(props: {
         textLabel={`Proteína (${Math.round(props.macros.protein * 100) / 100}/${
           Math.round(props.targetMacros.protein * 100) / 100
         }g)`}
-        labelText={true}
+        showLabel={true}
         progress={(100 * props.macros.protein) / props.targetMacros.protein}
       />
       <Progress
@@ -138,7 +138,7 @@ function Macros(props: {
         textLabel={`Gordura (${Math.round(props.macros.fat * 100) / 100}/${
           Math.round(props.targetMacros.fat * 100) / 100
         }g)`}
-        labelText={true}
+        showLabel={true}
         progress={(100 * props.macros.fat) / props.targetMacros.fat}
       />
     </div>
