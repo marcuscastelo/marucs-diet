@@ -4,11 +4,22 @@ import { type TemplateItem } from '~/modules/diet/template-item/domain/templateI
 import { handleValidationError } from '~/shared/error/errorHandler'
 import { calcDayMacros, calcItemMacros } from '~/shared/utils/macroMath'
 
+/**
+ * MacroOverflowOptions controls overflow logic for macro nutrients.
+ * @property enable - Whether overflow checks are enabled
+ * @property originalItem - (Optional) The original item for edit scenarios
+ */
 export type MacroOverflowOptions = {
   enable: boolean
   originalItem?: TemplateItem
 }
 
+/**
+ * MacroOverflowContext provides context for macro overflow checks.
+ * @property currentDayDiet - The current day diet or null
+ * @property macroTarget - The macro nutrient targets or null
+ * @property macroOverflowOptions - Overflow options
+ */
 export type MacroOverflowContext = {
   currentDayDiet: DayDiet | null
   macroTarget: MacroNutrients | null
@@ -93,12 +104,13 @@ export function isOverflow(
  * Creates a function that checks overflow for all macro nutrients.
  * @param item - The item being checked
  * @param context - Context containing current day diet, macro target, and overflow options
- * @returns Object with functions to check each macro nutrient
+ * @returns Object with functions to check each macro nutrient: carbs, protein, fat
  */
 export function createMacroOverflowChecker(
   item: TemplateItem,
   context: MacroOverflowContext,
 ) {
+  // Memoization: dayMacros is computed once for all checks in this object.
   const dayMacros = context.currentDayDiet
     ? calcDayMacros(context.currentDayDiet)
     : null
