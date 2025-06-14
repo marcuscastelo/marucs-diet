@@ -3,7 +3,44 @@
 # Usage: zsh scripts/issue-worktree.sh <ISSUE_NUMBER>
 # Automates worktree and branch setup for issue-based workflow.
 
-set -euo pipefail
+set -xeuo pipefail
+
+if [[ $# -eq 1 && "$1" == "clear-merged" ]]; then
+  REPO_ROOT="$(git rev-parse --show-toplevel)"
+  cd "$REPO_ROOT"
+  # Find base branch (rc/ or default)
+  git fetch --all --prune
+  RC_BRANCH=$(git branch -r | grep -Eo 'origin/rc/v[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n1)
+  if [[ -n "$RC_BRANCH" ]]; then
+    BASE_BRANCH="${RC_BRANCH#origin/}"
+  else
+    DEFAULT_BRANCH=$(git remote show origin | awk '/HEAD branch/ {print $NF}')
+    BASE_BRANCH="$DEFAULT_BRANCH"
+  fi
+  echo "Base branch for merge check: $BASE_BRANCH"
+  # Find all worktrees matching pattern
+  for WT_PATH in ../marucs-diet-issue*; do
+    if [[ -e "$WT_PATH/.git" ]]; then
+      BRANCH=$(git -C "$WT_PATH" rev-parse --abbrev-ref HEAD)
+      # Only consider branches matching the pattern
+      if [[ "$BRANCH" =~ ^marcuscastelo/issue[0-9]+$ ]]; then
+        # Check if branch is merged
+        if git branch --merged "$BASE_BRANCH" | grep -q " $BRANCH$"; then
+          echo "[MERGED] Removing worktree: $WT_PATH (branch: $BRANCH)"
+          git worktree remove --force "$WT_PATH"
+          git branch -D "$BRANCH"
+        else
+          echo "[NOT MERGED] Worktree $WT_PATH (branch: $BRANCH) will be kept."
+        fi
+      else
+        echo "[SKIP] Worktree $WT_PATH (branch: $BRANCH) does not match pattern."
+      fi
+    else
+      echo "[SKIP] $WT_PATH is not a git worktree."
+    fi
+  done
+  exit 0
+fi
 
 if [[ $# -ne 1 ]]; then
   echo "Usage: $0 <ISSUE_NUMBER>" >&2
