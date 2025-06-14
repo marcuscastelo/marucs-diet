@@ -1,13 +1,13 @@
 import { createResource, createSignal } from 'solid-js'
 
 import {
-  fetchFoodById as fetchFoodByIdRaw,
+  fetchFoodById,
   fetchFoods,
   fetchFoodsByIds,
   fetchFoodsByName,
 } from '~/modules/diet/food/application/food'
 import {
-  fetchRecipeById as fetchRecipeByIdRaw,
+  fetchRecipeById,
   fetchUserRecipeByName,
   fetchUserRecipes,
 } from '~/modules/diet/recipe/application/recipe'
@@ -41,18 +41,6 @@ const fetchUserRecentFoods = async (userId: number) => {
     reference_id,
     last_used,
   }))
-}
-
-const fetchFoodById = async (id: number) => {
-  const food = await fetchFoodByIdRaw(id)
-  if (!food) throw new Error('Food not found')
-  return food
-}
-
-const fetchRecipeById = async (id: number) => {
-  const recipe = await fetchRecipeByIdRaw(id)
-  if (!recipe) throw new Error('Recipe not found')
-  return recipe
 }
 
 export const [

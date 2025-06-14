@@ -10,31 +10,31 @@ import { availableTabs } from '~/sections/search/components/TemplateSearchTabs'
  * Dependencies for fetchTemplatesByTabLogic
  */
 export type FetchTemplatesDeps = {
-  fetchUserRecipes: (userId: number) => Promise<readonly Recipe[]>
+  fetchUserRecipes: (userId: number) => Promise<readonly Recipe[] | null>
   fetchUserRecipeByName: (
     userId: number,
     name: string,
-  ) => Promise<readonly Recipe[]>
+  ) => Promise<readonly Recipe[] | null>
   fetchUserRecentFoods: (
     userId: number,
   ) => Promise<
-    { type: 'food' | 'recipe'; reference_id: number; last_used: Date }[]
+    { type: 'food' | 'recipe'; reference_id: number; last_used: Date }[] | null
   >
-  fetchFoodById: (id: number) => Promise<Food>
-  fetchRecipeById: (id: number) => Promise<Recipe>
+  fetchFoodById: (id: number) => Promise<Food | null>
+  fetchRecipeById: (id: number) => Promise<Recipe | null>
   fetchFoods: (opts: {
     limit?: number
     allowedFoods?: number[]
-  }) => Promise<readonly Food[]>
+  }) => Promise<readonly Food[] | null>
   fetchFoodsByName: (
     name: string,
     opts: { limit?: number; allowedFoods?: number[] },
-  ) => Promise<readonly Food[]>
+  ) => Promise<readonly Food[] | null>
   getFavoriteFoods: () => number[]
   /**
    * Batch fetch foods by IDs. Returns all found foods, order not guaranteed.
    */
-  fetchFoodsByIds: (ids: number[]) => Promise<readonly Food[]>
+  fetchFoodsByIds: (ids: number[]) => Promise<readonly Food[] | null>
 }
 
 /**
@@ -54,7 +54,7 @@ export async function fetchTemplatesByTabLogic(
   const lowerSearch = search.trim().toLowerCase()
   switch (tabId) {
     case availableTabs.Recentes.id: {
-      const recentItems = await deps.fetchUserRecentFoods(userId)
+      const recentItems = (await deps.fetchUserRecentFoods(userId)) ?? []
       const foodIds = recentItems
         .filter((r) => r.type === 'food')
         .map((r) => r.reference_id)
@@ -64,8 +64,9 @@ export async function fetchTemplatesByTabLogic(
       const foods =
         foodIds.length > 0
           ? await deps.fetchFoodsByIds(foodIds).then((result) => {
+              const safeResult = result ?? []
               // Reorder to match foodIds order
-              const foodMap = new Map(result.map((f) => [f.id, f]))
+              const foodMap = new Map(safeResult.map((f) => [f.id, f]))
               return foodIds.map((id) => foodMap.get(id) ?? null)
             })
           : []
@@ -75,7 +76,7 @@ export async function fetchTemplatesByTabLogic(
               recipeIds.map((id) =>
                 deps.fetchRecipeById(id).catch((error) => {
                   console.error(`Error fetching recipe by ID ${id}:`, error)
-                  return null // Return null for all errors for now
+                  return null
                 }),
               ),
             )
@@ -111,27 +112,29 @@ export async function fetchTemplatesByTabLogic(
     }
     case availableTabs.Receitas.id: {
       if (lowerSearch === '') {
-        return deps.fetchUserRecipes(userId)
+        return (await deps.fetchUserRecipes(userId)) ?? []
       } else {
-        return deps.fetchUserRecipeByName(userId, search)
+        return (await deps.fetchUserRecipeByName(userId, search)) ?? []
       }
     }
     case availableTabs.Favoritos.id: {
       const allowedFoods = deps.getFavoriteFoods()
       const limit = undefined
       if (lowerSearch === '') {
-        return deps.fetchFoods({ limit, allowedFoods })
+        return (await deps.fetchFoods({ limit, allowedFoods })) ?? []
       } else {
-        return deps.fetchFoodsByName(search, { limit, allowedFoods })
+        return (
+          (await deps.fetchFoodsByName(search, { limit, allowedFoods })) ?? []
+        )
       }
     }
     case availableTabs.Todos.id:
     default: {
       const limit = DEFAULT_FETCH_LIMIT
       if (lowerSearch === '') {
-        return deps.fetchFoods({ limit })
+        return (await deps.fetchFoods({ limit })) ?? []
       } else {
-        return deps.fetchFoodsByName(search, { limit })
+        return (await deps.fetchFoodsByName(search, { limit })) ?? []
       }
     }
   }
