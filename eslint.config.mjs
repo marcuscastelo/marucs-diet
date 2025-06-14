@@ -45,6 +45,8 @@ export default [
       ...js.configs.recommended.rules,
       ...pluginTs.configs['recommended-type-checked'].rules,
 
+      "object-shorthand": ["warn", "always"],
+
       "simple-import-sort/imports": "warn",
       "simple-import-sort/exports": "warn",
       'no-restricted-imports': [

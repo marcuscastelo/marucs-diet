@@ -181,3 +181,79 @@ if (somethingWentWrong) {
   throw new Error('Something went wrong')
 }
 ```
+
+---
+
+## 🧩 Dependency Injection (DI) Pattern
+
+### Overview
+
+The project adopts an explicit, manual Dependency Injection (DI) pattern for all application-layer logic that orchestrates or composes multiple data sources or business rules. This approach increases testability, decouples infrastructure from application logic, and improves maintainability.
+
+### How It Works
+- **Dependencies are always passed as arguments** to orchestration functions (e.g., logic, use cases), never imported or instantiated directly inside them.
+- **Repositories and fetchers** are created at the application layer and injected into logic functions.
+- **No direct infrastructure imports** in logic modules: all dependencies must be provided from the outside.
+
+### Example: Search Module
+
+```ts
+// application/searchLogic.ts
+export type FetchTemplatesDeps = {
+  fetchUserRecipes: (userId: number) => Promise<readonly Recipe[] | null>
+  fetchUserRecipeByName: (userId: number, name: string) => Promise<readonly Recipe[] | null>
+  fetchUserRecentFoods: (userId: number) => Promise<...>
+  fetchFoodById: (id: number) => Promise<Food | null>
+  fetchRecipeById: (id: number) => Promise<Recipe | null>
+  fetchFoods: (opts: { limit?: number; allowedFoods?: number[] }) => Promise<readonly Food[] | null>
+  fetchFoodsByName: (name: string, opts: { limit?: number; allowedFoods?: number[] }) => Promise<readonly Food[] | null>
+  getFavoriteFoods: () => number[]
+  fetchFoodsByIds: (ids: number[]) => Promise<readonly Food[] | null>
+}
+
+export async function fetchTemplatesByTabLogic(
+  tabId: string,
+  search: string,
+  userId: number,
+  deps: FetchTemplatesDeps,
+): Promise<readonly Template[]> {
+  // ...logic using only deps
+}
+```
+
+```ts
+// application/search.ts
+import { fetchTemplatesByTabLogic } from './searchLogic'
+
+export const templates = createResource(
+  () => ({ tab: debouncedTab(), search: debouncedSearch(), userId: currentUserId() }),
+  (signals) => fetchTemplatesByTabLogic(
+    signals.tab,
+    signals.search,
+    signals.userId,
+    {
+      fetchUserRecipes,
+      fetchUserRecipeByName,
+      fetchUserRecentFoods,
+      fetchFoodById,
+      fetchRecipeById,
+      fetchFoods,
+      fetchFoodsByName,
+      getFavoriteFoods,
+      fetchFoodsByIds,
+    },
+  ),
+)
+```
+
+### Naming Recommendations
+- Use `fetchX` for pure data accessors (repositories, fetchers).
+- Use `fetchXLogic` (or `getXLogic`, `useXLogic`) for orchestration/composition logic that receives dependencies via arguments.
+- Never import infrastructure directly in logic modules.
+
+### Benefits
+- **Testability:** All logic can be tested with mocks/stubs.
+- **Decoupling:** Application logic is not tied to infrastructure details.
+- **Clarity:** Function signatures make dependencies explicit.
+
+---
