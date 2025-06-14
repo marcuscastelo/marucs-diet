@@ -8,7 +8,21 @@ tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFile
 
 AGENT HAS CHANGED, NEW AGENT: .github/prompts/commit.prompt.md
 
-Automatically execute the necessary git commands to obtain the list of staged, modified, added, or deleted files and their before/after contents in the current repository.
+## Always Check for Staged Changes via Terminal
+
+- **Before generating or outputting a commit message, always check for staged changes using a reliable terminal command** (such as `git status --porcelain=v1` or `git diff --cached --name-only`).
+- Only proceed with commit message generation if the terminal output confirms that there are staged changes.
+- If the terminal output confirms there are no staged changes, output:
+
+```
+reportedBy: github-copilot.v1/commit
+
+There are no new staged changes to commit. If you have made additional changes, please stage them before requesting a commit message.
+```
+
+- Never rely on internal state or assumptions; always verify via the terminal.
+
+## Commit Message Generation
 
 - Use as few shell commands as possible to gather all relevant information about staged changes (e.g., `git diff --cached --patch-with-stat --summary HEAD` and `git status --porcelain=v1`).
 - For new or modified staged files, generate a list of relevant file paths and use a shell for-loop to display their full contents, for example:
@@ -25,7 +39,7 @@ done
   - Follow the [conventional commits](https://www.conventionalcommits.org/) style (e.g., feat:, fix:, refactor:, test:, chore:).
   - Be a single line unless a body is required for context.
   - Never include code, diffs, or sensitive data in the commit message.
-  - Do not generate a commit if there are no staged changes.
+  - Do not generate a commit if there are no staged changes (as confirmed by the terminal).
 - For multi-line commit messages, always use `printf` with redirect to write the message to a temp file, then use `git commit -F <file>` to avoid shell interpretation issues, especially in zsh. Respect existing git command aliases if present.
 - Commit messages should be explicit and atomic, referencing all affected modules and summarizing the main change.
 - If you encounter shell errors (e.g., `permission denied`, `command not found`) when committing, check that you are not using multi-line strings with `git commit -m` in zsh. Use `printf` to a temp file and `git commit -F <file>` instead.
