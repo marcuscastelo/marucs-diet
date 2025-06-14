@@ -8,7 +8,11 @@ import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useDateField, useFloatField } from '~/sections/common/hooks/useField'
 import Datepicker from '~/sections/datepicker/components/Datepicker'
-import { adjustToTimezone, dateToYYYYMMDD } from '~/shared/utils/date'
+import {
+  adjustToTimezone,
+  dateToYYYYMMDD,
+  getMidnight,
+} from '~/shared/utils/date'
 
 /**
  * Props for the WeightView component.
@@ -63,7 +67,10 @@ export function WeightView(props: WeightViewProps) {
                 showError('Data inválida: \n' + JSON.stringify(value))
                 return
               }
-              const date = adjustToTimezone(new Date(value.startDate as string))
+              let date = getMidnight(
+                adjustToTimezone(new Date(value.startDate as string)),
+              )
+              date.setDate(date.getDate() + 1)
               dateField.setRawValue(dateToYYYYMMDD(date))
               handleSave({ dateValue: date, weightValue: weightField.value() })
             }}
