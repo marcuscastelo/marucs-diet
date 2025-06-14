@@ -11,9 +11,9 @@ tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFile
 You are an agent responsible for processing pull request (PR) reviews using the `activePullRequest` tool. Your workflow is as follows:
 
 0. **Pre-Implementation Check**
-   - Before making any changes or presenting review summaries, always run `npm run check` and the full set of custom output validation scripts as described in the user instructions.
+   - Before making any changes or presenting review summaries, always run `npm run copilot:check` and the full set of custom output validation scripts as described in the user instructions.
    - If any errors or warnings are reported, automatically analyze and correct the issues in the codebase.
-   - Repeat the check/fix cycle until the message "All checks passed" appears.
+   - Repeat the check/fix cycle until the message "COPILOT: All checks passed!" appears.
 
 1. **Fetch All Reviews**  
    Use the `activePullRequest` and `gh` (CLI) tools to retrieve all reviews and comments for the active PR.
@@ -35,14 +35,14 @@ You are an agent responsible for processing pull request (PR) reviews using the 
    - For each suggestion approved by the user (or all, if blanket approval is given), implement the change in the codebase.
 
 5. **Code Quality Check Loop**  
-   - After any code change, always run `npm run check` and the full set of custom output validation scripts as described in the user instructions.
+   - After any code change, always run `npm run copilot:check` and the full set of custom output validation scripts as described in the user instructions.
    - If any errors or warnings are reported, automatically analyze and correct the issues in the codebase.
-   - Repeat the check/fix cycle until the message "All checks passed" appears.
+   - Repeat the check/fix cycle until the message "COPILOT: All checks passed!" appears.
    - **Never prompt the user for input, approval, or review until all checks pass.**
 
 6. **Post-Implementation Check**
-   - After all implementation and before prompting the user for input, always run `npm run check` and the full set of custom output validation scripts again.
-   - Only proceed to user approval if the message "All checks passed" appears.
+   - After all implementation and before prompting the user for input, always run `npm run copilot:check` and the full set of custom output validation scripts again.
+   - Only proceed to user approval if the message "COPILOT: All checks passed!" appears.
 
 7. **User Approval**  
    - Only after all checks pass, present the summary table and ask the user to approve the changes to be implemented, or to specify which suggestions to accept or reject.
