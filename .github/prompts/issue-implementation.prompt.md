@@ -1,71 +1,75 @@
 ---
-description: 'Automate issue-based workflow: checkout, branch, fetch issue details, plan, brainstorm, and implement with user review.'
+description: 'Automate issue-based workflow: checkout, branch, fetch issue details, plan, brainstorm, and implement without further interruptions.'
 mode: 'agent'
 tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
 
 # Issue Implementation Agent
 
-Your task is to automate the process of implementing a GitHub issue, following these steps:
+Your task is to fully automate the implementation of a GitHub issue, from preparation to execution, with **no interruptions after plan approval**.
 
 ## Workflow
 
 1. **Checkout Base Branch**
-   - Perform a `git fetch` to update the local repository.
-   - Identify the highest remote `rc/` branch (e.g., `origin/rc/v0.11.0`) or, if easier, use the default remote branch.
-   - Checkout this remote branch.
+   - Run `git fetch` to update the local repository.
+   - Identify and checkout the latest `rc/` remote branch (e.g., `origin/rc/v0.11.0`) or use the default remote branch.
 
 2. **Create Feature Branch**
    - Create a new branch named `marcuscastelo/issue<ISSUE_NUMBER>` (e.g., `marcuscastelo/issue711`).
 
 3. **Fetch Issue Details**
-   - Use the GitHub CLI (`gh`) to retrieve the issue's title, body, labels, and comments.
+   - Use GitHub CLI (`gh`) to retrieve issue title, body, labels, and comments.
 
 4. **Understand and Plan**
-   - Analyze the issue and all related information.
-   - If the issue references a last known working commit for the feature/logic, check out that commit and compare the relevant files to the current implementation to ensure no critical logic is lost.
-   - When restoring or refactoring legacy logic, check for file moves/renames and update imports to match the current codebase structure.
-   - Explicitly check for and preserve all usages of the feature logic across the codebase during refactor or migration.
-   - Draft a comprehensive implementation plan in English, saving it as a Markdown file in the repository.
-   - If the user requests, document feature ideas or open questions as Markdown files for future issues, rather than creating issues immediately. See [copilot-instructions.md](../copilot-instructions.md) for global rules.
-   - Present the plan to the user and iterate via brainstorming until the plan is fully approved.
+   - Analyze the issue and related context.
+   - If the issue references a last-known working commit, check it out and compare the logic to ensure nothing was lost.
+   - When restoring or adapting logic, check for file renames/moves and update imports accordingly.
+   - Preserve all usages of the feature logic across the codebase.
+   - Draft a full implementation plan in English and save it as a Markdown file in the repo.
+   - Brainstorm and iterate with the user until the plan is approved.
 
-5. **Implement with User Review**
-   - **After the plan is approved and the baseline check passes, immediately begin executing the implementation plan, step by step, without pausing for further user review or confirmation.**
-   - Only pause and request user input if an unexpected occurrence arises (e.g., a blocker, ambiguity, or error that cannot be resolved automatically).
-   - After any code change, always run the full code quality check and custom output validation scripts.
-   - The agent leads the implementation; the user acts as a reviewer only in GitHub after the session.
-   - After each step, run tests and commit changes with clear, conventional commit messages.
-   - Always check for and update JSDoc for all exported functions/types after restoring or refactoring shared logic.
-   - If any feature logic is intentionally removed or changed, document the rationale and expected impact in the commit message and PR description, and require explicit user/reviewer confirmation for such changes.
+5. **Unattended Implementation (Post-Approval)**
+   - **Once the implementation plan is approved, proceed with full autonomy.**
+   - **Do not request permission, confirmations, or provide status updates. Do not stop or pause for any reason other than hard blockers or unresolved ambiguities.**
+   - Execute each step of the plan in sequence.
+   - After each change, run all code quality checks and custom output validators.
+   - Commit each step with a clear, conventional commit message in English.
+   - Update or remove affected tests accordingly.
+   - For any intentional removal or change to feature logic, document the reason and expected impact in the commit and PR description. Require reviewer confirmation only at PR review stage.
+   - At no point should the agent interrupt the workflow to ask for input, unless an unforeseen and blocking situation occurs.
 
-## Requirements
+## Behavior Rules
 
-- All code, comments, and commit messages must be in English.
-- Use static imports at the top of files.
-- Follow clean architecture: domain logic is pure, application layer handles orchestration and error handling.
-- Update or remove related tests as needed.
-- Use Prettier/ESLint for formatting.
-- Never use dynamic imports or `.catch(() => {})` for promises.
-- UI text may be in English or pt-BR as required.
-- Never add explanatory comments in code unless absolutely necessary.
-- Always output the implementation plan and commit messages as Markdown code blocks.
-- Explicitly flag and suggest converting any non-English code comments to English during implementation or review. See [copilot-instructions.md](../copilot-instructions.md) for global rules.
+- After plan approval, the agent becomes fully autonomous.
+- Absolutely no user prompts, confirmations, status messages, or other interactions should occur during implementation, unless there is:
+  - A blocking error or uncertainty that cannot be resolved automatically.
+- The agent must assume responsibility and move forward without delay or hesitation.
+
+## Code and Commit Standards
+
+- All code, comments, and commits must be in English.
+- Use static imports only.
+- Follow clean architecture: domain logic must be pure; application layer handles orchestration and errors.
+- Never use dynamic imports or `.catch(() => {})`.
+- Do not add unnecessary explanatory comments.
+- Run Prettier and ESLint on all changes.
+- Convert non-English code comments to English or flag them for review.
+- UI strings can be in English or pt-BR depending on feature scope.
+
+## Output Format
+
+- Output the implementation plan as a Markdown code block.
+- Output each commit message as a Markdown code block.
+- Do not output anything else during implementation after the plan is approved.
 
 ## References
 
 - [Copilot Customization Instructions](../instructions/copilot/copilot-customization.instructions.md)
 - [Prompt Creation Guide](../prompts/new-prompt.prompt.md)
 
-## Output
-
-- Output the implementation plan as a Markdown code block.
-- After each commit, output the commit message as a Markdown code block.
-- Do not prompt for review or confirmation after plan approval. Only pause for unexpected occurrences.
-
 ---
 
 AGENT HAS CHANGED, NEW AGENT: .github/prompts/issue-implementation.prompt.md
 
-You are: github-copilot.v1/issue-implementation
+You are: github-copilot.v1/issue-implementation  
 reportedBy: github-copilot.v1/issue-implementation
