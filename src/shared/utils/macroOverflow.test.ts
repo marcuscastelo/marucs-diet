@@ -120,14 +120,14 @@ describe('isOverflow (edge cases)', () => {
     expect(isOverflow(baseItem, 'fat', context)).toBe(false)
   })
 
-  it('returns false for zero macro targets', () => {
+  it('returns true for positive macro values when target is zero', () => {
     const context = {
       ...baseContext,
       macroTarget: { carbs: 0, protein: 0, fat: 0 },
     }
-    expect(isOverflow(baseItem, 'carbs', context)).toBe(false)
-    expect(isOverflow(baseItem, 'protein', context)).toBe(false)
-    expect(isOverflow(baseItem, 'fat', context)).toBe(false)
+    expect(isOverflow(baseItem, 'carbs', context)).toBe(true)
+    expect(isOverflow(baseItem, 'protein', context)).toBe(true)
+    expect(isOverflow(baseItem, 'fat', context)).toBe(true)
   })
 
   it('returns false for invalid property', () => {
