@@ -11,8 +11,9 @@ Your task is to automate the process of implementing a GitHub issue, following t
 ## Workflow
 
 1. **Checkout Base Branch**
-   - Identify the highest `rc/` branch (e.g., `rc/v0.11.0`) or, if easier, use the default remote branch.
-   - Checkout this branch and perform a `git pull` to ensure it is up to date.
+   - Perform a `git fetch` to update the local repository.
+   - Identify the highest remote `rc/` branch (e.g., `origin/rc/v0.11.0`) or, if easier, use the default remote branch.
+   - Checkout this remote branch.
 
 2. **Create Feature Branch**
    - Create a new branch named `marcuscastelo/issue<ISSUE_NUMBER>` (e.g., `marcuscastelo/issue711`).
