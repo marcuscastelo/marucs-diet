@@ -107,6 +107,45 @@ describe('isOverflow', () => {
   })
 })
 
+// TODO: Consider property-based testing for macro overflow logic if logic becomes more complex.
+
+describe('isOverflow (edge cases)', () => {
+  it('returns false for negative macro values', () => {
+    const context = {
+      ...baseContext,
+      currentDayDiet: makeFakeDayDiet({ carbs: -10, protein: -10, fat: -10 }),
+    }
+    expect(isOverflow(baseItem, 'carbs', context)).toBe(false)
+    expect(isOverflow(baseItem, 'protein', context)).toBe(false)
+    expect(isOverflow(baseItem, 'fat', context)).toBe(false)
+  })
+
+  it('returns false for zero macro targets', () => {
+    const context = {
+      ...baseContext,
+      macroTarget: { carbs: 0, protein: 0, fat: 0 },
+    }
+    expect(isOverflow(baseItem, 'carbs', context)).toBe(false)
+    expect(isOverflow(baseItem, 'protein', context)).toBe(false)
+    expect(isOverflow(baseItem, 'fat', context)).toBe(false)
+  })
+
+  it('returns false for invalid property', () => {
+    // @ts-expect-error: purposely passing invalid property
+    expect(isOverflow(baseItem, 'invalid', baseContext)).toBe(false)
+  })
+
+  it('returns false for null macroTarget', () => {
+    const context = { ...baseContext, macroTarget: null }
+    expect(isOverflow(baseItem, 'carbs', context)).toBe(false)
+  })
+
+  it('returns false for null currentDayDiet', () => {
+    const context = { ...baseContext, currentDayDiet: null }
+    expect(isOverflow(baseItem, 'carbs', context)).toBe(false)
+  })
+})
+
 describe('createMacroOverflowChecker', () => {
   it('returns correct overflow checkers for all macros', () => {
     const context = {
