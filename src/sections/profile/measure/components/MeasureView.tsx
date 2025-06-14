@@ -1,10 +1,10 @@
 import {
-  deleteMeasure,
-  updateMeasure,
+  deleteBodyMeasure,
+  updateBodyMeasure,
 } from '~/modules/measure/application/measure'
 import {
-  createNewMeasure,
-  type Measure,
+  type BodyMeasure,
+  createNewBodyMeasure,
 } from '~/modules/measure/domain/measure'
 import { showError } from '~/modules/toast/application/toastManager'
 import { Capsule } from '~/sections/common/components/capsule/Capsule'
@@ -18,13 +18,13 @@ import { formatError } from '~/shared/formatError'
 import { adjustToTimezone } from '~/shared/utils/date/dateUtils'
 
 /**
- * Renders a capsule view for editing and saving a single Measure.
+ * Renders a capsule view for editing and saving a single BodyMeasure.
  *
- * @param props.measure - The measure to display and edit
- * @param props.onRefetchMeasures - Callback to refetch measures after update/delete
+ * @param props.measure - The body measure to display and edit
+ * @param props.onRefetchMeasures - Callback to refetch body measures after update/delete
  */
 export function MeasureView(props: {
-  measure: Measure
+  measure: BodyMeasure
   onRefetchMeasures: () => unknown
 }) {
   const dateField = useDateField(() => props.measure.target_timestamp, {
@@ -61,9 +61,9 @@ export function MeasureView(props: {
     const afterUpdate = () => {
       props.onRefetchMeasures()
     }
-    updateMeasure(
+    updateBodyMeasure(
       props.measure.id,
-      createNewMeasure({
+      createNewBodyMeasure({
         ...props.measure,
         height,
         waist,
@@ -95,7 +95,7 @@ export function MeasureView(props: {
             const afterDelete = () => {
               props.onRefetchMeasures()
             }
-            deleteMeasure(props.measure.id)
+            deleteBodyMeasure(props.measure.id)
               .then(afterDelete)
               .catch((error) => {
                 showError(

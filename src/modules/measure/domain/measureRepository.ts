@@ -1,12 +1,17 @@
-import { type Measure, type NewMeasure } from '~/modules/measure/domain/measure'
+import {
+  type BodyMeasure,
+  type NewBodyMeasure,
+} from '~/modules/measure/domain/measure'
 import { type User } from '~/modules/user/domain/user'
 
-export type MeasureRepository = {
-  fetchUserMeasures: (userId: User['id']) => Promise<readonly Measure[]>
-  insertMeasure: (newMeasure: NewMeasure) => Promise<Measure | null>
-  updateMeasure: (
-    measureId: Measure['id'],
-    newMeasure: NewMeasure,
-  ) => Promise<Measure | null>
-  deleteMeasure: (id: Measure['id']) => Promise<void>
+export type BodyMeasureRepository = {
+  fetchUserBodyMeasures: (userId: User['id']) => Promise<readonly BodyMeasure[]>
+  insertBodyMeasure: (
+    newBodyMeasure: NewBodyMeasure,
+  ) => Promise<BodyMeasure | null>
+  updateBodyMeasure: (
+    bodyMeasureId: BodyMeasure['id'],
+    newBodyMeasure: NewBodyMeasure,
+  ) => Promise<BodyMeasure | null>
+  deleteBodyMeasure: (id: BodyMeasure['id']) => Promise<void>
 }

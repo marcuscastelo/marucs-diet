@@ -1,10 +1,13 @@
-import { type Measure, type NewMeasure } from '~/modules/measure/domain/measure'
-import { type MeasureRepository } from '~/modules/measure/domain/measureRepository'
 import {
-  createInsertMeasureDAOFromNewMeasure,
-  createMeasureFromDAO,
-  createUpdateMeasureDAOFromNewMeasure,
-  measureDAOSchema,
+  type BodyMeasure,
+  type NewBodyMeasure,
+} from '~/modules/measure/domain/measure'
+import { type BodyMeasureRepository } from '~/modules/measure/domain/measureRepository'
+import {
+  bodyMeasureDAOSchema,
+  createBodyMeasureFromDAO,
+  createInsertBodyMeasureDAOFromNewBodyMeasure,
+  createUpdateBodyMeasureDAOFromNewBodyMeasure,
 } from '~/modules/measure/infrastructure/measureDAO'
 import { type User } from '~/modules/user/domain/user'
 import { handleApiError, wrapErrorWithStack } from '~/shared/error/errorHandler'
@@ -13,16 +16,16 @@ import supabase from '~/shared/utils/supabase'
 
 const TABLE = 'body_measures'
 
-export function createSupabaseMeasureRepository(): MeasureRepository {
+export function createSupabaseBodyMeasureRepository(): BodyMeasureRepository {
   return {
-    fetchUserMeasures,
-    insertMeasure,
-    updateMeasure,
-    deleteMeasure,
+    fetchUserBodyMeasures,
+    insertBodyMeasure,
+    updateBodyMeasure,
+    deleteBodyMeasure,
   }
 }
 
-async function fetchUserMeasures(userId: User['id']) {
+async function fetchUserBodyMeasures(userId: User['id']) {
   const { data, error } = await supabase
     .from(TABLE)
     .select('*')
@@ -31,69 +34,71 @@ async function fetchUserMeasures(userId: User['id']) {
 
   if (error !== null) {
     handleApiError(error, {
-      component: 'supabaseMeasureRepository',
-      operation: 'fetchUserMeasures',
+      component: 'supabaseBodyMeasureRepository',
+      operation: 'fetchUserBodyMeasures',
       additionalData: { userId },
     })
     throw wrapErrorWithStack(error)
   }
 
-  const measureDAOs = parseWithStack(measureDAOSchema.array(), data)
-  return measureDAOs.map(createMeasureFromDAO)
+  const bodyMeasureDAOs = parseWithStack(bodyMeasureDAOSchema.array(), data)
+  return bodyMeasureDAOs.map(createBodyMeasureFromDAO)
 }
 
-async function insertMeasure(newMeasure: NewMeasure): Promise<Measure | null> {
-  const createDAO = createInsertMeasureDAOFromNewMeasure(newMeasure)
+async function insertBodyMeasure(
+  newBodyMeasure: NewBodyMeasure,
+): Promise<BodyMeasure | null> {
+  const createDAO = createInsertBodyMeasureDAOFromNewBodyMeasure(newBodyMeasure)
   const { data, error } = await supabase.from(TABLE).insert(createDAO).select()
 
   if (error !== null) {
     handleApiError(error, {
-      component: 'supabaseMeasureRepository',
-      operation: 'insertMeasure',
-      additionalData: { measure: newMeasure },
+      component: 'supabaseBodyMeasureRepository',
+      operation: 'insertBodyMeasure',
+      additionalData: { bodyMeasure: newBodyMeasure },
     })
     throw wrapErrorWithStack(error)
   }
 
-  const measureDAOs = parseWithStack(measureDAOSchema.array(), data)
-  const measures = measureDAOs.map(createMeasureFromDAO)
+  const bodyMeasureDAOs = parseWithStack(bodyMeasureDAOSchema.array(), data)
+  const bodyMeasures = bodyMeasureDAOs.map(createBodyMeasureFromDAO)
 
-  return measures[0] ?? null
+  return bodyMeasures[0] ?? null
 }
 
-async function updateMeasure(
-  measureId: Measure['id'],
-  newMeasure: NewMeasure,
-): Promise<Measure | null> {
-  const updateDAO = createUpdateMeasureDAOFromNewMeasure(newMeasure)
+async function updateBodyMeasure(
+  bodyMeasureId: BodyMeasure['id'],
+  newBodyMeasure: NewBodyMeasure,
+): Promise<BodyMeasure | null> {
+  const updateDAO = createUpdateBodyMeasureDAOFromNewBodyMeasure(newBodyMeasure)
   const { data, error } = await supabase
     .from(TABLE)
     .update(updateDAO)
-    .eq('id', measureId)
+    .eq('id', bodyMeasureId)
     .select()
 
   if (error !== null) {
     handleApiError(error, {
-      component: 'supabaseMeasureRepository',
-      operation: 'updateMeasure',
-      additionalData: { measureId, measure: newMeasure },
+      component: 'supabaseBodyMeasureRepository',
+      operation: 'updateBodyMeasure',
+      additionalData: { bodyMeasureId, bodyMeasure: newBodyMeasure },
     })
     throw wrapErrorWithStack(error)
   }
 
-  const measureDAOs = parseWithStack(measureDAOSchema.array(), data)
-  const measures = measureDAOs.map(createMeasureFromDAO)
+  const bodyMeasureDAOs = parseWithStack(bodyMeasureDAOSchema.array(), data)
+  const bodyMeasures = bodyMeasureDAOs.map(createBodyMeasureFromDAO)
 
-  return measures[0] ?? null
+  return bodyMeasures[0] ?? null
 }
 
-async function deleteMeasure(id: Measure['id']) {
+async function deleteBodyMeasure(id: BodyMeasure['id']) {
   const { error } = await supabase.from(TABLE).delete().eq('id', id)
 
   if (error !== null) {
     handleApiError(error, {
-      component: 'supabaseMeasureRepository',
-      operation: 'deleteMeasure',
+      component: 'supabaseBodyMeasureRepository',
+      operation: 'deleteBodyMeasure',
       additionalData: { id },
     })
     throw wrapErrorWithStack(error)

@@ -3,13 +3,16 @@ import { SolidApexCharts } from 'solid-apexcharts'
 import { createMemo, Show } from 'solid-js'
 
 import ptBrLocale from '~/assets/locales/apex/pt-br.json'
-import { type Measure } from '~/modules/measure/domain/measure'
+import { type BodyMeasure } from '~/modules/measure/domain/measure'
 import { currentUser } from '~/modules/user/application/user'
 import { userWeights } from '~/modules/weight/application/weight'
 import { type BodyFatInput, calculateBodyFat } from '~/shared/utils/bfMath'
 import { dateToYYYYMMDD } from '~/shared/utils/date'
 
-type DayAverage = Omit<Measure, '__type' | 'id' | 'owner' | 'target_timestamp'>
+type DayAverage = Omit<
+  BodyMeasure,
+  '__type' | 'id' | 'owner' | 'target_timestamp'
+>
 type DayMeasures = {
   date: string
   dayAverage: DayAverage
@@ -20,7 +23,7 @@ type DayMeasures = {
  * Props for the MeasureChart component.
  */
 export type MeasureChartProps = {
-  measures: readonly Measure[]
+  measures: readonly BodyMeasure[]
 }
 
 /**
@@ -34,7 +37,7 @@ export function MeasureChart(props: MeasureChartProps) {
     console.debug('[MeasureChart] props.measures', props.measures)
   })
   const measuresByDay = () => {
-    const grouped = props.measures.reduce<Record<string, Measure[]>>(
+    const grouped = props.measures.reduce<Record<string, BodyMeasure[]>>(
       (acc, measure) => {
         const day = dateToYYYYMMDD(measure.target_timestamp)
         if (acc[day] === undefined) {
