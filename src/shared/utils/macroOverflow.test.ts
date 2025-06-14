@@ -125,9 +125,27 @@ describe('isOverflow (edge cases)', () => {
       ...baseContext,
       macroTarget: { carbs: 0, protein: 0, fat: 0 },
     }
-    expect(isOverflow(baseItem, 'carbs', context)).toBe(true)
-    expect(isOverflow(baseItem, 'protein', context)).toBe(true)
-    expect(isOverflow(baseItem, 'fat', context)).toBe(true)
+    const carbItem = createItem({
+      name: 'Carb',
+      reference: 1,
+      quantity: 100,
+      macros: { carbs: 10, protein: 0, fat: 0 },
+    })
+    const proteinItem = createItem({
+      name: 'Protein',
+      reference: 2,
+      quantity: 100,
+      macros: { carbs: 0, protein: 10, fat: 0 },
+    })
+    const fatItem = createItem({
+      name: 'Fat',
+      reference: 3,
+      quantity: 100,
+      macros: { carbs: 0, protein: 0, fat: 10 },
+    })
+    expect(isOverflow(carbItem, 'carbs', context)).toBe(true)
+    expect(isOverflow(proteinItem, 'protein', context)).toBe(true)
+    expect(isOverflow(fatItem, 'fat', context)).toBe(true)
   })
 
   it('returns false for invalid property', () => {
