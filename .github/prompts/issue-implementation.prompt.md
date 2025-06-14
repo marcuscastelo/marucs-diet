@@ -31,9 +31,10 @@ Your task is to automate the process of implementing a GitHub issue, following t
    - Present the plan to the user and iterate via brainstorming until the plan is fully approved.
 
 5. **Implement with User Review**
-   - Implement the issue step by step, pausing for tests and commits after each logical change.
+   - **After the plan is approved and the baseline check passes, immediately begin executing the implementation plan, step by step, without pausing for further user review or confirmation.**
+   - Only pause and request user input if an unexpected occurrence arises (e.g., a blocker, ambiguity, or error that cannot be resolved automatically).
    - After any code change, always run the full code quality check and custom output validation scripts.
-   - The agent leads the implementation; the user acts as a reviewer.
+   - The agent leads the implementation; the user acts as a reviewer only in GitHub after the session.
    - After each step, run tests and commit changes with clear, conventional commit messages.
    - Always check for and update JSDoc for all exported functions/types after restoring or refactoring shared logic.
    - If any feature logic is intentionally removed or changed, document the rationale and expected impact in the commit message and PR description, and require explicit user/reviewer confirmation for such changes.
@@ -60,7 +61,7 @@ Your task is to automate the process of implementing a GitHub issue, following t
 
 - Output the implementation plan as a Markdown code block.
 - After each commit, output the commit message as a Markdown code block.
-- Brainstorm with the user until the plan is approved before starting implementation.
+- Do not prompt for review or confirmation after plan approval. Only pause for unexpected occurrences.
 
 ---
 
