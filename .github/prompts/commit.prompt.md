@@ -8,11 +8,12 @@ tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFile
 
 AGENT HAS CHANGED, NEW AGENT: .github/prompts/commit.prompt.md
 
-## Always Check for Staged Changes via Terminal
+## Always Gather Commit Information via Script
 
-- **Before generating or outputting a commit message, always check for staged changes using a reliable terminal command** (such as `git status --porcelain=v1` or `git diff --cached --name-only`).
-- Only proceed with commit message generation if the terminal output confirms that there are staged changes.
-- If the terminal output confirms there are no staged changes, output:
+- **Before generating or outputting a commit message, always run the script `scripts/copilot-commit-info.sh` to gather all relevant git information.**
+- The script outputs all results to `/tmp/copilot-commit-information` in a digestible format.
+- Only proceed with commit message generation if the script output confirms that there are staged changes.
+- If the script output confirms there are no staged changes, output:
 
 ```
 reportedBy: github-copilot.v1/commit
@@ -20,26 +21,17 @@ reportedBy: github-copilot.v1/commit
 There are no new staged changes to commit. If you have made additional changes, please stage them before requesting a commit message.
 ```
 
-- Never rely on internal state or assumptions; always verify via the terminal.
+- Never rely on internal state or assumptions; always verify using the script output.
 
 ## Commit Message Generation
 
-- Use as few shell commands as possible to gather all relevant information about staged changes (e.g., `git diff --cached --patch-with-stat --summary HEAD` and `git status --porcelain=v1`).
-- For new or modified staged files, generate a list of relevant file paths and use a shell for-loop to display their full contents, for example:
-
-```zsh
-for file in <file1> <file2> <file3>; do
-  cat "$file"
-done
-```
-
-- Analyze the staged changes and generate a short, clear, conventional commit message in English. The message must:
+- Use the information from `/tmp/copilot-commit-information` to analyze staged changes and generate a short, clear, conventional commit message in English. The message must:
   - Summarize the main purpose of the changes.
   - Mention relevant files or modules if needed.
   - Follow the [conventional commits](https://www.conventionalcommits.org/) style (e.g., feat:, fix:, refactor:, test:, chore:).
   - Be a single line unless a body is required for context.
   - Never include code, diffs, or sensitive data in the commit message.
-  - Do not generate a commit if there are no staged changes (as confirmed by the terminal).
+  - Do not generate a commit if there are no staged changes (as confirmed by the script output).
 - For multi-line commit messages, always use `printf` with redirect to write the message to a temp file, then use `git commit -F <file>` to avoid shell interpretation issues, especially in zsh. Respect existing git command aliases if present.
 - Commit messages should be explicit and atomic, referencing all affected modules and summarizing the main change.
 - If you encounter shell errors (e.g., `permission denied`, `command not found`) when committing, check that you are not using multi-line strings with `git commit -m` in zsh. Use `printf` to a temp file and `git commit -F <file>` instead.
