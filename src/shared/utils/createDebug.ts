@@ -18,6 +18,12 @@ export function getCallerFile(): string | undefined {
   }
 }
 
+function getCallerContext(): string {
+  const file = getCallerFile();
+  if (!file) return 'unknown';
+  return file.replace(/.*\/src\//, '').replace(/\.[jt]sx?$/, '');
+}
+
 const DEBUG_ENABLED = true;
 const GROUP_DELAY_MS = 50;
 
@@ -52,23 +58,17 @@ export function createDebug() {
     return () => {};
   }
 
-  const module =
-    getCallerFile()?.replace(/.*\/src\//, '')?.replace(/\.[jt]sx?$/, '') ?? 'unknown';
+  const module = getCallerContext();
 
   return (...args: unknown[]) => {
     const group = groups.get(module) ?? {
       entries: [],
       timer: null,
     };
-
     group.entries.push({ args });
-
-    if (group.timer) clearTimeout(group.timer);
-
-    group.timer = setTimeout(() => {
-      flushGroup(module);
-    }, GROUP_DELAY_MS);
-
+    if (!group.timer) {
+      group.timer = setTimeout(() => flushGroup(module), GROUP_DELAY_MS);
+    }
     groups.set(module, group);
   };
 }

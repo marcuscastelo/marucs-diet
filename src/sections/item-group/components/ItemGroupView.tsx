@@ -65,11 +65,7 @@ export function ItemGroupName(props: { group: Accessor<ItemGroup> }) {
       try {
         return await recipeRepository.fetchRecipeById(group.recipe)
       } catch (err) {
-        handleApiError(err, {
-          component: 'ItemGroupView::ItemGroupName',
-          operation: 'fetchRecipeById',
-          additionalData: { recipeId: group.recipe },
-        })
+        handleApiError(err)
         throw err
       }
     }

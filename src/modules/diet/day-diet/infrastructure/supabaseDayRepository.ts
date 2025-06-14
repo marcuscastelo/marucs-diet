@@ -56,11 +56,7 @@ async function fetchDayDiet(dayId: DayDiet['id']): Promise<DayDiet> {
       .eq('id', dayId)
 
     if (error !== null) {
-      handleApiError(error, {
-        component: 'supabaseDayRepository',
-        operation: 'fetchDayDiet',
-        additionalData: { dayId },
-      })
+      handleApiError(error)
       throw error
     }
 
@@ -84,11 +80,7 @@ async function fetchDayDiet(dayId: DayDiet['id']): Promise<DayDiet> {
     }
     return result.data
   } catch (err) {
-    handleApiError(err, {
-      component: 'supabaseDayRepository',
-      operation: 'fetchDayDiet',
-      additionalData: { dayId },
-    })
+    handleApiError(err)
     throw err
   }
 }
@@ -105,11 +97,7 @@ async function fetchAllUserDayDiets(
     .order('target_day', { ascending: true })
 
   if (error !== null) {
-    handleApiError(error, {
-      component: 'supabaseDayRepository',
-      operation: 'fetchAllUserDayDiets',
-      additionalData: { userId },
-    })
+    handleApiError(error)
     throw error
   }
 
@@ -169,11 +157,7 @@ const updateDayDiet = async (
     .select()
 
   if (error !== null) {
-    handleApiError(error, {
-      component: 'supabaseDayRepository',
-      operation: 'updateDayDiet',
-      additionalData: { id, dayData: updateDAO },
-    })
+    handleApiError(error)
     throw error
   }
 

@@ -41,11 +41,7 @@ export async function fetchRecentFoodByUserTypeAndReferenceId(
     if (error !== null) throw error
     return parseWithStack(recentFoodSchema.array(), data).at(0) ?? null
   } catch (error) {
-    handleApiError(error, {
-      component: 'recentFood',
-      operation: 'fetchRecentFoodByUserTypeAndReferenceId',
-      additionalData: { userId, type, referenceId },
-    })
+    handleApiError(error)
     return null
   }
 }
@@ -67,11 +63,7 @@ export async function fetchUserRecentFoods(
     if (error !== null) throw error
     return parseWithStack(recentFoodSchema.array(), data)
   } catch (error) {
-    handleApiError(error, {
-      component: 'recentFood',
-      operation: 'fetchUserRecentFoods',
-      additionalData: { userId },
-    })
+    handleApiError(error)
     return []
   }
 }
@@ -110,11 +102,7 @@ export async function insertRecentFood(
       { context: 'user-action', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error, {
-      component: 'recentFood',
-      operation: 'insertRecentFood',
-      additionalData: { newRecentFood },
-    })
+    handleApiError(error)
     return null
   }
 }
@@ -156,11 +144,7 @@ export async function updateRecentFood(
       { context: 'user-action', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error, {
-      component: 'recentFood',
-      operation: 'updateRecentFood',
-      additionalData: { recentFoodId, newRecentFood },
-    })
+    handleApiError(error)
     return null
   }
 }
@@ -197,11 +181,7 @@ export async function deleteRecentFoodByReference(
     )
     return true
   } catch (error) {
-    handleApiError(error, {
-      component: 'recentFood',
-      operation: 'deleteRecentFoodByReference',
-      additionalData: { userId, type, referenceId },
-    })
+    handleApiError(error)
     return false
   }
 }

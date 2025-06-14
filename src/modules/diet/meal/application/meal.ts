@@ -29,11 +29,7 @@ export async function updateMeal(
   try {
     const currentDayDiet_ = currentDayDiet()
     if (currentDayDiet_ === null) {
-      handleApiError('[meal::application] Current day diet is null', {
-        component: 'mealApplication',
-        operation: 'updateMeal',
-        additionalData: { mealId, mealName: newMeal.name },
-      })
+      handleApiError('[meal::application] Current day diet is null')
       return false
     }
     const updatedDayDiet = updateMealInDayDiet(currentDayDiet_, mealId, newMeal)
@@ -41,11 +37,7 @@ export async function updateMeal(
     await updateDayDiet(currentDayDiet_.id, newDay)
     return true
   } catch (error) {
-    handleApiError(error, {
-      component: 'mealApplication',
-      operation: 'updateMeal',
-      additionalData: { mealId, mealName: newMeal.name },
-    })
+    handleApiError(error)
     return false
   }
 }

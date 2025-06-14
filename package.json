@@ -10,7 +10,7 @@
     "gen-app-version": "bash ./.scripts/gen-app-version.sh",
     "type-check": "tsc --noEmit --skipLibCheck",
     "test": "vitest run",
-    "fix": "eslint . --fix --cache >/dev/null 2>&1",
+    "fix": "eslint . --fix --cache >/dev/null 2>&1 || exit 0",
     "lint": "eslint . --quiet --cache",
     "flint": "npm run fix && npm run lint",
     "check": "run-p flint type-check test",

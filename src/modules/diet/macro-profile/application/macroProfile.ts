@@ -65,11 +65,7 @@ export async function fetchUserMacroProfiles(
     setUserMacroProfiles(macroProfiles)
     return macroProfiles
   } catch (error) {
-    handleApiError(error, {
-      component: 'macroProfileApplication',
-      operation: 'fetchUserMacroProfiles',
-      additionalData: { userId },
-    })
+    handleApiError(error)
     setUserMacroProfiles([])
     return []
   }
@@ -107,11 +103,7 @@ export async function insertMacroProfile(
     }
     return macroProfile
   } catch (error) {
-    handleApiError(error, {
-      component: 'macroProfileApplication',
-      operation: 'insertMacroProfile',
-      additionalData: { newMacroProfile },
-    })
+    handleApiError(error)
     return null
   }
 }
@@ -151,11 +143,7 @@ export async function updateMacroProfile(
     }
     return macroProfile
   } catch (error) {
-    handleApiError(error, {
-      component: 'macroProfileApplication',
-      operation: 'updateMacroProfile',
-      additionalData: { macroProfileId, newMacroProfile },
-    })
+    handleApiError(error)
     return null
   }
 }
@@ -184,11 +172,7 @@ export async function deleteMacroProfile(
     }
     return true
   } catch (error) {
-    handleApiError(error, {
-      component: 'macroProfileApplication',
-      operation: 'deleteMacroProfile',
-      additionalData: { macroProfileId },
-    })
+    handleApiError(error)
     return false
   }
 }

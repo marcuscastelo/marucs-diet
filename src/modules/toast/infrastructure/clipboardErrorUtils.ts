@@ -74,11 +74,7 @@ export async function handleCopyErrorToClipboard(
   const clipboardContent = formatErrorForClipboard(errorDetails)
   write(clipboardContent, (error) => {
     if (error !== null) {
-      handleApiError(error, {
-        component: context.component,
-        operation: context.operation,
-        additionalData: { errorDetails },
-      })
+      handleApiError(error)
     }
   })
 }

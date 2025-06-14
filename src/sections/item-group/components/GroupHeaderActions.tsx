@@ -130,11 +130,7 @@ export function GroupHeaderActions(props: {
       props.setGroup(newGroup)
       props.setRecipeEditModalVisible(true)
     } catch (err) {
-      handleApiError(err, {
-        component: 'GroupHeaderActions',
-        operation: 'handleConvertToRecipe',
-        additionalData: { groupId: group.id },
-      })
+      handleApiError(err)
       showError(err, undefined, 'Falha ao criar receita a partir de grupo')
     }
   }
