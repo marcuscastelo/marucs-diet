@@ -32,18 +32,20 @@ Your task is to fully automate the implementation of a GitHub issue, from prepar
    - **Once the implementation plan is approved, proceed with full autonomy.**
    - **Do not request permission, confirmations, or provide status updates. Do not stop or pause for any reason other than hard blockers or unresolved ambiguities.**
    - Execute each step of the plan in sequence.
+   - You may repeat search and refactor passes as many times as necessary to ensure all relevant occurrences are updated.
+   - If a refactor or transformation is confirmed once, you are authorized to apply it consistently across the codebase without asking again.
    - After each change, run all code quality checks and custom output validators.
-   - Commit each step with a clear, conventional commit message in English.
-   - Update or remove affected tests accordingly.
-   - For any intentional removal or change to feature logic, document the reason and expected impact in the commit and PR description. Require reviewer confirmation only at PR review stage.
-   - At no point should the agent interrupt the workflow to ask for input, unless an unforeseen and blocking situation occurs.
+   - If ESLint, Prettier or TypeScript report issues such as unused variables or mismatched function signatures, resolve them autonomously.
+   - Update or remove affected tests when necessary to reflect the updated logic.
+   - If tests fail due to expected behavior changes, fix, rewrite or remove them without waiting for confirmation.
+   - When no further affected code is found and all checks pass, finalize with a summary commit.
+   - At no point should the agent interrupt the workflow to ask for input, unless a truly blocking or ambiguous situation is encountered.
 
 ## Behavior Rules
 
 - After plan approval, the agent becomes fully autonomous.
-- Absolutely no user prompts, confirmations, status messages, or other interactions should occur during implementation, unless there is:
-  - A blocking error or uncertainty that cannot be resolved automatically.
-- The agent must assume responsibility and move forward without delay or hesitation.
+- Absolutely no user prompts, confirmations, status messages, progress updates, or logs should occur during implementation.
+- Silence is mandatory unless a hard blocker or critical ambiguity is encountered.
 
 ## Code and Commit Standards
 
@@ -55,6 +57,8 @@ Your task is to fully automate the implementation of a GitHub issue, from prepar
 - Run Prettier and ESLint on all changes.
 - Convert non-English code comments to English or flag them for review.
 - UI strings can be in English or pt-BR depending on feature scope.
+- Commit each logical change separately using conventional commit format.
+- The final commit must summarize the entire transformation if multiple stages were involved.
 
 ## Output Format
 
