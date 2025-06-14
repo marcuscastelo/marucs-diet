@@ -3,7 +3,7 @@
 # Test mode
 if [ "$1" = "--test" ]; then
   echo "Testing semver.sh returns version"
-  if bash .scripts/semver.sh | grep -Eo 'v[^-]*' 2>/dev/null; then
+  if bash .scripts/semver.sh | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' 2>/dev/null; then
     echo "PASS: semver.sh returns version"
     exit 0
   else
@@ -13,7 +13,7 @@ if [ "$1" = "--test" ]; then
 fi
 
 # Get current version
-version=$(bash .scripts/semver.sh | grep -Eo "v[^-]*")
+version=$(bash .scripts/semver.sh | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+")
 
 # Replace version in package.json
 sed -i "s/\"version\": \".*\"/\"version\": \"$version\"/" package.json
