@@ -294,9 +294,7 @@ export function TemplateSearch(props: {
 
       <TemplateSearchTabs
         tab={templateSearchTab}
-        setTab={(tab) => {
-          if (typeof tab === 'string') setTemplateSearchTab(tab)
-        }}
+        setTab={setTemplateSearchTab}
       />
       <TemplateSearchBar isDesktop={isDesktop} />
 
