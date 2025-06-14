@@ -33,6 +33,11 @@ describe('fetchTemplatesByTabLogic', () => {
       fetchRecipeById: vi.fn().mockResolvedValue(mockRecipe),
       fetchFoods: vi.fn().mockResolvedValue([mockFood]),
       fetchFoodsByName: vi.fn().mockResolvedValue([mockFood]),
+      fetchFoodsByIds: vi
+        .fn()
+        .mockImplementation((ids) =>
+          Promise.resolve(Array.isArray(ids) ? ids.map(() => mockFood) : []),
+        ),
       getFavoriteFoods: () => [1],
     }
   })

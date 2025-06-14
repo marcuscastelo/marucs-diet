@@ -3,6 +3,7 @@ import { createResource, createSignal } from 'solid-js'
 import {
   fetchFoodById as fetchFoodByIdRaw,
   fetchFoods,
+  fetchFoodsByIds,
   fetchFoodsByName,
 } from '~/modules/diet/food/application/food'
 import {
@@ -77,6 +78,7 @@ export const [
         fetchFoods,
         fetchFoodsByName,
         getFavoriteFoods,
+        fetchFoodsByIds,
       },
     )
   },

@@ -31,6 +31,10 @@ export type FetchTemplatesDeps = {
     opts: { limit?: number; allowedFoods?: number[] },
   ) => Promise<readonly Food[]>
   getFavoriteFoods: () => number[]
+  /**
+   * Batch fetch foods by IDs. Returns all found foods, order not guaranteed.
+   */
+  fetchFoodsByIds: (ids: number[]) => Promise<readonly Food[]>
 }
 
 /**
@@ -59,14 +63,11 @@ export async function fetchTemplatesByTabLogic(
         .map((r) => r.reference_id)
       const foods =
         foodIds.length > 0
-          ? await Promise.all(
-              foodIds.map((id) =>
-                deps.fetchFoodById(id).catch((error) => {
-                  console.error(`Error fetching food by ID ${id}:`, error)
-                  return null // Return null for all errors for now
-                }),
-              ),
-            )
+          ? await deps.fetchFoodsByIds(foodIds).then((result) => {
+              // Reorder to match foodIds order
+              const foodMap = new Map(result.map((f) => [f.id, f]))
+              return foodIds.map((id) => foodMap.get(id) ?? null)
+            })
           : []
       const recipes =
         recipeIds.length > 0
@@ -79,9 +80,9 @@ export async function fetchTemplatesByTabLogic(
               ),
             )
           : []
-      const validFoods = (foods as (Food | null)[]).filter(
-        (f): f is Food => f !== null,
-      )
+      const validFoods = Array.isArray(foods)
+        ? (foods as (Food | null)[]).filter((f): f is Food => f !== null)
+        : []
       const validRecipes = (recipes as (Recipe | null)[]).filter(
         (r): r is Recipe => r !== null,
       )
