@@ -131,7 +131,7 @@ export function BodyMeasuresEvolution() {
                 />
               )}
             </For>
-            {bodyMeasures().length === 0 && 'Não há pesos registrados'}
+            {bodyMeasures().length === 0 && 'Não há medidas registradas'}
           </div>
         </Show>
       </div>
