@@ -5,7 +5,6 @@ import {
   type Setter,
   Show,
   Suspense,
-  untrack,
 } from 'solid-js'
 
 import {
@@ -30,10 +29,10 @@ import { createNewRecentFood } from '~/modules/recent-food/domain/recentFood'
 import {
   debouncedSearch,
   refetchTemplates,
+  setTemplateSearchTab,
   templates,
   templateSearchTab,
 } from '~/modules/search/application/search'
-import { setTemplateSearchTab } from '~/modules/search/application/search'
 import { showSuccess } from '~/modules/toast/application/toastManager'
 import { showError } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'

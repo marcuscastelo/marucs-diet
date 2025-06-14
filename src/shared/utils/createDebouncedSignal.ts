@@ -1,4 +1,4 @@
-import { type Accessor, createEffect, createSignal } from 'solid-js'
+import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js'
 
 /**
  * Returns a debounced signal and setter based on a source accessor.
@@ -27,6 +27,11 @@ export function createDebouncedSignal<T>(
   createEffect(() => {
     // Every time the source changes, we trigger the debounced setter
     setValueWithDebounce(source())
+
+    // Cleanup any pending timeout when the effect is disposed
+    onCleanup(() => {
+      if (timeout) clearTimeout(timeout)
+    })
   })
 
   return [value, setValueWithDebounce]
