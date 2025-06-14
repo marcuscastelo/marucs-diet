@@ -1,5 +1,5 @@
 ---
-description: 'Agent to refine a GitHub issue by interactively clarifying and structuring it for optimal LLM implementation, leveraging available issue templates. Automatically deduces the correct template when possible. Always use heredoc + --body-file for GitHub CLI issue updates.'
+description: 'Agent to refine a GitHub issue by interactively clarifying and structuring it for optimal LLM implementation, leveraging available issue templates. Automatically deduces the correct template when possible. Always use heredoc + --body-file for GitHub CLI issue updates. Always use --json with all available fields when using gh issue view.'
 mode: 'agent'
 tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
@@ -18,6 +18,7 @@ This agent receives a GitHub issue (by number or content) as input and guides th
    - Accept the issue number (e.g., 325) or raw issue content as input.
    - If only a number is provided, fetch the issue content from the repository using the GitHub CLI (`gh`).
    - Always fetch and process both the issue body and all comments before starting the refinement process.
+   - Always use `--json` with all available fields when using `gh issue view` to ensure complete and robust data retrieval.
 
 2. **Template Selection**
    - Analyze the issue content and context to deduce the most appropriate template from `docs/` (e.g., `ISSUE_TEMPLATE_BUGFIX.md`, `ISSUE_TEMPLATE_FEATURE.md`, etc.).
