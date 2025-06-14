@@ -15,7 +15,7 @@ import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalCo
 import { useDateField, useFloatField } from '~/sections/common/hooks/useField'
 import Datepicker from '~/sections/datepicker/components/Datepicker'
 import { formatError } from '~/shared/formatError'
-import { adjustToTimezone, getMidnight } from '~/shared/utils/date/dateUtils'
+import { normalizeDateToLocalMidnightPlusOne } from '~/shared/utils/date/normalizeDateToLocalMidnightPlusOne'
 
 /**
  * Renders a capsule view for editing and saving a single Measure.
@@ -123,10 +123,7 @@ export function MeasureView(props: {
                 showError(`Data inválida: ${JSON.stringify(value)}`)
                 return
               }
-              let date = getMidnight(
-                adjustToTimezone(new Date(value.startDate)),
-              )
-              date.setDate(date.getDate() + 1)
+              const date = normalizeDateToLocalMidnightPlusOne(value.startDate)
               dateField.setRawValue(date.toISOString())
               handleSave({
                 date,
