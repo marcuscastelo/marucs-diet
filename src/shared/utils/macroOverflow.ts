@@ -60,6 +60,18 @@ export function isOverflow(
   dayMacros?: MacroNutrients | null,
 ): boolean {
   const { currentDayDiet, macroTarget, macroOverflowOptions } = context
+  // Type assertions for safety (defensive, in case of untyped input)
+  if (
+    typeof property !== 'string' ||
+    !['carbs', 'protein', 'fat'].includes(property)
+  ) {
+    handleValidationError('Invalid macro property for overflow check', {
+      component: 'macroOverflow',
+      operation: 'isOverflow',
+      additionalData: { property, itemName: item.name },
+    })
+    return false
+  }
   if (!macroOverflowOptions.enable) {
     return false
   }
@@ -133,6 +145,18 @@ export function isOverflowForItemGroup(
   property: keyof MacroNutrients,
   context: MacroOverflowContext,
 ): boolean {
+  // Type assertions for safety (defensive, in case of untyped input)
+  if (
+    typeof property !== 'string' ||
+    !['carbs', 'protein', 'fat'].includes(property)
+  ) {
+    handleValidationError('Invalid macro property for overflow check', {
+      component: 'macroOverflow',
+      operation: 'isOverflowForItemGroup',
+      additionalData: { property },
+    })
+    return false
+  }
   if (items.length === 0) {
     return false
   }
