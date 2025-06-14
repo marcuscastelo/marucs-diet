@@ -2,6 +2,14 @@
 applyTo: "**"
 ---
 # Copilot Instructions (short version)
+At the start of every session, always run:
+
+```
+export GIT_PAGER=cat
+```
+
+This disables pagers for all git and gh commands, preventing interactive output issues.
+
 During this session, always wait until the end of the execution of any requested command or process, even if it takes several minutes, before responding. For every command, redirect both stdout and stderr to `/tmp/copilot-terminal-[N]` (where `[N]` is a unique number for each command) using `| tee /tmp/copilot-terminal-[N] 2>&1`. After the main command finishes, check `cat /tmp/copilot-terminal-[N]`. Never repeat the main command. Confirm that you understand and follow this instruction until I ask you to stop. Never combine commands with `&&`, `||` or `;`
 
 ## Terminal & Script Usage
