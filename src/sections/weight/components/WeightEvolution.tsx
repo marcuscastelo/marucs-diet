@@ -1,4 +1,4 @@
-import { createEffect, createSignal, For, Show } from 'solid-js'
+import { createEffect, createSignal, For } from 'solid-js'
 
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { showError } from '~/modules/toast/application/toastManager'
@@ -7,56 +7,11 @@ import { insertWeight, userWeights } from '~/modules/weight/application/weight'
 import { createNewWeight } from '~/modules/weight/domain/weight'
 import { ComboBox } from '~/sections/common/components/ComboBox'
 import { FloatInput } from '~/sections/common/components/FloatInput'
-import { Progress } from '~/sections/common/components/Progress'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import { WeightChart } from '~/sections/weight/components/WeightChart'
+import { WeightProgress } from '~/sections/weight/components/WeightProgress'
 import { WeightView } from '~/sections/weight/components/WeightView'
 import { calculateWeightProgress } from '~/shared/utils/weightUtils'
-
-function WeightProgress(props: {
-  weightProgress: ReturnType<typeof calculateWeightProgress> | null
-  weightProgressText: () => string | undefined
-}) {
-  const showProgressBar = () => props.weightProgress?.type !== 'normo'
-  return (
-    <>
-      <Show when={!showProgressBar()}>
-        <h5 class={'mx-auto mb-5 text-center text-2xl font-bold'}>
-          Progresso: {props.weightProgressText()}
-        </h5>
-      </Show>
-      <Show when={showProgressBar() && props.weightProgress}>
-        {(weightProgress) => (
-          <div class="mx-auto max-w-lg mb-5">
-            <Progress
-              progress={(() => {
-                const weightProgress_ = weightProgress()
-                if (weightProgress_.type === 'no_weights') {
-                  return 0
-                }
-                if (weightProgress_.type === 'progress') {
-                  return weightProgress_.progress
-                }
-                if (weightProgress_.type === 'exceeded') {
-                  return 100
-                }
-                if (weightProgress_.type === 'reversal') {
-                  return 0
-                }
-                return 0 // Fallback case
-              })()}
-              color="blue"
-              textLabelPosition="outside"
-              textLabel={props.weightProgressText()}
-              sizeClass="h-2"
-              labelClass="text-center"
-            />
-          </div>
-        )}
-      </Show>
-    </>
-  )
-}
 
 /**
  * Renders the weight evolution view, including progress, chart, and entry form.
