@@ -104,5 +104,8 @@ else
   cp "$REPO_ROOT/.env" "$WORKTREE_PATH/.env"
   cd "$WORKTREE_PATH"
   pnpm install &
-  code "$WORKTREE_PATH"
+  code "$WORKTREE_PATH" &
+  # Always run clear-merged after opening the worktree in VS Code
+  cd "$REPO_ROOT/scripts"
+  zsh issue-worktree.sh clear-merged
 fi
