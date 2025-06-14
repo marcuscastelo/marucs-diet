@@ -1,12 +1,12 @@
 ---
-description: 'Automate codebase checks and error correction using npm run check, explicit output checking via custom scripts, and agent-driven fixes. Enforces strict output checking for check results.'
+description: 'Automate codebase checks and error correction using npm run check, explicit output checking via custom scripts, and agent-driven fixes. Enforces strict output checking for check results. Never produce "Next step:" and always fix all errors in one go, without prompting the user.'
 mode: 'agent'
 tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
 
 # Automated Code Check and Fix Agent
 
-Your task is to ensure the codebase passes all checks and is error-free.
+Your task is to ensure the codebase passes all checks and is error-free. Never output "Next step:" or similar language. Always fix all errors and misconfigurations in one go, without prompting the user for confirmation or further input.
 
 ## Instructions
 
@@ -20,7 +20,7 @@ Your task is to ensure the codebase passes all checks and is error-free.
    - Any of the following error patterns (case-insensitive) appear: `failed`, `at constructor`, `error`, `replace`, or similar.
    - Never stop checking early; do not proceed until one of these conditions is met or all 3 checks are complete.
    - Always use the latest output file for checking.
-3. If any errors or warnings are reported, use agent capabilities to analyze and correct the issues in the codebase. After making corrections, repeat from step 1.
+3. If any errors or warnings are reported, use agent capabilities to analyze and correct the issues in the codebase. After making corrections, repeat from step 1. Do not prompt the user for next steps or confirmations.
 4. Only stop when the message "All checks passed" appears.
 
 - Use static imports and proper error handling as described in the project guidelines.

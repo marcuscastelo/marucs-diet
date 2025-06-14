@@ -1,6 +1,5 @@
 import { createEffect, createSignal, For } from 'solid-js'
 
-import { calculateWeightProgress } from '~/legacy/utils/weightUtils'
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { showError } from '~/modules/toast/application/toastManager'
 import { currentUser, currentUserId } from '~/modules/user/application/user'
@@ -11,6 +10,7 @@ import { FloatInput } from '~/sections/common/components/FloatInput'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import { WeightChart } from '~/sections/weight/components/WeightChart'
 import { WeightView } from '~/sections/weight/components/WeightView'
+import { calculateWeightProgress } from '~/shared/utils/weightUtils'
 
 /**
  * Renders the weight evolution view, including progress, chart, and entry form.

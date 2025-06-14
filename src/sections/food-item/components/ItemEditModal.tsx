@@ -8,7 +8,6 @@ import {
   untrack,
 } from 'solid-js'
 
-import { calcDayMacros, calcItemMacros } from '~/legacy/utils/macroMath'
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
 import { type Item } from '~/modules/diet/item/domain/item'
 import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
@@ -30,6 +29,7 @@ import {
   ItemNutritionalInfo,
   ItemView,
 } from '~/sections/food-item/components/ItemView'
+import { calcDayMacros, calcItemMacros } from '~/shared/utils/macroMath'
 
 /**
  * Modal for editing a TemplateItem.

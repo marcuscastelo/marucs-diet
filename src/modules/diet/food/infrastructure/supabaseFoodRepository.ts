@@ -1,4 +1,3 @@
-import supabase from '~/legacy/utils/supabase'
 import { type Food, type NewFood } from '~/modules/diet/food/domain/food'
 import {
   type FoodRepository,
@@ -13,6 +12,7 @@ import { handleApiError, wrapErrorWithStack } from '~/shared/error/errorHandler'
 import { isSupabaseDuplicateEanError } from '~/shared/supabase/supabaseErrorUtils'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 import { removeDiacritics } from '~/shared/utils/removeDiacritics'
+import supabase from '~/shared/utils/supabase'
 
 const TABLE = 'foods'
 

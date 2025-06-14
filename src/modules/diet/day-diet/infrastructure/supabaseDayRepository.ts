@@ -1,6 +1,5 @@
 import { type Accessor, createSignal } from 'solid-js'
 
-import supabase from '~/legacy/utils/supabase'
 import {
   type DayDiet,
   dayDietSchema,
@@ -18,6 +17,7 @@ import {
   handleValidationError,
   wrapErrorWithStack,
 } from '~/shared/error/errorHandler'
+import supabase from '~/shared/utils/supabase'
 
 // TODO:   Delete old days table and rename days_test to days
 export const SUPABASE_TABLE_DAYS = 'days_test'

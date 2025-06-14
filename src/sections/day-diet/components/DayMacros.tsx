@@ -1,12 +1,12 @@
 import { createMemo, Show } from 'solid-js'
 
-import { calcCalories, calcDayMacros } from '~/legacy/utils/macroMath'
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import { Progress } from '~/sections/common/components/Progress'
 import { stringToDate } from '~/shared/utils/date'
+import { calcCalories, calcDayMacros } from '~/shared/utils/macroMath'
 
 export default function DayMacros(props: {
   class?: string
@@ -48,15 +48,17 @@ export default function DayMacros(props: {
         <div class="shrink">
           <Calories
             class="w-full"
-            macros={macroSignals().macros!}
-            targetCalories={macroSignals().targetCalories!}
+            macros={macroSignals().macros ?? { carbs: 0, protein: 0, fat: 0 }}
+            targetCalories={macroSignals().targetCalories ?? 0}
           />
         </div>
         <div class="flex-1">
           <Macros
             class="mt-3 text-xl xs:mt-0"
-            macros={macroSignals().macros!}
-            targetMacros={macroSignals().macroTarget!}
+            macros={macroSignals().macros ?? { carbs: 0, protein: 0, fat: 0 }}
+            targetMacros={
+              macroSignals().macroTarget ?? { carbs: 0, protein: 0, fat: 0 }
+            }
           />
         </div>
       </div>

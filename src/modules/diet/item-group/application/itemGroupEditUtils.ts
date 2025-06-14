@@ -1,6 +1,5 @@
 import { type Accessor } from 'solid-js'
 
-import { isOverflow } from '~/legacy/utils/macroOverflow'
 import {
   currentDayDiet,
   targetDay,
@@ -20,6 +19,7 @@ import {
 } from '~/modules/diet/template-item/domain/templateItem'
 import { showError } from '~/modules/toast/application/toastManager'
 import { stringToDate } from '~/shared/utils/date'
+import { isOverflow } from '~/shared/utils/macroOverflow'
 
 export function handleNewItemGroup({
   group,

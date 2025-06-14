@@ -1,6 +1,5 @@
 import { createEffect, createSignal } from 'solid-js'
 
-import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 import {
   createNewDayDiet,
   type DayDiet,
@@ -15,6 +14,7 @@ import { currentUserId } from '~/modules/user/application/user'
 import { type User } from '~/modules/user/domain/user'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { getTodayYYYYMMDD } from '~/shared/utils/date'
+import { registerSubapabaseRealtimeCallback } from '~/shared/utils/supabase'
 
 export function createDayDiet({
   target_day: targetDay,

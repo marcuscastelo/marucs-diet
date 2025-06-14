@@ -16,7 +16,8 @@ This agent receives a GitHub issue (by number or content) as input and guides th
 
 1. **Issue Intake**
    - Accept the issue number (e.g., 325) or raw issue content as input.
-   - If only a number is provided, fetch the issue content from the repository using the GitHub CLI (`gh`) before asking for further details.
+   - If only a number is provided, fetch the issue content from the repository using the GitHub CLI (`gh`).
+   - Always fetch and process both the issue body and all comments before starting the refinement process.
 
 2. **Template Selection**
    - Present the user with a list of available issue templates from `docs/` (e.g., `ISSUE_TEMPLATE_BUGFIX.md`, `ISSUE_TEMPLATE_FEATURE.md`, etc.).
@@ -27,7 +28,9 @@ This agent receives a GitHub issue (by number or content) as input and guides th
    - Ask clarifying questions to resolve ambiguities, fill gaps, and ensure all acceptance criteria are explicit.
    - When cleaning up TODOs referencing missing issues, confirm with the user whether only comments or also code should be removed.
    - Suggest improvements to scope, context, and expected outcomes as needed.
-   - Propose label additions but require explicit user confirmation before applying them.
+   - Propose label additions and confirm with the user before applying them.
+   - Confirm with the user before making any changes to GitHub issues, including both content and labels.
+   - Confirm the user's intent for global, codebase-wide changes when the issue involves renaming or refactoring terms.
 
 4. **Formatting**
    - Structure the refined issue according to the selected template, using Markdown.
@@ -37,6 +40,8 @@ This agent receives a GitHub issue (by number or content) as input and guides th
 5. **Output and Update**
    - Output the refined issue as a Markdown code block, ready for submission or further review.
    - Before updating the issue on GitHub, confirm with the user to avoid unintended changes.
+   - Once confirmed, handle label changes directly (not just suggest them) and update both the issue content and labels in a single workflow, unless the user requests otherwise.
+   - Handle errors from the GitHub CLI (e.g., missing files) by creating the necessary files automatically before retrying the command.
    - Include a `reportedBy` metadata field at the top for traceability. See [copilot-instructions.md](../copilot-instructions.md) for global reporting and attribution rules.
 
 ## References

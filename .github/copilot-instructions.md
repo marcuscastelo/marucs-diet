@@ -100,6 +100,7 @@ reportedBy: <agent-name.vXX>
 - Application layer must always call handleApiError with context.
 - Never use handleApiError in domain code.
 - Never use `.catch(() => {})` in promises.
+- Never remove TODOs from the codebase, regardless of context.
 
 ## Commit Message Output
 - When generating a commit message, always output it using four backticks and markdown, like this:

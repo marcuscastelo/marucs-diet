@@ -1,9 +1,9 @@
 import { Show } from 'solid-js'
 
-import { latestWeight } from '~/legacy/utils/weightUtils'
 import { userMacroProfiles } from '~/modules/diet/macro-profile/application/macroProfile'
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { MacroTarget } from '~/sections/macro-nutrients/components/MacroTargets'
+import { latestWeight } from '~/shared/utils/weightUtils'
 
 // TODO:   Rename MacroProfileComp to MacroProfile.
 export function MacroProfileComp() {

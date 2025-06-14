@@ -1,7 +1,5 @@
 import { createEffect, createSignal } from 'solid-js'
 
-import { getLatestMacroProfile } from '~/legacy/utils/macroProfileUtils'
-import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 import {
   type MacroProfile,
   type NewMacroProfile,
@@ -13,6 +11,8 @@ import {
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
 import { handleApiError } from '~/shared/error/errorHandler'
+import { getLatestMacroProfile } from '~/shared/utils/macroProfileUtils'
+import { registerSubapabaseRealtimeCallback } from '~/shared/utils/supabase'
 
 const macroProfileRepository = createSupabaseMacroProfileRepository()
 

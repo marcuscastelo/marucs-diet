@@ -1,6 +1,5 @@
 import { createEffect, createSignal } from 'solid-js'
 
-import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 import { showPromise } from '~/modules/toast/application/toastManager'
 import {
   demoteToNewUser,
@@ -16,6 +15,7 @@ import {
   SUPABASE_TABLE_USERS,
 } from '~/modules/user/infrastructure/supabaseUserRepository'
 import { handleApiError } from '~/shared/error/errorHandler'
+import { registerSubapabaseRealtimeCallback } from '~/shared/utils/supabase'
 
 export const DEFAULT_USER_ID = 3
 

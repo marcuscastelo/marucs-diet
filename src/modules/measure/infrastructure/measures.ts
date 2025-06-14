@@ -1,4 +1,3 @@
-import supabase from '~/legacy/utils/supabase'
 import { type Measure, type NewMeasure } from '~/modules/measure/domain/measure'
 import { type MeasureRepository } from '~/modules/measure/domain/measureRepository'
 import {
@@ -10,6 +9,7 @@ import {
 import { type User } from '~/modules/user/domain/user'
 import { handleApiError, wrapErrorWithStack } from '~/shared/error/errorHandler'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
+import supabase from '~/shared/utils/supabase'
 
 const TABLE = 'body_measures'
 

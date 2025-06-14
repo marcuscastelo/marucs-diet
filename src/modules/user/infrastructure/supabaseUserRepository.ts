@@ -1,4 +1,3 @@
-import supabase from '~/legacy/utils/supabase'
 import { type NewUser, type User } from '~/modules/user/domain/user'
 import { type UserRepository } from '~/modules/user/domain/userRepository'
 import {
@@ -9,6 +8,7 @@ import {
 } from '~/modules/user/infrastructure/userDAO'
 import { wrapErrorWithStack } from '~/shared/error/errorHandler'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
+import supabase from '~/shared/utils/supabase'
 
 export const SUPABASE_TABLE_USERS = 'users'
 

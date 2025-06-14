@@ -1,6 +1,5 @@
 import { type Accessor, For, type Setter } from 'solid-js'
 
-import { calcRecipeMacros } from '~/legacy/utils/macroMath'
 import { type Food } from '~/modules/diet/food/domain/food'
 import { createItem } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
@@ -18,6 +17,7 @@ import {
   ItemView,
 } from '~/sections/food-item/components/ItemView'
 import { RemoveFromRecentButton } from '~/sections/food-item/components/RemoveFromRecentButton'
+import { calcRecipeMacros } from '~/shared/utils/macroMath'
 
 export function TemplateSearchResults(props: {
   search: string

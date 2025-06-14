@@ -1,7 +1,5 @@
 import { createEffect, type JSXElement, Show } from 'solid-js'
 
-import { regenerateId } from '~/legacy/utils/idUtils'
-import { calcMealCalories } from '~/legacy/utils/macroMath'
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import {
   convertToGroups,
@@ -25,6 +23,8 @@ import {
   MealContextProvider,
   useMealContext,
 } from '~/sections/meal/context/MealContext'
+import { regenerateId } from '~/shared/utils/idUtils'
+import { calcMealCalories } from '~/shared/utils/macroMath'
 
 export type MealEditViewProps = {
   meal: Meal

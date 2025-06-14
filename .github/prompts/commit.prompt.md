@@ -1,5 +1,5 @@
 ---
-description: 'Analyze staged changes and generate a concise, conventional commit message in English. Ensure clarity, security, and adherence to best practices.'
+description: 'Analyze staged changes and generate a concise, conventional commit message in English. Ensure clarity, security, and adherence to best practices. For multi-line commit messages, always use printf and git commit -F <file> to avoid shell interpretation issues in zsh. Respect existing git command aliases if present. Commit messages should be explicit and atomic, referencing all affected modules and summarizing the main change.'
 mode: 'agent'
 tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
@@ -26,7 +26,8 @@ done
   - Be a single line unless a body is required for context.
   - Never include code, diffs, or sensitive data in the commit message.
   - Do not generate a commit if there are no staged changes.
-- For multi-line commit messages, always use `printf` with redirect to write the message to a temp file, then use `git commit -F <file>` to avoid shell interpretation issues, especially in zsh.
+- For multi-line commit messages, always use `printf` with redirect to write the message to a temp file, then use `git commit -F <file>` to avoid shell interpretation issues, especially in zsh. Respect existing git command aliases if present.
+- Commit messages should be explicit and atomic, referencing all affected modules and summarizing the main change.
 - If you encounter shell errors (e.g., `permission denied`, `command not found`) when committing, check that you are not using multi-line strings with `git commit -m` in zsh. Use `printf` to a temp file and `git commit -F <file>` instead.
 
 ## Output

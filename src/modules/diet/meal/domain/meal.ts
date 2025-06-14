@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
-import { generateId } from '~/legacy/utils/idUtils'
 import { itemGroupSchema } from '~/modules/diet/item-group/domain/itemGroup'
+import { generateId } from '~/shared/utils/idUtils'
 
 export const mealSchema = z.object({
   id: z.number(),

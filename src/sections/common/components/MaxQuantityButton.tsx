@@ -1,6 +1,6 @@
 import type { JSX } from 'solid-js'
 
-import { latestWeight } from '~/legacy/utils/weightUtils'
+import { latestWeight } from '~/shared/utils/weightUtils'
 
 export type MacroValues = {
   carbs: number
