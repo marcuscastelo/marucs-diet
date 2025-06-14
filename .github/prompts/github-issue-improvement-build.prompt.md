@@ -21,7 +21,7 @@ When provided with a build warning, inefficiency, technical debt, or improvement
   - Suggested Actions: List concrete next steps or mitigations.
   - Labels: Suggest at least one main type label (e.g., `improvement`, `build`), plus complexity and area labels as appropriate.
 - **Formatting**: All issue bodies must use Markdown for all sections, lists, and headings.
-- **Command**: Use `printf` with `\n` for newlines. Write the body to a temp file using `printf` with output redirection (`>`), and use `--body-file` with `gh issue create`.
+- **Command**: Use `printf` with heredoc (<<EOF ... EOF) for newlines and Markdown formatting. Write the body to a temp file, and use `--body-file` with `gh issue create`.
 - **Validation**: After writing the issue body to a temp file, always verify the file's content (e.g., `cat /tmp/improvement-issue-body.md`) before running `gh issue create`.
 - **Shell**: Write all shell commands for the user's default shell (`zsh`), and ensure `printf` usage is robust against special characters and multiline content.
 - **Labels**: Refer to `docs/labels-usage.md` for label conventions. Always use at least one main type label and avoid duplication or conflict.

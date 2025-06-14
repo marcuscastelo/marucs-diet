@@ -11,8 +11,8 @@ When provided with a task, chore, or sub-issue request, generate a GitHub issue 
 - Title: concise, action-oriented.
 - Body: use the template in `docs/ISSUE_TEMPLATE_TASK.md`, filling in relevant fields. Do not include the template header.
 - Use only existing labels. If a label or milestone does not exist, prompt the user or skip it.
-- Use `printf` with `\n` for newlines. Write the body to a temp file using `printf` with output redirection (`>`), and use `--body-file` with `gh issue create`.
-- Do not use `echo` or heredoc.
+- Use `printf` with heredoc (<<EOF ... EOF) for newlines and Markdown formatting. Write the body to a temp file, and use `--body-file` with `gh issue create`.
+- Do not use `echo`.
 - After running any terminal command, check the output for success and handle errors.
 - Output only the final command.
 - Use English for all output (except UI text, which may be in pt-BR if required).

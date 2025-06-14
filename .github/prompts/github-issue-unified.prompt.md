@@ -33,8 +33,8 @@ This agent creates any type of GitHub issue (bug, feature, improvement, refactor
      - Summarize or list the most relevant files and their paths in a `Related Files` section in the issue body.
 
 4. **Shell and CLI Usage**
-   - Use `printf` with `\n` for newlines. Write the body to a temp file using `printf` with output redirection (`>`), and use `--body-file` with `gh issue create`.
-   - Do not use `echo` or heredoc.
+   - Use `printf` with heredoc (<<EOF ... EOF) for newlines and Markdown formatting. Write the body to a temp file, and use `--body-file` with `gh issue create`.
+   - Do not use `echo`.
    - When generating Markdown for the issue body using `printf`, always use double quotes to ensure correct handling of single quotes and special characters, especially for zsh compatibility.
    - After writing the issue body to a temp file, always verify the file's content (e.g., `cat /tmp/issue-body.md`) before running `gh issue create`.
    - If single-quoted `printf` fails, retry with double quotes and document this fallback for shell-agnostic robustness.
