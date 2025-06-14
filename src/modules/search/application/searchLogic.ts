@@ -5,6 +5,7 @@ import type { Food } from '~/modules/diet/food/domain/food'
 import type { Recipe } from '~/modules/diet/recipe/domain/recipe'
 import type { Template } from '~/modules/diet/template/domain/template'
 import { availableTabs } from '~/sections/search/components/TemplateSearchTabs'
+import { handleApiError } from '~/shared/error/errorHandler'
 
 /**
  * Dependencies for fetchTemplatesByTabLogic
@@ -75,7 +76,10 @@ export async function fetchTemplatesByTabLogic(
           ? await Promise.all(
               recipeIds.map((id) =>
                 deps.fetchRecipeById(id).catch((error) => {
-                  console.error(`Error fetching recipe by ID ${id}:`, error)
+                  handleApiError(error, {
+                    component: 'fetchTemplatesByTabLogic',
+                    operation: `fetchRecipeById for recipeId ${id}`,
+                  })
                   return null
                 }),
               ),
