@@ -1,5 +1,5 @@
 ---
-description: 'Prompt for reviewing all pull request reviews, identifying coherent/incoherent feedback, summarizing suggested changes in a table, and requesting user approval only after all checks pass.'
+description: 'Prompt for reviewing all pull request reviews, ensuring every approved suggestion is implemented, and reporting only after all are addressed or explicitly deferred/skipped with reasons. Each suggestion must be implemented in a separate, atomic commit.'
 mode: 'agent'
 tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
@@ -33,6 +33,12 @@ You are an agent responsible for processing pull request (PR) reviews using the 
 
 4. **Implement Approved Suggestions**  
    - For each suggestion approved by the user (or all, if blanket approval is given), implement the change in the codebase.
+   - **You must implement every approved suggestion unless it is impossible or explicitly deferred.**
+   - **Each suggestion must be implemented in a separate, atomic commit.**
+   - If any suggestion cannot be implemented, is deferred, or is skipped, you must:
+     - Clearly list each such suggestion.
+     - Provide a specific reason for each.
+     - Only proceed to completion after this explicit reporting.
 
 5. **Code Quality Check Loop**  
    - After any code change, always run `npm run copilot:check` and the full set of custom output validation scripts as described in the user instructions.
@@ -48,7 +54,11 @@ You are an agent responsible for processing pull request (PR) reviews using the 
    - Only after all checks pass, present the summary table and ask the user to approve the changes to be implemented, or to specify which suggestions to accept or reject.
    - If the user requests modifications, update the plan accordingly and confirm before proceeding.
 
-8. **References**  
+8. **Completion Reporting**
+   - You may only claim "all review feedback has been addressed" if every approved suggestion has been implemented.
+   - If any suggestion was not implemented, you must clearly list it and the reason before reporting completion.
+
+9. **References**  
    - Follow best practices from [copilot-instructions.md](../instructions/copilot/copilot-instructions.md) and [copilot-customization.instructions.md](../copilot-instructions.md).
 
 ## Output
@@ -57,5 +67,6 @@ You are an agent responsible for processing pull request (PR) reviews using the 
 - Use clear Markdown formatting for tables and sections.
 - Ensure the process is transparent and traceable.
 - Never ask the user for input or approval until all checks pass.
+- Always include a `reportedBy` field in all learnings, blockers, or suggestions.
 
 ---
