@@ -96,7 +96,6 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
     // Helper function for checking individual macro properties
     const checkMacroOverflow = (property: keyof MacroNutrients) => {
       if (!Array.isArray(newGroup.items)) return false
-      // macroOverflowContext is always an object here, so no need to check
       return newGroup.items.some((item) =>
         isOverflow(item, property, macroOverflowContext),
       )
@@ -111,7 +110,6 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
       } else if (isTemplateItemRecipe(originalAddedItem)) {
         type = 'recipe'
       } else {
-        // Throw a typed error for safety
         throw new Error('Invalid template item type')
       }
 
@@ -127,7 +125,6 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
           recentFood.type !== type ||
           recentFood.reference_id !== originalAddedItem.reference)
       ) {
-        // Throw a typed error for safety
         throw new Error(
           'BUG: recentFood fetched does not match user/type/reference',
         )
