@@ -25,6 +25,7 @@
   "inlineChat.enableV2": true,
   "chat.agent.maxRequests": 2000,
   "chat.tools.autoApprove": true,
+  "chat.sendElementsToChat.enabled": true,
   "chat.agent.enabled": true,
   "github.copilot.chat.agent.autoFix": true,
   "github.copilot.chat.agent.runTasks": true,
