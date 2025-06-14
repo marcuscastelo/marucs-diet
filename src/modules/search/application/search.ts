@@ -15,10 +15,7 @@ import { Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { Template } from '~/modules/diet/template/domain/template'
 import { fetchUserRecentFoods } from '~/modules/recent-food/application/recentFood'
 import { currentUser, currentUserId } from '~/modules/user/application/user'
-import {
-  type AvailableTab,
-  availableTabs,
-} from '~/sections/search/components/TemplateSearchTabs'
+import { type Tab } from '~/sections/search/components/TemplateSearchTabs'
 
 const fetchRecentsForModal = async (
   search: string = '',
@@ -164,8 +161,21 @@ export const [debouncedSearch, setDebouncedSearch] = createSignal(
   untrack(templateSearch),
 )
 
-export const [templateSearchTab, setTemplateSearchTab] =
-  createSignal<AvailableTab>(availableTabs.Todos.id)
+export const [templateSearchTab, immediateSetTemplateSearchTab] =
+  createSignal<Tab>('hidden')
+export const [debouncedTab, setDebouncedTab] = createSignal(
+  untrack(templateSearchTab),
+)
+
+let tabDebounceTimeout: NodeJS.Timeout | null = null
+
+export function setTempalteSearchTab(newTab: Tab, delay = 500) {
+  immediateSetTemplateSearchTab(newTab)
+  if (tabDebounceTimeout) clearTimeout(tabDebounceTimeout)
+  tabDebounceTimeout = setTimeout(() => {
+    setDebouncedTab(newTab)
+  }, delay)
+}
 
 export const [
   templates,
@@ -173,7 +183,7 @@ export const [
 ] = createResource(
   () => ({
     search: debouncedSearch(),
-    tab: templateSearchTab(),
+    tab: debouncedTab(),
     userId: currentUserId(),
   }),
   fetchFunc,

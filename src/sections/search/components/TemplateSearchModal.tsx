@@ -30,11 +30,11 @@ import { createNewRecentFood } from '~/modules/recent-food/domain/recentFood'
 import {
   refetchTemplates,
   setDebouncedSearch,
-  setTemplateSearchTab,
   templates,
   templateSearch,
   templateSearchTab,
 } from '~/modules/search/application/search'
+import { setTempalteSearchTab } from '~/modules/search/application/search'
 import { showSuccess } from '~/modules/toast/application/toastManager'
 import { showError } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
@@ -291,8 +291,9 @@ export function TemplateSearch(props: {
   })
 
   createEffect(() => {
-    props.modalVisible()
-    setTemplateSearchTab(TEMPLATE_SEARCH_DEFAULT_TAB)
+    setTempalteSearchTab(
+      props.modalVisible() ? TEMPLATE_SEARCH_DEFAULT_TAB : 'hidden',
+    )
   })
 
   return (
@@ -311,7 +312,9 @@ export function TemplateSearch(props: {
 
       <TemplateSearchTabs
         tab={templateSearchTab}
-        setTab={setTemplateSearchTab}
+        setTab={(tab) => {
+          if (typeof tab === 'string') setTempalteSearchTab(tab)
+        }}
       />
       <TemplateSearchBar isDesktop={isDesktop} />
 
