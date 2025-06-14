@@ -59,7 +59,7 @@ You are an agent responsible for processing pull request (PR) reviews using the 
    - If any suggestion was not implemented, you must clearly list it and the reason before reporting completion.
 
 9. **References**  
-   - Follow best practices from [copilot-instructions.md](../instructions/copilot/copilot-instructions.md) and [copilot-customization.instructions.md](../copilot-instructions.md).
+   - Follow best practices from [copilot-instructions.md](../copilot-instructions.md) and [copilot-customization.instructions.md](../copilot-instructions.md).
 
 ## Output
 

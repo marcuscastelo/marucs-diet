@@ -20,7 +20,7 @@ When provided with a feature request or idea, generate a GitHub issue using the 
 - **Always preview or validate Markdown rendering before submitting or updating issues via the `gh` CLI.**
 - **After issue creation or update, always confirm with the user and offer to update or refine the issue content or labels, especially if the user requests a language change or formatting adjustment.**
 - **Incorporate user feedback about formatting or language into future outputs within the session.**
-- Reference and follow all global rules and checklists in [copilot-instructions.md](../instructions/copilot/copilot-instructions.md).
+- Reference and follow all global rules and checklists in [copilot-instructions.md](../copilot-instructions.md).
 - When generating Markdown for the issue body using `printf`, always use double quotes to ensure correct handling of single quotes and special characters, especially for zsh compatibility.
 - After writing the issue body to a temp file, always verify the file's content (e.g., `cat /tmp/feature-issue-body.md`) before running `gh issue create`.
 - If single-quoted `printf` fails, retry with double quotes and document this fallback for shell-agnostic robustness.

@@ -27,7 +27,7 @@ Your task is to automate the process of implementing a GitHub issue, following t
    - When restoring or refactoring legacy logic, check for file moves/renames and update imports to match the current codebase structure.
    - Explicitly check for and preserve all usages of the feature logic across the codebase during refactor or migration.
    - Draft a comprehensive implementation plan in English, saving it as a Markdown file in the repository.
-   - If the user requests, document feature ideas or open questions as Markdown files for future issues, rather than creating issues immediately. See [copilot-instructions.md](../instructions/copilot/copilot-instructions.md) for global rules.
+   - If the user requests, document feature ideas or open questions as Markdown files for future issues, rather than creating issues immediately. See [copilot-instructions.md](../copilot-instructions.md) for global rules.
    - Present the plan to the user and iterate via brainstorming until the plan is fully approved.
 
 5. **Implement with User Review**
@@ -49,7 +49,7 @@ Your task is to automate the process of implementing a GitHub issue, following t
 - UI text may be in English or pt-BR as required.
 - Never add explanatory comments in code unless absolutely necessary.
 - Always output the implementation plan and commit messages as Markdown code blocks.
-- Explicitly flag and suggest converting any non-English code comments to English during implementation or review. See [copilot-instructions.md](../instructions/copilot/copilot-instructions.md) for global rules.
+- Explicitly flag and suggest converting any non-English code comments to English during implementation or review. See [copilot-instructions.md](../copilot-instructions.md) for global rules.
 
 ## References
 

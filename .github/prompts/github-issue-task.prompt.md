@@ -28,7 +28,7 @@ reportedBy: github-copilot.v1/github-issue-task
 - Write all shell commands for the user's default shell (`zsh`), and ensure `printf`/`echo` usage is robust against special characters and multiline content.
 - If file creation or `printf` fails (e.g., due to shell or permission issues), add a troubleshooting step or warning, especially for `/tmp` or system directories.
 - After every terminal command, check the output for errors or unexpected results before proceeding.
-- Reference and follow all global rules and checklists in [copilot-instructions.md](../instructions/copilot/copilot-instructions.md).
+- Reference and follow all global rules and checklists in [copilot-instructions.md](../copilot-instructions.md).
 - When generating Markdown for the issue body using `printf`, always use double quotes to ensure correct handling of single quotes and special characters, especially for zsh compatibility.
 - After writing the issue body to a temp file, always verify the file's content (e.g., `cat /tmp/task-issue-body.md`) before running `gh issue create`.
 - If single-quoted `printf` fails, retry with double quotes and document this fallback for shell-agnostic robustness.
