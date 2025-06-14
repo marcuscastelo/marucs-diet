@@ -116,7 +116,7 @@ export async function fetchTemplatesByTabLogic(
     }
     case availableTabs.Todos.id:
     default: {
-      const limit = 50
+      const limit = DEFAULT_FETCH_LIMIT
       if (lowerSearch === '') {
         return deps.fetchFoods({ limit })
       } else {
@@ -125,3 +125,8 @@ export async function fetchTemplatesByTabLogic(
     }
   }
 }
+
+/**
+ * Default fetch limit for the 'Todos' tab.
+ */
+const DEFAULT_FETCH_LIMIT = 50
