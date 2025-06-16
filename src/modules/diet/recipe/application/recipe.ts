@@ -21,11 +21,7 @@ export async function fetchUserRecipes(userId: User['id']) {
       { context: 'background', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error, {
-      component: 'recipeApplication',
-      operation: 'fetchUserRecipes',
-      additionalData: { userId },
-    })
+    handleApiError(error)
     return []
   }
 }
@@ -42,11 +38,7 @@ export async function fetchUserRecipeByName(userId: User['id'], name: string) {
       { context: 'background', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error, {
-      component: 'recipeApplication',
-      operation: 'fetchUserRecipeByName',
-      additionalData: { userId, name },
-    })
+    handleApiError(error)
     return []
   }
 }
@@ -63,11 +55,7 @@ export async function fetchRecipeById(recipeId: Recipe['id']) {
       { context: 'background', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error, {
-      component: 'recipeApplication',
-      operation: 'fetchRecipeById',
-      additionalData: { recipeId },
-    })
+    handleApiError(error)
     return null
   }
 }
@@ -84,11 +72,7 @@ export async function insertRecipe(newRecipe: NewRecipe) {
       { context: 'background', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error, {
-      component: 'recipeApplication',
-      operation: 'insertRecipe',
-      additionalData: { newRecipe },
-    })
+    handleApiError(error)
     return null
   }
 }
@@ -105,11 +89,7 @@ export async function updateRecipe(recipeId: Recipe['id'], newRecipe: Recipe) {
       { context: 'background', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error, {
-      component: 'recipeApplication',
-      operation: 'updateRecipe',
-      additionalData: { recipeId, newRecipe },
-    })
+    handleApiError(error)
     return null
   }
 }
@@ -126,11 +106,7 @@ export async function deleteRecipe(recipeId: Recipe['id']) {
       { context: 'background', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error, {
-      component: 'recipeApplication',
-      operation: 'deleteRecipe',
-      additionalData: { recipeId },
-    })
+    handleApiError(error)
     return null
   }
 }

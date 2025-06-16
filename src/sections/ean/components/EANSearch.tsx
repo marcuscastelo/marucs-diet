@@ -57,11 +57,7 @@ export default function EANSearch(props: EANSearchProps) {
 
     const catchFetch = (err: unknown) => {
       console.log('catchFetch err', err)
-      handleApiError(err, {
-        component: 'EANSearch',
-        operation: 'fetchFoodByEan',
-        additionalData: { EAN: props.EAN() },
-      })
+      handleApiError(err)
       showConfirmModal({
         title: `Erro ao buscar alimento de EAN ${props.EAN()}`,
         body: 'Erro ao buscar alimento',

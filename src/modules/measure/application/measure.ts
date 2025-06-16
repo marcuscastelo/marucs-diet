@@ -20,11 +20,7 @@ export async function fetchUserBodyMeasures(
   try {
     return await bodyMeasureRepository.fetchUserBodyMeasures(userId)
   } catch (error) {
-    handleApiError(error, {
-      component: 'bodyMeasureApplication',
-      operation: 'fetchUserBodyMeasures',
-      additionalData: { userId },
-    })
+    handleApiError(error)
     return []
   }
 }
@@ -48,11 +44,7 @@ export async function insertBodyMeasure(
       { context: 'user-action', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error, {
-      component: 'bodyMeasureApplication',
-      operation: 'insertBodyMeasure',
-      additionalData: { newBodyMeasure },
-    })
+    handleApiError(error)
     return null
   }
 }
@@ -78,11 +70,7 @@ export async function updateBodyMeasure(
       { context: 'user-action', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error, {
-      component: 'bodyMeasureApplication',
-      operation: 'updateBodyMeasure',
-      additionalData: { bodyMeasureId, newBodyMeasure },
-    })
+    handleApiError(error)
     return null
   }
 }
@@ -107,11 +95,7 @@ export async function deleteBodyMeasure(
     )
     return true
   } catch (error) {
-    handleApiError(error, {
-      component: 'bodyMeasureApplication',
-      operation: 'deleteBodyMeasure',
-      additionalData: { bodyMeasureId },
-    })
+    handleApiError(error)
     return false
   }
 }

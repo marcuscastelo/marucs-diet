@@ -35,11 +35,7 @@ export async function importFoodFromApiByEan(
   ean: Food['ean'],
 ): Promise<Food | null> {
   if (ean === null) {
-    handleApiError(new Error('EAN is required to import food from API'), {
-      component: 'apiFood',
-      operation: 'importFoodFromApiByEan',
-      additionalData: { ean },
-    })
+    handleApiError(new Error('EAN is required to import food from API'))
     return null
   }
 
@@ -47,14 +43,7 @@ export async function importFoodFromApiByEan(
     .data as unknown as ApiFood
 
   if (apiFood.id === 0) {
-    handleApiError(
-      new Error(`Food with ean ${ean} not found on external api`),
-      {
-        component: 'apiFood',
-        operation: 'importFoodFromApiByEan',
-        additionalData: { ean },
-      },
-    )
+    handleApiError(new Error(`Food with ean ${ean} not found on external api`))
     return null
   }
 
@@ -119,11 +108,6 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
 
       handleApiError(
         new Error(`Failed to upsert ${relevantErrors.length} foods`),
-        {
-          component: 'ApiFood',
-          operation: 'importFoodsFromApiByName',
-          additionalData: errorDetails,
-        },
       )
 
       showError(

@@ -51,11 +51,7 @@ export async function insertItemGroup(
 
     await updateDayDiet(currentDayDiet_.id, newDay)
   } catch (error) {
-    handleApiError(error, {
-      component: 'itemGroupApplication',
-      operation: 'insertItemGroup',
-      additionalData: { mealId, groupName: newItemGroup.name },
-    })
+    handleApiError(error)
     throw error
   }
 }
@@ -93,11 +89,7 @@ export async function updateItemGroup(
 
     await updateDayDiet(currentDayDiet_.id, newDay)
   } catch (error) {
-    handleApiError(error, {
-      component: 'itemGroupApplication',
-      operation: 'updateItemGroup',
-      additionalData: { mealId, itemGroupId, groupName: newItemGroup.name },
-    })
+    handleApiError(error)
     throw error
   }
 }
@@ -134,11 +126,7 @@ export async function deleteItemGroup(
 
     await updateDayDiet(currentDayDiet_.id, newDay)
   } catch (error) {
-    handleApiError(error, {
-      component: 'itemGroupApplication',
-      operation: 'deleteItemGroup',
-      additionalData: { mealId, itemGroupId },
-    })
+    handleApiError(error)
     throw error
   }
 }

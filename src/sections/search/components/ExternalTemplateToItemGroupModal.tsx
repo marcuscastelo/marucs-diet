@@ -37,11 +37,7 @@ export function ExternalTemplateToItemGroupModal(
     )
 
     props.onNewItemGroup(newGroup, item).catch((err) => {
-      handleApiError(err, {
-        component: 'ExternalTemplateToItemGroupModal',
-        operation,
-        additionalData: { itemName: item.name, templateType },
-      })
+      handleApiError(err)
       showError(err, {}, `Erro ao adicionar item: ${formatError(err)}`)
     })
   }

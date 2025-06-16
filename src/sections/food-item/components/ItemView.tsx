@@ -92,22 +92,14 @@ export function ItemName() {
         .fetchRecipeById(itemValue.reference)
         .then(setTemplate)
         .catch((err) => {
-          handleApiError(err, {
-            component: 'ItemView::ItemName',
-            operation: 'fetchRecipeById',
-            additionalData: { recipeId: itemValue.reference },
-          })
+          handleApiError(err)
           setTemplate(null)
         })
     } else if (isTemplateItemFood(itemValue)) {
       fetchFoodById(itemValue.reference)
         .then(setTemplate)
         .catch((err) => {
-          handleApiError(err, {
-            component: 'ItemView::ItemName',
-            operation: 'fetchFoodById',
-            additionalData: { foodId: itemValue.reference },
-          })
+          handleApiError(err)
           setTemplate(null)
         })
     }

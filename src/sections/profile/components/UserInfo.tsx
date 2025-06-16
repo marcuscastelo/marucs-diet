@@ -117,11 +117,7 @@ export function UserInfo() {
             __type: 'NewUser' as const,
           }
           updateUser(user.id, newUser).catch((error) => {
-            handleApiError(error, {
-              component: 'UserInfo',
-              operation: 'updateUser',
-              additionalData: { userId: user.id },
-            })
+            handleApiError(error)
             showError(error, {}, 'Erro ao atualizar usuário')
           })
         }}

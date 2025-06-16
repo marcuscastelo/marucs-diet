@@ -62,11 +62,6 @@ export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
     new Error(
       `Unsupported convertible type: ${getTypeDescription(convertible)}`,
     ),
-    {
-      component: 'itemGroupService',
-      operation: 'convertToGroups',
-      additionalData: { input: convertible },
-    },
   )
   // Defensive: always return an empty array for unsupported input
   return []

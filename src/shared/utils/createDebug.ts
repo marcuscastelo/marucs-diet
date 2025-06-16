@@ -1,5 +1,5 @@
 /* eslint-disable */
-export function getCallerFile(): string | undefined {
+export function getCallerFile(n: number): string | undefined {
   const originalPrepareStackTrace = Error.prepareStackTrace;
 
   try {
@@ -8,14 +8,17 @@ export function getCallerFile(): string | undefined {
 
     const stack = err.stack as unknown as NodeJS.CallSite[];
 
-    // stack[0] = getCallerFile
-    // stack[1] = quem chamou getCallerFile
-    // stack[2] = o arquivo chamador da função que chamou getCallerFile
-    const caller = stack[2];
+    const caller = stack[n + 1];
     return caller?.getFileName?.() ?? undefined;
   } finally {
     Error.prepareStackTrace = originalPrepareStackTrace;
   }
+}
+
+function getCallerContext(n: number = 1): string {
+  const file = getCallerFile(n + 1);
+  if (!file) return 'unknown';
+  return file.replace(/.*\/src\//, '').replace(/\.[jt]sx?.*$/, '');
 }
 
 const DEBUG_ENABLED = true;
@@ -52,23 +55,17 @@ export function createDebug() {
     return () => {};
   }
 
-  const module =
-    getCallerFile()?.replace(/.*\/src\//, '')?.replace(/\.[jt]sx?$/, '') ?? 'unknown';
+  const module = getCallerContext(1);
 
   return (...args: unknown[]) => {
     const group = groups.get(module) ?? {
       entries: [],
       timer: null,
     };
-
     group.entries.push({ args });
-
-    if (group.timer) clearTimeout(group.timer);
-
-    group.timer = setTimeout(() => {
-      flushGroup(module);
-    }, GROUP_DELAY_MS);
-
+    if (!group.timer) {
+      group.timer = setTimeout(() => flushGroup(module), GROUP_DELAY_MS);
+    }
     groups.set(module, group);
   };
 }

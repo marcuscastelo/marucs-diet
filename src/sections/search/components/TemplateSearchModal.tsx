@@ -187,11 +187,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
             primary: true,
             onClick: () => {
               onConfirm().catch((err) => {
-                handleApiError(err, {
-                  component: 'TemplateSearchModal',
-                  operation: 'confirmOverMacros',
-                  additionalData: { templateType: 'item' },
-                })
+                handleApiError(err)
                 showError(err, {}, 'Erro ao adicionar item')
               })
             },
@@ -208,11 +204,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
       try {
         await onConfirm()
       } catch (err) {
-        handleApiError(err, {
-          component: 'TemplateSearchModal',
-          operation: 'confirmItem',
-          additionalData: { templateType: 'item' },
-        })
+        handleApiError(err)
         showError(err, {}, 'Erro ao adicionar item')
       }
     }

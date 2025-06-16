@@ -47,11 +47,7 @@ export async function fetchUserWeights(userId: number) {
     setUserWeights(weights)
     return weights
   } catch (error) {
-    handleApiError(error, {
-      component: 'weightApplication',
-      operation: 'fetchUserWeights',
-      additionalData: { userId },
-    })
+    handleApiError(error)
     throw error
   }
 }
@@ -66,11 +62,7 @@ export async function insertWeight(newWeight: NewWeight) {
     })
     return weight
   } catch (error) {
-    handleApiError(error, {
-      component: 'weightApplication',
-      operation: 'insertWeight',
-      additionalData: { newWeight },
-    })
+    handleApiError(error)
     throw error
   }
 }
@@ -88,11 +80,7 @@ export async function updateWeight(weightId: Weight['id'], newWeight: Weight) {
     await fetchUserWeights(currentUserId())
     return weight
   } catch (error) {
-    handleApiError(error, {
-      component: 'weightApplication',
-      operation: 'updateWeight',
-      additionalData: { weightId, newWeight },
-    })
+    handleApiError(error)
     throw error
   }
 }
@@ -106,11 +94,7 @@ export async function deleteWeight(weightId: Weight['id']) {
     })
     await fetchUserWeights(currentUserId())
   } catch (error) {
-    handleApiError(error, {
-      component: 'weightApplication',
-      operation: 'deleteWeight',
-      additionalData: { weightId },
-    })
+    handleApiError(error)
     throw error
   }
 }
