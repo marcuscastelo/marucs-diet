@@ -117,4 +117,63 @@ describe('fetchTemplatesByTabLogic', () => {
     await fetchTemplatesByTabLogic(availableTabs.Todos.id, search, userId, deps)
     expect(deps.fetchFoodsByName).toHaveBeenCalledWith(search, { limit: 50 })
   })
+
+  it('handles large datasets efficiently in Recentes tab', async () => {
+    // Create large datasets to verify O(n) optimization works correctly
+    const LARGE_SIZE = 1000
+    const largeFoods = Array.from({ length: LARGE_SIZE }, (_, i) => ({
+      id: i + 1,
+      name: `Food ${i + 1}`,
+      __type: 'Food' as const,
+      EAN: `${i + 1}`,
+    }))
+    const largeRecipes = Array.from({ length: LARGE_SIZE }, (_, i) => ({
+      id: i + 1,
+      name: `Recipe ${i + 1}`,
+      __type: 'Recipe' as const,
+    }))
+    const largeRecentItems = Array.from({ length: LARGE_SIZE }, (_, i) => ({
+      type: i % 2 === 0 ? ('food' as const) : ('recipe' as const),
+      reference_id: (i % LARGE_SIZE) + 1,
+      last_used: new Date(),
+    }))
+
+    const largeDeps: FetchTemplatesDeps = {
+      ...deps,
+      fetchUserRecentFoods: vi.fn().mockResolvedValue(largeRecentItems),
+      fetchFoodsByIds: vi.fn().mockResolvedValue(largeFoods),
+      fetchRecipeById: vi
+        .fn()
+        .mockImplementation((id) =>
+          Promise.resolve(largeRecipes.find((r) => r.id === id) || null),
+        ),
+    }
+
+    // Test that the function completes successfully with large datasets
+    // The O(n) optimization should handle this without issues
+    const result = await fetchTemplatesByTabLogic(
+      availableTabs.Recentes.id,
+      '',
+      userId,
+      largeDeps,
+    )
+
+    // Verify correct results (should include foods and recipes based on recent items)
+    expect(result.length).toBeGreaterThan(0)
+    expect(result.length).toBeLessThanOrEqual(LARGE_SIZE)
+
+    // Verify the optimization is working by checking that all expected items are found
+    // With the Map-based lookup, all valid references should be resolved
+    const expectedFoodCount = largeRecentItems.filter(
+      (r) => r.type === 'food',
+    ).length
+    const expectedRecipeCount = largeRecentItems.filter(
+      (r) => r.type === 'recipe',
+    ).length
+    const actualFoodCount = result.filter((r) => r.__type === 'Food').length
+    const actualRecipeCount = result.filter((r) => r.__type === 'Recipe').length
+
+    expect(actualFoodCount).toBe(expectedFoodCount)
+    expect(actualRecipeCount).toBe(expectedRecipeCount)
+  })
 })

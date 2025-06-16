@@ -103,12 +103,16 @@ export async function fetchTemplatesByTabLogic(
         return false
       }
       const templates: Template[] = []
+      // Create maps for O(1) lookup instead of O(n) find operations
+      const foodMap = new Map(validFoods.map((f) => [f.id, f]))
+      const recipeMap = new Map(validRecipes.map((r) => [r.id, r]))
+
       for (const recent of recentItems) {
         if (recent.type === 'food') {
-          const food = validFoods.find((f) => f.id === recent.reference_id)
+          const food = foodMap.get(recent.reference_id)
           if (food !== undefined && filterFn(food)) templates.push(food)
         } else {
-          const recipe = validRecipes.find((r) => r.id === recent.reference_id)
+          const recipe = recipeMap.get(recent.reference_id)
           if (recipe !== undefined && filterFn(recipe)) templates.push(recipe)
         }
       }
