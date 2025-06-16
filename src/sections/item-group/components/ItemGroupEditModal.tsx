@@ -129,7 +129,6 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
               return { enable: true, originalItem }
             }}
             onApply={handleItemApplyHandler}
-            onDelete={handleItemDeleteHandler}
             onClose={() => setEditSelection(null)}
           />
         )}
@@ -171,9 +170,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
               recipeEditModalVisible={recipeEditModalVisible}
               setRecipeEditModalVisible={setRecipeEditModalVisible}
               mode={props.mode}
-              writeToClipboard={(text: string) => {
-                void navigator.clipboard.writeText(text)
-              }}
+              writeToClipboard={clipboard.writeToClipboard}
               setEditSelection={setEditSelection}
             />
           </Modal.Content>

@@ -18,8 +18,11 @@ import {
   type TemplateItem,
 } from '~/modules/diet/template-item/domain/templateItem'
 import { showError } from '~/modules/toast/application/toastManager'
+import { createDebug } from '~/shared/utils/createDebug'
 import { stringToDate } from '~/shared/utils/date'
 import { isOverflow } from '~/shared/utils/macroOverflow'
+
+const debug = createDebug()
 
 export function handleNewItemGroup({
   group,
@@ -28,6 +31,7 @@ export function handleNewItemGroup({
   group: Accessor<ItemGroup>
   setGroup: (g: ItemGroup) => void
 }) {
+  debug('handleNewItemGroup called', { group: group() })
   return (newGroup: ItemGroup) => {
     if (!isSimpleSingleGroup(newGroup)) {
       // TODO: Implement complex group support
@@ -68,6 +72,10 @@ export function handleItemApply({
     }>
   }) => void
 }) {
+  debug('handleItemApply called', {
+    group: group(),
+    persistentGroup: persistentGroup(),
+  })
   return (item: TemplateItem) => {
     if (isTemplateItemRecipe(item)) {
       // TODO: Allow user to edit recipe
@@ -123,6 +131,7 @@ export function handleItemDelete({
   setGroup: (g: ItemGroup) => void
   setEditSelection: (sel: null) => void
 }) {
+  debug('handleItemDelete called', { group: group() })
   return (itemId: TemplateItem['id']) => {
     setGroup(removeItemFromGroup(group(), itemId))
     setEditSelection(null)

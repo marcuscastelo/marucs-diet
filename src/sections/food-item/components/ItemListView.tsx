@@ -14,10 +14,8 @@ import { handleClipboardError } from '~/shared/error/errorHandler'
 
 export type ItemListViewProps = {
   items: Accessor<readonly Item[]>
-  onItemClick: ItemViewProps['onClick']
   makeHeaderFn?: (item: Item) => ItemViewProps['header']
-  mode?: 'edit' | 'read-only' | 'summary'
-}
+} & Omit<ItemViewProps, 'item' | 'header' | 'nutritionalInfo' | 'macroOverflow'>
 
 export function ItemListView(_props: ItemListViewProps) {
   const props = mergeProps(
@@ -32,11 +30,10 @@ export function ItemListView(_props: ItemListViewProps) {
             <div class="mt-2">
               <ItemView
                 item={() => item}
-                onClick={props.onItemClick}
                 macroOverflow={() => ({ enable: false })}
                 header={props.makeHeaderFn(item)}
                 nutritionalInfo={<ItemNutritionalInfo />}
-                mode={props.mode}
+                {...props}
               />
             </div>
           )

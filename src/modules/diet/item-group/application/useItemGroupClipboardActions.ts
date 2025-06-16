@@ -33,7 +33,7 @@ export function useItemGroupClipboardActions({
     itemSchema,
     itemGroupSchema,
   ]) as z.ZodType<ItemOrGroup>
-  const { handlePaste, hasValidPastableOnClipboard } =
+  const { handlePaste, hasValidPastableOnClipboard, ...rest } =
     useCopyPasteActions<ItemOrGroup>({
       acceptedClipboardSchema,
       getDataToCopy: () => group() as ItemOrGroup,
@@ -50,5 +50,5 @@ export function useItemGroupClipboardActions({
         }
       },
     })
-  return { handlePaste, hasValidPastableOnClipboard }
+  return { handlePaste, hasValidPastableOnClipboard, ...rest }
 }
