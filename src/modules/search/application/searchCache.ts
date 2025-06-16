@@ -20,20 +20,12 @@ export const isSearchCached = async (
       .select('search')
       .eq('search', search.toLowerCase())
     if (error !== null) {
-      handleApiError(error, {
-        component: 'searchCache',
-        operation: 'isSearchCached',
-        additionalData: { search },
-      })
+      handleApiError(error)
       return false
     }
     return data.length > 0
   } catch (error) {
-    handleApiError(error, {
-      component: 'searchCache',
-      operation: 'isSearchCached',
-      additionalData: { search },
-    })
+    handleApiError(error)
     return false
   }
 }
@@ -53,11 +45,7 @@ export const markSearchAsCached = async (
     await supabase.from(TABLE).upsert({ search: search.toLowerCase() }).select()
     return true
   } catch (error) {
-    handleApiError(error, {
-      component: 'searchCache',
-      operation: 'markSearchAsCached',
-      additionalData: { search },
-    })
+    handleApiError(error)
     return false
   }
 }
@@ -78,11 +66,7 @@ export const unmarkSearchAsCached = async (
       .select()
     return true
   } catch (error) {
-    handleApiError(error, {
-      component: 'searchCache',
-      operation: 'unmarkSearchAsCached',
-      additionalData: { search },
-    })
+    handleApiError(error)
     return false
   }
 }

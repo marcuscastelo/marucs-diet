@@ -46,11 +46,7 @@ async function fetchApiFoodsByName(
   try {
     parsedParams = jsonParseWithStack(EXTERNAL_API_FOOD_PARAMS)
   } catch (err) {
-    handleApiError(err, {
-      component: 'ApiFoodRepository',
-      operation: 'fetchApiFoodsByName',
-      additionalData: { url, name, paramsString: EXTERNAL_API_FOOD_PARAMS },
-    })
+    handleApiError(err)
     parsedParams = {}
   }
   const params =
@@ -80,11 +76,7 @@ async function fetchApiFoodsByName(
   try {
     response = await API.get(url, config)
   } catch (error) {
-    handleApiError(error, {
-      component: 'ApiFoodRepository',
-      operation: 'fetchApiFoodsByName',
-      additionalData: { url, name },
-    })
+    handleApiError(error)
     throw wrapErrorWithStack(error)
   }
 
@@ -93,11 +85,7 @@ async function fetchApiFoodsByName(
   const data = response.data as Record<string, unknown>
   const alimentosRaw = data.alimentos
   if (!Array.isArray(alimentosRaw)) {
-    handleApiError(new Error('Invalid alimentos array in API response'), {
-      component: 'ApiFoodRepository',
-      operation: 'fetchApiFoodsByName',
-      additionalData: { url, name, data },
-    })
+    handleApiError(new Error('Invalid alimentos array in API response'))
     return []
   }
   return parseWithStack(apiFoodSchema.array(), alimentosRaw)
