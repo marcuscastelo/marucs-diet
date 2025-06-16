@@ -67,28 +67,30 @@ function ModalHeader(props: { title: JSXElement }) {
   const { setVisible } = useModalContext()
 
   return (
-    <div class="flex gap-2 justify-between items-center">
-      <h3 class="text-lg font-bold text-white my-auto">{props.title}</h3>
-      <button
-        type="button"
-        class="text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-25 rounded-md p-1"
-        onClick={() => setVisible(false)}
-        aria-label="Close modal"
-      >
-        <svg
-          class="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
+    <div class="flex gap-4 justify-between items-center">
+      <div class="flex-1">{props.title}</div>
+      <div class="shrink">
+        <button
+          type="button"
+          class="text-gray-400 hover:text-white focus:outline-none cursor-pointer focus:ring-2 focus:ring-white focus:ring-opacity-25 rounded-md p-1"
+          onClick={() => setVisible(false)}
+          aria-label="Close modal"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M6 18L18 6M6 6l12 12"
-          />
-        </svg>
-      </button>
+          <svg
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
     </div>
   )
 }
