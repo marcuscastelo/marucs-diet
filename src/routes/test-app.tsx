@@ -149,9 +149,6 @@ export default function TestApp() {
                 onCancel={() => {
                   console.debug('cancel')
                 }}
-                onDelete={() => {
-                  console.debug('delete')
-                }}
               />
             </ModalContextProvider>
 
@@ -224,8 +221,10 @@ export default function TestApp() {
                 />
               }
               nutritionalInfo={<ItemGroupViewNutritionalInfo group={group} />}
-              onClick={() => {
-                setItemGroupEditModalVisible(true)
+              handlers={{
+                onEdit: () => {
+                  setItemGroupEditModalVisible(true)
+                },
               }}
             />
           </div>

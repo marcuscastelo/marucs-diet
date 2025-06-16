@@ -36,7 +36,6 @@ export type ItemGroupEditModalProps = {
   targetMealName: string
   onSaveGroup: (item: ItemGroup) => void
   onCancel?: () => void
-  onDelete?: (groupId: ItemGroup['id']) => void
   onRefetch: () => void
   group: Accessor<ItemGroup>
   setGroup: (group: ItemGroup | null) => void
@@ -180,7 +179,6 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
               visible={visible}
               setVisible={setVisible}
               onCancel={props.onCancel}
-              onDelete={props.onDelete}
             />
           </Modal.Footer>
         </Modal>

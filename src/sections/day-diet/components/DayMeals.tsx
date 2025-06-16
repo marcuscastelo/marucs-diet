@@ -68,7 +68,7 @@ export default function DayMeals(props: {
 
   const [showConfirmEdit, setShowConfirmEdit] = createSignal(false)
 
-  const handleRequestViewItemGroup = (meal: Meal, itemGroup: ItemGroup) => {
+  const handleEditItemGroup = (meal: Meal, itemGroup: ItemGroup) => {
     // Always open the modal for any mode, but ItemGroupEditModal will respect the mode prop
     setEditSelection({ meal, itemGroup })
     setItemGroupEditModalVisible(true)
@@ -170,7 +170,8 @@ export default function DayMeals(props: {
               {(meal) => (
                 <MealEditView
                   class="mt-5"
-                  meal={meal}
+                  dayDiet={() => neverNullDayDiet}
+                  meal={() => meal}
                   header={
                     <MealEditViewHeader
                       onUpdateMeal={(meal) => {
@@ -189,8 +190,8 @@ export default function DayMeals(props: {
                   }
                   content={
                     <MealEditViewContent
-                      onRequestViewItemGroup={(item) => {
-                        handleRequestViewItemGroup(meal, item)
+                      onEditItemGroup={(item) => {
+                        handleEditItemGroup(meal, item)
                       }}
                       mode={props.mode}
                     />
@@ -265,12 +266,6 @@ function ExternalItemGroupEditModal(props: {
               )
 
               // TODO:   Analyze if these commands are troublesome
-              setEditSelection(null)
-              props.setVisible(false)
-            }}
-            onDelete={(id: ItemGroup['id']) => {
-              void deleteItemGroup(props.day().id, editSelection().meal.id, id)
-
               setEditSelection(null)
               props.setVisible(false)
             }}
