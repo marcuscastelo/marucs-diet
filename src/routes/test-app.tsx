@@ -134,6 +134,7 @@ export default function TestApp() {
             >
               <ItemGroupEditModal
                 group={group}
+                mode="edit"
                 setGroup={(group: ItemGroup | null) =>
                   group !== null && setGroup(group)
                 }
@@ -199,8 +200,11 @@ export default function TestApp() {
             <h1>ItemListView</h1>
             <ItemListView
               items={() => group().items}
-              onItemClick={() => {
-                setItemEditModalVisible(true)
+              mode="edit"
+              handlers={{
+                onClick: () => {
+                  setItemEditModalVisible(true)
+                },
               }}
             />
             <h1>ItemGroupView</h1>

@@ -13,6 +13,7 @@ import { type Recipe, recipeSchema } from '~/modules/diet/recipe/domain/recipe'
 import {
   addItemsToRecipe,
   clearRecipeItems,
+  removeItemFromRecipe,
   updateRecipeName,
   updateRecipePreparedMultiplier,
 } from '~/modules/diet/recipe/domain/recipeOperations'
@@ -21,6 +22,7 @@ import { ClipboardActionButtons } from '~/sections/common/components/ClipboardAc
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { PreparedQuantity } from '~/sections/common/components/PreparedQuantity'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import { ItemListView } from '~/sections/food-item/components/ItemListView'
@@ -35,6 +37,7 @@ import { calcRecipeCalories } from '~/shared/utils/macroMath'
 export type RecipeEditViewProps = {
   recipe: Accessor<Recipe>
   setRecipe: Setter<Recipe>
+  onSaveRecipe: (recipe: Recipe) => void
   header?: JSXElement
   content?: JSXElement
   footer?: JSXElement
@@ -51,21 +54,22 @@ export type RecipeEditViewProps = {
 //   return result
 // }
 
-export default function RecipeEditView(props: RecipeEditViewProps) {
-  // TODO:   implement setRecipe
-  return (
-    <div class={cn('p-3', props.className)}>
-      <RecipeEditContextProvider
-        recipe={props.recipe}
-        setRecipe={props.setRecipe}
-      >
-        {props.header}
-        {props.content}
-        {props.footer}
-      </RecipeEditContextProvider>
-    </div>
-  )
-}
+// export default function RecipeEditView(props: RecipeEditViewProps) {
+//   // TODO:   implement setRecipe
+//   return (
+//     <div class={cn('p-3', props.className)}>
+//       <RecipeEditContextProvider
+//         recipe={props.recipe}
+//         setRecipe={props.setRecipe}
+//         onSaveRecipe={props.onSaveRecipe}
+//       >
+//         {props.header}
+//         {props.content}
+//         {props.footer}
+//       </RecipeEditContextProvider>
+//     </div>
+//   )
+// }
 
 export function RecipeEditHeader(props: {
   onUpdateRecipe: (Recipe: Recipe) => void
@@ -140,6 +144,7 @@ export function RecipeEditContent(props: {
   onNewItem: () => void
 }) {
   const { recipe, setRecipe } = useRecipeEditContext()
+  const clipboard = useClipboard()
 
   return (
     <>
@@ -156,7 +161,22 @@ export function RecipeEditContent(props: {
       />
       <ItemListView
         items={() => recipe().items}
-        onItemClick={props.onEditItem}
+        mode="edit"
+        handlers={{
+          onEdit: (item) => {
+            if (!item.reference) {
+              console.warn('Item does not have a reference, cannot edit')
+              return
+            }
+            props.onEditItem(item)
+          },
+          onCopy: (item) => {
+            clipboard.write(JSON.stringify(item))
+          },
+          onDelete: (item) => {
+            setRecipe(removeItemFromRecipe(recipe(), item.id))
+          },
+        }}
       />
       <AddNewItemButton onClick={props.onNewItem} />
       <div class="flex justify-between gap-2 mt-2">

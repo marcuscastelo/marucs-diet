@@ -40,7 +40,7 @@ export type ItemGroupEditModalProps = {
   onRefetch: () => void
   group: Accessor<ItemGroup>
   setGroup: (group: ItemGroup | null) => void
-  mode?: 'edit' | 'read-only' | 'summary'
+  mode: 'edit' | 'read-only' | 'summary'
 }
 
 export const ItemGroupEditModal = (props: ItemGroupEditModalProps) => {
@@ -96,7 +96,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   return (
     <Suspense>
       <ExternalRecipeEditModal
-        recipe={recipe() ?? null}
+        recipe={() => recipe() ?? null}
         setRecipe={mutateRecipe}
         visible={recipeEditModalVisible}
         setVisible={setRecipeEditModalVisible}

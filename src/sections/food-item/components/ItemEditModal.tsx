@@ -22,6 +22,7 @@ import {
 import { Modal } from '~/sections/common/components/Modal'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useModalContext } from '~/sections/common/context/ModalContext'
+import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import {
   ItemFavorite,
@@ -137,6 +138,7 @@ function Body(props: {
   const quantitySignal = () =>
     props.item().quantity === 0 ? undefined : props.item().quantity
 
+  const clipboard = useClipboard()
   const quantityField = useFloatField(quantitySignal, {
     decimalPlaces: 0,
     // eslint-disable-next-line solid/reactivity
@@ -321,6 +323,12 @@ function Body(props: {
       </div>
 
       <ItemView
+        mode="edit"
+        handlers={{
+          onCopy: () => {
+            clipboard.write(JSON.stringify(props.item()))
+          },
+        }}
         item={() =>
           ({
             __type: props.item().__type,

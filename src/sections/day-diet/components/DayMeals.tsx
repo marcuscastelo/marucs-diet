@@ -57,7 +57,7 @@ const [newItemSelection, setNewItemSelection] =
 export default function DayMeals(props: {
   dayDiet?: DayDiet
   selectedDay: string
-  mode?: 'edit' | 'read-only' | 'summary'
+  mode: 'edit' | 'read-only' | 'summary'
   onRequestEditMode?: () => void
 }) {
   const [itemGroupEditModalVisible, setItemGroupEditModalVisible] =
@@ -228,7 +228,7 @@ function ExternalItemGroupEditModal(props: {
   visible: Accessor<boolean>
   setVisible: Setter<boolean>
   day: Accessor<DayDiet>
-  mode?: 'edit' | 'read-only' | 'summary'
+  mode: 'edit' | 'read-only' | 'summary'
 }) {
   createEffect(() => {
     if (!props.visible()) {

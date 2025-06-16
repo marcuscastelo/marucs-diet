@@ -2,15 +2,12 @@ import { type Accessor, For, mergeProps } from 'solid-js'
 
 import { type Item } from '~/modules/diet/item/domain/item'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
-import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import {
-  ItemCopyButton,
   ItemName,
   ItemNutritionalInfo,
   ItemView,
   type ItemViewProps,
 } from '~/sections/food-item/components/ItemView'
-import { handleClipboardError } from '~/shared/error/errorHandler'
 
 export type ItemListViewProps = {
   items: Accessor<readonly Item[]>
@@ -18,10 +15,7 @@ export type ItemListViewProps = {
 } & Omit<ItemViewProps, 'item' | 'header' | 'nutritionalInfo' | 'macroOverflow'>
 
 export function ItemListView(_props: ItemListViewProps) {
-  const props = mergeProps(
-    { makeHeaderFn: () => <DefaultHeader mode={_props.mode} /> },
-    _props,
-  )
+  const props = mergeProps({ makeHeaderFn: () => <DefaultHeader /> }, _props)
   return (
     <>
       <For each={props.items()}>
@@ -43,26 +37,6 @@ export function ItemListView(_props: ItemListViewProps) {
   )
 }
 
-function DefaultHeader(props: { mode?: 'edit' | 'read-only' | 'summary' }) {
-  const clipboard = useClipboard()
-  return (
-    <HeaderWithActions
-      name={<ItemName />}
-      primaryActions={
-        props.mode === 'summary' ? null : (
-          <ItemCopyButton
-            onCopyItem={(item) => {
-              clipboard.write(JSON.stringify(item), (error) => {
-                handleClipboardError(error, {
-                  component: 'ItemListView',
-                  operation: 'copyItem',
-                  additionalData: { itemId: item.reference },
-                })
-              })
-            }}
-          />
-        )
-      }
-    />
-  )
+function DefaultHeader() {
+  return <HeaderWithActions name={<ItemName />} />
 }

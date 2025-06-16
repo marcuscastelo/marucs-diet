@@ -61,8 +61,8 @@ export type ItemViewProps = {
   nutritionalInfo?: JSXElement
   class?: string
   onClick?: (item: TemplateItem) => void
-  mode?: 'edit' | 'read-only' | 'summary'
-  handlers?: {
+  mode: 'edit' | 'read-only' | 'summary'
+  handlers: {
     onClick?: (item: TemplateItem) => void
     onEdit?: (item: TemplateItem) => void
     onCopy?: (item: TemplateItem) => void
@@ -90,10 +90,10 @@ export function ItemView(props: ItemViewProps) {
     const callHandler = (handler?: (item: TemplateItem) => void) =>
       handler ? () => handler(untrack(() => props.item())) : undefined
 
-    const handleClick = callHandler(props.handlers?.onClick)
-    const handleEdit = callHandler(props.handlers?.onEdit)
-    const handleCopy = callHandler(props.handlers?.onCopy)
-    const handleDelete = callHandler(props.handlers?.onDelete)
+    const handleClick = callHandler(props.handlers.onClick)
+    const handleEdit = callHandler(props.handlers.onEdit)
+    const handleCopy = callHandler(props.handlers.onCopy)
+    const handleDelete = callHandler(props.handlers.onDelete)
     return {
       onClick: handleMouseEvent(handleClick),
       onEdit: handleMouseEvent(handleEdit),
@@ -120,7 +120,7 @@ export function ItemView(props: ItemViewProps) {
               {props.mode === 'edit' && (
                 <ContextMenu
                   trigger={
-                    <div class="text-3xl  active:scale-105 hover:text-blue-200">
+                    <div class="text-3xl active:scale-105 hover:text-blue-200">
                       <MoreVertIcon />
                     </div>
                   }

@@ -47,6 +47,7 @@ export function TemplateSearchResults(props: {
             return (
               <>
                 <ItemView
+                  mode="read-only"
                   item={() => ({
                     ...createItem({
                       name: template.name,
@@ -62,10 +63,12 @@ export function TemplateSearchResults(props: {
                   macroOverflow={() => ({
                     enable: false,
                   })}
-                  onClick={() => {
-                    props.setSelectedTemplate(template)
-                    props.setItemEditModalVisible(true)
-                    props.setEANModalVisible(false)
+                  handlers={{
+                    onClick: () => {
+                      props.setSelectedTemplate(template)
+                      props.setItemEditModalVisible(true)
+                      props.setEANModalVisible(false)
+                    },
                   }}
                   header={
                     <HeaderWithActions

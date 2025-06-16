@@ -39,9 +39,7 @@ export function ContextMenu(props: {
 
   return (
     <ContextMenuContext.Provider value={{ open, setOpen }}>
-      <div
-        class={cn('relative my-auto context-menu-root outline', props.class)}
-      >
+      <div class={cn('relative my-auto context-menu-root', props.class)}>
         <div class="my-auto" onClick={handleTriggerClick}>
           {props.trigger}
         </div>

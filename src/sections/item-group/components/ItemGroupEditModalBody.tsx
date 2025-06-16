@@ -31,7 +31,7 @@ export function ItemGroupEditModalBody(props: {
   setItemEditModalVisible: Setter<boolean>
   templateSearchModalVisible: Accessor<boolean>
   setTemplateSearchModalVisible: Setter<boolean>
-  mode?: 'edit' | 'read-only' | 'summary'
+  mode: 'edit' | 'read-only' | 'summary'
   writeToClipboard: (text: string) => void
   setEditSelection: (sel: { item: Item } | null) => void
 }) {
