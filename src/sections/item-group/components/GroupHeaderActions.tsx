@@ -43,7 +43,7 @@ function PasteButton(props: { disabled?: boolean; onPaste: () => void }) {
 
 function ConvertToRecipeButton(props: { onConvert: () => void }) {
   return (
-    <button class="my-auto" onClick={() => props.onConvert()}>
+    <button class="my-auto cursor-pointer" onClick={() => props.onConvert()}>
       <ConvertToRecipeIcon />
     </button>
   )
@@ -51,7 +51,7 @@ function ConvertToRecipeButton(props: { onConvert: () => void }) {
 
 function RecipeButton(props: { onClick: () => void }) {
   return (
-    <button class="my-auto" onClick={() => props.onClick()}>
+    <button class="my-auto cursor-pointer" onClick={() => props.onClick()}>
       <RecipeIcon />
     </button>
   )
@@ -59,7 +59,10 @@ function RecipeButton(props: { onClick: () => void }) {
 
 function SyncRecipeButton(props: { onClick: () => void }) {
   return (
-    <button class="my-auto hover:animate-pulse" onClick={() => props.onClick()}>
+    <button
+      class="my-auto hover:animate-pulse cursor-pointer"
+      onClick={() => props.onClick()}
+    >
       <DownloadIcon />
     </button>
   )
@@ -67,7 +70,10 @@ function SyncRecipeButton(props: { onClick: () => void }) {
 
 function UnlinkRecipeButton(props: { onClick: () => void }) {
   return (
-    <button class="my-auto hover:animate-pulse" onClick={() => props.onClick()}>
+    <button
+      class="my-auto hover:animate-pulse cursor-pointer"
+      onClick={() => props.onClick()}
+    >
       <BrokenLink />
     </button>
   )

@@ -31,23 +31,6 @@ export function ItemGroupEditModalTitle(props: {
           setGroup={props.setGroup}
           mode={props.mode}
         />
-        <GroupHeaderActions
-          group={props.group}
-          setGroup={props.setGroup}
-          mode={props.mode}
-          recipe={props.recipe}
-          mutateRecipe={props.mutateRecipe}
-          hasValidPastableOnClipboard={props.hasValidPastableOnClipboard}
-          handlePaste={props.handlePaste}
-          setRecipeEditModalVisible={props.setRecipeEditModalVisible}
-          showConfirmModal={props.showConfirmModal}
-        />
-      </div>
-      <div class="text-sm text-gray-400 mt-1">
-        Em <span class="text-green-500">"{props.targetMealName}"</span>
-      </div>
-      <div class="text-xs text-gray-400">
-        Receita: {props.recipe()?.name.toString() ?? 'Nenhuma'}
       </div>
     </div>
   )

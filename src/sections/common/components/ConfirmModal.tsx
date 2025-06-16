@@ -12,7 +12,7 @@ export function ConfirmModal() {
   return (
     <ModalContextProvider visible={visible} setVisible={setVisible}>
       <Modal hasBackdrop={hasBackdrop()}>
-        <Modal.Header title={title()()} backButton={false} />
+        <Modal.Header title={title()()} />
         <Modal.Content>{body()()}</Modal.Content>
         <Modal.Footer>
           <For each={actions()}>
