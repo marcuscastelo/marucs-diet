@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "npm run gen-app-version && vinxi dev",
     "build": "npm run gen-app-version && vinxi build",
+    "build:android": "bash ./.scripts/build-android.sh",
     "gen-app-version": "bash ./.scripts/gen-app-version.sh",
     "type-check": "tsc --noEmit --skipLibCheck",
     "test": "vitest run",
@@ -18,6 +19,10 @@
     "tw:build": "tailwindcss -c tailwind.config.cjs -i ./src/app.css -o ./src/tailwind-build-debug.css"
   },
   "dependencies": {
+    "@capacitor/android": "^7.3.0",
+    "@capacitor/cli": "^7.3.0",
+    "@capacitor/core": "^7.3.0",
+    "@capacitor/ios": "^7.3.0",
     "@solidjs/router": "^0.15.0",
     "@solidjs/start": "^1.1.0",
     "@supabase/supabase-js": "^2.50.0",

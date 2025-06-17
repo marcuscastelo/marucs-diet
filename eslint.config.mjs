@@ -151,6 +151,8 @@ export default [
       'public',
       'out',
       '.output',
+      'android',
+      'android-sdk',
     ],
   },
   {
