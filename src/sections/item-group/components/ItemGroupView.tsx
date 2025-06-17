@@ -1,6 +1,7 @@
 import {
   type Accessor,
   createEffect,
+  createMemo,
   createResource,
   type JSXElement,
   Show,
@@ -66,7 +67,7 @@ export function ItemGroupView(props: ItemGroupViewProps) {
     }
   }
 
-  const handlers = () => {
+  const handlers = createMemo(() => {
     const callHandler = (handler?: (item: ItemGroup) => void) =>
       handler ? () => handler(untrack(() => props.itemGroup())) : undefined
 
@@ -80,7 +81,7 @@ export function ItemGroupView(props: ItemGroupViewProps) {
       onCopy: handleMouseEvent(handleCopy),
       onDelete: handleMouseEvent(handleDelete),
     }
-  }
+  })
 
   return (
     <div
