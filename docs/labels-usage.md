@@ -7,7 +7,7 @@
 - Always add at least one main type label: `bug`, `feature`, `refactor`, `task`, `improvement`, `documentation`, `chore`, `epic`, `idea`.
 - Add complexity labels if possible: `complexity-low`, `complexity-medium`, `complexity-high`, `complexity-very-high`.
 - Use status/context labels: `todo :spiral_notepad:`, `blocked`, `needs-investigation`, `needs-design`.
-- Add area labels: `ui`, `backend`, `api`, `performance`, `data-consumption`, `accessibility`.
+- Add area labels: `ui`, `backend`, `api`, `performance`, `data-consumption`, `accessibility`, `mobile`.
 - Use refinement or grouping labels: `refinement`, `epic`.
 - Use maintenance labels: `chore`, `refactor`, `improvement`.
 - Always remove generic labels like `todo :spiral_notepad:` after classifying the issue.
@@ -44,4 +44,5 @@
 | api                    | API change, bug, or improvement                  | #006B75  |
 | accessibility          | Accessibility improvement or concern             | #FFD700  |
 | blocked                | Blocked by external or internal factors          | #C5DEF5  |
+| mobile                 | Mobile app development and mobile-specific features | #FF6B35  |
 | needs-design           | Requires design input or review                  | #FF69B4  |
