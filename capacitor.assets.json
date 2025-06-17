@@ -1,19 +1,7 @@
 {
-  "resources": {
-    "icon": {
-      "sources": ["resources/icon.png"],
-      "platform": "universal"
-    },
-    "icon-foreground": {
-      "sources": ["resources/icon-foreground.png"],
-      "platform": "android"
-    }
-  },
   "android": {
     "iconBackgroundColor": "#FFFFFF",
-    "iconBackgroundColorDark": "#1a1a1a",
-    "adaptiveIconForeground": "resources/icon-foreground.png",
-    "adaptiveIconBackground": "#FFFFFF"
+    "iconBackgroundColorDark": "#1a1a1a"
   },
   "ios": {
     "iconBackgroundColor": "#FFFFFF"

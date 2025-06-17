@@ -69,14 +69,21 @@ android/app/src/main/res/
    npm run build:android
    ```
 
-### Method 2: Capacitor Assets (Currently Not Working)
+### Method 2: Capacitor Assets (✅ Working)
 
-⚠️ **Note**: There's a Sharp dependency issue preventing this method from working.
+With the Sharp dependency issue resolved, you can now use the automatic generation:
 
 ```bash
-# When Sharp is fixed, this should work:
+# Generate icons automatically from source files
 npx @capacitor/assets generate
+
+# Then build APK with new icons
+npm run build:android
 ```
+
+**Source files needed:**
+- `resources/icon.png` - Main app icon (1024x1024)
+- `resources/icon-foreground.png` - Foreground for adaptive icons (optional)
 
 ## Customization Options
 
@@ -137,9 +144,17 @@ Builds complete APK with current icons.
 - Check if `res/` directory has all required files
 - Verify `update:icons` script copied files correctly
 
-**Sharp dependency errors with @capacitor/assets**
-- Use manual method with Icon Kitchen instead
-- Wait for Sharp compatibility fix in future updates
+**Sharp dependency errors with @capacitor/assets** ✅ **RESOLVED**
+- Add Sharp override to package.json:
+  ```json
+  "pnpm": {
+    "overrides": {
+      "sharp": "^0.34.2"
+    }
+  }
+  ```
+- Reinstall @capacitor/assets after adding override
+- Clear pnpm cache if needed: `pnpm store prune`
 
 **Adaptive icons not working**
 - Check XML configuration in `mipmap-anydpi-v26/`
