@@ -117,7 +117,15 @@ export function BottomNavigation() {
             <BottomNavigationTab
               active={false}
               label="Usuário"
-              icon={(props) => <UserIcon userId={currentUserId()} {...props} />}
+              icon={(props) => (
+                <UserIcon
+                  userId={currentUserId}
+                  userName={() =>
+                    users().find((u) => u.id === currentUserId())?.name ?? ''
+                  }
+                  {...props}
+                />
+              )}
               onClick={() => {
                 showConfirmModal({
                   title: '',
@@ -298,7 +306,11 @@ const UserSelectorDropdown = () => {
       body: () => (
         <div class="flex justify-between">
           <span>{`Deseja entrar como ${user.name}?`}</span>
-          <UserIcon class="w-16 h-16" userId={user.id} />
+          <UserIcon
+            class="w-16 h-16"
+            userId={() => user.id}
+            userName={() => user.name}
+          />
         </div>
       ),
       actions: [
@@ -332,7 +344,11 @@ const UserSelectorDropdown = () => {
               dropdown?.blur()
             }}
           >
-            <UserIcon class="w-10 h-10" userId={user.id} />
+            <UserIcon
+              class="w-10 h-10"
+              userId={() => user.id}
+              userName={() => user.name}
+            />
             <div class="text-xl flex-1 text-start">{user.name}</div>
           </div>
         )}
