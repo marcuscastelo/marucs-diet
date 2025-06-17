@@ -78,7 +78,11 @@ export function UserInfo() {
           <Show when={currentUser()}>
             {(user) => (
               <>
-                <UserIcon userId={user().id} class={'w-32 h-32 mx-auto'} />
+                <UserIcon
+                  userId={() => user().id}
+                  userName={() => user().name}
+                  class={'w-32 h-32 mx-auto'}
+                />
                 {user().name}
               </>
             )}

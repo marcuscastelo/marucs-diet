@@ -1,17 +1,32 @@
-import { type User } from '~/modules/user/domain/user'
+import { Accessor, createSignal, Show } from 'solid-js'
 
-export function UserIcon(props: { userId: User['id']; class?: string }) {
-  // TODO:   validateDOMNesting(...): <div> cannot appear as a descendant of <p>.
+import { type User } from '~/modules/user/domain/user'
+import { UserInitialFallback } from '~/sections/common/components/icons/UserInitialFallback'
+
+export function UserIcon(props: {
+  userId: Accessor<User['id']>
+  userName: Accessor<string>
+  class?: string
+}) {
+  const [errored, setErrored] = createSignal(false)
   return (
     <div class={props.class}>
-      <img
-        class="w-full h-full rounded-full"
-        src={`https://sbhhxgeaflzmzpmatnir.supabase.co/storage/v1/object/public/uploads/${props.userId}.jpg`}
-        sizes="100vw"
-        alt=""
-        width={0}
-        height={0}
-      />
+      <Show
+        when={!errored()}
+        fallback={
+          <UserInitialFallback name={props.userName()} class="w-full h-full" />
+        }
+      >
+        <img
+          class="w-full h-full rounded-full"
+          src={`https://sbhhxgeaflzmzpmatnir.supabase.co/storage/v1/object/public/uploads/${props.userId()}.jpg`}
+          sizes="100vw"
+          alt=""
+          width={0}
+          height={0}
+          onError={() => setErrored(true)}
+        />
+      </Show>
     </div>
   )
 }
