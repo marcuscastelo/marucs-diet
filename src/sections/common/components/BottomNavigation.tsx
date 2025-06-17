@@ -19,6 +19,7 @@ import {
 import { type User } from '~/modules/user/domain/user'
 import { UserIcon } from '~/sections/common/components/icons/UserIcon'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { useIntersectionObserver } from '~/shared/hooks/useIntersectionObserver'
 
 export function BottomNavigation() {
   const navigate = useNavigate()
@@ -26,43 +27,36 @@ export function BottomNavigation() {
   const pathname = location.pathname
   const { show: showConfirmModal } = useConfirmModalContext()
 
-  // Signal to know how much the footer is visible (0 to 1)
-  const [footerIntersection, setFooterIntersection] = createSignal(0)
   const [footerHeight, setFooterHeight] = createSignal(0)
   let footerRef: HTMLDivElement | undefined
-  let observer: IntersectionObserver | undefined
   let resizeObserver: ResizeObserver | undefined
+
+  const { intersectionRatio, setRef } = useIntersectionObserver(
+    {
+      root: null,
+      threshold: Array.from({ length: 200 + 1 }, (_, i) => i / 200),
+    },
+    (entry) => {
+      if (entry.intersectionRatio > 0 && footerRef) {
+        setFooterHeight(footerRef.offsetHeight)
+      }
+    },
+  )
 
   onMount(() => {
     if (!footerRef) return
-    // TODO: Replace window.IntersectionObserver with useIntersectionObserver
-    observer = new window.IntersectionObserver(
-      (entries) => {
-        const entry = entries[0]
-        const ratio = entry ? entry.intersectionRatio : 0
-        setFooterIntersection(ratio)
-        if (ratio > 0) {
-          setFooterHeight(footerRef.offsetHeight)
-        }
-      },
-      {
-        root: null,
-        threshold: Array.from({ length: 200 + 1 }, (_, i) => i / 200),
-      },
-    )
-    observer.observe(footerRef)
+
+    setRef(footerRef)
 
     // Updates footerHeight if the footer size changes
     resizeObserver = new window.ResizeObserver(() => {
-      if (footerRef.offsetHeight !== footerHeight()) {
-        setFooterHeight(footerRef.offsetHeight)
-      }
+      const currentHeight = footerRef.offsetHeight
+      setFooterHeight(currentHeight)
     })
     resizeObserver.observe(footerRef)
   })
 
   onCleanup(() => {
-    observer?.disconnect()
     resizeObserver?.disconnect()
   })
 
@@ -82,7 +76,7 @@ export function BottomNavigation() {
           'max-width': '32rem', // equivalent to max-w-lg in Tailwind
           'z-index': 50,
           transition: 'bottom 0.12s cubic-bezier(0.4, 0.0, 0.2, 1)',
-          bottom: `${(8 + footerHeight()) * footerIntersection() + 8}px`,
+          bottom: `${(8 + footerHeight()) * intersectionRatio() + 8}px`,
         }}
       >
         <div class="z-50 w-full h-16 bg-white border border-gray-200 rounded-full dark:bg-slate-800 dark:border-slate-700 bottom-0">

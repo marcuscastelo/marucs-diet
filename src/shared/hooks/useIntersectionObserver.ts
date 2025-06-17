@@ -3,15 +3,18 @@ import { createSignal, onCleanup, onMount } from 'solid-js'
 /**
  * Hook for observing element visibility using Intersection Observer API.
  * @param options - Intersection observer options
- * @returns Signal for visibility state and ref setter function
+ * @param callback - Optional callback function that receives the intersection entry
+ * @returns Signal for visibility state, intersection ratio, and ref setter function
  */
 export function useIntersectionObserver(
   options: {
     threshold?: number | number[]
     root?: Element | null
   } = {},
+  callback?: (entry: IntersectionObserverEntry) => void,
 ) {
   const [isVisible, setIsVisible] = createSignal(false)
+  const [intersectionRatio, setIntersectionRatio] = createSignal(0)
 
   let elementRef: Element | undefined
   let observer: IntersectionObserver | undefined
@@ -29,6 +32,11 @@ export function useIntersectionObserver(
         if (entry) {
           const visible = entry.intersectionRatio > 0
           setIsVisible(visible)
+          setIntersectionRatio(entry.intersectionRatio)
+
+          if (callback) {
+            callback(entry)
+          }
         }
       },
       {
@@ -54,14 +62,14 @@ export function useIntersectionObserver(
     }
 
     console.debug('useIntersectionObserver: Setting ref', element)
-    if (elementRef && observer) {
+    if (elementRef) {
       console.debug('useIntersectionObserver: Unobserving element', elementRef)
       observer.unobserve(elementRef)
     }
 
     elementRef = element
 
-    if (elementRef && observer) {
+    if (elementRef) {
       console.debug('useIntersectionObserver: Observing element', elementRef)
       observer.observe(elementRef)
     }
@@ -69,6 +77,7 @@ export function useIntersectionObserver(
 
   return {
     isVisible,
+    intersectionRatio,
     setRef,
   }
 }
