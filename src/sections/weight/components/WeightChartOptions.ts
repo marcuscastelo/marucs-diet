@@ -1,8 +1,8 @@
-import ptBrLocale from '~/assets/locales/apex/pt-br.json'
 import { getYAxisConfig } from '~/modules/weight/application/weightChartUtils'
 import { type WeightChartOHLC } from '~/modules/weight/application/weightChartUtils'
 import { type Weight } from '~/modules/weight/domain/weight'
 import { WeightChartTooltip } from '~/sections/weight/components/WeightChartTooltip'
+import ptBrLocale from '~/shared/locales/apex/pt-br.json'
 
 /**
  * Builds ApexCharts options for the weight chart.
