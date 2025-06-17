@@ -20,13 +20,14 @@ export function useClipboard(props?: {
   const [clipboard, setClipboard] = createSignal('')
 
   const handleWrite = (text: string, onError?: (error: unknown) => void) => {
-    if (text.length > 0) {
-      showSuccess(`Copiado com sucesso`)
-    }
-
     window.navigator.clipboard
       .writeText(text)
-      .then(() => setClipboard(text))
+      .then(() => {
+        setClipboard(text)
+        if (text.length > 0) {
+          showSuccess(`Copiado com sucesso`)
+        }
+      })
       .catch((err) => {
         if (isClipboardNotAllowedError(err)) {
           // Ignore NotAllowedError (likely DOM not focused)
