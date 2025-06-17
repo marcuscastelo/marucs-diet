@@ -11,7 +11,6 @@ import {
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import {
-  deleteItemGroup,
   insertItemGroup,
   updateItemGroup,
 } from '~/modules/diet/item-group/application/itemGroup'

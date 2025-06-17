@@ -2,13 +2,18 @@ import '~/app.css'
 
 import { Router } from '@solidjs/router'
 import { FileRoutes } from '@solidjs/start/router'
-import { createMemo, createSignal, onCleanup, Show, Suspense } from 'solid-js'
+import { createSignal, lazy, onCleanup, Suspense } from 'solid-js'
 
-import { currentUser } from '~/modules/user/application/user'
-import { userWeights } from '~/modules/weight/application/weight'
+// import { currentUser } from '~/modules/user/application/user'
+// import { userWeights } from '~/modules/weight/application/weight'
 import { BackendOutageBanner } from '~/sections/common/components/BackendOutageBanner'
-import { BottomNavigation } from '~/sections/common/components/BottomNavigation'
+import { LoadingRing } from '~/sections/common/components/LoadingRing'
 import { Providers } from '~/sections/common/context/Providers'
+
+const BottomNavigation = lazy(async () => ({
+  default: (await import('~/sections/common/components/BottomNavigation'))
+    .BottomNavigation,
+}))
 
 function useAspectWidth() {
   const [width, setWidth] = createSignal(getWidth())
@@ -31,27 +36,27 @@ function useAspectWidth() {
 export default function App() {
   const width = useAspectWidth()
   // Debug dump state
-  const debugDump = createMemo(() => {
-    return {
-      user: currentUser(),
-      weights: userWeights(),
-      now: new Date().toISOString(),
-    }
-  })
-  function handleDumpClick() {
-    const dump = debugDump()
-    const dumpStr = JSON.stringify(dump, null, 2)
-    void navigator.clipboard.writeText(dumpStr)
-    alert('Dump copied to clipboard!')
-  }
+  // const debugDump = createMemo(() => {
+  //   return {
+  //     user: currentUser(),
+  //     weights: userWeights(),
+  //     now: new Date().toISOString(),
+  //   }
+  // })
+  // function handleDumpClick() {
+  //   const dump = debugDump()
+  //   const dumpStr = JSON.stringify(dump, null, 2)
+  //   void navigator.clipboard.writeText(dumpStr)
+  //   alert('Dump copied to clipboard!')
+  // }
   return (
     <Router
       root={(props) => (
         <>
-          <Suspense>
+          <Suspense fallback={<LoadingRing class="h-screen" />}>
             <Providers>
               <BackendOutageBanner />
-              <Show when={currentUser()?.id === 3}>
+              {/* <Show when={currentUser()?.id === 3}>
                 <button
                   style={{
                     position: 'fixed',
@@ -64,7 +69,7 @@ export default function App() {
                 >
                   Dump de Dados (debug)
                 </button>
-              </Show>
+              </Show> */}
               <div
                 class="mx-auto flex flex-col justify-between bg-black h-screen w-screen rounded-none"
                 style={{ width: `${width()}px` }}

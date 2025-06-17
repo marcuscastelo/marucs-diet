@@ -11,7 +11,12 @@ import {
   showError,
   showSuccess,
 } from '~/modules/toast/application/toastManager'
-import CopyLastDayModal from '~/sections/day-diet/components/CopyLastDayModal'
+import { lazyImport } from '~/shared/solid/lazyImport'
+
+const { CopyLastDayModal } = lazyImport(
+  () => import('~/sections/day-diet/components/CopyLastDayModal'),
+  ['CopyLastDayModal'],
+)
 
 export function CopyLastDayButton(props: {
   dayDiet: Accessor<DayDiet | undefined>

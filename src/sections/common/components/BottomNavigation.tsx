@@ -35,6 +35,7 @@ export function BottomNavigation() {
 
   onMount(() => {
     if (!footerRef) return
+    // TODO: Replace window.IntersectionObserver with useIntersectionObserver
     observer = new window.IntersectionObserver(
       (entries) => {
         const entry = entries[0]
@@ -46,7 +47,7 @@ export function BottomNavigation() {
       },
       {
         root: null,
-        threshold: Array.from({ length: 101 }, (_, i) => i / 100),
+        threshold: Array.from({ length: 200 + 1 }, (_, i) => i / 200),
       },
     )
     observer.observe(footerRef)

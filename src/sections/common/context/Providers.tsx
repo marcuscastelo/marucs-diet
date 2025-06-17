@@ -1,4 +1,4 @@
-import { type JSXElement } from 'solid-js'
+import { type JSXElement, Suspense } from 'solid-js'
 
 import { GlobalModalContainer } from '~/modules/toast/ui/GlobalModalContainer'
 import { ConfirmModal } from '~/sections/common/components/ConfirmModal'
@@ -8,9 +8,11 @@ import { ConfirmModalProvider } from '~/sections/common/context/ConfirmModalCont
 export function Providers(props: { children: JSXElement }) {
   return (
     <ConfirmModalProvider>
-      <ConfirmModal />
-      <DarkToaster />
-      <GlobalModalContainer />
+      <Suspense fallback={<></>}>
+        <ConfirmModal />
+        <DarkToaster />
+        <GlobalModalContainer />
+      </Suspense>
       {props.children}
     </ConfirmModalProvider>
   )

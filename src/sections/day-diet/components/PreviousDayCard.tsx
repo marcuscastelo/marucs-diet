@@ -14,7 +14,7 @@ type PreviousDayCardProps = {
   onCopy: (day: string) => void
 }
 
-function PreviousDayCard(props: PreviousDayCardProps) {
+export function PreviousDayCard(props: PreviousDayCardProps) {
   const [showDetails, setShowDetails] = createSignal(false)
   const macros = () => calcDayMacros(props.dayDiet)
   const calories = () => calcCalories(macros())

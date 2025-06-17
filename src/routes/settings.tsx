@@ -1,9 +1,8 @@
-import { createSignal, For } from 'solid-js'
+import { createSignal, For, Suspense } from 'solid-js'
 
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { showSuccess } from '~/modules/toast/application/toastManager'
-import { BottomNavigation } from '~/sections/common/components/BottomNavigation'
-import { Providers } from '~/sections/common/context/Providers'
+import { PageLoading } from '~/sections/common/components/PageLoading'
 import { ToastSettings } from '~/sections/settings/components/ToastSettings'
 import { Toggle } from '~/sections/settings/components/Toggle'
 
@@ -66,7 +65,7 @@ export default function Page() {
   })
 
   return (
-    <>
+    <Suspense fallback={<PageLoading message="Carregando configurações..." />}>
       <div>
         <div
           class={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE} rounded-b-none pb-6`}
@@ -109,6 +108,6 @@ export default function Page() {
           </div>
         </div>
       </div>
-    </>
+    </Suspense>
   )
 }
