@@ -1,18 +1,14 @@
-import { type Accessor, batch, type Setter, Show } from 'solid-js'
+import { type Accessor, type Setter, Show } from 'solid-js'
 
 import { type Item } from '~/modules/diet/item/domain/item'
 import { removeItemFromGroup } from '~/modules/diet/item-group/domain/itemGroupOperations'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
-import {
-  isTemplateItemFood,
-  isTemplateItemRecipe,
-} from '~/modules/diet/template-item/domain/templateItem'
+import { isTemplateItemFood } from '~/modules/diet/template-item/domain/templateItem'
 import { showError } from '~/modules/toast/application/toastManager'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { ItemListView } from '~/sections/food-item/components/ItemListView'
 import {
-  ItemCopyButton,
   ItemFavorite,
   ItemName,
 } from '~/sections/food-item/components/ItemView'

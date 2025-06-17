@@ -19,6 +19,7 @@ import {
 import { recipeSchema } from '~/modules/diet/recipe/domain/recipe'
 import { ClipboardActionButtons } from '~/sections/common/components/ClipboardActionButtons'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { ItemGroupListView } from '~/sections/item-group/components/ItemGroupListView'
 import {
@@ -159,6 +160,7 @@ export function MealEditViewContent(props: {
 }) {
   const { dayDiet, meal } = useMealContext()
   const { show: showConfirmModal } = useConfirmModalContext()
+  const clipboard = useClipboard()
 
   console.debug('[MealEditViewContent] - Rendering')
   console.debug('[MealEditViewContent] - meal.value:', meal())
@@ -172,6 +174,9 @@ export function MealEditViewContent(props: {
       itemGroups={() => meal().groups}
       handlers={{
         onEdit: props.onEditItemGroup,
+        onCopy: (item) => {
+          clipboard.write(JSON.stringify(item))
+        },
         onDelete: (item) => {
           showConfirmModal({
             title: 'Excluir grupo de itens',
