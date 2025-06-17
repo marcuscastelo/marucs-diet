@@ -5,26 +5,21 @@
 echo "🎨 Generating app icons with Capacitor Assets..."
 
 # Verifica se os arquivos fonte existem
-if [ ! -f "resources/icon.png" ]; then
-    echo "❌ Error: 'resources/icon.png' not found!"
-    echo "   Please provide a 1024x1024 PNG icon in the resources/ directory."
+if [ ! -f "assets/icon.png" ]; then
+    echo "❌ Error: 'assets/icon.png' not found!"
+    echo "   Please provide a 1024x1024 PNG icon in the assets/ directory."
+    echo "   Easy Mode requires: assets/icon.png"
     exit 1
 fi
 
 echo "📂 Source files found:"
-echo "   ✓ resources/icon.png"
-
-if [ -f "resources/icon-foreground.png" ]; then
-    echo "   ✓ resources/icon-foreground.png"
-else
-    echo "   ⚠  resources/icon-foreground.png not found (optional for adaptive icons)"
-fi
+echo "   ✓ assets/icon.png"
 
 echo ""
-echo "🔧 Generating icons for all platforms..."
+echo "🔧 Generating icons using Easy Mode (recommended)..."
 
-# Gera os ícones
-npx @capacitor/assets generate
+# Gera os ícones usando Easy Mode com cores de fundo
+npx @capacitor/assets generate --iconBackgroundColor '#FFFFFF' --iconBackgroundColorDark '#1a1a1a'
 
 if [ $? -eq 0 ]; then
     echo "✅ Icons generated successfully!"

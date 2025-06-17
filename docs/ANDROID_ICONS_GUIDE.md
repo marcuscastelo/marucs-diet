@@ -69,21 +69,30 @@ android/app/src/main/res/
    npm run build:android
    ```
 
-### Method 2: Capacitor Assets (✅ Working)
+### Method 2: Capacitor Assets Easy Mode (✅ Recommended)
 
-With the Sharp dependency issue resolved, you can now use the automatic generation:
+The official **Easy Mode** is the best approach for generating adaptive icons correctly:
 
 ```bash
-# Generate icons automatically from source files
-npx @capacitor/assets generate
+# 1. Place your main icon in assets/ directory
+cp your-icon.png assets/icon.png
 
-# Then build APK with new icons
+# 2. Generate all icons with background colors
+npx @capacitor/assets generate --iconBackgroundColor '#FFFFFF' --iconBackgroundColorDark '#1a1a1a'
+
+# 3. Build APK with new icons
 npm run build:android
 ```
 
-**Source files needed:**
-- `resources/icon.png` - Main app icon (1024x1024)
-- `resources/icon-foreground.png` - Foreground for adaptive icons (optional)
+**What Easy Mode generates:**
+- Standard app icons (all densities)
+- Adaptive icon foreground layers
+- Adaptive icon background layers  
+- Properly configured XML files
+- PWA icons in WebP format
+
+**Required files:**
+- `assets/icon.png` - Main app icon (1024x1024)
 
 ## Customization Options
 
