@@ -12,6 +12,7 @@ Esta é a documentação completa do setup de desenvolvimento Android para o pro
 |-----------|-----------|-------------|
 | **[ANDROID_SETUP_GUIDE.md](./ANDROID_SETUP_GUIDE.md)** | 📋 Guia completo e detalhado | Primeira instalação ou setup completo |
 | **[QUICK_ANDROID_SETUP.md](./QUICK_ANDROID_SETUP.md)** | ⚡ Comandos rápidos para instalação | Instalação rápida ou referência |
+| **[ANDROID_ICONS_GUIDE.md](./ANDROID_ICONS_GUIDE.md)** | 🎨 Gerenciamento de ícones do app | Atualizar ícones do aplicativo |
 | **[ANDROID_TROUBLESHOOTING.md](./ANDROID_TROUBLESHOOTING.md)** | 🐛 Solução de problemas comuns | Quando algo não funciona |
 | **[CAPACITOR_POC_RESULTS.md](./CAPACITOR_POC_RESULTS.md)** | 🎯 Resultados da POC e análise | Entender os resultados e decisões |
 
