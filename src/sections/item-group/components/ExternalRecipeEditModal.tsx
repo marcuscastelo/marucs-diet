@@ -9,21 +9,21 @@ import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { RecipeEditModal } from '~/sections/recipe/components/RecipeEditModal'
 
 export function ExternalRecipeEditModal(props: {
-  recipe: Recipe | null
+  recipe: Accessor<Recipe | null>
   setRecipe: (recipe: Recipe | null) => void
   visible: Accessor<boolean>
   setVisible: Setter<boolean>
   onRefetch: () => void
 }) {
   return (
-    <Show when={props.recipe}>
+    <Show when={props.recipe()}>
       {(recipe) => (
         <ModalContextProvider
           visible={props.visible}
           setVisible={props.setVisible}
         >
           <RecipeEditModal
-            recipe={recipe()}
+            recipe={recipe}
             onSaveRecipe={(recipe) => {
               updateRecipe(recipe.id, recipe)
                 .then(props.setRecipe)

@@ -8,16 +8,14 @@ export type HeaderWithActionsProps = {
 
 export function HeaderWithActions(props: HeaderWithActionsProps): JSXElement {
   return (
-    <div class="flex">
-      <div class="my-2">{props.name}</div>
-      <div class="ml-auto flex flex-col">
+    <div class="flex justify-between items-center">
+      <div class="">{props.name}</div>
+      <div class="flex flex-col">
         <Show when={props.secondaryActions}>
-          <div class="my-auto">{props.secondaryActions}</div>
+          <div class="flex gap-2 items-center">{props.secondaryActions}</div>
         </Show>
         <Show when={props.primaryActions}>
-          <div class="ml-auto flex gap-2">
-            <div class="my-auto">{props.primaryActions}</div>
-          </div>
+          <div class="flex gap-2 items-center">{props.primaryActions}</div>
         </Show>
       </div>
     </div>

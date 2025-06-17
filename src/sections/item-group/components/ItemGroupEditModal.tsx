@@ -37,11 +37,10 @@ export type ItemGroupEditModalProps = {
   targetMealName: string
   onSaveGroup: (item: ItemGroup) => void
   onCancel?: () => void
-  onDelete?: (groupId: ItemGroup['id']) => void
   onRefetch: () => void
   group: Accessor<ItemGroup>
   setGroup: (group: ItemGroup | null) => void
-  mode?: 'edit' | 'read-only' | 'summary'
+  mode: 'edit' | 'read-only' | 'summary'
 }
 
 export const ItemGroupEditModal = (props: ItemGroupEditModalProps) => {
@@ -97,7 +96,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   return (
     <Suspense>
       <ExternalRecipeEditModal
-        recipe={recipe() ?? null}
+        recipe={() => recipe() ?? null}
         setRecipe={mutateRecipe}
         visible={recipeEditModalVisible}
         setVisible={setRecipeEditModalVisible}
@@ -130,7 +129,6 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
               return { enable: true, originalItem }
             }}
             onApply={handleItemApplyHandler}
-            onDelete={handleItemDeleteHandler}
             onClose={() => setEditSelection(null)}
           />
         )}
@@ -196,9 +194,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
               recipeEditModalVisible={recipeEditModalVisible}
               setRecipeEditModalVisible={setRecipeEditModalVisible}
               mode={props.mode}
-              writeToClipboard={(text: string) => {
-                void navigator.clipboard.writeText(text)
-              }}
+              writeToClipboard={clipboard.writeToClipboard}
               setEditSelection={setEditSelection}
             />
           </Modal.Content>
@@ -208,7 +204,6 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
               visible={visible}
               setVisible={setVisible}
               onCancel={props.onCancel}
-              onDelete={props.onDelete}
             />
           </Modal.Footer>
         </Modal>

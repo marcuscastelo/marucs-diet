@@ -1,6 +1,8 @@
-import { createEffect, type JSXElement, Show } from 'solid-js'
+import { Accessor, createEffect, type JSXElement, Show } from 'solid-js'
 
+import { DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { itemSchema } from '~/modules/diet/item/domain/item'
+import { deleteItemGroup } from '~/modules/diet/item-group/application/itemGroup'
 import {
   convertToGroups,
   type GroupConvertible,
@@ -26,8 +28,10 @@ import {
 import { regenerateId } from '~/shared/utils/idUtils'
 import { calcMealCalories } from '~/shared/utils/macroMath'
 
+// TODO: Remove deprecated props and their usages
 export type MealEditViewProps = {
-  meal: Meal
+  dayDiet: Accessor<DayDiet>
+  meal: Accessor<Meal>
   /**
    * @deprecated
    */
@@ -59,7 +63,7 @@ export type MealEditViewProps = {
 
 export function MealEditView(props: MealEditViewProps) {
   return (
-    <MealContextProvider meal={() => props.meal}>
+    <MealContextProvider dayDiet={props.dayDiet} meal={props.meal}>
       <div class={`bg-gray-800 p-3 ${props.class ?? ''}`}>
         {typeof props.header === 'function'
           ? props.header({ mode: props.mode })
@@ -150,10 +154,11 @@ export function MealEditViewHeader(props: {
 }
 
 export function MealEditViewContent(props: {
-  onRequestViewItemGroup: (item: ItemGroup) => void
+  onEditItemGroup: (item: ItemGroup) => void
   mode?: 'edit' | 'read-only' | 'summary'
 }) {
-  const { meal } = useMealContext()
+  const { dayDiet, meal } = useMealContext()
+  const { show: showConfirmModal } = useConfirmModalContext()
 
   console.debug('[MealEditViewContent] - Rendering')
   console.debug('[MealEditViewContent] - meal.value:', meal())
@@ -165,7 +170,25 @@ export function MealEditViewContent(props: {
   return (
     <ItemGroupListView
       itemGroups={() => meal().groups}
-      onItemClick={props.onRequestViewItemGroup}
+      handlers={{
+        onEdit: props.onEditItemGroup,
+        onDelete: (item) => {
+          showConfirmModal({
+            title: 'Excluir grupo de itens',
+            body: `Tem certeza que deseja excluir o grupo de itens "${item.name}"?`,
+            actions: [
+              { text: 'Cancelar', onClick: () => undefined },
+              {
+                text: 'Excluir grupo',
+                primary: true,
+                onClick: () => {
+                  void deleteItemGroup(dayDiet().id, meal().id, item.id)
+                },
+              },
+            ],
+          })
+        },
+      }}
       mode={props.mode}
     />
   )

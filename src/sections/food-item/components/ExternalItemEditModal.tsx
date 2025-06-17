@@ -16,7 +16,6 @@ export type ExternalItemEditModalProps = {
     originalItem?: Item
   }
   onApply: (item: TemplateItem) => void
-  onDelete?: (itemId: TemplateItem['id']) => void
   onClose?: () => void
 }
 
@@ -44,7 +43,6 @@ export function ExternalItemEditModal(props: ExternalItemEditModalProps) {
           targetNameColor={props.targetNameColor}
           macroOverflow={props.macroOverflow ?? (() => ({ enable: false }))}
           onApply={props.onApply}
-          onDelete={props.onDelete}
         />
       </ModalContextProvider>
     </Show>

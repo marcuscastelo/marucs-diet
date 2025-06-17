@@ -134,6 +134,7 @@ export default function TestApp() {
             >
               <ItemGroupEditModal
                 group={group}
+                mode="edit"
                 setGroup={(group: ItemGroup | null) =>
                   group !== null && setGroup(group)
                 }
@@ -147,9 +148,6 @@ export default function TestApp() {
                 targetMealName="Teste"
                 onCancel={() => {
                   console.debug('cancel')
-                }}
-                onDelete={() => {
-                  console.debug('delete')
                 }}
               />
             </ModalContextProvider>
@@ -199,8 +197,11 @@ export default function TestApp() {
             <h1>ItemListView</h1>
             <ItemListView
               items={() => group().items}
-              onItemClick={() => {
-                setItemEditModalVisible(true)
+              mode="edit"
+              handlers={{
+                onClick: () => {
+                  setItemEditModalVisible(true)
+                },
               }}
             />
             <h1>ItemGroupView</h1>
@@ -220,8 +221,10 @@ export default function TestApp() {
                 />
               }
               nutritionalInfo={<ItemGroupViewNutritionalInfo group={group} />}
-              onClick={() => {
-                setItemGroupEditModalVisible(true)
+              handlers={{
+                onEdit: () => {
+                  setItemGroupEditModalVisible(true)
+                },
               }}
             />
           </div>

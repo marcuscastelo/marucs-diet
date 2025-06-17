@@ -1,8 +1,12 @@
 import {
   type Accessor,
+  batch,
   createEffect,
+  createMemo,
   createSignal,
   type JSXElement,
+  Show,
+  untrack,
 } from 'solid-js'
 
 import {
@@ -23,19 +27,26 @@ import {
   isFoodFavorite,
   setFoodAsFavorite,
 } from '~/modules/user/application/user'
+import { ContextMenu } from '~/sections/common/components/ContextMenu'
 import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
+import { MoreVertIcon } from '~/sections/common/components/icons/MoreVertIcon'
+import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import {
   ItemContextProvider,
   useItemContext,
 } from '~/sections/food-item/context/ItemContext'
 import MacroNutrientsView from '~/sections/macro-nutrients/components/MacroNutrientsView'
+import { cn } from '~/shared/cn'
 import {
   handleApiError,
   handleValidationError,
 } from '~/shared/error/errorHandler'
+import { createDebug } from '~/shared/utils/createDebug'
 import { stringToDate } from '~/shared/utils/date'
 import { calcItemCalories, calcItemMacros } from '~/shared/utils/macroMath'
 import { isOverflow } from '~/shared/utils/macroOverflow'
+
+const debug = createDebug()
 
 // TODO:   Use repository pattern through use cases instead of directly using repositories
 const recipeRepository = createSupabaseRecipeRepository()
@@ -49,29 +60,117 @@ export type ItemViewProps = {
   header?: JSXElement
   nutritionalInfo?: JSXElement
   class?: string
-  onClick?: (item: TemplateItem) => void
-  mode?: 'edit' | 'read-only' | 'summary'
+  mode: 'edit' | 'read-only' | 'summary'
+  handlers: {
+    onClick?: (item: TemplateItem) => void
+    onEdit?: (item: TemplateItem) => void
+    onCopy?: (item: TemplateItem) => void
+    onDelete?: (item: TemplateItem) => void
+  }
 }
 
 export function ItemView(props: ItemViewProps) {
-  const handleClick = (e: MouseEvent) => {
-    props.onClick?.(props.item())
-    e.stopPropagation()
-    e.preventDefault()
+  debug('ItemView called', { props })
+
+  const handleMouseEvent = (callback?: () => void) => {
+    if (callback === undefined) {
+      return undefined
+    }
+
+    return (e: MouseEvent) => {
+      debug('ItemView handleMouseEvent', { e })
+      e.stopPropagation()
+      e.preventDefault()
+      callback()
+    }
   }
 
+  const handlers = () => {
+    const callHandler = (handler?: (item: TemplateItem) => void) =>
+      handler ? () => handler(untrack(() => props.item())) : undefined
+
+    const handleClick = callHandler(props.handlers.onClick)
+    const handleEdit = callHandler(props.handlers.onEdit)
+    const handleCopy = callHandler(props.handlers.onCopy)
+    const handleDelete = callHandler(props.handlers.onDelete)
+    return {
+      onClick: handleMouseEvent(handleClick),
+      onEdit: handleMouseEvent(handleEdit),
+      onCopy: handleMouseEvent(handleCopy),
+      onDelete: handleMouseEvent(handleDelete),
+    }
+  }
   return (
     <div
-      class={`meal-item block rounded-lg border border-gray-700 bg-gray-700 p-3 shadow hover:cursor-pointer hover:bg-gray-700 ${
-        props.class ?? ''
-      }`}
-      onClick={handleClick}
+      class={cn(
+        'meal-item block rounded-lg border border-gray-700 bg-gray-700 p-3 shadow hover:cursor-pointer hover:bg-gray-700',
+        props.class,
+      )}
+      onClick={(e) => handlers().onClick?.(e)}
     >
       <ItemContextProvider
         item={props.item}
         macroOverflow={props.macroOverflow}
       >
-        {props.header}
+        <div class="flex items-center">
+          <div class="flex flex-1  items-center">
+            <div class="flex-1">{props.header}</div>
+            <div class="">
+              {props.mode === 'edit' && (
+                <ContextMenu
+                  trigger={
+                    <div class="text-3xl active:scale-105 hover:text-blue-200">
+                      <MoreVertIcon />
+                    </div>
+                  }
+                  class="ml-2"
+                >
+                  <Show when={handlers().onEdit}>
+                    {(onEdit) => (
+                      <ContextMenu.Item
+                        class="text-left px-4 py-2 hover:bg-gray-700"
+                        onClick={onEdit()}
+                      >
+                        <div class="flex items-center gap-2">
+                          <span class="text-blue-500">✏️</span>
+                          <span>Editar</span>
+                        </div>
+                      </ContextMenu.Item>
+                    )}
+                  </Show>
+                  <Show when={handlers().onCopy}>
+                    {(onCopy) => (
+                      <ContextMenu.Item
+                        class="text-left px-4 py-2 hover:bg-gray-700"
+                        onClick={onCopy()}
+                      >
+                        <div class="flex items-center gap-2">
+                          <CopyIcon size={15} />
+                          <span>Copiar</span>
+                        </div>
+                      </ContextMenu.Item>
+                    )}
+                  </Show>
+                  <Show when={handlers().onDelete}>
+                    {(onDelete) => (
+                      <ContextMenu.Item
+                        class="text-left px-4 py-2 text-red-400 hover:bg-gray-700"
+                        onClick={onDelete()}
+                      >
+                        <div class="flex items-center gap-2">
+                          <span class="text-red-400">
+                            <TrashIcon size={15} />
+                          </span>
+                          <span class="text-red-400">Excluir</span>
+                        </div>
+                      </ContextMenu.Item>
+                    )}
+                  </Show>
+                </ContextMenu>
+              )}
+            </div>
+          </div>
+        </div>
         {props.nutritionalInfo}
       </ItemContextProvider>
     </div>
@@ -79,12 +178,14 @@ export function ItemView(props: ItemViewProps) {
 }
 
 export function ItemName() {
+  debug('ItemName called')
+
   const { item } = useItemContext()
 
   const [template, setTemplate] = createSignal<Template | null>(null)
 
   createEffect(() => {
-    console.debug('[ItemName] item changed, fetching API:', item())
+    debug('[ItemName] createEffect triggered', { item: item() })
 
     const itemValue = item()
     if (isTemplateItemRecipe(itemValue)) {
@@ -155,12 +256,15 @@ export function ItemName() {
 export function ItemCopyButton(props: {
   onCopyItem: (item: TemplateItem) => void
 }) {
+  debug('ItemCopyButton called', { props })
+
   const { item } = useItemContext()
 
   return (
     <div
       class={'btn btn-ghost ml-auto mt-1 px-2 text-white hover:scale-105'}
       onClick={(e) => {
+        debug('ItemCopyButton onClick', { item: item() })
         e.stopPropagation()
         e.preventDefault()
         props.onCopyItem(item())
@@ -172,7 +276,13 @@ export function ItemCopyButton(props: {
 }
 
 export function ItemFavorite(props: { foodId: number }) {
+  debug('ItemFavorite called', { props })
+
   const toggleFavorite = (e: MouseEvent) => {
+    debug('toggleFavorite', {
+      foodId: props.foodId,
+      isFavorite: isFoodFavorite(props.foodId),
+    })
     setFoodAsFavorite(props.foodId, !isFoodFavorite(props.foodId))
     e.stopPropagation()
     e.preventDefault()
@@ -180,7 +290,7 @@ export function ItemFavorite(props: { foodId: number }) {
 
   return (
     <div
-      class="ml-auto mt-1 text-3xl text-orange-400 active:scale-105 hover:text-blue-200"
+      class="text-3xl text-orange-400 active:scale-105 hover:text-blue-200"
       onClick={toggleFavorite}
     >
       {isFoodFavorite(props.foodId) ? '★' : '☆'}
@@ -189,6 +299,8 @@ export function ItemFavorite(props: { foodId: number }) {
 }
 
 export function ItemNutritionalInfo() {
+  debug('ItemNutritionalInfo called')
+
   const { item, macroOverflow } = useItemContext()
 
   const multipliedMacros = (): MacroNutrients => calcItemMacros(item())

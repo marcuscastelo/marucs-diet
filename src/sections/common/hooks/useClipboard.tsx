@@ -1,6 +1,7 @@
 import { createEffect, createSignal } from 'solid-js'
 import { type z } from 'zod'
 
+import { showSuccess } from '~/modules/toast/application/toastManager'
 import { jsonParseWithStack } from '~/shared/utils/jsonParseWithStack'
 
 // Utility to check if an error is a NotAllowedError DOMException
@@ -21,7 +22,12 @@ export function useClipboard(props?: {
   const handleWrite = (text: string, onError?: (error: unknown) => void) => {
     window.navigator.clipboard
       .writeText(text)
-      .then(() => setClipboard(text))
+      .then(() => {
+        setClipboard(text)
+        if (text.length > 0) {
+          showSuccess(`Copiado com sucesso`)
+        }
+      })
       .catch((err) => {
         if (isClipboardNotAllowedError(err)) {
           // Ignore NotAllowedError (likely DOM not focused)

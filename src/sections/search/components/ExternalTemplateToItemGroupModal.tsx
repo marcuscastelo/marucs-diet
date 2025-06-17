@@ -56,10 +56,6 @@ export function ExternalTemplateToItemGroupModal(
         item={() => templateToItem(template())}
         macroOverflow={() => ({ enable: true })}
         onApply={handleApply}
-        onDelete={() =>
-          // TODO: Remove this delete button when ItemEditModal supports editing and deleting recipes directly for UI consistency
-          isTemplateRecipe(template()) ? handleDeleteRecipe() : undefined
-        }
       />
     </ModalContextProvider>
   )

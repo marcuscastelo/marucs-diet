@@ -11,6 +11,7 @@ import { type Food } from '~/modules/diet/food/domain/food'
 import { createItem } from '~/modules/diet/item/domain/item'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
+import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import {
   ItemFavorite,
   ItemName,
@@ -29,6 +30,7 @@ export type EANSearchProps = {
 export default function EANSearch(props: EANSearchProps) {
   const [loading, setLoading] = createSignal(false)
   const { show: showConfirmModal } = useConfirmModalContext()
+  const clipboard = useClipboard()
 
   const EAN_LENGTH = 13
 
@@ -100,6 +102,13 @@ export default function EANSearch(props: EANSearchProps) {
                 <p class="font-bold">{food().name}</p>
                 <p class="text-sm">
                   <ItemView
+                    handlers={{
+                      // TODO : default handlers for ItemView
+                      onCopy: (item) => {
+                        clipboard.write(JSON.stringify(item))
+                      },
+                    }}
+                    mode="read-only"
                     item={() =>
                       createItem({
                         name: food().name,
