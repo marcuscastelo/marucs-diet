@@ -1,5 +1,5 @@
 ---
-description: 'Automate issue-based workflow: checkout, branch, fetch issue details, plan, brainstorm, and implement without further interruptions.'
+description: 'Automate issue-based workflow: checkout, branch, fetch issue details, plan, brainstorm, and implement without further interruptions. After plan approval, agent must autonomously implement the issue, making code changes and committing them to git. Outputting commit messages or progress is optional, not required. Agent must not wait for user input after plan approval, except if a true blocker or ambiguity is encountered. Only stop if task is completed or user clarification is required.'
 mode: 'agent'
 tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
@@ -44,8 +44,10 @@ Your task is to fully automate the implementation of a GitHub issue, from prepar
 ## Behavior Rules
 
 - After plan approval, the agent becomes fully autonomous.
-- Absolutely no user prompts, confirmations, status messages, progress updates, or logs should occur during implementation.
-- Silence is mandatory unless a hard blocker or critical ambiguity is encountered.
+- Absolutely no user prompts, confirmations, status messages, or progress updates are required during implementation.
+- Outputting commit messages or progress is optional, not required.
+- The agent must not wait for user input after plan approval, except if a true blocker or ambiguity is encountered.
+- The agent should only stop if it cannot proceed without user clarification or if the task is fully completed.
 
 ## Code and Commit Standards
 
@@ -63,8 +65,8 @@ Your task is to fully automate the implementation of a GitHub issue, from prepar
 ## Output Format
 
 - Output the implementation plan as a Markdown code block.
-- Output each commit message as a Markdown code block.
-- Do not output anything else during implementation after the plan is approved.
+- Outputting commit messages or progress is optional, not required.
+- Do not output anything else during implementation after the plan is approved, unless a true blocker or ambiguity is encountered.
 
 ## References
 
