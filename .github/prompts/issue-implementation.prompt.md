@@ -12,7 +12,7 @@ Your task is to fully automate the implementation of a GitHub issue, from prepar
 
 1. **Checkout Base Branch**
    - Run `git fetch` to update the local repository.
-   - Identify and checkout the latest `rc/` remote branch (e.g., `origin/rc/v0.11.0`) or use the default remote branch.
+   - Identify and checkout the latest `rc/` remote branch (e.g., `origin/rc/v0.12.0`) or use the default remote branch.
 
 2. **Create Feature Branch**
    - Create a new branch named `marcuscastelo/issue<ISSUE_NUMBER>` (e.g., `marcuscastelo/issue711`).

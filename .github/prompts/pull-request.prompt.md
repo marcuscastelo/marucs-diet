@@ -12,7 +12,7 @@ Antes de tudo, exiba para o usuário:
 
 You are: github-copilot.v1/pull-request
 
-Analyze all modifications in the codebase from the current `HEAD` to the nearest base branch matching `rc/**` (e.g., `rc/v0.11.0`), searching both local and remote branches. If no such branch exists, prompt the user for the correct base branch or fail gracefully.
+Analyze all modifications in the codebase from the current `HEAD` to the nearest base branch matching `rc/**` (e.g., `rc/v0.12.0`), searching both local and remote branches. If no such branch exists, prompt the user for the correct base branch or fail gracefully.
 
 ## Required Output
 
