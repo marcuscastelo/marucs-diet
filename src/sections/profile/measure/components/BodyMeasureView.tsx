@@ -13,9 +13,15 @@ import { FloatInput } from '~/sections/common/components/FloatInput'
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useDateField, useFloatField } from '~/sections/common/hooks/useField'
-import Datepicker from '~/sections/datepicker/components/Datepicker'
+import { type DateValueType } from '~/sections/datepicker/types'
 import { formatError } from '~/shared/formatError'
+import { lazyImport } from '~/shared/solid/lazyImport'
 import { normalizeDateToLocalMidnightPlusOne } from '~/shared/utils/date/normalizeDateToLocalMidnightPlusOne'
+
+const { Datepicker } = lazyImport(
+  () => import('~/sections/datepicker/components/Datepicker'),
+  ['Datepicker'],
+)
 
 /**
  * Renders a capsule view for editing and saving a single BodyMeasure.
@@ -118,7 +124,7 @@ export function BodyMeasureView(props: {
               startDate: dateField.value(),
               endDate: dateField.value(),
             }}
-            onChange={(value) => {
+            onChange={(value: DateValueType) => {
               if (value?.startDate === undefined || value.startDate === null) {
                 showError(`Data inválida: ${JSON.stringify(value)}`)
                 return

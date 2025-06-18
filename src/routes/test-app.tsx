@@ -24,7 +24,8 @@ import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalCo
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { Providers } from '~/sections/common/context/Providers'
 import { useFloatField } from '~/sections/common/hooks/useField'
-import Datepicker from '~/sections/datepicker/components/Datepicker'
+import { Datepicker } from '~/sections/datepicker/components/Datepicker'
+import { type DateValueType } from '~/sections/datepicker/types'
 import DayMacros from '~/sections/day-diet/components/DayMacros'
 import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
 import { ItemListView } from '~/sections/food-item/components/ItemListView'
@@ -245,7 +246,7 @@ export default function TestApp() {
                 startDate: targetDay(),
                 endDate: targetDay(),
               }}
-              onChange={(value) => {
+              onChange={(value: DateValueType) => {
                 setTargetDay(value?.startDate as string)
               }}
             />
