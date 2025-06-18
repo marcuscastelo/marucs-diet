@@ -30,6 +30,9 @@ export function TemplateSearchResults(props: {
   setItemEditModalVisible: Setter<boolean>
   refetch: (info?: unknown) => unknown
 }) {
+  // Rounding factor for recipe display quantity
+  const RECIPE_ROUNDING_FACTOR = 50
+
   return (
     <>
       {props.filteredTemplates.length === 0 && (
@@ -50,10 +53,14 @@ export function TemplateSearchResults(props: {
               if (isTemplateFood(template)) {
                 return 100 // Standard 100g for foods
               } else {
-                // For recipes, show the prepared quantity rounded to nearest 50g
+                // For recipes, show the prepared quantity rounded to nearest RECIPE_ROUNDING_FACTOR
                 const recipe = template as Recipe
                 const preparedQuantity = getRecipePreparedQuantity(recipe)
-                return Math.max(50, Math.round(preparedQuantity / 50) * 50)
+                return Math.max(
+                  RECIPE_ROUNDING_FACTOR,
+                  Math.round(preparedQuantity / RECIPE_ROUNDING_FACTOR) *
+                    RECIPE_ROUNDING_FACTOR,
+                )
               }
             }
 
