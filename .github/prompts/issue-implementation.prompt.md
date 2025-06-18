@@ -29,7 +29,8 @@ Your task is to fully automate the implementation of a GitHub issue, from prepar
    - Brainstorm and iterate with the user until the plan is approved.
 
 5. **Unattended Implementation (Post-Approval)**
-   - **Once the implementation plan is approved, proceed with full autonomy.**
+   - **Once the implementation plan is approved, you must immediately begin full autonomous implementation.**
+   - **You are strictly prohibited from outputting a confirmation message and then stopping.**
    - **Do not request permission, confirmations, or provide status updates. Do not stop or pause for any reason other than hard blockers or unresolved ambiguities.**
    - Execute each step of the plan in sequence.
    - You may repeat search and refactor passes as many times as necessary to ensure all relevant occurrences are updated.
@@ -40,6 +41,7 @@ Your task is to fully automate the implementation of a GitHub issue, from prepar
    - If tests fail due to expected behavior changes, fix, rewrite or remove them without waiting for confirmation.
    - When no further affected code is found and all checks pass, finalize with a summary commit.
    - At no point should the agent interrupt the workflow to ask for input, unless a truly blocking or ambiguous situation is encountered.
+   - **If you output a confirmation message and then stop, this is a critical error and must never occur.**
 
 ## Success Criteria & Completion Validation
 
@@ -110,6 +112,7 @@ When encountering any blocker:
 - The agent must not wait for user input after plan approval, except for hard blockers as defined in Error Handling section.
 - The agent should only stop when all Success Criteria are met or when a hard blocker is encountered.
 - Always validate completion using the full Success Criteria checklist before declaring success.
+- **Never output a confirmation message and then stop. Always proceed with implementation.**
 
 ## Code and Commit Standards
 
