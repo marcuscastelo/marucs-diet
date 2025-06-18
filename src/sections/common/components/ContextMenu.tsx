@@ -1,5 +1,6 @@
 import {
   createContext,
+  createEffect,
   createSignal,
   JSX,
   onCleanup,
@@ -20,9 +21,11 @@ export function ContextMenu(props: {
   class?: string
 }) {
   const [open, setOpen] = createSignal(false)
+  let menuRef: HTMLDivElement | undefined
 
   function handleDocumentClick(e: MouseEvent) {
-    if (!(e.target as HTMLElement)?.closest('.context-menu-root')) {
+    // Close if click is outside the menu (not the trigger or menu)
+    if (menuRef && !menuRef.contains(e.target as Node)) {
       setOpen(false)
     }
   }
@@ -33,13 +36,25 @@ export function ContextMenu(props: {
     setOpen((v) => !v)
   }
 
+  // Add event listener when menu is open
+  createEffect(() => {
+    if (open()) {
+      document.addEventListener('click', handleDocumentClick)
+    } else {
+      document.removeEventListener('click', handleDocumentClick)
+    }
+  })
+
   onCleanup(() => {
     document.removeEventListener('click', handleDocumentClick)
   })
 
   return (
     <ContextMenuContext.Provider value={{ open, setOpen }}>
-      <div class={cn('relative my-auto context-menu-root', props.class)}>
+      <div
+        ref={menuRef}
+        class={cn('relative my-auto context-menu-root', props.class)}
+      >
         <div class="my-auto" onClick={handleTriggerClick}>
           {props.trigger}
         </div>
@@ -73,7 +88,7 @@ ContextMenu.Item = function Item(props: {
   return (
     <button
       class={cn(
-        'context-menu-item min-w-[120px] active:scale-105',
+        'context-menu-item min-w-[120px] active:scale-105 select-none',
         props.class,
       )}
       onClick={handleClick}
