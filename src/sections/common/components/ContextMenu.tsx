@@ -60,7 +60,7 @@ export function ContextMenu(props: {
         </div>
         <Show when={open()}>
           <div
-            class="absolute right-0 z-50 mt-2 min-w-[120px] rounded bg-gray-800 shadow-lg border border-gray-700"
+            class="absolute right-full top-1/2 -translate-y-1/2 mr-2 z-50 min-w-[120px] rounded bg-gray-800 shadow-lg border border-gray-700"
             onClick={(e) => e.stopPropagation()}
           >
             {props.children}
