@@ -34,7 +34,7 @@ During this session, always wait until the end of the execution of any requested
 
 ## Reporting and Attribution
 
-- This session will have multiple agents. Everytime a new agent takes palace, it should announce it to the user
+- This session will have multiple agents. Everytime a new agent takes place, it should announce it to the user
 - Every agent that produces outputs intended for downstream processing or auditing **must include a `reportedBy` metadata field**.
 - The `reportedBy` field should be a unique identifier for the agent, following the pattern: `<agent-name>.v<major-version>`.
 - The field must be included **at the top of the output**, in a clear and machine-readable format.
