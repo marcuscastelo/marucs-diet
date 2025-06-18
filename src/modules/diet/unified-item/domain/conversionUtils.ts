@@ -5,29 +5,28 @@ import type { ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { getItemGroupQuantity } from '~/modules/diet/item-group/domain/itemGroup'
 import { UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
-type ProtoUnifiedItem = Omit<UnifiedItem, '__type'>
-
 /**
  * Converts an Item to a UnifiedItem (food reference).
  * @param item Item
- * @returns ProtoUnifiedItem
+ * @returns UnifiedItem
  */
-export function itemToUnifiedItem(item: Item): ProtoUnifiedItem {
+export function itemToUnifiedItem(item: Item): UnifiedItem {
   return {
     id: item.id,
     name: item.name,
     quantity: item.quantity,
     macros: item.macros,
     reference: { type: 'food', id: item.reference },
+    __type: 'UnifiedItem',
   }
 }
 
 /**
  * Converts a UnifiedItem (food reference) to an Item.
- * @param unified ProtoUnifiedItem
+ * @param unified UnifiedItem
  * @returns Item
  */
-export function unifiedItemToItem(unified: ProtoUnifiedItem): Item {
+export function unifiedItemToItem(unified: UnifiedItem): Item {
   if (unified.reference.type !== 'food') throw new Error('Not a food reference')
   return {
     id: unified.id,
@@ -42,11 +41,9 @@ export function unifiedItemToItem(unified: ProtoUnifiedItem): Item {
 /**
  * Converts a SimpleItemGroup or RecipedItemGroup to a UnifiedItem (group reference).
  * @param group ItemGroup
- * @returns ProtoUnifiedItem
+ * @returns UnifiedItem
  */
-export function itemGroupToUnifiedItem(
-  group: ItemGroup,
-): Omit<UnifiedItem, '__type'> {
+export function itemGroupToUnifiedItem(group: ItemGroup): UnifiedItem {
   return {
     id: group.id,
     name: group.name,
@@ -63,10 +60,8 @@ export function itemGroupToUnifiedItem(
       ),
     reference: {
       type: 'group',
-      children: group.items.map((item) => ({
-        ...itemToUnifiedItem(item),
-        __type: 'UnifiedItem',
-      })),
+      children: group.items.map((item) => itemToUnifiedItem(item)),
     },
+    __type: 'UnifiedItem',
   }
 }
