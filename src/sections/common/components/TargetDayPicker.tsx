@@ -1,10 +1,16 @@
+import { Suspense } from 'solid-js'
+
 import {
   setTargetDay,
   targetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
-import Datepicker from '~/sections/datepicker/components/Datepicker'
 import { type DateValueType } from '~/sections/datepicker/types'
-import { getToday, getTodayYYYYMMDD, stringToDate } from '~/shared/utils/date'
+import { lazyImport } from '~/shared/solid/lazyImport'
+import { getTodayYYYYMMDD, stringToDate } from '~/shared/utils/date'
+
+const { Datepicker } = lazyImport(
+  () => import('~/sections/datepicker/components/Datepicker'),
+)
 
 export function TargetDayPicker() {
   const handleDayChange = (
@@ -28,23 +34,25 @@ export function TargetDayPicker() {
   }
 
   return (
-    <Datepicker
-      asSingle={true}
-      useRange={false}
-      readOnly={true}
-      displayFormat="DD/MM/YYYY"
-      disabledDates={[
-        // targetDay(), future days are disabled
-        {
+    <Suspense>
+      <Datepicker
+        asSingle={true}
+        useRange={false}
+        readOnly={true}
+        displayFormat="DD/MM/YYYY"
+        disabledDates={[
+          // targetDay(), future days are disabled
+          {
+            startDate: targetDay(),
+            endDate: targetDay(),
+          },
+        ]}
+        value={{
           startDate: targetDay(),
           endDate: targetDay(),
-        },
-      ]}
-      value={{
-        startDate: targetDay(),
-        endDate: targetDay(),
-      }}
-      onChange={handleDayChange}
-    />
+        }}
+        onChange={handleDayChange}
+      />
+    </Suspense>
   )
 }

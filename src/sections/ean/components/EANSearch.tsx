@@ -27,7 +27,7 @@ export type EANSearchProps = {
   setFood: Setter<Food | null>
 }
 
-export default function EANSearch(props: EANSearchProps) {
+export function EANSearch(props: EANSearchProps) {
   const [loading, setLoading] = createSignal(false)
   const { show: showConfirmModal } = useConfirmModalContext()
   const clipboard = useClipboard()

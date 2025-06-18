@@ -7,10 +7,15 @@ import { FloatInput } from '~/sections/common/components/FloatInput'
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useDateField, useFloatField } from '~/sections/common/hooks/useField'
-import Datepicker from '~/sections/datepicker/components/Datepicker'
+import { type DateValueType } from '~/sections/datepicker/types'
+import { lazyImport } from '~/shared/solid/lazyImport'
 import { dateToYYYYMMDD } from '~/shared/utils/date'
 import { normalizeDateToLocalMidnightPlusOne } from '~/shared/utils/date/normalizeDateToLocalMidnightPlusOne'
 
+const { Datepicker } = lazyImport(
+  () => import('~/sections/datepicker/components/Datepicker'),
+  ['Datepicker'],
+)
 /**
  * Props for the WeightView component.
  */
@@ -59,7 +64,7 @@ export function WeightView(props: WeightViewProps) {
               startDate: dateField.rawValue(),
               endDate: dateField.rawValue(),
             }}
-            onChange={(value) => {
+            onChange={(value: DateValueType) => {
               if (value === null || value.startDate === null) {
                 showError('Data inválida: \n' + JSON.stringify(value))
                 return

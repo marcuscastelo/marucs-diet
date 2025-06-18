@@ -1,4 +1,3 @@
-import { SolidApexCharts } from 'solid-apexcharts'
 import { createMemo } from 'solid-js'
 
 import {
@@ -12,6 +11,12 @@ import {
 } from '~/modules/weight/domain/weightEvolutionDomain'
 import { buildWeightChartOptions } from '~/sections/weight/components/WeightChartOptions'
 import { buildWeightChartSeries } from '~/sections/weight/components/WeightChartSeries'
+import { lazyImport } from '~/shared/solid/lazyImport'
+
+const { SolidApexCharts } = lazyImport(
+  () => import('solid-apexcharts'),
+  ['SolidApexCharts'],
+)
 
 /**
  * Props for the WeightChart component.

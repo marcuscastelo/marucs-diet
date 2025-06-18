@@ -1,14 +1,19 @@
-import { type ApexOptions } from 'apexcharts'
-import { SolidApexCharts } from 'solid-apexcharts'
+import type { ApexOptions } from 'apexcharts'
 import { createMemo, Show } from 'solid-js'
 
 import ptBrLocale from '~/assets/locales/apex/pt-br.json'
-import { type BodyMeasure } from '~/modules/measure/domain/measure'
+import type { BodyMeasure } from '~/modules/measure/domain/measure'
 import { currentUser } from '~/modules/user/application/user'
 import { userWeights } from '~/modules/weight/application/weight'
+import { lazyImport } from '~/shared/solid/lazyImport'
 import { type BodyFatInput, calculateBodyFat } from '~/shared/utils/bfMath'
 import { createDebug } from '~/shared/utils/createDebug'
 import { dateToYYYYMMDD } from '~/shared/utils/date'
+
+const { SolidApexCharts } = lazyImport(
+  () => import('solid-apexcharts'),
+  ['SolidApexCharts'],
+)
 
 const debug = createDebug()
 

@@ -3,7 +3,12 @@ import { type Accessor, For, type Setter, Show } from 'solid-js'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { Modal } from '~/sections/common/components/Modal'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
-import PreviousDayCard from '~/sections/day-diet/components/PreviousDayCard'
+import { lazyImport } from '~/shared/solid/lazyImport'
+
+const { PreviousDayCard } = lazyImport(
+  () => import('~/sections/day-diet/components/PreviousDayCard'),
+  ['PreviousDayCard'],
+)
 
 type CopyLastDayModalProps = {
   previousDays: DayDiet[]
@@ -14,7 +19,7 @@ type CopyLastDayModalProps = {
   setOpen: Setter<boolean>
 }
 
-function CopyLastDayModal(props: CopyLastDayModalProps) {
+export function CopyLastDayModal(props: CopyLastDayModalProps) {
   return (
     <ModalContextProvider visible={props.open} setVisible={props.setOpen}>
       <Modal>
@@ -48,5 +53,3 @@ function CopyLastDayModal(props: CopyLastDayModalProps) {
     </ModalContextProvider>
   )
 }
-
-export default CopyLastDayModal

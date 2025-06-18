@@ -5,8 +5,7 @@ import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { MacroTarget } from '~/sections/macro-nutrients/components/MacroTargets'
 import { latestWeight } from '~/shared/utils/weightUtils'
 
-// TODO:   Rename MacroProfileComp to MacroProfile.
-export function MacroProfileComp() {
+export function MacroProfileSettings() {
   return (
     <div class={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>
       <Show
