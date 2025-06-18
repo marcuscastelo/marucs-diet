@@ -11,7 +11,6 @@ import {
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import {
-  deleteItemGroup,
   insertItemGroup,
   updateItemGroup,
 } from '~/modules/diet/item-group/application/itemGroup'
@@ -57,7 +56,7 @@ const [newItemSelection, setNewItemSelection] =
 export default function DayMeals(props: {
   dayDiet?: DayDiet
   selectedDay: string
-  mode?: 'edit' | 'read-only' | 'summary'
+  mode: 'edit' | 'read-only' | 'summary'
   onRequestEditMode?: () => void
 }) {
   const [itemGroupEditModalVisible, setItemGroupEditModalVisible] =
@@ -68,7 +67,7 @@ export default function DayMeals(props: {
 
   const [showConfirmEdit, setShowConfirmEdit] = createSignal(false)
 
-  const handleRequestViewItemGroup = (meal: Meal, itemGroup: ItemGroup) => {
+  const handleEditItemGroup = (meal: Meal, itemGroup: ItemGroup) => {
     // Always open the modal for any mode, but ItemGroupEditModal will respect the mode prop
     setEditSelection({ meal, itemGroup })
     setItemGroupEditModalVisible(true)
@@ -170,7 +169,8 @@ export default function DayMeals(props: {
               {(meal) => (
                 <MealEditView
                   class="mt-5"
-                  meal={meal}
+                  dayDiet={() => neverNullDayDiet}
+                  meal={() => meal}
                   header={
                     <MealEditViewHeader
                       onUpdateMeal={(meal) => {
@@ -189,8 +189,8 @@ export default function DayMeals(props: {
                   }
                   content={
                     <MealEditViewContent
-                      onRequestViewItemGroup={(item) => {
-                        handleRequestViewItemGroup(meal, item)
+                      onEditItemGroup={(item) => {
+                        handleEditItemGroup(meal, item)
                       }}
                       mode={props.mode}
                     />
@@ -228,7 +228,7 @@ function ExternalItemGroupEditModal(props: {
   visible: Accessor<boolean>
   setVisible: Setter<boolean>
   day: Accessor<DayDiet>
-  mode?: 'edit' | 'read-only' | 'summary'
+  mode: 'edit' | 'read-only' | 'summary'
 }) {
   createEffect(() => {
     if (!props.visible()) {
@@ -265,12 +265,6 @@ function ExternalItemGroupEditModal(props: {
               )
 
               // TODO:   Analyze if these commands are troublesome
-              setEditSelection(null)
-              props.setVisible(false)
-            }}
-            onDelete={(id: ItemGroup['id']) => {
-              void deleteItemGroup(props.day().id, editSelection().meal.id, id)
-
               setEditSelection(null)
               props.setVisible(false)
             }}

@@ -31,3 +31,9 @@ Thumbs.db
 yarn.lock
 package-lock.json
 src/app-version.json
+.eslintcache
+
+# Generated one-time prompts
+.github/prompts/.*.md
+android-sdk/
+android/

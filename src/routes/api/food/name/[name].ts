@@ -19,11 +19,7 @@ export async function GET({ params }: APIEvent) {
     console.debug('apiFood', apiFood)
     return json(apiFood)
   } catch (error) {
-    handleApiError(error, {
-      component: 'ApiRoute',
-      operation: 'fetchApiFoodsByName',
-      additionalData: { name: params.name },
-    })
+    handleApiError(error)
     return json(
       {
         error:

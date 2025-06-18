@@ -23,7 +23,7 @@ export function displaySolidToast(toastItem: ToastItem): string {
 
   // Prepare solid-toast options with duration
   const solidToastOptions = {
-    duration: duration,
+    duration,
   }
 
   // Standard toast rendering
@@ -48,11 +48,6 @@ export function displaySolidToast(toastItem: ToastItem): string {
       handleApiError(
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         new Error(`Unknown toast type: ${type}`),
-        {
-          component: 'displayToast',
-          operation: 'unknownToastType',
-          additionalData: { type, message },
-        },
       )
       return ''
   }

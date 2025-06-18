@@ -15,7 +15,7 @@ import { showSuccess } from '~/modules/toast/application/toastManager'
 import { TestChart } from '~/sections/common/components/charts/TestChart'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
-import { BarCodeIcon } from '~/sections/common/components/icons/BarCodeIcon'
+import { EANIcon } from '~/sections/common/components/icons/EANIcon'
 import { LoadingRing } from '~/sections/common/components/LoadingRing'
 import { Modal } from '~/sections/common/components/Modal'
 import { PageLoading } from '~/sections/common/components/PageLoading'
@@ -24,7 +24,8 @@ import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalCo
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { Providers } from '~/sections/common/context/Providers'
 import { useFloatField } from '~/sections/common/hooks/useField'
-import Datepicker from '~/sections/datepicker/components/Datepicker'
+import { Datepicker } from '~/sections/datepicker/components/Datepicker'
+import { type DateValueType } from '~/sections/datepicker/types'
 import DayMacros from '~/sections/day-diet/components/DayMacros'
 import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
 import { ItemListView } from '~/sections/food-item/components/ItemListView'
@@ -100,7 +101,7 @@ export default function TestApp() {
     })
   })
 
-  // const [barCode, setBarCode] = createSignal('')
+  // const [EAN, setEAN] = createSignal('')
   // const [food, setFood] = createSignal<Food | null>(null)
   return (
     <>
@@ -134,6 +135,7 @@ export default function TestApp() {
             >
               <ItemGroupEditModal
                 group={group}
+                mode="edit"
                 setGroup={(group: ItemGroup | null) =>
                   group !== null && setGroup(group)
                 }
@@ -147,9 +149,6 @@ export default function TestApp() {
                 targetMealName="Teste"
                 onCancel={() => {
                   console.debug('cancel')
-                }}
-                onDelete={() => {
-                  console.debug('delete')
                 }}
               />
             </ModalContextProvider>
@@ -199,8 +198,11 @@ export default function TestApp() {
             <h1>ItemListView</h1>
             <ItemListView
               items={() => group().items}
-              onItemClick={() => {
-                setItemEditModalVisible(true)
+              mode="edit"
+              handlers={{
+                onClick: () => {
+                  setItemEditModalVisible(true)
+                },
               }}
             />
             <h1>ItemGroupView</h1>
@@ -220,8 +222,10 @@ export default function TestApp() {
                 />
               }
               nutritionalInfo={<ItemGroupViewNutritionalInfo group={group} />}
-              onClick={() => {
-                setItemGroupEditModalVisible(true)
+              handlers={{
+                onEdit: () => {
+                  setItemGroupEditModalVisible(true)
+                },
               }}
             />
           </div>
@@ -242,7 +246,7 @@ export default function TestApp() {
                 startDate: targetDay(),
                 endDate: targetDay(),
               }}
-              onChange={(value) => {
+              onChange={(value: DateValueType) => {
                 setTargetDay(value?.startDate as string)
               }}
             />
@@ -264,7 +268,7 @@ export default function TestApp() {
             class="pl-4 flex flex-col gap-2 items-center justify-center mx-auto"
             style={{ 'min-height': '33vh', 'max-width': '33vw' }}
           >
-            <BarCodeIcon />
+            <EANIcon />
             <TestChart />
             <TestField />
             <DayMacros />

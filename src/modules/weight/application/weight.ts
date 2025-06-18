@@ -1,6 +1,5 @@
 import { createEffect, createSignal } from 'solid-js'
 
-import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
 import { type NewWeight, type Weight } from '~/modules/weight/domain/weight'
@@ -9,6 +8,7 @@ import {
   SUPABASE_TABLE_WEIGHTS,
 } from '~/modules/weight/infrastructure/supabaseWeightRepository'
 import { handleApiError } from '~/shared/error/errorHandler'
+import { registerSubapabaseRealtimeCallback } from '~/shared/utils/supabase'
 
 const weightRepository = createSupabaseWeightRepository()
 
@@ -47,11 +47,7 @@ export async function fetchUserWeights(userId: number) {
     setUserWeights(weights)
     return weights
   } catch (error) {
-    handleApiError(error, {
-      component: 'weightApplication',
-      operation: 'fetchUserWeights',
-      additionalData: { userId },
-    })
+    handleApiError(error)
     throw error
   }
 }
@@ -66,11 +62,7 @@ export async function insertWeight(newWeight: NewWeight) {
     })
     return weight
   } catch (error) {
-    handleApiError(error, {
-      component: 'weightApplication',
-      operation: 'insertWeight',
-      additionalData: { newWeight },
-    })
+    handleApiError(error)
     throw error
   }
 }
@@ -88,11 +80,7 @@ export async function updateWeight(weightId: Weight['id'], newWeight: Weight) {
     await fetchUserWeights(currentUserId())
     return weight
   } catch (error) {
-    handleApiError(error, {
-      component: 'weightApplication',
-      operation: 'updateWeight',
-      additionalData: { weightId, newWeight },
-    })
+    handleApiError(error)
     throw error
   }
 }
@@ -106,11 +94,7 @@ export async function deleteWeight(weightId: Weight['id']) {
     })
     await fetchUserWeights(currentUserId())
   } catch (error) {
-    handleApiError(error, {
-      component: 'weightApplication',
-      operation: 'deleteWeight',
-      additionalData: { weightId },
-    })
+    handleApiError(error)
     throw error
   }
 }

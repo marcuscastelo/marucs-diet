@@ -1,13 +1,14 @@
 import { type Accessor, type Setter, Show } from 'solid-js'
 
 import { type Item } from '~/modules/diet/item/domain/item'
+import { removeItemFromGroup } from '~/modules/diet/item-group/domain/itemGroupOperations'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
-import { isTemplateItemRecipe } from '~/modules/diet/template-item/domain/templateItem'
+import { isTemplateItemFood } from '~/modules/diet/template-item/domain/templateItem'
 import { showError } from '~/modules/toast/application/toastManager'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { ItemListView } from '~/sections/food-item/components/ItemListView'
 import {
-  ItemCopyButton,
   ItemFavorite,
   ItemName,
 } from '~/sections/food-item/components/ItemView'
@@ -26,41 +27,19 @@ export function ItemGroupEditModalBody(props: {
   setItemEditModalVisible: Setter<boolean>
   templateSearchModalVisible: Accessor<boolean>
   setTemplateSearchModalVisible: Setter<boolean>
-  mode?: 'edit' | 'read-only' | 'summary'
+  mode: 'edit' | 'read-only' | 'summary'
   writeToClipboard: (text: string) => void
   setEditSelection: (sel: { item: Item } | null) => void
 }) {
-  const { group } = useItemGroupEditContext()
-
-  function handleItemClick(item: Item) {
-    if (props.mode !== 'edit') return
-    if (isTemplateItemRecipe(item)) {
-      // TODO: Allow user to edit recipe
-      showError(
-        'Ainda não é possível editar receitas! Funcionalidade em desenvolvimento',
-      )
-      return
-    }
-    props.setEditSelection({ item })
-    props.setItemEditModalVisible(true)
-  }
+  const { group, setGroup } = useItemGroupEditContext()
+  const { show: showConfirmModal } = useConfirmModalContext()
 
   return (
     <Show when={group()}>
       {(group) => (
         <>
-          <div class="text-md mt-4">
-            <div class="flex gap-4">
-              <div class="my-auto flex-1" />
-            </div>
-          </div>
           <ItemListView
             items={() => group().items}
-            onItemClick={
-              props.mode === 'edit'
-                ? (item) => handleItemClick(item as Item)
-                : undefined
-            }
             mode={props.mode}
             makeHeaderFn={(item) => (
               <HeaderWithActions
@@ -68,17 +47,44 @@ export function ItemGroupEditModalBody(props: {
                 primaryActions={
                   props.mode === 'edit' ? (
                     <>
-                      <ItemCopyButton
-                        onCopyItem={(item) => {
-                          props.writeToClipboard(JSON.stringify(item))
-                        }}
-                      />
                       <ItemFavorite foodId={item.reference} />
                     </>
                   ) : null
                 }
               />
             )}
+            handlers={{
+              onEdit: (item) => {
+                if (!isTemplateItemFood(item)) {
+                  showError('Item não é um alimento válido para edição.')
+                  return
+                }
+                props.setItemEditModalVisible(true)
+                props.setEditSelection({ item })
+              },
+              onCopy: (item) => {
+                props.writeToClipboard(JSON.stringify(item))
+              },
+              onDelete: (item) => {
+                showConfirmModal({
+                  title: 'Excluir item',
+                  body: 'Tem certeza que deseja excluir este item?',
+                  actions: [
+                    {
+                      text: 'Cancelar',
+                      onClick: () => undefined,
+                    },
+                    {
+                      text: 'Excluir',
+                      primary: true,
+                      onClick: () => {
+                        setGroup((prev) => removeItemFromGroup(prev, item.id))
+                      },
+                    },
+                  ],
+                })
+              },
+            }}
           />
           {props.mode === 'edit' && (
             <button

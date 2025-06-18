@@ -2,7 +2,7 @@
 
 **A nutrition tracking platform built with modular architecture and modern web technologies.**
 
-![Version](https://img.shields.io/badge/version-v0.9.0-blue.svg)
+![Version](https://img.shields.io/badge/version-0.12.0-blue.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)
 ![SolidJS](https://img.shields.io/badge/SolidJS-2c4f7c?logo=solid&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?logo=supabase&logoColor=white)
@@ -31,7 +31,7 @@ For now, it is focused on being a personal project to track my own nutrition, bu
 - Weight tracking with trends
 
 ### Food Management
-- Barcode scanning for quick entry
+- EAN scanning for quick entry
 - Searchable food database
 - Custom recipe builder with automatic macros
 - Meal planning and reusable templates
@@ -75,6 +75,9 @@ src/
 - Supabase account
 
 ### Setup
+
+> **Environment Variables:**
+> Copy `.env.example` to `.env.local` and fill in the required values. This file lists all environment variables needed to run the project. Do not commit secrets to version control.
 
 ```bash
 git clone https://github.com/marcuscastelo/marucs-diet.git

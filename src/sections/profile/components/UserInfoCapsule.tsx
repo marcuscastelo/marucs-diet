@@ -1,6 +1,5 @@
 import { Show } from 'solid-js'
 
-import { type Mutable } from '~/legacy/utils/typeUtils'
 import {
   innerData,
   setInnerData,
@@ -15,6 +14,7 @@ import {
   GENDER_TRANSLATION,
 } from '~/sections/profile/components/UserInfo'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
+import { type Mutable } from '~/shared/utils/typeUtils'
 
 type Translation<T extends string> = { [key in T]: string }
 

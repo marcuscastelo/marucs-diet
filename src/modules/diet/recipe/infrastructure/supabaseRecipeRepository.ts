@@ -1,4 +1,3 @@
-import supabase from '~/legacy/utils/supabase'
 import {
   type NewRecipe,
   type Recipe,
@@ -16,6 +15,8 @@ import {
   handleValidationError,
 } from '~/shared/error/errorHandler'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
+import { removeDiacritics } from '~/shared/utils/removeDiacritics'
+import supabase from '~/shared/utils/supabase'
 
 const TABLE = 'recipes'
 
@@ -44,11 +45,7 @@ const fetchUserRecipes = async (userId: User['id']): Promise<Recipe[]> => {
       .select()
       .eq('owner', userId)
     if (error !== null) {
-      handleApiError(error, {
-        component: 'supabaseRecipeRepository',
-        operation: 'fetchUserRecipes',
-        additionalData: { userId },
-      })
+      handleApiError(error)
       throw error
     }
     let recipeDAOs
@@ -64,11 +61,7 @@ const fetchUserRecipes = async (userId: User['id']): Promise<Recipe[]> => {
     }
     return recipeDAOs.map(createRecipeFromDAO)
   } catch (err) {
-    handleApiError(err, {
-      component: 'supabaseRecipeRepository',
-      operation: 'fetchUserRecipes',
-      additionalData: { userId },
-    })
+    handleApiError(err)
     throw err
   }
 }
@@ -84,11 +77,7 @@ const fetchRecipeById = async (id: Recipe['id']): Promise<Recipe> => {
   try {
     const { data, error } = await supabase.from(TABLE).select().eq('id', id)
     if (error !== null) {
-      handleApiError(error, {
-        component: 'supabaseRecipeRepository',
-        operation: 'fetchRecipeById',
-        additionalData: { id },
-      })
+      handleApiError(error)
       throw error
     }
     let recipeDAOs
@@ -104,29 +93,21 @@ const fetchRecipeById = async (id: Recipe['id']): Promise<Recipe> => {
     }
     const recipes = recipeDAOs.map(createRecipeFromDAO)
     if (!recipes[0]) {
-      handleApiError('Recipe not found', {
-        component: 'supabaseRecipeRepository',
-        operation: 'fetchRecipeById',
-        additionalData: { id },
-      })
+      handleApiError('Recipe not found')
       throw new Error(`Recipe with id ${id} not found`)
     }
     return recipes[0]
   } catch (err) {
-    handleApiError(err, {
-      component: 'supabaseRecipeRepository',
-      operation: 'fetchRecipeById',
-      additionalData: { id },
-    })
+    handleApiError(err)
     throw err
   }
 }
 
 /**
- * Fetches a user's recipe by name.
+ * Fetches a user's recipe by name (partial, case-insensitive, diacritic-insensitive).
  * Throws on error.
  * @param userId - The user ID
- * @param name - The recipe name
+ * @param name - The recipe name (partial or full)
  * @returns Array of recipes
  * @throws Error on API/validation error
  */
@@ -135,17 +116,15 @@ const fetchUserRecipeByName = async (
   name: Recipe['name'],
 ): Promise<Recipe[]> => {
   try {
+    // Normalize diacritics for search
+    const normalizedName = removeDiacritics(name)
     const { data, error } = await supabase
       .from(TABLE)
       .select()
       .eq('owner', userId)
-      .eq('name', name)
+      .ilike('name', `%${normalizedName}%`)
     if (error !== null) {
-      handleApiError(error, {
-        component: 'supabaseRecipeRepository',
-        operation: 'fetchUserRecipeByName',
-        additionalData: { userId, name },
-      })
+      handleApiError(error)
       throw error
     }
     let recipeDAOs
@@ -161,11 +140,7 @@ const fetchUserRecipeByName = async (
     }
     return recipeDAOs.map(createRecipeFromDAO)
   } catch (err) {
-    handleApiError(err, {
-      component: 'supabaseRecipeRepository',
-      operation: 'fetchUserRecipeByName',
-      additionalData: { userId, name },
-    })
+    handleApiError(err)
     throw err
   }
 }
@@ -185,11 +160,7 @@ const insertRecipe = async (newRecipe: NewRecipe): Promise<Recipe> => {
       .insert(createDAO)
       .select()
     if (error !== null) {
-      handleApiError(error, {
-        component: 'supabaseRecipeRepository',
-        operation: 'insertRecipe',
-        additionalData: { recipe: newRecipe },
-      })
+      handleApiError(error)
       throw error
     }
     let recipeDAOs
@@ -205,20 +176,12 @@ const insertRecipe = async (newRecipe: NewRecipe): Promise<Recipe> => {
     }
     const recipes = recipeDAOs.map(createRecipeFromDAO)
     if (!recipes[0]) {
-      handleApiError('Recipe not created', {
-        component: 'supabaseRecipeRepository',
-        operation: 'insertRecipe',
-        additionalData: { recipe: newRecipe },
-      })
+      handleApiError('Recipe not created')
       throw new Error('Recipe not created')
     }
     return recipes[0]
   } catch (err) {
-    handleApiError(err, {
-      component: 'supabaseRecipeRepository',
-      operation: 'insertRecipe',
-      additionalData: { recipe: newRecipe },
-    })
+    handleApiError(err)
     throw err
   }
 }
@@ -243,11 +206,7 @@ const updateRecipe = async (
       .eq('id', recipeId)
       .select()
     if (error !== null) {
-      handleApiError(error, {
-        component: 'supabaseRecipeRepository',
-        operation: 'updateRecipe',
-        additionalData: { id: recipeId, recipe: newRecipe },
-      })
+      handleApiError(error)
       throw error
     }
     let recipeDAOs
@@ -263,20 +222,12 @@ const updateRecipe = async (
     }
     const recipes = recipeDAOs.map(createRecipeFromDAO)
     if (!recipes[0]) {
-      handleApiError('Recipe not found after update', {
-        component: 'supabaseRecipeRepository',
-        operation: 'updateRecipe',
-        additionalData: { id: recipeId, recipe: newRecipe },
-      })
+      handleApiError('Recipe not found after update')
       throw new Error(`Recipe with id ${recipeId} not found after update`)
     }
     return recipes[0]
   } catch (err) {
-    handleApiError(err, {
-      component: 'supabaseRecipeRepository',
-      operation: 'updateRecipe',
-      additionalData: { id: recipeId, recipe: newRecipe },
-    })
+    handleApiError(err)
     throw err
   }
 }
@@ -291,19 +242,11 @@ const deleteRecipe = async (id: Recipe['id']): Promise<void> => {
   try {
     const { error } = await supabase.from(TABLE).delete().eq('id', id)
     if (error !== null) {
-      handleApiError(error, {
-        component: 'supabaseRecipeRepository',
-        operation: 'deleteRecipe',
-        additionalData: { id },
-      })
+      handleApiError(error)
       throw error
     }
   } catch (err) {
-    handleApiError(err, {
-      component: 'supabaseRecipeRepository',
-      operation: 'deleteRecipe',
-      additionalData: { id },
-    })
+    handleApiError(err)
     throw err
   }
 }

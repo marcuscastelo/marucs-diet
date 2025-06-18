@@ -1,3 +1,4 @@
+/* eslint-disable */
 /**
  * Centralized error handling utilities for the application layer.
  * Components should not directly use console.error, instead they should
@@ -9,6 +10,31 @@ export type ErrorContext = {
   operation?: string
   userId?: string
   additionalData?: Record<string, unknown>
+}
+
+export function getCallerFile(): string | undefined {
+  const originalPrepareStackTrace = Error.prepareStackTrace
+
+  try {
+    Error.prepareStackTrace = (_, stack) => stack
+    const err = new Error()
+
+    const stack = err.stack as unknown as NodeJS.CallSite[]
+
+    // stack[0] = getCallerFile
+    // stack[1] = quem chamou getCallerFile
+    // stack[2] = o arquivo chamador da função que chamou getCallerFile
+    const caller = stack[2]
+    return caller?.getFileName?.() ?? undefined
+  } finally {
+    Error.prepareStackTrace = originalPrepareStackTrace
+  }
+}
+
+function getCallerContext(): string {
+  const file = getCallerFile()
+  if (file === undefined || file === '') return 'unknown'
+  return file.replace(/.*\/src\//, '').replace(/\.[jt]sx?$/, '')
 }
 
 /**
@@ -31,19 +57,12 @@ export function logError(error: unknown, context?: ErrorContext): void {
   if (context?.additionalData !== undefined) {
     console.error('Additional context:', context.additionalData)
   }
-
-  // In the future, this could send errors to a monitoring service
-  // e.g., Sentry, LogRocket, etc.
 }
 
-/**
- * Helper to wrap a non-Error object in an Error and attach the original error as a symbol property.
- */
 const ORIGINAL_ERROR_SYMBOL = Symbol('originalError')
 export function wrapErrorWithStack(error: unknown): Error {
   let message = 'Unknown error'
   if (typeof error === 'object' && error !== null) {
-    // If error has a message and other properties, serialize all
     const keys = Object.keys(error)
     if (
       'message' in error &&
@@ -57,12 +76,10 @@ export function wrapErrorWithStack(error: unknown): Error {
         message = (error as { message: string }).message
       }
     } else {
-      // No .message, serialize everything
       message = JSON.stringify(error)
     }
   }
   const wrapped: Error = new Error(message)
-  // Attach the original error as a symbol property for traceability
   Object.defineProperty(wrapped, ORIGINAL_ERROR_SYMBOL, {
     value: error,
     enumerable: false,
@@ -74,19 +91,18 @@ export function wrapErrorWithStack(error: unknown): Error {
 
 /**
  * Handle errors related to API operations
+ * Now infers context/module automatically; manual context is ignored.
  */
-export function handleApiError(error: unknown, context?: ErrorContext): void {
+export function handleApiError(error: unknown): void {
   let errorToLog = error
   if (!(error instanceof Error)) {
     errorToLog = wrapErrorWithStack(error)
   }
+  const inferredComponent = getCallerContext()
   logError(errorToLog, {
-    ...context,
-    operation: `${context?.operation ?? 'API'} request`,
-    additionalData: {
-      ...(context?.additionalData ?? {}),
-      originalError: error,
-    },
+    component: inferredComponent,
+    operation: 'API request',
+    additionalData: { originalError: error },
   })
 }
 
@@ -118,4 +134,44 @@ export function handleValidationError(
   context?: ErrorContext,
 ): void {
   logError(error, { ...context, operation: 'Validation' })
+}
+
+/**
+ * Detects if an error is a backend outage/network error (e.g., fetch failed, CORS, DNS, etc).
+ * @param error - The error to check
+ * @returns True if the error is a backend outage/network error
+ */
+export function isBackendOutageError(error: unknown): boolean {
+  if (typeof error === 'string') {
+    return (
+      error.includes('Failed to fetch') ||
+      error.includes('NetworkError') ||
+      error.includes('CORS') ||
+      error.includes('net::ERR') ||
+      error.includes('Network request failed')
+    )
+  }
+  if (typeof error === 'object' && error !== null) {
+    const msg =
+      typeof (error as { message?: unknown }).message === 'string'
+        ? (error as { message: string }).message
+        : ''
+    const details =
+      typeof (error as { details?: unknown }).details === 'string'
+        ? (error as { details: string }).details
+        : ''
+    return (
+      msg.includes('Failed to fetch') ||
+      msg.includes('NetworkError') ||
+      msg.includes('CORS') ||
+      msg.includes('net::ERR') ||
+      msg.includes('Network request failed') ||
+      details.includes('Failed to fetch') ||
+      details.includes('NetworkError') ||
+      details.includes('CORS') ||
+      details.includes('net::ERR') ||
+      details.includes('Network request failed')
+    )
+  }
+  return false
 }

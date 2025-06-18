@@ -2,10 +2,16 @@ import '~/app.css'
 
 import { Router } from '@solidjs/router'
 import { FileRoutes } from '@solidjs/start/router'
-import { createSignal, onCleanup, Suspense } from 'solid-js'
+import { createSignal, lazy, onCleanup, Suspense } from 'solid-js'
 
-import { BottomNavigation } from '~/sections/common/components/BottomNavigation'
+import { BackendOutageBanner } from '~/sections/common/components/BackendOutageBanner'
+import { LoadingRing } from '~/sections/common/components/LoadingRing'
 import { Providers } from '~/sections/common/context/Providers'
+
+const BottomNavigation = lazy(async () => ({
+  default: (await import('~/sections/common/components/BottomNavigation'))
+    .BottomNavigation,
+}))
 
 function useAspectWidth() {
   const [width, setWidth] = createSignal(getWidth())
@@ -31,8 +37,9 @@ export default function App() {
     <Router
       root={(props) => (
         <>
-          <Suspense>
+          <Suspense fallback={<LoadingRing class="h-screen" />}>
             <Providers>
+              <BackendOutageBanner />
               <div
                 class="mx-auto flex flex-col justify-between bg-black h-screen w-screen rounded-none"
                 style={{ width: `${width()}px` }}

@@ -1,4 +1,5 @@
-import { createEffect, createSignal } from 'solid-js'
+import { Accessor, createEffect, createSignal } from 'solid-js'
+import { untrack } from 'solid-js'
 
 import { createItem, type Item } from '~/modules/diet/item/domain/item'
 import {
@@ -33,7 +34,7 @@ import { handleValidationError } from '~/shared/error/errorHandler'
 
 export type RecipeEditModalProps = {
   show?: boolean
-  recipe: Recipe
+  recipe: Accessor<Recipe>
   onSaveRecipe: (recipe: Recipe) => void
   onRefetch: () => void
   onCancel?: () => void
@@ -44,7 +45,11 @@ export type RecipeEditModalProps = {
 export function RecipeEditModal(props: RecipeEditModalProps) {
   const { visible, setVisible } = useModalContext()
 
-  const [recipe, setRecipe] = createSignal(props.recipe)
+  const [recipe, setRecipe] = createSignal(untrack(() => props.recipe()))
+
+  createEffect(() => {
+    setRecipe(props.recipe())
+  })
 
   const [selectedItem, setSelectedItem] = createSignal<Item | null>(null)
 
@@ -118,12 +123,6 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
           setRecipe(updatedRecipe)
           setSelectedItem(null)
         }}
-        onDelete={(itemId) => {
-          const updatedRecipe = removeItemFromRecipe(recipe(), itemId)
-
-          setRecipe(updatedRecipe)
-          setSelectedItem(null)
-        }}
       />
 
       <ExternalTemplateSearchModal
@@ -136,9 +135,13 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
 
       <ModalContextProvider visible={visible} setVisible={setVisible}>
         <Modal class="border-2 border-cyan-600">
-          <Modal.Header
-            title={
-              <RecipeEditContextProvider recipe={recipe} setRecipe={setRecipe}>
+          <RecipeEditContextProvider
+            recipe={recipe}
+            setRecipe={setRecipe}
+            onSaveRecipe={props.onSaveRecipe}
+          >
+            <Modal.Header
+              title={
                 <RecipeEditHeader
                   onUpdateRecipe={(newRecipe) => {
                     console.debug(
@@ -148,11 +151,9 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
                     setRecipe(newRecipe)
                   }}
                 />
-              </RecipeEditContextProvider>
-            }
-          />
-          <Modal.Content>
-            <RecipeEditContextProvider recipe={recipe} setRecipe={setRecipe}>
+              }
+            />
+            <Modal.Content>
               <RecipeEditContent
                 onNewItem={() => {
                   setTemplateSearchModalVisible(true)
@@ -169,19 +170,19 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
                   setSelectedItem(item)
                 }}
               />
-            </RecipeEditContextProvider>
-          </Modal.Content>
-          <Modal.Footer>
-            <Actions
-              onApply={() => {
-                props.onSaveRecipe(recipe())
-              }}
-              onCancel={props.onCancel}
-              onDelete={() => {
-                props.onDelete(recipe().id)
-              }}
-            />
-          </Modal.Footer>
+            </Modal.Content>
+            <Modal.Footer>
+              <Actions
+                onApply={() => {
+                  props.onSaveRecipe(recipe())
+                }}
+                onCancel={props.onCancel}
+                onDelete={() => {
+                  props.onDelete(recipe().id)
+                }}
+              />
+            </Modal.Footer>
+          </RecipeEditContextProvider>
         </Modal>
       </ModalContextProvider>
     </>

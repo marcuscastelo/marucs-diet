@@ -78,7 +78,11 @@ export function UserInfo() {
           <Show when={currentUser()}>
             {(user) => (
               <>
-                <UserIcon userId={user().id} class={'w-32 h-32 mx-auto'} />
+                <UserIcon
+                  userId={() => user().id}
+                  userName={() => user().name}
+                  class={'w-32 h-32 mx-auto'}
+                />
                 {user().name}
               </>
             )}
@@ -117,11 +121,7 @@ export function UserInfo() {
             __type: 'NewUser' as const,
           }
           updateUser(user.id, newUser).catch((error) => {
-            handleApiError(error, {
-              component: 'UserInfo',
-              operation: 'updateUser',
-              additionalData: { userId: user.id },
-            })
+            handleApiError(error)
             showError(error, {}, 'Erro ao atualizar usuário')
           })
         }}

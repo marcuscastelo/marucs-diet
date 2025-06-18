@@ -1,6 +1,5 @@
 import { type Accessor, Resource, type Setter, Show } from 'solid-js'
 
-import { deepCopy } from '~/legacy/utils/deepCopy'
 import { askUnlinkRecipe } from '~/modules/diet/item-group/application/itemGroupModals'
 import {
   isRecipedGroupUpToDate,
@@ -27,6 +26,7 @@ import { PasteIcon } from '~/sections/common/components/icons/PasteIcon'
 import { RecipeIcon } from '~/sections/common/components/icons/RecipeIcon'
 import { type ConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { handleApiError } from '~/shared/error/errorHandler'
+import { deepCopy } from '~/shared/utils/deepCopy'
 
 // Helper for recipe complexity
 function PasteButton(props: { disabled?: boolean; onPaste: () => void }) {
@@ -43,7 +43,7 @@ function PasteButton(props: { disabled?: boolean; onPaste: () => void }) {
 
 function ConvertToRecipeButton(props: { onConvert: () => void }) {
   return (
-    <button class="my-auto" onClick={() => props.onConvert()}>
+    <button class="my-auto cursor-pointer" onClick={() => props.onConvert()}>
       <ConvertToRecipeIcon />
     </button>
   )
@@ -51,7 +51,7 @@ function ConvertToRecipeButton(props: { onConvert: () => void }) {
 
 function RecipeButton(props: { onClick: () => void }) {
   return (
-    <button class="my-auto" onClick={() => props.onClick()}>
+    <button class="my-auto cursor-pointer" onClick={() => props.onClick()}>
       <RecipeIcon />
     </button>
   )
@@ -59,7 +59,10 @@ function RecipeButton(props: { onClick: () => void }) {
 
 function SyncRecipeButton(props: { onClick: () => void }) {
   return (
-    <button class="my-auto hover:animate-pulse" onClick={() => props.onClick()}>
+    <button
+      class="my-auto hover:animate-pulse cursor-pointer"
+      onClick={() => props.onClick()}
+    >
       <DownloadIcon />
     </button>
   )
@@ -67,7 +70,10 @@ function SyncRecipeButton(props: { onClick: () => void }) {
 
 function UnlinkRecipeButton(props: { onClick: () => void }) {
   return (
-    <button class="my-auto hover:animate-pulse" onClick={() => props.onClick()}>
+    <button
+      class="my-auto hover:animate-pulse cursor-pointer"
+      onClick={() => props.onClick()}
+    >
       <BrokenLink />
     </button>
   )
@@ -130,11 +136,7 @@ export function GroupHeaderActions(props: {
       props.setGroup(newGroup)
       props.setRecipeEditModalVisible(true)
     } catch (err) {
-      handleApiError(err, {
-        component: 'GroupHeaderActions',
-        operation: 'handleConvertToRecipe',
-        additionalData: { groupId: group.id },
-      })
+      handleApiError(err)
       showError(err, undefined, 'Falha ao criar receita a partir de grupo')
     }
   }

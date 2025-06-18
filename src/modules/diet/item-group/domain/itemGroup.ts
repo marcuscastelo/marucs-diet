@@ -1,9 +1,9 @@
 import { z } from 'zod'
 
-import { generateId } from '~/legacy/utils/idUtils'
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { handleApiError } from '~/shared/error/errorHandler'
+import { generateId } from '~/shared/utils/idUtils'
 
 // TODO:   Add support for nested groups and recipes (recursive schema: https://github.com/colinhacks/zod#recursive-types)
 // TODO:   In the future, it seems like discriminated unions will deprecated (https://github.com/colinhacks/zod/issues/2106)
@@ -170,11 +170,6 @@ export function isRecipedGroupUpToDate(
       new Error(
         'Invalid state! Group recipe is not the same as the recipe in the group!',
       ),
-      {
-        component: 'itemGroupDomain',
-        operation: 'isRecipedGroupUpToDate',
-        additionalData: { groupId: group.id, groupRecipeId: groupRecipe.id },
-      },
     )
     // Defensive: always throw after logging for invalid state
     throw new Error(

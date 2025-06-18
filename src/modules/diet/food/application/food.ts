@@ -7,7 +7,11 @@ import {
 import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
 import { isSearchCached } from '~/modules/search/application/searchCache'
 import { showPromise } from '~/modules/toast/application/toastManager'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { setBackendOutage } from '~/shared/error/backendOutageSignal'
+import {
+  handleApiError,
+  isBackendOutageError,
+} from '~/shared/error/errorHandler'
 import { formatError } from '~/shared/formatError'
 
 const foodRepository = createSupabaseFoodRepository()
@@ -23,11 +27,8 @@ export async function fetchFoods(
   try {
     return await foodRepository.fetchFoods(params)
   } catch (error) {
-    handleApiError(error, {
-      component: 'foodApplication',
-      operation: 'fetchFoods',
-      additionalData: { params },
-    })
+    handleApiError(error)
+    if (isBackendOutageError(error)) setBackendOutage(true)
     return []
   }
 }
@@ -45,11 +46,8 @@ export async function fetchFoodById(
   try {
     return await foodRepository.fetchFoodById(id, params)
   } catch (error) {
-    handleApiError(error, {
-      component: 'foodApplication',
-      operation: 'fetchFoodById',
-      additionalData: { id, params },
-    })
+    handleApiError(error)
+    if (isBackendOutageError(error)) setBackendOutage(true)
     return null
   }
 }
@@ -87,11 +85,8 @@ export async function fetchFoodsByName(
       { context: 'user-action', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error, {
-      component: 'foodApplication',
-      operation: 'fetchFoodsByName',
-      additionalData: { name, params },
-    })
+    handleApiError(error)
+    if (isBackendOutageError(error)) setBackendOutage(true)
     return []
   }
 }
@@ -103,8 +98,8 @@ export async function fetchFoodsByName(
  * @returns Food or null on error.
  */
 export async function fetchFoodByEan(
-  ean: string,
-  params: Omit<FoodSearchParams, 'limit'> = {},
+  ean: Food['ean'],
+  params: FoodSearchParams = {},
 ): Promise<Food | null> {
   try {
     await showPromise(
@@ -127,11 +122,8 @@ export async function fetchFoodByEan(
       { context: 'user-action', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error, {
-      component: 'foodApplication',
-      operation: 'fetchFoodByEan',
-      additionalData: { ean, params },
-    })
+    handleApiError(error)
+    if (isBackendOutageError(error)) setBackendOutage(true)
     return null
   }
 }
@@ -148,11 +140,25 @@ export async function isEanCached(
     const cached = (await foodRepository.fetchFoodByEan(ean, {})) !== null
     return cached
   } catch (error) {
-    handleApiError(error, {
-      component: 'foodApplication',
-      operation: 'isEanCached',
-      additionalData: { ean },
-    })
+    handleApiError(error)
+    if (isBackendOutageError(error)) setBackendOutage(true)
     return false
+  }
+}
+
+/**
+ * Fetches foods by IDs.
+ * @param ids - Array of food IDs.
+ * @returns Array of foods or empty array on error.
+ */
+export async function fetchFoodsByIds(
+  ids: Food['id'][],
+): Promise<readonly Food[]> {
+  try {
+    return await foodRepository.fetchFoodsByIds(ids)
+  } catch (error) {
+    handleApiError(error)
+    if (isBackendOutageError(error)) setBackendOutage(true)
+    return []
   }
 }

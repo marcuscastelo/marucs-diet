@@ -54,7 +54,7 @@ This document provides a high-level overview of the current state of the codebas
 - [ ] Audit all section components for business logic leakage, legacy utility usage, and duplication.
 - [ ] Review and improve test coverage for UI logic and shared components.
 - [ ] Unify or consolidate edit modals/views (e.g., meal, recipe, item-group) if logic is highly similar.
-- [ ] Standardize error handling and user feedback in UI, especially for cross-cutting features (e.g., barcode, datepicker).
+- [ ] Standardize error handling and user feedback in UI, especially for cross-cutting features (e.g., EAN, datepicker).
 - [ ] Expand audit to cover context usage, prop drilling, and state management patterns.
 
 ### 4. Shared & Legacy

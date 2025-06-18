@@ -1,6 +1,5 @@
 import { createEffect, createSignal } from 'solid-js'
 
-import { registerSubapabaseRealtimeCallback } from '~/legacy/utils/supabase'
 import {
   createNewDayDiet,
   type DayDiet,
@@ -15,6 +14,7 @@ import { currentUserId } from '~/modules/user/application/user'
 import { type User } from '~/modules/user/domain/user'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { getTodayYYYYMMDD } from '~/shared/utils/date'
+import { registerSubapabaseRealtimeCallback } from '~/shared/utils/supabase'
 
 export function createDayDiet({
   target_day: targetDay,
@@ -91,11 +91,7 @@ async function fetchAllUserDayDiets(userId: User['id']): Promise<void> {
     const newDayDiets = await dayRepository.fetchAllUserDayDiets(userId)
     setDayDiets(newDayDiets)
   } catch (error) {
-    handleApiError(error, {
-      component: 'dayDietApplication',
-      operation: 'fetchAllUserDayDiets',
-      additionalData: { userId },
-    })
+    handleApiError(error)
     setDayDiets([])
   }
 }
@@ -119,11 +115,7 @@ export async function insertDayDiet(dayDiet: NewDayDiet): Promise<boolean> {
     await fetchAllUserDayDiets(dayDiet.owner)
     return true
   } catch (error) {
-    handleApiError(error, {
-      component: 'dayDietApplication',
-      operation: 'insertDayDiet',
-      additionalData: { owner: dayDiet.owner },
-    })
+    handleApiError(error)
     return false
   }
 }
@@ -151,11 +143,7 @@ export async function updateDayDiet(
     await fetchAllUserDayDiets(dayDiet.owner)
     return true
   } catch (error) {
-    handleApiError(error, {
-      component: 'dayDietApplication',
-      operation: 'updateDayDiet',
-      additionalData: { dayId, owner: dayDiet.owner },
-    })
+    handleApiError(error)
     return false
   }
 }
@@ -179,11 +167,7 @@ export async function deleteDayDiet(dayId: DayDiet['id']): Promise<boolean> {
     await fetchAllUserDayDiets(currentUserId())
     return true
   } catch (error) {
-    handleApiError(error, {
-      component: 'dayDietApplication',
-      operation: 'deleteDayDiet',
-      additionalData: { dayId },
-    })
+    handleApiError(error)
     return false
   }
 }

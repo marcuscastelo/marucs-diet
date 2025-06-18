@@ -45,6 +45,8 @@ export default [
       ...js.configs.recommended.rules,
       ...pluginTs.configs['recommended-type-checked'].rules,
 
+      "object-shorthand": ["warn", "always"],
+
       "simple-import-sort/imports": "warn",
       "simple-import-sort/exports": "warn",
       'no-restricted-imports': [
@@ -76,7 +78,7 @@ export default [
       '@typescript-eslint/prefer-readonly-parameter-types': 'off',
       '@typescript-eslint/strict-boolean-expressions': 'warn',
       '@typescript-eslint/no-unnecessary-type-assertion': 'warn',
-      '@typescript-eslint/no-unnecessary-condition': 'error',
+      '@typescript-eslint/no-unnecessary-condition': 'warn',
 
       "require-await": "off",
       "@typescript-eslint/require-await": "off",

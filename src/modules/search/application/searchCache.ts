@@ -1,12 +1,8 @@
 // Application layer for search cache operations, migrated from legacy controller
 // All error handling is done here, domain remains pure
-import supabase from '~/legacy/utils/supabase'
-import {
-  type CachedSearch,
-  cachedSearchSchema,
-} from '~/modules/search/application/cachedSearch'
+import { type CachedSearch } from '~/modules/search/application/cachedSearch'
 import { handleApiError } from '~/shared/error/errorHandler'
-import { parseWithStack } from '~/shared/utils/parseWithStack'
+import supabase from '~/shared/utils/supabase'
 
 const TABLE = 'cached_searches'
 
@@ -19,20 +15,17 @@ export const isSearchCached = async (
   search: CachedSearch['search'],
 ): Promise<boolean> => {
   try {
-    const cached = ((await supabase.from(TABLE).select()).data ?? []).map(
-      (data) => parseWithStack(cachedSearchSchema, data),
-    )
-    return cached.some(
-      (cache) =>
-        cache.search.toLowerCase() ===
-        /* TODO:   Check if equality is a bug */ search.toLowerCase(),
-    )
+    const { data, error } = await supabase
+      .from(TABLE)
+      .select('search')
+      .eq('search', search.toLowerCase())
+    if (error !== null) {
+      handleApiError(error)
+      return false
+    }
+    return data.length > 0
   } catch (error) {
-    handleApiError(error, {
-      component: 'searchCache',
-      operation: 'isSearchCached',
-      additionalData: { search },
-    })
+    handleApiError(error)
     return false
   }
 }
@@ -52,11 +45,7 @@ export const markSearchAsCached = async (
     await supabase.from(TABLE).upsert({ search: search.toLowerCase() }).select()
     return true
   } catch (error) {
-    handleApiError(error, {
-      component: 'searchCache',
-      operation: 'markSearchAsCached',
-      additionalData: { search },
-    })
+    handleApiError(error)
     return false
   }
 }
@@ -77,11 +66,7 @@ export const unmarkSearchAsCached = async (
       .select()
     return true
   } catch (error) {
-    handleApiError(error, {
-      component: 'searchCache',
-      operation: 'unmarkSearchAsCached',
-      additionalData: { search },
-    })
+    handleApiError(error)
     return false
   }
 }

@@ -5,10 +5,8 @@ import {
   type Setter,
   Show,
   Suspense,
-  untrack,
 } from 'solid-js'
 
-import { isOverflowForItemGroup } from '~/legacy/utils/macroOverflow'
 import {
   currentDayDiet,
   targetDay,
@@ -29,23 +27,21 @@ import {
 } from '~/modules/recent-food/application/recentFood'
 import { createNewRecentFood } from '~/modules/recent-food/domain/recentFood'
 import {
+  debouncedSearch,
   refetchTemplates,
-  setDebouncedSearch,
   setTemplateSearchTab,
   templates,
-  templateSearch,
   templateSearchTab,
 } from '~/modules/search/application/search'
 import { showSuccess } from '~/modules/toast/application/toastManager'
 import { showError } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
-import { BarCodeButton } from '~/sections/common/components/BarCodeButton'
+import { EANButton } from '~/sections/common/components/EANButton'
 import { Modal } from '~/sections/common/components/Modal'
 import { PageLoading } from '~/sections/common/components/PageLoading'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useModalContext } from '~/sections/common/context/ModalContext'
-import { useTyping } from '~/sections/common/hooks/useTyping'
-import { ExternalBarCodeInsertModal } from '~/sections/search/components/ExternalBarCodeInsertModal'
+import { ExternalEANInsertModal } from '~/sections/search/components/ExternalEANInsertModal'
 import { ExternalTemplateToItemGroupModal } from '~/sections/search/components/ExternalTemplateToItemGroupModal'
 import { TemplateSearchBar } from '~/sections/search/components/TemplateSearchBar'
 import { TemplateSearchResults } from '~/sections/search/components/TemplateSearchResults'
@@ -55,6 +51,7 @@ import {
 } from '~/sections/search/components/TemplateSearchTabs'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { stringToDate } from '~/shared/utils/date'
+import { isOverflow } from '~/shared/utils/macroOverflow'
 
 const TEMPLATE_SEARCH_DEFAULT_TAB = availableTabs.Todos.id
 
@@ -70,7 +67,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
 
   const [itemEditModalVisible, setItemEditModalVisible] = createSignal(false)
 
-  const [barCodeModalVisible, setBarCodeModalVisible] = createSignal(false)
+  const [EANModalVisible, setEANModalVisible] = createSignal(false)
 
   const [selectedTemplate, setSelectedTemplate] = createSignal<
     Template | undefined
@@ -95,10 +92,9 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
 
     // Helper function for checking individual macro properties
     const checkMacroOverflow = (property: keyof MacroNutrients) => {
-      return isOverflowForItemGroup(
-        newGroup.items,
-        property,
-        macroOverflowContext,
+      if (!Array.isArray(newGroup.items)) return false
+      return newGroup.items.some((item) =>
+        isOverflow(item, property, macroOverflowContext),
       )
     }
 
@@ -191,11 +187,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
             primary: true,
             onClick: () => {
               onConfirm().catch((err) => {
-                handleApiError(err, {
-                  component: 'TemplateSearchModal',
-                  operation: 'confirmOverMacros',
-                  additionalData: { templateType: 'item' },
-                })
+                handleApiError(err)
                 showError(err, {}, 'Erro ao adicionar item')
               })
             },
@@ -212,11 +204,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
       try {
         await onConfirm()
       } catch (err) {
-        handleApiError(err, {
-          component: 'TemplateSearchModal',
-          operation: 'confirmItem',
-          additionalData: { templateType: 'item' },
-        })
+        handleApiError(err)
         showError(err, {}, 'Erro ao adicionar item')
       }
     }
@@ -231,8 +219,8 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
           <div class="flex flex-col h-[60vh] sm:h-[80vh] p-2">
             <Show when={visible}>
               <TemplateSearch
-                barCodeModalVisible={barCodeModalVisible}
-                setBarCodeModalVisible={setBarCodeModalVisible}
+                EANModalVisible={EANModalVisible}
+                setEANModalVisible={setEANModalVisible}
                 itemEditModalVisible={itemEditModalVisible}
                 setItemEditModalVisible={setItemEditModalVisible}
                 setSelectedTemplate={setSelectedTemplate}
@@ -251,13 +239,13 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
           onNewItemGroup={handleNewItemGroup}
         />
       </Show>
-      <ExternalBarCodeInsertModal
-        visible={barCodeModalVisible}
-        setVisible={setBarCodeModalVisible}
+      <ExternalEANInsertModal
+        visible={EANModalVisible}
+        setVisible={setEANModalVisible}
         onSelect={(template) => {
           setSelectedTemplate(template)
           setItemEditModalVisible(true)
-          setBarCodeModalVisible(false)
+          setEANModalVisible(false)
         }}
       />
     </>
@@ -266,34 +254,19 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
 
 export function TemplateSearch(props: {
   modalVisible: Accessor<boolean>
-  barCodeModalVisible: Accessor<boolean>
-  setBarCodeModalVisible: Setter<boolean>
+  EANModalVisible: Accessor<boolean>
+  setEANModalVisible: Setter<boolean>
   itemEditModalVisible: Accessor<boolean>
   setItemEditModalVisible: Setter<boolean>
   setSelectedTemplate: (food: Template | undefined) => void
 }) {
-  const TYPING_TIMEOUT_MS = 2000
-
   // TODO:   Determine if user is on desktop or mobile to set autofocus
   const isDesktop = false
 
-  const { typing, onTyped } = useTyping({
-    delay: TYPING_TIMEOUT_MS,
-    onTypingEnd: () => {
-      setDebouncedSearch(templateSearch())
-      console.debug(`[TemplateSearchModal] onTyped called`)
-      void refetchTemplates()
-    },
-  })
-
   createEffect(() => {
-    templateSearch()
-    untrack(onTyped)
-  })
-
-  createEffect(() => {
-    props.modalVisible()
-    setTemplateSearchTab(TEMPLATE_SEARCH_DEFAULT_TAB)
+    setTemplateSearchTab(
+      props.modalVisible() ? TEMPLATE_SEARCH_DEFAULT_TAB : 'hidden',
+    )
   })
 
   return (
@@ -302,10 +275,10 @@ export function TemplateSearch(props: {
         <h3 class="text-md text-white my-auto w-full">
           Busca por nome ou código de barras
         </h3>
-        <BarCodeButton
-          showBarCodeModal={() => {
-            console.debug('[TemplateSearchModal] showBarCodeModal')
-            props.setBarCodeModalVisible(true)
+        <EANButton
+          showEANModal={() => {
+            console.debug('[TemplateSearchModal] showEANModal')
+            props.setEANModalVisible(true)
           }}
         />
       </div>
@@ -324,14 +297,13 @@ export function TemplateSearch(props: {
         }
       >
         <TemplateSearchResults
-          search={templateSearch()}
+          search={debouncedSearch()}
           filteredTemplates={templates() ?? []}
-          barCodeModalVisible={props.barCodeModalVisible}
-          setBarCodeModalVisible={props.setBarCodeModalVisible}
+          EANModalVisible={props.EANModalVisible}
+          setEANModalVisible={props.setEANModalVisible}
           itemEditModalVisible={props.itemEditModalVisible}
           setItemEditModalVisible={props.setItemEditModalVisible}
           setSelectedTemplate={props.setSelectedTemplate}
-          typing={typing}
           refetch={refetchTemplates}
         />
       </Suspense>

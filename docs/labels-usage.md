@@ -1,10 +1,12 @@
 # Label Usage Instructions for Creating Issues
 
+> **Note:** All label names and descriptions should always be in English for consistency, unless a project-specific exception is documented.
+
 ## How to Use Labels
 
 - Always add at least one main type label: `bug`, `feature`, `refactor`, `task`, `improvement`, `documentation`, `chore`, `epic`, `idea`.
 - Add complexity labels if possible: `complexity-low`, `complexity-medium`, `complexity-high`, `complexity-very-high`.
-- Use status/context labels: `todo :spiral_notepad:`, `blocked`, `needs-investigation`, `needs-design`, `may-return-in-the-future`.
+- Use status/context labels: `todo :spiral_notepad:`, `blocked`, `needs-investigation`, `needs-design`.
 - Add area labels: `ui`, `backend`, `api`, `performance`, `data-consumption`, `accessibility`.
 - Use refinement or grouping labels: `refinement`, `epic`.
 - Use maintenance labels: `chore`, `refactor`, `improvement`.
@@ -31,7 +33,6 @@
 | complexity-very-high   | Very high implementation complexity              | #360304  |
 | needs-investigation    | Requires investigation or analysis               | #7B3FE4  |
 | task                   | Specific actionable task                         | #F4A259  |
-| may-return-in-the-future| May be revisited in the future                  | #3F1F67  |
 | idea                   | Not yet decided as 'to be implemented'           | #AAABE0  |
 | performance            | Performance-related issue or improvement         | #5319e7  |
 | data-consumption       | Data usage or consumption concern                | #9F5512  |

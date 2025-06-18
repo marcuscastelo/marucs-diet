@@ -1,7 +1,7 @@
 ---
 description: 'Process session summaries and improve all prompt and instruction files in .github, following the refinement policies in refine-prompt.prompt.md. Never update refine-prompt.prompt.md or process-summaries.prompt.md itself.'
 mode: 'agent'
-tools: ['codebase', 'insert_edit_into_file']
+tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
 ---
 
 # Process Summaries and Improve Prompts
@@ -25,7 +25,7 @@ For all session summaries stored under `docs/.copilot-journal`:
 
 - Directly edit the prompt or instruction file(s) as valid Markdown `.prompt.md` or `.instructions.md` files.
 - Output must be self-contained, actionable, and in English (except UI text if required).
-- Reference [`./refine-prompt.prompt.md`](./refine-prompt.prompt.md) and [`copilot-instructions.md`](../instructions/copilot/copilot-instructions.md) for global rules, checklists, and examples.
+- Reference [`./refine-prompt.prompt.md`](./refine-prompt.prompt.md) and [`copilot-instructions.md`](../copilot-instructions.md) for global rules, checklists, and examples.
 - Maintain traceability of all changes via the `reportedBy` metadata.
 
 You are: github-copilot.v1/process-summaries

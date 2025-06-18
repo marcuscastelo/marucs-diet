@@ -19,6 +19,7 @@ import {
 } from '~/sections/common/context/ModalContext'
 import { ExternalItemEditModal } from '~/sections/food-item/components/ExternalItemEditModal'
 import { ExternalRecipeEditModal } from '~/sections/item-group/components/ExternalRecipeEditModal'
+import GroupHeaderActions from '~/sections/item-group/components/GroupHeaderActions'
 import { ItemGroupEditModalActions } from '~/sections/item-group/components/ItemGroupEditModalActions'
 import { ItemGroupEditModalBody } from '~/sections/item-group/components/ItemGroupEditModalBody'
 import { ItemGroupEditModalTitle } from '~/sections/item-group/components/ItemGroupEditModalTitle'
@@ -36,11 +37,10 @@ export type ItemGroupEditModalProps = {
   targetMealName: string
   onSaveGroup: (item: ItemGroup) => void
   onCancel?: () => void
-  onDelete?: (groupId: ItemGroup['id']) => void
   onRefetch: () => void
   group: Accessor<ItemGroup>
   setGroup: (group: ItemGroup | null) => void
-  mode?: 'edit' | 'read-only' | 'summary'
+  mode: 'edit' | 'read-only' | 'summary'
 }
 
 export const ItemGroupEditModal = (props: ItemGroupEditModalProps) => {
@@ -96,7 +96,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
   return (
     <Suspense>
       <ExternalRecipeEditModal
-        recipe={recipe() ?? null}
+        recipe={() => recipe() ?? null}
         setRecipe={mutateRecipe}
         visible={recipeEditModalVisible}
         setVisible={setRecipeEditModalVisible}
@@ -129,7 +129,6 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
               return { enable: true, originalItem }
             }}
             onApply={handleItemApplyHandler}
-            onDelete={handleItemDeleteHandler}
             onClose={() => setEditSelection(null)}
           />
         )}
@@ -162,6 +161,30 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
             }
           />
           <Modal.Content>
+            <div class="flex justify-between mt-3">
+              <div class="flex flex-col">
+                <div class="text-sm text-gray-400 mt-1">
+                  Em{' '}
+                  <span class="text-green-500">"{props.targetMealName}"</span>
+                </div>
+                <div class="text-xs text-gray-400">
+                  Receita: {recipe()?.name.toString() ?? 'Nenhuma'}
+                </div>
+              </div>
+              <GroupHeaderActions
+                group={group}
+                setGroup={setGroup}
+                mode={props.mode}
+                recipe={recipe}
+                mutateRecipe={mutateRecipe}
+                hasValidPastableOnClipboard={
+                  clipboard.hasValidPastableOnClipboard
+                }
+                handlePaste={clipboard.handlePaste}
+                setRecipeEditModalVisible={setRecipeEditModalVisible}
+                showConfirmModal={showConfirmModal}
+              />
+            </div>
             <ItemGroupEditModalBody
               recipe={() => recipe() ?? null}
               itemEditModalVisible={itemEditModalVisible}
@@ -171,9 +194,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
               recipeEditModalVisible={recipeEditModalVisible}
               setRecipeEditModalVisible={setRecipeEditModalVisible}
               mode={props.mode}
-              writeToClipboard={(text: string) => {
-                void navigator.clipboard.writeText(text)
-              }}
+              writeToClipboard={clipboard.writeToClipboard}
               setEditSelection={setEditSelection}
             />
           </Modal.Content>
@@ -183,7 +204,6 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
               visible={visible}
               setVisible={setVisible}
               onCancel={props.onCancel}
-              onDelete={props.onDelete}
             />
           </Modal.Footer>
         </Modal>

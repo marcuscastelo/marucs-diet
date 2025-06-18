@@ -1,51 +1,29 @@
 import axios from 'axios'
 
-import {
-  createNewFood,
-  type Food,
-  type NewFood,
-} from '~/modules/diet/food/domain/food'
+import { type Food } from '~/modules/diet/food/domain/food'
 import { type ApiFood } from '~/modules/diet/food/infrastructure/api/domain/apiFoodModel'
 import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
 import { markSearchAsCached } from '~/modules/search/application/searchCache'
 import { showError } from '~/modules/toast/application/toastManager'
 import { handleApiError } from '~/shared/error/errorHandler'
+import { convertApi2Food } from '~/shared/utils/convertApi2Food'
 
 // TODO:   Depency injection for repositories on all application files
 const foodRepository = createSupabaseFoodRepository()
 
-// TODO:   Move `convertApi2Food` to a more appropriate place
-export function convertApi2Food(food: ApiFood): NewFood {
-  return createNewFood({
-    name: food.nome,
-    source: {
-      type: 'api',
-      id: food.id.toString(),
-    },
-    ean: food.ean === '' ? null : food.ean, // Convert EAN to null if not provided
-    macros: {
-      carbs: food.carboidratos * 100,
-      protein: food.proteinas * 100,
-      fat: food.gordura * 100,
-    },
-  })
-}
-
 export async function importFoodFromApiByEan(
-  ean: string,
+  ean: Food['ean'],
 ): Promise<Food | null> {
+  if (ean === null) {
+    handleApiError(new Error('EAN is required to import food from API'))
+    return null
+  }
+
   const apiFood = (await axios.get(`/api/food/ean/${ean}`))
     .data as unknown as ApiFood
 
   if (apiFood.id === 0) {
-    handleApiError(
-      new Error(`Food with ean ${ean} not found on external api`),
-      {
-        component: 'apiFood',
-        operation: 'importFoodFromApiByEan',
-        additionalData: { ean },
-      },
-    )
+    handleApiError(new Error(`Food with ean ${ean} not found on external api`))
     return null
   }
 
@@ -102,19 +80,8 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
     )
 
     if (relevantErrors.length > 0) {
-      const errorDetails = {
-        rejectedCount: relevantErrors.length,
-        errors: relevantErrors,
-        searchName: name,
-      }
-
       handleApiError(
         new Error(`Failed to upsert ${relevantErrors.length} foods`),
-        {
-          component: 'ApiFood',
-          operation: 'importFoodsFromApiByName',
-          additionalData: errorDetails,
-        },
       )
 
       showError(

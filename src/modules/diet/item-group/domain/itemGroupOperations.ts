@@ -3,7 +3,6 @@ import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 
 /**
  * Pure functions for item group operations
- * Replaces the deprecated ItemGroupEditor pattern
  */
 
 export function updateItemGroupName(group: ItemGroup, name: string): ItemGroup {

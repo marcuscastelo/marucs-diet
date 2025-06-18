@@ -1,11 +1,11 @@
 import { z } from 'zod'
 
-import { deserializeClipboard } from '~/legacy/utils/clipboardUtils'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import {
   createClipboardSchemaFilter,
   useClipboard,
 } from '~/sections/common/hooks/useClipboard'
+import { deserializeClipboard } from '~/shared/utils/clipboardUtils'
 
 /**
  * Shared clipboard copy/paste logic for meal/recipe editors.

@@ -1,11 +1,11 @@
-import { createEffect, createSignal, Show } from 'solid-js'
+import { createEffect, createSignal, Show, Suspense } from 'solid-js'
 
 import {
   currentDayDiet,
   targetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
 import { Alert } from '~/sections/common/components/Alert'
-import { BottomNavigation } from '~/sections/common/components/BottomNavigation'
+import { PageLoading } from '~/sections/common/components/PageLoading'
 import DayMacros from '~/sections/day-diet/components/DayMacros'
 import DayMeals from '~/sections/day-diet/components/DayMeals'
 import TopBar from '~/sections/day-diet/components/TopBar'
@@ -24,9 +24,9 @@ export default function DietPage() {
   })
 
   return (
-    <>
+    <Suspense fallback={<PageLoading message="Carregando dieta do dia..." />}>
       <TopBar selectedDay={targetDay()} />
-      <Show when={currentDayDiet()} fallback={<div>Loading...</div>}>
+      <Show when={currentDayDiet()} fallback={<div />}>
         {(currentDayDiet) => (
           <DayMacros dayDiet={currentDayDiet()} class="mb-4" />
         )}
@@ -41,6 +41,6 @@ export default function DietPage() {
         mode={mode()}
         onRequestEditMode={handleRequestEditMode}
       />
-    </>
+    </Suspense>
   )
 }

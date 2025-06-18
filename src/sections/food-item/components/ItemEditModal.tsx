@@ -8,7 +8,6 @@ import {
   untrack,
 } from 'solid-js'
 
-import { calcDayMacros, calcItemMacros } from '~/legacy/utils/macroMath'
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
 import { type Item } from '~/modules/diet/item/domain/item'
 import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
@@ -23,6 +22,7 @@ import {
 import { Modal } from '~/sections/common/components/Modal'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useModalContext } from '~/sections/common/context/ModalContext'
+import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import {
   ItemFavorite,
@@ -30,6 +30,10 @@ import {
   ItemNutritionalInfo,
   ItemView,
 } from '~/sections/food-item/components/ItemView'
+import { createDebug } from '~/shared/utils/createDebug'
+import { calcDayMacros, calcItemMacros } from '~/shared/utils/macroMath'
+
+const debug = createDebug()
 
 /**
  * Modal for editing a TemplateItem.
@@ -52,18 +56,20 @@ export type ItemEditModalProps = {
   }
   onApply: (item: TemplateItem) => void
   onCancel?: () => void
-  onDelete?: (itemId: Item['id']) => void
 }
 
 export const ItemEditModal = (_props: ItemEditModalProps) => {
+  debug('[ItemEditModal] called', _props)
   const props = mergeProps({ targetNameColor: 'text-green-500' }, _props)
   const { setVisible } = useModalContext()
-  const { show: showConfirmModal } = useConfirmModalContext()
 
   const [item, setItem] = createSignal(untrack(() => props.item()))
   createEffect(() => setItem(props.item()))
 
-  const canApply = () => item().quantity > 0
+  const canApply = () => {
+    debug('[ItemEditModal] canApply', item().quantity)
+    return item().quantity > 0
+  }
 
   return (
     <Modal class="border-2 border-white">
@@ -84,39 +90,10 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
         />
       </Modal.Content>
       <Modal.Footer>
-        {props.onDelete !== undefined && (
-          <button
-            class="btn-error btn cursor-pointer uppercase mr-auto"
-            onClick={(e) => {
-              e.preventDefault()
-              // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-              props.onDelete !== undefined &&
-                showConfirmModal({
-                  title: 'Excluir item',
-                  body: 'Tem certeza que deseja excluir este item?',
-                  actions: [
-                    {
-                      text: 'Cancelar',
-                      onClick: () => undefined,
-                    },
-                    {
-                      text: 'Excluir',
-                      primary: true,
-                      onClick: () => {
-                        props.onDelete?.(item().id)
-                        setVisible(false)
-                      },
-                    },
-                  ],
-                })
-            }}
-          >
-            Excluir
-          </button>
-        )}
         <button
           class="btn cursor-pointer uppercase"
           onClick={(e) => {
+            debug('[ItemEditModal] Cancel clicked')
             e.preventDefault()
             e.stopPropagation()
             setVisible(false)
@@ -129,6 +106,7 @@ export const ItemEditModal = (_props: ItemEditModalProps) => {
           class="btn cursor-pointer uppercase"
           disabled={!canApply()}
           onClick={(e) => {
+            debug('[ItemEditModal] Apply clicked', item())
             e.preventDefault()
             console.debug(
               '[ItemEditModal] onApply - calling onApply with item.value=',
@@ -154,11 +132,13 @@ function Body(props: {
     originalItem?: TemplateItem | undefined
   }
 }) {
+  debug('[Body] called', props)
   const id = () => props.item().id
 
   const quantitySignal = () =>
     props.item().quantity === 0 ? undefined : props.item().quantity
 
+  const clipboard = useClipboard()
   const quantityField = useFloatField(quantitySignal, {
     decimalPlaces: 0,
     // eslint-disable-next-line solid/reactivity
@@ -166,6 +146,7 @@ function Body(props: {
   })
 
   createEffect(() => {
+    debug('[Body] createEffect setItem', quantityField.value())
     props.setItem({
       ...untrack(props.item),
       quantity: quantityField.value() ?? 0,
@@ -178,15 +159,18 @@ function Body(props: {
     createSignal<NodeJS.Timeout | null>(null)
 
   const increment = () => {
+    debug('[Body] increment')
     quantityField.setRawValue(((quantityField.value() ?? 0) + 1).toString())
   }
   const decrement = () => {
+    debug('[Body] decrement')
     quantityField.setRawValue(
       Math.max(0, (quantityField.value() ?? 0) - 1).toString(),
     )
   }
 
   const holdRepeatStart = (action: () => void) => {
+    debug('[Body] holdRepeatStart')
     setCurrentHoldTimeout(
       setTimeout(() => {
         setCurrentHoldInterval(
@@ -199,6 +183,7 @@ function Body(props: {
   }
 
   const holdRepeatStop = () => {
+    debug('[Body] holdRepeatStop')
     const currentHoldTimeout_ = currentHoldTimeout()
     const currentHoldInterval_ = currentHoldInterval()
 
@@ -213,6 +198,7 @@ function Body(props: {
 
   // Cálculo do restante disponível de macros
   function getAvailableMacros(): MacroValues {
+    debug('[Body] getAvailableMacros')
     const dayDiet = currentDayDiet()
     const macroTarget = dayDiet
       ? getMacroTargetForDay(new Date(dayDiet.target_day))
@@ -248,6 +234,7 @@ function Body(props: {
                 <div
                   class="btn-primary btn-sm btn cursor-pointer uppercase flex-1"
                   onClick={() => {
+                    debug('[Body] shortcut quantity', value)
                     quantityField.setRawValue(value.toString())
                   }}
                 >
@@ -267,12 +254,14 @@ function Body(props: {
             field={quantityField}
             style={{ width: '100%' }}
             onFieldCommit={(value) => {
+              debug('[Body] FloatInput onFieldCommit', value)
               if (value === undefined) {
                 quantityField.setRawValue(props.item().quantity.toString())
               }
             }}
             tabIndex={-1}
             onFocus={(event) => {
+              debug('[Body] FloatInput onFocus')
               event.target.select()
               if (quantityField.value() === 0) {
                 quantityField.setRawValue('')
@@ -289,7 +278,7 @@ function Body(props: {
             macroTargets={getAvailableMacros()}
             itemMacros={props.item().macros}
             onMaxSelected={(maxValue: number) => {
-              console.debug('[ItemEditModal] onMaxSelected', maxValue)
+              debug('[Body] MaxQuantityButton onMaxSelected', maxValue)
               quantityField.setRawValue(maxValue.toFixed(2))
             }}
             disabled={!props.canApply}
@@ -300,10 +289,12 @@ function Body(props: {
             class="btn-primary btn-xs btn cursor-pointer uppercase h-full w-10 px-6 text-4xl text-red-600"
             onClick={decrement}
             onMouseDown={() => {
+              debug('[Body] decrement mouse down')
               holdRepeatStart(decrement)
             }}
             onMouseUp={holdRepeatStop}
             onTouchStart={() => {
+              debug('[Body] decrement touch start')
               holdRepeatStart(decrement)
             }}
             onTouchEnd={holdRepeatStop}
@@ -315,10 +306,12 @@ function Body(props: {
             class="btn-primary btn-xs btn cursor-pointer uppercase ml-1 h-full w-10 px-6 text-4xl text-green-400"
             onClick={increment}
             onMouseDown={() => {
+              debug('[Body] increment mouse down')
               holdRepeatStart(increment)
             }}
             onMouseUp={holdRepeatStop}
             onTouchStart={() => {
+              debug('[Body] increment touch start')
               holdRepeatStart(increment)
             }}
             onTouchEnd={holdRepeatStop}
@@ -330,6 +323,12 @@ function Body(props: {
       </div>
 
       <ItemView
+        mode="edit"
+        handlers={{
+          onCopy: () => {
+            clipboard.write(JSON.stringify(props.item()))
+          },
+        }}
         item={() =>
           ({
             __type: props.item().__type,
@@ -342,10 +341,6 @@ function Body(props: {
         }
         macroOverflow={props.macroOverflow}
         class="mt-4"
-        onClick={() => {
-          // TODO: Implement item editing
-          showError('Alimento não editável (ainda)')
-        }}
         header={
           <HeaderWithActions
             name={<ItemName />}

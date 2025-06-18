@@ -2,7 +2,6 @@ import { type Item } from '~/modules/diet/item/domain/item'
 
 /**
  * Pure functions for item operations
- * Replaces the deprecated ItemEditor pattern
  */
 
 export function updateItemQuantity(item: Item, quantity: number): Item {
