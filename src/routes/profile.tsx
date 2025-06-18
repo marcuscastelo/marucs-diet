@@ -30,8 +30,18 @@ export default function Page() {
     <>
       <Suspense fallback={<PageLoading message="Carregando perfil..." />}>
         <UserInfo />
-        <WeightEvolution />
-        <MacroProfileSettings />
+        <Suspense
+          fallback={<PageLoading message="Carregando evolução de peso..." />}
+        >
+          <WeightEvolution />
+        </Suspense>
+        <Suspense
+          fallback={
+            <PageLoading message="Carregando perfil de macronutrientes..." />
+          }
+        >
+          <MacroProfileSettings />
+        </Suspense>
         <Suspense
           fallback={
             <PageLoading message="Carregando gráficos de evolução..." />
