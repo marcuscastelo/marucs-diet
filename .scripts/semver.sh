@@ -117,8 +117,11 @@ main() {
   fi
 
   if [[ "$current_branch" == "stable" ]]; then
-    # Output the latest version tag for stable branch
-    latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+    # Output the latest version tag for stable branch from remote using ls-remote
+    latest_tag=$(git ls-remote --tags --refs "$REPO_URL" | awk -F/ '{print $3}' | sort -V | tail -n1)
+    if [ -z "$latest_tag" ]; then
+      latest_tag="v0.0.0"
+    fi
     echo "$latest_tag"
     exit 0
   fi
