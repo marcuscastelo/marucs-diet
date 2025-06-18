@@ -116,6 +116,13 @@ main() {
     exit 0
   fi
 
+  if [[ "$current_branch" == "stable" ]]; then
+    # Output the latest version tag for stable branch
+    latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+    echo "$latest_tag"
+    exit 0
+  fi
+
   get_dev_version "$current_branch"
 }
 
@@ -153,6 +160,17 @@ if [ "$1" = "--test" ]; then
   else
     echo "FAIL: get_issue_number"
     exit 1
+  fi
+  echo "Testing stable branch version output"
+  current_branch=$(get_current_branch)
+  if [ "$current_branch" = "stable" ]; then
+    version_output=$(main)
+    if [[ $version_output =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+      echo "PASS: stable branch outputs version tag"
+    else
+      echo "FAIL: stable branch outputs $version_output"
+      exit 1
+    fi
   fi
   echo 'All tests passed.'
   exit 0
