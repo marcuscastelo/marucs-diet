@@ -46,7 +46,7 @@ export function dayDietToDAO(dayDiet: DayDiet): DayDietDAO {
     meals: dayDiet.meals.map((meal) => ({
       id: meal.id,
       name: meal.name,
-      groups: meal.groups,
+      items: meal.items,
     })),
   }
 }
@@ -63,7 +63,7 @@ export function createInsertDayDietDAOFromNewDayDiet(
     meals: newDayDiet.meals.map((meal) => ({
       id: meal.id,
       name: meal.name,
-      groups: meal.groups,
+      items: meal.items,
     })),
   })
 }

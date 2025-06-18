@@ -139,10 +139,10 @@ export function MealEditViewHeader(props: {
           {props.mode !== 'summary' && (
             <ClipboardActionButtons
               canCopy={
-                !hasValidPastableOnClipboard() && mealSignal().groups.length > 0
+                !hasValidPastableOnClipboard() && mealSignal().items.length > 0
               }
               canPaste={hasValidPastableOnClipboard()}
-              canClear={mealSignal().groups.length > 0}
+              canClear={mealSignal().items.length > 0}
               onCopy={handleCopy}
               onPaste={handlePaste}
               onClear={onClearItems}
@@ -171,7 +171,7 @@ export function MealEditViewContent(props: {
 
   return (
     <ItemGroupListView
-      itemGroups={() => meal().groups}
+      itemGroups={() => []} // TODO: Update to use UnifiedItems - need UI layer refactoring
       handlers={{
         onEdit: props.onEditItemGroup,
         onCopy: (item) => {

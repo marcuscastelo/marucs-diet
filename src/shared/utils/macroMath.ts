@@ -41,13 +41,12 @@ export function calcGroupMacros(group: ItemGroup): MacroNutrients {
 }
 
 export function calcMealMacros(meal: Meal): MacroNutrients {
-  return meal.groups.reduce(
-    (acc, group) => {
-      const groupMacros = calcGroupMacros(group)
+  return meal.items.reduce(
+    (acc, item) => {
       return {
-        carbs: acc.carbs + groupMacros.carbs,
-        fat: acc.fat + groupMacros.fat,
-        protein: acc.protein + groupMacros.protein,
+        carbs: acc.carbs + item.macros.carbs,
+        fat: acc.fat + item.macros.fat,
+        protein: acc.protein + item.macros.protein,
       }
     },
     { carbs: 0, fat: 0, protein: 0 },
