@@ -55,14 +55,21 @@ export function migrateFromUnifiedItems(unified: UnifiedItem[]): {
       groups.push({
         id: u.id,
         name: u.name,
-        items: u.reference.children.map((c) => ({
-          id: c.id,
-          name: c.name,
-          quantity: c.quantity,
-          macros: c.macros,
-          reference: c.reference.type === 'food' ? c.reference.id : 0,
-          __type: 'Item',
-        })),
+        items: u.reference.children.map((c) => {
+          if (c.reference.type !== 'food') {
+            throw new Error(
+              `migrateFromUnifiedItems: Only food children are supported in group.items. Found type: ${c.reference.type} (id: ${c.id})`,
+            )
+          }
+          return {
+            id: c.id,
+            name: c.name,
+            quantity: c.quantity,
+            macros: c.macros,
+            reference: c.reference.id,
+            __type: 'Item',
+          }
+        }),
         recipe: undefined,
         __type: 'ItemGroup',
       })
