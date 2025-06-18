@@ -21,6 +21,8 @@ export function useIntersectionObserver(
 
   const { threshold = 0.1, root = null } = options
 
+  let pendingElements: (Element | undefined)[] = []
+
   onMount(() => {
     console.debug('useIntersectionObserver: Mounting observer with options:', {
       threshold,
@@ -44,6 +46,12 @@ export function useIntersectionObserver(
         root,
       },
     )
+
+    // Após criar o observer, observe todos os elementos pendentes
+    pendingElements.forEach((el) => {
+      if (el) observer!.observe(el)
+    })
+    pendingElements = []
   })
 
   onCleanup(() => {
@@ -52,27 +60,17 @@ export function useIntersectionObserver(
 
   const setRef = (element: Element | undefined) => {
     if (!observer) {
-      setTimeout(() => {
-        console.debug(
-          'useIntersectionObserver: Observer not initialized, retrying...',
-        )
-        setRef(element)
-      }, 100)
+      pendingElements.push(element)
       return
     }
 
-    console.debug('useIntersectionObserver: Setting ref', element)
-    if (elementRef) {
-      console.debug('useIntersectionObserver: Unobserving element', elementRef)
+    if (element) {
+      observer.observe(element)
+    }
+    if (elementRef && elementRef !== element) {
       observer.unobserve(elementRef)
     }
-
     elementRef = element
-
-    if (elementRef) {
-      console.debug('useIntersectionObserver: Observing element', elementRef)
-      observer.observe(elementRef)
-    }
   }
 
   return {
