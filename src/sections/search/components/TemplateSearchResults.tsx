@@ -3,6 +3,7 @@ import { type Accessor, For, type Setter } from 'solid-js'
 import { type Food } from '~/modules/diet/food/domain/food'
 import { createItem } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import { getRecipePreparedQuantity } from '~/modules/diet/recipe/domain/recipeOperations'
 import {
   isTemplateFood,
   type Template,
@@ -29,6 +30,9 @@ export function TemplateSearchResults(props: {
   setItemEditModalVisible: Setter<boolean>
   refetch: (info?: unknown) => unknown
 }) {
+  // Rounding factor for recipe display quantity
+  const RECIPE_ROUNDING_FACTOR = 50
+
   return (
     <>
       {props.filteredTemplates.length === 0 && (
@@ -44,6 +48,24 @@ export function TemplateSearchResults(props: {
       <div class="flex-1 min-h-0 max-h-[60vh] overflow-y-auto scrollbar-gutter-outside scrollbar-clean bg-gray-800 mt-1 pr-4">
         <For each={props.filteredTemplates}>
           {(template) => {
+            // Calculate appropriate display quantity for each template
+            const getDisplayQuantity = () => {
+              if (isTemplateFood(template)) {
+                return 100 // Standard 100g for foods
+              } else {
+                // For recipes, show the prepared quantity rounded to nearest RECIPE_ROUNDING_FACTOR
+                const recipe = template as Recipe
+                const preparedQuantity = getRecipePreparedQuantity(recipe)
+                return Math.max(
+                  RECIPE_ROUNDING_FACTOR,
+                  Math.round(preparedQuantity / RECIPE_ROUNDING_FACTOR) *
+                    RECIPE_ROUNDING_FACTOR,
+                )
+              }
+            }
+
+            const displayQuantity = getDisplayQuantity()
+
             return (
               <>
                 <ItemView
@@ -51,7 +73,7 @@ export function TemplateSearchResults(props: {
                   item={() => ({
                     ...createItem({
                       name: template.name,
-                      quantity: 100,
+                      quantity: displayQuantity,
                       macros: isTemplateFood(template)
                         ? (template as Food).macros
                         : calcRecipeMacros(template as Recipe),
