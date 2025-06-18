@@ -21,7 +21,7 @@ const envSchema = z.object({
     .default(false),
 })
 
-const getEnvVars = (): Record<string, unknown> => {
+const getEnvVars = (): z.input<typeof envSchema> => {
   const importMetaEnv = import.meta.env as Record<string, string | undefined>
   return Object.fromEntries(
     Object.keys(envSchema.shape).map((key) => {
@@ -35,7 +35,7 @@ const getEnvVars = (): Record<string, unknown> => {
             : undefined
       return [key, value]
     }),
-  )
+  ) as z.input<typeof envSchema>
 }
 
 const env = parseWithStack(envSchema, getEnvVars())
