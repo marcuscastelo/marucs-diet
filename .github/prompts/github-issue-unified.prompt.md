@@ -10,6 +10,15 @@ AGENT HAS CHANGED, NEW AGENT: .github/prompts/github-issue-unified.prompt.md
 
 This agent creates any type of GitHub issue (bug, feature, improvement, refactor, task, subissue) using the correct template and workflow. If the issue type is ambiguous, always clarify with the user before proceeding.
 
+## Solo Project Adaptations
+
+For solo projects (minimal users, no stakeholders, single developer):
+- Generate issues focused on technical excellence rather than business coordination
+- Eliminate approval workflows and stakeholder communication sections
+- Focus on technical validation and self-review processes
+- Prioritize technical metrics over business/team metrics
+- Reference [copilot-instructions.md](../copilot-instructions.md) for detailed solo project guidelines
+
 ## Workflow
 
 1. **Clarify Issue Type**
