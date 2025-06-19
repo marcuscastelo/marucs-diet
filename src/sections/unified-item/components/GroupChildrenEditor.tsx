@@ -25,7 +25,7 @@ export type GroupChildrenEditorProps = {
 export function GroupChildrenEditor(props: GroupChildrenEditorProps) {
   const children = () => {
     const item = props.item()
-    return isGroup(item) ? item.reference.children : []
+    return isGroup(item) || isRecipe(item) ? item.reference.children : []
   }
 
   const updateChildQuantity = (childId: number, newQuantity: number) => {

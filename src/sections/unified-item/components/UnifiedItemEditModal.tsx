@@ -48,6 +48,11 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
   const [childBeingEdited, setChildBeingEdited] =
     createSignal<UnifiedItem | null>(null)
 
+  // Recipe view mode: 'recipe' (normal) or 'group' (treat as group)
+  const [recipeViewMode, setRecipeViewMode] = createSignal<'recipe' | 'group'>(
+    'recipe',
+  )
+
   const quantitySignal = () =>
     item().quantity === 0 ? undefined : item().quantity
 
@@ -96,6 +101,34 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
         />
         <Modal.Content>
           <Show when={isFood(item()) || isRecipe(item()) || isGroup(item())}>
+            {/* Toggle button for recipes */}
+            <Show when={isRecipe(item())}>
+              <div class="mb-4 flex justify-center">
+                <div class="flex rounded-lg border border-gray-600 bg-gray-800 p-1">
+                  <button
+                    class={`px-3 py-1 rounded-md text-sm transition-colors ${
+                      recipeViewMode() === 'recipe'
+                        ? 'bg-blue-600 text-white'
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                    onClick={() => setRecipeViewMode('recipe')}
+                  >
+                    📖 Receita
+                  </button>
+                  <button
+                    class={`px-3 py-1 rounded-md text-sm transition-colors ${
+                      recipeViewMode() === 'group'
+                        ? 'bg-blue-600 text-white'
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                    onClick={() => setRecipeViewMode('group')}
+                  >
+                    📦 Tratar como Grupo
+                  </button>
+                </div>
+              </div>
+            </Show>
+
             <UnifiedItemEditBody
               canApply={canApply()}
               item={item}
@@ -103,6 +136,7 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
               macroOverflow={props.macroOverflow}
               quantityField={quantityField}
               onEditChild={handleEditChild}
+              recipeViewMode={isRecipe(item()) ? recipeViewMode() : undefined}
             />
           </Show>
           <Show when={!isFood(item()) && !isRecipe(item()) && !isGroup(item())}>

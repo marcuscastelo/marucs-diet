@@ -36,6 +36,7 @@ export type UnifiedItemEditBodyProps = {
   }
   quantityField: UseFieldReturn<number>
   onEditChild?: (child: UnifiedItem) => void
+  recipeViewMode?: 'recipe' | 'group'
 }
 
 export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
@@ -72,8 +73,13 @@ export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
 
   return (
     <>
-      {/* Para alimentos e receitas: controles de quantidade normal */}
-      <Show when={isFood(props.item()) || isRecipe(props.item())}>
+      {/* Para alimentos e receitas (modo normal): controles de quantidade normal */}
+      <Show
+        when={
+          isFood(props.item()) ||
+          (isRecipe(props.item()) && props.recipeViewMode !== 'group')
+        }
+      >
         <QuantityShortcuts onQuantitySelect={handleQuantitySelect} />
 
         <QuantityControls
@@ -85,8 +91,13 @@ export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
         />
       </Show>
 
-      {/* Para grupos: editor de filhos */}
-      <Show when={isGroup(props.item())}>
+      {/* Para grupos ou receitas em modo grupo: editor de filhos */}
+      <Show
+        when={
+          isGroup(props.item()) ||
+          (isRecipe(props.item()) && props.recipeViewMode === 'group')
+        }
+      >
         <GroupChildrenEditor
           item={props.item}
           setItem={props.setItem}
