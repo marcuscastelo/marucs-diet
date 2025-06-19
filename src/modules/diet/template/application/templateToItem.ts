@@ -90,28 +90,12 @@ export function templateToUnifiedItem(
     }
   }
 
-  // For recipes, calculate macros based on the desired portion
-  const recipe = template as Recipe
-  const recipePreparedQuantity = getRecipePreparedQuantity(recipe)
-
-  let macros: UnifiedItem['macros']
-  if (recipePreparedQuantity > 0) {
-    const scalingFactor = desiredQuantity / recipePreparedQuantity
-    const recipeMacros = calcRecipeMacros(recipe)
-    macros = {
-      protein: recipeMacros.protein * scalingFactor,
-      carbs: recipeMacros.carbs * scalingFactor,
-      fat: recipeMacros.fat * scalingFactor,
-    }
-  } else {
-    macros = { protein: 0, carbs: 0, fat: 0 }
-  }
-
+  // For recipes, we don't store macros directly in UnifiedItems
+  // They will be calculated from children
   return {
     id: generateId(),
     name: template.name,
     quantity: desiredQuantity,
-    macros,
     reference: { type: 'recipe', id: template.id, children: [] },
     __type: 'UnifiedItem',
   }

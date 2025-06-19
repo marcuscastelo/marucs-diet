@@ -1,7 +1,11 @@
-import { type Accessor, type Setter } from 'solid-js'
+import { type Accessor, type Setter, Show } from 'solid-js'
 
-import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import {
+  isFood,
+  type UnifiedItem,
+} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { Modal } from '~/sections/common/components/Modal'
+import { calcUnifiedItemMacros } from '~/shared/utils/macroMath'
 
 export type UnifiedItemEditModalProps = {
   item: Accessor<UnifiedItem>
@@ -52,70 +56,99 @@ export function UnifiedItemEditModal(props: UnifiedItemEditModalProps) {
             />
           </div>
 
-          <div class="grid grid-cols-3 gap-4">
-            <div>
-              <label class="block text-sm font-medium mb-1">Carboidratos</label>
-              <input
-                type="number"
-                step="0.1"
-                value={props.item().macros.carbs}
-                onInput={(e) => {
-                  const newItem = {
-                    ...props.item(),
-                    macros: {
-                      ...props.item().macros,
-                      carbs: Number(e.currentTarget.value),
-                    },
-                  }
-                  props.setItem(newItem)
-                }}
-                class="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500"
-                disabled={props.mode === 'read-only'}
-              />
-            </div>
+          <Show when={isFood(props.item())}>
+            <div class="grid grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm font-medium mb-1">
+                  Carboidratos
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={calcUnifiedItemMacros(props.item()).carbs}
+                  onInput={(e) => {
+                    if (isFood(props.item())) {
+                      const foodItem = props.item() as Extract<
+                        UnifiedItem,
+                        { reference: { type: 'food' } }
+                      >
+                      const newItem = {
+                        ...foodItem,
+                        macros: {
+                          ...foodItem.macros,
+                          carbs: Number(e.currentTarget.value),
+                        },
+                      }
+                      props.setItem(newItem)
+                    }
+                  }}
+                  class="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500"
+                  disabled={props.mode === 'read-only'}
+                />
+              </div>
 
-            <div>
-              <label class="block text-sm font-medium mb-1">Proteínas</label>
-              <input
-                type="number"
-                step="0.1"
-                value={props.item().macros.protein}
-                onInput={(e) => {
-                  const newItem = {
-                    ...props.item(),
-                    macros: {
-                      ...props.item().macros,
-                      protein: Number(e.currentTarget.value),
-                    },
-                  }
-                  props.setItem(newItem)
-                }}
-                class="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500"
-                disabled={props.mode === 'read-only'}
-              />
-            </div>
+              <div>
+                <label class="block text-sm font-medium mb-1">Proteínas</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={calcUnifiedItemMacros(props.item()).protein}
+                  onInput={(e) => {
+                    if (isFood(props.item())) {
+                      const foodItem = props.item() as Extract<
+                        UnifiedItem,
+                        { reference: { type: 'food' } }
+                      >
+                      const newItem = {
+                        ...foodItem,
+                        macros: {
+                          ...foodItem.macros,
+                          protein: Number(e.currentTarget.value),
+                        },
+                      }
+                      props.setItem(newItem)
+                    }
+                  }}
+                  class="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500"
+                  disabled={props.mode === 'read-only'}
+                />
+              </div>
 
-            <div>
-              <label class="block text-sm font-medium mb-1">Gorduras</label>
-              <input
-                type="number"
-                step="0.1"
-                value={props.item().macros.fat}
-                onInput={(e) => {
-                  const newItem = {
-                    ...props.item(),
-                    macros: {
-                      ...props.item().macros,
-                      fat: Number(e.currentTarget.value),
-                    },
-                  }
-                  props.setItem(newItem)
-                }}
-                class="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500"
-                disabled={props.mode === 'read-only'}
-              />
+              <div>
+                <label class="block text-sm font-medium mb-1">Gorduras</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={calcUnifiedItemMacros(props.item()).fat}
+                  onInput={(e) => {
+                    if (isFood(props.item())) {
+                      const foodItem = props.item() as Extract<
+                        UnifiedItem,
+                        { reference: { type: 'food' } }
+                      >
+                      const newItem = {
+                        ...foodItem,
+                        macros: {
+                          ...foodItem.macros,
+                          fat: Number(e.currentTarget.value),
+                        },
+                      }
+                      props.setItem(newItem)
+                    }
+                  }}
+                  class="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500"
+                  disabled={props.mode === 'read-only'}
+                />
+              </div>
             </div>
-          </div>
+          </Show>
+
+          <Show when={!isFood(props.item())}>
+            <div class="text-gray-400 text-sm">
+              As macros deste item são calculadas automaticamente com base nos
+              filhos.
+            </div>
+          </Show>
         </div>
 
         <div class="flex justify-end gap-3 mt-6">

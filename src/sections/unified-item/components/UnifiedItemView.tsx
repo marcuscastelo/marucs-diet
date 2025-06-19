@@ -20,7 +20,10 @@ import { MoreVertIcon } from '~/sections/common/components/icons/MoreVertIcon'
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import MacroNutrientsView from '~/sections/macro-nutrients/components/MacroNutrientsView'
 import { cn } from '~/shared/cn'
-import { calcUnifiedItemCalories } from '~/shared/utils/macroMath'
+import {
+  calcUnifiedItemCalories,
+  calcUnifiedItemMacros,
+} from '~/shared/utils/macroMath'
 
 export type UnifiedItemViewProps = {
   item: Accessor<UnifiedItem>
@@ -274,10 +277,11 @@ export function UnifiedItemViewNutritionalInfo(props: {
   item: Accessor<UnifiedItem>
 }) {
   const calories = createMemo(() => calcUnifiedItemCalories(props.item()))
+  const macros = createMemo(() => calcUnifiedItemMacros(props.item()))
 
   return (
     <div class="flex">
-      <MacroNutrientsView macros={props.item().macros} />
+      <MacroNutrientsView macros={macros()} />
       <div class="ml-auto">
         <span class="text-white"> {props.item().quantity}g </span>|
         <span class="text-white"> {calories().toFixed(0)}kcal </span>

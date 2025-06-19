@@ -29,7 +29,6 @@ describe('childOperations', () => {
     id: 10,
     name: 'Group',
     quantity: 1,
-    macros: { protein: 0, carbs: 0, fat: 0 },
     reference: { type: 'group', children: [] as UnifiedItem[] },
     __type: 'UnifiedItem',
   } as const

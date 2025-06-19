@@ -3,11 +3,11 @@ import { describe, expect, it } from 'vitest'
 import {
   convertItemToUnified,
   convertUnifiedToItem,
-  updateUnifiedItemMacros,
   updateUnifiedItemName,
   updateUnifiedItemQuantity,
 } from '~/modules/diet/item/application/item'
 import { createItem } from '~/modules/diet/item/domain/item'
+import { calcUnifiedItemMacros } from '~/shared/utils/macroMath'
 
 describe('item application services', () => {
   const baseItem = {
@@ -34,7 +34,12 @@ describe('item application services', () => {
       const result = updateUnifiedItemQuantity(baseUnifiedItem, 200)
       expect(result.quantity).toBe(200)
       expect(result.name).toBe(baseUnifiedItem.name)
-      expect(result.macros).toEqual(baseUnifiedItem.macros)
+      // Macros should scale proportionally with quantity
+      expect(calcUnifiedItemMacros(result)).toEqual({
+        carbs: 20, // (10 * 200) / 100
+        fat: 2, // (1 * 200) / 100
+        protein: 4, // (2 * 200) / 100
+      })
     })
   })
 
@@ -43,17 +48,9 @@ describe('item application services', () => {
       const result = updateUnifiedItemName(baseUnifiedItem, 'Arroz Integral')
       expect(result.name).toBe('Arroz Integral')
       expect(result.quantity).toBe(baseUnifiedItem.quantity)
-      expect(result.macros).toEqual(baseUnifiedItem.macros)
-    })
-  })
-
-  describe('updateUnifiedItemMacros', () => {
-    it('updates the macros of a unified item', () => {
-      const newMacros = { carbs: 15, protein: 3, fat: 2 }
-      const result = updateUnifiedItemMacros(baseUnifiedItem, newMacros)
-      expect(result.macros).toEqual(newMacros)
-      expect(result.name).toBe(baseUnifiedItem.name)
-      expect(result.quantity).toBe(baseUnifiedItem.quantity)
+      expect(calcUnifiedItemMacros(result)).toEqual(
+        calcUnifiedItemMacros(baseUnifiedItem),
+      )
     })
   })
 
@@ -63,7 +60,7 @@ describe('item application services', () => {
       expect(result.id).toBe(baseItem.id)
       expect(result.name).toBe(baseItem.name)
       expect(result.quantity).toBe(baseItem.quantity)
-      expect(result.macros).toEqual(baseItem.macros)
+      expect(calcUnifiedItemMacros(result)).toEqual(baseItem.macros)
       expect(result.reference).toEqual({ type: 'food', id: baseItem.reference })
       expect(result.__type).toBe('UnifiedItem')
     })

@@ -4,10 +4,7 @@ import {
   currentDayDiet,
   targetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
-import {
-  updateUnifiedItemMacros,
-  updateUnifiedItemQuantity,
-} from '~/modules/diet/item/application/item'
+import { updateUnifiedItemQuantity } from '~/modules/diet/item/application/item'
 import { isSimpleSingleGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import {
@@ -25,6 +22,7 @@ import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItem
 import { showError } from '~/modules/toast/application/toastManager'
 import { createDebug } from '~/shared/utils/createDebug'
 import { stringToDate } from '~/shared/utils/date'
+import { calcUnifiedItemMacros } from '~/shared/utils/macroMath'
 import { isOverflow } from '~/shared/utils/macroOverflow'
 
 const debug = createDebug()
@@ -180,7 +178,7 @@ export function handleUnifiedItemQuantityUpdate({
         id: updatedItem.id,
         name: updatedItem.name,
         quantity: updatedItem.quantity,
-        macros: updatedItem.macros,
+        macros: calcUnifiedItemMacros(updatedItem),
         reference:
           updatedItem.reference.type === 'food' ? updatedItem.reference.id : 0,
         __type: 'Item' as const,
@@ -190,7 +188,7 @@ export function handleUnifiedItemQuantityUpdate({
         id: item().id,
         name: item().name,
         quantity: item().quantity,
-        macros: item().macros,
+        macros: calcUnifiedItemMacros(item()),
         reference:
           item().reference.type === 'food'
             ? (item().reference as { id: number }).id
@@ -227,22 +225,6 @@ export function handleUnifiedItemQuantityUpdate({
       }
     }
 
-    setItem(updatedItem)
-  }
-}
-
-/**
- * Handles updating a UnifiedItem's macros
- */
-export function handleUnifiedItemMacrosUpdate({
-  item,
-  setItem,
-}: {
-  item: Accessor<UnifiedItem>
-  setItem: (item: UnifiedItem) => void
-}) {
-  return (newMacros: MacroNutrients) => {
-    const updatedItem = updateUnifiedItemMacros(item(), newMacros)
     setItem(updatedItem)
   }
 }

@@ -4,7 +4,12 @@ import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macro
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
-import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import {
+  isFood,
+  isGroup,
+  isRecipe,
+  type UnifiedItem,
+} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 export function calcItemMacros(item: TemplateItem): MacroNutrients {
   return {
@@ -45,12 +50,31 @@ export function calcGroupMacros(group: ItemGroup): MacroNutrients {
  * Calculates macros for a UnifiedItem, handling all reference types
  */
 export function calcUnifiedItemMacros(item: UnifiedItem): MacroNutrients {
-  // For UnifiedItems, macros are pre-calculated and stored
-  return {
-    carbs: (item.macros.carbs * item.quantity) / 100,
-    fat: (item.macros.fat * item.quantity) / 100,
-    protein: (item.macros.protein * item.quantity) / 100,
+  if (isFood(item)) {
+    // For food items, calculate proportionally from stored macros
+    return {
+      carbs: (item.macros.carbs * item.quantity) / 100,
+      fat: (item.macros.fat * item.quantity) / 100,
+      protein: (item.macros.protein * item.quantity) / 100,
+    }
+  } else if (isRecipe(item) || isGroup(item)) {
+    // For recipe and group items, sum the macros from children
+    // The quantity field represents the total prepared amount, not a scaling factor
+    return item.reference.children.reduce(
+      (acc, child) => {
+        const childMacros = calcUnifiedItemMacros(child)
+        return {
+          carbs: acc.carbs + childMacros.carbs,
+          fat: acc.fat + childMacros.fat,
+          protein: acc.protein + childMacros.protein,
+        }
+      },
+      { carbs: 0, fat: 0, protein: 0 },
+    )
   }
+
+  // Fallback for unknown types
+  return { carbs: 0, fat: 0, protein: 0 }
 }
 
 export function calcMealMacros(meal: Meal): MacroNutrients {

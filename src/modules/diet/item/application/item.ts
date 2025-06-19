@@ -50,19 +50,6 @@ export function updateUnifiedItemName(
 }
 
 /**
- * Updates the macros of a UnifiedItem
- */
-export function updateUnifiedItemMacros(
-  item: UnifiedItem,
-  macros: UnifiedItem['macros'],
-): UnifiedItem {
-  return {
-    ...item,
-    macros,
-  }
-}
-
-/**
  * Converts legacy Item to UnifiedItem for application operations
  */
 export function convertItemToUnified(item: Item): UnifiedItem {

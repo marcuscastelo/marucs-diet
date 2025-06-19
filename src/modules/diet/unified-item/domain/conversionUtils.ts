@@ -2,6 +2,7 @@ import { Item } from '~/modules/diet/item/domain/item'
 import type { ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { getItemGroupQuantity } from '~/modules/diet/item-group/domain/itemGroup'
 import { UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import { calcUnifiedItemMacros } from '~/shared/utils/macroMath'
 
 /**
  * Converts an Item to a UnifiedItem (food reference).
@@ -26,11 +27,13 @@ export function itemToUnifiedItem(item: Item): UnifiedItem {
  */
 export function unifiedItemToItem(unified: UnifiedItem): Item {
   if (unified.reference.type !== 'food') throw new Error('Not a food reference')
+
+  // Import at the top and use calcUnifiedItemMacros
   return {
     id: unified.id,
     name: unified.name,
     quantity: unified.quantity,
-    macros: unified.macros,
+    macros: calcUnifiedItemMacros(unified),
     reference: unified.reference.id,
     __type: 'Item',
   }
@@ -45,25 +48,24 @@ export function unifiedItemToItem(unified: UnifiedItem): Item {
 export function itemGroupToUnifiedItem(group: ItemGroup): UnifiedItem {
   const children = group.items.map((item) => itemToUnifiedItem(item))
 
-  return {
-    id: group.id,
-    name: group.name,
-    quantity: getItemGroupQuantity(group),
-    macros: group.items
-      .map((i) => i.macros)
-      .reduce(
-        (acc, macros) => ({
-          protein: acc.protein + macros.protein,
-          carbs: acc.carbs + macros.carbs,
-          fat: acc.fat + macros.fat,
-        }),
-        { protein: 0, carbs: 0, fat: 0 },
-      ),
-    reference:
-      group.recipe !== undefined
-        ? { type: 'recipe', id: group.recipe, children }
-        : { type: 'group', children },
-    __type: 'UnifiedItem',
+  if (group.recipe !== undefined) {
+    // Recipe UnifiedItem - no macros stored
+    return {
+      id: group.id,
+      name: group.name,
+      quantity: getItemGroupQuantity(group),
+      reference: { type: 'recipe', id: group.recipe, children },
+      __type: 'UnifiedItem',
+    }
+  } else {
+    // Group UnifiedItem - no macros stored
+    return {
+      id: group.id,
+      name: group.name,
+      quantity: getItemGroupQuantity(group),
+      reference: { type: 'group', children },
+      __type: 'UnifiedItem',
+    }
   }
 }
 

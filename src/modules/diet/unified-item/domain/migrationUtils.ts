@@ -5,6 +5,7 @@ import {
   itemToUnifiedItem,
 } from '~/modules/diet/unified-item/domain/conversionUtils'
 import { UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import { calcUnifiedItemMacros } from '~/shared/utils/macroMath'
 
 /**
  * Migrates an array of Items and ItemGroups to UnifiedItems.
@@ -78,7 +79,7 @@ export function migrateFromUnifiedItems(unified: UnifiedItem[]): {
         id: u.id,
         name: u.name,
         quantity: u.quantity,
-        macros: u.macros,
+        macros: calcUnifiedItemMacros(u),
         reference: u.reference.id,
         __type: 'Item',
       })
@@ -96,7 +97,7 @@ export function migrateFromUnifiedItems(unified: UnifiedItem[]): {
             id: c.id,
             name: c.name,
             quantity: c.quantity,
-            macros: c.macros,
+            macros: calcUnifiedItemMacros(c),
             reference: c.reference.id,
             __type: 'Item',
           }
@@ -118,7 +119,7 @@ export function migrateFromUnifiedItems(unified: UnifiedItem[]): {
             id: c.id,
             name: c.name,
             quantity: c.quantity,
-            macros: c.macros,
+            macros: calcUnifiedItemMacros(c),
             reference: c.reference.id,
             __type: 'Item',
           }

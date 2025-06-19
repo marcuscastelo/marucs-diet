@@ -28,6 +28,7 @@ import {
   useItemGroupEditContext,
 } from '~/sections/item-group/context/ItemGroupEditContext'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
+import { calcUnifiedItemMacros } from '~/shared/utils/macroMath'
 
 type EditSelection = { item: Item } | null
 const [editSelection, setEditSelection] = createSignal<EditSelection>(null)
@@ -146,7 +147,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
               id: unifiedItem.id,
               name: unifiedItem.name,
               quantity: unifiedItem.quantity,
-              macros: unifiedItem.macros,
+              macros: calcUnifiedItemMacros(unifiedItem),
               reference: unifiedItem.reference.id,
               __type: 'Item' as const,
             }
@@ -171,7 +172,7 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
                 id: child.id,
                 name: child.name,
                 quantity: child.quantity,
-                macros: child.macros,
+                macros: calcUnifiedItemMacros(child),
                 reference: child.reference.id,
                 __type: 'Item' as const,
               }
