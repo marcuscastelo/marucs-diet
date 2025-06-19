@@ -1,8 +1,6 @@
 import {
   type Accessor,
-  batch,
   createEffect,
-  createMemo,
   createSignal,
   type JSXElement,
   Show,
@@ -57,8 +55,8 @@ export type ItemViewProps = {
     enable: boolean
     originalItem?: TemplateItem | undefined
   }
-  header?: JSXElement
-  nutritionalInfo?: JSXElement
+  header?: JSXElement | (() => JSXElement)
+  nutritionalInfo?: JSXElement | (() => JSXElement)
   class?: string
   mode: 'edit' | 'read-only' | 'summary'
   handlers: {
@@ -114,7 +112,11 @@ export function ItemView(props: ItemViewProps) {
       >
         <div class="flex items-center">
           <div class="flex flex-1  items-center">
-            <div class="flex-1">{props.header}</div>
+            <div class="flex-1">
+              {typeof props.header === 'function'
+                ? props.header()
+                : props.header}
+            </div>
             <div class="">
               {props.mode === 'edit' && (
                 <ContextMenu
@@ -171,7 +173,9 @@ export function ItemView(props: ItemViewProps) {
             </div>
           </div>
         </div>
-        {props.nutritionalInfo}
+        {typeof props.nutritionalInfo === 'function'
+          ? props.nutritionalInfo()
+          : props.nutritionalInfo}
       </ItemContextProvider>
     </div>
   )

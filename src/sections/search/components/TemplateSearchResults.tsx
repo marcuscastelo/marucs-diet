@@ -92,7 +92,7 @@ export function TemplateSearchResults(props: {
                       props.setEANModalVisible(false)
                     },
                   }}
-                  header={
+                  header={() => (
                     <HeaderWithActions
                       name={<ItemName />}
                       primaryActions={<ItemFavorite foodId={template.id} />}
@@ -104,8 +104,8 @@ export function TemplateSearchResults(props: {
                         />
                       }
                     />
-                  }
-                  nutritionalInfo={<ItemNutritionalInfo />}
+                  )}
+                  nutritionalInfo={() => <ItemNutritionalInfo />}
                 />
               </>
             )

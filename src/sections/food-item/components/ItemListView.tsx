@@ -15,7 +15,7 @@ export type ItemListViewProps = {
 } & Omit<ItemViewProps, 'item' | 'header' | 'nutritionalInfo' | 'macroOverflow'>
 
 export function ItemListView(_props: ItemListViewProps) {
-  const props = mergeProps({ makeHeaderFn: () => <DefaultHeader /> }, _props)
+  const props = mergeProps({ makeHeaderFn: DefaultHeader }, _props)
   return (
     <>
       <For each={props.items()}>
@@ -26,7 +26,7 @@ export function ItemListView(_props: ItemListViewProps) {
                 item={() => item}
                 macroOverflow={() => ({ enable: false })}
                 header={props.makeHeaderFn(item)}
-                nutritionalInfo={<ItemNutritionalInfo />}
+                nutritionalInfo={() => <ItemNutritionalInfo />}
                 {...props}
               />
             </div>
@@ -37,6 +37,6 @@ export function ItemListView(_props: ItemListViewProps) {
   )
 }
 
-function DefaultHeader() {
-  return <HeaderWithActions name={<ItemName />} />
+function DefaultHeader(_item: Item): ItemViewProps['header'] {
+  return () => <HeaderWithActions name={<ItemName />} />
 }
