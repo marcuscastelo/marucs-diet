@@ -1,9 +1,15 @@
 # Sections Audit – Macro-Nutrients Section
 
-_Last updated: 2025-06-07_
+_Last updated: 2025-06-19_
 
 ## Overview
 This audit reviews the `macro-nutrients` section UI components, focusing on separation of concerns, code duplication, and DDD alignment.
+
+## Impact of Unified System Migration
+**Indirect benefits from unified system:** While the macro-nutrients section doesn't directly use item view components, it benefits from the overall architectural improvements:
+- **Reduced Complexity:** The unified system migration has reduced overall codebase complexity, making macro-nutrients components easier to maintain
+- **Consistent Patterns:** The unified approach provides better patterns for component organization that can be applied to macro-nutrients components
+- **Shared Utilities:** Better organization of shared components (like button relocations) benefits macro-nutrients section
 
 ## Key Findings
 - **Business Logic Leakage:** Components (e.g., `MacroTargets`) directly use legacy utilities and perform calculations (macro targets, calories, macro profiles) in the UI layer, rather than delegating to the application layer.
@@ -23,6 +29,6 @@ This audit reviews the `macro-nutrients` section UI components, focusing on sepa
 - [ ] Review and improve test coverage for UI logic.
 
 ## Future Refinement Suggestions
-- Consider unifying calculation and macro representation logic if used in multiple sections.
+- Consider applying unified system patterns to macro calculation and representation logic if used in multiple sections.
 - Expand audit to cover context usage and state management patterns.
-- Propose stricter boundaries between UI, application, and domain layers.
+- Propose stricter boundaries between UI, application, and domain layers following the unified system example.
