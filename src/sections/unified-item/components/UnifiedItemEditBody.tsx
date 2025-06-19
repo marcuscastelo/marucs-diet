@@ -10,7 +10,6 @@ import {
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import { type MacroValues } from '~/sections/common/components/MaxQuantityButton'
-import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { type UseFieldReturn } from '~/sections/common/hooks/useField'
 import { ItemFavorite } from '~/sections/food-item/components/ItemView'
 import { GroupChildrenEditor } from '~/sections/unified-item/components/GroupChildrenEditor'
@@ -37,12 +36,15 @@ export type UnifiedItemEditBodyProps = {
   quantityField: UseFieldReturn<number>
   onEditChild?: (child: UnifiedItem) => void
   recipeViewMode?: 'recipe' | 'group'
+  clipboardActions?: {
+    onCopy: () => void
+    onPaste: () => void
+    hasValidPastableOnClipboard: boolean
+  }
 }
 
 export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
   debug('[UnifiedItemEditBody] called', props)
-
-  const clipboard = useClipboard()
 
   // Cálculo do restante disponível de macros
   function getAvailableMacros(): MacroValues {
@@ -115,9 +117,7 @@ export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
         <UnifiedItemView
           mode="edit"
           handlers={{
-            onCopy: () => {
-              clipboard.write(JSON.stringify(props.item()))
-            },
+            onCopy: props.clipboardActions?.onCopy,
           }}
           item={props.item}
           class="mt-4"

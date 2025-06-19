@@ -20,10 +20,13 @@ import {
   isGroup,
   isRecipe,
   type UnifiedItem,
+  unifiedItemSchema,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { DownloadIcon } from '~/sections/common/components/icons/DownloadIcon'
+import { PasteIcon } from '~/sections/common/components/icons/PasteIcon'
 import { Modal } from '~/sections/common/components/Modal'
 import { useModalContext } from '~/sections/common/context/ModalContext'
+import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import { UnifiedItemEditBody } from '~/sections/unified-item/components/UnifiedItemEditBody'
 import { UnsupportedItemMessage } from '~/sections/unified-item/components/UnsupportedItemMessage'
@@ -137,6 +140,16 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
     setItem(syncedItem)
   }
 
+  // Clipboard functionality
+  const { handleCopy, handlePaste, hasValidPastableOnClipboard } =
+    useCopyPasteActions({
+      acceptedClipboardSchema: unifiedItemSchema,
+      getDataToCopy: () => item(),
+      onPaste: (data) => {
+        setItem(data)
+      },
+    })
+
   return (
     <>
       <Modal class="border-2 border-white">
@@ -152,6 +165,29 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
         />
         <Modal.Content>
           <Show when={isFood(item()) || isRecipe(item()) || isGroup(item())}>
+            {/* Clipboard Actions */}
+            <div class="mb-4 flex justify-center gap-2">
+              <button
+                class="btn btn-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md transition-colors flex items-center gap-1"
+                onClick={handleCopy}
+                title="Copiar item"
+              >
+                📋 Copiar
+              </button>
+              <Show when={hasValidPastableOnClipboard()}>
+                <button
+                  class="btn btn-sm bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md transition-colors flex items-center gap-1"
+                  onClick={handlePaste}
+                  title="Colar item"
+                >
+                  <div class="w-4 h-4">
+                    <PasteIcon />
+                  </div>
+                  Colar
+                </button>
+              </Show>
+            </div>
+
             {/* Toggle button for recipes */}
             <Show when={isRecipe(item())}>
               <div class="mb-4 flex justify-center items-center gap-3">
@@ -202,6 +238,11 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
               quantityField={quantityField}
               onEditChild={handleEditChild}
               recipeViewMode={isRecipe(item()) ? recipeViewMode() : undefined}
+              clipboardActions={{
+                onCopy: handleCopy,
+                onPaste: handlePaste,
+                hasValidPastableOnClipboard: hasValidPastableOnClipboard(),
+              }}
             />
           </Show>
           <Show when={!isFood(item()) && !isRecipe(item()) && !isGroup(item())}>
