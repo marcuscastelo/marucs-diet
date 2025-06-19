@@ -1,4 +1,3 @@
-import { format } from 'date-fns'
 import { createEffect, createSignal } from 'solid-js'
 
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
@@ -20,8 +19,7 @@ export function PreviousDayCard(props: PreviousDayCardProps) {
   const calories = () => calcCalories(macros())
 
   const normalizedDate = () => {
-    const date = new Date(props.dayDiet.target_day + 'T00:00:00') // Force UTC interpretation
-    return new Date(date.getTime() + date.getTimezoneOffset() * 60000) // Adjust to local timezone
+    return new Date(props.dayDiet.target_day + 'T00:00:00') // Force UTC interpretation
   }
 
   createEffect(() => {
@@ -32,7 +30,7 @@ export function PreviousDayCard(props: PreviousDayCardProps) {
     <div class="border rounded p-3 flex flex-col gap-2">
       <div class="flex justify-between">
         <div class="font-semibold">
-          {format(normalizedDate(), 'dd/MM/yyyy')}
+          {normalizedDate().toLocaleDateString('en-GB')}
         </div>
         <div class="flex gap-2 text-sm text-gray-600 justify-between px-2 items-center">
           <div>

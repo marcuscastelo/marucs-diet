@@ -25,7 +25,6 @@
     "axios": "^1.6.8",
     "axios-rate-limit": "^1.4.0",
     "clsx": "^2.1.1",
-    "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "flowbite": "^3.1.2",
     "html5-qrcode": "^2.3.8",
