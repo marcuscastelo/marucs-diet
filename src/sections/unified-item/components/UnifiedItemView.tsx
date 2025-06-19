@@ -52,58 +52,111 @@ export function UnifiedItemView(props: UnifiedItemViewProps) {
     return []
   }
 
+  // Handlers logic similar to ItemView
+  const handleMouseEvent = (callback?: () => void) => {
+    if (callback === undefined) {
+      return undefined
+    }
+    return (e: MouseEvent) => {
+      e.stopPropagation()
+      e.preventDefault()
+      callback()
+    }
+  }
+  const getHandlers = () => {
+    return {
+      onClick: handleMouseEvent(
+        props.handlers.onClick
+          ? () => props.handlers.onClick!(props.item())
+          : undefined,
+      ),
+      onEdit: handleMouseEvent(
+        props.handlers.onEdit
+          ? () => props.handlers.onEdit!(props.item())
+          : undefined,
+      ),
+      onCopy: handleMouseEvent(
+        props.handlers.onCopy
+          ? () => props.handlers.onCopy!(props.item())
+          : undefined,
+      ),
+      onDelete: handleMouseEvent(
+        props.handlers.onDelete
+          ? () => props.handlers.onDelete!(props.item())
+          : undefined,
+      ),
+    }
+  }
+
   return (
     <div
-      class={`bg-gray-700 p-3 rounded ${props.class ?? ''} ${
-        isInteractive() ? 'hover:bg-gray-600 cursor-pointer' : ''
-      }`}
-      onClick={() => {
-        if (isInteractive() && props.handlers.onClick) {
-          props.handlers.onClick(props.item())
-        }
-      }}
+      class={`block rounded-lg border border-gray-700 bg-gray-700 p-3 shadow hover:cursor-pointer hover:bg-gray-700 ${props.class ?? ''}`}
+      onClick={(e) => getHandlers().onClick?.(e)}
     >
-      <div class="flex justify-between items-start">
-        <div class="flex-1">
-          {typeof props.header === 'function' ? props.header() : props.header}
-          {typeof props.nutritionalInfo === 'function'
-            ? props.nutritionalInfo()
-            : props.nutritionalInfo}
+      <div class="flex items-center">
+        <div class="flex flex-1 items-center">
+          <div class="flex-1">
+            {typeof props.header === 'function' ? props.header() : props.header}
+          </div>
+          <div>
+            {isInteractive() && (
+              <ContextMenu
+                trigger={
+                  <div class="text-3xl active:scale-105 hover:text-blue-200">
+                    <MoreVertIcon />
+                  </div>
+                }
+                class="ml-2"
+              >
+                <Show when={getHandlers().onEdit}>
+                  {(onEdit) => (
+                    <ContextMenu.Item
+                      class="text-left px-4 py-2 hover:bg-gray-700"
+                      onClick={onEdit()}
+                    >
+                      <div class="flex items-center gap-2">
+                        <span class="text-blue-500">✏️</span>
+                        <span>Editar</span>
+                      </div>
+                    </ContextMenu.Item>
+                  )}
+                </Show>
+                <Show when={getHandlers().onCopy}>
+                  {(onCopy) => (
+                    <ContextMenu.Item
+                      class="text-left px-4 py-2 hover:bg-gray-700"
+                      onClick={onCopy()}
+                    >
+                      <div class="flex items-center gap-2">
+                        <CopyIcon size={15} />
+                        <span>Copiar</span>
+                      </div>
+                    </ContextMenu.Item>
+                  )}
+                </Show>
+                <Show when={getHandlers().onDelete}>
+                  {(onDelete) => (
+                    <ContextMenu.Item
+                      class="text-left px-4 py-2 text-red-400 hover:bg-gray-700"
+                      onClick={onDelete()}
+                    >
+                      <div class="flex items-center gap-2">
+                        <span class="text-red-400">
+                          <TrashIcon size={15} />
+                        </span>
+                        <span class="text-red-400">Excluir</span>
+                      </div>
+                    </ContextMenu.Item>
+                  )}
+                </Show>
+              </ContextMenu>
+            )}
+          </div>
         </div>
-
-        <Show when={isInteractive()}>
-          <ContextMenu
-            trigger={
-              <button class="p-1 hover:bg-gray-600 rounded">
-                <MoreVertIcon class="w-4 h-4" />
-              </button>
-            }
-          >
-            <ContextMenu.Item
-              onClick={() => props.handlers.onEdit?.(props.item())}
-              class="flex items-center gap-2 w-full px-3 py-2 text-left hover:bg-gray-700"
-            >
-              <span class="w-4 h-4">✏️</span>
-              <span>Editar</span>
-            </ContextMenu.Item>
-            <ContextMenu.Item
-              onClick={() => props.handlers.onCopy?.(props.item())}
-              class="flex items-center gap-2 w-full px-3 py-2 text-left hover:bg-gray-700"
-            >
-              <CopyIcon size={16} />
-              <span>Copiar</span>
-            </ContextMenu.Item>
-            <ContextMenu.Item
-              onClick={() => props.handlers.onDelete?.(props.item())}
-              class="flex items-center gap-2 w-full px-3 py-2 text-left hover:bg-gray-700 text-red-400"
-            >
-              <TrashIcon size={16} />
-              <span>Excluir</span>
-            </ContextMenu.Item>
-          </ContextMenu>
-        </Show>
       </div>
-
+      {typeof props.nutritionalInfo === 'function'
+        ? props.nutritionalInfo()
+        : props.nutritionalInfo}
       <Show when={hasChildren()}>
         <div class="mt-2 ml-4 space-y-1">
           <For each={getChildren()}>
@@ -168,12 +221,12 @@ export function UnifiedItemViewNutritionalInfo(props: {
   const calories = createMemo(() => calcUnifiedItemCalories(props.item()))
 
   return (
-    <div class="mt-2">
-      <div class="flex justify-between items-center text-sm text-gray-300">
-        <span>{props.item().quantity}g</span>
-        <span>{calories().toFixed(0)}kcal</span>
-      </div>
+    <div class="flex">
       <MacroNutrientsView macros={props.item().macros} />
+      <div class="ml-auto">
+        <span class="text-white"> {props.item().quantity}g </span>|
+        <span class="text-white"> {calories().toFixed(0)}kcal </span>
+      </div>
     </div>
   )
 }
