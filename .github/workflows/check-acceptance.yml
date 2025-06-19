@@ -1,0 +1,92 @@
+name: Check Acceptance Criteria
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  pull-requests: read
+  issues: read
+
+jobs:
+  check-criteria:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Extract referenced issues from PR body
+        id: extract
+        run: |
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          echo "${{ github.event.pull_request.body }}" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Get issue numbers
+        id: issues
+        run: |
+          echo "${{ steps.extract.outputs.body }}" > body.txt
+          grep -Eo '([Cc]loses|[Ff]ixes|[Rr]esolves) +#([0-9]+)' body.txt | \
+            grep -Eo '#[0-9]+' | tr -d '#' | uniq > issues.txt
+
+          if [ ! -s issues.txt ]; then
+            echo "none=true" >> $GITHUB_OUTPUT
+          else
+            echo "none=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check checkboxes in issues and PR
+        if: steps.issues.outputs.none == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          failed=0
+
+          check_unchecked() {
+            content="$1"
+            unchecked=$(echo "$content" | grep '\[ \]' || true)
+            if [ -n "$unchecked" ]; then
+              echo "::error ::Unchecked items found:"
+              echo "$unchecked"
+              failed=1
+            fi
+          }
+
+          echo "🔍 Checking PR body..."
+          check_unchecked "${{ github.event.pull_request.body }}"
+
+          echo "🔍 Fetching PR comments..."
+          pr_comments=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$REPO/issues/$PR_NUMBER/comments")
+          pr_bodies=$(echo "$pr_comments" | jq -r '.[].body')
+          for comment in $pr_bodies; do
+            check_unchecked "$comment"
+          done
+
+          while read issue_number; do
+            echo "🔍 Checking issue #$issue_number..."
+
+            # Check issue body
+            issue=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$REPO/issues/$issue_number")
+            body=$(echo "$issue" | jq -r '.body')
+            check_unchecked "$body"
+
+            # Check issue comments
+            comments=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$REPO/issues/$issue_number/comments")
+            bodies=$(echo "$comments" | jq -r '.[].body')
+            for comment in $bodies; do
+              check_unchecked "$comment"
+            done
+          done < issues.txt
+
+          if [ "$failed" -eq 1 ]; then
+            echo "❌ Unchecked acceptance criteria found."
+            exit 1
+          else
+            echo "✅ All acceptance criteria checked."
+          fi
