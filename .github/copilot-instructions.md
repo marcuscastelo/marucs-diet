@@ -32,6 +32,41 @@ During this session, always wait until the end of the execution of any requested
 3. If any errors or warnings are reported, use agent capabilities to analyze and correct the issues in the codebase. After making corrections, repeat from step 1.
 4. Only stop when the message "COPILOT: All checks passed!" appears.
 
+## Project Context Detection and Solo Project Adaptations
+
+Before suggesting team-related processes, verify project context:
+- Does the project have multiple active developers? (check git commits, team references)
+- Are there stakeholders mentioned in documentation?
+- Is there evidence of formal approval processes?
+
+### Solo Project Adaptations
+When working on solo projects (no stakeholders, minimal users, single developer):
+- Remove all team collaboration, stakeholder communication, and user feedback collection requirements
+- Maintain technical quality standards (testing, monitoring, backup procedures)
+- Focus on technical validation rather than approval processes
+- Adapt checklists to remove coordination tasks while preserving verification steps
+- Simplify metrics to focus on technical rather than business/team indicators
+- Replace peer review with systematic self-review processes
+- Focus on automated validation rather than manual coordination
+- Preserve backup/rollback procedures without team communication requirements
+
+### Quality Standards Adaptation
+For solo projects:
+- Maintain technical quality (testing, monitoring, error handling)
+- Replace peer review with systematic self-review processes
+- Focus on automated validation rather than manual coordination
+- Preserve backup/rollback procedures without team communication requirements
+
+### Documentation Generation for Solo Projects
+- Detect project type (solo vs team) early in the session
+- Generate context-appropriate sections
+- Provide solo-specific templates and examples
+- Avoid generating team-coordination content for solo projects
+- Remove approval and communication workflows
+- Focus on technical validation and self-review processes
+- Eliminate business metrics related to team coordination
+- Maintain quality standards without bureaucratic overhead
+
 ## Reporting and Attribution
 
 - This session will have multiple agents. Everytime a new agent takes place, it should announce it to the user

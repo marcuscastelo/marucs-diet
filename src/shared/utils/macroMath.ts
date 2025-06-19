@@ -4,6 +4,7 @@ import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macro
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 export function calcItemMacros(item: TemplateItem): MacroNutrients {
   return {
@@ -40,13 +41,26 @@ export function calcGroupMacros(group: ItemGroup): MacroNutrients {
   return calcItemContainerMacros(group)
 }
 
+/**
+ * Calculates macros for a UnifiedItem, handling all reference types
+ */
+export function calcUnifiedItemMacros(item: UnifiedItem): MacroNutrients {
+  // For UnifiedItems, macros are pre-calculated and stored
+  return {
+    carbs: (item.macros.carbs * item.quantity) / 100,
+    fat: (item.macros.fat * item.quantity) / 100,
+    protein: (item.macros.protein * item.quantity) / 100,
+  }
+}
+
 export function calcMealMacros(meal: Meal): MacroNutrients {
   return meal.items.reduce(
     (acc, item) => {
+      const itemMacros = calcUnifiedItemMacros(item)
       return {
-        carbs: acc.carbs + item.macros.carbs,
-        fat: acc.fat + item.macros.fat,
-        protein: acc.protein + item.macros.protein,
+        carbs: acc.carbs + itemMacros.carbs,
+        fat: acc.fat + itemMacros.fat,
+        protein: acc.protein + itemMacros.protein,
       }
     },
     { carbs: 0, fat: 0, protein: 0 },
@@ -83,6 +97,9 @@ export const calcRecipeCalories = (recipe: Recipe) =>
 
 export const calcGroupCalories = (group: ItemGroup) =>
   calcCalories(calcGroupMacros(group))
+
+export const calcUnifiedItemCalories = (item: UnifiedItem) =>
+  calcCalories(calcUnifiedItemMacros(item))
 
 export const calcMealCalories = (meal: Meal) =>
   calcCalories(calcMealMacros(meal))

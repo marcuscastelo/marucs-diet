@@ -6,6 +6,7 @@ import {
   isTemplateFood,
   type Template,
 } from '~/modules/diet/template/domain/template'
+import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { generateId } from '~/shared/utils/idUtils'
 import { calcRecipeMacros } from '~/shared/utils/macroMath'
 
@@ -19,6 +20,7 @@ const DEFAULT_QUANTITY = 100
  * @param template - The Template to convert
  * @param desiredQuantity - The desired quantity in grams (defaults to 100g)
  * @returns The corresponding Item or RecipeItem
+ * @deprecated Use templateToUnifiedItem instead
  */
 export function templateToItem(
   template: Template,
@@ -63,4 +65,54 @@ export function templateToItem(
     __type: 'RecipeItem',
     quantity: desiredQuantity,
   } satisfies RecipeItem
+}
+
+/**
+ * Converts a Template to a UnifiedItem directly (unified approach).
+ * This is the new preferred method for converting templates.
+ *
+ * @param template - The Template to convert
+ * @param desiredQuantity - The desired quantity in grams (defaults to 100g)
+ * @returns The corresponding UnifiedItem
+ */
+export function templateToUnifiedItem(
+  template: Template,
+  desiredQuantity: number = DEFAULT_QUANTITY,
+): UnifiedItem {
+  if (isTemplateFood(template)) {
+    return {
+      id: generateId(),
+      name: template.name,
+      quantity: desiredQuantity,
+      macros: template.macros,
+      reference: { type: 'food', id: template.id },
+      __type: 'UnifiedItem',
+    }
+  }
+
+  // For recipes, calculate macros based on the desired portion
+  const recipe = template as Recipe
+  const recipePreparedQuantity = getRecipePreparedQuantity(recipe)
+
+  let macros: UnifiedItem['macros']
+  if (recipePreparedQuantity > 0) {
+    const scalingFactor = desiredQuantity / recipePreparedQuantity
+    const recipeMacros = calcRecipeMacros(recipe)
+    macros = {
+      protein: recipeMacros.protein * scalingFactor,
+      carbs: recipeMacros.carbs * scalingFactor,
+      fat: recipeMacros.fat * scalingFactor,
+    }
+  } else {
+    macros = { protein: 0, carbs: 0, fat: 0 }
+  }
+
+  return {
+    id: generateId(),
+    name: template.name,
+    quantity: desiredQuantity,
+    macros,
+    reference: { type: 'recipe', id: template.id, children: [] },
+    __type: 'UnifiedItem',
+  }
 }

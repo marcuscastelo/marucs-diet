@@ -14,6 +14,10 @@ import {
   addItemsToGroup,
   addItemToGroup,
 } from '~/modules/diet/item-group/domain/itemGroupOperations'
+import {
+  type UnifiedItem,
+  unifiedItemSchema,
+} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { showError } from '~/modules/toast/application/toastManager'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { regenerateId } from '~/shared/utils/idUtils'
@@ -22,6 +26,11 @@ export type ItemOrGroup =
   | z.infer<typeof itemSchema>
   | z.infer<typeof itemGroupSchema>
 
+export type ItemOrGroupOrUnified = ItemOrGroup | UnifiedItem
+
+/**
+ * @deprecated Use useUnifiedItemClipboardActions for new unified approach
+ */
 export function useItemGroupClipboardActions({
   group,
   setGroup,
@@ -50,5 +59,53 @@ export function useItemGroupClipboardActions({
         }
       },
     })
-  return { handlePaste, hasValidPastableOnClipboard, ...rest }
+
+  return {
+    handlePaste,
+    hasValidPastableOnClipboard,
+    ...rest,
+  }
+}
+
+/**
+ * New unified clipboard actions that work with UnifiedItems
+ */
+export function useUnifiedItemClipboardActions({
+  items,
+  setItems,
+}: {
+  items: Accessor<UnifiedItem[]>
+  setItems: Setter<UnifiedItem[]>
+}) {
+  const acceptedClipboardSchema = z.union([
+    unifiedItemSchema,
+    z.array(unifiedItemSchema),
+  ]) as z.ZodType<UnifiedItem | UnifiedItem[]>
+
+  const { handlePaste, hasValidPastableOnClipboard, ...rest } =
+    useCopyPasteActions<UnifiedItem | UnifiedItem[]>({
+      acceptedClipboardSchema,
+      getDataToCopy: () => items(),
+      onPaste: (data) => {
+        if (Array.isArray(data)) {
+          const regeneratedItems = data.map((item) => ({
+            ...item,
+            id: regenerateId(item).id,
+          }))
+          setItems([...items(), ...regeneratedItems])
+        } else {
+          const regeneratedItem = {
+            ...data,
+            id: regenerateId(data).id,
+          }
+          setItems([...items(), regeneratedItem])
+        }
+      },
+    })
+
+  return {
+    handlePaste,
+    hasValidPastableOnClipboard,
+    ...rest,
+  }
 }
