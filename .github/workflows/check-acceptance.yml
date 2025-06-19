@@ -5,7 +5,7 @@ on:
     types: [opened, edited, reopened, synchronize]
 
 permissions:
-  pull-requests: read
+  pull-requests: write
   issues: read
 
 jobs:
@@ -13,80 +13,90 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Extract referenced issues from PR body
+      - name: Extract referenced issues
         id: extract
         run: |
-          echo "body<<EOF" >> $GITHUB_OUTPUT
-          echo "${{ github.event.pull_request.body }}" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          echo "${{ github.event.pull_request.body }}" > pr_body.txt
+          grep -Eo '([Cc]loses|[Ff]ixes|[Rr]esolves) +#([0-9]+)' pr_body.txt | \
+            grep -Eo '#[0-9]+' | tr -d '#' | uniq > issues.txt || true
 
-      - name: Get issue numbers
-        id: issues
-        run: |
-          echo "${{ steps.extract.outputs.body }}" > body.txt
-          grep -Eo '([Cc]loses|[Ff]ixes|[Rr]esolves) +#([0-9]+)' body.txt | \
-            grep -Eo '#[0-9]+' | tr -d '#' | uniq > issues.txt
-
-          if [ ! -s issues.txt ]; then
-            echo "none=true" >> $GITHUB_OUTPUT
-          else
-            echo "none=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Check checkboxes in issues and PR
-        if: steps.issues.outputs.none == 'false'
+      - name: Check checkboxes and manage PR comment
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           failed=0
+          unchecked_list=""
 
           check_unchecked() {
             content="$1"
-            unchecked=$(echo "$content" | grep '\[ \]' || true)
-            if [ -n "$unchecked" ]; then
-              echo "::error ::Unchecked items found:"
-              echo "$unchecked"
+            src="$2"
+            matches=$(echo "$content" | grep -n '\[ \]' || true)
+            if [ -n "$matches" ]; then
               failed=1
+              unchecked_list="$unchecked_list\n**$src**:\n\`\`\`\n$matches\n\`\`\`"
             fi
           }
 
-          echo "🔍 Checking PR body..."
-          check_unchecked "${{ github.event.pull_request.body }}"
+          # PR body
+          pr_body=$(cat pr_body.txt)
+          check_unchecked "$pr_body" "PR Body"
 
-          echo "🔍 Fetching PR comments..."
+          # PR comments (ignorar comentário do bot)
           pr_comments=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
             "https://api.github.com/repos/$REPO/issues/$PR_NUMBER/comments")
-          pr_bodies=$(echo "$pr_comments" | jq -r '.[].body')
-          for comment in $pr_bodies; do
-            check_unchecked "$comment"
+          echo "$pr_comments" | jq -r '.[] | @base64' | while read encoded; do
+            comment=$(echo "$encoded" | base64 --decode | jq -r '.body')
+            if echo "$comment" | grep -q '<!-- criteria-check -->'; then
+              continue
+            fi
+            check_unchecked "$comment" "PR Comment"
           done
 
-          while read issue_number; do
-            echo "🔍 Checking issue #$issue_number..."
+          # Issues
+          if [ -s issues.txt ]; then
+            while read issue_number; do
+              issue=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
+                "https://api.github.com/repos/$REPO/issues/$issue_number")
+              issue_body=$(echo "$issue" | jq -r '.body')
+              check_unchecked "$issue_body" "Issue #$issue_number Body"
 
-            # Check issue body
-            issue=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
-              -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/$REPO/issues/$issue_number")
-            body=$(echo "$issue" | jq -r '.body')
-            check_unchecked "$body"
+              issue_comments=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
+                "https://api.github.com/repos/$REPO/issues/$issue_number/comments")
+              echo "$issue_comments" | jq -r '.[] | @base64' | while read encoded; do
+                comment=$(echo "$encoded" | base64 --decode | jq -r '.body')
+                if echo "$comment" | grep -q '<!-- criteria-check -->'; then
+                  continue
+                fi
+                check_unchecked "$comment" "Issue #$issue_number Comment"
+              done
+            done < issues.txt
+          fi
 
-            # Check issue comments
-            comments=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
-              -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/$REPO/issues/$issue_number/comments")
-            bodies=$(echo "$comments" | jq -r '.[].body')
-            for comment in $bodies; do
-              check_unchecked "$comment"
-            done
-          done < issues.txt
-
+          # Gerenciar comentário do bot
+          existing_comment_id=$(echo "$pr_comments" | jq -r '.[] | select(.body | contains("<!-- criteria-check -->")) | .id')
           if [ "$failed" -eq 1 ]; then
-            echo "❌ Unchecked acceptance criteria found."
+            msg="🚫 **O PR contém critérios de aceitação não marcados**.\n$unchecked_list\n\n<!-- criteria-check -->"
+            if [ -n "$existing_comment_id" ]; then
+              echo "🔄 Atualizando comentário existente..."
+              curl -s -X PATCH -H "Authorization: Bearer $GH_TOKEN" \
+                -H "Accept: application/vnd.github+json" \
+                -d "$(jq -nc --arg body "$msg" '{body: $body}')" \
+                "https://api.github.com/repos/$REPO/issues/comments/$existing_comment_id" > /dev/null
+            else
+              echo "💬 Criando comentário..."
+              curl -s -X POST -H "Authorization: Bearer $GH_TOKEN" \
+                -H "Accept: application/vnd.github+json" \
+                -d "$(jq -nc --arg body "$msg" '{body: $body}')" \
+                "https://api.github.com/repos/$REPO/issues/$PR_NUMBER/comments" > /dev/null
+            fi
             exit 1
           else
-            echo "✅ All acceptance criteria checked."
+            if [ -n "$existing_comment_id" ]; then
+              echo "🧹 Limpando comentário antigo..."
+              curl -s -X DELETE -H "Authorization: Bearer $GH_TOKEN" \
+                "https://api.github.com/repos/$REPO/issues/comments/$existing_comment_id" > /dev/null
+            fi
+            echo "✅ Todos os critérios foram marcados."
           fi
