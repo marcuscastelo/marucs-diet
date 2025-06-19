@@ -15,6 +15,7 @@ import {
   addItemToGroup,
 } from '~/modules/diet/item-group/domain/itemGroupOperations'
 import {
+  createUnifiedItem,
   type UnifiedItem,
   unifiedItemSchema,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
@@ -88,16 +89,18 @@ export function useUnifiedItemClipboardActions({
       getDataToCopy: () => items(),
       onPaste: (data) => {
         if (Array.isArray(data)) {
-          const regeneratedItems = data.map((item) => ({
-            ...item,
-            id: regenerateId(item).id,
-          }))
+          const regeneratedItems = data.map((item) =>
+            createUnifiedItem({
+              ...item,
+              id: regenerateId(item).id,
+            }),
+          )
           setItems([...items(), ...regeneratedItems])
         } else {
-          const regeneratedItem = {
+          const regeneratedItem = createUnifiedItem({
             ...data,
             id: regenerateId(data).id,
-          }
+          })
           setItems([...items(), regeneratedItem])
         }
       },

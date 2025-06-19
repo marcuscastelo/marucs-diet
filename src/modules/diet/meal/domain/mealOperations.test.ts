@@ -93,7 +93,10 @@ describe('mealOperations', () => {
   })
 
   it('updateItemInMeal updates an item', () => {
-    const updatedItem = { ...baseUnifiedItem, name: 'Arroz Integral' }
+    const updatedItem = createUnifiedItem({
+      ...baseUnifiedItem,
+      name: 'Arroz Integral',
+    })
     const result = updateItemInMeal(baseMeal, 1, updatedItem)
     expect(result.items[0]?.name).toBe('Arroz Integral')
   })
