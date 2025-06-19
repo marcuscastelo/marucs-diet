@@ -28,7 +28,6 @@ import { useFloatField } from '~/sections/common/hooks/useField'
 import { Datepicker } from '~/sections/datepicker/components/Datepicker'
 import { type DateValueType } from '~/sections/datepicker/types'
 import DayMacros from '~/sections/day-diet/components/DayMacros'
-import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
 import { ItemListView } from '~/sections/food-item/components/ItemListView'
 import {
   ItemGroupCopyButton,
@@ -40,7 +39,6 @@ import { ExternalTemplateSearchModal } from '~/sections/search/components/Extern
 import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
 
 export default function TestApp() {
-  const [itemEditModalVisible, setItemEditModalVisible] = createSignal(false)
   const [unifiedItemEditModalVisible, setUnifiedItemEditModalVisible] =
     createSignal(false)
   const [templateSearchModalVisible, setTemplateSearchModalVisible] =
@@ -153,22 +151,6 @@ export default function TestApp() {
                 }}
               />
             </ModalContextProvider>
-
-            <ModalContextProvider
-              visible={itemEditModalVisible}
-              setVisible={setItemEditModalVisible}
-            >
-              <ItemEditModal
-                item={item}
-                targetName="Teste"
-                macroOverflow={() => ({
-                  enable: false,
-                })}
-                onApply={(item) => {
-                  console.debug(item)
-                }}
-              />
-            </ModalContextProvider>
             <TestModal />
             <TestConfirmModal />
             <button
@@ -202,7 +184,7 @@ export default function TestApp() {
               mode="edit"
               handlers={{
                 onClick: () => {
-                  setItemEditModalVisible(true)
+                  setUnifiedItemEditModalVisible(true)
                 },
               }}
             />

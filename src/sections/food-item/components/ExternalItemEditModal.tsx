@@ -1,9 +1,10 @@
 import { type Accessor, createEffect, type Setter, Show } from 'solid-js'
 
 import { type Item } from '~/modules/diet/item/domain/item'
-import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import { unifiedItemToItem } from '~/modules/diet/unified-item/domain/conversionUtils'
+import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
-import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
+import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
 
 export type ExternalItemEditModalProps = {
   visible: Accessor<boolean>
@@ -15,8 +16,52 @@ export type ExternalItemEditModalProps = {
     enable: boolean
     originalItem?: Item
   }
-  onApply: (item: TemplateItem) => void
+  onApply: (item: Item) => void
   onClose?: () => void
+}
+
+/**
+ * Converts an Item to a UnifiedItem for the modal
+ */
+function convertItemToUnifiedItem(item: Item): UnifiedItem {
+  return {
+    id: item.id,
+    name: item.name,
+    quantity: item.quantity,
+    reference: {
+      type: 'food',
+      id: item.reference,
+      macros: item.macros,
+    },
+    __type: 'UnifiedItem',
+  }
+}
+
+/**
+ * Converts macro overflow context from Item to UnifiedItem
+ */
+function convertMacroOverflow(
+  macroOverflow?: () => {
+    enable: boolean
+    originalItem?: Item
+  },
+): () => {
+  enable: boolean
+  originalItem?: UnifiedItem
+} {
+  if (!macroOverflow) {
+    return () => ({ enable: false })
+  }
+
+  return () => {
+    const original = macroOverflow()
+    return {
+      enable: original.enable,
+      originalItem: original.originalItem
+        ? convertItemToUnifiedItem(original.originalItem)
+        : undefined,
+    }
+  }
 }
 
 export function ExternalItemEditModal(props: ExternalItemEditModalProps) {
@@ -31,18 +76,24 @@ export function ExternalItemEditModal(props: ExternalItemEditModalProps) {
     }
   })
 
+  const handleApply = (unifiedItem: UnifiedItem) => {
+    // Convert UnifiedItem back to Item for the callback
+    const item = unifiedItemToItem(unifiedItem)
+    props.onApply(item)
+  }
+
   return (
     <Show when={props.visible()}>
       <ModalContextProvider
         visible={props.visible}
         setVisible={props.setVisible}
       >
-        <ItemEditModal
-          item={props.item}
-          targetName={props.targetName}
+        <UnifiedItemEditModal
+          item={() => convertItemToUnifiedItem(props.item())}
+          targetMealName={props.targetName}
           targetNameColor={props.targetNameColor}
-          macroOverflow={props.macroOverflow ?? (() => ({ enable: false }))}
-          onApply={props.onApply}
+          macroOverflow={convertMacroOverflow(props.macroOverflow)}
+          onApply={handleApply}
         />
       </ModalContextProvider>
     </Show>
