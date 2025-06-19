@@ -31,15 +31,14 @@ import { useFloatField } from '~/sections/common/hooks/useField'
 import { Datepicker } from '~/sections/datepicker/components/Datepicker'
 import { type DateValueType } from '~/sections/datepicker/types'
 import DayMacros from '~/sections/day-diet/components/DayMacros'
-import {
-  ItemGroupCopyButton,
-  ItemGroupName,
-  ItemGroupView,
-  ItemGroupViewNutritionalInfo,
-} from '~/sections/item-group/components/ItemGroupView'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
 import { UnifiedItemListView } from '~/sections/unified-item/components/UnifiedItemListView'
+import {
+  UnifiedItemName,
+  UnifiedItemView,
+  UnifiedItemViewNutritionalInfo,
+} from '~/sections/unified-item/components/UnifiedItemView'
 
 export default function TestApp() {
   const [unifiedItemEditModalVisible, setUnifiedItemEditModalVisible] =
@@ -191,26 +190,29 @@ export default function TestApp() {
                 },
               }}
             />
-            <h1>ItemGroupView</h1>
-            <ItemGroupView
-              itemGroup={group}
+            <h1>UnifiedItemView (ItemGroup test)</h1>
+            <UnifiedItemView
+              item={() => itemGroupToUnifiedItem(group())}
               header={
                 <HeaderWithActions
-                  name={<ItemGroupName group={group} />}
-                  primaryActions={
-                    <ItemGroupCopyButton
-                      group={group}
-                      onCopyItemGroup={(item) => {
-                        console.debug(item)
-                      }}
+                  name={
+                    <UnifiedItemName
+                      item={() => itemGroupToUnifiedItem(group())}
                     />
                   }
                 />
               }
-              nutritionalInfo={<ItemGroupViewNutritionalInfo group={group} />}
+              nutritionalInfo={
+                <UnifiedItemViewNutritionalInfo
+                  item={() => itemGroupToUnifiedItem(group())}
+                />
+              }
               handlers={{
                 onEdit: () => {
                   setUnifiedItemEditModalVisible(true)
+                },
+                onCopy: (item) => {
+                  console.debug('Copy item:', item)
                 },
               }}
             />
