@@ -73,7 +73,8 @@ async function fetchDayDiet(dayId: DayDiet['id']): Promise<DayDiet> {
       })
       throw new Error('DayDiet not found')
     }
-    const result = dayDietSchema.safeParse(dayDiets[0])
+    const migratedDay = migrateDayDataIfNeeded(dayDiets[0])
+    const result = dayDietSchema.safeParse(migratedDay)
     if (!result.success) {
       handleValidationError('DayDiet invalid', {
         component: 'supabaseDayRepository',
