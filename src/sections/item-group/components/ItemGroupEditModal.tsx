@@ -138,7 +138,57 @@ const InnerItemGroupEditModal = (props: ItemGroupEditModalProps) => {
         setVisible={setTemplateSearchModalVisible}
         onRefetch={props.onRefetch}
         targetName={group().name}
-        onNewItemGroup={handleNewItemGroupHandler}
+        onNewUnifiedItem={(unifiedItem) => {
+          // Convert UnifiedItem to ItemGroup and handle it
+          // Only food-type unified items can be converted to simple ItemGroups
+          if (unifiedItem.reference.type === 'food') {
+            const item = {
+              id: unifiedItem.id,
+              name: unifiedItem.name,
+              quantity: unifiedItem.quantity,
+              macros: unifiedItem.macros,
+              reference: unifiedItem.reference.id,
+              __type: 'Item' as const,
+            }
+            const newGroup = handleNewItemGroupHandler({
+              __type: 'ItemGroup',
+              id: unifiedItem.id,
+              name: unifiedItem.name,
+              items: [item],
+              recipe: undefined,
+            })
+            return newGroup
+          }
+          // For group types, extract children if they exist and are all foods
+          if (unifiedItem.reference.type === 'group') {
+            const items = unifiedItem.reference.children.map((child) => {
+              if (child.reference.type !== 'food') {
+                throw new Error(
+                  `Only food children are supported. Found type: ${child.reference.type}`,
+                )
+              }
+              return {
+                id: child.id,
+                name: child.name,
+                quantity: child.quantity,
+                macros: child.macros,
+                reference: child.reference.id,
+                __type: 'Item' as const,
+              }
+            })
+            const newGroup = handleNewItemGroupHandler({
+              __type: 'ItemGroup',
+              id: unifiedItem.id,
+              name: unifiedItem.name,
+              items,
+              recipe: undefined,
+            })
+            return newGroup
+          }
+          throw new Error(
+            `Cannot convert UnifiedItem of type ${unifiedItem.reference.type} to ItemGroup`,
+          )
+        }}
       />
       <ModalContextProvider visible={visible} setVisible={setVisible}>
         <Modal class="border-2 border-orange-800" hasBackdrop={true}>

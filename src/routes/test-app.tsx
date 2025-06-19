@@ -123,7 +123,7 @@ export default function TestApp() {
                 onRefetch={() => {
                   console.debug(item)
                 }}
-                onNewItemGroup={() => {
+                onNewUnifiedItem={() => {
                   console.debug()
                 }}
               />

@@ -2,30 +2,29 @@ import { Accessor, createEffect, type JSXElement, Show } from 'solid-js'
 
 import { DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { itemSchema } from '~/modules/diet/item/domain/item'
-import { deleteItemGroup } from '~/modules/diet/item-group/application/itemGroup'
+import {
+  deleteUnifiedItem,
+  insertUnifiedItem,
+} from '~/modules/diet/item-group/application/itemGroup'
 import {
   convertToGroups,
   type GroupConvertible,
 } from '~/modules/diet/item-group/application/itemGroupService'
-import {
-  type ItemGroup,
-  itemGroupSchema,
-} from '~/modules/diet/item-group/domain/itemGroup'
+import { itemGroupSchema } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Meal, mealSchema } from '~/modules/diet/meal/domain/meal'
-import {
-  addGroupsToMeal,
-  clearMealGroups,
-} from '~/modules/diet/meal/domain/mealOperations'
+import { clearMealItems } from '~/modules/diet/meal/domain/mealOperations'
 import { recipeSchema } from '~/modules/diet/recipe/domain/recipe'
+import { migrateToUnifiedItems } from '~/modules/diet/unified-item/domain/migrationUtils'
+import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { ClipboardActionButtons } from '~/sections/common/components/ClipboardActionButtons'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
-import { ItemGroupListView } from '~/sections/item-group/components/ItemGroupListView'
 import {
   MealContextProvider,
   useMealContext,
 } from '~/sections/meal/context/MealContext'
+import { UnifiedItemListView } from '~/sections/unified-item/components/UnifiedItemListView'
 import { createDebug } from '~/shared/utils/createDebug'
 import { regenerateId } from '~/shared/utils/idUtils'
 import { calcMealCalories } from '~/shared/utils/macroMath'
@@ -85,28 +84,39 @@ export function MealEditView(props: MealEditViewProps) {
 
 export function MealEditViewHeader(props: {
   onUpdateMeal: (meal: Meal) => void
+  dayDiet: DayDiet
   mode?: 'edit' | 'read-only' | 'summary'
 }) {
   const { show: showConfirmModal } = useConfirmModalContext()
   const { meal } = useMealContext()
   const acceptedClipboardSchema = mealSchema
+    .or(recipeSchema)
     .or(itemGroupSchema)
     .or(itemSchema)
-    .or(recipeSchema)
 
   const { handleCopy, handlePaste, hasValidPastableOnClipboard } =
     useCopyPasteActions({
       acceptedClipboardSchema,
       getDataToCopy: () => meal(),
       onPaste: (data) => {
+        // Convert the pasted data to ItemGroups first (using legacy conversion)
         const groupsToAdd = convertToGroups(data as GroupConvertible)
           .map((group) => regenerateId(group))
           .map((g) => ({
             ...g,
             items: g.items.map((item) => regenerateId(item)),
           }))
-        const newMeal = addGroupsToMeal(meal(), groupsToAdd)
-        props.onUpdateMeal(newMeal)
+
+        // Extract all items from the groups
+        const itemsToAdd = groupsToAdd.flatMap((g) => g.items)
+
+        // Convert the items and groups to UnifiedItems
+        const unifiedItemsToAdd = migrateToUnifiedItems(itemsToAdd, groupsToAdd)
+
+        // Insert each UnifiedItem into the meal
+        unifiedItemsToAdd.forEach((unifiedItem) => {
+          void insertUnifiedItem(props.dayDiet.id, meal().id, unifiedItem)
+        })
       },
     })
 
@@ -123,7 +133,7 @@ export function MealEditViewHeader(props: {
           text: 'Excluir todos os itens',
           primary: true,
           onClick: () => {
-            const newMeal = clearMealGroups(meal())
+            const newMeal = clearMealItems(meal())
             props.onUpdateMeal(newMeal)
           },
         },
@@ -158,7 +168,7 @@ export function MealEditViewHeader(props: {
 }
 
 export function MealEditViewContent(props: {
-  onEditItemGroup: (item: ItemGroup) => void
+  onEditItem: (item: UnifiedItem) => void
   mode?: 'edit' | 'read-only' | 'summary'
 }) {
   const { dayDiet, meal } = useMealContext()
@@ -172,24 +182,24 @@ export function MealEditViewContent(props: {
   })
 
   return (
-    <ItemGroupListView
-      itemGroups={() => []} // TODO: Update to use UnifiedItems - need UI layer refactoring
+    <UnifiedItemListView
+      items={() => meal().items}
       handlers={{
-        onEdit: props.onEditItemGroup,
+        onEdit: props.onEditItem,
         onCopy: (item) => {
           clipboard.write(JSON.stringify(item))
         },
         onDelete: (item) => {
           showConfirmModal({
-            title: 'Excluir grupo de itens',
-            body: `Tem certeza que deseja excluir o grupo de itens "${item.name}"?`,
+            title: 'Excluir item',
+            body: `Tem certeza que deseja excluir o item "${item.name}"?`,
             actions: [
               { text: 'Cancelar', onClick: () => undefined },
               {
-                text: 'Excluir grupo',
+                text: 'Excluir item',
                 primary: true,
                 onClick: () => {
-                  void deleteItemGroup(dayDiet().id, meal().id, item.id)
+                  void deleteUnifiedItem(dayDiet().id, meal().id, item.id)
                 },
               },
             ],

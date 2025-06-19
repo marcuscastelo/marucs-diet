@@ -2,20 +2,17 @@ import { Accessor, createEffect, createSignal } from 'solid-js'
 import { untrack } from 'solid-js'
 
 import { createItem, type Item } from '~/modules/diet/item/domain/item'
-import {
-  isSimpleSingleGroup,
-  type ItemGroup,
-} from '~/modules/diet/item-group/domain/itemGroup'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import {
-  addItemsToRecipe,
-  removeItemFromRecipe,
+  addItemToRecipe,
   updateItemInRecipe,
 } from '~/modules/diet/recipe/domain/recipeOperations'
 import {
   isTemplateItemFood,
   isTemplateItemRecipe,
 } from '~/modules/diet/template-item/domain/templateItem'
+import { unifiedItemToItem } from '~/modules/diet/unified-item/domain/conversionUtils'
+import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { showError } from '~/modules/toast/application/toastManager'
 import { Modal } from '~/sections/common/components/Modal'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
@@ -62,30 +59,40 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
   const [templateSearchModalVisible, setTemplateSearchModalVisible] =
     createSignal(false)
 
-  const handleNewItemGroup = (newGroup: ItemGroup) => {
-    console.debug('onNewItemGroup', newGroup)
+  const handleNewUnifiedItem = (newItem: UnifiedItem) => {
+    console.debug('onNewUnifiedItem', newItem)
 
-    if (!isSimpleSingleGroup(newGroup)) {
-      // TODO:   Handle non-simple groups on handleNewItemGroup
-      handleValidationError('Cannot add complex groups to recipes', {
-        component: 'RecipeEditModal',
-        operation: 'handleNewItemGroup',
-        additionalData: { groupType: 'complex', groupId: newGroup.id },
-      })
-      showError(
-        'Não é possível adicionar grupos complexos a receitas, por enquanto.',
+    // Convert UnifiedItem to Item for adding to recipe
+    try {
+      // Only food items can be directly converted to Items for recipes
+      if (newItem.reference.type !== 'food') {
+        handleValidationError('Cannot add non-food items to recipes', {
+          component: 'RecipeEditModal',
+          operation: 'handleNewUnifiedItem',
+          additionalData: {
+            itemType: newItem.reference.type,
+            itemId: newItem.id,
+          },
+        })
+        showError(
+          'Não é possível adicionar itens que não sejam alimentos a receitas.',
+        )
+        return
+      }
+
+      const item = unifiedItemToItem(newItem)
+      const updatedRecipe = addItemToRecipe(recipe(), item)
+
+      console.debug(
+        'handleNewUnifiedItem: applying',
+        JSON.stringify(updatedRecipe, null, 2),
       )
-      return
+
+      setRecipe(updatedRecipe)
+    } catch (error) {
+      console.error('Error converting UnifiedItem to Item:', error)
+      showError('Erro ao adicionar item à receita.')
     }
-
-    const updatedRecipe = addItemsToRecipe(recipe(), newGroup.items)
-
-    console.debug(
-      'handleNewItemGroup: applying',
-      JSON.stringify(updatedRecipe, null, 2),
-    )
-
-    setRecipe(updatedRecipe)
   }
 
   createEffect(() => {
@@ -130,7 +137,7 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
         setVisible={setTemplateSearchModalVisible}
         onRefetch={props.onRefetch}
         targetName={recipe().name}
-        onNewItemGroup={handleNewItemGroup}
+        onNewUnifiedItem={handleNewUnifiedItem}
       />
 
       <ModalContextProvider visible={visible} setVisible={setVisible}>

@@ -1,6 +1,6 @@
 import { type Accessor, createEffect, type Setter } from 'solid-js'
 
-import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 
@@ -9,7 +9,7 @@ export type ExternalTemplateSearchModalProps = {
   setVisible: Setter<boolean>
   onRefetch: () => void
   targetName: string
-  onNewItemGroup: (newGroup: ItemGroup) => void
+  onNewUnifiedItem?: (newItem: UnifiedItem) => void
   onFinish?: () => void
 }
 
@@ -39,7 +39,7 @@ export function ExternalTemplateSearchModal(
       <TemplateSearchModal
         targetName={props.targetName}
         onFinish={handleFinishSearch}
-        onNewItemGroup={props.onNewItemGroup}
+        onNewUnifiedItem={props.onNewUnifiedItem}
       />
     </ModalContextProvider>
   )
