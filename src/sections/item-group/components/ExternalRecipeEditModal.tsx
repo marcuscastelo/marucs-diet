@@ -30,7 +30,7 @@ export function ExternalRecipeEditModal(props: {
                 .catch((e) => {
                   // TODO: Remove all console.error from Components and move to application/ folder
                   console.error(
-                    '[ItemGroupEditModal::ExternalRecipeEditModal] Error updating recipe:',
+                    '[ExternalRecipeEditModal] Error updating recipe:',
                     e,
                   )
                 })
@@ -44,7 +44,7 @@ export function ExternalRecipeEditModal(props: {
                 .then(afterDelete)
                 .catch((e) => {
                   console.error(
-                    '[ItemGroupEditModal::ExternalRecipeEditModal] Error deleting recipe:',
+                    '[ExternalRecipeEditModal] Error deleting recipe:',
                     e,
                   )
                 })

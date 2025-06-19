@@ -14,8 +14,7 @@ export type ExternalTemplateSearchModalProps = {
 }
 
 /**
- * Shared ExternalTemplateSearchModal component that was previously duplicated
- * between RecipeEditModal and ItemGroupEditModal.
+ * Shared ExternalTemplateSearchModal component that can be used by different edit modals.
  *
  * @see https://github.com/marcuscastelo/marucs-diet/issues/397
  */
