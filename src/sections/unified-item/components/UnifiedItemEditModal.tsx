@@ -1,19 +1,27 @@
 import {
   type Accessor,
   createEffect,
+  createMemo,
+  createResource,
   createSignal,
   mergeProps,
   Show,
   untrack,
 } from 'solid-js'
 
+import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 import { updateChildInItem } from '~/modules/diet/unified-item/domain/childOperations'
+import {
+  isRecipeUnifiedItemManuallyEdited,
+  syncRecipeUnifiedItemWithOriginal,
+} from '~/modules/diet/unified-item/domain/conversionUtils'
 import {
   isFood,
   isGroup,
   isRecipe,
   type UnifiedItem,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import { DownloadIcon } from '~/sections/common/components/icons/DownloadIcon'
 import { Modal } from '~/sections/common/components/Modal'
 import { useModalContext } from '~/sections/common/context/ModalContext'
 import { useFloatField } from '~/sections/common/hooks/useField'
@@ -53,6 +61,40 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
     'recipe',
   )
 
+  // Recipe synchronization
+  const recipeRepository = createSupabaseRecipeRepository()
+  const [originalRecipe] = createResource(
+    () => {
+      const currentItem = item()
+      return isRecipe(currentItem) ? currentItem.reference.id : null
+    },
+    async (recipeId: number) => {
+      try {
+        return await recipeRepository.fetchRecipeById(recipeId)
+      } catch (error) {
+        console.warn('Failed to fetch recipe for sync:', error)
+        return null
+      }
+    },
+  )
+
+  // Check if the recipe was manually edited
+  const isManuallyEdited = createMemo(() => {
+    const currentItem = item()
+    const recipe = originalRecipe()
+
+    if (
+      !isRecipe(currentItem) ||
+      recipe === null ||
+      recipe === undefined ||
+      originalRecipe.loading
+    ) {
+      return false
+    }
+
+    return isRecipeUnifiedItemManuallyEdited(currentItem, recipe)
+  })
+
   const quantitySignal = () =>
     item().quantity === 0 ? undefined : item().quantity
 
@@ -86,6 +128,15 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
     setChildBeingEdited(null)
   }
 
+  const handleSyncWithOriginalRecipe = () => {
+    const recipe = originalRecipe()
+    if (!recipe) return
+
+    const currentItem = item()
+    const syncedItem = syncRecipeUnifiedItemWithOriginal(currentItem, recipe)
+    setItem(syncedItem)
+  }
+
   return (
     <>
       <Modal class="border-2 border-white">
@@ -103,7 +154,7 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
           <Show when={isFood(item()) || isRecipe(item()) || isGroup(item())}>
             {/* Toggle button for recipes */}
             <Show when={isRecipe(item())}>
-              <div class="mb-4 flex justify-center">
+              <div class="mb-4 flex justify-center items-center gap-3">
                 <div class="flex rounded-lg border border-gray-600 bg-gray-800 p-1">
                   <button
                     class={`px-3 py-1 rounded-md text-sm transition-colors ${
@@ -126,6 +177,20 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
                     📦 Tratar como Grupo
                   </button>
                 </div>
+
+                {/* Sync button - only show if recipe was manually edited */}
+                <Show when={isManuallyEdited() && originalRecipe()}>
+                  <button
+                    class="btn btn-sm bg-orange-600 hover:bg-orange-700 text-white px-3 py-1 rounded-md transition-colors flex items-center gap-1"
+                    onClick={handleSyncWithOriginalRecipe}
+                    title="Sincronizar com receita original"
+                  >
+                    <div class="w-4 h-4">
+                      <DownloadIcon />
+                    </div>
+                    Sincronizar
+                  </button>
+                </Show>
               </div>
             </Show>
 

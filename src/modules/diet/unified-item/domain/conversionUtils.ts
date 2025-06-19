@@ -1,6 +1,7 @@
 import { Item } from '~/modules/diet/item/domain/item'
 import type { ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { getItemGroupQuantity } from '~/modules/diet/item-group/domain/itemGroup'
+import { Recipe } from '~/modules/diet/recipe/domain/recipe'
 import {
   createUnifiedItem,
   isFood,
@@ -117,4 +118,38 @@ export function isRecipeUnifiedItemManuallyEdited(
   }
 
   return false // No differences found
+}
+
+/**
+ * Synchronizes a recipe UnifiedItem with its original recipe data.
+ * Preserves the item's quantity but updates the children to match the original recipe.
+ * @param item UnifiedItem with recipe reference
+ * @param originalRecipe The original Recipe to sync with
+ * @returns Updated UnifiedItem with synchronized children
+ */
+export function syncRecipeUnifiedItemWithOriginal(
+  item: UnifiedItem,
+  originalRecipe: Recipe,
+): UnifiedItem {
+  if (item.reference.type !== 'recipe') {
+    return item // Not a recipe item, return as-is
+  }
+
+  const syncedChildren: UnifiedItem[] = originalRecipe.items.map(
+    (originalItem) => itemToUnifiedItem(originalItem),
+  )
+
+  return createUnifiedItem({
+    id: item.id,
+    name: item.name,
+    quantity: syncedChildren.reduce(
+      (total, child) => total + child.quantity,
+      0,
+    ),
+    reference: {
+      type: 'recipe',
+      id: item.reference.id,
+      children: syncedChildren,
+    },
+  })
 }
