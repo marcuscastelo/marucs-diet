@@ -244,20 +244,13 @@ function ExternalUnifiedItemEditModal(props: {
           setVisible={props.setVisible}
         >
           <UnifiedItemEditModal
-            item={() => editSelection().item}
-            setItem={(updater) => {
-              const prevSelection = editSelection()
-              const updatedItem =
-                typeof updater === 'function'
-                  ? updater(prevSelection.item)
-                  : updater
-              setEditSelection({
-                meal: prevSelection.meal,
-                item: updatedItem,
-              })
-            }}
             targetMealName={editSelection().meal.name}
-            onSaveItem={(item) => {
+            item={() => editSelection().item}
+            macroOverflow={() => ({
+              enable: false, // TODO: Implement macro overflow for UnifiedItem
+              originalItem: undefined,
+            })}
+            onApply={(item) => {
               void updateUnifiedItem(
                 props.day().id,
                 editSelection().meal.id,
@@ -269,12 +262,13 @@ function ExternalUnifiedItemEditModal(props: {
               setEditSelection(null)
               props.setVisible(false)
             }}
-            onRefetch={() => {
+            onCancel={() => {
               console.warn(
-                '[DayMeals] (<UnifiedItemEditModal/>) onRefetch called!',
+                '[DayMeals] (<UnifiedItemEditModal/>) onCancel called!',
               )
+              setEditSelection(null)
+              props.setVisible(false)
             }}
-            mode={props.mode}
           />
         </ModalContextProvider>
       )}

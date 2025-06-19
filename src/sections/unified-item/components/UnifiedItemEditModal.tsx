@@ -1,172 +1,416 @@
-import { type Accessor, type Setter, Show } from 'solid-js'
+import {
+  type Accessor,
+  createEffect,
+  createSignal,
+  For,
+  mergeProps,
+  type Setter,
+  Show,
+  untrack,
+} from 'solid-js'
 
+import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
+import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import {
   isFood,
   type UnifiedItem,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import { FloatInput } from '~/sections/common/components/FloatInput'
+import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
+import {
+  MacroValues,
+  MaxQuantityButton,
+} from '~/sections/common/components/MaxQuantityButton'
 import { Modal } from '~/sections/common/components/Modal'
-import { calcUnifiedItemMacros } from '~/shared/utils/macroMath'
+import { useModalContext } from '~/sections/common/context/ModalContext'
+import { useClipboard } from '~/sections/common/hooks/useClipboard'
+import { useFloatField } from '~/sections/common/hooks/useField'
+import {
+  ItemFavorite,
+  ItemName,
+  ItemNutritionalInfo,
+  ItemView,
+} from '~/sections/food-item/components/ItemView'
+import { createDebug } from '~/shared/utils/createDebug'
+import { calcDayMacros, calcUnifiedItemMacros } from '~/shared/utils/macroMath'
+
+const debug = createDebug()
 
 export type UnifiedItemEditModalProps = {
-  item: Accessor<UnifiedItem>
-  setItem: Setter<UnifiedItem>
   targetMealName: string
-  onSaveItem: (item: UnifiedItem) => void
-  onRefetch: () => void
-  mode?: 'edit' | 'read-only' | 'summary'
+  targetNameColor?: string
+  item: Accessor<UnifiedItem>
+  macroOverflow: () => {
+    enable: boolean
+    originalItem?: UnifiedItem | undefined
+  }
+  onApply: (item: UnifiedItem) => void
+  onCancel?: () => void
 }
 
-export function UnifiedItemEditModal(props: UnifiedItemEditModalProps) {
+export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
+  debug('[UnifiedItemEditModal] called', _props)
+  const props = mergeProps({ targetNameColor: 'text-green-500' }, _props)
+  const { setVisible } = useModalContext()
+
+  const [item, setItem] = createSignal(untrack(() => props.item()))
+  createEffect(() => setItem(props.item()))
+
+  const canApply = () => {
+    debug('[UnifiedItemEditModal] canApply', item().quantity)
+    return item().quantity > 0
+  }
+
   return (
-    <Modal>
-      <div class="bg-gray-800 p-6 rounded-lg">
-        <h2 class="text-xl font-bold mb-4">
-          Editar Item - {props.targetMealName}
-        </h2>
-
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium mb-1">Nome</label>
-            <input
-              type="text"
-              value={props.item().name}
-              onInput={(e) => {
-                const newItem = { ...props.item(), name: e.currentTarget.value }
-                props.setItem(newItem)
-              }}
-              class="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500"
-              disabled={props.mode === 'read-only'}
-            />
+    <Modal class="border-2 border-white">
+      <Modal.Header
+        title={
+          <span>
+            Editando item em
+            <span class={props.targetNameColor}>"{props.targetMealName}"</span>
+          </span>
+        }
+      />
+      <Modal.Content>
+        <Show when={isFood(item())}>
+          <Body
+            canApply={canApply()}
+            item={item}
+            setItem={setItem}
+            macroOverflow={props.macroOverflow}
+          />
+        </Show>
+        <Show when={!isFood(item())}>
+          <div class="text-gray-400 text-sm">
+            Este tipo de item não é suportado ainda. Apenas itens de comida
+            podem ser editados.
           </div>
+        </Show>
+      </Modal.Content>
+      <Modal.Footer>
+        <button
+          class="btn cursor-pointer uppercase"
+          onClick={(e) => {
+            debug('[UnifiedItemEditModal] Cancel clicked')
+            e.preventDefault()
+            e.stopPropagation()
+            setVisible(false)
+            props.onCancel?.()
+          }}
+        >
+          Cancelar
+        </button>
+        <button
+          class="btn cursor-pointer uppercase"
+          disabled={!canApply() || !isFood(item())}
+          onClick={(e) => {
+            debug('[UnifiedItemEditModal] Apply clicked', item())
+            e.preventDefault()
+            console.debug(
+              '[UnifiedItemEditModal] onApply - calling onApply with item.value=',
+              item(),
+            )
+            props.onApply(item())
+            setVisible(false)
+          }}
+        >
+          Aplicar
+        </button>
+      </Modal.Footer>
+    </Modal>
+  )
+}
 
-          <div>
-            <label class="block text-sm font-medium mb-1">Quantidade (g)</label>
-            <input
-              type="number"
-              value={props.item().quantity}
-              onInput={(e) => {
-                const newItem = {
-                  ...props.item(),
-                  quantity: Number(e.currentTarget.value),
-                }
-                props.setItem(newItem)
-              }}
-              class="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500"
-              disabled={props.mode === 'read-only'}
-            />
+function Body(props: {
+  canApply: boolean
+  item: Accessor<UnifiedItem>
+  setItem: Setter<UnifiedItem>
+  macroOverflow: () => {
+    enable: boolean
+    originalItem?: UnifiedItem | undefined
+  }
+}) {
+  debug('[Body] called', props)
+  const id = () => props.item().id
+
+  const quantitySignal = () =>
+    props.item().quantity === 0 ? undefined : props.item().quantity
+
+  const clipboard = useClipboard()
+  const quantityField = useFloatField(quantitySignal, {
+    decimalPlaces: 0,
+    // eslint-disable-next-line solid/reactivity
+    defaultValue: props.item().quantity,
+  })
+
+  createEffect(() => {
+    debug('[Body] createEffect setItem', quantityField.value())
+    props.setItem({
+      ...untrack(props.item),
+      quantity: quantityField.value() ?? 0,
+    })
+  })
+
+  const [currentHoldTimeout, setCurrentHoldTimeout] =
+    createSignal<NodeJS.Timeout | null>(null)
+  const [currentHoldInterval, setCurrentHoldInterval] =
+    createSignal<NodeJS.Timeout | null>(null)
+
+  const increment = () => {
+    debug('[Body] increment')
+    quantityField.setRawValue(((quantityField.value() ?? 0) + 1).toString())
+  }
+  const decrement = () => {
+    debug('[Body] decrement')
+    quantityField.setRawValue(
+      Math.max(0, (quantityField.value() ?? 0) - 1).toString(),
+    )
+  }
+
+  const holdRepeatStart = (action: () => void) => {
+    debug('[Body] holdRepeatStart')
+    setCurrentHoldTimeout(
+      setTimeout(() => {
+        setCurrentHoldInterval(
+          setInterval(() => {
+            action()
+          }, 100),
+        )
+      }, 500),
+    )
+  }
+
+  const holdRepeatStop = () => {
+    debug('[Body] holdRepeatStop')
+    const currentHoldTimeout_ = currentHoldTimeout()
+    const currentHoldInterval_ = currentHoldInterval()
+
+    if (currentHoldTimeout_ !== null) {
+      clearTimeout(currentHoldTimeout_)
+    }
+
+    if (currentHoldInterval_ !== null) {
+      clearInterval(currentHoldInterval_)
+    }
+  }
+
+  // Cálculo do restante disponível de macros
+  function getAvailableMacros(): MacroValues {
+    debug('[Body] getAvailableMacros')
+    const dayDiet = currentDayDiet()
+    const macroTarget = dayDiet
+      ? getMacroTargetForDay(new Date(dayDiet.target_day))
+      : null
+    const originalItem = props.macroOverflow().originalItem
+    if (!dayDiet || !macroTarget) {
+      return { carbs: 0, protein: 0, fat: 0 }
+    }
+    const dayMacros = calcDayMacros(dayDiet)
+    const originalMacros = originalItem
+      ? calcUnifiedItemMacros(originalItem)
+      : { carbs: 0, protein: 0, fat: 0 }
+    return {
+      carbs: macroTarget.carbs - dayMacros.carbs + originalMacros.carbs,
+      protein: macroTarget.protein - dayMacros.protein + originalMacros.protein,
+      fat: macroTarget.fat - dayMacros.fat + originalMacros.fat,
+    }
+  }
+
+  return (
+    <>
+      <p class="mt-1 text-gray-400">Atalhos</p>
+      <For
+        each={[
+          [10, 20, 30, 40, 50],
+          [100, 150, 200, 250, 300],
+        ]}
+      >
+        {(row) => (
+          <div class="mt-1 flex w-full gap-1">
+            <For each={row}>
+              {(value) => (
+                <div
+                  class="btn-primary btn-sm btn cursor-pointer uppercase flex-1"
+                  onClick={() => {
+                    debug('[Body] shortcut quantity', value)
+                    quantityField.setRawValue(value.toString())
+                  }}
+                >
+                  {value}g
+                </div>
+              )}
+            </For>
           </div>
-
+        )}
+      </For>
+      <div class="mt-3 flex w-full justify-between gap-1">
+        <div
+          class="my-1 flex flex-1 justify-around"
+          style={{ position: 'relative' }}
+        >
+          <FloatInput
+            field={quantityField}
+            style={{ width: '100%' }}
+            onFieldCommit={(value) => {
+              debug('[Body] FloatInput onFieldCommit', value)
+              if (value === undefined) {
+                quantityField.setRawValue(props.item().quantity.toString())
+              }
+            }}
+            tabIndex={-1}
+            onFocus={(event) => {
+              debug('[Body] FloatInput onFocus')
+              event.target.select()
+              if (quantityField.value() === 0) {
+                quantityField.setRawValue('')
+              }
+            }}
+            type="number"
+            placeholder="Quantidade (gramas)"
+            class={`input-bordered  input mt-1  border-gray-300 bg-gray-800 ${
+              !props.canApply ? 'input-error border-red-500' : ''
+            }`}
+          />
           <Show when={isFood(props.item())}>
-            <div class="grid grid-cols-3 gap-4">
-              <div>
-                <label class="block text-sm font-medium mb-1">
-                  Carboidratos
-                </label>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={calcUnifiedItemMacros(props.item()).carbs}
-                  onInput={(e) => {
-                    if (isFood(props.item())) {
-                      const foodItem = props.item() as Extract<
-                        UnifiedItem,
-                        { reference: { type: 'food' } }
-                      >
-                      const newItem = {
-                        ...foodItem,
-                        macros: {
-                          ...foodItem.macros,
-                          carbs: Number(e.currentTarget.value),
-                        },
-                      }
-                      props.setItem(newItem)
-                    }
-                  }}
-                  class="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500"
-                  disabled={props.mode === 'read-only'}
-                />
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium mb-1">Proteínas</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={calcUnifiedItemMacros(props.item()).protein}
-                  onInput={(e) => {
-                    if (isFood(props.item())) {
-                      const foodItem = props.item() as Extract<
-                        UnifiedItem,
-                        { reference: { type: 'food' } }
-                      >
-                      const newItem = {
-                        ...foodItem,
-                        macros: {
-                          ...foodItem.macros,
-                          protein: Number(e.currentTarget.value),
-                        },
-                      }
-                      props.setItem(newItem)
-                    }
-                  }}
-                  class="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500"
-                  disabled={props.mode === 'read-only'}
-                />
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium mb-1">Gorduras</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={calcUnifiedItemMacros(props.item()).fat}
-                  onInput={(e) => {
-                    if (isFood(props.item())) {
-                      const foodItem = props.item() as Extract<
-                        UnifiedItem,
-                        { reference: { type: 'food' } }
-                      >
-                      const newItem = {
-                        ...foodItem,
-                        macros: {
-                          ...foodItem.macros,
-                          fat: Number(e.currentTarget.value),
-                        },
-                      }
-                      props.setItem(newItem)
-                    }
-                  }}
-                  class="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500"
-                  disabled={props.mode === 'read-only'}
-                />
-              </div>
-            </div>
-          </Show>
-
-          <Show when={!isFood(props.item())}>
-            <div class="text-gray-400 text-sm">
-              As macros deste item são calculadas automaticamente com base nos
-              filhos.
-            </div>
+            <MaxQuantityButton
+              currentValue={quantityField.value() ?? 0}
+              macroTargets={getAvailableMacros()}
+              itemMacros={
+                (
+                  props.item() as Extract<
+                    UnifiedItem,
+                    { macros: MacroNutrients }
+                  >
+                ).macros
+              }
+              onMaxSelected={(maxValue: number) => {
+                debug('[Body] MaxQuantityButton onMaxSelected', maxValue)
+                quantityField.setRawValue(maxValue.toFixed(2))
+              }}
+              disabled={!props.canApply}
+            />
           </Show>
         </div>
-
-        <div class="flex justify-end gap-3 mt-6">
-          <button
-            class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded"
-            onClick={() => props.onRefetch()}
+        <div class="my-1 ml-1 flex shrink justify-around gap-1">
+          <div
+            class="btn-primary btn-xs btn cursor-pointer uppercase h-full w-10 px-6 text-4xl text-red-600"
+            onClick={decrement}
+            onMouseDown={() => {
+              debug('[Body] decrement mouse down')
+              holdRepeatStart(decrement)
+            }}
+            onMouseUp={holdRepeatStop}
+            onTouchStart={() => {
+              debug('[Body] decrement touch start')
+              holdRepeatStart(decrement)
+            }}
+            onTouchEnd={holdRepeatStop}
           >
-            Cancelar
-          </button>
-          <button
-            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded"
-            onClick={() => props.onSaveItem(props.item())}
-            disabled={props.mode === 'read-only'}
+            {' '}
+            -{' '}
+          </div>
+          <div
+            class="btn-primary btn-xs btn cursor-pointer uppercase ml-1 h-full w-10 px-6 text-4xl text-green-400"
+            onClick={increment}
+            onMouseDown={() => {
+              debug('[Body] increment mouse down')
+              holdRepeatStart(increment)
+            }}
+            onMouseUp={holdRepeatStop}
+            onTouchStart={() => {
+              debug('[Body] increment touch start')
+              holdRepeatStart(increment)
+            }}
+            onTouchEnd={holdRepeatStop}
           >
-            Salvar
-          </button>
+            {' '}
+            +{' '}
+          </div>
         </div>
       </div>
-    </Modal>
+
+      <Show when={isFood(props.item())}>
+        <ItemView
+          mode="edit"
+          handlers={{
+            onCopy: () => {
+              clipboard.write(JSON.stringify(props.item()))
+            },
+          }}
+          item={() => {
+            const currentItem = props.item()
+            // Convert UnifiedItem to TemplateItem format (Item type)
+            if (isFood(currentItem)) {
+              return {
+                __type: 'Item' as const,
+                id: id(),
+                name: currentItem.name,
+                quantity: quantityField.value() ?? currentItem.quantity,
+                reference: currentItem.reference.id,
+                macros: currentItem.macros,
+              }
+            }
+            // Fallback - should not happen since we check isFood above
+            return {
+              __type: 'Item' as const,
+              id: id(),
+              name: currentItem.name,
+              quantity: quantityField.value() ?? currentItem.quantity,
+              reference: 0,
+              macros: { carbs: 0, protein: 0, fat: 0 },
+            }
+          }}
+          macroOverflow={() => ({
+            enable: props.macroOverflow().enable,
+            originalItem: props.macroOverflow().originalItem
+              ? {
+                  __type: 'Item' as const,
+                  id: props.macroOverflow().originalItem!.id,
+                  name: props.macroOverflow().originalItem!.name,
+                  quantity: props.macroOverflow().originalItem!.quantity,
+                  reference: isFood(props.macroOverflow().originalItem!)
+                    ? (
+                        props.macroOverflow().originalItem! as Extract<
+                          UnifiedItem,
+                          { reference: { id: number } }
+                        >
+                      ).reference.id
+                    : 0,
+                  macros: isFood(props.macroOverflow().originalItem!)
+                    ? (
+                        props.macroOverflow().originalItem! as Extract<
+                          UnifiedItem,
+                          { macros: MacroNutrients }
+                        >
+                      ).macros
+                    : { carbs: 0, protein: 0, fat: 0 },
+                }
+              : undefined,
+          })}
+          class="mt-4"
+          header={() => (
+            <HeaderWithActions
+              name={<ItemName />}
+              primaryActions={
+                <Show when={isFood(props.item())}>
+                  <ItemFavorite
+                    foodId={
+                      (
+                        props.item() as Extract<
+                          UnifiedItem,
+                          { reference: { id: number } }
+                        >
+                      ).reference.id
+                    }
+                  />
+                </Show>
+              }
+            />
+          )}
+          nutritionalInfo={() => <ItemNutritionalInfo />}
+        />
+      </Show>
+    </>
   )
 }
