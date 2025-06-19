@@ -88,3 +88,54 @@ export function isGroup(item: UnifiedItem): item is UnifiedItem & {
 } {
   return item.reference.type === 'group'
 }
+
+export function createUnifiedItem({
+  id,
+  name,
+  quantity,
+  reference,
+}: Omit<UnifiedItem, '__type'>): UnifiedItem {
+  const itemWithoutReference: Omit<UnifiedItem, 'reference'> = {
+    id,
+    name,
+    quantity: Math.round(quantity * 100) / 100, // Round to 2 decimal places
+    __type: 'UnifiedItem',
+  }
+
+  if (reference.type === 'food') {
+    return {
+      ...itemWithoutReference,
+      reference: {
+        type: 'food',
+        id: reference.id,
+        macros: reference.macros,
+      },
+    }
+  }
+
+  if (reference.type === 'recipe') {
+    return {
+      ...itemWithoutReference,
+      reference: {
+        type: 'recipe',
+        id: reference.id,
+        children: reference.children,
+      },
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (reference.type === 'group') {
+    return {
+      ...itemWithoutReference,
+      reference: {
+        type: 'group',
+        children: reference.children,
+      },
+    }
+  }
+
+  reference satisfies never // Ensure TypeScript narrows down the type
+  // @ts-expect-error Property 'type' does not exist on type 'never'.ts(2339)
+  throw new Error(`Unknown reference type: ${reference.type}`) // Fallback for safety
+}

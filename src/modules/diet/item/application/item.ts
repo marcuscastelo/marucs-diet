@@ -3,7 +3,12 @@ import {
   itemToUnifiedItem,
   unifiedItemToItem,
 } from '~/modules/diet/unified-item/domain/conversionUtils'
-import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import {
+  isFood,
+  isGroup,
+  isRecipe,
+  type UnifiedItem,
+} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 /**
  * Application services for item operations using UnifiedItem structure
@@ -30,10 +35,46 @@ export function updateUnifiedItemQuantity(
   item: UnifiedItem,
   quantity: UnifiedItem['quantity'],
 ): UnifiedItem {
-  return {
-    ...item,
-    quantity,
+  const quantityFactor = quantity / item.quantity
+
+  if (isFood(item)) {
+    return {
+      ...item,
+      quantity,
+      reference: { ...item.reference },
+    }
   }
+
+  if (isRecipe(item)) {
+    return {
+      ...item,
+      quantity,
+      reference: {
+        ...item.reference,
+        children: item.reference.children.map((child) => ({
+          ...child,
+          quantity: child.quantity * quantityFactor,
+        })),
+      },
+    }
+  }
+
+  if (isGroup(item)) {
+    return {
+      ...item,
+      quantity,
+      reference: {
+        ...item.reference,
+        children: item.reference.children.map((child) => ({
+          ...child,
+          quantity: child.quantity * quantityFactor,
+        })),
+      },
+    }
+  }
+
+  // Fallback (should never happen)
+  return item satisfies never
 }
 
 /**

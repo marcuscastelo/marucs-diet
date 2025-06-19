@@ -60,7 +60,11 @@ export function calcUnifiedItemMacros(item: UnifiedItem): MacroNutrients {
   } else if (isRecipe(item) || isGroup(item)) {
     // For recipe and group items, sum the macros from children
     // The quantity field represents the total prepared amount, not a scaling factor
-    return item.reference.children.reduce(
+    const defaultQuantity = item.reference.children.reduce(
+      (acc, child) => acc + child.quantity,
+      0,
+    )
+    const defaultMacros = item.reference.children.reduce(
       (acc, child) => {
         const childMacros = calcUnifiedItemMacros(child)
         return {
@@ -71,6 +75,12 @@ export function calcUnifiedItemMacros(item: UnifiedItem): MacroNutrients {
       },
       { carbs: 0, fat: 0, protein: 0 },
     )
+
+    return {
+      carbs: (item.quantity / defaultQuantity) * defaultMacros.carbs,
+      fat: (item.quantity / defaultQuantity) * defaultMacros.fat,
+      protein: (item.quantity / defaultQuantity) * defaultMacros.protein,
+    }
   }
 
   // Fallback for unknown types

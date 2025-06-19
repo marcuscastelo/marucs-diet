@@ -1,5 +1,6 @@
 import {
   type Accessor,
+  children,
   createEffect,
   createSignal,
   For,
@@ -10,6 +11,7 @@ import {
 } from 'solid-js'
 
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
+import { updateUnifiedItemQuantity } from '~/modules/diet/item/application/item'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import {
@@ -142,14 +144,20 @@ function Body(props: {
     decimalPlaces: 0,
     // eslint-disable-next-line solid/reactivity
     defaultValue: props.item().quantity,
+    minValue: 0.01,
   })
 
   createEffect(() => {
-    debug('[Body] createEffect setItem', quantityField.value())
-    props.setItem({
-      ...untrack(props.item),
-      quantity: quantityField.value() ?? 0,
-    })
+    debug(
+      'Update unified item quantity from field',
+      quantityField.value() ?? 0.1,
+    )
+    props.setItem(
+      updateUnifiedItemQuantity(
+        untrack(props.item),
+        quantityField.value() ?? 0.1,
+      ),
+    )
   })
 
   const [currentHoldTimeout, setCurrentHoldTimeout] =
