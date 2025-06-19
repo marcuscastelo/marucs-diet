@@ -6,6 +6,7 @@ import {
   removeChildFromItem,
   updateChildInItem,
 } from '~/modules/diet/unified-item/domain/childOperations'
+import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 describe('childOperations', () => {

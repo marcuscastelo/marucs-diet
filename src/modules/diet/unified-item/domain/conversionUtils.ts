@@ -2,6 +2,7 @@ import { Item } from '~/modules/diet/item/domain/item'
 import type { ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { getItemGroupQuantity } from '~/modules/diet/item-group/domain/itemGroup'
 import {
+  createUnifiedItem,
   isFood,
   UnifiedItem,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
@@ -12,13 +13,12 @@ import {
  * @returns UnifiedItem
  */
 export function itemToUnifiedItem(item: Item): UnifiedItem {
-  return {
+  return createUnifiedItem({
     id: item.id,
     name: item.name,
     quantity: item.quantity,
     reference: { type: 'food', id: item.reference, macros: item.macros },
-    __type: 'UnifiedItem',
-  }
+  })
 }
 
 /**
@@ -51,22 +51,20 @@ export function itemGroupToUnifiedItem(group: ItemGroup): UnifiedItem {
 
   if (group.recipe !== undefined) {
     // Recipe UnifiedItem - no macros stored
-    return {
+    return createUnifiedItem({
       id: group.id,
       name: group.name,
       quantity: getItemGroupQuantity(group),
       reference: { type: 'recipe', id: group.recipe, children },
-      __type: 'UnifiedItem',
-    }
+    })
   } else {
     // Group UnifiedItem - no macros stored
-    return {
+    return createUnifiedItem({
       id: group.id,
       name: group.name,
       quantity: getItemGroupQuantity(group),
       reference: { type: 'group', children },
-      __type: 'UnifiedItem',
-    }
+    })
   }
 }
 

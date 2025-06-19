@@ -22,37 +22,21 @@ export function migrateToUnifiedItems(
   const unifiedItems: UnifiedItem[] = []
 
   // Convert individual items
-  unifiedItems.push(
-    ...items.map((item) => ({
-      ...itemToUnifiedItem(item),
-      __type: 'UnifiedItem' as const,
-    })),
-  )
+  unifiedItems.push(...items.map((item) => itemToUnifiedItem(item)))
 
   // Process groups with flattening strategy
   for (const group of groups) {
     if (group.recipe !== undefined) {
       // For recipes: never flatten, always preserve structure
-      unifiedItems.push({
-        ...itemGroupToUnifiedItem(group),
-        __type: 'UnifiedItem' as const,
-      })
+      unifiedItems.push(itemGroupToUnifiedItem(group))
     } else {
       // For groups: flatten only if exactly 1 item
       if (group.items.length === 1) {
         // Flatten single-item groups
-        unifiedItems.push(
-          ...group.items.map((item) => ({
-            ...itemToUnifiedItem(item),
-            __type: 'UnifiedItem' as const,
-          })),
-        )
+        unifiedItems.push(...group.items.map((item) => itemToUnifiedItem(item)))
       } else {
         // Preserve empty groups and multi-item groups
-        unifiedItems.push({
-          ...itemGroupToUnifiedItem(group),
-          __type: 'UnifiedItem' as const,
-        })
+        unifiedItems.push(itemGroupToUnifiedItem(group))
       }
     }
   }
@@ -104,7 +88,8 @@ export function migrateFromUnifiedItems(unified: UnifiedItem[]): {
         recipe: undefined,
         __type: 'ItemGroup',
       })
-    } else if (u.reference.type === 'recipe') {
+    } else {
+      // Recipe case (u.reference.type === 'recipe')
       groups.push({
         id: u.id,
         name: u.name,

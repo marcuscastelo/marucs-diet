@@ -21,6 +21,7 @@ import {
   updateItemInMeal,
   updateMealName,
 } from '~/modules/diet/meal/domain/mealOperations'
+import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 function makeItem(id: number, name = 'Arroz') {
   return {
@@ -35,7 +36,7 @@ function makeItem(id: number, name = 'Arroz') {
 }
 
 function makeUnifiedItemFromItem(item: ReturnType<typeof makeItem>) {
-  return {
+  return createUnifiedItem({
     id: item.id,
     name: item.name,
     quantity: item.quantity,
@@ -44,8 +45,7 @@ function makeUnifiedItemFromItem(item: ReturnType<typeof makeItem>) {
       id: item.reference,
       macros: item.macros,
     },
-    __type: 'UnifiedItem' as const,
-  }
+  })
 }
 
 function makeGroup(id: number, name = 'G1', items = [makeItem(1)]) {

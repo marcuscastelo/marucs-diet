@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { createItem } from '~/modules/diet/item/domain/item'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import {
   createMacroOverflowChecker,
   isOverflow,
@@ -31,17 +32,18 @@ function makeFakeDayDiet(macros: {
     __type: 'ItemGroup' as const,
   }
   // Create UnifiedItem from the group's items
-  const unifiedItems = group.items.map((item) => ({
-    id: item.id,
-    name: item.name,
-    quantity: item.quantity,
-    reference: {
-      type: 'food' as const,
-      id: item.reference,
-      macros: item.macros,
-    },
-    __type: 'UnifiedItem' as const,
-  }))
+  const unifiedItems = group.items.map((item) =>
+    createUnifiedItem({
+      id: item.id,
+      name: item.name,
+      quantity: item.quantity,
+      reference: {
+        type: 'food' as const,
+        id: item.reference,
+        macros: item.macros,
+      },
+    }),
+  )
   // Create a meal with the unified items
   const meal = {
     id: 1,

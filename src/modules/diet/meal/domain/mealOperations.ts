@@ -1,6 +1,9 @@
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
-import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import {
+  createUnifiedItem,
+  type UnifiedItem,
+} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 /**
  * Pure functions for meal operations
@@ -76,17 +79,18 @@ export function findItemInMeal(
 // Legacy compatibility functions for groups (deprecated)
 export function addGroupToMeal(meal: Meal, group: ItemGroup): Meal {
   // Convert ItemGroup to UnifiedItems and add them
-  const groupItems = group.items.map((item) => ({
-    id: item.id,
-    name: item.name,
-    quantity: item.quantity,
-    reference: {
-      type: 'food' as const,
-      id: item.reference,
-      macros: item.macros,
-    },
-    __type: 'UnifiedItem' as const,
-  }))
+  const groupItems = group.items.map((item) =>
+    createUnifiedItem({
+      id: item.id,
+      name: item.name,
+      quantity: item.quantity,
+      reference: {
+        type: 'food' as const,
+        id: item.reference,
+        macros: item.macros,
+      },
+    }),
+  )
 
   return addItemsToMeal(meal, groupItems)
 }
@@ -96,17 +100,18 @@ export function addGroupsToMeal(
   groups: readonly ItemGroup[],
 ): Meal {
   const allItems = groups.flatMap((group) =>
-    group.items.map((item) => ({
-      id: item.id,
-      name: item.name,
-      quantity: item.quantity,
-      reference: {
-        type: 'food' as const,
-        id: item.reference,
-        macros: item.macros,
-      },
-      __type: 'UnifiedItem' as const,
-    })),
+    group.items.map((item) =>
+      createUnifiedItem({
+        id: item.id,
+        name: item.name,
+        quantity: item.quantity,
+        reference: {
+          type: 'food' as const,
+          id: item.reference,
+          macros: item.macros,
+        },
+      }),
+    ),
   )
 
   return addItemsToMeal(meal, allItems)
@@ -119,17 +124,18 @@ export function updateGroupInMeal(
 ): Meal {
   // For legacy compatibility, find items that belong to this group and update them
   // This is a simplified implementation for testing compatibility
-  const updatedItems = updatedGroup.items.map((item) => ({
-    id: item.id,
-    name: item.name,
-    quantity: item.quantity,
-    reference: {
-      type: 'food' as const,
-      id: item.reference,
-      macros: item.macros,
-    },
-    __type: 'UnifiedItem' as const,
-  }))
+  const updatedItems = updatedGroup.items.map((item) =>
+    createUnifiedItem({
+      id: item.id,
+      name: item.name,
+      quantity: item.quantity,
+      reference: {
+        type: 'food' as const,
+        id: item.reference,
+        macros: item.macros,
+      },
+    }),
+  )
 
   return setMealItems(meal, updatedItems)
 }
@@ -144,17 +150,18 @@ export function removeGroupFromMeal(
 
 export function setMealGroups(meal: Meal, groups: ItemGroup[]): Meal {
   const allItems = groups.flatMap((group) =>
-    group.items.map((item) => ({
-      id: item.id,
-      name: item.name,
-      quantity: item.quantity,
-      reference: {
-        type: 'food' as const,
-        id: item.reference,
-        macros: item.macros,
-      },
-      __type: 'UnifiedItem' as const,
-    })),
+    group.items.map((item) =>
+      createUnifiedItem({
+        id: item.id,
+        name: item.name,
+        quantity: item.quantity,
+        reference: {
+          type: 'food' as const,
+          id: item.reference,
+          macros: item.macros,
+        },
+      }),
+    ),
   )
 
   return setMealItems(meal, allItems)

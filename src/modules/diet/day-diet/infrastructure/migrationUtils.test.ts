@@ -10,6 +10,7 @@ import {
 import { createItem } from '~/modules/diet/item/domain/item'
 import { createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { createMeal } from '~/modules/diet/meal/domain/meal'
+import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 function makeItem(id: number, name = 'Arroz') {
   return {
@@ -31,7 +32,7 @@ function makeGroup(id: number, name = 'G1', items = [makeItem(1)]) {
 }
 
 function makeUnifiedItemFromItem(item: ReturnType<typeof makeItem>) {
-  return {
+  return createUnifiedItem({
     id: item.id,
     name: item.name,
     quantity: item.quantity,
@@ -40,8 +41,7 @@ function makeUnifiedItemFromItem(item: ReturnType<typeof makeItem>) {
       id: item.reference,
       macros: item.macros,
     },
-    __type: 'UnifiedItem' as const,
-  }
+  })
 }
 
 function makeLegacyMeal(

@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
 import { validateItemHierarchy } from '~/modules/diet/unified-item/domain/validateItemHierarchy'
+import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 describe('validateItemHierarchy', () => {
-  const unifiedFood: UnifiedItem = {
+  const unifiedFood: UnifiedItem = createUnifiedItem({
     id: 1,
     name: 'Chicken',
     quantity: 100,
@@ -13,15 +14,13 @@ describe('validateItemHierarchy', () => {
       id: 10,
       macros: { protein: 20, carbs: 0, fat: 2 },
     },
-    __type: 'UnifiedItem',
-  }
-  const unifiedGroup: UnifiedItem = {
+  })
+  const unifiedGroup: UnifiedItem = createUnifiedItem({
     id: 2,
     name: 'Lunch',
     quantity: 100,
     reference: { type: 'group', children: [unifiedFood] },
-    __type: 'UnifiedItem',
-  }
+  })
   it('validates non-circular hierarchy', () => {
     expect(validateItemHierarchy(unifiedGroup)).toBe(true)
   })

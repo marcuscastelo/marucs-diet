@@ -10,11 +10,12 @@ import {
   sortUnifiedItems,
   updateUnifiedItemInArray,
 } from '~/modules/diet/unified-item/application/unifiedItemService'
+import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { calcUnifiedItemMacros } from '~/shared/utils/macroMath'
 
 describe('unifiedItemService', () => {
-  const foodItem: UnifiedItem = {
+  const foodItem: UnifiedItem = createUnifiedItem({
     id: 1,
     name: 'Arroz',
     quantity: 100,
@@ -23,10 +24,9 @@ describe('unifiedItemService', () => {
       id: 1,
       macros: { carbs: 10, protein: 2, fat: 1 },
     },
-    __type: 'UnifiedItem',
-  }
+  })
 
-  const recipeItem: UnifiedItem = {
+  const recipeItem: UnifiedItem = createUnifiedItem({
     id: 2,
     name: 'Recipe Test',
     quantity: 200,
@@ -34,7 +34,7 @@ describe('unifiedItemService', () => {
       type: 'recipe',
       id: 1,
       children: [
-        {
+        createUnifiedItem({
           id: 4,
           name: 'Recipe Child',
           quantity: 100,
@@ -43,20 +43,17 @@ describe('unifiedItemService', () => {
             id: 4,
             macros: { carbs: 20, protein: 4, fat: 2 },
           },
-          __type: 'UnifiedItem',
-        },
+        }),
       ],
     },
-    __type: 'UnifiedItem',
-  }
+  })
 
-  const groupItem: UnifiedItem = {
+  const groupItem: UnifiedItem = createUnifiedItem({
     id: 3,
     name: 'Group Test',
     quantity: 150,
     reference: { type: 'group', children: [foodItem] },
-    __type: 'UnifiedItem',
-  }
+  })
 
   const items = [foodItem, recipeItem, groupItem]
 
@@ -65,12 +62,13 @@ describe('unifiedItemService', () => {
       const result = calculateTotalMacros([foodItem, recipeItem])
 
       // foodItem: (10*100)/100 = 10 carbs, (2*100)/100 = 2 protein, (1*100)/100 = 1 fat
-      // recipeItem children: (20*100)/100 = 20 carbs, (4*100)/100 = 4 protein, (2*100)/100 = 2 fat
-      // No scaling by recipe quantity for recipes (quantity represents total prepared amount)
-      // Total: 10+20=30 carbs, 2+4=6 protein, 1+2=3 fat
-      expect(result.carbs).toBeCloseTo(30)
-      expect(result.protein).toBeCloseTo(6)
-      expect(result.fat).toBeCloseTo(3)
+      // recipeItem: Recipe with 200g quantity, child has 100g with 20 carbs/100g
+      // Default recipe quantity = 100g (child sum), actual quantity = 200g
+      // Scaled child macros: (200/100) * 20 = 40 carbs, (200/100) * 4 = 8 protein, (200/100) * 2 = 4 fat
+      // Total: 10+40=50 carbs, 2+8=10 protein, 1+4=5 fat
+      expect(result.carbs).toBeCloseTo(50)
+      expect(result.protein).toBeCloseTo(10)
+      expect(result.fat).toBeCloseTo(5)
     })
 
     it('returns zero macros for empty array', () => {
@@ -191,9 +189,9 @@ describe('unifiedItemService', () => {
 
     it('sorts by macros', () => {
       const result = sortUnifiedItems(items, 'carbs', 'desc')
-      // recipeItem: 20 carbs, foodItem: 10 carbs, groupItem: 10 carbs (same as foodItem child)
+      // recipeItem: 40 carbs (scaled), groupItem: 15 carbs (150g of 10 carbs/100g), foodItem: 10 carbs
       expect(result.map((item) => calcUnifiedItemMacros(item).carbs)).toEqual([
-        20, 10, 10,
+        40, 15, 10,
       ])
     })
   })

@@ -7,6 +7,7 @@ import {
   updateUnifiedItemQuantity,
 } from '~/modules/diet/item/application/item'
 import { createItem } from '~/modules/diet/item/domain/item'
+import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { calcUnifiedItemMacros } from '~/shared/utils/macroMath'
 
 describe('item application services', () => {
@@ -20,7 +21,7 @@ describe('item application services', () => {
     id: 1,
   }
 
-  const baseUnifiedItem = {
+  const baseUnifiedItem = createUnifiedItem({
     id: 1,
     name: 'Arroz',
     quantity: 100,
@@ -29,8 +30,7 @@ describe('item application services', () => {
       id: 1,
       macros: { carbs: 10, protein: 2, fat: 1 },
     },
-    __type: 'UnifiedItem' as const,
-  }
+  })
 
   describe('updateUnifiedItemQuantity', () => {
     it('updates the quantity of a unified item', () => {
@@ -79,7 +79,15 @@ describe('item application services', () => {
       expect(result.id).toBe(baseUnifiedItem.id)
       expect(result.name).toBe(baseUnifiedItem.name)
       expect(result.quantity).toBe(baseUnifiedItem.quantity)
-      expect(result.macros).toEqual(baseUnifiedItem.reference.macros)
+      expect(result.macros).toEqual(
+        (
+          baseUnifiedItem.reference as {
+            type: 'food'
+            id: number
+            macros: { carbs: number; protein: number; fat: number }
+          }
+        ).macros,
+      )
       expect(result.reference).toBe(1)
       expect(result.__type).toBe('Item')
     })

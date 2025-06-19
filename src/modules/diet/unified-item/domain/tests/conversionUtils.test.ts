@@ -8,6 +8,7 @@ import {
   unifiedItemToItem,
 } from '~/modules/diet/unified-item/domain/conversionUtils'
 import type { UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 describe('conversionUtils', () => {
   const sampleItem: Item = {
