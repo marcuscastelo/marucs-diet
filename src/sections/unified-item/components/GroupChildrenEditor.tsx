@@ -20,6 +20,8 @@ export type GroupChildrenEditorProps = {
   item: Accessor<UnifiedItem>
   setItem: Setter<UnifiedItem>
   onEditChild?: (child: UnifiedItem) => void
+  onAddNewItem?: () => void
+  showAddButton?: boolean
 }
 
 export function GroupChildrenEditor(props: GroupChildrenEditorProps) {
@@ -100,6 +102,19 @@ export function GroupChildrenEditor(props: GroupChildrenEditorProps) {
               Aplicar a todos os itens
             </p>
           </div>
+        </div>
+      </Show>
+
+      {/* Add new item button */}
+      <Show when={props.showAddButton === true && props.onAddNewItem}>
+        <div class="mt-4">
+          <button
+            class="btn btn-sm bg-green-600 hover:bg-green-700 text-white w-full flex items-center justify-center gap-2"
+            onClick={() => props.onAddNewItem?.()}
+            title="Add new item to group"
+          >
+            ➕ Adicionar Item
+          </button>
         </div>
       </Show>
     </>

@@ -1,7 +1,8 @@
-import { type Accessor, type Setter, Show } from 'solid-js'
+import { type Accessor, createSignal, type Setter, Show } from 'solid-js'
 
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
 import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
+import { updateUnifiedItemName } from '~/modules/diet/unified-item/domain/unifiedItemOperations'
 import {
   isFood,
   isGroup,
@@ -25,6 +26,70 @@ import { calcDayMacros, calcUnifiedItemMacros } from '~/shared/utils/macroMath'
 
 const debug = createDebug()
 
+type InlineNameEditorProps = {
+  item: Accessor<UnifiedItem>
+  setItem: Setter<UnifiedItem>
+}
+
+function InlineNameEditor(props: InlineNameEditorProps) {
+  const [isEditing, setIsEditing] = createSignal(false)
+  const [tempName, setTempName] = createSignal('')
+
+  const startEditing = () => {
+    setTempName(props.item().name)
+    setIsEditing(true)
+  }
+
+  const saveEdit = () => {
+    const newName = tempName().trim()
+    if (newName && newName !== props.item().name) {
+      const updatedItem = updateUnifiedItemName(props.item(), newName)
+      props.setItem(updatedItem)
+    }
+    setIsEditing(false)
+  }
+
+  const cancelEdit = () => {
+    setIsEditing(false)
+    setTempName('')
+  }
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      saveEdit()
+    } else if (e.key === 'Escape') {
+      e.preventDefault()
+      cancelEdit()
+    }
+  }
+
+  return (
+    <Show
+      when={isEditing()}
+      fallback={
+        <button
+          onClick={startEditing}
+          class="text-left hover:bg-gray-100 rounded px-1 -mx-1 transition-colors"
+          title="Click to edit name"
+        >
+          {props.item().name}
+        </button>
+      }
+    >
+      <input
+        type="text"
+        value={tempName()}
+        onInput={(e) => setTempName(e.currentTarget.value)}
+        onKeyDown={handleKeyDown}
+        onBlur={saveEdit}
+        class="bg-transparent border-none outline-none text-inherit font-inherit w-full"
+        autofocus
+      />
+    </Show>
+  )
+}
+
 export type UnifiedItemEditBodyProps = {
   canApply: boolean
   item: Accessor<UnifiedItem>
@@ -41,6 +106,8 @@ export type UnifiedItemEditBodyProps = {
     onPaste: () => void
     hasValidPastableOnClipboard: boolean
   }
+  onAddNewItem?: () => void
+  showAddItemButton?: boolean
 }
 
 export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
@@ -104,6 +171,8 @@ export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
           item={props.item}
           setItem={props.setItem}
           onEditChild={props.onEditChild}
+          onAddNewItem={props.onAddNewItem}
+          showAddButton={props.showAddItemButton}
         />
       </Show>
 
@@ -123,7 +192,14 @@ export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
           class="mt-4"
           header={() => (
             <HeaderWithActions
-              name={<UnifiedItemName item={props.item} />}
+              name={
+                <Show
+                  when={isGroup(props.item())}
+                  fallback={<UnifiedItemName item={props.item} />}
+                >
+                  <InlineNameEditor item={props.item} setItem={props.setItem} />
+                </Show>
+              }
               primaryActions={
                 <Show when={isFood(props.item())}>
                   <ItemFavorite

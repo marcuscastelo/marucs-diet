@@ -28,6 +28,7 @@ import { Modal } from '~/sections/common/components/Modal'
 import { useModalContext } from '~/sections/common/context/ModalContext'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { useFloatField } from '~/sections/common/hooks/useField'
+import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { UnifiedItemEditBody } from '~/sections/unified-item/components/UnifiedItemEditBody'
 import { UnsupportedItemMessage } from '~/sections/unified-item/components/UnsupportedItemMessage'
 import { createDebug } from '~/shared/utils/createDebug'
@@ -44,6 +45,8 @@ export type UnifiedItemEditModalProps = {
   }
   onApply: (item: UnifiedItem) => void
   onCancel?: () => void
+  onAddNewItem?: () => void
+  showAddItemButton?: boolean
 }
 
 export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
@@ -58,6 +61,9 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
   const [childEditModalVisible, setChildEditModalVisible] = createSignal(false)
   const [childBeingEdited, setChildBeingEdited] =
     createSignal<UnifiedItem | null>(null)
+
+  // Template search modal state
+  const [templateSearchVisible, setTemplateSearchVisible] = createSignal(false)
 
   // Recipe view mode: 'recipe' (normal) or 'group' (treat as group)
   const [recipeViewMode, setRecipeViewMode] = createSignal<'recipe' | 'group'>(
@@ -243,6 +249,8 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
                 onPaste: handlePaste,
                 hasValidPastableOnClipboard: hasValidPastableOnClipboard(),
               }}
+              onAddNewItem={() => setTemplateSearchVisible(true)}
+              showAddItemButton={props.showAddItemButton}
             />
           </Show>
           <Show when={!isFood(item()) && !isRecipe(item()) && !isGroup(item())}>
@@ -299,6 +307,21 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
             }}
           />
         )}
+      </Show>
+
+      {/* Template search modal for adding new items */}
+      <Show when={props.showAddItemButton === true && props.onAddNewItem}>
+        <ExternalTemplateSearchModal
+          visible={templateSearchVisible}
+          setVisible={setTemplateSearchVisible}
+          targetName={item().name}
+          onRefetch={() => props.onAddNewItem?.()}
+          onNewUnifiedItem={(_unifiedItem) => {
+            // For now, handle adding items by delegating to parent
+            props.onAddNewItem?.()
+            return null
+          }}
+        />
       </Show>
     </>
   )

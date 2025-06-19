@@ -11,6 +11,7 @@ import {
   type ItemGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
+import { itemGroupToUnifiedItem } from '~/modules/diet/unified-item/domain/conversionUtils'
 import { showSuccess } from '~/modules/toast/application/toastManager'
 import { TestChart } from '~/sections/common/components/charts/TestChart'
 import { FloatInput } from '~/sections/common/components/FloatInput'
@@ -29,7 +30,6 @@ import { type DateValueType } from '~/sections/datepicker/types'
 import DayMacros from '~/sections/day-diet/components/DayMacros'
 import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
 import { ItemListView } from '~/sections/food-item/components/ItemListView'
-import { ItemGroupEditModal } from '~/sections/item-group/components/ItemGroupEditModal'
 import {
   ItemGroupCopyButton,
   ItemGroupName,
@@ -37,10 +37,11 @@ import {
   ItemGroupViewNutritionalInfo,
 } from '~/sections/item-group/components/ItemGroupView'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
+import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
 
 export default function TestApp() {
   const [itemEditModalVisible, setItemEditModalVisible] = createSignal(false)
-  const [itemGroupEditModalVisible, setItemGroupEditModalVisible] =
+  const [unifiedItemEditModalVisible, setUnifiedItemEditModalVisible] =
     createSignal(false)
   const [templateSearchModalVisible, setTemplateSearchModalVisible] =
     createSignal(false)
@@ -130,25 +131,25 @@ export default function TestApp() {
             </ModalContextProvider>
 
             <ModalContextProvider
-              visible={itemGroupEditModalVisible}
-              setVisible={setItemGroupEditModalVisible}
+              visible={unifiedItemEditModalVisible}
+              setVisible={setUnifiedItemEditModalVisible}
             >
-              <ItemGroupEditModal
-                group={group}
-                mode="edit"
-                setGroup={(group: ItemGroup | null) =>
-                  group !== null && setGroup(group)
-                }
-                onRefetch={() => {
-                  console.debug('refetch')
-                }}
-                onSaveGroup={(group) => {
-                  setGroup(group)
-                  setItemGroupEditModalVisible(false)
-                }}
+              <UnifiedItemEditModal
                 targetMealName="Teste"
+                item={() => itemGroupToUnifiedItem(group())}
+                macroOverflow={() => ({ enable: false })}
+                onApply={(updatedItem) => {
+                  // For this test, we'll just log the updated item
+                  console.debug('UnifiedItemEditModal onApply:', updatedItem)
+                  setUnifiedItemEditModalVisible(false)
+                }}
                 onCancel={() => {
                   console.debug('cancel')
+                  setUnifiedItemEditModalVisible(false)
+                }}
+                showAddItemButton={true}
+                onAddNewItem={() => {
+                  console.debug('Add new item requested')
                 }}
               />
             </ModalContextProvider>
@@ -181,10 +182,10 @@ export default function TestApp() {
             <button
               class="btn cursor-pointer uppercase"
               onClick={() => {
-                setItemGroupEditModalVisible(true)
+                setUnifiedItemEditModalVisible(true)
               }}
             >
-              setItemGroupEditModalVisible
+              setUnifiedItemEditModalVisible
             </button>
           </div>
         </details>
@@ -224,7 +225,7 @@ export default function TestApp() {
               nutritionalInfo={<ItemGroupViewNutritionalInfo group={group} />}
               handlers={{
                 onEdit: () => {
-                  setItemGroupEditModalVisible(true)
+                  setUnifiedItemEditModalVisible(true)
                 },
               }}
             />
