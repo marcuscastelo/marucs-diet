@@ -35,7 +35,7 @@ jobs:
             matches=$(echo "$content" | grep -n '\[ \]' || true)
             if [ -n "$matches" ]; then
               failed=1
-              unchecked_list="$unchecked_list\n**$src**:\n\`\`\`\n$matches\n\`\`\`"
+              unchecked_list="$unchecked_list\n**$src**:\n\"\"\"\n$matches\n\"\"\""
             fi
           }
 
@@ -43,7 +43,7 @@ jobs:
           pr_body=$(cat pr_body.txt)
           check_unchecked "$pr_body" "PR Body"
 
-          # PR comments (ignorar comentário do bot)
+          # PR comments (ignore bot comment)
           pr_comments=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
             "https://api.github.com/repos/$REPO/issues/$PR_NUMBER/comments")
           echo "$pr_comments" | jq -r '.[] | @base64' | while read encoded; do
@@ -74,18 +74,18 @@ jobs:
             done < issues.txt
           fi
 
-          # Gerenciar comentário do bot
+          # Manage bot comment
           existing_comment_id=$(echo "$pr_comments" | jq -r '.[] | select(.body | contains("<!-- criteria-check -->")) | .id')
           if [ "$failed" -eq 1 ]; then
-            msg="🚫 **O PR contém critérios de aceitação não marcados**.\n$unchecked_list\n\n<!-- criteria-check -->"
+            msg="🚫 **The PR contains unchecked acceptance criteria**.\n$unchecked_list\n\n<!-- criteria-check -->"
             if [ -n "$existing_comment_id" ]; then
-              echo "🔄 Atualizando comentário existente..."
+              echo "🔄 Updating existing comment..."
               curl -s -X PATCH -H "Authorization: Bearer $GH_TOKEN" \
                 -H "Accept: application/vnd.github+json" \
                 -d "$(jq -nc --arg body "$msg" '{body: $body}')" \
                 "https://api.github.com/repos/$REPO/issues/comments/$existing_comment_id" > /dev/null
             else
-              echo "💬 Criando comentário..."
+              echo "💬 Creating comment..."
               curl -s -X POST -H "Authorization: Bearer $GH_TOKEN" \
                 -H "Accept: application/vnd.github+json" \
                 -d "$(jq -nc --arg body "$msg" '{body: $body}')" \
@@ -94,9 +94,9 @@ jobs:
             exit 1
           else
             if [ -n "$existing_comment_id" ]; then
-              echo "🧹 Limpando comentário antigo..."
+              echo "🧹 Cleaning up old comment..."
               curl -s -X DELETE -H "Authorization: Bearer $GH_TOKEN" \
                 "https://api.github.com/repos/$REPO/issues/comments/$existing_comment_id" > /dev/null
             fi
-            echo "✅ Todos os critérios foram marcados."
+            echo "✅ All criteria have been checked."
           fi
