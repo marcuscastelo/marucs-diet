@@ -1,13 +1,12 @@
 import { type Accessor, For, type Setter } from 'solid-js'
 
-import { type Food } from '~/modules/diet/food/domain/food'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { getRecipePreparedQuantity } from '~/modules/diet/recipe/domain/recipeOperations'
+import { templateToUnifiedItem } from '~/modules/diet/template/application/templateToItem'
 import {
   isTemplateFood,
   type Template,
 } from '~/modules/diet/template/domain/template'
-import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { debouncedTab } from '~/modules/search/application/search'
 import { Alert } from '~/sections/common/components/Alert'
 import { RemoveFromRecentButton } from '~/sections/common/components/buttons/RemoveFromRecentButton'
@@ -65,33 +64,9 @@ export function TemplateSearchResults(props: {
 
             const displayQuantity = getDisplayQuantity()
 
-            // Convert template to UnifiedItem
-            const createUnifiedItemFromTemplate = () => {
-              if (isTemplateFood(template)) {
-                const food = template as Food
-                return createUnifiedItem({
-                  id: template.id,
-                  name: template.name,
-                  quantity: displayQuantity,
-                  reference: {
-                    type: 'food',
-                    id: template.id,
-                    macros: food.macros,
-                  },
-                })
-              } else {
-                return createUnifiedItem({
-                  id: template.id,
-                  name: template.name,
-                  quantity: displayQuantity,
-                  reference: {
-                    type: 'recipe',
-                    id: template.id,
-                    children: [], // Recipe children would need to be populated separately
-                  },
-                })
-              }
-            }
+            // Convert template to UnifiedItem using shared utility
+            const createUnifiedItemFromTemplate = () =>
+              templateToUnifiedItem(template, displayQuantity)
 
             return (
               <>
