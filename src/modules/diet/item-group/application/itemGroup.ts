@@ -14,11 +14,19 @@ import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import {
   addGroupToMeal,
+  addItemToMeal,
   removeGroupFromMeal,
+  removeItemFromMeal,
   updateGroupInMeal,
+  updateItemInMeal,
 } from '~/modules/diet/meal/domain/mealOperations'
+import { itemGroupToUnifiedItem } from '~/modules/diet/unified-item/domain/conversionUtils'
+import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { handleApiError } from '~/shared/error/errorHandler'
 
+/**
+ * @deprecated Use insertUnifiedItem instead
+ */
 export async function insertItemGroup(
   _dayId: DayDiet['id'], // TODO:   Remove dayId from functions that don't need it.
   mealId: Meal['id'],
@@ -36,7 +44,7 @@ export async function insertItemGroup(
       throw new Error(`Meal with id ${mealId} not found`)
     }
 
-    // Add group to meal
+    // Add group to meal (converts to UnifiedItems internally)
     const updatedMeal = addGroupToMeal(meal, newItemGroup)
 
     // Update meal in day diet
@@ -129,4 +137,137 @@ export async function deleteItemGroup(
     handleApiError(error)
     throw error
   }
+}
+
+/**
+ * Inserts a UnifiedItem directly into a meal (new unified approach)
+ */
+export async function insertUnifiedItem(
+  _dayId: DayDiet['id'],
+  mealId: Meal['id'],
+  newUnifiedItem: UnifiedItem,
+) {
+  try {
+    const currentDayDiet_ = currentDayDiet()
+    if (currentDayDiet_ === null) {
+      throw new Error('[meal::application] Current day diet is null')
+    }
+
+    // Find the meal to update
+    const meal = currentDayDiet_.meals.find((m) => m.id === mealId)
+    if (meal === undefined) {
+      throw new Error(`Meal with id ${mealId} not found`)
+    }
+
+    // Add unified item to meal
+    const updatedMeal = addItemToMeal(meal, newUnifiedItem)
+
+    // Update meal in day diet
+    const updatedDayDiet = updateMealInDayDiet(
+      currentDayDiet_,
+      mealId,
+      updatedMeal,
+    )
+
+    // Convert to NewDayDiet
+    const newDay = convertToNewDayDiet(updatedDayDiet)
+
+    await updateDayDiet(currentDayDiet_.id, newDay)
+  } catch (error) {
+    handleApiError(error)
+    throw error
+  }
+}
+
+/**
+ * Updates a UnifiedItem in a meal (new unified approach)
+ */
+export async function updateUnifiedItem(
+  _dayId: DayDiet['id'],
+  mealId: Meal['id'],
+  itemId: UnifiedItem['id'],
+  newUnifiedItem: UnifiedItem,
+) {
+  try {
+    const currentDayDiet_ = currentDayDiet()
+    if (currentDayDiet_ === null) {
+      throw new Error('[meal::application] Current day diet is null')
+    }
+
+    // Find the meal to update
+    const meal = currentDayDiet_.meals.find((m) => m.id === mealId)
+    if (meal === undefined) {
+      throw new Error(`Meal with id ${mealId} not found`)
+    }
+
+    // Update unified item in meal
+    const updatedMeal = updateItemInMeal(meal, itemId, newUnifiedItem)
+
+    // Update meal in day diet
+    const updatedDayDiet = updateMealInDayDiet(
+      currentDayDiet_,
+      mealId,
+      updatedMeal,
+    )
+
+    // Convert to NewDayDiet
+    const newDay = convertToNewDayDiet(updatedDayDiet)
+
+    await updateDayDiet(currentDayDiet_.id, newDay)
+  } catch (error) {
+    handleApiError(error)
+    throw error
+  }
+}
+
+/**
+ * Deletes a UnifiedItem from a meal (new unified approach)
+ */
+export async function deleteUnifiedItem(
+  _dayId: DayDiet['id'],
+  mealId: Meal['id'],
+  itemId: UnifiedItem['id'],
+) {
+  try {
+    const currentDayDiet_ = currentDayDiet()
+    if (currentDayDiet_ === null) {
+      throw new Error('[meal::application] Current day diet is null')
+    }
+
+    // Find the meal to update
+    const meal = currentDayDiet_.meals.find((m) => m.id === mealId)
+    if (meal === undefined) {
+      throw new Error(`Meal with id ${mealId} not found`)
+    }
+
+    // Remove unified item from meal
+    const updatedMeal = removeItemFromMeal(meal, itemId)
+
+    // Update meal in day diet
+    const updatedDayDiet = updateMealInDayDiet(
+      currentDayDiet_,
+      mealId,
+      updatedMeal,
+    )
+
+    // Convert to NewDayDiet
+    const newDay = convertToNewDayDiet(updatedDayDiet)
+
+    await updateDayDiet(currentDayDiet_.id, newDay)
+  } catch (error) {
+    handleApiError(error)
+    throw error
+  }
+}
+
+/**
+ * Converts ItemGroup to UnifiedItem and inserts it (compatibility helper)
+ */
+export async function insertItemGroupAsUnified(
+  dayId: DayDiet['id'],
+  mealId: Meal['id'],
+  itemGroup: ItemGroup,
+) {
+  const unifiedItem = itemGroupToUnifiedItem(itemGroup)
+  return insertUnifiedItem(dayId, mealId, unifiedItem)
 }

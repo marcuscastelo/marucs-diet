@@ -4,6 +4,10 @@ import {
   currentDayDiet,
   targetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
+import {
+  updateUnifiedItemMacros,
+  updateUnifiedItemQuantity,
+} from '~/modules/diet/item/application/item'
 import { isSimpleSingleGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import {
@@ -17,6 +21,7 @@ import {
   isTemplateItemRecipe,
   type TemplateItem,
 } from '~/modules/diet/template-item/domain/templateItem'
+import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { showError } from '~/modules/toast/application/toastManager'
 import { createDebug } from '~/shared/utils/createDebug'
 import { stringToDate } from '~/shared/utils/date'
@@ -24,6 +29,9 @@ import { isOverflow } from '~/shared/utils/macroOverflow'
 
 const debug = createDebug()
 
+/**
+ * @deprecated Use handleNewUnifiedItem instead when working with unified items
+ */
 export function handleNewItemGroup({
   group,
   setGroup,
@@ -135,5 +143,106 @@ export function handleItemDelete({
   return (itemId: TemplateItem['id']) => {
     setGroup(removeItemFromGroup(group(), itemId))
     setEditSelection(null)
+  }
+}
+
+/**
+ * Handles updating a UnifiedItem's quantity based on macro overflow logic
+ */
+export function handleUnifiedItemQuantityUpdate({
+  item,
+  setItem,
+  showConfirmModal,
+}: {
+  item: Accessor<UnifiedItem>
+  setItem: (item: UnifiedItem) => void
+  showConfirmModal: (opts: {
+    title: string
+    body: string
+    actions: Array<{
+      text: string
+      onClick: () => void
+      primary?: boolean
+    }>
+  }) => void
+}) {
+  return (newQuantity: number) => {
+    const updatedItem = updateUnifiedItemQuantity(item(), newQuantity)
+
+    // Check for macro overflow
+    const currentDayDiet_ = currentDayDiet()
+    if (currentDayDiet_ !== null) {
+      const macroTarget_ = getMacroTargetForDay(stringToDate(targetDay()))
+
+      // Convert UnifiedItem to TemplateItem format for overflow check
+      // TODO: Update isOverflow to work with UnifiedItems directly
+      const templateItem = {
+        id: updatedItem.id,
+        name: updatedItem.name,
+        quantity: updatedItem.quantity,
+        macros: updatedItem.macros,
+        reference:
+          updatedItem.reference.type === 'food' ? updatedItem.reference.id : 0,
+        __type: 'Item' as const,
+      }
+
+      const originalTemplateItem = {
+        id: item().id,
+        name: item().name,
+        quantity: item().quantity,
+        macros: item().macros,
+        reference:
+          item().reference.type === 'food'
+            ? (item().reference as { id: number }).id
+            : 0,
+        __type: 'Item' as const,
+      }
+
+      const isOverflowing = isOverflow(templateItem, 'carbs', {
+        currentDayDiet: currentDayDiet_,
+        macroTarget: macroTarget_,
+        macroOverflowOptions: {
+          enable: true,
+          originalItem: originalTemplateItem,
+        },
+      })
+
+      if (isOverflowing) {
+        showConfirmModal({
+          title: 'Aviso de Excesso de Macros',
+          body: 'Esta alteração pode causar excesso nas metas diárias. Deseja continuar?',
+          actions: [
+            {
+              text: 'Continuar',
+              onClick: () => setItem(updatedItem),
+              primary: true,
+            },
+            {
+              text: 'Cancelar',
+              onClick: () => {},
+            },
+          ],
+        })
+        return
+      }
+    }
+
+    setItem(updatedItem)
+  }
+}
+
+/**
+ * Handles updating a UnifiedItem's macros
+ */
+export function handleUnifiedItemMacrosUpdate({
+  item,
+  setItem,
+}: {
+  item: Accessor<UnifiedItem>
+  setItem: (item: UnifiedItem) => void
+}) {
+  return (newMacros: MacroNutrients) => {
+    const updatedItem = updateUnifiedItemMacros(item(), newMacros)
+    setItem(updatedItem)
   }
 }
