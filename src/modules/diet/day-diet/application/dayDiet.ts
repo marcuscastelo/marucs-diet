@@ -183,13 +183,18 @@ export function getPreviousDayDiets(
   dayDiets: readonly DayDiet[],
   selectedDay: string,
 ): DayDiet[] {
+  const selectedDate = new Date(selectedDay)
+  selectedDate.setHours(0, 0, 0, 0) // Normalize to midnight to avoid time zone issues
+
   return dayDiets
-    .filter(
-      (day) =>
-        new Date(day.target_day).getTime() < new Date(selectedDay).getTime(),
-    )
-    .sort(
-      (a, b) =>
-        new Date(b.target_day).getTime() - new Date(a.target_day).getTime(),
-    )
+    .filter((day) => {
+      const dayDate = new Date(day.target_day)
+      dayDate.setHours(0, 0, 0, 0) // Normalize to midnight
+      return dayDate.getTime() < selectedDate.getTime()
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.target_day)
+      const dateB = new Date(b.target_day)
+      return dateB.getTime() - dateA.getTime()
+    })
 }
