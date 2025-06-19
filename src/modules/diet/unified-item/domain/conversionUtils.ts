@@ -1,8 +1,10 @@
 import { Item } from '~/modules/diet/item/domain/item'
 import type { ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { getItemGroupQuantity } from '~/modules/diet/item-group/domain/itemGroup'
-import { UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
-import { calcUnifiedItemMacros } from '~/shared/utils/macroMath'
+import {
+  isFood,
+  UnifiedItem,
+} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 /**
  * Converts an Item to a UnifiedItem (food reference).
@@ -21,20 +23,18 @@ export function itemToUnifiedItem(item: Item): UnifiedItem {
 }
 
 /**
- * Converts a UnifiedItem (food reference) to an Item.
+ * Converts a UnifiedItem to an Item.
+ * For food items, uses the stored macros (per 100g). For non-food items, uses zero macros.
  * @param unified UnifiedItem
  * @returns Item
  */
 export function unifiedItemToItem(unified: UnifiedItem): Item {
-  if (unified.reference.type !== 'food') throw new Error('Not a food reference')
-
-  // Import at the top and use calcUnifiedItemMacros
   return {
     id: unified.id,
     name: unified.name,
     quantity: unified.quantity,
-    macros: calcUnifiedItemMacros(unified),
-    reference: unified.reference.id,
+    macros: isFood(unified) ? unified.macros : { carbs: 0, protein: 0, fat: 0 },
+    reference: isFood(unified) ? unified.reference.id : 0,
     __type: 'Item',
   }
 }

@@ -1,11 +1,11 @@
 import { Item } from '~/modules/diet/item/domain/item'
 import type { ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   itemGroupToUnifiedItem,
   itemToUnifiedItem,
 } from '~/modules/diet/unified-item/domain/conversionUtils'
-import { UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
-import { calcUnifiedItemMacros } from '~/shared/utils/macroMath'
+import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 /**
  * Migrates an array of Items and ItemGroups to UnifiedItems.
@@ -79,7 +79,7 @@ export function migrateFromUnifiedItems(unified: UnifiedItem[]): {
         id: u.id,
         name: u.name,
         quantity: u.quantity,
-        macros: calcUnifiedItemMacros(u),
+        macros: (u as Extract<UnifiedItem, { macros: MacroNutrients }>).macros,
         reference: u.reference.id,
         __type: 'Item',
       })
@@ -97,7 +97,8 @@ export function migrateFromUnifiedItems(unified: UnifiedItem[]): {
             id: c.id,
             name: c.name,
             quantity: c.quantity,
-            macros: calcUnifiedItemMacros(c),
+            macros: (c as Extract<UnifiedItem, { macros: MacroNutrients }>)
+              .macros,
             reference: c.reference.id,
             __type: 'Item',
           }
@@ -119,7 +120,8 @@ export function migrateFromUnifiedItems(unified: UnifiedItem[]): {
             id: c.id,
             name: c.name,
             quantity: c.quantity,
-            macros: calcUnifiedItemMacros(c),
+            macros: (c as Extract<UnifiedItem, { macros: MacroNutrients }>)
+              .macros,
             reference: c.reference.id,
             __type: 'Item',
           }

@@ -77,14 +77,18 @@ describe('item application services', () => {
       expect(result.__type).toBe('Item')
     })
 
-    it('throws error for non-food reference types', () => {
+    it('converts non-food reference types to items with zero macros', () => {
       const recipeUnifiedItem = {
         ...baseUnifiedItem,
         reference: { type: 'recipe' as const, id: 1, children: [] },
       }
-      expect(() => convertUnifiedToItem(recipeUnifiedItem)).toThrow(
-        'Not a food reference',
-      )
+      const result = convertUnifiedToItem(recipeUnifiedItem)
+      expect(result.id).toBe(recipeUnifiedItem.id)
+      expect(result.name).toBe(recipeUnifiedItem.name)
+      expect(result.quantity).toBe(recipeUnifiedItem.quantity)
+      expect(result.macros).toEqual({ carbs: 0, protein: 0, fat: 0 })
+      expect(result.reference).toBe(0)
+      expect(result.__type).toBe('Item')
     })
   })
 })
