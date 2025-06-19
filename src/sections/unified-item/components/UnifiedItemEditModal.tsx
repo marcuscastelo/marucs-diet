@@ -9,6 +9,7 @@ import {
 
 import {
   isFood,
+  isGroup,
   isRecipe,
   type UnifiedItem,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
@@ -67,7 +68,7 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
         }
       />
       <Modal.Content>
-        <Show when={isFood(item()) || isRecipe(item())}>
+        <Show when={isFood(item()) || isRecipe(item()) || isGroup(item())}>
           <UnifiedItemEditBody
             canApply={canApply()}
             item={item}
@@ -76,7 +77,7 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
             quantityField={quantityField}
           />
         </Show>
-        <Show when={!isFood(item()) && !isRecipe(item())}>
+        <Show when={!isFood(item()) && !isRecipe(item()) && !isGroup(item())}>
           <UnsupportedItemMessage />
         </Show>
       </Modal.Content>
@@ -95,7 +96,10 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
         </button>
         <button
           class="btn cursor-pointer uppercase"
-          disabled={!canApply() || (!isFood(item()) && !isRecipe(item()))}
+          disabled={
+            !canApply() ||
+            (!isFood(item()) && !isRecipe(item()) && !isGroup(item()))
+          }
           onClick={(e) => {
             debug('[UnifiedItemEditModal] Apply clicked', item())
             e.preventDefault()

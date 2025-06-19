@@ -4,6 +4,7 @@ import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
 import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import {
   isFood,
+  isGroup,
   isRecipe,
   type UnifiedItem,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
@@ -12,6 +13,7 @@ import { type MacroValues } from '~/sections/common/components/MaxQuantityButton
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { type UseFieldReturn } from '~/sections/common/hooks/useField'
 import { ItemFavorite } from '~/sections/food-item/components/ItemView'
+import { GroupChildrenEditor } from '~/sections/unified-item/components/GroupChildrenEditor'
 import { QuantityControls } from '~/sections/unified-item/components/QuantityControls'
 import { QuantityShortcuts } from '~/sections/unified-item/components/QuantityShortcuts'
 import {
@@ -69,17 +71,31 @@ export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
 
   return (
     <>
-      <QuantityShortcuts onQuantitySelect={handleQuantitySelect} />
-
-      <QuantityControls
-        item={props.item}
-        setItem={props.setItem}
-        canApply={props.canApply}
-        getAvailableMacros={getAvailableMacros}
-        quantityField={props.quantityField}
-      />
-
+      {/* Para alimentos e receitas: controles de quantidade normal */}
       <Show when={isFood(props.item()) || isRecipe(props.item())}>
+        <QuantityShortcuts onQuantitySelect={handleQuantitySelect} />
+
+        <QuantityControls
+          item={props.item}
+          setItem={props.setItem}
+          canApply={props.canApply}
+          getAvailableMacros={getAvailableMacros}
+          quantityField={props.quantityField}
+        />
+      </Show>
+
+      {/* Para grupos: editor de filhos */}
+      <Show when={isGroup(props.item())}>
+        <GroupChildrenEditor item={props.item} setItem={props.setItem} />
+      </Show>
+
+      <Show
+        when={
+          isFood(props.item()) ||
+          isRecipe(props.item()) ||
+          isGroup(props.item())
+        }
+      >
         <UnifiedItemView
           mode="edit"
           handlers={{
