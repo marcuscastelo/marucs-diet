@@ -14,6 +14,7 @@ import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macro
 import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import {
   isFood,
+  isRecipe,
   type UnifiedItem,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { FloatInput } from '~/sections/common/components/FloatInput'
@@ -73,7 +74,7 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
         }
       />
       <Modal.Content>
-        <Show when={isFood(item())}>
+        <Show when={isFood(item()) || isRecipe(item())}>
           <Body
             canApply={canApply()}
             item={item}
@@ -81,10 +82,10 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
             macroOverflow={props.macroOverflow}
           />
         </Show>
-        <Show when={!isFood(item())}>
+        <Show when={!isFood(item()) && !isRecipe(item())}>
           <div class="text-gray-400 text-sm">
-            Este tipo de item não é suportado ainda. Apenas itens de comida
-            podem ser editados.
+            Este tipo de item não é suportado ainda. Apenas itens de comida e
+            receitas podem ser editados.
           </div>
         </Show>
       </Modal.Content>
@@ -103,7 +104,7 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
         </button>
         <button
           class="btn cursor-pointer uppercase"
-          disabled={!canApply() || !isFood(item())}
+          disabled={!canApply() || (!isFood(item()) && !isRecipe(item()))}
           onClick={(e) => {
             debug('[UnifiedItemEditModal] Apply clicked', item())
             e.preventDefault()
@@ -272,18 +273,32 @@ function Body(props: {
               !props.canApply ? 'input-error border-red-500' : ''
             }`}
           />
-          <Show when={isFood(props.item())}>
+          <Show when={isFood(props.item()) || isRecipe(props.item())}>
             <MaxQuantityButton
               currentValue={quantityField.value() ?? 0}
               macroTargets={getAvailableMacros()}
-              itemMacros={
-                (
-                  props.item() as Extract<
-                    UnifiedItem,
-                    { reference: { type: 'food'; macros: MacroNutrients } }
-                  >
-                ).reference.macros
-              }
+              itemMacros={(() => {
+                if (isFood(props.item())) {
+                  return (
+                    props.item() as Extract<
+                      UnifiedItem,
+                      { reference: { type: 'food'; macros: MacroNutrients } }
+                    >
+                  ).reference.macros
+                }
+                if (isRecipe(props.item())) {
+                  // For recipes, calculate macros from children (per 100g of prepared recipe)
+                  const recipeMacros = calcUnifiedItemMacros(props.item())
+                  const recipeQuantity = props.item().quantity || 1
+                  // Convert to per-100g basis for the button
+                  return {
+                    carbs: (recipeMacros.carbs * 100) / recipeQuantity,
+                    protein: (recipeMacros.protein * 100) / recipeQuantity,
+                    fat: (recipeMacros.fat * 100) / recipeQuantity,
+                  }
+                }
+                return { carbs: 0, protein: 0, fat: 0 }
+              })()}
               onMaxSelected={(maxValue: number) => {
                 debug('[Body] MaxQuantityButton onMaxSelected', maxValue)
                 quantityField.setRawValue(maxValue.toFixed(2))
@@ -330,7 +345,7 @@ function Body(props: {
         </div>
       </div>
 
-      <Show when={isFood(props.item())}>
+      <Show when={isFood(props.item()) || isRecipe(props.item())}>
         <ItemView
           mode="edit"
           handlers={{
@@ -348,12 +363,33 @@ function Body(props: {
                 name: currentItem.name,
                 quantity: quantityField.value() ?? currentItem.quantity,
                 reference: currentItem.reference.id,
-                macros: isFood(currentItem)
-                  ? currentItem.reference.macros
-                  : { carbs: 0, protein: 0, fat: 0 },
+                macros: currentItem.reference.macros,
               }
             }
-            // Fallback - should not happen since we check isFood above
+            if (isRecipe(currentItem)) {
+              // For recipes, calculate macros from children
+              const recipeMacros = calcUnifiedItemMacros(currentItem)
+              const recipeQuantity =
+                quantityField.value() ?? currentItem.quantity
+
+              // Calculate per-100g macros for display
+              const totalRecipeQuantity = currentItem.quantity || 1
+              const per100gMacros = {
+                carbs: (recipeMacros.carbs * 100) / totalRecipeQuantity,
+                protein: (recipeMacros.protein * 100) / totalRecipeQuantity,
+                fat: (recipeMacros.fat * 100) / totalRecipeQuantity,
+              }
+
+              return {
+                __type: 'Item' as const,
+                id: id(),
+                name: currentItem.name,
+                quantity: recipeQuantity,
+                reference: currentItem.reference.id,
+                macros: per100gMacros,
+              }
+            }
+            // Fallback - should not happen since we check above
             return {
               __type: 'Item' as const,
               id: id(),
@@ -366,30 +402,59 @@ function Body(props: {
           macroOverflow={() => ({
             enable: props.macroOverflow().enable,
             originalItem: props.macroOverflow().originalItem
-              ? {
-                  __type: 'Item' as const,
-                  id: props.macroOverflow().originalItem!.id,
-                  name: props.macroOverflow().originalItem!.name,
-                  quantity: props.macroOverflow().originalItem!.quantity,
-                  reference: isFood(props.macroOverflow().originalItem!)
-                    ? (
-                        props.macroOverflow().originalItem! as Extract<
-                          UnifiedItem,
-                          { reference: { id: number } }
-                        >
-                      ).reference.id
-                    : 0,
-                  macros: isFood(props.macroOverflow().originalItem!)
-                    ? (
-                        props.macroOverflow().originalItem! as Extract<
-                          UnifiedItem,
-                          {
-                            reference: { type: 'food'; macros: MacroNutrients }
-                          }
-                        >
-                      ).reference.macros
-                    : { carbs: 0, protein: 0, fat: 0 },
-                }
+              ? (() => {
+                  const origItem = props.macroOverflow().originalItem!
+                  if (isFood(origItem)) {
+                    const foodItem = origItem as Extract<
+                      UnifiedItem,
+                      { reference: { id: number } }
+                    >
+                    const foodItemWithMacros = origItem as Extract<
+                      UnifiedItem,
+                      {
+                        reference: { type: 'food'; macros: MacroNutrients }
+                      }
+                    >
+                    return {
+                      __type: 'Item' as const,
+                      id: origItem.id,
+                      name: origItem.name,
+                      quantity: origItem.quantity,
+                      reference: foodItem.reference.id,
+                      macros: foodItemWithMacros.reference.macros,
+                    }
+                  }
+                  if (isRecipe(origItem)) {
+                    const recipeMacros = calcUnifiedItemMacros(origItem)
+                    const totalRecipeQuantity = origItem.quantity || 1
+                    const per100gMacros = {
+                      carbs: (recipeMacros.carbs * 100) / totalRecipeQuantity,
+                      protein:
+                        (recipeMacros.protein * 100) / totalRecipeQuantity,
+                      fat: (recipeMacros.fat * 100) / totalRecipeQuantity,
+                    }
+                    const recipeItem = origItem as Extract<
+                      UnifiedItem,
+                      { reference: { id: number } }
+                    >
+                    return {
+                      __type: 'Item' as const,
+                      id: origItem.id,
+                      name: origItem.name,
+                      quantity: origItem.quantity,
+                      reference: recipeItem.reference.id,
+                      macros: per100gMacros,
+                    }
+                  }
+                  return {
+                    __type: 'Item' as const,
+                    id: origItem.id,
+                    name: origItem.name,
+                    quantity: origItem.quantity,
+                    reference: 0,
+                    macros: { carbs: 0, protein: 0, fat: 0 },
+                  }
+                })()
               : undefined,
           })}
           class="mt-4"
