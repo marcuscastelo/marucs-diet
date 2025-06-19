@@ -66,3 +66,54 @@ export function itemGroupToUnifiedItem(group: ItemGroup): UnifiedItem {
     __type: 'UnifiedItem',
   }
 }
+
+/**
+ * Checks if a UnifiedItem of type recipe has been manually edited (differs from original recipe).
+ * Similar to isRecipedGroupUpToDate but for UnifiedItems.
+ * @param item UnifiedItem with recipe reference
+ * @param originalRecipe The original Recipe to compare against
+ * @returns true if the item was manually edited (not up to date)
+ */
+export function isRecipeUnifiedItemManuallyEdited(
+  item: UnifiedItem,
+  originalRecipe: {
+    items: ReadonlyArray<{ reference: number; quantity: number }>
+  },
+): boolean {
+  if (item.reference.type !== 'recipe') {
+    return false // Not a recipe item
+  }
+
+  const recipeChildren = item.reference.children
+  const originalItems = originalRecipe.items
+
+  // Different number of items means it was edited
+  if (recipeChildren.length !== originalItems.length) {
+    return true
+  }
+
+  // Check each item for differences
+  for (let i = 0; i < recipeChildren.length; i++) {
+    const childItem = recipeChildren[i]
+    const originalItem = originalItems[i]
+
+    if (childItem === undefined || originalItem === undefined) {
+      return true // Something is wrong, consider it edited
+    }
+
+    // Only check food items (recipes in recipes not supported yet)
+    if (childItem.reference.type !== 'food') {
+      continue
+    }
+
+    // Check if reference ID or quantity differs
+    if (
+      childItem.reference.id !== originalItem.reference ||
+      childItem.quantity !== originalItem.quantity
+    ) {
+      return true
+    }
+  }
+
+  return false // No differences found
+}

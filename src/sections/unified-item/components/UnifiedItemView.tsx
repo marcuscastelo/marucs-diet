@@ -1,6 +1,14 @@
-import { type Accessor, createMemo, For, type JSXElement, Show } from 'solid-js'
+import {
+  type Accessor,
+  createMemo,
+  createResource,
+  For,
+  type JSXElement,
+  Show,
+} from 'solid-js'
 
 import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
+import { isRecipeUnifiedItemManuallyEdited } from '~/modules/diet/unified-item/domain/conversionUtils'
 import {
   isGroup,
   isRecipe,
@@ -178,6 +186,41 @@ export function UnifiedItemView(props: UnifiedItemViewProps) {
 }
 
 export function UnifiedItemName(props: { item: Accessor<UnifiedItem> }) {
+  const recipeRepository = createSupabaseRecipeRepository()
+
+  // Create a resource to fetch recipe data when needed
+  const [originalRecipe] = createResource(
+    () => {
+      const item = props.item()
+      return isRecipe(item) ? item.reference.id : null
+    },
+    async (recipeId: number) => {
+      try {
+        return await recipeRepository.fetchRecipeById(recipeId)
+      } catch (error) {
+        console.warn('Failed to fetch recipe for comparison:', error)
+        return null
+      }
+    },
+  )
+
+  // Check if the recipe was manually edited
+  const isManuallyEdited = createMemo(() => {
+    const item = props.item()
+    const recipe = originalRecipe()
+
+    if (
+      !isRecipe(item) ||
+      recipe === null ||
+      recipe === undefined ||
+      originalRecipe.loading
+    ) {
+      return false
+    }
+
+    return isRecipeUnifiedItemManuallyEdited(item, recipe)
+  })
+
   const nameColor = () => {
     const item = props.item()
 
@@ -207,10 +250,24 @@ export function UnifiedItemName(props: { item: Accessor<UnifiedItem> }) {
     }
   }
 
+  const warningIndicator = () => {
+    return isManuallyEdited() ? '⚠️' : ''
+  }
+
   return (
     <div class="flex items-center gap-2">
       <span class="text-lg">{typeIndicator()}</span>
-      <h6 class={`text-lg font-medium ${nameColor()}`}>{props.item().name}</h6>
+      <h6 class={`text-lg font-medium ${nameColor()}`}>
+        {props.item().name}
+        <Show when={warningIndicator()}>
+          <span
+            class="ml-1 text-yellow-500"
+            title="Receita editada pontualmente"
+          >
+            {warningIndicator()}
+          </span>
+        </Show>
+      </h6>
     </div>
   )
 }
