@@ -67,7 +67,7 @@ describe('conversionUtils', () => {
 
   it('unifiedItemToItem preserves macros per 100g for different quantities', () => {
     // Test with 200g quantity to ensure macros remain per 100g (not calculated for quantity)
-    const unifiedItemWith200g: UnifiedItem = {
+    const unifiedItemWith200g: UnifiedItem = createUnifiedItem({
       id: 1,
       name: 'Chicken',
       quantity: 200, // 200g instead of 100g
@@ -76,8 +76,7 @@ describe('conversionUtils', () => {
         id: 10,
         macros: { protein: 20, carbs: 0, fat: 2 },
       }, // Per 100g
-      __type: 'UnifiedItem',
-    }
+    })
 
     const item = unifiedItemToItem(unifiedItemWith200g)
 
@@ -92,7 +91,7 @@ describe('conversionUtils', () => {
 
   it('unifiedItemToItem handles 50g quantity correctly', () => {
     // Test with 50g quantity
-    const unifiedItemWith50g: UnifiedItem = {
+    const unifiedItemWith50g: UnifiedItem = createUnifiedItem({
       id: 1,
       name: 'Chicken',
       quantity: 50, // 50g
@@ -101,8 +100,7 @@ describe('conversionUtils', () => {
         id: 10,
         macros: { protein: 20, carbs: 10, fat: 2 },
       }, // Per 100g
-      __type: 'UnifiedItem',
-    }
+    })
 
     const item = unifiedItemToItem(unifiedItemWith50g)
 

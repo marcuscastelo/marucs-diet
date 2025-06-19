@@ -11,7 +11,7 @@ import {
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 describe('unifiedItemSchema', () => {
-  const unifiedFood: UnifiedItem = {
+  const unifiedFood: UnifiedItem = createUnifiedItem({
     id: 1,
     name: 'Chicken',
     quantity: 100,
@@ -20,15 +20,13 @@ describe('unifiedItemSchema', () => {
       id: 10,
       macros: { protein: 20, carbs: 0, fat: 2 },
     },
-    __type: 'UnifiedItem',
-  }
-  const unifiedGroup: UnifiedItem = {
+  })
+  const unifiedGroup: UnifiedItem = createUnifiedItem({
     id: 2,
     name: 'Lunch',
     quantity: 100,
     reference: { type: 'group', children: [unifiedFood] },
-    __type: 'UnifiedItem',
-  }
+  })
   it('validates a valid UnifiedItem', () => {
     expect(() => parseWithStack(unifiedItemSchema, unifiedFood)).not.toThrow()
     expect(() => parseWithStack(unifiedItemSchema, unifiedGroup)).not.toThrow()
@@ -41,7 +39,7 @@ describe('unifiedItemSchema', () => {
 })
 
 describe('type guards', () => {
-  const unifiedFood: UnifiedItem = {
+  const unifiedFood: UnifiedItem = createUnifiedItem({
     id: 1,
     name: 'Chicken',
     quantity: 100,
@@ -50,15 +48,13 @@ describe('type guards', () => {
       id: 10,
       macros: { protein: 20, carbs: 0, fat: 2 },
     },
-    __type: 'UnifiedItem',
-  }
-  const unifiedGroup: UnifiedItem = {
+  })
+  const unifiedGroup: UnifiedItem = createUnifiedItem({
     id: 2,
     name: 'Lunch',
     quantity: 100,
     reference: { type: 'group', children: [unifiedFood] },
-    __type: 'UnifiedItem',
-  }
+  })
   it('isFood, isRecipe, isGroup work as expected', () => {
     expect(isFood(unifiedFood)).toBe(true)
     expect(isGroup(unifiedGroup)).toBe(true)

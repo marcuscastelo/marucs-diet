@@ -4,6 +4,7 @@ import {
   unifiedItemToItem,
 } from '~/modules/diet/unified-item/domain/conversionUtils'
 import {
+  createUnifiedItem,
   isFood,
   isGroup,
   isRecipe,
@@ -38,15 +39,15 @@ export function updateUnifiedItemQuantity(
   const quantityFactor = quantity / item.quantity
 
   if (isFood(item)) {
-    return {
+    return createUnifiedItem({
       ...item,
       quantity,
       reference: { ...item.reference },
-    }
+    })
   }
 
   if (isRecipe(item)) {
-    return {
+    return createUnifiedItem({
       ...item,
       quantity,
       reference: {
@@ -56,11 +57,11 @@ export function updateUnifiedItemQuantity(
           quantity: child.quantity * quantityFactor,
         })),
       },
-    }
+    })
   }
 
   if (isGroup(item)) {
-    return {
+    return createUnifiedItem({
       ...item,
       quantity,
       reference: {
@@ -70,7 +71,7 @@ export function updateUnifiedItemQuantity(
           quantity: child.quantity * quantityFactor,
         })),
       },
-    }
+    })
   }
 
   // Fallback (should never happen)

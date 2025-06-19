@@ -7,10 +7,9 @@ import {
   updateChildInItem,
 } from '~/modules/diet/unified-item/domain/childOperations'
 import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
-import { UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 describe('childOperations', () => {
-  const childA = {
+  const childA = createUnifiedItem({
     id: 11,
     name: 'A',
     quantity: 1,
@@ -19,9 +18,8 @@ describe('childOperations', () => {
       id: 100,
       macros: { protein: 1, carbs: 1, fat: 1 },
     },
-    __type: 'UnifiedItem',
-  } as const
-  const childB = {
+  })
+  const childB = createUnifiedItem({
     id: 12,
     name: 'B',
     quantity: 2,
@@ -30,20 +28,18 @@ describe('childOperations', () => {
       id: 101,
       macros: { protein: 2, carbs: 2, fat: 2 },
     },
-    __type: 'UnifiedItem',
-  } as const
-  const baseGroup = {
+  })
+  const baseGroup = createUnifiedItem({
     id: 10,
     name: 'Group',
     quantity: 1,
-    reference: { type: 'group', children: [] as UnifiedItem[] },
-    __type: 'UnifiedItem',
-  } as const
+    reference: { type: 'group' as const, children: [] },
+  })
   it('addChildToItem adds a child', () => {
-    const group = {
+    const group = createUnifiedItem({
       ...baseGroup,
-      reference: { ...baseGroup.reference, children: [] },
-    }
+      reference: { type: 'group' as const, children: [] },
+    })
     const updated = addChildToItem(group, childA)
     expect(updated.reference.type).toBe('group')
     if (updated.reference.type === 'group') {
@@ -52,10 +48,10 @@ describe('childOperations', () => {
     }
   })
   it('removeChildFromItem removes a child by id', () => {
-    const group = {
+    const group = createUnifiedItem({
       ...baseGroup,
-      reference: { ...baseGroup.reference, children: [childA, childB] },
-    }
+      reference: { type: 'group' as const, children: [childA, childB] },
+    })
     const updated = removeChildFromItem(group, childA.id)
     expect(updated.reference.type).toBe('group')
     if (updated.reference.type === 'group') {
@@ -64,10 +60,10 @@ describe('childOperations', () => {
     }
   })
   it('updateChildInItem updates a child by id', () => {
-    const group = {
+    const group = createUnifiedItem({
       ...baseGroup,
-      reference: { ...baseGroup.reference, children: [childA] },
-    }
+      reference: { type: 'group' as const, children: [childA] },
+    })
     const updated = updateChildInItem(group, childA.id, { name: 'Updated' })
     expect(updated.reference.type).toBe('group')
     if (updated.reference.type === 'group') {
@@ -75,16 +71,16 @@ describe('childOperations', () => {
     }
   })
   it('moveChildBetweenItems moves a child from one group to another', () => {
-    const group1 = {
+    const group1 = createUnifiedItem({
       ...baseGroup,
       id: 1,
-      reference: { ...baseGroup.reference, children: [childA] },
-    }
-    const group2 = {
+      reference: { type: 'group' as const, children: [childA] },
+    })
+    const group2 = createUnifiedItem({
       ...baseGroup,
       id: 2,
-      reference: { ...baseGroup.reference, children: [] },
-    }
+      reference: { type: 'group' as const, children: [] },
+    })
     const { source, target } = moveChildBetweenItems(group1, group2, childA.id)
     expect(source.reference.type).toBe('group')
     expect(target.reference.type).toBe('group')

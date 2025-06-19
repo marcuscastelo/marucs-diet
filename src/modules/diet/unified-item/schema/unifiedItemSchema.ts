@@ -119,7 +119,9 @@ export function createUnifiedItem({
       reference: {
         type: 'recipe',
         id: reference.id,
-        children: reference.children,
+        children: reference.children.map((child) => {
+          return createUnifiedItem(child)
+        }),
       },
     }
   }
@@ -130,7 +132,9 @@ export function createUnifiedItem({
       ...itemWithoutReference,
       reference: {
         type: 'group',
-        children: reference.children,
+        children: reference.children.map((child) => {
+          return createUnifiedItem(child)
+        }),
       },
     }
   }
