@@ -10,8 +10,8 @@ import {
 import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { debouncedTab } from '~/modules/search/application/search'
 import { Alert } from '~/sections/common/components/Alert'
+import { RemoveFromRecentButton } from '~/sections/common/components/buttons/RemoveFromRecentButton'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
-import { RemoveFromRecentButton } from '~/sections/food-item/components/RemoveFromRecentButton'
 import {
   UnifiedItemFavorite,
   UnifiedItemName,
