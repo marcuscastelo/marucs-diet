@@ -107,10 +107,13 @@ describe('dayDietDAO legacy conversion', () => {
         dayDietWithMultipleItems,
       )
 
-      expect(result.meals[0]?.groups).toHaveLength(1)
-      expect(result.meals[0]?.groups[0]?.items).toHaveLength(2)
+      expect(result.meals[0]?.groups).toHaveLength(2) // Now each standalone item gets its own group
+      expect(result.meals[0]?.groups[0]?.name).toBe('Arroz') // First group named after first item
+      expect(result.meals[0]?.groups[0]?.items).toHaveLength(1)
       expect(result.meals[0]?.groups[0]?.items[0]?.name).toBe('Arroz')
-      expect(result.meals[0]?.groups[0]?.items[1]?.name).toBe('Feijão')
+      expect(result.meals[0]?.groups[1]?.name).toBe('Feijão') // Second group named after second item
+      expect(result.meals[0]?.groups[1]?.items).toHaveLength(1)
+      expect(result.meals[0]?.groups[1]?.items[0]?.name).toBe('Feijão')
     })
   })
 

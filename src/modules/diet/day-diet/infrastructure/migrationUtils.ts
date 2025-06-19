@@ -40,28 +40,18 @@ export function migrateLegacyMealToUnified(legacyMeal: LegacyMeal): Meal {
 export function migrateUnifiedMealToLegacy(unifiedMeal: Meal): LegacyMeal {
   const { items, groups } = migrateFromUnifiedItems(unifiedMeal.items)
 
-  // Convert standalone items to groups with intelligent naming
+  // Convert standalone items to individual groups (each item gets its own group)
   const allGroups: ItemGroup[] = [...groups]
-  if (items.length > 0) {
-    if (items.length === 1) {
-      // For single items (flattened from unit groups), use the item's name
-      allGroups.push({
-        id: -1, // Temporary ID for single-item group
-        name: items[0]!.name,
-        items,
-        recipe: undefined,
-        __type: 'ItemGroup',
-      })
-    } else {
-      // For multiple items, use a default group name
-      allGroups.push({
-        id: -1, // Temporary ID for default group
-        name: 'Items',
-        items,
-        recipe: undefined,
-        __type: 'ItemGroup',
-      })
-    }
+
+  // Each standalone item should become its own group
+  for (const item of items) {
+    allGroups.push({
+      id: -1, // Temporary ID for single-item group
+      name: item.name, // Use the item's name as the group name
+      items: [item],
+      recipe: undefined,
+      __type: 'ItemGroup',
+    })
   }
 
   return {

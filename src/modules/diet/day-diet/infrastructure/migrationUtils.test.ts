@@ -232,11 +232,13 @@ describe('infrastructure migration utils', () => {
 
       const result = migrateUnifiedMealToLegacy(multiItemUnifiedMeal)
 
-      expect(result.groups).toHaveLength(1)
-      expect(result.groups[0]?.name).toBe('Items') // Should use "Items" for multiple items
-      expect(result.groups[0]?.items).toHaveLength(2)
+      expect(result.groups).toHaveLength(2) // Should create one group per standalone item
+      expect(result.groups[0]?.name).toBe('Arroz') // Should use item name for each group
+      expect(result.groups[0]?.items).toHaveLength(1)
       expect(result.groups[0]?.items[0]?.name).toBe('Arroz')
-      expect(result.groups[0]?.items[1]?.name).toBe('Feijão')
+      expect(result.groups[1]?.name).toBe('Feijão')
+      expect(result.groups[1]?.items).toHaveLength(1)
+      expect(result.groups[1]?.items[0]?.name).toBe('Feijão')
     })
   })
 
