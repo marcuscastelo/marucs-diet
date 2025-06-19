@@ -80,8 +80,11 @@ export function addGroupToMeal(meal: Meal, group: ItemGroup): Meal {
     id: item.id,
     name: item.name,
     quantity: item.quantity,
-    macros: item.macros,
-    reference: { type: 'food' as const, id: item.reference },
+    reference: {
+      type: 'food' as const,
+      id: item.reference,
+      macros: item.macros,
+    },
     __type: 'UnifiedItem' as const,
   }))
 
@@ -97,8 +100,11 @@ export function addGroupsToMeal(
       id: item.id,
       name: item.name,
       quantity: item.quantity,
-      macros: item.macros,
-      reference: { type: 'food' as const, id: item.reference },
+      reference: {
+        type: 'food' as const,
+        id: item.reference,
+        macros: item.macros,
+      },
       __type: 'UnifiedItem' as const,
     })),
   )
@@ -117,8 +123,11 @@ export function updateGroupInMeal(
     id: item.id,
     name: item.name,
     quantity: item.quantity,
-    macros: item.macros,
-    reference: { type: 'food' as const, id: item.reference },
+    reference: {
+      type: 'food' as const,
+      id: item.reference,
+      macros: item.macros,
+    },
     __type: 'UnifiedItem' as const,
   }))
 
@@ -139,8 +148,11 @@ export function setMealGroups(meal: Meal, groups: ItemGroup[]): Meal {
       id: item.id,
       name: item.name,
       quantity: item.quantity,
-      macros: item.macros,
-      reference: { type: 'food' as const, id: item.reference },
+      reference: {
+        type: 'food' as const,
+        id: item.reference,
+        macros: item.macros,
+      },
       __type: 'UnifiedItem' as const,
     })),
   )

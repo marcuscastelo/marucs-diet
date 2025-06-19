@@ -24,8 +24,11 @@ describe('item application services', () => {
     id: 1,
     name: 'Arroz',
     quantity: 100,
-    macros: { carbs: 10, protein: 2, fat: 1 },
-    reference: { type: 'food' as const, id: 1 },
+    reference: {
+      type: 'food' as const,
+      id: 1,
+      macros: { carbs: 10, protein: 2, fat: 1 },
+    },
     __type: 'UnifiedItem' as const,
   }
 
@@ -61,7 +64,11 @@ describe('item application services', () => {
       expect(result.name).toBe(baseItem.name)
       expect(result.quantity).toBe(baseItem.quantity)
       expect(calcUnifiedItemMacros(result)).toEqual(baseItem.macros)
-      expect(result.reference).toEqual({ type: 'food', id: baseItem.reference })
+      expect(result.reference).toEqual({
+        type: 'food',
+        id: baseItem.reference,
+        macros: baseItem.macros,
+      })
       expect(result.__type).toBe('UnifiedItem')
     })
   })
@@ -72,7 +79,7 @@ describe('item application services', () => {
       expect(result.id).toBe(baseUnifiedItem.id)
       expect(result.name).toBe(baseUnifiedItem.name)
       expect(result.quantity).toBe(baseUnifiedItem.quantity)
-      expect(result.macros).toEqual(baseUnifiedItem.macros)
+      expect(result.macros).toEqual(baseUnifiedItem.reference.macros)
       expect(result.reference).toBe(1)
       expect(result.__type).toBe('Item')
     })

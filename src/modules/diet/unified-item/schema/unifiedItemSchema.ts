@@ -2,19 +2,26 @@ import { z } from 'zod'
 
 import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 
-type FoodReference = { type: 'food'; id: number }
+type FoodReference = {
+  type: 'food'
+  id: number
+  macros: z.infer<typeof macroNutrientsSchema>
+}
 type RecipeReference = { type: 'recipe'; id: number; children: UnifiedItem[] }
 type GroupReference = { type: 'group'; children: UnifiedItem[] }
 
 export const unifiedItemSchema: z.ZodType<UnifiedItem> = z.lazy(() =>
   z.union([
-    // Food items have macros
+    // Food items have macros in their reference
     z.object({
       id: z.number(),
       name: z.string(),
       quantity: z.number(),
-      macros: macroNutrientsSchema,
-      reference: z.object({ type: z.literal('food'), id: z.number() }),
+      reference: z.object({
+        type: z.literal('food'),
+        id: z.number(),
+        macros: macroNutrientsSchema,
+      }),
       __type: z.literal('UnifiedItem'),
     }),
     // Recipe items don't have macros (inferred from children)
@@ -48,7 +55,6 @@ export type UnifiedItem =
       id: number
       name: string
       quantity: number
-      macros: z.infer<typeof macroNutrientsSchema>
       reference: FoodReference
       __type: 'UnifiedItem'
     }
@@ -68,7 +74,6 @@ export type UnifiedItem =
     }
 
 export function isFood(item: UnifiedItem): item is UnifiedItem & {
-  macros: z.infer<typeof macroNutrientsSchema>
   reference: FoodReference
 } {
   return item.reference.type === 'food'

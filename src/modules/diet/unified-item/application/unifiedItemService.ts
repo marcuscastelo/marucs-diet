@@ -86,7 +86,13 @@ export function updateUnifiedItemInArray(
       const updatedItem = { ...item, ...updates }
       // Only apply macros updates to food items
       if (updates.macros && isFood(item)) {
-        return { ...updatedItem, macros: updates.macros }
+        return {
+          ...updatedItem,
+          reference: {
+            ...item.reference,
+            macros: updates.macros,
+          },
+        }
       }
       return updatedItem
     }

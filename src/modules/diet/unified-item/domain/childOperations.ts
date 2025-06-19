@@ -79,9 +79,7 @@ export function removeChildFromItem(
 export function updateChildInItem(
   item: UnifiedItem,
   childId: number,
-  updates: Partial<Pick<UnifiedItem, 'id' | 'name' | 'quantity'>> & {
-    macros?: { carbs: number; protein: number; fat: number }
-  },
+  updates: Partial<Pick<UnifiedItem, 'id' | 'name' | 'quantity'>>,
 ): UnifiedItem {
   if (
     (item.reference.type === 'recipe' || item.reference.type === 'group') &&
@@ -119,15 +117,12 @@ export function updateChildInItem(
  */
 function updateUnifiedItem(
   item: UnifiedItem,
-  updates: Partial<Pick<UnifiedItem, 'id' | 'name' | 'quantity'>> & {
-    macros?: { carbs: number; protein: number; fat: number }
-  },
+  updates: Partial<Pick<UnifiedItem, 'id' | 'name' | 'quantity'>>,
 ): UnifiedItem {
   if (isFood(item)) {
     return {
       ...item,
       ...updates,
-      macros: updates.macros || item.macros,
     }
   } else if (isRecipe(item)) {
     return {

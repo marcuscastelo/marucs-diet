@@ -13,16 +13,22 @@ describe('childOperations', () => {
     id: 11,
     name: 'A',
     quantity: 1,
-    macros: { protein: 1, carbs: 1, fat: 1 },
-    reference: { type: 'food', id: 100 },
+    reference: {
+      type: 'food',
+      id: 100,
+      macros: { protein: 1, carbs: 1, fat: 1 },
+    },
     __type: 'UnifiedItem',
   } as const
   const childB = {
     id: 12,
     name: 'B',
     quantity: 2,
-    macros: { protein: 2, carbs: 2, fat: 2 },
-    reference: { type: 'food', id: 101 },
+    reference: {
+      type: 'food',
+      id: 101,
+      macros: { protein: 2, carbs: 2, fat: 2 },
+    },
     __type: 'UnifiedItem',
   } as const
   const baseGroup = {

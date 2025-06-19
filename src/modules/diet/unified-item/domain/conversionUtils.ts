@@ -16,15 +16,14 @@ export function itemToUnifiedItem(item: Item): UnifiedItem {
     id: item.id,
     name: item.name,
     quantity: item.quantity,
-    macros: item.macros,
-    reference: { type: 'food', id: item.reference },
+    reference: { type: 'food', id: item.reference, macros: item.macros },
     __type: 'UnifiedItem',
   }
 }
 
 /**
  * Converts a UnifiedItem to an Item.
- * For food items, uses the stored macros (per 100g). For non-food items, uses zero macros.
+ * For food items, uses the stored macros (per 100g) from reference. For non-food items, uses zero macros.
  * @param unified UnifiedItem
  * @returns Item
  */
@@ -33,7 +32,9 @@ export function unifiedItemToItem(unified: UnifiedItem): Item {
     id: unified.id,
     name: unified.name,
     quantity: unified.quantity,
-    macros: isFood(unified) ? unified.macros : { carbs: 0, protein: 0, fat: 0 },
+    macros: isFood(unified)
+      ? unified.reference.macros
+      : { carbs: 0, protein: 0, fat: 0 },
     reference: isFood(unified) ? unified.reference.id : 0,
     __type: 'Item',
   }

@@ -84,8 +84,7 @@ export function templateToUnifiedItem(
       id: generateId(),
       name: template.name,
       quantity: desiredQuantity,
-      macros: template.macros,
-      reference: { type: 'food', id: template.id },
+      reference: { type: 'food', id: template.id, macros: template.macros },
       __type: 'UnifiedItem',
     }
   }

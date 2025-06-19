@@ -280,9 +280,9 @@ function Body(props: {
                 (
                   props.item() as Extract<
                     UnifiedItem,
-                    { macros: MacroNutrients }
+                    { reference: { type: 'food'; macros: MacroNutrients } }
                   >
-                ).macros
+                ).reference.macros
               }
               onMaxSelected={(maxValue: number) => {
                 debug('[Body] MaxQuantityButton onMaxSelected', maxValue)
@@ -348,7 +348,9 @@ function Body(props: {
                 name: currentItem.name,
                 quantity: quantityField.value() ?? currentItem.quantity,
                 reference: currentItem.reference.id,
-                macros: currentItem.macros,
+                macros: isFood(currentItem)
+                  ? currentItem.reference.macros
+                  : { carbs: 0, protein: 0, fat: 0 },
               }
             }
             // Fallback - should not happen since we check isFood above
@@ -381,9 +383,11 @@ function Body(props: {
                     ? (
                         props.macroOverflow().originalItem! as Extract<
                           UnifiedItem,
-                          { macros: MacroNutrients }
+                          {
+                            reference: { type: 'food'; macros: MacroNutrients }
+                          }
                         >
-                      ).macros
+                      ).reference.macros
                     : { carbs: 0, protein: 0, fat: 0 },
                 }
               : undefined,

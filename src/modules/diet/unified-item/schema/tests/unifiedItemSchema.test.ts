@@ -14,15 +14,17 @@ describe('unifiedItemSchema', () => {
     id: 1,
     name: 'Chicken',
     quantity: 100,
-    macros: { protein: 20, carbs: 0, fat: 2 },
-    reference: { type: 'food', id: 10 },
+    reference: {
+      type: 'food',
+      id: 10,
+      macros: { protein: 20, carbs: 0, fat: 2 },
+    },
     __type: 'UnifiedItem',
   }
   const unifiedGroup: UnifiedItem = {
     id: 2,
     name: 'Lunch',
     quantity: 100,
-    macros: { protein: 20, carbs: 0, fat: 2 },
     reference: { type: 'group', children: [unifiedFood] },
     __type: 'UnifiedItem',
   }
@@ -42,15 +44,17 @@ describe('type guards', () => {
     id: 1,
     name: 'Chicken',
     quantity: 100,
-    macros: { protein: 20, carbs: 0, fat: 2 },
-    reference: { type: 'food', id: 10 },
+    reference: {
+      type: 'food',
+      id: 10,
+      macros: { protein: 20, carbs: 0, fat: 2 },
+    },
     __type: 'UnifiedItem',
   }
   const unifiedGroup: UnifiedItem = {
     id: 2,
     name: 'Lunch',
     quantity: 100,
-    macros: { protein: 20, carbs: 0, fat: 2 },
     reference: { type: 'group', children: [unifiedFood] },
     __type: 'UnifiedItem',
   }

@@ -29,8 +29,11 @@ describe('conversionUtils', () => {
     id: 1,
     name: 'Chicken',
     quantity: 100,
-    macros: { protein: 20, carbs: 0, fat: 2 },
-    reference: { type: 'food', id: 10 },
+    reference: {
+      type: 'food',
+      id: 10,
+      macros: { protein: 20, carbs: 0, fat: 2 },
+    },
   }
   it('itemToUnifiedItem and unifiedItemToItem are inverse', () => {
     const unified = itemToUnifiedItem(sampleItem)
@@ -67,8 +70,11 @@ describe('conversionUtils', () => {
       id: 1,
       name: 'Chicken',
       quantity: 200, // 200g instead of 100g
-      macros: { protein: 20, carbs: 0, fat: 2 }, // Per 100g
-      reference: { type: 'food', id: 10 },
+      reference: {
+        type: 'food',
+        id: 10,
+        macros: { protein: 20, carbs: 0, fat: 2 },
+      }, // Per 100g
       __type: 'UnifiedItem',
     }
 
@@ -89,8 +95,11 @@ describe('conversionUtils', () => {
       id: 1,
       name: 'Chicken',
       quantity: 50, // 50g
-      macros: { protein: 20, carbs: 10, fat: 2 }, // Per 100g
-      reference: { type: 'food', id: 10 },
+      reference: {
+        type: 'food',
+        id: 10,
+        macros: { protein: 20, carbs: 10, fat: 2 },
+      }, // Per 100g
       __type: 'UnifiedItem',
     }
 

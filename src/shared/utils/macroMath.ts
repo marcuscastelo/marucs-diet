@@ -51,11 +51,11 @@ export function calcGroupMacros(group: ItemGroup): MacroNutrients {
  */
 export function calcUnifiedItemMacros(item: UnifiedItem): MacroNutrients {
   if (isFood(item)) {
-    // For food items, calculate proportionally from stored macros
+    // For food items, calculate proportionally from stored macros in reference
     return {
-      carbs: (item.macros.carbs * item.quantity) / 100,
-      fat: (item.macros.fat * item.quantity) / 100,
-      protein: (item.macros.protein * item.quantity) / 100,
+      carbs: (item.reference.macros.carbs * item.quantity) / 100,
+      fat: (item.reference.macros.fat * item.quantity) / 100,
+      protein: (item.reference.macros.protein * item.quantity) / 100,
     }
   } else if (isRecipe(item) || isGroup(item)) {
     // For recipe and group items, sum the macros from children

@@ -18,8 +18,11 @@ describe('unifiedItemService', () => {
     id: 1,
     name: 'Arroz',
     quantity: 100,
-    macros: { carbs: 10, protein: 2, fat: 1 },
-    reference: { type: 'food', id: 1 },
+    reference: {
+      type: 'food',
+      id: 1,
+      macros: { carbs: 10, protein: 2, fat: 1 },
+    },
     __type: 'UnifiedItem',
   }
 
@@ -35,8 +38,11 @@ describe('unifiedItemService', () => {
           id: 4,
           name: 'Recipe Child',
           quantity: 100,
-          macros: { carbs: 20, protein: 4, fat: 2 },
-          reference: { type: 'food', id: 4 },
+          reference: {
+            type: 'food',
+            id: 4,
+            macros: { carbs: 20, protein: 4, fat: 2 },
+          },
           __type: 'UnifiedItem',
         },
       ],

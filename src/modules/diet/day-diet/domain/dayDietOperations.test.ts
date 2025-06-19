@@ -31,8 +31,11 @@ function makeUnifiedItemFromItem(item: ReturnType<typeof makeItem>) {
     id: item.id,
     name: item.name,
     quantity: item.quantity,
-    macros: item.macros,
-    reference: { type: 'food' as const, id: item.reference },
+    reference: {
+      type: 'food' as const,
+      id: item.reference,
+      macros: item.macros,
+    },
     __type: 'UnifiedItem' as const,
   }
 }

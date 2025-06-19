@@ -1,6 +1,5 @@
 import { Item } from '~/modules/diet/item/domain/item'
 import type { ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
-import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   itemGroupToUnifiedItem,
   itemToUnifiedItem,
@@ -79,7 +78,7 @@ export function migrateFromUnifiedItems(unified: UnifiedItem[]): {
         id: u.id,
         name: u.name,
         quantity: u.quantity,
-        macros: (u as Extract<UnifiedItem, { macros: MacroNutrients }>).macros,
+        macros: u.reference.macros,
         reference: u.reference.id,
         __type: 'Item',
       })
@@ -97,8 +96,7 @@ export function migrateFromUnifiedItems(unified: UnifiedItem[]): {
             id: c.id,
             name: c.name,
             quantity: c.quantity,
-            macros: (c as Extract<UnifiedItem, { macros: MacroNutrients }>)
-              .macros,
+            macros: c.reference.macros,
             reference: c.reference.id,
             __type: 'Item',
           }
@@ -120,8 +118,7 @@ export function migrateFromUnifiedItems(unified: UnifiedItem[]): {
             id: c.id,
             name: c.name,
             quantity: c.quantity,
-            macros: (c as Extract<UnifiedItem, { macros: MacroNutrients }>)
-              .macros,
+            macros: c.reference.macros,
             reference: c.reference.id,
             __type: 'Item',
           }
