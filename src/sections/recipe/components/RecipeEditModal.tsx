@@ -1,4 +1,4 @@
-import { Accessor, createEffect, createSignal } from 'solid-js'
+import { Accessor, createEffect, createSignal, Show } from 'solid-js'
 import { untrack } from 'solid-js'
 
 import { createItem, type Item } from '~/modules/diet/item/domain/item'
@@ -11,7 +11,10 @@ import {
   isTemplateItemFood,
   isTemplateItemRecipe,
 } from '~/modules/diet/template-item/domain/templateItem'
-import { unifiedItemToItem } from '~/modules/diet/unified-item/domain/conversionUtils'
+import {
+  itemToUnifiedItem,
+  unifiedItemToItem,
+} from '~/modules/diet/unified-item/domain/conversionUtils'
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { showError } from '~/modules/toast/application/toastManager'
 import { Modal } from '~/sections/common/components/Modal'
@@ -20,13 +23,13 @@ import {
   ModalContextProvider,
   useModalContext,
 } from '~/sections/common/context/ModalContext'
-import { ExternalItemEditModal } from '~/sections/food-item/components/ExternalItemEditModal'
 import {
   RecipeEditContent,
   RecipeEditHeader,
 } from '~/sections/recipe/components/RecipeEditView'
 import { RecipeEditContextProvider } from '~/sections/recipe/context/RecipeEditContext'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
+import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
 import { handleValidationError } from '~/shared/error/errorHandler'
 
 export type RecipeEditModalProps = {
@@ -108,29 +111,38 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
 
   return (
     <>
-      <ExternalItemEditModal
-        visible={itemEditModalVisible}
-        setVisible={setItemEditModalVisible}
-        item={() => selectedItem() ?? impossibleItem}
-        targetName={recipe().name}
-        onApply={(item) => {
-          // Only handle regular Items, not RecipeItems
-          if (!isTemplateItemFood(item)) {
-            console.warn('Cannot edit RecipeItems in recipe')
-            return
-          }
+      <Show when={itemEditModalVisible()}>
+        <ModalContextProvider
+          visible={() => itemEditModalVisible()}
+          setVisible={setItemEditModalVisible}
+        >
+          <UnifiedItemEditModal
+            item={() => itemToUnifiedItem(selectedItem() ?? impossibleItem)}
+            targetMealName={recipe().name}
+            macroOverflow={() => ({ enable: false })}
+            onApply={(unifiedItem) => {
+              // Convert back to Item for recipe operations
+              const item = unifiedItemToItem(unifiedItem)
 
-          const updatedItem: Item = { ...item, quantity: item.quantity }
-          const updatedRecipe = updateItemInRecipe(
-            recipe(),
-            item.id,
-            updatedItem,
-          )
+              // Only handle regular Items, not RecipeItems
+              if (!isTemplateItemFood(item)) {
+                console.warn('Cannot edit RecipeItems in recipe')
+                return
+              }
 
-          setRecipe(updatedRecipe)
-          setSelectedItem(null)
-        }}
-      />
+              const updatedItem: Item = { ...item, quantity: item.quantity }
+              const updatedRecipe = updateItemInRecipe(
+                recipe(),
+                item.id,
+                updatedItem,
+              )
+
+              setRecipe(updatedRecipe)
+              setSelectedItem(null)
+            }}
+          />
+        </ModalContextProvider>
+      </Show>
 
       <ExternalTemplateSearchModal
         visible={templateSearchModalVisible}

@@ -18,6 +18,11 @@ import {
   updateRecipePreparedMultiplier,
 } from '~/modules/diet/recipe/domain/recipeOperations'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import {
+  itemToUnifiedItem,
+  unifiedItemToItem,
+} from '~/modules/diet/unified-item/domain/conversionUtils'
+import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { ClipboardActionButtons } from '~/sections/common/components/ClipboardActionButtons'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { PreparedQuantity } from '~/sections/common/components/PreparedQuantity'
@@ -25,11 +30,11 @@ import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalCo
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { useFloatField } from '~/sections/common/hooks/useField'
-import { ItemListView } from '~/sections/food-item/components/ItemListView'
 import {
   RecipeEditContextProvider,
   useRecipeEditContext,
 } from '~/sections/recipe/context/RecipeEditContext'
+import { UnifiedItemListView } from '~/sections/unified-item/components/UnifiedItemListView'
 import { cn } from '~/shared/cn'
 import { regenerateId } from '~/shared/utils/idUtils'
 import { calcRecipeCalories } from '~/shared/utils/macroMath'
@@ -159,21 +164,24 @@ export function RecipeEditContent(props: {
         }}
         value={recipe().name}
       />
-      <ItemListView
-        items={() => recipe().items}
+      <UnifiedItemListView
+        items={() => recipe().items.map(itemToUnifiedItem)}
         mode="edit"
         handlers={{
-          onEdit: (item) => {
+          onEdit: (unifiedItem: UnifiedItem) => {
+            const item = unifiedItemToItem(unifiedItem)
             if (!item.reference) {
               console.warn('Item does not have a reference, cannot edit')
               return
             }
             props.onEditItem(item)
           },
-          onCopy: (item) => {
+          onCopy: (unifiedItem: UnifiedItem) => {
+            const item = unifiedItemToItem(unifiedItem)
             clipboard.write(JSON.stringify(item))
           },
-          onDelete: (item) => {
+          onDelete: (unifiedItem: UnifiedItem) => {
+            const item = unifiedItemToItem(unifiedItem)
             setRecipe(removeItemFromRecipe(recipe(), item.id))
           },
         }}

@@ -7,9 +7,10 @@ import { type TemplateItem } from '~/modules/diet/template-item/domain/templateI
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { showError } from '~/modules/toast/application/toastManager'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
-import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
+import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { formatError } from '~/shared/formatError'
+import { convertTemplateItemToUnifiedItem } from '~/shared/utils/itemViewConversion'
 
 export type ExternalTemplateToUnifiedItemModalProps = {
   visible: Accessor<boolean>
@@ -27,10 +28,26 @@ export function ExternalTemplateToUnifiedItemModal(
 ) {
   const template = () => props.selectedTemplate()
 
-  const handleApply = (item: TemplateItem) => {
-    const { unifiedItem } = createUnifiedItemFromTemplate(template(), item)
+  const handleApply = (item: UnifiedItem) => {
+    // Convert UnifiedItem to TemplateItem for the second parameter
+    const templateItem: TemplateItem = {
+      id: item.id,
+      name: item.name,
+      quantity: item.quantity,
+      reference: item.reference.type === 'food' ? item.reference.id : 0,
+      macros:
+        item.reference.type === 'food'
+          ? item.reference.macros
+          : { carbs: 0, protein: 0, fat: 0 },
+      __type: 'Item',
+    }
 
-    props.onNewUnifiedItem(unifiedItem, item).catch((err) => {
+    const { unifiedItem } = createUnifiedItemFromTemplate(
+      template(),
+      templateItem,
+    )
+
+    props.onNewUnifiedItem(unifiedItem, templateItem).catch((err) => {
       handleApiError(err)
       showError(err, {}, `Erro ao adicionar item: ${formatError(err)}`)
     })
@@ -38,9 +55,14 @@ export function ExternalTemplateToUnifiedItemModal(
 
   return (
     <ModalContextProvider visible={props.visible} setVisible={props.setVisible}>
-      <ItemEditModal
-        targetName={props.targetName}
-        item={() => templateToItem(template(), 100)} // Start with default 100g
+      <UnifiedItemEditModal
+        targetMealName={props.targetName}
+        item={() =>
+          convertTemplateItemToUnifiedItem(
+            templateToItem(template(), 100),
+            template(),
+          )
+        } // Start with default 100g
         macroOverflow={() => ({ enable: true })}
         onApply={handleApply}
       />
