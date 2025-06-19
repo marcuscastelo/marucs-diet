@@ -156,4 +156,69 @@ describe('infrastructure migration utils', () => {
       expect(result[1]?.groups[0]?.items[0]?.name).toBe('Carne')
     })
   })
+
+  describe('Backward Compatibility Functions', () => {
+    it('should handle day data with legacy meal format', () => {
+      const legacyDayData = {
+        id: 1,
+        target_day: '2025-06-18',
+        owner: 1,
+        meals: [
+          {
+            id: 1,
+            name: 'Breakfast',
+            groups: [makeGroup(1, 'Cereals', [makeItem(1, 'Oats')])],
+            __type: 'Meal',
+          },
+          {
+            id: 2,
+            name: 'Lunch',
+            groups: [
+              makeGroup(2, 'Main', [makeItem(2, 'Rice'), makeItem(3, 'Beans')]),
+            ],
+            __type: 'Meal',
+          },
+        ],
+      }
+
+      // Test that the legacy meal can be migrated to unified format
+      const legacyMeal = legacyDayData.meals[0] as LegacyMeal
+      const unifiedMeal = migrateLegacyMealToUnified(legacyMeal)
+
+      expect(unifiedMeal).toHaveProperty('items')
+      expect(unifiedMeal).not.toHaveProperty('groups')
+      expect(unifiedMeal.items).toHaveLength(1)
+      expect(unifiedMeal.items[0]).toBeDefined()
+      expect(unifiedMeal.items[0]?.name).toBe('Oats')
+    })
+
+    it('should handle multiple legacy meals in array', () => {
+      const legacyMeals = [
+        makeLegacyMeal(1, 'Breakfast', [
+          makeGroup(1, 'Cereals', [makeItem(1, 'Oats')]),
+        ]),
+        makeLegacyMeal(2, 'Lunch', [
+          makeGroup(2, 'Main', [makeItem(2, 'Rice')]),
+        ]),
+      ]
+
+      const unifiedMeals = migrateLegacyMealsToUnified(legacyMeals)
+
+      expect(unifiedMeals).toHaveLength(2)
+      expect(unifiedMeals[0]).toHaveProperty('items')
+      expect(unifiedMeals[0]).not.toHaveProperty('groups')
+      expect(unifiedMeals[1]).toHaveProperty('items')
+      expect(unifiedMeals[1]).not.toHaveProperty('groups')
+    })
+
+    it('should handle roundtrip migration correctly', () => {
+      const originalLegacyMeal = makeLegacyMeal(1, 'Test', [makeGroup(1)])
+      const unifiedMeal = migrateLegacyMealToUnified(originalLegacyMeal)
+      const backToLegacy = migrateUnifiedMealToLegacy(unifiedMeal)
+
+      expect(backToLegacy).toHaveProperty('groups')
+      expect(backToLegacy).not.toHaveProperty('items')
+      expect(backToLegacy.groups).toHaveLength(1)
+    })
+  })
 })
