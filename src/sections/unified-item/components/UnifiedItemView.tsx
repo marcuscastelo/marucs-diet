@@ -19,13 +19,8 @@ import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
 import { MoreVertIcon } from '~/sections/common/components/icons/MoreVertIcon'
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import MacroNutrientsView from '~/sections/macro-nutrients/components/MacroNutrientsView'
-import { createDebug } from '~/shared/utils/createDebug'
+import { cn } from '~/shared/cn'
 import { calcUnifiedItemCalories } from '~/shared/utils/macroMath'
-
-const debug = createDebug()
-
-// TODO:   Use repository pattern through use cases instead of directly using repositories
-const recipeRepository = createSupabaseRecipeRepository()
 
 export type UnifiedItemViewProps = {
   item: Accessor<UnifiedItem>
@@ -98,15 +93,18 @@ export function UnifiedItemView(props: UnifiedItemViewProps) {
 
   return (
     <div
-      class={`block rounded-lg border border-gray-700 bg-gray-700 p-3 shadow hover:cursor-pointer hover:bg-gray-700 ${props.class ?? ''}`}
+      class={cn(
+        'block rounded-lg border border-gray-700 bg-gray-700 p-3 shadow hover:cursor-pointer hover:bg-gray-700',
+        props.class,
+      )}
       onClick={(e) => getHandlers().onClick?.(e)}
     >
       <div class="flex items-center">
-        <div class="flex flex-1 items-center">
+        <div class="flex flex-1  items-center">
           <div class="flex-1">
             {typeof props.header === 'function' ? props.header() : props.header}
           </div>
-          <div>
+          <div class="">
             {isInteractive() && (
               <ContextMenu
                 trigger={
@@ -255,9 +253,9 @@ export function UnifiedItemName(props: { item: Accessor<UnifiedItem> }) {
   }
 
   return (
-    <div class="flex items-center gap-2">
-      <span class="text-lg">{typeIndicator()}</span>
-      <h6 class={`text-lg font-medium ${nameColor()}`}>
+    <div class="">
+      <h5 class={`mb-2 text-lg font-bold tracking-tight ${nameColor()}`}>
+        <span class="mr-2">{typeIndicator()}</span>
         {props.item().name}
         <Show when={warningIndicator()}>
           <span
@@ -267,7 +265,7 @@ export function UnifiedItemName(props: { item: Accessor<UnifiedItem> }) {
             {warningIndicator()}
           </span>
         </Show>
-      </h6>
+      </h5>
     </div>
   )
 }
