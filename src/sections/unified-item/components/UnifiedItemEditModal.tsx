@@ -7,6 +7,7 @@ import {
   untrack,
 } from 'solid-js'
 
+import { updateChildInItem } from '~/modules/diet/unified-item/domain/childOperations'
 import {
   isFood,
   isGroup,
@@ -42,6 +43,11 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
   const [item, setItem] = createSignal(untrack(() => props.item()))
   createEffect(() => setItem(props.item()))
 
+  // Child editing modal state
+  const [childEditModalVisible, setChildEditModalVisible] = createSignal(false)
+  const [childBeingEdited, setChildBeingEdited] =
+    createSignal<UnifiedItem | null>(null)
+
   const quantitySignal = () =>
     item().quantity === 0 ? undefined : item().quantity
 
@@ -57,63 +63,103 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
     return item().quantity > 0
   }
 
+  const handleEditChild = (child: UnifiedItem) => {
+    setChildBeingEdited(child)
+    setChildEditModalVisible(true)
+  }
+
+  const handleChildModalApply = (updatedChild: UnifiedItem) => {
+    // Update the child in the parent item using the domain function
+    const currentItem = item()
+    const updatedItem = updateChildInItem(
+      currentItem,
+      updatedChild.id,
+      updatedChild,
+    )
+    setItem(updatedItem)
+    setChildEditModalVisible(false)
+    setChildBeingEdited(null)
+  }
+
   return (
-    <Modal class="border-2 border-white">
-      <Modal.Header
-        title={
-          <span>
-            Editando item em
-            <span class={props.targetNameColor}>"{props.targetMealName}"</span>
-          </span>
-        }
-      />
-      <Modal.Content>
-        <Show when={isFood(item()) || isRecipe(item()) || isGroup(item())}>
-          <UnifiedItemEditBody
-            canApply={canApply()}
-            item={item}
-            setItem={setItem}
-            macroOverflow={props.macroOverflow}
-            quantityField={quantityField}
-          />
-        </Show>
-        <Show when={!isFood(item()) && !isRecipe(item()) && !isGroup(item())}>
-          <UnsupportedItemMessage />
-        </Show>
-      </Modal.Content>
-      <Modal.Footer>
-        <button
-          class="btn cursor-pointer uppercase"
-          onClick={(e) => {
-            debug('[UnifiedItemEditModal] Cancel clicked')
-            e.preventDefault()
-            e.stopPropagation()
-            setVisible(false)
-            props.onCancel?.()
-          }}
-        >
-          Cancelar
-        </button>
-        <button
-          class="btn cursor-pointer uppercase"
-          disabled={
-            !canApply() ||
-            (!isFood(item()) && !isRecipe(item()) && !isGroup(item()))
+    <>
+      <Modal class="border-2 border-white">
+        <Modal.Header
+          title={
+            <span>
+              Editando item em
+              <span class={props.targetNameColor}>
+                "{props.targetMealName}"
+              </span>
+            </span>
           }
-          onClick={(e) => {
-            debug('[UnifiedItemEditModal] Apply clicked', item())
-            e.preventDefault()
-            console.debug(
-              '[UnifiedItemEditModal] onApply - calling onApply with item.value=',
-              item(),
-            )
-            props.onApply(item())
-            setVisible(false)
-          }}
-        >
-          Aplicar
-        </button>
-      </Modal.Footer>
-    </Modal>
+        />
+        <Modal.Content>
+          <Show when={isFood(item()) || isRecipe(item()) || isGroup(item())}>
+            <UnifiedItemEditBody
+              canApply={canApply()}
+              item={item}
+              setItem={setItem}
+              macroOverflow={props.macroOverflow}
+              quantityField={quantityField}
+              onEditChild={handleEditChild}
+            />
+          </Show>
+          <Show when={!isFood(item()) && !isRecipe(item()) && !isGroup(item())}>
+            <UnsupportedItemMessage />
+          </Show>
+        </Modal.Content>
+        <Modal.Footer>
+          <button
+            class="btn cursor-pointer uppercase"
+            onClick={(e) => {
+              debug('[UnifiedItemEditModal] Cancel clicked')
+              e.preventDefault()
+              e.stopPropagation()
+              setVisible(false)
+              props.onCancel?.()
+            }}
+          >
+            Cancelar
+          </button>
+          <button
+            class="btn cursor-pointer uppercase"
+            disabled={
+              !canApply() ||
+              (!isFood(item()) && !isRecipe(item()) && !isGroup(item()))
+            }
+            onClick={(e) => {
+              debug('[UnifiedItemEditModal] Apply clicked', item())
+              e.preventDefault()
+              console.debug(
+                '[UnifiedItemEditModal] onApply - calling onApply with item.value=',
+                item(),
+              )
+              props.onApply(item())
+              setVisible(false)
+            }}
+          >
+            Aplicar
+          </button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Child edit modal - nested modals for editing child items */}
+      <Show when={childEditModalVisible() && childBeingEdited()}>
+        {(child) => (
+          <UnifiedItemEditModal
+            targetMealName={`${props.targetMealName} > ${item().name}`}
+            targetNameColor="text-orange-400"
+            item={() => child()}
+            macroOverflow={() => ({ enable: false })}
+            onApply={handleChildModalApply}
+            onCancel={() => {
+              setChildEditModalVisible(false)
+              setChildBeingEdited(null)
+            }}
+          />
+        )}
+      </Show>
+    </>
   )
 }

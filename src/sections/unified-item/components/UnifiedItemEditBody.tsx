@@ -35,6 +35,7 @@ export type UnifiedItemEditBodyProps = {
     originalItem?: UnifiedItem | undefined
   }
   quantityField: UseFieldReturn<number>
+  onEditChild?: (child: UnifiedItem) => void
 }
 
 export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
@@ -86,7 +87,11 @@ export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
 
       {/* Para grupos: editor de filhos */}
       <Show when={isGroup(props.item())}>
-        <GroupChildrenEditor item={props.item} setItem={props.setItem} />
+        <GroupChildrenEditor
+          item={props.item}
+          setItem={props.setItem}
+          onEditChild={props.onEditChild}
+        />
       </Show>
 
       <Show

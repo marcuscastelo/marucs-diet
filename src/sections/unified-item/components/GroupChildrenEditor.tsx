@@ -1,12 +1,17 @@
-import { type Accessor, For, type Setter, Show } from 'solid-js'
+import { type Accessor, createSignal, For, type Setter, Show } from 'solid-js'
 
 import { updateChildInItem } from '~/modules/diet/unified-item/domain/childOperations'
 import {
+  isFood,
   isGroup,
+  isRecipe,
   type UnifiedItem,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { FloatInput } from '~/sections/common/components/FloatInput'
+import { EditIcon } from '~/sections/common/components/icons/EditIcon'
+import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { useFloatField } from '~/sections/common/hooks/useField'
+import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
 import { createDebug } from '~/shared/utils/createDebug'
 
 const debug = createDebug()
@@ -14,6 +19,7 @@ const debug = createDebug()
 export type GroupChildrenEditorProps = {
   item: Accessor<UnifiedItem>
   setItem: Setter<UnifiedItem>
+  onEditChild?: (child: UnifiedItem) => void
 }
 
 export function GroupChildrenEditor(props: GroupChildrenEditorProps) {
@@ -62,6 +68,7 @@ export function GroupChildrenEditor(props: GroupChildrenEditorProps) {
               onQuantityChange={(newQuantity) =>
                 updateChildQuantity(child.id, newQuantity)
               }
+              onEditChild={props.onEditChild}
             />
           )}
         </For>
@@ -102,9 +109,34 @@ export function GroupChildrenEditor(props: GroupChildrenEditorProps) {
 type GroupChildEditorProps = {
   child: UnifiedItem
   onQuantityChange: (newQuantity: number) => void
+  onEditChild?: (child: UnifiedItem) => void
+}
+
+function getTypeIcon(item: UnifiedItem) {
+  if (isFood(item)) {
+    return '🍽️'
+  } else if (isRecipe(item)) {
+    return '📖'
+  } else if (isGroup(item)) {
+    return '📦'
+  }
+  return '❓'
+}
+
+function getTypeText(item: UnifiedItem) {
+  if (isFood(item)) {
+    return 'alimento'
+  } else if (isRecipe(item)) {
+    return 'receita'
+  } else if (isGroup(item)) {
+    return 'grupo'
+  }
+  return 'desconhecido'
 }
 
 function GroupChildEditor(props: GroupChildEditorProps) {
+  const [childEditModalVisible, setChildEditModalVisible] = createSignal(false)
+
   const quantityField = useFloatField(() => props.child.quantity, {
     decimalPlaces: 1,
     minValue: 0.1,
@@ -152,69 +184,124 @@ function GroupChildEditor(props: GroupChildEditorProps) {
     return [50, 100, 150, 200]
   }
 
+  const canEditChild = () => {
+    return isRecipe(props.child) || isGroup(props.child)
+  }
+
+  const handleEditChild = () => {
+    if (props.onEditChild) {
+      props.onEditChild(props.child)
+    } else {
+      // Fallback: open modal locally
+      setChildEditModalVisible(true)
+    }
+  }
+
   return (
-    <div class="rounded-lg border border-gray-700 bg-gray-700 p-3 shadow">
-      {/* Header com nome e id */}
-      <div class="flex items-center justify-between mb-3">
-        <h4 class="font-medium text-white truncate">{props.child.name}</h4>
-        <span class="text-xs text-gray-400 ml-2 shrink-0">
-          #{props.child.id}
-        </span>
-      </div>
-
-      {/* Controles principais */}
-      <div class="flex w-full justify-between gap-1 mb-3">
-        <div class="flex-1 relative">
-          <FloatInput
-            field={quantityField}
-            placeholder="Quantidade"
-            class={`input-bordered input bg-gray-800 border-gray-300 w-full`}
-            onFieldCommit={handleQuantityChange}
-            onFocus={(event) => {
-              event.target.select()
-            }}
-          />
-        </div>
-
-        <span class="text-gray-400 self-center mx-2">g</span>
-
-        {/* Botões de incremento/decremento - seguindo padrão QuantityControls */}
-        <div class="flex shrink gap-1">
-          <div
-            class="btn-primary btn-xs btn cursor-pointer uppercase h-full w-10 px-6 text-4xl text-red-600"
-            onClick={decrement}
-          >
-            -
+    <>
+      <div class="rounded-lg border border-gray-700 bg-gray-700 p-3 shadow">
+        {/* Header com nome, tipo e id */}
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2 flex-1 min-w-0">
+            <div class="flex items-center gap-1 shrink-0">
+              <span
+                class="text-base cursor-help"
+                title={getTypeText(props.child)}
+              >
+                {getTypeIcon(props.child)}
+              </span>
+            </div>
+            <h4 class="font-medium text-white truncate">{props.child.name}</h4>
           </div>
-          <div
-            class="btn-primary btn-xs btn cursor-pointer uppercase h-full w-10 px-6 text-4xl text-green-400"
-            onClick={increment}
-          >
-            +
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="text-xs text-gray-400">#{props.child.id}</span>
+            <Show when={canEditChild()}>
+              <button
+                class="p-1 hover:bg-gray-600 rounded transition-colors"
+                onClick={handleEditChild}
+                title={`Editar ${getTypeText(props.child)}`}
+              >
+                <EditIcon class="w-4 h-4 text-blue-400 hover:text-blue-300" />
+              </button>
+            </Show>
           </div>
         </div>
-      </div>
 
-      {/* Shortcuts - seguindo padrão QuantityShortcuts */}
-      <div class="flex gap-1">
-        <For each={getShortcuts()}>
-          {(shortcut) => (
-            <button
-              class={`btn btn-xs flex-1 cursor-pointer uppercase ${
-                Math.abs((quantityField.value() ?? 0) - shortcut) < 0.1
-                  ? 'btn-primary'
-                  : 'btn-outline'
-              }`}
-              onClick={() => {
-                quantityField.setRawValue(shortcut.toString())
-                props.onQuantityChange(shortcut)
+        {/* Controles principais */}
+        <div class="flex w-full justify-between gap-1 mb-3">
+          <div class="flex-1 relative">
+            <FloatInput
+              field={quantityField}
+              placeholder="Quantidade"
+              class={`input-bordered input bg-gray-800 border-gray-300 w-full`}
+              onFieldCommit={handleQuantityChange}
+              onFocus={(event) => {
+                event.target.select()
               }}
+            />
+          </div>
+
+          <span class="text-gray-400 self-center mx-2">g</span>
+
+          {/* Botões de incremento/decremento - seguindo padrão QuantityControls */}
+          <div class="flex shrink gap-1">
+            <div
+              class="btn-primary btn-xs btn cursor-pointer uppercase h-full w-10 px-6 text-4xl text-red-600"
+              onClick={decrement}
             >
-              {shortcut}g
-            </button>
-          )}
-        </For>
+              -
+            </div>
+            <div
+              class="btn-primary btn-xs btn cursor-pointer uppercase h-full w-10 px-6 text-4xl text-green-400"
+              onClick={increment}
+            >
+              +
+            </div>
+          </div>
+        </div>
+
+        {/* Shortcuts - seguindo padrão QuantityShortcuts */}
+        <div class="flex gap-1">
+          <For each={getShortcuts()}>
+            {(shortcut) => (
+              <button
+                class={`btn btn-xs flex-1 cursor-pointer uppercase ${
+                  Math.abs((quantityField.value() ?? 0) - shortcut) < 0.1
+                    ? 'btn-primary'
+                    : 'btn-outline'
+                }`}
+                onClick={() => {
+                  quantityField.setRawValue(shortcut.toString())
+                  props.onQuantityChange(shortcut)
+                }}
+              >
+                {shortcut}g
+              </button>
+            )}
+          </For>
+        </div>
       </div>
-    </div>
+
+      {/* Modal for editing child items */}
+      <Show when={childEditModalVisible()}>
+        <ModalContextProvider
+          visible={childEditModalVisible}
+          setVisible={setChildEditModalVisible}
+        >
+          <UnifiedItemEditModal
+            targetMealName="Grupo"
+            targetNameColor="text-orange-400"
+            item={() => props.child}
+            macroOverflow={() => ({ enable: false })}
+            onApply={(updatedChild) => {
+              // Update the child in the parent
+              props.onQuantityChange(updatedChild.quantity)
+              setChildEditModalVisible(false)
+            }}
+            onCancel={() => setChildEditModalVisible(false)}
+          />
+        </ModalContextProvider>
+      </Show>
+    </>
   )
 }

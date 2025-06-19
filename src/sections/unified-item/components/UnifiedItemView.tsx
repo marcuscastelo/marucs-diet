@@ -251,6 +251,20 @@ export function UnifiedItemName(props: { item: Accessor<UnifiedItem> }) {
     }
   }
 
+  const getTypeText = () => {
+    const item = props.item()
+    switch (item.reference.type) {
+      case 'food':
+        return 'alimento'
+      case 'recipe':
+        return 'receita'
+      case 'group':
+        return 'grupo'
+      default:
+        return 'desconhecido'
+    }
+  }
+
   const warningIndicator = () => {
     return isManuallyEdited() ? '⚠️' : ''
   }
@@ -258,7 +272,9 @@ export function UnifiedItemName(props: { item: Accessor<UnifiedItem> }) {
   return (
     <div class="">
       <h5 class={`mb-2 text-lg font-bold tracking-tight ${nameColor()}`}>
-        <span class="mr-2">{typeIndicator()}</span>
+        <span class="mr-2 cursor-help" title={getTypeText()}>
+          {typeIndicator()}
+        </span>
         {props.item().name}
         <Show when={warningIndicator()}>
           <span
