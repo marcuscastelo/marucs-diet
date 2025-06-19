@@ -1,11 +1,6 @@
 import { type Item } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 
-/**
- * Pure functions for recipe operations
- * Replaces the deprecated RecipeEditor pattern
- */
-
 export function updateRecipeName(recipe: Recipe, name: string): Recipe {
   return {
     ...recipe,
