@@ -189,7 +189,9 @@ export function UnifiedItemView(props: UnifiedItemViewProps) {
           </For>
         </div>
       </Show>
-      <UnifiedItemFavorite foodId={props.item().id} />
+      <Show when={props.item().reference.type === 'food'}>
+        <UnifiedItemFavorite foodId={props.item().id} />
+      </Show>
     </div>
   )
 }
