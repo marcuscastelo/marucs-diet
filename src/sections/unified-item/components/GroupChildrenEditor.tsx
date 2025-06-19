@@ -111,7 +111,7 @@ export function GroupChildrenEditor(props: GroupChildrenEditorProps) {
           <button
             class="btn btn-sm bg-green-600 hover:bg-green-700 text-white w-full flex items-center justify-center gap-2"
             onClick={() => props.onAddNewItem?.()}
-            title="Add new item to group"
+            title="Adicionar novo item ao grupo"
           >
             ➕ Adicionar Item
           </button>
