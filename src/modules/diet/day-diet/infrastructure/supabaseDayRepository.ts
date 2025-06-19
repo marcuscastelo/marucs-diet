@@ -11,6 +11,10 @@ import {
   daoToDayDiet,
   type DayDietDAO,
 } from '~/modules/diet/day-diet/infrastructure/dayDietDAO'
+import {
+  type LegacyMeal,
+  migrateLegacyMealsToUnified,
+} from '~/modules/diet/day-diet/infrastructure/migrationUtils'
 import { type User } from '~/modules/user/domain/user'
 import {
   handleApiError,
@@ -85,6 +89,66 @@ async function fetchDayDiet(dayId: DayDiet['id']): Promise<DayDiet> {
   }
 }
 
+/**
+ * Type for raw database data before validation
+ */
+type RawDayData = {
+  meals?: unknown[]
+  [key: string]: unknown
+}
+
+/**
+ * Migrates day data from legacy format (meals with groups) to new format (meals with items)
+ * if needed. Returns the data unchanged if it's already in the new format.
+ */
+function migrateDayDataIfNeeded(dayData: unknown): unknown {
+  // Type guard to check if dayData has the expected structure
+  if (
+    typeof dayData !== 'object' ||
+    dayData === null ||
+    !('meals' in dayData) ||
+    !Array.isArray((dayData as RawDayData).meals)
+  ) {
+    return dayData
+  }
+
+  const rawDay = dayData as RawDayData
+  const meals = rawDay.meals || []
+
+  // Check if any meal has the legacy 'groups' property instead of 'items'
+  const hasLegacyFormat = meals.some(
+    (meal: unknown) =>
+      typeof meal === 'object' &&
+      meal !== null &&
+      'groups' in meal &&
+      !('items' in meal),
+  )
+
+  if (!hasLegacyFormat) {
+    return dayData // Already in new format
+  }
+
+  // Migrate meals from legacy format to unified format
+  const migratedMeals = meals.map((meal: unknown) => {
+    if (
+      typeof meal === 'object' &&
+      meal !== null &&
+      'groups' in meal &&
+      !('items' in meal)
+    ) {
+      // This is a legacy meal, migrate it
+      const legacyMeal = meal as LegacyMeal
+      return migrateLegacyMealsToUnified([legacyMeal])[0]
+    }
+    return meal // Already in new format or different structure
+  })
+
+  return {
+    ...rawDay,
+    meals: migratedMeals,
+  }
+}
+
 // TODO:   better error handling
 async function fetchAllUserDayDiets(
   userId: User['id'],
@@ -102,7 +166,11 @@ async function fetchAllUserDayDiets(
   }
 
   const days = data
-    .map((day) => dayDietSchema.safeParse(day))
+    .map((day) => {
+      // Check if day contains legacy meal format and migrate if needed
+      const migratedDay = migrateDayDataIfNeeded(day)
+      return dayDietSchema.safeParse(migratedDay)
+    })
     .map((result) => {
       if (result.success) {
         return result.data
