@@ -1,4 +1,4 @@
-import { type Accessor, createEffect, For, type Setter, Show } from 'solid-js'
+import { type Accessor, For, type Setter, Show } from 'solid-js'
 
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { Modal } from '~/sections/common/components/Modal'
@@ -20,13 +20,6 @@ type CopyLastDayModalProps = {
 }
 
 export function CopyLastDayModal(props: CopyLastDayModalProps) {
-  createEffect(() => {
-    console.log(
-      'Debug: previousDays passed to CopyLastDayModal:',
-      props.previousDays,
-    )
-  })
-
   return (
     <ModalContextProvider visible={props.open} setVisible={props.setOpen}>
       <Modal>

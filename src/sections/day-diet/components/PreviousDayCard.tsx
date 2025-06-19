@@ -1,4 +1,4 @@
-import { createEffect, createSignal } from 'solid-js'
+import { createSignal } from 'solid-js'
 
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import PreviousDayCardActions from '~/sections/day-diet/components/PreviousDayCardActions'
@@ -21,10 +21,6 @@ export function PreviousDayCard(props: PreviousDayCardProps) {
   const normalizedDate = () => {
     return new Date(props.dayDiet.target_day + 'T00:00:00') // Force UTC interpretation
   }
-
-  createEffect(() => {
-    console.log('Debug: normalizedDate in PreviousDayCard:', normalizedDate())
-  })
 
   return (
     <div class="border rounded p-3 flex flex-col gap-2">
