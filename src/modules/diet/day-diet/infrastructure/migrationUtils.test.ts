@@ -219,9 +219,24 @@ describe('infrastructure migration utils', () => {
       expect(result.name).toBe('Almoço')
       expect(result.__type).toBe('Meal')
       expect(result.groups).toHaveLength(1)
-      expect(result.groups[0]?.name).toBe('Default')
+      expect(result.groups[0]?.name).toBe('Arroz') // Should use item name for single items
       expect(result.groups[0]?.items).toHaveLength(1)
       expect(result.groups[0]?.items[0]?.name).toBe('Arroz')
+    })
+
+    it('handles multiple standalone items with intelligent group naming', () => {
+      const multiItemUnifiedMeal = makeUnifiedMeal(2, 'Jantar', [
+        makeUnifiedItemFromItem(makeItem(1, 'Arroz')),
+        makeUnifiedItemFromItem(makeItem(2, 'Feijão')),
+      ])
+
+      const result = migrateUnifiedMealToLegacy(multiItemUnifiedMeal)
+
+      expect(result.groups).toHaveLength(1)
+      expect(result.groups[0]?.name).toBe('Items') // Should use "Items" for multiple items
+      expect(result.groups[0]?.items).toHaveLength(2)
+      expect(result.groups[0]?.items[0]?.name).toBe('Arroz')
+      expect(result.groups[0]?.items[1]?.name).toBe('Feijão')
     })
   })
 
