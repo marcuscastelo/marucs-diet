@@ -1,10 +1,6 @@
-import { type Accessor, createSignal, For, type Setter, Show } from 'solid-js'
+import { type Accessor, For, type Setter, Show } from 'solid-js'
 
-import { updateUnifiedItemQuantity } from '~/modules/diet/item/application/item'
-import {
-  addChildToItem,
-  updateChildInItem,
-} from '~/modules/diet/unified-item/domain/childOperations'
+import { updateChildInItem } from '~/modules/diet/unified-item/domain/childOperations'
 import {
   isGroup,
   type UnifiedItem,
@@ -58,7 +54,7 @@ export function GroupChildrenEditor(props: GroupChildrenEditorProps) {
         {children().length === 1 ? 'item' : 'itens'})
       </p>
 
-      <div class="mt-3 space-y-3">
+      <div class="mt-3 space-y-2">
         <For each={children()}>
           {(child) => (
             <GroupChildEditor
@@ -72,7 +68,7 @@ export function GroupChildrenEditor(props: GroupChildrenEditorProps) {
       </div>
 
       <Show when={children().length === 0}>
-        <div class="mt-3 p-4 bg-gray-800 rounded text-center text-gray-500">
+        <div class="mt-3 p-4 rounded-lg border border-gray-700 bg-gray-700 text-center text-gray-500">
           Grupo vazio
         </div>
       </Show>
@@ -80,20 +76,22 @@ export function GroupChildrenEditor(props: GroupChildrenEditorProps) {
       <Show when={children().length > 1}>
         <div class="mt-4">
           <p class="text-gray-400 text-sm mb-2">Ações do Grupo</p>
-          <div class="flex gap-2 p-3 bg-gray-800 rounded">
-            <For each={[0.5, 1, 1.5, 2]}>
-              {(multiplier) => (
-                <button
-                  class="btn btn-sm btn-outline flex-1"
-                  onClick={() => applyMultiplierToAll(multiplier)}
-                >
-                  ×{multiplier}
-                </button>
-              )}
-            </For>
-            <span class="self-center text-gray-400 text-sm ml-2">
-              Aplicar a todos
-            </span>
+          <div class="rounded-lg border border-gray-700 bg-gray-700 p-3">
+            <div class="flex gap-1">
+              <For each={[0.5, 1, 1.5, 2]}>
+                {(multiplier) => (
+                  <button
+                    class="btn btn-sm btn-primary flex-1"
+                    onClick={() => applyMultiplierToAll(multiplier)}
+                  >
+                    ×{multiplier}
+                  </button>
+                )}
+              </For>
+            </div>
+            <p class="text-xs text-gray-400 mt-2 text-center">
+              Aplicar a todos os itens
+            </p>
           </div>
         </div>
       </Show>
@@ -109,7 +107,6 @@ type GroupChildEditorProps = {
 function GroupChildEditor(props: GroupChildEditorProps) {
   const quantityField = useFloatField(() => props.child.quantity, {
     decimalPlaces: 1,
-    defaultValue: props.child.quantity,
     minValue: 0.1,
   })
 
@@ -156,18 +153,22 @@ function GroupChildEditor(props: GroupChildEditorProps) {
   }
 
   return (
-    <div class="p-3 bg-gray-800 rounded border border-gray-600">
-      <div class="flex items-center justify-between mb-2">
-        <h4 class="font-medium text-white">{props.child.name}</h4>
-        <span class="text-xs text-gray-400">#{props.child.id}</span>
+    <div class="rounded-lg border border-gray-700 bg-gray-700 p-3 shadow">
+      {/* Header com nome e id */}
+      <div class="flex items-center justify-between mb-3">
+        <h4 class="font-medium text-white truncate">{props.child.name}</h4>
+        <span class="text-xs text-gray-400 ml-2 shrink-0">
+          #{props.child.id}
+        </span>
       </div>
 
-      <div class="flex items-center gap-2">
-        <div class="flex-1">
+      {/* Controles principais */}
+      <div class="flex w-full justify-between gap-1 mb-3">
+        <div class="flex-1 relative">
           <FloatInput
             field={quantityField}
             placeholder="Quantidade"
-            class="input input-sm input-bordered w-full"
+            class={`input-bordered input bg-gray-800 border-gray-300 w-full`}
             onFieldCommit={handleQuantityChange}
             onFocus={(event) => {
               event.target.select()
@@ -175,22 +176,31 @@ function GroupChildEditor(props: GroupChildEditorProps) {
           />
         </div>
 
-        <span class="text-gray-400">g</span>
+        <span class="text-gray-400 self-center mx-2">g</span>
 
-        <button class="btn btn-xs btn-outline" onClick={decrement}>
-          -
-        </button>
-
-        <button class="btn btn-xs btn-outline" onClick={increment}>
-          +
-        </button>
+        {/* Botões de incremento/decremento - seguindo padrão QuantityControls */}
+        <div class="flex shrink gap-1">
+          <div
+            class="btn-primary btn-xs btn cursor-pointer uppercase h-full w-10 px-6 text-4xl text-red-600"
+            onClick={decrement}
+          >
+            -
+          </div>
+          <div
+            class="btn-primary btn-xs btn cursor-pointer uppercase h-full w-10 px-6 text-4xl text-green-400"
+            onClick={increment}
+          >
+            +
+          </div>
+        </div>
       </div>
 
-      <div class="flex gap-1 mt-2">
+      {/* Shortcuts - seguindo padrão QuantityShortcuts */}
+      <div class="flex gap-1">
         <For each={getShortcuts()}>
           {(shortcut) => (
             <button
-              class={`btn btn-xs flex-1 ${
+              class={`btn btn-xs flex-1 cursor-pointer uppercase ${
                 Math.abs((quantityField.value() ?? 0) - shortcut) < 0.1
                   ? 'btn-primary'
                   : 'btn-outline'
