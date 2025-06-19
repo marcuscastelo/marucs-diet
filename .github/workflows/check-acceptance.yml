@@ -35,7 +35,7 @@ jobs:
             matches=$(echo "$content" | grep -n '\[ \]' || true)
             if [ -n "$matches" ]; then
               failed=1
-              unchecked_list="$unchecked_list\n**$src**:\n\"\"\"\n$matches\n\"\"\""
+              unchecked_list="$unchecked_list\n**$src**:\n\n$matches\n"
             fi
           }
 
@@ -77,7 +77,8 @@ jobs:
           # Manage bot comment
           existing_comment_id=$(echo "$pr_comments" | jq -r '.[] | select(.body | contains("<!-- criteria-check -->")) | .id')
           if [ "$failed" -eq 1 ]; then
-            msg="🚫 **The PR contains unchecked acceptance criteria**.\n$unchecked_list\n\n<!-- criteria-check -->"
+            # Use printf to interpret \n as newlines in the message
+            msg=$(printf "🚫 **The PR contains unchecked acceptance criteria.**\n%s\n\n<!-- criteria-check -->" "$unchecked_list")
             if [ -n "$existing_comment_id" ]; then
               echo "🔄 Updating existing comment..."
               curl -s -X PATCH -H "Authorization: Bearer $GH_TOKEN" \
