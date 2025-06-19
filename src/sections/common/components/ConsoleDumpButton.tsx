@@ -89,7 +89,7 @@ export function ConsoleDumpButton() {
     ]
 
     // Add share option only on mobile devices
-    if (true) {
+    if (isMobile) {
       actions.push({
         text: '📤 Compartilhar',
         primary: true,
