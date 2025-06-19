@@ -37,8 +37,23 @@ describe('conversionUtils', () => {
     const item = unifiedItemToItem(unified)
     expect(item).toMatchObject(sampleItem)
   })
-  it('itemGroupToUnifiedItem converts group', () => {
+  it('itemGroupToUnifiedItem converts group to recipe when recipe field exists', () => {
     const groupUnified = itemGroupToUnifiedItem(sampleGroup)
+    expect(groupUnified.reference.type).toBe('recipe')
+    if (groupUnified.reference.type === 'recipe') {
+      expect(groupUnified.reference.id).toBe(1)
+      expect(Array.isArray(groupUnified.reference.children)).toBe(true)
+    }
+  })
+
+  it('itemGroupToUnifiedItem converts group to group when no recipe field', () => {
+    const plainGroup: ItemGroup = {
+      id: 3,
+      name: 'Simple Group',
+      items: [sampleItem],
+      __type: 'ItemGroup',
+    }
+    const groupUnified = itemGroupToUnifiedItem(plainGroup)
     expect(groupUnified.reference.type).toBe('group')
     if (groupUnified.reference.type === 'group') {
       expect(Array.isArray(groupUnified.reference.children)).toBe(true)

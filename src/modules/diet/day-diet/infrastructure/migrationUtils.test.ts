@@ -86,7 +86,7 @@ describe('infrastructure migration utils', () => {
       expect(result.items[0]?.__type).toBe('UnifiedItem')
     })
 
-    it('handles multiple groups with multiple items', () => {
+    it('handles multiple groups with different strategies', () => {
       const group1 = makeGroup(1, 'Carboidratos', [
         makeItem(1, 'Arroz'),
         makeItem(2, 'Feijão'),
@@ -96,10 +96,118 @@ describe('infrastructure migration utils', () => {
 
       const result = migrateLegacyMealToUnified(meal)
 
-      expect(result.items).toHaveLength(3) // 3 individual food items from the groups
-      expect(result.items.map((item) => item.name)).toContain('Arroz')
-      expect(result.items.map((item) => item.name)).toContain('Feijão')
-      expect(result.items.map((item) => item.name)).toContain('Frango')
+      // Should have 2 items: 1 multi-item group (Carboidratos) + 1 flattened item (Frango)
+      expect(result.items).toHaveLength(2)
+
+      // Check if multi-item group is preserved
+      const groupItem = result.items.find(
+        (item) => item.name === 'Carboidratos',
+      )
+      expect(groupItem).toBeDefined()
+      expect(groupItem?.reference.type).toBe('group')
+      if (groupItem?.reference.type === 'group') {
+        expect(groupItem.reference.children).toHaveLength(2)
+        expect(
+          groupItem.reference.children.map((child) => child.name),
+        ).toContain('Arroz')
+        expect(
+          groupItem.reference.children.map((child) => child.name),
+        ).toContain('Feijão')
+      }
+
+      // Check if single-item group was flattened
+      const flattenedItem = result.items.find((item) => item.name === 'Frango')
+      expect(flattenedItem).toBeDefined()
+      expect(flattenedItem?.reference.type).toBe('food')
+    })
+
+    it('should preserve empty groups and flatten single-item groups', () => {
+      const emptyGroup = makeGroup(1, 'Grupo Vazio', [])
+      const singleItemGroup = makeGroup(2, 'Grupo com 1 Item', [
+        makeItem(1, 'Arroz'),
+      ])
+      const multiItemGroup = makeGroup(3, 'Grupo com 2 Items', [
+        makeItem(2, 'Feijão'),
+        makeItem(3, 'Carne'),
+      ])
+      const meal = makeLegacyMeal(1, 'Almoço', [
+        emptyGroup,
+        singleItemGroup,
+        multiItemGroup,
+      ])
+
+      const result = migrateLegacyMealToUnified(meal)
+
+      // Should have 3 items: 1 from empty group + 1 flattened item + 1 multi-item group
+      expect(result.items).toHaveLength(3)
+
+      // Check if empty group is preserved as UnifiedItem with group reference
+      const emptyGroupItem = result.items.find(
+        (item) => item.name === 'Grupo Vazio',
+      )
+      expect(emptyGroupItem).toBeDefined()
+      expect(emptyGroupItem?.reference.type).toBe('group')
+      if (emptyGroupItem?.reference.type === 'group') {
+        expect(emptyGroupItem.reference.children).toEqual([])
+      }
+
+      // Check if single-item group was flattened to a food item
+      const flattenedItem = result.items.find((item) => item.name === 'Arroz')
+      expect(flattenedItem).toBeDefined()
+      expect(flattenedItem?.reference.type).toBe('food')
+
+      // Check if multi-item group is preserved as group
+      const multiItemGroupItem = result.items.find(
+        (item) => item.name === 'Grupo com 2 Items',
+      )
+      expect(multiItemGroupItem).toBeDefined()
+      expect(multiItemGroupItem?.reference.type).toBe('group')
+      if (multiItemGroupItem?.reference.type === 'group') {
+        expect(multiItemGroupItem.reference.children).toHaveLength(2)
+      }
+    })
+
+    it('should never flatten recipe groups regardless of item count', () => {
+      const singleItemRecipe = makeGroup(1, 'Recipe with 1 item', [
+        makeItem(1, 'Flour'),
+      ])
+      singleItemRecipe.recipe = 123 // Mark as recipe
+
+      const multiItemRecipe = makeGroup(2, 'Recipe with 2 items', [
+        makeItem(2, 'Sugar'),
+        makeItem(3, 'Eggs'),
+      ])
+      multiItemRecipe.recipe = 456 // Mark as recipe
+
+      const meal = makeLegacyMeal(1, 'Breakfast', [
+        singleItemRecipe,
+        multiItemRecipe,
+      ])
+
+      const result = migrateLegacyMealToUnified(meal)
+
+      // Should have 2 items: both recipes preserved as groups
+      expect(result.items).toHaveLength(2)
+
+      // Check if single-item recipe is preserved (not flattened)
+      const singleRecipeItem = result.items.find(
+        (item) => item.name === 'Recipe with 1 item',
+      )
+      expect(singleRecipeItem).toBeDefined()
+      expect(singleRecipeItem?.reference.type).toBe('recipe')
+      if (singleRecipeItem?.reference.type === 'recipe') {
+        expect(singleRecipeItem.reference.id).toBe(123)
+      }
+
+      // Check if multi-item recipe is preserved
+      const multiRecipeItem = result.items.find(
+        (item) => item.name === 'Recipe with 2 items',
+      )
+      expect(multiRecipeItem).toBeDefined()
+      expect(multiRecipeItem?.reference.type).toBe('recipe')
+      if (multiRecipeItem?.reference.type === 'recipe') {
+        expect(multiRecipeItem.reference.id).toBe(456)
+      }
     })
   })
 

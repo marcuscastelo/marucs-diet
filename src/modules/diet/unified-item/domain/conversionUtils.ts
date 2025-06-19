@@ -1,5 +1,3 @@
-import { z } from 'zod'
-
 import { Item } from '~/modules/diet/item/domain/item'
 import type { ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { getItemGroupQuantity } from '~/modules/diet/item-group/domain/itemGroup'
@@ -39,11 +37,14 @@ export function unifiedItemToItem(unified: UnifiedItem): Item {
 }
 
 /**
- * Converts a SimpleItemGroup or RecipedItemGroup to a UnifiedItem (group reference).
+ * Converts a SimpleItemGroup or RecipedItemGroup to a UnifiedItem.
+ * Creates a recipe reference if the group has a recipe field, otherwise creates a group reference.
  * @param group ItemGroup
  * @returns UnifiedItem
  */
 export function itemGroupToUnifiedItem(group: ItemGroup): UnifiedItem {
+  const children = group.items.map((item) => itemToUnifiedItem(item))
+
   return {
     id: group.id,
     name: group.name,
@@ -58,10 +59,10 @@ export function itemGroupToUnifiedItem(group: ItemGroup): UnifiedItem {
         }),
         { protein: 0, carbs: 0, fat: 0 },
       ),
-    reference: {
-      type: 'group',
-      children: group.items.map((item) => itemToUnifiedItem(item)),
-    },
+    reference:
+      group.recipe !== undefined
+        ? { type: 'recipe', id: group.recipe, children }
+        : { type: 'group', children },
     __type: 'UnifiedItem',
   }
 }

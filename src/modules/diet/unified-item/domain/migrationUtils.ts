@@ -8,6 +8,9 @@ import { UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchem
 
 /**
  * Migrates an array of Items and ItemGroups to UnifiedItems.
+ * Strategy:
+ * - For recipes: never flatten, always preserve structure
+ * - For groups: flatten only if exactly 1 item, otherwise preserve as group
  * @param items Item[]
  * @param groups ItemGroup[]
  * @returns UnifiedItem[]
@@ -16,16 +19,44 @@ export function migrateToUnifiedItems(
   items: Item[],
   groups: ItemGroup[],
 ): UnifiedItem[] {
-  const unifiedItems = [
+  const unifiedItems: UnifiedItem[] = []
+
+  // Convert individual items
+  unifiedItems.push(
     ...items.map((item) => ({
       ...itemToUnifiedItem(item),
       __type: 'UnifiedItem' as const,
     })),
-    ...groups.map((group) => ({
-      ...itemGroupToUnifiedItem(group),
-      __type: 'UnifiedItem' as const,
-    })),
-  ]
+  )
+
+  // Process groups with flattening strategy
+  for (const group of groups) {
+    if (group.recipe !== undefined) {
+      // For recipes: never flatten, always preserve structure
+      unifiedItems.push({
+        ...itemGroupToUnifiedItem(group),
+        __type: 'UnifiedItem' as const,
+      })
+    } else {
+      // For groups: flatten only if exactly 1 item
+      if (group.items.length === 1) {
+        // Flatten single-item groups
+        unifiedItems.push(
+          ...group.items.map((item) => ({
+            ...itemToUnifiedItem(item),
+            __type: 'UnifiedItem' as const,
+          })),
+        )
+      } else {
+        // Preserve empty groups and multi-item groups
+        unifiedItems.push({
+          ...itemGroupToUnifiedItem(group),
+          __type: 'UnifiedItem' as const,
+        })
+      }
+    }
+  }
+
   return unifiedItems
 }
 
@@ -71,6 +102,28 @@ export function migrateFromUnifiedItems(unified: UnifiedItem[]): {
           }
         }),
         recipe: undefined,
+        __type: 'ItemGroup',
+      })
+    } else if (u.reference.type === 'recipe') {
+      groups.push({
+        id: u.id,
+        name: u.name,
+        items: u.reference.children.map((c) => {
+          if (c.reference.type !== 'food') {
+            throw new Error(
+              `migrateFromUnifiedItems: Only food children are supported in recipe.items. Found type: ${c.reference.type} (id: ${c.id})`,
+            )
+          }
+          return {
+            id: c.id,
+            name: c.name,
+            quantity: c.quantity,
+            macros: c.macros,
+            reference: c.reference.id,
+            __type: 'Item',
+          }
+        }),
+        recipe: u.reference.id,
         __type: 'ItemGroup',
       })
     }

@@ -21,8 +21,8 @@ export type LegacyMeal = {
  * @returns Meal with unified items
  */
 export function migrateLegacyMealToUnified(legacyMeal: LegacyMeal): Meal {
-  const allItems = legacyMeal.groups.flatMap((group) => group.items)
-  const unifiedItems = migrateToUnifiedItems(allItems, [])
+  // Convert each group to a UnifiedItem, preserving group structure including empty groups
+  const unifiedItems = migrateToUnifiedItems([], legacyMeal.groups)
 
   return {
     id: legacyMeal.id,
