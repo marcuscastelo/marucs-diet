@@ -26,8 +26,11 @@ import {
   MealContextProvider,
   useMealContext,
 } from '~/sections/meal/context/MealContext'
+import { createDebug } from '~/shared/utils/createDebug'
 import { regenerateId } from '~/shared/utils/idUtils'
 import { calcMealCalories } from '~/shared/utils/macroMath'
+
+const debug = createDebug()
 
 // TODO: Remove deprecated props and their usages
 export type MealEditViewProps = {
@@ -162,11 +165,10 @@ export function MealEditViewContent(props: {
   const { show: showConfirmModal } = useConfirmModalContext()
   const clipboard = useClipboard()
 
-  console.debug('[MealEditViewContent] - Rendering')
-  console.debug('[MealEditViewContent] - meal.value:', meal())
+  debug('meal.value:', meal())
 
   createEffect(() => {
-    console.debug('[MealEditViewContent] meal.value changed:', meal())
+    debug('meal.value changed:', meal())
   })
 
   return (
