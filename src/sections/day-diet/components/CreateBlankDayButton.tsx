@@ -14,7 +14,7 @@ const DEFAULT_MEALS = [
   'Lanche',
   'Janta',
   'Pós janta',
-].map((name) => createMeal({ name, groups: [] }))
+].map((name) => createMeal({ name, items: [] }))
 
 export function CreateBlankDayButton(props: { selectedDay: string }) {
   return (

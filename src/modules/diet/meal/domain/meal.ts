@@ -1,12 +1,12 @@
 import { z } from 'zod'
 
-import { itemGroupSchema } from '~/modules/diet/item-group/domain/itemGroup'
+import { unifiedItemSchema } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { generateId } from '~/shared/utils/idUtils'
 
 export const mealSchema = z.object({
   id: z.number(),
   name: z.string(),
-  groups: z.array(itemGroupSchema),
+  items: z.array(unifiedItemSchema),
   __type: z
     .string()
     .nullable()
@@ -18,15 +18,15 @@ export type Meal = Readonly<z.infer<typeof mealSchema>>
 
 export function createMeal({
   name,
-  groups,
+  items,
 }: {
   name: string
-  groups: Meal['groups']
+  items: Meal['items']
 }): Meal {
   return {
     id: generateId(),
     name,
-    groups,
+    items,
     __type: 'Meal',
   }
 }

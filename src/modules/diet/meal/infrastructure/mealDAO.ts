@@ -1,27 +1,27 @@
 import { z } from 'zod'
 
-import { itemGroupSchema } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Meal, mealSchema } from '~/modules/diet/meal/domain/meal'
+import { unifiedItemSchema } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 // DAO schema for creating new meals
 export const createMealDAOSchema = z.object({
   name: z.string(),
-  groups: z.array(itemGroupSchema),
+  items: z.array(unifiedItemSchema),
 })
 
 // DAO schema for updating existing meals
 export const updateMealDAOSchema = z.object({
   id: z.number(),
   name: z.string().optional(),
-  groups: z.array(itemGroupSchema).optional(),
+  items: z.array(unifiedItemSchema).optional(),
 })
 
 // DAO schema for database record
 export const mealDAOSchema = z.object({
   id: z.number(),
   name: z.string(),
-  groups: z.array(itemGroupSchema),
+  items: z.array(unifiedItemSchema),
 })
 
 export type CreateMealDAO = z.infer<typeof createMealDAOSchema>
@@ -35,7 +35,7 @@ export function mealToDAO(meal: Meal): MealDAO {
   return {
     id: meal.id,
     name: meal.name,
-    groups: meal.groups,
+    items: meal.items,
   }
 }
 
@@ -46,7 +46,7 @@ export function daoToMeal(dao: MealDAO): Meal {
   return parseWithStack(mealSchema, {
     id: dao.id,
     name: dao.name,
-    groups: dao.groups,
+    items: dao.items,
   })
 }
 
@@ -60,7 +60,7 @@ export function createMealDAOToDAO(
   return parseWithStack(mealDAOSchema, {
     id,
     name: createDAO.name,
-    groups: createDAO.groups,
+    items: createDAO.items,
   })
 }
 

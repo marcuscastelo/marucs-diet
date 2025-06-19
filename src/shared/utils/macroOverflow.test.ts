@@ -30,11 +30,20 @@ function makeFakeDayDiet(macros: {
     recipe: undefined,
     __type: 'ItemGroup' as const,
   }
-  // Create a meal with the group
+  // Create UnifiedItem from the group's items
+  const unifiedItems = group.items.map((item) => ({
+    id: item.id,
+    name: item.name,
+    quantity: item.quantity,
+    macros: item.macros,
+    reference: { type: 'food' as const, id: item.reference },
+    __type: 'UnifiedItem' as const,
+  }))
+  // Create a meal with the unified items
   const meal = {
     id: 1,
     name: 'Meal',
-    groups: [group],
+    items: unifiedItems,
     __type: 'Meal' as const,
   }
   // Return a DayDiet with the meal

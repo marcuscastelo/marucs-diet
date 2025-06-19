@@ -13,7 +13,6 @@ import {
   updateMealInDayDiet,
 } from '~/modules/diet/day-diet/domain/dayDietOperations'
 import { createItem } from '~/modules/diet/item/domain/item'
-import { createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { createMeal } from '~/modules/diet/meal/domain/meal'
 
 function makeItem(id: number, name = 'Arroz') {
@@ -27,22 +26,30 @@ function makeItem(id: number, name = 'Arroz') {
     id,
   }
 }
-function makeGroup(id: number, name = 'G1', items = [makeItem(1)]) {
+function makeUnifiedItemFromItem(item: ReturnType<typeof makeItem>) {
   return {
-    ...createSimpleItemGroup({ name, items }),
-    id,
+    id: item.id,
+    name: item.name,
+    quantity: item.quantity,
+    macros: item.macros,
+    reference: { type: 'food' as const, id: item.reference },
+    __type: 'UnifiedItem' as const,
   }
 }
-function makeMeal(id: number, name = 'Almoço', groups = [makeGroup(1)]) {
+
+function makeMeal(
+  id: number,
+  name = 'Almoço',
+  items = [makeUnifiedItemFromItem(makeItem(1))],
+) {
   return {
-    ...createMeal({ name, groups }),
+    ...createMeal({ name, items }),
     id,
   }
 }
 
 const baseItem = makeItem(1)
-const baseGroup = makeGroup(1, 'G1', [baseItem])
-const baseMeal = makeMeal(1, 'Almoço', [baseGroup])
+const baseMeal = makeMeal(1, 'Almoço', [makeUnifiedItemFromItem(baseItem)])
 const baseDayDiet: DayDiet = {
   id: 1,
   __type: 'DayDiet',
@@ -69,7 +76,7 @@ describe('dayDietOperations', () => {
   })
 
   it('updateMealInDayDiet updates a meal', () => {
-    const updated = makeMeal(1, 'Jantar', [baseGroup])
+    const updated = makeMeal(1, 'Jantar', [makeUnifiedItemFromItem(baseItem)])
     const result = updateMealInDayDiet(baseDayDiet, 1, updated)
     expect(result.meals[0]?.name).toBe('Jantar')
   })

@@ -26,8 +26,11 @@ import {
   MealContextProvider,
   useMealContext,
 } from '~/sections/meal/context/MealContext'
+import { createDebug } from '~/shared/utils/createDebug'
 import { regenerateId } from '~/shared/utils/idUtils'
 import { calcMealCalories } from '~/shared/utils/macroMath'
+
+const debug = createDebug()
 
 // TODO: Remove deprecated props and their usages
 export type MealEditViewProps = {
@@ -139,10 +142,10 @@ export function MealEditViewHeader(props: {
           {props.mode !== 'summary' && (
             <ClipboardActionButtons
               canCopy={
-                !hasValidPastableOnClipboard() && mealSignal().groups.length > 0
+                !hasValidPastableOnClipboard() && mealSignal().items.length > 0
               }
               canPaste={hasValidPastableOnClipboard()}
-              canClear={mealSignal().groups.length > 0}
+              canClear={mealSignal().items.length > 0}
               onCopy={handleCopy}
               onPaste={handlePaste}
               onClear={onClearItems}
@@ -162,16 +165,15 @@ export function MealEditViewContent(props: {
   const { show: showConfirmModal } = useConfirmModalContext()
   const clipboard = useClipboard()
 
-  console.debug('[MealEditViewContent] - Rendering')
-  console.debug('[MealEditViewContent] - meal.value:', meal())
+  debug('meal.value:', meal())
 
   createEffect(() => {
-    console.debug('[MealEditViewContent] meal.value changed:', meal())
+    debug('meal.value changed:', meal())
   })
 
   return (
     <ItemGroupListView
-      itemGroups={() => meal().groups}
+      itemGroups={() => []} // TODO: Update to use UnifiedItems - need UI layer refactoring
       handlers={{
         onEdit: props.onEditItemGroup,
         onCopy: (item) => {

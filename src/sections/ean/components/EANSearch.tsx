@@ -120,13 +120,13 @@ export function EANSearch(props: EANSearchProps) {
                     macroOverflow={() => ({
                       enable: false,
                     })}
-                    header={
+                    header={() => (
                       <HeaderWithActions
                         name={<ItemName />}
                         primaryActions={<ItemFavorite foodId={food().id} />}
                       />
-                    }
-                    nutritionalInfo={<ItemNutritionalInfo />}
+                    )}
+                    nutritionalInfo={() => <ItemNutritionalInfo />}
                   />
                 </p>
               </div>

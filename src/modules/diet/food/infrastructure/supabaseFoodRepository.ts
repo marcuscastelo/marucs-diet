@@ -10,9 +10,12 @@ import {
 } from '~/modules/diet/food/infrastructure/foodDAO'
 import { handleApiError, wrapErrorWithStack } from '~/shared/error/errorHandler'
 import { isSupabaseDuplicateEanError } from '~/shared/supabase/supabaseErrorUtils'
+import { createDebug } from '~/shared/utils/createDebug'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 import { removeDiacritics } from '~/shared/utils/removeDiacritics'
 import supabase from '~/shared/utils/supabase'
+
+const debug = createDebug()
 
 const TABLE = 'foods'
 
@@ -195,8 +198,8 @@ async function internalCachedSearchFoods(
       },
   params?: FoodSearchParams,
 ): Promise<readonly Food[]> {
-  console.debug(
-    `[Food] Searching for foods with ${field} = ${value} (limit: ${
+  debug(
+    `Searching for foods with ${field} = ${value} (limit: ${
       params?.limit ?? 'none'
     })`,
   )
@@ -227,12 +230,12 @@ async function internalCachedSearchFoods(
   }
 
   if (allowedFoods !== undefined) {
-    console.debug('[Food] Limiting search to allowed foods')
+    debug('Limiting search to allowed foods')
     query = query.in('id', allowedFoods)
   }
 
   if (limit !== undefined) {
-    console.debug(`[Food] Limiting search to ${limit} results`)
+    debug(`Limiting search to ${limit} results`)
     query = query.limit(limit)
   }
 
@@ -242,7 +245,7 @@ async function internalCachedSearchFoods(
     throw wrapErrorWithStack(error)
   }
 
-  console.debug(`[Food] Found ${data.length} foods`)
+  debug(`Found ${data.length} foods`)
   const foodDAOs = parseWithStack(foodDAOSchema.array(), data)
   return foodDAOs.map(createFoodFromDAO)
 }

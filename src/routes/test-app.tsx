@@ -75,14 +75,14 @@ export default function TestApp() {
   const [meal, setMeal] = createSignal<Meal>({
     id: 1,
     name: 'Teste',
-    groups: [],
+    items: [],
     __type: 'Meal',
   } satisfies Meal)
 
   createEffect(() => {
     setMeal({
       ...untrack(meal),
-      groups: [group()],
+      items: [],
     })
   })
 
