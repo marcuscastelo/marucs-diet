@@ -11,7 +11,10 @@ import {
   type ItemGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
-import { itemGroupToUnifiedItem } from '~/modules/diet/unified-item/domain/conversionUtils'
+import {
+  itemGroupToUnifiedItem,
+  itemToUnifiedItem,
+} from '~/modules/diet/unified-item/domain/conversionUtils'
 import { showSuccess } from '~/modules/toast/application/toastManager'
 import { TestChart } from '~/sections/common/components/charts/TestChart'
 import { FloatInput } from '~/sections/common/components/FloatInput'
@@ -28,7 +31,6 @@ import { useFloatField } from '~/sections/common/hooks/useField'
 import { Datepicker } from '~/sections/datepicker/components/Datepicker'
 import { type DateValueType } from '~/sections/datepicker/types'
 import DayMacros from '~/sections/day-diet/components/DayMacros'
-import { ItemListView } from '~/sections/food-item/components/ItemListView'
 import {
   ItemGroupCopyButton,
   ItemGroupName,
@@ -37,6 +39,7 @@ import {
 } from '~/sections/item-group/components/ItemGroupView'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
+import { UnifiedItemListView } from '~/sections/unified-item/components/UnifiedItemListView'
 
 export default function TestApp() {
   const [unifiedItemEditModalVisible, setUnifiedItemEditModalVisible] =
@@ -178,9 +181,9 @@ export default function TestApp() {
             Item Group & List
           </summary>
           <div class="pl-4 flex flex-col gap-2">
-            <h1>ItemListView</h1>
-            <ItemListView
-              items={() => group().items}
+            <h1>UnifiedItemListView (legacy test)</h1>
+            <UnifiedItemListView
+              items={() => group().items.map(itemToUnifiedItem)}
               mode="edit"
               handlers={{
                 onClick: () => {
