@@ -27,12 +27,12 @@ import { Modal } from '~/sections/common/components/Modal'
 import { useModalContext } from '~/sections/common/context/ModalContext'
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { useFloatField } from '~/sections/common/hooks/useField'
+import { ItemFavorite } from '~/sections/food-item/components/ItemView'
 import {
-  ItemFavorite,
-  ItemName,
-  ItemNutritionalInfo,
-  ItemView,
-} from '~/sections/food-item/components/ItemView'
+  UnifiedItemName,
+  UnifiedItemView,
+  UnifiedItemViewNutritionalInfo,
+} from '~/sections/unified-item/components/UnifiedItemView'
 import { createDebug } from '~/shared/utils/createDebug'
 import { calcDayMacros, calcUnifiedItemMacros } from '~/shared/utils/macroMath'
 
@@ -133,7 +133,6 @@ function Body(props: {
   }
 }) {
   debug('[Body] called', props)
-  const id = () => props.item().id
 
   const quantitySignal = () =>
     props.item().quantity === 0 ? undefined : props.item().quantity
@@ -346,121 +345,18 @@ function Body(props: {
       </div>
 
       <Show when={isFood(props.item()) || isRecipe(props.item())}>
-        <ItemView
+        <UnifiedItemView
           mode="edit"
           handlers={{
             onCopy: () => {
               clipboard.write(JSON.stringify(props.item()))
             },
           }}
-          item={() => {
-            const currentItem = props.item()
-            // Convert UnifiedItem to TemplateItem format (Item type)
-            if (isFood(currentItem)) {
-              return {
-                __type: 'Item' as const,
-                id: id(),
-                name: currentItem.name,
-                quantity: quantityField.value() ?? currentItem.quantity,
-                reference: currentItem.reference.id,
-                macros: currentItem.reference.macros,
-              }
-            }
-            if (isRecipe(currentItem)) {
-              // For recipes, calculate macros from children
-              const recipeMacros = calcUnifiedItemMacros(currentItem)
-              const recipeQuantity =
-                quantityField.value() ?? currentItem.quantity
-
-              // Calculate per-100g macros for display
-              const totalRecipeQuantity = currentItem.quantity || 1
-              const per100gMacros = {
-                carbs: (recipeMacros.carbs * 100) / totalRecipeQuantity,
-                protein: (recipeMacros.protein * 100) / totalRecipeQuantity,
-                fat: (recipeMacros.fat * 100) / totalRecipeQuantity,
-              }
-
-              return {
-                __type: 'Item' as const,
-                id: id(),
-                name: currentItem.name,
-                quantity: recipeQuantity,
-                reference: currentItem.reference.id,
-                macros: per100gMacros,
-              }
-            }
-            // Fallback - should not happen since we check above
-            return {
-              __type: 'Item' as const,
-              id: id(),
-              name: currentItem.name,
-              quantity: quantityField.value() ?? currentItem.quantity,
-              reference: 0,
-              macros: { carbs: 0, protein: 0, fat: 0 },
-            }
-          }}
-          macroOverflow={() => ({
-            enable: props.macroOverflow().enable,
-            originalItem: props.macroOverflow().originalItem
-              ? (() => {
-                  const origItem = props.macroOverflow().originalItem!
-                  if (isFood(origItem)) {
-                    const foodItem = origItem as Extract<
-                      UnifiedItem,
-                      { reference: { id: number } }
-                    >
-                    const foodItemWithMacros = origItem as Extract<
-                      UnifiedItem,
-                      {
-                        reference: { type: 'food'; macros: MacroNutrients }
-                      }
-                    >
-                    return {
-                      __type: 'Item' as const,
-                      id: origItem.id,
-                      name: origItem.name,
-                      quantity: origItem.quantity,
-                      reference: foodItem.reference.id,
-                      macros: foodItemWithMacros.reference.macros,
-                    }
-                  }
-                  if (isRecipe(origItem)) {
-                    const recipeMacros = calcUnifiedItemMacros(origItem)
-                    const totalRecipeQuantity = origItem.quantity || 1
-                    const per100gMacros = {
-                      carbs: (recipeMacros.carbs * 100) / totalRecipeQuantity,
-                      protein:
-                        (recipeMacros.protein * 100) / totalRecipeQuantity,
-                      fat: (recipeMacros.fat * 100) / totalRecipeQuantity,
-                    }
-                    const recipeItem = origItem as Extract<
-                      UnifiedItem,
-                      { reference: { id: number } }
-                    >
-                    return {
-                      __type: 'Item' as const,
-                      id: origItem.id,
-                      name: origItem.name,
-                      quantity: origItem.quantity,
-                      reference: recipeItem.reference.id,
-                      macros: per100gMacros,
-                    }
-                  }
-                  return {
-                    __type: 'Item' as const,
-                    id: origItem.id,
-                    name: origItem.name,
-                    quantity: origItem.quantity,
-                    reference: 0,
-                    macros: { carbs: 0, protein: 0, fat: 0 },
-                  }
-                })()
-              : undefined,
-          })}
+          item={props.item}
           class="mt-4"
           header={() => (
             <HeaderWithActions
-              name={<ItemName />}
+              name={<UnifiedItemName item={props.item} />}
               primaryActions={
                 <Show when={isFood(props.item())}>
                   <ItemFavorite
@@ -477,7 +373,9 @@ function Body(props: {
               }
             />
           )}
-          nutritionalInfo={() => <ItemNutritionalInfo />}
+          nutritionalInfo={() => (
+            <UnifiedItemViewNutritionalInfo item={props.item} />
+          )}
         />
       </Show>
     </>
