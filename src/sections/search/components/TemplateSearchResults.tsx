@@ -1,24 +1,23 @@
 import { type Accessor, For, type Setter } from 'solid-js'
 
 import { type Food } from '~/modules/diet/food/domain/food'
-import { createItem } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { getRecipePreparedQuantity } from '~/modules/diet/recipe/domain/recipeOperations'
 import {
   isTemplateFood,
   type Template,
 } from '~/modules/diet/template/domain/template'
+import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { debouncedTab } from '~/modules/search/application/search'
 import { Alert } from '~/sections/common/components/Alert'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
-import {
-  ItemFavorite,
-  ItemName,
-  ItemNutritionalInfo,
-  ItemView,
-} from '~/sections/food-item/components/ItemView'
 import { RemoveFromRecentButton } from '~/sections/food-item/components/RemoveFromRecentButton'
-import { calcRecipeMacros } from '~/shared/utils/macroMath'
+import {
+  UnifiedItemFavorite,
+  UnifiedItemName,
+  UnifiedItemView,
+  UnifiedItemViewNutritionalInfo,
+} from '~/sections/unified-item/components/UnifiedItemView'
 
 export function TemplateSearchResults(props: {
   search: string
@@ -66,25 +65,40 @@ export function TemplateSearchResults(props: {
 
             const displayQuantity = getDisplayQuantity()
 
+            // Convert template to UnifiedItem
+            const createUnifiedItemFromTemplate = () => {
+              if (isTemplateFood(template)) {
+                const food = template as Food
+                return createUnifiedItem({
+                  id: template.id,
+                  name: template.name,
+                  quantity: displayQuantity,
+                  reference: {
+                    type: 'food',
+                    id: template.id,
+                    macros: food.macros,
+                  },
+                })
+              } else {
+                return createUnifiedItem({
+                  id: template.id,
+                  name: template.name,
+                  quantity: displayQuantity,
+                  reference: {
+                    type: 'recipe',
+                    id: template.id,
+                    children: [], // Recipe children would need to be populated separately
+                  },
+                })
+              }
+            }
+
             return (
               <>
-                <ItemView
+                <UnifiedItemView
                   mode="read-only"
-                  item={() => ({
-                    ...createItem({
-                      name: template.name,
-                      quantity: displayQuantity,
-                      macros: isTemplateFood(template)
-                        ? (template as Food).macros
-                        : calcRecipeMacros(template as Recipe),
-                      reference: template.id,
-                    }),
-                    __type: isTemplateFood(template) ? 'Item' : 'RecipeItem', // TODO:   Refactor conversion from template type to group/item types
-                  })}
+                  item={createUnifiedItemFromTemplate}
                   class="mt-1"
-                  macroOverflow={() => ({
-                    enable: false,
-                  })}
                   handlers={{
                     onClick: () => {
                       props.setSelectedTemplate(template)
@@ -94,8 +108,12 @@ export function TemplateSearchResults(props: {
                   }}
                   header={() => (
                     <HeaderWithActions
-                      name={<ItemName />}
-                      primaryActions={<ItemFavorite foodId={template.id} />}
+                      name={
+                        <UnifiedItemName item={createUnifiedItemFromTemplate} />
+                      }
+                      primaryActions={
+                        <UnifiedItemFavorite foodId={template.id} />
+                      }
                       secondaryActions={
                         <RemoveFromRecentButton
                           templateId={template.id}
@@ -105,7 +123,11 @@ export function TemplateSearchResults(props: {
                       }
                     />
                   )}
-                  nutritionalInfo={() => <ItemNutritionalInfo />}
+                  nutritionalInfo={() => (
+                    <UnifiedItemViewNutritionalInfo
+                      item={createUnifiedItemFromTemplate}
+                    />
+                  )}
                 />
               </>
             )

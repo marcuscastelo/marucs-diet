@@ -14,16 +14,23 @@ import {
   isRecipe,
   type UnifiedItem,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import {
+  isFoodFavorite,
+  setFoodAsFavorite,
+} from '~/modules/user/application/user'
 import { ContextMenu } from '~/sections/common/components/ContextMenu'
 import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
 import { MoreVertIcon } from '~/sections/common/components/icons/MoreVertIcon'
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import MacroNutrientsView from '~/sections/macro-nutrients/components/MacroNutrientsView'
 import { cn } from '~/shared/cn'
+import { createDebug } from '~/shared/utils/createDebug'
 import {
   calcUnifiedItemCalories,
   calcUnifiedItemMacros,
 } from '~/shared/utils/macroMath'
+
+const debug = createDebug()
 
 export type UnifiedItemViewProps = {
   item: Accessor<UnifiedItem>
@@ -182,6 +189,7 @@ export function UnifiedItemView(props: UnifiedItemViewProps) {
           </For>
         </div>
       </Show>
+      <UnifiedItemFavorite foodId={props.item().id} />
     </div>
   )
 }
@@ -302,6 +310,29 @@ export function UnifiedItemViewNutritionalInfo(props: {
         <span class="text-white"> {props.item().quantity}g </span>|
         <span class="text-white"> {calories().toFixed(0)}kcal </span>
       </div>
+    </div>
+  )
+}
+
+export function UnifiedItemFavorite(props: { foodId: number }) {
+  debug('UnifiedItemFavorite called', { props })
+
+  const toggleFavorite = (e: MouseEvent) => {
+    debug('toggleFavorite', {
+      foodId: props.foodId,
+      isFavorite: isFoodFavorite(props.foodId),
+    })
+    setFoodAsFavorite(props.foodId, !isFoodFavorite(props.foodId))
+    e.stopPropagation()
+    e.preventDefault()
+  }
+
+  return (
+    <div
+      class="text-3xl text-orange-400 active:scale-105 hover:text-blue-200"
+      onClick={toggleFavorite}
+    >
+      {isFoodFavorite(props.foodId) ? '★' : '☆'}
     </div>
   )
 }

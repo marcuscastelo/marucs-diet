@@ -12,10 +12,10 @@ import {
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import { type MacroValues } from '~/sections/common/components/MaxQuantityButton'
 import { type UseFieldReturn } from '~/sections/common/hooks/useField'
-import { ItemFavorite } from '~/sections/food-item/components/ItemView'
 import { GroupChildrenEditor } from '~/sections/unified-item/components/GroupChildrenEditor'
 import { QuantityControls } from '~/sections/unified-item/components/QuantityControls'
 import { QuantityShortcuts } from '~/sections/unified-item/components/QuantityShortcuts'
+import { UnifiedItemFavorite } from '~/sections/unified-item/components/UnifiedItemView'
 import {
   UnifiedItemName,
   UnifiedItemView,
@@ -202,7 +202,7 @@ export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
               }
               primaryActions={
                 <Show when={isFood(props.item())}>
-                  <ItemFavorite
+                  <UnifiedItemFavorite
                     foodId={
                       (
                         props.item() as Extract<
