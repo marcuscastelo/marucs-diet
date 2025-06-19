@@ -1,5 +1,6 @@
 import { type Accessor, createMemo, For, type JSXElement, Show } from 'solid-js'
 
+import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 import {
   isGroup,
   isRecipe,
@@ -10,12 +11,18 @@ import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
 import { MoreVertIcon } from '~/sections/common/components/icons/MoreVertIcon'
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import MacroNutrientsView from '~/sections/macro-nutrients/components/MacroNutrientsView'
+import { createDebug } from '~/shared/utils/createDebug'
 import { calcUnifiedItemCalories } from '~/shared/utils/macroMath'
+
+const debug = createDebug()
+
+// TODO:   Use repository pattern through use cases instead of directly using repositories
+const recipeRepository = createSupabaseRecipeRepository()
 
 export type UnifiedItemViewProps = {
   item: Accessor<UnifiedItem>
-  header?: JSXElement
-  nutritionalInfo?: JSXElement
+  header?: JSXElement | (() => JSXElement)
+  nutritionalInfo?: JSXElement | (() => JSXElement)
   class?: string
   mode?: 'edit' | 'read-only' | 'summary'
   handlers: {
@@ -58,8 +65,10 @@ export function UnifiedItemView(props: UnifiedItemViewProps) {
     >
       <div class="flex justify-between items-start">
         <div class="flex-1">
-          {props.header}
-          {props.nutritionalInfo}
+          {typeof props.header === 'function' ? props.header() : props.header}
+          {typeof props.nutritionalInfo === 'function'
+            ? props.nutritionalInfo()
+            : props.nutritionalInfo}
         </div>
 
         <Show when={isInteractive()}>
@@ -166,23 +175,5 @@ export function UnifiedItemViewNutritionalInfo(props: {
       </div>
       <MacroNutrientsView macros={props.item().macros} />
     </div>
-  )
-}
-
-export function UnifiedItemCopyButton(props: {
-  onCopyItem: (item: UnifiedItem) => void
-  item: Accessor<UnifiedItem>
-}) {
-  return (
-    <button
-      class="p-1 hover:bg-gray-600 rounded"
-      onClick={(e) => {
-        e.stopPropagation()
-        props.onCopyItem(props.item())
-      }}
-      title="Copiar item"
-    >
-      <CopyIcon size={16} />
-    </button>
   )
 }

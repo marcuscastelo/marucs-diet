@@ -101,7 +101,7 @@ export function ItemView(props: ItemViewProps) {
   return (
     <div
       class={cn(
-        'meal-item block rounded-lg border border-gray-700 bg-gray-700 p-3 shadow hover:cursor-pointer hover:bg-gray-700',
+        'block rounded-lg border border-gray-700 bg-gray-700 p-3 shadow hover:cursor-pointer hover:bg-gray-700',
         props.class,
       )}
       onClick={(e) => handlers().onClick?.(e)}

@@ -5,13 +5,11 @@ import {
   For,
   type Setter,
   Show,
-  untrack,
 } from 'solid-js'
 
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import {
-  deleteUnifiedItem,
   insertUnifiedItem,
   updateUnifiedItem,
 } from '~/modules/diet/item-group/application/itemGroup'

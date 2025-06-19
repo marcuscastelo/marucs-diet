@@ -56,6 +56,7 @@ export default [
         },
       ],
       'import/no-unresolved': ['error'],
+      'import/no-empty-named-blocks': ['warn'],
 
       eqeqeq: ["error", "always"],
 
