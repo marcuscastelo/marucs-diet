@@ -17,6 +17,7 @@ import {
   users,
 } from '~/modules/user/application/user'
 import { type User } from '~/modules/user/domain/user'
+import { ConsoleDumpButton } from '~/sections/common/components/ConsoleDumpButton'
 import { UserIcon } from '~/sections/common/components/icons/UserIcon'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useIntersectionObserver } from '~/shared/hooks/useIntersectionObserver'
@@ -138,7 +139,10 @@ export function BottomNavigation() {
         ref={footerRef}
         class="w-full flex flex-col justify-center items-center gap-1  p-2 rounded-t left-0 bottom-0 z-40 lg:static lg:rounded-none"
       >
-        <pre class="text-xs text-white">Version: {APP_VERSION}</pre>
+        <div class="flex items-center gap-2">
+          <pre class="text-xs text-white">Version: {APP_VERSION}</pre>
+          <ConsoleDumpButton />
+        </div>
         <Show when={!window.location.href.includes('stable')}>
           <button
             type="button"
