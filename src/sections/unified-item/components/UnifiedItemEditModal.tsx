@@ -175,29 +175,6 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
               isFoodItem(item()) || isRecipeItem(item()) || isGroupItem(item())
             }
           >
-            {/* Clipboard Actions */}
-            <div class="mb-4 flex justify-center gap-2">
-              <button
-                class="btn btn-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md transition-colors flex items-center gap-1"
-                onClick={handleCopy}
-                title="Copiar item"
-              >
-                📋 Copiar
-              </button>
-              <Show when={hasValidPastableOnClipboard()}>
-                <button
-                  class="btn btn-sm bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md transition-colors flex items-center gap-1"
-                  onClick={handlePaste}
-                  title="Colar item"
-                >
-                  <div class="w-4 h-4">
-                    <PasteIcon />
-                  </div>
-                  Colar
-                </button>
-              </Show>
-            </div>
-
             {/* Toggle button for recipes */}
             <Show when={isRecipeItem(item())}>
               <div class="mb-4 flex justify-center items-center gap-3 ">
