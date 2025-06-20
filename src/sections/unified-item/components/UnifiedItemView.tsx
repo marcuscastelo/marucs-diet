@@ -55,8 +55,3 @@ export function UnifiedItemView(props: UnifiedItemViewProps) {
     </div>
   )
 }
-
-// Re-export the extracted components for backward compatibility
-export { UnifiedItemFavorite } from '~/sections/unified-item/components/UnifiedItemFavorite'
-export { UnifiedItemName } from '~/sections/unified-item/components/UnifiedItemName'
-export { UnifiedItemNutritionalInfo as UnifiedItemViewNutritionalInfo } from '~/sections/unified-item/components/UnifiedItemNutritionalInfo'

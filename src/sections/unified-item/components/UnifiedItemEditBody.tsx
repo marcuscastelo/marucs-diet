@@ -1,10 +1,4 @@
-import {
-  type Accessor,
-  createMemo,
-  createSignal,
-  type Setter,
-  Show,
-} from 'solid-js'
+import { type Accessor, createSignal, type Setter, Show } from 'solid-js'
 
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
 import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
@@ -22,12 +16,10 @@ import { type UseFieldReturn } from '~/sections/common/hooks/useField'
 import { GroupChildrenEditor } from '~/sections/unified-item/components/GroupChildrenEditor'
 import { QuantityControls } from '~/sections/unified-item/components/QuantityControls'
 import { QuantityShortcuts } from '~/sections/unified-item/components/QuantityShortcuts'
+import { UnifiedItemFavorite } from '~/sections/unified-item/components/UnifiedItemFavorite'
 import { UnifiedItemName } from '~/sections/unified-item/components/UnifiedItemName'
-import { UnifiedItemFavorite } from '~/sections/unified-item/components/UnifiedItemView'
-import {
-  UnifiedItemView,
-  UnifiedItemViewNutritionalInfo,
-} from '~/sections/unified-item/components/UnifiedItemView'
+import { UnifiedItemNutritionalInfo } from '~/sections/unified-item/components/UnifiedItemNutritionalInfo'
+import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
 import { createDebug } from '~/shared/utils/createDebug'
 import { calcDayMacros, calcUnifiedItemMacros } from '~/shared/utils/macroMath'
 
@@ -217,7 +209,7 @@ export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
             />
           )}
           nutritionalInfo={() => (
-            <UnifiedItemViewNutritionalInfo item={props.item} />
+            <UnifiedItemNutritionalInfo item={props.item} />
           )}
         />
       </Show>

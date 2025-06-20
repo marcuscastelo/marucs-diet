@@ -21,6 +21,7 @@ import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
+import { getItemTypeDisplay } from '~/sections/unified-item/utils/unifiedItemDisplayUtils'
 import { createDebug } from '~/shared/utils/createDebug'
 import { regenerateId } from '~/shared/utils/idUtils'
 
@@ -211,30 +212,9 @@ type GroupChildEditorProps = {
   onEditChild?: (child: UnifiedItem) => void
 }
 
-function getTypeIcon(item: UnifiedItem) {
-  if (isFoodItem(item)) {
-    return '🍽️'
-  } else if (isRecipeItem(item)) {
-    return '📖'
-  } else if (isGroupItem(item)) {
-    return '📦'
-  }
-  return '❓'
-}
-
-function getTypeText(item: UnifiedItem) {
-  if (isFoodItem(item)) {
-    return 'alimento'
-  } else if (isRecipeItem(item)) {
-    return 'receita'
-  } else if (isGroupItem(item)) {
-    return 'grupo'
-  }
-  return 'desconhecido'
-}
-
 function GroupChildEditor(props: GroupChildEditorProps) {
   const [childEditModalVisible, setChildEditModalVisible] = createSignal(false)
+  const typeDisplay = () => getItemTypeDisplay(props.child)
 
   const quantityField = useFloatField(() => props.child.quantity, {
     decimalPlaces: 1,
@@ -303,11 +283,8 @@ function GroupChildEditor(props: GroupChildEditorProps) {
         <div class="flex items-center justify-between mb-3">
           <div class="flex items-center gap-2 flex-1 min-w-0">
             <div class="flex items-center gap-1 shrink-0">
-              <span
-                class="text-base cursor-help"
-                title={getTypeText(props.child)}
-              >
-                {getTypeIcon(props.child)}
+              <span class="text-base cursor-help" title={typeDisplay().label}>
+                {typeDisplay().icon}
               </span>
             </div>
             <h4 class="font-medium text-white truncate">{props.child.name}</h4>
@@ -318,7 +295,7 @@ function GroupChildEditor(props: GroupChildEditorProps) {
               <button
                 class="p-1 hover:bg-gray-600 rounded transition-colors"
                 onClick={handleEditChild}
-                title={`Editar ${getTypeText(props.child)}`}
+                title={`Editar ${typeDisplay().label}`}
               >
                 <EditIcon class="w-4 h-4 text-blue-400 hover:text-blue-300" />
               </button>

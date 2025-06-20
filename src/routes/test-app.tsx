@@ -34,11 +34,9 @@ import DayMacros from '~/sections/day-diet/components/DayMacros'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
 import { UnifiedItemListView } from '~/sections/unified-item/components/UnifiedItemListView'
-import {
-  UnifiedItemName,
-  UnifiedItemView,
-  UnifiedItemViewNutritionalInfo,
-} from '~/sections/unified-item/components/UnifiedItemView'
+import { UnifiedItemName } from '~/sections/unified-item/components/UnifiedItemName'
+import { UnifiedItemNutritionalInfo } from '~/sections/unified-item/components/UnifiedItemNutritionalInfo'
+import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
 
 export default function TestApp() {
   const [unifiedItemEditModalVisible, setUnifiedItemEditModalVisible] =
@@ -203,7 +201,7 @@ export default function TestApp() {
                 />
               }
               nutritionalInfo={
-                <UnifiedItemViewNutritionalInfo
+                <UnifiedItemNutritionalInfo
                   item={() => itemGroupToUnifiedItem(group())}
                 />
               }

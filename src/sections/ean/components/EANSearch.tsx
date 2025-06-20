@@ -12,12 +12,10 @@ import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedIte
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
+import { UnifiedItemFavorite } from '~/sections/unified-item/components/UnifiedItemFavorite'
 import { UnifiedItemName } from '~/sections/unified-item/components/UnifiedItemName'
-import {
-  UnifiedItemFavorite,
-  UnifiedItemView,
-  UnifiedItemViewNutritionalInfo,
-} from '~/sections/unified-item/components/UnifiedItemView'
+import { UnifiedItemNutritionalInfo } from '~/sections/unified-item/components/UnifiedItemNutritionalInfo'
+import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
 import { handleApiError } from '~/shared/error/errorHandler'
 
 export type EANSearchProps = {
@@ -135,7 +133,7 @@ export function EANSearch(props: EANSearchProps) {
                         />
                       )}
                       nutritionalInfo={() => (
-                        <UnifiedItemViewNutritionalInfo
+                        <UnifiedItemNutritionalInfo
                           item={createUnifiedItemFromFood}
                         />
                       )}
