@@ -1,4 +1,5 @@
 import { Accessor, createEffect, type JSXElement, Show } from 'solid-js'
+import { z } from 'zod'
 
 import { DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { itemSchema } from '~/modules/diet/item/domain/item'
@@ -15,7 +16,10 @@ import { type Meal, mealSchema } from '~/modules/diet/meal/domain/meal'
 import { clearMealItems } from '~/modules/diet/meal/domain/mealOperations'
 import { recipeSchema } from '~/modules/diet/recipe/domain/recipe'
 import { migrateToUnifiedItems } from '~/modules/diet/unified-item/domain/migrationUtils'
-import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import {
+  type UnifiedItem,
+  unifiedItemSchema,
+} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { ClipboardActionButtons } from '~/sections/common/components/ClipboardActionButtons'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
@@ -93,12 +97,49 @@ export function MealEditViewHeader(props: {
     .or(recipeSchema)
     .or(itemGroupSchema)
     .or(itemSchema)
+    .or(unifiedItemSchema)
+    .or(z.array(unifiedItemSchema))
 
   const { handleCopy, handlePaste, hasValidPastableOnClipboard } =
     useCopyPasteActions({
       acceptedClipboardSchema,
       getDataToCopy: () => meal(),
       onPaste: (data) => {
+        // Check if data is already UnifiedItem(s) and handle directly
+        if (Array.isArray(data)) {
+          const firstItem = data[0]
+          if (
+            firstItem &&
+            '__type' in firstItem &&
+            firstItem.__type === 'UnifiedItem'
+          ) {
+            // Handle array of UnifiedItems - type is already validated by schema
+            const unifiedItemsToAdd = data.map((item) => ({
+              ...item,
+              id: regenerateId(item).id,
+            }))
+            unifiedItemsToAdd.forEach((unifiedItem) => {
+              void insertUnifiedItem(props.dayDiet.id, meal().id, unifiedItem)
+            })
+            return
+          }
+        }
+
+        if (
+          data &&
+          typeof data === 'object' &&
+          '__type' in data &&
+          data.__type === 'UnifiedItem'
+        ) {
+          // Handle single UnifiedItem - type is already validated by schema
+          const regeneratedItem = {
+            ...(data as UnifiedItem),
+            id: regenerateId(data as UnifiedItem).id,
+          }
+          void insertUnifiedItem(props.dayDiet.id, meal().id, regeneratedItem)
+          return
+        }
+
         // Convert the pasted data to ItemGroups first (using legacy conversion)
         const groupsToAdd = convertToGroups(data as GroupConvertible)
           .map((group) => regenerateId(group))

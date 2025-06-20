@@ -1,6 +1,7 @@
 // TODO:   Unify Recipe and Recipe components into a single component?
 
 import { type Accessor, type JSXElement, type Setter } from 'solid-js'
+import { z } from 'zod'
 
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import {
@@ -22,7 +23,10 @@ import {
   itemToUnifiedItem,
   unifiedItemToItem,
 } from '~/modules/diet/unified-item/domain/conversionUtils'
-import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import {
+  type UnifiedItem,
+  unifiedItemSchema,
+} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { ClipboardActionButtons } from '~/sections/common/components/ClipboardActionButtons'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { PreparedQuantity } from '~/sections/common/components/PreparedQuantity'
@@ -85,6 +89,8 @@ export function RecipeEditHeader(props: {
     .or(itemGroupSchema)
     .or(itemSchema)
     .or(recipeSchema)
+    .or(unifiedItemSchema)
+    .or(z.array(unifiedItemSchema))
 
   const { recipe } = useRecipeEditContext()
 
@@ -93,6 +99,39 @@ export function RecipeEditHeader(props: {
       acceptedClipboardSchema,
       getDataToCopy: () => recipe(),
       onPaste: (data) => {
+        // Helper function to check if an object is a UnifiedItem
+        const isUnifiedItem = (obj: unknown): obj is UnifiedItem => {
+          return (
+            typeof obj === 'object' &&
+            obj !== null &&
+            '__type' in obj &&
+            obj.__type === 'UnifiedItem'
+          )
+        }
+
+        // Check if data is array of UnifiedItems
+        if (Array.isArray(data) && data.every(isUnifiedItem)) {
+          const itemsToAdd = data
+            .filter((item) => item.reference.type === 'food') // Only food items in recipes
+            .map((item) => unifiedItemToItem(item))
+            .map((item) => regenerateId(item))
+          const newRecipe = addItemsToRecipe(recipe(), itemsToAdd)
+          props.onUpdateRecipe(newRecipe)
+          return
+        }
+
+        // Check if data is single UnifiedItem
+        if (isUnifiedItem(data)) {
+          if (data.reference.type === 'food') {
+            const item = unifiedItemToItem(data)
+            const regeneratedItem = regenerateId(item)
+            const newRecipe = addItemsToRecipe(recipe(), [regeneratedItem])
+            props.onUpdateRecipe(newRecipe)
+          }
+          return
+        }
+
+        // Fallback to legacy conversion
         const groupsToAdd = convertToGroups(data as GroupConvertible)
           .map((group) => regenerateId(group))
           .map((g) => ({
