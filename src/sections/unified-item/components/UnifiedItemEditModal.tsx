@@ -202,10 +202,10 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
 
             {/* Toggle button for recipes */}
             <Show when={isRecipeItem(item())}>
-              <div class="mb-4 flex justify-center items-center gap-3">
-                <div class="flex rounded-lg border border-gray-600 bg-gray-800 p-1">
+              <div class="mb-4 flex justify-center items-center gap-3 ">
+                <div class="flex rounded-lg border border-gray-600 w-full bg-gray-800 p-1">
                   <button
-                    class={`px-3 py-1 rounded-md text-sm transition-colors ${
+                    class={`px-3 py-1 rounded-md text-sm transition-colors flex-1 ${
                       recipeViewMode() === 'recipe'
                         ? 'bg-blue-600 text-white'
                         : 'text-gray-400 hover:text-white'
@@ -215,7 +215,7 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
                     📖 Receita
                   </button>
                   <button
-                    class={`px-3 py-1 rounded-md text-sm transition-colors ${
+                    class={`px-3 py-1 rounded-md text-sm transition-colors flex-1 ${
                       recipeViewMode() === 'group'
                         ? 'bg-blue-600 text-white'
                         : 'text-gray-400 hover:text-white'
