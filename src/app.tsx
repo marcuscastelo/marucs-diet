@@ -5,7 +5,7 @@ import { FileRoutes } from '@solidjs/start/router'
 import { createSignal, lazy, onCleanup, onMount, Suspense } from 'solid-js'
 
 import { BackendOutageBanner } from '~/sections/common/components/BackendOutageBanner'
-import { LoadingRing } from '~/sections/common/components/LoadingRing'
+import { PageLoading } from '~/sections/common/components/PageLoading'
 import { Providers } from '~/sections/common/context/Providers'
 import {
   startConsoleInterception,
@@ -50,7 +50,7 @@ export default function App() {
     <Router
       root={(props) => (
         <>
-          <Suspense fallback={<LoadingRing class="h-screen" />}>
+          <Suspense fallback={<PageLoading message="Iniciando app..." />}>
             <Providers>
               <BackendOutageBanner />
               <div
