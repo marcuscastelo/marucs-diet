@@ -263,10 +263,6 @@ function GroupChildEditor(props: GroupChildEditorProps) {
     return [50, 100, 150, 200]
   }
 
-  const canEditChild = () => {
-    return isRecipeItem(props.child) || isGroupItem(props.child)
-  }
-
   const handleEditChild = () => {
     if (props.onEditChild) {
       props.onEditChild(props.child)
@@ -290,16 +286,13 @@ function GroupChildEditor(props: GroupChildEditorProps) {
             <h4 class="font-medium text-white truncate">{props.child.name}</h4>
           </div>
           <div class="flex items-center gap-2 shrink-0">
-            <span class="text-xs text-gray-400">#{props.child.id}</span>
-            <Show when={canEditChild()}>
-              <button
-                class="p-1 hover:bg-gray-600 rounded transition-colors"
-                onClick={handleEditChild}
-                title={`Editar ${typeDisplay().label}`}
-              >
-                <EditIcon class="w-4 h-4 text-blue-400 hover:text-blue-300" />
-              </button>
-            </Show>
+            <button
+              class="p-1 hover:bg-gray-600 rounded transition-colors"
+              onClick={handleEditChild}
+              title={`Editar ${typeDisplay().label}`}
+            >
+              <EditIcon class="w-4 h-4 text-blue-400 hover:text-blue-300" />
+            </button>
           </div>
         </div>
 
