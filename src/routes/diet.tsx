@@ -5,7 +5,6 @@ import {
   targetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
 import { Alert } from '~/sections/common/components/Alert'
-import { LoadingRing } from '~/sections/common/components/LoadingRing'
 import { PageLoading } from '~/sections/common/components/PageLoading'
 import DayMacros from '~/sections/day-diet/components/DayMacros'
 import DayMeals from '~/sections/day-diet/components/DayMeals'
@@ -37,13 +36,11 @@ export default function DietPage() {
           Mostrando refeições do dia {targetDay()}!
         </Alert>
       )}
-      <Suspense fallback={<LoadingRing />}>
-        <DayMeals
-          selectedDay={targetDay()}
-          mode={mode()}
-          onRequestEditMode={handleRequestEditMode}
-        />
-      </Suspense>
+      <DayMeals
+        selectedDay={targetDay()}
+        mode={mode()}
+        onRequestEditMode={handleRequestEditMode}
+      />
     </Suspense>
   )
 }
