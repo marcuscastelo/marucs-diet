@@ -188,14 +188,6 @@ export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
           }}
           item={props.item}
           class="mt-4"
-          header={() => (
-            <Show
-              when={isGroupItem(props.item())}
-              fallback={<UnifiedItemName item={props.item} />}
-            >
-              <InlineNameEditor item={props.item} setItem={props.setItem} />
-            </Show>
-          )}
           primaryActions={
             <Show when={asFoodItem(props.item())} fallback={null}>
               {(foodItem) => (

@@ -10,7 +10,6 @@ import { cn } from '~/shared/cn'
 
 export type UnifiedItemViewProps = {
   item: Accessor<UnifiedItem>
-  header?: JSXElement | (() => JSXElement)
   nutritionalInfo?: JSXElement | (() => JSXElement)
   class?: string
   mode?: 'edit' | 'read-only' | 'summary'
@@ -30,7 +29,7 @@ export function UnifiedItemView(props: UnifiedItemViewProps) {
   return (
     <div
       class={cn(
-        'block rounded-lg border border-gray-700 bg-gray-700 p-3 shadow hover:cursor-pointer hover:bg-gray-700',
+        'rounded-lg border border-gray-700 bg-gray-700 p-3 flex flex-col gap-2 shadow hover:cursor-pointer hover:bg-gray-700',
         props.class,
       )}
       onClick={(e: MouseEvent) => {
@@ -43,17 +42,16 @@ export function UnifiedItemView(props: UnifiedItemViewProps) {
         primaryActions={props.primaryActions}
         secondaryActions={props.secondaryActions}
       >
-        {typeof props.header === 'function' ? props.header() : props.header}
         {isInteractive() && (
           <UnifiedItemActions item={props.item} handlers={props.handlers} />
         )}
       </UnifiedItemHeader>
 
+      <UnifiedItemChildren item={props.item} />
+
       {typeof props.nutritionalInfo === 'function'
         ? props.nutritionalInfo()
         : props.nutritionalInfo}
-
-      <UnifiedItemChildren item={props.item} />
 
       <Show when={props.item().reference.type === 'food'}>
         <UnifiedItemFavorite foodId={props.item().id} />

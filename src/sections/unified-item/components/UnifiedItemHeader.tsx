@@ -12,9 +12,9 @@ export type UnifiedItemHeaderProps = {
 
 export function UnifiedItemHeader(props: UnifiedItemHeaderProps) {
   return (
-    <div class="flex justify-between items-center">
+    <div class="flex justify-between items-center ">
       <div class="flex flex-1 items-center">
-        <div class="flex-1">
+        <div class="flex-1 flex justify-between">
           <UnifiedItemName item={props.item} />
           {props.children}
         </div>
