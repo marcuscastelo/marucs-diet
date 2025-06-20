@@ -98,7 +98,7 @@ export type UnifiedItemEditBodyProps = {
   }
   quantityField: UseFieldReturn<number>
   onEditChild?: (child: UnifiedItem) => void
-  recipeViewMode?: 'recipe' | 'group'
+  viewMode?: 'normal' | 'group'
   clipboardActions?: {
     onCopy: () => void
     onPaste: () => void
@@ -156,12 +156,7 @@ export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
       />
 
       {/* Para alimentos e receitas (modo normal): controles de quantidade normal */}
-      <Show
-        when={
-          isFoodItem(props.item()) ||
-          (isRecipeItem(props.item()) && props.recipeViewMode !== 'group')
-        }
-      >
+      <Show when={!isGroupItem(props.item()) && props.viewMode !== 'group'}>
         <QuantityControls
           item={props.item}
           setItem={props.setItem}
@@ -174,12 +169,7 @@ export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
       </Show>
 
       {/* Para grupos ou receitas em modo grupo: editor de filhos */}
-      <Show
-        when={
-          isGroupItem(props.item()) ||
-          (isRecipeItem(props.item()) && props.recipeViewMode === 'group')
-        }
-      >
+      <Show when={isGroupItem(props.item()) || props.viewMode === 'group'}>
         <GroupChildrenEditor
           item={props.item}
           setItem={props.setItem}

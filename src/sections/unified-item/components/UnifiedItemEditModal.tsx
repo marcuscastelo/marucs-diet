@@ -1,3 +1,4 @@
+import { is } from 'date-fns/locale'
 import {
   type Accessor,
   createEffect,
@@ -16,6 +17,8 @@ import {
   syncRecipeUnifiedItemWithOriginal,
 } from '~/modules/diet/unified-item/domain/conversionUtils'
 import {
+  asGroupItem,
+  createUnifiedItem,
   isFoodItem,
   isGroupItem,
   isRecipeItem,
@@ -32,6 +35,7 @@ import { ExternalTemplateSearchModal } from '~/sections/search/components/Extern
 import { UnifiedItemEditBody } from '~/sections/unified-item/components/UnifiedItemEditBody'
 import { UnsupportedItemMessage } from '~/sections/unified-item/components/UnsupportedItemMessage'
 import { createDebug } from '~/shared/utils/createDebug'
+import { generateId } from '~/shared/utils/idUtils'
 
 const debug = createDebug()
 
@@ -65,10 +69,41 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
   // Template search modal state
   const [templateSearchVisible, setTemplateSearchVisible] = createSignal(false)
 
-  // Recipe view mode: 'recipe' (normal) or 'group' (treat as group)
-  const [recipeViewMode, setRecipeViewMode] = createSignal<'recipe' | 'group'>(
-    'recipe',
-  )
+  const [viewMode, setViewMode] = createSignal<'normal' | 'group'>('normal')
+
+  createEffect(() => {
+    if (viewMode() === 'group') {
+      const currentItem = untrack(item)
+      if (isFoodItem(currentItem)) {
+        const groupItem = createUnifiedItem({
+          id: generateId(),
+          name: currentItem.name,
+          quantity: currentItem.quantity,
+          reference: {
+            type: 'group',
+            children: [currentItem],
+          },
+        })
+        setItem(groupItem)
+      }
+    } else if (viewMode() === 'normal') {
+      const currentItem = untrack(item)
+      if (!isGroupItem(currentItem)) {
+        return
+      }
+      const firstChild = currentItem.reference.children[0]
+      if (firstChild === undefined) {
+        return
+      }
+
+      if (
+        isGroupItem(currentItem) &&
+        currentItem.reference.children.length === 1
+      ) {
+        setItem(createUnifiedItem({ ...firstChild }))
+      }
+    }
+  })
 
   // Recipe synchronization
   const recipeRepository = createSupabaseRecipeRepository()
@@ -176,26 +211,33 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
             }
           >
             {/* Toggle button for recipes */}
-            <Show when={isRecipeItem(item())}>
+            <Show
+              when={
+                isRecipeItem(item()) ||
+                isFoodItem(item()) ||
+                asGroupItem(item())?.reference.children.length === 1
+              }
+            >
               <div class="mb-4 flex justify-center items-center gap-3 ">
                 <div class="flex rounded-lg border border-gray-600 w-full bg-gray-800 p-1">
                   <button
                     class={`px-3 py-1 rounded-md text-sm transition-colors flex-1 ${
-                      recipeViewMode() === 'recipe'
+                      viewMode() === 'normal'
                         ? 'bg-blue-600 text-white'
                         : 'text-gray-400 hover:text-white'
                     }`}
-                    onClick={() => setRecipeViewMode('recipe')}
+                    onClick={() => setViewMode('normal')}
                   >
-                    📖 Receita
+                    <Show when={isRecipeItem(item())}>📖 Receita</Show>
+                    <Show when={!isRecipeItem(item())}>🍽️ Alimento</Show>
                   </button>
                   <button
                     class={`px-3 py-1 rounded-md text-sm transition-colors flex-1 ${
-                      recipeViewMode() === 'group'
+                      viewMode() === 'group'
                         ? 'bg-blue-600 text-white'
                         : 'text-gray-400 hover:text-white'
                     }`}
-                    onClick={() => setRecipeViewMode('group')}
+                    onClick={() => setViewMode('group')}
                   >
                     📦 Tratar como Grupo
                   </button>
@@ -224,9 +266,7 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
               macroOverflow={props.macroOverflow}
               quantityField={quantityField}
               onEditChild={handleEditChild}
-              recipeViewMode={
-                isRecipeItem(item()) ? recipeViewMode() : undefined
-              }
+              viewMode={viewMode()}
               clipboardActions={{
                 onCopy: handleCopy,
                 onPaste: handlePaste,
