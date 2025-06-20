@@ -4,6 +4,7 @@ import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
 import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import { updateUnifiedItemName } from '~/modules/diet/unified-item/domain/unifiedItemOperations'
 import {
+  asFoodItem,
   isFood,
   isGroup,
   isRecipe,
@@ -201,17 +202,8 @@ export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
                 </Show>
               }
               primaryActions={
-                <Show when={isFood(props.item())}>
-                  <UnifiedItemFavorite
-                    foodId={
-                      (
-                        props.item() as Extract<
-                          UnifiedItem,
-                          { reference: { id: number } }
-                        >
-                      ).reference.id
-                    }
-                  />
+                <Show when={isFood(props.item())} fallback={null}>
+                  <UnifiedItemFavorite foodId={props.item().reference.id} />
                 </Show>
               }
             />
