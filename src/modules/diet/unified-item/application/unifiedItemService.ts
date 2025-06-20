@@ -1,9 +1,9 @@
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import {
-  isFood,
-  isGroup,
-  isRecipe,
+  isFoodItem,
+  isGroupItem,
+  isRecipeItem,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { calcUnifiedItemMacros } from '~/shared/utils/macroMath'
 
@@ -37,11 +37,11 @@ export function filterItemsByType(
 ): UnifiedItem[] {
   switch (type) {
     case 'food':
-      return items.filter(isFood)
+      return items.filter(isFoodItem)
     case 'recipe':
-      return items.filter(isRecipe)
+      return items.filter(isRecipeItem)
     case 'group':
-      return items.filter(isGroup)
+      return items.filter(isGroupItem)
     default:
       return []
   }
@@ -54,7 +54,7 @@ export function scaleUnifiedItem(
   item: UnifiedItem,
   scaleFactor: number,
 ): UnifiedItem {
-  if (isFood(item)) {
+  if (isFoodItem(item)) {
     // For food items, we only scale the quantity
     // The stored macros remain as per 100g
     return {
@@ -85,7 +85,7 @@ export function updateUnifiedItemInArray(
     if (item.id === itemId) {
       const updatedItem = { ...item, ...updates }
       // Only apply macros updates to food items
-      if (updates.macros && isFood(item)) {
+      if (updates.macros && isFoodItem(item)) {
         return {
           ...updatedItem,
           reference: {

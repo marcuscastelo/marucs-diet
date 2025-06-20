@@ -1,13 +1,19 @@
-import { type Accessor, createSignal, type Setter, Show } from 'solid-js'
+import {
+  type Accessor,
+  createMemo,
+  createSignal,
+  type Setter,
+  Show,
+} from 'solid-js'
 
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
 import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import { updateUnifiedItemName } from '~/modules/diet/unified-item/domain/unifiedItemOperations'
 import {
   asFoodItem,
-  isFood,
-  isGroup,
-  isRecipe,
+  isFoodItem,
+  isGroupItem,
+  isRecipeItem,
   type UnifiedItem,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
@@ -146,8 +152,8 @@ export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
       {/* Para alimentos e receitas (modo normal): controles de quantidade normal */}
       <Show
         when={
-          isFood(props.item()) ||
-          (isRecipe(props.item()) && props.recipeViewMode !== 'group')
+          isFoodItem(props.item()) ||
+          (isRecipeItem(props.item()) && props.recipeViewMode !== 'group')
         }
       >
         <QuantityShortcuts onQuantitySelect={handleQuantitySelect} />
@@ -164,8 +170,8 @@ export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
       {/* Para grupos ou receitas em modo grupo: editor de filhos */}
       <Show
         when={
-          isGroup(props.item()) ||
-          (isRecipe(props.item()) && props.recipeViewMode === 'group')
+          isGroupItem(props.item()) ||
+          (isRecipeItem(props.item()) && props.recipeViewMode === 'group')
         }
       >
         <GroupChildrenEditor
@@ -179,9 +185,9 @@ export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
 
       <Show
         when={
-          isFood(props.item()) ||
-          isRecipe(props.item()) ||
-          isGroup(props.item())
+          isFoodItem(props.item()) ||
+          isRecipeItem(props.item()) ||
+          isGroupItem(props.item())
         }
       >
         <UnifiedItemView
@@ -195,14 +201,14 @@ export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
             <HeaderWithActions
               name={
                 <Show
-                  when={isGroup(props.item())}
+                  when={isGroupItem(props.item())}
                   fallback={<UnifiedItemName item={props.item} />}
                 >
                   <InlineNameEditor item={props.item} setItem={props.setItem} />
                 </Show>
               }
               primaryActions={
-                <Show when={isFood(props.item())} fallback={null}>
+                <Show when={isFoodItem(props.item())} fallback={null}>
                   <UnifiedItemFavorite foodId={props.item().reference.id} />
                 </Show>
               }

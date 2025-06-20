@@ -5,9 +5,9 @@ import {
 } from '~/modules/diet/unified-item/domain/conversionUtils'
 import {
   createUnifiedItem,
-  isFood,
-  isGroup,
-  isRecipe,
+  isFoodItem,
+  isGroupItem,
+  isRecipeItem,
   type UnifiedItem,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
@@ -38,7 +38,7 @@ export function updateUnifiedItemQuantity(
 ): UnifiedItem {
   const quantityFactor = quantity / item.quantity
 
-  if (isFood(item)) {
+  if (isFoodItem(item)) {
     return createUnifiedItem({
       ...item,
       quantity,
@@ -46,7 +46,7 @@ export function updateUnifiedItemQuantity(
     })
   }
 
-  if (isRecipe(item)) {
+  if (isRecipeItem(item)) {
     return createUnifiedItem({
       ...item,
       quantity,
@@ -60,7 +60,7 @@ export function updateUnifiedItemQuantity(
     })
   }
 
-  if (isGroup(item)) {
+  if (isGroupItem(item)) {
     return createUnifiedItem({
       ...item,
       quantity,

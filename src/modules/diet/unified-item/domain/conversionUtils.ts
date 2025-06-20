@@ -4,7 +4,7 @@ import { getItemGroupQuantity } from '~/modules/diet/item-group/domain/itemGroup
 import { Recipe } from '~/modules/diet/recipe/domain/recipe'
 import {
   createUnifiedItem,
-  isFood,
+  isFoodItem,
   UnifiedItem,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
@@ -33,10 +33,10 @@ export function unifiedItemToItem(unified: UnifiedItem): Item {
     id: unified.id,
     name: unified.name,
     quantity: unified.quantity,
-    macros: isFood(unified)
+    macros: isFoodItem(unified)
       ? unified.reference.macros
       : { carbs: 0, protein: 0, fat: 0 },
-    reference: isFood(unified) ? unified.reference.id : 0,
+    reference: isFoodItem(unified) ? unified.reference.id : 0,
     __type: 'Item',
   }
 }

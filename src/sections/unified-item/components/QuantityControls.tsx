@@ -9,8 +9,8 @@ import {
 import { updateUnifiedItemQuantity } from '~/modules/diet/item/application/item'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
-  isFood,
-  isRecipe,
+  isFoodItem,
+  isRecipeItem,
   type UnifiedItem,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { FloatInput } from '~/sections/common/components/FloatInput'
@@ -116,12 +116,12 @@ export function QuantityControls(props: QuantityControlsProps) {
             !props.canApply ? 'input-error border-red-500' : ''
           }`}
         />
-        <Show when={isFood(props.item()) || isRecipe(props.item())}>
+        <Show when={isFoodItem(props.item()) || isRecipeItem(props.item())}>
           <MaxQuantityButton
             currentValue={props.quantityField.value() ?? 0}
             macroTargets={props.getAvailableMacros()}
             itemMacros={(() => {
-              if (isFood(props.item())) {
+              if (isFoodItem(props.item())) {
                 return (
                   props.item() as Extract<
                     UnifiedItem,
@@ -129,7 +129,7 @@ export function QuantityControls(props: QuantityControlsProps) {
                   >
                 ).reference.macros
               }
-              if (isRecipe(props.item())) {
+              if (isRecipeItem(props.item())) {
                 // For recipes, calculate macros from children (per 100g of prepared recipe)
                 const recipeMacros = calcUnifiedItemMacros(props.item())
                 const recipeQuantity = props.item().quantity || 1

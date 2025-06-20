@@ -8,9 +8,9 @@ import {
 import { validateItemHierarchy } from '~/modules/diet/unified-item/domain/validateItemHierarchy'
 import {
   createUnifiedItem,
-  isFood,
-  isGroup,
-  isRecipe,
+  isFoodItem,
+  isGroupItem,
+  isRecipeItem,
   type UnifiedItem,
   unifiedItemSchema,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
@@ -37,7 +37,7 @@ export type GroupChildrenEditorProps = {
 export function GroupChildrenEditor(props: GroupChildrenEditorProps) {
   const children = () => {
     const item = props.item()
-    return isGroup(item) || isRecipe(item) ? item.reference.children : []
+    return isGroupItem(item) || isRecipeItem(item) ? item.reference.children : []
   }
 
   // Clipboard schema accepts UnifiedItem or array of UnifiedItems
@@ -56,7 +56,7 @@ export function GroupChildrenEditor(props: GroupChildrenEditorProps) {
         let updatedItem = props.item()
 
         // Check if we need to transform a food item into a group
-        if (isFood(updatedItem) && itemsToAdd.length > 0) {
+        if (isFoodItem(updatedItem) && itemsToAdd.length > 0) {
           // Transform the food item into a group with the original food as the first child
           const originalAsChild = createUnifiedItem({
             id: regenerateId(updatedItem).id, // New ID for the child
@@ -210,22 +210,22 @@ type GroupChildEditorProps = {
 }
 
 function getTypeIcon(item: UnifiedItem) {
-  if (isFood(item)) {
+  if (isFoodItem(item)) {
     return '🍽️'
-  } else if (isRecipe(item)) {
+  } else if (isRecipeItem(item)) {
     return '📖'
-  } else if (isGroup(item)) {
+  } else if (isGroupItem(item)) {
     return '📦'
   }
   return '❓'
 }
 
 function getTypeText(item: UnifiedItem) {
-  if (isFood(item)) {
+  if (isFoodItem(item)) {
     return 'alimento'
-  } else if (isRecipe(item)) {
+  } else if (isRecipeItem(item)) {
     return 'receita'
-  } else if (isGroup(item)) {
+  } else if (isGroupItem(item)) {
     return 'grupo'
   }
   return 'desconhecido'
@@ -282,7 +282,7 @@ function GroupChildEditor(props: GroupChildEditorProps) {
   }
 
   const canEditChild = () => {
-    return isRecipe(props.child) || isGroup(props.child)
+    return isRecipeItem(props.child) || isGroupItem(props.child)
   }
 
   const handleEditChild = () => {

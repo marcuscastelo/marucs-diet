@@ -10,8 +10,8 @@ import {
 import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 import { isRecipeUnifiedItemManuallyEdited } from '~/modules/diet/unified-item/domain/conversionUtils'
 import {
-  isGroup,
-  isRecipe,
+  isGroupItem,
+  isRecipeItem,
   type UnifiedItem,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import {
@@ -51,7 +51,7 @@ export function UnifiedItemView(props: UnifiedItemViewProps) {
   const hasChildren = () => {
     const item = props.item()
     return (
-      (isRecipe(item) || isGroup(item)) &&
+      (isRecipeItem(item) || isGroupItem(item)) &&
       Array.isArray(item.reference.children) &&
       item.reference.children.length > 0
     )
@@ -59,7 +59,7 @@ export function UnifiedItemView(props: UnifiedItemViewProps) {
 
   const getChildren = () => {
     const item = props.item()
-    if (isRecipe(item) || isGroup(item)) {
+    if (isRecipeItem(item) || isGroupItem(item)) {
       return item.reference.children
     }
     return []
@@ -202,7 +202,7 @@ export function UnifiedItemName(props: { item: Accessor<UnifiedItem> }) {
   const [originalRecipe] = createResource(
     () => {
       const item = props.item()
-      return isRecipe(item) ? item.reference.id : null
+      return isRecipeItem(item) ? item.reference.id : null
     },
     async (recipeId: number) => {
       try {
@@ -220,7 +220,7 @@ export function UnifiedItemName(props: { item: Accessor<UnifiedItem> }) {
     const recipe = originalRecipe()
 
     if (
-      !isRecipe(item) ||
+      !isRecipeItem(item) ||
       recipe === null ||
       recipe === undefined ||
       originalRecipe.loading

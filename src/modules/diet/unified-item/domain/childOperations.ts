@@ -1,7 +1,7 @@
 import {
-  isFood,
-  isGroup,
-  isRecipe,
+  isFoodItem,
+  isGroupItem,
+  isRecipeItem,
   UnifiedItem,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
@@ -16,9 +16,9 @@ export function addChildToItem(
     (item.reference.type === 'recipe' || item.reference.type === 'group') &&
     Array.isArray(item.reference.children)
   ) {
-    if (isFood(item)) {
+    if (isFoodItem(item)) {
       throw new Error('Cannot add child to food item')
-    } else if (isRecipe(item)) {
+    } else if (isRecipeItem(item)) {
       return {
         ...item,
         reference: {
@@ -26,7 +26,7 @@ export function addChildToItem(
           children: [...item.reference.children, child],
         },
       }
-    } else if (isGroup(item)) {
+    } else if (isGroupItem(item)) {
       return {
         ...item,
         reference: {
@@ -50,9 +50,9 @@ export function removeChildFromItem(
     (item.reference.type === 'recipe' || item.reference.type === 'group') &&
     Array.isArray(item.reference.children)
   ) {
-    if (isFood(item)) {
+    if (isFoodItem(item)) {
       throw new Error('Cannot remove child from food item')
-    } else if (isRecipe(item)) {
+    } else if (isRecipeItem(item)) {
       return {
         ...item,
         reference: {
@@ -60,7 +60,7 @@ export function removeChildFromItem(
           children: item.reference.children.filter((c) => c.id !== childId),
         },
       }
-    } else if (isGroup(item)) {
+    } else if (isGroupItem(item)) {
       return {
         ...item,
         reference: {
@@ -85,9 +85,9 @@ export function updateChildInItem(
     (item.reference.type === 'recipe' || item.reference.type === 'group') &&
     Array.isArray(item.reference.children)
   ) {
-    if (isFood(item)) {
+    if (isFoodItem(item)) {
       throw new Error('Cannot update child in food item')
-    } else if (isRecipe(item)) {
+    } else if (isRecipeItem(item)) {
       return {
         ...item,
         reference: {
@@ -97,7 +97,7 @@ export function updateChildInItem(
           ),
         },
       }
-    } else if (isGroup(item)) {
+    } else if (isGroupItem(item)) {
       return {
         ...item,
         reference: {
@@ -119,17 +119,17 @@ function updateUnifiedItem(
   item: UnifiedItem,
   updates: Partial<Pick<UnifiedItem, 'id' | 'name' | 'quantity'>>,
 ): UnifiedItem {
-  if (isFood(item)) {
+  if (isFoodItem(item)) {
     return {
       ...item,
       ...updates,
     }
-  } else if (isRecipe(item)) {
+  } else if (isRecipeItem(item)) {
     return {
       ...item,
       ...updates,
     }
-  } else if (isGroup(item)) {
+  } else if (isGroupItem(item)) {
     return {
       ...item,
       ...updates,

@@ -16,9 +16,9 @@ import {
   syncRecipeUnifiedItemWithOriginal,
 } from '~/modules/diet/unified-item/domain/conversionUtils'
 import {
-  isFood,
-  isGroup,
-  isRecipe,
+  isFoodItem,
+  isGroupItem,
+  isRecipeItem,
   type UnifiedItem,
   unifiedItemSchema,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
@@ -75,7 +75,7 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
   const [originalRecipe] = createResource(
     () => {
       const currentItem = item()
-      return isRecipe(currentItem) ? currentItem.reference.id : null
+      return isRecipeItem(currentItem) ? currentItem.reference.id : null
     },
     async (recipeId: number) => {
       try {
@@ -93,7 +93,7 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
     const recipe = originalRecipe()
 
     if (
-      !isRecipe(currentItem) ||
+      !isRecipeItem(currentItem) ||
       recipe === null ||
       recipe === undefined ||
       originalRecipe.loading
@@ -170,7 +170,7 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
           }
         />
         <Modal.Content>
-          <Show when={isFood(item()) || isRecipe(item()) || isGroup(item())}>
+          <Show when={isFoodItem(item()) || isRecipeItem(item()) || isGroupItem(item())}>
             {/* Clipboard Actions */}
             <div class="mb-4 flex justify-center gap-2">
               <button
@@ -195,7 +195,7 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
             </div>
 
             {/* Toggle button for recipes */}
-            <Show when={isRecipe(item())}>
+            <Show when={isRecipeItem(item())}>
               <div class="mb-4 flex justify-center items-center gap-3">
                 <div class="flex rounded-lg border border-gray-600 bg-gray-800 p-1">
                   <button
@@ -243,7 +243,7 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
               macroOverflow={props.macroOverflow}
               quantityField={quantityField}
               onEditChild={handleEditChild}
-              recipeViewMode={isRecipe(item()) ? recipeViewMode() : undefined}
+              recipeViewMode={isRecipeItem(item()) ? recipeViewMode() : undefined}
               clipboardActions={{
                 onCopy: handleCopy,
                 onPaste: handlePaste,
@@ -253,7 +253,7 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
               showAddItemButton={props.showAddItemButton}
             />
           </Show>
-          <Show when={!isFood(item()) && !isRecipe(item()) && !isGroup(item())}>
+          <Show when={!isFoodItem(item()) && !isRecipeItem(item()) && !isGroupItem(item())}>
             <UnsupportedItemMessage />
           </Show>
         </Modal.Content>
@@ -274,7 +274,7 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
             class="btn cursor-pointer uppercase"
             disabled={
               !canApply() ||
-              (!isFood(item()) && !isRecipe(item()) && !isGroup(item()))
+              (!isFoodItem(item()) && !isRecipeItem(item()) && !isGroupItem(item()))
             }
             onClick={(e) => {
               debug('[UnifiedItemEditModal] Apply clicked', item())

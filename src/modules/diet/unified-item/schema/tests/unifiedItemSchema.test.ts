@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest'
 
 import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import {
-  isFood,
-  isGroup,
-  isRecipe,
+  isFoodItem,
+  isGroupItem,
+  isRecipeItem,
   UnifiedItem,
   unifiedItemSchema,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
@@ -56,8 +56,8 @@ describe('type guards', () => {
     reference: { type: 'group', children: [unifiedFood] },
   })
   it('isFood, isRecipe, isGroup work as expected', () => {
-    expect(isFood(unifiedFood)).toBe(true)
-    expect(isGroup(unifiedGroup)).toBe(true)
-    expect(isRecipe(unifiedFood)).toBe(false)
+    expect(isFoodItem(unifiedFood)).toBe(true)
+    expect(isGroupItem(unifiedGroup)).toBe(true)
+    expect(isRecipeItem(unifiedFood)).toBe(false)
   })
 })

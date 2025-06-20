@@ -74,30 +74,25 @@ export type UnifiedItem<
   reference: Reference<T>
 }
 
-export function isFood(item: UnifiedItem): item is UnifiedItem<'food'> & {
-  reference: FoodReference
-} {
-  return item.reference.type === 'food'
-}
-export function isRecipe(item: UnifiedItem): item is UnifiedItem<'recipe'> {
-  return item.reference.type === 'recipe'
-}
-export function isGroup(item: UnifiedItem): item is UnifiedItem<'group'> {
-  return item.reference.type === 'group'
-}
-export function asFoodItem(item: UnifiedItem): UnifiedItem<'food'> | undefined {
-  return isFood(item) ? item : undefined
-}
-export function asRecipeItem(
+export const isFoodItem = (
   item: UnifiedItem,
-): UnifiedItem<'recipe'> | undefined {
-  return isRecipe(item) ? item : undefined
-}
-export function asGroupItem(
+): item is UnifiedItem<'food'> & { reference: FoodReference } =>
+  item.reference.type === 'food'
+export const isRecipeItem = (
   item: UnifiedItem,
-): UnifiedItem<'group'> | undefined {
-  return isGroup(item) ? item : undefined
-}
+): item is UnifiedItem<'recipe'> => item.reference.type === 'recipe'
+export const isGroupItem = (item: UnifiedItem): item is UnifiedItem<'group'> =>
+  item.reference.type === 'group'
+
+export const asFoodItem = (
+  item: UnifiedItem,
+): UnifiedItem<'food'> | undefined => (isFoodItem(item) ? item : undefined)
+export const asRecipeItem = (
+  item: UnifiedItem,
+): UnifiedItem<'recipe'> | undefined => (isRecipeItem(item) ? item : undefined)
+export const asGroupItem = (
+  item: UnifiedItem,
+): UnifiedItem<'group'> | undefined => (isGroupItem(item) ? item : undefined)
 
 export function createUnifiedItem({
   id,

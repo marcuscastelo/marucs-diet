@@ -5,9 +5,9 @@ import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import {
-  isFood,
-  isGroup,
-  isRecipe,
+  isFoodItem,
+  isGroupItem,
+  isRecipeItem,
   type UnifiedItem,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
@@ -50,14 +50,14 @@ export function calcGroupMacros(group: ItemGroup): MacroNutrients {
  * Calculates macros for a UnifiedItem, handling all reference types
  */
 export function calcUnifiedItemMacros(item: UnifiedItem): MacroNutrients {
-  if (isFood(item)) {
+  if (isFoodItem(item)) {
     // For food items, calculate proportionally from stored macros in reference
     return {
       carbs: (item.reference.macros.carbs * item.quantity) / 100,
       fat: (item.reference.macros.fat * item.quantity) / 100,
       protein: (item.reference.macros.protein * item.quantity) / 100,
     }
-  } else if (isRecipe(item) || isGroup(item)) {
+  } else if (isRecipeItem(item) || isGroupItem(item)) {
     // For recipe and group items, sum the macros from children
     // The quantity field represents the total prepared amount, not a scaling factor
     const defaultQuantity = item.reference.children.reduce(
