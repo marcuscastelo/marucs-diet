@@ -18,7 +18,6 @@ import {
 import { showSuccess } from '~/modules/toast/application/toastManager'
 import { TestChart } from '~/sections/common/components/charts/TestChart'
 import { FloatInput } from '~/sections/common/components/FloatInput'
-import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import { EANIcon } from '~/sections/common/components/icons/EANIcon'
 import { LoadingRing } from '~/sections/common/components/LoadingRing'
 import { Modal } from '~/sections/common/components/Modal'
@@ -34,7 +33,6 @@ import DayMacros from '~/sections/day-diet/components/DayMacros'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
 import { UnifiedItemListView } from '~/sections/unified-item/components/UnifiedItemListView'
-import { UnifiedItemName } from '~/sections/unified-item/components/UnifiedItemName'
 import { UnifiedItemNutritionalInfo } from '~/sections/unified-item/components/UnifiedItemNutritionalInfo'
 import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
 
@@ -191,15 +189,6 @@ export default function TestApp() {
             <h1>UnifiedItemView (ItemGroup test)</h1>
             <UnifiedItemView
               item={() => itemGroupToUnifiedItem(group())}
-              header={
-                <HeaderWithActions
-                  name={
-                    <UnifiedItemName
-                      item={() => itemGroupToUnifiedItem(group())}
-                    />
-                  }
-                />
-              }
               nutritionalInfo={
                 <UnifiedItemNutritionalInfo
                   item={() => itemGroupToUnifiedItem(group())}

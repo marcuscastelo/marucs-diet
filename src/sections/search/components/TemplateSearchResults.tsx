@@ -10,9 +10,7 @@ import {
 import { debouncedTab } from '~/modules/search/application/search'
 import { Alert } from '~/sections/common/components/Alert'
 import { RemoveFromRecentButton } from '~/sections/common/components/buttons/RemoveFromRecentButton'
-import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import { UnifiedItemFavorite } from '~/sections/unified-item/components/UnifiedItemFavorite'
-import { UnifiedItemName } from '~/sections/unified-item/components/UnifiedItemName'
 import { UnifiedItemNutritionalInfo } from '~/sections/unified-item/components/UnifiedItemNutritionalInfo'
 import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
 
@@ -79,23 +77,14 @@ export function TemplateSearchResults(props: {
                       props.setEANModalVisible(false)
                     },
                   }}
-                  header={() => (
-                    <HeaderWithActions
-                      name={
-                        <UnifiedItemName item={createUnifiedItemFromTemplate} />
-                      }
-                      primaryActions={
-                        <UnifiedItemFavorite foodId={template.id} />
-                      }
-                      secondaryActions={
-                        <RemoveFromRecentButton
-                          templateId={template.id}
-                          type={isTemplateFood(template) ? 'food' : 'recipe'}
-                          refetch={props.refetch}
-                        />
-                      }
+                  primaryActions={<UnifiedItemFavorite foodId={template.id} />}
+                  secondaryActions={
+                    <RemoveFromRecentButton
+                      templateId={template.id}
+                      type={isTemplateFood(template) ? 'food' : 'recipe'}
+                      refetch={props.refetch}
                     />
-                  )}
+                  }
                   nutritionalInfo={() => (
                     <UnifiedItemNutritionalInfo
                       item={createUnifiedItemFromTemplate}

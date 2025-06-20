@@ -9,11 +9,9 @@ import {
 import { fetchFoodByEan } from '~/modules/diet/food/application/food'
 import { type Food } from '~/modules/diet/food/domain/food'
 import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
-import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { UnifiedItemFavorite } from '~/sections/unified-item/components/UnifiedItemFavorite'
-import { UnifiedItemName } from '~/sections/unified-item/components/UnifiedItemName'
 import { UnifiedItemNutritionalInfo } from '~/sections/unified-item/components/UnifiedItemNutritionalInfo'
 import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
 import { handleApiError } from '~/shared/error/errorHandler'
@@ -122,16 +120,9 @@ export function EANSearch(props: EANSearchProps) {
                       }}
                       mode="read-only"
                       item={createUnifiedItemFromFood}
-                      header={() => (
-                        <HeaderWithActions
-                          name={
-                            <UnifiedItemName item={createUnifiedItemFromFood} />
-                          }
-                          primaryActions={
-                            <UnifiedItemFavorite foodId={food().id} />
-                          }
-                        />
-                      )}
+                      primaryActions={
+                        <UnifiedItemFavorite foodId={food().id} />
+                      }
                       nutritionalInfo={() => (
                         <UnifiedItemNutritionalInfo
                           item={createUnifiedItemFromFood}

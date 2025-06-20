@@ -14,6 +14,8 @@ export type UnifiedItemViewProps = {
   nutritionalInfo?: JSXElement | (() => JSXElement)
   class?: string
   mode?: 'edit' | 'read-only' | 'summary'
+  primaryActions?: JSXElement
+  secondaryActions?: JSXElement
   handlers: {
     onClick?: (item: UnifiedItem) => void
     onEdit?: (item: UnifiedItem) => void
@@ -36,7 +38,11 @@ export function UnifiedItemView(props: UnifiedItemViewProps) {
         handler?.(e)
       }}
     >
-      <UnifiedItemHeader item={props.item}>
+      <UnifiedItemHeader
+        item={props.item}
+        primaryActions={props.primaryActions}
+        secondaryActions={props.secondaryActions}
+      >
         {typeof props.header === 'function' ? props.header() : props.header}
         {isInteractive() && (
           <UnifiedItemActions item={props.item} handlers={props.handlers} />

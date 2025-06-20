@@ -1,8 +1,6 @@
 import { type Accessor, For } from 'solid-js'
 
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
-import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
-import { UnifiedItemName } from '~/sections/unified-item/components/UnifiedItemName'
 import { UnifiedItemNutritionalInfo } from '~/sections/unified-item/components/UnifiedItemNutritionalInfo'
 import {
   UnifiedItemView,
@@ -21,9 +19,6 @@ export function UnifiedItemListView(props: UnifiedItemListViewProps) {
         <div class="mt-2">
           <UnifiedItemView
             item={() => item}
-            header={
-              <HeaderWithActions name={<UnifiedItemName item={() => item} />} />
-            }
             nutritionalInfo={<UnifiedItemNutritionalInfo item={() => item} />}
             {...props}
           />

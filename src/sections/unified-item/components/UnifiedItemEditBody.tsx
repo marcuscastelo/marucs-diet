@@ -10,7 +10,6 @@ import {
   isRecipeItem,
   type UnifiedItem,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
-import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import { type MacroValues } from '~/sections/common/components/MaxQuantityButton'
 import { type UseFieldReturn } from '~/sections/common/hooks/useField'
 import { GroupChildrenEditor } from '~/sections/unified-item/components/GroupChildrenEditor'
@@ -190,24 +189,20 @@ export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
           item={props.item}
           class="mt-4"
           header={() => (
-            <HeaderWithActions
-              name={
-                <Show
-                  when={isGroupItem(props.item())}
-                  fallback={<UnifiedItemName item={props.item} />}
-                >
-                  <InlineNameEditor item={props.item} setItem={props.setItem} />
-                </Show>
-              }
-              primaryActions={
-                <Show when={asFoodItem(props.item())} fallback={null}>
-                  {(foodItem) => (
-                    <UnifiedItemFavorite foodId={foodItem().reference.id} />
-                  )}
-                </Show>
-              }
-            />
+            <Show
+              when={isGroupItem(props.item())}
+              fallback={<UnifiedItemName item={props.item} />}
+            >
+              <InlineNameEditor item={props.item} setItem={props.setItem} />
+            </Show>
           )}
+          primaryActions={
+            <Show when={asFoodItem(props.item())} fallback={null}>
+              {(foodItem) => (
+                <UnifiedItemFavorite foodId={foodItem().reference.id} />
+              )}
+            </Show>
+          }
           nutritionalInfo={() => (
             <UnifiedItemNutritionalInfo item={props.item} />
           )}
