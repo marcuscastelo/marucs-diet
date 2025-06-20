@@ -109,11 +109,9 @@ export type UnifiedItemEditBodyProps = {
 }
 
 export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
-  debug('[UnifiedItemEditBody] called', props)
-
   // Cálculo do restante disponível de macros
   function getAvailableMacros(): MacroValues {
-    debug('[UnifiedItemEditBody] getAvailableMacros')
+    debug('getAvailableMacros')
     const dayDiet = currentDayDiet()
     const macroTarget = dayDiet
       ? getMacroTargetForDay(new Date(dayDiet.target_day))
@@ -140,6 +138,23 @@ export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
 
   return (
     <>
+      <UnifiedItemView
+        mode="edit"
+        handlers={{
+          onCopy: props.clipboardActions?.onCopy,
+        }}
+        item={props.item}
+        class="mt-4"
+        primaryActions={
+          <Show when={asFoodItem(props.item())} fallback={null}>
+            {(foodItem) => (
+              <UnifiedItemFavorite foodId={foodItem().reference.id} />
+            )}
+          </Show>
+        }
+        nutritionalInfo={() => <UnifiedItemNutritionalInfo item={props.item} />}
+      />
+
       {/* Para alimentos e receitas (modo normal): controles de quantidade normal */}
       <Show
         when={
@@ -147,8 +162,6 @@ export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
           (isRecipeItem(props.item()) && props.recipeViewMode !== 'group')
         }
       >
-        <QuantityShortcuts onQuantitySelect={handleQuantitySelect} />
-
         <QuantityControls
           item={props.item}
           setItem={props.setItem}
@@ -156,6 +169,8 @@ export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
           getAvailableMacros={getAvailableMacros}
           quantityField={props.quantityField}
         />
+
+        <QuantityShortcuts onQuantitySelect={handleQuantitySelect} />
       </Show>
 
       {/* Para grupos ou receitas em modo grupo: editor de filhos */}
@@ -171,33 +186,6 @@ export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
           onEditChild={props.onEditChild}
           onAddNewItem={props.onAddNewItem}
           showAddButton={props.showAddItemButton}
-        />
-      </Show>
-
-      <Show
-        when={
-          isFoodItem(props.item()) ||
-          isRecipeItem(props.item()) ||
-          isGroupItem(props.item())
-        }
-      >
-        <UnifiedItemView
-          mode="edit"
-          handlers={{
-            onCopy: props.clipboardActions?.onCopy,
-          }}
-          item={props.item}
-          class="mt-4"
-          primaryActions={
-            <Show when={asFoodItem(props.item())} fallback={null}>
-              {(foodItem) => (
-                <UnifiedItemFavorite foodId={foodItem().reference.id} />
-              )}
-            </Show>
-          }
-          nutritionalInfo={() => (
-            <UnifiedItemNutritionalInfo item={props.item} />
-          )}
         />
       </Show>
     </>
