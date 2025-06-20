@@ -170,7 +170,11 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
           }
         />
         <Modal.Content>
-          <Show when={isFoodItem(item()) || isRecipeItem(item()) || isGroupItem(item())}>
+          <Show
+            when={
+              isFoodItem(item()) || isRecipeItem(item()) || isGroupItem(item())
+            }
+          >
             {/* Clipboard Actions */}
             <div class="mb-4 flex justify-center gap-2">
               <button
@@ -243,7 +247,9 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
               macroOverflow={props.macroOverflow}
               quantityField={quantityField}
               onEditChild={handleEditChild}
-              recipeViewMode={isRecipeItem(item()) ? recipeViewMode() : undefined}
+              recipeViewMode={
+                isRecipeItem(item()) ? recipeViewMode() : undefined
+              }
               clipboardActions={{
                 onCopy: handleCopy,
                 onPaste: handlePaste,
@@ -253,7 +259,13 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
               showAddItemButton={props.showAddItemButton}
             />
           </Show>
-          <Show when={!isFoodItem(item()) && !isRecipeItem(item()) && !isGroupItem(item())}>
+          <Show
+            when={
+              !isFoodItem(item()) &&
+              !isRecipeItem(item()) &&
+              !isGroupItem(item())
+            }
+          >
             <UnsupportedItemMessage />
           </Show>
         </Modal.Content>
@@ -274,7 +286,9 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
             class="btn cursor-pointer uppercase"
             disabled={
               !canApply() ||
-              (!isFoodItem(item()) && !isRecipeItem(item()) && !isGroupItem(item()))
+              (!isFoodItem(item()) &&
+                !isRecipeItem(item()) &&
+                !isGroupItem(item()))
             }
             onClick={(e) => {
               debug('[UnifiedItemEditModal] Apply clicked', item())

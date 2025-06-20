@@ -37,7 +37,9 @@ export type GroupChildrenEditorProps = {
 export function GroupChildrenEditor(props: GroupChildrenEditorProps) {
   const children = () => {
     const item = props.item()
-    return isGroupItem(item) || isRecipeItem(item) ? item.reference.children : []
+    return isGroupItem(item) || isRecipeItem(item)
+      ? item.reference.children
+      : []
   }
 
   // Clipboard schema accepts UnifiedItem or array of UnifiedItems

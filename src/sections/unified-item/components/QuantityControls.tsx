@@ -121,13 +121,9 @@ export function QuantityControls(props: QuantityControlsProps) {
             currentValue={props.quantityField.value() ?? 0}
             macroTargets={props.getAvailableMacros()}
             itemMacros={(() => {
-              if (isFoodItem(props.item())) {
-                return (
-                  props.item() as Extract<
-                    UnifiedItem,
-                    { reference: { type: 'food'; macros: MacroNutrients } }
-                  >
-                ).reference.macros
+              const item = props.item()
+              if (isFoodItem(item)) {
+                return item.reference.macros
               }
               if (isRecipeItem(props.item())) {
                 // For recipes, calculate macros from children (per 100g of prepared recipe)

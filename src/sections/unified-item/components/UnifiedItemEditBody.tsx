@@ -208,8 +208,10 @@ export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
                 </Show>
               }
               primaryActions={
-                <Show when={isFoodItem(props.item())} fallback={null}>
-                  <UnifiedItemFavorite foodId={props.item().reference.id} />
+                <Show when={asFoodItem(props.item())} fallback={null}>
+                  {(foodItem) => (
+                    <UnifiedItemFavorite foodId={foodItem().reference.id} />
+                  )}
                 </Show>
               }
             />

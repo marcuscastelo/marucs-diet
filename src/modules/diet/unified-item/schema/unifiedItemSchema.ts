@@ -1,24 +1,9 @@
 import { z } from 'zod'
 
-import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
-
-type FoodReference = {
-  type: 'food'
-  id: number
-  macros: z.infer<typeof macroNutrientsSchema>
-}
-type RecipeReference = { type: 'recipe'; id: number; children: UnifiedItem[] }
-type GroupReference = { type: 'group'; children: UnifiedItem[] }
-
-type Reference<T extends 'food' | 'recipe' | 'group'> = T extends 'food'
-  ? FoodReference
-  : T extends 'recipe'
-    ? RecipeReference
-    : T extends 'group'
-      ? GroupReference
-      : T extends 'recipe' | 'group'
-        ? { type: T; children: UnifiedItem[] }
-        : never
+import {
+  MacroNutrients,
+  macroNutrientsSchema,
+} from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 
 export const unifiedItemSchema: z.ZodType<UnifiedItem> = z.lazy(() =>
   z.union([
@@ -67,32 +52,31 @@ type UnifiedItemBase = {
   __type: 'UnifiedItem'
 }
 
-export type UnifiedItem<
-  T extends 'food' | 'recipe' | 'group' = 'food' | 'recipe' | 'group',
-> = UnifiedItemBase & {
-  __type: 'UnifiedItem'
-  reference: Reference<T>
-}
+type FoodReference = { type: 'food'; id: number; macros: MacroNutrients }
+type RecipeReference = { type: 'recipe'; id: number; children: UnifiedItem[] }
+type GroupReference = { type: 'group'; children: UnifiedItem[] }
 
-export const isFoodItem = (
-  item: UnifiedItem,
-): item is UnifiedItem<'food'> & { reference: FoodReference } =>
+export type FoodItem = UnifiedItemBase & { reference: FoodReference }
+export type RecipeItem = UnifiedItemBase & { reference: RecipeReference }
+export type GroupItem = UnifiedItemBase & { reference: GroupReference }
+
+export type UnifiedItem = FoodItem | RecipeItem | GroupItem
+
+export const isFoodItem = (item: UnifiedItem): item is FoodItem =>
   item.reference.type === 'food'
-export const isRecipeItem = (
-  item: UnifiedItem,
-): item is UnifiedItem<'recipe'> => item.reference.type === 'recipe'
-export const isGroupItem = (item: UnifiedItem): item is UnifiedItem<'group'> =>
+
+export const isRecipeItem = (item: UnifiedItem): item is RecipeItem =>
+  item.reference.type === 'recipe'
+
+export const isGroupItem = (item: UnifiedItem): item is GroupItem =>
   item.reference.type === 'group'
 
-export const asFoodItem = (
-  item: UnifiedItem,
-): UnifiedItem<'food'> | undefined => (isFoodItem(item) ? item : undefined)
-export const asRecipeItem = (
-  item: UnifiedItem,
-): UnifiedItem<'recipe'> | undefined => (isRecipeItem(item) ? item : undefined)
-export const asGroupItem = (
-  item: UnifiedItem,
-): UnifiedItem<'group'> | undefined => (isGroupItem(item) ? item : undefined)
+export const asFoodItem = (item: UnifiedItem): FoodItem | undefined =>
+  isFoodItem(item) ? item : undefined
+export const asRecipeItem = (item: UnifiedItem): RecipeItem | undefined =>
+  isRecipeItem(item) ? item : undefined
+export const asGroupItem = (item: UnifiedItem): GroupItem | undefined =>
+  isGroupItem(item) ? item : undefined
 
 export function createUnifiedItem({
   id,
@@ -131,7 +115,6 @@ export function createUnifiedItem({
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (reference.type === 'group') {
     return {
       ...itemWithoutReference,
