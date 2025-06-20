@@ -65,7 +65,6 @@ export function UnifiedItemView(props: UnifiedItemViewProps) {
     return []
   }
 
-  // Handlers logic similar to ItemView
   const handleMouseEvent = (callback?: () => void) => {
     if (callback === undefined) {
       return undefined
