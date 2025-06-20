@@ -1,0 +1,47 @@
+name: Validate Version Consistency
+
+on:
+  pull_request:
+    branches:
+      - stable
+
+jobs:
+  validate-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Validate package.json version
+        shell: bash
+        run: |
+          branch_version=$(echo ${{ github.head_ref }} | sed 's/^rc\///')
+          package_version=$(jq -r .version package.json)
+          if [ "$branch_version" != "$package_version" ]; then
+            echo "Error: package.json version ($package_version) does not match branch version ($branch_version)."
+            exit 1
+          fi
+
+      - name: Validate README.md version
+        shell: bash
+        run: |
+          branch_version=$(echo ${{ github.head_ref }} | sed 's/^rc\///')
+          if ! grep -q "$branch_version" README.md; then
+            echo "Error: README.md does not contain the version $branch_version."
+            exit 1
+          fi
+
+      - name: Validate Git tag
+        shell: bash
+        run: |
+          branch_version=$(echo ${{ github.head_ref }} | sed 's/^rc\///')
+          if ! git tag | grep -q "$branch_version"; then
+            echo "Error: Git tag $branch_version does not exist."
+            exit 1
+          fi
