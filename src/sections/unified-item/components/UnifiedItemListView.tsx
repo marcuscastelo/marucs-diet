@@ -2,8 +2,8 @@ import { type Accessor, For } from 'solid-js'
 
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
+import { UnifiedItemName } from '~/sections/unified-item/components/UnifiedItemName'
 import {
-  UnifiedItemName,
   UnifiedItemView,
   UnifiedItemViewNutritionalInfo,
   type UnifiedItemViewProps,

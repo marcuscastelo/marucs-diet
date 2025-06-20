@@ -11,9 +11,9 @@ import { debouncedTab } from '~/modules/search/application/search'
 import { Alert } from '~/sections/common/components/Alert'
 import { RemoveFromRecentButton } from '~/sections/common/components/buttons/RemoveFromRecentButton'
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
+import { UnifiedItemName } from '~/sections/unified-item/components/UnifiedItemName'
 import {
   UnifiedItemFavorite,
-  UnifiedItemName,
   UnifiedItemView,
   UnifiedItemViewNutritionalInfo,
 } from '~/sections/unified-item/components/UnifiedItemView'

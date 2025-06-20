@@ -22,9 +22,9 @@ import { type UseFieldReturn } from '~/sections/common/hooks/useField'
 import { GroupChildrenEditor } from '~/sections/unified-item/components/GroupChildrenEditor'
 import { QuantityControls } from '~/sections/unified-item/components/QuantityControls'
 import { QuantityShortcuts } from '~/sections/unified-item/components/QuantityShortcuts'
+import { UnifiedItemName } from '~/sections/unified-item/components/UnifiedItemName'
 import { UnifiedItemFavorite } from '~/sections/unified-item/components/UnifiedItemView'
 import {
-  UnifiedItemName,
   UnifiedItemView,
   UnifiedItemViewNutritionalInfo,
 } from '~/sections/unified-item/components/UnifiedItemView'

@@ -1,27 +1,12 @@
-import { type Accessor, createMemo, type JSXElement, Show } from 'solid-js'
+import { type Accessor, type JSXElement, Show } from 'solid-js'
 
-import {
-  asFoodItem,
-  isFoodItem,
-  type UnifiedItem,
-} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
-import {
-  isFoodFavorite,
-  setFoodAsFavorite,
-} from '~/modules/user/application/user'
-import MacroNutrientsView from '~/sections/macro-nutrients/components/MacroNutrientsView'
+import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { UnifiedItemActions } from '~/sections/unified-item/components/UnifiedItemActions'
 import { UnifiedItemChildren } from '~/sections/unified-item/components/UnifiedItemChildren'
+import { UnifiedItemFavorite } from '~/sections/unified-item/components/UnifiedItemFavorite'
 import { UnifiedItemHeader } from '~/sections/unified-item/components/UnifiedItemHeader'
 import { createEventHandler } from '~/sections/unified-item/utils/unifiedItemDisplayUtils'
 import { cn } from '~/shared/cn'
-import { createDebug } from '~/shared/utils/createDebug'
-import {
-  calcUnifiedItemCalories,
-  calcUnifiedItemMacros,
-} from '~/shared/utils/macroMath'
-
-const debug = createDebug()
 
 export type UnifiedItemViewProps = {
   item: Accessor<UnifiedItem>
@@ -71,45 +56,7 @@ export function UnifiedItemView(props: UnifiedItemViewProps) {
   )
 }
 
-export function UnifiedItemViewNutritionalInfo(props: {
-  item: Accessor<UnifiedItem>
-}) {
-  const calories = createMemo(() => calcUnifiedItemCalories(props.item()))
-  const macros = createMemo(() => calcUnifiedItemMacros(props.item()))
-
-  return (
-    <div class="flex">
-      <MacroNutrientsView macros={macros()} />
-      <div class="ml-auto">
-        <span class="text-white"> {props.item().quantity}g </span>|
-        <span class="text-white"> {calories().toFixed(0)}kcal </span>
-      </div>
-    </div>
-  )
-}
-
-export function UnifiedItemFavorite(props: { foodId: number }) {
-  debug('UnifiedItemFavorite called', { props })
-
-  const toggleFavorite = (e: MouseEvent) => {
-    debug('toggleFavorite', {
-      foodId: props.foodId,
-      isFavorite: isFoodFavorite(props.foodId),
-    })
-    setFoodAsFavorite(props.foodId, !isFoodFavorite(props.foodId))
-    e.stopPropagation()
-    e.preventDefault()
-  }
-
-  return (
-    <div
-      class="text-3xl text-orange-400 active:scale-105 hover:text-blue-200"
-      onClick={toggleFavorite}
-    >
-      {isFoodFavorite(props.foodId) ? '★' : '☆'}
-    </div>
-  )
-}
-
-// Re-export for backward compatibility
+// Re-export the extracted components for backward compatibility
+export { UnifiedItemFavorite } from '~/sections/unified-item/components/UnifiedItemFavorite'
 export { UnifiedItemName } from '~/sections/unified-item/components/UnifiedItemName'
+export { UnifiedItemNutritionalInfo as UnifiedItemViewNutritionalInfo } from '~/sections/unified-item/components/UnifiedItemNutritionalInfo'

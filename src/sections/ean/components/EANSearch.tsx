@@ -12,9 +12,9 @@ import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedIte
 import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
+import { UnifiedItemName } from '~/sections/unified-item/components/UnifiedItemName'
 import {
   UnifiedItemFavorite,
-  UnifiedItemName,
   UnifiedItemView,
   UnifiedItemViewNutritionalInfo,
 } from '~/sections/unified-item/components/UnifiedItemView'
