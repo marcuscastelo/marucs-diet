@@ -12,7 +12,6 @@ import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedIte
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { UnifiedItemFavorite } from '~/sections/unified-item/components/UnifiedItemFavorite'
-import { UnifiedItemNutritionalInfo } from '~/sections/unified-item/components/UnifiedItemNutritionalInfo'
 import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
 import { handleApiError } from '~/shared/error/errorHandler'
 
@@ -123,11 +122,6 @@ export function EANSearch(props: EANSearchProps) {
                       primaryActions={
                         <UnifiedItemFavorite foodId={food().id} />
                       }
-                      nutritionalInfo={() => (
-                        <UnifiedItemNutritionalInfo
-                          item={createUnifiedItemFromFood}
-                        />
-                      )}
                     />
                   </p>
                 </div>

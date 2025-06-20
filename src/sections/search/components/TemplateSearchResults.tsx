@@ -11,7 +11,6 @@ import { debouncedTab } from '~/modules/search/application/search'
 import { Alert } from '~/sections/common/components/Alert'
 import { RemoveFromRecentButton } from '~/sections/common/components/buttons/RemoveFromRecentButton'
 import { UnifiedItemFavorite } from '~/sections/unified-item/components/UnifiedItemFavorite'
-import { UnifiedItemNutritionalInfo } from '~/sections/unified-item/components/UnifiedItemNutritionalInfo'
 import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
 
 export function TemplateSearchResults(props: {
@@ -85,11 +84,6 @@ export function TemplateSearchResults(props: {
                       refetch={props.refetch}
                     />
                   }
-                  nutritionalInfo={() => (
-                    <UnifiedItemNutritionalInfo
-                      item={createUnifiedItemFromTemplate}
-                    />
-                  )}
                 />
               </>
             )

@@ -33,7 +33,6 @@ import DayMacros from '~/sections/day-diet/components/DayMacros'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
 import { UnifiedItemListView } from '~/sections/unified-item/components/UnifiedItemListView'
-import { UnifiedItemNutritionalInfo } from '~/sections/unified-item/components/UnifiedItemNutritionalInfo'
 import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
 
 export default function TestApp() {
@@ -189,11 +188,6 @@ export default function TestApp() {
             <h1>UnifiedItemView (ItemGroup test)</h1>
             <UnifiedItemView
               item={() => itemGroupToUnifiedItem(group())}
-              nutritionalInfo={
-                <UnifiedItemNutritionalInfo
-                  item={() => itemGroupToUnifiedItem(group())}
-                />
-              }
               handlers={{
                 onEdit: () => {
                   setUnifiedItemEditModalVisible(true)

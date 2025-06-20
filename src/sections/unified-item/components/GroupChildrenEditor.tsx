@@ -15,12 +15,11 @@ import {
   unifiedItemSchema,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { ClipboardActionButtons } from '~/sections/common/components/ClipboardActionButtons'
-import { FloatInput } from '~/sections/common/components/FloatInput'
-import { EditIcon } from '~/sections/common/components/icons/EditIcon'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
+import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
 import { getItemTypeDisplay } from '~/sections/unified-item/utils/unifiedItemDisplayUtils'
 import { createDebug } from '~/shared/utils/createDebug'
 import { regenerateId } from '~/shared/utils/idUtils'
@@ -241,28 +240,6 @@ function GroupChildEditor(props: GroupChildEditorProps) {
     props.onQuantityChange(newValue)
   }
 
-  // Shortcuts baseados no tipo de alimento
-  const getShortcuts = () => {
-    // Para carnes, sugerir porções maiores
-    if (
-      props.child.name.toLowerCase().includes('carne') ||
-      props.child.name.toLowerCase().includes('frango') ||
-      props.child.name.toLowerCase().includes('peixe')
-    ) {
-      return [100, 150, 200, 250]
-    }
-    // Para vegetais, porções menores
-    if (
-      props.child.name.toLowerCase().includes('salada') ||
-      props.child.name.toLowerCase().includes('verdura') ||
-      props.child.name.toLowerCase().includes('legume')
-    ) {
-      return [25, 50, 75, 100]
-    }
-    // Padrão geral
-    return [50, 100, 150, 200]
-  }
-
   const handleEditChild = () => {
     if (props.onEditChild) {
       props.onEditChild(props.child)
@@ -274,82 +251,10 @@ function GroupChildEditor(props: GroupChildEditorProps) {
 
   return (
     <>
-      <div class="rounded-lg border border-gray-700 bg-gray-700 p-3 shadow">
-        {/* Header com nome, tipo e id */}
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center gap-2 flex-1 min-w-0">
-            <div class="flex items-center gap-1 shrink-0">
-              <span class="text-base cursor-help" title={typeDisplay().label}>
-                {typeDisplay().icon}
-              </span>
-            </div>
-            <h4 class="font-medium text-white truncate">{props.child.name}</h4>
-          </div>
-          <div class="flex items-center gap-2 shrink-0">
-            <button
-              class="p-1 hover:bg-gray-600 rounded transition-colors"
-              onClick={handleEditChild}
-              title={`Editar ${typeDisplay().label}`}
-            >
-              <EditIcon class="w-4 h-4 text-blue-400 hover:text-blue-300" />
-            </button>
-          </div>
-        </div>
-
-        {/* Controles principais */}
-        <div class="flex w-full justify-between gap-1 mb-3">
-          <div class="flex-1 relative">
-            <FloatInput
-              field={quantityField}
-              placeholder="Quantidade"
-              class={`input-bordered input bg-gray-800 border-gray-300 w-full`}
-              onFieldCommit={handleQuantityChange}
-              onFocus={(event) => {
-                event.target.select()
-              }}
-            />
-          </div>
-
-          <span class="text-gray-400 self-center mx-2">g</span>
-
-          {/* Botões de incremento/decremento - seguindo padrão QuantityControls */}
-          <div class="flex shrink gap-1">
-            <div
-              class="btn-primary btn-xs btn cursor-pointer uppercase h-full w-10 px-6 text-4xl text-red-600"
-              onClick={decrement}
-            >
-              -
-            </div>
-            <div
-              class="btn-primary btn-xs btn cursor-pointer uppercase h-full w-10 px-6 text-4xl text-green-400"
-              onClick={increment}
-            >
-              +
-            </div>
-          </div>
-        </div>
-
-        {/* Shortcuts - seguindo padrão QuantityShortcuts */}
-        <div class="flex gap-1">
-          <For each={getShortcuts()}>
-            {(shortcut) => (
-              <button
-                class={`btn btn-xs flex-1 cursor-pointer uppercase ${
-                  Math.abs((quantityField.value() ?? 0) - shortcut) < 0.1
-                    ? 'btn-primary'
-                    : 'btn-outline'
-                }`}
-                onClick={() => {
-                  quantityField.setRawValue(shortcut.toString())
-                  props.onQuantityChange(shortcut)
-                }}
-              >
-                {shortcut}g
-              </button>
-            )}
-          </For>
-        </div>
-      </div>
+      <UnifiedItemView
+        item={() => props.child}
+        handlers={{ onEdit: handleEditChild }}
+      />
 
       {/* Modal for editing child items */}
       <Show when={childEditModalVisible()}>

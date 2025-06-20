@@ -1,7 +1,6 @@
 import { type Accessor, For } from 'solid-js'
 
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
-import { UnifiedItemNutritionalInfo } from '~/sections/unified-item/components/UnifiedItemNutritionalInfo'
 import {
   UnifiedItemView,
   type UnifiedItemViewProps,
@@ -17,11 +16,7 @@ export function UnifiedItemListView(props: UnifiedItemListViewProps) {
     <For each={props.items()}>
       {(item) => (
         <div class="mt-2">
-          <UnifiedItemView
-            item={() => item}
-            nutritionalInfo={<UnifiedItemNutritionalInfo item={() => item} />}
-            {...props}
-          />
+          <UnifiedItemView item={() => item} {...props} />
         </div>
       )}
     </For>

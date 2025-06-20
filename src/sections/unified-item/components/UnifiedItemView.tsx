@@ -1,16 +1,15 @@
-import { type Accessor, type JSXElement, Show } from 'solid-js'
+import { type Accessor, type JSXElement } from 'solid-js'
 
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { UnifiedItemActions } from '~/sections/unified-item/components/UnifiedItemActions'
 import { UnifiedItemChildren } from '~/sections/unified-item/components/UnifiedItemChildren'
-import { UnifiedItemFavorite } from '~/sections/unified-item/components/UnifiedItemFavorite'
 import { UnifiedItemHeader } from '~/sections/unified-item/components/UnifiedItemHeader'
+import { UnifiedItemNutritionalInfo } from '~/sections/unified-item/components/UnifiedItemNutritionalInfo'
 import { createEventHandler } from '~/sections/unified-item/utils/unifiedItemDisplayUtils'
 import { cn } from '~/shared/cn'
 
 export type UnifiedItemViewProps = {
   item: Accessor<UnifiedItem>
-  nutritionalInfo?: JSXElement | (() => JSXElement)
   class?: string
   mode?: 'edit' | 'read-only' | 'summary'
   primaryActions?: JSXElement
@@ -49,13 +48,7 @@ export function UnifiedItemView(props: UnifiedItemViewProps) {
 
       <UnifiedItemChildren item={props.item} />
 
-      {typeof props.nutritionalInfo === 'function'
-        ? props.nutritionalInfo()
-        : props.nutritionalInfo}
-
-      <Show when={props.item().reference.type === 'food'}>
-        <UnifiedItemFavorite foodId={props.item().id} />
-      </Show>
+      <UnifiedItemNutritionalInfo item={props.item} />
     </div>
   )
 }

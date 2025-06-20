@@ -5,9 +5,7 @@ import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/ma
 import { updateUnifiedItemName } from '~/modules/diet/unified-item/domain/unifiedItemOperations'
 import {
   asFoodItem,
-  isFoodItem,
   isGroupItem,
-  isRecipeItem,
   type UnifiedItem,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { type MacroValues } from '~/sections/common/components/MaxQuantityButton'
@@ -16,8 +14,6 @@ import { GroupChildrenEditor } from '~/sections/unified-item/components/GroupChi
 import { QuantityControls } from '~/sections/unified-item/components/QuantityControls'
 import { QuantityShortcuts } from '~/sections/unified-item/components/QuantityShortcuts'
 import { UnifiedItemFavorite } from '~/sections/unified-item/components/UnifiedItemFavorite'
-import { UnifiedItemName } from '~/sections/unified-item/components/UnifiedItemName'
-import { UnifiedItemNutritionalInfo } from '~/sections/unified-item/components/UnifiedItemNutritionalInfo'
 import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
 import { createDebug } from '~/shared/utils/createDebug'
 import { calcDayMacros, calcUnifiedItemMacros } from '~/shared/utils/macroMath'
@@ -152,7 +148,6 @@ export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
             )}
           </Show>
         }
-        nutritionalInfo={() => <UnifiedItemNutritionalInfo item={props.item} />}
       />
 
       {/* Para alimentos e receitas (modo normal): controles de quantidade normal */}
