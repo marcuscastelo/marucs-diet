@@ -6,6 +6,7 @@ import {
   createSignal,
   mergeProps,
   Show,
+  Suspense,
   untrack,
 } from 'solid-js'
 
@@ -24,6 +25,7 @@ import {
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { DownloadIcon } from '~/sections/common/components/icons/DownloadIcon'
 import { PasteIcon } from '~/sections/common/components/icons/PasteIcon'
+import { LoadingRing } from '~/sections/common/components/LoadingRing'
 import { Modal } from '~/sections/common/components/Modal'
 import { useModalContext } from '~/sections/common/context/ModalContext'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
@@ -157,7 +159,7 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
     })
 
   return (
-    <>
+    <Suspense fallback={<LoadingRing />}>
       <Modal class="border-2 border-white">
         <Modal.Header
           title={
@@ -337,6 +339,6 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
           }}
         />
       </Show>
-    </>
+    </Suspense>
   )
 }
