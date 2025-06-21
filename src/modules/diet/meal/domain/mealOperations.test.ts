@@ -21,6 +21,7 @@ import {
   updateItemInMeal,
   updateMealName,
 } from '~/modules/diet/meal/domain/mealOperations'
+import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 function makeItem(id: number, name = 'Arroz') {
   return {
@@ -35,14 +36,16 @@ function makeItem(id: number, name = 'Arroz') {
 }
 
 function makeUnifiedItemFromItem(item: ReturnType<typeof makeItem>) {
-  return {
+  return createUnifiedItem({
     id: item.id,
     name: item.name,
     quantity: item.quantity,
-    macros: item.macros,
-    reference: { type: 'food' as const, id: item.reference },
-    __type: 'UnifiedItem' as const,
-  }
+    reference: {
+      type: 'food' as const,
+      id: item.reference,
+      macros: item.macros,
+    },
+  })
 }
 
 function makeGroup(id: number, name = 'G1', items = [makeItem(1)]) {
@@ -90,7 +93,10 @@ describe('mealOperations', () => {
   })
 
   it('updateItemInMeal updates an item', () => {
-    const updatedItem = { ...baseUnifiedItem, name: 'Arroz Integral' }
+    const updatedItem = createUnifiedItem({
+      ...baseUnifiedItem,
+      name: 'Arroz Integral',
+    })
     const result = updateItemInMeal(baseMeal, 1, updatedItem)
     expect(result.items[0]?.name).toBe('Arroz Integral')
   })

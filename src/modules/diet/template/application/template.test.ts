@@ -62,7 +62,7 @@ describe('template application services', () => {
 
       expect(result.unifiedItem).toBeDefined()
       expect(result.unifiedItem.name).toBe('Recipe Test')
-      expect(result.unifiedItem.reference.type).toBe('group')
+      expect(result.unifiedItem.reference.type).toBe('recipe')
       expect(result.operation).toBe('addUnifiedRecipeItem')
       expect(result.templateType).toBe('Recipe')
     })

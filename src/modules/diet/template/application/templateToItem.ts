@@ -6,7 +6,10 @@ import {
   isTemplateFood,
   type Template,
 } from '~/modules/diet/template/domain/template'
-import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import {
+  createUnifiedItem,
+  type UnifiedItem,
+} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { generateId } from '~/shared/utils/idUtils'
 import { calcRecipeMacros } from '~/shared/utils/macroMath'
 
@@ -80,39 +83,20 @@ export function templateToUnifiedItem(
   desiredQuantity: number = DEFAULT_QUANTITY,
 ): UnifiedItem {
   if (isTemplateFood(template)) {
-    return {
+    return createUnifiedItem({
       id: generateId(),
       name: template.name,
       quantity: desiredQuantity,
-      macros: template.macros,
-      reference: { type: 'food', id: template.id },
-      __type: 'UnifiedItem',
-    }
+      reference: { type: 'food', id: template.id, macros: template.macros },
+    })
   }
 
-  // For recipes, calculate macros based on the desired portion
-  const recipe = template as Recipe
-  const recipePreparedQuantity = getRecipePreparedQuantity(recipe)
-
-  let macros: UnifiedItem['macros']
-  if (recipePreparedQuantity > 0) {
-    const scalingFactor = desiredQuantity / recipePreparedQuantity
-    const recipeMacros = calcRecipeMacros(recipe)
-    macros = {
-      protein: recipeMacros.protein * scalingFactor,
-      carbs: recipeMacros.carbs * scalingFactor,
-      fat: recipeMacros.fat * scalingFactor,
-    }
-  } else {
-    macros = { protein: 0, carbs: 0, fat: 0 }
-  }
-
-  return {
+  // For recipes, we don't store macros directly in UnifiedItems
+  // They will be calculated from children
+  return createUnifiedItem({
     id: generateId(),
     name: template.name,
     quantity: desiredQuantity,
-    macros,
     reference: { type: 'recipe', id: template.id, children: [] },
-    __type: 'UnifiedItem',
-  }
+  })
 }

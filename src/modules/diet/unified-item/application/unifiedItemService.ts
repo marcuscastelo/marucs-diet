@@ -1,9 +1,9 @@
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import {
-  isFood,
-  isGroup,
-  isRecipe,
+  isFoodItem,
+  isGroupItem,
+  isRecipeItem,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { calcUnifiedItemMacros } from '~/shared/utils/macroMath'
 
@@ -37,11 +37,11 @@ export function filterItemsByType(
 ): UnifiedItem[] {
   switch (type) {
     case 'food':
-      return items.filter(isFood)
+      return items.filter(isFoodItem)
     case 'recipe':
-      return items.filter(isRecipe)
+      return items.filter(isRecipeItem)
     case 'group':
-      return items.filter(isGroup)
+      return items.filter(isGroupItem)
     default:
       return []
   }
@@ -54,17 +54,20 @@ export function scaleUnifiedItem(
   item: UnifiedItem,
   scaleFactor: number,
 ): UnifiedItem {
-  const newQuantity = item.quantity * scaleFactor
-  const newMacros = {
-    carbs: item.macros.carbs * scaleFactor,
-    protein: item.macros.protein * scaleFactor,
-    fat: item.macros.fat * scaleFactor,
-  }
-
-  return {
-    ...item,
-    quantity: newQuantity,
-    macros: newMacros,
+  if (isFoodItem(item)) {
+    // For food items, we only scale the quantity
+    // The stored macros remain as per 100g
+    return {
+      ...item,
+      quantity: item.quantity * scaleFactor,
+    }
+  } else {
+    // For recipes and groups, only scale quantity
+    // Macros will be calculated from children
+    return {
+      ...item,
+      quantity: item.quantity * scaleFactor,
+    }
   }
 }
 
@@ -74,11 +77,27 @@ export function scaleUnifiedItem(
 export function updateUnifiedItemInArray(
   items: UnifiedItem[],
   itemId: UnifiedItem['id'],
-  updates: Partial<UnifiedItem>,
+  updates: Partial<Pick<UnifiedItem, 'name' | 'quantity'>> & {
+    macros?: { carbs: number; protein: number; fat: number }
+  },
 ): UnifiedItem[] {
-  return items.map((item) =>
-    item.id === itemId ? { ...item, ...updates } : item,
-  )
+  return items.map((item) => {
+    if (item.id === itemId) {
+      const updatedItem = { ...item, ...updates }
+      // Only apply macros updates to food items
+      if (updates.macros && isFoodItem(item)) {
+        return {
+          ...updatedItem,
+          reference: {
+            ...item.reference,
+            macros: updates.macros,
+          },
+        }
+      }
+      return updatedItem
+    }
+    return item
+  })
 }
 
 /**
@@ -123,16 +142,16 @@ export function sortUnifiedItems(
         bValue = b.quantity
         break
       case 'carbs':
-        aValue = a.macros.carbs
-        bValue = b.macros.carbs
+        aValue = calcUnifiedItemMacros(a).carbs
+        bValue = calcUnifiedItemMacros(b).carbs
         break
       case 'protein':
-        aValue = a.macros.protein
-        bValue = b.macros.protein
+        aValue = calcUnifiedItemMacros(a).protein
+        bValue = calcUnifiedItemMacros(b).protein
         break
       case 'fat':
-        aValue = a.macros.fat
-        bValue = b.macros.fat
+        aValue = calcUnifiedItemMacros(a).fat
+        bValue = calcUnifiedItemMacros(b).fat
         break
       default:
         return 0

@@ -95,6 +95,7 @@ export function useFloatField(
     decimalPlaces?: number
     defaultValue?: number
     maxValue?: number
+    minValue?: number
   },
 ) {
   return useField<number>({

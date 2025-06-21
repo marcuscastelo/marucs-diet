@@ -14,6 +14,7 @@ import {
 } from '~/modules/diet/day-diet/domain/dayDietOperations'
 import { createItem } from '~/modules/diet/item/domain/item'
 import { createMeal } from '~/modules/diet/meal/domain/meal'
+import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 function makeItem(id: number, name = 'Arroz') {
   return {
@@ -27,14 +28,16 @@ function makeItem(id: number, name = 'Arroz') {
   }
 }
 function makeUnifiedItemFromItem(item: ReturnType<typeof makeItem>) {
-  return {
+  return createUnifiedItem({
     id: item.id,
     name: item.name,
     quantity: item.quantity,
-    macros: item.macros,
-    reference: { type: 'food' as const, id: item.reference },
-    __type: 'UnifiedItem' as const,
-  }
+    reference: {
+      type: 'food' as const,
+      id: item.reference,
+      macros: item.macros,
+    },
+  })
 }
 
 function makeMeal(

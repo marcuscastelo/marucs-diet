@@ -8,16 +8,11 @@ import {
 
 import { fetchFoodByEan } from '~/modules/diet/food/application/food'
 import { type Food } from '~/modules/diet/food/domain/food'
-import { createItem } from '~/modules/diet/item/domain/item'
-import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
+import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
-import {
-  ItemFavorite,
-  ItemName,
-  ItemNutritionalInfo,
-  ItemView,
-} from '~/sections/food-item/components/ItemView'
+import { UnifiedItemFavorite } from '~/sections/unified-item/components/UnifiedItemFavorite'
+import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
 import { handleApiError } from '~/shared/error/errorHandler'
 
 export type EANSearchProps = {
@@ -95,44 +90,45 @@ export function EANSearch(props: EANSearchProps) {
       </div>
 
       <Show when={props.food()}>
-        {(food) => (
-          <div class="mt-3 flex flex-col">
-            <div class="flex">
-              <div class="flex-1">
-                <p class="font-bold">{food().name}</p>
-                <p class="text-sm">
-                  <ItemView
-                    handlers={{
-                      // TODO : default handlers for ItemView
-                      onCopy: (item) => {
-                        clipboard.write(JSON.stringify(item))
-                      },
-                    }}
-                    mode="read-only"
-                    item={() =>
-                      createItem({
-                        name: food().name,
-                        reference: food().id,
-                        quantity: 100,
-                        macros: { ...food().macros },
-                      })
-                    }
-                    macroOverflow={() => ({
-                      enable: false,
-                    })}
-                    header={() => (
-                      <HeaderWithActions
-                        name={<ItemName />}
-                        primaryActions={<ItemFavorite foodId={food().id} />}
-                      />
-                    )}
-                    nutritionalInfo={() => <ItemNutritionalInfo />}
-                  />
-                </p>
+        {(food) => {
+          // Create UnifiedItem from food
+          const createUnifiedItemFromFood = () =>
+            createUnifiedItem({
+              id: food().id,
+              name: food().name,
+              quantity: 100,
+              reference: {
+                type: 'food',
+                id: food().id,
+                macros: food().macros,
+              },
+            })
+
+          return (
+            <div class="mt-3 flex flex-col">
+              <div class="flex">
+                <div class="flex-1">
+                  <p class="font-bold">{food().name}</p>
+                  <p class="text-sm">
+                    <UnifiedItemView
+                      handlers={{
+                        // TODO : default handlers for UnifiedItemView
+                        onCopy: (item) => {
+                          clipboard.write(JSON.stringify(item))
+                        },
+                      }}
+                      mode="read-only"
+                      item={createUnifiedItemFromFood}
+                      primaryActions={
+                        <UnifiedItemFavorite foodId={food().id} />
+                      }
+                    />
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )
+        }}
       </Show>
 
       <div class="mt-3 flex">

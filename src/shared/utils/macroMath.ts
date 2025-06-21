@@ -4,7 +4,12 @@ import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macro
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
-import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import {
+  isFoodItem,
+  isGroupItem,
+  isRecipeItem,
+  type UnifiedItem,
+} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 export function calcItemMacros(item: TemplateItem): MacroNutrients {
   return {
@@ -45,12 +50,41 @@ export function calcGroupMacros(group: ItemGroup): MacroNutrients {
  * Calculates macros for a UnifiedItem, handling all reference types
  */
 export function calcUnifiedItemMacros(item: UnifiedItem): MacroNutrients {
-  // For UnifiedItems, macros are pre-calculated and stored
-  return {
-    carbs: (item.macros.carbs * item.quantity) / 100,
-    fat: (item.macros.fat * item.quantity) / 100,
-    protein: (item.macros.protein * item.quantity) / 100,
+  if (isFoodItem(item)) {
+    // For food items, calculate proportionally from stored macros in reference
+    return {
+      carbs: (item.reference.macros.carbs * item.quantity) / 100,
+      fat: (item.reference.macros.fat * item.quantity) / 100,
+      protein: (item.reference.macros.protein * item.quantity) / 100,
+    }
+  } else if (isRecipeItem(item) || isGroupItem(item)) {
+    // For recipe and group items, sum the macros from children
+    // The quantity field represents the total prepared amount, not a scaling factor
+    const defaultQuantity = item.reference.children.reduce(
+      (acc, child) => acc + child.quantity,
+      0,
+    )
+    const defaultMacros = item.reference.children.reduce(
+      (acc, child) => {
+        const childMacros = calcUnifiedItemMacros(child)
+        return {
+          carbs: acc.carbs + childMacros.carbs,
+          fat: acc.fat + childMacros.fat,
+          protein: acc.protein + childMacros.protein,
+        }
+      },
+      { carbs: 0, fat: 0, protein: 0 },
+    )
+
+    return {
+      carbs: (item.quantity / defaultQuantity) * defaultMacros.carbs,
+      fat: (item.quantity / defaultQuantity) * defaultMacros.fat,
+      protein: (item.quantity / defaultQuantity) * defaultMacros.protein,
+    }
   }
+
+  // Fallback for unknown types
+  return { carbs: 0, fat: 0, protein: 0 }
 }
 
 export function calcMealMacros(meal: Meal): MacroNutrients {

@@ -1,28 +1,37 @@
 # Sections Audit – Food-Item Section
 
-_Last updated: 2025-06-07_
+_Last updated: 2025-06-19_
 
 ## Overview
 This audit reviews the `food-item` section UI components, focusing on separation of concerns, code duplication, and DDD alignment.
 
+## Migration to Unified System (Completed)
+**Major architectural change completed:** All food-item specific view/edit components have been migrated to the unified system:
+- **Removed:** `ItemView`, `ItemEditModal`, `ItemListView` and related wrappers
+- **Removed:** `ExternalItemEditModal` component and its wrapper logic
+- **Removed:** `ItemContext` and item-specific context providers
+- **Migrated:** All usage now flows through `UnifiedItemView`, `UnifiedItemEditModal`, and `UnifiedItemListView`
+- **Relocated:** `RemoveFromRecentButton` moved to `src/sections/common/components/buttons/` for better organization
+- **Improved:** Consistent type conversion through `itemToUnifiedItem` utility eliminates business logic duplication
+
+This migration eliminated significant code duplication and simplified the component hierarchy while maintaining all functionality.
+
 ## Key Findings
-- **Business Logic Leakage:** Components (e.g., `ItemEditModal`) may handle validation, macro overflow, and item state logic directly in the UI, rather than delegating to the application layer.
-- **Legacy Utility Usage:** Some components may use legacy or shared utilities for calculations or state, which should be abstracted away.
-- **Component Boundaries:** Components are generally well-structured, but some state and calculation logic could be moved to hooks or the application layer for clarity and testability.
-- **Duplication:** Some item editing and validation logic may be duplicated across food-item and other sections (e.g., item-group, meal).
+- **Business Logic Centralization:** With the unified system migration, business logic (validation, macro overflow, item state) is now better centralized in the unified components rather than scattered across multiple item-specific components.
+- **Legacy Utility Usage:** Some remaining components may still use legacy or shared utilities for calculations or state, which should be abstracted away.
+- **Component Boundaries:** The unified system provides clearer component boundaries and reduces prop drilling compared to the previous item-specific approach.
+- **Duplication Eliminated:** The migration has resolved most duplication between food-item and other sections through the unified approach.
 
 ## Urgency
-- **High:** Move business logic (validation, macro overflow, item state) out of UI components and into the application layer or custom hooks.
-- **Medium:** Refactor legacy utility usage to use application/domain abstractions.
-- **Low:** Review and clarify component boundaries and prop drilling.
+- **Medium:** Continue refactoring any remaining legacy utility usage to use application/domain abstractions.
+- **Low:** Review and monitor the unified system for any food-item specific optimizations needed.
 
 ## Next Steps
-- [ ] Refactor business logic into application layer or custom hooks.
-- [ ] Replace legacy utility usage with application/domain abstractions.
-- [ ] Audit all food-item section components for business logic leakage and duplication.
-- [ ] Review and improve test coverage for UI logic.
+- [ ] Monitor unified system performance for food-item specific use cases.
+- [ ] Continue replacing any remaining legacy utility usage with application/domain abstractions.
+- [ ] Review and improve test coverage for the unified system integration.
 
 ## Future Refinement Suggestions
-- Consider unifying item editing and validation logic if used in multiple sections.
-- Expand audit to cover context usage and state management patterns.
-- Propose stricter boundaries between UI, application, and domain layers.
+- Monitor unified system usage patterns and consider food-item specific optimizations if needed.
+- Expand audit to cover context usage and state management patterns in the unified system.
+- Continue strengthening boundaries between UI, application, and domain layers.

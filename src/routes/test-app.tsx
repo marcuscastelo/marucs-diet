@@ -11,10 +11,13 @@ import {
   type ItemGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
+import {
+  itemGroupToUnifiedItem,
+  itemToUnifiedItem,
+} from '~/modules/diet/unified-item/domain/conversionUtils'
 import { showSuccess } from '~/modules/toast/application/toastManager'
 import { TestChart } from '~/sections/common/components/charts/TestChart'
 import { FloatInput } from '~/sections/common/components/FloatInput'
-import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
 import { EANIcon } from '~/sections/common/components/icons/EANIcon'
 import { LoadingRing } from '~/sections/common/components/LoadingRing'
 import { Modal } from '~/sections/common/components/Modal'
@@ -27,20 +30,13 @@ import { useFloatField } from '~/sections/common/hooks/useField'
 import { Datepicker } from '~/sections/datepicker/components/Datepicker'
 import { type DateValueType } from '~/sections/datepicker/types'
 import DayMacros from '~/sections/day-diet/components/DayMacros'
-import { ItemEditModal } from '~/sections/food-item/components/ItemEditModal'
-import { ItemListView } from '~/sections/food-item/components/ItemListView'
-import { ItemGroupEditModal } from '~/sections/item-group/components/ItemGroupEditModal'
-import {
-  ItemGroupCopyButton,
-  ItemGroupName,
-  ItemGroupView,
-  ItemGroupViewNutritionalInfo,
-} from '~/sections/item-group/components/ItemGroupView'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
+import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
+import { UnifiedItemListView } from '~/sections/unified-item/components/UnifiedItemListView'
+import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
 
 export default function TestApp() {
-  const [itemEditModalVisible, setItemEditModalVisible] = createSignal(false)
-  const [itemGroupEditModalVisible, setItemGroupEditModalVisible] =
+  const [unifiedItemEditModalVisible, setUnifiedItemEditModalVisible] =
     createSignal(false)
   const [templateSearchModalVisible, setTemplateSearchModalVisible] =
     createSignal(false)
@@ -123,48 +119,32 @@ export default function TestApp() {
                 onRefetch={() => {
                   console.debug(item)
                 }}
-                onNewItemGroup={() => {
+                onNewUnifiedItem={() => {
                   console.debug()
                 }}
               />
             </ModalContextProvider>
 
             <ModalContextProvider
-              visible={itemGroupEditModalVisible}
-              setVisible={setItemGroupEditModalVisible}
+              visible={unifiedItemEditModalVisible}
+              setVisible={setUnifiedItemEditModalVisible}
             >
-              <ItemGroupEditModal
-                group={group}
-                mode="edit"
-                setGroup={(group: ItemGroup | null) =>
-                  group !== null && setGroup(group)
-                }
-                onRefetch={() => {
-                  console.debug('refetch')
-                }}
-                onSaveGroup={(group) => {
-                  setGroup(group)
-                  setItemGroupEditModalVisible(false)
-                }}
+              <UnifiedItemEditModal
                 targetMealName="Teste"
+                item={() => itemGroupToUnifiedItem(group())}
+                macroOverflow={() => ({ enable: false })}
+                onApply={(updatedItem) => {
+                  // For this test, we'll just log the updated item
+                  console.debug('UnifiedItemEditModal onApply:', updatedItem)
+                  setUnifiedItemEditModalVisible(false)
+                }}
                 onCancel={() => {
                   console.debug('cancel')
+                  setUnifiedItemEditModalVisible(false)
                 }}
-              />
-            </ModalContextProvider>
-
-            <ModalContextProvider
-              visible={itemEditModalVisible}
-              setVisible={setItemEditModalVisible}
-            >
-              <ItemEditModal
-                item={item}
-                targetName="Teste"
-                macroOverflow={() => ({
-                  enable: false,
-                })}
-                onApply={(item) => {
-                  console.debug(item)
+                showAddItemButton={true}
+                onAddNewItem={() => {
+                  console.debug('Add new item requested')
                 }}
               />
             </ModalContextProvider>
@@ -181,10 +161,10 @@ export default function TestApp() {
             <button
               class="btn cursor-pointer uppercase"
               onClick={() => {
-                setItemGroupEditModalVisible(true)
+                setUnifiedItemEditModalVisible(true)
               }}
             >
-              setItemGroupEditModalVisible
+              setUnifiedItemEditModalVisible
             </button>
           </div>
         </details>
@@ -195,36 +175,25 @@ export default function TestApp() {
             Item Group & List
           </summary>
           <div class="pl-4 flex flex-col gap-2">
-            <h1>ItemListView</h1>
-            <ItemListView
-              items={() => group().items}
+            <h1>UnifiedItemListView (legacy test)</h1>
+            <UnifiedItemListView
+              items={() => group().items.map(itemToUnifiedItem)}
               mode="edit"
               handlers={{
                 onClick: () => {
-                  setItemEditModalVisible(true)
+                  setUnifiedItemEditModalVisible(true)
                 },
               }}
             />
-            <h1>ItemGroupView</h1>
-            <ItemGroupView
-              itemGroup={group}
-              header={
-                <HeaderWithActions
-                  name={<ItemGroupName group={group} />}
-                  primaryActions={
-                    <ItemGroupCopyButton
-                      group={group}
-                      onCopyItemGroup={(item) => {
-                        console.debug(item)
-                      }}
-                    />
-                  }
-                />
-              }
-              nutritionalInfo={<ItemGroupViewNutritionalInfo group={group} />}
+            <h1>UnifiedItemView (ItemGroup test)</h1>
+            <UnifiedItemView
+              item={() => itemGroupToUnifiedItem(group())}
               handlers={{
                 onEdit: () => {
-                  setItemGroupEditModalVisible(true)
+                  setUnifiedItemEditModalVisible(true)
+                },
+                onCopy: (item) => {
+                  console.debug('Copy item:', item)
                 },
               }}
             />

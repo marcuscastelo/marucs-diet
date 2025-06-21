@@ -10,35 +10,50 @@ import {
   sortUnifiedItems,
   updateUnifiedItemInArray,
 } from '~/modules/diet/unified-item/application/unifiedItemService'
+import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import { calcUnifiedItemMacros } from '~/shared/utils/macroMath'
 
 describe('unifiedItemService', () => {
-  const foodItem: UnifiedItem = {
+  const foodItem: UnifiedItem = createUnifiedItem({
     id: 1,
     name: 'Arroz',
     quantity: 100,
-    macros: { carbs: 10, protein: 2, fat: 1 },
-    reference: { type: 'food', id: 1 },
-    __type: 'UnifiedItem',
-  }
+    reference: {
+      type: 'food',
+      id: 1,
+      macros: { carbs: 10, protein: 2, fat: 1 },
+    },
+  })
 
-  const recipeItem: UnifiedItem = {
+  const recipeItem: UnifiedItem = createUnifiedItem({
     id: 2,
     name: 'Recipe Test',
     quantity: 200,
-    macros: { carbs: 20, protein: 4, fat: 2 },
-    reference: { type: 'recipe', id: 1, children: [] },
-    __type: 'UnifiedItem',
-  }
+    reference: {
+      type: 'recipe',
+      id: 1,
+      children: [
+        createUnifiedItem({
+          id: 4,
+          name: 'Recipe Child',
+          quantity: 100,
+          reference: {
+            type: 'food',
+            id: 4,
+            macros: { carbs: 20, protein: 4, fat: 2 },
+          },
+        }),
+      ],
+    },
+  })
 
-  const groupItem: UnifiedItem = {
+  const groupItem: UnifiedItem = createUnifiedItem({
     id: 3,
     name: 'Group Test',
     quantity: 150,
-    macros: { carbs: 15, protein: 3, fat: 1.5 },
     reference: { type: 'group', children: [foodItem] },
-    __type: 'UnifiedItem',
-  }
+  })
 
   const items = [foodItem, recipeItem, groupItem]
 
@@ -46,7 +61,11 @@ describe('unifiedItemService', () => {
     it('calculates total macros for array of items', () => {
       const result = calculateTotalMacros([foodItem, recipeItem])
 
-      // Expected: (10*1 + 20*2) / 100 for carbs, etc.
+      // foodItem: (10*100)/100 = 10 carbs, (2*100)/100 = 2 protein, (1*100)/100 = 1 fat
+      // recipeItem: Recipe with 200g quantity, child has 100g with 20 carbs/100g
+      // Default recipe quantity = 100g (child sum), actual quantity = 200g
+      // Scaled child macros: (200/100) * 20 = 40 carbs, (200/100) * 4 = 8 protein, (200/100) * 2 = 4 fat
+      // Total: 10+40=50 carbs, 2+8=10 protein, 1+4=5 fat
       expect(result.carbs).toBeCloseTo(50)
       expect(result.protein).toBeCloseTo(10)
       expect(result.fat).toBeCloseTo(5)
@@ -81,21 +100,23 @@ describe('unifiedItemService', () => {
   describe('scaleUnifiedItem', () => {
     it('scales item quantity and macros', () => {
       const result = scaleUnifiedItem(foodItem, 2)
+      const resultMacros = calcUnifiedItemMacros(result)
 
       expect(result.quantity).toBe(200)
-      expect(result.macros.carbs).toBe(20)
-      expect(result.macros.protein).toBe(4)
-      expect(result.macros.fat).toBe(2)
+      expect(resultMacros.carbs).toBe(20)
+      expect(resultMacros.protein).toBe(4)
+      expect(resultMacros.fat).toBe(2)
       expect(result.name).toBe(foodItem.name)
     })
 
     it('scales with fractional factor', () => {
       const result = scaleUnifiedItem(foodItem, 0.5)
+      const resultMacros = calcUnifiedItemMacros(result)
 
       expect(result.quantity).toBe(50)
-      expect(result.macros.carbs).toBe(5)
-      expect(result.macros.protein).toBe(1)
-      expect(result.macros.fat).toBe(0.5)
+      expect(resultMacros.carbs).toBe(5)
+      expect(resultMacros.protein).toBe(1)
+      expect(resultMacros.fat).toBe(0.5)
     })
   })
 
@@ -168,7 +189,10 @@ describe('unifiedItemService', () => {
 
     it('sorts by macros', () => {
       const result = sortUnifiedItems(items, 'carbs', 'desc')
-      expect(result.map((item) => item.macros.carbs)).toEqual([20, 15, 10])
+      // recipeItem: 40 carbs (scaled), groupItem: 15 carbs (150g of 10 carbs/100g), foodItem: 10 carbs
+      expect(result.map((item) => calcUnifiedItemMacros(item).carbs)).toEqual([
+        40, 15, 10,
+      ])
     })
   })
 

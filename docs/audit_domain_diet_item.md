@@ -1,9 +1,17 @@
 # Diet Domain Audit – Item Submodule
 
-_Last updated: 2025-06-07_
+_Last updated: 2025-06-19_
 
 ## Overview
 This audit reviews the `item` submodule within the diet domain, focusing on DDD adherence, modularity, and architectural issues. It covers domain logic, schema usage, error handling, and test coverage.
+
+## Migration to Unified System (Completed)
+**Major architectural change completed:** All legacy item view/edit components (`ItemView`, `ItemEditModal`, `ItemListView`, `ItemGroupView`, etc.) have been migrated to the unified system (`UnifiedItemView`, `UnifiedItemEditModal`, `UnifiedItemListView`). This migration:
+- Eliminated code duplication between item and group handling
+- Unified the presentation layer for all item types (food items, recipes, groups)
+- Removed multiple wrapper components and simplified the component hierarchy
+- Improved type safety through consistent conversion utilities (`itemToUnifiedItem`, `itemGroupToUnifiedItem`)
+- Moved `RemoveFromRecentButton` to `src/sections/common/components/buttons/` for better organization
 
 ## Key Findings
 - **ID Generation in Domain:** `item.ts` uses `generateId` from `~/legacy/utils/idUtils`, which is a side effect and breaks DDD purity. ID generation should be moved to infrastructure or application.
@@ -28,3 +36,4 @@ This audit reviews the `item` submodule within the diet domain, focusing on DDD 
 - Expand audit to cover cross-module dependencies (e.g., meal, recipe).
 - Review Zod schema usage for separation of validation vs. transformation.
 - Propose stricter contracts for domain operations and invariants.
+- Consider further optimizations to the unified item system based on usage patterns.

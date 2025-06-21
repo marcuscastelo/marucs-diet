@@ -5,25 +5,26 @@ import {
   flattenItemTree,
   getItemDepth,
 } from '~/modules/diet/unified-item/domain/treeUtils'
+import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 describe('treeUtils', () => {
-  const unifiedFood: UnifiedItem = {
+  const unifiedFood: UnifiedItem = createUnifiedItem({
     id: 1,
     name: 'Chicken',
     quantity: 100,
-    macros: { protein: 20, carbs: 0, fat: 2 },
-    reference: { type: 'food', id: 10 },
-    __type: 'UnifiedItem',
-  }
-  const unifiedGroup: UnifiedItem = {
+    reference: {
+      type: 'food',
+      id: 10,
+      macros: { protein: 20, carbs: 0, fat: 2 },
+    },
+  })
+  const unifiedGroup: UnifiedItem = createUnifiedItem({
     id: 2,
     name: 'Lunch',
     quantity: 100,
-    macros: { protein: 20, carbs: 0, fat: 2 },
     reference: { type: 'group', children: [unifiedFood] },
-    __type: 'UnifiedItem',
-  }
+  })
   it('flattens item tree', () => {
     const flat = flattenItemTree(unifiedGroup)
     expect(flat.length).toBe(2)

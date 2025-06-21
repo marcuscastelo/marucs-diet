@@ -7,7 +7,7 @@ import {
 } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type DayRepository } from '~/modules/diet/day-diet/domain/dayDietRepository'
 import {
-  createInsertDayDietDAOFromNewDayDiet,
+  createInsertLegacyDayDietDAOFromNewDayDiet,
   daoToDayDiet,
   type DayDietDAO,
 } from '~/modules/diet/day-diet/infrastructure/dayDietDAO'
@@ -196,7 +196,8 @@ async function fetchAllUserDayDiets(
 
 // TODO:   Change upserts to inserts on the entire app
 const insertDayDiet = async (newDay: NewDayDiet): Promise<DayDiet | null> => {
-  const createDAO = createInsertDayDietDAOFromNewDayDiet(newDay)
+  // Use legacy format for canary strategy
+  const createDAO = createInsertLegacyDayDietDAOFromNewDayDiet(newDay)
 
   const { data: days, error } = await supabase
     .from(SUPABASE_TABLE_DAYS)
@@ -208,7 +209,9 @@ const insertDayDiet = async (newDay: NewDayDiet): Promise<DayDiet | null> => {
 
   const dayDAO = days[0] as DayDietDAO | undefined
   if (dayDAO !== undefined) {
-    return daoToDayDiet(dayDAO)
+    // Migrate the returned data if needed before converting to domain
+    const migratedDay = migrateDayDataIfNeeded(dayDAO)
+    return daoToDayDiet(migratedDay as DayDietDAO)
   }
   return null
 }
@@ -217,7 +220,8 @@ const updateDayDiet = async (
   id: DayDiet['id'],
   newDay: NewDayDiet,
 ): Promise<DayDiet> => {
-  const updateDAO = createInsertDayDietDAOFromNewDayDiet(newDay)
+  // Use legacy format for canary strategy
+  const updateDAO = createInsertLegacyDayDietDAOFromNewDayDiet(newDay)
 
   const { data, error } = await supabase
     .from(SUPABASE_TABLE_DAYS)
@@ -231,7 +235,9 @@ const updateDayDiet = async (
   }
 
   const dayDAO = data[0] as DayDietDAO
-  return daoToDayDiet(dayDAO)
+  // Migrate the returned data if needed before converting to domain
+  const migratedDay = migrateDayDataIfNeeded(dayDAO)
+  return daoToDayDiet(migratedDay as DayDietDAO)
 }
 
 const deleteDayDiet = async (id: DayDiet['id']): Promise<void> => {

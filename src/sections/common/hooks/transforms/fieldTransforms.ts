@@ -30,16 +30,20 @@ export function createFloatTransform(
     decimalPlaces?: number
     defaultValue?: number
     maxValue?: number
+    minValue?: number
   } = {},
 ): FieldTransform<number> {
-  const { decimalPlaces = 2, defaultValue = 0, maxValue } = options
+  const { decimalPlaces = 2, defaultValue = 0, maxValue, minValue } = options
 
   return {
     toRaw: (value: number) => {
-      const clampedValue =
-        typeof maxValue === 'number' && !isNaN(maxValue)
-          ? Math.min(value, maxValue)
-          : value
+      let clampedValue = value
+      if (typeof maxValue === 'number' && !isNaN(maxValue)) {
+        clampedValue = Math.min(clampedValue, maxValue)
+      }
+      if (typeof minValue === 'number' && !isNaN(minValue)) {
+        clampedValue = Math.max(clampedValue, minValue)
+      }
       return clampedValue.toFixed(decimalPlaces)
     },
 
@@ -48,16 +52,24 @@ export function createFloatTransform(
       const parsed = parseFloat(normalized)
 
       if (isNaN(parsed)) {
+        let fallback = defaultValue
         if (typeof maxValue === 'number' && !isNaN(maxValue)) {
-          return Math.min(maxValue, defaultValue)
+          fallback = Math.min(maxValue, fallback)
         }
-        return defaultValue
+        if (typeof minValue === 'number' && !isNaN(minValue)) {
+          fallback = Math.max(minValue, fallback)
+        }
+        return fallback
       }
 
-      const fixed = parseFloat(parsed.toFixed(decimalPlaces))
-      return typeof maxValue === 'number' && !isNaN(maxValue)
-        ? Math.min(maxValue, fixed)
-        : fixed
+      let fixed = parseFloat(parsed.toFixed(decimalPlaces))
+      if (typeof maxValue === 'number' && !isNaN(maxValue)) {
+        fixed = Math.min(maxValue, fixed)
+      }
+      if (typeof minValue === 'number' && !isNaN(minValue)) {
+        fixed = Math.max(minValue, fixed)
+      }
+      return fixed
     },
   }
 }

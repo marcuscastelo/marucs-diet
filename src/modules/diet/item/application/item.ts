@@ -3,7 +3,13 @@ import {
   itemToUnifiedItem,
   unifiedItemToItem,
 } from '~/modules/diet/unified-item/domain/conversionUtils'
-import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import {
+  createUnifiedItem,
+  isFoodItem,
+  isGroupItem,
+  isRecipeItem,
+  type UnifiedItem,
+} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 /**
  * Application services for item operations using UnifiedItem structure
@@ -30,10 +36,46 @@ export function updateUnifiedItemQuantity(
   item: UnifiedItem,
   quantity: UnifiedItem['quantity'],
 ): UnifiedItem {
-  return {
-    ...item,
-    quantity,
+  const quantityFactor = quantity / item.quantity
+
+  if (isFoodItem(item)) {
+    return createUnifiedItem({
+      ...item,
+      quantity,
+      reference: { ...item.reference },
+    })
   }
+
+  if (isRecipeItem(item)) {
+    return createUnifiedItem({
+      ...item,
+      quantity,
+      reference: {
+        ...item.reference,
+        children: item.reference.children.map((child) => ({
+          ...child,
+          quantity: child.quantity * quantityFactor,
+        })),
+      },
+    })
+  }
+
+  if (isGroupItem(item)) {
+    return createUnifiedItem({
+      ...item,
+      quantity,
+      reference: {
+        ...item.reference,
+        children: item.reference.children.map((child) => ({
+          ...child,
+          quantity: child.quantity * quantityFactor,
+        })),
+      },
+    })
+  }
+
+  // Fallback (should never happen)
+  return item satisfies never
 }
 
 /**
@@ -46,19 +88,6 @@ export function updateUnifiedItemName(
   return {
     ...item,
     name,
-  }
-}
-
-/**
- * Updates the macros of a UnifiedItem
- */
-export function updateUnifiedItemMacros(
-  item: UnifiedItem,
-  macros: UnifiedItem['macros'],
-): UnifiedItem {
-  return {
-    ...item,
-    macros,
   }
 }
 
