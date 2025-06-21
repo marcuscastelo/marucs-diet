@@ -2,7 +2,10 @@ name: Check Acceptance Criteria
 
 on:
   pull_request:
-    types: [opened, edited, reopened, synchronize]
+    types: [opened, synchronize]
+    branches:
+      - stable
+      - rc/*
 
 permissions:
   pull-requests: write

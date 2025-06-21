@@ -2,7 +2,15 @@ name: Script tests
 
 on:
   push:
+    branches:
+      - stable
+      - rc/*
+    paths:
+      - '.scripts/**'
   pull_request:
+    branches:
+      - main
+      - rc/*
 
 jobs:
   test:
