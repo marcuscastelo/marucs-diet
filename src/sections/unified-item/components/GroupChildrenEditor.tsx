@@ -3,6 +3,7 @@ import { z } from 'zod'
 
 import {
   addChildToItem,
+  removeChildFromItem,
   updateChildInItem,
 } from '~/modules/diet/unified-item/domain/childOperations'
 import { validateItemHierarchy } from '~/modules/diet/unified-item/domain/validateItemHierarchy'
@@ -15,6 +16,7 @@ import {
   unifiedItemSchema,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { ClipboardActionButtons } from '~/sections/common/components/ClipboardActionButtons'
+import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
 import { createDebug } from '~/shared/utils/createDebug'
@@ -31,6 +33,8 @@ export type GroupChildrenEditorProps = {
 }
 
 export function GroupChildrenEditor(props: GroupChildrenEditorProps) {
+  const clipboard = useClipboard()
+
   const children = () => {
     const item = props.item()
     return isGroupItem(item) || isRecipeItem(item)
@@ -151,6 +155,18 @@ export function GroupChildrenEditor(props: GroupChildrenEditorProps) {
                 updateChildQuantity(child.id, newQuantity)
               }
               onEditChild={props.onEditChild}
+              onCopyChild={(childToCopy) => {
+                // Copy the specific child item to clipboard
+                clipboard.write(JSON.stringify(childToCopy))
+              }}
+              onDeleteChild={(childToDelete) => {
+                // Remove the child from the group
+                const updatedItem = removeChildFromItem(
+                  props.item(),
+                  childToDelete.id,
+                )
+                props.setItem(updatedItem)
+              }}
             />
           )}
         </For>
@@ -205,19 +221,42 @@ type GroupChildEditorProps = {
   child: UnifiedItem
   onQuantityChange: (newQuantity: number) => void
   onEditChild?: (child: UnifiedItem) => void
+  onCopyChild?: (child: UnifiedItem) => void
+  onDeleteChild?: (child: UnifiedItem) => void
 }
 
 function GroupChildEditor(props: GroupChildEditorProps) {
+  const clipboard = useClipboard()
+
   const handleEditChild = () => {
     if (props.onEditChild) {
       props.onEditChild(props.child)
     }
   }
 
+  const handleCopyChild = () => {
+    if (props.onCopyChild) {
+      props.onCopyChild(props.child)
+    } else {
+      // Fallback: copy to clipboard directly
+      clipboard.write(JSON.stringify(props.child))
+    }
+  }
+
+  const handleDeleteChild = () => {
+    if (props.onDeleteChild) {
+      props.onDeleteChild(props.child)
+    }
+  }
+
   return (
     <UnifiedItemView
       item={() => props.child}
-      handlers={{ onEdit: handleEditChild }}
+      handlers={{
+        onEdit: handleEditChild,
+        onCopy: handleCopyChild,
+        onDelete: handleDeleteChild,
+      }}
     />
   )
 }
