@@ -1,14 +1,28 @@
 import { type Accessor, createMemo } from 'solid-js'
 
+import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
+import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import MacroNutrientsView from '~/sections/macro-nutrients/components/MacroNutrientsView'
+import { createDebug } from '~/shared/utils/createDebug'
+import { stringToDate } from '~/shared/utils/date'
 import {
   calcUnifiedItemCalories,
   calcUnifiedItemMacros,
 } from '~/shared/utils/macroMath'
+import {
+  createMacroOverflowChecker,
+  type MacroOverflowContext,
+} from '~/shared/utils/macroOverflow'
+
+const debug = createDebug()
 
 export type UnifiedItemNutritionalInfoProps = {
   item: Accessor<UnifiedItem>
+  macroOverflow?: () => {
+    enable: boolean
+    originalItem?: UnifiedItem | undefined
+  }
 }
 
 export function UnifiedItemNutritionalInfo(
@@ -17,9 +31,80 @@ export function UnifiedItemNutritionalInfo(
   const calories = createMemo(() => calcUnifiedItemCalories(props.item()))
   const macros = createMemo(() => calcUnifiedItemMacros(props.item()))
 
+  // Create macro overflow checker if macroOverflow is enabled
+  const isMacroOverflowing = createMemo(() => {
+    const overflow = props.macroOverflow?.()
+    if (!overflow || !overflow.enable) {
+      debug('Macro overflow is not enabled')
+      return {
+        carbs: () => false,
+        protein: () => false,
+        fat: () => false,
+      }
+    }
+
+    // Convert UnifiedItem to TemplateItem format for overflow check
+    const item = props.item()
+    const templateItem = {
+      id: item.id,
+      name: item.name,
+      quantity: item.quantity,
+      macros: macros(),
+      reference: item.reference.type === 'food' ? item.reference.id : 0,
+      __type: 'Item' as const,
+    }
+
+    const originalTemplateItem = overflow.originalItem
+      ? {
+          id: overflow.originalItem.id,
+          name: overflow.originalItem.name,
+          quantity: overflow.originalItem.quantity,
+          macros: calcUnifiedItemMacros(overflow.originalItem),
+          reference:
+            overflow.originalItem.reference.type === 'food'
+              ? overflow.originalItem.reference.id
+              : 0,
+          __type: 'Item' as const,
+        }
+      : undefined
+
+    // Get context for overflow checking
+    const currentDayDiet_ = currentDayDiet()
+    const macroTarget = currentDayDiet_
+      ? getMacroTargetForDay(stringToDate(currentDayDiet_.target_day))
+      : null
+
+    const context: MacroOverflowContext = {
+      currentDayDiet: currentDayDiet_,
+      macroTarget,
+      macroOverflowOptions: {
+        enable: true,
+        originalItem: originalTemplateItem,
+      },
+    }
+
+    debug('currentDayDiet_=', currentDayDiet_)
+    debug('macroTarget=', macroTarget)
+
+    // If we don't have the context, return false for all
+    if (currentDayDiet_ === null || macroTarget === null) {
+      return {
+        carbs: () => false,
+        protein: () => false,
+        fat: () => false,
+      }
+    }
+
+    debug('Creating macro overflow checker for item:', templateItem)
+    return createMacroOverflowChecker(templateItem, context)
+  })
+
   return (
     <div class="flex">
-      <MacroNutrientsView macros={macros()} />
+      <MacroNutrientsView
+        macros={macros()}
+        isMacroOverflowing={isMacroOverflowing()}
+      />
       <div class="ml-auto">
         <span class="text-white"> {props.item().quantity}g </span>|
         <span class="text-white"> {calories().toFixed(0)}kcal </span>

@@ -1,22 +1,36 @@
+import { mergeProps } from 'solid-js'
+
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { cn } from '~/shared/cn'
 
-export default function MacroNutrientsView(props: {
+export default function MacroNutrientsView(props_: {
   macros: MacroNutrients
-  isMacroOverflowing?: Record<string, () => boolean>
+  isMacroOverflowing?: {
+    carbs: () => boolean
+    protein: () => boolean
+    fat: () => boolean
+  }
 }) {
-  const isMacroOverflowing: () => Record<string, () => boolean> = () => ({
-    carbs: () => props.isMacroOverflowing?.carbs?.() ?? false,
-    protein: () => props.isMacroOverflowing?.protein?.() ?? false,
-    fat: () => props.isMacroOverflowing?.fat?.() ?? false,
-  })
+  const props = mergeProps(
+    {
+      macros: { carbs: 0, protein: 0, fat: 0 },
+      isMacroOverflowing: {
+        carbs: () => false,
+        protein: () => false,
+        fat: () => false,
+      },
+    },
+    props_,
+  )
+
+  const isMacroOverflowing = () => props.isMacroOverflowing
 
   return (
     <>
       <span
         class={cn('mr-1 text-green-400', {
           'text-rose-600 dark:text-red-500 animate-pulse font-extrabold uppercase':
-            isMacroOverflowing().carbs?.(),
+            isMacroOverflowing().carbs(),
         })}
       >
         {' '}
@@ -25,7 +39,7 @@ export default function MacroNutrientsView(props: {
       <span
         class={cn('mr-1 text-red-700', {
           'text-rose-600 dark:text-red-500 animate-pulse font-extrabold uppercase':
-            isMacroOverflowing().protein?.(),
+            isMacroOverflowing().protein(),
         })}
       >
         {' '}
@@ -34,7 +48,7 @@ export default function MacroNutrientsView(props: {
       <span
         class={cn('text-orange-400', {
           'text-rose-600 dark:text-red-500 animate-pulse font-extrabold uppercase':
-            isMacroOverflowing().fat?.(),
+            isMacroOverflowing().fat(),
         })}
       >
         {' '}

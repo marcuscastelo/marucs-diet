@@ -13,6 +13,7 @@ import {
   insertUnifiedItem,
   updateUnifiedItem,
 } from '~/modules/diet/item-group/application/itemGroup'
+import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import { updateMeal } from '~/modules/diet/meal/application/meal'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
@@ -30,6 +31,7 @@ import {
 } from '~/sections/meal/components/MealEditView'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
+import { stringToDate } from '~/shared/utils/date'
 
 type EditSelection = {
   meal: Meal
@@ -246,10 +248,23 @@ function ExternalUnifiedItemEditModal(props: {
           <UnifiedItemEditModal
             targetMealName={editSelection().meal.name}
             item={() => editSelection().item}
-            macroOverflow={() => ({
-              enable: false, // TODO: Implement macro overflow for UnifiedItem
-              originalItem: undefined,
-            })}
+            macroOverflow={() => {
+              const day = props.day()
+              const dayDate = stringToDate(day.target_day)
+              const macroTarget = getMacroTargetForDay(dayDate)
+
+              if (!macroTarget) {
+                return {
+                  enable: false,
+                  originalItem: undefined,
+                }
+              }
+
+              return {
+                enable: true,
+                originalItem: editSelection().item,
+              }
+            }}
             onApply={(item) => {
               void updateUnifiedItem(
                 props.day().id,

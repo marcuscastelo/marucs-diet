@@ -140,6 +140,7 @@ export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
           onCopy: props.clipboardActions?.onCopy,
         }}
         item={props.item}
+        macroOverflow={props.macroOverflow}
         class="mt-4"
         primaryActions={
           <Show when={asFoodItem(props.item())} fallback={null}>

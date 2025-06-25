@@ -14,6 +14,10 @@ export type UnifiedItemViewProps = {
   mode?: 'edit' | 'read-only' | 'summary'
   primaryActions?: JSXElement
   secondaryActions?: JSXElement
+  macroOverflow?: () => {
+    enable: boolean
+    originalItem?: UnifiedItem | undefined
+  }
   handlers: {
     onClick?: (item: UnifiedItem) => void
     onEdit?: (item: UnifiedItem) => void
@@ -48,7 +52,10 @@ export function UnifiedItemView(props: UnifiedItemViewProps) {
 
       <UnifiedItemChildren item={props.item} />
 
-      <UnifiedItemNutritionalInfo item={props.item} />
+      <UnifiedItemNutritionalInfo
+        item={props.item}
+        macroOverflow={props.macroOverflow}
+      />
     </div>
   )
 }
