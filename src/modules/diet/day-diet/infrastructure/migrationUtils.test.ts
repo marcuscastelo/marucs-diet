@@ -243,6 +243,21 @@ describe('infrastructure migration utils', () => {
       expect(result.groups[1]?.items).toHaveLength(1)
       expect(result.groups[1]?.items[0]?.name).toBe('Feijão')
     })
+
+    it('preserves original item IDs when converting standalone items to groups', () => {
+      const item1 = makeUnifiedItemFromItem(makeItem(123, 'Arroz'))
+      const item2 = makeUnifiedItemFromItem(makeItem(456, 'Feijão'))
+      const unifiedMeal = makeUnifiedMeal(1, 'Almoço', [item1, item2])
+
+      const result = migrateUnifiedMealToLegacy(unifiedMeal)
+
+      // Each standalone item should become a group with the same ID as the original item
+      expect(result.groups).toHaveLength(2)
+      expect(result.groups[0]?.id).toBe(123) // Should preserve item ID, not use -1
+      expect(result.groups[0]?.items[0]?.id).toBe(123)
+      expect(result.groups[1]?.id).toBe(456) // Should preserve item ID, not use -1
+      expect(result.groups[1]?.items[0]?.id).toBe(456)
+    })
   })
 
   describe('migrateLegacyMealsToUnified', () => {

@@ -46,7 +46,7 @@ export function migrateUnifiedMealToLegacy(unifiedMeal: Meal): LegacyMeal {
   // Each standalone item should become its own group
   for (const item of items) {
     allGroups.push({
-      id: -1, // Temporary ID for single-item group
+      id: item.id, // Use the item's original ID, not -1
       name: item.name, // Use the item's name as the group name
       items: [item],
       recipe: undefined,
