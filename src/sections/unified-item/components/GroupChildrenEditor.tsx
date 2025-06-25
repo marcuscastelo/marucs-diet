@@ -1,6 +1,9 @@
 import { type Accessor, For, type Setter, Show } from 'solid-js'
 import { z } from 'zod'
 
+import { createItem, type Item } from '~/modules/diet/item/domain/item'
+import { insertRecipe } from '~/modules/diet/recipe/application/recipe'
+import { createNewRecipe } from '~/modules/diet/recipe/domain/recipe'
 import {
   addChildToItem,
   removeChildFromItem,
@@ -15,12 +18,17 @@ import {
   type UnifiedItem,
   unifiedItemSchema,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import { showError } from '~/modules/toast/application/toastManager'
+import { currentUserId } from '~/modules/user/application/user'
 import { ClipboardActionButtons } from '~/sections/common/components/ClipboardActionButtons'
+import { ConvertToRecipeIcon } from '~/sections/common/components/icons/ConvertToRecipeIcon'
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
+import { handleApiError } from '~/shared/error/errorHandler'
 import { createDebug } from '~/shared/utils/createDebug'
 import { generateId, regenerateId } from '~/shared/utils/idUtils'
+import { calcUnifiedItemMacros } from '~/shared/utils/macroMath'
 
 const debug = createDebug()
 
@@ -30,6 +38,24 @@ export type GroupChildrenEditorProps = {
   onEditChild?: (child: UnifiedItem) => void
   onAddNewItem?: () => void
   showAddButton?: boolean
+}
+
+/**
+ * Converts a UnifiedItem to a regular Item for use in recipes
+ */
+function convertUnifiedItemToItem(unifiedItem: UnifiedItem): Item {
+  const macros = calcUnifiedItemMacros(unifiedItem)
+
+  // For food items, use the food reference ID
+  const reference =
+    unifiedItem.reference.type === 'food' ? unifiedItem.reference.id : 0 // For groups/recipes, use 0 as placeholder (recipes can't contain other groups/recipes directly)
+
+  return createItem({
+    name: unifiedItem.name,
+    reference,
+    quantity: unifiedItem.quantity,
+    macros,
+  })
 }
 
 export function GroupChildrenEditor(props: GroupChildrenEditorProps) {
@@ -127,6 +153,58 @@ export function GroupChildrenEditor(props: GroupChildrenEditorProps) {
     props.setItem(updatedItem)
   }
 
+  /**
+   * Converts the current group to a recipe
+   */
+  const handleConvertToRecipe = async () => {
+    const item = props.item()
+
+    // Only groups can be converted to recipes
+    if (!isGroupItem(item) || children().length === 0) {
+      showError('Apenas grupos com itens podem ser convertidos em receitas')
+      return
+    }
+
+    try {
+      // Convert all children to regular Items for the recipe
+      const recipeItems: Item[] = children().map(convertUnifiedItemToItem)
+
+      // Create new recipe
+      const newRecipe = createNewRecipe({
+        name:
+          item.name.length > 0
+            ? `${item.name} (Receita)`
+            : 'Nova receita (a partir de um grupo)',
+        items: recipeItems,
+        owner: currentUserId(),
+      })
+
+      const insertedRecipe = await insertRecipe(newRecipe)
+
+      if (!insertedRecipe) {
+        showError('Falha ao criar receita a partir do grupo')
+        return
+      }
+
+      // Transform the group into a recipe item
+      const recipeUnifiedItem = createUnifiedItem({
+        id: item.id, // Keep the same ID
+        name: insertedRecipe.name,
+        quantity: item.quantity,
+        reference: {
+          type: 'recipe',
+          id: insertedRecipe.id,
+          children: children(), // Keep the children for display
+        },
+      })
+
+      props.setItem(recipeUnifiedItem)
+    } catch (err) {
+      handleApiError(err)
+      showError(err, undefined, 'Falha ao criar receita a partir do grupo')
+    }
+  }
+
   return (
     <>
       <div class="flex items-center justify-between mt-4">
@@ -210,6 +288,20 @@ export function GroupChildrenEditor(props: GroupChildrenEditorProps) {
             title="Adicionar novo item ao grupo"
           >
             ➕ Adicionar Item
+          </button>
+        </div>
+      </Show>
+
+      {/* Convert to Recipe button - only visible when there are multiple children */}
+      <Show when={children().length > 1}>
+        <div class="mt-4">
+          <button
+            class="btn btn-sm bg-blue-600 hover:bg-blue-700 text-white w-full flex items-center justify-center gap-2"
+            onClick={() => void handleConvertToRecipe()}
+            title="Converter grupo em receita"
+          >
+            <ConvertToRecipeIcon />
+            Converter em Receita
           </button>
         </div>
       </Show>
