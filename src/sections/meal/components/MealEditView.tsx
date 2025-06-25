@@ -3,17 +3,17 @@ import { z } from 'zod'
 
 import { DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { itemSchema } from '~/modules/diet/item/domain/item'
-import {
-  deleteUnifiedItem,
-  insertUnifiedItem,
-} from '~/modules/diet/item-group/application/itemGroup'
+import { deleteUnifiedItem } from '~/modules/diet/item-group/application/itemGroup'
 import {
   convertToGroups,
   type GroupConvertible,
 } from '~/modules/diet/item-group/application/itemGroupService'
 import { itemGroupSchema } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Meal, mealSchema } from '~/modules/diet/meal/domain/meal'
-import { clearMealItems } from '~/modules/diet/meal/domain/mealOperations'
+import {
+  addItemsToMeal,
+  clearMealItems,
+} from '~/modules/diet/meal/domain/mealOperations'
 import { recipeSchema } from '~/modules/diet/recipe/domain/recipe'
 import { migrateToUnifiedItems } from '~/modules/diet/unified-item/domain/migrationUtils'
 import {
@@ -108,25 +108,44 @@ export function MealEditViewHeader(props: {
         // Check if data is already UnifiedItem(s) and handle directly
         if (Array.isArray(data)) {
           const firstItem = data[0]
-          if (
-            firstItem &&
-            '__type' in firstItem &&
-            firstItem.__type === 'UnifiedItem'
-          ) {
+          if (firstItem && '__type' in firstItem) {
             // Handle array of UnifiedItems - type is already validated by schema
             const unifiedItemsToAdd = data.map((item) => ({
               ...item,
               id: regenerateId(item).id,
             }))
-            unifiedItemsToAdd.forEach((unifiedItem) => {
-              void insertUnifiedItem(props.dayDiet.id, meal().id, unifiedItem)
-            })
+
+            // Update the meal with all items at once
+            const updatedMeal = addItemsToMeal(meal(), unifiedItemsToAdd)
+            props.onUpdateMeal(updatedMeal)
             return
           }
         }
 
         if (
-          data &&
+          typeof data === 'object' &&
+          '__type' in data &&
+          data.__type === 'Meal'
+        ) {
+          // Handle pasted Meal - extract its items and add them to current meal
+          const mealData = data as Meal
+          debug('Pasting meal with items:', mealData.items.length)
+          const unifiedItemsToAdd = mealData.items.map((item) => ({
+            ...item,
+            id: regenerateId(item).id,
+          }))
+          debug(
+            'Items to add:',
+            unifiedItemsToAdd.map((item) => ({ id: item.id, name: item.name })),
+          )
+
+          // Update the meal with all items at once
+          const updatedMeal = addItemsToMeal(meal(), unifiedItemsToAdd)
+          props.onUpdateMeal(updatedMeal)
+          return
+        }
+
+        if (
           typeof data === 'object' &&
           '__type' in data &&
           data.__type === 'UnifiedItem'
@@ -136,7 +155,10 @@ export function MealEditViewHeader(props: {
             ...(data as UnifiedItem),
             id: regenerateId(data as UnifiedItem).id,
           }
-          void insertUnifiedItem(props.dayDiet.id, meal().id, regeneratedItem)
+
+          // Update the meal with the single item
+          const updatedMeal = addItemsToMeal(meal(), [regeneratedItem])
+          props.onUpdateMeal(updatedMeal)
           return
         }
 
@@ -154,10 +176,9 @@ export function MealEditViewHeader(props: {
         // Convert the items and groups to UnifiedItems
         const unifiedItemsToAdd = migrateToUnifiedItems(itemsToAdd, groupsToAdd)
 
-        // Insert each UnifiedItem into the meal
-        unifiedItemsToAdd.forEach((unifiedItem) => {
-          void insertUnifiedItem(props.dayDiet.id, meal().id, unifiedItem)
-        })
+        // Update the meal with all converted items at once
+        const updatedMeal = addItemsToMeal(meal(), unifiedItemsToAdd)
+        props.onUpdateMeal(updatedMeal)
       },
     })
 
