@@ -269,6 +269,7 @@ function ExternalUnifiedItemEditModal(props: {
               setEditSelection(null)
               props.setVisible(false)
             }}
+            showAddItemButton={true}
           />
         </ModalContextProvider>
       )}

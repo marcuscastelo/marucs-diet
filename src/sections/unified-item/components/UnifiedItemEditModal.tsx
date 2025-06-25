@@ -10,7 +10,10 @@ import {
 } from 'solid-js'
 
 import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
-import { updateChildInItem } from '~/modules/diet/unified-item/domain/childOperations'
+import {
+  addChildToItem,
+  updateChildInItem,
+} from '~/modules/diet/unified-item/domain/childOperations'
 import {
   isRecipeUnifiedItemManuallyEdited,
   syncRecipeUnifiedItemWithOriginal,
@@ -347,15 +350,48 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
       </Show>
 
       {/* Template search modal for adding new items */}
-      <Show when={props.showAddItemButton === true && props.onAddNewItem}>
+      <Show when={templateSearchVisible()}>
         <ExternalTemplateSearchModal
           visible={templateSearchVisible}
           setVisible={setTemplateSearchVisible}
           targetName={item().name}
-          onRefetch={() => props.onAddNewItem?.()}
-          onNewUnifiedItem={(_unifiedItem) => {
-            // For now, handle adding items by delegating to parent
-            props.onAddNewItem?.()
+          onRefetch={() => {
+            // Refresh functionality (not used in this context)
+          }}
+          onNewUnifiedItem={(newUnifiedItem) => {
+            // Add the new item directly to the current group
+            if (isGroupItem(item())) {
+              const updatedItem = addChildToItem(item(), {
+                ...newUnifiedItem,
+                id: generateId(), // Ensure unique ID
+              })
+              setItem(updatedItem)
+            } else {
+              // If not a group, convert to group and add the item
+              const currentItem = item()
+              const groupItem = createUnifiedItem({
+                id: currentItem.id,
+                name: currentItem.name,
+                quantity: currentItem.quantity,
+                reference: {
+                  type: 'group',
+                  children: [
+                    createUnifiedItem({
+                      ...currentItem,
+                      id: generateId(), // New ID for the original item as child
+                    }),
+                    {
+                      ...newUnifiedItem,
+                      id: generateId(), // New ID for the new item
+                    },
+                  ],
+                },
+              })
+              setItem(groupItem)
+            }
+
+            // Close the template search modal
+            setTemplateSearchVisible(false)
             return null
           }}
         />
