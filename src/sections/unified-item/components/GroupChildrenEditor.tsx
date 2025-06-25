@@ -18,7 +18,7 @@ import { ClipboardActionButtons } from '~/sections/common/components/ClipboardAc
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
 import { createDebug } from '~/shared/utils/createDebug'
-import { regenerateId } from '~/shared/utils/idUtils'
+import { generateId, regenerateId } from '~/shared/utils/idUtils'
 
 const debug = createDebug()
 
@@ -57,7 +57,7 @@ export function GroupChildrenEditor(props: GroupChildrenEditorProps) {
         if (isFoodItem(updatedItem) && itemsToAdd.length > 0) {
           // Transform the food item into a group with the original food as the first child
           const originalAsChild = createUnifiedItem({
-            id: regenerateId(updatedItem).id, // New ID for the child
+            id: generateId(), // New ID for the child
             name: updatedItem.name,
             quantity: updatedItem.quantity,
             reference: updatedItem.reference, // Keep the food reference

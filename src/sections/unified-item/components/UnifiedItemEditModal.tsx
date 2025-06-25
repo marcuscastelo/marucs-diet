@@ -79,13 +79,21 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
     if (viewMode() === 'group') {
       const currentItem = untrack(item)
       if (isFoodItem(currentItem)) {
+        // Create a copy of the original item with a new ID for the child
+        const originalAsChild = createUnifiedItem({
+          id: generateId(), // New ID for the child
+          name: currentItem.name,
+          quantity: currentItem.quantity,
+          reference: currentItem.reference, // Keep the food reference
+        })
+
         const groupItem = createUnifiedItem({
-          id: generateId(),
+          id: currentItem.id, // Keep the same ID for the parent
           name: currentItem.name,
           quantity: currentItem.quantity,
           reference: {
             type: 'group',
-            children: [currentItem],
+            children: [originalAsChild],
           },
         })
         setItem(groupItem)
