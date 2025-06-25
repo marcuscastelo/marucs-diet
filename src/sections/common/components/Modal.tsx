@@ -3,6 +3,7 @@ import { createEffect, type JSXElement, mergeProps } from 'solid-js'
 import { DarkToaster } from '~/sections/common/components/DarkToaster'
 import { useModalContext } from '~/sections/common/context/ModalContext'
 import { cn } from '~/shared/cn'
+import { generateId } from '~/shared/utils/idUtils'
 
 export type ModalProps = {
   children: JSXElement
@@ -10,11 +11,12 @@ export type ModalProps = {
   class?: string
 }
 
-let modalId = 1
-
 export const Modal = (_props: ModalProps) => {
   const props = mergeProps({ hasBackdrop: true, class: '' }, _props)
   const { visible, setVisible } = useModalContext()
+
+  // Generate a unique ID for this modal instance
+  const modalId = generateId()
 
   const handleClose = (
     e: Event & {
@@ -22,9 +24,22 @@ export const Modal = (_props: ModalProps) => {
       target: Element
     },
   ) => {
-    console.debug('[Modal] handleClose')
+    console.debug('[Modal] handleClose', modalId)
     setVisible(false)
     e.stopPropagation()
+  }
+
+  const handleCancel = (
+    e: Event & {
+      currentTarget: HTMLDialogElement
+      target: Element
+    },
+  ) => {
+    console.debug('[Modal] handleCancel', modalId)
+    // Only close this modal, not parent modals
+    setVisible(false)
+    e.stopPropagation()
+    e.preventDefault()
   }
 
   const modalClass = () =>
@@ -34,7 +49,7 @@ export const Modal = (_props: ModalProps) => {
 
   return (
     <dialog
-      id={`modal-${modalId++}`}
+      id={`modal-${modalId}`}
       ref={(ref) => {
         createEffect(() => {
           console.debug('[Modal] <effect> visible:', visible())
@@ -47,7 +62,7 @@ export const Modal = (_props: ModalProps) => {
       }}
       class={modalClass()}
       onClose={handleClose}
-      onCancel={handleClose}
+      onCancel={handleCancel}
     >
       <DarkToaster />
 

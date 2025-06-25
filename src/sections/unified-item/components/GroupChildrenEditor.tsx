@@ -1,4 +1,4 @@
-import { type Accessor, createSignal, For, type Setter, Show } from 'solid-js'
+import { type Accessor, For, type Setter, Show } from 'solid-js'
 import { z } from 'zod'
 
 import {
@@ -15,12 +15,8 @@ import {
   unifiedItemSchema,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { ClipboardActionButtons } from '~/sections/common/components/ClipboardActionButtons'
-import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
-import { useFloatField } from '~/sections/common/hooks/useField'
-import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
 import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
-import { getItemTypeDisplay } from '~/sections/unified-item/utils/unifiedItemDisplayUtils'
 import { createDebug } from '~/shared/utils/createDebug'
 import { regenerateId } from '~/shared/utils/idUtils'
 
@@ -212,70 +208,16 @@ type GroupChildEditorProps = {
 }
 
 function GroupChildEditor(props: GroupChildEditorProps) {
-  const [childEditModalVisible, setChildEditModalVisible] = createSignal(false)
-  const typeDisplay = () => getItemTypeDisplay(props.child)
-
-  const quantityField = useFloatField(() => props.child.quantity, {
-    decimalPlaces: 1,
-    minValue: 0.1,
-  })
-
-  // Atualiza quando o field muda
-  const handleQuantityChange = () => {
-    const newQuantity = quantityField.value() ?? 0.1
-    if (newQuantity !== props.child.quantity) {
-      props.onQuantityChange(newQuantity)
-    }
-  }
-
-  const increment = () => {
-    const newValue = (quantityField.value() ?? 0) + 10
-    quantityField.setRawValue(newValue.toString())
-    props.onQuantityChange(newValue)
-  }
-
-  const decrement = () => {
-    const newValue = Math.max(0.1, (quantityField.value() ?? 0) - 10)
-    quantityField.setRawValue(newValue.toString())
-    props.onQuantityChange(newValue)
-  }
-
   const handleEditChild = () => {
     if (props.onEditChild) {
       props.onEditChild(props.child)
-    } else {
-      // Fallback: open modal locally
-      setChildEditModalVisible(true)
     }
   }
 
   return (
-    <>
-      <UnifiedItemView
-        item={() => props.child}
-        handlers={{ onEdit: handleEditChild }}
-      />
-
-      {/* Modal for editing child items */}
-      <Show when={childEditModalVisible()}>
-        <ModalContextProvider
-          visible={childEditModalVisible}
-          setVisible={setChildEditModalVisible}
-        >
-          <UnifiedItemEditModal
-            targetMealName="Grupo"
-            targetNameColor="text-orange-400"
-            item={() => props.child}
-            macroOverflow={() => ({ enable: false })}
-            onApply={(updatedChild) => {
-              // Update the child in the parent
-              props.onQuantityChange(updatedChild.quantity)
-              setChildEditModalVisible(false)
-            }}
-            onCancel={() => setChildEditModalVisible(false)}
-          />
-        </ModalContextProvider>
-      </Show>
-    </>
+    <UnifiedItemView
+      item={() => props.child}
+      handlers={{ onEdit: handleEditChild }}
+    />
   )
 }

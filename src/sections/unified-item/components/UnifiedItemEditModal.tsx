@@ -1,4 +1,3 @@
-import { is } from 'date-fns/locale'
 import {
   type Accessor,
   createEffect,
@@ -26,9 +25,11 @@ import {
   unifiedItemSchema,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { DownloadIcon } from '~/sections/common/components/icons/DownloadIcon'
-import { PasteIcon } from '~/sections/common/components/icons/PasteIcon'
 import { Modal } from '~/sections/common/components/Modal'
-import { useModalContext } from '~/sections/common/context/ModalContext'
+import {
+  ModalContextProvider,
+  useModalContext,
+} from '~/sections/common/context/ModalContext'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
@@ -326,17 +327,22 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
       {/* Child edit modal - nested modals for editing child items */}
       <Show when={childEditModalVisible() && childBeingEdited()}>
         {(child) => (
-          <UnifiedItemEditModal
-            targetMealName={`${props.targetMealName} > ${item().name}`}
-            targetNameColor="text-orange-400"
-            item={() => child()}
-            macroOverflow={() => ({ enable: false })}
-            onApply={handleChildModalApply}
-            onCancel={() => {
-              setChildEditModalVisible(false)
-              setChildBeingEdited(null)
-            }}
-          />
+          <ModalContextProvider
+            visible={childEditModalVisible}
+            setVisible={setChildEditModalVisible}
+          >
+            <UnifiedItemEditModal
+              targetMealName={`${props.targetMealName} > ${item().name}`}
+              targetNameColor="text-orange-400"
+              item={() => child()}
+              macroOverflow={() => ({ enable: false })}
+              onApply={handleChildModalApply}
+              onCancel={() => {
+                setChildEditModalVisible(false)
+                setChildBeingEdited(null)
+              }}
+            />
+          </ModalContextProvider>
         )}
       </Show>
 
