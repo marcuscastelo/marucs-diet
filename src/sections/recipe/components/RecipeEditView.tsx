@@ -18,7 +18,10 @@ import {
   updateRecipeName,
   updateRecipePreparedMultiplier,
 } from '~/modules/diet/recipe/domain/recipeOperations'
-import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import {
+  isTemplateItem,
+  type TemplateItem,
+} from '~/modules/diet/template-item/domain/templateItem'
 import {
   itemToUnifiedItem,
   unifiedItemToItem,
@@ -34,12 +37,8 @@ import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalCo
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { useFloatField } from '~/sections/common/hooks/useField'
-import {
-  RecipeEditContextProvider,
-  useRecipeEditContext,
-} from '~/sections/recipe/context/RecipeEditContext'
+import { useRecipeEditContext } from '~/sections/recipe/context/RecipeEditContext'
 import { UnifiedItemListView } from '~/sections/unified-item/components/UnifiedItemListView'
-import { cn } from '~/shared/cn'
 import { regenerateId } from '~/shared/utils/idUtils'
 import { calcRecipeCalories } from '~/shared/utils/macroMath'
 
@@ -208,12 +207,11 @@ export function RecipeEditContent(props: {
         mode="edit"
         handlers={{
           onEdit: (unifiedItem: UnifiedItem) => {
-            const item = unifiedItemToItem(unifiedItem)
-            if (!item.reference) {
+            if (!isTemplateItem(unifiedItem)) {
               console.warn('Item does not have a reference, cannot edit')
               return
             }
-            props.onEditItem(item)
+            props.onEditItem(unifiedItem)
           },
           onCopy: (unifiedItem: UnifiedItem) => {
             const item = unifiedItemToItem(unifiedItem)

@@ -32,6 +32,9 @@ export const recipeItemSchema = z.object({
     .transform(() => 'RecipeItem' as const),
 })
 
+/**
+ * @deprecated
+ */
 export type RecipeItem = Readonly<z.infer<typeof recipeItemSchema>>
 
 export function createRecipeItem({

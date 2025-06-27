@@ -1,20 +1,26 @@
 import { describe, expect, it } from 'vitest'
 
-import { createItem } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { createUnifiedItemFromTemplate } from '~/modules/diet/template/application/createGroupFromTemplate'
 import { templateToUnifiedItem as templateToUnifiedItemDirect } from '~/modules/diet/template/application/templateToItem'
+import { unifiedItemToItem } from '~/modules/diet/unified-item/domain/conversionUtils'
+import {
+  FoodItem,
+  RecipeItem,
+} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 describe('template application services', () => {
   const baseItem = {
-    ...createItem({
-      name: 'Arroz',
-      reference: 1,
-      quantity: 100,
-      macros: { carbs: 10, protein: 2, fat: 1 },
-    }),
+    name: 'Arroz',
+    quantity: 100,
     id: 1,
-  }
+    reference: {
+      type: 'food',
+      id: 1,
+      macros: { carbs: 10, protein: 2, fat: 1 },
+    },
+    __type: 'UnifiedItem' as const,
+  } satisfies FoodItem
 
   const foodTemplate = {
     id: 1,
@@ -28,7 +34,7 @@ describe('template application services', () => {
     id: 2,
     name: 'Recipe Test',
     owner: 1,
-    items: [baseItem],
+    items: [unifiedItemToItem(baseItem)],
     prepared_multiplier: 2,
     __type: 'Recipe',
   }
@@ -49,13 +55,16 @@ describe('template application services', () => {
     })
 
     it('creates unified item from recipe template', () => {
-      const recipeItem = {
+      const recipeItem: RecipeItem = {
         id: 2,
         name: 'Recipe Test',
-        reference: 2,
+        reference: {
+          id: 2,
+          type: 'recipe',
+          children: [],
+        },
         quantity: 100,
-        macros: { carbs: 10, protein: 2, fat: 1 },
-        __type: 'RecipeItem' as const,
+        __type: 'UnifiedItem' as const,
       }
 
       const result = createUnifiedItemFromTemplate(recipeTemplate, recipeItem)
@@ -72,10 +81,13 @@ describe('template application services', () => {
         createUnifiedItemFromTemplate(foodTemplate, {
           id: 1,
           name: 'Invalid',
-          reference: 999,
+          reference: {
+            id: 999,
+            type: 'recipe',
+            children: [],
+          },
           quantity: 100,
-          macros: { carbs: 0, protein: 0, fat: 0 },
-          __type: 'RecipeItem' as const,
+          __type: 'UnifiedItem' as const,
         }),
       ).toThrow('Template is not a Recipe or item type mismatch')
     })

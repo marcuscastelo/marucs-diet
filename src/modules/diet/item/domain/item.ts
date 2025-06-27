@@ -32,8 +32,14 @@ export const itemSchema = z.object({
     .transform(() => 'Item' as const),
 })
 
+/**
+ * @deprecated
+ */
 export type Item = Readonly<z.output<typeof itemSchema>>
 
+/**
+ * @deprecated
+ */
 export function createItem({
   name,
   reference,

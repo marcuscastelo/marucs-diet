@@ -2,7 +2,7 @@ import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { handleValidationError } from '~/shared/error/errorHandler'
-import { calcDayMacros, calcItemMacros } from '~/shared/utils/macroMath'
+import { calcDayMacros, calcUnifiedItemMacros } from '~/shared/utils/macroMath'
 
 /**
  * MacroOverflowOptions controls overflow logic for macro nutrients.
@@ -97,10 +97,10 @@ export function isOverflow(
     )
     return false
   }
-  const itemMacros = calcItemMacros(item)
+  const itemMacros = _calcTemplateItemMacros(item)
   const originalItemMacros: MacroNutrients =
     macroOverflowOptions.originalItem !== undefined
-      ? calcItemMacros(macroOverflowOptions.originalItem)
+      ? _calcTemplateItemMacros(macroOverflowOptions.originalItem)
       : { carbs: 0, protein: 0, fat: 0 }
   const current = (dayMacros ?? calcDayMacros(currentDayDiet))[property]
   const target = macroTarget[property]
@@ -188,7 +188,7 @@ export function isOverflowForItemGroup(
   }
   const totalMacros = items.reduce<MacroNutrients>(
     (acc, item) => {
-      const macros = calcItemMacros(item)
+      const macros = _calcTemplateItemMacros(item)
       return {
         carbs: acc.carbs + macros.carbs,
         protein: acc.protein + macros.protein,
@@ -199,7 +199,7 @@ export function isOverflowForItemGroup(
   )
   const hasOriginalItem = macroOverflowOptions.originalItem !== undefined
   const originalItemMacros: MacroNutrients = hasOriginalItem
-    ? calcItemMacros(macroOverflowOptions.originalItem!)
+    ? _calcTemplateItemMacros(macroOverflowOptions.originalItem!)
     : { carbs: 0, protein: 0, fat: 0 }
   const current = calcDayMacros(currentDayDiet)[property]
   const target = macroTarget[property]
@@ -209,4 +209,31 @@ export function isOverflowForItemGroup(
     originalItemMacros[property],
     target,
   )
+}
+
+/**
+ * Calculates macros for a TemplateItem, handling both UnifiedItem and legacy Item formats.
+ * @private
+ */
+function _calcTemplateItemMacros(item: TemplateItem): MacroNutrients {
+  // Check if it's a legacy Item type with direct macros property
+  if (
+    'macros' in item &&
+    typeof item.macros === 'object' &&
+    item.macros !== null
+  ) {
+    // Legacy Item: macros are stored directly and proportional to quantity
+    const legacyItem = item as {
+      macros: MacroNutrients
+      quantity: number
+    }
+    return {
+      carbs: (legacyItem.macros.carbs * legacyItem.quantity) / 100,
+      protein: (legacyItem.macros.protein * legacyItem.quantity) / 100,
+      fat: (legacyItem.macros.fat * legacyItem.quantity) / 100,
+    }
+  }
+
+  // Modern UnifiedItem: use the standard calculation
+  return calcUnifiedItemMacros(item)
 }

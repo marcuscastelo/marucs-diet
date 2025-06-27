@@ -16,9 +16,9 @@ import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/ma
 import { type Template } from '~/modules/diet/template/domain/template'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import {
-  isTemplateItemFood,
-  isTemplateItemRecipe,
-} from '~/modules/diet/template-item/domain/templateItem'
+  isFoodItem,
+  isRecipeItem,
+} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import {
   fetchRecentFoodByUserTypeAndReferenceId,
@@ -104,9 +104,9 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
       props.onNewUnifiedItem?.(newItem, originalAddedItem)
 
       let type: 'food' | 'recipe'
-      if (isTemplateItemFood(originalAddedItem)) {
+      if (isFoodItem(originalAddedItem)) {
         type = 'food'
-      } else if (isTemplateItemRecipe(originalAddedItem)) {
+      } else if (isRecipeItem(originalAddedItem)) {
         type = 'recipe'
       } else {
         throw new Error('Invalid template item type')
@@ -115,14 +115,14 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
       const recentFood = await fetchRecentFoodByUserTypeAndReferenceId(
         currentUserId(),
         type,
-        originalAddedItem.reference,
+        originalAddedItem.reference.id,
       )
 
       if (
         recentFood !== null &&
         (recentFood.user_id !== currentUserId() ||
           recentFood.type !== type ||
-          recentFood.reference_id !== originalAddedItem.reference)
+          recentFood.reference_id !== originalAddedItem.reference.id)
       ) {
         throw new Error(
           'BUG: recentFood fetched does not match user/type/reference',
@@ -133,7 +133,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
         ...(recentFood ?? {}),
         user_id: currentUserId(),
         type,
-        reference_id: originalAddedItem.reference,
+        reference_id: originalAddedItem.reference.id,
       })
 
       if (recentFood !== null) {

@@ -44,29 +44,9 @@ export function UnifiedItemNutritionalInfo(
     }
 
     // Convert UnifiedItem to TemplateItem format for overflow check
-    const item = props.item()
-    const templateItem = {
-      id: item.id,
-      name: item.name,
-      quantity: item.quantity,
-      macros: macros(),
-      reference: item.reference.type === 'food' ? item.reference.id : 0,
-      __type: 'Item' as const,
-    }
+    const templateItem = props.item()
 
     const originalTemplateItem = overflow.originalItem
-      ? {
-          id: overflow.originalItem.id,
-          name: overflow.originalItem.name,
-          quantity: overflow.originalItem.quantity,
-          macros: calcUnifiedItemMacros(overflow.originalItem),
-          reference:
-            overflow.originalItem.reference.type === 'food'
-              ? overflow.originalItem.reference.id
-              : 0,
-          __type: 'Item' as const,
-        }
-      : undefined
 
     // Get context for overflow checking
     const currentDayDiet_ = currentDayDiet()

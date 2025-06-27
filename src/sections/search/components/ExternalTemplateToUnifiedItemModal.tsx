@@ -1,7 +1,10 @@
 import { type Accessor, type Setter } from 'solid-js'
 
 import { createUnifiedItemFromTemplate } from '~/modules/diet/template/application/createGroupFromTemplate'
-import { templateToItem } from '~/modules/diet/template/application/templateToItem'
+import {
+  templateToItem,
+  templateToUnifiedItem,
+} from '~/modules/diet/template/application/templateToItem'
 import { type Template } from '~/modules/diet/template/domain/template'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
@@ -28,20 +31,7 @@ export function ExternalTemplateToUnifiedItemModal(
 ) {
   const template = () => props.selectedTemplate()
 
-  const handleApply = (item: UnifiedItem) => {
-    // Convert UnifiedItem to TemplateItem for the second parameter
-    const templateItem: TemplateItem = {
-      id: item.id,
-      name: item.name,
-      quantity: item.quantity,
-      reference: item.reference.type === 'food' ? item.reference.id : 0,
-      macros:
-        item.reference.type === 'food'
-          ? item.reference.macros
-          : { carbs: 0, protein: 0, fat: 0 },
-      __type: 'Item',
-    }
-
+  const handleApply = (templateItem: TemplateItem) => {
     const { unifiedItem } = createUnifiedItemFromTemplate(
       template(),
       templateItem,
@@ -59,7 +49,7 @@ export function ExternalTemplateToUnifiedItemModal(
         targetMealName={props.targetName}
         item={() =>
           convertTemplateItemToUnifiedItem(
-            templateToItem(template(), 100),
+            templateToUnifiedItem(template(), 100),
             template(),
           )
         } // Start with default 100g

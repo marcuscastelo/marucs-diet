@@ -6,6 +6,7 @@ import {
   isTemplateFood,
   type Template,
 } from '~/modules/diet/template/domain/template'
+import { TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import {
   createUnifiedItem,
   type UnifiedItem,
@@ -81,7 +82,7 @@ export function templateToItem(
 export function templateToUnifiedItem(
   template: Template,
   desiredQuantity: number = DEFAULT_QUANTITY,
-): UnifiedItem {
+): TemplateItem {
   if (isTemplateFood(template)) {
     return createUnifiedItem({
       id: generateId(),

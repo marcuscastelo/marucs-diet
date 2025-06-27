@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
-import { createItem } from '~/modules/diet/item/domain/item'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import {
@@ -16,39 +15,23 @@ function makeFakeDayDiet(macros: {
   protein: number
   fat: number
 }): DayDiet {
-  // Create a fake item with the desired macros and quantity 100
-  const item = createItem({
-    name: 'Fake',
-    reference: 1,
-    quantity: 100,
-    macros,
-  })
-  // Create a group with the item
-  const group = {
+  // Create a fake unified item with the desired macros and quantity 100
+  const unifiedItem = createUnifiedItem({
     id: 1,
-    name: 'Group',
-    items: [item],
-    recipe: undefined,
-    __type: 'ItemGroup' as const,
-  }
-  // Create UnifiedItem from the group's items
-  const unifiedItems = group.items.map((item) =>
-    createUnifiedItem({
-      id: item.id,
-      name: item.name,
-      quantity: item.quantity,
-      reference: {
-        type: 'food' as const,
-        id: item.reference,
-        macros: item.macros,
-      },
-    }),
-  )
+    name: 'Fake',
+    quantity: 100,
+    reference: {
+      type: 'food' as const,
+      id: 1,
+      macros,
+    },
+  })
+
   // Create a meal with the unified items
   const meal = {
     id: 1,
     name: 'Meal',
-    items: unifiedItems,
+    items: [unifiedItem],
     __type: 'Meal' as const,
   }
   // Return a DayDiet with the meal
@@ -61,11 +44,15 @@ function makeFakeDayDiet(macros: {
   }
 }
 
-const baseItem: TemplateItem = createItem({
+const baseItem: TemplateItem = createUnifiedItem({
+  id: 1,
   name: 'Chicken',
-  reference: 1,
   quantity: 1,
-  macros: { carbs: 0, protein: 30, fat: 5 },
+  reference: {
+    type: 'food' as const,
+    id: 1,
+    macros: { carbs: 0, protein: 30, fat: 5 },
+  },
 })
 
 const baseContext: MacroOverflowContext = {
@@ -86,11 +73,15 @@ describe('isOverflow', () => {
       currentDayDiet: makeFakeDayDiet({ carbs: 0, protein: 80, fat: 45 }), // 80 + 30 = 110 > 100
     }
     // Use quantity: 100 to match macro math (per 100g)
-    const item = createItem({
+    const item = createUnifiedItem({
+      id: 1,
       name: 'Chicken',
-      reference: 1,
       quantity: 100,
-      macros: { carbs: 0, protein: 30, fat: 5 },
+      reference: {
+        type: 'food' as const,
+        id: 1,
+        macros: { carbs: 0, protein: 30, fat: 5 },
+      },
     })
     expect(isOverflow(item, 'protein', context)).toBe(true)
   })
@@ -109,11 +100,15 @@ describe('isOverflow', () => {
       currentDayDiet: makeFakeDayDiet({ carbs: 0, protein: 90, fat: 45 }),
       macroOverflowOptions: {
         enable: true,
-        originalItem: createItem({
+        originalItem: createUnifiedItem({
+          id: 1,
           name: 'Chicken',
-          reference: 1,
           quantity: 1,
-          macros: { carbs: 0, protein: 20, fat: 5 },
+          reference: {
+            type: 'food' as const,
+            id: 1,
+            macros: { carbs: 0, protein: 20, fat: 5 },
+          },
         }),
       },
     }
@@ -139,23 +134,35 @@ describe('isOverflow (edge cases)', () => {
       ...baseContext,
       macroTarget: { carbs: 0, protein: 0, fat: 0 },
     }
-    const carbItem = createItem({
+    const carbItem = createUnifiedItem({
+      id: 1,
       name: 'Carb',
-      reference: 1,
       quantity: 100,
-      macros: { carbs: 10, protein: 0, fat: 0 },
+      reference: {
+        type: 'food' as const,
+        id: 1,
+        macros: { carbs: 10, protein: 0, fat: 0 },
+      },
     })
-    const proteinItem = createItem({
+    const proteinItem = createUnifiedItem({
+      id: 2,
       name: 'Protein',
-      reference: 2,
       quantity: 100,
-      macros: { carbs: 0, protein: 10, fat: 0 },
+      reference: {
+        type: 'food' as const,
+        id: 2,
+        macros: { carbs: 0, protein: 10, fat: 0 },
+      },
     })
-    const fatItem = createItem({
+    const fatItem = createUnifiedItem({
+      id: 3,
       name: 'Fat',
-      reference: 3,
       quantity: 100,
-      macros: { carbs: 0, protein: 0, fat: 10 },
+      reference: {
+        type: 'food' as const,
+        id: 3,
+        macros: { carbs: 0, protein: 0, fat: 10 },
+      },
     })
     expect(isOverflow(carbItem, 'carbs', context)).toBe(true)
     expect(isOverflow(proteinItem, 'protein', context)).toBe(true)
@@ -198,17 +205,25 @@ describe('isOverflowForItemGroup', () => {
 
   it('returns true if group addition exceeds macro', () => {
     const items: TemplateItem[] = [
-      createItem({
+      createUnifiedItem({
+        id: 1,
         name: 'A',
-        reference: 1,
         quantity: 100,
-        macros: { carbs: 10, protein: 10, fat: 10 },
+        reference: {
+          type: 'food' as const,
+          id: 1,
+          macros: { carbs: 10, protein: 10, fat: 10 },
+        },
       }),
-      createItem({
+      createUnifiedItem({
+        id: 2,
         name: 'B',
-        reference: 2,
         quantity: 100,
-        macros: { carbs: 20, protein: 20, fat: 20 },
+        reference: {
+          type: 'food' as const,
+          id: 2,
+          macros: { carbs: 20, protein: 20, fat: 20 },
+        },
       }),
     ]
     const context = {

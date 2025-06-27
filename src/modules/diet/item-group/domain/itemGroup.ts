@@ -5,9 +5,6 @@ import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { generateId } from '~/shared/utils/idUtils'
 
-// TODO:   Add support for nested groups and recipes (recursive schema: https://github.com/colinhacks/zod#recursive-types)
-// TODO:   In the future, it seems like discriminated unions will deprecated (https://github.com/colinhacks/zod/issues/2106)
-
 export const simpleItemGroupSchema = z.object({
   id: z.number({
     required_error: "O campo 'id' do grupo é obrigatório.",
@@ -53,6 +50,9 @@ export const recipedItemGroupSchema = z.object({
   __type: z.literal('ItemGroup').default('ItemGroup'),
 })
 
+/**
+ * @deprecated
+ */
 export const itemGroupSchema = z.union([
   simpleItemGroupSchema,
   recipedItemGroupSchema,
@@ -60,6 +60,7 @@ export const itemGroupSchema = z.union([
 
 /**
  * Type guard for SimpleItemGroup.
+ * @deprecated
  * @param group - The ItemGroup to check
  * @returns True if group is SimpleItemGroup
  */
@@ -69,6 +70,7 @@ export function isSimpleItemGroup(group: ItemGroup): group is SimpleItemGroup {
 
 /**
  * Type guard for RecipedItemGroup.
+ * @deprecated
  * @param group - The ItemGroup to check
  * @returns True if group is RecipedItemGroup
  */
@@ -79,8 +81,17 @@ export function isRecipedItemGroup(
 }
 
 // Use output type for strict clipboard unions
+/**
+ * @deprecated
+ */
 export type SimpleItemGroup = Readonly<z.output<typeof simpleItemGroupSchema>>
+/**
+ * @deprecated
+ */
 export type RecipedItemGroup = Readonly<z.output<typeof recipedItemGroupSchema>>
+/**
+ * @deprecated
+ */
 export type ItemGroup = Readonly<z.output<typeof itemGroupSchema>>
 
 export function isSimpleSingleGroup(
@@ -93,6 +104,7 @@ export function isSimpleSingleGroup(
  * Calculates the total quantity of an ItemGroup by summing all item quantities.
  * This replaces the deprecated quantity field that was previously stored.
  *
+ * @deprecated
  * @param group - The ItemGroup to calculate quantity for
  * @returns The total quantity of all items in the group
  */
@@ -106,6 +118,7 @@ export function getItemGroupQuantity(group: ItemGroup): number {
  * Creates a new simple ItemGroup with default values.
  * Used for initializing new item groups that are not associated with a recipe.
  *
+ * @deprecated
  * @param name - Name of the item group
  * @param items - Array of items in the group
  * @returns A new SimpleItemGroup
@@ -130,6 +143,7 @@ export function createSimpleItemGroup({
  * Creates a new recipe ItemGroup with default values.
  * Used for initializing new item groups that are associated with a recipe.
  *
+ * @deprecated
  * @param name - Name of the item group
  * @param recipe - Recipe ID this group is associated with
  * @param items - Array of items in the group
@@ -157,6 +171,7 @@ export function createRecipedItemGroup({
  * Checks if a RecipedItemGroup is up to date with its associated Recipe.
  * Returns false if any item reference, quantity, or macros differ.
  *
+ * @deprecated
  * @param group - The RecipedItemGroup to check
  * @param groupRecipe - The Recipe to compare against
  * @returns True if up to date
