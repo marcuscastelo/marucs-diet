@@ -1,0 +1,173 @@
+reportedBy: recipe-migration-agent.v1
+
+# Recipe Entity Migration Audit: Legacy Item[] → UnifiedItem[]
+
+This document provides a comprehensive audit of all Recipe entity usages that need to be migrated from using legacy Item[] to UnifiedItem[] in-memory, while maintaining Item[] compatibility for database persistence.
+
+## Migration Strategy Overview
+
+The Recipe entity will be migrated to use UnifiedItem[] for in-memory operations while still saving to the database as Item[] (food only) for compatibility. This requires:
+
+1. **Domain Layer Changes**: Add UnifiedItem[] support to Recipe type, mark Item[] as deprecated
+2. **Operation Layer Changes**: Update all recipe operations to work with UnifiedItem[]
+3. **Persistence Layer Changes**: Add conversion utilities to transform UnifiedItem[] ↔ Item[] for DB operations
+4. **UI Layer Changes**: Update UI components to work natively with UnifiedItem[]
+5. **Test Layer Changes**: Update tests to cover UnifiedItem[] operations and conversion logic
+
+## Current Recipe Item[] Usage Locations
+
+### Domain Layer
+
+#### 1. Recipe Type Definition (`src/modules/diet/recipe/domain/recipe.ts`)
+**Lines 13, 37**: Schema definitions
+```typescript
+// Current Issue: Uses Item[] schemas
+items: itemSchema.array(),                    // Line 13 (NewRecipe)
+items: itemSchema.array().readonly(),         // Line 37 (Recipe)
+```
+
+**Required Changes**:
+- Add new schemas with UnifiedItem[] support
+- Keep Item[] schemas for DB compatibility
+- Add migration/conversion functions
+
+#### 2. Recipe Operations (`src/modules/diet/recipe/domain/recipeOperations.ts`)
+**All functions currently work with Item[]**:
+- `addItemToRecipe(recipe: Recipe, item: Item): Recipe` (Line 20)
+- `addItemsToRecipe(recipe: Recipe, items: readonly Item[]): Recipe` (Line 30)
+- `updateItemInRecipe(recipe: Recipe, itemId: Item['id'], updatedItem: Item): Recipe` (Line 41)
+- `removeItemFromRecipe(recipe: Recipe, itemId: Item['id']): Recipe` (Line 51)
+- `setRecipeItems(recipe: Recipe, items: Item[]): Recipe` (Line 61)
+- `clearRecipeItems(recipe: Recipe): Recipe` (Line 67)
+- `findItemInRecipe(recipe: Recipe, itemId: Item['id']): Item | undefined` (Line 73)
+- `scaleRecipeByPreparedQuantity()` returns `{ scaledItems: Item[]; scalingFactor: number }` (Line 127)
+
+**Required Changes**:
+- Update all operations to work with UnifiedItem[]
+- Add overloads or new functions for UnifiedItem[] operations
+- Keep legacy Item[] operations for backward compatibility during transition
+
+### Infrastructure Layer
+
+#### 3. Recipe DAO (`src/modules/diet/recipe/infrastructure/recipeDAO.ts`)
+**Lines 14, 35, 46, 55, 62, 68, 74**: All DAO operations use Item[]
+```typescript
+items: z.array(itemSchema),           // Line 14 - Schema definition
+items: [...recipe.items],             // Line 39, 50, 68, 79 - DAO conversions
+```
+
+**Required Changes**:
+- Keep Item[] for database schema compatibility
+- Add conversion functions to transform UnifiedItem[] → Item[] for persistence
+- Add conversion functions to transform Item[] → UnifiedItem[] for loading
+
+### Application Layer
+
+#### 4. Recipe Service (`src/modules/diet/recipe/application/recipe.ts`)
+**No direct Item[] manipulation** - delegates to domain and infrastructure.
+
+**Required Changes**:
+- Minimal changes needed, should work with updated domain layer
+
+### UI/Sections Layer
+
+#### 5. RecipeEditView (`src/sections/recipe/components/RecipeEditView.tsx`)
+**Lines 174, 176, 206, 234, 276**: Direct usage of recipe.items
+```typescript
+canCopy={!hasValidPastableOnClipboard() && recipe().items.length > 0}     // Line 174
+canClear={recipe().items.length > 0}                                      // Line 176
+items={() => recipe().items.map(itemToUnifiedItem)}                      // Line 206
+rawQuantity={recipe().items.reduce(...)}                                  // Line 234
+recipe().items.reduce((acc, item) => { ... })                           // Line 276
+```
+
+**Required Changes**:
+- Update to work natively with UnifiedItem[]
+- Remove itemToUnifiedItem conversion (Line 206) since items will already be UnifiedItem[]
+- Update operations to use UnifiedItem[] recipe operations
+
+#### 6. GroupChildrenEditor (`src/sections/unified-item/components/GroupChildrenEditor.tsx`)
+**Lines 170, 178**: Converts UnifiedItem[] to Item[] for recipe operations
+```typescript
+const recipeItems: Item[] = children().map(convertUnifiedItemToItem)      // Line 170
+items: recipeItems,                                                       // Line 178
+```
+
+**Required Changes**:
+- Remove conversion since Recipe will accept UnifiedItem[] directly
+- Update to use UnifiedItem[] recipe operations
+
+### Utilities and Related
+
+#### 7. MacroMath (`src/shared/utils/macroMath.ts`)
+**Line 32**: Uses recipe.items for macro calculations
+```typescript
+items: recipe.items    // Line 32
+```
+
+**Required Changes**:
+- Should work transparently with UnifiedItem[] (macro calculations work on both)
+
+#### 8. Unified Item Conversion Utils (`src/modules/diet/unified-item/domain/conversionUtils.ts`)
+**Lines 93, 96, 141**: Compares UnifiedItem[] with Item[]
+```typescript
+const originalItems = originalRecipe.items                              // Line 93
+if (recipeChildren.length !== originalItems.length) {                   // Line 96
+const syncedChildren: UnifiedItem[] = originalRecipe.items.map(...)     // Line 141
+```
+
+**Required Changes**:
+- Update to work with UnifiedItem[] recipe items
+- Simplify conversion logic since both sides will be UnifiedItem[]
+
+#### 9. Migration Utils (`src/modules/diet/unified-item/domain/migrationUtils.ts`)
+**Line 101**: Error message about recipe.items conversion
+```typescript
+`migrateFromUnifiedItems: Only food children are supported in recipe.items. Found type: ${c.reference.type} (id: ${c.id})`,
+```
+
+**Required Changes**:
+- Update for new UnifiedItem[] → Item[] conversion for persistence
+
+### Tests
+
+#### 10. Recipe Operations Tests (`src/modules/diet/recipe/domain/recipeOperations.test.ts`)
+**Line 137**: Helper function creates recipes with Item[]
+```typescript
+const makeRecipe = (items: Item[], preparedMultiplier = 1): Recipe => {  // Line 137
+```
+
+**Multiple test assertions** use recipe.items:
+- Line 249: `expect(scaledRecipe.items).toHaveLength(2)`
+- Line 250: `expect(scaledRecipe.items[0]?.quantity).toBe(50)`
+- Line 251: `expect(scaledRecipe.items[1]?.quantity).toBe(100)`
+
+**Required Changes**:
+- Add new tests for UnifiedItem[] operations
+- Update existing tests to work with UnifiedItem[]
+- Add tests for conversion utilities (UnifiedItem[] ↔ Item[])
+- Keep some legacy tests for backward compatibility
+
+## Migration Priority Order
+
+1. **Step 1**: Domain model changes (Recipe type, operations)
+2. **Step 2**: Conversion utilities for persistence
+3. **Step 3**: Infrastructure layer updates (DAO conversions)
+4. **Step 4**: UI layer updates (remove manual conversions)
+5. **Step 5**: Test updates and validation
+6. **Step 6**: Cleanup and deprecation of legacy patterns
+
+## Database Compatibility Notes
+
+- Database will continue to store recipes with Item[] format
+- Only food items are supported in recipe.items for database persistence
+- UnifiedItem[] with recipe/group references will be flattened to Item[] for DB save
+- Loading from DB will convert Item[] back to UnifiedItem[] for in-memory operations
+
+## Validation Requirements
+
+- All existing Recipe functionality must continue to work
+- Recipe scaling operations must work with UnifiedItem[]
+- Macro calculations must work transparently
+- UI must handle UnifiedItem[] natively without manual conversions
+- Database persistence must maintain Item[] compatibility
