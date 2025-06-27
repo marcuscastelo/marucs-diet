@@ -11,6 +11,7 @@ import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItem
  * Strategy:
  * - For recipes: never flatten, always preserve structure
  * - For groups: flatten only if exactly 1 item, otherwise preserve as group
+ * @deprecated
  * @param items Item[]
  * @param groups ItemGroup[]
  * @returns UnifiedItem[]
@@ -47,6 +48,7 @@ export function migrateToUnifiedItems(
 /**
  * Migrates UnifiedItems back to Items and ItemGroups (legacy compatibility).
  * Only supports flat UnifiedItems (no nested children).
+ * @deprecated
  * @param unified UnifiedItem[]
  * @returns { items: Item[], groups: ItemGroup[] }
  */

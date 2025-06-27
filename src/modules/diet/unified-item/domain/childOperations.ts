@@ -138,22 +138,3 @@ function updateUnifiedItem(
 
   throw new Error('Invalid UnifiedItem type')
 }
-
-/**
- * Moves a child from one UnifiedItem to another.
- */
-export function moveChildBetweenItems(
-  source: UnifiedItem,
-  target: UnifiedItem,
-  childId: number,
-): { source: UnifiedItem; target: UnifiedItem } {
-  const child =
-    (source.reference.type === 'recipe' || source.reference.type === 'group') &&
-    Array.isArray(source.reference.children)
-      ? source.reference.children.find((c) => c.id === childId)
-      : undefined
-  if (!child) return { source, target }
-  const newSource = removeChildFromItem(source, childId)
-  const newTarget = addChildToItem(target, child)
-  return { source: newSource, target: newTarget }
-}

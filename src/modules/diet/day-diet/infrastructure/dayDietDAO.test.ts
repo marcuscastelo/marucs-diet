@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  createInsertLegacyDayDietDAOFromNewDayDiet,
-  dayDietToLegacyDAO,
-} from '~/modules/diet/day-diet/infrastructure/dayDietDAO'
+import { createInsertLegacyDayDietDAOFromNewDayDiet } from '~/modules/diet/day-diet/infrastructure/dayDietDAO'
 import { createItem } from '~/modules/diet/item/domain/item'
 import { createMeal } from '~/modules/diet/meal/domain/meal'
 import { itemToUnifiedItem } from '~/modules/diet/unified-item/domain/conversionUtils'
@@ -29,37 +26,12 @@ describe('dayDietDAO legacy conversion', () => {
     id: 1,
   }
 
-  const baseDayDiet = {
-    id: 1,
-    target_day: '2025-06-19',
-    owner: 1,
-    meals: [baseMeal],
-    __type: 'DayDiet' as const,
-  }
-
   const baseNewDayDiet = {
     target_day: '2025-06-19',
     owner: 1,
     meals: [baseMeal],
     __type: 'NewDayDiet' as const,
   }
-
-  describe('dayDietToLegacyDAO', () => {
-    it('converts a DayDiet to legacy DAO format', () => {
-      const result = dayDietToLegacyDAO(baseDayDiet)
-
-      expect(result.id).toBe(1)
-      expect(result.target_day).toBe('2025-06-19')
-      expect(result.owner).toBe(1)
-      expect(result.meals).toHaveLength(1)
-      expect(result.meals[0]).toHaveProperty('groups')
-      expect(result.meals[0]).not.toHaveProperty('items')
-      expect(result.meals[0]?.groups).toHaveLength(1)
-      expect(result.meals[0]?.groups[0]?.name).toBe('Arroz')
-      expect(result.meals[0]?.groups[0]?.items).toHaveLength(1)
-      expect(result.meals[0]?.groups[0]?.items[0]?.name).toBe('Arroz')
-    })
-  })
 
   describe('createInsertLegacyDayDietDAOFromNewDayDiet', () => {
     it('converts a NewDayDiet to legacy DAO format', () => {
@@ -114,25 +86,6 @@ describe('dayDietDAO legacy conversion', () => {
       expect(result.meals[0]?.groups[1]?.name).toBe('Feijão') // Second group named after second item
       expect(result.meals[0]?.groups[1]?.items).toHaveLength(1)
       expect(result.meals[0]?.groups[1]?.items[0]?.name).toBe('Feijão')
-    })
-  })
-
-  describe('roundtrip conversion', () => {
-    it('maintains data integrity through legacy conversion and back', () => {
-      // Convert to legacy and then migrate back
-      const legacyDAO = dayDietToLegacyDAO(baseDayDiet)
-
-      // Verify the legacy format has the expected structure
-      expect(legacyDAO.meals[0]).toHaveProperty('groups')
-      expect(legacyDAO.meals[0]?.groups).toHaveLength(1)
-      expect(legacyDAO.meals[0]?.groups[0]?.items).toHaveLength(1)
-
-      // The original item data should be preserved
-      const legacyItem = legacyDAO.meals[0]?.groups[0]?.items[0]
-      expect(legacyItem?.name).toBe(baseItem.name)
-      expect(legacyItem?.quantity).toBe(baseItem.quantity)
-      expect(legacyItem?.macros).toEqual(baseItem.macros)
-      expect(legacyItem?.reference).toBe(baseItem.reference)
     })
   })
 })

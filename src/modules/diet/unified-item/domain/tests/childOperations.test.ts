@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 
 import {
   addChildToItem,
-  moveChildBetweenItems,
   removeChildFromItem,
   updateChildInItem,
 } from '~/modules/diet/unified-item/domain/childOperations'
@@ -68,29 +67,6 @@ describe('childOperations', () => {
     expect(updated.reference.type).toBe('group')
     if (updated.reference.type === 'group') {
       expect(updated.reference.children[0]?.name).toBe('Updated')
-    }
-  })
-  it('moveChildBetweenItems moves a child from one group to another', () => {
-    const group1 = createUnifiedItem({
-      ...baseGroup,
-      id: 1,
-      reference: { type: 'group' as const, children: [childA] },
-    })
-    const group2 = createUnifiedItem({
-      ...baseGroup,
-      id: 2,
-      reference: { type: 'group' as const, children: [] },
-    })
-    const { source, target } = moveChildBetweenItems(group1, group2, childA.id)
-    expect(source.reference.type).toBe('group')
-    expect(target.reference.type).toBe('group')
-    if (
-      source.reference.type === 'group' &&
-      target.reference.type === 'group'
-    ) {
-      expect(source.reference.children.length).toBe(0)
-      expect(target.reference.children.length).toBe(1)
-      expect(target.reference.children[0]?.id).toBe(childA.id)
     }
   })
 })

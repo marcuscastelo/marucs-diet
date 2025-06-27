@@ -46,7 +46,7 @@ export function migrateUnifiedMealToLegacy(unifiedMeal: Meal): LegacyMeal {
   // Each standalone item should become its own group
   for (const item of items) {
     allGroups.push({
-      id: item.id, // Use the item's original ID, not -1
+      id: item.id,
       name: item.name, // Use the item's name as the group name
       items: [item],
       recipe: undefined,
@@ -69,15 +69,4 @@ export function migrateUnifiedMealToLegacy(unifiedMeal: Meal): LegacyMeal {
  */
 export function migrateLegacyMealsToUnified(legacyMeals: LegacyMeal[]): Meal[] {
   return legacyMeals.map(migrateLegacyMealToUnified)
-}
-
-/**
- * Migrates an array of unified meals back to legacy format
- * @param unifiedMeals Meal[]
- * @returns LegacyMeal[]
- */
-export function migrateUnifiedMealsToLegacy(
-  unifiedMeals: Meal[],
-): LegacyMeal[] {
-  return unifiedMeals.map(migrateUnifiedMealToLegacy)
 }

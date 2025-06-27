@@ -3,8 +3,6 @@ import { z } from 'zod'
 import { foodSchema } from '~/modules/diet/food/domain/food'
 import { recipeSchema } from '~/modules/diet/recipe/domain/recipe'
 
-export const templateSchema = z.union([foodSchema, recipeSchema])
-
 export type FoodTemplate = Readonly<z.output<typeof foodSchema>>
 export type RecipeTemplate = Readonly<z.output<typeof recipeSchema>>
 export type Template = FoodTemplate | RecipeTemplate

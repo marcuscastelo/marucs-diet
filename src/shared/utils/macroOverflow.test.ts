@@ -6,7 +6,6 @@ import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedIte
 import {
   createMacroOverflowChecker,
   isOverflow,
-  isOverflowForItemGroup,
   MacroOverflowContext,
 } from '~/shared/utils/macroOverflow'
 
@@ -195,41 +194,5 @@ describe('createMacroOverflowChecker', () => {
     expect(checker.carbs()).toBe(false)
     expect(checker.protein()).toBe(false)
     expect(checker.fat()).toBe(false)
-  })
-})
-
-describe('isOverflowForItemGroup', () => {
-  it('returns false for empty group', () => {
-    expect(isOverflowForItemGroup([], 'carbs', baseContext)).toBe(false)
-  })
-
-  it('returns true if group addition exceeds macro', () => {
-    const items: TemplateItem[] = [
-      createUnifiedItem({
-        id: 1,
-        name: 'A',
-        quantity: 100,
-        reference: {
-          type: 'food' as const,
-          id: 1,
-          macros: { carbs: 10, protein: 10, fat: 10 },
-        },
-      }),
-      createUnifiedItem({
-        id: 2,
-        name: 'B',
-        quantity: 100,
-        reference: {
-          type: 'food' as const,
-          id: 2,
-          macros: { carbs: 20, protein: 20, fat: 20 },
-        },
-      }),
-    ]
-    const context = {
-      ...baseContext,
-      currentDayDiet: makeFakeDayDiet({ carbs: 75, protein: 80, fat: 30 }), // 75 + 30 = 105 > 100
-    }
-    expect(isOverflowForItemGroup(items, 'carbs', context)).toBe(true)
   })
 })

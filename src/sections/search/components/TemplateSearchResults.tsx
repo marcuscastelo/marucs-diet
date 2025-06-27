@@ -1,6 +1,5 @@
 import { type Accessor, For, type Setter } from 'solid-js'
 
-import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { getRecipePreparedQuantity } from '~/modules/diet/recipe/domain/recipeOperations'
 import { templateToUnifiedItem } from '~/modules/diet/template/application/templateToItem'
 import {

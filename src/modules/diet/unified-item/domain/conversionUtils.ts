@@ -10,6 +10,7 @@ import {
 
 /**
  * Converts an Item to a UnifiedItem (food reference).
+ * @deprecated
  * @param item Item
  * @returns UnifiedItem
  */
@@ -25,6 +26,7 @@ export function itemToUnifiedItem(item: Item): UnifiedItem {
 /**
  * Converts a UnifiedItem to an Item.
  * For food items, uses the stored macros (per 100g) from reference. For non-food items, uses zero macros.
+ * @deprecated
  * @param unified UnifiedItem
  * @returns Item
  */
@@ -44,6 +46,7 @@ export function unifiedItemToItem(unified: UnifiedItem): Item {
 /**
  * Converts a SimpleItemGroup or RecipedItemGroup to a UnifiedItem.
  * Creates a recipe reference if the group has a recipe field, otherwise creates a group reference.
+ * @deprecated
  * @param group ItemGroup
  * @returns UnifiedItem
  */
@@ -113,7 +116,7 @@ export function isRecipeUnifiedItemManuallyEdited(
       childItem.reference.id !== originalItem.reference ||
       childItem.quantity !== originalItem.quantity
     ) {
-      return true
+      return true // TODO: Consider proportional differences instead of absolute equality
     }
   }
 

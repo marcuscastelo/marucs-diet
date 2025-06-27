@@ -4,7 +4,6 @@ import {
   type LegacyMeal,
   migrateLegacyMealsToUnified,
   migrateLegacyMealToUnified,
-  migrateUnifiedMealsToLegacy,
   migrateUnifiedMealToLegacy,
 } from '~/modules/diet/day-diet/infrastructure/migrationUtils'
 import { createItem } from '~/modules/diet/item/domain/item'
@@ -276,27 +275,6 @@ describe('infrastructure migration utils', () => {
       expect(result[1]?.name).toBe('Jantar')
       expect(result[0]?.items).toHaveLength(1)
       expect(result[1]?.items).toHaveLength(1)
-    })
-  })
-
-  describe('migrateUnifiedMealsToLegacy', () => {
-    it('converts an array of unified meals', () => {
-      const unifiedMeals = [
-        baseUnifiedMeal,
-        makeUnifiedMeal(2, 'Jantar', [
-          makeUnifiedItemFromItem(makeItem(2, 'Carne')),
-        ]),
-      ]
-
-      const result = migrateUnifiedMealsToLegacy(unifiedMeals)
-
-      expect(result).toHaveLength(2)
-      expect(result[0]?.name).toBe('Almoço')
-      expect(result[1]?.name).toBe('Jantar')
-      expect(result[0]?.groups).toHaveLength(1)
-      expect(result[1]?.groups).toHaveLength(1)
-      expect(result[0]?.groups[0]?.items[0]?.name).toBe('Arroz')
-      expect(result[1]?.groups[0]?.items[0]?.name).toBe('Carne')
     })
   })
 

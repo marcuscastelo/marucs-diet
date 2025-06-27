@@ -1,7 +1,3 @@
-/**
- * @fileoverview Field transform utilities for form validation and conversion
- */
-
 import { dateToString, stringToDate } from '~/shared/utils/date'
 
 export type FieldTransform<T> = {
