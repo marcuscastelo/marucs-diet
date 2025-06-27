@@ -12,20 +12,20 @@ import { Alert } from '~/sections/common/components/Alert'
 import { RemoveFromRecentButton } from '~/sections/common/components/buttons/RemoveFromRecentButton'
 import { UnifiedItemFavorite } from '~/sections/unified-item/components/UnifiedItemFavorite'
 import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
+import { createDebug } from '~/shared/utils/createDebug'
+
+const debug = createDebug()
 
 export function TemplateSearchResults(props: {
   search: string
   filteredTemplates: readonly Template[]
-  setSelectedTemplate: (food: Template | undefined) => void
+  setSelectedTemplate: (template: Template | undefined) => void
   EANModalVisible: Accessor<boolean>
   setEANModalVisible: Setter<boolean>
   itemEditModalVisible: Accessor<boolean>
   setItemEditModalVisible: Setter<boolean>
   refetch: (info?: unknown) => unknown
 }) {
-  // Rounding factor for recipe display quantity
-  const RECIPE_ROUNDING_FACTOR = 50
-
   return (
     <>
       {props.filteredTemplates.length === 0 && (
@@ -47,21 +47,22 @@ export function TemplateSearchResults(props: {
                 return 100 // Standard 100g for foods
               } else {
                 // For recipes, show the prepared quantity rounded to nearest RECIPE_ROUNDING_FACTOR
-                const recipe = template as Recipe
+                const recipe = template
+                debug('recipe', recipe)
                 const preparedQuantity = getRecipePreparedQuantity(recipe)
-                return Math.max(
-                  RECIPE_ROUNDING_FACTOR,
-                  Math.round(preparedQuantity / RECIPE_ROUNDING_FACTOR) *
-                    RECIPE_ROUNDING_FACTOR,
-                )
+                debug('recipe.preparedQuantity', preparedQuantity)
+                return preparedQuantity
               }
             }
 
             const displayQuantity = getDisplayQuantity()
 
             // Convert template to UnifiedItem using shared utility
-            const createUnifiedItemFromTemplate = () =>
-              templateToUnifiedItem(template, displayQuantity)
+            const createUnifiedItemFromTemplate = () => {
+              const result = templateToUnifiedItem(template, displayQuantity)
+              debug('createUnifiedItemFromTemplate', result)
+              return result
+            }
 
             return (
               <>

@@ -1,12 +1,8 @@
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
-import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
-import {
-  isTemplateItem,
-  type TemplateItem,
-} from '~/modules/diet/template-item/domain/templateItem'
+import { isTemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { itemToUnifiedItem } from '~/modules/diet/unified-item/domain/conversionUtils'
 import {
   isFoodItem,
@@ -16,7 +12,7 @@ import {
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 export function calcItemContainerMacros<
-  T extends { items: readonly TemplateItem[] },
+  T extends { items: readonly UnifiedItem[] },
 >(container: T): MacroNutrients {
   return container.items.reduce(
     (acc, item) => {

@@ -1,11 +1,15 @@
 import { type Accessor, type Setter } from 'solid-js'
 
+import { getRecipePreparedQuantity } from '~/modules/diet/recipe/domain/recipeOperations'
 import { createUnifiedItemFromTemplate } from '~/modules/diet/template/application/createGroupFromTemplate'
 import {
-  templateToItem,
+  DEFAULT_QUANTITY,
   templateToUnifiedItem,
 } from '~/modules/diet/template/application/templateToItem'
-import { type Template } from '~/modules/diet/template/domain/template'
+import {
+  isTemplateRecipe,
+  type Template,
+} from '~/modules/diet/template/domain/template'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { showError } from '~/modules/toast/application/toastManager'
@@ -13,7 +17,6 @@ import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { formatError } from '~/shared/formatError'
-import { convertTemplateItemToUnifiedItem } from '~/shared/utils/itemViewConversion'
 
 export type ExternalTemplateToUnifiedItemModalProps = {
   visible: Accessor<boolean>
@@ -30,6 +33,12 @@ export function ExternalTemplateToUnifiedItemModal(
   props: ExternalTemplateToUnifiedItemModalProps,
 ) {
   const template = () => props.selectedTemplate()
+  const initialQuantity = () => {
+    const template_ = template()
+    return isTemplateRecipe(template_)
+      ? getRecipePreparedQuantity(template_)
+      : DEFAULT_QUANTITY
+  }
 
   const handleApply = (templateItem: TemplateItem) => {
     const { unifiedItem } = createUnifiedItemFromTemplate(
@@ -47,7 +56,7 @@ export function ExternalTemplateToUnifiedItemModal(
     <ModalContextProvider visible={props.visible} setVisible={props.setVisible}>
       <UnifiedItemEditModal
         targetMealName={props.targetName}
-        item={() => templateToUnifiedItem(template(), 100)}
+        item={() => templateToUnifiedItem(template(), initialQuantity())}
         macroOverflow={() => ({ enable: true })}
         onApply={handleApply}
       />

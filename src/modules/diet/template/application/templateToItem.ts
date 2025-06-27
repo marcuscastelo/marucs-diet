@@ -7,14 +7,12 @@ import {
   type Template,
 } from '~/modules/diet/template/domain/template'
 import { TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
-import {
-  createUnifiedItem,
-  type UnifiedItem,
-} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import { itemToUnifiedItem } from '~/modules/diet/unified-item/domain/conversionUtils'
+import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { generateId } from '~/shared/utils/idUtils'
 import { calcRecipeMacros } from '~/shared/utils/macroMath'
 
-const DEFAULT_QUANTITY = 100
+export const DEFAULT_QUANTITY = 100
 
 /**
  * Converts a Template (FoodTemplate or RecipeTemplate) to an Item or RecipeItem for use in item groups.
@@ -98,6 +96,12 @@ export function templateToUnifiedItem(
     id: generateId(),
     name: template.name,
     quantity: desiredQuantity,
-    reference: { type: 'recipe', id: template.id, children: [] },
+    reference: {
+      type: 'recipe',
+      id: template.id,
+      children: template.items.map((item) => {
+        return itemToUnifiedItem(item)
+      }),
+    },
   })
 }
