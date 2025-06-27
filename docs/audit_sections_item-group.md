@@ -1,35 +1,32 @@
 # Sections Audit – Item-Group Section
 
-_Last updated: 2025-06-19_
+_Last updated: 2025-06-27_
 
 ## Overview
-This audit reviews the `item-group` section UI components, focusing on separation of concerns, code duplication, and DDD alignment.
+The item-group section now exclusively uses the unified item system. All legacy item-group view/edit components, context providers, and related utilities have been removed. The codebase now relies on unified components and shared utilities for all item, group, and recipe flows.
 
-## Migration to Unified System (Completed)
-**Major architectural change completed:** All item-group specific view/edit components have been successfully migrated to the unified system:
-- **Removed:** `ItemGroupView` and all item-group specific wrappers and helper components
-- **Removed:** Item-group specific context providers and state management
-- **Removed:** Duplicate clipboard, schema validation, and ID regeneration logic that was scattered across multiple components
-- **Migrated:** All item-group functionality now flows through `UnifiedItemView`, `UnifiedItemEditModal`, and `UnifiedItemListView`
-- **Improved:** Consistent type conversion through `itemGroupToUnifiedItem` utility centralizes business logic
-
-This migration has eliminated the significant code duplication that existed between item-group and other edit modals (meal, recipe) by providing a single, unified approach to handling all item types.
+## Unified System Migration (Completed)
+- **Removed:** All legacy item-group view/edit components, wrappers, and context providers
+- **Migrated:** All item-group flows now use unified item types and shared conversion utilities
+- **Centralized:** Validation, macro overflow, and clipboard logic are now handled in unified utilities and components
+- **Improved:** Type safety and maintainability through shared conversion utilities and type guards
+- **Test Coverage:** All tests now use unified item factories and conversion utilities
 
 ## Key Findings
-- **Duplication Eliminated:** The unified system migration has resolved the major duplication issues (clipboard logic, schema validation, ID regeneration) that previously existed across item-group and other edit modals.
-- **Business Logic Centralization:** Domain logic (group operations, ID regeneration, overflow checks) is now better centralized in the unified components rather than scattered across UI components.
-- **Legacy Utility Reduction:** The migration has reduced reliance on legacy utilities (`regenerateId`, `deepCopy`, `macroOverflow`) by centralizing this logic in the unified system.
-- **Component Boundaries:** The unified system provides clearer component boundaries and better separation of concerns.
+- **Duplication Eliminated:** No more duplication between item-group and other sections
+- **Business Logic Centralization:** All business logic is now centralized in unified components and utilities
+- **Legacy Utility Reduction:** Remaining legacy utility usage is isolated and scheduled for migration
+- **Component Boundaries:** Clearer boundaries and reduced prop drilling
 
 ## Urgency
-- **Low:** Monitor unified system performance for item-group specific use cases and optimize if needed.
+- **Low:** Monitor unified system performance and optimize as needed
 
 ## Next Steps
-- [ ] Monitor unified system performance for item-group specific operations.
-- [ ] Continue reducing any remaining legacy utility usage through the unified system.
-- [ ] Review and improve test coverage for item-group functionality in the unified system.
+- [ ] Monitor unified system performance for item-group specific use cases
+- [ ] Continue replacing any remaining legacy utility usage
+- [ ] Review and improve test coverage for the unified system integration
 
 ## Future Refinement Suggestions
-- Monitor usage patterns in the unified system and consider item-group specific optimizations if needed.
-- Expand audit to cover context usage and state management patterns in the unified system.
-- Continue strengthening boundaries between UI, application, and domain layers.
+- Monitor usage patterns and consider further optimizations as needed
+- Audit context usage and state management in the unified system
+- Continue strengthening boundaries between UI, application, and domain layers
