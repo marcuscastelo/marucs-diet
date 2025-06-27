@@ -31,6 +31,7 @@ import {
 } from '~/sections/meal/components/MealEditView'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
+import { createDebug } from '~/shared/utils/createDebug'
 import { stringToDate } from '~/shared/utils/date'
 
 type EditSelection = {
@@ -41,6 +42,8 @@ type EditSelection = {
 type NewItemSelection = {
   meal: Meal
 } | null
+
+const debug = createDebug()
 
 const [editSelection, setEditSelection] = createSignal<EditSelection>(null)
 
@@ -69,7 +72,6 @@ export default function DayMeals(props: {
   const [showConfirmEdit, setShowConfirmEdit] = createSignal(false)
 
   const handleEditUnifiedItem = (meal: Meal, item: UnifiedItem) => {
-    // Always open the modal for any mode, but UnifiedItemEditModal will respect the mode prop
     setEditSelection({ meal, item })
     setUnifiedItemEditModalVisible(true)
   }
@@ -253,17 +255,21 @@ function ExternalUnifiedItemEditModal(props: {
               const dayDate = stringToDate(day.target_day)
               const macroTarget = getMacroTargetForDay(dayDate)
 
+              let macroOverflow
               if (!macroTarget) {
-                return {
+                macroOverflow = {
                   enable: false,
                   originalItem: undefined,
                 }
+              } else {
+                macroOverflow = {
+                  enable: true,
+                  originalItem: editSelection().item,
+                }
               }
 
-              return {
-                enable: true,
-                originalItem: editSelection().item,
-              }
+              debug('macroOverflow:', macroOverflow)
+              return macroOverflow
             }}
             onApply={(item) => {
               void updateUnifiedItem(
@@ -278,9 +284,6 @@ function ExternalUnifiedItemEditModal(props: {
               props.setVisible(false)
             }}
             onCancel={() => {
-              console.warn(
-                '[DayMeals] (<UnifiedItemEditModal/>) onCancel called!',
-              )
               setEditSelection(null)
               props.setVisible(false)
             }}

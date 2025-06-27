@@ -105,7 +105,6 @@ export type UnifiedItemEditBodyProps = {
 }
 
 export function UnifiedItemEditBody(props: UnifiedItemEditBodyProps) {
-  // Cálculo do restante disponível de macros
   function getAvailableMacros(): MacroValues {
     debug('getAvailableMacros')
     const dayDiet = currentDayDiet()
