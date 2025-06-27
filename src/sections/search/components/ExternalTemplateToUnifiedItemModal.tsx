@@ -47,12 +47,7 @@ export function ExternalTemplateToUnifiedItemModal(
     <ModalContextProvider visible={props.visible} setVisible={props.setVisible}>
       <UnifiedItemEditModal
         targetMealName={props.targetName}
-        item={() =>
-          convertTemplateItemToUnifiedItem(
-            templateToUnifiedItem(template(), 100),
-            template(),
-          )
-        } // Start with default 100g
+        item={() => templateToUnifiedItem(template(), 100)}
         macroOverflow={() => ({ enable: true })}
         onApply={handleApply}
       />
