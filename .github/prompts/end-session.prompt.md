@@ -1,7 +1,7 @@
 ---
 description: 'Summarize all new learnings from the session and suggest clear, actionable improvements for prompts and instructions. Output files must include the agent (reportedBy) responsible for the suggestions in the filename and at the top of the file. The reportedBy field and filename must always match the agent that actually produced the content. If multiple agents suggest improvements, create multiple files.'
 mode: 'agent'
-tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest']
+tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest', 'memory']
 ---
 
 # End-Session Summary Agent
@@ -16,6 +16,7 @@ At the end of a session, your task is to:
      - Clarifications or updates to coding conventions.
      - Changes or additions to process or tool usage.
    - Avoid repeating learnings already summarized in previous sessions.
+   - **Use memory tools to save all learnings as entities, observations, and relations.**
 
 2. **Suggest Improvements**  
    - Propose clear, actionable improvements to the prompts and instructions used at session start.
@@ -31,6 +32,7 @@ At the end of a session, your task is to:
 - Use concise, precise English.
 - If no new learnings or improvements are identified, explicitly state so.
 - Do not include code or implementation details; focus on meta-level insights.
+- **All learnings must be saved to memory as entities, observations, and relations using memory tools.**
 
 ## Output
 
