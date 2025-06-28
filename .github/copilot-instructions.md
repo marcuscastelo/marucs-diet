@@ -13,6 +13,15 @@ This disables pagers for all git and gh commands, preventing interactive output 
 
 ---
 
+# Barrel File Ban
+
+- Barrel index.ts files (files that re-export multiple modules from a directory) are strictly forbidden in this codebase.
+- Do not create, update, or use barrel files (e.g., `index.ts` that only re-exports other files).
+- All imports must be direct, absolute imports from the specific file, never from a directory index.
+- This rule is enforced for all code, including tests and utilities.
+
+---
+
 Follow these steps for each interaction:
 
 1. User Identification:

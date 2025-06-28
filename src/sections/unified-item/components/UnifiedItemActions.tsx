@@ -2,11 +2,9 @@ import { type Accessor, Show } from 'solid-js'
 
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { ContextMenu } from '~/sections/common/components/ContextMenu'
-import {
-  ContextMenuCopyItem,
-  ContextMenuDeleteItem,
-  ContextMenuEditItem,
-} from '~/sections/common/components/contextMenuItems'
+import { ContextMenuCopyItem } from '~/sections/common/components/contextMenuItems/ContextMenuCopyItem'
+import { ContextMenuDeleteItem } from '~/sections/common/components/contextMenuItems/ContextMenuDeleteItem'
+import { ContextMenuEditItem } from '~/sections/common/components/contextMenuItems/ContextMenuEditItem'
 import { MoreVertIcon } from '~/sections/common/components/icons/MoreVertIcon'
 import { createEventHandler } from '~/sections/unified-item/utils/unifiedItemDisplayUtils'
 

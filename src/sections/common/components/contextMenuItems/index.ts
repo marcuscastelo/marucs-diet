@@ -1,6 +1,0 @@
-export type { ContextMenuCopyItemProps } from '~/sections/common/components/contextMenuItems/ContextMenuCopyItem'
-export { ContextMenuCopyItem } from '~/sections/common/components/contextMenuItems/ContextMenuCopyItem'
-export type { ContextMenuDeleteItemProps } from '~/sections/common/components/contextMenuItems/ContextMenuDeleteItem'
-export { ContextMenuDeleteItem } from '~/sections/common/components/contextMenuItems/ContextMenuDeleteItem'
-export type { ContextMenuEditItemProps } from '~/sections/common/components/contextMenuItems/ContextMenuEditItem'
-export { ContextMenuEditItem } from '~/sections/common/components/contextMenuItems/ContextMenuEditItem'
