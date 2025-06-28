@@ -148,6 +148,64 @@ const makeRecipe = (items: Item[], preparedMultiplier = 1): Recipe => {  // Line
 - Add tests for conversion utilities (UnifiedItem[] ↔ Item[])
 - Keep some legacy tests for backward compatibility
 
+## Migration Progress Status
+
+### ✅ Completed Steps
+
+#### Step 1: Domain Model Changes
+- ✅ Added UnifiedRecipe and NewUnifiedRecipe types with UnifiedItem[] arrays
+- ✅ Added schema validation for UnifiedItem[] recipes
+- ✅ Created factory functions for UnifiedRecipe operations
+- ✅ Maintained backward compatibility with existing Recipe/NewRecipe types
+
+#### Step 2: Domain Operations
+- ✅ Created unifiedRecipeOperations.ts with complete UnifiedItem[] recipe operations
+- ✅ All operations mirror existing Item[] operations but work with UnifiedItem[]
+- ✅ Added scaling, calculations, and manipulation functions
+
+#### Step 3: Infrastructure Layer  
+- ✅ Created UnifiedRecipeRepository interface
+- ✅ Implemented supabaseUnifiedRecipeRepository with automatic conversion
+- ✅ Created unifiedRecipe application service
+- ✅ All infrastructure automatically converts UnifiedItem[] ↔ Item[] for DB operations
+
+#### Step 4: Testing
+- ✅ Added comprehensive unifiedRecipeOperations.test.ts (16 test cases)
+- ✅ Verified all UnifiedItem[] recipe operations work correctly
+- ✅ Tested edge cases and error handling
+- ✅ All tests pass, validating the implementation
+
+### 🚧 In Progress
+
+#### Step 5: UI Layer Migration
+- 🔄 Update RecipeEditView to use UnifiedRecipe and UnifiedItem[] operations
+- 🔄 Remove manual conversion from Item[] to UnifiedItem[] in UI
+- 🔄 Update GroupChildrenEditor to work with UnifiedRecipe directly
+
+#### Step 6: Utility Updates
+- 🔄 Update macro calculation utilities to work transparently with UnifiedItem[]
+- 🔄 Update conversion utilities to work with UnifiedRecipe
+
+### 📋 Remaining Steps
+
+#### Step 7: Complete Migration
+- ⏳ Update all Recipe usages in application layer to use UnifiedRecipe
+- ⏳ Add migration documentation for developers
+- ⏳ Update any remaining references to legacy Item[] recipes
+
+#### Step 8: Validation and Cleanup
+- ⏳ Run full integration tests to ensure UI works end-to-end
+- ⏳ Validate that database persistence still works correctly
+- ⏳ Clean up any unused code or temporary compatibility layers
+
+### Current State
+The Recipe entity now supports both legacy Item[] and new UnifiedItem[] operations:
+- **Database**: Still stores Item[] format for compatibility ✅
+- **In-Memory**: Can use UnifiedItem[] for all operations ✅  
+- **Conversion**: Automatic conversion between formats ✅
+- **Operations**: Full UnifiedItem[] recipe operations available ✅
+- **UI**: Still uses legacy Item[] operations (next to migrate) 🚧
+
 ## Migration Priority Order
 
 1. **Step 1**: Domain model changes (Recipe type, operations)

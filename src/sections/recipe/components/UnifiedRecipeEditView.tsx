@@ -1,31 +1,25 @@
-// TODO:   Unify Recipe and Recipe components into a single component?
-
 import { type Accessor, type JSXElement, type Setter } from 'solid-js'
 import { z } from 'zod'
 
-import { itemSchema } from '~/modules/diet/item/domain/item'
 import {
   convertToGroups,
   type GroupConvertible,
 } from '~/modules/diet/item-group/application/itemGroupService'
 import { itemGroupSchema } from '~/modules/diet/item-group/domain/itemGroup'
 import { mealSchema } from '~/modules/diet/meal/domain/meal'
-import { type Recipe, recipeSchema } from '~/modules/diet/recipe/domain/recipe'
+import { type UnifiedRecipe } from '~/modules/diet/recipe/domain/recipe'
 import {
-  addItemsToRecipe,
-  clearRecipeItems,
-  removeItemFromRecipe,
-  updateRecipeName,
-  updateRecipePreparedMultiplier,
-} from '~/modules/diet/recipe/domain/recipeOperations'
+  addUnifiedItemsToRecipe,
+  clearUnifiedRecipeItems,
+  removeUnifiedItemFromRecipe,
+  updateUnifiedRecipeName,
+  updateUnifiedRecipePreparedMultiplier,
+} from '~/modules/diet/recipe/domain/unifiedRecipeOperations'
 import {
   isTemplateItem,
   type TemplateItem,
 } from '~/modules/diet/template-item/domain/templateItem'
-import {
-  itemToUnifiedItem,
-  unifiedItemToItem,
-} from '~/modules/diet/unified-item/domain/conversionUtils'
+import { itemToUnifiedItem } from '~/modules/diet/unified-item/domain/conversionUtils'
 import {
   type UnifiedItem,
   unifiedItemSchema,
@@ -37,66 +31,40 @@ import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalCo
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { useFloatField } from '~/sections/common/hooks/useField'
-import { useRecipeEditContext } from '~/sections/recipe/context/RecipeEditContext'
+import { useUnifiedRecipeEditContext } from '~/sections/recipe/context/RecipeEditContext'
 import { UnifiedItemListView } from '~/sections/unified-item/components/UnifiedItemListView'
 import { regenerateId } from '~/shared/utils/idUtils'
-import { calcRecipeCalories } from '~/shared/utils/macroMath'
+import { calcUnifiedRecipeCalories } from '~/shared/utils/macroMath'
 
-export type RecipeEditViewProps = {
-  recipe: Accessor<Recipe>
-  setRecipe: Setter<Recipe>
-  onSaveRecipe: (recipe: Recipe) => void
+export type UnifiedRecipeEditViewProps = {
+  recipe: Accessor<UnifiedRecipe>
+  setRecipe: Setter<UnifiedRecipe>
+  onSaveRecipe: (recipe: UnifiedRecipe) => void
   header?: JSXElement
   content?: JSXElement
-  footer?: JSXElement
-  className?: string
+  onNewItem: () => void
+  onEditItem: (item: TemplateItem) => void
+  onUpdateRecipe: (recipe: UnifiedRecipe) => void
 }
 
-// TODO:   Reenable drag and drop
-// a little function to help us with reordering the result
-// const reorder = (list: unknown[], startIndex: number, endIndex: number) => {
-//   const result = Array.from(list)
-//   const [removed] = result.splice(startIndex, 1)
-//   result.splice(endIndex, 0, removed)
-
-//   return result
-// }
-
-// export default function RecipeEditView(props: RecipeEditViewProps) {
-//   // TODO:   implement setRecipe
-//   return (
-//     <div class={cn('p-3', props.className)}>
-//       <RecipeEditContextProvider
-//         recipe={props.recipe}
-//         setRecipe={props.setRecipe}
-//         onSaveRecipe={props.onSaveRecipe}
-//       >
-//         {props.header}
-//         {props.content}
-//         {props.footer}
-//       </RecipeEditContextProvider>
-//     </div>
-//   )
-// }
-
-export function RecipeEditHeader(props: {
-  onUpdateRecipe: (Recipe: Recipe) => void
-}) {
+export function UnifiedRecipeEditView(props: UnifiedRecipeEditViewProps) {
   const { show: showConfirmModal } = useConfirmModalContext()
+  const clipboard = useClipboard()
 
-  const acceptedClipboardSchema = mealSchema
-    .or(itemGroupSchema)
-    .or(itemSchema)
-    .or(recipeSchema)
-    .or(unifiedItemSchema)
-    .or(z.array(unifiedItemSchema))
+  const { recipe, setRecipe } = props
 
-  const { recipe } = useRecipeEditContext()
+  const acceptedClipboardSchema = z.union([
+    unifiedItemSchema,
+    unifiedItemSchema.array(),
+    itemGroupSchema,
+    itemGroupSchema.array(),
+    mealSchema,
+  ])
 
   const { handleCopy, handlePaste, hasValidPastableOnClipboard } =
     useCopyPasteActions({
       acceptedClipboardSchema,
-      getDataToCopy: () => recipe(),
+      getDataToCopy: () => [...recipe().items],
       onPaste: (data) => {
         // Helper function to check if an object is a UnifiedItem
         const isUnifiedItem = (obj: unknown): obj is UnifiedItem => {
@@ -112,9 +80,8 @@ export function RecipeEditHeader(props: {
         if (Array.isArray(data) && data.every(isUnifiedItem)) {
           const itemsToAdd = data
             .filter((item) => item.reference.type === 'food') // Only food items in recipes
-            .map((item) => unifiedItemToItem(item))
             .map((item) => regenerateId(item))
-          const newRecipe = addItemsToRecipe(recipe(), itemsToAdd)
+          const newRecipe = addUnifiedItemsToRecipe(recipe(), itemsToAdd)
           props.onUpdateRecipe(newRecipe)
           return
         }
@@ -122,9 +89,10 @@ export function RecipeEditHeader(props: {
         // Check if data is single UnifiedItem
         if (isUnifiedItem(data)) {
           if (data.reference.type === 'food') {
-            const item = unifiedItemToItem(data)
-            const regeneratedItem = regenerateId(item)
-            const newRecipe = addItemsToRecipe(recipe(), [regeneratedItem])
+            const regeneratedItem = regenerateId(data)
+            const newRecipe = addUnifiedItemsToRecipe(recipe(), [
+              regeneratedItem,
+            ])
             props.onUpdateRecipe(newRecipe)
           }
           return
@@ -137,27 +105,29 @@ export function RecipeEditHeader(props: {
             ...g,
             items: g.items.map((item) => regenerateId(item)),
           }))
-        const itemsToAdd = groupsToAdd.flatMap((g) => g.items)
-        const newRecipe = addItemsToRecipe(recipe(), itemsToAdd)
+        // Convert Items to UnifiedItems using conversion utility
+        const unifiedItemsToAdd = groupsToAdd
+          .flatMap((g) => g.items)
+          .map((item) => itemToUnifiedItem(item))
+        const newRecipe = addUnifiedItemsToRecipe(recipe(), unifiedItemsToAdd)
         props.onUpdateRecipe(newRecipe)
       },
     })
 
-  const recipeCalories = calcRecipeCalories(recipe())
+  const recipeCalories = calcUnifiedRecipeCalories(recipe())
 
   const onClearItems = (e: MouseEvent) => {
     e.preventDefault()
     showConfirmModal({
       title: 'Limpar itens',
-      body: 'Tem certeza que deseja limpar os itens?',
+      body: 'Tem certeza que deseja remover todos os itens da receita?',
       actions: [
         { text: 'Cancelar', onClick: () => undefined },
         {
-          text: 'Excluir todos os itens',
+          text: 'Limpar',
           primary: true,
           onClick: () => {
-            const newRecipe = clearRecipeItems(recipe())
-            props.onUpdateRecipe(newRecipe)
+            setRecipe(clearUnifiedRecipeItems(recipe()))
           },
         },
       ],
@@ -165,37 +135,25 @@ export function RecipeEditHeader(props: {
   }
 
   return (
-    <div class="flex">
-      <div class="my-2">
-        <h5 class="text-3xl text-blue-500">{recipe().name}</h5>
-        <p class="italic text-gray-400">{recipeCalories.toFixed(0)}kcal</p>
-      </div>
+    <div class="flex flex-col gap-2 w-full">
+      {props.header}
       <ClipboardActionButtons
-        canCopy={!hasValidPastableOnClipboard() && recipe().items.length > 0}
+        canCopy={recipe().items.length > 0}
         canPaste={hasValidPastableOnClipboard()}
         canClear={recipe().items.length > 0}
         onCopy={handleCopy}
         onPaste={handlePaste}
         onClear={onClearItems}
       />
-    </div>
-  )
-}
-
-export function RecipeEditContent(props: {
-  onEditItem: (item: TemplateItem) => void
-  onNewItem: () => void
-}) {
-  const { recipe, setRecipe } = useRecipeEditContext()
-  const clipboard = useClipboard()
-
-  return (
-    <>
+      <NameInput />
       <input
-        class="input w-full"
+        name="recipe-name"
         type="text"
-        onChange={(e) => {
-          setRecipe(updateRecipeName(recipe(), e.target.value))
+        class="input w-full text-lg font-medium text-center"
+        placeholder="Nome da receita"
+        onInput={(e) => {
+          const newRecipe = updateUnifiedRecipeName(recipe(), e.target.value)
+          setRecipe(newRecipe)
         }}
         onFocus={(e) => {
           e.target.select()
@@ -203,7 +161,7 @@ export function RecipeEditContent(props: {
         value={recipe().name}
       />
       <UnifiedItemListView
-        items={() => recipe().items.map(itemToUnifiedItem)}
+        items={() => [...recipe().items]}
         mode="edit"
         handlers={{
           onEdit: (unifiedItem: UnifiedItem) => {
@@ -217,9 +175,7 @@ export function RecipeEditContent(props: {
             clipboard.write(JSON.stringify(unifiedItem))
           },
           onDelete: (unifiedItem: UnifiedItem) => {
-            // Convert back to Item for the legacy operation
-            const item = unifiedItemToItem(unifiedItem)
-            setRecipe(removeItemFromRecipe(recipe(), item.id))
+            setRecipe(removeUnifiedItemFromRecipe(recipe(), unifiedItem.id))
           },
         }}
       />
@@ -237,7 +193,7 @@ export function RecipeEditContent(props: {
             )}
             preparedMultiplier={recipe().prepared_multiplier}
             onPreparedQuantityChange={({ newMultiplier }) => {
-              const newRecipe = updateRecipePreparedMultiplier(
+              const newRecipe = updateUnifiedRecipePreparedMultiplier(
                 recipe(),
                 newMultiplier(),
               )
@@ -248,34 +204,61 @@ export function RecipeEditContent(props: {
           <div class="text-gray-400 ml-1">Peso (pronto)</div>
         </div>
         <div class="flex flex-col">
-          <PreparedMultiplier />
-          <div class="text-gray-400 ml-1">Mult.</div>
+          <div class="input px-0 pl-5 text-md flex items-center justify-center">
+            {recipeCalories.toFixed(0)} kcal
+          </div>
+          <div class="text-gray-400 ml-1">Calorias</div>
         </div>
       </div>
-    </>
+      <div class="flex justify-between gap-2">
+        <div class="flex flex-col">
+          <PreparedMultiplier />
+          <div class="text-gray-400 ml-1">Multiplicador</div>
+        </div>
+      </div>
+      {props.content}
+    </div>
   )
 }
 
 function AddNewItemButton(props: { onClick: () => void }) {
   return (
     <button
-      class="mt-3 min-w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-      onClick={() => {
-        props.onClick()
-      }}
+      type="button"
+      class="btn btn-outline w-full"
+      onClick={props.onClick}
     >
       Adicionar item
     </button>
   )
 }
 
+function NameInput() {
+  const { recipe, setRecipe } = useUnifiedRecipeEditContext()
+
+  return (
+    <input
+      name="recipe-name"
+      type="text"
+      class="input w-full text-lg font-medium text-center"
+      placeholder="Nome da receita"
+      onInput={(e) => {
+        const newRecipe = updateUnifiedRecipeName(recipe(), e.target.value)
+        setRecipe(newRecipe)
+      }}
+      onFocus={(e) => {
+        e.target.select()
+      }}
+      value={recipe().name}
+    />
+  )
+}
+
 function RawQuantity() {
-  const { recipe } = useRecipeEditContext()
+  const { recipe } = useUnifiedRecipeEditContext()
 
   const rawQuantity = () =>
-    recipe().items.reduce((acc, item) => {
-      return acc + item.quantity
-    }, 0)
+    recipe().items.reduce((acc, item) => acc + item.quantity, 0)
 
   const rawQuantityField = useFloatField(rawQuantity, {
     decimalPlaces: 0,
@@ -294,7 +277,7 @@ function RawQuantity() {
 }
 
 function PreparedMultiplier() {
-  const { recipe, setRecipe } = useRecipeEditContext()
+  const { recipe, setRecipe } = useUnifiedRecipeEditContext()
 
   const preparedMultiplier = () => recipe().prepared_multiplier
 
@@ -312,7 +295,7 @@ function PreparedMultiplier() {
           event.target.select()
         }}
         onFieldCommit={(newMultiplier) => {
-          const newRecipe = updateRecipePreparedMultiplier(
+          const newRecipe = updateUnifiedRecipePreparedMultiplier(
             recipe(),
             newMultiplier ?? 1,
           )

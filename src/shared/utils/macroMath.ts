@@ -1,7 +1,10 @@
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
-import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import {
+  type Recipe,
+  type UnifiedRecipe,
+} from '~/modules/diet/recipe/domain/recipe'
 import { isTemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { itemToUnifiedItem } from '~/modules/diet/unified-item/domain/conversionUtils'
 import {
@@ -32,6 +35,12 @@ export function calcRecipeMacros(recipe: Recipe): MacroNutrients {
     items: recipe.items
       .map((item) => itemToUnifiedItem(item))
       .filter((item) => isTemplateItem(item)),
+  })
+}
+
+export function calcUnifiedRecipeMacros(recipe: UnifiedRecipe): MacroNutrients {
+  return calcItemContainerMacros({
+    items: recipe.items.filter((item) => isTemplateItem(item)),
   })
 }
 
@@ -115,6 +124,9 @@ export function calcCalories(macroNutrients: MacroNutrients): number {
 
 export const calcRecipeCalories = (recipe: Recipe) =>
   calcCalories(calcRecipeMacros(recipe))
+
+export const calcUnifiedRecipeCalories = (recipe: UnifiedRecipe) =>
+  calcCalories(calcUnifiedRecipeMacros(recipe))
 
 export const calcUnifiedItemCalories = (item: UnifiedItem) =>
   calcCalories(calcUnifiedItemMacros(item))
