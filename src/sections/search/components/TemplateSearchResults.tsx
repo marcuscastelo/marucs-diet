@@ -1,14 +1,17 @@
 import { type Accessor, For, type Setter, Show } from 'solid-js'
 
+import { deleteRecipe } from '~/modules/diet/recipe/application/recipe'
 import { getRecipePreparedQuantity } from '~/modules/diet/recipe/domain/recipeOperations'
 import { templateToUnifiedItem } from '~/modules/diet/template/application/templateToItem'
 import {
   isTemplateFood,
+  isTemplateRecipe,
   type Template,
 } from '~/modules/diet/template/domain/template'
 import { debouncedTab, templates } from '~/modules/search/application/search'
 import { Alert } from '~/sections/common/components/Alert'
 import { RemoveFromRecentButton } from '~/sections/common/components/buttons/RemoveFromRecentButton'
+import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { SearchLoadingIndicator } from '~/sections/search/components/SearchLoadingIndicator'
 import { UnifiedItemFavorite } from '~/sections/unified-item/components/UnifiedItemFavorite'
 import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
@@ -26,6 +29,7 @@ export function TemplateSearchResults(props: {
   setItemEditModalVisible: Setter<boolean>
   refetch: (info?: unknown) => unknown
 }) {
+  const { show: showConfirmModal } = useConfirmModalContext()
   return (
     <>
       <Show
@@ -86,6 +90,33 @@ export function TemplateSearchResults(props: {
                         props.setItemEditModalVisible(true)
                         props.setEANModalVisible(false)
                       },
+                      onDelete: isTemplateRecipe(template)
+                        ? () => {
+                            showConfirmModal({
+                              title: 'Excluir receita',
+                              body: `Você tem certeza que deseja excluir a receita "${template.name}"?`,
+                              actions: [
+                                {
+                                  text: 'Sim',
+                                  primary: true,
+                                  onClick: () => {
+                                    const refetch = props.refetch
+                                    const setSelectedTemplate =
+                                      props.setSelectedTemplate
+                                    void deleteRecipe(template.id).then(() => {
+                                      refetch()
+                                      setSelectedTemplate(undefined)
+                                    })
+                                  },
+                                },
+                                {
+                                  text: 'Não',
+                                  onClick: () => {},
+                                },
+                              ],
+                            })
+                          }
+                        : undefined,
                     }}
                     primaryActions={
                       <UnifiedItemFavorite foodId={template.id} />
