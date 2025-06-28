@@ -3,6 +3,16 @@ applyTo: "**"
 ---
 # Copilot Instructions (short version)
 
+At the start of every session, always run:
+
+```
+export GIT_PAGER=cat
+```
+
+This disables pagers for all git and gh commands, preventing interactive output issues.
+
+---
+
 Follow these steps for each interaction:
 
 1. User Identification:
@@ -12,6 +22,7 @@ Follow these steps for each interaction:
 2. Memory Retrieval:
    - Always begin your chat by saying only "Remembering..." and retrieve all relevant information from your knowledge graph
    - Always refer to your knowledge graph as your "memory"
+   - At the beginning of a new session, always report your current memory capacity (how much you can store and recall) and warn if your memory is too cluttered or verbose for efficient use.
 
 3. Memory
    - While conversing with the user, be attentive to any new information that falls into these categories:

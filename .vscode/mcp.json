@@ -1,17 +1,20 @@
 {
   "servers": {
-      "memory": {
-        "command": "npx",
-        "args": [
-          "-y",
-          "@modelcontextprotocol/server-memory"
-        ]
-      },
-      "playwright": {
+    "memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
+      "env": {
+        "MEMORY_FILE_PATH": "${workspaceFolder}/memory.jsonl"
+      }
+    },
+    "playwright": {
       "command": "npx",
       "args": [
         "@playwright/mcp@latest"
       ]
     }
-    }
+  }
 }
