@@ -1,6 +1,7 @@
 // TODO:   Unify Recipe and Recipe components into a single component?
 
 import { type Accessor, type JSXElement, type Setter } from 'solid-js'
+import { z } from 'zod'
 
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import {
@@ -17,7 +18,18 @@ import {
   updateRecipeName,
   updateRecipePreparedMultiplier,
 } from '~/modules/diet/recipe/domain/recipeOperations'
-import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import {
+  isTemplateItem,
+  type TemplateItem,
+} from '~/modules/diet/template-item/domain/templateItem'
+import {
+  itemToUnifiedItem,
+  unifiedItemToItem,
+} from '~/modules/diet/unified-item/domain/conversionUtils'
+import {
+  type UnifiedItem,
+  unifiedItemSchema,
+} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { ClipboardActionButtons } from '~/sections/common/components/ClipboardActionButtons'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { PreparedQuantity } from '~/sections/common/components/PreparedQuantity'
@@ -25,12 +37,8 @@ import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalCo
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { useFloatField } from '~/sections/common/hooks/useField'
-import { ItemListView } from '~/sections/food-item/components/ItemListView'
-import {
-  RecipeEditContextProvider,
-  useRecipeEditContext,
-} from '~/sections/recipe/context/RecipeEditContext'
-import { cn } from '~/shared/cn'
+import { useRecipeEditContext } from '~/sections/recipe/context/RecipeEditContext'
+import { UnifiedItemListView } from '~/sections/unified-item/components/UnifiedItemListView'
 import { regenerateId } from '~/shared/utils/idUtils'
 import { calcRecipeCalories } from '~/shared/utils/macroMath'
 
@@ -80,6 +88,8 @@ export function RecipeEditHeader(props: {
     .or(itemGroupSchema)
     .or(itemSchema)
     .or(recipeSchema)
+    .or(unifiedItemSchema)
+    .or(z.array(unifiedItemSchema))
 
   const { recipe } = useRecipeEditContext()
 
@@ -88,6 +98,39 @@ export function RecipeEditHeader(props: {
       acceptedClipboardSchema,
       getDataToCopy: () => recipe(),
       onPaste: (data) => {
+        // Helper function to check if an object is a UnifiedItem
+        const isUnifiedItem = (obj: unknown): obj is UnifiedItem => {
+          return (
+            typeof obj === 'object' &&
+            obj !== null &&
+            '__type' in obj &&
+            obj.__type === 'UnifiedItem'
+          )
+        }
+
+        // Check if data is array of UnifiedItems
+        if (Array.isArray(data) && data.every(isUnifiedItem)) {
+          const itemsToAdd = data
+            .filter((item) => item.reference.type === 'food') // Only food items in recipes
+            .map((item) => unifiedItemToItem(item))
+            .map((item) => regenerateId(item))
+          const newRecipe = addItemsToRecipe(recipe(), itemsToAdd)
+          props.onUpdateRecipe(newRecipe)
+          return
+        }
+
+        // Check if data is single UnifiedItem
+        if (isUnifiedItem(data)) {
+          if (data.reference.type === 'food') {
+            const item = unifiedItemToItem(data)
+            const regeneratedItem = regenerateId(item)
+            const newRecipe = addItemsToRecipe(recipe(), [regeneratedItem])
+            props.onUpdateRecipe(newRecipe)
+          }
+          return
+        }
+
+        // Fallback to legacy conversion
         const groupsToAdd = convertToGroups(data as GroupConvertible)
           .map((group) => regenerateId(group))
           .map((g) => ({
@@ -159,21 +202,23 @@ export function RecipeEditContent(props: {
         }}
         value={recipe().name}
       />
-      <ItemListView
-        items={() => recipe().items}
+      <UnifiedItemListView
+        items={() => recipe().items.map(itemToUnifiedItem)}
         mode="edit"
         handlers={{
-          onEdit: (item) => {
-            if (!item.reference) {
+          onEdit: (unifiedItem: UnifiedItem) => {
+            if (!isTemplateItem(unifiedItem)) {
               console.warn('Item does not have a reference, cannot edit')
               return
             }
-            props.onEditItem(item)
+            props.onEditItem(unifiedItem)
           },
-          onCopy: (item) => {
-            clipboard.write(JSON.stringify(item))
+          onCopy: (unifiedItem: UnifiedItem) => {
+            clipboard.write(JSON.stringify(unifiedItem))
           },
-          onDelete: (item) => {
+          onDelete: (unifiedItem: UnifiedItem) => {
+            // Convert back to Item for the legacy operation
+            const item = unifiedItemToItem(unifiedItem)
             setRecipe(removeItemFromRecipe(recipe(), item.id))
           },
         }}

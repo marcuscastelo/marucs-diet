@@ -3,25 +3,13 @@ import {
   itemToUnifiedItem,
   unifiedItemToItem,
 } from '~/modules/diet/unified-item/domain/conversionUtils'
-import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
-
-/**
- * Application services for item operations using UnifiedItem structure
- */
-
-/**
- * Updates the quantity of an item (legacy compatibility)
- * @deprecated Use updateUnifiedItemQuantity instead
- */
-export function updateItemQuantity(
-  item: Item,
-  quantity: Item['quantity'],
-): Item {
-  return {
-    ...item,
-    quantity,
-  }
-}
+import {
+  createUnifiedItem,
+  isFoodItem,
+  isGroupItem,
+  isRecipeItem,
+  type UnifiedItem,
+} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 /**
  * Updates the quantity of a UnifiedItem
@@ -30,48 +18,44 @@ export function updateUnifiedItemQuantity(
   item: UnifiedItem,
   quantity: UnifiedItem['quantity'],
 ): UnifiedItem {
-  return {
-    ...item,
-    quantity,
+  const quantityFactor = quantity / item.quantity
+
+  if (isFoodItem(item)) {
+    return createUnifiedItem({
+      ...item,
+      quantity,
+      reference: { ...item.reference },
+    })
   }
-}
 
-/**
- * Updates the name of a UnifiedItem
- */
-export function updateUnifiedItemName(
-  item: UnifiedItem,
-  name: UnifiedItem['name'],
-): UnifiedItem {
-  return {
-    ...item,
-    name,
+  if (isRecipeItem(item)) {
+    return createUnifiedItem({
+      ...item,
+      quantity,
+      reference: {
+        ...item.reference,
+        children: item.reference.children.map((child) => ({
+          ...child,
+          quantity: child.quantity * quantityFactor,
+        })),
+      },
+    })
   }
-}
 
-/**
- * Updates the macros of a UnifiedItem
- */
-export function updateUnifiedItemMacros(
-  item: UnifiedItem,
-  macros: UnifiedItem['macros'],
-): UnifiedItem {
-  return {
-    ...item,
-    macros,
+  if (isGroupItem(item)) {
+    return createUnifiedItem({
+      ...item,
+      quantity,
+      reference: {
+        ...item.reference,
+        children: item.reference.children.map((child) => ({
+          ...child,
+          quantity: child.quantity * quantityFactor,
+        })),
+      },
+    })
   }
-}
 
-/**
- * Converts legacy Item to UnifiedItem for application operations
- */
-export function convertItemToUnified(item: Item): UnifiedItem {
-  return itemToUnifiedItem(item)
-}
-
-/**
- * Converts UnifiedItem back to legacy Item (compatibility)
- */
-export function convertUnifiedToItem(item: UnifiedItem): Item {
-  return unifiedItemToItem(item)
+  // Fallback (should never happen)
+  return item satisfies never
 }

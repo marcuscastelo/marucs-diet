@@ -1,0 +1,96 @@
+import { type Item } from '~/modules/diet/item/domain/item'
+import {
+  type NewRecipe,
+  type NewUnifiedRecipe,
+  type Recipe,
+  type UnifiedRecipe,
+} from '~/modules/diet/recipe/domain/recipe'
+import {
+  itemToUnifiedItem,
+  unifiedItemToItem,
+} from '~/modules/diet/unified-item/domain/conversionUtils'
+import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+
+/**
+ * Converts a UnifiedRecipe to a Recipe for database persistence.
+ * Flattens UnifiedItem[] to Item[] (food only) for database compatibility.
+ *
+ * @param unifiedRecipe - The UnifiedRecipe to convert
+ * @returns Recipe with Item[] for database storage
+ */
+export function convertUnifiedRecipeToRecipe(
+  unifiedRecipe: UnifiedRecipe,
+): Recipe {
+  const items: Item[] = unifiedRecipe.items.map(unifiedItemToItem)
+
+  return {
+    id: unifiedRecipe.id,
+    name: unifiedRecipe.name,
+    owner: unifiedRecipe.owner,
+    items,
+    prepared_multiplier: unifiedRecipe.prepared_multiplier,
+    __type: 'Recipe',
+  }
+}
+
+/**
+ * Converts a Recipe to a UnifiedRecipe for in-memory operations.
+ * Converts Item[] to UnifiedItem[] for unified operations.
+ *
+ * @param recipe - The Recipe to convert
+ * @returns UnifiedRecipe with UnifiedItem[] for in-memory operations
+ */
+export function convertRecipeToUnifiedRecipe(recipe: Recipe): UnifiedRecipe {
+  const items: UnifiedItem[] = recipe.items.map(itemToUnifiedItem)
+
+  return {
+    id: recipe.id,
+    name: recipe.name,
+    owner: recipe.owner,
+    items,
+    prepared_multiplier: recipe.prepared_multiplier,
+    __type: 'UnifiedRecipe',
+  }
+}
+
+/**
+ * Converts a NewUnifiedRecipe to a NewRecipe for database persistence.
+ * Flattens UnifiedItem[] to Item[] (food only) for database compatibility.
+ *
+ * @param newUnifiedRecipe - The NewUnifiedRecipe to convert
+ * @returns NewRecipe with Item[] for database storage
+ */
+export function convertNewUnifiedRecipeToNewRecipe(
+  newUnifiedRecipe: NewUnifiedRecipe,
+): NewRecipe {
+  const items: Item[] = newUnifiedRecipe.items.map(unifiedItemToItem)
+
+  return {
+    name: newUnifiedRecipe.name,
+    owner: newUnifiedRecipe.owner,
+    items,
+    prepared_multiplier: newUnifiedRecipe.prepared_multiplier,
+    __type: 'NewRecipe',
+  }
+}
+
+/**
+ * Converts a NewRecipe to a NewUnifiedRecipe for in-memory operations.
+ * Converts Item[] to UnifiedItem[] for unified operations.
+ *
+ * @param newRecipe - The NewRecipe to convert
+ * @returns NewUnifiedRecipe with UnifiedItem[] for in-memory operations
+ */
+export function convertNewRecipeToNewUnifiedRecipe(
+  newRecipe: NewRecipe,
+): NewUnifiedRecipe {
+  const items: UnifiedItem[] = newRecipe.items.map(itemToUnifiedItem)
+
+  return {
+    name: newRecipe.name,
+    owner: newRecipe.owner,
+    items,
+    prepared_multiplier: newRecipe.prepared_multiplier,
+    __type: 'NewUnifiedRecipe',
+  }
+}

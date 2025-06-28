@@ -1,25 +1,25 @@
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
-import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
-import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
-import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
-import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
-
-export function calcItemMacros(item: TemplateItem): MacroNutrients {
-  return {
-    carbs: (item.macros.carbs * item.quantity) / 100,
-    fat: (item.macros.fat * item.quantity) / 100,
-    protein: (item.macros.protein * item.quantity) / 100,
-  }
-}
+import {
+  type Recipe,
+  type UnifiedRecipe,
+} from '~/modules/diet/recipe/domain/recipe'
+import { isTemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import { itemToUnifiedItem } from '~/modules/diet/unified-item/domain/conversionUtils'
+import {
+  isFoodItem,
+  isGroupItem,
+  isRecipeItem,
+  type UnifiedItem,
+} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 export function calcItemContainerMacros<
-  T extends { items: readonly TemplateItem[] },
+  T extends { items: readonly UnifiedItem[] },
 >(container: T): MacroNutrients {
   return container.items.reduce(
     (acc, item) => {
-      const itemMacros = calcItemMacros(item)
+      const itemMacros = calcUnifiedItemMacros(item)
       return {
         carbs: acc.carbs + itemMacros.carbs,
         fat: acc.fat + itemMacros.fat,
@@ -31,26 +31,55 @@ export function calcItemContainerMacros<
 }
 
 export function calcRecipeMacros(recipe: Recipe): MacroNutrients {
-  return calcItemContainerMacros(recipe)
+  return calcItemContainerMacros({
+    items: recipe.items.map((item) => itemToUnifiedItem(item)),
+  })
 }
 
-/**
- * @deprecated should already be in group.macros (check)
- */
-export function calcGroupMacros(group: ItemGroup): MacroNutrients {
-  return calcItemContainerMacros(group)
+export function calcUnifiedRecipeMacros(recipe: UnifiedRecipe): MacroNutrients {
+  return calcItemContainerMacros(recipe)
 }
 
 /**
  * Calculates macros for a UnifiedItem, handling all reference types
  */
 export function calcUnifiedItemMacros(item: UnifiedItem): MacroNutrients {
-  // For UnifiedItems, macros are pre-calculated and stored
-  return {
-    carbs: (item.macros.carbs * item.quantity) / 100,
-    fat: (item.macros.fat * item.quantity) / 100,
-    protein: (item.macros.protein * item.quantity) / 100,
+  if (isFoodItem(item)) {
+    // For food items, calculate proportionally from stored macros in reference
+    return {
+      carbs: (item.reference.macros.carbs * item.quantity) / 100,
+      fat: (item.reference.macros.fat * item.quantity) / 100,
+      protein: (item.reference.macros.protein * item.quantity) / 100,
+    }
+  } else if (isRecipeItem(item) || isGroupItem(item)) {
+    // For recipe and group items, sum the macros from children
+    // The quantity field represents the total prepared amount, not a scaling factor
+    const defaultQuantity = item.reference.children.reduce(
+      (acc, child) => acc + child.quantity,
+      0,
+    )
+    const defaultMacros = item.reference.children.reduce(
+      (acc, child) => {
+        const childMacros = calcUnifiedItemMacros(child)
+        return {
+          carbs: acc.carbs + childMacros.carbs,
+          fat: acc.fat + childMacros.fat,
+          protein: acc.protein + childMacros.protein,
+        }
+      },
+      { carbs: 0, fat: 0, protein: 0 },
+    )
+
+    return {
+      carbs: (item.quantity / defaultQuantity) * defaultMacros.carbs,
+      fat: (item.quantity / defaultQuantity) * defaultMacros.fat,
+      protein: (item.quantity / defaultQuantity) * defaultMacros.protein,
+    }
   }
+
+  // Fallback for unknown types
+  item satisfies never
+  return { carbs: 0, fat: 0, protein: 0 }
 }
 
 export function calcMealMacros(meal: Meal): MacroNutrients {
@@ -89,14 +118,11 @@ export function calcCalories(macroNutrients: MacroNutrients): number {
   )
 }
 
-export const calcItemCalories = (item: TemplateItem) =>
-  calcCalories(calcItemMacros(item))
-
 export const calcRecipeCalories = (recipe: Recipe) =>
   calcCalories(calcRecipeMacros(recipe))
 
-export const calcGroupCalories = (group: ItemGroup) =>
-  calcCalories(calcGroupMacros(group))
+export const calcUnifiedRecipeCalories = (recipe: UnifiedRecipe) =>
+  calcCalories(calcUnifiedRecipeMacros(recipe))
 
 export const calcUnifiedItemCalories = (item: UnifiedItem) =>
   calcCalories(calcUnifiedItemMacros(item))

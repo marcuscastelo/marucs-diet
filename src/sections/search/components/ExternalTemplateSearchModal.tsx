@@ -1,6 +1,6 @@
 import { type Accessor, createEffect, type Setter } from 'solid-js'
 
-import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 
@@ -9,13 +9,12 @@ export type ExternalTemplateSearchModalProps = {
   setVisible: Setter<boolean>
   onRefetch: () => void
   targetName: string
-  onNewItemGroup: (newGroup: ItemGroup) => void
+  onNewUnifiedItem?: (newItem: UnifiedItem) => void
   onFinish?: () => void
 }
 
 /**
- * Shared ExternalTemplateSearchModal component that was previously duplicated
- * between RecipeEditModal and ItemGroupEditModal.
+ * Shared ExternalTemplateSearchModal component that can be used by different edit modals.
  *
  * @see https://github.com/marcuscastelo/marucs-diet/issues/397
  */
@@ -39,7 +38,7 @@ export function ExternalTemplateSearchModal(
       <TemplateSearchModal
         targetName={props.targetName}
         onFinish={handleFinishSearch}
-        onNewItemGroup={props.onNewItemGroup}
+        onNewUnifiedItem={props.onNewUnifiedItem}
       />
     </ModalContextProvider>
   )

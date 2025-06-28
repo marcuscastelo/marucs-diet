@@ -21,8 +21,8 @@ export type LegacyMeal = {
  * @returns Meal with unified items
  */
 export function migrateLegacyMealToUnified(legacyMeal: LegacyMeal): Meal {
-  const allItems = legacyMeal.groups.flatMap((group) => group.items)
-  const unifiedItems = migrateToUnifiedItems(allItems, [])
+  // Convert each group to a UnifiedItem, preserving group structure including empty groups
+  const unifiedItems = migrateToUnifiedItems([], legacyMeal.groups)
 
   return {
     id: legacyMeal.id,
@@ -40,13 +40,15 @@ export function migrateLegacyMealToUnified(legacyMeal: LegacyMeal): Meal {
 export function migrateUnifiedMealToLegacy(unifiedMeal: Meal): LegacyMeal {
   const { items, groups } = migrateFromUnifiedItems(unifiedMeal.items)
 
-  // Convert standalone items to a default group
+  // Convert standalone items to individual groups (each item gets its own group)
   const allGroups: ItemGroup[] = [...groups]
-  if (items.length > 0) {
+
+  // Each standalone item should become its own group
+  for (const item of items) {
     allGroups.push({
-      id: -1, // Temporary ID for default group
-      name: 'Default',
-      items,
+      id: item.id,
+      name: item.name, // Use the item's name as the group name
+      items: [item],
       recipe: undefined,
       __type: 'ItemGroup',
     })
@@ -67,15 +69,4 @@ export function migrateUnifiedMealToLegacy(unifiedMeal: Meal): LegacyMeal {
  */
 export function migrateLegacyMealsToUnified(legacyMeals: LegacyMeal[]): Meal[] {
   return legacyMeals.map(migrateLegacyMealToUnified)
-}
-
-/**
- * Migrates an array of unified meals back to legacy format
- * @param unifiedMeals Meal[]
- * @returns LegacyMeal[]
- */
-export function migrateUnifiedMealsToLegacy(
-  unifiedMeals: Meal[],
-): LegacyMeal[] {
-  return unifiedMeals.map(migrateUnifiedMealToLegacy)
 }

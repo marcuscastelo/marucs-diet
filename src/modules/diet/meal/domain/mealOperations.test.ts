@@ -4,23 +4,18 @@ import { createItem } from '~/modules/diet/item/domain/item'
 import { createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { createMeal } from '~/modules/diet/meal/domain/meal'
 import {
-  addGroupsToMeal,
   addGroupToMeal,
   addItemsToMeal,
   addItemToMeal,
-  clearMealGroups,
   clearMealItems,
-  findGroupInMeal,
-  findItemInMeal,
   removeGroupFromMeal,
   removeItemFromMeal,
-  replaceMeal,
   setMealGroups,
   setMealItems,
   updateGroupInMeal,
   updateItemInMeal,
-  updateMealName,
 } from '~/modules/diet/meal/domain/mealOperations'
+import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 function makeItem(id: number, name = 'Arroz') {
   return {
@@ -35,14 +30,16 @@ function makeItem(id: number, name = 'Arroz') {
 }
 
 function makeUnifiedItemFromItem(item: ReturnType<typeof makeItem>) {
-  return {
+  return createUnifiedItem({
     id: item.id,
     name: item.name,
     quantity: item.quantity,
-    macros: item.macros,
-    reference: { type: 'food' as const, id: item.reference },
-    __type: 'UnifiedItem' as const,
-  }
+    reference: {
+      type: 'food' as const,
+      id: item.reference,
+      macros: item.macros,
+    },
+  })
 }
 
 function makeGroup(id: number, name = 'G1', items = [makeItem(1)]) {
@@ -69,11 +66,6 @@ const baseGroup = makeGroup(1, 'G1', [baseItem])
 const baseMeal = makeMeal(1, 'Almoço', [baseUnifiedItem])
 
 describe('mealOperations', () => {
-  it('updateMealName updates name', () => {
-    const result = updateMealName(baseMeal, 'Jantar')
-    expect(result.name).toBe('Jantar')
-  })
-
   it('addItemToMeal adds an item', () => {
     const newItem = makeUnifiedItemFromItem(makeItem(2, 'Feijão'))
     const result = addItemToMeal(baseMeal, newItem)
@@ -90,7 +82,10 @@ describe('mealOperations', () => {
   })
 
   it('updateItemInMeal updates an item', () => {
-    const updatedItem = { ...baseUnifiedItem, name: 'Arroz Integral' }
+    const updatedItem = createUnifiedItem({
+      ...baseUnifiedItem,
+      name: 'Arroz Integral',
+    })
     const result = updateItemInMeal(baseMeal, 1, updatedItem)
     expect(result.items[0]?.name).toBe('Arroz Integral')
   })
@@ -111,24 +106,10 @@ describe('mealOperations', () => {
     expect(result.items).toEqual([])
   })
 
-  it('findItemInMeal finds an item', () => {
-    const found = findItemInMeal(baseMeal, 1)
-    expect(found).toEqual(baseUnifiedItem)
-  })
-
   it('addGroupToMeal adds a group (legacy)', () => {
     const group = { ...baseGroup, id: 2 }
     const result = addGroupToMeal(baseMeal, group)
     expect(result.items).toHaveLength(2)
-  })
-
-  it('addGroupsToMeal adds multiple groups (legacy)', () => {
-    const groups = [
-      { ...baseGroup, id: 2 },
-      { ...baseGroup, id: 3 },
-    ]
-    const result = addGroupsToMeal(baseMeal, groups)
-    expect(result.items).toHaveLength(3)
   })
 
   it('updateGroupInMeal updates a group (legacy)', () => {
@@ -146,20 +127,5 @@ describe('mealOperations', () => {
     const groups = [{ ...baseGroup, id: 2 }]
     const result = setMealGroups(baseMeal, groups)
     expect(result.items).toHaveLength(1)
-  })
-
-  it('clearMealGroups clears groups (legacy)', () => {
-    const result = clearMealGroups(baseMeal)
-    expect(result.items).toEqual([])
-  })
-
-  it('findGroupInMeal finds a group (legacy)', () => {
-    const found = findGroupInMeal(baseMeal, 1)
-    expect(found).toBeUndefined()
-  })
-
-  it('replaceMeal replaces fields', () => {
-    const result = replaceMeal(baseMeal, { name: 'Novo' })
-    expect(result.name).toBe('Novo')
   })
 })

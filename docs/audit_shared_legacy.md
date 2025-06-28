@@ -1,23 +1,31 @@
 # Shared & Legacy Audit
 
+_Last updated: 2025-06-27_
+
 ## Overview
-Shared and legacy code provides utilities, error handling, and migration support. It should not break DDD boundaries or introduce side effects into domain/application layers.
+Shared and legacy code has been significantly reduced as part of the unified item system migration. All legacy item/item-group view and edit components, context providers, and related utilities have been removed. The codebase now relies on unified components and shared utilities for all item, group, and recipe flows.
+
+## Major Legacy Code Removal (Completed)
+- **Removed:** All legacy item, item-group, and related view/edit components, context providers, and helpers
+- **Migrated:** All flows now use unified components and shared utilities for type conversion, validation, and macro logic
+- **Isolated:** Remaining legacy utilities are isolated and scheduled for migration
+- **Improved:** Test coverage and maintainability through unified factories and conversion utilities
 
 ## Findings
-- **Legacy Utilities:** Some legacy utilities (e.g., `idUtils`, `supabase`) are still used in domain and application code.
-- **Error Handling:** `handleApiError` is correctly isolated, but some shared code is imported inappropriately.
-- **Migration:** The `legacy/` folder is under migration, but boundaries are not always clear.
+- **Legacy Utilities:** Most legacy utilities have been removed; remaining usage is isolated and scheduled for migration
+- **Error Handling:** `handleApiError` is correctly isolated; shared code is imported appropriately
+- **Migration:** The `legacy/` folder is nearly eliminated; boundaries are now clear
 
 ## Urgency
-- **High:** Remove legacy utility usage from domain code.
-- **Medium:** Clarify migration plan and document shared module boundaries.
+- **Low:** Continue migration of any remaining legacy utilities
 
 ## Next Steps
-- List all imports from `legacy/` and `shared/` in domain/application layers.
-- Propose migration steps for remaining legacy utilities.
-- Document shared module responsibilities and allowed usage.
+- [ ] List and migrate any remaining legacy/shared utility imports
+- [ ] Propose migration steps for remaining legacy utilities
+- [ ] Document shared module responsibilities and allowed usage
 
 ## Future Refinement Suggestions
-- Create `audit_shared_legacy_<utility>.md` for complex or high-risk utilities.
-- Map all shared/legacy code usage across the codebase.
-- Review shared code test coverage and migration blockers.
+- Create `audit_shared_legacy_<utility>.md` for any remaining high-risk utilities
+- Map all shared/legacy code usage across the codebase
+- Review shared code test coverage and migration blockers
+- Continue systematic removal of legacy components as demonstrated by the item system migration

@@ -1,28 +1,32 @@
 # Sections Audit – Food-Item Section
 
-_Last updated: 2025-06-07_
+_Last updated: 2025-06-27_
 
 ## Overview
-This audit reviews the `food-item` section UI components, focusing on separation of concerns, code duplication, and DDD alignment.
+The food-item section now exclusively uses the unified item system. All legacy food-item view/edit components, context providers, and related utilities have been removed. The codebase now relies on unified components and shared utilities for all item, group, and recipe flows.
+
+## Unified System Migration (Completed)
+- **Removed:** All legacy food-item view/edit components, wrappers, and context providers
+- **Migrated:** All food-item flows now use unified item types and shared conversion utilities
+- **Centralized:** Validation, macro overflow, and clipboard logic are now handled in unified utilities and components
+- **Improved:** Type safety and maintainability through shared conversion utilities and type guards
+- **Test Coverage:** All tests now use unified item factories and conversion utilities
 
 ## Key Findings
-- **Business Logic Leakage:** Components (e.g., `ItemEditModal`) may handle validation, macro overflow, and item state logic directly in the UI, rather than delegating to the application layer.
-- **Legacy Utility Usage:** Some components may use legacy or shared utilities for calculations or state, which should be abstracted away.
-- **Component Boundaries:** Components are generally well-structured, but some state and calculation logic could be moved to hooks or the application layer for clarity and testability.
-- **Duplication:** Some item editing and validation logic may be duplicated across food-item and other sections (e.g., item-group, meal).
+- **Business Logic Centralization:** All business logic is now centralized in unified components and utilities
+- **Legacy Utility Usage:** Remaining legacy utility usage is isolated and scheduled for migration
+- **Component Boundaries:** Clearer boundaries and reduced prop drilling
+- **Duplication Eliminated:** No more duplication between food-item and other sections
 
 ## Urgency
-- **High:** Move business logic (validation, macro overflow, item state) out of UI components and into the application layer or custom hooks.
-- **Medium:** Refactor legacy utility usage to use application/domain abstractions.
-- **Low:** Review and clarify component boundaries and prop drilling.
+- **Low:** Monitor unified system performance and optimize as needed
 
 ## Next Steps
-- [ ] Refactor business logic into application layer or custom hooks.
-- [ ] Replace legacy utility usage with application/domain abstractions.
-- [ ] Audit all food-item section components for business logic leakage and duplication.
-- [ ] Review and improve test coverage for UI logic.
+- [ ] Monitor unified system performance for food-item specific use cases
+- [ ] Continue replacing any remaining legacy utility usage
+- [ ] Review and improve test coverage for the unified system integration
 
 ## Future Refinement Suggestions
-- Consider unifying item editing and validation logic if used in multiple sections.
-- Expand audit to cover context usage and state management patterns.
-- Propose stricter boundaries between UI, application, and domain layers.
+- Monitor usage patterns and consider further optimizations as needed
+- Audit context usage and state management in the unified system
+- Continue strengthening boundaries between UI, application, and domain layers

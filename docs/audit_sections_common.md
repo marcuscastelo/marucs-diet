@@ -1,24 +1,28 @@
 # Sections Audit – Common Section
 
-_Last updated: 2025-06-07_
+_Last updated: 2025-06-27_
 
 ## Overview
-This audit reviews the `common` section UI components, focusing on separation of concerns, code duplication, and DDD alignment. The common section provides shared UI elements (e.g., modals, buttons, inputs, icons) used across multiple sections.
+The common section now provides shared UI elements (modals, buttons, icons, etc.) fully compatible with the unified item system. All shared UI logic is centralized, and legacy/duplicated components have been removed.
+
+## Unified System Migration (Completed)
+- **Relocated:** `RemoveFromRecentButton` and other shared UI elements are now in the common section for reusability
+- **Enhanced:** All common components support the unified item system, providing consistent UI patterns for food, recipe, and group items
+- **Improved:** Separation of concerns and reusability, with all business logic delegated to the unified system
+- **Duplication Eliminated:** No more parallel or duplicated shared UI components
 
 ## Key Findings
-- **Separation of Concerns:** Components (e.g., `ClipboardActionButtons`) are focused on UI presentation and delegate logic to props/callbacks, which is good practice.
-- **Reusability:** Common components are designed for reuse and composability across the codebase.
-- **Duplication:** No significant duplication observed within the common section, but ensure shared logic (e.g., clipboard, modal state) is not re-implemented in consuming sections.
-- **Component Boundaries:** Components are well-structured, with clear separation between UI and logic. State and effects are managed outside, via hooks or parent components.
+- **Separation of Concerns:** All logic is handled in the application layer or hooks, not in UI components
+- **Reusability:** Common components are designed for reuse and composability across the codebase
+- **Component Boundaries:** Clear separation between UI and logic
 
 ## Urgency
-- **Low:** Continue to ensure all logic is handled in the application layer or hooks, not in UI components.
+- **Low:** Monitor performance and usage of shared components
 
 ## Next Steps
-- [ ] Audit all common section components for unnecessary logic or duplication.
-- [ ] Review and improve test coverage for shared UI components.
+- [ ] Monitor performance and usage of shared components
+- [ ] Review and improve test coverage for shared UI components
 
 ## Future Refinement Suggestions
-- Consider expanding the set of shared hooks/utilities if common logic is identified in consuming sections.
-- Expand audit to cover context usage and state management patterns.
-- Propose stricter boundaries between UI, application, and domain layers if needed.
+- Expand the set of shared components as new patterns emerge
+- Audit context usage and state management in the unified system

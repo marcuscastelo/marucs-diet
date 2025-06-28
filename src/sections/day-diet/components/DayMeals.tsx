@@ -5,25 +5,24 @@ import {
   For,
   type Setter,
   Show,
-  untrack,
 } from 'solid-js'
 
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import {
-  insertItemGroup,
-  updateItemGroup,
+  insertUnifiedItem,
+  updateUnifiedItem,
 } from '~/modules/diet/item-group/application/itemGroup'
-import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import { updateMeal } from '~/modules/diet/meal/application/meal'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
+import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { showError } from '~/modules/toast/application/toastManager'
 import { Modal } from '~/sections/common/components/Modal'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { CopyLastDayButton } from '~/sections/day-diet/components/CopyLastDayButton'
 import DayNotFound from '~/sections/day-diet/components/DayNotFound'
 import { DeleteDayButton } from '~/sections/day-diet/components/DeleteDayButton'
-import { ItemGroupEditModal } from '~/sections/item-group/components/ItemGroupEditModal'
 import {
   MealEditView,
   MealEditViewActions,
@@ -31,15 +30,20 @@ import {
   MealEditViewHeader,
 } from '~/sections/meal/components/MealEditView'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
+import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
+import { createDebug } from '~/shared/utils/createDebug'
+import { stringToDate } from '~/shared/utils/date'
 
 type EditSelection = {
   meal: Meal
-  itemGroup: ItemGroup
+  item: UnifiedItem
 } | null
 
 type NewItemSelection = {
   meal: Meal
 } | null
+
+const debug = createDebug()
 
 const [editSelection, setEditSelection] = createSignal<EditSelection>(null)
 
@@ -59,7 +63,7 @@ export default function DayMeals(props: {
   mode: 'edit' | 'read-only' | 'summary'
   onRequestEditMode?: () => void
 }) {
-  const [itemGroupEditModalVisible, setItemGroupEditModalVisible] =
+  const [unifiedItemEditModalVisible, setUnifiedItemEditModalVisible] =
     createSignal(false)
 
   const [templateSearchModalVisible, setTemplateSearchModalVisible] =
@@ -67,10 +71,9 @@ export default function DayMeals(props: {
 
   const [showConfirmEdit, setShowConfirmEdit] = createSignal(false)
 
-  const handleEditItemGroup = (meal: Meal, itemGroup: ItemGroup) => {
-    // Always open the modal for any mode, but ItemGroupEditModal will respect the mode prop
-    setEditSelection({ meal, itemGroup })
-    setItemGroupEditModalVisible(true)
+  const handleEditUnifiedItem = (meal: Meal, item: UnifiedItem) => {
+    setEditSelection({ meal, item })
+    setUnifiedItemEditModalVisible(true)
   }
 
   const handleUpdateMeal = async (day: DayDiet, meal: Meal) => {
@@ -92,12 +95,12 @@ export default function DayMeals(props: {
     setTemplateSearchModalVisible(true)
   }
 
-  const handleNewItemGroup = (dayDiet: DayDiet, newGroup: ItemGroup) => {
+  const handleNewUnifiedItem = (dayDiet: DayDiet, newItem: UnifiedItem) => {
     const newItemSelection_ = newItemSelection()
     if (newItemSelection_ === null) {
       throw new Error('No meal selected!')
     }
-    void insertItemGroup(dayDiet.id, newItemSelection_.meal.id, newGroup)
+    void insertUnifiedItem(dayDiet.id, newItemSelection_.meal.id, newItem)
   }
 
   const handleFinishSearch = () => {
@@ -154,15 +157,15 @@ export default function DayMeals(props: {
               targetName={
                 newItemSelection()?.meal.name ?? 'Nenhuma refeição selecionada'
               }
-              onNewItemGroup={(newGroup) => {
-                handleNewItemGroup(neverNullDayDiet, newGroup)
+              onNewUnifiedItem={(newItem) => {
+                handleNewUnifiedItem(neverNullDayDiet, newItem)
               }}
               onFinish={handleFinishSearch}
             />
-            <ExternalItemGroupEditModal
+            <ExternalUnifiedItemEditModal
               day={() => neverNullDayDiet}
-              visible={itemGroupEditModalVisible}
-              setVisible={setItemGroupEditModalVisible}
+              visible={unifiedItemEditModalVisible}
+              setVisible={setUnifiedItemEditModalVisible}
               mode={props.mode}
             />
             <For each={neverNullDayDiet.meals}>
@@ -173,6 +176,7 @@ export default function DayMeals(props: {
                   meal={() => meal}
                   header={
                     <MealEditViewHeader
+                      dayDiet={neverNullDayDiet}
                       onUpdateMeal={(meal) => {
                         if (props.mode === 'summary') return
                         const current = resolvedDayDiet()
@@ -189,8 +193,8 @@ export default function DayMeals(props: {
                   }
                   content={
                     <MealEditViewContent
-                      onEditItemGroup={(item) => {
-                        handleEditItemGroup(meal, item)
+                      onEditItem={(item) => {
+                        handleEditUnifiedItem(meal, item)
                       }}
                       mode={props.mode}
                     />
@@ -224,7 +228,7 @@ export default function DayMeals(props: {
   )
 }
 
-function ExternalItemGroupEditModal(props: {
+function ExternalUnifiedItemEditModal(props: {
   visible: Accessor<boolean>
   setVisible: Setter<boolean>
   day: Accessor<DayDiet>
@@ -243,37 +247,47 @@ function ExternalItemGroupEditModal(props: {
           visible={props.visible}
           setVisible={props.setVisible}
         >
-          <ItemGroupEditModal
-            group={() => editSelection().itemGroup}
-            setGroup={(group) => {
-              if (group === null) {
-                console.error('group is null!')
-                throw new Error('group is null!')
-              }
-              setEditSelection({
-                ...untrack(editSelection),
-                itemGroup: group,
-              })
-            }}
+          <UnifiedItemEditModal
             targetMealName={editSelection().meal.name}
-            onSaveGroup={(group) => {
-              void updateItemGroup(
+            item={() => editSelection().item}
+            macroOverflow={() => {
+              const day = props.day()
+              const dayDate = stringToDate(day.target_day)
+              const macroTarget = getMacroTargetForDay(dayDate)
+
+              let macroOverflow
+              if (!macroTarget) {
+                macroOverflow = {
+                  enable: false,
+                  originalItem: undefined,
+                }
+              } else {
+                macroOverflow = {
+                  enable: true,
+                  originalItem: editSelection().item,
+                }
+              }
+
+              debug('macroOverflow:', macroOverflow)
+              return macroOverflow
+            }}
+            onApply={(item) => {
+              void updateUnifiedItem(
                 props.day().id,
                 editSelection().meal.id,
-                group.id, // TODO:   Get id from selection instead of group parameter (avoid bugs if id is changed).
-                group,
+                item.id, // TODO: Get id from selection instead of item parameter (avoid bugs if id is changed).
+                item,
               )
 
-              // TODO:   Analyze if these commands are troublesome
+              // TODO: Analyze if these commands are troublesome
               setEditSelection(null)
               props.setVisible(false)
             }}
-            onRefetch={() => {
-              console.warn(
-                '[DayMeals] (<ItemGroupEditModal/>) onRefetch called!',
-              )
+            onCancel={() => {
+              setEditSelection(null)
+              props.setVisible(false)
             }}
-            mode={props.mode}
+            showAddItemButton={true}
           />
         </ModalContextProvider>
       )}

@@ -2,8 +2,13 @@ import { z } from 'zod'
 
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import {
+  type UnifiedItem, // eslint-disable-line @typescript-eslint/no-unused-vars
+  unifiedItemSchema,
+} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
+// Legacy schemas for database compatibility (using Item[])
 export const newRecipeSchema = z.object({
   name: z.string({
     required_error: "O campo 'name' da receita é obrigatório.",
@@ -52,8 +57,62 @@ export const recipeSchema = z.object({
     .transform(() => 'Recipe' as const),
 })
 
+// New schemas using UnifiedItem[] for in-memory operations
+export const newUnifiedRecipeSchema = z.object({
+  name: z.string({
+    required_error: "O campo 'name' da receita é obrigatório.",
+    invalid_type_error: "O campo 'name' da receita deve ser uma string.",
+  }),
+  owner: z.number({
+    required_error: "O campo 'owner' da receita é obrigatório.",
+    invalid_type_error: "O campo 'owner' da receita deve ser um número.",
+  }),
+  items: unifiedItemSchema.array(),
+  prepared_multiplier: z
+    .number({
+      required_error: "O campo 'prepared_multiplier' da receita é obrigatório.",
+      invalid_type_error:
+        "O campo 'prepared_multiplier' da receita deve ser um número.",
+    })
+    .default(1),
+  __type: z.literal('NewUnifiedRecipe'),
+})
+
+export const unifiedRecipeSchema = z.object({
+  id: z.number({
+    required_error: "O campo 'id' da receita é obrigatório.",
+    invalid_type_error: "O campo 'id' da receita deve ser um número.",
+  }),
+  name: z.string({
+    required_error: "O campo 'name' da receita é obrigatório.",
+    invalid_type_error: "O campo 'name' da receita deve ser uma string.",
+  }),
+  owner: z.number({
+    required_error: "O campo 'owner' da receita é obrigatório.",
+    invalid_type_error: "O campo 'owner' da receita deve ser um número.",
+  }),
+  items: unifiedItemSchema.array().readonly(),
+  prepared_multiplier: z
+    .number({
+      required_error: "O campo 'prepared_multiplier' da receita é obrigatório.",
+      invalid_type_error:
+        "O campo 'prepared_multiplier' da receita deve ser um número.",
+    })
+    .default(1),
+  __type: z
+    .string()
+    .nullable()
+    .optional()
+    .transform(() => 'UnifiedRecipe' as const),
+})
+
+// Legacy types (using Item[])
 export type NewRecipe = Readonly<z.infer<typeof newRecipeSchema>>
 export type Recipe = Readonly<z.infer<typeof recipeSchema>>
+
+// New types (using UnifiedItem[])
+export type NewUnifiedRecipe = Readonly<z.infer<typeof newUnifiedRecipeSchema>>
+export type UnifiedRecipe = Readonly<z.infer<typeof unifiedRecipeSchema>>
 
 /**
  * Creates a Recipe from an ItemGroup.
@@ -130,5 +189,69 @@ export function demoteToNewRecipe(recipe: Recipe): NewRecipe {
     items: recipe.items,
     prepared_multiplier: recipe.prepared_multiplier,
     __type: 'NewRecipe',
+  })
+}
+
+/**
+ * Creates a new NewUnifiedRecipe using UnifiedItem[].
+ * Used for initializing new recipes before saving to database.
+ *
+ * @param name - Name of the recipe
+ * @param items - Array of UnifiedItems in the recipe
+ * @param preparedMultiplier - Multiplier for prepared quantity (default: 1)
+ * @param owner - User ID who owns this recipe
+ * @returns A new NewUnifiedRecipe
+ */
+export function createNewUnifiedRecipe({
+  name,
+  items,
+  preparedMultiplier = 1,
+  owner,
+}: {
+  name: string
+  items: NewUnifiedRecipe['items']
+  preparedMultiplier?: number
+  owner: NewUnifiedRecipe['owner']
+}): NewUnifiedRecipe {
+  return {
+    name,
+    items,
+    prepared_multiplier: preparedMultiplier,
+    owner,
+    __type: 'NewUnifiedRecipe',
+  }
+}
+
+/**
+ * Promotes a NewUnifiedRecipe to a UnifiedRecipe after persistence.
+ *
+ * @param newRecipe - The NewUnifiedRecipe to promote
+ * @param id - The ID assigned to the recipe upon persistence
+ * @returns The promoted UnifiedRecipe
+ */
+export function promoteToUnifiedRecipe(
+  newRecipe: NewUnifiedRecipe,
+  id: number,
+): UnifiedRecipe {
+  return {
+    ...newRecipe,
+    id,
+    __type: 'UnifiedRecipe',
+  }
+}
+
+/**
+ * Demotes a UnifiedRecipe to a NewUnifiedRecipe for updates.
+ * Used when converting a persisted UnifiedRecipe back to NewUnifiedRecipe for database operations.
+ */
+export function demoteToNewUnifiedRecipe(
+  recipe: UnifiedRecipe,
+): NewUnifiedRecipe {
+  return parseWithStack(newUnifiedRecipeSchema, {
+    name: recipe.name,
+    owner: recipe.owner,
+    items: recipe.items,
+    prepared_multiplier: recipe.prepared_multiplier,
+    __type: 'NewUnifiedRecipe',
   })
 }

@@ -1,21 +1,19 @@
-import { Accessor, createEffect, createSignal } from 'solid-js'
+import { Accessor, createEffect, createSignal, Show } from 'solid-js'
 import { untrack } from 'solid-js'
 
-import { createItem, type Item } from '~/modules/diet/item/domain/item'
-import {
-  isSimpleSingleGroup,
-  type ItemGroup,
-} from '~/modules/diet/item-group/domain/itemGroup'
+import { type Item } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import {
-  addItemsToRecipe,
-  removeItemFromRecipe,
+  addItemToRecipe,
   updateItemInRecipe,
 } from '~/modules/diet/recipe/domain/recipeOperations'
+import { TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import { unifiedItemToItem } from '~/modules/diet/unified-item/domain/conversionUtils'
 import {
-  isTemplateItemFood,
-  isTemplateItemRecipe,
-} from '~/modules/diet/template-item/domain/templateItem'
+  createUnifiedItem,
+  isRecipeItem,
+  type UnifiedItem,
+} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { showError } from '~/modules/toast/application/toastManager'
 import { Modal } from '~/sections/common/components/Modal'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
@@ -23,14 +21,15 @@ import {
   ModalContextProvider,
   useModalContext,
 } from '~/sections/common/context/ModalContext'
-import { ExternalItemEditModal } from '~/sections/food-item/components/ExternalItemEditModal'
 import {
   RecipeEditContent,
   RecipeEditHeader,
 } from '~/sections/recipe/components/RecipeEditView'
 import { RecipeEditContextProvider } from '~/sections/recipe/context/RecipeEditContext'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
+import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
 import { handleValidationError } from '~/shared/error/errorHandler'
+import { generateId } from '~/shared/utils/idUtils'
 
 export type RecipeEditModalProps = {
   show?: boolean
@@ -51,41 +50,59 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
     setRecipe(props.recipe())
   })
 
-  const [selectedItem, setSelectedItem] = createSignal<Item | null>(null)
+  const [selectedItem, setSelectedItem] = createSignal<TemplateItem | null>(
+    null,
+  )
 
-  const impossibleItem = createItem({
+  const impossibleItem = createUnifiedItem({
+    id: generateId(),
     name: 'IMPOSSIBLE ITEM',
-    reference: 0,
+    quantity: 1,
+    reference: {
+      type: 'food',
+      id: -1,
+      macros: { carbs: 0, protein: 0, fat: 0 },
+    },
   })
 
   const [itemEditModalVisible, setItemEditModalVisible] = createSignal(false)
   const [templateSearchModalVisible, setTemplateSearchModalVisible] =
     createSignal(false)
 
-  const handleNewItemGroup = (newGroup: ItemGroup) => {
-    console.debug('onNewItemGroup', newGroup)
+  const handleNewUnifiedItem = (newItem: UnifiedItem) => {
+    console.debug('onNewUnifiedItem', newItem)
 
-    if (!isSimpleSingleGroup(newGroup)) {
-      // TODO:   Handle non-simple groups on handleNewItemGroup
-      handleValidationError('Cannot add complex groups to recipes', {
-        component: 'RecipeEditModal',
-        operation: 'handleNewItemGroup',
-        additionalData: { groupType: 'complex', groupId: newGroup.id },
-      })
-      showError(
-        'Não é possível adicionar grupos complexos a receitas, por enquanto.',
+    // Convert UnifiedItem to Item for adding to recipe
+    try {
+      // Only food items can be directly converted to Items for recipes
+      if (newItem.reference.type !== 'food') {
+        handleValidationError('Cannot add non-food items to recipes', {
+          component: 'RecipeEditModal',
+          operation: 'handleNewUnifiedItem',
+          additionalData: {
+            itemType: newItem.reference.type,
+            itemId: newItem.id,
+          },
+        })
+        showError(
+          'Não é possível adicionar itens que não sejam alimentos a receitas.',
+        )
+        return
+      }
+
+      const item = unifiedItemToItem(newItem)
+      const updatedRecipe = addItemToRecipe(recipe(), item)
+
+      console.debug(
+        'handleNewUnifiedItem: applying',
+        JSON.stringify(updatedRecipe, null, 2),
       )
-      return
+
+      setRecipe(updatedRecipe)
+    } catch (error) {
+      console.error('Error converting UnifiedItem to Item:', error)
+      showError('Erro ao adicionar item à receita.')
     }
-
-    const updatedRecipe = addItemsToRecipe(recipe(), newGroup.items)
-
-    console.debug(
-      'handleNewItemGroup: applying',
-      JSON.stringify(updatedRecipe, null, 2),
-    )
-
-    setRecipe(updatedRecipe)
   }
 
   createEffect(() => {
@@ -101,36 +118,38 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
 
   return (
     <>
-      <ExternalItemEditModal
-        visible={itemEditModalVisible}
-        setVisible={setItemEditModalVisible}
-        item={() => selectedItem() ?? impossibleItem}
-        targetName={recipe().name}
-        onApply={(item) => {
-          // Only handle regular Items, not RecipeItems
-          if (!isTemplateItemFood(item)) {
-            console.warn('Cannot edit RecipeItems in recipe')
-            return
-          }
+      <Show when={itemEditModalVisible()}>
+        <ModalContextProvider
+          visible={() => itemEditModalVisible()}
+          setVisible={setItemEditModalVisible}
+        >
+          <UnifiedItemEditModal
+            item={() => selectedItem() ?? impossibleItem}
+            targetMealName={recipe().name}
+            macroOverflow={() => ({ enable: false })}
+            onApply={(unifiedItem) => {
+              // Convert back to Item for recipe operations
+              const item = unifiedItemToItem(unifiedItem)
+              const updatedItem: Item = { ...item, quantity: item.quantity }
+              const updatedRecipe = updateItemInRecipe(
+                recipe(),
+                item.id,
+                updatedItem,
+              )
 
-          const updatedItem: Item = { ...item, quantity: item.quantity }
-          const updatedRecipe = updateItemInRecipe(
-            recipe(),
-            item.id,
-            updatedItem,
-          )
-
-          setRecipe(updatedRecipe)
-          setSelectedItem(null)
-        }}
-      />
+              setRecipe(updatedRecipe)
+              setSelectedItem(null)
+            }}
+          />
+        </ModalContextProvider>
+      </Show>
 
       <ExternalTemplateSearchModal
         visible={templateSearchModalVisible}
         setVisible={setTemplateSearchModalVisible}
         onRefetch={props.onRefetch}
         targetName={recipe().name}
-        onNewItemGroup={handleNewItemGroup}
+        onNewUnifiedItem={handleNewUnifiedItem}
       />
 
       <ModalContextProvider visible={visible} setVisible={setVisible}>
@@ -160,7 +179,7 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
                 }}
                 onEditItem={(item) => {
                   // TODO: Allow user to edit recipes inside recipes
-                  if (isTemplateItemRecipe(item)) {
+                  if (isRecipeItem(item)) {
                     showError(
                       'Ainda não é possível editar receitas dentro de receitas! Funcionalidade em desenvolvimento',
                     )

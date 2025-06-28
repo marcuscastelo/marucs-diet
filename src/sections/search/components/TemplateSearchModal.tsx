@@ -11,15 +11,15 @@ import {
   currentDayDiet,
   targetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
-import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import { type Template } from '~/modules/diet/template/domain/template'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import {
-  isTemplateItemFood,
-  isTemplateItemRecipe,
-} from '~/modules/diet/template-item/domain/templateItem'
+  isFoodItem,
+  isRecipeItem,
+} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import {
   fetchRecentFoodByUserTypeAndReferenceId,
   insertRecentFood,
@@ -42,7 +42,7 @@ import { PageLoading } from '~/sections/common/components/PageLoading'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useModalContext } from '~/sections/common/context/ModalContext'
 import { ExternalEANInsertModal } from '~/sections/search/components/ExternalEANInsertModal'
-import { ExternalTemplateToItemGroupModal } from '~/sections/search/components/ExternalTemplateToItemGroupModal'
+import { ExternalTemplateToUnifiedItemModal } from '~/sections/search/components/ExternalTemplateToUnifiedItemModal'
 import { TemplateSearchBar } from '~/sections/search/components/TemplateSearchBar'
 import { TemplateSearchResults } from '~/sections/search/components/TemplateSearchResults'
 import {
@@ -57,7 +57,10 @@ const TEMPLATE_SEARCH_DEFAULT_TAB = availableTabs.Todos.id
 
 export type TemplateSearchModalProps = {
   targetName: string
-  onNewItemGroup?: (group: ItemGroup, originalAddedItem: TemplateItem) => void
+  onNewUnifiedItem?: (
+    item: UnifiedItem,
+    originalAddedItem: TemplateItem,
+  ) => void
   onFinish?: () => void
 }
 
@@ -73,12 +76,14 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
     Template | undefined
   >(undefined)
 
-  const handleNewItemGroup = async (
-    newGroup: ItemGroup,
+  const handleNewUnifiedItem = async (
+    newItem: UnifiedItem,
     originalAddedItem: TemplateItem,
   ) => {
-    // Use specialized macro overflow checker with context
-    console.log(`[TemplateSearchModal] Setting up macro overflow checking`)
+    // For UnifiedItem, we need to check macro overflow
+    console.log(
+      '[TemplateSearchModal] Setting up macro overflow checking for UnifiedItem',
+    )
 
     const currentDayDiet_ = currentDayDiet()
     const macroTarget_ = getMacroTargetForDay(stringToDate(targetDay()))
@@ -87,24 +92,21 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
     const macroOverflowContext = {
       currentDayDiet: currentDayDiet_,
       macroTarget: macroTarget_,
-      macroOverflowOptions: { enable: true }, // Since it's an insertion, no original item
+      macroOverflowOptions: { enable: true },
     }
 
-    // Helper function for checking individual macro properties
+    // Helper function for checking individual macro properties on the unified item
     const checkMacroOverflow = (property: keyof MacroNutrients) => {
-      if (!Array.isArray(newGroup.items)) return false
-      return newGroup.items.some((item) =>
-        isOverflow(item, property, macroOverflowContext),
-      )
+      return isOverflow(originalAddedItem, property, macroOverflowContext)
     }
 
     const onConfirm = async () => {
-      props.onNewItemGroup?.(newGroup, originalAddedItem)
+      props.onNewUnifiedItem?.(newItem, originalAddedItem)
 
       let type: 'food' | 'recipe'
-      if (isTemplateItemFood(originalAddedItem)) {
+      if (isFoodItem(originalAddedItem)) {
         type = 'food'
-      } else if (isTemplateItemRecipe(originalAddedItem)) {
+      } else if (isRecipeItem(originalAddedItem)) {
         type = 'recipe'
       } else {
         throw new Error('Invalid template item type')
@@ -113,14 +115,14 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
       const recentFood = await fetchRecentFoodByUserTypeAndReferenceId(
         currentUserId(),
         type,
-        originalAddedItem.reference,
+        originalAddedItem.reference.id,
       )
 
       if (
         recentFood !== null &&
         (recentFood.user_id !== currentUserId() ||
           recentFood.type !== type ||
-          recentFood.reference_id !== originalAddedItem.reference)
+          recentFood.reference_id !== originalAddedItem.reference.id)
       ) {
         throw new Error(
           'BUG: recentFood fetched does not match user/type/reference',
@@ -131,7 +133,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
         ...(recentFood ?? {}),
         user_id: currentUserId(),
         type,
-        reference_id: originalAddedItem.reference,
+        reference_id: originalAddedItem.reference.id,
       })
 
       if (recentFood !== null) {
@@ -231,12 +233,12 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
         </Modal.Content>
       </Modal>
       <Show when={selectedTemplate() !== undefined}>
-        <ExternalTemplateToItemGroupModal
+        <ExternalTemplateToUnifiedItemModal
           visible={itemEditModalVisible}
           setVisible={setItemEditModalVisible}
           selectedTemplate={() => selectedTemplate() as Template}
           targetName={props.targetName}
-          onNewItemGroup={handleNewItemGroup}
+          onNewUnifiedItem={handleNewUnifiedItem}
         />
       </Show>
       <ExternalEANInsertModal
