@@ -55,6 +55,12 @@ reportedBy: <agent-name.vXX>
 - No improvements suggested.
 ```
 
+## Additional Checklist (Session Context)
+
+- Before summarizing, review the entire session, not just the most recent actions.
+- Explicitly confirm to the user that the full session context was considered in the summary.
+- Query memory for all session events, not just recent ones, before generating the summary.
+
 ## Referencing and Traceability
 - When suggesting improvements, always reference specific files, sections, or lines for clarity and traceability.
 - Ensure all outputs include the `reportedBy` field at the top, matching the agent and filename.
