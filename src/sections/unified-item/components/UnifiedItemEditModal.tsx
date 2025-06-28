@@ -9,6 +9,7 @@ import {
   untrack,
 } from 'solid-js'
 
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 import {
   addChildToItem,
@@ -35,6 +36,7 @@ import {
 } from '~/sections/common/context/ModalContext'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { useFloatField } from '~/sections/common/hooks/useField'
+import { RecipeEditModal } from '~/sections/recipe/components/RecipeEditModal'
 import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
 import { UnifiedItemEditBody } from '~/sections/unified-item/components/UnifiedItemEditBody'
 import { UnsupportedItemMessage } from '~/sections/unified-item/components/UnsupportedItemMessage'
@@ -72,6 +74,10 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
 
   // Template search modal state
   const [templateSearchVisible, setTemplateSearchVisible] = createSignal(false)
+
+  // Recipe edit modal state
+  const [recipeEditModalVisible, setRecipeEditModalVisible] =
+    createSignal(false)
 
   const [viewMode, setViewMode] = createSignal<'normal' | 'group'>('normal')
 
@@ -193,6 +199,49 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
     setItem(syncedItem)
   }
 
+  // Recipe edit handlers
+  const handleSaveRecipe = async (updatedRecipe: Recipe) => {
+    try {
+      // Save the recipe using the repository
+      await recipeRepository.updateRecipe(updatedRecipe.id, updatedRecipe)
+
+      // Update the current item to reflect the changes
+      const currentItem = item()
+      if (isRecipeItem(currentItem)) {
+        const syncedItem = syncRecipeUnifiedItemWithOriginal(
+          currentItem,
+          updatedRecipe,
+        )
+        setItem(syncedItem)
+      }
+
+      setRecipeEditModalVisible(false)
+    } catch (error) {
+      console.error('Error saving recipe:', error)
+      // Error handling will be done by the RecipeEditModal
+    }
+  }
+
+  const handleDeleteRecipe = async (recipeId: Recipe['id']) => {
+    try {
+      await recipeRepository.deleteRecipe(recipeId)
+      setRecipeEditModalVisible(false)
+      // The parent component should handle removing this item
+    } catch (error) {
+      console.error('Error deleting recipe:', error)
+      // Error handling will be done by the RecipeEditModal
+    }
+  }
+
+  // Sync wrappers for modal callbacks
+  const handleSaveRecipeSync = (updatedRecipe: Recipe) => {
+    void handleSaveRecipe(updatedRecipe)
+  }
+
+  const handleDeleteRecipeSync = (recipeId: Recipe['id']) => {
+    void handleDeleteRecipe(recipeId)
+  }
+
   // Clipboard functionality
   const { handleCopy, handlePaste, hasValidPastableOnClipboard } =
     useCopyPasteActions({
@@ -264,6 +313,17 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
                   >
                     <DownloadIcon />
                   </div>
+                </Show>
+
+                {/* Edit recipe button - only show for recipe items */}
+                <Show when={isRecipeItem(item()) && originalRecipe()}>
+                  <button
+                    class="btn btn-sm btn-ghost text-white rounded-md flex items-center gap-1"
+                    onClick={() => setRecipeEditModalVisible(true)}
+                    title="Editar receita original"
+                  >
+                    ✏️
+                  </button>
                 </Show>
               </div>
             </Show>
@@ -400,6 +460,28 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
             return null
           }}
         />
+      </Show>
+
+      {/* Recipe edit modal */}
+      <Show when={recipeEditModalVisible() && originalRecipe()}>
+        {(recipe) => (
+          <ModalContextProvider
+            visible={recipeEditModalVisible}
+            setVisible={setRecipeEditModalVisible}
+          >
+            <RecipeEditModal
+              recipe={() => recipe()}
+              onSaveRecipe={handleSaveRecipeSync}
+              onRefetch={() => {
+                // Refetch functionality (not used in this context)
+              }}
+              onCancel={() => {
+                setRecipeEditModalVisible(false)
+              }}
+              onDelete={handleDeleteRecipeSync}
+            />
+          </ModalContextProvider>
+        )}
       </Show>
     </>
   )
