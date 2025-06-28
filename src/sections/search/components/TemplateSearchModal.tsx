@@ -288,7 +288,6 @@ export function TemplateSearch(props: {
       <TemplateSearchTabs
         tab={templateSearchTab}
         setTab={setTemplateSearchTab}
-        loading={templates.loading}
       />
       <TemplateSearchBar isDesktop={isDesktop} />
 
