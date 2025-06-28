@@ -34,6 +34,12 @@ At the end of a session, your task is to:
 - Do not include code or implementation details; focus on meta-level insights.
 - **All learnings must be saved to memory as entities, observations, and relations using memory tools.**
 
+## Memory Integration Checklist
+
+- Ensure all new learnings are saved to memory as entities, observations, and relations.
+- Prefix memory observations related to project phases with the corresponding epic number (e.g., 'EPIC-123 Phase 1: Schema & Domain Layer').
+- Use memory tools to query and save session learnings comprehensively.
+
 ## Output
 
 - For each agent that suggests improvements, write the output as a markdown code block to a file named `docs/.copilot-journal/.copilot-journal.<reportedBy>.<timestamp>`, where `<reportedBy>` is the unique identifier of the agent and `<timestamp>` is the current timestamp (use `date +'%Y%m%dT%H%M%S'`). (e.g., `docs/.copilot-journal.github-copilot.v1-refactor.250611_200237`).
