@@ -1,6 +1,5 @@
-import { type Accessor, For, type Setter, Show } from 'solid-js'
+import { type Accessor, For, type Setter } from 'solid-js'
 
-import { LoadingRing } from '~/sections/common/components/LoadingRing'
 import { cn } from '~/shared/cn'
 import { type ObjectValues } from '~/shared/utils/typeUtils'
 
@@ -37,9 +36,11 @@ export function TemplateSearchTabs(props: {
   setTab: Setter<TemplateSearchTab>
   loading?: boolean
 }) {
+  const tabKeys = Object.keys(availableTabs)
+
   return (
     <ul class="flex text-font-medium text-center text-gray-500 divide-x divide-gray-600 rounded-lg shadow dark:divide-gray-600 dark:text-gray-300 bg-gray-900 dark:bg-gray-900">
-      <For each={Object.keys(availableTabs)}>
+      <For each={tabKeys}>
         {(tabKey, i) => {
           const tabId = () =>
             availableTabs[tabKey as keyof typeof availableTabs].id
@@ -57,13 +58,12 @@ export function TemplateSearchTabs(props: {
                     'text-white bg-blue-700 dark:bg-blue-800 border-b-4 border-blue-400':
                       isActive(),
                     'rounded-tl-lg': i() === 0,
-                    'rounded-tr-lg':
-                      i() === Object.keys(availableTabs).length - 1,
+                    'rounded-tr-lg': i() === tabKeys.length - 1,
                   },
                 )}
                 aria-current={isActive() ? 'page' : undefined}
                 onClick={() => {
-                  props.setTab(tabId)
+                  props.setTab(tabId())
                 }}
               >
                 {tabTitle()}
