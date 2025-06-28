@@ -1,9 +1,8 @@
 import { type Accessor, For, type Setter, Show } from 'solid-js'
 import { z } from 'zod'
 
-import { createItem, type Item } from '~/modules/diet/item/domain/item'
-import { insertRecipe } from '~/modules/diet/recipe/application/recipe'
-import { createNewRecipe } from '~/modules/diet/recipe/domain/recipe'
+import { saveUnifiedRecipe } from '~/modules/diet/recipe/application/unifiedRecipe'
+import { createNewUnifiedRecipe } from '~/modules/diet/recipe/domain/recipe'
 import {
   addChildToItem,
   removeChildFromItem,
@@ -28,7 +27,6 @@ import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemV
 import { handleApiError } from '~/shared/error/errorHandler'
 import { createDebug } from '~/shared/utils/createDebug'
 import { generateId, regenerateId } from '~/shared/utils/idUtils'
-import { calcUnifiedItemMacros } from '~/shared/utils/macroMath'
 
 const debug = createDebug()
 
@@ -38,24 +36,6 @@ export type GroupChildrenEditorProps = {
   onEditChild?: (child: UnifiedItem) => void
   onAddNewItem?: () => void
   showAddButton?: boolean
-}
-
-/**
- * Converts a UnifiedItem to a regular Item for use in recipes
- */
-function convertUnifiedItemToItem(unifiedItem: UnifiedItem): Item {
-  const macros = calcUnifiedItemMacros(unifiedItem)
-
-  // For food items, use the food reference ID
-  const reference =
-    unifiedItem.reference.type === 'food' ? unifiedItem.reference.id : 0 // For groups/recipes, use 0 as placeholder (recipes can't contain other groups/recipes directly)
-
-  return createItem({
-    name: unifiedItem.name,
-    reference,
-    quantity: unifiedItem.quantity,
-    macros,
-  })
 }
 
 export function GroupChildrenEditor(props: GroupChildrenEditorProps) {
@@ -166,20 +146,17 @@ export function GroupChildrenEditor(props: GroupChildrenEditorProps) {
     }
 
     try {
-      // Convert all children to regular Items for the recipe
-      const recipeItems: Item[] = children().map(convertUnifiedItemToItem)
-
-      // Create new recipe
-      const newRecipe = createNewRecipe({
+      // Create new unified recipe directly from UnifiedItem children
+      const newUnifiedRecipe = createNewUnifiedRecipe({
         name:
           item.name.length > 0
             ? `${item.name} (Receita)`
             : 'Nova receita (a partir de um grupo)',
-        items: recipeItems,
+        items: children(), // Use UnifiedItems directly
         owner: currentUserId(),
       })
 
-      const insertedRecipe = await insertRecipe(newRecipe)
+      const insertedRecipe = await saveUnifiedRecipe(newUnifiedRecipe)
 
       if (!insertedRecipe) {
         showError('Falha ao criar receita a partir do grupo')

@@ -204,28 +204,39 @@ The Recipe entity now supports both legacy Item[] and new UnifiedItem[] operatio
 - **In-Memory**: Can use UnifiedItem[] for all operations ✅  
 - **Conversion**: Automatic conversion between formats ✅
 - **Operations**: Full UnifiedItem[] recipe operations available ✅
-- **UI**: Still uses legacy Item[] operations (next to migrate) 🚧
+- **UI Components**: UnifiedRecipeEditView for native UnifiedItem[] operations ✅
+- **Macro Calculations**: Support for both Recipe and UnifiedRecipe ✅
+- **Legacy UI**: Still uses legacy Item[] operations (for compatibility) ⚠️
+- **Application Layer**: Needs migration to use UnifiedRecipe natively 🚧
 
-## Migration Priority Order
+## Phase 3 Completed: UI Layer Support ✅
 
-1. **Step 1**: Domain model changes (Recipe type, operations)
-2. **Step 2**: Conversion utilities for persistence
-3. **Step 3**: Infrastructure layer updates (DAO conversions)
-4. **Step 4**: UI layer updates (remove manual conversions)
-5. **Step 5**: Test updates and validation
-6. **Step 6**: Cleanup and deprecation of legacy patterns
+### Added Components:
+1. **UnifiedRecipeEditView**: Native UnifiedItem[] component without manual conversions
+2. **UnifiedRecipeEditContext**: Context provider for UnifiedRecipe operations
+3. **Macro Calculation Updates**: `calcUnifiedRecipeMacros()` and `calcUnifiedRecipeCalories()`
 
-## Database Compatibility Notes
+### Key Benefits:
+- No manual Item[] ↔ UnifiedItem[] conversions in UI code
+- Direct use of unifiedRecipeOperations for all recipe modifications
+- Copy/paste operations work directly with UnifiedItem[] arrays
+- Cleaner component code with consistent data types
 
-- Database will continue to store recipes with Item[] format
-- Only food items are supported in recipe.items for database persistence
-- UnifiedItem[] with recipe/group references will be flattened to Item[] for DB save
-- Loading from DB will convert Item[] back to UnifiedItem[] for in-memory operations
+## Phase 4: Application Layer Migration 🚧
 
-## Validation Requirements
+### Next Steps:
+1. Update recipe application services to prefer UnifiedRecipe
+2. Migrate route handlers to use UnifiedRecipe operations
+3. Update any remaining UI integrations to use UnifiedRecipeEditView
+4. Integration testing for end-to-end UnifiedRecipe flows
+5. Performance validation and cleanup
 
-- All existing Recipe functionality must continue to work
-- Recipe scaling operations must work with UnifiedItem[]
-- Macro calculations must work transparently
-- UI must handle UnifiedItem[] natively without manual conversions
-- Database persistence must maintain Item[] compatibility
+### Current State
+The Recipe entity now supports both legacy Item[] and new UnifiedItem[] operations:
+- **Database**: Still stores Item[] format for compatibility ✅
+- **In-Memory**: Can use UnifiedItem[] for all operations ✅  
+- **Conversion**: Automatic conversion between formats ✅
+- **Operations**: Full UnifiedItem[] recipe operations available ✅
+- **UI Components**: UnifiedRecipeEditView available for native operations ✅
+- **Macro Calculations**: Support for both Recipe and UnifiedRecipe ✅
+- **Application Layer**: Needs migration to use UnifiedRecipe natively 🚧
