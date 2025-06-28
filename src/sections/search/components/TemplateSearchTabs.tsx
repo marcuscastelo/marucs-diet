@@ -1,5 +1,6 @@
-import { type Accessor, For, type Setter } from 'solid-js'
+import { type Accessor, For, type Setter, Show } from 'solid-js'
 
+import { LoadingRing } from '~/sections/common/components/LoadingRing'
 import { cn } from '~/shared/cn'
 import { type ObjectValues } from '~/shared/utils/typeUtils'
 
@@ -34,36 +35,45 @@ export type TemplateSearchTab =
 export function TemplateSearchTabs(props: {
   tab: Accessor<TemplateSearchTab>
   setTab: Setter<TemplateSearchTab>
+  loading?: boolean
 }) {
   return (
     <ul class="flex text-font-medium text-center text-gray-500 divide-x divide-gray-600 rounded-lg shadow dark:divide-gray-600 dark:text-gray-300 bg-gray-900 dark:bg-gray-900">
       <For each={Object.keys(availableTabs)}>
-        {(tabKey, i) => (
-          <li class="w-full">
-            <a
-              href="#"
-              class={cn(
-                'flex min-h-full items-center justify-center px-4 py-2 text-sm font-medium first:ml-0 disabled:cursor-not-allowed disabled:text-gray-400 disabled:dark:text-gray-500 focus:outline-hidden hover:scale-110 transition-transform bg-gray-900 dark:bg-gray-900',
-                {
-                  'text-white bg-blue-700 dark:bg-blue-800 border-b-4 border-blue-400':
-                    props.tab() ===
-                    availableTabs[tabKey as keyof typeof availableTabs].id,
-                  'rounded-tl-lg': i() === 0,
-                  'rounded-tr-lg':
-                    i() === Object.keys(availableTabs).length - 1,
-                },
-              )}
-              aria-current="page"
-              onClick={() => {
-                props.setTab(
-                  availableTabs[tabKey as keyof typeof availableTabs].id,
-                )
-              }}
-            >
-              {availableTabs[tabKey as keyof typeof availableTabs].title}
-            </a>
-          </li>
-        )}
+        {(tabKey, i) => {
+          const tabId = availableTabs[tabKey as keyof typeof availableTabs].id
+          const tabTitle =
+            availableTabs[tabKey as keyof typeof availableTabs].title
+          const isActive = props.tab() === tabId
+          const isLoading = (props.loading ?? false) && isActive
+
+          return (
+            <li class="w-full">
+              <a
+                href="#"
+                class={cn(
+                  'flex min-h-full items-center justify-center px-4 py-2 text-sm font-medium first:ml-0 disabled:cursor-not-allowed disabled:text-gray-400 disabled:dark:text-gray-500 focus:outline-hidden hover:scale-110 transition-transform bg-gray-900 dark:bg-gray-900 gap-2',
+                  {
+                    'text-white bg-blue-700 dark:bg-blue-800 border-b-4 border-blue-400':
+                      isActive,
+                    'rounded-tl-lg': i() === 0,
+                    'rounded-tr-lg':
+                      i() === Object.keys(availableTabs).length - 1,
+                  },
+                )}
+                aria-current={isActive ? 'page' : undefined}
+                onClick={() => {
+                  props.setTab(tabId)
+                }}
+              >
+                <Show when={isLoading}>
+                  <LoadingRing class="w-4 h-4" />
+                </Show>
+                {tabTitle}
+              </a>
+            </li>
+          )
+        }}
       </For>
     </ul>
   )

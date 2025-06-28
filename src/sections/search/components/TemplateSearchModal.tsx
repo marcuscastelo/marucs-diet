@@ -288,14 +288,15 @@ export function TemplateSearch(props: {
       <TemplateSearchTabs
         tab={templateSearchTab}
         setTab={setTemplateSearchTab}
+        loading={templates.loading}
       />
       <TemplateSearchBar isDesktop={isDesktop} />
 
       <Suspense
         fallback={
-          <PageLoading
-            message={`Status: ${templates.state}: ${templates.error}`}
-          />
+          <div class="flex flex-col items-center justify-center py-8 text-center">
+            <PageLoading message="Carregando sistema de busca" />
+          </div>
         }
       >
         <TemplateSearchResults
