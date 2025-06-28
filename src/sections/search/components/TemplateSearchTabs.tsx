@@ -34,7 +34,6 @@ export type TemplateSearchTab =
 export function TemplateSearchTabs(props: {
   tab: Accessor<TemplateSearchTab>
   setTab: Setter<TemplateSearchTab>
-  loading?: boolean
 }) {
   const tabKeys = Object.keys(availableTabs)
 
