@@ -24,24 +24,29 @@ export function UnifiedItemActions(props: UnifiedItemActionsProps) {
     onDelete: createEventHandler(props.handlers.onDelete, props.item()),
   })
 
+  const hasAnyHandler = () =>
+    getHandlers().onEdit || getHandlers().onCopy || getHandlers().onDelete
+
   return (
-    <ContextMenu
-      trigger={
-        <div class="text-3xl active:scale-105 hover:text-blue-200">
-          <MoreVertIcon />
-        </div>
-      }
-      class="ml-2"
-    >
-      <Show when={getHandlers().onEdit}>
-        {(onEdit) => <ContextMenuEditItem onClick={onEdit()} />}
-      </Show>
-      <Show when={getHandlers().onCopy}>
-        {(onCopy) => <ContextMenuCopyItem onClick={onCopy()} />}
-      </Show>
-      <Show when={getHandlers().onDelete}>
-        {(onDelete) => <ContextMenuDeleteItem onClick={onDelete()} />}
-      </Show>
-    </ContextMenu>
+    <Show when={hasAnyHandler()}>
+      <ContextMenu
+        trigger={
+          <div class="text-3xl active:scale-105 hover:text-blue-200">
+            <MoreVertIcon />
+          </div>
+        }
+        class="ml-2"
+      >
+        <Show when={getHandlers().onEdit}>
+          {(onEdit) => <ContextMenuEditItem onClick={onEdit()} />}
+        </Show>
+        <Show when={getHandlers().onCopy}>
+          {(onCopy) => <ContextMenuCopyItem onClick={onCopy()} />}
+        </Show>
+        <Show when={getHandlers().onDelete}>
+          {(onDelete) => <ContextMenuDeleteItem onClick={onDelete()} />}
+        </Show>
+      </ContextMenu>
+    </Show>
   )
 }
