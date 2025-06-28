@@ -257,16 +257,13 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
 
                 {/* Sync button - only show if recipe was manually edited */}
                 <Show when={isManuallyEdited() && originalRecipe()}>
-                  <button
-                    class="btn btn-sm bg-orange-600 hover:bg-orange-700 text-white px-3 py-1 rounded-md transition-colors flex items-center gap-1"
+                  <div
+                    class="btn btn-sm btn-ghost text-white rounded-md flex items-center gap-1"
                     onClick={handleSyncWithOriginalRecipe}
                     title="Sincronizar com receita original"
                   >
-                    <div class="w-4 h-4">
-                      <DownloadIcon />
-                    </div>
-                    Sincronizar
-                  </button>
+                    <DownloadIcon />
+                  </div>
                 </Show>
               </div>
             </Show>

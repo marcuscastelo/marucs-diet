@@ -270,7 +270,7 @@ export function GroupChildrenEditor(props: GroupChildrenEditorProps) {
       </Show>
 
       {/* Convert to Recipe button - only visible when there are multiple children */}
-      <Show when={children().length > 1}>
+      <Show when={children().length > 1 && !isRecipeItem(props.item())}>
         <div class="mt-4">
           <button
             class="btn btn-sm bg-blue-600 hover:bg-blue-700 text-white w-full flex items-center justify-center gap-2"
@@ -279,6 +279,30 @@ export function GroupChildrenEditor(props: GroupChildrenEditorProps) {
           >
             <ConvertToRecipeIcon />
             Converter em Receita
+          </button>
+        </div>
+      </Show>
+
+      {/* Unlink Recipe button - only visible when the item is a recipe */}
+      <Show when={isRecipeItem(props.item())}>
+        <div class="mt-4">
+          <button
+            class="btn btn-sm bg-red-600 hover:bg-red-700 text-white w-full flex items-center justify-center gap-2"
+            onClick={() => {
+              const updatedItem = createUnifiedItem({
+                id: props.item().id,
+                name: props.item().name,
+                quantity: props.item().quantity,
+                reference: {
+                  type: 'group',
+                  children: children(),
+                },
+              })
+              props.setItem(updatedItem)
+            }}
+            title="Desvincular receita do grupo"
+          >
+            ❌ Desvincular Receita
           </button>
         </div>
       </Show>
