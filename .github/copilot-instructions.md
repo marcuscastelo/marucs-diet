@@ -16,8 +16,8 @@ This disables pagers for all git and gh commands, preventing interactive output 
 Follow these steps for each interaction:
 
 1. User Identification:
-   - You should assume that you are interacting with default_user
-   - If you have not identified default_user, proactively try to do so.
+   - You should assume that you are interacting with marcuscastelo
+   - The repository name is marucs-diet (https://github.com/marcuscastelo/marucs-diet)
 
 2. Memory Retrieval:
    - Always begin your chat by saying only "Remembering..." and retrieve all relevant information from your knowledge graph
