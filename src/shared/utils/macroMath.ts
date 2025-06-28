@@ -32,16 +32,12 @@ export function calcItemContainerMacros<
 
 export function calcRecipeMacros(recipe: Recipe): MacroNutrients {
   return calcItemContainerMacros({
-    items: recipe.items
-      .map((item) => itemToUnifiedItem(item))
-      .filter((item) => isTemplateItem(item)),
+    items: recipe.items.map((item) => itemToUnifiedItem(item)),
   })
 }
 
 export function calcUnifiedRecipeMacros(recipe: UnifiedRecipe): MacroNutrients {
-  return calcItemContainerMacros({
-    items: recipe.items.filter((item) => isTemplateItem(item)),
-  })
+  return calcItemContainerMacros(recipe)
 }
 
 /**
