@@ -1,7 +1,7 @@
 ---
 description: 'Summarize all new learnings from the session and suggest clear, actionable improvements for prompts and instructions. Output files must include the agent (reportedBy) responsible for the suggestions in the filename and at the top of the file. The reportedBy field and filename must always match the agent that actually produced the content. If multiple agents suggest improvements, create multiple files.'
 mode: 'agent'
-tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'activePullRequest', 'memory']
+tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runNotebooks', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'memory', 'activePullRequest']
 ---
 
 # End-Session Summary Agent
