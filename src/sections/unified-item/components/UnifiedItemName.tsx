@@ -1,6 +1,7 @@
 import { type Accessor, createMemo, createResource, Show } from 'solid-js'
 
-import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
+import { fetchUnifiedRecipeById } from '~/modules/diet/recipe/application/unifiedRecipe'
+import { convertUnifiedRecipeToRecipe } from '~/modules/diet/recipe/domain/recipeConversionUtils'
 import { isRecipeUnifiedItemManuallyEdited } from '~/modules/diet/unified-item/domain/conversionUtils'
 import {
   isRecipeItem,
@@ -13,7 +14,6 @@ export type UnifiedItemNameProps = {
 }
 
 export function UnifiedItemName(props: UnifiedItemNameProps) {
-  const recipeRepository = createSupabaseRecipeRepository()
   const typeDisplay = () => getItemTypeDisplay(props.item())
 
   const [originalRecipe] = createResource(
@@ -23,7 +23,7 @@ export function UnifiedItemName(props: UnifiedItemNameProps) {
     },
     async (recipeId: number) => {
       try {
-        return await recipeRepository.fetchRecipeById(recipeId)
+        return await fetchUnifiedRecipeById(recipeId)
       } catch (error) {
         console.warn('Failed to fetch recipe for comparison:', error)
         return null
@@ -33,18 +33,20 @@ export function UnifiedItemName(props: UnifiedItemNameProps) {
 
   const isManuallyEdited = createMemo(() => {
     const item = props.item()
-    const recipe = originalRecipe()
+    const unifiedRecipe = originalRecipe()
 
     if (
       !isRecipeItem(item) ||
-      recipe === null ||
-      recipe === undefined ||
+      unifiedRecipe === null ||
+      unifiedRecipe === undefined ||
       originalRecipe.loading
     ) {
       return false
     }
 
-    return isRecipeUnifiedItemManuallyEdited(item, recipe)
+    // Convert UnifiedRecipe to legacy Recipe format for comparison
+    const legacyRecipe = convertUnifiedRecipeToRecipe(unifiedRecipe)
+    return isRecipeUnifiedItemManuallyEdited(item, legacyRecipe)
   })
 
   const warningIndicator = () => (isManuallyEdited() ? '⚠️' : '')
