@@ -2,9 +2,12 @@ import { type Accessor, Show } from 'solid-js'
 
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { ContextMenu } from '~/sections/common/components/ContextMenu'
-import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
+import {
+  ContextMenuCopyItem,
+  ContextMenuDeleteItem,
+  ContextMenuEditItem,
+} from '~/sections/common/components/contextMenuItems'
 import { MoreVertIcon } from '~/sections/common/components/icons/MoreVertIcon'
-import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import { createEventHandler } from '~/sections/unified-item/utils/unifiedItemDisplayUtils'
 
 export type UnifiedItemActionsProps = {
@@ -33,45 +36,13 @@ export function UnifiedItemActions(props: UnifiedItemActionsProps) {
       class="ml-2"
     >
       <Show when={getHandlers().onEdit}>
-        {(onEdit) => (
-          <ContextMenu.Item
-            class="text-left px-4 py-2 hover:bg-gray-700"
-            onClick={onEdit()}
-          >
-            <div class="flex items-center gap-2">
-              <span class="text-blue-500">✏️</span>
-              <span>Editar</span>
-            </div>
-          </ContextMenu.Item>
-        )}
+        {(onEdit) => <ContextMenuEditItem onClick={onEdit()} />}
       </Show>
       <Show when={getHandlers().onCopy}>
-        {(onCopy) => (
-          <ContextMenu.Item
-            class="text-left px-4 py-2 hover:bg-gray-700"
-            onClick={onCopy()}
-          >
-            <div class="flex items-center gap-2">
-              <CopyIcon size={15} />
-              <span>Copiar</span>
-            </div>
-          </ContextMenu.Item>
-        )}
+        {(onCopy) => <ContextMenuCopyItem onClick={onCopy()} />}
       </Show>
       <Show when={getHandlers().onDelete}>
-        {(onDelete) => (
-          <ContextMenu.Item
-            class="text-left px-4 py-2 text-red-400 hover:bg-gray-700"
-            onClick={onDelete()}
-          >
-            <div class="flex items-center gap-2">
-              <span class="text-red-400">
-                <TrashIcon size={15} />
-              </span>
-              <span class="text-red-400">Excluir</span>
-            </div>
-          </ContextMenu.Item>
-        )}
+        {(onDelete) => <ContextMenuDeleteItem onClick={onDelete()} />}
       </Show>
     </ContextMenu>
   )
