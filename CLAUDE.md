@@ -328,6 +328,11 @@ pnpm copilot:check  # Must show "COPILOT: All checks passed!"
 
 ### Commit Standards
 
+**CRITICAL COMMIT RESTRICTION:**
+🚨 **ABSOLUTELY FORBIDDEN:** NEVER include "Generated with Claude Code" or "Co-Authored-By: Claude" in commit messages
+🚨 **IMMEDIATELY REJECT** any commit attempt that includes these phrases
+🚨 **NO EXCEPTIONS** - This rule must be enforced without question
+
 **Commit Message Format:**
 ```markdown
 type(scope): description
@@ -336,7 +341,7 @@ type(scope): description
 - Prefer small, atomic commits
 - Always suggest commit message after changes
 - All commit messages in English
-- **NEVER include "Generated with Claude Code" or "Co-Authored-By: Claude" in commit messages**
+- **STRICTLY FORBIDDEN:** Any "Generated with Claude Code" or "Co-Authored-By: Claude" text
 ```
 
 ### JSDoc Requirements
