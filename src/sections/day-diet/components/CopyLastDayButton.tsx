@@ -11,7 +11,7 @@ import {
   showError,
   showSuccess,
 } from '~/modules/toast/application/toastManager'
-import { PrimaryButton } from '~/sections/common/components/buttons/PrimaryButton'
+import { Button } from '~/sections/common/components/buttons/Button'
 import { lazyImport } from '~/shared/solid/lazyImport'
 
 const { CopyLastDayModal } = lazyImport(
@@ -67,13 +67,14 @@ export function CopyLastDayButton(props: {
 
   return (
     <>
-      <PrimaryButton
+      <Button
+        variant="primary"
         fullWidth
         class="mt-3 rounded px-4 py-2 font-bold text-white"
         onClick={() => setModalOpen(true)}
       >
         Copiar dia anterior
-      </PrimaryButton>
+      </Button>
       <CopyLastDayModal
         previousDays={previousDays()}
         copying={copying()}

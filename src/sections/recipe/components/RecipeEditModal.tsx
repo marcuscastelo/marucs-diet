@@ -16,7 +16,6 @@ import {
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { showError } from '~/modules/toast/application/toastManager'
 import { Button } from '~/sections/common/components/buttons/Button'
-import { ErrorButton } from '~/sections/common/components/buttons/ErrorButton'
 import { Modal } from '~/sections/common/components/Modal'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import {
@@ -220,7 +219,8 @@ function Actions(props: {
 
   return (
     <>
-      <ErrorButton
+      <Button
+        variant="error"
         class="mr-auto"
         onClick={(e) => {
           e.preventDefault()
@@ -245,7 +245,7 @@ function Actions(props: {
         }}
       >
         Excluir
-      </ErrorButton>
+      </Button>
       <Button
         onClick={(e) => {
           e.preventDefault()

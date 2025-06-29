@@ -17,8 +17,7 @@ import {
   users,
 } from '~/modules/user/application/user'
 import { type User } from '~/modules/user/domain/user'
-import { GhostButton } from '~/sections/common/components/buttons/GhostButton'
-import { PrimaryButton } from '~/sections/common/components/buttons/PrimaryButton'
+import { Button } from '~/sections/common/components/buttons/Button'
 import { ConsoleDumpButton } from '~/sections/common/components/ConsoleDumpButton'
 import { UserIcon } from '~/sections/common/components/icons/UserIcon'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
@@ -146,8 +145,9 @@ export function BottomNavigation() {
           <ConsoleDumpButton />
         </div>
         <Show when={!window.location.href.includes('stable')}>
-          <PrimaryButton
+          <Button
             type="button"
+            variant="primary"
             size="xs"
             class="mt-1"
             onClick={() => {
@@ -155,7 +155,7 @@ export function BottomNavigation() {
             }}
           >
             Trocar para versão estável
-          </PrimaryButton>
+          </Button>
         </Show>
       </footer>
     </div>
@@ -335,7 +335,8 @@ const UserSelectorDropdown = () => {
     <div class="flex flex-col gap-1">
       <For each={users()}>
         {(user) => (
-          <GhostButton
+          <Button
+            variant="ghost"
             class="flex justify-between"
             onClick={() => {
               handleChangeUser(user)
@@ -352,7 +353,7 @@ const UserSelectorDropdown = () => {
               userName={() => user.name}
             />
             <div class="text-xl flex-1 text-start">{user.name}</div>
-          </GhostButton>
+          </Button>
         )}
       </For>
     </div>

@@ -16,7 +16,7 @@ import {
   showError,
   showSuccess,
 } from '~/modules/toast/application/toastManager'
-import { PrimaryButton } from '~/sections/common/components/buttons/PrimaryButton'
+import { Button } from '~/sections/common/components/buttons/Button'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { dateToYYYYMMDD, getTodayYYYYMMDD } from '~/shared/utils/date'
 import { calcCalories } from '~/shared/utils/macroMath'
@@ -198,7 +198,8 @@ export function MacroTarget(props: MacroTargetProps) {
                           Tem perfil antigo?{' '}
                           {'Sim, de ' + dateToYYYYMMDD(oldProfile.target_day)}
                         </span>
-                        <PrimaryButton
+                        <Button
+                          variant="primary"
                           size="sm"
                           onClick={() => {
                             showConfirmModal({
@@ -258,7 +259,7 @@ export function MacroTarget(props: MacroTargetProps) {
                           }}
                         >
                           Restaurar perfil antigo
-                        </PrimaryButton>
+                        </Button>
                       </>
                     )}
                   </Show>

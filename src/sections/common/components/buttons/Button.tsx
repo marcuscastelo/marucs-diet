@@ -1,7 +1,7 @@
-import { JSX, splitProps } from 'solid-js'
+import { JSX, mergeProps } from 'solid-js'
 
 export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg'
-export type ButtonVariant = 'primary' | 'ghost' | 'error' | 'base'
+export type ButtonVariant = 'primary' | 'ghost' | 'error'
 
 export type ButtonProps = {
   size?: ButtonSize
@@ -12,36 +12,14 @@ export type ButtonProps = {
 } & JSX.ButtonHTMLAttributes<HTMLButtonElement>
 
 /**
- * Base button component with standardized styling and behavior.
- * Provides consistent button appearance across the application.
+ * Standardized button component with consistent styling across the application.
+ * Supports multiple variants, sizes, and common button behaviors.
  */
-export function Button(props: ButtonProps) {
-  const [local, others] = splitProps(props, [
-    'size',
-    'variant',
-    'fullWidth',
-    'noAnimation',
-    'loading',
-    'disabled',
-    'class',
-    'children',
-  ])
+export function Button(allProps: ButtonProps) {
+  const props = mergeProps({ variant: 'ghost' as ButtonVariant }, allProps)
 
-  const sizeClasses = () => {
-    switch (local.size) {
-      case 'xs':
-        return 'btn-xs'
-      case 'sm':
-        return 'btn-sm'
-      case 'lg':
-        return 'btn-lg'
-      default:
-        return ''
-    }
-  }
-
-  const variantClasses = () => {
-    switch (local.variant) {
+  const getVariantClass = () => {
+    switch (props.variant) {
       case 'primary':
         return 'btn-primary'
       case 'ghost':
@@ -49,46 +27,56 @@ export function Button(props: ButtonProps) {
       case 'error':
         return 'btn-error'
       default:
+        return 'btn-ghost'
+    }
+  }
+
+  const getSizeClass = () => {
+    switch (props.size) {
+      case 'xs':
+        return 'btn-xs'
+      case 'sm':
+        return 'btn-sm'
+      case 'lg':
+        return 'btn-lg'
+      case 'md':
+      default:
         return ''
     }
   }
 
-  const baseClasses = () => {
-    const classes = ['btn', 'cursor-pointer', 'uppercase']
+  const buildClassName = () => {
+    const classes = [
+      'btn',
+      'cursor-pointer',
+      'uppercase',
+      getVariantClass(),
+      getSizeClass(),
+    ]
 
-    if (local.fullWidth) {
+    if (props.fullWidth === true) {
       classes.push('w-full')
     }
 
-    if (local.noAnimation) {
+    if (props.noAnimation === true) {
       classes.push('no-animation')
     }
 
-    const sizeClass = sizeClasses()
-    if (sizeClass) {
-      classes.push(sizeClass)
+    if (props.class && props.class !== '') {
+      classes.push(props.class)
     }
 
-    const variantClass = variantClasses()
-    if (variantClass) {
-      classes.push(variantClass)
-    }
-
-    if (local.class) {
-      classes.push(local.class)
-    }
-
-    return classes.join(' ')
+    return classes.filter(Boolean).join(' ')
   }
 
   return (
     <button
-      {...others}
-      class={baseClasses()}
-      disabled={local.disabled || local.loading}
-      aria-disabled={local.disabled || local.loading}
+      {...props}
+      class={buildClassName()}
+      disabled={props.disabled === true || props.loading === true}
+      aria-disabled={props.disabled === true || props.loading === true}
     >
-      {local.loading ? 'Carregando...' : local.children}
+      {props.children}
     </button>
   )
 }

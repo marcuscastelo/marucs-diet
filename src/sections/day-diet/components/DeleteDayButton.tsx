@@ -2,14 +2,15 @@ import { type Accessor } from 'solid-js'
 
 import { deleteDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
-import { ErrorButton } from '~/sections/common/components/buttons/ErrorButton'
+import { Button } from '~/sections/common/components/buttons/Button'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 
 export function DeleteDayButton(props: { day: Accessor<DayDiet> }) {
   const { show: showConfirmModal } = useConfirmModalContext()
 
   return (
-    <ErrorButton
+    <Button
+      variant="error"
       class="mt-3 min-w-full rounded px-4 py-2 font-bold text-white hover:bg-red-400"
       onClick={() => {
         showConfirmModal({
@@ -35,6 +36,6 @@ export function DeleteDayButton(props: { day: Accessor<DayDiet> }) {
       }}
     >
       PERIGO: Excluir dia
-    </ErrorButton>
+    </Button>
   )
 }
