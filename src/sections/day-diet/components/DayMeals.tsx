@@ -18,6 +18,8 @@ import { updateMeal } from '~/modules/diet/meal/application/meal'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { showError } from '~/modules/toast/application/toastManager'
+import { GhostButton } from '~/sections/common/components/buttons/GhostButton'
+import { PrimaryButton } from '~/sections/common/components/buttons/PrimaryButton'
 import { Modal } from '~/sections/common/components/Modal'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { CopyLastDayButton } from '~/sections/day-diet/components/CopyLastDayButton'
@@ -122,21 +124,17 @@ export default function DayMeals(props: {
               Deseja desbloquear este dia para edição?
             </div>
             <div class="flex gap-2 justify-end mt-4">
-              <button
-                class="btn cursor-pointer uppercase btn-primary"
+              <PrimaryButton
                 onClick={() => {
                   setShowConfirmEdit(false)
                   props.onRequestEditMode?.()
                 }}
               >
                 Desbloquear dia para edição
-              </button>
-              <button
-                class="btn cursor-pointer uppercase btn-ghost"
-                onClick={() => setShowConfirmEdit(false)}
-              >
+              </PrimaryButton>
+              <GhostButton onClick={() => setShowConfirmEdit(false)}>
                 Cancelar
-              </button>
+              </GhostButton>
             </div>
           </div>
         </Modal>

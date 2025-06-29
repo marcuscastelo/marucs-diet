@@ -15,6 +15,8 @@ import {
   type UnifiedItem,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { showError } from '~/modules/toast/application/toastManager'
+import { Button } from '~/sections/common/components/buttons/Button'
+import { ErrorButton } from '~/sections/common/components/buttons/ErrorButton'
 import { Modal } from '~/sections/common/components/Modal'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import {
@@ -218,8 +220,8 @@ function Actions(props: {
 
   return (
     <>
-      <button
-        class="btn-error btn cursor-pointer uppercase mr-auto"
+      <ErrorButton
+        class="mr-auto"
         onClick={(e) => {
           e.preventDefault()
           showConfirmModal({
@@ -243,9 +245,8 @@ function Actions(props: {
         }}
       >
         Excluir
-      </button>
-      <button
-        class="btn cursor-pointer uppercase"
+      </ErrorButton>
+      <Button
         onClick={(e) => {
           e.preventDefault()
           setVisible(false)
@@ -253,9 +254,8 @@ function Actions(props: {
         }}
       >
         Cancelar
-      </button>
-      <button
-        class="btn cursor-pointer uppercase"
+      </Button>
+      <Button
         onClick={(e) => {
           e.preventDefault()
           props.onApply()
@@ -263,7 +263,7 @@ function Actions(props: {
         }}
       >
         Aplicar
-      </button>
+      </Button>
     </>
   )
 }

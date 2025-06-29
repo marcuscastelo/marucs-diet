@@ -17,6 +17,8 @@ import {
   users,
 } from '~/modules/user/application/user'
 import { type User } from '~/modules/user/domain/user'
+import { GhostButton } from '~/sections/common/components/buttons/GhostButton'
+import { PrimaryButton } from '~/sections/common/components/buttons/PrimaryButton'
 import { ConsoleDumpButton } from '~/sections/common/components/ConsoleDumpButton'
 import { UserIcon } from '~/sections/common/components/icons/UserIcon'
 import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
@@ -144,15 +146,16 @@ export function BottomNavigation() {
           <ConsoleDumpButton />
         </div>
         <Show when={!window.location.href.includes('stable')}>
-          <button
+          <PrimaryButton
             type="button"
-            class="btn cursor-pointer uppercase btn-primary btn-xs mt-1"
+            size="xs"
+            class="mt-1"
             onClick={() => {
               window.location.href = 'https://marucs-diet-stable.vercel.app/'
             }}
           >
             Trocar para versão estável
-          </button>
+          </PrimaryButton>
         </Show>
       </footer>
     </div>
@@ -332,8 +335,8 @@ const UserSelectorDropdown = () => {
     <div class="flex flex-col gap-1">
       <For each={users()}>
         {(user) => (
-          <div
-            class="btn cursor-pointer uppercase btn-ghost flex justify-between"
+          <GhostButton
+            class="flex justify-between"
             onClick={() => {
               handleChangeUser(user)
               // Force dropdown to close without having to click outside setting aria
@@ -349,7 +352,7 @@ const UserSelectorDropdown = () => {
               userName={() => user.name}
             />
             <div class="text-xl flex-1 text-start">{user.name}</div>
-          </div>
+          </GhostButton>
         )}
       </For>
     </div>

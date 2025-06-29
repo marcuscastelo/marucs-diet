@@ -1,6 +1,8 @@
 import { createEffect, createSignal, onMount, Suspense } from 'solid-js'
 
 import { type Food } from '~/modules/diet/food/domain/food'
+import { Button } from '~/sections/common/components/buttons/Button'
+import { PrimaryButton } from '~/sections/common/components/buttons/PrimaryButton'
 import { LoadingRing } from '~/sections/common/components/LoadingRing'
 import { Modal } from '~/sections/common/components/Modal'
 import { useModalContext } from '~/sections/common/context/ModalContext'
@@ -69,22 +71,17 @@ const EANInsertModal = (props: EANInsertModalProps) => {
         </Suspense>
       </Modal.Content>
       <Modal.Footer>
-        <button
-          class="btn cursor-pointer uppercase"
+        <Button
           onClick={(e) => {
             e.preventDefault()
             setVisible(false)
           }}
         >
           Cancelar
-        </button>
-        <button
-          class="btn-primary btn cursor-pointer uppercase"
-          disabled={food() === null}
-          onClick={handleSelect}
-        >
+        </Button>
+        <PrimaryButton disabled={food() === null} onClick={handleSelect}>
           Aplicar
-        </button>
+        </PrimaryButton>
       </Modal.Footer>
     </Modal>
   )
