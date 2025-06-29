@@ -424,3 +424,6 @@ type(scope): description
 - Replace peer review with systematic self-review processes
 - Preserve backup/rollback procedures without team communication
 
+## Memory Bank
+
+- **NEVER destucture `props`! This breaks reactivity**

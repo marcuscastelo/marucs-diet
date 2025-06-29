@@ -10,7 +10,11 @@ export type ButtonProps = JSX.ButtonHTMLAttributes<HTMLButtonElement>
  */
 export function Button(props: ButtonProps) {
   return (
-    <button {...props} class={cn('btn cursor-pointer uppercase', props.class)}>
+    <button
+      {...props}
+      type={props.type || 'button'}
+      class={cn('btn cursor-pointer uppercase', props.class)}
+    >
       {props.children}
     </button>
   )
