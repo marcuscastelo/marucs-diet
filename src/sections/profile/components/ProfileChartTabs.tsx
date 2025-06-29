@@ -1,5 +1,6 @@
-import { type Accessor, createEffect, For, type Setter } from 'solid-js'
+import { type Accessor, For, type Setter } from 'solid-js'
 
+import { Button } from '~/sections/common/components/buttons/Button'
 import { cn } from '~/shared/cn'
 import { type ObjectValues } from '~/shared/utils/typeUtils'
 
@@ -39,14 +40,38 @@ type ProfileChartTabsProps = {
 export function ProfileChartTabs(props: ProfileChartTabsProps) {
   const tabKeys = Object.keys(availableChartTabs)
 
-  createEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('profile-chart-active-tab', props.activeTab())
+  const handleKeyDown = (event: KeyboardEvent) => {
+    const currentIndex = tabKeys.findIndex(
+      (key) =>
+        availableChartTabs[key as keyof typeof availableChartTabs].id ===
+        props.activeTab(),
+    )
+
+    if (event.key === 'ArrowLeft' && currentIndex > 0) {
+      event.preventDefault()
+      const prevTab = tabKeys[currentIndex - 1]
+      const prevTabId =
+        availableChartTabs[prevTab as keyof typeof availableChartTabs].id
+      props.setActiveTab(prevTabId)
+      if (typeof window !== 'undefined') {
+        window.location.hash = prevTabId
+      }
     }
-  })
+
+    if (event.key === 'ArrowRight' && currentIndex < tabKeys.length - 1) {
+      event.preventDefault()
+      const nextTab = tabKeys[currentIndex + 1]
+      const nextTabId =
+        availableChartTabs[nextTab as keyof typeof availableChartTabs].id
+      props.setActiveTab(nextTabId)
+      if (typeof window !== 'undefined') {
+        window.location.hash = nextTabId
+      }
+    }
+  }
 
   return (
-    <div class="mb-6">
+    <div class="mt-6" onKeyDown={handleKeyDown} tabIndex={0}>
       <ul class="flex text-font-medium text-center text-gray-500 divide-x divide-gray-600 rounded-lg shadow dark:divide-gray-600 dark:text-gray-300 bg-gray-900 dark:bg-gray-900">
         <For each={tabKeys}>
           {(tabKey, i) => {
@@ -59,8 +84,7 @@ export function ProfileChartTabs(props: ProfileChartTabsProps) {
 
             return (
               <li class="w-full">
-                <button
-                  type="button"
+                <Button
                   class={cn(
                     'flex min-h-full items-center justify-center px-4 py-3 text-sm font-medium first:ml-0 disabled:cursor-not-allowed disabled:text-gray-400 disabled:dark:text-gray-500 focus:outline-hidden hover:scale-105 transition-transform bg-gray-900 dark:bg-gray-900 gap-2 w-full',
                     {
@@ -77,45 +101,9 @@ export function ProfileChartTabs(props: ProfileChartTabsProps) {
                       window.location.hash = tabId()
                     }
                   }}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                      event.preventDefault()
-                      props.setActiveTab(tabId())
-                      if (typeof window !== 'undefined') {
-                        window.location.hash = tabId()
-                      }
-                    }
-                    if (event.key === 'ArrowLeft' && i() > 0) {
-                      event.preventDefault()
-                      const prevTab = tabKeys[i() - 1]
-                      const prevTabId =
-                        availableChartTabs[
-                          prevTab as keyof typeof availableChartTabs
-                        ].id
-                      props.setActiveTab(prevTabId)
-                      if (typeof window !== 'undefined') {
-                        window.location.hash = prevTabId
-                      }
-                    }
-                    if (
-                      event.key === 'ArrowRight' &&
-                      i() < tabKeys.length - 1
-                    ) {
-                      event.preventDefault()
-                      const nextTab = tabKeys[i() + 1]
-                      const nextTabId =
-                        availableChartTabs[
-                          nextTab as keyof typeof availableChartTabs
-                        ].id
-                      props.setActiveTab(nextTabId)
-                      if (typeof window !== 'undefined') {
-                        window.location.hash = nextTabId
-                      }
-                    }
-                  }}
                 >
                   {tabTitle()}
-                </button>
+                </Button>
               </li>
             )
           }}
