@@ -1,4 +1,4 @@
-import { createEffect, createSignal, onMount, Suspense } from 'solid-js'
+import { Suspense } from 'solid-js'
 
 import { PageLoading } from '~/sections/common/components/PageLoading'
 import { BodyMeasuresChartSection } from '~/sections/profile/components/BodyMeasuresChartSection'
@@ -9,6 +9,7 @@ import {
   ProfileChartTabs,
 } from '~/sections/profile/components/ProfileChartTabs'
 import { WeightChartSection } from '~/sections/profile/components/WeightChartSection'
+import { useHashTabs } from '~/shared/hooks/useHashTabs'
 import { lazyImport } from '~/shared/solid/lazyImport'
 
 const { UserInfo } = lazyImport(
@@ -16,40 +17,11 @@ const { UserInfo } = lazyImport(
   ['UserInfo'],
 )
 
-function getInitialTab(): ProfileChartTab {
-  if (typeof window !== 'undefined') {
-    const hash = window.location.hash.slice(1)
-    if (hash === 'weight' || hash === 'macros' || hash === 'measures') {
-      return hash
-    }
-    const stored = localStorage.getItem('profile-chart-active-tab')
-    if (stored === 'weight' || stored === 'macros' || stored === 'measures') {
-      return stored
-    }
-  }
-  return 'weight'
-}
-
 export default function Page() {
-  const [activeTab, setActiveTab] =
-    createSignal<ProfileChartTab>(getInitialTab())
-
-  onMount(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.slice(1)
-      if (hash === 'weight' || hash === 'macros' || hash === 'measures') {
-        setActiveTab(hash)
-      }
-    }
-
-    window.addEventListener('hashchange', handleHashChange)
-    return () => window.removeEventListener('hashchange', handleHashChange)
-  })
-
-  createEffect(() => {
-    if (typeof window !== 'undefined' && !window.location.hash) {
-      window.location.hash = activeTab()
-    }
+  const [activeTab, setActiveTab] = useHashTabs<ProfileChartTab>({
+    validTabs: ['weight', 'macros', 'measures'] as const,
+    defaultTab: 'weight',
+    storageKey: 'profile-chart-active-tab',
   })
 
   return (

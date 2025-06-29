@@ -53,9 +53,6 @@ export function ProfileChartTabs(props: ProfileChartTabsProps) {
       const prevTabId =
         availableChartTabs[prevTab as keyof typeof availableChartTabs].id
       props.setActiveTab(prevTabId)
-      if (typeof window !== 'undefined') {
-        window.location.hash = prevTabId
-      }
     }
 
     if (event.key === 'ArrowRight' && currentIndex < tabKeys.length - 1) {
@@ -64,9 +61,6 @@ export function ProfileChartTabs(props: ProfileChartTabsProps) {
       const nextTabId =
         availableChartTabs[nextTab as keyof typeof availableChartTabs].id
       props.setActiveTab(nextTabId)
-      if (typeof window !== 'undefined') {
-        window.location.hash = nextTabId
-      }
     }
   }
 
@@ -97,9 +91,6 @@ export function ProfileChartTabs(props: ProfileChartTabsProps) {
                   aria-current={isActive() ? 'page' : undefined}
                   onClick={() => {
                     props.setActiveTab(tabId())
-                    if (typeof window !== 'undefined') {
-                      window.location.hash = tabId()
-                    }
                   }}
                 >
                   {tabTitle()}
