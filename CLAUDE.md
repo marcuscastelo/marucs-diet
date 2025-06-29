@@ -333,6 +333,7 @@ type(scope): description
 - Prefer small, atomic commits
 - Always suggest commit message after changes
 - All commit messages in English
+- **NEVER include "Generated with Claude Code" or "Co-Authored-By: Claude" in commit messages**
 ```
 
 ### JSDoc Requirements
