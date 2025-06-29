@@ -45,6 +45,39 @@ This disables pagers for git/gh commands, preventing interactive output issues.
 - Coverage: `pnpm test --coverage`
 - Tests must be updated when changing code - no orphaned tests
 
+## Claude Commands
+
+**Optimized commands available in `.claude/commands/` directory:**
+
+### Workflow Commands
+- `/commit` - Generate conventional commit messages and execute commits
+- `/pull-request` or `/pr` - Create pull requests with proper formatting
+
+### Quality Assurance
+- `/fix` - Automated codebase checks and error correction
+- `/review` - Comprehensive code review for PR changes
+
+### Issue Management
+- `/create-issue [type]` - Create GitHub issues using proper templates
+- `/implement <issue-number>` - Autonomous issue implementation
+
+### Refactoring
+- `/refactor [target]` - Clean architecture refactoring and modularization
+
+### Session Management
+- `/end-session` or `/end` - Session summary and knowledge export
+
+**Daily Workflow Example:**
+```bash
+/fix                    # Ensure clean codebase
+/create-issue feature   # Create feature request
+/implement 123          # Implement issue #123
+/commit                # Generate and execute commit
+/pull-request          # Create PR for review
+```
+
+See `.claude/commands/README.md` for complete command documentation.
+
 ## Architecture Overview
 
 ### Layered Domain-Driven Architecture
