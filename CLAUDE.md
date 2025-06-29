@@ -276,6 +276,9 @@ const { Component } = await import('solid-js')
 - **Strict boolean expressions:** Enforced for better type safety
 - **Custom parsing requirement:** Use `parseWithStack` instead of direct `JSON.parse`
 
+### CSS and Styling
+- **Always use `cn` function to merge Tailwind classes** for proper class merging and deduplication
+
 ## File Organization and Module Structure
 
 ```
@@ -421,6 +424,3 @@ type(scope): description
 - Replace peer review with systematic self-review processes
 - Preserve backup/rollback procedures without team communication
 
-## Code Practices
-
-- Always use `cn` function to merge tailwind classes
