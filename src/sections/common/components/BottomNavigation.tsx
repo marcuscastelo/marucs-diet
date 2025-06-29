@@ -147,9 +147,7 @@ export function BottomNavigation() {
         <Show when={!window.location.href.includes('stable')}>
           <Button
             type="button"
-            variant="primary"
-            size="xs"
-            class="mt-1"
+            class="btn-primary btn-xs mt-1"
             onClick={() => {
               window.location.href = 'https://marucs-diet-stable.vercel.app/'
             }}
@@ -336,8 +334,7 @@ const UserSelectorDropdown = () => {
       <For each={users()}>
         {(user) => (
           <Button
-            variant="ghost"
-            class="flex justify-between"
+            class="btn-ghost flex justify-between"
             onClick={() => {
               handleChangeUser(user)
               // Force dropdown to close without having to click outside setting aria

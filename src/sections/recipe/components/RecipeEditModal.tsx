@@ -220,8 +220,7 @@ function Actions(props: {
   return (
     <>
       <Button
-        variant="error"
-        class="mr-auto"
+        class="btn-error mr-auto"
         onClick={(e) => {
           e.preventDefault()
           showConfirmModal({

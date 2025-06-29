@@ -79,7 +79,7 @@ const EANInsertModal = (props: EANInsertModalProps) => {
           Cancelar
         </Button>
         <Button
-          variant="primary"
+          class="btn-primary"
           disabled={food() === null}
           onClick={handleSelect}
         >

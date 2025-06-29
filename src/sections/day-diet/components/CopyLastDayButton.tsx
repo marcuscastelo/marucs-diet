@@ -68,9 +68,7 @@ export function CopyLastDayButton(props: {
   return (
     <>
       <Button
-        variant="primary"
-        fullWidth
-        class="mt-3 rounded px-4 py-2 font-bold text-white"
+        class="btn-primary w-full mt-3 rounded px-4 py-2 font-bold text-white"
         onClick={() => setModalOpen(true)}
       >
         Copiar dia anterior

@@ -199,8 +199,7 @@ export function MacroTarget(props: MacroTargetProps) {
                           {'Sim, de ' + dateToYYYYMMDD(oldProfile.target_day)}
                         </span>
                         <Button
-                          variant="primary"
-                          size="sm"
+                          class="btn-primary btn-sm"
                           onClick={() => {
                             showConfirmModal({
                               title: () => (
