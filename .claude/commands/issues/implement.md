@@ -18,8 +18,11 @@ This command provides complete autonomous implementation of GitHub issues. After
 ## What it does
 
 1. **Preparation Phase:**
-   - Fetches and checks out latest `rc/` branch or default base
-   - Creates feature branch: `marcuscastelo/issue<ISSUE_NUMBER>`
+   - Checks current branch name and compares with target: `marcuscastelo/issue<ISSUE_NUMBER>`
+   - If already on correct branch, skips branch creation/checkout
+   - If not on correct branch:
+     - Fetches and checks out latest `rc/` branch or default base
+     - Creates feature branch: `marcuscastelo/issue<ISSUE_NUMBER>`
    - Retrieves issue data using `gh` CLI (title, body, labels, comments)
    - Validates issue exists and is implementable
 
@@ -116,7 +119,8 @@ This command provides complete autonomous implementation of GitHub issues. After
 
 ### Branch Management
 - **Feature branches:** `marcuscastelo/issue<NUMBER>` format
-- **Base branch:** Latest `rc/` branch or project default
+- **Branch optimization:** Skip branch creation if already on correct branch
+- **Base branch:** Latest `rc/` branch or project default (when creating new branch)
 - **Clean state:** Ensure working directory is clean before starting
 - **Upstream tracking:** Set up proper remote tracking
 
