@@ -1,11 +1,4 @@
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  onCleanup,
-  onMount,
-  Show,
-} from 'solid-js'
+import { createMemo, createSignal, onMount, Show } from 'solid-js'
 
 import { buildChartData } from '~/modules/weight/application/weightChartUtils'
 import { type Weight } from '~/modules/weight/domain/weight'
@@ -50,174 +43,26 @@ function isMobileDevice(): boolean {
  * @param props - WeightChartProps
  * @returns SolidJS component
  */
-/**
- * Performance monitoring utilities.
- */
-function measurePerformance<T>(name: string, fn: () => T): T {
-  if (typeof window !== 'undefined' && Boolean(window.performance)) {
-    const start = performance.now()
-    const result = fn()
-    const end = performance.now()
-    console.debug(`[WeightChart] ${name}: ${(end - start).toFixed(2)}ms`)
-    return result
-  } else {
-    return fn()
-  }
-}
-
-/**
- * Incremental rendering phases for progressive chart loading.
- */
-type RenderPhase = 'idle' | 'data-processing' | 'chart-building' | 'complete'
-
-/**
- * Simple cache for expensive calculations.
- */
-const chartDataCache = new Map<string, Weight[]>()
-
-/**
- * Generate cache key for chart data.
- */
-function generateCacheKey(
-  weights: readonly Weight[],
-  type: string,
-  isMobile: boolean,
-): string {
-  const weightsHash =
-    weights.length +
-    (weights[0]?.id ?? 0) +
-    (weights[weights.length - 1]?.id ?? 0)
-  return `${weightsHash}-${type}-${isMobile}`
-}
-
-/**
- * Clear cache when it gets too large.
- */
-function manageCacheSize() {
-  if (chartDataCache.size > 10) {
-    const firstKey = chartDataCache.keys().next().value
-    if (typeof firstKey === 'string') {
-      chartDataCache.delete(firstKey)
-    }
-  }
-}
-
 export function WeightChart(props: WeightChartProps) {
   const [isMobile, setIsMobile] = createSignal(false)
-  const [renderPhase, setRenderPhase] = createSignal<RenderPhase>('idle')
-  const [processedDataCount, setProcessedDataCount] = createSignal(0)
-  // Chart instance reference for updates only (no manual lifecycle management)
-  let chartInstanceRef: {
-    destroy?: () => void
-    updateSeries?: (series: unknown, animate?: boolean) => void
-    updateOptions?: (
-      options: unknown,
-      redrawPaths?: boolean,
-      animate?: boolean,
-    ) => void
-  } | null = null
+  const [isChartReady, setIsChartReady] = createSignal(false)
 
   onMount(() => {
     setIsMobile(isMobileDevice())
+    // Simulate processing delay for large datasets
+    const timer = setTimeout(
+      () => {
+        setIsChartReady(true)
+      },
+      props.weights.length > 50 ? 300 : 100,
+    )
 
-    // Start incremental rendering process
-    const startTime =
-      typeof window !== 'undefined' && Boolean(window.performance)
-        ? performance.now()
-        : 0
-    setRenderPhase('data-processing')
-
-    // Use requestIdleCallback for non-blocking processing
-    const processIncrementally = () => {
-      if (
-        typeof window !== 'undefined' &&
-        Boolean(window.requestIdleCallback)
-      ) {
-        window.requestIdleCallback(() => {
-          setRenderPhase('chart-building')
-          // Small delay to allow UI to update
-          setTimeout(() => {
-            setRenderPhase('complete')
-            const totalTime = performance.now() - startTime
-            console.debug(
-              `[WeightChart] Total render time: ${totalTime.toFixed(2)}ms`,
-            )
-          }, 50)
-        })
-      } else {
-        // Fallback for browsers without requestIdleCallback
-        setTimeout(
-          () => {
-            setRenderPhase('chart-building')
-            setTimeout(() => setRenderPhase('complete'), 50)
-          },
-          props.weights.length > 50 ? 200 : 100,
-        )
-      }
-    }
-
-    processIncrementally()
+    return () => clearTimeout(timer)
   })
 
-  // Mobile-optimized weights with caching
+  // Mobile-optimized weights with reduced dataset
   const optimizedWeights = createMemo(() => {
-    const cacheKey = generateCacheKey(props.weights, props.type, isMobile())
-
-    if (chartDataCache.has(cacheKey)) {
-      const cached = chartDataCache.get(cacheKey)
-      if (cached) {
-        setProcessedDataCount(cached.length)
-        console.debug('[WeightChart] Using cached data')
-        return cached
-      }
-    }
-
-    return measurePerformance('Weight Optimization', () => {
-      const result = optimizeWeightsForMobile(props.weights, isMobile())
-      setProcessedDataCount(result.length)
-
-      // Cache the result
-      manageCacheSize()
-      chartDataCache.set(cacheKey, result)
-      console.debug('[WeightChart] Data cached')
-
-      return result
-    })
-  })
-
-  // Chart instance updates (let solid-apexcharts handle lifecycle)
-  createEffect(() => {
-    if (chartInstanceRef && renderPhase() === 'complete') {
-      // Debounced chart updates when data changes
-      const timer = setTimeout(() => {
-        try {
-          const newSeries = series()
-          const newOptions = options()
-
-          if (
-            chartInstanceRef &&
-            typeof chartInstanceRef.updateSeries === 'function' &&
-            typeof chartInstanceRef.updateOptions === 'function'
-          ) {
-            chartInstanceRef.updateOptions(newOptions, false, false)
-            chartInstanceRef.updateSeries(newSeries, false)
-            console.debug('[WeightChart] Chart updated with new data')
-          }
-        } catch (error) {
-          console.warn('[WeightChart] Chart update failed:', error)
-        }
-      }, 100)
-
-      onCleanup(() => clearTimeout(timer))
-    }
-  })
-
-  // Memory management cleanup (cache only - let library handle chart)
-  onCleanup(() => {
-    // Clear cache on component unmount
-    chartDataCache.clear()
-    chartInstanceRef = null
-    console.debug('[WeightChart] Cache cleared and chart reference reset')
+    return optimizeWeightsForMobile(props.weights, isMobile())
   })
 
   // Optimized memoization with dependency tracking
@@ -282,23 +127,9 @@ export function WeightChart(props: WeightChartProps) {
 
   const chartHeight = () => (isMobile() ? 400 : 600)
 
-  // Render phase-based loading messages
-  const loadingMessage = () => {
-    switch (renderPhase()) {
-      case 'idle':
-        return 'Iniciando carregamento...'
-      case 'data-processing':
-        return `Processando ${props.weights.length} pontos de dados...`
-      case 'chart-building':
-        return `Construindo gráfico (${processedDataCount()} pontos)...`
-      default:
-        return 'Carregando...'
-    }
-  }
-
   return (
     <Show
-      when={renderPhase() === 'complete'}
+      when={isChartReady()}
       fallback={
         <div
           class="flex items-center justify-center rounded-lg bg-gray-700/30 animate-pulse"
@@ -306,12 +137,7 @@ export function WeightChart(props: WeightChartProps) {
         >
           <div class="text-center">
             <div class="inline-block w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mb-2" />
-            <div class="text-gray-400 text-sm">{loadingMessage()}</div>
-            {renderPhase() === 'data-processing' && (
-              <div class="text-gray-500 text-xs mt-1">
-                Otimizando para dispositivo {isMobile() ? 'móvel' : 'desktop'}
-              </div>
-            )}
+            <div class="text-gray-400 text-sm">Processando dados...</div>
           </div>
         </div>
       }
@@ -321,18 +147,6 @@ export function WeightChart(props: WeightChartProps) {
         options={options()}
         series={series()}
         height={chartHeight()}
-        onInit={(chart: {
-          destroy?: () => void
-          updateSeries?: (series: unknown, animate?: boolean) => void
-          updateOptions?: (
-            options: unknown,
-            redrawPaths?: boolean,
-            animate?: boolean,
-          ) => void
-        }) => {
-          chartInstanceRef = chart
-          console.debug('[WeightChart] Chart instance initialized')
-        }}
       />
     </Show>
   )
