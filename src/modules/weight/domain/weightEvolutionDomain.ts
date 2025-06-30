@@ -112,6 +112,69 @@ export function calculateMovingAverage(
 }
 
 /**
+ * Advanced data decimation strategy for chart virtualization.
+ * Uses Largest-Triangle-Three-Buckets algorithm for optimal point selection.
+ * @param weights - Array of weights
+ * @param targetPoints - Target number of points
+ * @returns Decimated weight array
+ */
+export function decimateWeightData(
+  weights: readonly Weight[],
+  targetPoints: number,
+): Weight[] {
+  if (weights.length <= targetPoints) {
+    return [...weights]
+  }
+
+  const sorted = [...weights].sort(
+    (a, b) => a.target_timestamp.getTime() - b.target_timestamp.getTime(),
+  )
+
+  // Use simplified LTTB algorithm for data decimation
+  const bucketSize = (sorted.length - 2) / (targetPoints - 2)
+  const firstWeight = sorted[0]
+  if (!firstWeight) return []
+
+  const decimated: Weight[] = [firstWeight] // Always include first point
+
+  for (let i = 1; i < targetPoints - 1; i++) {
+    const bucketStart = Math.floor(i * bucketSize) + 1
+    const bucketEnd = Math.floor((i + 1) * bucketSize) + 1
+    const bucket = sorted.slice(bucketStart, Math.min(bucketEnd, sorted.length))
+
+    if (bucket.length === 0) continue
+
+    // Find point with largest triangle area (simplified)
+    let maxArea = 0
+    let selectedPoint = bucket[0]
+
+    for (const point of bucket) {
+      const prevWeight = sorted[bucketStart - 1]
+      if (prevWeight) {
+        // Calculate area using weight as the primary metric
+        const area = Math.abs(point.weight - prevWeight.weight)
+        if (area > maxArea) {
+          maxArea = area
+          selectedPoint = point
+        }
+      }
+    }
+
+    if (selectedPoint) {
+      decimated.push(selectedPoint)
+    }
+  }
+
+  // Always include last point
+  const lastWeight = sorted[sorted.length - 1]
+  if (lastWeight) {
+    decimated.push(lastWeight)
+  }
+
+  return decimated
+}
+
+/**
  * Optimizes weight dataset for mobile devices by reducing data points.
  * @param weights - Array of weights
  * @param isMobile - Whether device is mobile
@@ -127,7 +190,12 @@ export function optimizeWeightsForMobile(
     return [...weights]
   }
 
-  // For mobile, sample data points to reduce processing load
+  // Use advanced decimation for very large datasets
+  if (weights.length > 200) {
+    return decimateWeightData(weights, maxPoints)
+  }
+
+  // For smaller datasets, use simple sampling
   const step = Math.ceil(weights.length / maxPoints)
   const sampled: Weight[] = []
 

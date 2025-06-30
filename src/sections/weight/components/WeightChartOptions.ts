@@ -46,16 +46,29 @@ export function buildWeightChartOptions({
     },
     dataLabels: { enabled: false },
     chart: {
-      id: 'solidchart-example',
+      id: 'weight-chart',
       locales: [ptBrLocale],
       defaultLocale: 'pt-br',
       background: '#1E293B',
+      selection: {
+        enabled: !isMobile,
+      },
       events: {
         beforeZoom(ctx: { w: { config: { xaxis: { range?: unknown } } } }) {
           ctx.w.config.xaxis.range = undefined
         },
+        mounted() {
+          // Chart mounted event for performance tracking
+          if (typeof window !== 'undefined' && Boolean(window.performance)) {
+            performance.mark('weight-chart-mounted')
+          }
+        },
       },
-      zoom: { autoScaleYaxis: true },
+      zoom: {
+        enabled: !isMobile,
+        autoScaleYaxis: true,
+        type: 'x' as const,
+      },
       animations: {
         enabled: !isMobile,
         speed: isMobile ? 200 : 800,
@@ -81,10 +94,18 @@ export function buildWeightChartOptions({
         },
         autoSelected: 'pan' as const,
       },
+      // Mobile-specific optimizations
+      ...(isMobile && {
+        redrawOnParentResize: false,
+        redrawOnWindowResize: false,
+        parentHeightOffset: 0,
+      }),
     },
     tooltip: {
       shared: true,
       enabled: !isMobile || polishedData.length < 100,
+      followCursor: !isMobile,
+      intersect: isMobile,
       custom: ({ dataPointIndex, w }: { dataPointIndex: number; w: unknown }) =>
         WeightChartTooltip({
           dataPointIndex,
@@ -94,5 +115,24 @@ export function buildWeightChartOptions({
           polishedData,
         }),
     },
+    // Advanced mobile touch optimizations
+    ...(isMobile && {
+      grid: {
+        padding: {
+          left: 10,
+          right: 10,
+        },
+      },
+      legend: {
+        show: false, // Hide legend on mobile to save space
+      },
+      markers: {
+        size: 0, // Reduce marker size for better mobile performance
+        strokeWidth: 0,
+        hover: {
+          size: 4,
+        },
+      },
+    }),
   }
 }
