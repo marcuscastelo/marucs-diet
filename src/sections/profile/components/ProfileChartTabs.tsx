@@ -16,11 +16,11 @@ export const availableChartTabs = {
   } as const satisfies TabDefinition,
   Macros: {
     id: 'macros',
-    title: 'Macronutrientes',
+    title: 'Metas',
   } as const satisfies TabDefinition,
   Measures: {
     id: 'measures',
-    title: 'Medidas Corporais',
+    title: 'Medidas',
   } as const satisfies TabDefinition,
 } as const satisfies Record<string, TabDefinition>
 
