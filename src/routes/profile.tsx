@@ -26,7 +26,6 @@ export default function Page() {
 
   // Memoize heavy components to prevent Datepicker recreation on tab changes
   // These will only recreate if their internal dependencies change, not on every tab switch
-  const weightSection = createMemo(() => <WeightChartSection />)
   const macroSection = createMemo(() => <MacroChartSection />)
   const measuresSection = createMemo(() => <BodyMeasuresChartSection />)
 
@@ -38,7 +37,7 @@ export default function Page() {
         <ProfileChartTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
         <ChartSection id="weight" activeTab={activeTab()}>
-          {weightSection()}
+          <WeightChartSection />
         </ChartSection>
 
         <ChartSection id="macros" activeTab={activeTab()}>

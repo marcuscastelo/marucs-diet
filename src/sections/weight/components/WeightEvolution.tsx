@@ -1,9 +1,14 @@
-import { createEffect, createSignal, For, Suspense } from 'solid-js'
+import { For, Suspense } from 'solid-js'
 
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { showError } from '~/modules/toast/application/toastManager'
 import { currentUser, currentUserId } from '~/modules/user/application/user'
 import { insertWeight, userWeights } from '~/modules/weight/application/weight'
+import {
+  setWeightChartType,
+  WEIGHT_CHART_OPTIONS,
+  weightChartType,
+} from '~/modules/weight/application/weightChartSettings'
 import { createNewWeight } from '~/modules/weight/domain/weight'
 import { ComboBox } from '~/sections/common/components/ComboBox'
 import { FloatInput } from '~/sections/common/components/FloatInput'
@@ -19,38 +24,6 @@ import { calculateWeightProgress } from '~/shared/utils/weightUtils'
  */
 export function WeightEvolution() {
   const desiredWeight = () => currentUser()?.desired_weight ?? 0
-  const initialChartType = (() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('weight-evolution-chart-type')
-      if (
-        stored === '7d' ||
-        stored === '14d' ||
-        stored === '30d' ||
-        stored === '6m' ||
-        stored === '1y' ||
-        stored === 'all'
-      ) {
-        return stored
-      }
-    }
-    return 'all'
-  })()
-  const [chartType, setChartType] = createSignal<
-    '7d' | '14d' | '30d' | '6m' | '1y' | 'all'
-  >(initialChartType)
-  createEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('weight-evolution-chart-type', chartType())
-    }
-  })
-  const chartOptions = [
-    { value: '7d', label: 'Últimos 7 dias' },
-    { value: '14d', label: 'Últimos 14 dias' },
-    { value: '30d', label: 'Últimos 30 dias' },
-    { value: '6m', label: 'Últimos 6 meses' },
-    { value: '1y', label: 'Último ano' },
-    { value: 'all', label: 'Todo o período' },
-  ]
   const weightField = useFloatField(undefined, { maxValue: 200 })
   const weightProgress = () =>
     calculateWeightProgress(
@@ -98,9 +71,9 @@ export function WeightEvolution() {
           <div class="flex justify-between items-center px-4">
             <span class="text-2xl font-bold">Gráfico de evolução do peso</span>
             <ComboBox
-              options={chartOptions}
-              value={chartType()}
-              onChange={setChartType}
+              options={WEIGHT_CHART_OPTIONS}
+              value={weightChartType()}
+              onChange={setWeightChartType}
               class="w-48"
             />
           </div>
@@ -111,7 +84,7 @@ export function WeightEvolution() {
           <WeightChart
             weights={userWeights}
             desiredWeight={desiredWeight()}
-            type={chartType()}
+            type={weightChartType()}
           />
           <FloatInput
             field={weightField}

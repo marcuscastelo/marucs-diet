@@ -6,7 +6,7 @@ export type ComboBoxOption<T extends string> = {
 }
 
 export type ComboBoxProps<T extends string> = {
-  options: ComboBoxOption<T>[]
+  options: readonly ComboBoxOption<T>[]
   value: T
   onChange: (value: T) => void
   class?: string
