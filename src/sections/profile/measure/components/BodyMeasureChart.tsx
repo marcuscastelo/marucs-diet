@@ -88,7 +88,7 @@ export function BodyMeasureChart(props: BodyMeasureChartProps) {
           validMeasures.reduce((acc, m) => acc + m.neck, 0) /
           validMeasures.length
         const weightsOfTheDay = () =>
-          userWeights().filter((weight) => {
+          (userWeights.latest ?? []).filter((weight) => {
             return (
               weight.target_timestamp.toLocaleDateString() === day &&
               isFinite(weight.weight) &&

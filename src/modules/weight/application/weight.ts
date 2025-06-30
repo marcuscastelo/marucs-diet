@@ -1,4 +1,4 @@
-import { createEffect, createSignal } from 'solid-js'
+import { createResource } from 'solid-js'
 
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
@@ -12,50 +12,36 @@ import { registerSubapabaseRealtimeCallback } from '~/shared/utils/supabase'
 
 const weightRepository = createSupabaseWeightRepository()
 
-const [userWeights_, setUserWeights] = createSignal<readonly Weight[]>([])
-export const userWeights = () => userWeights_()
-
-function bootstrap() {
-  void showPromise(
-    fetchUserWeights(currentUserId()),
-    {
-      loading: 'Carregando pesos...',
-      success: 'Pesos carregados com sucesso',
-      error: 'Falha ao carregar pesos',
-    },
-    { context: 'background' },
-  )
-}
-
 /**
- * Every time the user changes, fetch all user weights
+ * Lazy-loading resource for user weights
+ * Automatically fetches when accessed and currentUserId changes
  */
-createEffect(() => {
-  bootstrap()
-})
+export const [
+  userWeights,
+  { mutate: mutateUserWeights, refetch: refetchUserWeights },
+] = createResource(
+  currentUserId, // Source signal - refetches when userId changes
+  async (userId: number) => {
+    try {
+      return await weightRepository.fetchUserWeights(userId)
+    } catch (error) {
+      handleApiError(error)
+      throw error
+    }
+  },
+)
 
 /**
- * When a realtime event occurs, fetch all user weights again
+ * When a realtime event occurs, refetch user weights
  */
 registerSubapabaseRealtimeCallback(SUPABASE_TABLE_WEIGHTS, () => {
-  bootstrap()
+  void refetchUserWeights()
 })
-
-export async function fetchUserWeights(userId: number) {
-  try {
-    const weights = await weightRepository.fetchUserWeights(userId)
-    setUserWeights(weights)
-    return weights
-  } catch (error) {
-    handleApiError(error)
-    throw error
-  }
-}
 
 export async function insertWeight(newWeight: NewWeight) {
   try {
     const weight = await weightRepository.insertWeight(newWeight)
-    await showPromise(fetchUserWeights(currentUserId()), {
+    await showPromise(Promise.resolve(refetchUserWeights()), {
       loading: 'Inserindo peso...',
       success: 'Peso inserido com sucesso',
       error: 'Falha ao inserir peso',
@@ -77,7 +63,7 @@ export async function updateWeight(weightId: Weight['id'], newWeight: Weight) {
         error: 'Falha ao atualizar peso',
       },
     )
-    await fetchUserWeights(currentUserId())
+    void refetchUserWeights()
     return weight
   } catch (error) {
     handleApiError(error)
@@ -92,7 +78,7 @@ export async function deleteWeight(weightId: Weight['id']) {
       success: 'Peso deletado com sucesso',
       error: 'Falha ao deletar peso',
     })
-    await fetchUserWeights(currentUserId())
+    void refetchUserWeights()
   } catch (error) {
     handleApiError(error)
     throw error

@@ -1,4 +1,4 @@
-import { createEffect, createSignal, For } from 'solid-js'
+import { createEffect, createSignal, For, Suspense } from 'solid-js'
 
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { showError } from '~/modules/toast/application/toastManager'
@@ -54,7 +54,7 @@ export function WeightEvolution() {
   const weightField = useFloatField(undefined, { maxValue: 200 })
   const weightProgress = () =>
     calculateWeightProgress(
-      userWeights(),
+      userWeights.latest ?? [],
       desiredWeight(),
       currentUser()?.diet ?? 'cut',
     )
@@ -109,7 +109,7 @@ export function WeightEvolution() {
             weightProgressText={weightProgressText}
           />
           <WeightChart
-            weights={userWeights()}
+            weights={userWeights}
             desiredWeight={desiredWeight()}
             type={chartType()}
           />
@@ -147,12 +147,14 @@ export function WeightEvolution() {
             Adicionar peso
           </button>
         </div>
+        {/* TODO: Implement scrollbar for big lists instead of slice */}
         <div class="mx-5 lg:mx-20 pb-10">
-          {/* TODO: Implement scrollbar for big lists instead of slice */}
-          <For each={[...userWeights()].reverse().slice(0, 10)}>
-            {(weight) => <WeightView weight={weight} />}
-          </For>
-          {userWeights().length === 0 && 'Não há pesos registrados'}
+          <Suspense fallback={<div>Carregando pesos...</div>}>
+            <For each={[...(userWeights.latest ?? [])].reverse().slice(0, 10)}>
+              {(weight) => <WeightView weight={weight} />}
+            </For>
+            {userWeights.latest?.length === 0 && 'Não há pesos registrados'}
+          </Suspense>
         </div>
       </div>
     </>

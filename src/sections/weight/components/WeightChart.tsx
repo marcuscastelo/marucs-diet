@@ -1,11 +1,18 @@
-import { createMemo, createSignal, onMount, Show } from 'solid-js'
+import {
+  createMemo,
+  createSignal,
+  onMount,
+  Resource,
+  Show,
+  Suspense,
+} from 'solid-js'
 
+import { userWeights } from '~/modules/weight/application/weight'
 import { buildChartData } from '~/modules/weight/application/weightChartUtils'
 import { type Weight } from '~/modules/weight/domain/weight'
 import {
   calculateMovingAverage,
   groupWeightsByPeriod,
-  optimizeWeightsForMobile,
 } from '~/modules/weight/domain/weightEvolutionDomain'
 import { buildWeightChartOptions } from '~/sections/weight/components/WeightChartOptions'
 import { buildWeightChartSeries } from '~/sections/weight/components/WeightChartSeries'
@@ -20,7 +27,7 @@ const { SolidApexCharts } = lazyImport(
  * Props for the WeightChart component.
  */
 export type WeightChartProps = {
-  weights: readonly Weight[]
+  weights: Resource<readonly Weight[]>
   desiredWeight: number
   type: '7d' | '14d' | '30d' | '6m' | '1y' | 'all'
 }
@@ -45,29 +52,13 @@ function isMobileDevice(): boolean {
  */
 export function WeightChart(props: WeightChartProps) {
   const [isMobile, setIsMobile] = createSignal(false)
-  const [isChartReady, setIsChartReady] = createSignal(false)
 
   onMount(() => {
     setIsMobile(isMobileDevice())
-    // Simulate processing delay for large datasets
-    const timer = setTimeout(
-      () => {
-        setIsChartReady(true)
-      },
-      props.weights.length > 50 ? 300 : 100,
-    )
-
-    return () => clearTimeout(timer)
   })
 
-  // Mobile-optimized weights with reduced dataset
-  const optimizedWeights = createMemo(() => {
-    return optimizeWeightsForMobile(props.weights, isMobile())
-  })
-
-  // Optimized memoization with dependency tracking
   const weightsByPeriod = createMemo(() => {
-    return groupWeightsByPeriod(optimizedWeights(), props.type)
+    return groupWeightsByPeriod(props.weights() ?? [], props.type)
   })
 
   const data = createMemo(() => {
@@ -117,7 +108,7 @@ export function WeightChart(props: WeightChartProps) {
       min,
       max,
       type: props.type,
-      weights: optimizedWeights(),
+      weights: props.weights() ?? [],
       polishedData: polishedData(),
       isMobile: isMobile(),
     })
@@ -128,26 +119,13 @@ export function WeightChart(props: WeightChartProps) {
   const chartHeight = () => (isMobile() ? 400 : 600)
 
   return (
-    <Show
-      when={isChartReady()}
-      fallback={
-        <div
-          class="flex items-center justify-center rounded-lg bg-gray-700/30 animate-pulse"
-          style={{ height: `${chartHeight()}px` }}
-        >
-          <div class="text-center">
-            <div class="inline-block w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mb-2" />
-            <div class="text-gray-400 text-sm">Processando dados...</div>
-          </div>
-        </div>
-      }
-    >
+    <Suspense fallback={<div>Loading chart...</div>}>
       <SolidApexCharts
         type="candlestick"
         options={options()}
         series={series()}
         height={chartHeight()}
       />
-    </Show>
+    </Suspense>
   )
 }

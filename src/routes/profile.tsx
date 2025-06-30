@@ -1,4 +1,4 @@
-import { Suspense } from 'solid-js'
+import { createMemo, Suspense } from 'solid-js'
 
 import { PageLoading } from '~/sections/common/components/PageLoading'
 import { BodyMeasuresChartSection } from '~/sections/profile/components/BodyMeasuresChartSection'
@@ -24,6 +24,12 @@ export default function Page() {
     storageKey: 'profile-chart-active-tab',
   })
 
+  // Memoize heavy components to prevent Datepicker recreation on tab changes
+  // These will only recreate if their internal dependencies change, not on every tab switch
+  const weightSection = createMemo(() => <WeightChartSection />)
+  const macroSection = createMemo(() => <MacroChartSection />)
+  const measuresSection = createMemo(() => <BodyMeasuresChartSection />)
+
   return (
     <>
       <Suspense fallback={<PageLoading message="Carregando perfil..." />}>
@@ -32,15 +38,15 @@ export default function Page() {
         <ProfileChartTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
         <ChartSection id="weight" activeTab={activeTab()}>
-          <WeightChartSection />
+          {weightSection()}
         </ChartSection>
 
         <ChartSection id="macros" activeTab={activeTab()}>
-          <MacroChartSection />
+          {macroSection()}
         </ChartSection>
 
         <ChartSection id="measures" activeTab={activeTab()}>
-          <BodyMeasuresChartSection />
+          {measuresSection()}
         </ChartSection>
       </Suspense>
     </>
