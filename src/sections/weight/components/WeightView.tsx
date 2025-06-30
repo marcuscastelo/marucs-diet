@@ -1,4 +1,4 @@
-import { createMemo, Suspense } from 'solid-js'
+import { createMemo, createSignal, onMount, Show, Suspense } from 'solid-js'
 
 import { showError } from '~/modules/toast/application/toastManager'
 import { deleteWeight, updateWeight } from '~/modules/weight/application/weight'
@@ -31,6 +31,7 @@ export type WeightViewProps = {
  * @returns SolidJS component
  */
 export function WeightView(props: WeightViewProps) {
+  const [lazyDate, setLazyDate] = createSignal(false)
   const targetTimestampSignal = () => props.weight.target_timestamp
   const dateField = useDateField(targetTimestampSignal)
   const weightSignal = () => props.weight.weight
@@ -58,10 +59,18 @@ export function WeightView(props: WeightViewProps) {
     })
   }
 
+  onMount(() => {
+    // Delay loading the datepicker to avoid initial load performance hit
+    const timeout = setTimeout(() => {
+      setLazyDate(true)
+    }, 100)
+
+    return () => clearTimeout(timeout)
+  })
+
   const leftContent = createMemo(() => (
     <CapsuleContent>
-      <Suspense fallback={<div>Carregando data...</div>}>
-        <></>
+      <Show when={lazyDate()}>
         <Datepicker
           value={{
             startDate: dateField.rawValue(),
@@ -89,7 +98,7 @@ export function WeightView(props: WeightViewProps) {
           containerClassName="relative w-full text-gray-700"
           inputClassName="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full dark:bg-slate-700 dark:text-white/80 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed border-none"
         />
-      </Suspense>
+      </Show>
     </CapsuleContent>
   ))
 
