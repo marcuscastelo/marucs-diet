@@ -24,28 +24,9 @@ function cleanupChartResources() {
     }
   }
 
-  // Clear any ApexCharts instances that might be lingering
-  if (typeof window !== 'undefined') {
-    const windowWithApex = window as {
-      ApexCharts?: {
-        instances?: Array<{
-          el?: Element
-          destroy?: () => void
-        }>
-      }
-    }
-
-    const instances = windowWithApex.ApexCharts?.instances
-    if (instances) {
-      instances.forEach((chart) => {
-        if (chart?.el && !document.contains(chart.el)) {
-          if (typeof chart.destroy === 'function') {
-            chart.destroy()
-          }
-        }
-      })
-    }
-  }
+  // Light cleanup - just trigger garbage collection
+  // Let solid-apexcharts handle its own chart instances
+  console.debug('[ChartSection] Light cleanup performed')
 }
 
 /**

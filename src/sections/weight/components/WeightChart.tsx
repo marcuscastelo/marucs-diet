@@ -106,7 +106,8 @@ export function WeightChart(props: WeightChartProps) {
   const [isMobile, setIsMobile] = createSignal(false)
   const [renderPhase, setRenderPhase] = createSignal<RenderPhase>('idle')
   const [processedDataCount, setProcessedDataCount] = createSignal(0)
-  const [chartInstance, setChartInstance] = createSignal<{
+  // Chart instance reference for updates only (no manual lifecycle management)
+  let chartInstanceRef: {
     destroy?: () => void
     updateSeries?: (series: unknown, animate?: boolean) => void
     updateOptions?: (
@@ -114,7 +115,7 @@ export function WeightChart(props: WeightChartProps) {
       redrawPaths?: boolean,
       animate?: boolean,
     ) => void
-  } | null>(null)
+  } | null = null
 
   onMount(() => {
     setIsMobile(isMobileDevice())
@@ -184,10 +185,9 @@ export function WeightChart(props: WeightChartProps) {
     })
   })
 
-  // Chart instance lifecycle management with updates
+  // Chart instance updates (let solid-apexcharts handle lifecycle)
   createEffect(() => {
-    const instance = chartInstance()
-    if (instance && renderPhase() === 'complete') {
+    if (chartInstanceRef && renderPhase() === 'complete') {
       // Debounced chart updates when data changes
       const timer = setTimeout(() => {
         try {
@@ -195,11 +195,12 @@ export function WeightChart(props: WeightChartProps) {
           const newOptions = options()
 
           if (
-            typeof instance.updateSeries === 'function' &&
-            typeof instance.updateOptions === 'function'
+            chartInstanceRef &&
+            typeof chartInstanceRef.updateSeries === 'function' &&
+            typeof chartInstanceRef.updateOptions === 'function'
           ) {
-            instance.updateOptions(newOptions, false, false)
-            instance.updateSeries(newSeries, false)
+            chartInstanceRef.updateOptions(newOptions, false, false)
+            chartInstanceRef.updateSeries(newSeries, false)
             console.debug('[WeightChart] Chart updated with new data')
           }
         } catch (error) {
@@ -211,30 +212,17 @@ export function WeightChart(props: WeightChartProps) {
     }
   })
 
-  // Memory management cleanup
+  // Memory management cleanup (cache only - let library handle chart)
   onCleanup(() => {
-    const instance = chartInstance()
-    if (instance) {
-      try {
-        if (typeof instance.destroy === 'function') {
-          instance.destroy()
-        }
-        setChartInstance(null)
-        console.debug('[WeightChart] Chart instance destroyed')
-      } catch (error) {
-        console.warn('[WeightChart] Chart cleanup error:', error)
-      }
-    }
-
     // Clear cache on component unmount
     chartDataCache.clear()
-    console.debug('[WeightChart] Cache cleared')
+    chartInstanceRef = null
+    console.debug('[WeightChart] Cache cleared and chart reference reset')
   })
 
   // Optimized memoization with dependency tracking
   const weightsByPeriod = createMemo(() => {
-    const weights = optimizedWeights()
-    return groupWeightsByPeriod(weights ?? [], props.type)
+    return groupWeightsByPeriod(optimizedWeights(), props.type)
   })
 
   const data = createMemo(() => {
@@ -280,12 +268,11 @@ export function WeightChart(props: WeightChartProps) {
 
   const options = createMemo(() => {
     const { min, max } = minMax()
-    const weights = optimizedWeights()
     return buildWeightChartOptions({
       min,
       max,
       type: props.type,
-      weights: weights ?? [],
+      weights: optimizedWeights(),
       polishedData: polishedData(),
       isMobile: isMobile(),
     })
@@ -343,7 +330,7 @@ export function WeightChart(props: WeightChartProps) {
             animate?: boolean,
           ) => void
         }) => {
-          setChartInstance(chart)
+          chartInstanceRef = chart
           console.debug('[WeightChart] Chart instance initialized')
         }}
       />
