@@ -110,3 +110,39 @@ export function calculateMovingAverage(
     return weights.reduce((acc, weight) => acc + weight.low, 0) / weights.length
   })
 }
+
+/**
+ * Optimizes weight dataset for mobile devices by reducing data points.
+ * @param weights - Array of weights
+ * @param isMobile - Whether device is mobile
+ * @param maxPoints - Maximum points for mobile
+ * @returns Optimized weight array
+ */
+export function optimizeWeightsForMobile(
+  weights: readonly Weight[],
+  isMobile: boolean,
+  maxPoints: number = 50,
+): Weight[] {
+  if (!isMobile || weights.length <= maxPoints) {
+    return [...weights]
+  }
+
+  // For mobile, sample data points to reduce processing load
+  const step = Math.ceil(weights.length / maxPoints)
+  const sampled: Weight[] = []
+
+  for (let i = 0; i < weights.length; i += step) {
+    const weight = weights[i]
+    if (weight) {
+      sampled.push(weight)
+    }
+  }
+
+  // Always include the last weight for accurate current state
+  const lastWeight = weights[weights.length - 1]
+  if (lastWeight && sampled[sampled.length - 1] !== lastWeight) {
+    sampled.push(lastWeight)
+  }
+
+  return sampled
+}
