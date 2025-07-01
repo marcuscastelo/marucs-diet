@@ -16,7 +16,7 @@ export type ExternalTemplateSearchModalProps = {
 /**
  * Shared ExternalTemplateSearchModal component that can be used by different edit modals.
  *
- * @see https://github.com/marcuscastelo/marucs-diet/issues/397
+ * @see https://github.com/marcuscastelo/macroflows/issues/397
  */
 export function ExternalTemplateSearchModal(
   props: ExternalTemplateSearchModalProps,

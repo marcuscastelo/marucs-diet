@@ -1,4 +1,4 @@
-# Claude Commands for Marucs Diet
+# Claude Commands for Macroflows
 
 This directory contains Claude Code commands adapted from GitHub Copilot prompts for optimal development workflow.
 

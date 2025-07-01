@@ -57,7 +57,7 @@ You are a programming assistant specialized in SolidJS, Tailwind, daisyUI, and C
 
 ## Project/Session Context & Preferences (2025-06-10)
 
-- Project: marucs-diet (SolidJS/TypeScript)
+- Project: macroflows (SolidJS/TypeScript)
 - Modular structure, clear separation between domain/application.
 - UI in pt-BR, code/comments/commits in English.
 - Uses ApexCharts, Solid-ApexCharts, custom hooks, modular architecture.

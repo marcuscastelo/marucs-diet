@@ -1,4 +1,4 @@
-# Marucs Diet
+# Macroflows
 
 **A nutrition tracking platform built with modular architecture and modern web technologies.**
 
@@ -12,7 +12,7 @@
 
 ## Overview
 
-Marucs Diet is a nutrition tracking system focused on strong typing, reactive UI, and modular domain-driven design. It follows clean architecture principles and integrates with modern backend and frontend tools.
+Macroflows is a nutrition tracking system focused on strong typing, reactive UI, and modular domain-driven design. It follows clean architecture principles and integrates with modern backend and frontend tools.
 
 For now, it is focused on being a personal project to track my own nutrition, but maybe in the future it will be a SaaS product.
 
@@ -80,8 +80,8 @@ src/
 > Copy `.env.example` to `.env.local` and fill in the required values. This file lists all environment variables needed to run the project. Do not commit secrets to version control.
 
 ```bash
-git clone https://github.com/marcuscastelo/marucs-diet.git
-cd marucs-diet
+git clone https://github.com/marcuscastelo/macroflows.git
+cd macroflows
 npm install
 cp .env.example .env.local  # Add your Supabase credentials
 npm run dev

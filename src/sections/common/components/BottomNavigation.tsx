@@ -149,7 +149,7 @@ export function BottomNavigation() {
             type="button"
             class="btn-primary btn-xs mt-1"
             onClick={() => {
-              window.location.href = 'https://marucs-diet-stable.vercel.app/'
+              window.location.href = 'https://macroflows-stable.vercel.app/'
             }}
           >
             Trocar para versão estável

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-OWNER_REPO="marcuscastelo/marucs-diet"
+OWNER_REPO="marcuscastelo/macroflows"
 REPO_URL="https://github.com/$OWNER_REPO"
 
 get_current_branch() {

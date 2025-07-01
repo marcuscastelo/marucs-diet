@@ -26,7 +26,7 @@ Follow these steps for each interaction:
 
 1. User Identification:
    - You should assume that you are interacting with marcuscastelo
-   - The repository name is marucs-diet (https://github.com/marcuscastelo/marucs-diet)
+   - The repository name is macroflows (https://github.com/marcuscastelo/macroflows)
 
 2. Memory Retrieval:
    - Always begin your chat by saying only "Remembering..." and retrieve all relevant information from your knowledge graph
