@@ -14,6 +14,7 @@ import { showPromise } from '~/modules/toast/application/toastManager'
 import env from '~/shared/config/env'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
+import { removeDiacritics } from '~/shared/utils/removeDiacritics'
 import supabase from '~/shared/utils/supabase'
 
 const TABLE = 'recent_foods'
@@ -48,16 +49,55 @@ export async function fetchRecentFoodByUserTypeAndReferenceId(
 }
 
 /**
- * Fetches recent foods for a user with optional limit for performance optimization.
+ * Fetches recent foods for a user with optional limit and search filtering.
+ * When search is provided, uses server-side search with joined food/recipe names for efficiency.
  * @param userId - The user ID.
  * @param limit - Maximum number of recent foods to fetch (defaults to environment configuration).
+ * @param search - Optional search term to filter by food/recipe names (case and diacritic insensitive).
  * @returns Array of recent foods or empty array on error.
  */
 export async function fetchUserRecentFoods(
   userId: RecentFood['user_id'],
   limit: number = env.VITE_RECENT_FOODS_DEFAULT_LIMIT,
+  search?: string,
 ): Promise<readonly RecentFood[]> {
   try {
+    // If search is provided, use server-side search function for efficiency
+    if (search !== undefined && search.trim() !== '') {
+      const normalizedSearch = removeDiacritics(search.trim())
+      const response = await supabase.rpc('search_recent_foods_with_names', {
+        p_user_id: userId,
+        p_search_term: normalizedSearch,
+        p_limit: limit,
+      })
+      if (response.error !== null) throw response.error
+
+      // Transform the joined result back to RecentFood schema (excluding the name field)
+      const recentFoodsData = (response.data as unknown[]).map(
+        (row: unknown) => {
+          const typedRow = row as {
+            id: number
+            user_id: number
+            type: string
+            reference_id: number
+            last_used: string | Date
+            times_used: number
+          }
+          return {
+            id: typedRow.id,
+            user_id: typedRow.user_id,
+            type: typedRow.type,
+            reference_id: typedRow.reference_id,
+            last_used: typedRow.last_used,
+            times_used: typedRow.times_used,
+          }
+        },
+      )
+
+      return parseWithStack(recentFoodSchema.array(), recentFoodsData)
+    }
+
+    // No search - use existing direct table query for optimal performance
     const { data, error } = await supabase
       .from(TABLE)
       .select('*')
