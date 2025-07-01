@@ -15,6 +15,7 @@ type ConfirmAction = {
   text: string
   onClick: () => void
   primary?: boolean
+  preventAutoClose?: boolean
 }
 
 export type ConfirmModalContext = {
@@ -109,7 +110,10 @@ export function ConfirmModalProvider(props: { children: JSXElement }) {
             return {
               ...action,
               onClick: () => {
-                setVisible(false)
+                // Check if action has preventAutoClose flag
+                if (action.preventAutoClose !== true) {
+                  setVisible(false)
+                }
                 action.onClick()
               },
             }

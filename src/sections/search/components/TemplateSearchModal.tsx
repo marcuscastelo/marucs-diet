@@ -66,7 +66,8 @@ export type TemplateSearchModalProps = {
 
 export function TemplateSearchModal(props: TemplateSearchModalProps) {
   const { visible } = useModalContext()
-  const { show: showConfirmModal } = useConfirmModalContext()
+  const { show: showConfirmModal, close: closeConfirmModal } =
+    useConfirmModalContext()
 
   const [itemEditModalVisible, setItemEditModalVisible] = createSignal(false)
 
@@ -159,13 +160,19 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
           {
             text: 'Finalizar',
             primary: true,
+            preventAutoClose: true,
             onClick: () => {
               showSuccess(
                 `Item "${originalAddedItem.name}" adicionado com sucesso!`,
               )
               setSelectedTemplate(undefined)
               setItemEditModalVisible(false)
-              props.onFinish?.()
+              // Close the confirm modal first, then handle finalization
+              closeConfirmModal()
+              // Use setTimeout to ensure modal state is properly updated before finalization
+              setTimeout(() => {
+                props.onFinish?.()
+              }, 50)
             },
           },
         ],
