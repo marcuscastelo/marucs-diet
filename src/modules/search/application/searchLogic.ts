@@ -18,6 +18,7 @@ export type FetchTemplatesDeps = {
   ) => Promise<readonly Recipe[] | null>
   fetchUserRecentFoods: (
     userId: number,
+    limit?: number,
   ) => Promise<
     { type: 'food' | 'recipe'; reference_id: number; last_used: Date }[] | null
   >

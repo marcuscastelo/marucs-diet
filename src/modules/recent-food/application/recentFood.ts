@@ -11,6 +11,7 @@ import {
   type RecentFoodDAO,
 } from '~/modules/recent-food/infrastructure/recentFoodDAO'
 import { showPromise } from '~/modules/toast/application/toastManager'
+import env from '~/shared/config/env'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 import supabase from '~/shared/utils/supabase'
@@ -47,12 +48,14 @@ export async function fetchRecentFoodByUserTypeAndReferenceId(
 }
 
 /**
- * Fetches all recent foods for a user.
+ * Fetches recent foods for a user with optional limit for performance optimization.
  * @param userId - The user ID.
+ * @param limit - Maximum number of recent foods to fetch (defaults to environment configuration).
  * @returns Array of recent foods or empty array on error.
  */
 export async function fetchUserRecentFoods(
   userId: RecentFood['user_id'],
+  limit: number = env.VITE_RECENT_FOODS_DEFAULT_LIMIT,
 ): Promise<readonly RecentFood[]> {
   try {
     const { data, error } = await supabase
@@ -60,6 +63,7 @@ export async function fetchUserRecentFoods(
       .select('*')
       .eq('user_id', userId)
       .order('last_used', { ascending: false })
+      .limit(limit)
     if (error !== null) throw error
     return parseWithStack(recentFoodSchema.array(), data)
   } catch (error) {

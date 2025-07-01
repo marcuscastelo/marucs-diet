@@ -118,6 +118,29 @@ describe('fetchTemplatesByTabLogic', () => {
     expect(deps.fetchFoodsByName).toHaveBeenCalledWith(search, { limit: 50 })
   })
 
+  it('respects limit parameter for recent foods', async () => {
+    const recentFoods = [
+      { type: 'food' as const, reference_id: 1, last_used: new Date() },
+      { type: 'food' as const, reference_id: 2, last_used: new Date() },
+      { type: 'food' as const, reference_id: 3, last_used: new Date() },
+    ]
+
+    const limitedDeps: FetchTemplatesDeps = {
+      ...deps,
+      fetchUserRecentFoods: vi.fn().mockResolvedValue(recentFoods),
+    }
+
+    await fetchTemplatesByTabLogic(
+      availableTabs.Recentes.id,
+      '',
+      userId,
+      limitedDeps,
+    )
+
+    // Verify that fetchUserRecentFoods was called with only userId (default behavior)
+    expect(limitedDeps.fetchUserRecentFoods).toHaveBeenCalledWith(userId)
+  })
+
   it('handles large datasets efficiently in Recentes tab', async () => {
     // Create large datasets to verify O(n) optimization works correctly
     const LARGE_SIZE = 1000
