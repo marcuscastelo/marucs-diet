@@ -28,7 +28,6 @@ import { handleApiError } from '~/shared/error/errorHandler'
  * @deprecated Use insertUnifiedItem instead
  */
 export async function insertItemGroup(
-  _dayId: DayDiet['id'], // TODO:   Remove dayId from functions that don't need it.
   mealId: Meal['id'],
   newItemGroup: ItemGroup,
 ) {
@@ -65,7 +64,6 @@ export async function insertItemGroup(
 }
 
 export async function updateItemGroup(
-  _dayId: DayDiet['id'], // TODO:   Remove dayId from functions that don't need it.
   mealId: Meal['id'],
   itemGroupId: ItemGroup['id'],
   newItemGroup: ItemGroup,
@@ -103,7 +101,6 @@ export async function updateItemGroup(
 }
 
 export async function deleteItemGroup(
-  _dayId: DayDiet['id'], // TODO:   Remove dayId from functions that don't need it
   mealId: Meal['id'],
   itemGroupId: ItemGroup['id'],
 ) {
@@ -143,7 +140,6 @@ export async function deleteItemGroup(
  * Inserts a UnifiedItem directly into a meal (new unified approach)
  */
 export async function insertUnifiedItem(
-  _dayId: DayDiet['id'],
   mealId: Meal['id'],
   newUnifiedItem: UnifiedItem,
 ) {
@@ -183,7 +179,6 @@ export async function insertUnifiedItem(
  * Updates a UnifiedItem in a meal (new unified approach)
  */
 export async function updateUnifiedItem(
-  _dayId: DayDiet['id'],
   mealId: Meal['id'],
   itemId: UnifiedItem['id'],
   newUnifiedItem: UnifiedItem,
@@ -224,7 +219,6 @@ export async function updateUnifiedItem(
  * Deletes a UnifiedItem from a meal (new unified approach)
  */
 export async function deleteUnifiedItem(
-  _dayId: DayDiet['id'],
   mealId: Meal['id'],
   itemId: UnifiedItem['id'],
 ) {
@@ -264,10 +258,9 @@ export async function deleteUnifiedItem(
  * Converts ItemGroup to UnifiedItem and inserts it (compatibility helper)
  */
 export async function insertItemGroupAsUnified(
-  dayId: DayDiet['id'],
   mealId: Meal['id'],
   itemGroup: ItemGroup,
 ) {
   const unifiedItem = itemGroupToUnifiedItem(itemGroup)
-  return insertUnifiedItem(dayId, mealId, unifiedItem)
+  return insertUnifiedItem(mealId, unifiedItem)
 }

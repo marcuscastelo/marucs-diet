@@ -83,7 +83,7 @@ export default function DayMeals(props: {
       setShowConfirmEdit(true)
       return
     }
-    await updateMeal(day.id, meal.id, meal)
+    await updateMeal(meal.id, meal)
   }
 
   const handleNewItemButton = (meal: Meal) => {
@@ -101,7 +101,7 @@ export default function DayMeals(props: {
     if (newItemSelection_ === null) {
       throw new Error('No meal selected!')
     }
-    void insertUnifiedItem(dayDiet.id, newItemSelection_.meal.id, newItem)
+    void insertUnifiedItem(newItemSelection_.meal.id, newItem)
   }
 
   const handleFinishSearch = () => {
@@ -274,7 +274,6 @@ function ExternalUnifiedItemEditModal(props: {
             }}
             onApply={(item) => {
               void updateUnifiedItem(
-                props.day().id,
                 editSelection().meal.id,
                 item.id, // TODO: Get id from selection instead of item parameter (avoid bugs if id is changed).
                 item,
