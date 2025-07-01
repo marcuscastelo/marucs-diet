@@ -261,7 +261,7 @@ export function MealEditViewContent(props: {
                 text: 'Excluir item',
                 primary: true,
                 onClick: () => {
-                  void deleteUnifiedItem(dayDiet().id, meal().id, item.id)
+                  void deleteUnifiedItem(meal().id, item.id)
                 },
               },
             ],

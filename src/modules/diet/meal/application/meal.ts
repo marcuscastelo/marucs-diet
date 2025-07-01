@@ -16,13 +16,11 @@ export const dayMeals = () => currentDayDiet()?.meals ?? []
 
 /**
  * Updates a meal in the current day diet.
- * @param _dayId - The day diet ID (unused).
  * @param mealId - The meal ID.
  * @param newMeal - The new meal data.
  * @returns True if updated, false otherwise.
  */
 export async function updateMeal(
-  _dayId: DayDiet['id'],
   mealId: Meal['id'],
   newMeal: Meal,
 ): Promise<boolean> {
