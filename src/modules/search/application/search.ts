@@ -33,8 +33,8 @@ export const [debouncedTab] = createDebouncedSignal(
 
 const getFavoriteFoods = () => currentUser()?.favorite_foods ?? []
 
-const fetchUserRecentFoods = async (userId: number) => {
-  const result = await fetchUserRecentFoodsRaw(userId)
+const fetchUserRecentFoods = async (userId: number, limit?: number) => {
+  const result = await fetchUserRecentFoodsRaw(userId, limit)
   // Adapt to expected type: { type, reference_id, last_used }
   return result.map(({ type, reference_id, last_used }) => ({
     type,
