@@ -19,7 +19,7 @@ if [[ $# -eq 1 && "$1" == "clear-merged" ]]; then
   fi
   echo "Base branch for merge check: $BASE_BRANCH"
   # Find all worktrees matching pattern
-  for WT_PATH in ../marucs-diet-issue*; do
+  for WT_PATH in ../macroflows-issue*; do
     if [[ -e "$WT_PATH/.git" ]]; then
       BRANCH=$(git -C "$WT_PATH" rev-parse --abbrev-ref HEAD)
       # Only consider branches matching the pattern
@@ -61,7 +61,7 @@ if [[ $# -ge 1 && "$1" != "clear-merged" ]]; then
   fi
   for ISSUE_NUMBER in "$@"; do
     FEATURE_BRANCH="marcuscastelo/issue${ISSUE_NUMBER}"
-    WORKTREE_PATH="../marucs-diet-issue${ISSUE_NUMBER}"
+    WORKTREE_PATH="../macroflows-issue${ISSUE_NUMBER}"
     # Check if worktree already exists
     if [[ -d "$WORKTREE_PATH" ]]; then
       echo "Worktree $WORKTREE_PATH already exists."

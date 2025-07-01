@@ -9,7 +9,7 @@
 ## **1. ROOT README.md - Visão Geral do Sistema**
 
 ```markdown
-# Marucs Diet - Nutrition Tracking Platform
+# Macroflows - Nutrition Tracking Platform
 
 ## Architecture Overview
 

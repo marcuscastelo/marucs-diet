@@ -1,6 +1,6 @@
-# Marucs Diet – Concrete Codebase Style & Anti-Patterns Guide
+# Macroflows – Concrete Codebase Style & Anti-Patterns Guide
 
-This document provides **concrete, specific guidelines** for the Marucs Diet codebase, based on actual patterns found in the code and specific improvements needed.
+This document provides **concrete, specific guidelines** for the Macroflows codebase, based on actual patterns found in the code and specific improvements needed.
 
 ---
 

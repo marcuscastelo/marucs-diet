@@ -28,7 +28,7 @@ else
 fi
 echo "Base branch for merge check: $BASE_BRANCH"
 
-for WT_PATH in ../marucs-diet-issue*; do
+for WT_PATH in ../macroflows-issue*; do
   if [[ -e "$WT_PATH/.git" ]]; then
     BRANCH=$(git -C "$WT_PATH" rev-parse --abbrev-ref HEAD)
     # Only consider branches matching the pattern
