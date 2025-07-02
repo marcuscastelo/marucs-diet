@@ -110,7 +110,8 @@ export function ConfirmModalProvider(props: { children: JSXElement }) {
             return {
               ...action,
               onClick: () => {
-                // Check if action has preventAutoClose flag
+                // Only auto-close if preventAutoClose is not set
+                // Actions with preventAutoClose=true are responsible for closing manually
                 if (action.preventAutoClose !== true) {
                   setVisible(false)
                 }

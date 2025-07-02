@@ -44,15 +44,11 @@ export function ExternalTemplateSearchModal(
     )
     props.setVisible(false)
 
-    // Call onFinish immediately in the next tick to ensure modal closure is processed
-    setTimeout(() => {
-      console.debug('[ExternalTemplateSearchModal] Calling props.onFinish')
-      props.onFinish?.()
-      console.debug(
-        '[ExternalTemplateSearchModal] Setting isFinishing to false',
-      )
-      setIsFinishing(false)
-    }, 0)
+    // Call onFinish immediately without timeout to prevent race conditions
+    console.debug('[ExternalTemplateSearchModal] Calling props.onFinish')
+    props.onFinish?.()
+    console.debug('[ExternalTemplateSearchModal] Setting isFinishing to false')
+    setIsFinishing(false)
   }
 
   // Trigger the onRefetch callback whenever the modal is closed (i.e., when visible becomes false).

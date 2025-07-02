@@ -174,14 +174,12 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
               )
               setSelectedTemplate(undefined)
               setItemEditModalVisible(false)
-              // Close the confirm modal
+              // Close the confirm modal manually since preventAutoClose is true
               console.debug('[TemplateSearchModal] Closing confirm modal')
               closeConfirmModal()
-              // Call onFinish immediately instead of with timeout to prevent race conditions
-              setTimeout(() => {
-                console.debug('[TemplateSearchModal] Calling props.onFinish')
-                props.onFinish?.()
-              }, 0) // Use 0ms timeout to ensure it runs after render cycle but immediately
+              // Call onFinish immediately to prevent race conditions
+              console.debug('[TemplateSearchModal] Calling props.onFinish')
+              props.onFinish?.()
             },
           },
         ],
