@@ -1,4 +1,9 @@
-import { type Accessor, createEffect, type Setter } from 'solid-js'
+import {
+  type Accessor,
+  createEffect,
+  createSignal,
+  type Setter,
+} from 'solid-js'
 
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { ModalContextProvider } from '~/sections/common/context/ModalContext'
@@ -21,15 +26,33 @@ export type ExternalTemplateSearchModalProps = {
 export function ExternalTemplateSearchModal(
   props: ExternalTemplateSearchModalProps,
 ) {
+  const [isFinishing, setIsFinishing] = createSignal(false)
+
   const handleFinishSearch = () => {
-    // Ensure we don't call setVisible(false) if already closing
-    if (props.visible()) {
-      props.setVisible(false)
+    console.debug('[ExternalTemplateSearchModal] handleFinishSearch called')
+    if (isFinishing()) {
+      console.debug('[ExternalTemplateSearchModal] Already finishing, ignoring')
+      return // Prevent multiple calls
     }
-    // Use setTimeout to ensure modal closure is processed before calling onFinish
+    setIsFinishing(true)
+    console.debug('[ExternalTemplateSearchModal] Setting isFinishing to true')
+
+    // Immediately close the modal to prevent any re-opening
+    console.debug(
+      '[ExternalTemplateSearchModal] Closing modal, current visible:',
+      props.visible(),
+    )
+    props.setVisible(false)
+
+    // Call onFinish immediately in the next tick to ensure modal closure is processed
     setTimeout(() => {
+      console.debug('[ExternalTemplateSearchModal] Calling props.onFinish')
       props.onFinish?.()
-    }, 50)
+      console.debug(
+        '[ExternalTemplateSearchModal] Setting isFinishing to false',
+      )
+      setIsFinishing(false)
+    }, 0)
   }
 
   // Trigger the onRefetch callback whenever the modal is closed (i.e., when visible becomes false).

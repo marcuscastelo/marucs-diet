@@ -162,20 +162,30 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
             primary: true,
             preventAutoClose: true,
             onClick: () => {
+              console.debug(
+                '[TemplateSearchModal] Finalizar clicked - starting cleanup',
+              )
               showSuccess(
                 `Item "${originalAddedItem.name}" adicionado com sucesso!`,
               )
+              // Immediately reset all modal state atomically to prevent race conditions
+              console.debug(
+                '[TemplateSearchModal] Resetting selectedTemplate and itemEditModalVisible',
+              )
               setSelectedTemplate(undefined)
               setItemEditModalVisible(false)
-              // Close the confirm modal first, then handle finalization
+              // Close the confirm modal
+              console.debug('[TemplateSearchModal] Closing confirm modal')
               closeConfirmModal()
-              // Use setTimeout to ensure modal state is properly updated before finalization
+              // Call onFinish immediately instead of with timeout to prevent race conditions
               setTimeout(() => {
+                console.debug('[TemplateSearchModal] Calling props.onFinish')
                 props.onFinish?.()
-              }, 50)
+              }, 0) // Use 0ms timeout to ensure it runs after render cycle but immediately
             },
           },
         ],
+        hasBackdrop: true, // Add backdrop to prevent clicks outside
       })
     }
 
@@ -239,14 +249,16 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
           </div>
         </Modal.Content>
       </Modal>
-      <Show when={selectedTemplate() !== undefined}>
-        <ExternalTemplateToUnifiedItemModal
-          visible={itemEditModalVisible}
-          setVisible={setItemEditModalVisible}
-          selectedTemplate={() => selectedTemplate() as Template}
-          targetName={props.targetName}
-          onNewUnifiedItem={handleNewUnifiedItem}
-        />
+      <Show when={selectedTemplate()}>
+        {(selectedTemplate) => (
+          <ExternalTemplateToUnifiedItemModal
+            visible={itemEditModalVisible}
+            setVisible={setItemEditModalVisible}
+            selectedTemplate={selectedTemplate}
+            targetName={props.targetName}
+            onNewUnifiedItem={handleNewUnifiedItem}
+          />
+        )}
       </Show>
       <ExternalEANInsertModal
         visible={EANModalVisible}
