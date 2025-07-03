@@ -71,7 +71,6 @@ export function ConsoleDumpButton() {
       return
     }
 
-    const isMobile = /Mobi|Android/i.test(navigator.userAgent)
     const actions: Array<{
       text: string
       onClick: () => void
@@ -86,18 +85,6 @@ export function ConsoleDumpButton() {
         onClick: () => void handleAction('download'),
       },
     ]
-
-    // Add share option only on mobile devices
-    if (isMobile) {
-      actions.push({
-        text: '📤 Compartilhar',
-        primary: true,
-        onClick: () => void handleAction('share'),
-      })
-    } else {
-      // Make copy primary on desktop
-      actions[0]!.primary = true
-    }
 
     openContentModal(
       () => (
