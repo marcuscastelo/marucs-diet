@@ -150,8 +150,7 @@ export default function DayMeals(props: {
         />
       ),
       {
-        title: 'Adicionar um novo alimento',
-        targetName: meal.name,
+        title: `Adicionar item à secão "${meal.name}"`,
       },
     )
   }

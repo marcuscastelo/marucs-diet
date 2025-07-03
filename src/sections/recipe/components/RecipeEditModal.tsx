@@ -27,6 +27,7 @@ import { handleValidationError } from '~/shared/error/errorHandler'
 import {
   closeModal,
   openConfirmModal,
+  openContentModal,
   openEditModal,
 } from '~/shared/modal/helpers/modalHelpers'
 
@@ -110,7 +111,7 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
 
         <RecipeEditContent
           onNewItem={() => {
-            const newItemModalId = openEditModal(
+            const newItemModalId = openContentModal(
               (_modalId) => (
                 <TemplateSearchModal
                   targetName={recipe().name}
@@ -126,8 +127,7 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
                 />
               ),
               {
-                title: 'Adicionar novo item',
-                targetName: recipe().name,
+                title: `Adicionar item à receita "${recipe().name}"`,
                 onClose: () => props.onRefetch(),
               },
             )

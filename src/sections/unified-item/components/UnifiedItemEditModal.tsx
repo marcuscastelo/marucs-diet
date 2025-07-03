@@ -35,7 +35,11 @@ import { RecipeEditModal } from '~/sections/recipe/components/RecipeEditModal'
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { UnifiedItemEditBody } from '~/sections/unified-item/components/UnifiedItemEditBody'
 import { UnsupportedItemMessage } from '~/sections/unified-item/components/UnsupportedItemMessage'
-import { closeModal, openEditModal } from '~/shared/modal/helpers/modalHelpers'
+import {
+  closeModal,
+  openContentModal,
+  openEditModal,
+} from '~/shared/modal/helpers/modalHelpers'
 import { createDebug } from '~/shared/utils/createDebug'
 import { generateId } from '~/shared/utils/idUtils'
 
@@ -362,7 +366,7 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
               hasValidPastableOnClipboard: hasValidPastableOnClipboard(),
             }}
             onAddNewItem={() => {
-              const modalId = openEditModal(
+              const modalId = openContentModal(
                 () => (
                   <TemplateSearchModal
                     targetName={item().name}
@@ -400,8 +404,7 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
                   />
                 ),
                 {
-                  title: 'Adicionar novo item',
-                  targetName: item().name,
+                  title: `Adicionar novo subitem ao item "${item().name}"`,
                   onClose: () => closeAddItemModal(),
                 },
               )

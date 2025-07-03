@@ -26,7 +26,10 @@ import { type DateValueType } from '~/sections/datepicker/types'
 import DayMacros from '~/sections/day-diet/components/DayMacros'
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
-import { openConfirmModal } from '~/shared/modal/helpers/modalHelpers'
+import {
+  openConfirmModal,
+  openContentModal,
+} from '~/shared/modal/helpers/modalHelpers'
 import { openEditModal } from '~/shared/modal/helpers/modalHelpers'
 
 export default function TestApp() {
@@ -127,7 +130,7 @@ export default function TestApp() {
             <button
               class="btn cursor-pointer uppercase"
               onClick={() => {
-                openEditModal(
+                openContentModal(
                   () => (
                     <TemplateSearchModal
                       targetName="Teste"
@@ -140,7 +143,6 @@ export default function TestApp() {
                   ),
                   {
                     title: 'Buscar alimentos',
-                    targetName: 'Teste',
                   },
                 )
               }}
