@@ -29,8 +29,7 @@ import {
 } from '~/sections/meal/components/MealEditView'
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
-import { useUnifiedModal } from '~/shared/modal/context/UnifiedModalProvider'
-import { openEditModal } from '~/shared/modal/helpers/modalHelpers'
+import { closeModal, openEditModal } from '~/shared/modal/helpers/modalHelpers'
 import { createDebug } from '~/shared/utils/createDebug'
 import { stringToDate } from '~/shared/utils/date'
 
@@ -56,8 +55,6 @@ export default function DayMeals(props: {
   mode: 'edit' | 'read-only' | 'summary'
   onRequestEditMode?: () => void
 }) {
-  const { closeModal } = useUnifiedModal()
-
   const handleEditUnifiedItem = (meal: Meal, item: UnifiedItem) => {
     const dayDiet = resolvedDayDiet()
     if (!dayDiet) {

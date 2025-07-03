@@ -1,4 +1,4 @@
-import { type JSXElement, Suspense } from 'solid-js'
+import { type JSXElement } from 'solid-js'
 
 import { lazyImport } from '~/shared/solid/lazyImport'
 
@@ -10,10 +10,7 @@ const { UnifiedModalContainer } = lazyImport(
   () => import('~/shared/modal/components/UnifiedModalContainer'),
   ['UnifiedModalContainer'],
 )
-const { UnifiedModalProvider } = lazyImport(
-  () => import('~/shared/modal/context/UnifiedModalProvider'),
-  ['UnifiedModalProvider'],
-)
+
 const { DarkToaster } = lazyImport(
   () => import('~/sections/common/components/DarkToaster'),
   ['DarkToaster'],
@@ -21,13 +18,11 @@ const { DarkToaster } = lazyImport(
 
 export function Providers(props: { children: JSXElement }) {
   return (
-    <UnifiedModalProvider>
-      <Suspense fallback={<></>}>
-        <DarkToaster />
-        <GlobalModalContainer />
-        <UnifiedModalContainer />
-      </Suspense>
+    <>
+      <DarkToaster />
+      <GlobalModalContainer />
+      <UnifiedModalContainer />
       {props.children}
-    </UnifiedModalProvider>
+    </>
   )
 }

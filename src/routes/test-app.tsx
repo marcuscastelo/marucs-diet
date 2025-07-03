@@ -11,10 +11,7 @@ import {
   type ItemGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
-import {
-  itemGroupToUnifiedItem,
-  itemToUnifiedItem,
-} from '~/modules/diet/unified-item/domain/conversionUtils'
+import { itemGroupToUnifiedItem } from '~/modules/diet/unified-item/domain/conversionUtils'
 import { showSuccess } from '~/modules/toast/application/toastManager'
 import { TestChart } from '~/sections/common/components/charts/TestChart'
 import { FloatInput } from '~/sections/common/components/FloatInput'

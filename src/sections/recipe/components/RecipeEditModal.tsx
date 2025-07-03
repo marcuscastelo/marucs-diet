@@ -24,9 +24,11 @@ import { RecipeEditContextProvider } from '~/sections/recipe/context/RecipeEditC
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
 import { handleValidationError } from '~/shared/error/errorHandler'
-import { useUnifiedModal } from '~/shared/modal/context/UnifiedModalProvider'
-import { openConfirmModal } from '~/shared/modal/helpers/modalHelpers'
-import { openEditModal } from '~/shared/modal/helpers/modalHelpers'
+import {
+  closeModal,
+  openConfirmModal,
+  openEditModal,
+} from '~/shared/modal/helpers/modalHelpers'
 
 export type RecipeEditModalProps = {
   recipe: Accessor<Recipe>
@@ -38,7 +40,6 @@ export type RecipeEditModalProps = {
 }
 
 export function RecipeEditModal(props: RecipeEditModalProps) {
-  const { closeModal } = useUnifiedModal()
   const [recipe, setRecipe] = createSignal(untrack(() => props.recipe()))
 
   createEffect(() => {

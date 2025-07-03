@@ -6,6 +6,7 @@
 import type { JSXElement } from 'solid-js'
 
 import type { ToastError } from '~/modules/toast/domain/toastTypes'
+import { handleApiError } from '~/shared/error/errorHandler'
 import { modalManager } from '~/shared/modal/core/modalManager'
 import type { ModalId, ModalSize } from '~/shared/modal/types/modalTypes'
 
@@ -24,16 +25,21 @@ export function openErrorModal(
     priority?: 'low' | 'normal' | 'high' | 'critical'
   },
 ): ModalId {
-  return modalManager.openModal({
-    type: 'error',
-    title: options?.title ?? 'Error Details',
-    errorDetails: error,
-    size: options?.size ?? 'large',
-    priority: options?.priority ?? 'high',
-    closeOnOutsideClick: true,
-    closeOnEscape: true,
-    showCloseButton: true,
-  })
+  try {
+    return modalManager.openModal({
+      type: 'error',
+      title: options?.title ?? 'Error Details',
+      errorDetails: error,
+      size: options?.size ?? 'large',
+      priority: options?.priority ?? 'high',
+      closeOnOutsideClick: true,
+      closeOnEscape: true,
+      showCloseButton: true,
+    })
+  } catch (e) {
+    handleApiError(e)
+    throw e
+  }
 }
 
 /**
@@ -55,20 +61,25 @@ export function openConfirmModal(
     priority?: 'low' | 'normal' | 'high' | 'critical'
   },
 ): ModalId {
-  return modalManager.openModal({
-    type: 'confirmation',
-    title: options.title ?? 'Confirm Action',
-    message,
-    confirmText: options.confirmText ?? 'Confirm',
-    cancelText: options.cancelText ?? 'Cancel',
-    onConfirm: options.onConfirm,
-    onCancel: options.onCancel,
-    size: options.size ?? 'medium',
-    priority: options.priority ?? 'normal',
-    closeOnOutsideClick: false, // Prevent accidental confirmation
-    closeOnEscape: true,
-    showCloseButton: true,
-  })
+  try {
+    return modalManager.openModal({
+      type: 'confirmation',
+      title: options.title ?? 'Confirm Action',
+      message,
+      confirmText: options.confirmText ?? 'Confirm',
+      cancelText: options.cancelText ?? 'Cancel',
+      onConfirm: options.onConfirm,
+      onCancel: options.onCancel,
+      size: options.size ?? 'medium',
+      priority: options.priority ?? 'normal',
+      closeOnOutsideClick: false, // Prevent accidental confirmation
+      closeOnEscape: true,
+      showCloseButton: true,
+    })
+  } catch (e) {
+    handleApiError(e)
+    throw e
+  }
 }
 
 /**
@@ -92,19 +103,24 @@ export function openContentModal(
     className?: string
   } = {},
 ): ModalId {
-  return modalManager.openModal({
-    type: 'content',
-    title: options.title,
-    content,
-    footer: options.footer,
-    size: options.size ?? 'medium',
-    priority: options.priority ?? 'normal',
-    closeOnOutsideClick: options.closeOnOutsideClick ?? true,
-    closeOnEscape: options.closeOnEscape ?? true,
-    showCloseButton: options.showCloseButton ?? true,
-    onClose: options.onClose,
-    className: options.className,
-  })
+  try {
+    return modalManager.openModal({
+      type: 'content',
+      title: options.title,
+      content,
+      footer: options.footer,
+      size: options.size ?? 'medium',
+      priority: options.priority ?? 'normal',
+      closeOnOutsideClick: options.closeOnOutsideClick ?? true,
+      closeOnEscape: options.closeOnEscape ?? true,
+      showCloseButton: options.showCloseButton ?? true,
+      onClose: options.onClose,
+      className: options.className,
+    })
+  } catch (e) {
+    handleApiError(e)
+    throw e
+  }
 }
 
 /**
@@ -125,22 +141,27 @@ export function openEditModal(
     onCancel?: () => void
   },
 ): ModalId {
-  const fullTitle =
-    options.targetName !== undefined && options.targetName.length > 0
-      ? `${options.title} - ${options.targetName}`
-      : options.title
+  try {
+    const fullTitle =
+      options.targetName !== undefined && options.targetName.length > 0
+        ? `${options.title} - ${options.targetName}`
+        : options.title
 
-  return modalManager.openModal({
-    type: 'content',
-    title: fullTitle,
-    content,
-    size: options.size ?? 'large',
-    priority: 'normal',
-    closeOnOutsideClick: false, // Prevent accidental loss of edits
-    closeOnEscape: false, // Require explicit save/cancel
-    showCloseButton: true,
-    onClose: options.onClose,
-  })
+    return modalManager.openModal({
+      type: 'content',
+      title: fullTitle,
+      content,
+      size: options.size ?? 'large',
+      priority: 'normal',
+      closeOnOutsideClick: false, // Prevent accidental loss of edits
+      closeOnEscape: false, // Require explicit save/cancel
+      showCloseButton: true,
+      onClose: options.onClose,
+    })
+  } catch (e) {
+    handleApiError(e)
+    throw e
+  }
 }
 
 /**
@@ -150,8 +171,13 @@ export function openEditModal(
  * @param onClose Optional callback to execute after closing
  */
 export function closeModal(modalId: ModalId, onClose?: () => void): void {
-  modalManager.closeModal(modalId)
-  onClose?.()
+  try {
+    modalManager.closeModal(modalId)
+    onClose?.()
+  } catch (e) {
+    handleApiError(e)
+    throw e
+  }
 }
 
 /**

@@ -16,8 +16,7 @@ import { showError } from '~/modules/toast/application/toastManager'
 import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { formatError } from '~/shared/formatError'
-import { useUnifiedModal } from '~/shared/modal/context/UnifiedModalProvider'
-import { openEditModal } from '~/shared/modal/helpers/modalHelpers'
+import { closeModal, openEditModal } from '~/shared/modal/helpers/modalHelpers'
 
 export type ExternalTemplateToUnifiedItemModalProps = {
   selectedTemplate: Template
@@ -32,7 +31,7 @@ export type ExternalTemplateToUnifiedItemModalProps = {
 export function ExternalTemplateToUnifiedItemModal(
   props: ExternalTemplateToUnifiedItemModalProps,
 ) {
-  const { closeModal } = useUnifiedModal()
+  // closeModal is now imported from modalHelpers
 
   createEffect(() => {
     const template = props.selectedTemplate

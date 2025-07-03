@@ -2,15 +2,16 @@ import { type Accessor, createEffect, type Setter } from 'solid-js'
 
 import { type Template } from '~/modules/diet/template/domain/template'
 import EANInsertModal from '~/sections/ean/components/EANInsertModal'
-import { useUnifiedModal } from '~/shared/modal/context/UnifiedModalProvider'
-import { openContentModal } from '~/shared/modal/helpers/modalHelpers'
+import {
+  closeModal,
+  openContentModal,
+} from '~/shared/modal/helpers/modalHelpers'
 
 export function ExternalEANInsertModal(props: {
   visible: Accessor<boolean>
   setVisible: Setter<boolean>
   onSelect: (template: Template) => void
 }) {
-  const { closeModal } = useUnifiedModal()
   let modalId: string | null = null
 
   // Effect to manage modal based on visible state

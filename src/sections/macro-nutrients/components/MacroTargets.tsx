@@ -17,8 +17,10 @@ import {
   showSuccess,
 } from '~/modules/toast/application/toastManager'
 import { Button } from '~/sections/common/components/buttons/Button'
-import { useUnifiedModal } from '~/shared/modal/context/UnifiedModalProvider'
-import { openContentModal } from '~/shared/modal/helpers/modalHelpers'
+import {
+  closeModal,
+  openContentModal,
+} from '~/shared/modal/helpers/modalHelpers'
 import { dateToYYYYMMDD, getTodayYYYYMMDD } from '~/shared/utils/date'
 import { calcCalories } from '~/shared/utils/macroMath'
 import { getLatestMacroProfile } from '~/shared/utils/macroProfileUtils'
@@ -132,8 +134,6 @@ const onSaveMacroProfile = (profile: MacroProfile) => {
 }
 
 export function MacroTarget(props: MacroTargetProps) {
-  const { closeModal } = useUnifiedModal()
-
   const currentProfile = () => getLatestMacroProfile(props.profiles())
   const oldProfile = () => getLatestMacroProfile(props.profiles(), 1)
 

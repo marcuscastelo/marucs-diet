@@ -48,10 +48,12 @@ import {
 import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { formatError } from '~/shared/formatError'
-import { useUnifiedModal } from '~/shared/modal/context/UnifiedModalProvider'
-import { openContentModal } from '~/shared/modal/helpers/modalHelpers'
-import { openEditModal } from '~/shared/modal/helpers/modalHelpers'
-import { openConfirmModal } from '~/shared/modal/helpers/modalHelpers'
+import {
+  closeModal,
+  openConfirmModal,
+  openContentModal,
+  openEditModal,
+} from '~/shared/modal/helpers/modalHelpers'
 import { stringToDate } from '~/shared/utils/date'
 import { isOverflow } from '~/shared/utils/macroOverflow'
 
@@ -68,8 +70,6 @@ export type TemplateSearchModalProps = {
 }
 
 export function TemplateSearchModal(props: TemplateSearchModalProps) {
-  const { closeModal } = useUnifiedModal()
-
   const handleTemplateSelected = (template: Template) => {
     const initialQuantity = isTemplateRecipe(template)
       ? getRecipePreparedQuantity(template)

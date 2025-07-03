@@ -132,11 +132,3 @@ export type ModalManager = {
   /** Get the topmost (highest priority) modal */
   getTopModal: () => ModalState | undefined
 }
-
-/**
- * Modal context type for React/Solid integration.
- */
-export type UnifiedModalContext = ModalManager & {
-  /** Signal accessor for all modals */
-  modals: () => ModalState[]
-}

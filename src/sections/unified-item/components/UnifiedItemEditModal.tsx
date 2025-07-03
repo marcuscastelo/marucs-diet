@@ -35,8 +35,7 @@ import { RecipeEditModal } from '~/sections/recipe/components/RecipeEditModal'
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { UnifiedItemEditBody } from '~/sections/unified-item/components/UnifiedItemEditBody'
 import { UnsupportedItemMessage } from '~/sections/unified-item/components/UnsupportedItemMessage'
-import { useUnifiedModal } from '~/shared/modal/context/UnifiedModalProvider'
-import { openEditModal } from '~/shared/modal/helpers/modalHelpers'
+import { closeModal, openEditModal } from '~/shared/modal/helpers/modalHelpers'
 import { createDebug } from '~/shared/utils/createDebug'
 import { generateId } from '~/shared/utils/idUtils'
 
@@ -60,7 +59,6 @@ export type UnifiedItemEditModalProps = {
 export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
   debug('[UnifiedItemEditModal] called', _props)
   const props = mergeProps({ targetNameColor: 'text-green-500' }, _props)
-  const { closeModal } = useUnifiedModal()
 
   const handleClose = () => {
     props.onClose?.()
