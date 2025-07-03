@@ -81,7 +81,6 @@ export function CopyLastDayButton(props: {
             {
               title: 'Copiar dia anterior',
               size: 'large',
-              closeOnOutsideClick: false,
             },
           )
         }}
