@@ -37,14 +37,7 @@ import {
 import { createDebug } from '~/shared/utils/createDebug'
 import { stringToDate } from '~/shared/utils/date'
 
-type NewItemSelection = {
-  meal: Meal
-} | null
-
 const debug = createDebug()
-
-const [newItemSelection, setNewItemSelection] =
-  createSignal<NewItemSelection>(null)
 
 /**
  * Displays and manages the meals for a given day.
@@ -128,7 +121,6 @@ export default function DayMeals(props: {
       // setShowConfirmEdit(true)
       return
     }
-    setNewItemSelection({ meal })
     const searchModalId = openContentModal(
       () => (
         <TemplateSearchModal
@@ -159,9 +151,7 @@ export default function DayMeals(props: {
     void insertUnifiedItem(meal.id, newItem)
   }
 
-  const handleFinishSearch = () => {
-    setNewItemSelection(null)
-  }
+  const handleFinishSearch = () => {}
 
   // Use the provided dayDiet prop if present, otherwise fallback to currentDayDiet
   const resolvedDayDiet = () => props.dayDiet ?? currentDayDiet()
