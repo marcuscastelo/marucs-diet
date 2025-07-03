@@ -102,7 +102,6 @@ export const modalManager: ModalManager = {
       createdAt: now,
       updatedAt: now,
       // Set default values
-      size: config.size || 'medium',
       priority: config.priority || 'normal',
       closeOnOutsideClick: config.closeOnOutsideClick ?? true,
       closeOnEscape: config.closeOnEscape ?? true,

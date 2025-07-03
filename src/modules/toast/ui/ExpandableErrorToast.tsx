@@ -309,7 +309,6 @@ function ExpandableToastContent(props: ExpandableToastContentProps) {
       title: 'Error Details',
       errorDetails: props.errorDetails,
       priority: 'high',
-      size: 'large',
       closeOnOutsideClick: true,
       closeOnEscape: true,
       showCloseButton: true,

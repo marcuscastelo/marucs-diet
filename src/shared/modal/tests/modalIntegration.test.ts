@@ -154,7 +154,6 @@ describe('Modal Integration Tests', () => {
       const modal = modalManager.getModal(modalId)
       expect(modal?.type).toBe('error')
       expect(modal?.title).toBe('Test Error')
-      expect(modal?.size).toBe('large')
       expect(modal?.priority).toBe('high')
 
       if (modal?.type === 'error') {
@@ -189,7 +188,6 @@ describe('Modal Integration Tests', () => {
       const modal = modalManager.getModal(modalId)
       expect(modal?.type).toBe('content')
       expect(modal?.title).toBe('Content Modal')
-      expect(modal?.size).toBe('medium')
 
       if (modal?.type === 'content') {
         expect(modal.content).toBe('Main content')
@@ -290,18 +288,15 @@ describe('Modal Integration Tests', () => {
     it('should handle modal updates correctly', () => {
       const modalId = openContentModal('Original content', {
         title: 'Original Title',
-        size: 'small',
       })
 
       // Update modal
       modalManager.updateModal(modalId, {
         title: 'Updated Title',
-        size: 'large',
       })
 
       const updatedModal = modalManager.getModal(modalId)
       expect(updatedModal?.title).toBe('Updated Title')
-      expect(updatedModal?.size).toBe('large')
       expect(updatedModal?.updatedAt).toBeInstanceOf(Date)
     })
   })

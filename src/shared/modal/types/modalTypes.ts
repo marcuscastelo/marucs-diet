@@ -30,8 +30,6 @@ export type BaseModalConfig = {
   id?: ModalId
   /** Modal title */
   title?: string
-  /** Size of the modal */
-  size?: ModalSize
   /** Priority for display order */
   priority?: ModalPriority
   /** Whether the modal can be closed by clicking outside */

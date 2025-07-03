@@ -30,7 +30,6 @@ export function openErrorModal(
       type: 'error',
       title: options?.title ?? 'Error Details',
       errorDetails: error,
-      size: options?.size ?? 'large',
       priority: options?.priority ?? 'high',
       closeOnOutsideClick: true,
       closeOnEscape: true,
@@ -70,7 +69,6 @@ export function openConfirmModal(
       cancelText: options.cancelText ?? 'Cancel',
       onConfirm: options.onConfirm,
       onCancel: options.onCancel,
-      size: options.size ?? 'medium',
       priority: options.priority ?? 'normal',
       closeOnOutsideClick: false, // Prevent accidental confirmation
       closeOnEscape: true,
@@ -109,7 +107,6 @@ export function openContentModal(
       title: options.title,
       content,
       footer: options.footer,
-      size: options.size ?? 'medium',
       priority: options.priority ?? 'normal',
       closeOnOutsideClick: options.closeOnOutsideClick ?? true,
       closeOnEscape: options.closeOnEscape ?? true,
@@ -151,7 +148,6 @@ export function openEditModal(
       type: 'content',
       title: fullTitle,
       content,
-      size: options.size ?? 'large',
       priority: 'normal',
       closeOnOutsideClick: false, // Prevent accidental loss of edits
       closeOnEscape: false, // Require explicit save/cancel
