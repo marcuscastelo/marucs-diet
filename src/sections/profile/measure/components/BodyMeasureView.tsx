@@ -11,10 +11,10 @@ import { Capsule } from '~/sections/common/components/capsule/Capsule'
 import { CapsuleContent } from '~/sections/common/components/capsule/CapsuleContent'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useDateField, useFloatField } from '~/sections/common/hooks/useField'
 import { type DateValueType } from '~/sections/datepicker/types'
 import { formatError } from '~/shared/formatError'
+import { openConfirmModal } from '~/shared/modal/helpers/modalHelpers'
 import { lazyImport } from '~/shared/solid/lazyImport'
 import { normalizeDateToLocalMidnightPlusOne } from '~/shared/utils/date/normalizeDateToLocalMidnightPlusOne'
 
@@ -40,7 +40,6 @@ export function BodyMeasureView(props: {
   const waistField = useFloatField(() => props.measure.waist)
   const hipField = useFloatField(() => props.measure.hip)
   const neckField = useFloatField(() => props.measure.neck)
-  const { show: showConfirmModal } = useConfirmModalContext()
 
   const handleSave = ({
     date,
@@ -86,33 +85,24 @@ export function BodyMeasureView(props: {
   }
 
   const handleDelete = () => {
-    showConfirmModal({
-      title: 'Confirmar exclusão',
-      body: 'Tem certeza que deseja excluir esta medida? Esta ação não pode ser desfeita.',
-      actions: [
-        {
-          text: 'Cancelar',
-          onClick: () => {},
+    openConfirmModal(
+      'Tem certeza que deseja excluir esta medida? Esta ação não pode ser desfeita.',
+      {
+        title: 'Confirmar exclusão',
+        confirmText: 'Excluir',
+        cancelText: 'Cancelar',
+        onConfirm: () => {
+          const afterDelete = () => {
+            props.onRefetchBodyMeasures()
+          }
+          deleteBodyMeasure(props.measure.id)
+            .then(afterDelete)
+            .catch((error) => {
+              showError('Erro ao deletar: \n' + JSON.stringify(error, null, 2))
+            })
         },
-        {
-          text: 'Excluir',
-          primary: true,
-          onClick: () => {
-            const afterDelete = () => {
-              props.onRefetchBodyMeasures()
-            }
-            deleteBodyMeasure(props.measure.id)
-              .then(afterDelete)
-              .catch((error) => {
-                showError(
-                  'Erro ao deletar: \n' + JSON.stringify(error, null, 2),
-                )
-              })
-          },
-        },
-      ],
-      hasBackdrop: true,
-    })
+      },
+    )
   }
 
   return (

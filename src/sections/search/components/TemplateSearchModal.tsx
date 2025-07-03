@@ -1,11 +1,4 @@
-import {
-  type Accessor,
-  createEffect,
-  createSignal,
-  type Setter,
-  Show,
-  Suspense,
-} from 'solid-js'
+import { createEffect, Suspense } from 'solid-js'
 
 import {
   currentDayDiet,
@@ -13,7 +6,14 @@ import {
 } from '~/modules/diet/day-diet/application/dayDiet'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
+import { getRecipePreparedQuantity } from '~/modules/diet/recipe/domain/recipeOperations'
+import { createUnifiedItemFromTemplate } from '~/modules/diet/template/application/createGroupFromTemplate'
+import {
+  DEFAULT_QUANTITY,
+  templateToUnifiedItem,
+} from '~/modules/diet/template/application/templateToItem'
 import { type Template } from '~/modules/diet/template/domain/template'
+import { isTemplateRecipe } from '~/modules/diet/template/domain/template'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import {
   isFoodItem,
@@ -37,19 +37,21 @@ import { showSuccess } from '~/modules/toast/application/toastManager'
 import { showError } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
 import { EANButton } from '~/sections/common/components/EANButton'
-import { Modal } from '~/sections/common/components/Modal'
 import { PageLoading } from '~/sections/common/components/PageLoading'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
-import { useModalContext } from '~/sections/common/context/ModalContext'
-import { ExternalEANInsertModal } from '~/sections/search/components/ExternalEANInsertModal'
-import { ExternalTemplateToUnifiedItemModal } from '~/sections/search/components/ExternalTemplateToUnifiedItemModal'
+import EANInsertModal from '~/sections/ean/components/EANInsertModal'
 import { TemplateSearchBar } from '~/sections/search/components/TemplateSearchBar'
 import { TemplateSearchResults } from '~/sections/search/components/TemplateSearchResults'
 import {
   availableTabs,
   TemplateSearchTabs,
 } from '~/sections/search/components/TemplateSearchTabs'
+import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
 import { handleApiError } from '~/shared/error/errorHandler'
+import { formatError } from '~/shared/formatError'
+import { useUnifiedModal } from '~/shared/modal/context/UnifiedModalProvider'
+import { openContentModal } from '~/shared/modal/helpers/modalHelpers'
+import { openEditModal } from '~/shared/modal/helpers/modalHelpers'
+import { openConfirmModal } from '~/shared/modal/helpers/modalHelpers'
 import { stringToDate } from '~/shared/utils/date'
 import { isOverflow } from '~/shared/utils/macroOverflow'
 
@@ -62,23 +64,59 @@ export type TemplateSearchModalProps = {
     originalAddedItem: TemplateItem,
   ) => void
   onFinish?: () => void
+  onClose?: () => void
 }
 
 export function TemplateSearchModal(props: TemplateSearchModalProps) {
-  const { visible } = useModalContext()
-  const { show: showConfirmModal } = useConfirmModalContext()
+  const { closeModal } = useUnifiedModal()
 
-  const [itemEditModalVisible, setItemEditModalVisible] = createSignal(false)
+  const handleTemplateSelected = (template: Template) => {
+    const initialQuantity = isTemplateRecipe(template)
+      ? getRecipePreparedQuantity(template)
+      : DEFAULT_QUANTITY
 
-  const [EANModalVisible, setEANModalVisible] = createSignal(false)
+    const editModalId = openEditModal(
+      () => (
+        <UnifiedItemEditModal
+          targetMealName={props.targetName}
+          item={() => templateToUnifiedItem(template, initialQuantity)}
+          macroOverflow={() => ({ enable: true })}
+          onApply={(templateItem: TemplateItem) => {
+            const { unifiedItem } = createUnifiedItemFromTemplate(
+              template,
+              templateItem,
+            )
 
-  const [selectedTemplate, setSelectedTemplate] = createSignal<
-    Template | undefined
-  >(undefined)
+            handleNewUnifiedItem(unifiedItem, templateItem, () =>
+              closeModal(editModalId),
+            ).catch((err) => {
+              handleApiError(err)
+              showError(err, {}, `Erro ao adicionar item: ${formatError(err)}`)
+            })
+          }}
+          onClose={() => {
+            closeModal(editModalId)
+          }}
+        />
+      ),
+      {
+        title: 'Edit Item',
+        targetName: props.targetName,
+      },
+    )
+    // Log modal open with stack trace
+    if (typeof window !== 'undefined') {
+      console.log('[TemplateSearchModal] openEditModal called')
+      console.log(
+        new Error('[TemplateSearchModal] openEditModal stack trace').stack,
+      )
+    }
+  }
 
   const handleNewUnifiedItem = async (
     newItem: UnifiedItem,
     originalAddedItem: TemplateItem,
+    closeEditModal: () => void,
   ) => {
     // For UnifiedItem, we need to check macro overflow
     console.log(
@@ -142,34 +180,28 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
         await insertRecentFood(newRecentFood)
       }
 
-      showConfirmModal({
-        title: 'Item adicionado com sucesso',
-        body: 'Deseja adicionar outro item ou finalizar a inclusão?',
-        actions: [
-          {
-            text: 'Adicionar mais um item',
-            onClick: () => {
-              showSuccess(
-                `Item "${originalAddedItem.name}" adicionado com sucesso!`,
-              )
-              setSelectedTemplate(undefined)
-              setItemEditModalVisible(false)
-            },
+      const confirmModalId = openConfirmModal(
+        'Deseja adicionar outro item ou finalizar a inclusão?',
+        {
+          title: 'Item adicionado com sucesso',
+          confirmText: 'Finalizar',
+          cancelText: 'Adicionar mais um item',
+          onConfirm: () => {
+            showSuccess(
+              `Item "${originalAddedItem.name}" adicionado com sucesso!`,
+            )
+            props.onFinish?.()
+            props.onClose?.()
+            closeModal(confirmModalId)
           },
-          {
-            text: 'Finalizar',
-            primary: true,
-            onClick: () => {
-              showSuccess(
-                `Item "${originalAddedItem.name}" adicionado com sucesso!`,
-              )
-              setSelectedTemplate(undefined)
-              setItemEditModalVisible(false)
-              props.onFinish?.()
-            },
+          onCancel: () => {
+            showSuccess(
+              `Item "${originalAddedItem.name}" adicionado com sucesso!`,
+            )
+            closeModal(confirmModalId)
           },
-        ],
-      })
+        },
+      )
     }
 
     // Check if any macro nutrient would overflow
@@ -180,28 +212,29 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
 
     if (isOverflowing) {
       // Prompt if user wants to add item even if it overflows
-      showConfirmModal({
-        title: 'Macros ultrapassam metas diárias',
-        body: 'Os macros deste item ultrapassam as metas diárias. Deseja adicionar mesmo assim?',
-        actions: [
-          {
-            text: 'Adicionar mesmo assim',
-            primary: true,
-            onClick: () => {
-              onConfirm().catch((err) => {
+      const overflowModalId = openConfirmModal(
+        'Os macros deste item ultrapassam as metas diárias. Deseja adicionar mesmo assim?',
+        {
+          title: 'Macros ultrapassam metas diárias',
+          confirmText: 'Adicionar mesmo assim',
+          cancelText: 'Cancelar',
+          onConfirm: () => {
+            onConfirm()
+              .then(() => {
+                closeModal(overflowModalId)
+                closeEditModal()
+              })
+              .catch((err) => {
                 handleApiError(err)
                 showError(err, {}, 'Erro ao adicionar item')
+                closeModal(overflowModalId)
               })
-            },
           },
-          {
-            text: 'Cancelar',
-            onClick: () => {
-              // Do nothing
-            },
+          onCancel: () => {
+            closeModal(overflowModalId)
           },
-        ],
-      })
+        },
+      )
     } else {
       try {
         await onConfirm()
@@ -212,63 +245,49 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
     }
   }
 
+  const handleEANModal = () => {
+    const modalId = openContentModal(
+      () => (
+        <EANInsertModal
+          visible={true}
+          onSelect={(template: Template) => {
+            handleTemplateSelected(template)
+            closeModal(modalId)
+          }}
+          onClose={() => {
+            closeModal(modalId)
+          }}
+        />
+      ),
+      {
+        title: 'Pesquisar por código de barras',
+        size: 'large',
+        closeOnOutsideClick: false,
+        closeOnEscape: true,
+      },
+    )
+  }
+
   console.debug('[TemplateSearchModal] Render')
   return (
-    <>
-      <Modal>
-        <Modal.Header title="Adicionar um novo alimento" />
-        <Modal.Content>
-          <div class="flex flex-col h-[60vh] sm:h-[80vh] p-2">
-            <Show when={visible}>
-              <TemplateSearch
-                EANModalVisible={EANModalVisible}
-                setEANModalVisible={setEANModalVisible}
-                itemEditModalVisible={itemEditModalVisible}
-                setItemEditModalVisible={setItemEditModalVisible}
-                setSelectedTemplate={setSelectedTemplate}
-                modalVisible={visible}
-              />
-            </Show>
-          </div>
-        </Modal.Content>
-      </Modal>
-      <Show when={selectedTemplate() !== undefined}>
-        <ExternalTemplateToUnifiedItemModal
-          visible={itemEditModalVisible}
-          setVisible={setItemEditModalVisible}
-          selectedTemplate={() => selectedTemplate() as Template}
-          targetName={props.targetName}
-          onNewUnifiedItem={handleNewUnifiedItem}
-        />
-      </Show>
-      <ExternalEANInsertModal
-        visible={EANModalVisible}
-        setVisible={setEANModalVisible}
-        onSelect={(template) => {
-          setSelectedTemplate(template)
-          setItemEditModalVisible(true)
-          setEANModalVisible(false)
-        }}
+    <div class="flex flex-col min-h-0 max-h-[60vh] sm:max-h-[70vh] p-2">
+      <TemplateSearch
+        onTemplateSelected={handleTemplateSelected}
+        onEANModal={handleEANModal}
       />
-    </>
+    </div>
   )
 }
 
 export function TemplateSearch(props: {
-  modalVisible: Accessor<boolean>
-  EANModalVisible: Accessor<boolean>
-  setEANModalVisible: Setter<boolean>
-  itemEditModalVisible: Accessor<boolean>
-  setItemEditModalVisible: Setter<boolean>
-  setSelectedTemplate: (food: Template | undefined) => void
+  onTemplateSelected: (template: Template) => void
+  onEANModal: () => void
 }) {
   // TODO:   Determine if user is on desktop or mobile to set autofocus
   const isDesktop = false
 
   createEffect(() => {
-    setTemplateSearchTab(
-      props.modalVisible() ? TEMPLATE_SEARCH_DEFAULT_TAB : 'hidden',
-    )
+    setTemplateSearchTab(TEMPLATE_SEARCH_DEFAULT_TAB)
   })
 
   return (
@@ -280,7 +299,7 @@ export function TemplateSearch(props: {
         <EANButton
           showEANModal={() => {
             console.debug('[TemplateSearchModal] showEANModal')
-            props.setEANModalVisible(true)
+            props.onEANModal()
           }}
         />
       </div>
@@ -301,11 +320,7 @@ export function TemplateSearch(props: {
         <TemplateSearchResults
           search={debouncedSearch()}
           filteredTemplates={templates() ?? []}
-          EANModalVisible={props.EANModalVisible}
-          setEANModalVisible={props.setEANModalVisible}
-          itemEditModalVisible={props.itemEditModalVisible}
-          setItemEditModalVisible={props.setItemEditModalVisible}
-          setSelectedTemplate={props.setSelectedTemplate}
+          onTemplateSelected={props.onTemplateSelected}
           refetch={refetchTemplates}
         />
       </Suspense>

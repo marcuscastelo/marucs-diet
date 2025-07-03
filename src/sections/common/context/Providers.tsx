@@ -6,28 +6,28 @@ const { GlobalModalContainer } = lazyImport(
   () => import('~/modules/toast/ui/GlobalModalContainer'),
   ['GlobalModalContainer'],
 )
-const { ConfirmModal } = lazyImport(
-  () => import('~/sections/common/components/ConfirmModal'),
-  ['ConfirmModal'],
+const { UnifiedModalContainer } = lazyImport(
+  () => import('~/shared/modal/components/UnifiedModalContainer'),
+  ['UnifiedModalContainer'],
+)
+const { UnifiedModalProvider } = lazyImport(
+  () => import('~/shared/modal/context/UnifiedModalProvider'),
+  ['UnifiedModalProvider'],
 )
 const { DarkToaster } = lazyImport(
   () => import('~/sections/common/components/DarkToaster'),
   ['DarkToaster'],
 )
-const { ConfirmModalProvider } = lazyImport(
-  () => import('~/sections/common/context/ConfirmModalContext'),
-  ['ConfirmModalProvider'],
-)
 
 export function Providers(props: { children: JSXElement }) {
   return (
-    <ConfirmModalProvider>
+    <UnifiedModalProvider>
       <Suspense fallback={<></>}>
-        <ConfirmModal />
         <DarkToaster />
         <GlobalModalContainer />
+        <UnifiedModalContainer />
       </Suspense>
       {props.children}
-    </ConfirmModalProvider>
+    </UnifiedModalProvider>
   )
 }

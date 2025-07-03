@@ -20,14 +20,18 @@ import { type User } from '~/modules/user/domain/user'
 import { Button } from '~/sections/common/components/buttons/Button'
 import { ConsoleDumpButton } from '~/sections/common/components/ConsoleDumpButton'
 import { UserIcon } from '~/sections/common/components/icons/UserIcon'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useIntersectionObserver } from '~/shared/hooks/useIntersectionObserver'
+import {
+  closeAllModals,
+  closeModal,
+  openConfirmModal,
+  openContentModal,
+} from '~/shared/modal/helpers/modalHelpers'
 
 export function BottomNavigation() {
   const navigate = useNavigate()
   const location = useLocation()
   const pathname = location.pathname
-  const { show: showConfirmModal } = useConfirmModalContext()
 
   const [footerHeight, setFooterHeight] = createSignal(0)
   let footerRef: HTMLDivElement | undefined
@@ -124,12 +128,13 @@ export function BottomNavigation() {
                 />
               )}
               onClick={() => {
-                showConfirmModal({
-                  title: '',
-                  body: () => <UserSelectorDropdown />,
-                  actions: [],
-                  hasBackdrop: true,
-                })
+                openContentModal(
+                  (modalId) => <UserSelectorDropdown modalId={modalId} />,
+                  {
+                    closeOnOutsideClick: true,
+                    showCloseButton: false,
+                  },
+                )
               }}
               position="last"
             />
@@ -138,10 +143,13 @@ export function BottomNavigation() {
       </div>
       <footer
         ref={footerRef}
-        class="w-full flex flex-col justify-center items-center gap-1  p-2 rounded-t left-0 bottom-0 z-40 lg:static lg:rounded-none"
+        class="w-full flex flex-col justify-center items-center gap-1 p-2 rounded-t left-0 bottom-0 z-40 lg:static lg:rounded-none"
       >
-        <div class="flex items-center gap-2">
-          <pre class="text-xs text-white">Version: {APP_VERSION}</pre>
+        <div class="flex flex-col text-center items-center gap-2">
+          <i class="text-xs text-gray-500 dark:text-gray-400">
+            Version: <br />
+            {APP_VERSION}
+          </i>
           <ConsoleDumpButton />
         </div>
         <Show when={!window.location.href.includes('stable')}>
@@ -290,42 +298,22 @@ function CTAButton() {
   )
 }
 
-const UserSelectorDropdown = () => {
-  const { show: showConfirmModal, close: closeConfirmModal } =
-    useConfirmModalContext()
-
+const UserSelectorDropdown = (props: { modalId: string }) => {
   fetchUsers().catch((error) => {
     console.error('[UserSelectorDropdown] Error fetching users:', error)
     showError('Erro ao buscar usuários', { context: 'background' })
-    closeConfirmModal()
+    closeAllModals()
   })
 
   const handleChangeUser = (user: User) => {
-    showConfirmModal({
+    openConfirmModal(`Deseja entrar como ${user.name}?`, {
       title: 'Trocar de usuário',
-      body: () => (
-        <div class="flex justify-between">
-          <span>{`Deseja entrar como ${user.name}?`}</span>
-          <UserIcon
-            class="w-16 h-16"
-            userId={() => user.id}
-            userName={() => user.name}
-          />
-        </div>
-      ),
-      actions: [
-        {
-          text: 'Cancelar',
-          onClick: () => undefined,
-        },
-        {
-          primary: true,
-          text: 'Entrar',
-          onClick: () => {
-            changeToUser(user.id)
-          },
-        },
-      ],
+      confirmText: 'Entrar',
+      cancelText: 'Cancelar',
+      onConfirm: () => {
+        changeToUser(user.id)
+        closeModal(props.modalId)
+      },
     })
   }
 

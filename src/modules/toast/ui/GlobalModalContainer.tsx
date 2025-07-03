@@ -8,11 +8,11 @@
 
 import { For } from 'solid-js'
 
+import { ErrorDetailModal } from '~/sections/common/components/ErrorDetailModal'
 import {
   closeErrorModal,
   getOpenModals,
-} from '~/modules/toast/application/modalState'
-import { ErrorDetailModal } from '~/sections/common/components/ErrorDetailModal'
+} from '~/shared/modal/bridges/legacyErrorModalBridge'
 
 /**
  * Container component that renders all active error modals.

@@ -29,17 +29,14 @@ import {
   unifiedItemSchema,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { DownloadIcon } from '~/sections/common/components/icons/DownloadIcon'
-import { Modal } from '~/sections/common/components/Modal'
-import {
-  ModalContextProvider,
-  useModalContext,
-} from '~/sections/common/context/ModalContext'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import { RecipeEditModal } from '~/sections/recipe/components/RecipeEditModal'
-import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
+import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { UnifiedItemEditBody } from '~/sections/unified-item/components/UnifiedItemEditBody'
 import { UnsupportedItemMessage } from '~/sections/unified-item/components/UnsupportedItemMessage'
+import { useUnifiedModal } from '~/shared/modal/context/UnifiedModalProvider'
+import { openEditModal } from '~/shared/modal/helpers/modalHelpers'
 import { createDebug } from '~/shared/utils/createDebug'
 import { generateId } from '~/shared/utils/idUtils'
 
@@ -57,27 +54,20 @@ export type UnifiedItemEditModalProps = {
   onCancel?: () => void
   onAddNewItem?: () => void
   showAddItemButton?: boolean
+  onClose?: () => void
 }
 
 export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
   debug('[UnifiedItemEditModal] called', _props)
   const props = mergeProps({ targetNameColor: 'text-green-500' }, _props)
-  const { setVisible } = useModalContext()
+  const { closeModal } = useUnifiedModal()
+
+  const handleClose = () => {
+    props.onClose?.()
+  }
 
   const [item, setItem] = createSignal(untrack(() => props.item()))
   createEffect(() => setItem(props.item()))
-
-  // Child editing modal state
-  const [childEditModalVisible, setChildEditModalVisible] = createSignal(false)
-  const [childBeingEdited, setChildBeingEdited] =
-    createSignal<UnifiedItem | null>(null)
-
-  // Template search modal state
-  const [templateSearchVisible, setTemplateSearchVisible] = createSignal(false)
-
-  // Recipe edit modal state
-  const [recipeEditModalVisible, setRecipeEditModalVisible] =
-    createSignal(false)
 
   const [viewMode, setViewMode] = createSignal<'normal' | 'group'>('normal')
 
@@ -172,22 +162,56 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
     return item().quantity > 0
   }
 
-  const handleEditChild = (child: UnifiedItem) => {
-    setChildBeingEdited(child)
-    setChildEditModalVisible(true)
+  const [recipeEditModalId, setRecipeEditModalId] = createSignal<string | null>(
+    null,
+  )
+  const [addItemModalId, setAddItemModalId] = createSignal<string | null>(null)
+
+  // Helper functions for closing modals
+  const closeRecipeEditModal = () => {
+    const modalId = recipeEditModalId()
+    if (modalId !== null) {
+      closeModal(modalId)
+      setRecipeEditModalId(null)
+    }
   }
 
-  const handleChildModalApply = (updatedChild: UnifiedItem) => {
-    // Update the child in the parent item using the domain function
-    const currentItem = item()
-    const updatedItem = updateChildInItem(
-      currentItem,
-      updatedChild.id,
-      updatedChild,
+  const closeAddItemModal = () => {
+    const modalId = addItemModalId()
+    if (modalId !== null) {
+      closeModal(modalId)
+      setAddItemModalId(null)
+    }
+  }
+
+  const handleEditChild = (child: UnifiedItem) => {
+    const childModalId = openEditModal(
+      () => (
+        <UnifiedItemEditModal
+          targetMealName={`${props.targetMealName} > ${item().name}`}
+          targetNameColor="text-orange-400"
+          item={() => child}
+          macroOverflow={() => ({ enable: false })}
+          onApply={(updatedChild) => {
+            const currentItem = item()
+            const updatedItem = updateChildInItem(
+              currentItem,
+              updatedChild.id,
+              updatedChild,
+            )
+            setItem(updatedItem)
+            closeModal(childModalId)
+          }}
+          onClose={() => {
+            closeModal(childModalId)
+          }}
+        />
+      ),
+      {
+        title: 'Editar item filho',
+        targetName: child.name,
+      },
     )
-    setItem(updatedItem)
-    setChildEditModalVisible(false)
-    setChildBeingEdited(null)
   }
 
   const handleSyncWithOriginalRecipe = () => {
@@ -214,8 +238,6 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
         )
         setItem(syncedItem)
       }
-
-      setRecipeEditModalVisible(false)
     } catch (error) {
       console.error('Error saving recipe:', error)
       // Error handling will be done by the RecipeEditModal
@@ -225,21 +247,11 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
   const handleDeleteRecipe = async (recipeId: Recipe['id']) => {
     try {
       await recipeRepository.deleteRecipe(recipeId)
-      setRecipeEditModalVisible(false)
       // The parent component should handle removing this item
     } catch (error) {
       console.error('Error deleting recipe:', error)
       // Error handling will be done by the RecipeEditModal
     }
-  }
-
-  // Sync wrappers for modal callbacks
-  const handleSaveRecipeSync = (updatedRecipe: Recipe) => {
-    void handleSaveRecipe(updatedRecipe)
-  }
-
-  const handleDeleteRecipeSync = (recipeId: Recipe['id']) => {
-    void handleDeleteRecipe(recipeId)
   }
 
   // Clipboard functionality
@@ -253,236 +265,191 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
     })
 
   return (
-    <>
-      <Modal class="border-2 border-white">
-        <Modal.Header
-          title={
-            <span>
-              Editando item em
-              <span class={props.targetNameColor}>
-                "{props.targetMealName}"
-              </span>
-            </span>
+    <div class="flex flex-col h-full">
+      <div class="flex-1 p-4">
+        <Show
+          when={
+            isFoodItem(item()) || isRecipeItem(item()) || isGroupItem(item())
           }
-        />
-        <Modal.Content>
+        >
+          {/* Toggle button for recipes */}
           <Show
             when={
-              isFoodItem(item()) || isRecipeItem(item()) || isGroupItem(item())
+              isRecipeItem(item()) ||
+              isFoodItem(item()) ||
+              asGroupItem(item())?.reference.children.length === 1
             }
           >
-            {/* Toggle button for recipes */}
-            <Show
-              when={
-                isRecipeItem(item()) ||
-                isFoodItem(item()) ||
-                asGroupItem(item())?.reference.children.length === 1
-              }
-            >
-              <div class="mb-4 flex justify-center items-center gap-3 ">
-                <div class="flex rounded-lg border border-gray-600 w-full bg-gray-800 p-1">
-                  <button
-                    class={`px-3 py-1 rounded-md text-sm transition-colors flex-1 ${
-                      viewMode() === 'normal'
-                        ? 'bg-blue-600 text-white'
-                        : 'text-gray-400 hover:text-white'
-                    }`}
-                    onClick={() => setViewMode('normal')}
-                  >
-                    <Show when={isRecipeItem(item())}>📖 Receita</Show>
-                    <Show when={!isRecipeItem(item())}>🍽️ Alimento</Show>
-                  </button>
-                  <button
-                    class={`px-3 py-1 rounded-md text-sm transition-colors flex-1 ${
-                      viewMode() === 'group'
-                        ? 'bg-blue-600 text-white'
-                        : 'text-gray-400 hover:text-white'
-                    }`}
-                    onClick={() => setViewMode('group')}
-                  >
-                    📦 Tratar como Grupo
-                  </button>
-                </div>
-
-                {/* Sync button - only show if recipe was manually edited */}
-                <Show when={isManuallyEdited() && originalRecipe()}>
-                  <div
-                    class="btn btn-sm btn-ghost text-white rounded-md flex items-center gap-1"
-                    onClick={handleSyncWithOriginalRecipe}
-                    title="Sincronizar com receita original"
-                  >
-                    <DownloadIcon />
-                  </div>
-                </Show>
-
-                {/* Edit recipe button - only show for recipe items */}
-                <Show when={isRecipeItem(item()) && originalRecipe()}>
-                  <button
-                    class="btn btn-sm btn-ghost text-white rounded-md flex items-center gap-1"
-                    onClick={() => setRecipeEditModalVisible(true)}
-                    title="Editar receita original"
-                  >
-                    ✏️
-                  </button>
-                </Show>
+            <div class="mb-4 flex justify-center items-center gap-3 ">
+              <div class="flex rounded-lg border border-gray-600 w-full bg-gray-800 p-1">
+                <button
+                  class={`px-3 py-1 rounded-md text-sm transition-colors flex-1 ${
+                    viewMode() === 'normal'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                  onClick={() => setViewMode('normal')}
+                >
+                  <Show when={isRecipeItem(item())}>📖 Receita</Show>
+                  <Show when={!isRecipeItem(item())}>🍽️ Alimento</Show>
+                </button>
+                <button
+                  class={`px-3 py-1 rounded-md text-sm transition-colors flex-1 ${
+                    viewMode() === 'group'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                  onClick={() => setViewMode('group')}
+                >
+                  📦 Tratar como Grupo
+                </button>
               </div>
-            </Show>
 
-            <UnifiedItemEditBody
-              canApply={canApply()}
-              item={item}
-              setItem={setItem}
-              macroOverflow={props.macroOverflow}
-              quantityField={quantityField}
-              onEditChild={handleEditChild}
-              viewMode={viewMode()}
-              clipboardActions={{
-                onCopy: handleCopy,
-                onPaste: handlePaste,
-                hasValidPastableOnClipboard: hasValidPastableOnClipboard(),
-              }}
-              onAddNewItem={() => setTemplateSearchVisible(true)}
-              showAddItemButton={props.showAddItemButton}
-            />
+              {/* Sync button - only show if recipe was manually edited */}
+              <Show when={isManuallyEdited() && originalRecipe()}>
+                <div
+                  class="btn btn-sm btn-ghost text-white rounded-md flex items-center gap-1"
+                  onClick={handleSyncWithOriginalRecipe}
+                  title="Sincronizar com receita original"
+                >
+                  <DownloadIcon />
+                </div>
+              </Show>
+
+              {/* Edit recipe button - only show for recipe items */}
+              <Show when={isRecipeItem(item()) && originalRecipe()}>
+                <button
+                  class="btn btn-sm btn-ghost text-white rounded-md flex items-center gap-1"
+                  onClick={() => {
+                    const modalId = openEditModal(
+                      () => (
+                        <RecipeEditModal
+                          recipe={() => originalRecipe() as Recipe}
+                          onSaveRecipe={(updatedRecipe) => {
+                            void handleSaveRecipe(updatedRecipe)
+                          }}
+                          onRefetch={() => {}}
+                          onDelete={(recipeId) => {
+                            void handleDeleteRecipe(recipeId)
+                          }}
+                          onClose={() => closeRecipeEditModal()}
+                        />
+                      ),
+                      {
+                        title: 'Editar receita',
+                        targetName: originalRecipe()?.name,
+                      },
+                    )
+                    setRecipeEditModalId(modalId)
+                  }}
+                  title="Editar receita original"
+                >
+                  ✏️
+                </button>
+              </Show>
+            </div>
           </Show>
-          <Show
-            when={
-              !isFoodItem(item()) &&
-              !isRecipeItem(item()) &&
-              !isGroupItem(item())
-            }
-          >
-            <UnsupportedItemMessage />
-          </Show>
-        </Modal.Content>
-        <Modal.Footer>
-          <button
-            class="btn cursor-pointer uppercase"
-            onClick={(e) => {
-              debug('[UnifiedItemEditModal] Cancel clicked')
-              e.preventDefault()
-              e.stopPropagation()
-              setVisible(false)
-              props.onCancel?.()
-            }}
-          >
-            Cancelar
-          </button>
-          <button
-            class="btn cursor-pointer uppercase"
-            disabled={
-              !canApply() ||
-              (!isFoodItem(item()) &&
-                !isRecipeItem(item()) &&
-                !isGroupItem(item()))
-            }
-            onClick={(e) => {
-              debug('[UnifiedItemEditModal] Apply clicked', item())
-              e.preventDefault()
-              console.debug(
-                '[UnifiedItemEditModal] onApply - calling onApply with item.value=',
-                item(),
-              )
-              props.onApply(item())
-              setVisible(false)
-            }}
-          >
-            Aplicar
-          </button>
-        </Modal.Footer>
-      </Modal>
 
-      {/* Child edit modal - nested modals for editing child items */}
-      <Show when={childEditModalVisible() && childBeingEdited()}>
-        {(child) => (
-          <ModalContextProvider
-            visible={childEditModalVisible}
-            setVisible={setChildEditModalVisible}
-          >
-            <UnifiedItemEditModal
-              targetMealName={`${props.targetMealName} > ${item().name}`}
-              targetNameColor="text-orange-400"
-              item={() => child()}
-              macroOverflow={() => ({ enable: false })}
-              onApply={handleChildModalApply}
-              onCancel={() => {
-                setChildEditModalVisible(false)
-                setChildBeingEdited(null)
-              }}
-            />
-          </ModalContextProvider>
-        )}
-      </Show>
-
-      {/* Template search modal for adding new items */}
-      <Show when={templateSearchVisible()}>
-        <ExternalTemplateSearchModal
-          visible={templateSearchVisible}
-          setVisible={setTemplateSearchVisible}
-          targetName={item().name}
-          onRefetch={() => {
-            // Refresh functionality (not used in this context)
-          }}
-          onNewUnifiedItem={(newUnifiedItem) => {
-            // Add the new item directly to the current group
-            if (isGroupItem(item())) {
-              const updatedItem = addChildToItem(item(), {
-                ...newUnifiedItem,
-                id: generateId(), // Ensure unique ID
-              })
-              setItem(updatedItem)
-            } else {
-              // If not a group, convert to group and add the item
-              const currentItem = item()
-              const groupItem = createUnifiedItem({
-                id: currentItem.id,
-                name: currentItem.name,
-                quantity: currentItem.quantity,
-                reference: {
-                  type: 'group',
-                  children: [
-                    createUnifiedItem({
-                      ...currentItem,
-                      id: generateId(), // New ID for the original item as child
-                    }),
-                    {
-                      ...newUnifiedItem,
-                      id: generateId(), // New ID for the new item
-                    },
-                  ],
+          <UnifiedItemEditBody
+            canApply={canApply()}
+            item={item}
+            setItem={setItem}
+            macroOverflow={props.macroOverflow}
+            quantityField={quantityField}
+            onEditChild={handleEditChild}
+            viewMode={viewMode()}
+            clipboardActions={{
+              onCopy: handleCopy,
+              onPaste: handlePaste,
+              hasValidPastableOnClipboard: hasValidPastableOnClipboard(),
+            }}
+            onAddNewItem={() => {
+              const modalId = openEditModal(
+                () => (
+                  <TemplateSearchModal
+                    targetName={item().name}
+                    onNewUnifiedItem={(newUnifiedItem) => {
+                      if (isGroupItem(item())) {
+                        const updatedItem = addChildToItem(item(), {
+                          ...newUnifiedItem,
+                          id: generateId(),
+                        })
+                        setItem(updatedItem)
+                      } else {
+                        const currentItem = item()
+                        const groupItem = createUnifiedItem({
+                          id: currentItem.id,
+                          name: currentItem.name,
+                          quantity: currentItem.quantity,
+                          reference: {
+                            type: 'group',
+                            children: [
+                              createUnifiedItem({
+                                ...currentItem,
+                                id: generateId(),
+                              }),
+                              {
+                                ...newUnifiedItem,
+                                id: generateId(),
+                              },
+                            ],
+                          },
+                        })
+                        setItem(groupItem)
+                      }
+                      closeAddItemModal()
+                    }}
+                  />
+                ),
+                {
+                  title: 'Adicionar novo item',
+                  targetName: item().name,
+                  onClose: () => closeAddItemModal(),
                 },
-              })
-              setItem(groupItem)
-            }
+              )
+              setAddItemModalId(modalId)
+            }}
+            showAddItemButton={props.showAddItemButton}
+          />
+        </Show>
+        <Show
+          when={
+            !isFoodItem(item()) && !isRecipeItem(item()) && !isGroupItem(item())
+          }
+        >
+          <UnsupportedItemMessage />
+        </Show>
+      </div>
 
-            // Close the template search modal
-            setTemplateSearchVisible(false)
-            return null
+      <div class="p-4 border-t border-gray-600 flex justify-end gap-2">
+        <button
+          class="btn cursor-pointer uppercase"
+          onClick={(e) => {
+            debug('[UnifiedItemEditModal] Cancel clicked')
+            e.preventDefault()
+            e.stopPropagation()
+            handleClose()
+            props.onCancel?.()
           }}
-        />
-      </Show>
-
-      {/* Recipe edit modal */}
-      <Show when={recipeEditModalVisible() && originalRecipe()}>
-        {(recipe) => (
-          <ModalContextProvider
-            visible={recipeEditModalVisible}
-            setVisible={setRecipeEditModalVisible}
-          >
-            <RecipeEditModal
-              recipe={() => recipe()}
-              onSaveRecipe={handleSaveRecipeSync}
-              onRefetch={() => {
-                // Refetch functionality (not used in this context)
-              }}
-              onCancel={() => {
-                setRecipeEditModalVisible(false)
-              }}
-              onDelete={handleDeleteRecipeSync}
-            />
-          </ModalContextProvider>
-        )}
-      </Show>
-    </>
+        >
+          Cancelar
+        </button>
+        <button
+          class="btn cursor-pointer uppercase"
+          disabled={
+            !canApply() ||
+            (!isFoodItem(item()) &&
+              !isRecipeItem(item()) &&
+              !isGroupItem(item()))
+          }
+          onClick={(e) => {
+            e.preventDefault()
+            props.onApply(item())
+          }}
+        >
+          Aplicar
+        </button>
+      </div>
+    </div>
   )
 }

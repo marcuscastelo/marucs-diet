@@ -1,7 +1,6 @@
 import { createEffect, type JSXElement, mergeProps } from 'solid-js'
 
 import { DarkToaster } from '~/sections/common/components/DarkToaster'
-import { useModalContext } from '~/sections/common/context/ModalContext'
 import { cn } from '~/shared/cn'
 import { generateId } from '~/shared/utils/idUtils'
 
@@ -9,11 +8,19 @@ export type ModalProps = {
   children: JSXElement
   hasBackdrop?: boolean
   class?: string
+  /** Callback fired when modal should close */
+  onClose: () => void
+  /** Whether the modal is visible */
+  visible: boolean
 }
 
 export const Modal = (_props: ModalProps) => {
   const props = mergeProps({ hasBackdrop: true, class: '' }, _props)
-  const { visible, setVisible } = useModalContext()
+
+  const isVisible = () => props.visible
+  const handleCloseModal = () => {
+    props.onClose()
+  }
 
   // Generate a unique ID for this modal instance
   const modalId = generateId()
@@ -25,7 +32,7 @@ export const Modal = (_props: ModalProps) => {
     },
   ) => {
     console.debug('[Modal] handleClose', modalId)
-    setVisible(false)
+    handleCloseModal()
     e.stopPropagation()
   }
 
@@ -37,14 +44,14 @@ export const Modal = (_props: ModalProps) => {
   ) => {
     console.debug('[Modal] handleCancel', modalId)
     // Only close this modal, not parent modals
-    setVisible(false)
+    handleCloseModal()
     e.stopPropagation()
     e.preventDefault()
   }
 
   const modalClass = () =>
     cn('modal modal-bottom sm:modal-middle', {
-      'modal-active': visible(),
+      'modal-active': isVisible(),
     })
 
   return (
@@ -52,8 +59,9 @@ export const Modal = (_props: ModalProps) => {
       id={`modal-${modalId}`}
       ref={(ref) => {
         createEffect(() => {
-          console.debug('[Modal] <effect> visible:', visible())
-          if (visible()) {
+          const currentlyVisible = isVisible()
+          console.debug('[Modal] <effect> visible:', currentlyVisible)
+          if (currentlyVisible) {
             ref.showModal()
           } else {
             ref.close()
@@ -78,8 +86,14 @@ export const Modal = (_props: ModalProps) => {
   )
 }
 
-function ModalHeader(props: { title: JSXElement }) {
-  const { setVisible } = useModalContext()
+function ModalHeader(props: {
+  title: JSXElement
+  /** Callback fired when close button is clicked */
+  onClose: () => void
+}) {
+  const handleClose = () => {
+    props.onClose()
+  }
 
   return (
     <div class="flex gap-4 justify-between items-center">
@@ -88,7 +102,7 @@ function ModalHeader(props: { title: JSXElement }) {
         <button
           type="button"
           class="text-gray-400 hover:text-white focus:outline-none cursor-pointer focus:ring-2 focus:ring-white focus:ring-opacity-25 rounded-md p-1"
-          onClick={() => setVisible(false)}
+          onClick={handleClose}
           aria-label="Close modal"
         >
           <svg

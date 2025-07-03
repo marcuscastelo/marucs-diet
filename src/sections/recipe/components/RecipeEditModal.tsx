@@ -1,4 +1,4 @@
-import { Accessor, createEffect, createSignal, Show } from 'solid-js'
+import { Accessor, createEffect, createSignal } from 'solid-js'
 import { untrack } from 'solid-js'
 
 import { type Item } from '~/modules/diet/item/domain/item'
@@ -16,35 +16,29 @@ import {
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { showError } from '~/modules/toast/application/toastManager'
 import { Button } from '~/sections/common/components/buttons/Button'
-import { Modal } from '~/sections/common/components/Modal'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
-import {
-  ModalContextProvider,
-  useModalContext,
-} from '~/sections/common/context/ModalContext'
 import {
   RecipeEditContent,
   RecipeEditHeader,
 } from '~/sections/recipe/components/RecipeEditView'
 import { RecipeEditContextProvider } from '~/sections/recipe/context/RecipeEditContext'
-import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
+import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
 import { handleValidationError } from '~/shared/error/errorHandler'
-import { generateId } from '~/shared/utils/idUtils'
+import { useUnifiedModal } from '~/shared/modal/context/UnifiedModalProvider'
+import { openConfirmModal } from '~/shared/modal/helpers/modalHelpers'
+import { openEditModal } from '~/shared/modal/helpers/modalHelpers'
 
 export type RecipeEditModalProps = {
-  show?: boolean
   recipe: Accessor<Recipe>
   onSaveRecipe: (recipe: Recipe) => void
   onRefetch: () => void
   onCancel?: () => void
   onDelete: (recipeId: Recipe['id']) => void
-  onVisibilityChange?: (isShowing: boolean) => void
+  onClose?: () => void
 }
 
 export function RecipeEditModal(props: RecipeEditModalProps) {
-  const { visible, setVisible } = useModalContext()
-
+  const { closeModal } = useUnifiedModal()
   const [recipe, setRecipe] = createSignal(untrack(() => props.recipe()))
 
   createEffect(() => {
@@ -55,20 +49,7 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
     null,
   )
 
-  const impossibleItem = createUnifiedItem({
-    id: generateId(),
-    name: 'IMPOSSIBLE ITEM',
-    quantity: 1,
-    reference: {
-      type: 'food',
-      id: -1,
-      macros: { carbs: 0, protein: 0, fat: 0 },
-    },
-  })
-
-  const [itemEditModalVisible, setItemEditModalVisible] = createSignal(false)
-  const [templateSearchModalVisible, setTemplateSearchModalVisible] =
-    createSignal(false)
+  const itemEditModalVisible = () => selectedItem() !== null
 
   const handleNewUnifiedItem = (newItem: UnifiedItem) => {
     console.debug('onNewUnifiedItem', newItem)
@@ -107,105 +88,105 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
   }
 
   createEffect(() => {
-    // TODO:   Replace itemEditModalVisible with a derived signal
-    setItemEditModalVisible(selectedItem() !== null)
-  })
-
-  createEffect(() => {
     if (!itemEditModalVisible()) {
       setSelectedItem(null)
     }
   })
 
   return (
-    <>
-      <Show when={itemEditModalVisible()}>
-        <ModalContextProvider
-          visible={() => itemEditModalVisible()}
-          setVisible={setItemEditModalVisible}
-        >
-          <UnifiedItemEditModal
-            item={() => selectedItem() ?? impossibleItem}
-            targetMealName={recipe().name}
-            macroOverflow={() => ({ enable: false })}
-            onApply={(unifiedItem) => {
-              // Convert back to Item for recipe operations
-              const item = unifiedItemToItem(unifiedItem)
-              const updatedItem: Item = { ...item, quantity: item.quantity }
-              const updatedRecipe = updateItemInRecipe(
-                recipe(),
-                item.id,
-                updatedItem,
-              )
+    <RecipeEditContextProvider
+      recipe={recipe}
+      setRecipe={setRecipe}
+      onSaveRecipe={props.onSaveRecipe}
+    >
+      <div class="space-y-4">
+        <RecipeEditHeader
+          onUpdateRecipe={(newRecipe) => {
+            console.debug('[RecipeEditModal] onUpdateRecipe: ', newRecipe)
+            setRecipe(newRecipe)
+          }}
+        />
 
-              setRecipe(updatedRecipe)
-              setSelectedItem(null)
-            }}
-          />
-        </ModalContextProvider>
-      </Show>
-
-      <ExternalTemplateSearchModal
-        visible={templateSearchModalVisible}
-        setVisible={setTemplateSearchModalVisible}
-        onRefetch={props.onRefetch}
-        targetName={recipe().name}
-        onNewUnifiedItem={handleNewUnifiedItem}
-      />
-
-      <ModalContextProvider visible={visible} setVisible={setVisible}>
-        <Modal class="border-2 border-cyan-600">
-          <RecipeEditContextProvider
-            recipe={recipe}
-            setRecipe={setRecipe}
-            onSaveRecipe={props.onSaveRecipe}
-          >
-            <Modal.Header
-              title={
-                <RecipeEditHeader
-                  onUpdateRecipe={(newRecipe) => {
-                    console.debug(
-                      '[RecipeEditModal] onUpdateRecipe: ',
-                      newRecipe,
-                    )
-                    setRecipe(newRecipe)
+        <RecipeEditContent
+          onNewItem={() => {
+            const newItemModalId = openEditModal(
+              (_modalId) => (
+                <TemplateSearchModal
+                  targetName={recipe().name}
+                  onNewUnifiedItem={handleNewUnifiedItem}
+                  onFinish={() => {
+                    closeModal(newItemModalId)
+                    props.onRefetch()
+                  }}
+                  onClose={() => {
+                    closeModal(newItemModalId)
+                    props.onRefetch()
                   }}
                 />
-              }
-            />
-            <Modal.Content>
-              <RecipeEditContent
-                onNewItem={() => {
-                  setTemplateSearchModalVisible(true)
-                }}
-                onEditItem={(item) => {
-                  // TODO: Allow user to edit recipes inside recipes
-                  if (isRecipeItem(item)) {
-                    showError(
-                      'Ainda não é possível editar receitas dentro de receitas! Funcionalidade em desenvolvimento',
-                    )
-                    return
-                  }
+              ),
+              {
+                title: 'Adicionar novo item',
+                targetName: recipe().name,
+                onClose: () => props.onRefetch(),
+              },
+            )
+          }}
+          onEditItem={(item) => {
+            // TODO: Allow user to edit recipes inside recipes
+            if (isRecipeItem(item)) {
+              showError(
+                'Ainda não é possível editar receitas dentro de receitas! Funcionalidade em desenvolvimento',
+              )
+              return
+            }
 
-                  setSelectedItem(item)
-                }}
-              />
-            </Modal.Content>
-            <Modal.Footer>
-              <Actions
-                onApply={() => {
-                  props.onSaveRecipe(recipe())
-                }}
-                onCancel={props.onCancel}
-                onDelete={() => {
-                  props.onDelete(recipe().id)
-                }}
-              />
-            </Modal.Footer>
-          </RecipeEditContextProvider>
-        </Modal>
-      </ModalContextProvider>
-    </>
+            // Use unified modal system instead of legacy pattern
+            const editItemModalId = openEditModal(
+              (_modalId) => (
+                <UnifiedItemEditModal
+                  item={() => createUnifiedItem(item)}
+                  targetMealName={recipe().name}
+                  macroOverflow={() => ({ enable: false })}
+                  onApply={(unifiedItem) => {
+                    // Convert back to Item for recipe operations
+                    const convertedItem = unifiedItemToItem(unifiedItem)
+                    const updatedItem: Item = {
+                      ...convertedItem,
+                      quantity: convertedItem.quantity,
+                    }
+                    const updatedRecipe = updateItemInRecipe(
+                      recipe(),
+                      convertedItem.id,
+                      updatedItem,
+                    )
+                    setRecipe(updatedRecipe)
+                    closeModal(editItemModalId)
+                  }}
+                  onCancel={() => {
+                    closeModal(editItemModalId)
+                  }}
+                />
+              ),
+              {
+                title: 'Editar item',
+                targetName: item.name,
+              },
+            )
+          }}
+        />
+
+        <Actions
+          onApply={() => {
+            props.onSaveRecipe(recipe())
+          }}
+          onCancel={props.onCancel}
+          onDelete={() => {
+            props.onDelete(recipe().id)
+          }}
+          onClose={props.onClose}
+        />
+      </div>
+    </RecipeEditContextProvider>
   )
 }
 
@@ -213,34 +194,30 @@ function Actions(props: {
   onApply: () => void
   onDelete: () => void
   onCancel?: () => void
+  onClose?: () => void
 }) {
-  const { setVisible } = useModalContext()
-  const { show: showConfirmModal } = useConfirmModalContext()
+  const handleDelete = () => {
+    openConfirmModal(
+      'Tem certeza que deseja excluir esta receita? Esta ação não pode ser desfeita.',
+      {
+        title: 'Excluir receita',
+        confirmText: 'Excluir',
+        cancelText: 'Cancelar',
+        onConfirm: () => {
+          props.onDelete()
+          props.onClose?.()
+        },
+      },
+    )
+  }
 
   return (
-    <>
+    <div class="flex flex-row gap-2">
       <Button
         class="btn-error mr-auto"
         onClick={(e) => {
           e.preventDefault()
-          showConfirmModal({
-            title: 'Excluir receita',
-            body: 'Tem certeza que deseja excluir esta receita? Esta ação não pode ser desfeita.',
-            actions: [
-              {
-                text: 'Cancelar',
-                onClick: () => undefined,
-              },
-              {
-                text: 'Excluir',
-                primary: true,
-                onClick: () => {
-                  props.onDelete()
-                  setVisible(false)
-                },
-              },
-            ],
-          })
+          handleDelete()
         }}
       >
         Excluir
@@ -248,7 +225,7 @@ function Actions(props: {
       <Button
         onClick={(e) => {
           e.preventDefault()
-          setVisible(false)
+          props.onClose?.()
           props.onCancel?.()
         }}
       >
@@ -258,11 +235,11 @@ function Actions(props: {
         onClick={(e) => {
           e.preventDefault()
           props.onApply()
-          setVisible(false)
+          props.onClose?.()
         }}
       >
         Aplicar
       </Button>
-    </>
+    </div>
   )
 }

@@ -7,7 +7,6 @@
 
 import toast from 'solid-toast'
 
-import { openErrorModal } from '~/modules/toast/application/modalState'
 import { killToast } from '~/modules/toast/application/toastQueue'
 import { TOAST_MESSAGES } from '~/modules/toast/domain/toastMessages'
 import {
@@ -16,6 +15,7 @@ import {
   ToastType,
 } from '~/modules/toast/domain/toastTypes'
 import { handleCopyErrorToClipboard } from '~/modules/toast/infrastructure/clipboardErrorUtils'
+import { openErrorModal } from '~/shared/modal/bridges/legacyErrorModalBridge'
 
 /**
  * Props for ExpandableToast component.

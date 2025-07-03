@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
+import type { ToastError } from '~/modules/toast/domain/toastTypes'
 import {
   closeAllModals,
   closeErrorModal,
   getModal,
   getOpenModals,
   openErrorModal,
-} from '~/modules/toast/application/modalState'
-import type { ToastError } from '~/modules/toast/domain/toastTypes'
+} from '~/shared/modal/bridges/legacyErrorModalBridge'
 
 const mockError: ToastError = {
   message: 'Test error',

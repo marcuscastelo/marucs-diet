@@ -4,6 +4,9 @@ import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macr
 import { generateId } from '~/shared/utils/idUtils'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
+/**
+ * @deprecated
+ */
 export const recipeItemSchema = z.object({
   id: z.number({
     required_error: "O campo 'id' do item de receita é obrigatório.",

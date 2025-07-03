@@ -33,12 +33,12 @@ import {
 import { ClipboardActionButtons } from '~/sections/common/components/ClipboardActionButtons'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { PreparedQuantity } from '~/sections/common/components/PreparedQuantity'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import { useRecipeEditContext } from '~/sections/recipe/context/RecipeEditContext'
 import { UnifiedItemListView } from '~/sections/unified-item/components/UnifiedItemListView'
+import { openConfirmModal } from '~/shared/modal/helpers/modalHelpers'
 import { regenerateId } from '~/shared/utils/idUtils'
 import { calcRecipeCalories } from '~/shared/utils/macroMath'
 
@@ -62,28 +62,9 @@ export type RecipeEditViewProps = {
 //   return result
 // }
 
-// export default function RecipeEditView(props: RecipeEditViewProps) {
-//   // TODO:   implement setRecipe
-//   return (
-//     <div class={cn('p-3', props.className)}>
-//       <RecipeEditContextProvider
-//         recipe={props.recipe}
-//         setRecipe={props.setRecipe}
-//         onSaveRecipe={props.onSaveRecipe}
-//       >
-//         {props.header}
-//         {props.content}
-//         {props.footer}
-//       </RecipeEditContextProvider>
-//     </div>
-//   )
-// }
-
 export function RecipeEditHeader(props: {
   onUpdateRecipe: (Recipe: Recipe) => void
 }) {
-  const { show: showConfirmModal } = useConfirmModalContext()
-
   const acceptedClipboardSchema = mealSchema
     .or(itemGroupSchema)
     .or(itemSchema)
@@ -147,20 +128,14 @@ export function RecipeEditHeader(props: {
 
   const onClearItems = (e: MouseEvent) => {
     e.preventDefault()
-    showConfirmModal({
+    openConfirmModal('Tem certeza que deseja limpar os itens?', {
       title: 'Limpar itens',
-      body: 'Tem certeza que deseja limpar os itens?',
-      actions: [
-        { text: 'Cancelar', onClick: () => undefined },
-        {
-          text: 'Excluir todos os itens',
-          primary: true,
-          onClick: () => {
-            const newRecipe = clearRecipeItems(recipe())
-            props.onUpdateRecipe(newRecipe)
-          },
-        },
-      ],
+      confirmText: 'Excluir todos os itens',
+      cancelText: 'Cancelar',
+      onConfirm: () => {
+        const newRecipe = clearRecipeItems(recipe())
+        props.onUpdateRecipe(newRecipe)
+      },
     })
   }
 

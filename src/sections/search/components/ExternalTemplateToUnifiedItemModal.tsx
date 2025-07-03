@@ -1,4 +1,4 @@
-import { type Accessor, type Setter } from 'solid-js'
+import { createEffect } from 'solid-js'
 
 import { getRecipePreparedQuantity } from '~/modules/diet/recipe/domain/recipeOperations'
 import { createUnifiedItemFromTemplate } from '~/modules/diet/template/application/createGroupFromTemplate'
@@ -13,53 +13,68 @@ import {
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { showError } from '~/modules/toast/application/toastManager'
-import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { formatError } from '~/shared/formatError'
+import { useUnifiedModal } from '~/shared/modal/context/UnifiedModalProvider'
+import { openEditModal } from '~/shared/modal/helpers/modalHelpers'
 
 export type ExternalTemplateToUnifiedItemModalProps = {
-  visible: Accessor<boolean>
-  setVisible: Setter<boolean>
-  selectedTemplate: Accessor<Template>
+  selectedTemplate: Template
   targetName: string
   onNewUnifiedItem: (
     newItem: UnifiedItem,
     originalAddedItem: TemplateItem,
   ) => Promise<void>
+  onClose?: () => void
 }
 
 export function ExternalTemplateToUnifiedItemModal(
   props: ExternalTemplateToUnifiedItemModalProps,
 ) {
-  const template = () => props.selectedTemplate()
-  const initialQuantity = () => {
-    const template_ = template()
-    return isTemplateRecipe(template_)
-      ? getRecipePreparedQuantity(template_)
+  const { closeModal } = useUnifiedModal()
+
+  createEffect(() => {
+    const template = props.selectedTemplate
+    const initialQuantity = isTemplateRecipe(template)
+      ? getRecipePreparedQuantity(template)
       : DEFAULT_QUANTITY
-  }
 
-  const handleApply = (templateItem: TemplateItem) => {
-    const { unifiedItem } = createUnifiedItemFromTemplate(
-      template(),
-      templateItem,
+    const handleApply = (templateItem: TemplateItem) => {
+      const { unifiedItem } = createUnifiedItemFromTemplate(
+        template,
+        templateItem,
+      )
+
+      props.onNewUnifiedItem(unifiedItem, templateItem).catch((err) => {
+        handleApiError(err)
+        showError(err, {}, `Erro ao adicionar item: ${formatError(err)}`)
+      })
+    }
+
+    const modalId = openEditModal(
+      () => (
+        <UnifiedItemEditModal
+          targetMealName={props.targetName}
+          item={() => templateToUnifiedItem(template, initialQuantity)}
+          macroOverflow={() => ({ enable: true })}
+          onApply={handleApply}
+          onClose={() => {
+            closeModal(modalId)
+            props.onClose?.()
+          }}
+        />
+      ),
+      {
+        title: 'Editar Item',
+        targetName: props.targetName,
+        onClose: () => {
+          closeModal(modalId)
+          props.onClose?.()
+        },
+      },
     )
+  })
 
-    props.onNewUnifiedItem(unifiedItem, templateItem).catch((err) => {
-      handleApiError(err)
-      showError(err, {}, `Erro ao adicionar item: ${formatError(err)}`)
-    })
-  }
-
-  return (
-    <ModalContextProvider visible={props.visible} setVisible={props.setVisible}>
-      <UnifiedItemEditModal
-        targetMealName={props.targetName}
-        item={() => templateToUnifiedItem(template(), initialQuantity())}
-        macroOverflow={() => ({ enable: true })}
-        onApply={handleApply}
-      />
-    </ModalContextProvider>
-  )
+  return null
 }

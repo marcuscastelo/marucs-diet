@@ -10,34 +10,24 @@ Macroflows is a nutrition tracking platform built with SolidJS, TypeScript, and 
 
 ## Critical Setup Requirements
 
-**Before Starting Any Session:**
-```bash
-export GIT_PAGER=cat
-```
-This disables pagers for git/gh commands, preventing interactive output issues.
-
 **Environment Setup:**
-- Copy `.env.example` to `.env.local` and configure Supabase credentials
-- Verify `.scripts/` directory exists with required helper scripts
 - Use pnpm as package manager (version 10.12.1+)
 
 ## Development Commands
 
 **Essential Commands:**
-- `pnpm dev` - Start development server (runs gen-app-version first)
-- `pnpm build` - Production build (runs gen-app-version first)
-- `pnpm test` - Run all tests with Vitest
-- `pnpm type-check` - TypeScript type checking
-- `pnpm lint` - ESLint checking (quiet mode)
-- `pnpm fix` - Auto-fix ESLint issues
-- `pnpm flint` - Fix then lint (fix + lint)
 - `pnpm check` - Run all quality checks (lint, type-check, test)
-- `pnpm copilot:check` - Comprehensive check with success confirmation
+- `pnpm fix` - Auto-fix ESLint issues
+
+**Granular Commands (if needed):**
+- `pnpm build` - Production build (runs gen-app-version first)
+- `pnpm type-check` - TypeScript type checking
+- `pnpm test` - Run all tests with Vitest
+- `pnpm lint` - ESLint checking (quiet mode)
+- `pnpm flint` - Fix then lint (fix + lint)
 
 **Script Utilities:**
-- `.scripts/semver.sh` - App version reporting (preferred over git describe)
-- `.scripts/gen-app-version.sh` - Generate app version (auto-run with dev/build)
-- `.scripts/cat1.sh`, `.scripts/cat2.sh`, `.scripts/cat3.sh` - Terminal output helpers
+- `.scripts/semver.sh` - App version reporting
 
 **Testing:**
 - Tests use Vitest with jsdom environment

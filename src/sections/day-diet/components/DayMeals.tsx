@@ -18,9 +18,6 @@ import { updateMeal } from '~/modules/diet/meal/application/meal'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { showError } from '~/modules/toast/application/toastManager'
-import { Button } from '~/sections/common/components/buttons/Button'
-import { Modal } from '~/sections/common/components/Modal'
-import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { CopyLastDayButton } from '~/sections/day-diet/components/CopyLastDayButton'
 import DayNotFound from '~/sections/day-diet/components/DayNotFound'
 import { DeleteDayButton } from '~/sections/day-diet/components/DeleteDayButton'
@@ -30,23 +27,18 @@ import {
   MealEditViewContent,
   MealEditViewHeader,
 } from '~/sections/meal/components/MealEditView'
-import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
+import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
+import { useUnifiedModal } from '~/shared/modal/context/UnifiedModalProvider'
+import { openEditModal } from '~/shared/modal/helpers/modalHelpers'
 import { createDebug } from '~/shared/utils/createDebug'
 import { stringToDate } from '~/shared/utils/date'
-
-type EditSelection = {
-  meal: Meal
-  item: UnifiedItem
-} | null
 
 type NewItemSelection = {
   meal: Meal
 } | null
 
 const debug = createDebug()
-
-const [editSelection, setEditSelection] = createSignal<EditSelection>(null)
 
 const [newItemSelection, setNewItemSelection] =
   createSignal<NewItemSelection>(null)
@@ -64,23 +56,65 @@ export default function DayMeals(props: {
   mode: 'edit' | 'read-only' | 'summary'
   onRequestEditMode?: () => void
 }) {
-  const [unifiedItemEditModalVisible, setUnifiedItemEditModalVisible] =
-    createSignal(false)
-
-  const [templateSearchModalVisible, setTemplateSearchModalVisible] =
-    createSignal(false)
-
-  const [showConfirmEdit, setShowConfirmEdit] = createSignal(false)
+  const { closeModal } = useUnifiedModal()
 
   const handleEditUnifiedItem = (meal: Meal, item: UnifiedItem) => {
-    setEditSelection({ meal, item })
-    setUnifiedItemEditModalVisible(true)
+    const dayDiet = resolvedDayDiet()
+    if (!dayDiet) {
+      console.error('Cannot edit item: no day diet available')
+      return
+    }
+
+    const dayDate = stringToDate(dayDiet.target_day)
+    const macroTarget = getMacroTargetForDay(dayDate)
+
+    const editModalId = openEditModal(
+      () => (
+        <UnifiedItemEditModal
+          targetMealName={meal.name}
+          item={() => item}
+          macroOverflow={() => {
+            let macroOverflow
+            if (!macroTarget) {
+              macroOverflow = {
+                enable: false,
+                originalItem: undefined,
+              }
+            } else {
+              macroOverflow = {
+                enable: true,
+                originalItem: item,
+              }
+            }
+
+            debug('macroOverflow:', macroOverflow)
+            return macroOverflow
+          }}
+          onApply={(updatedItem) => {
+            void updateUnifiedItem(meal.id, updatedItem.id, updatedItem)
+            closeModal(editModalId)
+          }}
+          onCancel={() => {
+            closeModal(editModalId)
+          }}
+          onClose={() => {
+            closeModal(editModalId)
+          }}
+          showAddItemButton={true}
+        />
+      ),
+      {
+        title: 'Editar item',
+        targetName: meal.name,
+      },
+    )
   }
 
-  const handleUpdateMeal = async (day: DayDiet, meal: Meal) => {
+  const handleUpdateMeal = async (_day: DayDiet, meal: Meal) => {
     if (props.mode === 'summary') return
     if (props.mode !== 'edit') {
-      setShowConfirmEdit(true)
+      // TODO: Reenable lock logic with proper confirmation dialog
+      // setShowConfirmEdit(true)
       return
     }
     await updateMeal(meal.id, meal)
@@ -89,19 +123,40 @@ export default function DayMeals(props: {
   const handleNewItemButton = (meal: Meal) => {
     if (props.mode === 'summary') return
     if (props.mode !== 'edit') {
-      setShowConfirmEdit(true)
+      // TODO: Reenable lock logic with proper confirmation dialog
+      // setShowConfirmEdit(true)
       return
     }
     setNewItemSelection({ meal })
-    setTemplateSearchModalVisible(true)
+    const searchModalId = openEditModal(
+      () => (
+        <TemplateSearchModal
+          targetName={meal.name}
+          onNewUnifiedItem={(newItem) => {
+            const neverNullDayDiet = resolvedDayDiet()
+            if (neverNullDayDiet) {
+              handleNewUnifiedItem(meal, newItem)
+            }
+          }}
+          onFinish={() => {
+            handleFinishSearch()
+            closeModal(searchModalId)
+          }}
+          onClose={() => {
+            handleFinishSearch()
+            closeModal(searchModalId)
+          }}
+        />
+      ),
+      {
+        title: 'Adicionar um novo alimento',
+        targetName: meal.name,
+      },
+    )
   }
 
-  const handleNewUnifiedItem = (dayDiet: DayDiet, newItem: UnifiedItem) => {
-    const newItemSelection_ = newItemSelection()
-    if (newItemSelection_ === null) {
-      throw new Error('No meal selected!')
-    }
-    void insertUnifiedItem(newItemSelection_.meal.id, newItem)
+  const handleNewUnifiedItem = (meal: Meal, newItem: UnifiedItem) => {
+    void insertUnifiedItem(meal.id, newItem)
   }
 
   const handleFinishSearch = () => {
@@ -113,35 +168,6 @@ export default function DayMeals(props: {
 
   return (
     <>
-      <ModalContextProvider
-        visible={showConfirmEdit}
-        setVisible={setShowConfirmEdit}
-      >
-        <Modal>
-          <div class="p-4">
-            <div class="font-bold mb-2">
-              Deseja desbloquear este dia para edição?
-            </div>
-            <div class="flex gap-2 justify-end mt-4">
-              <Button
-                class="btn-primary"
-                onClick={() => {
-                  setShowConfirmEdit(false)
-                  props.onRequestEditMode?.()
-                }}
-              >
-                Desbloquear dia para edição
-              </Button>
-              <Button
-                class="btn-ghost"
-                onClick={() => setShowConfirmEdit(false)}
-              >
-                Cancelar
-              </Button>
-            </div>
-          </div>
-        </Modal>
-      </ModalContextProvider>
       <Show
         when={resolvedDayDiet()}
         fallback={<DayNotFound selectedDay={props.selectedDay} />}
@@ -149,26 +175,6 @@ export default function DayMeals(props: {
       >
         {(neverNullDayDiet) => (
           <>
-            <ExternalTemplateSearchModal
-              visible={templateSearchModalVisible}
-              setVisible={setTemplateSearchModalVisible}
-              onRefetch={() => {
-                console.warn('[DayMeals] onRefetch called!')
-              }}
-              targetName={
-                newItemSelection()?.meal.name ?? 'Nenhuma refeição selecionada'
-              }
-              onNewUnifiedItem={(newItem) => {
-                handleNewUnifiedItem(neverNullDayDiet, newItem)
-              }}
-              onFinish={handleFinishSearch}
-            />
-            <ExternalUnifiedItemEditModal
-              day={() => neverNullDayDiet}
-              visible={unifiedItemEditModalVisible}
-              setVisible={setUnifiedItemEditModalVisible}
-              mode={props.mode}
-            />
             <For each={neverNullDayDiet.meals}>
               {(meal) => (
                 <MealEditView
@@ -226,71 +232,5 @@ export default function DayMeals(props: {
         )}
       </Show>
     </>
-  )
-}
-
-function ExternalUnifiedItemEditModal(props: {
-  visible: Accessor<boolean>
-  setVisible: Setter<boolean>
-  day: Accessor<DayDiet>
-  mode: 'edit' | 'read-only' | 'summary'
-}) {
-  createEffect(() => {
-    if (!props.visible()) {
-      setEditSelection(null)
-    }
-  })
-
-  return (
-    <Show when={editSelection()}>
-      {(editSelection) => (
-        <ModalContextProvider
-          visible={props.visible}
-          setVisible={props.setVisible}
-        >
-          <UnifiedItemEditModal
-            targetMealName={editSelection().meal.name}
-            item={() => editSelection().item}
-            macroOverflow={() => {
-              const day = props.day()
-              const dayDate = stringToDate(day.target_day)
-              const macroTarget = getMacroTargetForDay(dayDate)
-
-              let macroOverflow
-              if (!macroTarget) {
-                macroOverflow = {
-                  enable: false,
-                  originalItem: undefined,
-                }
-              } else {
-                macroOverflow = {
-                  enable: true,
-                  originalItem: editSelection().item,
-                }
-              }
-
-              debug('macroOverflow:', macroOverflow)
-              return macroOverflow
-            }}
-            onApply={(item) => {
-              void updateUnifiedItem(
-                editSelection().meal.id,
-                item.id, // TODO: Get id from selection instead of item parameter (avoid bugs if id is changed).
-                item,
-              )
-
-              // TODO: Analyze if these commands are troublesome
-              setEditSelection(null)
-              props.setVisible(false)
-            }}
-            onCancel={() => {
-              setEditSelection(null)
-              props.setVisible(false)
-            }}
-            showAddItemButton={true}
-          />
-        </ModalContextProvider>
-      )}
-    </Show>
   )
 }

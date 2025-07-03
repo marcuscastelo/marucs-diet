@@ -1,10 +1,9 @@
-import { createEffect, createSignal, onMount, Suspense } from 'solid-js'
+import { createEffect, createSignal, Suspense } from 'solid-js'
 
 import { type Food } from '~/modules/diet/food/domain/food'
 import { Button } from '~/sections/common/components/buttons/Button'
 import { LoadingRing } from '~/sections/common/components/LoadingRing'
 import { Modal } from '~/sections/common/components/Modal'
-import { useModalContext } from '~/sections/common/context/ModalContext'
 import { EANReader } from '~/sections/ean/components/EANReader'
 import { lazyImport } from '~/shared/solid/lazyImport'
 
@@ -15,12 +14,18 @@ const { EANSearch } = lazyImport(
 
 export type EANInsertModalProps = {
   onSelect: (apiFood: Food) => void
+  /** Callback to close the modal. If not provided, uses legacy useModalContext */
+  onClose?: () => void
+  /** Whether the modal is visible. If not provided, uses legacy useModalContext */
+  visible: boolean
 }
 
 let currentId = 1
 
 const EANInsertModal = (props: EANInsertModalProps) => {
-  const { visible, setVisible } = useModalContext()
+  const handleCloseModal = () => {
+    props.onClose?.()
+  }
 
   const [EAN, setEAN] = createSignal<string>('')
   const [food, setFood] = createSignal<Food | null>(null)
@@ -49,19 +54,18 @@ const EANInsertModal = (props: EANInsertModalProps) => {
     }
   })
 
-  onMount(() => {
-    setVisible(false)
-  })
-
   return (
-    <Modal>
-      <Modal.Header title="Pesquisar por código de barras" />
+    <Modal visible={props.visible} onClose={handleCloseModal}>
+      <Modal.Header
+        title="Pesquisar por código de barras"
+        onClose={handleCloseModal}
+      />
       <Modal.Content>
         {/*
           // TODO:   Apply Show when visible for all modals?
         */}
         <EANReader
-          enabled={visible()}
+          enabled={props.visible}
           id={`EAN-reader-${currentId++}`}
           onScanned={setEAN}
         />
@@ -73,7 +77,7 @@ const EANInsertModal = (props: EANInsertModalProps) => {
         <Button
           onClick={(e) => {
             e.preventDefault()
-            setVisible(false)
+            handleCloseModal()
           }}
         >
           Cancelar
