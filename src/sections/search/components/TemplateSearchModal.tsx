@@ -249,7 +249,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
     const modalId = openContentModal(
       () => (
         <EANInsertModal
-          visible={true}
+          enabled={true}
           onSelect={(template: Template) => {
             handleTemplateSelected(template)
             closeModal(modalId)

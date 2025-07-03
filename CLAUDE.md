@@ -15,8 +15,10 @@ Macroflows is a nutrition tracking platform built with SolidJS, TypeScript, and 
 
 ## Development Commands
 
+**🚨 CRITICAL REQUIREMENT: ALWAYS RUN `pnpm check` BEFORE DECLARING ANY TASK COMPLETE**
+
 **Essential Commands:**
-- `pnpm check` - Run all quality checks (lint, type-check, test)
+- `pnpm check` - **MANDATORY** quality gate (lint, type-check, test) - MUST PASS before any completion
 - `pnpm fix` - Auto-fix ESLint issues
 
 **Granular Commands (if needed):**
@@ -306,15 +308,24 @@ src/
 
 ### Pre-Commit Requirements
 
+**🚨 MANDATORY: Never commit without passing quality checks**
+
 **Always run before committing:**
 ```bash
-pnpm check  # Runs lint, type-check, and test
+pnpm check  # Runs lint, type-check, and test - MUST PASS
 ```
 
 **For comprehensive validation:**
 ```bash
 pnpm copilot:check  # Must show "COPILOT: All checks passed!"
 ```
+
+**⛔ CRITICAL RULE: NEVER declare any implementation, fix, or feature "complete" without:**
+1. Running `pnpm check` and verifying ALL checks pass
+2. Confirming NO TypeScript errors
+3. Confirming NO ESLint errors  
+4. Confirming ALL tests pass
+5. Only then can you say "✅ COMPLETE" or similar
 
 ### Commit Standards
 

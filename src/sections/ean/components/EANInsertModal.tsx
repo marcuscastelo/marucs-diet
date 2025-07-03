@@ -3,7 +3,6 @@ import { createEffect, createSignal, Suspense } from 'solid-js'
 import { type Food } from '~/modules/diet/food/domain/food'
 import { Button } from '~/sections/common/components/buttons/Button'
 import { LoadingRing } from '~/sections/common/components/LoadingRing'
-import { Modal } from '~/sections/common/components/Modal'
 import { EANReader } from '~/sections/ean/components/EANReader'
 import { lazyImport } from '~/shared/solid/lazyImport'
 
@@ -14,19 +13,15 @@ const { EANSearch } = lazyImport(
 
 export type EANInsertModalProps = {
   onSelect: (apiFood: Food) => void
-  /** Callback to close the modal. If not provided, uses legacy useModalContext */
+  /** Callback to close the modal */
   onClose?: () => void
-  /** Whether the modal is visible. If not provided, uses legacy useModalContext */
-  visible: boolean
+  /** Whether the scanner is enabled (for unified modal system) */
+  enabled?: boolean
 }
 
 let currentId = 1
 
 const EANInsertModal = (props: EANInsertModalProps) => {
-  const handleCloseModal = () => {
-    props.onClose?.()
-  }
-
   const [EAN, setEAN] = createSignal<string>('')
   const [food, setFood] = createSignal<Food | null>(null)
 
@@ -47,6 +42,10 @@ const EANInsertModal = (props: EANInsertModalProps) => {
     props.onSelect(food_)
   }
 
+  const handleCancel = () => {
+    props.onClose?.()
+  }
+
   // Auto-select food when it is set to avoid user clicking twice
   createEffect(() => {
     if (food() !== null) {
@@ -55,33 +54,18 @@ const EANInsertModal = (props: EANInsertModalProps) => {
   })
 
   return (
-    <Modal visible={props.visible} onClose={handleCloseModal}>
-      <Modal.Header
-        title="Pesquisar por código de barras"
-        onClose={handleCloseModal}
+    <div class="ean-insert-modal-content">
+      <EANReader
+        enabled={props.enabled ?? true}
+        id={`EAN-reader-${currentId++}`}
+        onScanned={setEAN}
       />
-      <Modal.Content>
-        {/*
-          // TODO:   Apply Show when visible for all modals?
-        */}
-        <EANReader
-          enabled={props.visible}
-          id={`EAN-reader-${currentId++}`}
-          onScanned={setEAN}
-        />
-        <Suspense fallback={<LoadingRing />}>
-          <EANSearch EAN={EAN} setEAN={setEAN} food={food} setFood={setFood} />
-        </Suspense>
-      </Modal.Content>
-      <Modal.Footer>
-        <Button
-          onClick={(e) => {
-            e.preventDefault()
-            handleCloseModal()
-          }}
-        >
-          Cancelar
-        </Button>
+      <Suspense fallback={<LoadingRing />}>
+        <EANSearch EAN={EAN} setEAN={setEAN} food={food} setFood={setFood} />
+      </Suspense>
+
+      <div class="modal-action mt-4">
+        <Button onClick={handleCancel}>Cancelar</Button>
         <Button
           class="btn-primary"
           disabled={food() === null}
@@ -89,8 +73,8 @@ const EANInsertModal = (props: EANInsertModalProps) => {
         >
           Aplicar
         </Button>
-      </Modal.Footer>
-    </Modal>
+      </div>
+    </div>
   )
 }
 
