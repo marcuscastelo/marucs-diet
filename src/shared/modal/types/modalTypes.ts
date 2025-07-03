@@ -3,7 +3,7 @@
  * Defines interfaces and types used across all modal functionality.
  */
 
-import type { JSXElement } from 'solid-js'
+import type { Accessor, JSXElement } from 'solid-js'
 
 import type { ToastError } from '~/modules/toast/domain/toastTypes'
 
@@ -105,6 +105,8 @@ export type ModalState = ModalConfig & {
   id: ModalId
   /** Whether the modal is currently open */
   isOpen: boolean
+  /** Whether the modal is visible (can be closed) */
+  isClosing: Accessor<boolean>
   /** Timestamp when modal was created */
   createdAt: Date
   /** Timestamp when modal was last updated */
@@ -120,7 +122,7 @@ export type ModalManager = {
   /** Get a specific modal by ID */
   getModal: (id: ModalId) => ModalState | undefined
   /** Open a modal with the given configuration */
-  openModal: <T extends ModalConfig>(config: T) => ModalId
+  openModal: (config: ModalConfig) => ModalId
   /** Close a modal by ID */
   closeModal: (id: ModalId) => void
   /** Close all modals */

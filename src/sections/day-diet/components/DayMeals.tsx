@@ -29,7 +29,11 @@ import {
 } from '~/sections/meal/components/MealEditView'
 import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
-import { closeModal, openEditModal } from '~/shared/modal/helpers/modalHelpers'
+import {
+  closeModal,
+  openContentModal,
+  openEditModal,
+} from '~/shared/modal/helpers/modalHelpers'
 import { createDebug } from '~/shared/utils/createDebug'
 import { stringToDate } from '~/shared/utils/date'
 
@@ -125,7 +129,7 @@ export default function DayMeals(props: {
       return
     }
     setNewItemSelection({ meal })
-    const searchModalId = openEditModal(
+    const searchModalId = openContentModal(
       () => (
         <TemplateSearchModal
           targetName={meal.name}

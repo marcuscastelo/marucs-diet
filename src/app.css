@@ -37,7 +37,6 @@
 }
 
 @layer base {
-
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
@@ -46,13 +45,13 @@
 }
 
 .modal>.modal-box {
-  scale: 0.1;
-  transition: all 0.2s ease;
+  scale: 0.001;
+  transition: scale 0.2s ease;
 }
 
 .modal.modal-active>.modal-box {
   scale: 1;
-  transition: all 0.2s ease;
+  transition: scale 0.2s ease;
 }
 
 /* Datepicker patch */

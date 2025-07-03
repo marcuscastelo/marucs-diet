@@ -7,33 +7,28 @@ import { For, Show } from 'solid-js'
 
 import { Modal } from '~/sections/common/components/Modal'
 import { ModalErrorBoundary } from '~/shared/modal/components/ModalErrorBoundary'
-import { modalManager, modals } from '~/shared/modal/core/modalManager'
+import { modals } from '~/shared/modal/core/modalManager'
+import { closeModal } from '~/shared/modal/helpers/modalHelpers'
 import type { ModalState } from '~/shared/modal/types/modalTypes'
 
 /**
  * Renders individual modal content based on modal type.
  */
-function ModalRenderer(props: { modal: ModalState }) {
-  const { closeModal } = modalManager
-
-  const handleClose = () => {
-    closeModal(props.modal.id)
-  }
-
+function ModalRenderer(props: ModalState) {
   return (
-    <Modal visible={props.modal.isOpen} onClose={handleClose}>
-      <Show when={props.modal.showCloseButton !== false}>
-        <Modal.Header title={props.modal.title} onClose={handleClose} />
+    <Modal {...props}>
+      <Show when={props.showCloseButton !== false}>
+        <Modal.Header {...props}> {props.title} </Modal.Header>
       </Show>
-      <Show when={props.modal.showCloseButton === false}>
+      <Show when={props.showCloseButton === false}>
         <div class="flex gap-4 justify-between items-center">
-          <div class="flex-1">{props.modal.title}</div>
+          <div class="flex-1">{props.title}</div>
         </div>
       </Show>
 
       <Modal.Content>
-        <ModalErrorBoundary modalId={props.modal.id}>
-          <Show when={props.modal.type === 'error'}>
+        <ModalErrorBoundary modalId={props.id}>
+          <Show when={props.type === 'error'}>
             <div class="error-modal">
               <div class="alert alert-error mb-4">
                 <svg
@@ -49,88 +44,80 @@ function ModalRenderer(props: { modal: ModalState }) {
                   />
                 </svg>
                 <span>
-                  {props.modal.type === 'error'
-                    ? props.modal.errorDetails.message
-                    : ''}
+                  {props.type === 'error' ? props.errorDetails.message : ''}
                 </span>
               </div>
-              <Show
-                when={
-                  props.modal.type === 'error' && props.modal.errorDetails.stack
-                }
-              >
+              <Show when={props.type === 'error' && props.errorDetails.stack}>
                 <details class="mt-2">
                   <summary class="cursor-pointer text-sm text-gray-400 hover:text-white">
                     Show technical details
                   </summary>
                   <pre class="mt-2 text-xs bg-gray-900 p-3 rounded border border-gray-700 overflow-auto max-h-40">
-                    {props.modal.type === 'error'
-                      ? props.modal.errorDetails.stack
-                      : ''}
+                    {props.type === 'error' ? props.errorDetails.stack : ''}
                   </pre>
                 </details>
               </Show>
             </div>
           </Show>
 
-          <Show when={props.modal.type === 'content'}>
+          <Show when={props.type === 'content'}>
             <div class="content-modal">
-              {props.modal.type === 'content'
-                ? typeof props.modal.content === 'function'
-                  ? props.modal.content(props.modal.id)
-                  : props.modal.content
+              {props.type === 'content'
+                ? typeof props.content === 'function'
+                  ? props.content(props.id)
+                  : props.content
                 : null}
             </div>
           </Show>
 
-          <Show when={props.modal.type === 'confirmation'}>
+          <Show when={props.type === 'confirmation'}>
             <div class="confirmation-modal">
               <p class="mb-6 text-gray-200">
-                {props.modal.type === 'confirmation' ? props.modal.message : ''}
+                {props.type === 'confirmation' ? props.message : ''}
               </p>
             </div>
           </Show>
         </ModalErrorBoundary>
       </Modal.Content>
 
-      <Show when={props.modal.type === 'content' && props.modal.footer}>
+      <Show when={props.type === 'content' && props.footer}>
         <Modal.Footer>
-          {props.modal.type === 'content'
-            ? typeof props.modal.footer === 'function'
-              ? props.modal.footer()
-              : props.modal.footer
+          {props.type === 'content'
+            ? typeof props.footer === 'function'
+              ? props.footer()
+              : props.footer
             : null}
         </Modal.Footer>
       </Show>
 
-      <Show when={props.modal.type === 'confirmation'}>
+      <Show when={props.type === 'confirmation'}>
         <Modal.Footer>
           <button
             type="button"
             class="btn btn-ghost"
             onClick={() => {
-              if (props.modal.type === 'confirmation') {
-                props.modal.onCancel?.()
+              if (props.type === 'confirmation') {
+                props.onCancel?.()
               }
-              handleClose()
+              closeModal(props.id)
             }}
           >
-            {props.modal.type === 'confirmation'
-              ? (props.modal.cancelText ?? 'Cancel')
+            {props.type === 'confirmation'
+              ? (props.cancelText ?? 'Cancel')
               : 'Cancel'}
           </button>
           <button
             type="button"
             class="btn btn-primary"
             onClick={() => {
-              if (props.modal.type === 'confirmation') {
-                void props.modal.onConfirm?.()
+              if (props.type === 'confirmation') {
+                void props.onConfirm?.()
               }
-              handleClose()
+              closeModal(props.id)
             }}
           >
-            {props.modal.type === 'confirmation'
-              ? (props.modal.confirmText ?? 'Confirm')
+            {props.type === 'confirmation'
+              ? (props.confirmText ?? 'Confirm')
               : 'Confirm'}
           </button>
         </Modal.Footer>
@@ -149,7 +136,7 @@ export function UnifiedModalContainer() {
       <For each={modals()}>
         {(modal) => (
           <Show when={modal.isOpen}>
-            <ModalRenderer modal={modal} />
+            <ModalRenderer {...modal} />
           </Show>
         )}
       </For>

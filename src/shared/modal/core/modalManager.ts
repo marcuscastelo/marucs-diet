@@ -66,6 +66,7 @@ function sortModalsByPriority(modalList: ModalState[]): ModalState[] {
  * Internal method for performing the actual close operation.
  */
 function performClose(id: ModalId, modal: ModalState): void {
+  debug(`Performing close for modal: ${id}`)
   setModals((prev) => prev.filter((m) => m.id !== id))
   modal.onClose?.()
 }
@@ -82,7 +83,7 @@ export const modalManager: ModalManager = {
     return modals().find((modal) => modal.id === id)
   },
 
-  openModal<T extends ModalConfig>(config: T): ModalId {
+  openModal(config: ModalConfig): ModalId {
     let modalId: string
     if (config.id !== undefined && config.id.trim() !== '') {
       modalId = config.id.trim()
@@ -91,10 +92,13 @@ export const modalManager: ModalManager = {
     }
     const now = new Date()
 
+    const [closing, setClosing] = createSignal(false)
+
     const modalState: ModalState = {
       ...config,
       id: modalId,
       isOpen: true,
+      isClosing: closing,
       createdAt: now,
       updatedAt: now,
       // Set default values
@@ -103,6 +107,11 @@ export const modalManager: ModalManager = {
       closeOnOutsideClick: config.closeOnOutsideClick ?? true,
       closeOnEscape: config.closeOnEscape ?? true,
       showCloseButton: config.showCloseButton ?? true,
+      async beforeClose() {
+        setClosing(true)
+        await new Promise((resolve) => setTimeout(resolve, 100))
+        return config.beforeClose?.() ?? true
+      },
     }
 
     setModals((prev) => {
@@ -130,8 +139,10 @@ export const modalManager: ModalManager = {
     const modal = modals().find((m) => m.id === id)
     if (!modal) return
 
+    debug(`Closing modal: ${id}`)
     // Call beforeClose callback if provided
     const beforeCloseResult = modal.beforeClose?.()
+    debug(`beforeClose result for modal ${id}:`, beforeCloseResult)
 
     if (beforeCloseResult instanceof Promise) {
       beforeCloseResult
@@ -151,10 +162,32 @@ export const modalManager: ModalManager = {
 
   closeAllModals(): void {
     const currentModals = modals()
+    const modalsToKeep: ModalState[] = []
+
     currentModals.forEach((modal) => {
-      modal.onClose?.()
+      const beforeCloseResult = modal.beforeClose?.()
+
+      if (beforeCloseResult instanceof Promise) {
+        beforeCloseResult
+          .then((shouldClose) => {
+            if (shouldClose !== false) {
+              modal.onClose?.()
+            } else {
+              modalsToKeep.push(modal)
+            }
+          })
+          .catch(() => {
+            modal.onClose?.()
+          })
+      } else if (beforeCloseResult !== false) {
+        modal.onClose?.()
+      } else {
+        modalsToKeep.push(modal)
+      }
     })
-    setModals([])
+
+    // Update the state to keep only the modals that should not be closed
+    setModals(modalsToKeep)
   },
 
   updateModal(id: ModalId, updates: Partial<ModalConfig>): void {
