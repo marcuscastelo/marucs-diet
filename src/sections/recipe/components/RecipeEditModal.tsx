@@ -89,12 +89,6 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
     }
   }
 
-  createEffect(() => {
-    if (!itemEditModalVisible()) {
-      setSelectedItem(null)
-    }
-  })
-
   return (
     <RecipeEditContextProvider
       recipe={recipe}
