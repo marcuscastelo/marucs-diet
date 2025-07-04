@@ -1,5 +1,5 @@
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
-import PreviousDayCardActions from '~/sections/day-diet/components/PreviousDayCardActions'
+import { PreviousDayCardActions } from '~/sections/day-diet/components/PreviousDayCardActions'
 import PreviousDayDetailsModal from '~/sections/day-diet/components/PreviousDayDetailsModal'
 import MacroNutrientsView from '~/sections/macro-nutrients/components/MacroNutrientsView'
 import { openContentModal } from '~/shared/modal/helpers/modalHelpers'

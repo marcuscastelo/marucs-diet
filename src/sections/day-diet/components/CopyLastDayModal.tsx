@@ -13,6 +13,7 @@ type CopyLastDayModalProps = {
   copying: boolean
   copyingDay: string | null
   onCopy: (day: string) => void
+  onClose: () => void
 }
 
 export function CopyLastDayModal(props: CopyLastDayModalProps) {
@@ -34,7 +35,10 @@ export function CopyLastDayModal(props: CopyLastDayModalProps) {
                 dayDiet={dayDiet}
                 copying={props.copying}
                 copyingDay={props.copyingDay}
-                onCopy={props.onCopy}
+                onCopy={(day) => {
+                  props.onCopy(day)
+                  props.onClose()
+                }}
               />
             )}
           </For>

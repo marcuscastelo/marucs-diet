@@ -1,4 +1,5 @@
 import { type Accessor, createSignal } from 'solid-js'
+import { set } from 'zod/v4'
 
 import {
   dayDiets,
@@ -12,7 +13,10 @@ import {
   showSuccess,
 } from '~/modules/toast/application/toastManager'
 import { Button } from '~/sections/common/components/buttons/Button'
-import { openContentModal } from '~/shared/modal/helpers/modalHelpers'
+import {
+  closeModal,
+  openContentModal,
+} from '~/shared/modal/helpers/modalHelpers'
 import { lazyImport } from '~/shared/solid/lazyImport'
 
 const { CopyLastDayModal } = lazyImport(
@@ -68,13 +72,18 @@ export function CopyLastDayButton(props: {
         class="btn-primary w-full mt-3 rounded px-4 py-2 font-bold text-white"
         onClick={() => {
           openContentModal(
-            () => (
+            (modalId) => (
               <CopyLastDayModal
                 previousDays={previousDays()}
                 copying={copying()}
                 copyingDay={copyingDay()}
                 onCopy={(day) => {
                   void handleCopy(day)
+                }}
+                onClose={() => {
+                  closeModal(modalId)
+                  setCopyingDay(null)
+                  setCopying(false)
                 }}
               />
             ),

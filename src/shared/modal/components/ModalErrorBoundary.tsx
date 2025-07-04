@@ -6,6 +6,7 @@
 import type { JSXElement } from 'solid-js'
 import { ErrorBoundary } from 'solid-js'
 
+import { showError } from '~/modules/toast/application/toastManager'
 import { handleApiError } from '~/shared/error/errorHandler'
 
 /**
@@ -14,6 +15,7 @@ import { handleApiError } from '~/shared/error/errorHandler'
 function ModalErrorFallback(error: Error, reset: () => void) {
   // Handle the error using our error handler
   handleApiError(error)
+  showError(error, {}, `Modal Error`)
 
   return (
     <div class="alert alert-error">
