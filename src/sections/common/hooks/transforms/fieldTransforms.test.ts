@@ -8,7 +8,7 @@ import {
   createDateTransform,
   createFloatTransform,
 } from '~/sections/common/hooks/transforms/fieldTransforms'
-import { dateToString, stringToDate } from '~/shared/utils/date'
+import { dateToString, stringToDate } from '~/shared/utils/date/dateUtils'
 
 // Mock the date utils module
 vi.mock('~/shared/utils/date', () => ({

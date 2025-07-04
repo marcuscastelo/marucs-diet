@@ -13,7 +13,7 @@ import { showPromise } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
 import { type User } from '~/modules/user/domain/user'
 import { handleApiError } from '~/shared/error/errorHandler'
-import { getTodayYYYYMMDD } from '~/shared/utils/date'
+import { getTodayYYYYMMDD } from '~/shared/utils/date/dateUtils'
 import { registerSubapabaseRealtimeCallback } from '~/shared/utils/supabase'
 
 export function createDayDiet({

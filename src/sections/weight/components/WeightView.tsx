@@ -9,7 +9,7 @@ import { useDateField, useFloatField } from '~/sections/common/hooks/useField'
 import { type DateValueType } from '~/sections/datepicker/types'
 import { openDeleteConfirmModal } from '~/shared/modal/helpers/specializedModalHelpers'
 import { lazyImport } from '~/shared/solid/lazyImport'
-import { dateToYYYYMMDD } from '~/shared/utils/date'
+import { dateToYYYYMMDD } from '~/shared/utils/date/dateUtils'
 import { normalizeDateToLocalMidnightPlusOne } from '~/shared/utils/date/normalizeDateToLocalMidnightPlusOne'
 
 const { Datepicker } = lazyImport(

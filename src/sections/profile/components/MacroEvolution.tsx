@@ -7,7 +7,7 @@ import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { userWeights } from '~/modules/weight/application/weight'
 import { type Weight } from '~/modules/weight/domain/weight'
 import { Capsule } from '~/sections/common/components/capsule/Capsule'
-import { dateToDDMM } from '~/shared/utils/date'
+import { dateToDDMM } from '~/shared/utils/date/dateUtils'
 import {
   calcCalories,
   calcDayCalories,

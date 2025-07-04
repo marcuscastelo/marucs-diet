@@ -24,7 +24,7 @@ import {
   openUnifiedItemEditModal,
 } from '~/shared/modal/helpers/specializedModalHelpers'
 import { createDebug } from '~/shared/utils/createDebug'
-import { stringToDate } from '~/shared/utils/date'
+import { stringToDate } from '~/shared/utils/date/dateUtils'
 
 const debug = createDebug()
 

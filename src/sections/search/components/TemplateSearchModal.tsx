@@ -53,7 +53,7 @@ import {
   openContentModal,
 } from '~/shared/modal/helpers/modalHelpers'
 import { openUnifiedItemEditModal } from '~/shared/modal/helpers/specializedModalHelpers'
-import { stringToDate } from '~/shared/utils/date'
+import { stringToDate } from '~/shared/utils/date/dateUtils'
 import { isOverflow } from '~/shared/utils/macroOverflow'
 
 const TEMPLATE_SEARCH_DEFAULT_TAB = availableTabs.Todos.id

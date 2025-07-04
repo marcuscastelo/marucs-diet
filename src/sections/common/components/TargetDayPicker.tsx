@@ -6,7 +6,7 @@ import {
 } from '~/modules/diet/day-diet/application/dayDiet'
 import { type DateValueType } from '~/sections/datepicker/types'
 import { lazyImport } from '~/shared/solid/lazyImport'
-import { getTodayYYYYMMDD, stringToDate } from '~/shared/utils/date'
+import { getTodayYYYYMMDD, stringToDate } from '~/shared/utils/date/dateUtils'
 
 const { Datepicker } = lazyImport(
   () => import('~/sections/datepicker/components/Datepicker'),

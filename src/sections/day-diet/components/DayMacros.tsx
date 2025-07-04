@@ -5,7 +5,7 @@ import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import { Progress } from '~/sections/common/components/Progress'
-import { stringToDate } from '~/shared/utils/date'
+import { stringToDate } from '~/shared/utils/date/dateUtils'
 import { calcCalories, calcDayMacros } from '~/shared/utils/macroMath'
 
 export default function DayMacros(props: {

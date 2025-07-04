@@ -21,7 +21,7 @@ import {
   closeModal,
   openContentModal,
 } from '~/shared/modal/helpers/modalHelpers'
-import { dateToYYYYMMDD, getTodayYYYYMMDD } from '~/shared/utils/date'
+import { dateToYYYYMMDD, getTodayYYYYMMDD } from '~/shared/utils/date/dateUtils'
 import { calcCalories } from '~/shared/utils/macroMath'
 import { getLatestMacroProfile } from '~/shared/utils/macroProfileUtils'
 

@@ -5,7 +5,7 @@ import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/ma
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import MacroNutrientsView from '~/sections/macro-nutrients/components/MacroNutrientsView'
 import { createDebug } from '~/shared/utils/createDebug'
-import { stringToDate } from '~/shared/utils/date'
+import { stringToDate } from '~/shared/utils/date/dateUtils'
 import {
   calcUnifiedItemCalories,
   calcUnifiedItemMacros,

@@ -4,7 +4,8 @@
  * @param {string | Date} input - The date to normalize
  * @returns {Date} The normalized date at midnight, incremented by one day
  */
-import { adjustToTimezone, getMidnight } from '~/shared/utils/date'
+
+import { adjustToTimezone, getMidnight } from '~/shared/utils/date/dateUtils'
 
 export function normalizeDateToLocalMidnightPlusOne(
   input: string | Date,

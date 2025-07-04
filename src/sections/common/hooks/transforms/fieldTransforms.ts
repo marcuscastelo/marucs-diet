@@ -1,4 +1,4 @@
-import { dateToString, stringToDate } from '~/shared/utils/date'
+import { dateToString, stringToDate } from '~/shared/utils/date/dateUtils'
 
 export type FieldTransform<T> = {
   toRaw: (value: T) => string
