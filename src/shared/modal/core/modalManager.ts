@@ -1,8 +1,3 @@
-/**
- * Core modal manager implementation using SolidJS signals.
- * Provides centralized state management for all modals in the application.
- */
-
 import { createSignal } from 'solid-js'
 
 import { handleApiError } from '~/shared/error/errorHandler'
@@ -16,30 +11,18 @@ import { createDebug } from '~/shared/utils/createDebug'
 
 const debug = createDebug()
 
-/**
- * Global signal for managing all modal states.
- */
 export const [modals, setModals] = createSignal<ModalState[]>([])
 
-/**
- * Generates a unique modal ID.
- */
 function generateModalId(): ModalId {
   return `modal-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`
 }
 
-/**
- * Internal method for performing the actual close operation.
- */
 function performClose(id: ModalId, modal: ModalState): void {
   debug(`Performing close for modal: ${id}`)
   setModals((prev) => prev.filter((m) => m.id !== id))
   modal.onClose?.()
 }
 
-/**
- * Core modal manager implementation.
- */
 export const modalManager: ModalManager = {
   openModal(config: ModalConfig): ModalId {
     let modalId: string
@@ -59,14 +42,12 @@ export const modalManager: ModalManager = {
       isClosing: closing,
       createdAt: now,
       updatedAt: now,
-      // Set default values
       priority: config.priority || 'normal',
       closeOnOutsideClick: config.closeOnOutsideClick ?? true,
       closeOnEscape: config.closeOnEscape ?? true,
       showCloseButton: config.showCloseButton ?? true,
       async beforeClose() {
         setClosing(true)
-        // Use shorter timeout in test environment to avoid breaking tests
         const animationDelay =
           typeof window === 'undefined' || import.meta.env.MODE === 'test'
             ? 0
@@ -77,21 +58,10 @@ export const modalManager: ModalManager = {
     }
 
     setModals((prev) => {
-      // Remove existing modal with same ID if it exists
       const filtered = prev.filter((modal) => modal.id !== modalId)
       return [...filtered, modalState]
     })
 
-    // Call onOpen callback if provided
-    if (typeof window !== 'undefined') {
-      // Log every modal open and print stack trace using createDebug
-      debug('[modalManager] Modal opened:', {
-        id: modalId,
-        type: config.type,
-        title: config.title,
-      })
-      debug(new Error('[modalManager] Modal open stack trace').stack)
-    }
     config.onOpen?.()
 
     return modalId
