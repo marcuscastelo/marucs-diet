@@ -74,7 +74,7 @@ export function BodyMeasureView(props: {
         waist,
         hip,
         neck,
-        targetTimestamp: date,
+        target_timestamp: date,
       }),
     )
       .then(afterUpdate)

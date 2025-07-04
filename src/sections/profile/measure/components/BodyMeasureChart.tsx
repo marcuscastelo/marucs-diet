@@ -1,14 +1,17 @@
 import type { ApexOptions } from 'apexcharts'
-import { createMemo, Show } from 'solid-js'
+import { createMemo, Resource, Show, Suspense } from 'solid-js'
 
 import ptBrLocale from '~/assets/locales/apex/pt-br.json'
+import { bodyMeasures } from '~/modules/measure/application/measure'
+import {
+  groupMeasuresByDay,
+  processMeasuresByDay,
+} from '~/modules/measure/application/measureUtils'
 import type { BodyMeasure } from '~/modules/measure/domain/measure'
 import { currentUser } from '~/modules/user/application/user'
 import { userWeights } from '~/modules/weight/application/weight'
 import { lazyImport } from '~/shared/solid/lazyImport'
-import { type BodyFatInput, calculateBodyFat } from '~/shared/utils/bfMath'
 import { createDebug } from '~/shared/utils/createDebug'
-import { dateToYYYYMMDD } from '~/shared/utils/date/dateUtils'
 
 const { SolidApexCharts } = lazyImport(
   () => import('solid-apexcharts'),
@@ -31,7 +34,7 @@ type DayMeasures = {
  * Props for the BodyMeasureChart component.
  */
 export type BodyMeasureChartProps = {
-  measures: readonly BodyMeasure[]
+  measures: typeof bodyMeasures
 }
 
 /**
@@ -40,95 +43,20 @@ export type BodyMeasureChartProps = {
  * @returns SolidJS component
  */
 export function BodyMeasureChart(props: BodyMeasureChartProps) {
-  const measuresByDay = () => {
-    const grouped = props.measures.reduce<Record<string, BodyMeasure[]>>(
-      (acc, measure) => {
-        const day = dateToYYYYMMDD(measure.target_timestamp)
-        if (acc[day] === undefined) {
-          acc[day] = []
-        }
-        acc[day].push(measure)
+  const measuresByDay = createMemo(() =>
+    groupMeasuresByDay(props.measures() ?? []),
+  )
 
-        return acc
-      },
-      {},
-    )
-    debug('measuresByDay', grouped)
-    return grouped
-  }
-
-  const data = (): DayMeasures[] => {
-    const result = Object.entries(measuresByDay())
-      .map(([day, measures]) => {
-        // Filter out invalid/negative/NaN values for all measures
-        const validMeasures = measures.filter((m) => {
-          return (
-            isFinite(m.height) &&
-            m.height > 0 &&
-            isFinite(m.waist) &&
-            m.waist > 0 &&
-            (m.hip === undefined || (isFinite(m.hip) && m.hip > 0)) &&
-            isFinite(m.neck) &&
-            m.neck > 0
-          )
-        })
-        if (validMeasures.length === 0) return null
-        const heightAverage =
-          validMeasures.reduce((acc, m) => acc + m.height, 0) /
-          validMeasures.length
-        const waistAverage =
-          validMeasures.reduce((acc, m) => acc + m.waist, 0) /
-          validMeasures.length
-        const hipAverage =
-          validMeasures.filter((m) => m.hip !== undefined).length > 0
-            ? validMeasures.reduce((acc, m) => acc + (m.hip ?? 0), 0) /
-              validMeasures.filter((m) => m.hip !== undefined).length
-            : undefined
-        const neckAverage =
-          validMeasures.reduce((acc, m) => acc + m.neck, 0) /
-          validMeasures.length
-        const weightsOfTheDay = () =>
-          (userWeights.latest ?? []).filter((weight) => {
-            return (
-              weight.target_timestamp.toLocaleDateString() === day &&
-              isFinite(weight.weight) &&
-              weight.weight > 0
-            )
-          })
-        const weightAverage = () =>
-          weightsOfTheDay().length > 0
-            ? weightsOfTheDay().reduce((acc, w) => acc + w.weight, 0) /
-              weightsOfTheDay().length
-            : 0
-        const dayBf = () => {
-          const bf = calculateBodyFat({
-            gender: currentUser()?.gender ?? 'female',
-            height: heightAverage,
-            waist: waistAverage,
-            hip: hipAverage,
-            neck: neckAverage,
-            weight: weightAverage(),
-          } satisfies BodyFatInput<'male' | 'female'>)
-          return isFinite(bf) && bf > 0 ? parseFloat(bf.toFixed(2)) : 0
-        }
-        return {
-          date: day,
-          dayBf: dayBf(),
-          dayAverage: {
-            height: heightAverage,
-            waist: waistAverage,
-            hip: hipAverage,
-            neck: neckAverage,
-          } satisfies DayAverage,
-        } satisfies DayMeasures
-      })
-      .filter(Boolean)
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    return result
-  }
+  const data = createMemo(() =>
+    processMeasuresByDay(
+      measuresByDay(),
+      userWeights.latest ?? [],
+      currentUser()?.gender ?? 'female',
+    ),
+  )
 
   return (
-    <>
+    <Suspense>
       <ChartFor
         title="Altura"
         accessor={(day) => day.dayAverage.height}
@@ -164,7 +92,7 @@ export function BodyMeasureChart(props: BodyMeasureChartProps) {
         dataKey="dayBf"
         color="orange"
       />
-    </>
+    </Suspense>
   )
 }
 

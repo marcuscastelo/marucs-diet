@@ -15,7 +15,10 @@ import {
   calcDayCalories,
   calcDayMacros,
 } from '~/shared/utils/macroMath'
-import { inForceMacroProfile } from '~/shared/utils/macroProfileUtils'
+import {
+  getLatestMacroProfile,
+  inForceMacroProfile,
+} from '~/shared/utils/macroProfileUtils'
 import { inForceWeight } from '~/shared/utils/weightUtils'
 
 export function MacroEvolution() {
@@ -76,29 +79,43 @@ function createChartData(
 function AllMacrosChart(props: {
   weights: Resource<readonly Weight[] | undefined>
 }) {
-  // const proteinDeviance = dayDiets()
-  //   .map((day) => {
-  //     const currentWeight = inForceWeight(props.weightsResource() ?? [], new Date(day.target_day))
-  //     const macroTargets = calculateMacroTarget(
-  //       currentWeight?.weight ?? 0,
-  //       macroProfile()
-  //     )
-  //     const dayMacros = calcDayMacros(day)
-  //     return dayMacros.protein - macroTargets.protein
-  //   })
-  //   .reduce((a, b) => a + b, 0)
+  const macroProfile = getLatestMacroProfile(userMacroProfiles())
 
-  // const fatDeviance = dayDiets.value
-  //   .map((day) => {
-  //     const currentWeight = inForceWeight(props.weightsResource() ?? [], new Date(day.target_day))
-  //     const macroTargets = calculateMacroTarget(
-  //       currentWeight?.weight ?? 0,
-  //       macroProfile
-  //     )
-  //     const dayMacros = calcDayMacros(day)
-  //     return dayMacros.fat - macroTargets.fat
-  //   })
-  //   .reduce((a, b) => a + b, 0)
+  const proteinDeviance = () =>
+    macroProfile !== null
+      ? dayDiets()
+          .map((day) => {
+            const currentWeight = inForceWeight(
+              props.weights() ?? [],
+              new Date(day.target_day),
+            )
+            const macroTargets = calculateMacroTarget(
+              currentWeight?.weight ?? 0,
+              macroProfile,
+            )
+            const dayMacros = calcDayMacros(day)
+            return dayMacros.protein - macroTargets.protein
+          })
+          .reduce((a, b) => a + b, 0)
+      : 0
+
+  const fatDeviance = () =>
+    macroProfile !== null
+      ? dayDiets()
+          .map((day) => {
+            const currentWeight = inForceWeight(
+              props.weights() ?? [],
+              new Date(day.target_day),
+            )
+            const macroTargets = calculateMacroTarget(
+              currentWeight?.weight ?? 0,
+              macroProfile,
+            )
+            const dayMacros = calcDayMacros(day)
+            return dayMacros.fat - macroTargets.fat
+          })
+          .reduce((a, b) => a + b, 0)
+      : 0
 
   const data = () => {
     const weights = props.weights()
@@ -113,16 +130,14 @@ function AllMacrosChart(props: {
       <Capsule
         leftContent={<h5 class={'ml-2 p-2 text-xl'}>Desvio de Proteína (g)</h5>}
         rightContent={
-          <h5 class={'ml-2 p-2 text-xl'}>TODO</h5>
-          // <h5 class={'ml-2 p-2 text-xl'}>{proteinDeviance.toFixed(0)}</h5>
+          <h5 class={'ml-2 p-2 text-xl'}>{proteinDeviance().toFixed(0)}</h5>
         }
         class={'mb-2'}
       />
       <Capsule
         leftContent={<h5 class={'ml-2 p-2 text-xl'}>Desvio de Gordura (g)</h5>}
         rightContent={
-          <h5 class={'ml-2 p-2 text-xl'}>TODO</h5>
-          // <h5 class={'ml-2 p-2 text-xl'}>{fatDeviance.toFixed(0)}</h5>
+          <h5 class={'ml-2 p-2 text-xl'}>{fatDeviance().toFixed(0)}</h5>
         }
         class={'mb-2'}
       />
