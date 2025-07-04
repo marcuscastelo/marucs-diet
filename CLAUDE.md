@@ -4,40 +4,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Marucs Diet is a nutrition tracking platform built with SolidJS, TypeScript, and Supabase. It follows domain-driven design principles with a layered architecture and emphasizes type safety, reactive programming, and modular organization.
+Macroflows is a nutrition tracking platform built with SolidJS, TypeScript, and Supabase. It follows domain-driven design principles with a layered architecture and emphasizes type safety, reactive programming, and modular organization.
 
 **Project Context:** This is a solo project by marcuscastelo - adapt all suggestions to remove team coordination/approval processes while maintaining technical quality.
 
 ## Critical Setup Requirements
 
-**Before Starting Any Session:**
-```bash
-export GIT_PAGER=cat
-```
-This disables pagers for git/gh commands, preventing interactive output issues.
-
 **Environment Setup:**
-- Copy `.env.example` to `.env.local` and configure Supabase credentials
-- Verify `.scripts/` directory exists with required helper scripts
 - Use pnpm as package manager (version 10.12.1+)
 
 ## Development Commands
 
+**🚨 CRITICAL REQUIREMENT: ALWAYS RUN `pnpm check` BEFORE DECLARING ANY TASK COMPLETE**
+
 **Essential Commands:**
-- `pnpm dev` - Start development server (runs gen-app-version first)
-- `pnpm build` - Production build (runs gen-app-version first)
-- `pnpm test` - Run all tests with Vitest
-- `pnpm type-check` - TypeScript type checking
-- `pnpm lint` - ESLint checking (quiet mode)
+- `pnpm check` - **MANDATORY** quality gate (lint, type-check, test) - MUST PASS before any completion
 - `pnpm fix` - Auto-fix ESLint issues
+
+**Granular Commands (if needed):**
+- `pnpm build` - Production build (runs gen-app-version first)
+- `pnpm type-check` - TypeScript type checking
+- `pnpm test` - Run all tests with Vitest
+- `pnpm lint` - ESLint checking (quiet mode)
 - `pnpm flint` - Fix then lint (fix + lint)
-- `pnpm check` - Run all quality checks (lint, type-check, test)
-- `pnpm copilot:check` - Comprehensive check with success confirmation
 
 **Script Utilities:**
-- `.scripts/semver.sh` - App version reporting (preferred over git describe)
-- `.scripts/gen-app-version.sh` - Generate app version (auto-run with dev/build)
-- `.scripts/cat1.sh`, `.scripts/cat2.sh`, `.scripts/cat3.sh` - Terminal output helpers
+- `.scripts/semver.sh` - App version reporting
 
 **Testing:**
 - Tests use Vitest with jsdom environment
@@ -131,6 +123,24 @@ export type UnifiedItem = FoodItem | RecipeItem | GroupItem
 **Repository Pattern:** Interface-based contracts with Supabase implementations
 
 **Migration Utilities:** Backward compatibility for evolving data schemas
+
+**DRY Type Extension Pattern:** Use component Props types as base for Config types
+```typescript
+// ✅ Good: Extend Props type to avoid duplication
+export type ModalConfig = ModalProps & {
+  title?: string
+  additionalProp?: string
+}
+
+// ❌ Bad: Duplicate all props from ModalProps
+export type ModalConfig = {
+  prop1: string
+  prop2?: number
+  // ... duplicating all ModalProps
+  title?: string
+  additionalProp?: string
+}
+```
 
 ## Error Handling Standards
 
@@ -268,6 +278,8 @@ const { Component } = await import('solid-js')
 - **Always prefer type aliases over interfaces** for data shapes
 - **Use Zod schemas for runtime validation and type inference**
 - **Prefer `readonly` arrays:** `readonly Item[]` over `Item[]`
+- **Use intersection types for extending base types:** `ConfigType = PropsType & { extraProps }`
+- **Default parameters over nullish coalescing:** `{ param = 'default' }` instead of `param ?? 'default'`
 
 ### ESLint Configuration
 - **Consistent type definitions:** Use `type` not `interface`
@@ -316,15 +328,51 @@ src/
 
 ### Pre-Commit Requirements
 
+**🚨 MANDATORY: Never commit without passing quality checks**
+
 **Always run before committing:**
 ```bash
-pnpm check  # Runs lint, type-check, and test
+pnpm check  # Runs lint, type-check, and test - MUST PASS
 ```
 
 **For comprehensive validation:**
 ```bash
 pnpm copilot:check  # Must show "COPILOT: All checks passed!"
 ```
+
+**⛔ CRITICAL RULE: NEVER declare any implementation, fix, or feature "complete" without:**
+1. Running `pnpm check` and verifying ALL checks pass
+2. Confirming NO TypeScript errors
+3. Confirming NO ESLint errors  
+4. Confirming ALL tests pass
+5. Only then can you say "✅ COMPLETE" or similar
+
+### Refactoring Best Practices
+
+**DRY Principle Application:**
+- **Measure impact:** Use `git diff --stat` to verify line reduction
+- **Start simple:** Begin with default parameters before adding complex abstractions
+- **Avoid over-engineering:** Don't add helper functions/constants that increase overall lines
+- **Type extension over duplication:** Use `ConfigType = PropsType & { extras }` pattern
+
+**Refactoring Validation Process:**
+```bash
+# Before making changes
+git diff --stat  # Baseline measurement
+
+# After each change
+pnpm check      # Ensure functionality preserved
+git diff --stat # Verify line count improvement
+
+# If lines increased, consider simpler approach
+git checkout -- file.ts  # Revert if needed
+```
+
+**Safe Refactoring Strategy:**
+1. **Preserve functionality:** All tests must continue passing
+2. **Incremental changes:** Make small, verifiable improvements
+3. **Type safety first:** Never sacrifice type safety for brevity
+4. **Readability over cleverness:** Prefer clear code over complex abstractions
 
 ### Commit Standards
 

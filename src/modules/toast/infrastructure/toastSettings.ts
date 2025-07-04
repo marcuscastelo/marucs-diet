@@ -46,7 +46,7 @@ const DEFAULT_SETTINGS: ToastSettings = {
 }
 
 // Local storage key for persisting settings
-const STORAGE_KEY = 'marucs-diet:toast-settings'
+const STORAGE_KEY = 'macroflows:toast-settings'
 
 /**
  * Load settings from local storage

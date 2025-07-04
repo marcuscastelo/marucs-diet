@@ -21,7 +21,6 @@ import {
   unifiedItemSchema,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { ClipboardActionButtons } from '~/sections/common/components/ClipboardActionButtons'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import {
@@ -29,6 +28,10 @@ import {
   useMealContext,
 } from '~/sections/meal/context/MealContext'
 import { UnifiedItemListView } from '~/sections/unified-item/components/UnifiedItemListView'
+import {
+  openClearItemsConfirmModal,
+  openDeleteConfirmModal,
+} from '~/shared/modal/helpers/specializedModalHelpers'
 import { createDebug } from '~/shared/utils/createDebug'
 import { regenerateId } from '~/shared/utils/idUtils'
 import { calcMealCalories } from '~/shared/utils/macroMath'
@@ -88,10 +91,8 @@ export function MealEditView(props: MealEditViewProps) {
 
 export function MealEditViewHeader(props: {
   onUpdateMeal: (meal: Meal) => void
-  dayDiet: DayDiet
   mode?: 'edit' | 'read-only' | 'summary'
 }) {
-  const { show: showConfirmModal } = useConfirmModalContext()
   const { meal } = useMealContext()
   const acceptedClipboardSchema = mealSchema
     .or(recipeSchema)
@@ -186,20 +187,12 @@ export function MealEditViewHeader(props: {
 
   const onClearItems = (e: MouseEvent) => {
     e.preventDefault()
-    showConfirmModal({
-      title: 'Limpar itens',
-      body: 'Tem certeza que deseja limpar os itens?',
-      actions: [
-        { text: 'Cancelar', onClick: () => undefined },
-        {
-          text: 'Excluir todos os itens',
-          primary: true,
-          onClick: () => {
-            const newMeal = clearMealItems(meal())
-            props.onUpdateMeal(newMeal)
-          },
-        },
-      ],
+    openClearItemsConfirmModal({
+      context: 'os itens',
+      onConfirm: () => {
+        const newMeal = clearMealItems(meal())
+        props.onUpdateMeal(newMeal)
+      },
     })
   }
 
@@ -233,8 +226,7 @@ export function MealEditViewContent(props: {
   onEditItem: (item: UnifiedItem) => void
   mode?: 'edit' | 'read-only' | 'summary'
 }) {
-  const { dayDiet, meal } = useMealContext()
-  const { show: showConfirmModal } = useConfirmModalContext()
+  const { meal } = useMealContext()
   const clipboard = useClipboard()
 
   debug('meal.value:', meal())
@@ -252,19 +244,12 @@ export function MealEditViewContent(props: {
           clipboard.write(JSON.stringify(item))
         },
         onDelete: (item) => {
-          showConfirmModal({
-            title: 'Excluir item',
-            body: `Tem certeza que deseja excluir o item "${item.name}"?`,
-            actions: [
-              { text: 'Cancelar', onClick: () => undefined },
-              {
-                text: 'Excluir item',
-                primary: true,
-                onClick: () => {
-                  void deleteUnifiedItem(dayDiet().id, meal().id, item.id)
-                },
-              },
-            ],
+          openDeleteConfirmModal({
+            itemName: item.name,
+            itemType: 'item',
+            onConfirm: () => {
+              void deleteUnifiedItem(meal().id, item.id)
+            },
           })
         },
       }}

@@ -1,4 +1,4 @@
-# Claude Commands for Marucs Diet
+# Claude Commands for Macroflows
 
 This directory contains Claude Code commands adapted from GitHub Copilot prompts for optimal development workflow.
 
@@ -15,6 +15,7 @@ This directory contains Claude Code commands adapted from GitHub Copilot prompts
 ### Issue Management (`issues/`)
 - **`/create-issue`** - Create GitHub issues using proper templates
 - **`/implement`** - Autonomous issue implementation after plan approval
+- **`/prioritize-milestone`** - Analyze and prioritize milestone issues for optimal capacity
 
 ### Refactoring (`refactor/`)
 - **`/refactor`** - Clean architecture refactoring and modularization
@@ -44,6 +45,7 @@ This directory contains Claude Code commands adapted from GitHub Copilot prompts
 ```bash
 /create-issue bug      # Report and create bug issue
 /create-issue refactor # Create refactoring task
+/prioritize-milestone  # Analyze and prioritize milestone issues
 /end-session          # Summarize learnings and export knowledge
 ```
 
@@ -76,6 +78,7 @@ This directory contains Claude Code commands adapted from GitHub Copilot prompts
 .github/prompts/code-review.prompt.md      → .claude/commands/quality/review.md
 .github/prompts/github-issue-unified.md    → .claude/commands/issues/create.md
 .github/prompts/issue-implementation.md    → .claude/commands/issues/implement.md
+.github/prompts/milestone-prioritization.prompt.md → .claude/commands/prioritize-milestone.md
 .github/prompts/refactor.prompt.md         → .claude/commands/refactor/clean-architecture.md
 .github/prompts/pull-request.prompt.md     → .claude/commands/workflow/pull-request.md
 .github/prompts/end-session.prompt.md      → .claude/commands/session/end.md

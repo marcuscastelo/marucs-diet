@@ -19,6 +19,13 @@ const envSchema = z.object({
       return false
     }, z.boolean())
     .default(false),
+  VITE_RECENT_FOODS_DEFAULT_LIMIT: z
+    .preprocess((v) => {
+      if (typeof v === 'number') return v
+      if (typeof v === 'string') return parseInt(v, 10)
+      return 50
+    }, z.number().min(1).max(1000))
+    .default(50),
 })
 
 const getEnvVars = (): z.input<typeof envSchema> => {

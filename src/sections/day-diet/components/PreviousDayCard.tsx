@@ -1,9 +1,8 @@
-import { createSignal } from 'solid-js'
-
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
-import PreviousDayCardActions from '~/sections/day-diet/components/PreviousDayCardActions'
+import { PreviousDayCardActions } from '~/sections/day-diet/components/PreviousDayCardActions'
 import PreviousDayDetailsModal from '~/sections/day-diet/components/PreviousDayDetailsModal'
 import MacroNutrientsView from '~/sections/macro-nutrients/components/MacroNutrientsView'
+import { openContentModal } from '~/shared/modal/helpers/modalHelpers'
 import { calcCalories, calcDayMacros } from '~/shared/utils/macroMath'
 
 type PreviousDayCardProps = {
@@ -14,7 +13,6 @@ type PreviousDayCardProps = {
 }
 
 export function PreviousDayCard(props: PreviousDayCardProps) {
-  const [showDetails, setShowDetails] = createSignal(false)
   const macros = () => calcDayMacros(props.dayDiet)
   const calories = () => calcCalories(macros())
 
@@ -41,14 +39,16 @@ export function PreviousDayCard(props: PreviousDayCardProps) {
         dayDiet={props.dayDiet}
         copying={props.copying}
         copyingDay={props.copyingDay}
-        onShowDetails={() => setShowDetails(true)}
+        onShowDetails={() => {
+          openContentModal(
+            () => <PreviousDayDetailsModal dayDiet={props.dayDiet} />,
+            {
+              title: 'Resumo do dia',
+              closeOnOutsideClick: true,
+            },
+          )
+        }}
         onCopy={props.onCopy}
-      />
-
-      <PreviousDayDetailsModal
-        visible={showDetails()}
-        setVisible={setShowDetails}
-        dayDiet={props.dayDiet}
       />
     </div>
   )

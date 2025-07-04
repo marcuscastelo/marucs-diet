@@ -17,8 +17,6 @@ import {
 import { handleApiError } from '~/shared/error/errorHandler'
 import { registerSubapabaseRealtimeCallback } from '~/shared/utils/supabase'
 
-export const DEFAULT_USER_ID = 3
-
 const userRepository = createSupabaseUserRepository()
 
 export const [users, setUsers] = createSignal<readonly User[]>([])

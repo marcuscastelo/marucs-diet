@@ -46,12 +46,3 @@ export function createNewDayDiet({
     __type: 'NewDayDiet',
   })
 }
-
-export function demoteToNewDayDiet(dayDiet: DayDiet): NewDayDiet {
-  return parseWithStack(newDayDietSchema, {
-    target_day: dayDiet.target_day,
-    owner: dayDiet.owner,
-    meals: dayDiet.meals,
-    __type: 'NewDayDiet',
-  })
-}

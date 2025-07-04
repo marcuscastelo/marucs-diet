@@ -9,11 +9,11 @@ import {
 import { fetchFoodByEan } from '~/modules/diet/food/application/food'
 import { type Food } from '~/modules/diet/food/domain/food'
 import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { UnifiedItemFavorite } from '~/sections/unified-item/components/UnifiedItemFavorite'
 import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
 import { handleApiError } from '~/shared/error/errorHandler'
+import { openConfirmModal } from '~/shared/modal/helpers/modalHelpers'
 
 export type EANSearchProps = {
   EAN: Accessor<string>
@@ -24,7 +24,6 @@ export type EANSearchProps = {
 
 export function EANSearch(props: EANSearchProps) {
   const [loading, setLoading] = createSignal(false)
-  const { show: showConfirmModal } = useConfirmModalContext()
   const clipboard = useClipboard()
 
   const EAN_LENGTH = 13
@@ -42,10 +41,10 @@ export function EANSearch(props: EANSearchProps) {
     const afterFetch = (food: Food | null) => {
       console.log('afterFetch food', food)
       if (food === null) {
-        showConfirmModal({
-          title: `Não encontrado`,
-          body: `Alimento de EAN ${props.EAN()} não encontrado`,
-          actions: [{ text: 'OK', primary: true, onClick: () => {} }],
+        openConfirmModal(`Alimento de EAN ${props.EAN()} não encontrado`, {
+          title: 'Não encontrado',
+          confirmText: 'OK',
+          onConfirm: () => {},
         })
         return
       }
@@ -55,10 +54,10 @@ export function EANSearch(props: EANSearchProps) {
     const catchFetch = (err: unknown) => {
       console.log('catchFetch err', err)
       handleApiError(err)
-      showConfirmModal({
+      openConfirmModal('Erro ao buscar alimento', {
         title: `Erro ao buscar alimento de EAN ${props.EAN()}`,
-        body: 'Erro ao buscar alimento',
-        actions: [{ text: 'OK', primary: true, onClick: () => {} }],
+        confirmText: 'OK',
+        onConfirm: () => {},
       })
       props.setFood(null)
     }

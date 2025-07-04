@@ -7,7 +7,6 @@
 
 import toast from 'solid-toast'
 
-import { openErrorModal } from '~/modules/toast/application/modalState'
 import { killToast } from '~/modules/toast/application/toastQueue'
 import { TOAST_MESSAGES } from '~/modules/toast/domain/toastMessages'
 import {
@@ -16,6 +15,7 @@ import {
   ToastType,
 } from '~/modules/toast/domain/toastTypes'
 import { handleCopyErrorToClipboard } from '~/modules/toast/infrastructure/clipboardErrorUtils'
+import { modalManager } from '~/shared/modal/core/modalManager'
 
 /**
  * Props for ExpandableToast component.
@@ -304,7 +304,15 @@ function ErrorIcon() {
  */
 function ExpandableToastContent(props: ExpandableToastContentProps) {
   const handleShowDetails = () => {
-    openErrorModal(props.errorDetails)
+    modalManager.openModal({
+      type: 'error',
+      title: 'Error Details',
+      errorDetails: props.errorDetails,
+      priority: 'high',
+      closeOnOutsideClick: true,
+      closeOnEscape: true,
+      showCloseButton: true,
+    })
   }
   return (
     <div class="flex flex-col flex-1 mx-[10px] my-1">

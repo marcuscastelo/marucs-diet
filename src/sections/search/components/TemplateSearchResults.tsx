@@ -1,4 +1,4 @@
-import { type Accessor, For, type Setter, Show } from 'solid-js'
+import { For, Show } from 'solid-js'
 
 import { deleteRecipe } from '~/modules/diet/recipe/application/recipe'
 import { getRecipePreparedQuantity } from '~/modules/diet/recipe/domain/recipeOperations'
@@ -11,10 +11,10 @@ import {
 import { debouncedTab, templates } from '~/modules/search/application/search'
 import { Alert } from '~/sections/common/components/Alert'
 import { RemoveFromRecentButton } from '~/sections/common/components/buttons/RemoveFromRecentButton'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { SearchLoadingIndicator } from '~/sections/search/components/SearchLoadingIndicator'
 import { UnifiedItemFavorite } from '~/sections/unified-item/components/UnifiedItemFavorite'
 import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
+import { openDeleteConfirmModal } from '~/shared/modal/helpers/specializedModalHelpers'
 import { createDebug } from '~/shared/utils/createDebug'
 
 const debug = createDebug()
@@ -22,14 +22,9 @@ const debug = createDebug()
 export function TemplateSearchResults(props: {
   search: string
   filteredTemplates: readonly Template[]
-  setSelectedTemplate: (template: Template | undefined) => void
-  EANModalVisible: Accessor<boolean>
-  setEANModalVisible: Setter<boolean>
-  itemEditModalVisible: Accessor<boolean>
-  setItemEditModalVisible: Setter<boolean>
+  onTemplateSelected: (template: Template) => void
   refetch: (info?: unknown) => unknown
 }) {
-  const { show: showConfirmModal } = useConfirmModalContext()
   return (
     <>
       <Show
@@ -86,34 +81,19 @@ export function TemplateSearchResults(props: {
                     class="mt-1"
                     handlers={{
                       onClick: () => {
-                        props.setSelectedTemplate(template)
-                        props.setItemEditModalVisible(true)
-                        props.setEANModalVisible(false)
+                        props.onTemplateSelected(template)
                       },
                       onDelete: isTemplateRecipe(template)
                         ? () => {
-                            showConfirmModal({
-                              title: 'Excluir receita',
-                              body: `Você tem certeza que deseja excluir a receita "${template.name}"?`,
-                              actions: [
-                                {
-                                  text: 'Sim',
-                                  primary: true,
-                                  onClick: () => {
-                                    const refetch = props.refetch
-                                    const setSelectedTemplate =
-                                      props.setSelectedTemplate
-                                    void deleteRecipe(template.id).then(() => {
-                                      refetch()
-                                      setSelectedTemplate(undefined)
-                                    })
-                                  },
-                                },
-                                {
-                                  text: 'Não',
-                                  onClick: () => {},
-                                },
-                              ],
+                            openDeleteConfirmModal({
+                              itemName: template.name,
+                              itemType: 'receita',
+                              onConfirm: () => {
+                                const refetch = props.refetch
+                                void deleteRecipe(template.id).then(() => {
+                                  refetch()
+                                })
+                              },
                             })
                           }
                         : undefined,

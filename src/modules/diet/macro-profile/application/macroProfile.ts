@@ -11,7 +11,6 @@ import {
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
 import { handleApiError } from '~/shared/error/errorHandler'
-import { getLatestMacroProfile } from '~/shared/utils/macroProfileUtils'
 import { registerSubapabaseRealtimeCallback } from '~/shared/utils/supabase'
 
 const macroProfileRepository = createSupabaseMacroProfileRepository()
@@ -19,9 +18,6 @@ const macroProfileRepository = createSupabaseMacroProfileRepository()
 export const [userMacroProfiles, setUserMacroProfiles] = createSignal<
   readonly MacroProfile[]
 >([])
-
-export const latestMacroProfile = () =>
-  getLatestMacroProfile(userMacroProfiles())
 
 function bootstrap() {
   void showPromise(

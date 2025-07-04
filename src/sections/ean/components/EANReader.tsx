@@ -11,13 +11,11 @@ import { handleScannerError } from '~/shared/error/errorHandler'
 
 export function EANReader(props: {
   id: string
-  enabled: boolean
   onScanned: (EAN: string) => void
 }) {
   const [loadingScanner, setLoadingScanner] = createSignal(true)
 
   createEffect(() => {
-    if (!props.enabled) return
     setLoadingScanner(true)
 
     function onScanSuccess(
