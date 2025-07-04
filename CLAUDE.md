@@ -124,6 +124,24 @@ export type UnifiedItem = FoodItem | RecipeItem | GroupItem
 
 **Migration Utilities:** Backward compatibility for evolving data schemas
 
+**DRY Type Extension Pattern:** Use component Props types as base for Config types
+```typescript
+// ✅ Good: Extend Props type to avoid duplication
+export type ModalConfig = ModalProps & {
+  title?: string
+  additionalProp?: string
+}
+
+// ❌ Bad: Duplicate all props from ModalProps
+export type ModalConfig = {
+  prop1: string
+  prop2?: number
+  // ... duplicating all ModalProps
+  title?: string
+  additionalProp?: string
+}
+```
+
 ## Error Handling Standards
 
 **Critical Rule:** All application code must use `handleApiError` with context - never log/throw errors without it.
@@ -260,6 +278,8 @@ const { Component } = await import('solid-js')
 - **Always prefer type aliases over interfaces** for data shapes
 - **Use Zod schemas for runtime validation and type inference**
 - **Prefer `readonly` arrays:** `readonly Item[]` over `Item[]`
+- **Use intersection types for extending base types:** `ConfigType = PropsType & { extraProps }`
+- **Default parameters over nullish coalescing:** `{ param = 'default' }` instead of `param ?? 'default'`
 
 ### ESLint Configuration
 - **Consistent type definitions:** Use `type` not `interface`
@@ -326,6 +346,33 @@ pnpm copilot:check  # Must show "COPILOT: All checks passed!"
 3. Confirming NO ESLint errors  
 4. Confirming ALL tests pass
 5. Only then can you say "✅ COMPLETE" or similar
+
+### Refactoring Best Practices
+
+**DRY Principle Application:**
+- **Measure impact:** Use `git diff --stat` to verify line reduction
+- **Start simple:** Begin with default parameters before adding complex abstractions
+- **Avoid over-engineering:** Don't add helper functions/constants that increase overall lines
+- **Type extension over duplication:** Use `ConfigType = PropsType & { extras }` pattern
+
+**Refactoring Validation Process:**
+```bash
+# Before making changes
+git diff --stat  # Baseline measurement
+
+# After each change
+pnpm check      # Ensure functionality preserved
+git diff --stat # Verify line count improvement
+
+# If lines increased, consider simpler approach
+git checkout -- file.ts  # Revert if needed
+```
+
+**Safe Refactoring Strategy:**
+1. **Preserve functionality:** All tests must continue passing
+2. **Incremental changes:** Make small, verifiable improvements
+3. **Type safety first:** Never sacrifice type safety for brevity
+4. **Readability over cleverness:** Prefer clear code over complex abstractions
 
 ### Commit Standards
 
