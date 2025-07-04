@@ -11,7 +11,7 @@ import {
 import { dateToString, stringToDate } from '~/shared/utils/date/dateUtils'
 
 // Mock the date utils module
-vi.mock('~/shared/utils/date', () => ({
+vi.mock('~/shared/utils/date/dateUtils', () => ({
   dateToString: vi.fn(),
   stringToDate: vi.fn(),
 }))
