@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from '@solidjs/router'
 import {
+  createEffect,
   createSignal,
   For,
   type JSXElement,
@@ -299,10 +300,13 @@ function CTAButton() {
 }
 
 const UserSelectorDropdown = (props: { modalId: string }) => {
-  fetchUsers().catch((error) => {
-    console.error('[UserSelectorDropdown] Error fetching users:', error)
-    showError('Erro ao buscar usuários', { context: 'background' })
-    closeAllModals()
+  createEffect(() => {
+    const modalId = props.modalId
+    fetchUsers().catch((error) => {
+      console.error('[UserSelectorDropdown] Error fetching users:', error)
+      showError('Erro ao buscar usuários', { context: 'background' })
+      closeModal(modalId)
+    })
   })
 
   const handleChangeUser = (user: User) => {
