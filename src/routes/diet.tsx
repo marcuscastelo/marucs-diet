@@ -37,13 +37,18 @@ export default function DietPage() {
           Mostrando refeições do dia {targetDay()}!
         </Alert>
       )}
-      <Suspense fallback={<LoadingRing />}>
-        <DayMeals
-          selectedDay={targetDay()}
-          mode={mode()}
-          onRequestEditMode={handleRequestEditMode}
-        />
-      </Suspense>
+      <Show when={currentDayDiet()}>
+        {(currentDayDiet) => (
+          <Suspense fallback={<LoadingRing />}>
+            <DayMeals
+              dayDiet={currentDayDiet()}
+              selectedDay={targetDay()}
+              mode={mode()}
+              onRequestEditMode={handleRequestEditMode}
+            />
+          </Suspense>
+        )}
+      </Show>
     </Suspense>
   )
 }

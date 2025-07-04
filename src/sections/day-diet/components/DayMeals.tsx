@@ -1,13 +1,5 @@
-import {
-  type Accessor,
-  createEffect,
-  createSignal,
-  For,
-  type Setter,
-  Show,
-} from 'solid-js'
+import { For } from 'solid-js'
 
-import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import {
   insertUnifiedItem,
@@ -19,7 +11,6 @@ import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { showError } from '~/modules/toast/application/toastManager'
 import { CopyLastDayButton } from '~/sections/day-diet/components/CopyLastDayButton'
-import DayNotFound from '~/sections/day-diet/components/DayNotFound'
 import { DeleteDayButton } from '~/sections/day-diet/components/DeleteDayButton'
 import {
   MealEditView,
@@ -31,6 +22,7 @@ import { TemplateSearchModal } from '~/sections/search/components/TemplateSearch
 import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
 import {
   closeModal,
+  openConfirmModal,
   openContentModal,
   openEditModal,
 } from '~/shared/modal/helpers/modalHelpers'
@@ -47,19 +39,27 @@ const debug = createDebug()
  * @param props.mode Display mode: 'edit', 'read-only' or 'summary'.
  */
 export default function DayMeals(props: {
-  dayDiet?: DayDiet
+  dayDiet: DayDiet
   selectedDay: string
   mode: 'edit' | 'read-only' | 'summary'
   onRequestEditMode?: () => void
 }) {
   const handleEditUnifiedItem = (meal: Meal, item: UnifiedItem) => {
-    const dayDiet = resolvedDayDiet()
-    if (!dayDiet) {
-      console.error('Cannot edit item: no day diet available')
+    if (props.mode === 'summary') return
+    if (props.mode !== 'edit') {
+      openConfirmModal('O dia não pode ser editado', {
+        title: 'Dia não editável',
+        confirmText: 'Desbloquear',
+        cancelText: 'Cancelar',
+        onConfirm: () => {
+          props.onRequestEditMode?.()
+        },
+      })
+
       return
     }
 
-    const dayDate = stringToDate(dayDiet.target_day)
+    const dayDate = stringToDate(props.dayDiet.target_day)
     const macroTarget = getMacroTargetForDay(dayDate)
 
     const editModalId = openEditModal(
@@ -104,11 +104,18 @@ export default function DayMeals(props: {
     )
   }
 
-  const handleUpdateMeal = async (_day: DayDiet, meal: Meal) => {
+  const handleUpdateMeal = async (meal: Meal) => {
     if (props.mode === 'summary') return
     if (props.mode !== 'edit') {
-      // TODO: Reenable lock logic with proper confirmation dialog
-      // setShowConfirmEdit(true)
+      openConfirmModal('O dia não pode ser editado', {
+        title: 'Dia não editável',
+        confirmText: 'Desbloquear',
+        cancelText: 'Cancelar',
+        onConfirm: () => {
+          props.onRequestEditMode?.()
+        },
+      })
+
       return
     }
     await updateMeal(meal.id, meal)
@@ -117,28 +124,24 @@ export default function DayMeals(props: {
   const handleNewItemButton = (meal: Meal) => {
     if (props.mode === 'summary') return
     if (props.mode !== 'edit') {
-      // TODO: Reenable lock logic with proper confirmation dialog
-      // setShowConfirmEdit(true)
+      openConfirmModal('O dia não pode ser editado', {
+        title: 'Dia não editável',
+        confirmText: 'Desbloquear',
+        cancelText: 'Cancelar',
+        onConfirm: () => {
+          props.onRequestEditMode?.()
+        },
+      })
       return
     }
-    const searchModalId = openContentModal(
-      () => (
+
+    openContentModal(
+      (searchModalId) => (
         <TemplateSearchModal
           targetName={meal.name}
-          onNewUnifiedItem={(newItem) => {
-            const neverNullDayDiet = resolvedDayDiet()
-            if (neverNullDayDiet) {
-              handleNewUnifiedItem(meal, newItem)
-            }
-          }}
-          onFinish={() => {
-            handleFinishSearch()
-            closeModal(searchModalId)
-          }}
-          onClose={() => {
-            handleFinishSearch()
-            closeModal(searchModalId)
-          }}
+          onNewUnifiedItem={(newItem) => handleNewUnifiedItem(meal, newItem)}
+          onFinish={() => closeModal(searchModalId)}
+          onClose={() => closeModal(searchModalId)}
         />
       ),
       {
@@ -148,79 +151,72 @@ export default function DayMeals(props: {
   }
 
   const handleNewUnifiedItem = (meal: Meal, newItem: UnifiedItem) => {
+    if (props.mode === 'summary') return
+    if (props.mode !== 'edit') {
+      openConfirmModal('O dia não pode ser editado', {
+        title: 'Dia não editável',
+        confirmText: 'Desbloquear',
+        cancelText: 'Cancelar',
+        onConfirm: () => {
+          props.onRequestEditMode?.()
+        },
+      })
+
+      return
+    }
+
     void insertUnifiedItem(meal.id, newItem)
   }
 
-  const handleFinishSearch = () => {}
-
-  // Use the provided dayDiet prop if present, otherwise fallback to currentDayDiet
-  const resolvedDayDiet = () => props.dayDiet ?? currentDayDiet()
-
   return (
     <>
-      <Show
-        when={resolvedDayDiet()}
-        fallback={<DayNotFound selectedDay={props.selectedDay} />}
-        keyed
-      >
-        {(neverNullDayDiet) => (
-          <>
-            <For each={neverNullDayDiet.meals}>
-              {(meal) => (
-                <MealEditView
-                  class="mt-5"
-                  dayDiet={() => neverNullDayDiet}
-                  meal={() => meal}
-                  header={
-                    <MealEditViewHeader
-                      dayDiet={neverNullDayDiet}
-                      onUpdateMeal={(meal) => {
-                        if (props.mode === 'summary') return
-                        const current = resolvedDayDiet()
-                        if (current === null) {
-                          console.error('resolvedDayDiet is null!')
-                          throw new Error('resolvedDayDiet is null!')
-                        }
-                        handleUpdateMeal(current, meal).catch((e) => {
-                          showError(e, {}, 'Erro ao atualizar refeição')
-                        })
-                      }}
-                      mode={props.mode}
-                    />
-                  }
-                  content={
-                    <MealEditViewContent
-                      onEditItem={(item) => {
-                        handleEditUnifiedItem(meal, item)
-                      }}
-                      mode={props.mode}
-                    />
-                  }
-                  actions={
-                    props.mode === 'summary' ? undefined : (
-                      <MealEditViewActions
-                        onNewItem={() => {
-                          handleNewItemButton(meal)
-                        }}
-                      />
-                    )
-                  }
+      <For each={props.dayDiet.meals}>
+        {(meal) => (
+          <MealEditView
+            class="mt-5"
+            dayDiet={() => props.dayDiet}
+            meal={() => meal}
+            header={
+              <MealEditViewHeader
+                dayDiet={props.dayDiet}
+                onUpdateMeal={(meal) => {
+                  handleUpdateMeal(meal).catch((e) => {
+                    showError(e, {}, 'Erro ao atualizar refeição')
+                  })
+                }}
+                mode={props.mode}
+              />
+            }
+            content={
+              <MealEditViewContent
+                onEditItem={(item) => {
+                  handleEditUnifiedItem(meal, item)
+                }}
+                mode={props.mode}
+              />
+            }
+            actions={
+              props.mode === 'summary' ? undefined : (
+                <MealEditViewActions
+                  onNewItem={() => {
+                    handleNewItemButton(meal)
+                  }}
                 />
-              )}
-            </For>
-
-            {props.mode !== 'summary' && (
-              <>
-                <CopyLastDayButton
-                  dayDiet={() => neverNullDayDiet}
-                  selectedDay={props.selectedDay}
-                />
-                <DeleteDayButton day={() => neverNullDayDiet} />
-              </>
-            )}
-          </>
+              )
+            }
+          />
         )}
-      </Show>
+      </For>
+
+      {props.mode !== 'summary' && (
+        <>
+          <CopyLastDayButton
+            dayDiet={() => props.dayDiet}
+            selectedDay={props.selectedDay}
+          />
+          <DeleteDayButton day={() => props.dayDiet} />
+        </>
+      )}
     </>
   )
 }

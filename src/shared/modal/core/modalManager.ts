@@ -108,7 +108,12 @@ export const modalManager: ModalManager = {
       showCloseButton: config.showCloseButton ?? true,
       async beforeClose() {
         setClosing(true)
-        await new Promise((resolve) => setTimeout(resolve, 100))
+        // Use shorter timeout in test environment to avoid breaking tests
+        const animationDelay =
+          typeof window === 'undefined' || import.meta.env.MODE === 'test'
+            ? 0
+            : 100
+        await new Promise((resolve) => setTimeout(resolve, animationDelay))
         return config.beforeClose?.() ?? true
       },
     }

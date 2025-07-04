@@ -179,7 +179,7 @@ export function MacroTarget(props: MacroTargetProps) {
           required
         />
       </div>
-      <Show when={currentProfile()} keyed>
+      <Show when={currentProfile()}>
         {(profile) => (
           <>
             <div class="mx-5 flex flex-col">
@@ -192,13 +192,12 @@ export function MacroTarget(props: MacroTargetProps) {
                         Tem perfil antigo? <span class="text-red-500">Não</span>
                       </span>
                     }
-                    keyed
                   >
                     {(oldProfile) => (
                       <>
                         <span class="text-center">
                           Tem perfil antigo?{' '}
-                          {'Sim, de ' + dateToYYYYMMDD(oldProfile.target_day)}
+                          {'Sim, de ' + dateToYYYYMMDD(oldProfile().target_day)}
                         </span>
                         <Button
                           class="btn-primary btn-sm"
@@ -214,13 +213,13 @@ export function MacroTarget(props: MacroTargetProps) {
                                     profiles={() =>
                                       props
                                         .profiles()
-                                        .filter((p) => p.id !== profile.id)
+                                        .filter((p) => p.id !== profile().id)
                                     }
                                     mode="view"
                                   />
                                   <div class="mb-4">
                                     {`Tem certeza que deseja restaurar o perfil de ${dateToYYYYMMDD(
-                                      oldProfile.target_day,
+                                      oldProfile().target_day,
                                     )}?`}
                                   </div>
                                   <div class="text-red-500 text-center text-lg font-bold mb-6">
@@ -246,7 +245,7 @@ export function MacroTarget(props: MacroTargetProps) {
                                       type="button"
                                       class="btn btn-primary"
                                       onClick={() => {
-                                        deleteMacroProfile(profile.id)
+                                        deleteMacroProfile(profile().id)
                                           .then(() => {
                                             showSuccess(
                                               'Perfil antigo restaurado com sucesso, se necessário, atualize a página',
@@ -282,7 +281,7 @@ export function MacroTarget(props: MacroTargetProps) {
             <div class="mx-5 flex flex-col">
               <MacroTargetSetting
                 headerColor="text-green-400"
-                currentProfile={profile}
+                currentProfile={profile()}
                 weight={props.weight()}
                 target={currentMacroRepresentation().carbs}
                 field="carbs"
@@ -291,7 +290,7 @@ export function MacroTarget(props: MacroTargetProps) {
 
               <MacroTargetSetting
                 headerColor="text-red-500"
-                currentProfile={profile}
+                currentProfile={profile()}
                 weight={props.weight()}
                 target={currentMacroRepresentation().protein}
                 field="protein"
@@ -300,7 +299,7 @@ export function MacroTarget(props: MacroTargetProps) {
 
               <MacroTargetSetting
                 headerColor="text-yellow-500"
-                currentProfile={profile}
+                currentProfile={profile()}
                 weight={props.weight()}
                 target={currentMacroRepresentation().fat}
                 field="fat"
