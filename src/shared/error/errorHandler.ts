@@ -107,16 +107,6 @@ export function handleApiError(error: unknown): void {
 }
 
 /**
- * Handle errors related to clipboard operations
- */
-export function handleClipboardError(
-  error: unknown,
-  context?: ErrorContext,
-): void {
-  logError(error, { ...context, operation: 'Clipboard operation' })
-}
-
-/**
  * Handle errors related to scanner/hardware operations
  */
 export function handleScannerError(

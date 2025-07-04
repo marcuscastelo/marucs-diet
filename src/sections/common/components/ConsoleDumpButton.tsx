@@ -1,20 +1,19 @@
-import { createSignal } from 'solid-js'
+import { createSignal, For } from 'solid-js'
 
 import {
   showError,
   showSuccess,
 } from '~/modules/toast/application/toastManager'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import {
   copyConsoleLogsToClipboard,
   downloadConsoleLogsAsFile,
   getConsoleLogs,
   shareConsoleLogs,
 } from '~/shared/console/consoleInterceptor'
+import { openContentModal } from '~/shared/modal/helpers/modalHelpers'
 
 export function ConsoleDumpButton() {
   const [processing, setProcessing] = createSignal(false)
-  const { show: showConfirmModal } = useConfirmModalContext()
 
   const handleAction = async (action: 'copy' | 'download' | 'share') => {
     try {
@@ -72,7 +71,6 @@ export function ConsoleDumpButton() {
       return
     }
 
-    const isMobile = /Mobi|Android/i.test(navigator.userAgent)
     const actions: Array<{
       text: string
       onClick: () => void
@@ -88,24 +86,36 @@ export function ConsoleDumpButton() {
       },
     ]
 
-    // Add share option only on mobile devices
-    if (isMobile) {
-      actions.push({
-        text: '📤 Compartilhar',
-        primary: true,
-        onClick: () => void handleAction('share'),
-      })
-    } else {
-      // Make copy primary on desktop
-      actions[0]!.primary = true
-    }
-
-    showConfirmModal({
-      title: 'Console Logs',
-      body: `${logs.length} logs encontrados. Como deseja exportar?`,
-      actions,
-      hasBackdrop: true,
-    })
+    openContentModal(
+      () => (
+        <div class="flex flex-col gap-4">
+          <p class="text-gray-200">
+            {logs.length} logs encontrados. Como deseja exportar?
+          </p>
+          <div class="flex gap-2 flex-wrap">
+            <For each={actions}>
+              {(action) => (
+                <button
+                  type="button"
+                  class={`btn cursor-pointer ${
+                    action.primary === true ? 'btn-primary' : 'btn-ghost'
+                  }`}
+                  onClick={() => {
+                    action.onClick()
+                  }}
+                >
+                  {action.text}
+                </button>
+              )}
+            </For>
+          </div>
+        </div>
+      ),
+      {
+        title: 'Console Logs',
+        closeOnOutsideClick: true,
+      },
+    )
   }
 
   return (

@@ -13,11 +13,10 @@ export function MacroProfileSettings() {
         fallback={
           <h1>Não há pesos registrados, o perfil não pode ser calculado</h1>
         }
-        keyed
       >
         {(weight) => (
           <MacroTarget
-            weight={() => weight.weight}
+            weight={() => weight().weight}
             profiles={userMacroProfiles}
             mode="edit"
           />

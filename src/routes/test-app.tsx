@@ -11,34 +11,29 @@ import {
   type ItemGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
-import {
-  itemGroupToUnifiedItem,
-  itemToUnifiedItem,
-} from '~/modules/diet/unified-item/domain/conversionUtils'
+import { itemGroupToUnifiedItem } from '~/modules/diet/unified-item/domain/conversionUtils'
 import { showSuccess } from '~/modules/toast/application/toastManager'
 import { TestChart } from '~/sections/common/components/charts/TestChart'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { EANIcon } from '~/sections/common/components/icons/EANIcon'
 import { LoadingRing } from '~/sections/common/components/LoadingRing'
-import { Modal } from '~/sections/common/components/Modal'
 import { PageLoading } from '~/sections/common/components/PageLoading'
 import ToastTest from '~/sections/common/components/ToastTest'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
-import { ModalContextProvider } from '~/sections/common/context/ModalContext'
 import { Providers } from '~/sections/common/context/Providers'
 import { useFloatField } from '~/sections/common/hooks/useField'
 import { Datepicker } from '~/sections/datepicker/components/Datepicker'
 import { type DateValueType } from '~/sections/datepicker/types'
 import DayMacros from '~/sections/day-diet/components/DayMacros'
-import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
-import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
-import { UnifiedItemListView } from '~/sections/unified-item/components/UnifiedItemListView'
+import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
+import {
+  openConfirmModal,
+  openContentModal,
+} from '~/shared/modal/helpers/modalHelpers'
+import { openEditModal } from '~/shared/modal/helpers/modalHelpers'
 
 export default function TestApp() {
   const [unifiedItemEditModalVisible, setUnifiedItemEditModalVisible] =
-    createSignal(false)
-  const [templateSearchModalVisible, setTemplateSearchModalVisible] =
     createSignal(false)
 
   const [item] = createSignal<Item>({
@@ -108,55 +103,30 @@ export default function TestApp() {
         <details open>
           <summary class="text-lg cursor-pointer select-none">Modals</summary>
           <div class="pl-4 flex flex-col gap-2">
-            <ModalContextProvider
-              visible={templateSearchModalVisible}
-              setVisible={setTemplateSearchModalVisible}
-            >
-              <ExternalTemplateSearchModal
-                visible={templateSearchModalVisible}
-                setVisible={setTemplateSearchModalVisible}
-                targetName="Teste"
-                onRefetch={() => {
-                  console.debug(item)
-                }}
-                onNewUnifiedItem={() => {
-                  console.debug()
-                }}
-              />
-            </ModalContextProvider>
-
-            <ModalContextProvider
-              visible={unifiedItemEditModalVisible}
-              setVisible={setUnifiedItemEditModalVisible}
-            >
-              <UnifiedItemEditModal
-                targetMealName="Teste"
-                item={() => itemGroupToUnifiedItem(group())}
-                macroOverflow={() => ({ enable: false })}
-                onApply={(updatedItem) => {
-                  // For this test, we'll just log the updated item
-                  console.debug('UnifiedItemEditModal onApply:', updatedItem)
-                  setUnifiedItemEditModalVisible(false)
-                }}
-                onCancel={() => {
-                  console.debug('cancel')
-                  setUnifiedItemEditModalVisible(false)
-                }}
-                showAddItemButton={true}
-                onAddNewItem={() => {
-                  console.debug('Add new item requested')
-                }}
-              />
-            </ModalContextProvider>
+            {' '}
             <TestModal />
             <TestConfirmModal />
             <button
               class="btn cursor-pointer uppercase"
               onClick={() => {
-                setTemplateSearchModalVisible(true)
+                openContentModal(
+                  () => (
+                    <TemplateSearchModal
+                      targetName="Teste"
+                      onNewUnifiedItem={() => {
+                        console.debug('New unified item added')
+                      }}
+                      onFinish={() => {}}
+                      onClose={() => {}}
+                    />
+                  ),
+                  {
+                    title: 'Buscar alimentos',
+                  },
+                )
               }}
             >
-              setTemplateSearchModalVisible
+              Open Template Search Modal
             </button>
             <button
               class="btn cursor-pointer uppercase"
@@ -176,7 +146,7 @@ export default function TestApp() {
           </summary>
           <div class="pl-4 flex flex-col gap-2">
             <h1>UnifiedItemListView (legacy test)</h1>
-            <UnifiedItemListView
+            {/* <UnifiedItemListView
               items={() => group().items.map(itemToUnifiedItem)}
               mode="edit"
               handlers={{
@@ -184,7 +154,7 @@ export default function TestApp() {
                   setUnifiedItemEditModalVisible(true)
                 },
               }}
-            />
+            /> */}
             <h1>UnifiedItemView (ItemGroup test)</h1>
             <UnifiedItemView
               item={() => itemGroupToUnifiedItem(group())}
@@ -259,50 +229,45 @@ function TestField() {
 }
 
 function TestModal() {
-  const [visible, setVisible] = createSignal(false)
-
-  createEffect(() => {
-    console.debug(`[TestModal] Visible: ${visible()}`)
-  })
-
   return (
-    <ModalContextProvider visible={visible} setVisible={setVisible}>
-      <Modal>
-        <Modal.Header title="Test Modal" />
-        <Modal.Content>
-          <h1>This is a test modal</h1>
-          <button
-            class="btn cursor-pointer uppercase btn-primary"
-            onClick={() => {
-              setVisible(false)
-            }}
-          >
-            Close
-          </button>
-        </Modal.Content>
-      </Modal>
-      <button onClick={() => setVisible(!visible())}>Open modal!</button>
-    </ModalContextProvider>
+    <button
+      class="btn cursor-pointer uppercase"
+      onClick={() => {
+        openEditModal(
+          () => (
+            <div class="space-y-4">
+              <h1>This is a test modal</h1>
+              <button
+                class="btn cursor-pointer uppercase btn-primary"
+                onClick={() => {
+                  // Modal will be closed by the unified system
+                }}
+              >
+                Close
+              </button>
+            </div>
+          ),
+          {
+            title: 'Test Modal',
+          },
+        )
+      }}
+    >
+      Open modal!
+    </button>
   )
 }
 
 function TestConfirmModal() {
-  const { show } = useConfirmModalContext()
   return (
     <button
       onClick={() => {
-        show({
+        openConfirmModal('Teste123', {
           title: 'Teste123',
-          body: 'Teste123',
-          actions: [
-            {
-              text: 'Teste123',
-              primary: true,
-              onClick: () => {
-                showSuccess('Teste123')
-              },
-            },
-          ],
+          confirmText: 'Teste123',
+          onConfirm: () => {
+            showSuccess('Teste123')
+          },
         })
       }}
     >

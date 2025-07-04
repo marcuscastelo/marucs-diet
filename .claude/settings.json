@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh pr view:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(gh api:*)",
+      "Bash(pnpm check:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(.scripts/cat1.sh:*)",
+      "Bash(.scripts/cat2.sh:*)",
+      "Bash(.scripts/cat3.sh:*)",
+      "Bash(gh issue view:*)",
+      "Bash(.scripts/semver.sh:*)",
+      "Bash(pnpm fix:*)",
+      "Bash(find:*)",
+      "Bash(rg:*)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm type-check:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm build:*)",
+      "Bash(/dev/null)",
+      "Bash(cat:*)",
+      "Bash(rm:*)",
+      "Bash(ls:*)",
+      "Bash(gh issue list:*)"
+    ],
+    "deny": []
+  }
+}

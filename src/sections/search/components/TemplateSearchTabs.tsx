@@ -25,7 +25,7 @@ export const availableTabs = {
     id: 'recipes',
     title: 'Receitas',
   } as const satisfies TabDefinition,
-} as const satisfies Record<string, TabDefinition>
+} as const
 
 export type TemplateSearchTab =
   | ObjectValues<typeof availableTabs>['id']

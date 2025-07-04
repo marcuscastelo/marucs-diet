@@ -10,7 +10,7 @@ import { PageLoading } from '~/sections/common/components/PageLoading'
 import DayMacros from '~/sections/day-diet/components/DayMacros'
 import DayMeals from '~/sections/day-diet/components/DayMeals'
 import TopBar from '~/sections/day-diet/components/TopBar'
-import { getTodayYYYYMMDD } from '~/shared/utils/date'
+import { getTodayYYYYMMDD } from '~/shared/utils/date/dateUtils'
 
 export default function DietPage() {
   const today = getTodayYYYYMMDD()
@@ -37,13 +37,18 @@ export default function DietPage() {
           Mostrando refeições do dia {targetDay()}!
         </Alert>
       )}
-      <Suspense fallback={<LoadingRing />}>
-        <DayMeals
-          selectedDay={targetDay()}
-          mode={mode()}
-          onRequestEditMode={handleRequestEditMode}
-        />
-      </Suspense>
+      <Show when={currentDayDiet()}>
+        {(currentDayDiet) => (
+          <Suspense fallback={<LoadingRing />}>
+            <DayMeals
+              dayDiet={currentDayDiet()}
+              selectedDay={targetDay()}
+              mode={mode()}
+              onRequestEditMode={handleRequestEditMode}
+            />
+          </Suspense>
+        )}
+      </Show>
     </Suspense>
   )
 }

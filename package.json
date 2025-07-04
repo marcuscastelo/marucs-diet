@@ -14,7 +14,7 @@
     "lint": "eslint . --quiet --cache",
     "flint": "npm run fix && npm run lint",
     "check": "run-p flint type-check test",
-    "copilot:check": "npm run check 2>&1 && echo 'COPILOT: All checks passed!' || 'COPILOT: Some checks failed!'",
+    "copilot:check": "npm run check 2>&1 && echo 'COPILOT: All checks passed!' || echo 'COPILOT: Some checks failed!'",
     "tw:build": "tailwindcss -c tailwind.config.cjs -i ./src/app.css -o ./src/tailwind-build-debug.css"
   },
   "dependencies": {

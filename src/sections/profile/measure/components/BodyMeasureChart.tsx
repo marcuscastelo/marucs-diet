@@ -8,7 +8,7 @@ import { userWeights } from '~/modules/weight/application/weight'
 import { lazyImport } from '~/shared/solid/lazyImport'
 import { type BodyFatInput, calculateBodyFat } from '~/shared/utils/bfMath'
 import { createDebug } from '~/shared/utils/createDebug'
-import { dateToYYYYMMDD } from '~/shared/utils/date'
+import { dateToYYYYMMDD } from '~/shared/utils/date/dateUtils'
 
 const { SolidApexCharts } = lazyImport(
   () => import('solid-apexcharts'),

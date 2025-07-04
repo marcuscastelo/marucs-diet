@@ -12,6 +12,7 @@ import {
   showSuccess,
 } from '~/modules/toast/application/toastManager'
 import { Button } from '~/sections/common/components/buttons/Button'
+import { openContentModal } from '~/shared/modal/helpers/modalHelpers'
 import { lazyImport } from '~/shared/solid/lazyImport'
 
 const { CopyLastDayModal } = lazyImport(
@@ -23,8 +24,6 @@ export function CopyLastDayButton(props: {
   dayDiet: Accessor<DayDiet | undefined>
   selectedDay: string
 }) {
-  // Modal state
-  const [modalOpen, setModalOpen] = createSignal(false)
   const previousDays = () => getPreviousDayDiets(dayDiets(), props.selectedDay)
   const [copyingDay, setCopyingDay] = createSignal<string | null>(null)
   const [copying, setCopying] = createSignal(false)
@@ -35,7 +34,6 @@ export function CopyLastDayButton(props: {
     const copyFrom = previousDays().find((d) => d.target_day === day)
     if (!copyFrom) {
       setCopying(false)
-      setModalOpen(false)
       showError('No matching previous day found to copy.', {
         context: 'user-action',
       })
@@ -55,7 +53,6 @@ export function CopyLastDayButton(props: {
       } else {
         await insertDayDiet(newDay)
       }
-      setModalOpen(false)
       showSuccess('Dia copiado com sucesso!', { context: 'user-action' })
     } catch (e) {
       showError(e, { context: 'user-action' }, 'Erro ao copiar dia')
@@ -69,20 +66,26 @@ export function CopyLastDayButton(props: {
     <>
       <Button
         class="btn-primary w-full mt-3 rounded px-4 py-2 font-bold text-white"
-        onClick={() => setModalOpen(true)}
+        onClick={() => {
+          openContentModal(
+            () => (
+              <CopyLastDayModal
+                previousDays={previousDays()}
+                copying={copying()}
+                copyingDay={copyingDay()}
+                onCopy={(day) => {
+                  void handleCopy(day)
+                }}
+              />
+            ),
+            {
+              title: 'Copiar dia anterior',
+            },
+          )
+        }}
       >
         Copiar dia anterior
       </Button>
-      <CopyLastDayModal
-        previousDays={previousDays()}
-        copying={copying()}
-        copyingDay={copyingDay()}
-        onCopy={(day) => {
-          void handleCopy(day)
-        }}
-        open={modalOpen}
-        setOpen={setModalOpen}
-      />
     </>
   )
 }

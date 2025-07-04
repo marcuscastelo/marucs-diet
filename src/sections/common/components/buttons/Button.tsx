@@ -13,7 +13,10 @@ export function Button(props: ButtonProps) {
     <button
       {...props}
       type={props.type || 'button'}
-      class={cn('btn cursor-pointer uppercase', props.class)}
+      class={cn(
+        'btn cursor-pointer uppercase active:scale-105 hover:scale-105 ',
+        props.class,
+      )}
     >
       {props.children}
     </button>
