@@ -14,7 +14,7 @@ export type BaseModalConfig = {
   showCloseButton?: boolean
   onOpen?: () => void
   onClose?: () => void
-  beforeClose?: () => boolean | Promise<boolean>
+  beforeClose?: () => Promise<boolean>
 }
 
 export type ErrorModalConfig = BaseModalConfig & {
@@ -52,5 +52,5 @@ export type ModalState = ModalConfig & {
 
 export type ModalManager = {
   openModal: (config: ModalConfig) => ModalId
-  closeModal: (id: ModalId) => void
+  closeModal: (id: ModalId) => Promise<void>
 }

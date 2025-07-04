@@ -131,7 +131,7 @@ export function openEditModal(
  */
 export function closeModal(modalId: ModalId, onClose?: () => void): void {
   try {
-    modalManager.closeModal(modalId)
+    void modalManager.closeModal(modalId)
     onClose?.()
   } catch (e) {
     handleApiError(e)

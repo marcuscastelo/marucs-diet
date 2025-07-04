@@ -5,6 +5,7 @@
 
 import { createSignal } from 'solid-js'
 
+import { handleApiError } from '~/shared/error/errorHandler'
 import type {
   ModalConfig,
   ModalId,
@@ -96,28 +97,16 @@ export const modalManager: ModalManager = {
     return modalId
   },
 
-  closeModal(id: ModalId): void {
+  async closeModal(id: ModalId): Promise<void> {
     const modal = modals().find((m) => m.id === id)
     if (!modal) return
 
-    debug(`Closing modal: ${id}`)
-    // Call beforeClose callback if provided
-    const beforeCloseResult = modal.beforeClose?.()
-    debug(`beforeClose result for modal ${id}:`, beforeCloseResult)
-
-    if (beforeCloseResult instanceof Promise) {
-      beforeCloseResult
-        .then((shouldClose) => {
-          if (shouldClose !== false) {
-            performClose(id, modal)
-          }
-        })
-        .catch(() => {
-          // If beforeClose throws, still close the modal
-          performClose(id, modal)
-        })
-    } else if (beforeCloseResult !== false) {
+    try {
+      const shouldClose = (await modal.beforeClose?.()) ?? true
+      if (shouldClose) performClose(id, modal)
+    } catch (e) {
       performClose(id, modal)
+      handleApiError(e)
     }
   },
 }
