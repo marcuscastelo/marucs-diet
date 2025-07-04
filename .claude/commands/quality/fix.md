@@ -16,11 +16,8 @@ This command performs automated codebase checks using `npm run copilot:check` an
 
 1. **Check Execution:**
    - Runs `npm run copilot:check` with output redirection
-   - Captures both stdout and stderr to `/tmp/copilot-terminal-[N]`
-   - Uses unique file numbers for each iteration
 
 2. **Output Validation:**
-   - Runs `.scripts/cat1.sh`, `.scripts/cat2.sh`, `.scripts/cat3.sh` in sequence
    - Checks for "COPILOT: All checks passed!" success message
    - Detects error patterns: `failed`, `at constructor`, `error`, `replace`
    - Never stops early - completes all validation scripts
@@ -41,13 +38,6 @@ This command performs automated codebase checks using `npm run copilot:check` an
    - Re-runs full check process after each fix
    - Continues until "COPILOT: All checks passed!" appears
    - Never skips validation reruns
-
-## Requirements
-
-- `npm run copilot:check` script must be available
-- `.scripts/cat1.sh`, `.scripts/cat2.sh`, `.scripts/cat3.sh` validation scripts
-- Write access to `/tmp/` directory
-- Valid package.json with check scripts
 
 ## Fix Categories
 
