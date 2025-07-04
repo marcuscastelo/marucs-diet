@@ -91,7 +91,6 @@ export function MealEditView(props: MealEditViewProps) {
 
 export function MealEditViewHeader(props: {
   onUpdateMeal: (meal: Meal) => void
-  dayDiet: DayDiet
   mode?: 'edit' | 'read-only' | 'summary'
 }) {
   const { meal } = useMealContext()
@@ -227,7 +226,7 @@ export function MealEditViewContent(props: {
   onEditItem: (item: UnifiedItem) => void
   mode?: 'edit' | 'read-only' | 'summary'
 }) {
-  const { dayDiet, meal } = useMealContext()
+  const { meal } = useMealContext()
   const clipboard = useClipboard()
 
   debug('meal.value:', meal())

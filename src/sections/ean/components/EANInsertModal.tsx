@@ -13,7 +13,6 @@ const { EANSearch } = lazyImport(
 
 export type EANInsertModalProps = {
   onSelect: (apiFood: Food) => void
-  /** Callback to close the modal */
   onClose?: () => void
 }
 

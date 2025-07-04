@@ -152,7 +152,6 @@ export default function DayMeals(props: {
             meal={() => meal}
             header={
               <MealEditViewHeader
-                dayDiet={props.dayDiet}
                 onUpdateMeal={(meal) => {
                   handleUpdateMeal(meal).catch((e) => {
                     showError(e, {}, 'Erro ao atualizar refeição')
