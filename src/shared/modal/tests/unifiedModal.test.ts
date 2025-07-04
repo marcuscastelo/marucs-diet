@@ -35,7 +35,7 @@ describe('Unified Modal System', () => {
     expect(modal?.isOpen).toBe(true)
 
     // Test closing modal
-    modalManager.closeModal(modalId)
+    void modalManager.closeModal(modalId)
     // Wait for async close to complete
     await new Promise((resolve) => setTimeout(resolve, 10))
     const remainingModals = modals()
@@ -57,7 +57,7 @@ describe('Unified Modal System', () => {
     const modal = modalList.find((m) => m.id === modalId)
     expect(modal?.type).toBe('error')
 
-    modalManager.closeModal(modalId)
+    void modalManager.closeModal(modalId)
   })
 
   it('should handle confirmation modals', () => {
@@ -77,7 +77,7 @@ describe('Unified Modal System', () => {
     const modal = modalList.find((m) => m.id === modalId)
     expect(modal?.type).toBe('confirmation')
 
-    modalManager.closeModal(modalId)
+    void modalManager.closeModal(modalId)
   })
 
   it('should track multiple modals in creation order', async () => {
