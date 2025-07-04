@@ -138,11 +138,3 @@ export function closeModal(modalId: ModalId, onClose?: () => void): void {
     throw e
   }
 }
-
-/**
- * Closes all open modals.
- * Useful for emergency cleanup or navigation changes.
- */
-export function closeAllModals(): void {
-  modalManager.closeAllModals()
-}

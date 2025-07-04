@@ -18,7 +18,7 @@ const debug = createDebug()
 /**
  * Global signal for managing all modal states.
  */
-const [modals, setModals] = createSignal<ModalState[]>([])
+export const [modals, setModals] = createSignal<ModalState[]>([])
 
 /**
  * Generates a unique modal ID.
@@ -120,39 +120,4 @@ export const modalManager: ModalManager = {
       performClose(id, modal)
     }
   },
-
-  closeAllModals(): void {
-    const currentModals = modals()
-    const modalsToKeep: ModalState[] = []
-
-    currentModals.forEach((modal) => {
-      const beforeCloseResult = modal.beforeClose?.()
-
-      if (beforeCloseResult instanceof Promise) {
-        beforeCloseResult
-          .then((shouldClose) => {
-            if (shouldClose !== false) {
-              modal.onClose?.()
-            } else {
-              modalsToKeep.push(modal)
-            }
-          })
-          .catch(() => {
-            modal.onClose?.()
-          })
-      } else if (beforeCloseResult !== false) {
-        modal.onClose?.()
-      } else {
-        modalsToKeep.push(modal)
-      }
-    })
-
-    // Update the state to keep only the modals that should not be closed
-    setModals(modalsToKeep)
-  },
 }
-
-/**
- * Signal accessor for reactive modal state.
- */
-export { modals }

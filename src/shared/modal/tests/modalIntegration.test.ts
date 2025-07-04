@@ -5,9 +5,12 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { modalManager, modals } from '~/shared/modal/core/modalManager'
 import {
-  closeAllModals,
+  modalManager,
+  modals,
+  setModals,
+} from '~/shared/modal/core/modalManager'
+import {
   closeModal,
   openConfirmModal,
   openContentModal,
@@ -15,7 +18,7 @@ import {
 
 describe('Modal Integration Tests', () => {
   beforeEach(() => {
-    closeAllModals()
+    setModals([])
   })
 
   describe('Modal Stacking and Priority', () => {
@@ -236,11 +239,6 @@ describe('Modal Integration Tests', () => {
       // Wait for async closes to complete
       await new Promise((resolve) => setTimeout(resolve, 50))
       expect(modals()).toHaveLength(5)
-
-      // Close remaining
-      closeAllModals()
-      await new Promise((resolve) => setTimeout(resolve, 50))
-      expect(modals()).toHaveLength(0)
     })
 
     it('should generate unique modal IDs', () => {
@@ -272,9 +270,6 @@ describe('Modal Integration Tests', () => {
       expect(modals()).toHaveLength(0)
       expect(modals()[0]).toBeUndefined()
       expect(modals().length > 0).toBe(false)
-
-      // These should not throw
-      expect(() => closeAllModals()).not.toThrow()
     })
   })
 })

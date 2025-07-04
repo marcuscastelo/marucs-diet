@@ -53,5 +53,4 @@ export type ModalState = ModalConfig & {
 export type ModalManager = {
   openModal: (config: ModalConfig) => ModalId
   closeModal: (id: ModalId) => void
-  closeAllModals: () => void
 }

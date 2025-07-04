@@ -23,7 +23,6 @@ import { ConsoleDumpButton } from '~/sections/common/components/ConsoleDumpButto
 import { UserIcon } from '~/sections/common/components/icons/UserIcon'
 import { useIntersectionObserver } from '~/shared/hooks/useIntersectionObserver'
 import {
-  closeAllModals,
   closeModal,
   openConfirmModal,
   openContentModal,

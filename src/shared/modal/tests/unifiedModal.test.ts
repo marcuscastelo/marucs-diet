@@ -5,12 +5,15 @@
 
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import { modalManager, modals } from '~/shared/modal/core/modalManager'
-import { closeAllModals } from '~/shared/modal/helpers/modalHelpers'
+import {
+  modalManager,
+  modals,
+  setModals,
+} from '~/shared/modal/core/modalManager'
 
 describe('Unified Modal System', () => {
   beforeEach(() => {
-    closeAllModals()
+    setModals([])
   })
   it('should create and manage modal states', async () => {
     // Test opening a basic content modal
@@ -98,11 +101,6 @@ describe('Unified Modal System', () => {
     // Should be in creation order: modal1 first, then modal2
     expect(allModals[0]?.id).toBe(modal1)
     expect(allModals[1]?.id).toBe(modal2)
-
-    modalManager.closeAllModals()
-    // Wait for async close to complete
-    await new Promise((resolve) => setTimeout(resolve, 10))
-    expect(modals()).toHaveLength(0)
   })
 
   it('should generate unique IDs', () => {
@@ -116,6 +114,5 @@ describe('Unified Modal System', () => {
     }
 
     expect(ids.size).toBe(10) // All IDs should be unique
-    modalManager.closeAllModals()
   })
 })
