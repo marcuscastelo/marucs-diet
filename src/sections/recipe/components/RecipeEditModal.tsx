@@ -7,7 +7,6 @@ import {
   addItemToRecipe,
   updateItemInRecipe,
 } from '~/modules/diet/recipe/domain/recipeOperations'
-import { TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { unifiedItemToItem } from '~/modules/diet/unified-item/domain/conversionUtils'
 import {
   createUnifiedItem,
@@ -21,15 +20,12 @@ import {
   RecipeEditHeader,
 } from '~/sections/recipe/components/RecipeEditView'
 import { RecipeEditContextProvider } from '~/sections/recipe/context/RecipeEditContext'
-import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
-import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
 import { handleValidationError } from '~/shared/error/errorHandler'
 import {
-  closeModal,
-  openConfirmModal,
-  openContentModal,
-  openEditModal,
-} from '~/shared/modal/helpers/modalHelpers'
+  openDeleteConfirmModal,
+  openTemplateSearchModal,
+  openUnifiedItemEditModal,
+} from '~/shared/modal/helpers/specializedModalHelpers'
 
 export type RecipeEditModalProps = {
   recipe: Accessor<Recipe>
@@ -46,12 +42,6 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
   createEffect(() => {
     setRecipe(props.recipe())
   })
-
-  const [selectedItem, setSelectedItem] = createSignal<TemplateItem | null>(
-    null,
-  )
-
-  const itemEditModalVisible = () => selectedItem() !== null
 
   const handleNewUnifiedItem = (newItem: UnifiedItem) => {
     console.debug('onNewUnifiedItem', newItem)
@@ -105,26 +95,16 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
 
         <RecipeEditContent
           onNewItem={() => {
-            const newItemModalId = openContentModal(
-              (_modalId) => (
-                <TemplateSearchModal
-                  targetName={recipe().name}
-                  onNewUnifiedItem={handleNewUnifiedItem}
-                  onFinish={() => {
-                    closeModal(newItemModalId)
-                    props.onRefetch()
-                  }}
-                  onClose={() => {
-                    closeModal(newItemModalId)
-                    props.onRefetch()
-                  }}
-                />
-              ),
-              {
-                title: `Adicionar item à receita "${recipe().name}"`,
-                onClose: () => props.onRefetch(),
+            openTemplateSearchModal({
+              targetName: recipe().name,
+              onNewUnifiedItem: handleNewUnifiedItem,
+              onFinish: () => {
+                props.onRefetch()
               },
-            )
+              onClose: () => {
+                props.onRefetch()
+              },
+            })
           }}
           onEditItem={(item) => {
             // TODO: Allow user to edit recipes inside recipes
@@ -136,37 +116,27 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
             }
 
             // Use unified modal system instead of legacy pattern
-            const editItemModalId = openEditModal(
-              (_modalId) => (
-                <UnifiedItemEditModal
-                  item={() => createUnifiedItem(item)}
-                  targetMealName={recipe().name}
-                  macroOverflow={() => ({ enable: false })}
-                  onApply={(unifiedItem) => {
-                    // Convert back to Item for recipe operations
-                    const convertedItem = unifiedItemToItem(unifiedItem)
-                    const updatedItem: Item = {
-                      ...convertedItem,
-                      quantity: convertedItem.quantity,
-                    }
-                    const updatedRecipe = updateItemInRecipe(
-                      recipe(),
-                      convertedItem.id,
-                      updatedItem,
-                    )
-                    setRecipe(updatedRecipe)
-                    closeModal(editItemModalId)
-                  }}
-                  onCancel={() => {
-                    closeModal(editItemModalId)
-                  }}
-                />
-              ),
-              {
-                title: 'Editar item',
-                targetName: item.name,
+            openUnifiedItemEditModal({
+              item: () => createUnifiedItem(item),
+              targetMealName: recipe().name,
+              macroOverflow: () => ({ enable: false }),
+              onApply: (unifiedItem) => {
+                // Convert back to Item for recipe operations
+                const convertedItem = unifiedItemToItem(unifiedItem)
+                const updatedItem: Item = {
+                  ...convertedItem,
+                  quantity: convertedItem.quantity,
+                }
+                const updatedRecipe = updateItemInRecipe(
+                  recipe(),
+                  convertedItem.id,
+                  updatedItem,
+                )
+                setRecipe(updatedRecipe)
               },
-            )
+              title: 'Editar item',
+              targetName: item.name,
+            })
           }}
         />
 
@@ -192,18 +162,14 @@ function Actions(props: {
   onClose?: () => void
 }) {
   const handleDelete = () => {
-    openConfirmModal(
-      'Tem certeza que deseja excluir esta receita? Esta ação não pode ser desfeita.',
-      {
-        title: 'Excluir receita',
-        confirmText: 'Excluir',
-        cancelText: 'Cancelar',
-        onConfirm: () => {
-          props.onDelete()
-          props.onClose?.()
-        },
+    openDeleteConfirmModal({
+      itemName: 'receita',
+      itemType: 'receita',
+      onConfirm: () => {
+        props.onDelete()
+        props.onClose?.()
       },
-    )
+    })
   }
 
   return (

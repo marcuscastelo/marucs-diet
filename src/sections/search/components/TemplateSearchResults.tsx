@@ -14,7 +14,7 @@ import { RemoveFromRecentButton } from '~/sections/common/components/buttons/Rem
 import { SearchLoadingIndicator } from '~/sections/search/components/SearchLoadingIndicator'
 import { UnifiedItemFavorite } from '~/sections/unified-item/components/UnifiedItemFavorite'
 import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
-import { openConfirmModal } from '~/shared/modal/helpers/modalHelpers'
+import { openDeleteConfirmModal } from '~/shared/modal/helpers/specializedModalHelpers'
 import { createDebug } from '~/shared/utils/createDebug'
 
 const debug = createDebug()
@@ -47,7 +47,7 @@ export function TemplateSearchResults(props: {
           </Alert>
         </Show>
 
-        <div class="flex-1 min-h-0 max-h-[40vh] sm:max-h-[50vh] overflow-y-auto scrollbar-gutter-outside scrollbar-clean bg-gray-800 mt-1 pr-4">
+        <div class="flex-1 min-h-0 max-h-[60vh] overflow-y-auto scrollbar-gutter-outside scrollbar-clean bg-gray-800 mt-1 pr-4">
           <For each={props.filteredTemplates}>
             {(template) => {
               // Calculate appropriate display quantity for each template
@@ -85,21 +85,16 @@ export function TemplateSearchResults(props: {
                       },
                       onDelete: isTemplateRecipe(template)
                         ? () => {
-                            openConfirmModal(
-                              `Você tem certeza que deseja excluir a receita "${template.name}"?`,
-                              {
-                                title: 'Excluir receita',
-                                confirmText: 'Sim',
-                                cancelText: 'Não',
-                                onConfirm: () => {
-                                  const refetch = props.refetch
-                                  void deleteRecipe(template.id).then(() => {
-                                    refetch()
-                                  })
-                                },
-                                onCancel: () => {},
+                            openDeleteConfirmModal({
+                              itemName: template.name,
+                              itemType: 'receita',
+                              onConfirm: () => {
+                                const refetch = props.refetch
+                                void deleteRecipe(template.id).then(() => {
+                                  refetch()
+                                })
                               },
-                            )
+                            })
                           }
                         : undefined,
                     }}

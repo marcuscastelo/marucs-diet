@@ -18,14 +18,11 @@ import {
   MealEditViewContent,
   MealEditViewHeader,
 } from '~/sections/meal/components/MealEditView'
-import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
-import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
+import { openConfirmModal } from '~/shared/modal/helpers/modalHelpers'
 import {
-  closeModal,
-  openConfirmModal,
-  openContentModal,
-  openEditModal,
-} from '~/shared/modal/helpers/modalHelpers'
+  openTemplateSearchModal,
+  openUnifiedItemEditModal,
+} from '~/shared/modal/helpers/specializedModalHelpers'
 import { createDebug } from '~/shared/utils/createDebug'
 import { stringToDate } from '~/shared/utils/date'
 
@@ -62,46 +59,32 @@ export default function DayMeals(props: {
     const dayDate = stringToDate(props.dayDiet.target_day)
     const macroTarget = getMacroTargetForDay(dayDate)
 
-    const editModalId = openEditModal(
-      () => (
-        <UnifiedItemEditModal
-          targetMealName={meal.name}
-          item={() => item}
-          macroOverflow={() => {
-            let macroOverflow
-            if (!macroTarget) {
-              macroOverflow = {
-                enable: false,
-                originalItem: undefined,
-              }
-            } else {
-              macroOverflow = {
-                enable: true,
-                originalItem: item,
-              }
-            }
+    openUnifiedItemEditModal({
+      targetMealName: meal.name,
+      item: () => item,
+      macroOverflow: () => {
+        let macroOverflow
+        if (!macroTarget) {
+          macroOverflow = {
+            enable: false,
+            originalItem: undefined,
+          }
+        } else {
+          macroOverflow = {
+            enable: true,
+            originalItem: item,
+          }
+        }
 
-            debug('macroOverflow:', macroOverflow)
-            return macroOverflow
-          }}
-          onApply={(updatedItem) => {
-            void updateUnifiedItem(meal.id, updatedItem.id, updatedItem)
-            closeModal(editModalId)
-          }}
-          onCancel={() => {
-            closeModal(editModalId)
-          }}
-          onClose={() => {
-            closeModal(editModalId)
-          }}
-          showAddItemButton={true}
-        />
-      ),
-      {
-        title: 'Editar item',
-        targetName: meal.name,
+        debug('macroOverflow:', macroOverflow)
+        return macroOverflow
       },
-    )
+      onApply: (updatedItem) => {
+        void updateUnifiedItem(meal.id, updatedItem.id, updatedItem)
+      },
+      targetName: meal.name,
+      showAddItemButton: true,
+    })
   }
 
   const handleUpdateMeal = async (meal: Meal) => {
@@ -135,19 +118,10 @@ export default function DayMeals(props: {
       return
     }
 
-    openContentModal(
-      (searchModalId) => (
-        <TemplateSearchModal
-          targetName={meal.name}
-          onNewUnifiedItem={(newItem) => handleNewUnifiedItem(meal, newItem)}
-          onFinish={() => closeModal(searchModalId)}
-          onClose={() => closeModal(searchModalId)}
-        />
-      ),
-      {
-        title: `Adicionar item à secão "${meal.name}"`,
-      },
-    )
+    openTemplateSearchModal({
+      targetName: meal.name,
+      onNewUnifiedItem: (newItem) => handleNewUnifiedItem(meal, newItem),
+    })
   }
 
   const handleNewUnifiedItem = (meal: Meal, newItem: UnifiedItem) => {

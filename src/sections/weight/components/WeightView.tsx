@@ -7,7 +7,7 @@ import { FloatInput } from '~/sections/common/components/FloatInput'
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import { useDateField, useFloatField } from '~/sections/common/hooks/useField'
 import { type DateValueType } from '~/sections/datepicker/types'
-import { openConfirmModal } from '~/shared/modal/helpers/modalHelpers'
+import { openDeleteConfirmModal } from '~/shared/modal/helpers/specializedModalHelpers'
 import { lazyImport } from '~/shared/solid/lazyImport'
 import { dateToYYYYMMDD } from '~/shared/utils/date'
 import { normalizeDateToLocalMidnightPlusOne } from '~/shared/utils/date/normalizeDateToLocalMidnightPlusOne'
@@ -103,17 +103,13 @@ export function WeightView(props: WeightViewProps) {
           <button
             class="btn cursor-pointer uppercase btn-ghost my-auto focus:ring-2 focus:ring-blue-400 border-none text-white bg-ghost hover:bg-slate-800 py-2 px-2 w-full sm:w-auto"
             onClick={() => {
-              openConfirmModal(
-                'Tem certeza que deseja excluir este peso? Esta ação não pode ser desfeita.',
-                {
-                  title: 'Confirmar exclusão',
-                  confirmText: 'Excluir',
-                  cancelText: 'Cancelar',
-                  onConfirm: () => {
-                    void deleteWeight(props.weight.id)
-                  },
+              openDeleteConfirmModal({
+                itemName: `peso de ${props.weight.weight}kg`,
+                itemType: 'registro',
+                onConfirm: () => {
+                  void deleteWeight(props.weight.id)
                 },
-              )
+              })
             }}
           >
             <TrashIcon />

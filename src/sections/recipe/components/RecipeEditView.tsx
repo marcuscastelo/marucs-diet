@@ -38,7 +38,7 @@ import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions
 import { useFloatField } from '~/sections/common/hooks/useField'
 import { useRecipeEditContext } from '~/sections/recipe/context/RecipeEditContext'
 import { UnifiedItemListView } from '~/sections/unified-item/components/UnifiedItemListView'
-import { openConfirmModal } from '~/shared/modal/helpers/modalHelpers'
+import { openClearItemsConfirmModal } from '~/shared/modal/helpers/specializedModalHelpers'
 import { regenerateId } from '~/shared/utils/idUtils'
 import { calcRecipeCalories } from '~/shared/utils/macroMath'
 
@@ -128,10 +128,8 @@ export function RecipeEditHeader(props: {
 
   const onClearItems = (e: MouseEvent) => {
     e.preventDefault()
-    openConfirmModal('Tem certeza que deseja limpar os itens?', {
-      title: 'Limpar itens',
-      confirmText: 'Excluir todos os itens',
-      cancelText: 'Cancelar',
+    openClearItemsConfirmModal({
+      context: 'os itens',
       onConfirm: () => {
         const newRecipe = clearRecipeItems(recipe())
         props.onUpdateRecipe(newRecipe)

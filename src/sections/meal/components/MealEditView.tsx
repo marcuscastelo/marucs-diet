@@ -28,7 +28,10 @@ import {
   useMealContext,
 } from '~/sections/meal/context/MealContext'
 import { UnifiedItemListView } from '~/sections/unified-item/components/UnifiedItemListView'
-import { openConfirmModal } from '~/shared/modal/helpers/modalHelpers'
+import {
+  openClearItemsConfirmModal,
+  openDeleteConfirmModal,
+} from '~/shared/modal/helpers/specializedModalHelpers'
 import { createDebug } from '~/shared/utils/createDebug'
 import { regenerateId } from '~/shared/utils/idUtils'
 import { calcMealCalories } from '~/shared/utils/macroMath'
@@ -185,10 +188,8 @@ export function MealEditViewHeader(props: {
 
   const onClearItems = (e: MouseEvent) => {
     e.preventDefault()
-    openConfirmModal('Tem certeza que deseja limpar os itens?', {
-      title: 'Limpar itens',
-      confirmText: 'Excluir todos os itens',
-      cancelText: 'Cancelar',
+    openClearItemsConfirmModal({
+      context: 'os itens',
       onConfirm: () => {
         const newMeal = clearMealItems(meal())
         props.onUpdateMeal(newMeal)
@@ -244,17 +245,13 @@ export function MealEditViewContent(props: {
           clipboard.write(JSON.stringify(item))
         },
         onDelete: (item) => {
-          openConfirmModal(
-            `Tem certeza que deseja excluir o item "${item.name}"?`,
-            {
-              title: 'Excluir item',
-              confirmText: 'Excluir item',
-              cancelText: 'Cancelar',
-              onConfirm: () => {
-                void deleteUnifiedItem(meal().id, item.id)
-              },
+          openDeleteConfirmModal({
+            itemName: item.name,
+            itemType: 'item',
+            onConfirm: () => {
+              void deleteUnifiedItem(meal().id, item.id)
             },
-          )
+          })
         },
       }}
       mode={props.mode}

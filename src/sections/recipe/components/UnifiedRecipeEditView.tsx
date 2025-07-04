@@ -32,7 +32,7 @@ import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions
 import { useFloatField } from '~/sections/common/hooks/useField'
 import { useUnifiedRecipeEditContext } from '~/sections/recipe/context/RecipeEditContext'
 import { UnifiedItemListView } from '~/sections/unified-item/components/UnifiedItemListView'
-import { openConfirmModal } from '~/shared/modal/helpers/modalHelpers'
+import { openClearItemsConfirmModal } from '~/shared/modal/helpers/specializedModalHelpers'
 import { regenerateId } from '~/shared/utils/idUtils'
 import { calcUnifiedRecipeCalories } from '~/shared/utils/macroMath'
 
@@ -117,17 +117,12 @@ export function UnifiedRecipeEditView(props: UnifiedRecipeEditViewProps) {
 
   const onClearItems = (e: MouseEvent) => {
     e.preventDefault()
-    openConfirmModal(
-      'Tem certeza que deseja remover todos os itens da receita?',
-      {
-        title: 'Limpar itens',
-        confirmText: 'Limpar',
-        cancelText: 'Cancelar',
-        onConfirm: () => {
-          setRecipe(clearUnifiedRecipeItems(recipe()))
-        },
+    openClearItemsConfirmModal({
+      context: 'todos os itens da receita',
+      onConfirm: () => {
+        setRecipe(clearUnifiedRecipeItems(recipe()))
       },
-    )
+    })
   }
 
   return (

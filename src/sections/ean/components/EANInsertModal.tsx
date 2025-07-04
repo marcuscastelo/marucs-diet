@@ -19,7 +19,7 @@ export type EANInsertModalProps = {
 
 let currentId = 1
 
-const EANInsertModal = (props: EANInsertModalProps) => {
+export const EANInsertModal = (props: EANInsertModalProps) => {
   const [EAN, setEAN] = createSignal<string>('')
   const [food, setFood] = createSignal<Food | null>(null)
 
@@ -71,5 +71,3 @@ const EANInsertModal = (props: EANInsertModalProps) => {
     </div>
   )
 }
-
-export default EANInsertModal

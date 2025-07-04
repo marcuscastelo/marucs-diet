@@ -38,22 +38,21 @@ import { showError } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
 import { EANButton } from '~/sections/common/components/EANButton'
 import { PageLoading } from '~/sections/common/components/PageLoading'
-import EANInsertModal from '~/sections/ean/components/EANInsertModal'
+import { EANInsertModal } from '~/sections/ean/components/EANInsertModal'
 import { TemplateSearchBar } from '~/sections/search/components/TemplateSearchBar'
 import { TemplateSearchResults } from '~/sections/search/components/TemplateSearchResults'
 import {
   availableTabs,
   TemplateSearchTabs,
 } from '~/sections/search/components/TemplateSearchTabs'
-import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { formatError } from '~/shared/formatError'
 import {
   closeModal,
   openConfirmModal,
   openContentModal,
-  openEditModal,
 } from '~/shared/modal/helpers/modalHelpers'
+import { openUnifiedItemEditModal } from '~/shared/modal/helpers/specializedModalHelpers'
 import { stringToDate } from '~/shared/utils/date'
 import { isOverflow } from '~/shared/utils/macroOverflow'
 
@@ -75,35 +74,27 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
       ? getRecipePreparedQuantity(template)
       : DEFAULT_QUANTITY
 
-    const editModalId = openEditModal(
-      () => (
-        <UnifiedItemEditModal
-          targetMealName={props.targetName}
-          item={() => templateToUnifiedItem(template, initialQuantity)}
-          macroOverflow={() => ({ enable: true })}
-          onApply={(templateItem: TemplateItem) => {
-            const { unifiedItem } = createUnifiedItemFromTemplate(
-              template,
-              templateItem,
-            )
+    const controller = openUnifiedItemEditModal({
+      targetMealName: props.targetName,
+      item: () => templateToUnifiedItem(template, initialQuantity),
+      macroOverflow: () => ({ enable: true }),
+      title: 'Edit Item',
+      targetName: props.targetName,
+      onApply: (templateItem: TemplateItem) => {
+        const { unifiedItem } = createUnifiedItemFromTemplate(
+          template,
+          templateItem,
+        )
 
-            handleNewUnifiedItem(unifiedItem, templateItem, () =>
-              closeModal(editModalId),
-            ).catch((err) => {
-              handleApiError(err)
-              showError(err, {}, `Erro ao adicionar item: ${formatError(err)}`)
-            })
-          }}
-          onClose={() => {
-            closeModal(editModalId)
-          }}
-        />
-      ),
-      {
-        title: 'Edit Item',
-        targetName: props.targetName,
+        handleNewUnifiedItem(unifiedItem, templateItem, () =>
+          controller.close(),
+        ).catch((err) => {
+          handleApiError(err)
+          showError(err, {}, `Erro ao adicionar item: ${formatError(err)}`)
+        })
       },
-    )
+      onClose: () => controller.close(),
+    })
   }
 
   const handleNewUnifiedItem = async (
@@ -262,7 +253,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
 
   console.debug('[TemplateSearchModal] Render')
   return (
-    <div class="flex flex-col min-h-0 max-h-[60vh] sm:max-h-[70vh] p-2">
+    <div class="flex flex-col min-h-0 h-[60vh] sm:h-[80vh] sm:max-h-[70vh] p-2">
       <TemplateSearch
         onTemplateSelected={handleTemplateSelected}
         onEANModal={handleEANModal}

@@ -31,15 +31,14 @@ import {
 import { DownloadIcon } from '~/sections/common/components/icons/DownloadIcon'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { useFloatField } from '~/sections/common/hooks/useField'
-import { RecipeEditModal } from '~/sections/recipe/components/RecipeEditModal'
-import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
 import { UnifiedItemEditBody } from '~/sections/unified-item/components/UnifiedItemEditBody'
 import { UnsupportedItemMessage } from '~/sections/unified-item/components/UnsupportedItemMessage'
+import { closeModal } from '~/shared/modal/helpers/modalHelpers'
 import {
-  closeModal,
-  openContentModal,
-  openEditModal,
-} from '~/shared/modal/helpers/modalHelpers'
+  openRecipeEditModal,
+  openTemplateSearchModal,
+  openUnifiedItemEditModal,
+} from '~/shared/modal/helpers/specializedModalHelpers'
 import { createDebug } from '~/shared/utils/createDebug'
 import { generateId } from '~/shared/utils/idUtils'
 
@@ -187,33 +186,23 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
   }
 
   const handleEditChild = (child: UnifiedItem) => {
-    const childModalId = openEditModal(
-      () => (
-        <UnifiedItemEditModal
-          targetMealName={`${props.targetMealName} > ${item().name}`}
-          targetNameColor="text-orange-400"
-          item={() => child}
-          macroOverflow={() => ({ enable: false })}
-          onApply={(updatedChild) => {
-            const currentItem = item()
-            const updatedItem = updateChildInItem(
-              currentItem,
-              updatedChild.id,
-              updatedChild,
-            )
-            setItem(updatedItem)
-            closeModal(childModalId)
-          }}
-          onClose={() => {
-            closeModal(childModalId)
-          }}
-        />
-      ),
-      {
-        title: 'Editar item filho',
-        targetName: child.name,
+    openUnifiedItemEditModal({
+      targetMealName: `${props.targetMealName} > ${item().name}`,
+      targetNameColor: 'text-orange-400',
+      item: () => child,
+      macroOverflow: () => ({ enable: false }),
+      onApply: (updatedChild) => {
+        const currentItem = item()
+        const updatedItem = updateChildInItem(
+          currentItem,
+          updatedChild.id,
+          updatedChild,
+        )
+        setItem(updatedItem)
       },
-    )
+      title: 'Editar item filho',
+      targetName: child.name,
+    })
   }
 
   const handleSyncWithOriginalRecipe = () => {
@@ -323,26 +312,17 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
                 <button
                   class="btn btn-sm btn-ghost text-white rounded-md flex items-center gap-1"
                   onClick={() => {
-                    const modalId = openEditModal(
-                      () => (
-                        <RecipeEditModal
-                          recipe={() => originalRecipe() as Recipe}
-                          onSaveRecipe={(updatedRecipe) => {
-                            void handleSaveRecipe(updatedRecipe)
-                          }}
-                          onRefetch={() => {}}
-                          onDelete={(recipeId) => {
-                            void handleDeleteRecipe(recipeId)
-                          }}
-                          onClose={() => closeRecipeEditModal()}
-                        />
-                      ),
-                      {
-                        title: 'Editar receita',
-                        targetName: originalRecipe()?.name,
+                    openRecipeEditModal({
+                      recipe: () => originalRecipe() as Recipe,
+                      onSaveRecipe: (updatedRecipe) => {
+                        void handleSaveRecipe(updatedRecipe)
                       },
-                    )
-                    setRecipeEditModalId(modalId)
+                      onRefetch: () => {},
+                      onDelete: (recipeId) => {
+                        void handleDeleteRecipe(recipeId)
+                      },
+                      onClose: () => closeRecipeEditModal(),
+                    })
                   }}
                   title="Editar receita original"
                 >
@@ -366,49 +346,41 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
               hasValidPastableOnClipboard: hasValidPastableOnClipboard(),
             }}
             onAddNewItem={() => {
-              const modalId = openContentModal(
-                () => (
-                  <TemplateSearchModal
-                    targetName={item().name}
-                    onNewUnifiedItem={(newUnifiedItem) => {
-                      if (isGroupItem(item())) {
-                        const updatedItem = addChildToItem(item(), {
-                          ...newUnifiedItem,
-                          id: generateId(),
-                        })
-                        setItem(updatedItem)
-                      } else {
-                        const currentItem = item()
-                        const groupItem = createUnifiedItem({
-                          id: currentItem.id,
-                          name: currentItem.name,
-                          quantity: currentItem.quantity,
-                          reference: {
-                            type: 'group',
-                            children: [
-                              createUnifiedItem({
-                                ...currentItem,
-                                id: generateId(),
-                              }),
-                              {
-                                ...newUnifiedItem,
-                                id: generateId(),
-                              },
-                            ],
+              openTemplateSearchModal({
+                targetName: item().name,
+                title: `Adicionar novo subitem ao item "${item().name}"`,
+                onNewUnifiedItem: (newUnifiedItem) => {
+                  if (isGroupItem(item())) {
+                    const updatedItem = addChildToItem(item(), {
+                      ...newUnifiedItem,
+                      id: generateId(),
+                    })
+                    setItem(updatedItem)
+                  } else {
+                    const currentItem = item()
+                    const groupItem = createUnifiedItem({
+                      id: currentItem.id,
+                      name: currentItem.name,
+                      quantity: currentItem.quantity,
+                      reference: {
+                        type: 'group',
+                        children: [
+                          createUnifiedItem({
+                            ...currentItem,
+                            id: generateId(),
+                          }),
+                          {
+                            ...newUnifiedItem,
+                            id: generateId(),
                           },
-                        })
-                        setItem(groupItem)
-                      }
-                      closeAddItemModal()
-                    }}
-                  />
-                ),
-                {
-                  title: `Adicionar novo subitem ao item "${item().name}"`,
-                  onClose: () => closeAddItemModal(),
+                        ],
+                      },
+                    })
+                    setItem(groupItem)
+                  }
                 },
-              )
-              setAddItemModalId(modalId)
+                onClose: () => closeAddItemModal(),
+              })
             }}
             showAddItemButton={props.showAddItemButton}
           />
