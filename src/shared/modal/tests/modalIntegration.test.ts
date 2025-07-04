@@ -5,22 +5,13 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { modalManager } from '~/shared/modal/core/modalManager'
+import { modalManager, modals } from '~/shared/modal/core/modalManager'
 import {
   closeAllModals,
   closeModal,
   openConfirmModal,
   openContentModal,
-  openErrorModal,
 } from '~/shared/modal/helpers/modalHelpers'
-
-const mockError = {
-  message: 'Test error',
-  fullError: 'Full error details',
-  stack: 'stacktrace',
-  context: { foo: 'bar' },
-  timestamp: Date.now(),
-}
 
 describe('Modal Integration Tests', () => {
   beforeEach(() => {
@@ -28,7 +19,7 @@ describe('Modal Integration Tests', () => {
   })
 
   describe('Modal Stacking and Priority', () => {
-    it('should properly stack modals by priority', () => {
+    it('should properly stack modals by creation order', () => {
       const lowPriorityModal = openContentModal('Low priority content', {
         title: 'Low Priority',
         priority: 'low',
@@ -39,21 +30,21 @@ describe('Modal Integration Tests', () => {
         priority: 'high',
       })
 
-      const criticalModal = openErrorModal(mockError, {
-        title: 'Critical Error',
+      const criticalModal = openContentModal('Critical content', {
+        title: 'Critical Modal',
         priority: 'critical',
       })
 
-      const modals = modalManager.getModals()
-      expect(modals).toHaveLength(3)
+      const modalList = modals()
+      expect(modalList).toHaveLength(3)
 
-      // Should be ordered by priority: critical, high, low
-      expect(modals[0]?.id).toBe(criticalModal)
-      expect(modals[1]?.id).toBe(highPriorityModal)
-      expect(modals[2]?.id).toBe(lowPriorityModal)
+      // Should be ordered by creation order: low, high, critical
+      expect(modalList[0]?.id).toBe(lowPriorityModal)
+      expect(modalList[1]?.id).toBe(highPriorityModal)
+      expect(modalList[2]?.id).toBe(criticalModal)
     })
 
-    it('should handle modal within modal scenarios', () => {
+    it('should handle modal within modal scenarios', async () => {
       // Open parent modal
       const parentModal = openContentModal('Parent modal content', {
         title: 'Parent Modal',
@@ -63,26 +54,28 @@ describe('Modal Integration Tests', () => {
       // Open child modal from within parent
       const childModal = openContentModal('Child modal content', {
         title: 'Child Modal',
-        priority: 'high', // Higher priority to appear on top
+        priority: 'high', // Higher priority (for UI display)
       })
 
-      const modals = modalManager.getModals()
-      expect(modals).toHaveLength(2)
+      const modalList = modals()
+      expect(modalList).toHaveLength(2)
 
-      // Child should be on top due to higher priority
-      expect(modals[0]?.id).toBe(childModal)
-      expect(modals[1]?.id).toBe(parentModal)
+      // Child should be second since it was created after parent
+      expect(modalList[0]?.id).toBe(parentModal)
+      expect(modalList[1]?.id).toBe(childModal)
 
-      // Close child modal
+      // Close child modal and wait for async close
       closeModal(childModal)
-      const remainingModals = modalManager.getModals()
+      // Wait for async close to complete
+      await new Promise((resolve) => setTimeout(resolve, 10))
+      const remainingModals = modals()
       expect(remainingModals).toHaveLength(1)
       expect(remainingModals[0]?.id).toBe(parentModal)
     })
   })
 
   describe('Modal Lifecycle Management', () => {
-    it('should handle modal opening and closing with callbacks', () => {
+    it('should handle modal opening and closing with callbacks', async () => {
       const onOpen = vi.fn()
       const onClose = vi.fn()
 
@@ -97,6 +90,8 @@ describe('Modal Integration Tests', () => {
       expect(onOpen).toHaveBeenCalledTimes(1)
 
       closeModal(modalId)
+      // Wait for async close to complete
+      await new Promise((resolve) => setTimeout(resolve, 10))
       expect(onClose).toHaveBeenCalledTimes(1)
     })
 
@@ -113,7 +108,8 @@ describe('Modal Integration Tests', () => {
         },
       )
 
-      const modal = modalManager.getModal(modalId)
+      const modalList = modals()
+      const modal = modalList.find((m) => m.id === modalId)
       expect(modal?.type).toBe('confirmation')
 
       // Simulate confirm action
@@ -126,54 +122,23 @@ describe('Modal Integration Tests', () => {
       expect(onCancel).not.toHaveBeenCalled()
     })
 
-    it('should maintain error modal state independently', () => {
-      // Open error modal
-      const errorModalId = openErrorModal(mockError)
+    it('should maintain modal state independently', () => {
+      // Open content modal
+      const persistentModalId = openContentModal('Persistent content', {
+        title: 'Persistent Modal',
+      })
 
       // Open and close other modals
-      const contentModalId = openContentModal('Some content', {
-        title: 'Content',
+      const temporaryModalId = openContentModal('Temporary content', {
+        title: 'Temporary Modal',
       })
-      closeModal(contentModalId)
+      closeModal(temporaryModalId)
 
-      // Error modal should still exist
-      const errorModal = modalManager.getModal(errorModalId)
-      expect(errorModal).toBeDefined()
-      expect(errorModal?.type).toBe('error')
-    })
-  })
-
-  describe('Error Modal Integration', () => {
-    it('should create error modals with proper structure', () => {
-      const modalId = openErrorModal(mockError, {
-        title: 'Test Error',
-        size: 'large',
-        priority: 'high',
-      })
-
-      const modal = modalManager.getModal(modalId)
-      expect(modal?.type).toBe('error')
-      expect(modal?.title).toBe('Test Error')
-      expect(modal?.priority).toBe('high')
-
-      if (modal?.type === 'error') {
-        expect(modal.errorDetails).toEqual(mockError)
-      }
-    })
-
-    it('should handle multiple error modals', () => {
-      const error1 = openErrorModal({ ...mockError, message: 'Error 1' })
-      const error2 = openErrorModal(
-        { ...mockError, message: 'Error 2' },
-        { priority: 'critical' },
-      )
-
-      const modals = modalManager.getModals()
-      expect(modals).toHaveLength(2)
-
-      // Critical error should be first
-      expect(modals[0]?.id).toBe(error2)
-      expect(modals[1]?.id).toBe(error1)
+      // Persistent modal should still exist
+      const modalList = modals()
+      const persistentModal = modalList.find((m) => m.id === persistentModalId)
+      expect(persistentModal).toBeDefined()
+      expect(persistentModal?.type).toBe('content')
     })
   })
 
@@ -182,10 +147,10 @@ describe('Modal Integration Tests', () => {
       const modalId = openContentModal('Main content', {
         title: 'Content Modal',
         footer: 'Footer content',
-        size: 'medium',
       })
 
-      const modal = modalManager.getModal(modalId)
+      const modalList = modals()
+      const modal = modalList.find((m) => m.id === modalId)
       expect(modal?.type).toBe('content')
       expect(modal?.title).toBe('Content Modal')
 
@@ -204,7 +169,8 @@ describe('Modal Integration Tests', () => {
         title: 'Factory Modal',
       })
 
-      const modal = modalManager.getModal(modalId)
+      const modalList = modals()
+      const modal = modalList.find((m) => m.id === modalId)
       if (modal?.type === 'content' && typeof modal.content === 'function') {
         const renderedContent = modal.content(modalId)
         expect(renderedContent).toBe(`Content for ${modalId}`)
@@ -224,8 +190,9 @@ describe('Modal Integration Tests', () => {
         closeOnOutsideClick: false,
       })
 
-      const modalState1 = modalManager.getModal(modal1)
-      const modalState2 = modalManager.getModal(modal2)
+      const modalList = modals()
+      const modalState1 = modalList.find((m) => m.id === modal1)
+      const modalState2 = modalList.find((m) => m.id === modal2)
 
       expect(modalState1?.closeOnOutsideClick).toBe(true)
       expect(modalState2?.closeOnOutsideClick).toBe(false)
@@ -242,8 +209,9 @@ describe('Modal Integration Tests', () => {
         closeOnEscape: false,
       })
 
-      const modalState1 = modalManager.getModal(modal1)
-      const modalState2 = modalManager.getModal(modal2)
+      const modalList = modals()
+      const modalState1 = modalList.find((m) => m.id === modal1)
+      const modalState2 = modalList.find((m) => m.id === modal2)
 
       expect(modalState1?.closeOnEscape).toBe(true)
       expect(modalState2?.closeOnEscape).toBe(false)
@@ -251,25 +219,28 @@ describe('Modal Integration Tests', () => {
   })
 
   describe('Performance and State Management', () => {
-    it('should handle rapid modal opening and closing', () => {
+    it('should handle rapid modal opening and closing', async () => {
       // Rapidly open multiple modals
       const modalIds = []
       for (let i = 0; i < 10; i++) {
         modalIds.push(openContentModal(`Content ${i}`, { title: `Modal ${i}` }))
       }
 
-      expect(modalManager.getModals()).toHaveLength(10)
+      expect(modals()).toHaveLength(10)
 
       // Rapidly close half of them
       for (let i = 0; i < 5; i++) {
         closeModal(modalIds[i]!)
       }
 
-      expect(modalManager.getModals()).toHaveLength(5)
+      // Wait for async closes to complete
+      await new Promise((resolve) => setTimeout(resolve, 50))
+      expect(modals()).toHaveLength(5)
 
       // Close remaining
       closeAllModals()
-      expect(modalManager.getModals()).toHaveLength(0)
+      await new Promise((resolve) => setTimeout(resolve, 50))
+      expect(modals()).toHaveLength(0)
     })
 
     it('should generate unique modal IDs', () => {
@@ -284,21 +255,6 @@ describe('Modal Integration Tests', () => {
 
       expect(modalIds.size).toBe(20) // All IDs should be unique
     })
-
-    it('should handle modal updates correctly', () => {
-      const modalId = openContentModal('Original content', {
-        title: 'Original Title',
-      })
-
-      // Update modal
-      modalManager.updateModal(modalId, {
-        title: 'Updated Title',
-      })
-
-      const updatedModal = modalManager.getModal(modalId)
-      expect(updatedModal?.title).toBe('Updated Title')
-      expect(updatedModal?.updatedAt).toBeInstanceOf(Date)
-    })
   })
 
   describe('Edge Cases and Error Handling', () => {
@@ -307,20 +263,15 @@ describe('Modal Integration Tests', () => {
     })
 
     it('should handle getting non-existent modal', () => {
-      const modal = modalManager.getModal('non-existent-id')
+      const modalList = modals()
+      const modal = modalList.find((m) => m.id === 'non-existent-id')
       expect(modal).toBeUndefined()
     })
 
-    it('should handle updating non-existent modal gracefully', () => {
-      expect(() =>
-        modalManager.updateModal('non-existent-id', { title: 'New Title' }),
-      ).not.toThrow()
-    })
-
     it('should handle empty modal stack operations', () => {
-      expect(modalManager.getModals()).toHaveLength(0)
-      expect(modalManager.getTopModal()).toBeUndefined()
-      expect(modalManager.hasOpenModals()).toBe(false)
+      expect(modals()).toHaveLength(0)
+      expect(modals()[0]).toBeUndefined()
+      expect(modals().length > 0).toBe(false)
 
       // These should not throw
       expect(() => closeAllModals()).not.toThrow()

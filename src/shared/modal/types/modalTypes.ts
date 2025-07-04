@@ -3,7 +3,6 @@ import type { Accessor, JSXElement } from 'solid-js'
 import type { ToastError } from '~/modules/toast/domain/toastTypes'
 
 export type ModalId = string
-export type ModalSize = 'small' | 'medium' | 'large' | 'fullscreen'
 export type ModalPriority = 'low' | 'normal' | 'high' | 'critical'
 
 export type BaseModalConfig = {
@@ -52,12 +51,7 @@ export type ModalState = ModalConfig & {
 }
 
 export type ModalManager = {
-  getModals: () => ModalState[]
-  getModal: (id: ModalId) => ModalState | undefined
   openModal: (config: ModalConfig) => ModalId
   closeModal: (id: ModalId) => void
   closeAllModals: () => void
-  updateModal: (id: ModalId, updates: Partial<ModalConfig>) => void
-  hasOpenModals: () => boolean
-  getTopModal: () => ModalState | undefined
 }

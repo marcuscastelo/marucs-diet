@@ -5,40 +5,9 @@
 
 import type { JSXElement } from 'solid-js'
 
-import type { ToastError } from '~/modules/toast/domain/toastTypes'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { modalManager } from '~/shared/modal/core/modalManager'
 import type { ModalId, ModalPriority } from '~/shared/modal/types/modalTypes'
-
-/**
- * Opens an error modal with standardized styling and behavior.
- *
- * @param error The error details to display
- * @param options Optional configuration for the error modal
- * @returns The modal ID for tracking
- */
-export function openErrorModal(
-  error: ToastError,
-  options?: {
-    title?: string
-    priority?: ModalPriority
-  },
-): ModalId {
-  try {
-    return modalManager.openModal({
-      type: 'error',
-      title: options?.title ?? 'Error Details',
-      errorDetails: error,
-      priority: options?.priority ?? 'high',
-      closeOnOutsideClick: true,
-      closeOnEscape: true,
-      showCloseButton: true,
-    })
-  } catch (e) {
-    handleApiError(e)
-    throw e
-  }
-}
 
 /**
  * Opens a confirmation modal with standardized styling and behavior.
@@ -176,20 +145,4 @@ export function closeModal(modalId: ModalId, onClose?: () => void): void {
  */
 export function closeAllModals(): void {
   modalManager.closeAllModals()
-}
-
-/**
- * Checks if any modals are currently open.
- * Useful for preventing certain actions when modals are active.
- */
-export function hasOpenModals(): boolean {
-  return modalManager.hasOpenModals()
-}
-
-/**
- * Gets the currently active (topmost) modal.
- * Useful for modal priority management.
- */
-export function getActiveModal() {
-  return modalManager.getTopModal()
 }

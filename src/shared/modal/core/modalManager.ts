@@ -28,41 +28,6 @@ function generateModalId(): ModalId {
 }
 
 /**
- * Gets the priority order for modals.
- */
-function getPriorityOrder(priority: ModalState['priority']): number {
-  switch (priority) {
-    case 'critical':
-      return 4
-    case 'high':
-      return 3
-    case 'normal':
-      return 2
-    case 'low':
-      return 1
-    default:
-      return 2 // default to normal
-  }
-}
-
-/**
- * Sorts modals by priority (highest first).
- */
-function sortModalsByPriority(modalList: ModalState[]): ModalState[] {
-  return [...modalList].sort((a, b) => {
-    const priorityA = getPriorityOrder(a.priority)
-    const priorityB = getPriorityOrder(b.priority)
-
-    if (priorityA !== priorityB) {
-      return priorityB - priorityA // Higher priority first
-    }
-
-    // Same priority, sort by creation time (older first)
-    return a.createdAt.getTime() - b.createdAt.getTime()
-  })
-}
-
-/**
  * Internal method for performing the actual close operation.
  */
 function performClose(id: ModalId, modal: ModalState): void {
@@ -75,14 +40,6 @@ function performClose(id: ModalId, modal: ModalState): void {
  * Core modal manager implementation.
  */
 export const modalManager: ModalManager = {
-  getModals(): ModalState[] {
-    return sortModalsByPriority(modals())
-  },
-
-  getModal(id: ModalId): ModalState | undefined {
-    return modals().find((modal) => modal.id === id)
-  },
-
   openModal(config: ModalConfig): ModalId {
     let modalId: string
     if (config.id !== undefined && config.id.trim() !== '') {
@@ -193,38 +150,9 @@ export const modalManager: ModalManager = {
     // Update the state to keep only the modals that should not be closed
     setModals(modalsToKeep)
   },
-
-  updateModal(id: ModalId, updates: Partial<ModalConfig>): void {
-    setModals((prev) =>
-      prev.map((modal) => {
-        if (modal.id === id) {
-          return {
-            ...modal,
-            ...updates,
-            updatedAt: new Date(),
-          } as ModalState
-        }
-        return modal
-      }),
-    )
-  },
-
-  hasOpenModals(): boolean {
-    return modals().some((modal) => modal.isOpen)
-  },
-
-  getTopModal(): ModalState | undefined {
-    const sortedModals = this.getModals()
-    return sortedModals.find((modal) => modal.isOpen)
-  },
 }
 
 /**
  * Signal accessor for reactive modal state.
  */
 export { modals }
-
-/**
- * Default export for the modal manager.
- */
-export default modalManager

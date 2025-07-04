@@ -10,10 +10,6 @@ import {
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import { handleApiError } from '~/shared/error/errorHandler'
 
-// TODO:   Maybe replace empty arrays with loading state (null or something)
-export const dayMeals = () => currentDayDiet()?.meals ?? []
-// TODO:   Remove dayId from functions that don't need it
-
 /**
  * Updates a meal in the current day diet.
  * @param mealId - The meal ID.

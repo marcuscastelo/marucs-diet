@@ -114,7 +114,6 @@ export function ConsoleDumpButton() {
       {
         title: 'Console Logs',
         closeOnOutsideClick: true,
-        size: 'medium',
       },
     )
   }

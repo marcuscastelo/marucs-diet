@@ -244,7 +244,6 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
       ),
       {
         title: 'Pesquisar por código de barras',
-        size: 'large',
         closeOnOutsideClick: false,
         closeOnEscape: true,
       },

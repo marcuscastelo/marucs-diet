@@ -3,12 +3,16 @@
  * Validates that the core functionality works correctly.
  */
 
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 
-import { modalManager } from '~/shared/modal/core/modalManager'
+import { modalManager, modals } from '~/shared/modal/core/modalManager'
+import { closeAllModals } from '~/shared/modal/helpers/modalHelpers'
 
 describe('Unified Modal System', () => {
-  it('should create and manage modal states', () => {
+  beforeEach(() => {
+    closeAllModals()
+  })
+  it('should create and manage modal states', async () => {
     // Test opening a basic content modal
     const modalId = modalManager.openModal({
       type: 'content',
@@ -20,7 +24,8 @@ describe('Unified Modal System', () => {
     expect(typeof modalId).toBe('string')
 
     // Verify modal exists
-    const modal = modalManager.getModal(modalId)
+    const modalList = modals()
+    const modal = modalList.find((m) => m.id === modalId)
     expect(modal).toBeDefined()
     expect(modal?.type).toBe('content')
     expect(modal?.title).toBe('Test Modal')
@@ -28,7 +33,10 @@ describe('Unified Modal System', () => {
 
     // Test closing modal
     modalManager.closeModal(modalId)
-    const closedModal = modalManager.getModal(modalId)
+    // Wait for async close to complete
+    await new Promise((resolve) => setTimeout(resolve, 10))
+    const remainingModals = modals()
+    const closedModal = remainingModals.find((m) => m.id === modalId)
     expect(closedModal).toBeUndefined()
   })
 
@@ -42,7 +50,8 @@ describe('Unified Modal System', () => {
       },
     })
 
-    const modal = modalManager.getModal(modalId)
+    const modalList = modals()
+    const modal = modalList.find((m) => m.id === modalId)
     expect(modal?.type).toBe('error')
 
     modalManager.closeModal(modalId)
@@ -61,13 +70,14 @@ describe('Unified Modal System', () => {
       },
     })
 
-    const modal = modalManager.getModal(modalId)
+    const modalList = modals()
+    const modal = modalList.find((m) => m.id === modalId)
     expect(modal?.type).toBe('confirmation')
 
     modalManager.closeModal(modalId)
   })
 
-  it('should track multiple modals and prioritize correctly', () => {
+  it('should track multiple modals in creation order', async () => {
     const modal1 = modalManager.openModal({
       type: 'content',
       title: 'Low Priority',
@@ -82,15 +92,17 @@ describe('Unified Modal System', () => {
       priority: 'high',
     })
 
-    const allModals = modalManager.getModals()
+    const allModals = modals()
     expect(allModals).toHaveLength(2)
 
-    // Higher priority should come first
-    expect(allModals[0]?.id).toBe(modal2)
-    expect(allModals[1]?.id).toBe(modal1)
+    // Should be in creation order: modal1 first, then modal2
+    expect(allModals[0]?.id).toBe(modal1)
+    expect(allModals[1]?.id).toBe(modal2)
 
     modalManager.closeAllModals()
-    expect(modalManager.getModals()).toHaveLength(0)
+    // Wait for async close to complete
+    await new Promise((resolve) => setTimeout(resolve, 10))
+    expect(modals()).toHaveLength(0)
   })
 
   it('should generate unique IDs', () => {

@@ -229,7 +229,6 @@ export function MacroTarget(props: MacroTargetProps) {
                               ),
                               {
                                 title: 'Restaurar perfil antigo',
-                                size: 'large',
                                 footer: () => (
                                   <div class="flex gap-2 justify-end">
                                     <button
