@@ -45,13 +45,13 @@
 }
 
 .modal>.modal-box {
-  scale: 0.001;
-  transition: scale 0.2s ease;
+  transform: scale(0.001);
+  transition: transform 0.2s ease;
 }
 
 .modal.modal-active>.modal-box {
-  scale: 1;
-  transition: scale 0.2s ease;
+  transform: scale(1);
+  transition: transform 0.2s ease;
 }
 
 /* Datepicker patch */
