@@ -104,27 +104,6 @@ export default function TestApp() {
           <summary class="text-lg cursor-pointer select-none">Modals</summary>
           <div class="pl-4 flex flex-col gap-2">
             {' '}
-            {/* Use ExternalUnifiedItemEditModal for legacy compatibility */}
-            {/* <ExternalUnifiedItemEditModal
-              visible={unifiedItemEditModalVisible}
-              setVisible={setUnifiedItemEditModalVisible}
-              targetMealName="Teste"
-              item={() => itemGroupToUnifiedItem(group())}
-              macroOverflow={() => ({ enable: false })}
-              onApply={(updatedItem) => {
-                // For this test, we'll just log the updated item
-                console.debug('UnifiedItemEditModal onApply:', updatedItem)
-                setUnifiedItemEditModalVisible(false)
-              }}
-              onCancel={() => {
-                console.debug('cancel')
-                setUnifiedItemEditModalVisible(false)
-              }}
-              showAddItemButton={true}
-              onAddNewItem={() => {
-                console.debug('Add new item requested')
-              }}
-            /> */}
             <TestModal />
             <TestConfirmModal />
             <button

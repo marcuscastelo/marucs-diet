@@ -163,28 +163,6 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
     return item().quantity > 0
   }
 
-  const [recipeEditModalId, setRecipeEditModalId] = createSignal<string | null>(
-    null,
-  )
-  const [addItemModalId, setAddItemModalId] = createSignal<string | null>(null)
-
-  // Helper functions for closing modals
-  const closeRecipeEditModal = () => {
-    const modalId = recipeEditModalId()
-    if (modalId !== null) {
-      closeModal(modalId)
-      setRecipeEditModalId(null)
-    }
-  }
-
-  const closeAddItemModal = () => {
-    const modalId = addItemModalId()
-    if (modalId !== null) {
-      closeModal(modalId)
-      setAddItemModalId(null)
-    }
-  }
-
   const handleEditChild = (child: UnifiedItem) => {
     openUnifiedItemEditModal({
       targetMealName: `${props.targetMealName} > ${item().name}`,
@@ -321,7 +299,6 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
                       onDelete: (recipeId) => {
                         void handleDeleteRecipe(recipeId)
                       },
-                      onClose: () => closeRecipeEditModal(),
                     })
                   }}
                   title="Editar receita original"
@@ -379,7 +356,6 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
                     setItem(groupItem)
                   }
                 },
-                onClose: () => closeAddItemModal(),
               })
             }}
             showAddItemButton={props.showAddItemButton}

@@ -20,7 +20,7 @@ macroOverflow.ts                      // vs overflow.ts
 
 // Components: Complete description
 ItemGroupEditModal                     // vs GroupModal
-ExternalTemplateSearchModal           // vs SearchModal
+TemplateSearchModal           // vs SearchModal
 ```
 
 ### ❌ Avoid Generic Names
