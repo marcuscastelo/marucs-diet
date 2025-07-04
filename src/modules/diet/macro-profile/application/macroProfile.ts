@@ -1,4 +1,4 @@
-import { createEffect, createSignal } from 'solid-js'
+import { createResource } from 'solid-js'
 
 import {
   type MacroProfile,
@@ -11,40 +11,25 @@ import {
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
 import { handleApiError } from '~/shared/error/errorHandler'
+import { getLatestMacroProfile } from '~/shared/utils/macroProfileUtils'
 import { registerSubapabaseRealtimeCallback } from '~/shared/utils/supabase'
 
 const macroProfileRepository = createSupabaseMacroProfileRepository()
 
-export const [userMacroProfiles, setUserMacroProfiles] = createSignal<
-  readonly MacroProfile[]
->([])
+export const [userMacroProfiles, { refetch: refetchUserMacroProfiles }] =
+  createResource(currentUserId, fetchUserMacroProfiles, {
+    initialValue: [],
+    ssrLoadFrom: 'initial',
+  })
 
-function bootstrap() {
-  void showPromise(
-    fetchUserMacroProfiles(currentUserId()),
-    {
-      loading: 'Carregando perfis de macro...',
-      success: 'Perfis de macro carregados com sucesso',
-      error: 'Falha ao carregar perfis de macro',
-    },
-    {
-      context: 'background',
-    },
-  )
-}
+export const latestMacroProfile = () =>
+  getLatestMacroProfile(userMacroProfiles.latest)
 
-/**
- * Every time the user changes, fetch all user macro profiles
- */
-createEffect(() => {
-  bootstrap()
-})
+export const previousMacroProfile = () =>
+  getLatestMacroProfile(userMacroProfiles.latest, 1)
 
-/**
- * When a realtime event occurs, fetch all user macro profiles again
- */
 registerSubapabaseRealtimeCallback(SUPABASE_TABLE_MACRO_PROFILES, () => {
-  bootstrap()
+  void refetchUserMacroProfiles()
 })
 
 /**
@@ -52,17 +37,23 @@ registerSubapabaseRealtimeCallback(SUPABASE_TABLE_MACRO_PROFILES, () => {
  * @param userId - The user ID.
  * @returns Array of macro profiles or empty array on error.
  */
-export async function fetchUserMacroProfiles(
+async function fetchUserMacroProfiles(
   userId: number,
 ): Promise<readonly MacroProfile[]> {
   try {
-    const macroProfiles =
-      await macroProfileRepository.fetchUserMacroProfiles(userId)
-    setUserMacroProfiles(macroProfiles)
-    return macroProfiles
+    return await showPromise(
+      macroProfileRepository.fetchUserMacroProfiles(userId),
+      {
+        loading: 'Carregando perfis de macro...',
+        success: 'Perfis de macro carregados com sucesso',
+        error: 'Falha ao carregar perfis de macro',
+      },
+      {
+        context: 'background',
+      },
+    )
   } catch (error) {
     handleApiError(error)
-    setUserMacroProfiles([])
     return []
   }
 }

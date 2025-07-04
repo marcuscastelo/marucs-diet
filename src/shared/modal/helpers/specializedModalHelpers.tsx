@@ -3,6 +3,14 @@
  * These functions encapsulate the most frequent modal usage patterns to reduce code duplication.
  */
 
+import { deleteMacroProfile } from '~/modules/diet/macro-profile/application/macroProfile'
+import { type MacroProfile } from '~/modules/diet/macro-profile/domain/macroProfile'
+import {
+  showError,
+  showSuccess,
+} from '~/modules/toast/application/toastManager'
+import { userWeights } from '~/modules/weight/application/weight'
+import { MacroTarget } from '~/sections/macro-nutrients/components/MacroTargets'
 import {
   RecipeEditModal,
   type RecipeEditModalProps,
@@ -22,6 +30,8 @@ import {
   openEditModal,
 } from '~/shared/modal/helpers/modalHelpers'
 import type { ModalId } from '~/shared/modal/types/modalTypes'
+import { dateToYYYYMMDD } from '~/shared/utils/date/dateUtils'
+import { inForceWeight, latestWeight } from '~/shared/utils/weightUtils'
 
 export type ModalController = {
   modalId: ModalId
@@ -244,6 +254,95 @@ export function openClearItemsConfirmModal(
   })
 
   const controller: ModalController = {
+    modalId,
+    close: () => closeModal(modalId),
+  }
+
+  return controller
+}
+
+export type RestoreProfileModalConfig = {
+  currentProfile: MacroProfile
+  previousMacroProfile: MacroProfile
+  onCancel?: () => void
+}
+
+export function openRestoreProfileModal(
+  config: RestoreProfileModalConfig,
+): ModalController {
+  const title = 'Restaurar perfil antigo'
+
+  let controller: ModalController
+
+  const previousProfileWeight = () =>
+    inForceWeight(userWeights.latest, config.previousMacroProfile.target_day)
+      ?.weight ??
+    latestWeight()?.weight ??
+    0
+
+  const modalId = openContentModal(
+    () => (
+      <>
+        <div class="text-red-500 text-center mb-5 text-xl">
+          Restaurar perfil antigo
+        </div>
+        <MacroTarget
+          currentProfile={() => config.previousMacroProfile}
+          previousMacroProfile={() => null}
+          mode="view"
+          weight={previousProfileWeight}
+        />
+        <div class="mb-4">
+          {`Tem certeza que deseja restaurar o perfil de ${dateToYYYYMMDD(
+            config.previousMacroProfile.target_day,
+          )}?`}
+        </div>
+        <div class="text-red-500 text-center text-lg font-bold mb-6">
+          ---- Os dados atuais serão perdidos. ----
+        </div>
+      </>
+    ),
+    {
+      title,
+      footer: () => (
+        <div class="flex gap-2 justify-end">
+          <button
+            type="button"
+            class="btn btn-ghost"
+            onClick={() => {
+              config.onCancel?.()
+              controller.close()
+            }}
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            onClick={() => {
+              deleteMacroProfile(config.currentProfile.id)
+                .then(() => {
+                  showSuccess(
+                    'Perfil antigo restaurado com sucesso, se necessário, atualize a página',
+                  )
+                  controller.close()
+                })
+                .catch((e) => {
+                  showError(e, undefined, 'Erro ao restaurar perfil antigo')
+                })
+            }}
+          >
+            Apagar atual e restaurar antigo
+          </button>
+        </div>
+      ),
+      onClose: () => {
+        config.onCancel?.()
+      },
+    },
+  )
+
+  controller = {
     modalId,
     close: () => closeModal(modalId),
   }

@@ -29,6 +29,10 @@ export const [
       throw error
     }
   },
+  {
+    initialValue: [],
+    ssrLoadFrom: 'initial',
+  },
 )
 
 /**

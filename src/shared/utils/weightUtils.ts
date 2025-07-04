@@ -21,9 +21,7 @@ export function getFirstWeight(weights: readonly Weight[]): Weight | null {
   return sorted[0] ?? null
 }
 
-export const latestWeight = createMemo(() =>
-  getLatestWeight(userWeights() ?? []),
-)
+export const latestWeight = () => getLatestWeight(userWeights.latest)
 export function getLatestWeight(weights: readonly Weight[]): Weight | null {
   /**
    * Returns the latest weight entry from a sorted list.

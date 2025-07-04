@@ -2,7 +2,6 @@ import {
   currentDayDiet,
   updateDayDiet,
 } from '~/modules/diet/day-diet/application/dayDiet'
-import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import {
   convertToNewDayDiet,
   updateMealInDayDiet,

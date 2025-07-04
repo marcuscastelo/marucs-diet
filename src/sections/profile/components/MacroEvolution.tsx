@@ -122,7 +122,6 @@ function AllMacrosChart(props: {
     if (!weights) return []
     return createChartData(weights, dayDiets(), userMacroProfiles())
   }
-  data()
 
   return (
     <div>
@@ -238,7 +237,6 @@ function CaloriesChart(props: {
     if (!weights) return []
     return createChartData(weights, dayDiets(), userMacroProfiles())
   }
-  data()
 
   return (
     <div>
@@ -290,7 +288,6 @@ function ProteinChart(props: {
     if (!weights) return []
     return createChartData(weights, dayDiets(), userMacroProfiles())
   }
-  data()
 
   return (
     <div>
@@ -339,7 +336,6 @@ function FatChart(props: { weights: Resource<readonly Weight[] | undefined> }) {
     if (!weights) return []
     return createChartData(weights, dayDiets(), userMacroProfiles())
   }
-  data()
 
   return (
     <div>
@@ -390,7 +386,6 @@ function CarbsChart(props: {
     if (!weights) return []
     return createChartData(weights, dayDiets(), userMacroProfiles())
   }
-  data()
 
   return (
     <div>
