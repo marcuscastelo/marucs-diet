@@ -3,14 +3,18 @@
  * These functions encapsulate the most frequent modal usage patterns to reduce code duplication.
  */
 
-import type { Accessor } from 'solid-js'
-
-import type { Recipe } from '~/modules/diet/recipe/domain/recipe'
-import type { TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
-import type { UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
-import { RecipeEditModal } from '~/sections/recipe/components/RecipeEditModal'
-import { TemplateSearchModal } from '~/sections/search/components/TemplateSearchModal'
-import { UnifiedItemEditModal } from '~/sections/unified-item/components/UnifiedItemEditModal'
+import {
+  RecipeEditModal,
+  type RecipeEditModalProps,
+} from '~/sections/recipe/components/RecipeEditModal'
+import {
+  TemplateSearchModal,
+  type TemplateSearchModalProps,
+} from '~/sections/search/components/TemplateSearchModal'
+import {
+  UnifiedItemEditModal,
+  type UnifiedItemEditModalProps,
+} from '~/sections/unified-item/components/UnifiedItemEditModal'
 import {
   closeModal,
   openConfirmModal,
@@ -24,21 +28,9 @@ export type ModalController = {
   close: () => void
 }
 
-export type UnifiedItemEditModalConfig = {
-  targetMealName: string
-  targetNameColor?: string
-  item: Accessor<UnifiedItem>
-  macroOverflow: () => {
-    enable: boolean
-    originalItem?: UnifiedItem | undefined
-  }
-  onApply: (item: UnifiedItem) => void
-  onCancel?: () => void
-  onClose?: () => void
+export type UnifiedItemEditModalConfig = UnifiedItemEditModalProps & {
   title?: string
   targetName?: string
-  showAddItemButton?: boolean
-  onAddNewItem?: () => void
 }
 
 export function openUnifiedItemEditModal(
@@ -88,14 +80,7 @@ export function openUnifiedItemEditModal(
   return controller
 }
 
-export type TemplateSearchModalConfig = {
-  targetName: string
-  onNewUnifiedItem?: (
-    item: UnifiedItem,
-    originalAddedItem: TemplateItem,
-  ) => void
-  onFinish?: () => void
-  onClose?: () => void
+export type TemplateSearchModalConfig = TemplateSearchModalProps & {
   title?: string
 }
 
@@ -137,13 +122,7 @@ export function openTemplateSearchModal(
   return controller
 }
 
-export type RecipeEditModalConfig = {
-  recipe: Accessor<Recipe>
-  onSaveRecipe: (recipe: Recipe) => void
-  onRefetch: () => void
-  onCancel?: () => void
-  onDelete: (recipeId: Recipe['id']) => void
-  onClose?: () => void
+export type RecipeEditModalConfig = RecipeEditModalProps & {
   title?: string
 }
 
