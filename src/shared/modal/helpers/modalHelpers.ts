@@ -8,7 +8,7 @@ import type { JSXElement } from 'solid-js'
 import type { ToastError } from '~/modules/toast/domain/toastTypes'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { modalManager } from '~/shared/modal/core/modalManager'
-import type { ModalId, ModalSize } from '~/shared/modal/types/modalTypes'
+import type { ModalId, ModalPriority } from '~/shared/modal/types/modalTypes'
 
 /**
  * Opens an error modal with standardized styling and behavior.
@@ -21,8 +21,7 @@ export function openErrorModal(
   error: ToastError,
   options?: {
     title?: string
-    size?: ModalSize
-    priority?: 'low' | 'normal' | 'high' | 'critical'
+    priority?: ModalPriority
   },
 ): ModalId {
   try {
@@ -56,8 +55,7 @@ export function openConfirmModal(
     cancelText?: string
     onConfirm: () => void | Promise<void>
     onCancel?: () => void
-    size?: ModalSize
-    priority?: 'low' | 'normal' | 'high' | 'critical'
+    priority?: ModalPriority
   },
 ): ModalId {
   try {
@@ -91,14 +89,12 @@ export function openContentModal(
   content: JSXElement | ((modalId: ModalId) => JSXElement),
   options: {
     title?: string
-    size?: ModalSize
-    priority?: 'low' | 'normal' | 'high' | 'critical'
+    priority?: ModalPriority
     closeOnOutsideClick?: boolean
     closeOnEscape?: boolean
     showCloseButton?: boolean
     footer?: JSXElement | (() => JSXElement)
     onClose?: () => void
-    className?: string
   } = {},
 ): ModalId {
   try {
@@ -112,7 +108,6 @@ export function openContentModal(
       closeOnEscape: options.closeOnEscape ?? true,
       showCloseButton: options.showCloseButton ?? true,
       onClose: options.onClose,
-      className: options.className,
     })
   } catch (e) {
     handleApiError(e)
@@ -132,7 +127,6 @@ export function openEditModal(
   options: {
     title: string
     targetName?: string // For nested editing contexts like "Day Diet > Breakfast"
-    size?: ModalSize
     onClose?: () => void
     onSave?: () => void
     onCancel?: () => void
