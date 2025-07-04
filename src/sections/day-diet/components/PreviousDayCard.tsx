@@ -44,7 +44,6 @@ export function PreviousDayCard(props: PreviousDayCardProps) {
             () => <PreviousDayDetailsModal dayDiet={props.dayDiet} />,
             {
               title: 'Resumo do dia',
-              size: 'large',
               closeOnOutsideClick: true,
             },
           )
