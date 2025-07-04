@@ -104,13 +104,6 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
         targetName: props.targetName,
       },
     )
-    // Log modal open with stack trace
-    if (typeof window !== 'undefined') {
-      console.log('[TemplateSearchModal] openEditModal called')
-      console.log(
-        new Error('[TemplateSearchModal] openEditModal stack trace').stack,
-      )
-    }
   }
 
   const handleNewUnifiedItem = async (
@@ -249,7 +242,6 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
     const modalId = openContentModal(
       () => (
         <EANInsertModal
-          enabled={true}
           onSelect={(template: Template) => {
             handleTemplateSelected(template)
             closeModal(modalId)

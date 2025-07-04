@@ -15,8 +15,6 @@ export type EANInsertModalProps = {
   onSelect: (apiFood: Food) => void
   /** Callback to close the modal */
   onClose?: () => void
-  /** Whether the scanner is enabled (for unified modal system) */
-  enabled?: boolean
 }
 
 let currentId = 1
@@ -55,11 +53,7 @@ const EANInsertModal = (props: EANInsertModalProps) => {
 
   return (
     <div class="ean-insert-modal-content">
-      <EANReader
-        enabled={props.enabled ?? true}
-        id={`EAN-reader-${currentId++}`}
-        onScanned={setEAN}
-      />
+      <EANReader id={`EAN-reader-${currentId++}`} onScanned={setEAN} />
       <Suspense fallback={<LoadingRing />}>
         <EANSearch EAN={EAN} setEAN={setEAN} food={food} setFood={setFood} />
       </Suspense>

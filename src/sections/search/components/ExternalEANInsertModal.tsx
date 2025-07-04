@@ -39,11 +39,9 @@ export function ExternalEANInsertModal(props: {
             }
             props.setVisible(false)
           }}
-          enabled={true}
         />,
         {
           title: 'Pesquisar por código de barras',
-          size: 'large',
           closeOnOutsideClick: false,
           closeOnEscape: true,
         },
