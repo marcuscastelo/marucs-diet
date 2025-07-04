@@ -21,7 +21,8 @@
       "Bash(pnpm build:*)",
       "Bash(/dev/null)",
       "Bash(cat:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(ls:*)"
     ],
     "deny": []
   }
