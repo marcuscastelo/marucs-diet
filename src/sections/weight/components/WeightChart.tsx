@@ -7,14 +7,9 @@ import {
   calculateMovingAverage,
   groupWeightsByPeriod,
 } from '~/modules/weight/domain/weightEvolutionDomain'
+import { Chart } from '~/sections/common/components/charts/Chart'
 import { buildWeightChartOptions } from '~/sections/weight/components/WeightChartOptions'
 import { buildWeightChartSeries } from '~/sections/weight/components/WeightChartSeries'
-import { lazyImport } from '~/shared/solid/lazyImport'
-
-const { SolidApexCharts } = lazyImport(
-  () => import('solid-apexcharts'),
-  ['SolidApexCharts'],
-)
 
 /**
  * Props for the WeightChart component.
@@ -113,7 +108,7 @@ export function WeightChart(props: WeightChartProps) {
 
   return (
     <Suspense fallback={<div>Loading chart...</div>}>
-      <SolidApexCharts
+      <Chart
         type="candlestick"
         options={options()}
         series={series()}

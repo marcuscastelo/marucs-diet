@@ -74,24 +74,26 @@ export function BodyMeasuresEvolution() {
             </div>
           }
         >
-          <BodyMeasureChart measures={bodyMeasures} />
-          <div class="mx-5 lg:mx-20 pb-10">
-            <Show when={bodyMeasures()}>
-              {(measures) => (
-                <For
-                  each={[...measures()].reverse().slice(0, 10)}
-                  fallback={<>Não há medidas registradas</>}
-                >
-                  {(bodyMeasure) => (
-                    <BodyMeasureView
-                      measure={bodyMeasure}
-                      onRefetchBodyMeasures={refetchBodyMeasures}
-                    />
-                  )}
-                </For>
-              )}
-            </Show>
-          </div>
+          <Show when={bodyMeasures()}>
+            {(measures) => (
+              <>
+                <BodyMeasureChart measures={measures} />
+                <div class="mx-5 lg:mx-20 pb-10">
+                  <For
+                    each={[...measures()].reverse().slice(0, 10)}
+                    fallback={<>Não há medidas registradas</>}
+                  >
+                    {(bodyMeasure) => (
+                      <BodyMeasureView
+                        measure={bodyMeasure}
+                        onRefetchBodyMeasures={refetchBodyMeasures}
+                      />
+                    )}
+                  </For>
+                </div>
+              </>
+            )}
+          </Show>
         </Suspense>
       </div>
     </>

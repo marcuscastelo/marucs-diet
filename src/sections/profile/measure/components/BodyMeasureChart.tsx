@@ -1,5 +1,6 @@
+import { clientOnly } from '@solidjs/start'
 import type { ApexOptions } from 'apexcharts'
-import { createMemo, Resource, Show, Suspense } from 'solid-js'
+import { Accessor, createMemo, Resource, Show, Suspense } from 'solid-js'
 
 import ptBrLocale from '~/assets/locales/apex/pt-br.json'
 import { bodyMeasures } from '~/modules/measure/application/measure'
@@ -10,13 +11,8 @@ import {
 import type { BodyMeasure } from '~/modules/measure/domain/measure'
 import { currentUser } from '~/modules/user/application/user'
 import { userWeights } from '~/modules/weight/application/weight'
-import { lazyImport } from '~/shared/solid/lazyImport'
+import { Chart } from '~/sections/common/components/charts/Chart'
 import { createDebug } from '~/shared/utils/createDebug'
-
-const { SolidApexCharts } = lazyImport(
-  () => import('solid-apexcharts'),
-  ['SolidApexCharts'],
-)
 
 const debug = createDebug()
 
@@ -34,7 +30,7 @@ type DayMeasures = {
  * Props for the BodyMeasureChart component.
  */
 export type BodyMeasureChartProps = {
-  measures: typeof bodyMeasures
+  measures: Accessor<readonly BodyMeasure[]>
 }
 
 /**
@@ -43,14 +39,12 @@ export type BodyMeasureChartProps = {
  * @returns SolidJS component
  */
 export function BodyMeasureChart(props: BodyMeasureChartProps) {
-  const measuresByDay = createMemo(() =>
-    groupMeasuresByDay(props.measures() ?? []),
-  )
+  const measuresByDay = createMemo(() => groupMeasuresByDay(props.measures()))
 
   const data = createMemo(() =>
     processMeasuresByDay(
       measuresByDay(),
-      userWeights.latest ?? [],
+      userWeights.latest,
       currentUser()?.gender ?? 'female',
     ),
   )
@@ -60,36 +54,31 @@ export function BodyMeasureChart(props: BodyMeasureChartProps) {
       <ChartFor
         title="Altura"
         accessor={(day) => day.dayAverage.height}
-        data={data()}
-        dataKey="dayAverage.height"
+        data={data}
         color="magenta"
       />
       <ChartFor
         title="Cintura"
         accessor={(day) => day.dayAverage.waist}
-        data={data()}
-        dataKey="dayAverage.waist"
+        data={data}
         color="blue"
       />
       <ChartFor
         title="Quadril"
         accessor={(day) => day.dayAverage.hip ?? -1}
-        data={data()}
-        dataKey="dayAverage.hip"
+        data={data}
         color="green"
       />
       <ChartFor
         title="Pescoço"
         accessor={(day) => day.dayAverage.neck}
-        data={data()}
-        dataKey="dayAverage.neck"
+        data={data}
         color="red"
       />
       <ChartFor
         title="BF"
         accessor={(day) => day.dayBf}
-        data={data()}
-        dataKey="dayBf"
+        data={data}
         color="orange"
       />
     </Suspense>
@@ -98,9 +87,8 @@ export function BodyMeasureChart(props: BodyMeasureChartProps) {
 
 function ChartFor(props: {
   title: string
-  data: DayMeasures[]
+  data: Accessor<readonly DayMeasures[]>
   accessor: (day: DayMeasures) => number
-  dataKey: string
   color: string
 }) {
   const options = () =>
@@ -125,7 +113,7 @@ function ChartFor(props: {
         },
       },
       chart: {
-        id: 'solidchart-example',
+        id: `body-measures-chart-${props.title}`,
         locales: [ptBrLocale],
         defaultLocale: 'pt-br',
         background: '#1E293B',
@@ -150,38 +138,25 @@ function ChartFor(props: {
       },
     }) satisfies ApexOptions
 
-  const series = createMemo(() => ({
-    list: [
-      {
-        name: props.title,
-        type: 'line',
-        color: '#876',
-        data: props.data.map((day) => ({
-          x: day.date,
-          y: props.accessor(day),
-        })),
-      },
-    ] satisfies ApexOptions['series'],
-  }))
+  const series = createMemo(
+    () =>
+      [
+        {
+          name: props.title,
+          type: 'line',
+          color: '#876',
+          data: props.data().map((day) => ({
+            x: day.date,
+            y: props.accessor(day),
+          })),
+        },
+      ] satisfies ApexOptions['series'],
+  )
 
   return (
     <>
       <h1 class="text-3xl text-center">{props.title}</h1>
-      <Show
-        when={props.data.length > 0}
-        fallback={
-          <div class="text-center text-gray-400 py-8">
-            Sem dados para exibir
-          </div>
-        }
-      >
-        <SolidApexCharts
-          type="line"
-          options={options()}
-          series={series().list}
-          height={200}
-        />
-      </Show>
+      <Chart type="line" options={options()} series={series()} height={200} />
     </>
   )
 }
