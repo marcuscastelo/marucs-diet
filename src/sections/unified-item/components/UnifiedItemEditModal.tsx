@@ -9,8 +9,12 @@ import {
   untrack,
 } from 'solid-js'
 
+import {
+  deleteRecipe,
+  fetchRecipeById,
+  updateRecipe,
+} from '~/modules/diet/recipe/application/recipe'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
-import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 import {
   addChildToItem,
   updateChildInItem,
@@ -33,7 +37,6 @@ import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions
 import { useFloatField } from '~/sections/common/hooks/useField'
 import { UnifiedItemEditBody } from '~/sections/unified-item/components/UnifiedItemEditBody'
 import { UnsupportedItemMessage } from '~/sections/unified-item/components/UnsupportedItemMessage'
-import { closeModal } from '~/shared/modal/helpers/modalHelpers'
 import {
   openRecipeEditModal,
   openTemplateSearchModal,
@@ -115,19 +118,13 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
   })
 
   // Recipe synchronization
-  const recipeRepository = createSupabaseRecipeRepository()
   const [originalRecipe] = createResource(
     () => {
       const currentItem = item()
       return isRecipeItem(currentItem) ? currentItem.reference.id : null
     },
     async (recipeId: number) => {
-      try {
-        return await recipeRepository.fetchRecipeById(recipeId)
-      } catch (error) {
-        console.warn('Failed to fetch recipe for sync:', error)
-        return null
-      }
+      return await fetchRecipeById(recipeId)
     },
   )
 
@@ -194,10 +191,8 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
 
   // Recipe edit handlers
   const handleSaveRecipe = async (updatedRecipe: Recipe) => {
-    try {
-      // Save the recipe using the repository
-      await recipeRepository.updateRecipe(updatedRecipe.id, updatedRecipe)
-
+    const result = await updateRecipe(updatedRecipe.id, updatedRecipe)
+    if (result) {
       // Update the current item to reflect the changes
       const currentItem = item()
       if (isRecipeItem(currentItem)) {
@@ -207,20 +202,12 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
         )
         setItem(syncedItem)
       }
-    } catch (error) {
-      console.error('Error saving recipe:', error)
-      // Error handling will be done by the RecipeEditModal
     }
   }
 
   const handleDeleteRecipe = async (recipeId: Recipe['id']) => {
-    try {
-      await recipeRepository.deleteRecipe(recipeId)
-      // The parent component should handle removing this item
-    } catch (error) {
-      console.error('Error deleting recipe:', error)
-      // Error handling will be done by the RecipeEditModal
-    }
+    await deleteRecipe(recipeId)
+    // The parent component should handle removing this item
   }
 
   // Clipboard functionality
