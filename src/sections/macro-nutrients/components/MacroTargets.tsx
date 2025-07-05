@@ -284,7 +284,7 @@ function MacroTargetSetting(props: {
           <span class="hidden sm:inline">:</span>
         </span>
         <span class="my-auto flex-1 text-xl text-center">
-          {(props.target.calorieMultiplier * (Number(grams) || 0)).toFixed(0)}{' '}
+          {(props.target.calorieMultiplier * props.target.grams).toFixed(0)}{' '}
           kcal
           <span class="ml-2 text-slate-300 text-lg">({percentage()}%)</span>
         </span>
