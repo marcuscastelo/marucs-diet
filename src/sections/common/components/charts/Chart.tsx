@@ -14,7 +14,7 @@ export function Chart(props: ApexChartProps) {
   onMount(() => {
     const timeout = setTimeout(() => {
       setLoaded(true)
-    }, 1000)
+    }, Math.random() * 1000) // Random delay between 1 and 2 seconds
     return () => clearTimeout(timeout)
   })
   return (
