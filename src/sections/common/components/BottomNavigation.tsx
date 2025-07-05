@@ -195,7 +195,7 @@ function BottomNavigationTab(props: {
       <button
         data-tooltip-target={`tooltip-${props.label}`}
         type="button"
-        class={`${getRound()} inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-slate-900 group cursor-pointer`}
+        class={`${getRound()} inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-slate-900 hover:scale-105 active:scale-102 transition-transform group cursor-pointer`}
         onClick={() => {
           props.onClick()
         }}
