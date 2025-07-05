@@ -68,7 +68,6 @@ function startDayChangeDetection() {
     clearInterval(dayCheckInterval)
   }
 
-  // Check every minute for day changes
   dayCheckInterval = setInterval(() => {
     const newToday = getTodayYYYYMMDD()
     const previousToday = currentToday()
@@ -85,8 +84,7 @@ function startDayChangeDetection() {
         })
       }
     }
-  }, 60000) // Check every minute
-}
+  }, 6000) 
 
 // Start day change detection immediately
 startDayChangeDetection()
