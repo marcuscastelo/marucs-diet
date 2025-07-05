@@ -44,7 +44,6 @@ export default function DietPage() {
           />
         ),
         {
-          title: 'Dia alterado',
           closeOnOutsideClick: false,
           closeOnEscape: true,
           showCloseButton: false,
