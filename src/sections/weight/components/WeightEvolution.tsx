@@ -1,10 +1,16 @@
-import { createEffect, createSignal, For } from 'solid-js'
+import { For, Suspense } from 'solid-js'
 
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { showError } from '~/modules/toast/application/toastManager'
 import { currentUser, currentUserId } from '~/modules/user/application/user'
 import { insertWeight, userWeights } from '~/modules/weight/application/weight'
+import {
+  setWeightChartType,
+  WEIGHT_CHART_OPTIONS,
+  weightChartType,
+} from '~/modules/weight/application/weightChartSettings'
 import { createNewWeight } from '~/modules/weight/domain/weight'
+import { ChartLoadingPlaceholder } from '~/sections/common/components/ChartLoadingPlaceholder'
 import { ComboBox } from '~/sections/common/components/ComboBox'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { useFloatField } from '~/sections/common/hooks/useField'
@@ -19,42 +25,10 @@ import { calculateWeightProgress } from '~/shared/utils/weightUtils'
  */
 export function WeightEvolution() {
   const desiredWeight = () => currentUser()?.desired_weight ?? 0
-  const initialChartType = (() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('weight-evolution-chart-type')
-      if (
-        stored === '7d' ||
-        stored === '14d' ||
-        stored === '30d' ||
-        stored === '6m' ||
-        stored === '1y' ||
-        stored === 'all'
-      ) {
-        return stored
-      }
-    }
-    return 'all'
-  })()
-  const [chartType, setChartType] = createSignal<
-    '7d' | '14d' | '30d' | '6m' | '1y' | 'all'
-  >(initialChartType)
-  createEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('weight-evolution-chart-type', chartType())
-    }
-  })
-  const chartOptions = [
-    { value: '7d', label: 'Últimos 7 dias' },
-    { value: '14d', label: 'Últimos 14 dias' },
-    { value: '30d', label: 'Últimos 30 dias' },
-    { value: '6m', label: 'Últimos 6 meses' },
-    { value: '1y', label: 'Último ano' },
-    { value: 'all', label: 'Todo o período' },
-  ]
   const weightField = useFloatField(undefined, { maxValue: 200 })
   const weightProgress = () =>
     calculateWeightProgress(
-      userWeights(),
+      userWeights.latest,
       desiredWeight(),
       currentUser()?.diet ?? 'cut',
     )
@@ -98,9 +72,9 @@ export function WeightEvolution() {
           <div class="flex justify-between items-center px-4">
             <span class="text-2xl font-bold">Gráfico de evolução do peso</span>
             <ComboBox
-              options={chartOptions}
-              value={chartType()}
-              onChange={setChartType}
+              options={WEIGHT_CHART_OPTIONS}
+              value={weightChartType()}
+              onChange={setWeightChartType}
               class="w-48"
             />
           </div>
@@ -108,11 +82,13 @@ export function WeightEvolution() {
             weightProgress={weightProgress()}
             weightProgressText={weightProgressText}
           />
-          <WeightChart
-            weights={userWeights()}
-            desiredWeight={desiredWeight()}
-            type={chartType()}
-          />
+          <Suspense fallback={<ChartLoadingPlaceholder />}>
+            <WeightChart
+              weights={userWeights}
+              desiredWeight={desiredWeight()}
+              type={weightChartType()}
+            />
+          </Suspense>
           <FloatInput
             field={weightField}
             class="input bg-transparent text-center px-0 pl-5 text-xl mb-3"
@@ -147,12 +123,16 @@ export function WeightEvolution() {
             Adicionar peso
           </button>
         </div>
+        {/* TODO: Implement scrollbar for big lists instead of slice */}
         <div class="mx-5 lg:mx-20 pb-10">
-          {/* TODO: Implement scrollbar for big lists instead of slice */}
-          <For each={[...userWeights()].reverse().slice(0, 10)}>
-            {(weight) => <WeightView weight={weight} />}
-          </For>
-          {userWeights().length === 0 && 'Não há pesos registrados'}
+          <Suspense fallback={<div>Carregando pesos...</div>}>
+            <For
+              each={[...userWeights.latest].reverse().slice(0, 10)}
+              fallback={<>Não há pesos registrados</>}
+            >
+              {(weight) => <WeightView weight={weight} />}
+            </For>
+          </Suspense>
         </div>
       </div>
     </>

@@ -1,13 +1,22 @@
+import { createResource } from 'solid-js'
+
 import {
   type BodyMeasure,
   type NewBodyMeasure,
 } from '~/modules/measure/domain/measure'
 import { createSupabaseBodyMeasureRepository } from '~/modules/measure/infrastructure/measures'
 import { showPromise } from '~/modules/toast/application/toastManager'
+import { currentUserId } from '~/modules/user/application/user'
 import { type User } from '~/modules/user/domain/user'
 import { handleApiError } from '~/shared/error/errorHandler'
 
 const bodyMeasureRepository = createSupabaseBodyMeasureRepository()
+
+export const [bodyMeasures, { refetch: refetchBodyMeasures }] = createResource(
+  currentUserId,
+  fetchUserBodyMeasures,
+  { initialValue: [], ssrLoadFrom: 'initial' },
+)
 
 /**
  * Fetches all body measures for a user.

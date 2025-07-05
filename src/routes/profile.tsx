@@ -1,5 +1,6 @@
-import { Suspense } from 'solid-js'
+import { createMemo, Suspense } from 'solid-js'
 
+import { Chart } from '~/sections/common/components/charts/Chart'
 import { PageLoading } from '~/sections/common/components/PageLoading'
 import { BodyMeasuresChartSection } from '~/sections/profile/components/BodyMeasuresChartSection'
 import { ChartSection } from '~/sections/profile/components/ChartSection'
@@ -28,7 +29,6 @@ export default function Page() {
     <>
       <Suspense fallback={<PageLoading message="Carregando perfil..." />}>
         <UserInfo />
-
         <ProfileChartTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
         <ChartSection id="weight" activeTab={activeTab()}>

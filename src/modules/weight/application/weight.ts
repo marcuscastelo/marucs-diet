@@ -1,61 +1,65 @@
-import { createEffect, createSignal } from 'solid-js'
+import { createResource } from 'solid-js'
 
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
-import { type NewWeight, type Weight } from '~/modules/weight/domain/weight'
+import {
+  type NewWeight,
+  type Weight,
+  weightSchema,
+} from '~/modules/weight/domain/weight'
 import {
   createSupabaseWeightRepository,
   SUPABASE_TABLE_WEIGHTS,
 } from '~/modules/weight/infrastructure/supabaseWeightRepository'
 import { handleApiError } from '~/shared/error/errorHandler'
+import { jsonParseWithStack } from '~/shared/utils/jsonParseWithStack'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 import { registerSubapabaseRealtimeCallback } from '~/shared/utils/supabase'
 
 const weightRepository = createSupabaseWeightRepository()
 
-const [userWeights_, setUserWeights] = createSignal<readonly Weight[]>([])
-export const userWeights = () => userWeights_()
-
-function bootstrap() {
-  void showPromise(
-    fetchUserWeights(currentUserId()),
-    {
-      loading: 'Carregando pesos...',
-      success: 'Pesos carregados com sucesso',
-      error: 'Falha ao carregar pesos',
-    },
-    { context: 'background' },
-  )
-}
-
 /**
- * Every time the user changes, fetch all user weights
+ * Lazy-loading resource for user weights
+ * Automatically fetches when accessed and currentUserId changes
  */
-createEffect(() => {
-  bootstrap()
-})
+export const [
+  userWeights,
+  { mutate: mutateUserWeights, refetch: refetchUserWeights },
+] = createResource(
+  currentUserId, // Source signal - refetches when userId changes
+  async (userId: number) => {
+    try {
+      const weights = await weightRepository.fetchUserWeights(userId)
+      localStorage.setItem(`userWeights-${userId}`, JSON.stringify(weights))
+      return weights
+    } catch (error) {
+      handleApiError(error)
+      throw error
+    }
+  },
+  {
+    initialValue: parseWithStack(
+      weightSchema.array(),
+      jsonParseWithStack(
+        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+        localStorage.getItem(`userWeights-${currentUserId()}`) || '[]',
+      ) ?? [],
+    ),
+    ssrLoadFrom: 'initial',
+  },
+)
 
 /**
- * When a realtime event occurs, fetch all user weights again
+ * When a realtime event occurs, refetch user weights
  */
 registerSubapabaseRealtimeCallback(SUPABASE_TABLE_WEIGHTS, () => {
-  bootstrap()
+  void refetchUserWeights()
 })
-
-export async function fetchUserWeights(userId: number) {
-  try {
-    const weights = await weightRepository.fetchUserWeights(userId)
-    setUserWeights(weights)
-    return weights
-  } catch (error) {
-    handleApiError(error)
-    throw error
-  }
-}
 
 export async function insertWeight(newWeight: NewWeight) {
   try {
     const weight = await weightRepository.insertWeight(newWeight)
-    await showPromise(fetchUserWeights(currentUserId()), {
+    await showPromise(Promise.resolve(refetchUserWeights()), {
       loading: 'Inserindo peso...',
       success: 'Peso inserido com sucesso',
       error: 'Falha ao inserir peso',
@@ -77,7 +81,7 @@ export async function updateWeight(weightId: Weight['id'], newWeight: Weight) {
         error: 'Falha ao atualizar peso',
       },
     )
-    await fetchUserWeights(currentUserId())
+    void refetchUserWeights()
     return weight
   } catch (error) {
     handleApiError(error)
@@ -92,7 +96,7 @@ export async function deleteWeight(weightId: Weight['id']) {
       success: 'Peso deletado com sucesso',
       error: 'Falha ao deletar peso',
     })
-    await fetchUserWeights(currentUserId())
+    void refetchUserWeights()
   } catch (error) {
     handleApiError(error)
     throw error

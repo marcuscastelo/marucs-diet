@@ -1,6 +1,6 @@
 import { Suspense } from 'solid-js'
 
-import { PageLoading } from '~/sections/common/components/PageLoading'
+import { ChartLoadingPlaceholder } from '~/sections/common/components/ChartLoadingPlaceholder'
 import { lazyImport } from '~/shared/solid/lazyImport'
 
 const { WeightEvolution } = lazyImport(
@@ -16,7 +16,12 @@ const { WeightEvolution } = lazyImport(
 export function WeightChartSection() {
   return (
     <Suspense
-      fallback={<PageLoading message="Carregando evolução de peso..." />}
+      fallback={
+        <ChartLoadingPlaceholder
+          height={600}
+          message="Carregando gráfico de evolução..."
+        />
+      }
     >
       <WeightEvolution />
     </Suspense>

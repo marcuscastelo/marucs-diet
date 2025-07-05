@@ -4,7 +4,6 @@ import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
  * Props for ChartLoadingPlaceholder component.
  */
 export type ChartLoadingPlaceholderProps = {
-  title: string
   height?: number
   message?: string
 }
@@ -20,7 +19,6 @@ export function ChartLoadingPlaceholder(props: ChartLoadingPlaceholderProps) {
 
   return (
     <div class={`${CARD_BACKGROUND_COLOR} ${CARD_STYLE}`}>
-      <h5 class="mx-auto mb-5 text-center text-3xl font-bold">{props.title}</h5>
       <div class="mx-5 lg:mx-20 pb-10">
         <div
           class="flex items-center justify-center rounded-lg bg-gray-700/30 animate-pulse"

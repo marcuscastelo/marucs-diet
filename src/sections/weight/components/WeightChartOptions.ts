@@ -15,6 +15,7 @@ export function buildWeightChartOptions({
   type,
   weights,
   polishedData,
+  isMobile = false,
 }: {
   min: number
   max: number
@@ -24,6 +25,7 @@ export function buildWeightChartOptions({
     movingAverage: number
     desiredWeight: number
   } & WeightChartOHLC)[]
+  isMobile?: boolean
 }) {
   const y = getYAxisConfig(min, max)
   return {
@@ -38,7 +40,10 @@ export function buildWeightChartOptions({
         formatter: (val: number) => `${val.toFixed(y.decimalsInFloat)} kg`,
       },
     },
-    stroke: { width: 3, curve: 'straight' as const },
+    stroke: {
+      width: isMobile ? 2 : 3,
+      curve: 'straight' as const,
+    },
     dataLabels: { enabled: false },
     chart: {
       id: 'solidchart-example',
@@ -51,22 +56,35 @@ export function buildWeightChartOptions({
         },
       },
       zoom: { autoScaleYaxis: true },
-      animations: { enabled: true },
+      animations: {
+        enabled: !isMobile,
+        speed: isMobile ? 200 : 800,
+        animateGradually: {
+          enabled: !isMobile,
+          delay: isMobile ? 50 : 150,
+        },
+        dynamicAnimation: {
+          enabled: !isMobile,
+          speed: isMobile ? 200 : 350,
+        },
+      },
       toolbar: {
+        show: !isMobile,
         tools: {
           download: false,
           selection: false,
-          zoom: true,
+          zoom: !isMobile,
           zoomin: false,
           zoomout: false,
-          pan: true,
-          reset: true,
+          pan: !isMobile,
+          reset: !isMobile,
         },
         autoSelected: 'pan' as const,
       },
     },
     tooltip: {
       shared: true,
+      enabled: !isMobile || polishedData.length < 100,
       custom: ({ dataPointIndex, w }: { dataPointIndex: number; w: unknown }) =>
         WeightChartTooltip({
           dataPointIndex,

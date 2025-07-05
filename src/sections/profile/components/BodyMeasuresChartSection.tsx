@@ -3,10 +3,9 @@ import { Suspense } from 'solid-js'
 import { PageLoading } from '~/sections/common/components/PageLoading'
 import { lazyImport } from '~/shared/solid/lazyImport'
 
-const { LazyBodyMeasuresEvolution } = lazyImport(
-  () =>
-    import('~/sections/profile/measure/components/LazyBodyMeasuresEvolution'),
-  ['LazyBodyMeasuresEvolution'],
+const { BodyMeasuresEvolution } = lazyImport(
+  () => import('~/sections/profile/measure/components/BodyMeasuresEvolution'),
+  ['BodyMeasuresEvolution'],
 )
 
 /**
@@ -19,7 +18,7 @@ export function BodyMeasuresChartSection() {
     <Suspense
       fallback={<PageLoading message="Carregando progresso das medidas..." />}
     >
-      <LazyBodyMeasuresEvolution />
+      <BodyMeasuresEvolution />
     </Suspense>
   )
 }

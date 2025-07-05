@@ -1,30 +1,36 @@
-import { createMemo } from 'solid-js'
+import { createMemo, createSignal, onMount, Suspense } from 'solid-js'
 
-import {
-  buildChartData,
-  getYAxisConfig,
-} from '~/modules/weight/application/weightChartUtils'
-import { type Weight } from '~/modules/weight/domain/weight'
+import { userWeights } from '~/modules/weight/application/weight'
+import { type WeightChartType } from '~/modules/weight/application/weightChartSettings'
+import { buildChartData } from '~/modules/weight/application/weightChartUtils'
 import {
   calculateMovingAverage,
   groupWeightsByPeriod,
 } from '~/modules/weight/domain/weightEvolutionDomain'
+import { Chart } from '~/sections/common/components/charts/Chart'
 import { buildWeightChartOptions } from '~/sections/weight/components/WeightChartOptions'
 import { buildWeightChartSeries } from '~/sections/weight/components/WeightChartSeries'
-import { lazyImport } from '~/shared/solid/lazyImport'
-
-const { SolidApexCharts } = lazyImport(
-  () => import('solid-apexcharts'),
-  ['SolidApexCharts'],
-)
 
 /**
  * Props for the WeightChart component.
  */
 export type WeightChartProps = {
-  weights: readonly Weight[]
+  weights: typeof userWeights
   desiredWeight: number
-  type: '7d' | '14d' | '30d' | '6m' | '1y' | 'all'
+  type: WeightChartType
+}
+
+/**
+ * Detects if the device is mobile for performance optimizations.
+ * @returns True if mobile device
+ */
+function checkMobile(): boolean {
+  if (typeof window === 'undefined') return false
+  return (
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent,
+    ) || window.innerWidth < 768
+  )
 }
 
 /**
@@ -33,41 +39,81 @@ export type WeightChartProps = {
  * @returns SolidJS component
  */
 export function WeightChart(props: WeightChartProps) {
-  // Grouping and chart data
-  const weightsByPeriod = createMemo(() =>
-    groupWeightsByPeriod(props.weights, props.type),
-  )
-  const data = createMemo(() => buildChartData(weightsByPeriod()))
-  const movingAverage = createMemo(() => calculateMovingAverage(data(), 7))
-  const polishedData = createMemo(() =>
-    data().map((weight, index) => ({
+  const [isMobile, setIsMobile] = createSignal(false)
+
+  onMount(() => {
+    setIsMobile(checkMobile())
+  })
+
+  const weightsByPeriod = createMemo(() => {
+    return groupWeightsByPeriod(props.weights.latest, props.type)
+  })
+
+  const data = createMemo(() => {
+    const periods = weightsByPeriod()
+    if (Object.keys(periods).length === 0) return []
+    return buildChartData(periods)
+  })
+
+  const movingAverage = createMemo(() => {
+    const chartData = data()
+    if (chartData.length === 0) return []
+    return calculateMovingAverage(chartData, 7)
+  })
+
+  const polishedData = createMemo(() => {
+    const chartData = data()
+    const avgData = movingAverage()
+    if (chartData.length === 0) return []
+
+    return chartData.map((weight, index) => ({
       ...weight,
-      movingAverage: movingAverage()[index] ?? 0,
+      movingAverage: avgData[index] ?? 0,
       desiredWeight: props.desiredWeight,
-    })),
-  )
-  const max = createMemo(() =>
-    Math.max(...polishedData().map((w) => Math.max(w.desiredWeight, w.high))),
-  )
-  const min = createMemo(() =>
-    Math.min(...polishedData().map((w) => Math.min(w.desiredWeight, w.low))),
-  )
-  const yAxis = createMemo(() => getYAxisConfig(min(), max()))
-  const options = () =>
-    buildWeightChartOptions({
-      min: min(),
-      max: max(),
+    }))
+  })
+
+  const minMax = createMemo(() => {
+    const polished = polishedData()
+    if (polished.length === 0) return { min: 0, max: 100 }
+
+    let min = Infinity
+    let max = -Infinity
+
+    for (const weight of polished) {
+      const currentMin = Math.min(weight.desiredWeight, weight.low)
+      const currentMax = Math.max(weight.desiredWeight, weight.high)
+      if (currentMin < min) min = currentMin
+      if (currentMax > max) max = currentMax
+    }
+
+    return { min, max }
+  })
+
+  const options = createMemo(() => {
+    const { min, max } = minMax()
+    return buildWeightChartOptions({
+      min,
+      max,
       type: props.type,
-      weights: props.weights,
+      weights: props.weights.latest,
       polishedData: polishedData(),
+      isMobile: isMobile(),
     })
-  const series = () => buildWeightChartSeries(polishedData())
+  })
+
+  const series = createMemo(() => buildWeightChartSeries(polishedData()))
+
+  const chartHeight = () => (isMobile() ? 400 : 600)
+
   return (
-    <SolidApexCharts
-      type="candlestick"
-      options={options()}
-      series={series()}
-      height={600}
-    />
+    <Suspense fallback={<div>Loading chart...</div>}>
+      <Chart
+        type="candlestick"
+        options={options()}
+        series={series()}
+        height={chartHeight()}
+      />
+    </Suspense>
   )
 }

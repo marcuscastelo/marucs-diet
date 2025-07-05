@@ -80,14 +80,18 @@ export function UnifiedItemNutritionalInfo(
   })
 
   return (
-    <div class="flex">
-      <MacroNutrientsView
-        macros={macros()}
-        isMacroOverflowing={isMacroOverflowing()}
-      />
-      <div class="ml-auto">
-        <span class="text-white"> {props.item().quantity}g </span>|
-        <span class="text-white"> {calories().toFixed(0)}kcal </span>
+    <div class="flex justify-between">
+      <div class="flex">
+        <MacroNutrientsView
+          macros={macros()}
+          isMacroOverflowing={isMacroOverflowing()}
+        />
+      </div>
+      <div class="flex items-baseline gap-1">
+        <span class="text-white"> {props.item().quantity}g </span>
+        <span class="text-gray-400 text-xs">
+          ({calories().toFixed(0)} kcal)
+        </span>
       </div>
     </div>
   )
