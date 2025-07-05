@@ -31,7 +31,7 @@ import {
 export function BottomNavigation() {
   const navigate = useNavigate()
   const location = useLocation()
-  const pathname = location.pathname
+  const pathname = () => location.pathname
 
   const [footerHeight, setFooterHeight] = createSignal(0)
   let footerRef: HTMLDivElement | undefined
@@ -88,26 +88,26 @@ export function BottomNavigation() {
         <div class="z-50 w-full h-16 bg-white border border-gray-200 rounded-full dark:bg-slate-800 dark:border-slate-700 bottom-0">
           <div class="grid h-full max-w-lg grid-cols-5 mx-auto">
             <BottomNavigationTab
-              active={pathname === '/diet'}
+              active={pathname() === '/diet'}
               label="Home"
               icon={HomeIcon}
               onClick={() => {
-                navigate('/diet')
+                navigate('/diet', { replace: false })
               }}
               position="first"
             />
             <BottomNavigationTab
-              active={pathname.startsWith('/profile')}
+              active={pathname().startsWith('/profile')}
               label="Perfil"
               icon={ProfileIcon}
               onClick={() => {
-                navigate('/profile')
+                navigate('/profile', { replace: false })
               }}
               position="middle"
             />
             <CTAButton />
             <BottomNavigationTab
-              active={pathname.startsWith('/settings')}
+              active={pathname().startsWith('/settings')}
               label="Configurações"
               icon={SettingsIcon}
               onClick={() => {

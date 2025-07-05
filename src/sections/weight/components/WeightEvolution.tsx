@@ -10,6 +10,7 @@ import {
   weightChartType,
 } from '~/modules/weight/application/weightChartSettings'
 import { createNewWeight } from '~/modules/weight/domain/weight'
+import { ChartLoadingPlaceholder } from '~/sections/common/components/ChartLoadingPlaceholder'
 import { ComboBox } from '~/sections/common/components/ComboBox'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { useFloatField } from '~/sections/common/hooks/useField'
@@ -27,7 +28,7 @@ export function WeightEvolution() {
   const weightField = useFloatField(undefined, { maxValue: 200 })
   const weightProgress = () =>
     calculateWeightProgress(
-      userWeights.latest ?? [],
+      userWeights.latest,
       desiredWeight(),
       currentUser()?.diet ?? 'cut',
     )
@@ -81,11 +82,13 @@ export function WeightEvolution() {
             weightProgress={weightProgress()}
             weightProgressText={weightProgressText}
           />
-          <WeightChart
-            weights={userWeights}
-            desiredWeight={desiredWeight()}
-            type={weightChartType()}
-          />
+          <Suspense fallback={<ChartLoadingPlaceholder />}>
+            <WeightChart
+              weights={userWeights}
+              desiredWeight={desiredWeight()}
+              type={weightChartType()}
+            />
+          </Suspense>
           <FloatInput
             field={weightField}
             class="input bg-transparent text-center px-0 pl-5 text-xl mb-3"
@@ -123,10 +126,12 @@ export function WeightEvolution() {
         {/* TODO: Implement scrollbar for big lists instead of slice */}
         <div class="mx-5 lg:mx-20 pb-10">
           <Suspense fallback={<div>Carregando pesos...</div>}>
-            <For each={[...(userWeights.latest ?? [])].reverse().slice(0, 10)}>
+            <For
+              each={[...userWeights.latest].reverse().slice(0, 10)}
+              fallback={<>Não há pesos registrados</>}
+            >
               {(weight) => <WeightView weight={weight} />}
             </For>
-            {userWeights.latest?.length === 0 && 'Não há pesos registrados'}
           </Suspense>
         </div>
       </div>

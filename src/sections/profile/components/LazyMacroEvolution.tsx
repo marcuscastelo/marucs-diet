@@ -27,7 +27,6 @@ export function LazyMacroEvolution() {
         when={shouldLoad()}
         fallback={
           <ChartLoadingPlaceholder
-            title="Evolução de Macronutrientes"
             height={600}
             message="Aguardando carregamento do gráfico..."
           />

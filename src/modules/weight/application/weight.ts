@@ -2,12 +2,18 @@ import { createResource } from 'solid-js'
 
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
-import { type NewWeight, type Weight } from '~/modules/weight/domain/weight'
+import {
+  type NewWeight,
+  type Weight,
+  weightSchema,
+} from '~/modules/weight/domain/weight'
 import {
   createSupabaseWeightRepository,
   SUPABASE_TABLE_WEIGHTS,
 } from '~/modules/weight/infrastructure/supabaseWeightRepository'
 import { handleApiError } from '~/shared/error/errorHandler'
+import { jsonParseWithStack } from '~/shared/utils/jsonParseWithStack'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 import { registerSubapabaseRealtimeCallback } from '~/shared/utils/supabase'
 
 const weightRepository = createSupabaseWeightRepository()
@@ -23,14 +29,22 @@ export const [
   currentUserId, // Source signal - refetches when userId changes
   async (userId: number) => {
     try {
-      return await weightRepository.fetchUserWeights(userId)
+      const weights = await weightRepository.fetchUserWeights(userId)
+      localStorage.setItem(`userWeights-${userId}`, JSON.stringify(weights))
+      return weights
     } catch (error) {
       handleApiError(error)
       throw error
     }
   },
   {
-    initialValue: [],
+    initialValue: parseWithStack(
+      weightSchema.array(),
+      jsonParseWithStack(
+        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+        localStorage.getItem(`userWeights-${currentUserId()}`) || '[]',
+      ) ?? [],
+    ),
     ssrLoadFrom: 'initial',
   },
 )

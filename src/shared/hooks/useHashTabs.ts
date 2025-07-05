@@ -1,3 +1,4 @@
+import { useNavigate } from '@solidjs/router'
 import { createEffect, createSignal, onMount } from 'solid-js'
 
 type UseHashTabsOptions<T extends string> = {
@@ -13,6 +14,7 @@ type UseHashTabsOptions<T extends string> = {
  */
 export function useHashTabs<T extends string>(options: UseHashTabsOptions<T>) {
   const { validTabs, defaultTab, storageKey } = options
+  const navigate = useNavigate()
 
   const getInitialTab = (): T => {
     if (typeof window !== 'undefined') {
@@ -47,16 +49,7 @@ export function useHashTabs<T extends string>(options: UseHashTabsOptions<T>) {
       storageKey.length > 0
     ) {
       localStorage.setItem(storageKey, activeTab())
-    }
-  })
-
-  // Update hash when tab changes
-  createEffect(() => {
-    if (typeof window !== 'undefined') {
-      const currentHash = window.location.hash.slice(1)
-      if (currentHash !== activeTab()) {
-        window.location.hash = activeTab()
-      }
+      navigate(`#${activeTab()}`, { scroll: false })
     }
   })
 
@@ -73,13 +66,6 @@ export function useHashTabs<T extends string>(options: UseHashTabsOptions<T>) {
     window.addEventListener('hashchange', handleHashChange)
 
     return () => window.removeEventListener('hashchange', handleHashChange)
-  })
-
-  // Set initial hash if none exists (in effect to track activeTab reactively)
-  createEffect(() => {
-    if (typeof window !== 'undefined' && !window.location.hash) {
-      window.location.hash = activeTab()
-    }
   })
 
   return [activeTab, setActiveTab] as const

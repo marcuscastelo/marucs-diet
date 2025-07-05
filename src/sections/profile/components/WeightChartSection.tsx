@@ -18,7 +18,6 @@ export function WeightChartSection() {
     <Suspense
       fallback={
         <ChartLoadingPlaceholder
-          title="Evolução de Peso"
           height={600}
           message="Carregando gráfico de evolução..."
         />

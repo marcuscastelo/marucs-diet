@@ -22,7 +22,6 @@ export function Chart(props: ApexChartProps) {
       when={loaded()}
       fallback={
         <ChartLoadingPlaceholder
-          title="Carregando"
           height={parseInt(props.height as string, 10) || 400}
         />
       }

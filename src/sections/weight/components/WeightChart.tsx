@@ -1,5 +1,6 @@
 import { createMemo, createSignal, onMount, Resource, Suspense } from 'solid-js'
 
+import { userWeights } from '~/modules/weight/application/weight'
 import { type WeightChartType } from '~/modules/weight/application/weightChartSettings'
 import { buildChartData } from '~/modules/weight/application/weightChartUtils'
 import { type Weight } from '~/modules/weight/domain/weight'
@@ -15,7 +16,7 @@ import { buildWeightChartSeries } from '~/sections/weight/components/WeightChart
  * Props for the WeightChart component.
  */
 export type WeightChartProps = {
-  weights: Resource<readonly Weight[]>
+  weights: typeof userWeights
   desiredWeight: number
   type: WeightChartType
 }
@@ -24,7 +25,7 @@ export type WeightChartProps = {
  * Detects if the device is mobile for performance optimizations.
  * @returns True if mobile device
  */
-function isMobileDevice(): boolean {
+function checkMobile(): boolean {
   if (typeof window === 'undefined') return false
   return (
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -42,11 +43,11 @@ export function WeightChart(props: WeightChartProps) {
   const [isMobile, setIsMobile] = createSignal(false)
 
   onMount(() => {
-    setIsMobile(isMobileDevice())
+    setIsMobile(checkMobile())
   })
 
   const weightsByPeriod = createMemo(() => {
-    return groupWeightsByPeriod(props.weights() ?? [], props.type)
+    return groupWeightsByPeriod(props.weights.latest, props.type)
   })
 
   const data = createMemo(() => {
@@ -96,7 +97,7 @@ export function WeightChart(props: WeightChartProps) {
       min,
       max,
       type: props.type,
-      weights: props.weights() ?? [],
+      weights: props.weights.latest,
       polishedData: polishedData(),
       isMobile: isMobile(),
     })
