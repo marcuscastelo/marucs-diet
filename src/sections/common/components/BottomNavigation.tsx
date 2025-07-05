@@ -92,6 +92,7 @@ export function BottomNavigation() {
               label="Home"
               icon={HomeIcon}
               onClick={() => {
+                navigator.vibrate(50)
                 navigate('/diet', { replace: false })
               }}
               position="first"
@@ -101,6 +102,7 @@ export function BottomNavigation() {
               label="Perfil"
               icon={ProfileIcon}
               onClick={() => {
+                navigator.vibrate(50)
                 navigate('/profile', { replace: false })
               }}
               position="middle"
@@ -111,6 +113,7 @@ export function BottomNavigation() {
               label="Configurações"
               icon={SettingsIcon}
               onClick={() => {
+                navigator.vibrate(50)
                 navigate('/settings')
               }}
               position="middle"
@@ -128,6 +131,7 @@ export function BottomNavigation() {
                 />
               )}
               onClick={() => {
+                navigator.vibrate(50)
                 openContentModal(
                   (modalId) => <UserSelectorDropdown modalId={modalId} />,
                   {
@@ -309,11 +313,13 @@ const UserSelectorDropdown = (props: { modalId: string }) => {
   })
 
   const handleChangeUser = (user: User) => {
+    navigator.vibrate(50)
     openConfirmModal(`Deseja entrar como ${user.name}?`, {
       title: 'Trocar de usuário',
       confirmText: 'Entrar',
       cancelText: 'Cancelar',
       onConfirm: () => {
+        navigator.vibrate(50)
         changeToUser(user.id)
         closeModal(props.modalId)
       },

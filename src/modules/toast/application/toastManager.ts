@@ -120,6 +120,8 @@ export function showError(
   providedOptions?: Omit<Partial<ToastOptions>, 'type'>,
   providedDisplayMessage?: string,
 ): string {
+  navigator.vibrate(200)
+  setTimeout(() => navigator.vibrate(200), 400)
   if (isBackendOutageError(error)) {
     setBackendOutage(true)
     // Show a custom outage toast (pt-BR):

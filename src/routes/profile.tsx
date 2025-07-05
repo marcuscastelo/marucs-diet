@@ -20,7 +20,6 @@ const { UserInfo } = lazyImport(
 
 export default function Page() {
   const [activeTab, setActiveTab] = useHashTabs<ProfileChartTab>({
-    pathname: '/profile',
     validTabs: ['weight', 'macros', 'measures'] as const,
     defaultTab: 'weight',
     storageKey: 'profile-chart-active-tab',

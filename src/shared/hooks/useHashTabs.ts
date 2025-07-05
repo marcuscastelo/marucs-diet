@@ -49,6 +49,7 @@ export function useHashTabs<T extends string>(options: UseHashTabsOptions<T>) {
       storageKey.length > 0
     ) {
       localStorage.setItem(storageKey, activeTab())
+      navigator.vibrate(50)
       navigate(`#${activeTab()}`, { scroll: false })
     }
   })
