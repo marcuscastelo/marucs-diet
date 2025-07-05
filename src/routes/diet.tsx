@@ -34,12 +34,15 @@ export default function DietPage() {
     const changeData = dayChangeData()
     if (changeData) {
       openContentModal(
-        <DayChangeModal
-          previousDay={changeData.previousDay}
-          newDay={changeData.newDay}
-          onGoToToday={acceptDayChange}
-          onStayOnDay={dismissDayChangeModal}
-        />,
+        (modalId) => (
+          <DayChangeModal
+            modalId={modalId}
+            previousDay={changeData.previousDay}
+            newDay={changeData.newDay}
+            onGoToToday={acceptDayChange}
+            onStayOnDay={dismissDayChangeModal}
+          />
+        ),
         {
           title: 'Dia alterado',
           closeOnOutsideClick: false,
