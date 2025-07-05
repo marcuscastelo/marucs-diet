@@ -1,9 +1,7 @@
-import { clientOnly } from '@solidjs/start'
 import type { ApexOptions } from 'apexcharts'
-import { Accessor, createMemo, Resource, Show, Suspense } from 'solid-js'
+import { Accessor, createMemo, Suspense } from 'solid-js'
 
 import ptBrLocale from '~/assets/locales/apex/pt-br.json'
-import { bodyMeasures } from '~/modules/measure/application/measure'
 import {
   groupMeasuresByDay,
   processMeasuresByDay,
@@ -12,9 +10,6 @@ import type { BodyMeasure } from '~/modules/measure/domain/measure'
 import { currentUser } from '~/modules/user/application/user'
 import { userWeights } from '~/modules/weight/application/weight'
 import { Chart } from '~/sections/common/components/charts/Chart'
-import { createDebug } from '~/shared/utils/createDebug'
-
-const debug = createDebug()
 
 type DayAverage = Omit<
   BodyMeasure,

@@ -1,4 +1,4 @@
-import { createMemo, createSignal, onMount, Show, Suspense } from 'solid-js'
+import { createMemo, createSignal, onMount, Show } from 'solid-js'
 
 import { showError } from '~/modules/toast/application/toastManager'
 import { deleteWeight, updateWeight } from '~/modules/weight/application/weight'

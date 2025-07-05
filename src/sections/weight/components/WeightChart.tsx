@@ -1,9 +1,8 @@
-import { createMemo, createSignal, onMount, Resource, Suspense } from 'solid-js'
+import { createMemo, createSignal, onMount, Suspense } from 'solid-js'
 
 import { userWeights } from '~/modules/weight/application/weight'
 import { type WeightChartType } from '~/modules/weight/application/weightChartSettings'
 import { buildChartData } from '~/modules/weight/application/weightChartUtils'
-import { type Weight } from '~/modules/weight/domain/weight'
 import {
   calculateMovingAverage,
   groupWeightsByPeriod,

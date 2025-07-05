@@ -94,7 +94,7 @@ export function BottomNavigation() {
               icon={HomeIcon}
               onClick={() => {
                 vibrate(50)
-                navigate('/diet', { replace: false })
+                navigate('/diet')
               }}
               position="first"
             />
@@ -104,7 +104,7 @@ export function BottomNavigation() {
               icon={ProfileIcon}
               onClick={() => {
                 vibrate(50)
-                navigate('/profile', { replace: false })
+                navigate('/profile')
               }}
               position="middle"
             />
