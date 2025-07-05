@@ -187,21 +187,21 @@ describe('dateUtils', () => {
       const date = new Date('2024-01-15T15:30:00Z')
       const formatted = dateToDDMM(date)
 
-      expect(formatted).toBe('15/1')
+      expect(formatted).toBe('15/01')
     })
 
     it('should handle different months', () => {
       const date = new Date('2024-12-03T15:30:00Z')
       const formatted = dateToDDMM(date)
 
-      expect(formatted).toBe('3/12')
+      expect(formatted).toBe('03/12')
     })
 
     it('should handle single digit days and months', () => {
       const date = new Date('2024-02-05T15:30:00Z')
       const formatted = dateToDDMM(date)
 
-      expect(formatted).toBe('5/2')
+      expect(formatted).toBe('05/02')
     })
   })
 

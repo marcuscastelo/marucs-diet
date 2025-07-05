@@ -14,6 +14,9 @@ export function DayChangeModal(props: DayChangeModalProps) {
   const previousDate = () => new Date(props.previousDay)
   const formattedPreviousDay = () => dateToDDMM(previousDate())
 
+  const newDate = () => new Date(props.newDay)
+  const formattedNewDay = () => dateToDDMM(newDate())
+
   const handleGoToToday = () => {
     props.onGoToToday()
     closeModal(props.modalId)
@@ -38,7 +41,7 @@ export function DayChangeModal(props: DayChangeModalProps) {
           onClick={handleGoToToday}
           class="flex-1"
         >
-          Ir para hoje ({dateToDDMM(new Date())})
+          Ir para {formattedNewDay()}
         </Button>
         <Button
           type="button"
