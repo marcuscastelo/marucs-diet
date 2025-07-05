@@ -90,6 +90,11 @@ if [[ $# -ge 1 && "$1" != "clear-merged" ]]; then
       fi
       cd "$WORKTREE_PATH"
     fi
+    # Create hardlink of .claude/settings.json to .claude/settings.local.json
+    mkdir -p "$WORKTREE_PATH/.claude"
+    if [[ -f "$REPO_ROOT/.claude/settings.json" ]]; then
+      ln "$REPO_ROOT/.claude/settings.json" "$WORKTREE_PATH/.claude/settings.local.json"
+    fi
     # Create immediate.prompt.md focused on this issue
     zsh "$REPO_ROOT/scripts/create-immediate-prompt.sh" "$WORKTREE_PATH" "$REPO_ROOT" "$ISSUE_NUMBER"
     echo "Repository root: $REPO_ROOT"
