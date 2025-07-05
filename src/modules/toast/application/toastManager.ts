@@ -21,6 +21,7 @@ import { setBackendOutage } from '~/shared/error/backendOutageSignal'
 import { isBackendOutageError } from '~/shared/error/errorHandler'
 import { createDebug } from '~/shared/utils/createDebug'
 import { isNonEmptyString } from '~/shared/utils/isNonEmptyString'
+import { vibrate } from '~/shared/utils/vibrate'
 
 const debug = createDebug()
 
@@ -120,8 +121,8 @@ export function showError(
   providedOptions?: Omit<Partial<ToastOptions>, 'type'>,
   providedDisplayMessage?: string,
 ): string {
-  navigator.vibrate(200)
-  setTimeout(() => navigator.vibrate(200), 400)
+  vibrate(200)
+  setTimeout(() => vibrate(200), 400)
   if (isBackendOutageError(error)) {
     setBackendOutage(true)
     // Show a custom outage toast (pt-BR):

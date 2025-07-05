@@ -1,6 +1,8 @@
 import { useNavigate } from '@solidjs/router'
 import { createEffect, createSignal, onMount } from 'solid-js'
 
+import { vibrate } from '~/shared/utils/vibrate'
+
 type UseHashTabsOptions<T extends string> = {
   validTabs: readonly T[]
   defaultTab: T
@@ -49,7 +51,7 @@ export function useHashTabs<T extends string>(options: UseHashTabsOptions<T>) {
       storageKey.length > 0
     ) {
       localStorage.setItem(storageKey, activeTab())
-      navigator.vibrate(50)
+      vibrate(50)
       navigate(`#${activeTab()}`, { scroll: false })
     }
   })
