@@ -27,7 +27,7 @@ export default function Page() {
 
   return (
     <>
-      <Suspense>
+      <Suspense fallback={<PageLoading message="Carregando perfil..." />}>
         <UserInfo />
         <ProfileChartTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
