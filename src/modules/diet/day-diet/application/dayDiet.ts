@@ -90,14 +90,13 @@ function startDayChangeDetection() {
 createEffect(() => {
   // Start day change detection immediately
   startDayChangeDetection()
-})
-
-// Cleanup interval on module cleanup
-onCleanup(() => {
-  if (dayCheckInterval !== null) {
-    clearInterval(dayCheckInterval)
-    dayCheckInterval = null
-  }
+  // Cleanup interval on module cleanup
+  onCleanup(() => {
+    if (dayCheckInterval !== null) {
+      clearInterval(dayCheckInterval)
+      dayCheckInterval = null
+    }
+  })
 })
 
 /**

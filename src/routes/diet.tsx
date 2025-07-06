@@ -1,4 +1,4 @@
-import { createEffect, createSignal, Show, Suspense } from 'solid-js'
+import { createEffect, createSignal, onCleanup, Show, Suspense } from 'solid-js'
 
 import {
   acceptDayChange,
@@ -16,7 +16,10 @@ import DayMacros from '~/sections/day-diet/components/DayMacros'
 import DayMeals from '~/sections/day-diet/components/DayMeals'
 import DayNotFound from '~/sections/day-diet/components/DayNotFound'
 import TopBar from '~/sections/day-diet/components/TopBar'
-import { openContentModal } from '~/shared/modal/helpers/modalHelpers'
+import {
+  closeModal,
+  openContentModal,
+} from '~/shared/modal/helpers/modalHelpers'
 
 export default function DietPage() {
   const [mode, setMode] = createSignal<'edit' | 'read-only' | 'summary'>('edit')
@@ -33,7 +36,7 @@ export default function DietPage() {
   createEffect(() => {
     const changeData = dayChangeData()
     if (changeData) {
-      openContentModal(
+      let modalId = openContentModal(
         (modalId) => (
           <DayChangeModal
             modalId={modalId}
@@ -48,6 +51,10 @@ export default function DietPage() {
           showCloseButton: false,
         },
       )
+
+      onCleanup(() => {
+        closeModal(modalId)
+      })
     }
   })
 
