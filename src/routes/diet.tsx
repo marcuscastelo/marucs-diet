@@ -37,8 +37,7 @@ export default function DietPage() {
         (modalId) => (
           <DayChangeModal
             modalId={modalId}
-            previousDay={changeData.previousDay}
-            newDay={changeData.newDay}
+            newDay={currentToday}
             onGoToToday={acceptDayChange}
             onStayOnDay={dismissDayChangeModal}
           />

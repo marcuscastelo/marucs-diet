@@ -1,20 +1,28 @@
+import { Accessor } from 'solid-js'
+
+import { targetDay } from '~/modules/diet/day-diet/application/dayDiet'
 import { Button } from '~/sections/common/components/buttons/Button'
 import { closeModal } from '~/shared/modal/helpers/modalHelpers'
 import { dateToDDMM } from '~/shared/utils/date/dateUtils'
 
 type DayChangeModalProps = {
   modalId: string
-  previousDay: string
-  newDay: string
+  newDay: Accessor<string>
   onGoToToday: () => void
   onStayOnDay: () => void
 }
 
 export function DayChangeModal(props: DayChangeModalProps) {
-  const previousDate = () => new Date(props.previousDay)
+  const previousDate = () => {
+    const [year, month, day] = targetDay().split('-').map(Number)
+    return new Date(year!, month! - 1, day)
+  }
   const formattedPreviousDay = () => dateToDDMM(previousDate())
 
-  const newDate = () => new Date(props.newDay)
+  const newDate = () => {
+    const [year, month, day] = props.newDay().split('-').map(Number)
+    return new Date(year!, month! - 1, day)
+  }
   const formattedNewDay = () => dateToDDMM(newDate())
 
   const handleGoToToday = () => {
@@ -35,21 +43,15 @@ export function DayChangeModal(props: DayChangeModalProps) {
         <span class="font-medium text-white">{formattedPreviousDay()}</span>?
       </p>
       <div class="flex gap-3 mt-4">
-        <Button
-          type="button"
-          color="primary"
-          onClick={handleGoToToday}
-          class="flex-1"
-        >
-          Ir para {formattedNewDay()}
+        <Button type="button" onClick={handleStayOnDay} class="flex-1 ">
+          Continuar em {formattedPreviousDay()}
         </Button>
         <Button
           type="button"
-          color="secondary"
-          onClick={handleStayOnDay}
-          class="flex-1"
+          onClick={handleGoToToday}
+          class="flex-1 btn-primary"
         >
-          Continuar em {formattedPreviousDay()}
+          Ir para {formattedNewDay()} (Hoje)
         </Button>
       </div>
     </div>
