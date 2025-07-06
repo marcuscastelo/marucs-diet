@@ -11,7 +11,10 @@ import {
   fetchUserRecipeByName,
   fetchUserRecipes,
 } from '~/modules/diet/recipe/application/recipe'
-import { fetchUserRecentFoods as fetchUserRecentFoodsRaw } from '~/modules/recent-food/application/recentFood'
+import {
+  fetchUserRecentFoods as fetchUserRecentFoodsRaw,
+  fetchUserRecentTemplates,
+} from '~/modules/recent-food/application/recentFood'
 import { fetchTemplatesByTabLogic } from '~/modules/search/application/searchLogic'
 import { currentUser, currentUserId } from '~/modules/user/application/user'
 import { type TemplateSearchTab } from '~/sections/search/components/TemplateSearchTabs'
@@ -61,6 +64,7 @@ export const [
         fetchUserRecipes,
         fetchUserRecipeByName,
         fetchUserRecentFoods,
+        fetchUserRecentTemplates,
         fetchFoodById,
         fetchRecipeById,
         fetchFoods,

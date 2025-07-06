@@ -22,6 +22,20 @@ export type FetchTemplatesDeps = {
   ) => Promise<
     { type: 'food' | 'recipe'; reference_id: number; last_used: Date }[] | null
   >
+  fetchUserRecentTemplates: (
+    userId: number,
+    limit?: number,
+    search?: string,
+  ) => Promise<
+    readonly {
+      template: Template
+      usage_metadata: {
+        recent_food_id: number
+        last_used: Date
+        times_used: number
+      }
+    }[]
+  >
   fetchFoodById: (id: number) => Promise<Food | null>
   fetchRecipeById: (id: number) => Promise<Recipe | null>
   fetchFoods: (opts: {
@@ -56,64 +70,31 @@ export async function fetchTemplatesByTabLogic(
   const lowerSearch = search.trim().toLowerCase()
   switch (tabId) {
     case availableTabs.Recentes.id: {
-      const recentItems = (await deps.fetchUserRecentFoods(userId)) ?? []
-      const foodIds = recentItems
-        .filter((r) => r.type === 'food')
-        .map((r) => r.reference_id)
-      const recipeIds = recentItems
-        .filter((r) => r.type === 'recipe')
-        .map((r) => r.reference_id)
-      const foods =
-        foodIds.length > 0
-          ? await deps.fetchFoodsByIds(foodIds).then((result) => {
-              const safeResult = result ?? []
-              // Reorder to match foodIds order
-              const foodMap = new Map(safeResult.map((f) => [f.id, f]))
-              return foodIds.map((id) => foodMap.get(id) ?? null)
-            })
-          : []
-      const recipes =
-        recipeIds.length > 0
-          ? await Promise.all(
-              recipeIds.map((id) =>
-                deps.fetchRecipeById(id).catch((error) => {
-                  handleApiError(error)
-                  return null
-                }),
-              ),
-            )
-          : []
-      const validFoods = Array.isArray(foods)
-        ? (foods as (Food | null)[]).filter((f): f is Food => f !== null)
-        : []
-      const validRecipes = (recipes as (Recipe | null)[]).filter(
-        (r): r is Recipe => r !== null,
+      // Use the new enhanced function that returns complete Template objects
+      const recentTemplates = await deps.fetchUserRecentTemplates(
+        userId,
+        undefined,
+        search,
       )
-      const filterFn = (item: { name: string; EAN?: string | null }) => {
-        if (lowerSearch === '') return true
-        if (item.name.toLowerCase().includes(lowerSearch)) return true
-        if (
-          typeof item.EAN === 'string' &&
-          item.EAN &&
-          item.EAN.toLowerCase().includes(lowerSearch)
-        )
-          return true
-        return false
-      }
-      const templates: Template[] = []
-      // Create maps for O(1) lookup instead of O(n) find operations
-      const foodMap = new Map(validFoods.map((f) => [f.id, f]))
-      const recipeMap = new Map(validRecipes.map((r) => [r.id, r]))
 
-      for (const recent of recentItems) {
-        if (recent.type === 'food') {
-          const food = foodMap.get(recent.reference_id)
-          if (food !== undefined && filterFn(food)) templates.push(food)
-        } else {
-          const recipe = recipeMap.get(recent.reference_id)
-          if (recipe !== undefined && filterFn(recipe)) templates.push(recipe)
+      // Extract the templates from the RecentTemplate objects
+      const templates = recentTemplates.map((rt) => rt.template)
+
+      // Apply additional client-side filtering if needed (for EAN search)
+      if (lowerSearch !== '') {
+        const filterFn = (item: { name: string; ean?: string | null }) => {
+          if (item.name.toLowerCase().includes(lowerSearch)) return true
+          if (
+            typeof item.ean === 'string' &&
+            item.ean &&
+            item.ean.toLowerCase().includes(lowerSearch)
+          )
+            return true
+          return false
         }
+        return templates.filter(filterFn)
       }
+
       return templates
     }
     case availableTabs.Receitas.id: {

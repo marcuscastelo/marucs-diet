@@ -1,9 +1,14 @@
 // Application layer for recent food operations, migrated from legacy controller
 // All error handling is done here, domain remains pure
+import { foodSchema } from '~/modules/diet/food/domain/food'
+import { recipeSchema } from '~/modules/diet/recipe/domain/recipe'
 import {
+  createRecentTemplate,
   type NewRecentFood,
   type RecentFood,
   recentFoodSchema,
+  type RecentTemplate,
+  recentTemplateSchema,
 } from '~/modules/recent-food/domain/recentFood'
 import {
   type CreateRecentFoodDAO,
@@ -76,7 +81,7 @@ export async function fetchUserRecentFoods(
       const recentFoodsData = (response.data as unknown[]).map(
         (row: unknown) => {
           const typedRow = row as {
-            id: number
+            recent_food_id: number
             user_id: number
             type: string
             reference_id: number
@@ -84,7 +89,7 @@ export async function fetchUserRecentFoods(
             times_used: number
           }
           return {
-            id: typedRow.id,
+            id: typedRow.recent_food_id,
             user_id: typedRow.user_id,
             type: typedRow.type,
             reference_id: typedRow.reference_id,
@@ -106,6 +111,91 @@ export async function fetchUserRecentFoods(
       .limit(limit)
     if (error !== null) throw error
     return parseWithStack(recentFoodSchema.array(), data)
+  } catch (error) {
+    handleApiError(error)
+    return []
+  }
+}
+
+/**
+ * Fetches recent templates (complete Template objects with usage metadata) for a user.
+ * Uses the enhanced database function to return complete Template objects directly.
+ * @param userId - The user ID.
+ * @param limit - Maximum number of recent templates to fetch (defaults to environment configuration).
+ * @param search - Optional search term to filter by food/recipe names (case and diacritic insensitive).
+ * @returns Array of recent templates or empty array on error.
+ */
+export async function fetchUserRecentTemplates(
+  userId: RecentFood['user_id'],
+  limit: number = env.VITE_RECENT_FOODS_DEFAULT_LIMIT,
+  search?: string,
+): Promise<readonly RecentTemplate[]> {
+  try {
+    const normalizedSearch =
+      search?.trim() !== undefined && search.trim() !== ''
+        ? removeDiacritics(search.trim())
+        : undefined
+    const response = await supabase.rpc('search_recent_foods_with_names', {
+      p_user_id: userId,
+      p_search_term: normalizedSearch ?? null,
+      p_limit: limit,
+    })
+    if (response.error !== null) throw response.error
+
+    // Transform the enhanced result to RecentTemplate objects
+    const recentTemplates = (response.data as unknown[]).map((row: unknown) => {
+      const typedRow = row as {
+        recent_food_id: number
+        user_id: number
+        type: string
+        reference_id: number
+        last_used: string | Date
+        times_used: number
+        template_id: number
+        template_name: string
+        template_ean: string | null
+        template_source: unknown
+        template_macros: unknown
+        template_owner: number | null
+        template_items: unknown
+        template_prepared_multiplier: number | null
+      }
+
+      // Create the appropriate Template object based on type
+      if (typedRow.type === 'food') {
+        const foodTemplate = parseWithStack(foodSchema, {
+          id: typedRow.template_id,
+          name: typedRow.template_name,
+          ean: typedRow.template_ean,
+          source: typedRow.template_source,
+          macros: typedRow.template_macros,
+          __type: 'Food',
+        })
+        return createRecentTemplate(
+          foodTemplate,
+          typedRow.recent_food_id,
+          new Date(typedRow.last_used),
+          typedRow.times_used,
+        )
+      } else {
+        const recipeTemplate = parseWithStack(recipeSchema, {
+          id: typedRow.template_id,
+          name: typedRow.template_name,
+          owner: typedRow.template_owner!,
+          items: typedRow.template_items,
+          prepared_multiplier: typedRow.template_prepared_multiplier!,
+          __type: 'Recipe',
+        })
+        return createRecentTemplate(
+          recipeTemplate,
+          typedRow.recent_food_id,
+          new Date(typedRow.last_used),
+          typedRow.times_used,
+        )
+      }
+    })
+
+    return recentTemplates
   } catch (error) {
     handleApiError(error)
     return []
