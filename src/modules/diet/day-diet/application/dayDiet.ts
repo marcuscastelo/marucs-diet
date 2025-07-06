@@ -84,10 +84,13 @@ function startDayChangeDetection() {
         })
       }
     }
-  }, 6000) 
+  }, 6000)
+}
 
-// Start day change detection immediately
-startDayChangeDetection()
+createEffect(() => {
+  // Start day change detection immediately
+  startDayChangeDetection()
+})
 
 // Cleanup interval on module cleanup
 onCleanup(() => {
