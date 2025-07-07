@@ -1,8 +1,12 @@
 import { z } from 'zod/v4'
 
 import {
+  createArrayFieldMessages,
+  createDateFieldMessages,
+  createEnumFieldMessages,
+  createNumberFieldMessages,
+  createStringFieldMessages,
   type ENTITY_NAMES,
-  FIELD_MESSAGES,
 } from '~/shared/domain/validationMessages'
 
 /**
@@ -15,28 +19,28 @@ import {
  * Creates a standard ID field with consistent validation.
  */
 export function createIdField(entityName: keyof typeof ENTITY_NAMES) {
-  return z.number(FIELD_MESSAGES.id(entityName))
+  return z.number(createNumberFieldMessages('id')(entityName))
 }
 
 /**
  * Creates a standard name field with consistent validation.
  */
 export function createNameField(entityName: keyof typeof ENTITY_NAMES) {
-  return z.string(FIELD_MESSAGES.name(entityName))
+  return z.string(createStringFieldMessages('name')(entityName))
 }
 
 /**
  * Creates a standard owner field with consistent validation.
  */
 export function createOwnerField(entityName: keyof typeof ENTITY_NAMES) {
-  return z.number(FIELD_MESSAGES.owner(entityName))
+  return z.number(createNumberFieldMessages('owner')(entityName))
 }
 
 /**
  * Creates a standard weight field with consistent validation.
  */
 export function createWeightField(entityName: keyof typeof ENTITY_NAMES) {
-  return z.number(FIELD_MESSAGES.weight(entityName))
+  return z.number(createNumberFieldMessages('weight')(entityName))
 }
 
 /**
@@ -45,10 +49,10 @@ export function createWeightField(entityName: keyof typeof ENTITY_NAMES) {
 export function createTargetTimestampField(
   entityName: keyof typeof ENTITY_NAMES,
 ) {
-  const messages = FIELD_MESSAGES.targetTimestamp(entityName)
+  const messages = createDateFieldMessages('target_timestamp')(entityName)
   return z
     .date(messages)
-    .or(z.string(messages))
+    .or(z.string(createStringFieldMessages('target_timestamp')(entityName)))
     .transform((v) => new Date(v))
 }
 
@@ -76,21 +80,24 @@ export function createTypeField<T extends string>(typeLiteral: T) {
 export function createDesiredWeightField(
   entityName: keyof typeof ENTITY_NAMES,
 ) {
-  return z.number(FIELD_MESSAGES.desiredWeight(entityName))
+  return z.number(createNumberFieldMessages('desired_weight')(entityName))
 }
 
 /**
  * Creates a birthdate field with consistent validation.
  */
 export function createBirthdateField(entityName: keyof typeof ENTITY_NAMES) {
-  return z.string(FIELD_MESSAGES.birthdate(entityName))
+  return z.string(createStringFieldMessages('birthdate')(entityName))
 }
 
 /**
  * Creates a diet enum field with consistent validation.
  */
 export function createDietField(entityName: keyof typeof ENTITY_NAMES) {
-  return z.enum(['cut', 'normo', 'bulk'], FIELD_MESSAGES.diet(entityName))
+  return z.enum(
+    ['cut', 'normo', 'bulk'],
+    createEnumFieldMessages('diet')(entityName),
+  )
 }
 
 /**
@@ -100,7 +107,7 @@ export function createFavoriteFoodsField(
   entityName: keyof typeof ENTITY_NAMES,
 ) {
   return z
-    .array(z.number(FIELD_MESSAGES.favoriteFoods(entityName)))
+    .array(z.number(createNumberFieldMessages('favorite_foods')(entityName)))
     .nullable()
     .transform((value) => value ?? [])
 }
@@ -109,29 +116,29 @@ export function createFavoriteFoodsField(
  * Creates measure-specific fields with consistent validation.
  */
 export function createHeightField(entityName: keyof typeof ENTITY_NAMES) {
-  return z.number(FIELD_MESSAGES.height(entityName))
+  return z.number(createNumberFieldMessages('height')(entityName))
 }
 
 export function createWaistField(entityName: keyof typeof ENTITY_NAMES) {
-  return z.number(FIELD_MESSAGES.waist(entityName))
+  return z.number(createNumberFieldMessages('waist')(entityName))
 }
 
 export function createHipField(entityName: keyof typeof ENTITY_NAMES) {
   return z
-    .number(FIELD_MESSAGES.hip(entityName))
+    .number(createNumberFieldMessages('hip')(entityName))
     .nullish()
     .transform((v) => (v === null ? undefined : v))
 }
 
 export function createNeckField(entityName: keyof typeof ENTITY_NAMES) {
-  return z.number(FIELD_MESSAGES.neck(entityName))
+  return z.number(createNumberFieldMessages('neck')(entityName))
 }
 
 /**
  * Creates an EAN field with consistent validation.
  */
 export function createEanField(entityName: keyof typeof ENTITY_NAMES) {
-  return z.string(FIELD_MESSAGES.ean(entityName)).nullable()
+  return z.string(createStringFieldMessages('ean')(entityName)).nullable()
 }
 
 /**
@@ -141,7 +148,7 @@ export function createFoodSourceField(entityName: keyof typeof ENTITY_NAMES) {
   return z
     .object({
       type: z.literal('api'),
-      id: z.string(FIELD_MESSAGES.sourceId(entityName)),
+      id: z.string(createStringFieldMessages('source_id')(entityName)),
     })
     .optional()
 }
@@ -155,7 +162,7 @@ export function createPersistedFoodSourceField(
   return z
     .object({
       type: z.literal('api'),
-      id: z.string(FIELD_MESSAGES.sourceId(entityName)),
+      id: z.string(createStringFieldMessages('source_id')(entityName)),
     })
     .nullable()
     .transform((val) => val ?? undefined)
@@ -168,28 +175,30 @@ export function createPersistedFoodSourceField(
 export function createPreparedMultiplierField(
   entityName: keyof typeof ENTITY_NAMES,
 ) {
-  return z.number(FIELD_MESSAGES.preparedMultiplier(entityName)).default(1)
+  return z
+    .number(createNumberFieldMessages('prepared_multiplier')(entityName))
+    .default(1)
 }
 
 /**
  * Creates a recipe field with consistent validation.
  */
 export function createRecipeField(entityName: keyof typeof ENTITY_NAMES) {
-  return z.number(FIELD_MESSAGES.recipe(entityName))
+  return z.number(createNumberFieldMessages('recipe')(entityName))
 }
 
 /**
  * Creates a reference field with consistent validation.
  */
 export function createReferenceField(entityName: keyof typeof ENTITY_NAMES) {
-  return z.number(FIELD_MESSAGES.reference(entityName))
+  return z.number(createNumberFieldMessages('reference')(entityName))
 }
 
 /**
  * Creates a quantity field with consistent validation.
  */
 export function createQuantityField(entityName: keyof typeof ENTITY_NAMES) {
-  return z.number(FIELD_MESSAGES.quantity(entityName))
+  return z.number(createNumberFieldMessages('quantity')(entityName))
 }
 
 /**
@@ -198,29 +207,29 @@ export function createQuantityField(entityName: keyof typeof ENTITY_NAMES) {
 export function createGramsPerKgCarbsField(
   entityName: keyof typeof ENTITY_NAMES,
 ) {
-  return z.number(FIELD_MESSAGES.gramsPerKgCarbs(entityName))
+  return z.number(createNumberFieldMessages('gramsPerKgCarbs')(entityName))
 }
 
 export function createGramsPerKgProteinField(
   entityName: keyof typeof ENTITY_NAMES,
 ) {
-  return z.number(FIELD_MESSAGES.gramsPerKgProtein(entityName))
+  return z.number(createNumberFieldMessages('gramsPerKgProtein')(entityName))
 }
 
 export function createGramsPerKgFatField(
   entityName: keyof typeof ENTITY_NAMES,
 ) {
-  return z.number(FIELD_MESSAGES.gramsPerKgFat(entityName))
+  return z.number(createNumberFieldMessages('gramsPerKgFat')(entityName))
 }
 
 /**
  * Creates a target_day field with date/string transformation for macro profiles.
  */
 export function createTargetDayField(entityName: keyof typeof ENTITY_NAMES) {
-  const messages = FIELD_MESSAGES.targetDay(entityName)
+  const messages = createDateFieldMessages('target_day')(entityName)
   return z
     .date(messages)
-    .or(z.string(messages))
+    .or(z.string(createStringFieldMessages('target_day')(entityName)))
     .transform((v) => new Date(v))
 }
 
@@ -228,15 +237,15 @@ export function createTargetDayField(entityName: keyof typeof ENTITY_NAMES) {
  * Creates macro nutrient fields with consistent validation.
  */
 export function createCarbsField(entityName: keyof typeof ENTITY_NAMES) {
-  return z.number(FIELD_MESSAGES.carbs(entityName))
+  return z.number(createNumberFieldMessages('carbs')(entityName))
 }
 
 export function createProteinField(entityName: keyof typeof ENTITY_NAMES) {
-  return z.number(FIELD_MESSAGES.protein(entityName))
+  return z.number(createNumberFieldMessages('protein')(entityName))
 }
 
 export function createFatField(entityName: keyof typeof ENTITY_NAMES) {
-  return z.number(FIELD_MESSAGES.fat(entityName))
+  return z.number(createNumberFieldMessages('fat')(entityName))
 }
 
 /**
@@ -246,7 +255,7 @@ export function createItemsField<T>(
   entityName: keyof typeof ENTITY_NAMES,
   itemSchema: z.ZodType<T>,
 ) {
-  return z.array(itemSchema, FIELD_MESSAGES.items(entityName))
+  return z.array(itemSchema, createArrayFieldMessages('items')(entityName))
 }
 
 /**
@@ -256,5 +265,5 @@ export function createMealsField<T>(
   entityName: keyof typeof ENTITY_NAMES,
   mealSchema: z.ZodType<T>,
 ) {
-  return z.array(mealSchema, FIELD_MESSAGES.meals(entityName))
+  return z.array(mealSchema, createArrayFieldMessages('meals')(entityName))
 }
