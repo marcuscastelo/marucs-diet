@@ -6,15 +6,15 @@ import { parseWithStack } from '~/shared/utils/parseWithStack'
 const ze = createZodEntity('macroProfile')
 
 export const macroProfileSchema = ze.create({
-  id: ze.number('id'),
-  owner: ze.number('owner'),
+  id: ze.number(),
+  owner: ze.number(),
   target_day: z
     .date()
     .or(z.string())
     .transform((v) => new Date(v)),
-  gramsPerKgCarbs: ze.number('gramsPerKgCarbs'),
-  gramsPerKgProtein: ze.number('gramsPerKgProtein'),
-  gramsPerKgFat: ze.number('gramsPerKgFat'),
+  gramsPerKgCarbs: ze.number(),
+  gramsPerKgProtein: ze.number(),
+  gramsPerKgFat: ze.number(),
   __type: z
     .string()
     .nullable()

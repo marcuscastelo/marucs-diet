@@ -8,10 +8,10 @@ import { parseWithStack } from '~/shared/utils/parseWithStack'
 const ze = createZodEntity('dayDiet')
 
 export const dayDietSchema = ze.create({
-  id: ze.number('id'),
-  target_day: ze.string('target_day'), // TODO:   Change target_day to supabase date type
-  owner: ze.number('owner'),
-  meals: ze.array('meals', mealSchema),
+  id: ze.number(),
+  target_day: ze.string(), // TODO:   Change target_day to supabase date type
+  owner: ze.number(),
+  meals: ze.array(mealSchema),
   __type: z
     .string()
     .nullable()
@@ -21,9 +21,9 @@ export const dayDietSchema = ze.create({
 
 // Type for creating new day diets (without ID)
 export const newDayDietSchema = ze.create({
-  target_day: ze.string('target_day'),
-  owner: ze.number('owner'),
-  meals: ze.array('meals', mealSchema),
+  target_day: ze.string(),
+  owner: ze.number(),
+  meals: ze.array(mealSchema),
   __type: z.literal('NewDayDiet'),
 })
 

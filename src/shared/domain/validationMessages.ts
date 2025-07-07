@@ -66,9 +66,9 @@ export const TYPE_DESCRIPTIONS = {
 /**
  * Generic function to create field validation messages with error handling.
  * This function provides consistent error handling patterns for all field types.
+ * Uses iss.path to automatically detect the field name from Zod's validation context.
  */
 function createFieldValidationMessages(
-  fieldName: string,
   typeDescription: string,
   entityName: string,
   validErrorCode: 'invalid_type' | 'invalid_value' = 'invalid_type',
@@ -76,12 +76,16 @@ function createFieldValidationMessages(
   return {
     error: (iss) => {
       switch (iss.code) {
-        case validErrorCode:
+        case validErrorCode: {
+          // Use iss.path to get the field name automatically
+          const fieldName =
+            iss.path && iss.path.length > 0 ? iss.path.join('.') : 'campo'
           return createInvalidTypeMessage(
             fieldName,
             entityName,
             typeDescription,
           )
+        }
         default:
           break
       }
@@ -100,69 +104,45 @@ export function createZodEntity(entityKey: keyof typeof ENTITY_NAMES) {
     /**
      * Creates a Zod number field with Portuguese validation messages.
      */
-    number: (fieldName: string): z.ZodNumber =>
+    number: (): z.ZodNumber =>
       z.number(
-        createFieldValidationMessages(
-          fieldName,
-          TYPE_DESCRIPTIONS.number,
-          entityName,
-        ),
+        createFieldValidationMessages(TYPE_DESCRIPTIONS.number, entityName),
       ),
 
     /**
      * Creates a Zod string field with Portuguese validation messages.
      */
-    string: (fieldName: string): z.ZodString =>
+    string: (): z.ZodString =>
       z.string(
-        createFieldValidationMessages(
-          fieldName,
-          TYPE_DESCRIPTIONS.string,
-          entityName,
-        ),
+        createFieldValidationMessages(TYPE_DESCRIPTIONS.string, entityName),
       ),
 
     /**
      * Creates a Zod date field with Portuguese validation messages.
      */
-    date: (fieldName: string): z.ZodDate =>
-      z.date(
-        createFieldValidationMessages(
-          fieldName,
-          TYPE_DESCRIPTIONS.date,
-          entityName,
-        ),
-      ),
+    date: (): z.ZodDate =>
+      z.date(createFieldValidationMessages(TYPE_DESCRIPTIONS.date, entityName)),
 
     /**
      * Creates a Zod enum field with Portuguese validation messages.
      */
-    enum: <T extends util.EnumLike = util.EnumLike>(
-      fieldName: string,
-      values: T,
-    ): z.ZodEnum<T> =>
+    enum: <T extends util.EnumLike = util.EnumLike>(values: T): z.ZodEnum<T> =>
       z.enum(
         values,
         createFieldValidationMessages(
-          fieldName,
           TYPE_DESCRIPTIONS.enum,
           entityName,
+          'invalid_value',
         ),
       ),
 
     /**
      * Creates a Zod array field with Portuguese validation messages.
      */
-    array: <T extends z.ZodTypeAny>(
-      fieldName: string,
-      elementType: T,
-    ): z.ZodArray<T> =>
+    array: <T extends z.ZodTypeAny>(elementType: T): z.ZodArray<T> =>
       z.array(
         elementType,
-        createFieldValidationMessages(
-          fieldName,
-          TYPE_DESCRIPTIONS.array,
-          entityName,
-        ),
+        createFieldValidationMessages(TYPE_DESCRIPTIONS.array, entityName),
       ),
 
     /**

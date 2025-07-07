@@ -6,16 +6,16 @@ import { parseWithStack } from '~/shared/utils/parseWithStack'
 const ze = createZodEntity('user')
 
 export const userSchema = ze.create({
-  id: ze.number('id'),
-  name: ze.string('name'),
+  id: ze.number(),
+  name: ze.string(),
   favorite_foods: ze
-    .array('favorite_foods', ze.number('favorite_foods'))
+    .array(ze.number())
     .nullable()
     .transform((value) => value ?? []),
   diet: z.enum(['cut', 'normo', 'bulk']),
-  birthdate: ze.string('birthdate'),
+  birthdate: ze.string(),
   gender: z.union([z.literal('male'), z.literal('female')]),
-  desired_weight: ze.number('desired_weight'),
+  desired_weight: ze.number(),
   __type: z
     .string()
     .nullable()

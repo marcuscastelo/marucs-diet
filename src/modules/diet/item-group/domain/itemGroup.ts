@@ -9,8 +9,8 @@ import { generateId } from '~/shared/utils/idUtils'
 const ze = createZodEntity('itemGroup')
 
 export const simpleItemGroupSchema = ze.create({
-  id: ze.number('id'),
-  name: ze.string('name'),
+  id: ze.number(),
+  name: ze.string(),
   items: ze
     .array('items', itemSchema)
     .refine((arr) => Array.isArray(arr) && arr.length > 0, {
@@ -27,8 +27,8 @@ export const simpleItemGroupSchema = ze.create({
 })
 
 export const recipedItemGroupSchema = ze.create({
-  id: ze.number('id'),
-  name: ze.string('name'),
+  id: ze.number(),
+  name: ze.string(),
   items: ze
     .array('items', itemSchema)
     .refine((arr) => Array.isArray(arr) && arr.length > 0, {
@@ -36,7 +36,7 @@ export const recipedItemGroupSchema = ze.create({
         "O campo 'items' do grupo deve ser uma lista de itens e não pode ser vazio.",
     })
     .readonly(),
-  recipe: ze.number('recipe'),
+  recipe: ze.number(),
   __type: z.literal('ItemGroup').default('ItemGroup'),
 })
 

@@ -8,15 +8,15 @@ const ze = createZodEntity('measure')
 // TODO:   Create discriminate union type for Male and Female body measures
 export const bodyMeasureSchema = ze
   .create({
-    id: ze.number('id'),
-    height: ze.number('height'),
-    waist: ze.number('waist'),
+    id: ze.number(),
+    height: ze.number(),
+    waist: ze.number(),
     hip: ze
       .number('hip')
       .nullish()
       .transform((v) => (v === null ? undefined : v)),
-    neck: ze.number('neck'),
-    owner: ze.number('owner'),
+    neck: ze.number(),
+    owner: ze.number(),
     target_timestamp: z
       .date()
       .or(z.string())

@@ -10,11 +10,11 @@ const ze = createZodEntity('recipe')
 
 // Legacy schemas for database compatibility (using Item[])
 export const recipeSchema = ze.create({
-  id: ze.number('id'),
-  name: ze.string('name'),
-  owner: ze.number('owner'),
-  items: ze.array('items', itemSchema).readonly(),
-  prepared_multiplier: ze.number('prepared_multiplier').default(1),
+  id: ze.number(),
+  name: ze.string(),
+  owner: ze.number(),
+  items: ze.array(itemSchema).readonly(),
+  prepared_multiplier: ze.number().default(1),
   __type: z
     .string()
     .nullable()
@@ -31,11 +31,11 @@ export const newRecipeSchema = recipeSchema
   })
 
 export const unifiedRecipeSchema = ze.create({
-  id: ze.number('id'),
-  name: ze.string('name'),
-  owner: ze.number('owner'),
-  items: ze.array('items', unifiedItemSchema).readonly(),
-  prepared_multiplier: ze.number('prepared_multiplier').default(1),
+  id: ze.number(),
+  name: ze.string(),
+  owner: ze.number(),
+  items: ze.array(unifiedItemSchema).readonly(),
+  prepared_multiplier: ze.number().default(1),
   __type: z
     .string()
     .nullable()

@@ -16,30 +16,30 @@ import { parseWithStack } from '~/shared/utils/parseWithStack'
 const ze = createZodEntity('food')
 
 export const newFoodSchema = ze.create({
-  name: ze.string('name'),
-  ean: ze.string('ean').nullable(),
+  name: ze.string(),
+  ean: ze.string().nullable(),
   macros: macroNutrientsSchema,
   source: z
     .object({
       type: z.literal('api'),
-      id: ze.string('sourceId'),
+      id: ze.string(),
     })
     .optional(),
   __type: z.literal('NewFood'),
 })
 
 export const foodSchema = ze.create({
-  id: ze.number('id'),
+  id: ze.number(),
   source: z
     .object({
       type: z.literal('api'),
-      id: ze.string('sourceId'),
+      id: ze.string(),
     })
     .nullable()
     .transform((val) => val ?? undefined)
     .optional(),
-  name: ze.string('name'),
-  ean: ze.string('ean').nullable(),
+  name: ze.string(),
+  ean: ze.string().nullable(),
   macros: macroNutrientsSchema,
   __type: z
     .string()

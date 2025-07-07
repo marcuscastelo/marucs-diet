@@ -11,10 +11,10 @@ const ze = createZodEntity('item')
  * @deprecated Use UnifiedItem instead
  */
 export const itemSchema = ze.create({
-  id: ze.number('id'),
-  name: ze.string('name'),
-  reference: ze.number('reference'),
-  quantity: ze.number('quantity'),
+  id: ze.number(),
+  name: ze.string(),
+  reference: ze.number(),
+  quantity: ze.number(),
   /**
    * @deprecated Should be derived from the quantity and the reference
    */

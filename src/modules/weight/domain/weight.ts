@@ -6,8 +6,8 @@ import { parseWithStack } from '~/shared/utils/parseWithStack'
 const ze = createZodEntity('weight')
 
 export const newWeightSchema = ze.create({
-  owner: ze.number('owner'),
-  weight: ze.number('weight'),
+  owner: ze.number(),
+  weight: ze.number(),
   target_timestamp: z
     .date()
     .or(z.string())
@@ -16,9 +16,9 @@ export const newWeightSchema = ze.create({
 })
 
 export const weightSchema = ze.create({
-  id: ze.number('id'),
-  owner: ze.number('owner'),
-  weight: ze.number('weight'),
+  id: ze.number(),
+  owner: ze.number(),
+  weight: ze.number(),
   target_timestamp: z
     .date()
     .or(z.string())

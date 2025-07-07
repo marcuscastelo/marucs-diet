@@ -11,10 +11,10 @@ const ze = createZodEntity('recipeItem')
  * @deprecated
  */
 export const recipeItemSchema = ze.create({
-  id: ze.number('id'),
-  name: ze.string('name'),
-  reference: ze.number('reference'),
-  quantity: ze.number('quantity'),
+  id: ze.number(),
+  name: ze.string(),
+  reference: ze.number(),
+  quantity: ze.number(),
   macros: macroNutrientsSchema, // TODO:   Rename to foodMacros for clarity
   __type: z
     .string()

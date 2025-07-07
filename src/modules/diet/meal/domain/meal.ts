@@ -7,9 +7,9 @@ import { generateId } from '~/shared/utils/idUtils'
 const ze = createZodEntity('meal')
 
 export const mealSchema = ze.create({
-  id: ze.number('id'),
-  name: ze.string('name'),
-  items: ze.array('items', unifiedItemSchema),
+  id: ze.number(),
+  name: ze.string(),
+  items: ze.array(unifiedItemSchema),
   __type: z
     .string()
     .nullable()
