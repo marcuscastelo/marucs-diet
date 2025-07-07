@@ -98,8 +98,6 @@ function getRecipeFields(row: z.infer<typeof enhancedRecentFoodRowSchema>) {
   return { owner, preparedMultiplier }
 }
 
-// TODO: Implement proper infrastructure folder for recent food
-
 /**
  * Fetches a recent food by user, type and reference ID.
  * @param userId - The user ID.
