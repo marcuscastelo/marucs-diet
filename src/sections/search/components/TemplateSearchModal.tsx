@@ -103,9 +103,6 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
     closeEditModal: () => void,
   ) => {
     // For UnifiedItem, we need to check macro overflow
-    console.log(
-      '[TemplateSearchModal] Setting up macro overflow checking for UnifiedItem',
-    )
 
     const currentDayDiet_ = currentDayDiet()
     const macroTarget_ = getMacroTargetForDay(stringToDate(targetDay()))
@@ -250,7 +247,6 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
     )
   }
 
-  console.debug('[TemplateSearchModal] Render')
   return (
     <div class="flex flex-col min-h-0 h-[60vh] sm:h-[80vh] sm:max-h-[70vh] p-2">
       <TemplateSearch
@@ -280,7 +276,6 @@ export function TemplateSearch(props: {
         </h3>
         <EANButton
           showEANModal={() => {
-            console.debug('[TemplateSearchModal] showEANModal')
             props.onEANModal()
           }}
         />
