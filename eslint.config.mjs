@@ -50,9 +50,15 @@ export default [
       "simple-import-sort/imports": "warn",
       "simple-import-sort/exports": "warn",
       'no-restricted-imports': [
-        'error',
+        'warn',
         {
           patterns: ['../*', './*'],
+          paths: [
+            {
+              name: 'zod',
+              message: "Please use 'zod/v4' instead.",
+            },
+          ],
         },
       ],
       'import/no-unresolved': ['error'],

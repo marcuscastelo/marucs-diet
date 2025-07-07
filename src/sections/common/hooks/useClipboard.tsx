@@ -1,5 +1,5 @@
 import { createEffect, createSignal } from 'solid-js'
-import { type z } from 'zod'
+import { type z } from 'zod/v4'
 
 import {
   showError,

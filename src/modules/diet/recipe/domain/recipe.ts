@@ -1,110 +1,52 @@
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { unifiedItemSchema } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import {
-  type UnifiedItem, // eslint-disable-line @typescript-eslint/no-unused-vars
-  unifiedItemSchema,
-} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+  createIdField,
+  createNameField,
+  createNewTypeField,
+  createOwnerField,
+  createPreparedMultiplierField,
+  createTypeField,
+} from '~/shared/domain/commonFields'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 // Legacy schemas for database compatibility (using Item[])
-export const newRecipeSchema = z.object({
-  name: z.string({
-    required_error: "O campo 'name' da receita é obrigatório.",
-    invalid_type_error: "O campo 'name' da receita deve ser uma string.",
-  }),
-  owner: z.number({
-    required_error: "O campo 'owner' da receita é obrigatório.",
-    invalid_type_error: "O campo 'owner' da receita deve ser um número.",
-  }),
-  items: itemSchema.array(),
-  prepared_multiplier: z
-    .number({
-      required_error: "O campo 'prepared_multiplier' da receita é obrigatório.",
-      invalid_type_error:
-        "O campo 'prepared_multiplier' da receita deve ser um número.",
-    })
-    .default(1),
-  __type: z.literal('NewRecipe'),
-})
-
 export const recipeSchema = z.object({
-  id: z.number({
-    required_error: "O campo 'id' da receita é obrigatório.",
-    invalid_type_error: "O campo 'id' da receita deve ser um número.",
-  }),
-  name: z.string({
-    required_error: "O campo 'name' da receita é obrigatório.",
-    invalid_type_error: "O campo 'name' da receita deve ser uma string.",
-  }),
-  owner: z.number({
-    required_error: "O campo 'owner' da receita é obrigatório.",
-    invalid_type_error: "O campo 'owner' da receita deve ser um número.",
-  }),
+  id: createIdField('recipe'),
+  name: createNameField('recipe'),
+  owner: createOwnerField('recipe'),
   items: itemSchema.array().readonly(),
-  prepared_multiplier: z
-    .number({
-      required_error: "O campo 'prepared_multiplier' da receita é obrigatório.",
-      invalid_type_error:
-        "O campo 'prepared_multiplier' da receita deve ser um número.",
-    })
-    .default(1),
-  __type: z
-    .string()
-    .nullable()
-    .optional()
-    .transform(() => 'Recipe' as const),
+  prepared_multiplier: createPreparedMultiplierField('recipe'),
+  __type: createTypeField('Recipe'),
 })
 
-// New schemas using UnifiedItem[] for in-memory operations
-export const newUnifiedRecipeSchema = z.object({
-  name: z.string({
-    required_error: "O campo 'name' da receita é obrigatório.",
-    invalid_type_error: "O campo 'name' da receita deve ser uma string.",
-  }),
-  owner: z.number({
-    required_error: "O campo 'owner' da receita é obrigatório.",
-    invalid_type_error: "O campo 'owner' da receita deve ser um número.",
-  }),
-  items: unifiedItemSchema.array(),
-  prepared_multiplier: z
-    .number({
-      required_error: "O campo 'prepared_multiplier' da receita é obrigatório.",
-      invalid_type_error:
-        "O campo 'prepared_multiplier' da receita deve ser um número.",
-    })
-    .default(1),
-  __type: z.literal('NewUnifiedRecipe'),
-})
+export const newRecipeSchema = recipeSchema
+  .omit({ id: true, __type: true })
+  .extend({ __type: createNewTypeField('NewRecipe') })
+  .refine((val) => Array.isArray(val.items), {
+    message: 'items must be an array',
+    path: ['items'],
+  })
 
 export const unifiedRecipeSchema = z.object({
-  id: z.number({
-    required_error: "O campo 'id' da receita é obrigatório.",
-    invalid_type_error: "O campo 'id' da receita deve ser um número.",
-  }),
-  name: z.string({
-    required_error: "O campo 'name' da receita é obrigatório.",
-    invalid_type_error: "O campo 'name' da receita deve ser uma string.",
-  }),
-  owner: z.number({
-    required_error: "O campo 'owner' da receita é obrigatório.",
-    invalid_type_error: "O campo 'owner' da receita deve ser um número.",
-  }),
+  id: createIdField('recipe'),
+  name: createNameField('recipe'),
+  owner: createOwnerField('recipe'),
   items: unifiedItemSchema.array().readonly(),
-  prepared_multiplier: z
-    .number({
-      required_error: "O campo 'prepared_multiplier' da receita é obrigatório.",
-      invalid_type_error:
-        "O campo 'prepared_multiplier' da receita deve ser um número.",
-    })
-    .default(1),
-  __type: z
-    .string()
-    .nullable()
-    .optional()
-    .transform(() => 'UnifiedRecipe' as const),
+  prepared_multiplier: createPreparedMultiplierField('recipe'),
+  __type: createTypeField('UnifiedRecipe'),
 })
+
+export const newUnifiedRecipeSchema = unifiedRecipeSchema
+  .omit({ id: true, __type: true })
+  .extend({ __type: createNewTypeField('NewUnifiedRecipe') })
+  .refine((val) => Array.isArray(val.items), {
+    message: 'items must be an array',
+    path: ['items'],
+  })
 
 // Legacy types (using Item[])
 export type NewRecipe = Readonly<z.infer<typeof newRecipeSchema>>

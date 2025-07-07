@@ -1,4 +1,4 @@
-import { type z } from 'zod'
+import { type z } from 'zod/v4'
 
 import { handleValidationError } from '~/shared/error/errorHandler'
 import { jsonParseWithStack } from '~/shared/utils/jsonParseWithStack'
@@ -26,10 +26,7 @@ export function deserializeClipboard<T extends z.ZodType<unknown>>(
     })
     return null
   }
-  const result: z.SafeParseReturnType<
-    unknown,
-    z.infer<T>
-  > = allowedSchema.safeParse(parsed)
+  const result = allowedSchema.safeParse(parsed)
   if (!result.success) {
     handleValidationError('Invalid clipboard data', {
       component: 'clipboardUtils',

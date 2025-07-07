@@ -1,6 +1,12 @@
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import {
+  createIdField,
+  createNameField,
+  createQuantityField,
+  createReferenceField,
+} from '~/shared/domain/commonFields'
 import { generateId } from '~/shared/utils/idUtils'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
@@ -8,22 +14,10 @@ import { parseWithStack } from '~/shared/utils/parseWithStack'
  * @deprecated Use UnifiedItem instead
  */
 export const itemSchema = z.object({
-  id: z.number({
-    required_error: "O campo 'id' é obrigatório.",
-    invalid_type_error: "O campo 'id' deve ser um número.",
-  }),
-  name: z.string({
-    required_error: "O campo 'name' é obrigatório.",
-    invalid_type_error: "O campo 'name' deve ser uma string.",
-  }),
-  reference: z.number({
-    required_error: "O campo 'reference' é obrigatório.",
-    invalid_type_error: "O campo 'reference' deve ser um número.",
-  }),
-  quantity: z.number({
-    required_error: "O campo 'quantity' é obrigatório.",
-    invalid_type_error: "O campo 'quantity' deve ser um número.",
-  }),
+  id: createIdField('item'),
+  name: createNameField('item'),
+  reference: createReferenceField('item'),
+  quantity: createQuantityField('item'),
   /**
    * @deprecated Should be derived from the quantity and the reference
    */

@@ -1,6 +1,12 @@
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import {
+  createIdField,
+  createNameField,
+  createQuantityField,
+  createReferenceField,
+} from '~/shared/domain/commonFields'
 import { generateId } from '~/shared/utils/idUtils'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
@@ -8,25 +14,10 @@ import { parseWithStack } from '~/shared/utils/parseWithStack'
  * @deprecated
  */
 export const recipeItemSchema = z.object({
-  id: z.number({
-    required_error: "O campo 'id' do item de receita é obrigatório.",
-    invalid_type_error: "O campo 'id' do item de receita deve ser um número.",
-  }),
-  name: z.string({
-    required_error: "O campo 'name' do item de receita é obrigatório.",
-    invalid_type_error:
-      "O campo 'name' do item de receita deve ser uma string.",
-  }),
-  reference: z.number({
-    required_error: "O campo 'reference' do item de receita é obrigatório.",
-    invalid_type_error:
-      "O campo 'reference' do item de receita deve ser um número.",
-  }),
-  quantity: z.number({
-    required_error: "O campo 'quantity' do item de receita é obrigatório.",
-    invalid_type_error:
-      "O campo 'quantity' do item de receita deve ser um número.",
-  }),
+  id: createIdField('recipeItem'),
+  name: createNameField('recipeItem'),
+  reference: createReferenceField('recipeItem'),
+  quantity: createQuantityField('recipeItem'),
   macros: macroNutrientsSchema, // TODO:   Rename to foodMacros for clarity
   __type: z
     .string()

@@ -1,5 +1,5 @@
 import { type Accessor, For, type Setter, Show } from 'solid-js'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 import { saveUnifiedRecipe } from '~/modules/diet/recipe/application/unifiedRecipe'
 import { createNewUnifiedRecipe } from '~/modules/diet/recipe/domain/recipe'

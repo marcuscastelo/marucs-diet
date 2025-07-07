@@ -1,4 +1,5 @@
-import { z } from 'zod'
+/* eslint-disable @typescript-eslint/consistent-type-assertions */
+import { z } from 'zod/v4'
 
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 

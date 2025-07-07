@@ -59,7 +59,7 @@ export function UserInfo() {
   const convertDesiredWeight = (value: string) => Number(value)
 
   const convertGender = (value: string): User['gender'] => {
-    const result = userSchema._def.shape().gender.safeParse(value)
+    const result = userSchema.shape.gender.safeParse(value)
     if (!result.success) {
       return 'male'
     }

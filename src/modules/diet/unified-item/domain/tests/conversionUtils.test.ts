@@ -56,6 +56,7 @@ describe('conversionUtils', () => {
       id: 3,
       name: 'Simple Group',
       items: [sampleItem],
+      recipe: undefined,
       __type: 'ItemGroup',
     }
     const groupUnified = itemGroupToUnifiedItem(plainGroup)

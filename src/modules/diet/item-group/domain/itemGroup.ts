@@ -1,41 +1,30 @@
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import {
+  createIdField,
+  createNameField,
+  createNewTypeField,
+  createRecipeField,
+} from '~/shared/domain/commonFields'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { generateId } from '~/shared/utils/idUtils'
 
 export const simpleItemGroupSchema = z.object({
-  id: z.number({
-    required_error: "O campo 'id' do grupo é obrigatório.",
-    invalid_type_error: "O campo 'id' do grupo deve ser um número.",
-  }),
-  name: z.string({
-    required_error: "O campo 'name' do grupo é obrigatório.",
-    invalid_type_error: "O campo 'name' do grupo deve ser uma string.",
-  }),
+  id: createIdField('itemGroup'),
+  name: createNameField('itemGroup'),
   items: itemSchema.array(),
-  recipe: z
-    .number({
-      required_error:
-        "O campo 'recipe' do grupo é obrigatório quando presente.",
-      invalid_type_error: "O campo 'recipe' do grupo deve ser um número.",
-    })
+  recipe: createRecipeField('itemGroup')
     .nullable()
     .optional()
     .transform((recipe) => recipe ?? undefined),
-  __type: z.literal('ItemGroup').optional().default('ItemGroup'),
+  __type: createNewTypeField('ItemGroup').optional().default('ItemGroup'),
 })
 
 export const recipedItemGroupSchema = z.object({
-  id: z.number({
-    required_error: "O campo 'id' do grupo é obrigatório.",
-    invalid_type_error: "O campo 'id' do grupo deve ser um número.",
-  }),
-  name: z.string({
-    required_error: "O campo 'name' do grupo é obrigatório.",
-    invalid_type_error: "O campo 'name' do grupo deve ser uma string.",
-  }),
+  id: createIdField('itemGroup'),
+  name: createNameField('itemGroup'),
   items: itemSchema
     .array()
     .refine((arr) => Array.isArray(arr) && arr.length > 0, {
@@ -43,11 +32,8 @@ export const recipedItemGroupSchema = z.object({
         "O campo 'items' do grupo deve ser uma lista de itens e não pode ser vazio.",
     })
     .readonly(),
-  recipe: z.number({
-    required_error: "O campo 'recipe' do grupo é obrigatório.",
-    invalid_type_error: "O campo 'recipe' do grupo deve ser um número.",
-  }),
-  __type: z.literal('ItemGroup').default('ItemGroup'),
+  recipe: createRecipeField('itemGroup'),
+  __type: createNewTypeField('ItemGroup').default('ItemGroup'),
 })
 
 /**

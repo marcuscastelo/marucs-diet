@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 import { unifiedItemSchema } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { generateId } from '~/shared/utils/idUtils'

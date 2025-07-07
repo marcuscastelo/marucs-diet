@@ -1,7 +1,7 @@
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 import {
-  ENTITY_NAMES,
+  type ENTITY_NAMES,
   FIELD_MESSAGES,
 } from '~/shared/domain/validationMessages'
 
@@ -76,36 +76,21 @@ export function createTypeField<T extends string>(typeLiteral: T) {
 export function createDesiredWeightField(
   entityName: keyof typeof ENTITY_NAMES,
 ) {
-  const { required_error, invalid_type_error } = {
-    required_error: `O campo 'desired_weight' ${ENTITY_NAMES[entityName]} é obrigatório.`,
-    invalid_type_error: `O campo 'desired_weight' ${ENTITY_NAMES[entityName]} deve ser um número.`,
-  }
-  return z.number({ required_error, invalid_type_error })
+  return z.number(FIELD_MESSAGES.desiredWeight(entityName))
 }
 
 /**
  * Creates a birthdate field with consistent validation.
  */
 export function createBirthdateField(entityName: keyof typeof ENTITY_NAMES) {
-  const { required_error, invalid_type_error } = {
-    required_error: `O campo 'birthdate' ${ENTITY_NAMES[entityName]} é obrigatório.`,
-    invalid_type_error: `O campo 'birthdate' ${ENTITY_NAMES[entityName]} deve ser uma string.`,
-  }
-  return z.string({ required_error, invalid_type_error })
+  return z.string(FIELD_MESSAGES.birthdate(entityName))
 }
 
 /**
  * Creates a diet enum field with consistent validation.
  */
 export function createDietField(entityName: keyof typeof ENTITY_NAMES) {
-  const { required_error, invalid_type_error } = {
-    required_error: `O campo 'diet' ${ENTITY_NAMES[entityName]} é obrigatório.`,
-    invalid_type_error: `O campo 'diet' ${ENTITY_NAMES[entityName]} deve ser 'cut', 'normo' ou 'bulk'.`,
-  }
-  return z.enum(['cut', 'normo', 'bulk'], {
-    required_error,
-    invalid_type_error,
-  })
+  return z.enum(['cut', 'normo', 'bulk'], FIELD_MESSAGES.diet(entityName))
 }
 
 /**
@@ -114,12 +99,8 @@ export function createDietField(entityName: keyof typeof ENTITY_NAMES) {
 export function createFavoriteFoodsField(
   entityName: keyof typeof ENTITY_NAMES,
 ) {
-  const { required_error, invalid_type_error } = {
-    required_error: `O campo 'favorite_foods' ${ENTITY_NAMES[entityName]} é obrigatório.`,
-    invalid_type_error: `O campo 'favorite_foods' deve ser uma lista de números.`,
-  }
   return z
-    .array(z.number({ required_error, invalid_type_error }))
+    .array(z.number(FIELD_MESSAGES.favoriteFoods(entityName)))
     .nullable()
     .transform((value) => value ?? [])
 }
@@ -128,64 +109,39 @@ export function createFavoriteFoodsField(
  * Creates measure-specific fields with consistent validation.
  */
 export function createHeightField(entityName: keyof typeof ENTITY_NAMES) {
-  const { required_error, invalid_type_error } = {
-    required_error: `O campo 'height' ${ENTITY_NAMES[entityName]} é obrigatório.`,
-    invalid_type_error: `O campo 'height' ${ENTITY_NAMES[entityName]} deve ser um número.`,
-  }
-  return z.number({ required_error, invalid_type_error })
+  return z.number(FIELD_MESSAGES.height(entityName))
 }
 
 export function createWaistField(entityName: keyof typeof ENTITY_NAMES) {
-  const { required_error, invalid_type_error } = {
-    required_error: `O campo 'waist' ${ENTITY_NAMES[entityName]} é obrigatório.`,
-    invalid_type_error: `O campo 'waist' ${ENTITY_NAMES[entityName]} deve ser um número.`,
-  }
-  return z.number({ required_error, invalid_type_error })
+  return z.number(FIELD_MESSAGES.waist(entityName))
 }
 
 export function createHipField(entityName: keyof typeof ENTITY_NAMES) {
-  const { required_error, invalid_type_error } = {
-    required_error: `O campo 'hip' ${ENTITY_NAMES[entityName]} é obrigatório.`,
-    invalid_type_error: `O campo 'hip' ${ENTITY_NAMES[entityName]} deve ser um número.`,
-  }
   return z
-    .number({ required_error, invalid_type_error })
+    .number(FIELD_MESSAGES.hip(entityName))
     .nullish()
     .transform((v) => (v === null ? undefined : v))
 }
 
 export function createNeckField(entityName: keyof typeof ENTITY_NAMES) {
-  const { required_error, invalid_type_error } = {
-    required_error: `O campo 'neck' ${ENTITY_NAMES[entityName]} é obrigatório.`,
-    invalid_type_error: `O campo 'neck' ${ENTITY_NAMES[entityName]} deve ser um número.`,
-  }
-  return z.number({ required_error, invalid_type_error })
+  return z.number(FIELD_MESSAGES.neck(entityName))
 }
 
 /**
  * Creates an EAN field with consistent validation.
  */
 export function createEanField(entityName: keyof typeof ENTITY_NAMES) {
-  const { required_error, invalid_type_error } = {
-    required_error: `O campo 'ean' ${ENTITY_NAMES[entityName]} é obrigatório.`,
-    invalid_type_error: `O campo 'ean' ${ENTITY_NAMES[entityName]} deve ser uma string.`,
-  }
-  return z.string({ required_error, invalid_type_error }).nullable()
+  return z.string(FIELD_MESSAGES.ean(entityName)).nullable()
 }
 
 /**
  * Creates a source field for food schemas.
  */
 export function createFoodSourceField(entityName: keyof typeof ENTITY_NAMES) {
-  const { required_error, invalid_type_error } = {
-    required_error: `O campo 'id' da fonte ${ENTITY_NAMES[entityName]} é obrigatório.`,
-    invalid_type_error: `O campo 'id' da fonte ${ENTITY_NAMES[entityName]} deve ser uma string.`,
-  }
-
   return z
     .object({
       type: z.literal('api'),
-      id: z.string({ required_error, invalid_type_error }),
+      id: z.string(FIELD_MESSAGES.sourceId(entityName)),
     })
     .optional()
 }
@@ -196,17 +152,42 @@ export function createFoodSourceField(entityName: keyof typeof ENTITY_NAMES) {
 export function createPersistedFoodSourceField(
   entityName: keyof typeof ENTITY_NAMES,
 ) {
-  const { required_error, invalid_type_error } = {
-    required_error: `O campo 'id' da fonte ${ENTITY_NAMES[entityName]} é obrigatório.`,
-    invalid_type_error: `O campo 'id' da fonte ${ENTITY_NAMES[entityName]} deve ser uma string.`,
-  }
-
   return z
     .object({
       type: z.literal('api'),
-      id: z.string({ required_error, invalid_type_error }),
+      id: z.string(FIELD_MESSAGES.sourceId(entityName)),
     })
     .nullable()
     .transform((val) => val ?? undefined)
     .optional()
+}
+
+/**
+ * Creates a prepared_multiplier field for recipe schemas with consistent validation.
+ */
+export function createPreparedMultiplierField(
+  entityName: keyof typeof ENTITY_NAMES,
+) {
+  return z.number(FIELD_MESSAGES.preparedMultiplier(entityName)).default(1)
+}
+
+/**
+ * Creates a recipe field with consistent validation.
+ */
+export function createRecipeField(entityName: keyof typeof ENTITY_NAMES) {
+  return z.number(FIELD_MESSAGES.recipe(entityName))
+}
+
+/**
+ * Creates a reference field with consistent validation.
+ */
+export function createReferenceField(entityName: keyof typeof ENTITY_NAMES) {
+  return z.number(FIELD_MESSAGES.reference(entityName))
+}
+
+/**
+ * Creates a quantity field with consistent validation.
+ */
+export function createQuantityField(entityName: keyof typeof ENTITY_NAMES) {
+  return z.number(FIELD_MESSAGES.quantity(entityName))
 }

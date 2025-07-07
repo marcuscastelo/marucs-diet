@@ -3,6 +3,8 @@
  * Centralizes common validation patterns to reduce duplication across domain schemas.
  */
 
+import { type z } from 'zod/v4'
+
 /**
  * Generates required field error message in Portuguese.
  */
@@ -36,6 +38,8 @@ export const ENTITY_NAMES = {
   dayDiet: 'da dieta do dia',
   macroProfile: 'do perfil de macros',
   itemGroup: 'do grupo de itens',
+  item: 'do item',
+  recipeItem: 'do item de receita',
 } as const
 
 /**
@@ -54,60 +58,181 @@ export const TYPE_DESCRIPTIONS = {
  * Pre-built message generators for common field patterns.
  */
 export const FIELD_MESSAGES = {
-  id: (entityName: keyof typeof ENTITY_NAMES) => ({
-    required_error: createRequiredFieldMessage('id', ENTITY_NAMES[entityName]),
-    invalid_type_error: createInvalidTypeMessage(
-      'id',
-      ENTITY_NAMES[entityName],
-      TYPE_DESCRIPTIONS.number,
-    ),
+  id: (_entityName: keyof typeof ENTITY_NAMES): z.core.$ZodNumberParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+    // required_error: createRequiredFieldMessage('id', ENTITY_NAMES[entityName]),
+    // invalid_type_error: createInvalidTypeMessage(
+    //   'id',
+    //   ENTITY_NAMES[entityName],
+    //   TYPE_DESCRIPTIONS.number,
+    // ),
   }),
 
-  name: (entityName: keyof typeof ENTITY_NAMES) => ({
-    required_error: createRequiredFieldMessage(
-      'name',
-      ENTITY_NAMES[entityName],
-    ),
-    invalid_type_error: createInvalidTypeMessage(
-      'name',
-      ENTITY_NAMES[entityName],
-      TYPE_DESCRIPTIONS.string,
-    ),
+  name: (_entityName: keyof typeof ENTITY_NAMES): z.core.$ZodStringParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+    // required_error: createRequiredFieldMessage(
+    //   'name',
+    //   ENTITY_NAMES[entityName],
+    // ),
+    // invalid_type_error: createInvalidTypeMessage(
+    //   'name',
+    //   ENTITY_NAMES[entityName],
+    //   TYPE_DESCRIPTIONS.string,
+    // ),
   }),
 
-  owner: (entityName: keyof typeof ENTITY_NAMES) => ({
-    required_error: createRequiredFieldMessage(
-      'owner',
-      ENTITY_NAMES[entityName],
-    ),
-    invalid_type_error: createInvalidTypeMessage(
-      'owner',
-      ENTITY_NAMES[entityName],
-      TYPE_DESCRIPTIONS.number,
-    ),
+  owner: (_entityName: keyof typeof ENTITY_NAMES): z.core.$ZodNumberParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+    // required_error: createRequiredFieldMessage(
+    //   'owner',
+    //   ENTITY_NAMES[entityName],
+    // ),
+    // invalid_type_error: createInvalidTypeMessage(
+    //   'owner',
+    //   ENTITY_NAMES[entityName],
+    //   TYPE_DESCRIPTIONS.number,
+    // ),
   }),
 
-  targetTimestamp: (entityName: keyof typeof ENTITY_NAMES) => ({
-    required_error: createRequiredFieldMessage(
-      'target_timestamp',
-      ENTITY_NAMES[entityName],
-    ),
-    invalid_type_error: createInvalidTypeMessage(
-      'target_timestamp',
-      ENTITY_NAMES[entityName],
-      TYPE_DESCRIPTIONS.date,
-    ),
+  targetTimestamp: (
+    _entityName: keyof typeof ENTITY_NAMES,
+  ): z.core.$ZodDateParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+    // required_error: createRequiredFieldMessage(
+    //   'target_timestamp',
+    //   ENTITY_NAMES[entityName],
+    // ),
+    // invalid_type_error: createInvalidTypeMessage(
+    //   'target_timestamp',
+    //   ENTITY_NAMES[entityName],
+    //   TYPE_DESCRIPTIONS.date,
+    // ),
   }),
 
-  weight: (entityName: keyof typeof ENTITY_NAMES) => ({
-    required_error: createRequiredFieldMessage(
-      'weight',
-      ENTITY_NAMES[entityName],
-    ),
-    invalid_type_error: createInvalidTypeMessage(
-      'weight',
-      ENTITY_NAMES[entityName],
-      TYPE_DESCRIPTIONS.number,
-    ),
+  weight: (
+    _entityName: keyof typeof ENTITY_NAMES,
+  ): z.core.$ZodNumberParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+    // required_error: createRequiredFieldMessage(
+    //   'weight',
+    //   ENTITY_NAMES[entityName],
+    // ),
+    // invalid_type_error: createInvalidTypeMessage(
+    //   'weight',
+    //   ENTITY_NAMES[entityName],
+    //   TYPE_DESCRIPTIONS.number,
+    // ),
+  }),
+
+  desiredWeight: (
+    _entityName: keyof typeof ENTITY_NAMES,
+  ): z.core.$ZodNumberParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+  }),
+
+  birthdate: (
+    _entityName: keyof typeof ENTITY_NAMES,
+  ): z.core.$ZodStringParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+  }),
+
+  diet: (_entityName: keyof typeof ENTITY_NAMES): z.core.$ZodEnumParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+  }),
+
+  favoriteFoods: (
+    _entityName: keyof typeof ENTITY_NAMES,
+  ): z.core.$ZodNumberParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+  }),
+
+  height: (
+    _entityName: keyof typeof ENTITY_NAMES,
+  ): z.core.$ZodNumberParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+  }),
+
+  waist: (_entityName: keyof typeof ENTITY_NAMES): z.core.$ZodNumberParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+  }),
+
+  hip: (_entityName: keyof typeof ENTITY_NAMES): z.core.$ZodNumberParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+  }),
+
+  neck: (_entityName: keyof typeof ENTITY_NAMES): z.core.$ZodNumberParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+  }),
+
+  ean: (_entityName: keyof typeof ENTITY_NAMES): z.core.$ZodStringParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+  }),
+
+  sourceId: (
+    _entityName: keyof typeof ENTITY_NAMES,
+  ): z.core.$ZodStringParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+  }),
+
+  preparedMultiplier: (
+    _entityName: keyof typeof ENTITY_NAMES,
+  ): z.core.$ZodNumberParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+  }),
+
+  recipe: (
+    _entityName: keyof typeof ENTITY_NAMES,
+  ): z.core.$ZodNumberParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+  }),
+
+  reference: (
+    _entityName: keyof typeof ENTITY_NAMES,
+  ): z.core.$ZodNumberParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+  }),
+
+  quantity: (
+    _entityName: keyof typeof ENTITY_NAMES,
+  ): z.core.$ZodNumberParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
   }),
 } as const

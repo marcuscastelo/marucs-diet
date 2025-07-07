@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 import { mealSchema } from '~/modules/diet/meal/domain/meal'
 import { type Meal } from '~/modules/diet/meal/domain/meal'

@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 import { type Weight, weightSchema } from '~/modules/weight/domain/weight'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
