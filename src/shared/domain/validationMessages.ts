@@ -62,27 +62,39 @@ export const TYPE_DESCRIPTIONS = {
  */
 
 /**
- * Creates number field validation messages.
+ * Generic function to create field validation messages with error handling.
+ * This function provides consistent error handling patterns for all field types.
  */
-export function createNumberFieldMessages(
+function createFieldValidationMessages(
   fieldName: string,
+  typeDescription: string,
+  validErrorCode: 'invalid_type' | 'invalid_value' = 'invalid_type',
 ): (entityName: keyof typeof ENTITY_NAMES) => z.core.TypeParams<z.ZodType> {
   return (
     entityName: keyof typeof ENTITY_NAMES,
   ): z.core.TypeParams<z.ZodType> => ({
     error: (iss) => {
       switch (iss.code) {
-        case 'invalid_type':
+        case validErrorCode:
           return createInvalidTypeMessage(
             fieldName,
             ENTITY_NAMES[entityName],
-            TYPE_DESCRIPTIONS.number,
+            typeDescription,
           )
         default:
           break
       }
     },
   })
+}
+
+/**
+ * Creates number field validation messages.
+ */
+export function createNumberFieldMessages(
+  fieldName: string,
+): (entityName: keyof typeof ENTITY_NAMES) => z.core.TypeParams<z.ZodType> {
+  return createFieldValidationMessages(fieldName, TYPE_DESCRIPTIONS.number)
 }
 
 /**
@@ -91,22 +103,7 @@ export function createNumberFieldMessages(
 export function createStringFieldMessages(
   fieldName: string,
 ): (entityName: keyof typeof ENTITY_NAMES) => z.core.TypeParams<z.ZodType> {
-  return (
-    entityName: keyof typeof ENTITY_NAMES,
-  ): z.core.TypeParams<z.ZodType> => ({
-    error: (iss) => {
-      switch (iss.code) {
-        case 'invalid_type':
-          return createInvalidTypeMessage(
-            fieldName,
-            ENTITY_NAMES[entityName],
-            TYPE_DESCRIPTIONS.string,
-          )
-        default:
-          break
-      }
-    },
-  })
+  return createFieldValidationMessages(fieldName, TYPE_DESCRIPTIONS.string)
 }
 
 /**
@@ -115,22 +112,7 @@ export function createStringFieldMessages(
 export function createDateFieldMessages(
   fieldName: string,
 ): (entityName: keyof typeof ENTITY_NAMES) => z.core.TypeParams<z.ZodType> {
-  return (
-    entityName: keyof typeof ENTITY_NAMES,
-  ): z.core.TypeParams<z.ZodType> => ({
-    error: (iss) => {
-      switch (iss.code) {
-        case 'invalid_type':
-          return createInvalidTypeMessage(
-            fieldName,
-            ENTITY_NAMES[entityName],
-            TYPE_DESCRIPTIONS.date,
-          )
-        default:
-          break
-      }
-    },
-  })
+  return createFieldValidationMessages(fieldName, TYPE_DESCRIPTIONS.date)
 }
 
 /**
@@ -139,22 +121,11 @@ export function createDateFieldMessages(
 export function createEnumFieldMessages(
   fieldName: string,
 ): (entityName: keyof typeof ENTITY_NAMES) => z.core.TypeParams<z.ZodType> {
-  return (
-    entityName: keyof typeof ENTITY_NAMES,
-  ): z.core.TypeParams<z.ZodType> => ({
-    error: (iss) => {
-      switch (iss.code) {
-        case 'invalid_value':
-          return createInvalidTypeMessage(
-            fieldName,
-            ENTITY_NAMES[entityName],
-            'um valor válido',
-          )
-        default:
-          break
-      }
-    },
-  })
+  return createFieldValidationMessages(
+    fieldName,
+    'um valor válido',
+    'invalid_value',
+  )
 }
 
 /**
@@ -163,20 +134,5 @@ export function createEnumFieldMessages(
 export function createArrayFieldMessages(
   fieldName: string,
 ): (entityName: keyof typeof ENTITY_NAMES) => z.core.TypeParams<z.ZodType> {
-  return (
-    entityName: keyof typeof ENTITY_NAMES,
-  ): z.core.TypeParams<z.ZodType> => ({
-    error: (iss) => {
-      switch (iss.code) {
-        case 'invalid_type':
-          return createInvalidTypeMessage(
-            fieldName,
-            ENTITY_NAMES[entityName],
-            TYPE_DESCRIPTIONS.array,
-          )
-        default:
-          break
-      }
-    },
-  })
+  return createFieldValidationMessages(fieldName, TYPE_DESCRIPTIONS.array)
 }
