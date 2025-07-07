@@ -1,17 +1,19 @@
 import { z } from 'zod/v4'
 
 import { unifiedItemSchema } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import {
+  createIdField,
+  createItemsField,
+  createNameField,
+  createTypeField,
+} from '~/shared/domain/commonFields'
 import { generateId } from '~/shared/utils/idUtils'
 
 export const mealSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  items: z.array(unifiedItemSchema),
-  __type: z
-    .string()
-    .nullable()
-    .optional()
-    .transform(() => 'Meal' as const),
+  id: createIdField('meal'),
+  name: createNameField('meal'),
+  items: createItemsField('meal', unifiedItemSchema),
+  __type: createTypeField('Meal' as const),
 })
 
 export type Meal = Readonly<z.infer<typeof mealSchema>>

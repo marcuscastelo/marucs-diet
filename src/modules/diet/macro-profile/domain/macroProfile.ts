@@ -1,28 +1,31 @@
 import { z } from 'zod/v4'
 
+import {
+  createGramsPerKgCarbsField,
+  createGramsPerKgFatField,
+  createGramsPerKgProteinField,
+  createIdField,
+  createNewTypeField,
+  createOwnerField,
+  createTargetDayField,
+  createTypeField,
+} from '~/shared/domain/commonFields'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 export const macroProfileSchema = z.object({
-  id: z.number(),
-  owner: z.number(),
-  target_day: z
-    .date()
-    .or(z.string())
-    .transform((v) => new Date(v)),
-  gramsPerKgCarbs: z.number(),
-  gramsPerKgProtein: z.number(),
-  gramsPerKgFat: z.number(),
-  __type: z
-    .string()
-    .nullable()
-    .optional()
-    .transform(() => 'MacroProfile' as const),
+  id: createIdField('macroProfile'),
+  owner: createOwnerField('macroProfile'),
+  target_day: createTargetDayField('macroProfile'),
+  gramsPerKgCarbs: createGramsPerKgCarbsField('macroProfile'),
+  gramsPerKgProtein: createGramsPerKgProteinField('macroProfile'),
+  gramsPerKgFat: createGramsPerKgFatField('macroProfile'),
+  __type: createTypeField('MacroProfile' as const),
 })
 
 export const newMacroProfileSchema = macroProfileSchema
   .omit({ id: true })
   .extend({
-    __type: z.literal('NewMacroProfile'),
+    __type: createNewTypeField('NewMacroProfile'),
   })
 
 export type MacroProfile = Readonly<z.infer<typeof macroProfileSchema>>
@@ -47,34 +50,6 @@ export function createNewMacroProfile({
     gramsPerKgCarbs,
     gramsPerKgProtein,
     gramsPerKgFat,
-    __type: 'NewMacroProfile',
-  })
-}
-
-export function promoteToMacroProfile(
-  newMacroProfile: NewMacroProfile,
-  id: number,
-): MacroProfile {
-  return parseWithStack(macroProfileSchema, {
-    ...newMacroProfile,
-    id,
-    __type: 'MacroProfile',
-  })
-}
-
-/**
- * Demotes a MacroProfile to a NewMacroProfile for updates.
- * Used when converting a persisted MacroProfile back to NewMacroProfile for database operations.
- */
-export function demoteToNewMacroProfile(
-  macroProfile: MacroProfile,
-): NewMacroProfile {
-  return parseWithStack(newMacroProfileSchema, {
-    owner: macroProfile.owner,
-    target_day: macroProfile.target_day,
-    gramsPerKgCarbs: macroProfile.gramsPerKgCarbs,
-    gramsPerKgProtein: macroProfile.gramsPerKgProtein,
-    gramsPerKgFat: macroProfile.gramsPerKgFat,
     __type: 'NewMacroProfile',
   })
 }

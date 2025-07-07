@@ -40,6 +40,8 @@ export const ENTITY_NAMES = {
   itemGroup: 'do grupo de itens',
   item: 'do item',
   recipeItem: 'do item de receita',
+  meal: 'da refeição',
+  macroNutrients: 'dos macronutrientes',
 } as const
 
 /**
@@ -231,6 +233,65 @@ export const FIELD_MESSAGES = {
   quantity: (
     _entityName: keyof typeof ENTITY_NAMES,
   ): z.core.$ZodNumberParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+  }),
+
+  gramsPerKgCarbs: (
+    _entityName: keyof typeof ENTITY_NAMES,
+  ): z.core.$ZodNumberParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+  }),
+
+  gramsPerKgProtein: (
+    _entityName: keyof typeof ENTITY_NAMES,
+  ): z.core.$ZodNumberParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+  }),
+
+  gramsPerKgFat: (
+    _entityName: keyof typeof ENTITY_NAMES,
+  ): z.core.$ZodNumberParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+  }),
+
+  targetDay: (
+    _entityName: keyof typeof ENTITY_NAMES,
+  ): z.core.$ZodDateParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+  }),
+  carbs: (_entityName: keyof typeof ENTITY_NAMES): z.core.$ZodNumberParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+  }),
+  protein: (
+    _entityName: keyof typeof ENTITY_NAMES,
+  ): z.core.$ZodNumberParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+  }),
+  fat: (_entityName: keyof typeof ENTITY_NAMES): z.core.$ZodNumberParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+  }),
+  items: (_entityName: keyof typeof ENTITY_NAMES): z.core.$ZodArrayParams => ({
+    error: (_iss) => {
+      return 'Error message: TODO'
+    },
+  }),
+  meals: (_entityName: keyof typeof ENTITY_NAMES): z.core.$ZodArrayParams => ({
     error: (_iss) => {
       return 'Error message: TODO'
     },

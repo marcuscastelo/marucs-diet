@@ -191,3 +191,70 @@ export function createReferenceField(entityName: keyof typeof ENTITY_NAMES) {
 export function createQuantityField(entityName: keyof typeof ENTITY_NAMES) {
   return z.number(FIELD_MESSAGES.quantity(entityName))
 }
+
+/**
+ * Creates macro profile specific fields with consistent validation.
+ */
+export function createGramsPerKgCarbsField(
+  entityName: keyof typeof ENTITY_NAMES,
+) {
+  return z.number(FIELD_MESSAGES.gramsPerKgCarbs(entityName))
+}
+
+export function createGramsPerKgProteinField(
+  entityName: keyof typeof ENTITY_NAMES,
+) {
+  return z.number(FIELD_MESSAGES.gramsPerKgProtein(entityName))
+}
+
+export function createGramsPerKgFatField(
+  entityName: keyof typeof ENTITY_NAMES,
+) {
+  return z.number(FIELD_MESSAGES.gramsPerKgFat(entityName))
+}
+
+/**
+ * Creates a target_day field with date/string transformation for macro profiles.
+ */
+export function createTargetDayField(entityName: keyof typeof ENTITY_NAMES) {
+  const messages = FIELD_MESSAGES.targetDay(entityName)
+  return z
+    .date(messages)
+    .or(z.string(messages))
+    .transform((v) => new Date(v))
+}
+
+/**
+ * Creates macro nutrient fields with consistent validation.
+ */
+export function createCarbsField(entityName: keyof typeof ENTITY_NAMES) {
+  return z.number(FIELD_MESSAGES.carbs(entityName))
+}
+
+export function createProteinField(entityName: keyof typeof ENTITY_NAMES) {
+  return z.number(FIELD_MESSAGES.protein(entityName))
+}
+
+export function createFatField(entityName: keyof typeof ENTITY_NAMES) {
+  return z.number(FIELD_MESSAGES.fat(entityName))
+}
+
+/**
+ * Creates items array field with consistent validation.
+ */
+export function createItemsField<T>(
+  entityName: keyof typeof ENTITY_NAMES,
+  itemSchema: z.ZodType<T>,
+) {
+  return z.array(itemSchema, FIELD_MESSAGES.items(entityName))
+}
+
+/**
+ * Creates meals array field with consistent validation.
+ */
+export function createMealsField<T>(
+  entityName: keyof typeof ENTITY_NAMES,
+  mealSchema: z.ZodType<T>,
+) {
+  return z.array(mealSchema, FIELD_MESSAGES.meals(entityName))
+}
