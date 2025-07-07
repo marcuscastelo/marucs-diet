@@ -13,31 +13,33 @@ import {
 import { createZodEntity } from '~/shared/domain/validationMessages'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
-export const newFoodSchema = z.object({
-  name: z.string(createStringFieldMessages('name')('food')),
-  ean: z.string(createStringFieldMessages('ean')('food')).nullable(),
+const ze = createZodEntity('food')
+
+export const newFoodSchema = ze.create({
+  name: ze.string('name'),
+  ean: ze.string('ean').nullable(),
   macros: macroNutrientsSchema,
   source: z
     .object({
       type: z.literal('api'),
-      id: z.string(createStringFieldMessages('sourceId')('food')),
+      id: ze.string('sourceId'),
     })
     .optional(),
   __type: z.literal('NewFood'),
 })
 
-export const foodSchema = z.object({
-  id: z.number(createNumberFieldMessages('id')('food')),
+export const foodSchema = ze.create({
+  id: ze.number('id'),
   source: z
     .object({
       type: z.literal('api'),
-      id: z.string(createStringFieldMessages('sourceId')('food')),
+      id: ze.string('sourceId'),
     })
     .nullable()
     .transform((val) => val ?? undefined)
     .optional(),
-  name: z.string(createStringFieldMessages('name')('food')),
-  ean: z.string(createStringFieldMessages('ean')('food')).nullable(),
+  name: ze.string('name'),
+  ean: ze.string('ean').nullable(),
   macros: macroNutrientsSchema,
   __type: z
     .string()

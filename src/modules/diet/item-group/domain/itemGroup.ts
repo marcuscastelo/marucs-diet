@@ -3,19 +3,12 @@ import { z } from 'zod/v4'
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import {
-  createArrayFieldMessages,
-  createNumberFieldMessages,
-  createStringFieldMessages,
-} from '~/shared/domain/validationMessages'
+import { createZodEntity } from '~/shared/domain/validationMessages'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { generateId } from '~/shared/utils/idUtils'
 
 export const simpleItemGroupSchema = z.object({
-  id: z.number(createNumberFieldMessages('id')('itemGroup')),
-  name: z.string(createStringFieldMessages('name')('itemGroup')),
-  items: z.array(itemSchema, createArrayFieldMessages('items')('itemGroup')),
   recipe: z
-    .number(createNumberFieldMessages('recipe')('itemGroup'))
     .nullable()
     .optional()
     .transform((recipe) => recipe ?? undefined),
@@ -23,16 +16,12 @@ export const simpleItemGroupSchema = z.object({
 })
 
 export const recipedItemGroupSchema = z.object({
-  id: z.number(createNumberFieldMessages('id')('itemGroup')),
-  name: z.string(createStringFieldMessages('name')('itemGroup')),
   items: z
-    .array(itemSchema, createArrayFieldMessages('items')('itemGroup'))
     .refine((arr) => Array.isArray(arr) && arr.length > 0, {
       message:
         "O campo 'items' do grupo deve ser uma lista de itens e não pode ser vazio.",
     })
     .readonly(),
-  recipe: z.number(createNumberFieldMessages('recipe')('itemGroup')),
   __type: z.literal('ItemGroup').default('ItemGroup'),
 })
 

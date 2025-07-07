@@ -1,21 +1,20 @@
 import { z } from 'zod/v4'
 
 import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
-import {
-  createNumberFieldMessages,
-  createStringFieldMessages,
-} from '~/shared/domain/validationMessages'
+import { createZodEntity } from '~/shared/domain/validationMessages'
 import { generateId } from '~/shared/utils/idUtils'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
+
+const ze = createZodEntity('item')
 
 /**
  * @deprecated Use UnifiedItem instead
  */
-export const itemSchema = z.object({
-  id: z.number(createNumberFieldMessages('id')('item')),
-  name: z.string(createStringFieldMessages('name')('item')),
-  reference: z.number(createNumberFieldMessages('reference')('item')),
-  quantity: z.number(createNumberFieldMessages('quantity')('item')),
+export const itemSchema = ze.create({
+  id: ze.number('id'),
+  name: ze.string('name'),
+  reference: ze.number('reference'),
+  quantity: ze.number('quantity'),
   /**
    * @deprecated Should be derived from the quantity and the reference
    */
