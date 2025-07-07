@@ -47,7 +47,7 @@ BEGIN
       COALESCE(f.name, r.name) as template_name,
       f.ean as template_ean,
       f.source as template_source,
-      f.macros as template_macros,
+      f.macros::jsonb as template_macros,
       r.owner as template_owner,
       r.items as template_items,
       r.prepared_multiplier as template_prepared_multiplier
@@ -74,7 +74,7 @@ BEGIN
       COALESCE(f.name, r.name) as template_name,
       f.ean as template_ean,
       f.source as template_source,
-      f.macros as template_macros,
+      f.macros::jsonb as template_macros,
       r.owner as template_owner,
       r.items as template_items,
       r.prepared_multiplier as template_prepared_multiplier
