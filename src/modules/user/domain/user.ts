@@ -1,50 +1,30 @@
 import { z } from 'zod'
 
+import {
+  createBirthdateField,
+  createDesiredWeightField,
+  createDietField,
+  createFavoriteFoodsField,
+  createIdField,
+  createNameField,
+  createNewTypeField,
+  createTypeField,
+} from '~/shared/domain/commonFields'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 export const userSchema = z.object({
-  id: z.number({
-    required_error: "O campo 'id' do usuário é obrigatório.",
-    invalid_type_error: "O campo 'id' do usuário deve ser um número.",
-  }),
-  name: z.string({
-    required_error: "O campo 'name' do usuário é obrigatório.",
-    invalid_type_error: "O campo 'name' do usuário deve ser uma string.",
-  }),
-  favorite_foods: z
-    .array(
-      z.number({
-        required_error: "O campo 'favorite_foods' do usuário é obrigatório.",
-        invalid_type_error:
-          "O campo 'favorite_foods' deve ser uma lista de números.",
-      }),
-    )
-    .nullable()
-    .transform((value) => value ?? []),
-  diet: z.enum(['cut', 'normo', 'bulk'], {
-    required_error: "O campo 'diet' do usuário é obrigatório.",
-    invalid_type_error:
-      "O campo 'diet' do usuário deve ser 'cut', 'normo' ou 'bulk'.",
-  }),
-  birthdate: z.string({
-    required_error: "O campo 'birthdate' do usuário é obrigatório.",
-    invalid_type_error: "O campo 'birthdate' do usuário deve ser uma string.",
-  }),
+  id: createIdField('user'),
+  name: createNameField('user'),
+  favorite_foods: createFavoriteFoodsField('user'),
+  diet: createDietField('user'),
+  birthdate: createBirthdateField('user'),
   gender: z.union([z.literal('male'), z.literal('female')]),
-  desired_weight: z.number({
-    required_error: "O campo 'desired_weight' do usuário é obrigatório.",
-    invalid_type_error:
-      "O campo 'desired_weight' do usuário deve ser um número.",
-  }),
-  __type: z
-    .string()
-    .nullable()
-    .optional()
-    .transform(() => 'User' as const),
+  desired_weight: createDesiredWeightField('user'),
+  __type: createTypeField('User'),
 })
 
 export const newUserSchema = userSchema.omit({ id: true }).extend({
-  __type: z.literal('NewUser'),
+  __type: createNewTypeField('NewUser'),
 })
 
 export type NewUser = Readonly<z.infer<typeof newUserSchema>>
