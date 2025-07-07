@@ -19,23 +19,8 @@ export type FetchTemplatesDeps = {
   fetchUserRecentFoods: (
     userId: number,
     limit?: number,
-  ) => Promise<
-    { type: 'food' | 'recipe'; reference_id: number; last_used: Date }[] | null
-  >
-  fetchUserRecentTemplates: (
-    userId: number,
-    limit?: number,
     search?: string,
-  ) => Promise<
-    readonly {
-      template: Template
-      usage_metadata: {
-        recent_food_id: number
-        last_used: Date
-        times_used: number
-      }
-    }[]
-  >
+  ) => Promise<readonly Template[]>
   fetchFoodById: (id: number) => Promise<Food | null>
   fetchRecipeById: (id: number) => Promise<Recipe | null>
   fetchFoods: (opts: {
@@ -70,15 +55,12 @@ export async function fetchTemplatesByTabLogic(
   const lowerSearch = search.trim().toLowerCase()
   switch (tabId) {
     case availableTabs.Recentes.id: {
-      // Use the new enhanced function that returns complete Template objects
-      const recentTemplates = await deps.fetchUserRecentTemplates(
+      // Use the refactored function that returns Template objects directly
+      const templates = await deps.fetchUserRecentFoods(
         userId,
         undefined,
         search,
       )
-
-      // Extract the templates from the RecentTemplate objects
-      const templates = recentTemplates.map((rt) => rt.template)
 
       // Apply additional client-side filtering if needed (for EAN search)
       if (lowerSearch !== '') {

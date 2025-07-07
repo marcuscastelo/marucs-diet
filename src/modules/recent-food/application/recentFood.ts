@@ -2,6 +2,7 @@
 // All error handling is done here, domain remains pure
 import { foodSchema } from '~/modules/diet/food/domain/food'
 import { recipeSchema } from '~/modules/diet/recipe/domain/recipe'
+import type { Template } from '~/modules/diet/template/domain/template'
 import {
   createRecentTemplate,
   type NewRecentFood,
@@ -54,63 +55,72 @@ export async function fetchRecentFoodByUserTypeAndReferenceId(
 }
 
 /**
- * Fetches recent foods for a user with optional limit and search filtering.
- * When search is provided, uses server-side search with joined food/recipe names for efficiency.
+ * Fetches recent foods as Templates for a user with optional limit and search filtering.
+ * Uses the enhanced database function to return complete Template objects directly.
  * @param userId - The user ID.
  * @param limit - Maximum number of recent foods to fetch (defaults to environment configuration).
  * @param search - Optional search term to filter by food/recipe names (case and diacritic insensitive).
- * @returns Array of recent foods or empty array on error.
+ * @returns Array of Template objects or empty array on error.
  */
 export async function fetchUserRecentFoods(
   userId: RecentFood['user_id'],
   limit: number = env.VITE_RECENT_FOODS_DEFAULT_LIMIT,
   search?: string,
-): Promise<readonly RecentFood[]> {
+): Promise<readonly Template[]> {
   try {
-    // If search is provided, use server-side search function for efficiency
-    if (search !== undefined && search.trim() !== '') {
-      const normalizedSearch = removeDiacritics(search.trim())
-      const response = await supabase.rpc('search_recent_foods_with_names', {
-        p_user_id: userId,
-        p_search_term: normalizedSearch,
-        p_limit: limit,
-      })
-      if (response.error !== null) throw response.error
+    const normalizedSearch =
+      search?.trim() !== undefined && search.trim() !== ''
+        ? removeDiacritics(search.trim())
+        : undefined
+    const response = await supabase.rpc('search_recent_foods_with_names', {
+      p_user_id: userId,
+      p_search_term: normalizedSearch ?? null,
+      p_limit: limit,
+    })
+    if (response.error !== null) throw response.error
 
-      // Transform the joined result back to RecentFood schema (excluding the name field)
-      const recentFoodsData = (response.data as unknown[]).map(
-        (row: unknown) => {
-          const typedRow = row as {
-            recent_food_id: number
-            user_id: number
-            type: string
-            reference_id: number
-            last_used: string | Date
-            times_used: number
-          }
-          return {
-            id: typedRow.recent_food_id,
-            user_id: typedRow.user_id,
-            type: typedRow.type,
-            reference_id: typedRow.reference_id,
-            last_used: typedRow.last_used,
-            times_used: typedRow.times_used,
-          }
-        },
-      )
+    // Transform the enhanced result to Template objects
+    const templates = (response.data as unknown[]).map((row: unknown) => {
+      const typedRow = row as {
+        recent_food_id: number
+        user_id: number
+        type: string
+        reference_id: number
+        last_used: string | Date
+        times_used: number
+        template_id: number
+        template_name: string
+        template_ean: string | null
+        template_source: unknown
+        template_macros: unknown
+        template_owner: number | null
+        template_items: unknown
+        template_prepared_multiplier: number | null
+      }
 
-      return parseWithStack(recentFoodSchema.array(), recentFoodsData)
-    }
+      // Create the appropriate Template object based on type
+      if (typedRow.type === 'food') {
+        return parseWithStack(foodSchema, {
+          id: typedRow.template_id,
+          name: typedRow.template_name,
+          ean: typedRow.template_ean,
+          source: typedRow.template_source,
+          macros: typedRow.template_macros,
+          __type: 'Food',
+        })
+      } else {
+        return parseWithStack(recipeSchema, {
+          id: typedRow.template_id,
+          name: typedRow.template_name,
+          owner: typedRow.template_owner!,
+          items: typedRow.template_items,
+          prepared_multiplier: typedRow.template_prepared_multiplier!,
+          __type: 'Recipe',
+        })
+      }
+    })
 
-    // No search - use existing direct table query for optimal performance
-    const { data, error } = await supabase
-      .from(TABLE)
-      .select('*')
-      .eq('user_id', userId)
-      .order('last_used', { ascending: false })
-      .limit(limit)
-    if (error !== null) throw error
-    return parseWithStack(recentFoodSchema.array(), data)
+    return templates
   } catch (error) {
     handleApiError(error)
     return []
