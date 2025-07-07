@@ -10,10 +10,7 @@ import {
   type MacroNutrients,
   macroNutrientsSchema,
 } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
-import {
-  createNumberFieldMessages,
-  createStringFieldMessages,
-} from '~/shared/domain/validationMessages'
+import { createZodEntity } from '~/shared/domain/validationMessages'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 export const newFoodSchema = z.object({

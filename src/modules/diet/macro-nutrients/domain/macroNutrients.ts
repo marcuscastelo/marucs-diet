@@ -1,6 +1,6 @@
 import { z } from 'zod/v4'
 
-import { createNumberFieldMessages } from '~/shared/domain/validationMessages'
+import { createZodEntity } from '~/shared/domain/validationMessages'
 
 // TODO:   Use macroNutrientsSchema for other schemas that need macro nutrients
 export const macroNutrientsSchema = z.object({

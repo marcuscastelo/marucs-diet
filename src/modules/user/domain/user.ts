@@ -1,30 +1,21 @@
 import { z } from 'zod/v4'
 
-import {
-  createArrayFieldMessages,
-  createEnumFieldMessages,
-  createNumberFieldMessages,
-  createStringFieldMessages,
-} from '~/shared/domain/validationMessages'
+import { createZodEntity } from '~/shared/domain/validationMessages'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
-export const userSchema = z.object({
-  id: z.number(createNumberFieldMessages('id')('user')),
-  name: z.string(createStringFieldMessages('name')('user')),
-  favorite_foods: z
-    .array(
-      z.number(createNumberFieldMessages('favorite_foods')('user')),
-      createArrayFieldMessages('favorite_foods')('user'),
-    )
+const ze = createZodEntity('user')
+
+export const userSchema = ze.create({
+  id: ze.number('id'),
+  name: ze.string('name'),
+  favorite_foods: ze
+    .array('favorite_foods', ze.number('favorite_foods'))
     .nullable()
     .transform((value) => value ?? []),
-  diet: z.enum(
-    ['cut', 'normo', 'bulk'],
-    createEnumFieldMessages('diet')('user'),
-  ),
-  birthdate: z.string(createStringFieldMessages('birthdate')('user')),
+  diet: z.enum(['cut', 'normo', 'bulk']),
+  birthdate: ze.string('birthdate'),
   gender: z.union([z.literal('male'), z.literal('female')]),
-  desired_weight: z.number(createNumberFieldMessages('desired_weight')('user')),
+  desired_weight: ze.number('desired_weight'),
   __type: z
     .string()
     .nullable()

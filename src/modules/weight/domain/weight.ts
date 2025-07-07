@@ -1,29 +1,27 @@
 import { z } from 'zod/v4'
 
-import {
-  createDateFieldMessages,
-  createNumberFieldMessages,
-  createStringFieldMessages,
-} from '~/shared/domain/validationMessages'
+import { createZodEntity } from '~/shared/domain/validationMessages'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
-export const newWeightSchema = z.object({
-  owner: z.number(createNumberFieldMessages('owner')('weight')),
-  weight: z.number(createNumberFieldMessages('weight')('weight')),
+const ze = createZodEntity('weight')
+
+export const newWeightSchema = ze.create({
+  owner: ze.number('owner'),
+  weight: ze.number('weight'),
   target_timestamp: z
-    .date(createDateFieldMessages('target_timestamp')('weight'))
-    .or(z.string(createStringFieldMessages('target_timestamp')('weight')))
+    .date()
+    .or(z.string())
     .transform((v) => new Date(v)),
   __type: z.literal('NewWeight'),
 })
 
-export const weightSchema = z.object({
-  id: z.number(createNumberFieldMessages('id')('weight')),
-  owner: z.number(createNumberFieldMessages('owner')('weight')),
-  weight: z.number(createNumberFieldMessages('weight')('weight')),
+export const weightSchema = ze.create({
+  id: ze.number('id'),
+  owner: ze.number('owner'),
+  weight: ze.number('weight'),
   target_timestamp: z
-    .date(createDateFieldMessages('target_timestamp')('weight'))
-    .or(z.string(createStringFieldMessages('target_timestamp')('weight')))
+    .date()
+    .or(z.string())
     .transform((v) => new Date(v)),
   __type: z
     .string()

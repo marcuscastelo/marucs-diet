@@ -1,11 +1,9 @@
 import { z } from 'zod/v4'
 
-import {
-  createDateFieldMessages,
-  createNumberFieldMessages,
-  createStringFieldMessages,
-} from '~/shared/domain/validationMessages'
+import { createZodEntity } from '~/shared/domain/validationMessages'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
+
+const ze = createZodEntity('measure')
 
 // TODO:   Create discriminate union type for Male and Female body measures
 export const bodyMeasureSchema = z

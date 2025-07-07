@@ -3,24 +3,18 @@ import { z } from 'zod/v4'
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { unifiedItemSchema } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
-import {
-  createArrayFieldMessages,
-  createNumberFieldMessages,
-  createStringFieldMessages,
-} from '~/shared/domain/validationMessages'
+import { createZodEntity } from '~/shared/domain/validationMessages'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
+const ze = createZodEntity('recipe')
+
 // Legacy schemas for database compatibility (using Item[])
-export const recipeSchema = z.object({
-  id: z.number(createNumberFieldMessages('id')('recipe')),
-  name: z.string(createStringFieldMessages('name')('recipe')),
-  owner: z.number(createNumberFieldMessages('owner')('recipe')),
-  items: z
-    .array(itemSchema, createArrayFieldMessages('items')('recipe'))
-    .readonly(),
-  prepared_multiplier: z
-    .number(createNumberFieldMessages('prepared_multiplier')('recipe'))
-    .default(1),
+export const recipeSchema = ze.create({
+  id: ze.number('id'),
+  name: ze.string('name'),
+  owner: ze.number('owner'),
+  items: ze.array('items', itemSchema).readonly(),
+  prepared_multiplier: ze.number('prepared_multiplier').default(1),
   __type: z
     .string()
     .nullable()
@@ -36,16 +30,12 @@ export const newRecipeSchema = recipeSchema
     path: ['items'],
   })
 
-export const unifiedRecipeSchema = z.object({
-  id: z.number(createNumberFieldMessages('id')('recipe')),
-  name: z.string(createStringFieldMessages('name')('recipe')),
-  owner: z.number(createNumberFieldMessages('owner')('recipe')),
-  items: z
-    .array(unifiedItemSchema, createArrayFieldMessages('items')('recipe'))
-    .readonly(),
-  prepared_multiplier: z
-    .number(createNumberFieldMessages('prepared_multiplier')('recipe'))
-    .default(1),
+export const unifiedRecipeSchema = ze.create({
+  id: ze.number('id'),
+  name: ze.string('name'),
+  owner: ze.number('owner'),
+  items: ze.array('items', unifiedItemSchema).readonly(),
+  prepared_multiplier: ze.number('prepared_multiplier').default(1),
   __type: z
     .string()
     .nullable()
