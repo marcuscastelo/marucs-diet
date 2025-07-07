@@ -12,7 +12,7 @@ export const bodyMeasureSchema = ze
     height: ze.number(),
     waist: ze.number(),
     hip: ze
-      .number('hip')
+      .number()
       .nullish()
       .transform((v) => (v === null ? undefined : v)),
     neck: ze.number(),

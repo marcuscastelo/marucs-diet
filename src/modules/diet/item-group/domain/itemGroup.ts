@@ -12,7 +12,7 @@ export const simpleItemGroupSchema = ze.create({
   id: ze.number(),
   name: ze.string(),
   items: ze
-    .array('items', itemSchema)
+    .array(itemSchema)
     .refine((arr) => Array.isArray(arr) && arr.length > 0, {
       message:
         "O campo 'items' do grupo deve ser uma lista de itens e não pode ser vazio.",
@@ -30,7 +30,7 @@ export const recipedItemGroupSchema = ze.create({
   id: ze.number(),
   name: ze.string(),
   items: ze
-    .array('items', itemSchema)
+    .array(itemSchema)
     .refine((arr) => Array.isArray(arr) && arr.length > 0, {
       message:
         "O campo 'items' do grupo deve ser uma lista de itens e não pode ser vazio.",
