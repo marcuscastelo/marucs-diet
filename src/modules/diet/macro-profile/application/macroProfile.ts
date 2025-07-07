@@ -10,7 +10,11 @@ import {
 } from '~/modules/diet/macro-profile/infrastructure/supabaseMacroProfileRepository'
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
-import { handleApplicationError, handleInfrastructureError, handleValidationError } from '~/shared/error/errorHandler'
+import {
+  handleApplicationError,
+  handleInfrastructureError,
+  handleValidationError,
+} from '~/shared/error/errorHandler'
 import { getLatestMacroProfile } from '~/shared/utils/macroProfileUtils'
 import { registerSubapabaseRealtimeCallback } from '~/shared/utils/supabase'
 
@@ -53,7 +57,12 @@ async function fetchUserMacroProfiles(
       },
     )
   } catch (error) {
-    handleInfrastructureError(error, { operation: "moduleOperation", entityType: "Entity", module: "module", component: "application" })
+    handleInfrastructureError(error, {
+      operation: 'moduleOperation',
+      entityType: 'Entity',
+      module: 'module',
+      component: 'application',
+    })
     return []
   }
 }
@@ -90,7 +99,12 @@ export async function insertMacroProfile(
     }
     return macroProfile
   } catch (error) {
-    handleInfrastructureError(error, { operation: "moduleOperation", entityType: "Entity", module: "module", component: "application" })
+    handleInfrastructureError(error, {
+      operation: 'moduleOperation',
+      entityType: 'Entity',
+      module: 'module',
+      component: 'application',
+    })
     return null
   }
 }
@@ -130,7 +144,12 @@ export async function updateMacroProfile(
     }
     return macroProfile
   } catch (error) {
-    handleInfrastructureError(error, { operation: "moduleOperation", entityType: "Entity", module: "module", component: "application" })
+    handleInfrastructureError(error, {
+      operation: 'moduleOperation',
+      entityType: 'Entity',
+      module: 'module',
+      component: 'application',
+    })
     return null
   }
 }
@@ -159,7 +178,12 @@ export async function deleteMacroProfile(
     }
     return true
   } catch (error) {
-    handleInfrastructureError(error, { operation: "moduleOperation", entityType: "Entity", module: "module", component: "application" })
+    handleInfrastructureError(error, {
+      operation: 'moduleOperation',
+      entityType: 'Entity',
+      module: 'module',
+      component: 'application',
+    })
     return false
   }
 }

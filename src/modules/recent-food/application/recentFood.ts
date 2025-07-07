@@ -14,7 +14,11 @@ import {
 } from '~/modules/recent-food/infrastructure/supabaseRecentFoodRepository'
 import { showPromise } from '~/modules/toast/application/toastManager'
 import env from '~/shared/config/env'
-import { handleApplicationError, handleInfrastructureError, handleValidationError } from '~/shared/error/errorHandler'
+import {
+  handleApplicationError,
+  handleInfrastructureError,
+  handleValidationError,
+} from '~/shared/error/errorHandler'
 
 // Default repository implementation (can be swapped for testing)
 const recentFoodRepository: RecentFoodRepository = supabaseRecentFoodRepository
@@ -63,7 +67,12 @@ export async function fetchUserRecentFoods(
     const templates = rawRows.map((row) => transformRowToTemplate(row))
     return templates
   } catch (error) {
-    handleInfrastructureError(error, { operation: "moduleOperation", entityType: "Entity", module: "module", component: "application" })
+    handleInfrastructureError(error, {
+      operation: 'moduleOperation',
+      entityType: 'Entity',
+      module: 'module',
+      component: 'application',
+    })
     return []
   }
 }
@@ -87,7 +96,12 @@ export async function insertRecentFood(
       { context: 'user-action', audience: 'user' },
     )
   } catch (error) {
-    handleInfrastructureError(error, { operation: "moduleOperation", entityType: "Entity", module: "module", component: "application" })
+    handleInfrastructureError(error, {
+      operation: 'moduleOperation',
+      entityType: 'Entity',
+      module: 'module',
+      component: 'application',
+    })
     return null
   }
 }
@@ -113,7 +127,12 @@ export async function updateRecentFood(
       { context: 'user-action', audience: 'user' },
     )
   } catch (error) {
-    handleInfrastructureError(error, { operation: "moduleOperation", entityType: "Entity", module: "module", component: "application" })
+    handleInfrastructureError(error, {
+      operation: 'moduleOperation',
+      entityType: 'Entity',
+      module: 'module',
+      component: 'application',
+    })
     return null
   }
 }
@@ -141,7 +160,12 @@ export async function deleteRecentFoodByReference(
       { context: 'user-action', audience: 'user' },
     )
   } catch (error) {
-    handleInfrastructureError(error, { operation: "moduleOperation", entityType: "Entity", module: "module", component: "application" })
+    handleInfrastructureError(error, {
+      operation: 'moduleOperation',
+      entityType: 'Entity',
+      module: 'module',
+      component: 'application',
+    })
     return false
   }
 }

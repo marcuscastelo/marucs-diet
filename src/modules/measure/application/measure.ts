@@ -8,7 +8,11 @@ import { createSupabaseBodyMeasureRepository } from '~/modules/measure/infrastru
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
 import { type User } from '~/modules/user/domain/user'
-import { handleApplicationError, handleInfrastructureError, handleValidationError } from '~/shared/error/errorHandler'
+import {
+  handleApplicationError,
+  handleInfrastructureError,
+  handleValidationError,
+} from '~/shared/error/errorHandler'
 
 const bodyMeasureRepository = createSupabaseBodyMeasureRepository()
 
@@ -29,7 +33,12 @@ export async function fetchUserBodyMeasures(
   try {
     return await bodyMeasureRepository.fetchUserBodyMeasures(userId)
   } catch (error) {
-    handleInfrastructureError(error, { operation: "moduleOperation", entityType: "Entity", module: "module", component: "application" })
+    handleInfrastructureError(error, {
+      operation: 'moduleOperation',
+      entityType: 'Entity',
+      module: 'module',
+      component: 'application',
+    })
     return []
   }
 }
@@ -53,7 +62,12 @@ export async function insertBodyMeasure(
       { context: 'user-action', audience: 'user' },
     )
   } catch (error) {
-    handleInfrastructureError(error, { operation: "moduleOperation", entityType: "Entity", module: "module", component: "application" })
+    handleInfrastructureError(error, {
+      operation: 'moduleOperation',
+      entityType: 'Entity',
+      module: 'module',
+      component: 'application',
+    })
     return null
   }
 }
@@ -79,7 +93,12 @@ export async function updateBodyMeasure(
       { context: 'user-action', audience: 'user' },
     )
   } catch (error) {
-    handleInfrastructureError(error, { operation: "moduleOperation", entityType: "Entity", module: "module", component: "application" })
+    handleInfrastructureError(error, {
+      operation: 'moduleOperation',
+      entityType: 'Entity',
+      module: 'module',
+      component: 'application',
+    })
     return null
   }
 }
@@ -104,7 +123,12 @@ export async function deleteBodyMeasure(
     )
     return true
   } catch (error) {
-    handleInfrastructureError(error, { operation: "moduleOperation", entityType: "Entity", module: "module", component: "application" })
+    handleInfrastructureError(error, {
+      operation: 'moduleOperation',
+      entityType: 'Entity',
+      module: 'module',
+      component: 'application',
+    })
     return false
   }
 }

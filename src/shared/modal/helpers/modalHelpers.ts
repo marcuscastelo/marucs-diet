@@ -42,7 +42,12 @@ export function openConfirmModal(
       showCloseButton: true,
     })
   } catch (e) {
-    handleSystemError(e, { operation: "systemOperation", entityType: "System", module: "shared", component: "system" })
+    handleSystemError(e, {
+      operation: 'systemOperation',
+      entityType: 'System',
+      module: 'shared',
+      component: 'system',
+    })
     throw e
   }
 }
@@ -79,7 +84,12 @@ export function openContentModal(
       onClose: options.onClose,
     })
   } catch (e) {
-    handleSystemError(e, { operation: "systemOperation", entityType: "System", module: "shared", component: "system" })
+    handleSystemError(e, {
+      operation: 'systemOperation',
+      entityType: 'System',
+      module: 'shared',
+      component: 'system',
+    })
     throw e
   }
 }
@@ -118,7 +128,12 @@ export function openEditModal(
       onClose: options.onClose,
     })
   } catch (e) {
-    handleSystemError(e, { operation: "systemOperation", entityType: "System", module: "shared", component: "system" })
+    handleSystemError(e, {
+      operation: 'systemOperation',
+      entityType: 'System',
+      module: 'shared',
+      component: 'system',
+    })
     throw e
   }
 }
@@ -134,7 +149,12 @@ export function closeModal(modalId: ModalId, onClose?: () => void): void {
     void modalManager.closeModal(modalId)
     onClose?.()
   } catch (e) {
-    handleSystemError(e, { operation: "systemOperation", entityType: "System", module: "shared", component: "system" })
+    handleSystemError(e, {
+      operation: 'systemOperation',
+      entityType: 'System',
+      module: 'shared',
+      component: 'system',
+    })
     throw e
   }
 }

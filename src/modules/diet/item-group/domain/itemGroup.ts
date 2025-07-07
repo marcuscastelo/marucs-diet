@@ -2,7 +2,6 @@ import { z } from 'zod'
 
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
-import { handleInfrastructureError, handleApplicationError, handleValidationError } from '~/shared/error/errorHandler'
 import { generateId } from '~/shared/utils/idUtils'
 
 export const simpleItemGroupSchema = z.object({
@@ -181,12 +180,7 @@ export function isRecipedGroupUpToDate(
   groupRecipe: Recipe,
 ): boolean {
   if (groupRecipe.id !== group.recipe) {
-    handleInfrastructureError(
-      new Error(
-        'Invalid state! Group recipe is not the same as the recipe in the group!',
-      ),
-    )
-    // Defensive: always throw after logging for invalid state
+    // Defensive: always throw for invalid state
     throw new Error(
       'Invalid state! Group recipe is not the same as the recipe in the group!',
     )

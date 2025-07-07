@@ -10,7 +10,11 @@ import {
   macroProfileDAOSchema,
 } from '~/modules/diet/macro-profile/infrastructure/macroProfileDAO'
 import { type User } from '~/modules/user/domain/user'
-import { handleInfrastructureError, handleApplicationError, handleValidationError } from '~/shared/error/errorHandler'
+import {
+  handleApplicationError,
+  handleInfrastructureError,
+  handleValidationError,
+} from '~/shared/error/errorHandler'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 import supabase from '~/shared/utils/supabase'
 
@@ -48,7 +52,12 @@ async function fetchUserMacroProfiles(
     .order('target_day', { ascending: true })
 
   if (error !== null) {
-    handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
+    handleInfrastructureError(error, {
+      operation: 'infraOperation',
+      entityType: 'Infrastructure',
+      module: 'infrastructure',
+      component: 'repository',
+    })
     throw error
   }
 
@@ -56,7 +65,12 @@ async function fetchUserMacroProfiles(
   try {
     macroProfileDAOs = parseWithStack(macroProfileDAOSchema.array(), data)
   } catch (validationError) {
-    handleInfrastructureError(validationError)
+    handleInfrastructureError(validationError, {
+      operation: 'getAllMacroProfiles',
+      entityType: 'MacroProfile',
+      module: 'diet/macro-profile',
+      component: 'supabaseMacroProfileRepository',
+    })
     throw validationError
   }
   return macroProfileDAOs.map(createMacroProfileFromDAO)
@@ -79,7 +93,12 @@ async function insertMacroProfile(
     .select()
 
   if (error !== null) {
-    handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
+    handleInfrastructureError(error, {
+      operation: 'infraOperation',
+      entityType: 'Infrastructure',
+      module: 'infrastructure',
+      component: 'repository',
+    })
     throw error
   }
 
@@ -87,14 +106,24 @@ async function insertMacroProfile(
   try {
     macroProfileDAOs = parseWithStack(macroProfileDAOSchema.array(), data)
   } catch (validationError) {
-    handleInfrastructureError(validationError)
+    handleInfrastructureError(validationError, {
+      operation: 'getMacroProfileById',
+      entityType: 'MacroProfile',
+      module: 'diet/macro-profile',
+      component: 'supabaseMacroProfileRepository',
+    })
     throw validationError
   }
   if (!macroProfileDAOs[0]) {
     const notFoundError = new Error(
       'Inserted macro profile not found in response',
     )
-    handleInfrastructureError(notFoundError)
+    handleInfrastructureError(notFoundError, {
+      operation: 'getMacroProfileById',
+      entityType: 'MacroProfile',
+      module: 'diet/macro-profile',
+      component: 'supabaseMacroProfileRepository',
+    })
     throw notFoundError
   }
   return createMacroProfileFromDAO(macroProfileDAOs[0])
@@ -120,7 +149,12 @@ async function updateMacroProfile(
     .select()
 
   if (error !== null) {
-    handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
+    handleInfrastructureError(error, {
+      operation: 'infraOperation',
+      entityType: 'Infrastructure',
+      module: 'infrastructure',
+      component: 'repository',
+    })
     throw error
   }
 
@@ -128,14 +162,24 @@ async function updateMacroProfile(
   try {
     macroProfileDAOs = parseWithStack(macroProfileDAOSchema.array(), data)
   } catch (validationError) {
-    handleInfrastructureError(validationError)
+    handleInfrastructureError(validationError, {
+      operation: 'createMacroProfile',
+      entityType: 'MacroProfile',
+      module: 'diet/macro-profile',
+      component: 'supabaseMacroProfileRepository',
+    })
     throw validationError
   }
   if (!macroProfileDAOs[0]) {
     const notFoundError = new Error(
       'Updated macro profile not found in response',
     )
-    handleInfrastructureError(notFoundError)
+    handleInfrastructureError(notFoundError, {
+      operation: 'createMacroProfile',
+      entityType: 'MacroProfile',
+      module: 'diet/macro-profile',
+      component: 'supabaseMacroProfileRepository',
+    })
     throw notFoundError
   }
   return createMacroProfileFromDAO(macroProfileDAOs[0])
@@ -154,7 +198,12 @@ async function deleteMacroProfile(id: MacroProfile['id']): Promise<void> {
     .eq('id', id)
 
   if (error !== null) {
-    handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
+    handleInfrastructureError(error, {
+      operation: 'infraOperation',
+      entityType: 'Infrastructure',
+      module: 'infrastructure',
+      component: 'repository',
+    })
     throw error
   }
 }

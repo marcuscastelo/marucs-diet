@@ -15,7 +15,10 @@ import {
   apiFoodSchema,
 } from '~/modules/diet/food/infrastructure/api/domain/apiFoodModel'
 import { type ApiFoodRepository } from '~/modules/diet/food/infrastructure/api/domain/apiFoodRepository'
-import { handleInfrastructureError, wrapErrorWithStack } from '~/shared/error/errorHandler'
+import {
+  handleInfrastructureError,
+  wrapErrorWithStack,
+} from '~/shared/error/errorHandler'
 import { jsonParseWithStack } from '~/shared/utils/jsonParseWithStack'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
@@ -46,7 +49,12 @@ async function fetchApiFoodsByName(
   try {
     parsedParams = jsonParseWithStack(EXTERNAL_API_FOOD_PARAMS)
   } catch (err) {
-    handleInfrastructureError(err)
+    handleInfrastructureError(err, {
+      operation: 'repositoryOperation',
+      entityType: 'Repository',
+      module: 'infrastructure',
+      component: 'repository',
+    })
     parsedParams = {}
   }
   const params =
@@ -76,7 +84,12 @@ async function fetchApiFoodsByName(
   try {
     response = await API.get(url, config)
   } catch (error) {
-    handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
+    handleInfrastructureError(error, {
+      operation: 'infraOperation',
+      entityType: 'Infrastructure',
+      module: 'infrastructure',
+      component: 'repository',
+    })
     throw wrapErrorWithStack(error)
   }
 
@@ -85,7 +98,16 @@ async function fetchApiFoodsByName(
   const data = response.data as Record<string, unknown>
   const alimentosRaw = data.alimentos
   if (!Array.isArray(alimentosRaw)) {
-    handleInfrastructureError(new Error('Invalid alimentos array in API response'))
+    handleInfrastructureError(
+      new Error('Invalid alimentos array in API response'),
+      {
+        operation: 'fetchApiFoodsByName',
+        entityType: 'ApiFood',
+        module: 'diet/food',
+        component: 'apiFoodRepository',
+        additionalData: { url, dataType: typeof alimentosRaw },
+      },
+    )
     return []
   }
   return parseWithStack(apiFoodSchema.array(), alimentosRaw)

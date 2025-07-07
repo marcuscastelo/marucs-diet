@@ -5,7 +5,11 @@ import {
 import { createSupabaseUnifiedRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseUnifiedRecipeRepository'
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { type User } from '~/modules/user/domain/user'
-import { handleApplicationError, handleInfrastructureError, handleValidationError } from '~/shared/error/errorHandler'
+import {
+  handleApplicationError,
+  handleInfrastructureError,
+  handleValidationError,
+} from '~/shared/error/errorHandler'
 
 const unifiedRecipeRepository = createSupabaseUnifiedRecipeRepository()
 
@@ -21,7 +25,12 @@ export async function fetchUserUnifiedRecipes(userId: User['id']) {
       { context: 'background', audience: 'user' },
     )
   } catch (error) {
-    handleInfrastructureError(error, { operation: "moduleOperation", entityType: "Entity", module: "module", component: "application" })
+    handleInfrastructureError(error, {
+      operation: 'moduleOperation',
+      entityType: 'Entity',
+      module: 'module',
+      component: 'application',
+    })
     return []
   }
 }
@@ -41,7 +50,12 @@ export async function fetchUserUnifiedRecipeByName(
       { context: 'background', audience: 'user' },
     )
   } catch (error) {
-    handleInfrastructureError(error, { operation: "moduleOperation", entityType: "Entity", module: "module", component: "application" })
+    handleInfrastructureError(error, {
+      operation: 'moduleOperation',
+      entityType: 'Entity',
+      module: 'module',
+      component: 'application',
+    })
     return []
   }
 }
@@ -58,7 +72,12 @@ export async function fetchUnifiedRecipeById(recipeId: UnifiedRecipe['id']) {
       { context: 'background', audience: 'user' },
     )
   } catch (error) {
-    handleInfrastructureError(error, { operation: "moduleOperation", entityType: "Entity", module: "module", component: "application" })
+    handleInfrastructureError(error, {
+      operation: 'moduleOperation',
+      entityType: 'Entity',
+      module: 'module',
+      component: 'application',
+    })
     return null
   }
 }
@@ -77,7 +96,12 @@ export async function saveUnifiedRecipe(
       { context: 'background', audience: 'user' },
     )
   } catch (error) {
-    handleInfrastructureError(error, { operation: "moduleOperation", entityType: "Entity", module: "module", component: "application" })
+    handleInfrastructureError(error, {
+      operation: 'moduleOperation',
+      entityType: 'Entity',
+      module: 'module',
+      component: 'application',
+    })
     return null
   }
 }
@@ -97,7 +121,12 @@ export async function updateUnifiedRecipe(
       { context: 'background', audience: 'user' },
     )
   } catch (error) {
-    handleInfrastructureError(error, { operation: "moduleOperation", entityType: "Entity", module: "module", component: "application" })
+    handleInfrastructureError(error, {
+      operation: 'moduleOperation',
+      entityType: 'Entity',
+      module: 'module',
+      component: 'application',
+    })
     return null
   }
 }
@@ -115,7 +144,12 @@ export async function deleteUnifiedRecipe(recipeId: UnifiedRecipe['id']) {
     )
     return true
   } catch (error) {
-    handleInfrastructureError(error, { operation: "moduleOperation", entityType: "Entity", module: "module", component: "application" })
+    handleInfrastructureError(error, {
+      operation: 'moduleOperation',
+      entityType: 'Entity',
+      module: 'module',
+      component: 'application',
+    })
     return false
   }
 }

@@ -5,7 +5,7 @@ import { type ApiFood } from '~/modules/diet/food/infrastructure/api/domain/apiF
 import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
 import { markSearchAsCached } from '~/modules/search/application/searchCache'
 import { showError } from '~/modules/toast/application/toastManager'
-import { handleApplicationError, handleInfrastructureError, handleValidationError } from '~/shared/error/errorHandler'
+import { handleInfrastructureError } from '~/shared/error/errorHandler'
 import { convertApi2Food } from '~/shared/utils/convertApi2Food'
 
 // TODO:   Depency injection for repositories on all application files
@@ -15,7 +15,16 @@ export async function importFoodFromApiByEan(
   ean: Food['ean'],
 ): Promise<Food | null> {
   if (ean === null) {
-    handleInfrastructureError(new Error('EAN is required to import food from API'))
+    handleInfrastructureError(
+      new Error('EAN is required to import food from API'),
+      {
+        operation: 'importFoodFromApiByEan',
+        entityType: 'Food',
+        module: 'diet/food',
+        component: 'apiFood',
+        additionalData: { ean },
+      },
+    )
     return null
   }
 
@@ -23,7 +32,16 @@ export async function importFoodFromApiByEan(
     .data as unknown as ApiFood
 
   if (apiFood.id === 0) {
-    handleInfrastructureError(new Error(`Food with ean ${ean} not found on external api`))
+    handleInfrastructureError(
+      new Error(`Food with ean ${ean} not found on external api`),
+      {
+        operation: 'importFoodFromApiByEan',
+        entityType: 'Food',
+        module: 'diet/food',
+        component: 'apiFood',
+        additionalData: { ean },
+      },
+    )
     return null
   }
 
@@ -82,6 +100,17 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
     if (relevantErrors.length > 0) {
       handleInfrastructureError(
         new Error(`Failed to upsert ${relevantErrors.length} foods`),
+        {
+          operation: 'searchAndUpsertFoodsByNameFromApi',
+          entityType: 'Food',
+          module: 'diet/food',
+          component: 'apiFood',
+          additionalData: {
+            name,
+            relevantErrors,
+            errorCount: relevantErrors.length,
+          },
+        },
       )
 
       showError(

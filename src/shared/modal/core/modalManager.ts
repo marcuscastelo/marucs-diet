@@ -76,7 +76,12 @@ export const modalManager: ModalManager = {
       if (shouldClose) performClose(id, modal)
     } catch (e) {
       performClose(id, modal)
-      handleSystemError(e, { operation: "systemOperation", entityType: "System", module: "shared", component: "system" })
+      handleSystemError(e, {
+        operation: 'systemOperation',
+        entityType: 'System',
+        module: 'shared',
+        component: 'system',
+      })
     }
   },
 }

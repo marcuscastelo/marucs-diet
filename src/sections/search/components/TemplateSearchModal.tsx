@@ -45,7 +45,10 @@ import {
   availableTabs,
   TemplateSearchTabs,
 } from '~/sections/search/components/TemplateSearchTabs'
-import { handleUserError, handleValidationError } from '~/shared/error/errorHandler'
+import {
+  handleUserError,
+  handleValidationError,
+} from '~/shared/error/errorHandler'
 import { formatError } from '~/shared/formatError'
 import {
   closeModal,
@@ -89,7 +92,12 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
         handleNewUnifiedItem(unifiedItem, templateItem, () =>
           controller.close(),
         ).catch((err) => {
-          handleUserError(err, { operation: "userAction", entityType: "UI", module: "sections", component: "component" })
+          handleUserError(err, {
+            operation: 'userAction',
+            entityType: 'UI',
+            module: 'sections',
+            component: 'component',
+          })
           showError(err, {}, `Erro ao adicionar item: ${formatError(err)}`)
         })
       },
@@ -206,7 +214,12 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
                 closeEditModal()
               })
               .catch((err) => {
-                handleUserError(err, { operation: "userAction", entityType: "UI", module: "sections", component: "component" })
+                handleUserError(err, {
+                  operation: 'userAction',
+                  entityType: 'UI',
+                  module: 'sections',
+                  component: 'component',
+                })
                 showError(err, {}, 'Erro ao adicionar item')
                 closeModal(overflowModalId)
               })
@@ -220,7 +233,12 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
       try {
         await onConfirm()
       } catch (err) {
-        handleUserError(err, { operation: "userAction", entityType: "UI", module: "sections", component: "component" })
+        handleUserError(err, {
+          operation: 'userAction',
+          entityType: 'UI',
+          module: 'sections',
+          component: 'component',
+        })
         showError(err, {}, 'Erro ao adicionar item')
       }
     }

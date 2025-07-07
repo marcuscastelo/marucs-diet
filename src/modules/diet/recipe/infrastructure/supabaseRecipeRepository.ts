@@ -45,7 +45,12 @@ const fetchUserRecipes = async (userId: User['id']): Promise<Recipe[]> => {
       .select()
       .eq('owner', userId)
     if (error !== null) {
-      handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
+      handleInfrastructureError(error, {
+        operation: 'infraOperation',
+        entityType: 'Infrastructure',
+        module: 'infrastructure',
+        component: 'repository',
+      })
       throw error
     }
     let recipeDAOs
@@ -61,7 +66,12 @@ const fetchUserRecipes = async (userId: User['id']): Promise<Recipe[]> => {
     }
     return recipeDAOs.map(createRecipeFromDAO)
   } catch (err) {
-    handleInfrastructureError(err)
+    handleInfrastructureError(err, {
+      operation: 'repositoryOperation',
+      entityType: 'Repository',
+      module: 'infrastructure',
+      component: 'repository',
+    })
     throw err
   }
 }
@@ -77,7 +87,12 @@ const fetchRecipeById = async (id: Recipe['id']): Promise<Recipe> => {
   try {
     const { data, error } = await supabase.from(TABLE).select().eq('id', id)
     if (error !== null) {
-      handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
+      handleInfrastructureError(error, {
+        operation: 'infraOperation',
+        entityType: 'Infrastructure',
+        module: 'infrastructure',
+        component: 'repository',
+      })
       throw error
     }
     let recipeDAOs
@@ -93,12 +108,22 @@ const fetchRecipeById = async (id: Recipe['id']): Promise<Recipe> => {
     }
     const recipes = recipeDAOs.map(createRecipeFromDAO)
     if (!recipes[0]) {
-      handleInfrastructureError('Recipe not found')
+      handleInfrastructureError(new Error('Recipe not found'), {
+        operation: 'getRecipeById',
+        entityType: 'Recipe',
+        module: 'diet/recipe',
+        component: 'supabaseRecipeRepository',
+      })
       throw new Error(`Recipe with id ${id} not found`)
     }
     return recipes[0]
   } catch (err) {
-    handleInfrastructureError(err)
+    handleInfrastructureError(err, {
+      operation: 'repositoryOperation',
+      entityType: 'Repository',
+      module: 'infrastructure',
+      component: 'repository',
+    })
     throw err
   }
 }
@@ -124,7 +149,12 @@ const fetchUserRecipeByName = async (
       .eq('owner', userId)
       .ilike('name', `%${normalizedName}%`)
     if (error !== null) {
-      handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
+      handleInfrastructureError(error, {
+        operation: 'infraOperation',
+        entityType: 'Infrastructure',
+        module: 'infrastructure',
+        component: 'repository',
+      })
       throw error
     }
     let recipeDAOs
@@ -140,7 +170,12 @@ const fetchUserRecipeByName = async (
     }
     return recipeDAOs.map(createRecipeFromDAO)
   } catch (err) {
-    handleInfrastructureError(err)
+    handleInfrastructureError(err, {
+      operation: 'repositoryOperation',
+      entityType: 'Repository',
+      module: 'infrastructure',
+      component: 'repository',
+    })
     throw err
   }
 }
@@ -160,7 +195,12 @@ const insertRecipe = async (newRecipe: NewRecipe): Promise<Recipe> => {
       .insert(createDAO)
       .select()
     if (error !== null) {
-      handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
+      handleInfrastructureError(error, {
+        operation: 'infraOperation',
+        entityType: 'Infrastructure',
+        module: 'infrastructure',
+        component: 'repository',
+      })
       throw error
     }
     let recipeDAOs
@@ -176,12 +216,22 @@ const insertRecipe = async (newRecipe: NewRecipe): Promise<Recipe> => {
     }
     const recipes = recipeDAOs.map(createRecipeFromDAO)
     if (!recipes[0]) {
-      handleInfrastructureError('Recipe not created')
+      handleInfrastructureError(new Error('Recipe not created'), {
+        operation: 'insertRecipe',
+        entityType: 'Recipe',
+        module: 'diet/recipe',
+        component: 'supabaseRecipeRepository',
+      })
       throw new Error('Recipe not created')
     }
     return recipes[0]
   } catch (err) {
-    handleInfrastructureError(err)
+    handleInfrastructureError(err, {
+      operation: 'repositoryOperation',
+      entityType: 'Repository',
+      module: 'infrastructure',
+      component: 'repository',
+    })
     throw err
   }
 }
@@ -206,7 +256,12 @@ const updateRecipe = async (
       .eq('id', recipeId)
       .select()
     if (error !== null) {
-      handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
+      handleInfrastructureError(error, {
+        operation: 'infraOperation',
+        entityType: 'Infrastructure',
+        module: 'infrastructure',
+        component: 'repository',
+      })
       throw error
     }
     let recipeDAOs
@@ -222,12 +277,22 @@ const updateRecipe = async (
     }
     const recipes = recipeDAOs.map(createRecipeFromDAO)
     if (!recipes[0]) {
-      handleInfrastructureError('Recipe not found after update')
+      handleInfrastructureError(new Error('Recipe not found after update'), {
+        operation: 'updateRecipe',
+        entityType: 'Recipe',
+        module: 'diet/recipe',
+        component: 'supabaseRecipeRepository',
+      })
       throw new Error(`Recipe with id ${recipeId} not found after update`)
     }
     return recipes[0]
   } catch (err) {
-    handleInfrastructureError(err)
+    handleInfrastructureError(err, {
+      operation: 'repositoryOperation',
+      entityType: 'Repository',
+      module: 'infrastructure',
+      component: 'repository',
+    })
     throw err
   }
 }
@@ -242,11 +307,21 @@ const deleteRecipe = async (id: Recipe['id']): Promise<void> => {
   try {
     const { error } = await supabase.from(TABLE).delete().eq('id', id)
     if (error !== null) {
-      handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
+      handleInfrastructureError(error, {
+        operation: 'infraOperation',
+        entityType: 'Infrastructure',
+        module: 'infrastructure',
+        component: 'repository',
+      })
       throw error
     }
   } catch (err) {
-    handleInfrastructureError(err)
+    handleInfrastructureError(err, {
+      operation: 'repositoryOperation',
+      entityType: 'Repository',
+      module: 'infrastructure',
+      component: 'repository',
+    })
     throw err
   }
 }

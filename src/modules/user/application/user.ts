@@ -135,7 +135,12 @@ export async function insertUser(newUser: NewUser): Promise<boolean> {
     await fetchUsers()
     return true
   } catch (error) {
-    handleApplicationError(error, { operation: "userOperation", entityType: "User", module: "user", component: "user" })
+    handleApplicationError(error, {
+      operation: 'userOperation',
+      entityType: 'User',
+      module: 'user',
+      component: 'user',
+    })
     return false
   }
 }
@@ -163,7 +168,12 @@ export async function updateUser(
     await fetchUsers()
     return user
   } catch (error) {
-    handleApplicationError(error, { operation: "userOperation", entityType: "User", module: "user", component: "user" })
+    handleApplicationError(error, {
+      operation: 'userOperation',
+      entityType: 'User',
+      module: 'user',
+      component: 'user',
+    })
     return null
   }
 }
@@ -187,7 +197,12 @@ export async function deleteUser(userId: User['id']): Promise<boolean> {
     await fetchUsers()
     return true
   } catch (error) {
-    handleApplicationError(error, { operation: "userOperation", entityType: "User", module: "user", component: "user" })
+    handleApplicationError(error, {
+      operation: 'userOperation',
+      entityType: 'User',
+      module: 'user',
+      component: 'user',
+    })
     return false
   }
 }
@@ -205,7 +220,12 @@ export function isFoodFavorite(foodId: number): boolean {
 export function setFoodAsFavorite(foodId: number, favorite: boolean): void {
   const currentUser_ = currentUser()
   if (currentUser_ === null) {
-    handleUserError('User not initialized', { operation: "userValidation", entityType: "User", module: "user", component: "user" })
+    handleUserError('User not initialized', {
+      operation: 'userValidation',
+      entityType: 'User',
+      module: 'user',
+      component: 'user',
+    })
     return
   }
   const favoriteFoods = currentUser_.favorite_foods
@@ -225,6 +245,11 @@ export function setFoodAsFavorite(foodId: number, favorite: boolean): void {
   })
     .then(fetchCurrentUser)
     .catch((error) => {
-      handleApplicationError(error, { operation: "userOperation", entityType: "User", module: "user", component: "user" })
+      handleApplicationError(error, {
+        operation: 'userOperation',
+        entityType: 'User',
+        module: 'user',
+        component: 'user',
+      })
     })
 }

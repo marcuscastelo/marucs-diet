@@ -2,7 +2,7 @@ import toast from 'solid-toast'
 
 import { type ToastItem } from '~/modules/toast/domain/toastTypes'
 import { displayExpandableErrorToast } from '~/modules/toast/ui/ExpandableErrorToast'
-import { handleInfrastructureError, handleApplicationError, handleValidationError } from '~/shared/error/errorHandler'
+import { handleInfrastructureError } from '~/shared/error/errorHandler'
 
 /**
  * Displays a toast in solid-toast with the appropriate styling.
@@ -48,6 +48,13 @@ export function displaySolidToast(toastItem: ToastItem): string {
       handleInfrastructureError(
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         new Error(`Unknown toast type: ${type}`),
+        {
+          operation: 'showSolidToast',
+          entityType: 'Toast',
+          module: 'toast',
+          component: 'solidToast',
+          additionalData: { type, message },
+        },
       )
       return ''
   }

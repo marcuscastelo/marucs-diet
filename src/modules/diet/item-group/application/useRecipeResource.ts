@@ -1,7 +1,11 @@
 import { createResource } from 'solid-js'
 
 import { fetchRecipeById } from '~/modules/diet/recipe/application/recipe'
-import { handleApplicationError, handleInfrastructureError, handleValidationError } from '~/shared/error/errorHandler'
+import {
+  handleApplicationError,
+  handleInfrastructureError,
+  handleValidationError,
+} from '~/shared/error/errorHandler'
 
 /**
  * Provides a SolidJS resource for fetching a recipe by id.
@@ -15,7 +19,12 @@ export function useRecipeResource(recipeId: () => number | undefined) {
     try {
       return await fetchRecipeById(id)
     } catch (error) {
-      handleInfrastructureError(error, { operation: "moduleOperation", entityType: "Entity", module: "module", component: "application" })
+      handleInfrastructureError(error, {
+        operation: 'moduleOperation',
+        entityType: 'Entity',
+        module: 'module',
+        component: 'application',
+      })
       return null
     }
   })

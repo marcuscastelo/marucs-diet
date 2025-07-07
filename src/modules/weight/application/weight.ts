@@ -37,7 +37,12 @@ export const [
       localStorage.setItem(`userWeights-${userId}`, JSON.stringify(weights))
       return weights
     } catch (error) {
-      handleInfrastructureError(error, { operation: "weightOperation", entityType: "Weight", module: "weight", component: "weight" })
+      handleInfrastructureError(error, {
+        operation: 'weightOperation',
+        entityType: 'Weight',
+        module: 'weight',
+        component: 'weight',
+      })
       throw error
     }
   },
@@ -70,7 +75,12 @@ export async function insertWeight(newWeight: NewWeight) {
     })
     return weight
   } catch (error) {
-    handleInfrastructureError(error, { operation: "weightOperation", entityType: "Weight", module: "weight", component: "weight" })
+    handleInfrastructureError(error, {
+      operation: 'weightOperation',
+      entityType: 'Weight',
+      module: 'weight',
+      component: 'weight',
+    })
     throw error
   }
 }
@@ -88,7 +98,12 @@ export async function updateWeight(weightId: Weight['id'], newWeight: Weight) {
     void refetchUserWeights()
     return weight
   } catch (error) {
-    handleInfrastructureError(error, { operation: "weightOperation", entityType: "Weight", module: "weight", component: "weight" })
+    handleInfrastructureError(error, {
+      operation: 'weightOperation',
+      entityType: 'Weight',
+      module: 'weight',
+      component: 'weight',
+    })
     throw error
   }
 }
@@ -102,7 +117,12 @@ export async function deleteWeight(weightId: Weight['id']) {
     })
     void refetchUserWeights()
   } catch (error) {
-    handleInfrastructureError(error, { operation: "weightOperation", entityType: "Weight", module: "weight", component: "weight" })
+    handleInfrastructureError(error, {
+      operation: 'weightOperation',
+      entityType: 'Weight',
+      module: 'weight',
+      component: 'weight',
+    })
     throw error
   }
 }

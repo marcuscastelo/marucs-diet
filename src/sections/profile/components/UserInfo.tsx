@@ -14,7 +14,10 @@ import {
   convertString,
   UserInfoCapsule,
 } from '~/sections/profile/components/UserInfoCapsule'
-import { handleUserError, handleValidationError } from '~/shared/error/errorHandler'
+import {
+  handleUserError,
+  handleValidationError,
+} from '~/shared/error/errorHandler'
 type Translation<T extends string> = { [_key in T]: string }
 // TODO:   Create module for translations
 // Export DIET_TRANSLATION for use in UserInfoCapsule
@@ -121,7 +124,12 @@ export function UserInfo() {
             __type: 'NewUser' as const,
           }
           updateUser(user.id, newUser).catch((error) => {
-            handleUserError(error, { operation: "userAction", entityType: "UI", module: "sections", component: "component" })
+            handleUserError(error, {
+              operation: 'userAction',
+              entityType: 'UI',
+              module: 'sections',
+              component: 'component',
+            })
             showError(error, {}, 'Erro ao atualizar usuário')
           })
         }}

@@ -60,7 +60,12 @@ async function fetchDayDiet(dayId: DayDiet['id']): Promise<DayDiet> {
       .eq('id', dayId)
 
     if (error !== null) {
-      handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
+      handleInfrastructureError(error, {
+        operation: 'infraOperation',
+        entityType: 'Infrastructure',
+        module: 'infrastructure',
+        component: 'repository',
+      })
       throw error
     }
 
@@ -85,7 +90,12 @@ async function fetchDayDiet(dayId: DayDiet['id']): Promise<DayDiet> {
     }
     return result.data
   } catch (err) {
-    handleInfrastructureError(err)
+    handleInfrastructureError(err, {
+      operation: 'repositoryOperation',
+      entityType: 'Repository',
+      module: 'infrastructure',
+      component: 'repository',
+    })
     throw err
   }
 }
@@ -162,7 +172,12 @@ async function fetchAllUserDayDiets(
     .order('target_day', { ascending: true })
 
   if (error !== null) {
-    handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
+    handleInfrastructureError(error, {
+      operation: 'infraOperation',
+      entityType: 'Infrastructure',
+      module: 'infrastructure',
+      component: 'repository',
+    })
     throw error
   }
 
@@ -230,7 +245,12 @@ const updateDayDiet = async (
     .select()
 
   if (error !== null) {
-    handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
+    handleInfrastructureError(error, {
+      operation: 'infraOperation',
+      entityType: 'Infrastructure',
+      module: 'infrastructure',
+      component: 'repository',
+    })
     throw error
   }
 
