@@ -10,7 +10,7 @@ const ze = createZodEntity('item')
 /**
  * @deprecated Use UnifiedItem instead
  */
-export const itemSchema = ze.create({
+export const { schema: itemSchema } = ze.create({
   id: ze.number(),
   name: ze.string(),
   reference: ze.number(),
@@ -51,10 +51,10 @@ export function createItem({
     name,
     reference,
     quantity,
-    macros: {
+    macros: parseWithStack(macroNutrientsSchema, {
       protein: macros.protein ?? 0,
       carbs: macros.carbs ?? 0,
       fat: macros.fat ?? 0,
-    },
-  } satisfies Item)
+    }),
+  })
 }

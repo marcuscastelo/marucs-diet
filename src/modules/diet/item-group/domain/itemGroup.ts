@@ -5,19 +5,14 @@ import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { createZodEntity } from '~/shared/domain/validationMessages'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { generateId } from '~/shared/utils/idUtils'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 const ze = createZodEntity('itemGroup')
 
-export const simpleItemGroupSchema = ze.create({
+export const { schema: simpleItemGroupSchema } = ze.create({
   id: ze.number(),
   name: ze.string(),
-  items: ze
-    .array(itemSchema)
-    .refine((arr) => Array.isArray(arr) && arr.length > 0, {
-      message:
-        "O campo 'items' do grupo deve ser uma lista de itens e não pode ser vazio.",
-    })
-    .readonly(),
+  items: ze.array(itemSchema),
   recipe: z
     .number()
     .nullable()
@@ -26,7 +21,7 @@ export const simpleItemGroupSchema = ze.create({
   __type: z.literal('ItemGroup').optional().default('ItemGroup'),
 })
 
-export const recipedItemGroupSchema = ze.create({
+export const { schema: recipedItemGroupSchema } = ze.create({
   id: ze.number(),
   name: ze.string(),
   items: ze
@@ -120,13 +115,13 @@ export function createSimpleItemGroup({
   name: string
   items?: SimpleItemGroup['items']
 }): SimpleItemGroup {
-  return {
+  return parseWithStack(simpleItemGroupSchema, {
     id: generateId(),
     name,
     items,
     recipe: undefined,
     __type: 'ItemGroup',
-  }
+  })
 }
 
 /**
@@ -148,13 +143,13 @@ export function createRecipedItemGroup({
   recipe: number
   items?: RecipedItemGroup['items']
 }): RecipedItemGroup {
-  return {
+  return parseWithStack(recipedItemGroupSchema, {
     id: generateId(),
     name,
     items,
     recipe,
     __type: 'ItemGroup',
-  }
+  })
 }
 
 /**

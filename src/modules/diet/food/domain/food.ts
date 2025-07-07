@@ -15,20 +15,7 @@ import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 const ze = createZodEntity('food')
 
-export const newFoodSchema = ze.create({
-  name: ze.string(),
-  ean: ze.string().nullable(),
-  macros: macroNutrientsSchema,
-  source: z
-    .object({
-      type: z.literal('api'),
-      id: ze.string(),
-    })
-    .optional(),
-  __type: z.literal('NewFood'),
-})
-
-export const foodSchema = ze.create({
+export const { schema: foodSchema, newSchema: newFoodSchema } = ze.create({
   id: ze.number(),
   source: z
     .object({
@@ -66,24 +53,24 @@ export function createNewFood({
   ean: string | null
   source?: NewFood['source']
 }): NewFood {
-  return {
+  return parseWithStack(newFoodSchema, {
     name,
     macros,
     ean,
     source,
     __type: 'NewFood',
-  }
+  })
 }
 
 /**
  * Promotes a NewFood to a Food after persistence.
  */
 export function promoteToFood(newFood: NewFood, id: number): Food {
-  return {
+  return parseWithStack(foodSchema, {
     ...newFood,
     id,
     __type: 'Food',
-  }
+  })
 }
 
 /**

@@ -1,15 +1,21 @@
 import { describe, expect, it } from 'vitest'
 
 import { getPreviousDayDiets } from '~/modules/diet/day-diet/application/dayDiet'
-import type { DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import {
+  createNewDayDiet,
+  type DayDiet,
+  promoteDayDiet,
+} from '~/modules/diet/day-diet/domain/dayDiet'
 
-const makeDay = (target_day: string, id: number): DayDiet => ({
-  id,
-  target_day,
-  owner: 1,
-  meals: [],
-  __type: 'DayDiet',
-})
+const makeDay = (target_day: string, id: number): DayDiet =>
+  promoteDayDiet(
+    createNewDayDiet({
+      target_day,
+      owner: 1,
+      meals: [],
+    }),
+    id,
+  )
 
 describe('getPreviousDayDiets', () => {
   it('returns all days before selectedDay, ordered descending', () => {

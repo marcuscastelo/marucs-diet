@@ -6,8 +6,8 @@ import { parseWithStack } from '~/shared/utils/parseWithStack'
 const ze = createZodEntity('measure')
 
 // TODO:   Create discriminate union type for Male and Female body measures
-export const bodyMeasureSchema = ze
-  .create({
+export const { schema: bodyMeasureSchema, newSchema: newBodyMeasureSchema } =
+  ze.create({
     id: ze.number(),
     height: ze.number(),
     waist: ze.number(),
@@ -21,18 +21,6 @@ export const bodyMeasureSchema = ze
       .date()
       .or(z.string())
       .transform((v) => new Date(v)),
-    __type: z
-      .string()
-      .nullable()
-      .optional()
-      .transform(() => 'BodyMeasure' as const),
-  })
-  .strip()
-
-export const newBodyMeasureSchema = bodyMeasureSchema
-  .omit({ id: true, __type: true })
-  .extend({
-    __type: z.literal('NewBodyMeasure'),
   })
 
 export type BodyMeasure = Readonly<z.infer<typeof bodyMeasureSchema>>

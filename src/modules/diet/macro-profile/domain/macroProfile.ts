@@ -5,27 +5,17 @@ import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 const ze = createZodEntity('macroProfile')
 
-export const macroProfileSchema = ze.create({
-  id: ze.number(),
-  owner: ze.number(),
-  target_day: z
-    .date()
-    .or(z.string())
-    .transform((v) => new Date(v)),
-  gramsPerKgCarbs: ze.number(),
-  gramsPerKgProtein: ze.number(),
-  gramsPerKgFat: ze.number(),
-  __type: z
-    .string()
-    .nullable()
-    .optional()
-    .transform(() => 'MacroProfile' as const),
-})
-
-export const newMacroProfileSchema = macroProfileSchema
-  .omit({ id: true })
-  .extend({
-    __type: z.literal('NewMacroProfile'),
+export const { schema: macroProfileSchema, newSchema: newMacroProfileSchema } =
+  ze.create({
+    id: ze.number(),
+    owner: ze.number(),
+    target_day: z
+      .date()
+      .or(z.string())
+      .transform((v) => new Date(v)),
+    gramsPerKgCarbs: ze.number(),
+    gramsPerKgProtein: ze.number(),
+    gramsPerKgFat: ze.number(),
   })
 
 export type MacroProfile = Readonly<z.infer<typeof macroProfileSchema>>

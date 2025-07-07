@@ -5,17 +5,7 @@ import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 const ze = createZodEntity('weight')
 
-export const newWeightSchema = ze.create({
-  owner: ze.number(),
-  weight: ze.number(),
-  target_timestamp: z
-    .date()
-    .or(z.string())
-    .transform((v) => new Date(v)),
-  __type: z.literal('NewWeight'),
-})
-
-export const weightSchema = ze.create({
+export const { schema: weightSchema, newSchema: newWeightSchema } = ze.create({
   id: ze.number(),
   owner: ze.number(),
   weight: ze.number(),
@@ -23,11 +13,6 @@ export const weightSchema = ze.create({
     .date()
     .or(z.string())
     .transform((v) => new Date(v)),
-  __type: z
-    .string()
-    .nullable()
-    .optional()
-    .transform(() => 'Weight' as const),
 })
 
 export type NewWeight = Readonly<z.infer<typeof newWeightSchema>>
@@ -46,23 +31,21 @@ export function createNewWeight({
   weight: number
   target_timestamp: Date
 }): NewWeight {
-  return {
+  return parseWithStack(newWeightSchema, {
     owner,
     weight,
     target_timestamp: targetTimestamp,
-    __type: 'NewWeight',
-  }
+  })
 }
 
 /**
  * Promotes a NewWeight to a Weight after persistence.
  */
 export function promoteToWeight(newWeight: NewWeight, id: number): Weight {
-  return {
+  return parseWithStack(weightSchema, {
     ...newWeight,
     id,
-    __type: 'Weight',
-  }
+  })
 }
 
 /**
@@ -74,6 +57,5 @@ export function demoteToNewWeight(weight: Weight): NewWeight {
     owner: weight.owner,
     weight: weight.weight,
     target_timestamp: weight.target_timestamp,
-    __type: 'NewWeight',
   })
 }

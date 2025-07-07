@@ -1,3 +1,5 @@
+/* eslint-disable no-restricted-syntax */
+
 /**
  * Shared validation message utilities for Portuguese error messages.
  * Centralizes common validation patterns to reduce duplication across domain schemas.
@@ -5,6 +7,8 @@
 
 import { z } from 'zod/v4'
 import { type util } from 'zod/v4/core'
+
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 /**
  * Generates required field error message in Portuguese.
@@ -97,7 +101,9 @@ function createFieldValidationMessages(
  * Zod entity factory that creates field validators for a specific entity.
  * Returns an object with methods for each field type (number, string, date, etc.).
  */
-export function createZodEntity(entityKey: keyof typeof ENTITY_NAMES) {
+export function createZodEntity<TEntity extends keyof typeof ENTITY_NAMES>(
+  entityKey: TEntity,
+) {
   const entityName = ENTITY_NAMES[entityKey]
 
   return {
@@ -148,7 +154,55 @@ export function createZodEntity(entityKey: keyof typeof ENTITY_NAMES) {
     /**
      * Creates a generic Zod object schema using the current entity context.
      */
-    create: <T extends z.ZodRawShape>(shape: T): z.ZodObject<T> =>
-      z.object(shape),
+    create: <TShape extends z.ZodRawShape>(shape: TShape) => {
+      const hasId = 'id' in shape
+
+      let schema, newSchema, brandedSchema, brandedNewSchema
+      if (hasId) {
+        schema = z.object(shape)
+        newSchema = z.object(shape).omit({ id: true })
+        brandedSchema = schema.brand<TEntity>(entityKey)
+        brandedNewSchema = newSchema.brand<`New${TEntity}`>(`New${entityKey}`)
+      } else {
+        schema = z.object(shape)
+        newSchema = z.object(shape)
+        brandedSchema = schema.brand<TEntity>(entityKey)
+        brandedNewSchema = newSchema.brand<TEntity>(entityKey)
+      }
+
+      type NewSchema = z.infer<typeof newSchema>
+      type BrandedNewSchema = z.infer<typeof brandedNewSchema>
+      type BrandedSchema = z.infer<typeof brandedSchema>
+
+      const createNew = (data: NewSchema): BrandedNewSchema =>
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+        brandedNewSchema.parse(
+          parseWithStack(newSchema, data),
+        ) as BrandedNewSchema
+
+      const promote = (data: BrandedNewSchema, id: number): BrandedSchema =>
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+        brandedSchema.parse(
+          parseWithStack(schema, {
+            ...data,
+            id,
+          }),
+        ) as BrandedSchema
+
+      const demote = (data: BrandedSchema): NewSchema =>
+        newSchema.parse(parseWithStack(brandedNewSchema, data))
+
+      return {
+        schema: brandedSchema,
+        newSchema: brandedNewSchema,
+        unbranded: {
+          schema,
+          newSchema,
+        },
+        createNew,
+        promote,
+        demote,
+      }
+    },
   }
 }

@@ -9,28 +9,18 @@ import { parseWithStack } from '~/shared/utils/parseWithStack'
 const ze = createZodEntity('recipe')
 
 // Legacy schemas for database compatibility (using Item[])
-export const recipeSchema = ze.create({
+export const { schema: recipeSchema, newSchema: newRecipeSchema } = ze.create({
   id: ze.number(),
   name: ze.string(),
   owner: ze.number(),
   items: ze.array(itemSchema).readonly(),
   prepared_multiplier: ze.number().default(1),
-  __type: z
-    .string()
-    .nullable()
-    .optional()
-    .transform(() => 'Recipe' as const),
 })
 
-export const newRecipeSchema = recipeSchema
-  .omit({ id: true, __type: true })
-  .extend({ __type: z.literal('NewRecipe') })
-  .refine((val) => Array.isArray(val.items), {
-    message: 'items must be an array',
-    path: ['items'],
-  })
-
-export const unifiedRecipeSchema = ze.create({
+export const {
+  schema: unifiedRecipeSchema,
+  newSchema: newUnifiedRecipeSchema,
+} = ze.create({
   id: ze.number(),
   name: ze.string(),
   owner: ze.number(),
@@ -42,14 +32,6 @@ export const unifiedRecipeSchema = ze.create({
     .optional()
     .transform(() => 'UnifiedRecipe' as const),
 })
-
-export const newUnifiedRecipeSchema = unifiedRecipeSchema
-  .omit({ id: true, __type: true })
-  .extend({ __type: z.literal('NewUnifiedRecipe') })
-  .refine((val) => Array.isArray(val.items), {
-    message: 'items must be an array',
-    path: ['items'],
-  })
 
 // Legacy types (using Item[])
 export type NewRecipe = Readonly<z.infer<typeof newRecipeSchema>>
@@ -99,13 +81,13 @@ export function createNewRecipe({
   preparedMultiplier?: number
   owner: NewRecipe['owner']
 }): NewRecipe {
-  return {
+  return parseWithStack(newRecipeSchema, {
     name,
     items,
     prepared_multiplier: preparedMultiplier,
     owner,
     __type: 'NewRecipe',
-  }
+  })
 }
 
 /**
@@ -116,11 +98,11 @@ export function createNewRecipe({
  * @returns The promoted Recipe
  */
 export function promoteToRecipe(newRecipe: NewRecipe, id: number): Recipe {
-  return {
+  return parseWithStack(recipeSchema, {
     ...newRecipe,
     id,
     __type: 'Recipe',
-  }
+  })
 }
 
 /**
@@ -158,13 +140,13 @@ export function createNewUnifiedRecipe({
   preparedMultiplier?: number
   owner: NewUnifiedRecipe['owner']
 }): NewUnifiedRecipe {
-  return {
+  return parseWithStack(newUnifiedRecipeSchema, {
     name,
     items,
     prepared_multiplier: preparedMultiplier,
     owner,
     __type: 'NewUnifiedRecipe',
-  }
+  })
 }
 
 /**
@@ -178,11 +160,11 @@ export function promoteToUnifiedRecipe(
   newRecipe: NewUnifiedRecipe,
   id: number,
 ): UnifiedRecipe {
-  return {
+  return parseWithStack(unifiedRecipeSchema, {
     ...newRecipe,
     id,
     __type: 'UnifiedRecipe',
-  }
+  })
 }
 
 /**

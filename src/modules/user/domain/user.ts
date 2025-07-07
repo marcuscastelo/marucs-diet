@@ -5,7 +5,7 @@ import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 const ze = createZodEntity('user')
 
-export const userSchema = ze.create({
+export const { schema: userSchema, newSchema: newUserSchema } = ze.create({
   id: ze.number(),
   name: ze.string(),
   favorite_foods: ze
@@ -16,15 +16,6 @@ export const userSchema = ze.create({
   birthdate: ze.string(),
   gender: z.union([z.literal('male'), z.literal('female')]),
   desired_weight: ze.number(),
-  __type: z
-    .string()
-    .nullable()
-    .optional()
-    .transform(() => 'User' as const),
-})
-
-export const newUserSchema = userSchema.omit({ id: true }).extend({
-  __type: z.literal('NewUser'),
 })
 
 export type NewUser = Readonly<z.infer<typeof newUserSchema>>

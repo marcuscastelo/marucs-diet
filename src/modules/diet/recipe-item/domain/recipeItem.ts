@@ -1,4 +1,4 @@
-import { z } from 'zod/v4'
+import { type z } from 'zod/v4'
 
 import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { createZodEntity } from '~/shared/domain/validationMessages'
@@ -10,17 +10,12 @@ const ze = createZodEntity('recipeItem')
 /**
  * @deprecated
  */
-export const recipeItemSchema = ze.create({
+export const { schema: recipeItemSchema } = ze.create({
   id: ze.number(),
   name: ze.string(),
   reference: ze.number(),
   quantity: ze.number(),
   macros: macroNutrientsSchema, // TODO:   Rename to foodMacros for clarity
-  __type: z
-    .string()
-    .nullable()
-    .optional()
-    .transform(() => 'RecipeItem' as const),
 })
 
 /**
@@ -45,10 +40,10 @@ export function createRecipeItem({
     name,
     reference,
     quantity,
-    macros: {
+    macros: parseWithStack(macroNutrientsSchema, {
       protein: macros.protein ?? 0,
       carbs: macros.carbs ?? 0,
       fat: macros.fat ?? 0,
-    },
-  } satisfies RecipeItem)
+    }),
+  })
 }
