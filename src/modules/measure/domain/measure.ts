@@ -1,20 +1,25 @@
-import type { z } from 'zod'
+import { z } from 'zod'
 
 import {
+  createCreatedAtField,
+  createIdField,
   createNewTypeField,
+  createTargetTimestampField,
   createTypeField,
-  entityBaseSchema,
-  ownedEntityBaseSchema,
-  timestampedEntityBaseSchema,
+  createUpdatedAtField,
+  createUserIdField,
 } from '~/shared/domain/schema/baseSchemas'
 import { createNumberField } from '~/shared/domain/schema/validationMessages'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 // TODO:   Create discriminate union type for Male and Female body measures
-export const bodyMeasureSchema = entityBaseSchema
-  .merge(ownedEntityBaseSchema)
-  .merge(timestampedEntityBaseSchema)
-  .extend({
+export const bodyMeasureSchema = z
+  .object({
+    id: createIdField(),
+    userId: createUserIdField(),
+    createdAt: createCreatedAtField(),
+    updatedAt: createUpdatedAtField(),
+    target_timestamp: createTargetTimestampField(),
     height: createNumberField('height'),
     waist: createNumberField('waist'),
     hip: createNumberField('hip')
@@ -30,17 +35,24 @@ export const newBodyMeasureSchema = bodyMeasureSchema
   .extend({
     __type: createNewTypeField('NewBodyMeasure'),
   })
+  .strip()
 
 export type BodyMeasure = Readonly<z.infer<typeof bodyMeasureSchema>>
 export type NewBodyMeasure = Readonly<z.infer<typeof newBodyMeasureSchema>>
-export type NewBodyMeasureProps = Omit<NewBodyMeasure, '__type'>
+export type NewBodyMeasureProps = Omit<
+  NewBodyMeasure,
+  '__type' | 'createdAt' | 'updatedAt'
+>
 
 export function createNewBodyMeasure(
   bodyMeasure: NewBodyMeasureProps,
 ): NewBodyMeasure {
+  const now = new Date()
   return parseWithStack(newBodyMeasureSchema, {
     ...bodyMeasure,
-    __type: 'NewBodyMeasure',
+    createdAt: now,
+    updatedAt: now,
+    __type: 'new-NewBodyMeasure',
   })
 }
 
@@ -59,6 +71,6 @@ export function demoteToNewBodyMeasure(
 ): NewBodyMeasure {
   return parseWithStack(newBodyMeasureSchema, {
     ...bodyMeasure,
-    __type: 'NewBodyMeasure',
+    __type: 'new-NewBodyMeasure',
   })
 }

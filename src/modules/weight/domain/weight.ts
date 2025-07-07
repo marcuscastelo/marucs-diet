@@ -1,29 +1,39 @@
-import type { z } from 'zod'
+import { z } from 'zod'
 
 import {
+  createCreatedAtField,
+  createIdField,
   createNewTypeField,
+  createTargetTimestampField,
   createTypeField,
-  entityBaseSchema,
-  ownedEntityBaseSchema,
-  timestampedEntityBaseSchema,
+  createUpdatedAtField,
+  createUserIdField,
 } from '~/shared/domain/schema/baseSchemas'
 import { createNumberField } from '~/shared/domain/schema/validationMessages'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
-export const newWeightSchema = ownedEntityBaseSchema
-  .merge(timestampedEntityBaseSchema)
-  .extend({
+export const newWeightSchema = z
+  .object({
+    userId: createUserIdField(),
+    createdAt: createCreatedAtField(),
+    updatedAt: createUpdatedAtField(),
+    target_timestamp: createTargetTimestampField(),
     weight: createNumberField('weight'),
     __type: createNewTypeField('NewWeight'),
   })
+  .strip()
 
-export const weightSchema = entityBaseSchema
-  .merge(ownedEntityBaseSchema)
-  .merge(timestampedEntityBaseSchema)
-  .extend({
+export const weightSchema = z
+  .object({
+    id: createIdField(),
+    userId: createUserIdField(),
+    createdAt: createCreatedAtField(),
+    updatedAt: createUpdatedAtField(),
+    target_timestamp: createTargetTimestampField(),
     weight: createNumberField('weight'),
     __type: createTypeField('Weight'),
   })
+  .strip()
 
 export type NewWeight = Readonly<z.infer<typeof newWeightSchema>>
 export type Weight = Readonly<z.infer<typeof weightSchema>>
@@ -33,19 +43,22 @@ export type Weight = Readonly<z.infer<typeof weightSchema>>
  * Used for initializing new weights before saving to database.
  */
 export function createNewWeight({
-  owner,
+  userId,
   weight,
   target_timestamp: targetTimestamp,
 }: {
-  owner: number
+  userId: number
   weight: number
   target_timestamp: Date
 }): NewWeight {
+  const now = new Date()
   return {
-    owner,
+    userId,
     weight,
     target_timestamp: targetTimestamp,
-    __type: 'NewWeight',
+    createdAt: now,
+    updatedAt: now,
+    __type: 'new-NewWeight',
   }
 }
 
@@ -66,9 +79,11 @@ export function promoteToWeight(newWeight: NewWeight, id: number): Weight {
  */
 export function demoteToNewWeight(weight: Weight): NewWeight {
   return parseWithStack(newWeightSchema, {
-    owner: weight.owner,
+    userId: weight.userId,
     weight: weight.weight,
     target_timestamp: weight.target_timestamp,
-    __type: 'NewWeight',
+    createdAt: weight.createdAt,
+    updatedAt: weight.updatedAt,
+    __type: 'new-NewWeight',
   })
 }

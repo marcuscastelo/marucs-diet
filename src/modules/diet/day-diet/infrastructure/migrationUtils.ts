@@ -24,9 +24,14 @@ export function migrateLegacyMealToUnified(legacyMeal: LegacyMeal): Meal {
   // Convert each group to a UnifiedItem, preserving group structure including empty groups
   const unifiedItems = migrateToUnifiedItems([], legacyMeal.groups)
 
+  const now = new Date()
   return {
     id: legacyMeal.id,
+    userId: 1, // Default for legacy migration
     name: legacyMeal.name,
+    description: null,
+    createdAt: now,
+    updatedAt: now,
     items: unifiedItems,
     __type: 'Meal',
   }
@@ -45,9 +50,14 @@ export function migrateUnifiedMealToLegacy(unifiedMeal: Meal): LegacyMeal {
 
   // Each standalone item should become its own group
   for (const item of items) {
+    const now = new Date()
     allGroups.push({
       id: item.id,
+      userId: item.userId,
       name: item.name, // Use the item's name as the group name
+      description: null,
+      createdAt: now,
+      updatedAt: now,
       items: [item],
       recipe: undefined,
       __type: 'ItemGroup',

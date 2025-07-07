@@ -1,4 +1,4 @@
-import type { z } from 'zod'
+import { z } from 'zod'
 
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
@@ -7,50 +7,73 @@ import {
   unifiedItemSchema,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import {
+  createCreatedAtField,
+  createDescriptionField,
+  createIdField,
+  createNameField,
   createNewTypeField,
   createTypeField,
-  entityBaseSchema,
-  namedEntityBaseSchema,
-  ownedEntityBaseSchema,
+  createUpdatedAtField,
+  createUserIdField,
 } from '~/shared/domain/schema/baseSchemas'
 import { createNumberField } from '~/shared/domain/schema/validationMessages'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 // Legacy schemas for database compatibility (using Item[])
-export const newRecipeSchema = namedEntityBaseSchema
-  .merge(ownedEntityBaseSchema)
-  .extend({
+export const newRecipeSchema = z
+  .object({
+    userId: createUserIdField(),
+    name: createNameField(),
+    description: createDescriptionField(),
+    createdAt: createCreatedAtField(),
+    updatedAt: createUpdatedAtField(),
     items: itemSchema.array(),
     prepared_multiplier: createNumberField('prepared_multiplier').default(1),
     __type: createNewTypeField('NewRecipe'),
   })
+  .strip()
 
-export const recipeSchema = entityBaseSchema
-  .merge(namedEntityBaseSchema)
-  .merge(ownedEntityBaseSchema)
-  .extend({
+export const recipeSchema = z
+  .object({
+    id: createIdField(),
+    userId: createUserIdField(),
+    name: createNameField(),
+    description: createDescriptionField(),
+    createdAt: createCreatedAtField(),
+    updatedAt: createUpdatedAtField(),
     items: itemSchema.array().readonly(),
     prepared_multiplier: createNumberField('prepared_multiplier').default(1),
     __type: createTypeField('Recipe'),
   })
+  .strip()
 
 // New schemas using UnifiedItem[] for in-memory operations
-export const newUnifiedRecipeSchema = namedEntityBaseSchema
-  .merge(ownedEntityBaseSchema)
-  .extend({
+export const newUnifiedRecipeSchema = z
+  .object({
+    userId: createUserIdField(),
+    name: createNameField(),
+    description: createDescriptionField(),
+    createdAt: createCreatedAtField(),
+    updatedAt: createUpdatedAtField(),
     items: unifiedItemSchema.array(),
     prepared_multiplier: createNumberField('prepared_multiplier').default(1),
     __type: createNewTypeField('NewUnifiedRecipe'),
   })
+  .strip()
 
-export const unifiedRecipeSchema = entityBaseSchema
-  .merge(namedEntityBaseSchema)
-  .merge(ownedEntityBaseSchema)
-  .extend({
+export const unifiedRecipeSchema = z
+  .object({
+    id: createIdField(),
+    userId: createUserIdField(),
+    name: createNameField(),
+    description: createDescriptionField(),
+    createdAt: createCreatedAtField(),
+    updatedAt: createUpdatedAtField(),
     items: unifiedItemSchema.array().readonly(),
     prepared_multiplier: createNumberField('prepared_multiplier').default(1),
     __type: createTypeField('UnifiedRecipe'),
   })
+  .strip()
 
 // Legacy types (using Item[])
 export type NewRecipe = Readonly<z.infer<typeof newRecipeSchema>>
@@ -65,17 +88,17 @@ export type UnifiedRecipe = Readonly<z.infer<typeof unifiedRecipeSchema>>
  * Useful for converting item groups into standalone recipes.
  *
  * @param group - ItemGroup to convert to a recipe
- * @param owner - User ID who will own this recipe
+ * @param userId - User ID who will own this recipe
  * @returns A new Recipe created from the group
  */
 export function createNewRecipeFromGroup(
   group: ItemGroup,
-  owner: number,
+  userId: number,
 ): NewRecipe {
   return createNewRecipe({
     name: group.name,
     items: [...group.items],
-    owner,
+    userId,
   })
 }
 
@@ -91,21 +114,27 @@ export function createNewRecipeFromGroup(
  */
 export function createNewRecipe({
   name,
+  description = null,
   items,
   preparedMultiplier = 1,
-  owner,
+  userId,
 }: {
   name: string
+  description?: string | null
   items: NewRecipe['items']
   preparedMultiplier?: number
-  owner: NewRecipe['owner']
+  userId: number
 }): NewRecipe {
+  const now = new Date()
   return {
     name,
+    description,
     items,
     prepared_multiplier: preparedMultiplier,
-    owner,
-    __type: 'NewRecipe',
+    userId,
+    createdAt: now,
+    updatedAt: now,
+    __type: 'new-NewRecipe',
   }
 }
 
@@ -131,10 +160,13 @@ export function promoteToRecipe(newRecipe: NewRecipe, id: number): Recipe {
 export function demoteToNewRecipe(recipe: Recipe): NewRecipe {
   return parseWithStack(newRecipeSchema, {
     name: recipe.name,
-    owner: recipe.owner,
+    description: recipe.description,
+    userId: recipe.userId,
     items: recipe.items,
     prepared_multiplier: recipe.prepared_multiplier,
-    __type: 'NewRecipe',
+    createdAt: recipe.createdAt,
+    updatedAt: recipe.updatedAt,
+    __type: 'new-NewRecipe',
   })
 }
 
@@ -143,28 +175,35 @@ export function demoteToNewRecipe(recipe: Recipe): NewRecipe {
  * Used for initializing new recipes before saving to database.
  *
  * @param name - Name of the recipe
+ * @param description - Optional description
  * @param items - Array of UnifiedItems in the recipe
  * @param preparedMultiplier - Multiplier for prepared quantity (default: 1)
- * @param owner - User ID who owns this recipe
+ * @param userId - User ID who owns this recipe
  * @returns A new NewUnifiedRecipe
  */
 export function createNewUnifiedRecipe({
   name,
+  description = null,
   items,
   preparedMultiplier = 1,
-  owner,
+  userId,
 }: {
   name: string
+  description?: string | null
   items: NewUnifiedRecipe['items']
   preparedMultiplier?: number
-  owner: NewUnifiedRecipe['owner']
+  userId: number
 }): NewUnifiedRecipe {
+  const now = new Date()
   return {
     name,
+    description,
     items,
     prepared_multiplier: preparedMultiplier,
-    owner,
-    __type: 'NewUnifiedRecipe',
+    userId,
+    createdAt: now,
+    updatedAt: now,
+    __type: 'new-NewUnifiedRecipe',
   }
 }
 
@@ -195,9 +234,12 @@ export function demoteToNewUnifiedRecipe(
 ): NewUnifiedRecipe {
   return parseWithStack(newUnifiedRecipeSchema, {
     name: recipe.name,
-    owner: recipe.owner,
+    description: recipe.description,
+    userId: recipe.userId,
     items: recipe.items,
     prepared_multiplier: recipe.prepared_multiplier,
-    __type: 'NewUnifiedRecipe',
+    createdAt: recipe.createdAt,
+    updatedAt: recipe.updatedAt,
+    __type: 'new-NewUnifiedRecipe',
   })
 }

@@ -21,6 +21,10 @@ export const validationMessages = {
     required: "O campo 'ean' é obrigatório.",
     invalid_type: "O campo 'ean' deve ser uma string.",
   },
+  description: {
+    required: "O campo 'description' é obrigatório.",
+    invalid_type: "O campo 'description' deve ser uma string.",
+  },
   weight: {
     required: "O campo 'weight' é obrigatório.",
     invalid_type: "O campo 'weight' deve ser um número.",
@@ -108,7 +112,7 @@ export function createNumberField(
  * Creates a string field with standardized validation messages.
  */
 export function createStringField(
-  fieldName: 'name' | 'ean' | 'diet' | 'birthdate',
+  fieldName: 'name' | 'ean' | 'diet' | 'birthdate' | 'description',
 ) {
   const messages = validationMessages[fieldName]
   return z.string({
@@ -120,7 +124,7 @@ export function createStringField(
 /**
  * Creates a nullable string field with standardized validation messages.
  */
-export function createNullableStringField(fieldName: 'ean') {
+export function createNullableStringField(fieldName: 'ean' | 'description') {
   const messages = validationMessages[fieldName]
   return z
     .string({

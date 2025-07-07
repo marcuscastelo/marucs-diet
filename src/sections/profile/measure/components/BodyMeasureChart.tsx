@@ -11,10 +11,7 @@ import { currentUser } from '~/modules/user/application/user'
 import { userWeights } from '~/modules/weight/application/weight'
 import { Chart } from '~/sections/common/components/charts/Chart'
 
-type DayAverage = Omit<
-  BodyMeasure,
-  '__type' | 'id' | 'owner' | 'target_timestamp'
->
+type DayAverage = Pick<BodyMeasure, 'height' | 'waist' | 'hip' | 'neck'>
 type DayMeasures = {
   date: string
   dayAverage: DayAverage

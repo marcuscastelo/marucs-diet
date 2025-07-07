@@ -19,7 +19,7 @@ describe('measureUtils', () => {
         {
           __type: 'BodyMeasure',
           id: 1,
-          owner: 1,
+          userId: 1,
           target_timestamp: new Date('2023-01-01T10:00:00Z'),
           height: 170,
           waist: 80,
@@ -29,7 +29,7 @@ describe('measureUtils', () => {
         {
           __type: 'BodyMeasure',
           id: 2,
-          owner: 1,
+          userId: 1,
           target_timestamp: new Date('2023-01-01T14:00:00Z'),
           height: 171,
           waist: 81,
@@ -39,7 +39,7 @@ describe('measureUtils', () => {
         {
           __type: 'BodyMeasure',
           id: 3,
-          owner: 1,
+          userId: 1,
           target_timestamp: new Date('2023-01-02T10:00:00Z'),
           height: 172,
           waist: 82,
@@ -66,7 +66,7 @@ describe('measureUtils', () => {
       const measure: BodyMeasure = {
         __type: 'BodyMeasure',
         id: 1,
-        owner: 1,
+        userId: 1,
         target_timestamp: new Date(),
         height: 170,
         waist: 80,
@@ -81,7 +81,7 @@ describe('measureUtils', () => {
       const measure: BodyMeasure = {
         __type: 'BodyMeasure',
         id: 1,
-        owner: 1,
+        userId: 1,
         target_timestamp: new Date(),
         height: 170,
         waist: 80,
@@ -96,7 +96,7 @@ describe('measureUtils', () => {
       const measure: BodyMeasure = {
         __type: 'BodyMeasure',
         id: 1,
-        owner: 1,
+        userId: 1,
         target_timestamp: new Date(),
         height: 0,
         waist: 80,
@@ -111,7 +111,7 @@ describe('measureUtils', () => {
       const measure: BodyMeasure = {
         __type: 'BodyMeasure',
         id: 1,
-        owner: 1,
+        userId: 1,
         target_timestamp: new Date(),
         height: NaN,
         waist: 80,
@@ -126,7 +126,7 @@ describe('measureUtils', () => {
       const measure: BodyMeasure = {
         __type: 'BodyMeasure',
         id: 1,
-        owner: 1,
+        userId: 1,
         target_timestamp: new Date(),
         height: 170,
         waist: 80,
@@ -160,7 +160,7 @@ describe('measureUtils', () => {
         {
           __type: 'BodyMeasure',
           id: 1,
-          owner: 1,
+          userId: 1,
           target_timestamp: new Date(),
           height: 170,
           waist: 80,
@@ -170,7 +170,7 @@ describe('measureUtils', () => {
         {
           __type: 'BodyMeasure',
           id: 2,
-          owner: 1,
+          userId: 1,
           target_timestamp: new Date(),
           height: 180,
           waist: 90,
@@ -192,7 +192,7 @@ describe('measureUtils', () => {
         {
           __type: 'BodyMeasure',
           id: 1,
-          owner: 1,
+          userId: 1,
           target_timestamp: new Date(),
           height: 170,
           waist: 80,
@@ -202,7 +202,7 @@ describe('measureUtils', () => {
         {
           __type: 'BodyMeasure',
           id: 2,
-          owner: 1,
+          userId: 1,
           target_timestamp: new Date(),
           height: 180,
           waist: 90,
@@ -224,7 +224,7 @@ describe('measureUtils', () => {
         {
           __type: 'BodyMeasure',
           id: 1,
-          owner: 1,
+          userId: 1,
           target_timestamp: new Date(),
           height: 170,
           waist: 80,
@@ -245,14 +245,14 @@ describe('measureUtils', () => {
         {
           __type: 'Weight',
           id: 1,
-          owner: 1,
+          userId: 1,
           target_timestamp: new Date('2023-01-01T10:00:00Z'),
           weight: 70,
         },
         {
           __type: 'Weight',
           id: 2,
-          owner: 1,
+          userId: 1,
           target_timestamp: new Date('2023-01-02T10:00:00Z'),
           weight: 71,
         },
@@ -269,21 +269,21 @@ describe('measureUtils', () => {
         {
           __type: 'Weight',
           id: 1,
-          owner: 1,
+          userId: 1,
           target_timestamp: new Date('2023-01-01T10:00:00Z'),
           weight: 70,
         },
         {
           __type: 'Weight',
           id: 2,
-          owner: 1,
+          userId: 1,
           target_timestamp: new Date('2023-01-01T14:00:00Z'),
           weight: 0,
         },
         {
           __type: 'Weight',
           id: 3,
-          owner: 1,
+          userId: 1,
           target_timestamp: new Date('2023-01-01T18:00:00Z'),
           weight: NaN,
         },
@@ -347,7 +347,7 @@ describe('measureUtils', () => {
           {
             __type: 'BodyMeasure' as const,
             id: 1,
-            owner: 1,
+            userId: 1,
             target_timestamp: new Date('2023-01-01T10:00:00Z'),
             height: 170,
             waist: 80,
@@ -357,7 +357,7 @@ describe('measureUtils', () => {
           {
             __type: 'BodyMeasure' as const,
             id: 2,
-            owner: 1,
+            userId: 1,
             target_timestamp: new Date('2023-01-01T14:00:00Z'),
             height: 172,
             waist: 82,
@@ -371,14 +371,14 @@ describe('measureUtils', () => {
         {
           __type: 'Weight',
           id: 1,
-          owner: 1,
+          userId: 1,
           target_timestamp: new Date('2023-01-01T10:00:00Z'),
           weight: 70,
         },
         {
           __type: 'Weight',
           id: 2,
-          owner: 1,
+          userId: 1,
           target_timestamp: new Date('2023-01-01T14:00:00Z'),
           weight: 72,
         },
@@ -399,7 +399,7 @@ describe('measureUtils', () => {
           {
             __type: 'BodyMeasure' as const,
             id: 1,
-            owner: 1,
+            userId: 1,
             target_timestamp: new Date('2023-01-01T10:00:00Z'),
             height: 0, // Invalid
             waist: 80,
@@ -420,7 +420,7 @@ describe('measureUtils', () => {
           {
             __type: 'BodyMeasure' as const,
             id: 2,
-            owner: 1,
+            userId: 1,
             target_timestamp: new Date('2023-01-02T10:00:00Z'),
             height: 172,
             waist: 82,
@@ -432,7 +432,7 @@ describe('measureUtils', () => {
           {
             __type: 'BodyMeasure' as const,
             id: 1,
-            owner: 1,
+            userId: 1,
             target_timestamp: new Date('2023-01-01T10:00:00Z'),
             height: 170,
             waist: 80,

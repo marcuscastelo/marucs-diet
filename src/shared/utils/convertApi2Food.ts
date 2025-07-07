@@ -4,10 +4,12 @@ import { type ApiFood } from '~/modules/diet/food/infrastructure/api/domain/apiF
 /**
  * Converts an ApiFood object to a NewFood object.
  * @param food - The ApiFood object to convert.
+ * @param userId - The ID of the user who will own this food.
  * @returns The corresponding NewFood object.
  */
-export function convertApi2Food(food: ApiFood): NewFood {
+export function convertApi2Food(food: ApiFood, userId: number): NewFood {
   return createNewFood({
+    userId,
     name: food.nome,
     source: {
       type: 'api',

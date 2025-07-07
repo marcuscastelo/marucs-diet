@@ -27,17 +27,24 @@ function makeFakeDayDiet(macros: {
   })
 
   // Create a meal with the unified items
+  const now = new Date()
   const meal = {
     id: 1,
+    userId: 1,
     name: 'Meal',
+    description: null,
+    createdAt: now,
+    updatedAt: now,
     items: [unifiedItem],
     __type: 'Meal' as const,
   }
   // Return a DayDiet with the meal
   return {
     id: 1,
+    userId: 1,
+    createdAt: now,
+    updatedAt: now,
     target_day: '2025-01-01',
-    owner: 1,
     meals: [meal],
     __type: 'DayDiet',
   }

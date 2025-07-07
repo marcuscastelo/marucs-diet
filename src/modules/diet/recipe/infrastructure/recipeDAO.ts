@@ -35,7 +35,7 @@ export function createRecipeDAO(recipe: Recipe): RecipeDAO {
   return parseWithStack(recipeDAOSchema, {
     id: recipe.id,
     name: recipe.name,
-    owner: recipe.owner,
+    owner: recipe.userId,
     items: [...recipe.items],
     prepared_multiplier: recipe.prepared_multiplier,
   })
@@ -46,7 +46,7 @@ export function createInsertRecipeDAO(
 ): CreateRecipeDAO {
   return parseWithStack(createRecipeDAOSchema, {
     name: recipe.name,
-    owner: recipe.owner,
+    owner: recipe.userId,
     items: [...recipe.items],
     prepared_multiplier: recipe.prepared_multiplier,
   })
@@ -64,7 +64,7 @@ export function createInsertRecipeDAOFromNewRecipe(
 ): CreateRecipeDAO {
   return parseWithStack(createRecipeDAOSchema, {
     name: newRecipe.name,
-    owner: newRecipe.owner,
+    owner: newRecipe.userId,
     items: [...newRecipe.items],
     prepared_multiplier: newRecipe.prepared_multiplier,
   })
@@ -75,7 +75,7 @@ export function createUpdateRecipeDAOFromRecipe(
 ): UpdateRecipeDAO {
   return parseWithStack(updateRecipeDAOSchema, {
     name: recipe.name,
-    owner: recipe.owner,
+    owner: recipe.userId,
     items: [...recipe.items],
     prepared_multiplier: recipe.prepared_multiplier,
   })

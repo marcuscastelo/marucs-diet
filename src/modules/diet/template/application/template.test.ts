@@ -33,7 +33,7 @@ describe('template application services', () => {
   const recipeTemplate: Recipe = {
     id: 2,
     name: 'Recipe Test',
-    owner: 1,
+    userId: 1,
     items: [unifiedItemToItem(baseItem)],
     prepared_multiplier: 2,
     __type: 'Recipe',

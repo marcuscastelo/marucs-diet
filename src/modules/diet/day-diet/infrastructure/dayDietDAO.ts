@@ -48,7 +48,7 @@ export function createInsertLegacyDayDietDAOFromNewDayDiet(
 ): CreateLegacyDayDietDAO {
   return parseWithStack(createLegacyDayDietDAOSchema, {
     target_day: newDayDiet.target_day,
-    owner: newDayDiet.owner,
+    owner: newDayDiet.userId,
     meals: newDayDiet.meals.map(mealToLegacyDAO),
   })
 }

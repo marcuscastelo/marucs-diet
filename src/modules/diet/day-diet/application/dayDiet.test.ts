@@ -5,8 +5,10 @@ import type { DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 
 const makeDay = (target_day: string, id: number): DayDiet => ({
   id,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  userId: 1,
   target_day,
-  owner: 1,
   meals: [],
   __type: 'DayDiet',
 })

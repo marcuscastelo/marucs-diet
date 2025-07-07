@@ -62,7 +62,11 @@ export function migrateFromUnifiedItems(unified: UnifiedItem[]): {
     if (u.reference.type === 'food') {
       items.push({
         id: u.id,
+        userId: 1, // Default for legacy migration
         name: u.name,
+        description: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         quantity: u.quantity,
         macros: u.reference.macros,
         reference: u.reference.id,
@@ -71,7 +75,11 @@ export function migrateFromUnifiedItems(unified: UnifiedItem[]): {
     } else if (u.reference.type === 'group') {
       groups.push({
         id: u.id,
+        userId: 1, // Default for legacy migration
         name: u.name,
+        description: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         items: u.reference.children.map((c) => {
           if (c.reference.type !== 'food') {
             throw new Error(
@@ -80,7 +88,11 @@ export function migrateFromUnifiedItems(unified: UnifiedItem[]): {
           }
           return {
             id: c.id,
+            userId: 1, // Default for legacy migration
             name: c.name,
+            description: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
             quantity: c.quantity,
             macros: c.reference.macros,
             reference: c.reference.id,
@@ -94,7 +106,11 @@ export function migrateFromUnifiedItems(unified: UnifiedItem[]): {
       // Recipe case (u.reference.type === 'recipe')
       groups.push({
         id: u.id,
+        userId: 1, // Default for legacy migration
         name: u.name,
+        description: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         items: u.reference.children.map((c) => {
           if (c.reference.type !== 'food') {
             throw new Error(
@@ -103,7 +119,11 @@ export function migrateFromUnifiedItems(unified: UnifiedItem[]): {
           }
           return {
             id: c.id,
+            userId: 1, // Default for legacy migration
             name: c.name,
+            description: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
             quantity: c.quantity,
             macros: c.reference.macros,
             reference: c.reference.id,

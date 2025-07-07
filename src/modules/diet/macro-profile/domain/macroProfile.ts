@@ -1,16 +1,21 @@
 import { z } from 'zod'
 
 import {
+  createCreatedAtField,
+  createIdField,
   createNewTypeField,
   createTypeField,
-  entityBaseSchema,
-  ownedEntityBaseSchema,
+  createUpdatedAtField,
+  createUserIdField,
 } from '~/shared/domain/schema/baseSchemas'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
-export const macroProfileSchema = entityBaseSchema
-  .merge(ownedEntityBaseSchema)
-  .extend({
+export const macroProfileSchema = z
+  .object({
+    id: createIdField(),
+    userId: createUserIdField(),
+    createdAt: createCreatedAtField(),
+    updatedAt: createUpdatedAtField(),
     target_day: z
       .date()
       .or(z.string())
@@ -20,36 +25,41 @@ export const macroProfileSchema = entityBaseSchema
     gramsPerKgFat: z.number(),
     __type: createTypeField('MacroProfile'),
   })
+  .strip()
 
 export const newMacroProfileSchema = macroProfileSchema
   .omit({ id: true })
   .extend({
     __type: createNewTypeField('NewMacroProfile'),
   })
+  .strip()
 
 export type MacroProfile = Readonly<z.infer<typeof macroProfileSchema>>
 export type NewMacroProfile = Readonly<z.infer<typeof newMacroProfileSchema>>
 
 export function createNewMacroProfile({
-  owner,
+  userId,
   target_day: targetDay,
   gramsPerKgCarbs,
   gramsPerKgProtein,
   gramsPerKgFat,
 }: {
-  owner: number
+  userId: number
   target_day: Date | string
   gramsPerKgCarbs: number
   gramsPerKgProtein: number
   gramsPerKgFat: number
 }): NewMacroProfile {
+  const now = new Date()
   return parseWithStack(newMacroProfileSchema, {
-    owner,
+    userId,
     target_day: targetDay,
     gramsPerKgCarbs,
     gramsPerKgProtein,
     gramsPerKgFat,
-    __type: 'NewMacroProfile',
+    createdAt: now,
+    updatedAt: now,
+    __type: 'new-NewMacroProfile',
   })
 }
 
@@ -72,11 +82,13 @@ export function demoteToNewMacroProfile(
   macroProfile: MacroProfile,
 ): NewMacroProfile {
   return parseWithStack(newMacroProfileSchema, {
-    owner: macroProfile.owner,
+    userId: macroProfile.userId,
     target_day: macroProfile.target_day,
     gramsPerKgCarbs: macroProfile.gramsPerKgCarbs,
     gramsPerKgProtein: macroProfile.gramsPerKgProtein,
     gramsPerKgFat: macroProfile.gramsPerKgFat,
-    __type: 'NewMacroProfile',
+    createdAt: macroProfile.createdAt,
+    updatedAt: macroProfile.updatedAt,
+    __type: 'new-NewMacroProfile',
   })
 }

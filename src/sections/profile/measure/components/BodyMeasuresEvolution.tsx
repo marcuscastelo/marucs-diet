@@ -54,7 +54,7 @@ export function BodyMeasuresEvolution() {
             class="btn cursor-pointer uppercase btn-primary no-animation w-full"
             onClick={() =>
               handleAddMeasures({
-                owner: currentUserId(),
+                userId: currentUserId(),
                 height: heightField.value() ?? 0,
                 waist: waistField.value() ?? 0,
                 hip: hipField.value() ?? 0,

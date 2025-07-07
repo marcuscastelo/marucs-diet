@@ -8,36 +8,30 @@ import {
 } from '~/modules/diet/food/domain/foodErrors'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
+  createCreatedAtField,
+  createDescriptionField,
+  createIdField,
   createNewTypeField,
   createTypeField,
-  entityBaseSchema,
-  namedEntityBaseSchema,
+  createUpdatedAtField,
+  createUserIdField,
 } from '~/shared/domain/schema/baseSchemas'
-import { macroNutrientsBaseSchema } from '~/shared/domain/schema/macroNutrientsBaseSchema'
-import { createNullableStringField } from '~/shared/domain/schema/validationMessages'
+import { createMacroNutrientsField } from '~/shared/domain/schema/macroNutrientsBaseSchema'
+import {
+  createNullableStringField,
+  createStringField,
+} from '~/shared/domain/schema/validationMessages'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
-export const newFoodSchema = namedEntityBaseSchema
-  .merge(macroNutrientsBaseSchema)
-  .extend({
-    ean: createNullableStringField('ean'),
-    source: z
-      .object({
-        type: z.literal('api'),
-        id: z.string({
-          required_error: "O campo 'id' da fonte do alimento é obrigatório.",
-          invalid_type_error:
-            "O campo 'id' da fonte do alimento deve ser uma string.",
-        }),
-      })
-      .optional(),
-    __type: createNewTypeField('NewFood'),
-  })
-
-export const foodSchema = entityBaseSchema
-  .merge(namedEntityBaseSchema)
-  .merge(macroNutrientsBaseSchema)
-  .extend({
+export const foodSchema = z
+  .object({
+    id: createIdField(),
+    userId: createUserIdField(),
+    name: createStringField('name'),
+    description: createDescriptionField(),
+    macros: createMacroNutrientsField(),
+    createdAt: createCreatedAtField(),
+    updatedAt: createUpdatedAtField(),
     source: z
       .object({
         type: z.literal('api'),
@@ -53,6 +47,14 @@ export const foodSchema = entityBaseSchema
     ean: createNullableStringField('ean'),
     __type: createTypeField('Food'),
   })
+  .strip()
+
+export const newFoodSchema = foodSchema
+  .omit({ id: true })
+  .extend({
+    __type: createNewTypeField('NewFood'),
+  })
+  .strip()
 
 export type NewFood = Readonly<z.infer<typeof newFoodSchema>>
 export type Food = Readonly<z.infer<typeof foodSchema>>
@@ -62,22 +64,30 @@ export type Food = Readonly<z.infer<typeof foodSchema>>
  * Used for initializing new foods before saving to database.
  */
 export function createNewFood({
+  userId,
   name,
+  description = null,
   macros,
   ean,
   source,
 }: {
+  userId: number
   name: string
+  description?: string | null
   macros: MacroNutrients
   ean: string | null
   source?: NewFood['source']
 }): NewFood {
   return {
+    userId,
     name,
+    description,
     macros,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     ean,
     source,
-    __type: 'NewFood',
+    __type: 'new-NewFood' as const,
   }
 }
 
@@ -98,11 +108,15 @@ export function promoteToFood(newFood: NewFood, id: number): Food {
  */
 export function demoteToNewFood(food: Food): NewFood {
   return parseWithStack(newFoodSchema, {
+    userId: food.userId,
     name: food.name,
+    description: food.description,
     macros: food.macros,
+    createdAt: food.createdAt,
+    updatedAt: food.updatedAt,
     ean: food.ean,
     source: food.source,
-    __type: 'NewFood',
+    __type: 'new-NewFood',
   })
 }
 
@@ -145,12 +159,16 @@ export function validateFoodEan(ean: string | null): void {
  * Creates a new NewFood with validation.
  */
 export function createNewFoodWithValidation({
+  userId,
   name,
+  description,
   macros,
   ean,
   source,
 }: {
+  userId: number
   name: string
+  description?: string | null
   macros: MacroNutrients
   ean: string | null
   source?: NewFood['source']
@@ -159,7 +177,7 @@ export function createNewFoodWithValidation({
   validateFoodMacros(macros)
   validateFoodEan(ean)
 
-  return createNewFood({ name, macros, ean, source })
+  return createNewFood({ userId, name, description, macros, ean, source })
 }
 
 /**

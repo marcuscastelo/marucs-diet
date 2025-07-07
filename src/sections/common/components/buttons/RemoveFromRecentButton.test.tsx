@@ -60,7 +60,7 @@ describe('RemoveFromRecentButton Logic', () => {
   const mockRecipeTemplate: Recipe = {
     id: 2,
     name: 'Test Recipe',
-    owner: 1,
+    userId: 1,
     items: [],
     prepared_multiplier: 1,
     __type: 'Recipe',

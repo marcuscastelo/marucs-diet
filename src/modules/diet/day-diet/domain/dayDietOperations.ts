@@ -84,6 +84,6 @@ export function convertToNewDayDiet(dayDiet: DayDiet): NewDayDiet {
   const { id, ...rest } = dayDiet
   return {
     ...rest,
-    __type: 'NewDayDiet',
+    __type: 'new-NewDayDiet',
   }
 }

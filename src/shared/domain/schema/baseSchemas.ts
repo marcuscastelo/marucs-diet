@@ -1,44 +1,72 @@
 import { z } from 'zod'
 
-/**
- * Base schema for entities with ID field management.
- * Provides the common pattern for id field with standardized validation.
- */
-export const entityBaseSchema = z.object({
-  id: z.number({
-    required_error: "O campo 'id' é obrigatório.",
-    invalid_type_error: "O campo 'id' deve ser um número.",
-  }),
-})
+import {
+  createNullableStringField,
+  createNumberField,
+  createStringField,
+} from '~/shared/domain/schema/validationMessages'
 
 /**
- * Base schema for entities with owner field.
- * Used by Recipe, Weight, DayDiet, MacroProfile, BodyMeasure and others.
+ * Helper function to create a __type field for entity identification
  */
-export const ownedEntityBaseSchema = z.object({
-  owner: z.number({
-    required_error: "O campo 'owner' é obrigatório.",
-    invalid_type_error: "O campo 'owner' deve ser um número.",
-  }),
-})
+export function createTypeField<T extends string>(value: T) {
+  return z.literal(value)
+}
 
 /**
- * Base schema for entities with name field.
- * Used by Food, Recipe, User, ItemGroup and others.
+ * Helper function to create a __type field for new entity schemas
  */
-export const namedEntityBaseSchema = z.object({
-  name: z.string({
-    required_error: "O campo 'name' é obrigatório.",
-    invalid_type_error: "O campo 'name' deve ser uma string.",
-  }),
-})
+export function createNewTypeField<T extends string>(value: T) {
+  return z.literal(`new-${value}` as const)
+}
 
 /**
- * Base schema for entities with timestamp fields.
- * Used by Weight, BodyMeasure, MacroProfile and others.
+ * Helper function to create an id field
  */
-export const timestampedEntityBaseSchema = z.object({
-  target_timestamp: z
+export function createIdField() {
+  return createNumberField('id')
+}
+
+/**
+ * Helper function to create a userId field (for owned entities)
+ */
+export function createUserIdField() {
+  return createNumberField('owner')
+}
+
+/**
+ * Helper function to create a name field
+ */
+export function createNameField() {
+  return createStringField('name')
+}
+
+/**
+ * Helper function to create a description field (nullable)
+ */
+export function createDescriptionField() {
+  return createNullableStringField('description')
+}
+
+/**
+ * Helper function to create a createdAt field
+ */
+export function createCreatedAtField() {
+  return z.date()
+}
+
+/**
+ * Helper function to create an updatedAt field
+ */
+export function createUpdatedAtField() {
+  return z.date()
+}
+
+/**
+ * Helper function to create a target_timestamp field
+ */
+export function createTargetTimestampField() {
+  return z
     .date({
       required_error: "O campo 'target_timestamp' é obrigatório.",
       invalid_type_error:
@@ -51,29 +79,5 @@ export const timestampedEntityBaseSchema = z.object({
           "O campo 'target_timestamp' deve ser uma data ou string.",
       }),
     )
-    .transform((v) => new Date(v)),
-})
-
-/**
- * Creates a __type field that transforms to a const value for persisted entities.
- * Used for the New/Persisted Entity Pattern.
- */
-export function createTypeField<T extends string>(typeName: T) {
-  return z
-    .string()
-    .nullable()
-    .optional()
-    .transform(() => typeName)
+    .transform((v) => new Date(v))
 }
-
-/**
- * Creates a literal __type field for new entities.
- */
-export function createNewTypeField<T extends string>(typeName: T) {
-  return z.literal(typeName)
-}
-
-export type EntityBase = z.infer<typeof entityBaseSchema>
-export type OwnedEntityBase = z.infer<typeof ownedEntityBaseSchema>
-export type NamedEntityBase = z.infer<typeof namedEntityBaseSchema>
-export type TimestampedEntityBase = z.infer<typeof timestampedEntityBaseSchema>

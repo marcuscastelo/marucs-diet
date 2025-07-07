@@ -26,7 +26,10 @@ export function convertUnifiedRecipeToRecipe(
   return {
     id: unifiedRecipe.id,
     name: unifiedRecipe.name,
-    owner: unifiedRecipe.owner,
+    userId: unifiedRecipe.userId,
+    description: unifiedRecipe.description,
+    createdAt: unifiedRecipe.createdAt,
+    updatedAt: unifiedRecipe.updatedAt,
     items,
     prepared_multiplier: unifiedRecipe.prepared_multiplier,
     __type: 'Recipe',
@@ -46,7 +49,10 @@ export function convertRecipeToUnifiedRecipe(recipe: Recipe): UnifiedRecipe {
   return {
     id: recipe.id,
     name: recipe.name,
-    owner: recipe.owner,
+    userId: recipe.userId,
+    description: recipe.description,
+    createdAt: recipe.createdAt,
+    updatedAt: recipe.updatedAt,
     items,
     prepared_multiplier: recipe.prepared_multiplier,
     __type: 'UnifiedRecipe',
@@ -67,10 +73,13 @@ export function convertNewUnifiedRecipeToNewRecipe(
 
   return {
     name: newUnifiedRecipe.name,
-    owner: newUnifiedRecipe.owner,
+    userId: newUnifiedRecipe.userId,
+    description: newUnifiedRecipe.description,
+    createdAt: newUnifiedRecipe.createdAt,
+    updatedAt: newUnifiedRecipe.updatedAt,
     items,
     prepared_multiplier: newUnifiedRecipe.prepared_multiplier,
-    __type: 'NewRecipe',
+    __type: 'new-NewRecipe',
   }
 }
 
@@ -88,9 +97,12 @@ export function convertNewRecipeToNewUnifiedRecipe(
 
   return {
     name: newRecipe.name,
-    owner: newRecipe.owner,
+    userId: newRecipe.userId,
+    description: newRecipe.description,
+    createdAt: newRecipe.createdAt,
+    updatedAt: newRecipe.updatedAt,
     items,
     prepared_multiplier: newRecipe.prepared_multiplier,
-    __type: 'NewUnifiedRecipe',
+    __type: 'new-NewUnifiedRecipe',
   }
 }

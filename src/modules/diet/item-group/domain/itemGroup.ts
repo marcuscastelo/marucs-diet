@@ -3,16 +3,27 @@ import { z } from 'zod'
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import {
-  entityBaseSchema,
-  namedEntityBaseSchema,
+  createCreatedAtField,
+  createDescriptionField,
+  createIdField,
+  createUpdatedAtField,
+  createUserIdField,
 } from '~/shared/domain/schema/baseSchemas'
-import { createNumberField } from '~/shared/domain/schema/validationMessages'
+import {
+  createNumberField,
+  createStringField,
+} from '~/shared/domain/schema/validationMessages'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { generateId } from '~/shared/utils/idUtils'
 
-export const simpleItemGroupSchema = entityBaseSchema
-  .merge(namedEntityBaseSchema)
-  .extend({
+export const simpleItemGroupSchema = z
+  .object({
+    id: createIdField(),
+    userId: createUserIdField(),
+    name: createStringField('name'),
+    description: createDescriptionField(),
+    createdAt: createCreatedAtField(),
+    updatedAt: createUpdatedAtField(),
     items: itemSchema.array(),
     recipe: createNumberField('id')
       .nullable()
@@ -20,10 +31,16 @@ export const simpleItemGroupSchema = entityBaseSchema
       .transform((recipe) => recipe ?? undefined),
     __type: z.literal('ItemGroup').optional().default('ItemGroup'),
   })
+  .strip()
 
-export const recipedItemGroupSchema = entityBaseSchema
-  .merge(namedEntityBaseSchema)
-  .extend({
+export const recipedItemGroupSchema = z
+  .object({
+    id: createIdField(),
+    userId: createUserIdField(),
+    name: createStringField('name'),
+    description: createDescriptionField(),
+    createdAt: createCreatedAtField(),
+    updatedAt: createUpdatedAtField(),
     items: itemSchema
       .array()
       .refine((arr) => Array.isArray(arr) && arr.length > 0, {
@@ -34,6 +51,7 @@ export const recipedItemGroupSchema = entityBaseSchema
     recipe: createNumberField('id'),
     __type: z.literal('ItemGroup').default('ItemGroup'),
   })
+  .strip()
 
 /**
  * @deprecated
@@ -109,15 +127,24 @@ export function getItemGroupQuantity(group: ItemGroup): number {
  * @returns A new SimpleItemGroup
  */
 export function createSimpleItemGroup({
+  userId = 1,
   name,
+  description = null,
   items = [],
 }: {
+  userId?: number
   name: string
+  description?: string | null
   items?: SimpleItemGroup['items']
 }): SimpleItemGroup {
+  const now = new Date()
   return {
     id: generateId(),
+    userId,
     name,
+    description,
+    createdAt: now,
+    updatedAt: now,
     items,
     recipe: undefined,
     __type: 'ItemGroup',
@@ -135,17 +162,26 @@ export function createSimpleItemGroup({
  * @returns A new RecipedItemGroup
  */
 export function createRecipedItemGroup({
+  userId = 1,
   name,
+  description = null,
   recipe,
   items = [],
 }: {
+  userId?: number
   name: string
+  description?: string | null
   recipe: number
   items?: RecipedItemGroup['items']
 }): RecipedItemGroup {
+  const now = new Date()
   return {
     id: generateId(),
+    userId,
     name,
+    description,
+    createdAt: now,
+    updatedAt: now,
     items,
     recipe,
     __type: 'ItemGroup',

@@ -33,7 +33,7 @@ export function createInsertBodyMeasureDAOFromNewBodyMeasure(
     waist: newBodyMeasure.waist,
     hip: newBodyMeasure.hip,
     neck: newBodyMeasure.neck,
-    owner: newBodyMeasure.owner,
+    owner: newBodyMeasure.userId,
     target_timestamp: newBodyMeasure.target_timestamp,
   }
 }

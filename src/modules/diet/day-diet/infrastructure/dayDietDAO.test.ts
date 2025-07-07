@@ -8,7 +8,9 @@ import { itemToUnifiedItem } from '~/modules/diet/unified-item/domain/conversion
 describe('dayDietDAO legacy conversion', () => {
   const baseItem = {
     ...createItem({
+      userId: 1,
       name: 'Arroz',
+      description: 'Test description',
       reference: 1,
       quantity: 100,
       macros: { carbs: 10, protein: 2, fat: 1 },
@@ -20,17 +22,22 @@ describe('dayDietDAO legacy conversion', () => {
 
   const baseMeal = {
     ...createMeal({
+      userId: 1,
       name: 'Almoço',
+      description: 'Test description',
       items: [baseUnifiedItem],
     }),
     id: 1,
   }
 
   const baseNewDayDiet = {
+    id: 1,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    userId: 1,
     target_day: '2025-06-19',
-    owner: 1,
     meals: [baseMeal],
-    __type: 'NewDayDiet' as const,
+    __type: 'new-NewDayDiet' as const,
   }
 
   describe('createInsertLegacyDayDietDAOFromNewDayDiet', () => {
@@ -51,7 +58,9 @@ describe('dayDietDAO legacy conversion', () => {
     it('handles meals with multiple unified items', () => {
       const item2 = {
         ...createItem({
+          userId: 1,
           name: 'Feijão',
+          description: 'Test description 2',
           reference: 2,
           quantity: 80,
           macros: { carbs: 15, protein: 8, fat: 1 },
@@ -62,17 +71,22 @@ describe('dayDietDAO legacy conversion', () => {
 
       const mealWithMultipleItems = {
         ...createMeal({
+          userId: 1,
           name: 'Almoço',
+          description: 'Test description',
           items: [baseUnifiedItem, unifiedItem2],
         }),
         id: 1,
       }
 
       const dayDietWithMultipleItems = {
+        id: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        userId: 1,
         target_day: '2025-06-19',
-        owner: 1,
         meals: [mealWithMultipleItems],
-        __type: 'NewDayDiet' as const,
+        __type: 'new-NewDayDiet' as const,
       }
 
       const result = createInsertLegacyDayDietDAOFromNewDayDiet(

@@ -38,7 +38,7 @@ const baseItem = makeItem(1)
 const baseRecipe = promoteToRecipe(
   createNewRecipe({
     name: 'Receita',
-    owner: 1,
+    userId: 1,
     items: [baseItem],
     preparedMultiplier: 1,
   }),
@@ -104,7 +104,7 @@ describe('recipeOperations', () => {
     const complexRecipe = promoteToRecipe(
       createNewRecipe({
         name: 'Complexa',
-        owner: 1,
+        userId: 1,
         items: [baseItem],
         preparedMultiplier: 2,
       }),
@@ -120,7 +120,7 @@ describe('recipeOperations', () => {
     const complexRecipe = promoteToRecipe(
       createNewRecipe({
         name: 'Complexa',
-        owner: 1,
+        userId: 1,
         items: [baseItem],
         preparedMultiplier: 3,
       }),
@@ -138,7 +138,7 @@ describe('Recipe scaling operations', () => {
     return promoteToRecipe(
       createNewRecipe({
         name: 'Test Recipe',
-        owner: 1,
+        userId: 1,
         items,
         preparedMultiplier,
       }),

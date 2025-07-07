@@ -5,6 +5,7 @@ import { type ApiFood } from '~/modules/diet/food/infrastructure/api/domain/apiF
 import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
 import { markSearchAsCached } from '~/modules/search/application/searchCache'
 import { showError } from '~/modules/toast/application/toastManager'
+import { currentUserId } from '~/modules/user/application/user'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { convertApi2Food } from '~/shared/utils/convertApi2Food'
 
@@ -27,7 +28,7 @@ export async function importFoodFromApiByEan(
     return null
   }
 
-  const food = convertApi2Food(apiFood)
+  const food = convertApi2Food(apiFood, currentUserId())
   const upsertedFood = await foodRepository.upsertFood(food)
   return upsertedFood
 }
@@ -43,7 +44,10 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
   }
 
   console.debug(`[ApiFood] Found ${apiFoods.length} foods`)
-  const foodsToupsert = apiFoods.map(convertApi2Food)
+  const userId = currentUserId()
+  const foodsToupsert = apiFoods.map((apiFood) =>
+    convertApi2Food(apiFood, userId),
+  )
 
   const upsertPromises = foodsToupsert.map(foodRepository.upsertFood)
 

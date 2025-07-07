@@ -107,7 +107,7 @@ const onSaveMacroProfile = (profile: MacroProfile) => {
     updateMacroProfile(
       profile.id,
       createNewMacroProfile({
-        owner: profile.owner,
+        userId: profile.userId,
         target_day: profile.target_day,
         gramsPerKgCarbs: profile.gramsPerKgCarbs,
         gramsPerKgProtein: profile.gramsPerKgProtein,

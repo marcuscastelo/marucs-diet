@@ -18,16 +18,16 @@ import { registerSubapabaseRealtimeCallback } from '~/shared/utils/supabase'
 
 export function createDayDiet({
   target_day: targetDay,
-  owner,
+  userId,
   meals = [],
 }: {
   target_day: string
-  owner: number
+  userId: number
   meals?: DayDiet['meals']
 }): NewDayDiet {
   return createNewDayDiet({
     target_day: targetDay,
-    owner,
+    userId,
     meals,
   })
 }
@@ -186,7 +186,7 @@ export async function insertDayDiet(dayDiet: NewDayDiet): Promise<boolean> {
       },
       { context: 'user-action', audience: 'user' },
     )
-    await fetchAllUserDayDiets(dayDiet.owner)
+    await fetchAllUserDayDiets(dayDiet.userId)
     return true
   } catch (error) {
     handleApiError(error)
@@ -214,7 +214,7 @@ export async function updateDayDiet(
       },
       { context: 'user-action', audience: 'user' },
     )
-    await fetchAllUserDayDiets(dayDiet.owner)
+    await fetchAllUserDayDiets(dayDiet.userId)
     return true
   } catch (error) {
     handleApiError(error)

@@ -46,7 +46,7 @@ function makeMeal(
   items = [makeUnifiedItemFromItem(makeItem(1))],
 ) {
   return {
-    ...createMeal({ name, items }),
+    ...createMeal({ userId: 1, name, items }),
     id,
   }
 }
@@ -55,8 +55,10 @@ const baseItem = makeItem(1)
 const baseMeal = makeMeal(1, 'Almoço', [makeUnifiedItemFromItem(baseItem)])
 const baseDayDiet: DayDiet = {
   id: 1,
+  createdAt: new Date(),
+  updatedAt: new Date(),
   __type: 'DayDiet',
-  owner: 1,
+  userId: 1,
   target_day: '2023-01-01',
   meals: [baseMeal],
 }
@@ -106,13 +108,13 @@ describe('dayDietOperations', () => {
   })
 
   it('replaceDayDiet replaces fields', () => {
-    const result = replaceDayDiet(baseDayDiet, { owner: 2 })
-    expect(result.owner).toBe(2)
+    const result = replaceDayDiet(baseDayDiet, { userId: 2 })
+    expect(result.userId).toBe(2)
   })
 
   it('convertToNewDayDiet returns NewDayDiet', () => {
     const result = convertToNewDayDiet(baseDayDiet)
-    expect(result.__type).toBe('NewDayDiet')
+    expect(result.__type).toBe('new-NewDayDiet')
     // @ts-expect-error id should not exist
     expect(result.id).toBeUndefined()
   })

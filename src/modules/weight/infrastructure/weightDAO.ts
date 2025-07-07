@@ -31,7 +31,7 @@ export type UpdateWeightDAO = z.infer<typeof updateWeightDAOSchema>
 export function createWeightDAO(weight: Weight): WeightDAO {
   return parseWithStack(weightDAOSchema, {
     id: weight.id,
-    owner: weight.owner,
+    owner: weight.userId,
     weight: weight.weight,
     target_timestamp: weight.target_timestamp,
   })
@@ -47,7 +47,7 @@ export function createInsertWeightDAOFromWeight(
   weight: Omit<Weight, 'id' | '__type'>,
 ): CreateWeightDAO {
   return parseWithStack(createWeightDAOSchema, {
-    owner: weight.owner,
+    owner: weight.userId,
     weight: weight.weight,
     target_timestamp: weight.target_timestamp,
   })
@@ -57,7 +57,7 @@ export function createUpdateWeightDAOFromWeight(
   weight: Weight,
 ): UpdateWeightDAO {
   return parseWithStack(updateWeightDAOSchema, {
-    owner: weight.owner,
+    owner: weight.userId,
     weight: weight.weight,
     target_timestamp: weight.target_timestamp,
   })

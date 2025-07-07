@@ -84,9 +84,9 @@ export async function insertMacroProfile(
       !hasNoProfiles &&
       macroProfile !== null &&
       firstProfile !== undefined &&
-      macroProfile.owner === firstProfile.owner
+      macroProfile.userId === firstProfile.userId
     if (hasResult && (hasNoProfiles || isSameOwner)) {
-      await fetchUserMacroProfiles(macroProfile.owner)
+      await fetchUserMacroProfiles(macroProfile.userId)
     }
     return macroProfile
   } catch (error) {
@@ -124,9 +124,9 @@ export async function updateMacroProfile(
     const isSameOwner =
       hasResult &&
       hasFirstProfile &&
-      macroProfile.owner === firstUserMacroProfile.owner
+      macroProfile.userId === firstUserMacroProfile.userId
     if (isSameOwner) {
-      await fetchUserMacroProfiles(macroProfile.owner)
+      await fetchUserMacroProfiles(macroProfile.userId)
     }
     return macroProfile
   } catch (error) {
@@ -155,7 +155,7 @@ export async function deleteMacroProfile(
     )
     const [first] = userMacroProfiles()
     if (first) {
-      await fetchUserMacroProfiles(first.owner)
+      await fetchUserMacroProfiles(first.userId)
     }
     return true
   } catch (error) {

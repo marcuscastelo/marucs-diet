@@ -111,7 +111,7 @@ export function WeightEvolution() {
               }
               insertWeight(
                 createNewWeight({
-                  owner: userId,
+                  userId,
                   weight,
                   target_timestamp: new Date(Date.now()),
                 }),

@@ -47,7 +47,7 @@ describe('unifiedRecipeOperations', () => {
     const newRecipe = createNewUnifiedRecipe({
       name: 'Test Recipe',
       items: [mockUnifiedItem1],
-      owner: 1,
+      userId: 1,
       preparedMultiplier: 0.8,
     })
     return promoteToUnifiedRecipe(newRecipe, 1)

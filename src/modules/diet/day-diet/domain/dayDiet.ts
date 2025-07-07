@@ -3,27 +3,34 @@ import { z } from 'zod'
 import { mealSchema } from '~/modules/diet/meal/domain/meal'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import {
+  createCreatedAtField,
+  createIdField,
   createNewTypeField,
   createTypeField,
-  entityBaseSchema,
-  ownedEntityBaseSchema,
+  createUpdatedAtField,
+  createUserIdField,
 } from '~/shared/domain/schema/baseSchemas'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
-export const dayDietSchema = entityBaseSchema
-  .merge(ownedEntityBaseSchema)
-  .extend({
+export const dayDietSchema = z
+  .object({
+    id: createIdField(),
+    userId: createUserIdField(),
+    createdAt: createCreatedAtField(),
+    updatedAt: createUpdatedAtField(),
     target_day: z.string(), // TODO:   Change target_day to supabase date type
     meals: z.array(mealSchema),
     __type: createTypeField('DayDiet'),
   })
+  .strip()
 
 // Type for creating new day diets (without ID)
-export const newDayDietSchema = ownedEntityBaseSchema.extend({
-  target_day: z.string(),
-  meals: z.array(mealSchema),
-  __type: createNewTypeField('NewDayDiet'),
-})
+export const newDayDietSchema = dayDietSchema
+  .omit({ id: true })
+  .extend({
+    __type: createNewTypeField('NewDayDiet'),
+  })
+  .strip()
 
 export type DayDiet = Readonly<z.infer<typeof dayDietSchema>>
 export type NewDayDiet = Readonly<z.infer<typeof newDayDietSchema>>
@@ -33,17 +40,20 @@ export type NewDayDiet = Readonly<z.infer<typeof newDayDietSchema>>
  */
 export function createNewDayDiet({
   target_day: targetDay,
-  owner,
+  userId,
   meals = [],
 }: {
   target_day: string
-  owner: number
+  userId: number
   meals?: Meal[]
 }): NewDayDiet {
+  const now = new Date()
   return parseWithStack(newDayDietSchema, {
     target_day: targetDay,
-    owner,
+    userId,
     meals,
-    __type: 'NewDayDiet',
+    createdAt: now,
+    updatedAt: now,
+    __type: 'new-NewDayDiet',
   })
 }

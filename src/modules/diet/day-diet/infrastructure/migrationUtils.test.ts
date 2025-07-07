@@ -14,6 +14,7 @@ import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedIte
 function makeItem(id: number, name = 'Arroz') {
   return {
     ...createItem({
+      userId: 1,
       name,
       reference: id,
       quantity: 100,
@@ -62,7 +63,7 @@ function makeUnifiedMeal(
   items = [makeUnifiedItemFromItem(makeItem(1))],
 ) {
   return {
-    ...createMeal({ name, items }),
+    ...createMeal({ userId: 1, name, items }),
     id,
   }
 }
@@ -303,7 +304,18 @@ describe('infrastructure migration utils', () => {
       }
 
       // Test that the legacy meal can be migrated to unified format
-      const legacyMeal = legacyDayData.meals[0] as LegacyMeal
+      const legacyMeal = legacyDayData.meals[0]
+      function isLegacyMeal(meal: unknown): meal is LegacyMeal {
+        return (
+          meal !== null &&
+          typeof meal === 'object' &&
+          '__type' in meal &&
+          meal.__type === 'Meal'
+        )
+      }
+      if (!isLegacyMeal(legacyMeal)) {
+        throw new Error('Expected legacy meal not found')
+      }
       const unifiedMeal = migrateLegacyMealToUnified(legacyMeal)
 
       expect(unifiedMeal).toHaveProperty('items')

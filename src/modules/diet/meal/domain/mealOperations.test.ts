@@ -55,7 +55,7 @@ function makeMeal(
   items = [makeUnifiedItemFromItem(makeItem(1))],
 ) {
   return {
-    ...createMeal({ name, items }),
+    ...createMeal({ userId: 1, name, items }),
     id,
   }
 }

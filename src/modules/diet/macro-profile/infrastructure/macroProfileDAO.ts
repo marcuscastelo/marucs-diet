@@ -28,7 +28,7 @@ export function createInsertMacroProfileDAOFromNewMacroProfile(
   newMacroProfile: NewMacroProfile,
 ): CreateMacroProfileDAO {
   return {
-    owner: newMacroProfile.owner,
+    owner: newMacroProfile.userId,
     target_day: newMacroProfile.target_day,
     gramsPerKgCarbs: newMacroProfile.gramsPerKgCarbs,
     gramsPerKgProtein: newMacroProfile.gramsPerKgProtein,

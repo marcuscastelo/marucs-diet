@@ -251,7 +251,7 @@ const deleteDayDiet = async (id: DayDiet['id']): Promise<void> => {
     throw wrapErrorWithStack(error)
   }
 
-  const userId = userDays().find((day) => day.id === id)?.owner
+  const userId = userDays().find((day) => day.id === id)?.userId
   if (userId === undefined) {
     throw new Error(
       `Invalid state: userId not found for day ${id} on local cache`,
