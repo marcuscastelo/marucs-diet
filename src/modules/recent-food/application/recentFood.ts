@@ -5,10 +5,6 @@ import { z } from 'zod'
 import { foodSchema } from '~/modules/diet/food/domain/food'
 import { recipeSchema } from '~/modules/diet/recipe/domain/recipe'
 import type { Template } from '~/modules/diet/template/domain/template'
-import {
-  createRecentTemplate,
-  type RecentTemplate,
-} from '~/modules/recent-food/domain/recentFood'
 import { showPromise } from '~/modules/toast/application/toastManager'
 import env from '~/shared/config/env'
 import { handleApiError } from '~/shared/error/errorHandler'
@@ -188,79 +184,6 @@ export async function fetchUserRecentFoods(
     })
 
     return templates
-  } catch (error) {
-    handleApiError(error)
-    return []
-  }
-}
-
-/**
- * Fetches recent templates (complete Template objects with usage metadata) for a user.
- * Uses the enhanced database function to return complete Template objects directly.
- * @param userId - The user ID.
- * @param limit - Maximum number of recent templates to fetch (defaults to environment configuration).
- * @param search - Optional search term to filter by food/recipe names (case and diacritic insensitive).
- * @returns Array of recent templates or empty array on error.
- */
-export async function fetchUserRecentTemplates(
-  userId: number,
-  limit: number = env.VITE_RECENT_FOODS_DEFAULT_LIMIT,
-  search?: string,
-): Promise<readonly RecentTemplate[]> {
-  try {
-    const normalizedSearch =
-      search?.trim() !== undefined && search.trim() !== ''
-        ? removeDiacritics(search.trim())
-        : undefined
-    const response = await supabase.rpc('search_recent_foods_with_names', {
-      p_user_id: userId,
-      p_search_term: normalizedSearch ?? null,
-      p_limit: limit,
-    })
-    if (response.error !== null) throw response.error
-
-    // Transform the enhanced result to RecentTemplate objects
-    const validatedRows = parseWithStack(
-      enhancedRecentFoodRowSchema.array(),
-      response.data,
-    )
-    const recentTemplates = validatedRows.map((row) => {
-      // Create the appropriate Template object based on type
-      if (row.type === 'food') {
-        const foodTemplate = parseWithStack(foodSchema, {
-          id: row.template_id,
-          name: row.template_name,
-          ean: row.template_ean,
-          source: row.template_source,
-          macros: row.template_macros,
-          __type: 'Food',
-        })
-        return createRecentTemplate(
-          foodTemplate,
-          row.recent_food_id,
-          row.last_used,
-          row.times_used,
-        )
-      } else {
-        const { owner, preparedMultiplier } = getRecipeFields(row)
-        const recipeTemplate = parseWithStack(recipeSchema, {
-          id: row.template_id,
-          name: row.template_name,
-          owner,
-          items: row.template_items,
-          prepared_multiplier: preparedMultiplier,
-          __type: 'Recipe',
-        })
-        return createRecentTemplate(
-          recipeTemplate,
-          row.recent_food_id,
-          row.last_used,
-          row.times_used,
-        )
-      }
-    })
-
-    return recentTemplates
   } catch (error) {
     handleApiError(error)
     return []
