@@ -3,7 +3,7 @@
  * Shared between ExpandableErrorToast and ErrorDetailModal.
  */
 import { TOAST_MESSAGES } from '~/modules/toast/domain/toastMessages'
-import { ToastError } from '~/modules/toast/domain/toastTypes'
+import { type ToastError } from '~/modules/toast/domain/toastTypes'
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { handleApiError } from '~/shared/error/errorHandler'
 

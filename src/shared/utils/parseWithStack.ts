@@ -1,4 +1,4 @@
-import { z, ZodError, ZodTypeAny } from 'zod'
+import { type z, ZodError, type ZodTypeAny } from 'zod'
 
 /**
  * Parses data with a Zod schema and always throws a JS Error with stack trace on failure.

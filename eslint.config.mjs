@@ -84,6 +84,7 @@ export default [
         'warn',
         { assertionStyle: 'never' },
       ],
+      '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports', fixStyle: 'inline-type-imports' }],
 
       "require-await": "off",
       "@typescript-eslint/require-await": "off",

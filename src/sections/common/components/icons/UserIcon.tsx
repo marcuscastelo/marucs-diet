@@ -1,4 +1,4 @@
-import { Accessor, createSignal, Show } from 'solid-js'
+import { type Accessor, createSignal, Show } from 'solid-js'
 
 import { type User } from '~/modules/user/domain/user'
 import { UserInitialFallback } from '~/sections/common/components/icons/UserInitialFallback'

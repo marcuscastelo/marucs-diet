@@ -5,8 +5,8 @@ import { createUnifiedItemFromTemplate } from '~/modules/diet/template/applicati
 import { templateToUnifiedItem as templateToUnifiedItemDirect } from '~/modules/diet/template/application/templateToItem'
 import { unifiedItemToItem } from '~/modules/diet/unified-item/domain/conversionUtils'
 import {
-  FoodItem,
-  RecipeItem,
+  type FoodItem,
+  type RecipeItem,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 describe('template application services', () => {

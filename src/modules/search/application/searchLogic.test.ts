@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   fetchTemplatesByTabLogic,
-  FetchTemplatesDeps,
+  type FetchTemplatesDeps,
 } from '~/modules/search/application/searchLogic'
 import { availableTabs } from '~/sections/search/components/TemplateSearchTabs'
 

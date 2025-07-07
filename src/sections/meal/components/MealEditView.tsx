@@ -1,7 +1,7 @@
-import { Accessor, createEffect, type JSXElement, Show } from 'solid-js'
+import { type Accessor, createEffect, type JSXElement, Show } from 'solid-js'
 import { z } from 'zod'
 
-import { DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { deleteUnifiedItem } from '~/modules/diet/item-group/application/itemGroup'
 import {

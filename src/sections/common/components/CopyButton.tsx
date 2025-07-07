@@ -1,4 +1,4 @@
-import { Accessor, JSXElement } from 'solid-js'
+import { type Accessor, type JSXElement } from 'solid-js'
 
 import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
 import { COPY_BUTTON_STYLES } from '~/sections/common/styles/buttonStyles'

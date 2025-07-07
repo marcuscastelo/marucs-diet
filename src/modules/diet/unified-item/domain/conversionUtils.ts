@@ -1,11 +1,11 @@
-import { Item } from '~/modules/diet/item/domain/item'
+import { type Item } from '~/modules/diet/item/domain/item'
 import type { ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { getItemGroupQuantity } from '~/modules/diet/item-group/domain/itemGroup'
-import { Recipe } from '~/modules/diet/recipe/domain/recipe'
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import {
   createUnifiedItem,
   isFoodItem,
-  UnifiedItem,
+  type UnifiedItem,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 /**

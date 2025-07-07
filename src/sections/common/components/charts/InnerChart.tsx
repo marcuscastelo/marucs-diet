@@ -1,4 +1,4 @@
-import { ApexChartProps, SolidApexCharts } from 'solid-apexcharts'
+import { type ApexChartProps, SolidApexCharts } from 'solid-apexcharts'
 
 export default function InnerChart(props: ApexChartProps) {
   return <SolidApexCharts {...props} />

@@ -1,7 +1,7 @@
-import { z } from 'zod'
+import { type z } from 'zod'
 
-import { foodSchema } from '~/modules/diet/food/domain/food'
-import { recipeSchema } from '~/modules/diet/recipe/domain/recipe'
+import { type foodSchema } from '~/modules/diet/food/domain/food'
+import { type recipeSchema } from '~/modules/diet/recipe/domain/recipe'
 
 export type FoodTemplate = Readonly<z.output<typeof foodSchema>>
 export type RecipeTemplate = Readonly<z.output<typeof recipeSchema>>

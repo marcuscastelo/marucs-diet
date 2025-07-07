@@ -10,9 +10,9 @@ import toast from 'solid-toast'
 import { killToast } from '~/modules/toast/application/toastQueue'
 import { TOAST_MESSAGES } from '~/modules/toast/domain/toastMessages'
 import {
-  ToastError,
-  ToastItem,
-  ToastType,
+  type ToastError,
+  type ToastItem,
+  type ToastType,
 } from '~/modules/toast/domain/toastTypes'
 import { handleCopyErrorToClipboard } from '~/modules/toast/infrastructure/clipboardErrorUtils'
 import { modalManager } from '~/shared/modal/core/modalManager'

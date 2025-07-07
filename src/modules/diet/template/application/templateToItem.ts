@@ -2,7 +2,7 @@ import {
   isTemplateFood,
   type Template,
 } from '~/modules/diet/template/domain/template'
-import { TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { itemToUnifiedItem } from '~/modules/diet/unified-item/domain/conversionUtils'
 import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { generateId } from '~/shared/utils/idUtils'

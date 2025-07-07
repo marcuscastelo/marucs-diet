@@ -1,4 +1,4 @@
-import { Accessor } from 'solid-js'
+import { type Accessor } from 'solid-js'
 
 import { targetDay } from '~/modules/diet/day-diet/application/dayDiet'
 import { Button } from '~/sections/common/components/buttons/Button'

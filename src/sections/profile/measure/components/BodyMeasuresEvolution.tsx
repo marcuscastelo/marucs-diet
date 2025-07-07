@@ -7,7 +7,7 @@ import {
 } from '~/modules/measure/application/measure'
 import {
   createNewBodyMeasure,
-  NewBodyMeasureProps,
+  type NewBodyMeasureProps,
 } from '~/modules/measure/domain/measure'
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { showError } from '~/modules/toast/application/toastManager'

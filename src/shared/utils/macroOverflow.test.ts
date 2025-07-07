@@ -6,7 +6,7 @@ import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedIte
 import {
   createMacroOverflowChecker,
   isOverflow,
-  MacroOverflowContext,
+  type MacroOverflowContext,
 } from '~/shared/utils/macroOverflow'
 
 function makeFakeDayDiet(macros: {

@@ -5,7 +5,7 @@ import {
   isGroupItem,
   isRecipeItem,
   type RecipeItem,
-  UnifiedItem,
+  type UnifiedItem,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 export type TemplateItem = FoodItem | RecipeItem | GroupItem

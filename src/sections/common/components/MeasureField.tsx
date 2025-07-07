@@ -1,5 +1,5 @@
 import { FloatInput } from '~/sections/common/components/FloatInput'
-import { useFloatField } from '~/sections/common/hooks/useField'
+import { type useFloatField } from '~/sections/common/hooks/useField'
 
 type MeasureFieldProps = {
   label: string

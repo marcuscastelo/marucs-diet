@@ -15,7 +15,7 @@ import {
   DEFAULT_TOAST_CONTEXT,
   DEFAULT_TOAST_OPTIONS,
   TOAST_DURATION_INFINITY,
-  ToastOptions,
+  type ToastOptions,
 } from '~/modules/toast/domain/toastTypes'
 import { setBackendOutage } from '~/shared/error/backendOutageSignal'
 import { isBackendOutageError } from '~/shared/error/errorHandler'

@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 import {
-  MacroNutrients,
+  type MacroNutrients,
   macroNutrientsSchema,
 } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 
