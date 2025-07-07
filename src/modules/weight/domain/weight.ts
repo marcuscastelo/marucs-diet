@@ -1,28 +1,35 @@
 import { z } from 'zod/v4'
 
 import {
-  createIdField,
-  createNewTypeField,
-  createOwnerField,
-  createTargetTimestampField,
-  createTypeField,
-  createWeightField,
-} from '~/shared/domain/commonFields'
+  createDateFieldMessages,
+  createNumberFieldMessages,
+  createStringFieldMessages,
+} from '~/shared/domain/validationMessages'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 export const newWeightSchema = z.object({
-  owner: createOwnerField('weight'),
-  weight: createWeightField('weight'),
-  target_timestamp: createTargetTimestampField('weight'),
-  __type: createNewTypeField('NewWeight'),
+  owner: z.number(createNumberFieldMessages('owner')('weight')),
+  weight: z.number(createNumberFieldMessages('weight')('weight')),
+  target_timestamp: z
+    .date(createDateFieldMessages('target_timestamp')('weight'))
+    .or(z.string(createStringFieldMessages('target_timestamp')('weight')))
+    .transform((v) => new Date(v)),
+  __type: z.literal('NewWeight'),
 })
 
 export const weightSchema = z.object({
-  id: createIdField('weight'),
-  owner: createOwnerField('weight'),
-  weight: createWeightField('weight'),
-  target_timestamp: createTargetTimestampField('weight'),
-  __type: createTypeField('Weight'),
+  id: z.number(createNumberFieldMessages('id')('weight')),
+  owner: z.number(createNumberFieldMessages('owner')('weight')),
+  weight: z.number(createNumberFieldMessages('weight')('weight')),
+  target_timestamp: z
+    .date(createDateFieldMessages('target_timestamp')('weight'))
+    .or(z.string(createStringFieldMessages('target_timestamp')('weight')))
+    .transform((v) => new Date(v)),
+  __type: z
+    .string()
+    .nullable()
+    .optional()
+    .transform(() => 'Weight' as const),
 })
 
 export type NewWeight = Readonly<z.infer<typeof newWeightSchema>>

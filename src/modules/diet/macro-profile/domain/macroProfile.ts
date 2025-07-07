@@ -1,31 +1,39 @@
 import { z } from 'zod/v4'
 
 import {
-  createGramsPerKgCarbsField,
-  createGramsPerKgFatField,
-  createGramsPerKgProteinField,
-  createIdField,
-  createNewTypeField,
-  createOwnerField,
-  createTargetDayField,
-  createTypeField,
-} from '~/shared/domain/commonFields'
+  createDateFieldMessages,
+  createNumberFieldMessages,
+  createStringFieldMessages,
+} from '~/shared/domain/validationMessages'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 export const macroProfileSchema = z.object({
-  id: createIdField('macroProfile'),
-  owner: createOwnerField('macroProfile'),
-  target_day: createTargetDayField('macroProfile'),
-  gramsPerKgCarbs: createGramsPerKgCarbsField('macroProfile'),
-  gramsPerKgProtein: createGramsPerKgProteinField('macroProfile'),
-  gramsPerKgFat: createGramsPerKgFatField('macroProfile'),
-  __type: createTypeField('MacroProfile' as const),
+  id: z.number(createNumberFieldMessages('id')('macroProfile')),
+  owner: z.number(createNumberFieldMessages('owner')('macroProfile')),
+  target_day: z
+    .date(createDateFieldMessages('target_day')('macroProfile'))
+    .or(z.string(createStringFieldMessages('target_day')('macroProfile')))
+    .transform((v) => new Date(v)),
+  gramsPerKgCarbs: z.number(
+    createNumberFieldMessages('gramsPerKgCarbs')('macroProfile'),
+  ),
+  gramsPerKgProtein: z.number(
+    createNumberFieldMessages('gramsPerKgProtein')('macroProfile'),
+  ),
+  gramsPerKgFat: z.number(
+    createNumberFieldMessages('gramsPerKgFat')('macroProfile'),
+  ),
+  __type: z
+    .string()
+    .nullable()
+    .optional()
+    .transform(() => 'MacroProfile' as const),
 })
 
 export const newMacroProfileSchema = macroProfileSchema
   .omit({ id: true })
   .extend({
-    __type: createNewTypeField('NewMacroProfile'),
+    __type: z.literal('NewMacroProfile'),
   })
 
 export type MacroProfile = Readonly<z.infer<typeof macroProfileSchema>>
