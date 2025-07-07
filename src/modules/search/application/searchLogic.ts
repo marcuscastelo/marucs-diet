@@ -57,17 +57,7 @@ export async function fetchTemplatesByTabLogic(
 
       // Apply additional client-side filtering if needed (for EAN search)
       if (lowerSearch !== '') {
-        const filterFn = (item: { name: string; ean?: string | null }) => {
-          if (item.name.toLowerCase().includes(lowerSearch)) return true
-          if (
-            typeof item.ean === 'string' &&
-            item.ean &&
-            item.ean.toLowerCase().includes(lowerSearch)
-          )
-            return true
-          return false
-        }
-        return templates.filter(filterFn)
+        return templates.filter((item) => matchesSearch(item, lowerSearch))
       }
 
       return templates
@@ -100,6 +90,31 @@ export async function fetchTemplatesByTabLogic(
       }
     }
   }
+}
+
+/**
+ * Checks if a template matches the search term by name or EAN.
+ * @param item - The template item to check
+ * @param search - The search term (case-insensitive)
+ * @returns True if the item matches the search term
+ */
+function matchesSearch(
+  item: { name: string; ean?: string | null },
+  search: string,
+): boolean {
+  const lowerSearch = search.toLowerCase()
+
+  if (item.name.toLowerCase().includes(lowerSearch)) return true
+
+  if (
+    typeof item.ean === 'string' &&
+    item.ean &&
+    item.ean.toLowerCase().includes(lowerSearch)
+  ) {
+    return true
+  }
+
+  return false
 }
 
 /**
