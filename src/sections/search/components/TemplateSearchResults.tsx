@@ -103,8 +103,7 @@ export function TemplateSearchResults(props: {
                     }
                     secondaryActions={
                       <RemoveFromRecentButton
-                        templateId={template.id}
-                        type={isTemplateFood(template) ? 'food' : 'recipe'}
+                        template={template}
                         refetch={props.refetch}
                       />
                     }
