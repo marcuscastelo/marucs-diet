@@ -23,7 +23,8 @@
       "Bash(cat:*)",
       "Bash(rm:*)",
       "Bash(ls:*)",
-      "Bash(gh issue list:*)"
+      "Bash(gh issue list:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }
