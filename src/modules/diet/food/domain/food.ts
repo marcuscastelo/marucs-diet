@@ -11,31 +11,42 @@ import {
   macroNutrientsSchema,
 } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
-  createEanField,
-  createFoodSourceField,
-  createIdField,
-  createNameField,
-  createNewTypeField,
-  createPersistedFoodSourceField,
-  createTypeField,
-} from '~/shared/domain/commonFields'
+  createNumberFieldMessages,
+  createStringFieldMessages,
+} from '~/shared/domain/validationMessages'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 export const newFoodSchema = z.object({
-  name: createNameField('food'),
-  ean: createEanField('food'),
+  name: z.string(createStringFieldMessages('name')('food')),
+  ean: z.string(createStringFieldMessages('ean')('food')).nullable(),
   macros: macroNutrientsSchema,
-  source: createFoodSourceField('food'),
-  __type: createNewTypeField('NewFood'),
+  source: z
+    .object({
+      type: z.literal('api'),
+      id: z.string(createStringFieldMessages('sourceId')('food')),
+    })
+    .optional(),
+  __type: z.literal('NewFood'),
 })
 
 export const foodSchema = z.object({
-  id: createIdField('food'),
-  source: createPersistedFoodSourceField('food'),
-  name: createNameField('food'),
-  ean: createEanField('food'),
+  id: z.number(createNumberFieldMessages('id')('food')),
+  source: z
+    .object({
+      type: z.literal('api'),
+      id: z.string(createStringFieldMessages('sourceId')('food')),
+    })
+    .nullable()
+    .transform((val) => val ?? undefined)
+    .optional(),
+  name: z.string(createStringFieldMessages('name')('food')),
+  ean: z.string(createStringFieldMessages('ean')('food')).nullable(),
   macros: macroNutrientsSchema,
-  __type: createTypeField('Food'),
+  __type: z
+    .string()
+    .nullable()
+    .optional()
+    .transform(() => 'Food' as const),
 })
 
 export type NewFood = Readonly<z.infer<typeof newFoodSchema>>

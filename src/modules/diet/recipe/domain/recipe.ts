@@ -4,45 +4,58 @@ import { itemSchema } from '~/modules/diet/item/domain/item'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { unifiedItemSchema } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import {
-  createIdField,
-  createNameField,
-  createNewTypeField,
-  createOwnerField,
-  createPreparedMultiplierField,
-  createTypeField,
-} from '~/shared/domain/commonFields'
+  createArrayFieldMessages,
+  createNumberFieldMessages,
+  createStringFieldMessages,
+} from '~/shared/domain/validationMessages'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 // Legacy schemas for database compatibility (using Item[])
 export const recipeSchema = z.object({
-  id: createIdField('recipe'),
-  name: createNameField('recipe'),
-  owner: createOwnerField('recipe'),
-  items: itemSchema.array().readonly(),
-  prepared_multiplier: createPreparedMultiplierField('recipe'),
-  __type: createTypeField('Recipe'),
+  id: z.number(createNumberFieldMessages('id')('recipe')),
+  name: z.string(createStringFieldMessages('name')('recipe')),
+  owner: z.number(createNumberFieldMessages('owner')('recipe')),
+  items: z
+    .array(itemSchema, createArrayFieldMessages('items')('recipe'))
+    .readonly(),
+  prepared_multiplier: z
+    .number(createNumberFieldMessages('prepared_multiplier')('recipe'))
+    .default(1),
+  __type: z
+    .string()
+    .nullable()
+    .optional()
+    .transform(() => 'Recipe' as const),
 })
 
 export const newRecipeSchema = recipeSchema
   .omit({ id: true, __type: true })
-  .extend({ __type: createNewTypeField('NewRecipe') })
+  .extend({ __type: z.literal('NewRecipe') })
   .refine((val) => Array.isArray(val.items), {
     message: 'items must be an array',
     path: ['items'],
   })
 
 export const unifiedRecipeSchema = z.object({
-  id: createIdField('recipe'),
-  name: createNameField('recipe'),
-  owner: createOwnerField('recipe'),
-  items: unifiedItemSchema.array().readonly(),
-  prepared_multiplier: createPreparedMultiplierField('recipe'),
-  __type: createTypeField('UnifiedRecipe'),
+  id: z.number(createNumberFieldMessages('id')('recipe')),
+  name: z.string(createStringFieldMessages('name')('recipe')),
+  owner: z.number(createNumberFieldMessages('owner')('recipe')),
+  items: z
+    .array(unifiedItemSchema, createArrayFieldMessages('items')('recipe'))
+    .readonly(),
+  prepared_multiplier: z
+    .number(createNumberFieldMessages('prepared_multiplier')('recipe'))
+    .default(1),
+  __type: z
+    .string()
+    .nullable()
+    .optional()
+    .transform(() => 'UnifiedRecipe' as const),
 })
 
 export const newUnifiedRecipeSchema = unifiedRecipeSchema
   .omit({ id: true, __type: true })
-  .extend({ __type: createNewTypeField('NewUnifiedRecipe') })
+  .extend({ __type: z.literal('NewUnifiedRecipe') })
   .refine((val) => Array.isArray(val.items), {
     message: 'items must be an array',
     path: ['items'],

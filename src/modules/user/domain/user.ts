@@ -1,30 +1,39 @@
 import { z } from 'zod/v4'
 
 import {
-  createBirthdateField,
-  createDesiredWeightField,
-  createDietField,
-  createFavoriteFoodsField,
-  createIdField,
-  createNameField,
-  createNewTypeField,
-  createTypeField,
-} from '~/shared/domain/commonFields'
+  createArrayFieldMessages,
+  createEnumFieldMessages,
+  createNumberFieldMessages,
+  createStringFieldMessages,
+} from '~/shared/domain/validationMessages'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 export const userSchema = z.object({
-  id: createIdField('user'),
-  name: createNameField('user'),
-  favorite_foods: createFavoriteFoodsField('user'),
-  diet: createDietField('user'),
-  birthdate: createBirthdateField('user'),
+  id: z.number(createNumberFieldMessages('id')('user')),
+  name: z.string(createStringFieldMessages('name')('user')),
+  favorite_foods: z
+    .array(
+      z.number(createNumberFieldMessages('favorite_foods')('user')),
+      createArrayFieldMessages('favorite_foods')('user'),
+    )
+    .nullable()
+    .transform((value) => value ?? []),
+  diet: z.enum(
+    ['cut', 'normo', 'bulk'],
+    createEnumFieldMessages('diet')('user'),
+  ),
+  birthdate: z.string(createStringFieldMessages('birthdate')('user')),
   gender: z.union([z.literal('male'), z.literal('female')]),
-  desired_weight: createDesiredWeightField('user'),
-  __type: createTypeField('User'),
+  desired_weight: z.number(createNumberFieldMessages('desired_weight')('user')),
+  __type: z
+    .string()
+    .nullable()
+    .optional()
+    .transform(() => 'User' as const),
 })
 
 export const newUserSchema = userSchema.omit({ id: true }).extend({
-  __type: createNewTypeField('NewUser'),
+  __type: z.literal('NewUser'),
 })
 
 export type NewUser = Readonly<z.infer<typeof newUserSchema>>

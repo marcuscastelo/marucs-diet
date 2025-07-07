@@ -1,36 +1,40 @@
 import { z } from 'zod/v4'
 
 import {
-  createHeightField,
-  createHipField,
-  createIdField,
-  createNeckField,
-  createNewTypeField,
-  createOwnerField,
-  createTargetTimestampField,
-  createTypeField,
-  createWaistField,
-} from '~/shared/domain/commonFields'
+  createDateFieldMessages,
+  createNumberFieldMessages,
+  createStringFieldMessages,
+} from '~/shared/domain/validationMessages'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 // TODO:   Create discriminate union type for Male and Female body measures
 export const bodyMeasureSchema = z
   .object({
-    id: createIdField('measure'),
-    height: createHeightField('measure'),
-    waist: createWaistField('measure'),
-    hip: createHipField('measure'),
-    neck: createNeckField('measure'),
-    owner: createOwnerField('measure'),
-    target_timestamp: createTargetTimestampField('measure'),
-    __type: createTypeField('BodyMeasure'),
+    id: z.number(createNumberFieldMessages('id')('measure')),
+    height: z.number(createNumberFieldMessages('height')('measure')),
+    waist: z.number(createNumberFieldMessages('waist')('measure')),
+    hip: z
+      .number(createNumberFieldMessages('hip')('measure'))
+      .nullish()
+      .transform((v) => (v === null ? undefined : v)),
+    neck: z.number(createNumberFieldMessages('neck')('measure')),
+    owner: z.number(createNumberFieldMessages('owner')('measure')),
+    target_timestamp: z
+      .date(createDateFieldMessages('target_timestamp')('measure'))
+      .or(z.string(createStringFieldMessages('target_timestamp')('measure')))
+      .transform((v) => new Date(v)),
+    __type: z
+      .string()
+      .nullable()
+      .optional()
+      .transform(() => 'BodyMeasure' as const),
   })
   .strip()
 
 export const newBodyMeasureSchema = bodyMeasureSchema
   .omit({ id: true, __type: true })
   .extend({
-    __type: createNewTypeField('NewBodyMeasure'),
+    __type: z.literal('NewBodyMeasure'),
   })
 
 export type BodyMeasure = Readonly<z.infer<typeof bodyMeasureSchema>>

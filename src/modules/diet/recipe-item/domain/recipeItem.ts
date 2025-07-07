@@ -2,11 +2,9 @@ import { z } from 'zod/v4'
 
 import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
-  createIdField,
-  createNameField,
-  createQuantityField,
-  createReferenceField,
-} from '~/shared/domain/commonFields'
+  createNumberFieldMessages,
+  createStringFieldMessages,
+} from '~/shared/domain/validationMessages'
 import { generateId } from '~/shared/utils/idUtils'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
@@ -14,10 +12,10 @@ import { parseWithStack } from '~/shared/utils/parseWithStack'
  * @deprecated
  */
 export const recipeItemSchema = z.object({
-  id: createIdField('recipeItem'),
-  name: createNameField('recipeItem'),
-  reference: createReferenceField('recipeItem'),
-  quantity: createQuantityField('recipeItem'),
+  id: z.number(createNumberFieldMessages('id')('recipeItem')),
+  name: z.string(createStringFieldMessages('name')('recipeItem')),
+  reference: z.number(createNumberFieldMessages('reference')('recipeItem')),
+  quantity: z.number(createNumberFieldMessages('quantity')('recipeItem')),
   macros: macroNutrientsSchema, // TODO:   Rename to foodMacros for clarity
   __type: z
     .string()

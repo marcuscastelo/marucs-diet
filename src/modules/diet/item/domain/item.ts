@@ -2,11 +2,9 @@ import { z } from 'zod/v4'
 
 import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
-  createIdField,
-  createNameField,
-  createQuantityField,
-  createReferenceField,
-} from '~/shared/domain/commonFields'
+  createNumberFieldMessages,
+  createStringFieldMessages,
+} from '~/shared/domain/validationMessages'
 import { generateId } from '~/shared/utils/idUtils'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
@@ -14,10 +12,10 @@ import { parseWithStack } from '~/shared/utils/parseWithStack'
  * @deprecated Use UnifiedItem instead
  */
 export const itemSchema = z.object({
-  id: createIdField('item'),
-  name: createNameField('item'),
-  reference: createReferenceField('item'),
-  quantity: createQuantityField('item'),
+  id: z.number(createNumberFieldMessages('id')('item')),
+  name: z.string(createStringFieldMessages('name')('item')),
+  reference: z.number(createNumberFieldMessages('reference')('item')),
+  quantity: z.number(createNumberFieldMessages('quantity')('item')),
   /**
    * @deprecated Should be derived from the quantity and the reference
    */
