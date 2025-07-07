@@ -1,3 +1,4 @@
+import { z } from 'zod/v4'
 import { ZodError } from 'zod/v4'
 
 export function isZodError(error: unknown): error is ZodError {
@@ -12,14 +13,7 @@ export function isZodError(error: unknown): error is ZodError {
 }
 
 export function getZodErrorMessage(error: ZodError): string {
-  const issues = error.issues
-    .map((issue) => {
-      const path = issue.path.length > 0 ? ` at ${issue.path.join('.')}` : ''
-      return `${issue.message}${path}`
-    })
-    .join('; ')
-
-  return `Validation error: ${issues}`
+  return `Validation error: \n${z.prettifyError(error)}`
 }
 
 export function formatError(error: unknown): string {
