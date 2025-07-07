@@ -2,18 +2,16 @@ import { z } from 'zod/v4'
 
 import { mealSchema } from '~/modules/diet/meal/domain/meal'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
-import {
-  createArrayFieldMessages,
-  createNumberFieldMessages,
-  createStringFieldMessages,
-} from '~/shared/domain/validationMessages'
+import { createZodEntity } from '~/shared/domain/validationMessages'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
-export const dayDietSchema = z.object({
-  id: z.number(createNumberFieldMessages('id')('dayDiet')),
-  target_day: z.string(createStringFieldMessages('target_day')('dayDiet')), // TODO:   Change target_day to supabase date type
-  owner: z.number(createNumberFieldMessages('owner')('dayDiet')),
-  meals: z.array(mealSchema, createArrayFieldMessages('meals')('dayDiet')),
+const ze = createZodEntity('dayDiet')
+
+export const dayDietSchema = ze.create({
+  id: ze.number('id'),
+  target_day: ze.string('target_day'), // TODO:   Change target_day to supabase date type
+  owner: ze.number('owner'),
+  meals: ze.array('meals', mealSchema),
   __type: z
     .string()
     .nullable()
@@ -22,10 +20,10 @@ export const dayDietSchema = z.object({
 })
 
 // Type for creating new day diets (without ID)
-export const newDayDietSchema = z.object({
-  target_day: z.string(createStringFieldMessages('target_day')('dayDiet')),
-  owner: z.number(createNumberFieldMessages('owner')('dayDiet')),
-  meals: z.array(mealSchema, createArrayFieldMessages('meals')('dayDiet')),
+export const newDayDietSchema = ze.create({
+  target_day: ze.string('target_day'),
+  owner: ze.number('owner'),
+  meals: ze.array('meals', mealSchema),
   __type: z.literal('NewDayDiet'),
 })
 

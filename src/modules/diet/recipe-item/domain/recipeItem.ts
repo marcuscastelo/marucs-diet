@@ -1,16 +1,20 @@
 import { z } from 'zod/v4'
 
 import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
-import {
 import { createZodEntity } from '~/shared/domain/validationMessages'
 import { generateId } from '~/shared/utils/idUtils'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
-nconst ze = createZodEntity('recipeItem')
+
+const ze = createZodEntity('recipeItem')
 
 /**
  * @deprecated
  */
-export const recipeItemSchema = z.object({
+export const recipeItemSchema = ze.create({
+  id: ze.number('id'),
+  name: ze.string('name'),
+  reference: ze.number('reference'),
+  quantity: ze.number('quantity'),
   macros: macroNutrientsSchema, // TODO:   Rename to foodMacros for clarity
   __type: z
     .string()

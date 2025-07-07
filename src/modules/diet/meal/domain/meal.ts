@@ -1,11 +1,15 @@
 import { z } from 'zod/v4'
 
 import { unifiedItemSchema } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
-import {
 import { createZodEntity } from '~/shared/domain/validationMessages'
 import { generateId } from '~/shared/utils/idUtils'
 
-export const mealSchema = z.object({
+const ze = createZodEntity('meal')
+
+export const mealSchema = ze.create({
+  id: ze.number('id'),
+  name: ze.string('name'),
+  items: ze.array('items', unifiedItemSchema),
   __type: z
     .string()
     .nullable()

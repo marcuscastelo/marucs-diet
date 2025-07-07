@@ -2,26 +2,41 @@ import { z } from 'zod/v4'
 
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
-import {
 import { createZodEntity } from '~/shared/domain/validationMessages'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { generateId } from '~/shared/utils/idUtils'
 
-export const simpleItemGroupSchema = z.object({
+const ze = createZodEntity('itemGroup')
+
+export const simpleItemGroupSchema = ze.create({
+  id: ze.number('id'),
+  name: ze.string('name'),
+  items: ze
+    .array('items', itemSchema)
+    .refine((arr) => Array.isArray(arr) && arr.length > 0, {
+      message:
+        "O campo 'items' do grupo deve ser uma lista de itens e não pode ser vazio.",
+    })
+    .readonly(),
   recipe: z
+    .number()
     .nullable()
     .optional()
     .transform((recipe) => recipe ?? undefined),
   __type: z.literal('ItemGroup').optional().default('ItemGroup'),
 })
 
-export const recipedItemGroupSchema = z.object({
-  items: z
+export const recipedItemGroupSchema = ze.create({
+  id: ze.number('id'),
+  name: ze.string('name'),
+  items: ze
+    .array('items', itemSchema)
     .refine((arr) => Array.isArray(arr) && arr.length > 0, {
       message:
         "O campo 'items' do grupo deve ser uma lista de itens e não pode ser vazio.",
     })
     .readonly(),
+  recipe: ze.number('recipe'),
   __type: z.literal('ItemGroup').default('ItemGroup'),
 })
 

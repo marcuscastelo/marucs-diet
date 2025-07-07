@@ -1,28 +1,20 @@
 import { z } from 'zod/v4'
 
-import {
-  createDateFieldMessages,
-  createNumberFieldMessages,
-  createStringFieldMessages,
-} from '~/shared/domain/validationMessages'
+import { createZodEntity } from '~/shared/domain/validationMessages'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
-export const macroProfileSchema = z.object({
-  id: z.number(createNumberFieldMessages('id')('macroProfile')),
-  owner: z.number(createNumberFieldMessages('owner')('macroProfile')),
+const ze = createZodEntity('macroProfile')
+
+export const macroProfileSchema = ze.create({
+  id: ze.number('id'),
+  owner: ze.number('owner'),
   target_day: z
-    .date(createDateFieldMessages('target_day')('macroProfile'))
-    .or(z.string(createStringFieldMessages('target_day')('macroProfile')))
+    .date()
+    .or(z.string())
     .transform((v) => new Date(v)),
-  gramsPerKgCarbs: z.number(
-    createNumberFieldMessages('gramsPerKgCarbs')('macroProfile'),
-  ),
-  gramsPerKgProtein: z.number(
-    createNumberFieldMessages('gramsPerKgProtein')('macroProfile'),
-  ),
-  gramsPerKgFat: z.number(
-    createNumberFieldMessages('gramsPerKgFat')('macroProfile'),
-  ),
+  gramsPerKgCarbs: ze.number('gramsPerKgCarbs'),
+  gramsPerKgProtein: ze.number('gramsPerKgProtein'),
+  gramsPerKgFat: ze.number('gramsPerKgFat'),
   __type: z
     .string()
     .nullable()

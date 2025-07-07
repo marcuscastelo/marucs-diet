@@ -6,20 +6,20 @@ import { parseWithStack } from '~/shared/utils/parseWithStack'
 const ze = createZodEntity('measure')
 
 // TODO:   Create discriminate union type for Male and Female body measures
-export const bodyMeasureSchema = z
-  .object({
-    id: z.number(createNumberFieldMessages('id')('measure')),
-    height: z.number(createNumberFieldMessages('height')('measure')),
-    waist: z.number(createNumberFieldMessages('waist')('measure')),
-    hip: z
-      .number(createNumberFieldMessages('hip')('measure'))
+export const bodyMeasureSchema = ze
+  .create({
+    id: ze.number('id'),
+    height: ze.number('height'),
+    waist: ze.number('waist'),
+    hip: ze
+      .number('hip')
       .nullish()
       .transform((v) => (v === null ? undefined : v)),
-    neck: z.number(createNumberFieldMessages('neck')('measure')),
-    owner: z.number(createNumberFieldMessages('owner')('measure')),
+    neck: ze.number('neck'),
+    owner: ze.number('owner'),
     target_timestamp: z
-      .date(createDateFieldMessages('target_timestamp')('measure'))
-      .or(z.string(createStringFieldMessages('target_timestamp')('measure')))
+      .date()
+      .or(z.string())
       .transform((v) => new Date(v)),
     __type: z
       .string()
