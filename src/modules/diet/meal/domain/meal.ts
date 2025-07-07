@@ -1,17 +1,16 @@
 import { z } from 'zod'
 
 import { unifiedItemSchema } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import {
+  createTypeField,
+  entityBaseSchema,
+  namedEntityBaseSchema,
+} from '~/shared/domain/schema/baseSchemas'
 import { generateId } from '~/shared/utils/idUtils'
 
-export const mealSchema = z.object({
-  id: z.number(),
-  name: z.string(),
+export const mealSchema = entityBaseSchema.merge(namedEntityBaseSchema).extend({
   items: z.array(unifiedItemSchema),
-  __type: z
-    .string()
-    .nullable()
-    .optional()
-    .transform(() => 'Meal' as const),
+  __type: createTypeField('Meal'),
 })
 
 export type Meal = Readonly<z.infer<typeof mealSchema>>
