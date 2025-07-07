@@ -5,10 +5,25 @@
  * use these utilities or pass errors to their parent components.
  */
 
+export type ErrorSeverity = 'critical' | 'error' | 'warning' | 'info'
+
 export type ErrorContext = {
   component?: string
   operation?: string
   userId?: string
+  additionalData?: Record<string, unknown>
+}
+
+export type EnhancedErrorContext = {
+  operation: string
+  entityType?: string
+  entityId?: string | number
+  userId?: string | number
+  severity?: ErrorSeverity
+  module?: string
+  component?: string
+  businessContext?: Record<string, unknown>
+  technicalContext?: Record<string, unknown>
   additionalData?: Record<string, unknown>
 }
 
@@ -38,7 +53,7 @@ function getCallerContext(): string {
 }
 
 /**
- * Log an error with context information
+ * Enhanced log function that supports both context types
  */
 export function logError(error: unknown, context?: ErrorContext): void {
   const timestamp = new Date().toISOString()
@@ -56,6 +71,37 @@ export function logError(error: unknown, context?: ErrorContext): void {
 
   if (context?.additionalData !== undefined) {
     console.error('Additional context:', context.additionalData)
+  }
+}
+
+/**
+ * Enhanced log function for comprehensive error contexts
+ */
+export function logEnhancedError(error: unknown, context: EnhancedErrorContext): void {
+  const timestamp = new Date().toISOString()
+  const severity = context.severity ?? 'error'
+  const module = context.module ?? 'unknown'
+  const component = context.component ?? getCallerContext()
+  const operation = context.operation
+  
+  const contextStr = `[${severity.toUpperCase()}][${module}][${component}::${operation}]`
+  
+  console.error(`${timestamp} ${contextStr} Error:`, error)
+  
+  if (context.entityType && context.entityId) {
+    console.error(`Entity: ${context.entityType}#${context.entityId}`)
+  }
+  
+  if (context.userId) {
+    console.error(`User: ${context.userId}`)
+  }
+  
+  if (context.businessContext) {
+    console.error('Business context:', context.businessContext)
+  }
+  
+  if (context.technicalContext) {
+    console.error('Technical context:', context.technicalContext)
   }
 }
 
@@ -90,19 +136,120 @@ export function wrapErrorWithStack(error: unknown): Error {
 }
 
 /**
- * Handle errors related to API operations
- * Now infers context/module automatically; manual context is ignored.
+ * Enhanced API error handler with rich context support
+ * @param error - The error to handle
+ * @param context - Enhanced context information (optional for backward compatibility)
  */
-export function handleApiError(error: unknown): void {
+export function handleApiError(error: unknown, context?: EnhancedErrorContext): void {
   let errorToLog = error
   if (!(error instanceof Error)) {
     errorToLog = wrapErrorWithStack(error)
   }
-  const inferredComponent = getCallerContext()
-  logError(errorToLog, {
-    component: inferredComponent,
-    operation: 'API request',
-    additionalData: { originalError: error },
+  
+  if (context) {
+    logEnhancedError(errorToLog, {
+      ...context,
+      severity: context.severity ?? 'error',
+      module: context.module ?? 'api',
+    })
+  } else {
+    // Backward compatibility - use legacy logging
+    const inferredComponent = getCallerContext()
+    logError(errorToLog, {
+      component: inferredComponent,
+      operation: 'API request',
+      additionalData: { originalError: error },
+    })
+  }
+}
+
+/**
+ * Handle application layer orchestration errors
+ * @param error - The error to handle
+ * @param context - Enhanced context information
+ */
+export function handleApplicationError(error: unknown, context: EnhancedErrorContext): void {
+  let errorToLog = error
+  if (!(error instanceof Error)) {
+    errorToLog = wrapErrorWithStack(error)
+  }
+  
+  logEnhancedError(errorToLog, {
+    ...context,
+    severity: context.severity ?? 'error',
+    module: context.module ?? 'application',
+  })
+}
+
+/**
+ * Handle infrastructure errors (database, network, external services)
+ * @param error - The error to handle
+ * @param context - Enhanced context information
+ */
+export function handleInfrastructureError(error: unknown, context: EnhancedErrorContext): void {
+  let errorToLog = error
+  if (!(error instanceof Error)) {
+    errorToLog = wrapErrorWithStack(error)
+  }
+  
+  logEnhancedError(errorToLog, {
+    ...context,
+    severity: context.severity ?? 'critical',
+    module: context.module ?? 'infrastructure',
+  })
+}
+
+/**
+ * Handle validation and business rule errors
+ * @param error - The error to handle
+ * @param context - Enhanced context information
+ */
+export function handleValidationError(error: unknown, context: EnhancedErrorContext): void {
+  let errorToLog = error
+  if (!(error instanceof Error)) {
+    errorToLog = wrapErrorWithStack(error)
+  }
+  
+  logEnhancedError(errorToLog, {
+    ...context,
+    severity: context.severity ?? 'warning',
+    module: context.module ?? 'validation',
+  })
+}
+
+/**
+ * Handle user action errors (permissions, invalid operations)
+ * @param error - The error to handle
+ * @param context - Enhanced context information
+ */
+export function handleUserError(error: unknown, context: EnhancedErrorContext): void {
+  let errorToLog = error
+  if (!(error instanceof Error)) {
+    errorToLog = wrapErrorWithStack(error)
+  }
+  
+  logEnhancedError(errorToLog, {
+    ...context,
+    severity: context.severity ?? 'warning',
+    module: context.module ?? 'user',
+  })
+}
+
+/**
+ * Handle unexpected system errors and programming errors
+ * @param error - The error to handle
+ * @param context - Enhanced context information
+ */
+export function handleSystemError(error: unknown, context: EnhancedErrorContext): void {
+  let errorToLog = error
+  if (!(error instanceof Error)) {
+    errorToLog = wrapErrorWithStack(error)
+  }
+  
+  logEnhancedError(errorToLog, {
+    ...context,
+    severity: context.severity ?? 'critical',
+    module: context.module ?? 'system',
   })
 }
 
@@ -114,16 +261,6 @@ export function handleScannerError(
   context?: ErrorContext,
 ): void {
   logError(error, { ...context, operation: 'Scanner operation' })
-}
-
-/**
- * Handle validation/business logic errors
- */
-export function handleValidationError(
-  error: unknown,
-  context?: ErrorContext,
-): void {
-  logError(error, { ...context, operation: 'Validation' })
 }
 
 /**
@@ -164,4 +301,67 @@ export function isBackendOutageError(error: unknown): boolean {
     )
   }
   return false
+}
+
+/**
+ * Error classification utilities
+ */
+
+export function isValidationError(error: unknown): boolean {
+  if (typeof error === 'string') {
+    return error.includes('validation') || error.includes('invalid') || error.includes('required')
+  }
+  if (error instanceof Error) {
+    return error.message.includes('validation') || error.message.includes('invalid') || error.message.includes('required')
+  }
+  return false
+}
+
+export function isInfrastructureError(error: unknown): boolean {
+  if (typeof error === 'string') {
+    return error.includes('database') || error.includes('connection') || error.includes('timeout') || isBackendOutageError(error)
+  }
+  if (error instanceof Error) {
+    return error.message.includes('database') || error.message.includes('connection') || error.message.includes('timeout') || isBackendOutageError(error)
+  }
+  return false
+}
+
+export function isUserError(error: unknown): boolean {
+  if (typeof error === 'string') {
+    return error.includes('permission') || error.includes('unauthorized') || error.includes('forbidden')
+  }
+  if (error instanceof Error) {
+    return error.message.includes('permission') || error.message.includes('unauthorized') || error.message.includes('forbidden')
+  }
+  return false
+}
+
+export function isApplicationError(error: unknown): boolean {
+  if (typeof error === 'string') {
+    return error.includes('orchestration') || error.includes('workflow') || error.includes('business')
+  }
+  if (error instanceof Error) {
+    return error.message.includes('orchestration') || error.message.includes('workflow') || error.message.includes('business')
+  }
+  return false
+}
+
+/**
+ * Automatically classify and handle errors with appropriate specialized handler
+ * @param error - The error to classify and handle
+ * @param baseContext - Base context information
+ */
+export function classifyAndHandleError(error: unknown, baseContext: EnhancedErrorContext): void {
+  if (isValidationError(error)) {
+    handleValidationError(error, baseContext)
+  } else if (isInfrastructureError(error)) {
+    handleInfrastructureError(error, baseContext)
+  } else if (isUserError(error)) {
+    handleUserError(error, baseContext)
+  } else if (isApplicationError(error)) {
+    handleApplicationError(error, baseContext)
+  } else {
+    handleSystemError(error, baseContext)
+  }
 }

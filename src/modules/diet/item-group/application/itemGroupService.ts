@@ -6,7 +6,7 @@ import {
   itemGroupSchema,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Recipe, recipeSchema } from '~/modules/diet/recipe/domain/recipe'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { handleApplicationError, handleInfrastructureError, handleValidationError } from '~/shared/error/errorHandler'
 
 export type GroupConvertible =
   | ItemGroup
@@ -58,7 +58,7 @@ export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
   if (isItemGroup(convertible)) {
     return [{ ...convertible }]
   }
-  handleApiError(
+  handleInfrastructureError(
     new Error(
       `Unsupported convertible type: ${getTypeDescription(convertible)}`,
     ),

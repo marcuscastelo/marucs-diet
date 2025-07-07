@@ -10,7 +10,7 @@ import {
   macroProfileDAOSchema,
 } from '~/modules/diet/macro-profile/infrastructure/macroProfileDAO'
 import { type User } from '~/modules/user/domain/user'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { handleInfrastructureError, handleApplicationError, handleValidationError } from '~/shared/error/errorHandler'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 import supabase from '~/shared/utils/supabase'
 
@@ -48,7 +48,7 @@ async function fetchUserMacroProfiles(
     .order('target_day', { ascending: true })
 
   if (error !== null) {
-    handleApiError(error)
+    handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
     throw error
   }
 
@@ -56,7 +56,7 @@ async function fetchUserMacroProfiles(
   try {
     macroProfileDAOs = parseWithStack(macroProfileDAOSchema.array(), data)
   } catch (validationError) {
-    handleApiError(validationError)
+    handleInfrastructureError(validationError)
     throw validationError
   }
   return macroProfileDAOs.map(createMacroProfileFromDAO)
@@ -79,7 +79,7 @@ async function insertMacroProfile(
     .select()
 
   if (error !== null) {
-    handleApiError(error)
+    handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
     throw error
   }
 
@@ -87,14 +87,14 @@ async function insertMacroProfile(
   try {
     macroProfileDAOs = parseWithStack(macroProfileDAOSchema.array(), data)
   } catch (validationError) {
-    handleApiError(validationError)
+    handleInfrastructureError(validationError)
     throw validationError
   }
   if (!macroProfileDAOs[0]) {
     const notFoundError = new Error(
       'Inserted macro profile not found in response',
     )
-    handleApiError(notFoundError)
+    handleInfrastructureError(notFoundError)
     throw notFoundError
   }
   return createMacroProfileFromDAO(macroProfileDAOs[0])
@@ -120,7 +120,7 @@ async function updateMacroProfile(
     .select()
 
   if (error !== null) {
-    handleApiError(error)
+    handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
     throw error
   }
 
@@ -128,14 +128,14 @@ async function updateMacroProfile(
   try {
     macroProfileDAOs = parseWithStack(macroProfileDAOSchema.array(), data)
   } catch (validationError) {
-    handleApiError(validationError)
+    handleInfrastructureError(validationError)
     throw validationError
   }
   if (!macroProfileDAOs[0]) {
     const notFoundError = new Error(
       'Updated macro profile not found in response',
     )
-    handleApiError(notFoundError)
+    handleInfrastructureError(notFoundError)
     throw notFoundError
   }
   return createMacroProfileFromDAO(macroProfileDAOs[0])
@@ -154,7 +154,7 @@ async function deleteMacroProfile(id: MacroProfile['id']): Promise<void> {
     .eq('id', id)
 
   if (error !== null) {
-    handleApiError(error)
+    handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
     throw error
   }
 }

@@ -5,7 +5,7 @@
 
 import type { JSXElement } from 'solid-js'
 
-import { handleApiError } from '~/shared/error/errorHandler'
+import { handleSystemError } from '~/shared/error/errorHandler'
 import { modalManager } from '~/shared/modal/core/modalManager'
 import type { ModalId, ModalPriority } from '~/shared/modal/types/modalTypes'
 
@@ -42,7 +42,7 @@ export function openConfirmModal(
       showCloseButton: true,
     })
   } catch (e) {
-    handleApiError(e)
+    handleSystemError(e, { operation: "systemOperation", entityType: "System", module: "shared", component: "system" })
     throw e
   }
 }
@@ -79,7 +79,7 @@ export function openContentModal(
       onClose: options.onClose,
     })
   } catch (e) {
-    handleApiError(e)
+    handleSystemError(e, { operation: "systemOperation", entityType: "System", module: "shared", component: "system" })
     throw e
   }
 }
@@ -118,7 +118,7 @@ export function openEditModal(
       onClose: options.onClose,
     })
   } catch (e) {
-    handleApiError(e)
+    handleSystemError(e, { operation: "systemOperation", entityType: "System", module: "shared", component: "system" })
     throw e
   }
 }
@@ -134,7 +134,7 @@ export function closeModal(modalId: ModalId, onClose?: () => void): void {
     void modalManager.closeModal(modalId)
     onClose?.()
   } catch (e) {
-    handleApiError(e)
+    handleSystemError(e, { operation: "systemOperation", entityType: "System", module: "shared", component: "system" })
     throw e
   }
 }

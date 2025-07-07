@@ -1,6 +1,6 @@
 import { createSignal } from 'solid-js'
 
-import { handleApiError } from '~/shared/error/errorHandler'
+import { handleSystemError } from '~/shared/error/errorHandler'
 import type {
   ModalConfig,
   ModalId,
@@ -76,7 +76,7 @@ export const modalManager: ModalManager = {
       if (shouldClose) performClose(id, modal)
     } catch (e) {
       performClose(id, modal)
-      handleApiError(e)
+      handleSystemError(e, { operation: "systemOperation", entityType: "System", module: "shared", component: "system" })
     }
   },
 }

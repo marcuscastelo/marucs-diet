@@ -15,7 +15,7 @@ import {
   apiFoodSchema,
 } from '~/modules/diet/food/infrastructure/api/domain/apiFoodModel'
 import { type ApiFoodRepository } from '~/modules/diet/food/infrastructure/api/domain/apiFoodRepository'
-import { handleApiError, wrapErrorWithStack } from '~/shared/error/errorHandler'
+import { handleInfrastructureError, wrapErrorWithStack } from '~/shared/error/errorHandler'
 import { jsonParseWithStack } from '~/shared/utils/jsonParseWithStack'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
@@ -46,7 +46,7 @@ async function fetchApiFoodsByName(
   try {
     parsedParams = jsonParseWithStack(EXTERNAL_API_FOOD_PARAMS)
   } catch (err) {
-    handleApiError(err)
+    handleInfrastructureError(err)
     parsedParams = {}
   }
   const params =
@@ -76,7 +76,7 @@ async function fetchApiFoodsByName(
   try {
     response = await API.get(url, config)
   } catch (error) {
-    handleApiError(error)
+    handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
     throw wrapErrorWithStack(error)
   }
 
@@ -85,7 +85,7 @@ async function fetchApiFoodsByName(
   const data = response.data as Record<string, unknown>
   const alimentosRaw = data.alimentos
   if (!Array.isArray(alimentosRaw)) {
-    handleApiError(new Error('Invalid alimentos array in API response'))
+    handleInfrastructureError(new Error('Invalid alimentos array in API response'))
     return []
   }
   return parseWithStack(apiFoodSchema.array(), alimentosRaw)

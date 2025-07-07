@@ -14,7 +14,11 @@ import {
   createSupabaseUserRepository,
   SUPABASE_TABLE_USERS,
 } from '~/modules/user/infrastructure/supabaseUserRepository'
-import { handleApiError } from '~/shared/error/errorHandler'
+import {
+  handleApplicationError,
+  handleInfrastructureError,
+  handleUserError,
+} from '~/shared/error/errorHandler'
 import { registerSubapabaseRealtimeCallback } from '~/shared/utils/supabase'
 
 const userRepository = createSupabaseUserRepository()
@@ -40,7 +44,13 @@ createEffect(() => {
 
 function bootstrap() {
   fetchUsers().catch((error) => {
-    handleApiError(error)
+    handleApplicationError(error, {
+      operation: 'bootstrap',
+      entityType: 'User',
+      module: 'user',
+      component: 'user',
+      businessContext: { action: 'app_initialization' },
+    })
   })
 }
 
@@ -70,7 +80,13 @@ export async function fetchUsers(): Promise<readonly User[]> {
     setCurrentUser(newCurrentUser ?? null)
     return users
   } catch (error) {
-    handleApiError(error)
+    handleInfrastructureError(error, {
+      operation: 'fetchUsers',
+      entityType: 'User',
+      module: 'user',
+      component: 'user',
+      businessContext: { action: 'fetch_all_users' },
+    })
     setUsers([])
     setCurrentUser(null)
     return []
@@ -87,7 +103,14 @@ export async function fetchCurrentUser(): Promise<User | null> {
     setCurrentUser(user)
     return user
   } catch (error) {
-    handleApiError(error)
+    handleInfrastructureError(error, {
+      operation: 'fetchCurrentUser',
+      entityType: 'User',
+      userId: currentUserId(),
+      module: 'user',
+      component: 'user',
+      businessContext: { userId: currentUserId() },
+    })
     setCurrentUser(null)
     return null
   }
@@ -112,7 +135,7 @@ export async function insertUser(newUser: NewUser): Promise<boolean> {
     await fetchUsers()
     return true
   } catch (error) {
-    handleApiError(error)
+    handleApplicationError(error, { operation: "userOperation", entityType: "User", module: "user", component: "user" })
     return false
   }
 }
@@ -140,7 +163,7 @@ export async function updateUser(
     await fetchUsers()
     return user
   } catch (error) {
-    handleApiError(error)
+    handleApplicationError(error, { operation: "userOperation", entityType: "User", module: "user", component: "user" })
     return null
   }
 }
@@ -164,7 +187,7 @@ export async function deleteUser(userId: User['id']): Promise<boolean> {
     await fetchUsers()
     return true
   } catch (error) {
-    handleApiError(error)
+    handleApplicationError(error, { operation: "userOperation", entityType: "User", module: "user", component: "user" })
     return false
   }
 }
@@ -182,7 +205,7 @@ export function isFoodFavorite(foodId: number): boolean {
 export function setFoodAsFavorite(foodId: number, favorite: boolean): void {
   const currentUser_ = currentUser()
   if (currentUser_ === null) {
-    handleApiError('User not initialized')
+    handleUserError('User not initialized', { operation: "userValidation", entityType: "User", module: "user", component: "user" })
     return
   }
   const favoriteFoods = currentUser_.favorite_foods
@@ -202,6 +225,6 @@ export function setFoodAsFavorite(foodId: number, favorite: boolean): void {
   })
     .then(fetchCurrentUser)
     .catch((error) => {
-      handleApiError(error)
+      handleApplicationError(error, { operation: "userOperation", entityType: "User", module: "user", component: "user" })
     })
 }

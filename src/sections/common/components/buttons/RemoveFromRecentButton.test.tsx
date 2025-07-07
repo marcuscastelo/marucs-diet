@@ -25,7 +25,7 @@ vi.mock('~/modules/user/application/user', () => ({
 }))
 
 vi.mock('~/shared/error/errorHandler', () => ({
-  handleApiError: vi.fn(),
+  handleUserError: vi.fn(),
 }))
 
 // Import the mocked modules
@@ -33,13 +33,13 @@ import { deleteRecentFoodByReference } from '~/modules/recent-food/application/r
 import { debouncedTab } from '~/modules/search/application/search'
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { handleUserError } from '~/shared/error/errorHandler'
 
 const mockDeleteRecentFoodByReference = vi.mocked(deleteRecentFoodByReference)
 const mockDebouncedTab = vi.mocked(debouncedTab)
 const mockShowPromise = vi.mocked(showPromise)
 const mockCurrentUserId = vi.mocked(currentUserId)
-const mockHandleApiError = vi.mocked(handleApiError)
+const mockHandleUserError = vi.mocked(handleUserError)
 
 describe('RemoveFromRecentButton Logic', () => {
   const mockRefetch = vi.fn()
@@ -154,7 +154,12 @@ describe('RemoveFromRecentButton Logic', () => {
         loading: 'Removendo item da lista de recentes...',
         success: 'Item removido da lista de recentes com sucesso!',
         error: (err: unknown) => {
-          handleApiError(err)
+          handleUserError(err, {
+            operation: 'userAction',
+            entityType: 'UI',
+            module: 'sections',
+            component: 'component',
+          })
           return 'Erro ao remover item da lista de recentes.'
         },
       })
@@ -176,13 +181,21 @@ describe('RemoveFromRecentButton Logic', () => {
 
       // Create error handler function like in the component
       const errorHandler = (err: unknown) => {
-        handleApiError(err)
+        handleUserError(err, {
+          operation: 'userAction',
+          entityType: 'UI',
+          module: 'sections',
+          component: 'component',
+        })
         return 'Erro ao remover item da lista de recentes.'
       }
 
       const errorMessage = errorHandler(mockError)
 
-      expect(mockHandleApiError).toHaveBeenCalledWith(mockError)
+      expect(mockHandleUserError).toHaveBeenCalledWith(
+        mockError,
+        expect.any(Object),
+      )
       expect(errorMessage).toBe('Erro ao remover item da lista de recentes.')
     })
   })

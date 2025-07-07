@@ -5,7 +5,10 @@ import {
 import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { type User } from '~/modules/user/domain/user'
-import { handleApiError } from '~/shared/error/errorHandler'
+import {
+  handleApplicationError,
+  handleInfrastructureError,
+} from '~/shared/error/errorHandler'
 
 const recipeRepository = createSupabaseRecipeRepository()
 
@@ -21,7 +24,14 @@ export async function fetchUserRecipes(userId: User['id']) {
       { context: 'background', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error)
+    handleInfrastructureError(error, {
+      operation: 'fetchUserRecipes',
+      entityType: 'Recipe',
+      userId,
+      module: 'diet/recipe',
+      component: 'recipe',
+      businessContext: { userId },
+    })
     return []
   }
 }
@@ -38,7 +48,14 @@ export async function fetchUserRecipeByName(userId: User['id'], name: string) {
       { context: 'background', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error)
+    handleInfrastructureError(error, {
+      operation: 'fetchUserRecipeByName',
+      entityType: 'Recipe',
+      userId,
+      module: 'diet/recipe',
+      component: 'recipe',
+      businessContext: { userId, recipeName: name },
+    })
     return []
   }
 }
@@ -55,7 +72,14 @@ export async function fetchRecipeById(recipeId: Recipe['id']) {
       { context: 'background', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error)
+    handleInfrastructureError(error, {
+      operation: 'fetchRecipeById',
+      entityType: 'Recipe',
+      entityId: recipeId,
+      module: 'diet/recipe',
+      component: 'recipe',
+      businessContext: { recipeId },
+    })
     return null
   }
 }
@@ -72,7 +96,16 @@ export async function insertRecipe(newRecipe: NewRecipe) {
       { context: 'background', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error)
+    handleApplicationError(error, {
+      operation: 'insertRecipe',
+      entityType: 'Recipe',
+      module: 'diet/recipe',
+      component: 'recipe',
+      businessContext: {
+        recipeName: newRecipe.name,
+        itemsCount: newRecipe.items.length,
+      },
+    })
     return null
   }
 }
@@ -89,7 +122,18 @@ export async function updateRecipe(recipeId: Recipe['id'], newRecipe: Recipe) {
       { context: 'background', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error)
+    handleApplicationError(error, {
+      operation: 'updateRecipe',
+      entityType: 'Recipe',
+      entityId: recipeId,
+      module: 'diet/recipe',
+      component: 'recipe',
+      businessContext: {
+        recipeId,
+        recipeName: newRecipe.name,
+        itemsCount: newRecipe.items.length,
+      },
+    })
     return null
   }
 }
@@ -106,7 +150,14 @@ export async function deleteRecipe(recipeId: Recipe['id']) {
       { context: 'background', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error)
+    handleApplicationError(error, {
+      operation: 'deleteRecipe',
+      entityType: 'Recipe',
+      entityId: recipeId,
+      module: 'diet/recipe',
+      component: 'recipe',
+      businessContext: { recipeId },
+    })
     return null
   }
 }

@@ -24,7 +24,7 @@ import { ConvertToRecipeIcon } from '~/sections/common/components/icons/ConvertT
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { handleUserError, handleValidationError } from '~/shared/error/errorHandler'
 import { createDebug } from '~/shared/utils/createDebug'
 import { generateId, regenerateId } from '~/shared/utils/idUtils'
 
@@ -177,7 +177,7 @@ export function GroupChildrenEditor(props: GroupChildrenEditorProps) {
 
       props.setItem(recipeUnifiedItem)
     } catch (err) {
-      handleApiError(err)
+      handleUserError(err, { operation: "userAction", entityType: "UI", module: "sections", component: "component" })
       showError(err, undefined, 'Falha ao criar receita a partir do grupo')
     }
   }

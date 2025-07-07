@@ -1,7 +1,7 @@
 // Application layer for search cache operations, migrated from legacy controller
 // All error handling is done here, domain remains pure
 import { type CachedSearch } from '~/modules/search/application/cachedSearch'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { handleApplicationError, handleInfrastructureError, handleValidationError } from '~/shared/error/errorHandler'
 import supabase from '~/shared/utils/supabase'
 
 const TABLE = 'cached_searches'
@@ -20,12 +20,12 @@ export const isSearchCached = async (
       .select('search')
       .eq('search', search.toLowerCase())
     if (error !== null) {
-      handleApiError(error)
+      handleInfrastructureError(error, { operation: "moduleOperation", entityType: "Entity", module: "module", component: "application" })
       return false
     }
     return data.length > 0
   } catch (error) {
-    handleApiError(error)
+    handleInfrastructureError(error, { operation: "moduleOperation", entityType: "Entity", module: "module", component: "application" })
     return false
   }
 }
@@ -45,7 +45,7 @@ export const markSearchAsCached = async (
     await supabase.from(TABLE).upsert({ search: search.toLowerCase() }).select()
     return true
   } catch (error) {
-    handleApiError(error)
+    handleInfrastructureError(error, { operation: "moduleOperation", entityType: "Entity", module: "module", component: "application" })
     return false
   }
 }
@@ -66,7 +66,7 @@ export const unmarkSearchAsCached = async (
       .select()
     return true
   } catch (error) {
-    handleApiError(error)
+    handleInfrastructureError(error, { operation: "moduleOperation", entityType: "Entity", module: "module", component: "application" })
     return false
   }
 }

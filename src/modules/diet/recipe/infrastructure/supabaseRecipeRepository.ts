@@ -11,7 +11,7 @@ import {
 } from '~/modules/diet/recipe/infrastructure/recipeDAO'
 import { type User } from '~/modules/user/domain/user'
 import {
-  handleApiError,
+  handleInfrastructureError,
   handleValidationError,
 } from '~/shared/error/errorHandler'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
@@ -45,7 +45,7 @@ const fetchUserRecipes = async (userId: User['id']): Promise<Recipe[]> => {
       .select()
       .eq('owner', userId)
     if (error !== null) {
-      handleApiError(error)
+      handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
       throw error
     }
     let recipeDAOs
@@ -61,7 +61,7 @@ const fetchUserRecipes = async (userId: User['id']): Promise<Recipe[]> => {
     }
     return recipeDAOs.map(createRecipeFromDAO)
   } catch (err) {
-    handleApiError(err)
+    handleInfrastructureError(err)
     throw err
   }
 }
@@ -77,7 +77,7 @@ const fetchRecipeById = async (id: Recipe['id']): Promise<Recipe> => {
   try {
     const { data, error } = await supabase.from(TABLE).select().eq('id', id)
     if (error !== null) {
-      handleApiError(error)
+      handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
       throw error
     }
     let recipeDAOs
@@ -93,12 +93,12 @@ const fetchRecipeById = async (id: Recipe['id']): Promise<Recipe> => {
     }
     const recipes = recipeDAOs.map(createRecipeFromDAO)
     if (!recipes[0]) {
-      handleApiError('Recipe not found')
+      handleInfrastructureError('Recipe not found')
       throw new Error(`Recipe with id ${id} not found`)
     }
     return recipes[0]
   } catch (err) {
-    handleApiError(err)
+    handleInfrastructureError(err)
     throw err
   }
 }
@@ -124,7 +124,7 @@ const fetchUserRecipeByName = async (
       .eq('owner', userId)
       .ilike('name', `%${normalizedName}%`)
     if (error !== null) {
-      handleApiError(error)
+      handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
       throw error
     }
     let recipeDAOs
@@ -140,7 +140,7 @@ const fetchUserRecipeByName = async (
     }
     return recipeDAOs.map(createRecipeFromDAO)
   } catch (err) {
-    handleApiError(err)
+    handleInfrastructureError(err)
     throw err
   }
 }
@@ -160,7 +160,7 @@ const insertRecipe = async (newRecipe: NewRecipe): Promise<Recipe> => {
       .insert(createDAO)
       .select()
     if (error !== null) {
-      handleApiError(error)
+      handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
       throw error
     }
     let recipeDAOs
@@ -176,12 +176,12 @@ const insertRecipe = async (newRecipe: NewRecipe): Promise<Recipe> => {
     }
     const recipes = recipeDAOs.map(createRecipeFromDAO)
     if (!recipes[0]) {
-      handleApiError('Recipe not created')
+      handleInfrastructureError('Recipe not created')
       throw new Error('Recipe not created')
     }
     return recipes[0]
   } catch (err) {
-    handleApiError(err)
+    handleInfrastructureError(err)
     throw err
   }
 }
@@ -206,7 +206,7 @@ const updateRecipe = async (
       .eq('id', recipeId)
       .select()
     if (error !== null) {
-      handleApiError(error)
+      handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
       throw error
     }
     let recipeDAOs
@@ -222,12 +222,12 @@ const updateRecipe = async (
     }
     const recipes = recipeDAOs.map(createRecipeFromDAO)
     if (!recipes[0]) {
-      handleApiError('Recipe not found after update')
+      handleInfrastructureError('Recipe not found after update')
       throw new Error(`Recipe with id ${recipeId} not found after update`)
     }
     return recipes[0]
   } catch (err) {
-    handleApiError(err)
+    handleInfrastructureError(err)
     throw err
   }
 }
@@ -242,11 +242,11 @@ const deleteRecipe = async (id: Recipe['id']): Promise<void> => {
   try {
     const { error } = await supabase.from(TABLE).delete().eq('id', id)
     if (error !== null) {
-      handleApiError(error)
+      handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
       throw error
     }
   } catch (err) {
-    handleApiError(err)
+    handleInfrastructureError(err)
     throw err
   }
 }

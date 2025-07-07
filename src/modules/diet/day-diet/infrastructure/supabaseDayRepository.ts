@@ -17,7 +17,7 @@ import {
 } from '~/modules/diet/day-diet/infrastructure/migrationUtils'
 import { type User } from '~/modules/user/domain/user'
 import {
-  handleApiError,
+  handleInfrastructureError,
   handleValidationError,
   wrapErrorWithStack,
 } from '~/shared/error/errorHandler'
@@ -60,7 +60,7 @@ async function fetchDayDiet(dayId: DayDiet['id']): Promise<DayDiet> {
       .eq('id', dayId)
 
     if (error !== null) {
-      handleApiError(error)
+      handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
       throw error
     }
 
@@ -85,7 +85,7 @@ async function fetchDayDiet(dayId: DayDiet['id']): Promise<DayDiet> {
     }
     return result.data
   } catch (err) {
-    handleApiError(err)
+    handleInfrastructureError(err)
     throw err
   }
 }
@@ -162,7 +162,7 @@ async function fetchAllUserDayDiets(
     .order('target_day', { ascending: true })
 
   if (error !== null) {
-    handleApiError(error)
+    handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
     throw error
   }
 
@@ -230,7 +230,7 @@ const updateDayDiet = async (
     .select()
 
   if (error !== null) {
-    handleApiError(error)
+    handleInfrastructureError(error, { operation: "infraOperation", entityType: "Infrastructure", module: "infrastructure", component: "repository" })
     throw error
   }
 
