@@ -5,7 +5,6 @@ import type { Food } from '~/modules/diet/food/domain/food'
 import type { Recipe } from '~/modules/diet/recipe/domain/recipe'
 import type { Template } from '~/modules/diet/template/domain/template'
 import { availableTabs } from '~/sections/search/components/TemplateSearchTabs'
-import { handleApiError } from '~/shared/error/errorHandler'
 
 /**
  * Dependencies for fetchTemplatesByTabLogic
@@ -21,8 +20,6 @@ export type FetchTemplatesDeps = {
     limit?: number,
     search?: string,
   ) => Promise<readonly Template[]>
-  fetchFoodById: (id: number) => Promise<Food | null>
-  fetchRecipeById: (id: number) => Promise<Recipe | null>
   fetchFoods: (opts: {
     limit?: number
     allowedFoods?: number[]
@@ -32,10 +29,6 @@ export type FetchTemplatesDeps = {
     opts: { limit?: number; allowedFoods?: number[] },
   ) => Promise<readonly Food[] | null>
   getFavoriteFoods: () => number[]
-  /**
-   * Batch fetch foods by IDs. Returns all found foods, order not guaranteed.
-   */
-  fetchFoodsByIds: (ids: number[]) => Promise<readonly Food[] | null>
 }
 
 /**

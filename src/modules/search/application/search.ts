@@ -1,13 +1,10 @@
 import { createResource, createSignal } from 'solid-js'
 
 import {
-  fetchFoodById,
   fetchFoods,
-  fetchFoodsByIds,
   fetchFoodsByName,
 } from '~/modules/diet/food/application/food'
 import {
-  fetchRecipeById,
   fetchUserRecipeByName,
   fetchUserRecipes,
 } from '~/modules/diet/recipe/application/recipe'
@@ -51,12 +48,9 @@ export const [
         fetchUserRecipes,
         fetchUserRecipeByName,
         fetchUserRecentFoods,
-        fetchFoodById,
-        fetchRecipeById,
         fetchFoods,
         fetchFoodsByName,
         getFavoriteFoods,
-        fetchFoodsByIds,
       },
     )
   },

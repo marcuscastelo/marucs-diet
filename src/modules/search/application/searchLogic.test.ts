@@ -17,15 +17,8 @@ describe('fetchTemplatesByTabLogic', () => {
       fetchUserRecipes: vi.fn().mockResolvedValue([mockRecipe]),
       fetchUserRecipeByName: vi.fn().mockResolvedValue([mockRecipe]),
       fetchUserRecentFoods: vi.fn().mockResolvedValue([mockFood, mockRecipe]),
-      fetchFoodById: vi.fn().mockResolvedValue(mockFood),
-      fetchRecipeById: vi.fn().mockResolvedValue(mockRecipe),
       fetchFoods: vi.fn().mockResolvedValue([mockFood]),
       fetchFoodsByName: vi.fn().mockResolvedValue([mockFood]),
-      fetchFoodsByIds: vi
-        .fn()
-        .mockImplementation((ids) =>
-          Promise.resolve(Array.isArray(ids) ? ids.map(() => mockFood) : []),
-        ),
       getFavoriteFoods: () => [1],
     }
   })
