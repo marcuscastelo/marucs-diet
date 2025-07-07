@@ -1,24 +1,20 @@
 import { z } from 'zod'
 
+import {
+  createNewTypeField,
+  createTypeField,
+  entityBaseSchema,
+  namedEntityBaseSchema,
+} from '~/shared/domain/schema/baseSchemas'
+import {
+  createNumberField,
+  createStringField,
+} from '~/shared/domain/schema/validationMessages'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
-export const userSchema = z.object({
-  id: z.number({
-    required_error: "O campo 'id' do usuário é obrigatório.",
-    invalid_type_error: "O campo 'id' do usuário deve ser um número.",
-  }),
-  name: z.string({
-    required_error: "O campo 'name' do usuário é obrigatório.",
-    invalid_type_error: "O campo 'name' do usuário deve ser uma string.",
-  }),
+export const userSchema = entityBaseSchema.merge(namedEntityBaseSchema).extend({
   favorite_foods: z
-    .array(
-      z.number({
-        required_error: "O campo 'favorite_foods' do usuário é obrigatório.",
-        invalid_type_error:
-          "O campo 'favorite_foods' deve ser uma lista de números.",
-      }),
-    )
+    .array(createNumberField('id'))
     .nullable()
     .transform((value) => value ?? []),
   diet: z.enum(['cut', 'normo', 'bulk'], {
@@ -26,25 +22,14 @@ export const userSchema = z.object({
     invalid_type_error:
       "O campo 'diet' do usuário deve ser 'cut', 'normo' ou 'bulk'.",
   }),
-  birthdate: z.string({
-    required_error: "O campo 'birthdate' do usuário é obrigatório.",
-    invalid_type_error: "O campo 'birthdate' do usuário deve ser uma string.",
-  }),
+  birthdate: createStringField('birthdate'),
   gender: z.union([z.literal('male'), z.literal('female')]),
-  desired_weight: z.number({
-    required_error: "O campo 'desired_weight' do usuário é obrigatório.",
-    invalid_type_error:
-      "O campo 'desired_weight' do usuário deve ser um número.",
-  }),
-  __type: z
-    .string()
-    .nullable()
-    .optional()
-    .transform(() => 'User' as const),
+  desired_weight: createNumberField('desired_weight'),
+  __type: createTypeField('User'),
 })
 
 export const newUserSchema = userSchema.omit({ id: true }).extend({
-  __type: z.literal('NewUser'),
+  __type: createNewTypeField('NewUser'),
 })
 
 export type NewUser = Readonly<z.infer<typeof newUserSchema>>

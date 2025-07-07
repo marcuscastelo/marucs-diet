@@ -1,66 +1,29 @@
-import { z } from 'zod'
+import type { z } from 'zod'
 
+import {
+  createNewTypeField,
+  createTypeField,
+  entityBaseSchema,
+  ownedEntityBaseSchema,
+  timestampedEntityBaseSchema,
+} from '~/shared/domain/schema/baseSchemas'
+import { createNumberField } from '~/shared/domain/schema/validationMessages'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
-export const newWeightSchema = z.object({
-  owner: z.number({
-    required_error: "O campo 'owner' do peso é obrigatório.",
-    invalid_type_error: "O campo 'owner' do peso deve ser um número.",
-  }),
-  weight: z.number({
-    required_error: "O campo 'weight' é obrigatório.",
-    invalid_type_error: "O campo 'weight' deve ser um número.",
-  }),
-  target_timestamp: z
-    .date({
-      required_error: "O campo 'target_timestamp' é obrigatório.",
-      invalid_type_error:
-        "O campo 'target_timestamp' deve ser uma data ou string.",
-    })
-    .or(
-      z.string({
-        required_error: "O campo 'target_timestamp' é obrigatório.",
-        invalid_type_error:
-          "O campo 'target_timestamp' deve ser uma data ou string.",
-      }),
-    )
-    .transform((v) => new Date(v)),
-  __type: z.literal('NewWeight'),
-})
+export const newWeightSchema = ownedEntityBaseSchema
+  .merge(timestampedEntityBaseSchema)
+  .extend({
+    weight: createNumberField('weight'),
+    __type: createNewTypeField('NewWeight'),
+  })
 
-export const weightSchema = z.object({
-  id: z.number({
-    required_error: "O campo 'id' do peso é obrigatório.",
-    invalid_type_error: "O campo 'id' do peso deve ser um número.",
-  }),
-  owner: z.number({
-    required_error: "O campo 'owner' do peso é obrigatório.",
-    invalid_type_error: "O campo 'owner' do peso deve ser um número.",
-  }),
-  weight: z.number({
-    required_error: "O campo 'weight' é obrigatório.",
-    invalid_type_error: "O campo 'weight' deve ser um número.",
-  }),
-  target_timestamp: z
-    .date({
-      required_error: "O campo 'target_timestamp' é obrigatório.",
-      invalid_type_error:
-        "O campo 'target_timestamp' deve ser uma data ou string.",
-    })
-    .or(
-      z.string({
-        required_error: "O campo 'target_timestamp' é obrigatório.",
-        invalid_type_error:
-          "O campo 'target_timestamp' deve ser uma data ou string.",
-      }),
-    )
-    .transform((v) => new Date(v)),
-  __type: z
-    .string()
-    .nullable()
-    .optional()
-    .transform(() => 'Weight' as const),
-})
+export const weightSchema = entityBaseSchema
+  .merge(ownedEntityBaseSchema)
+  .merge(timestampedEntityBaseSchema)
+  .extend({
+    weight: createNumberField('weight'),
+    __type: createTypeField('Weight'),
+  })
 
 export type NewWeight = Readonly<z.infer<typeof newWeightSchema>>
 export type Weight = Readonly<z.infer<typeof weightSchema>>

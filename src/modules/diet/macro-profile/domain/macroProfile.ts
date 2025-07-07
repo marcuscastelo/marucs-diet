@@ -1,28 +1,30 @@
 import { z } from 'zod'
 
+import {
+  createNewTypeField,
+  createTypeField,
+  entityBaseSchema,
+  ownedEntityBaseSchema,
+} from '~/shared/domain/schema/baseSchemas'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
-export const macroProfileSchema = z.object({
-  id: z.number(),
-  owner: z.number(),
-  target_day: z
-    .date()
-    .or(z.string())
-    .transform((v) => new Date(v)),
-  gramsPerKgCarbs: z.number(),
-  gramsPerKgProtein: z.number(),
-  gramsPerKgFat: z.number(),
-  __type: z
-    .string()
-    .nullable()
-    .optional()
-    .transform(() => 'MacroProfile' as const),
-})
+export const macroProfileSchema = entityBaseSchema
+  .merge(ownedEntityBaseSchema)
+  .extend({
+    target_day: z
+      .date()
+      .or(z.string())
+      .transform((v) => new Date(v)),
+    gramsPerKgCarbs: z.number(),
+    gramsPerKgProtein: z.number(),
+    gramsPerKgFat: z.number(),
+    __type: createTypeField('MacroProfile'),
+  })
 
 export const newMacroProfileSchema = macroProfileSchema
   .omit({ id: true })
   .extend({
-    __type: z.literal('NewMacroProfile'),
+    __type: createNewTypeField('NewMacroProfile'),
   })
 
 export type MacroProfile = Readonly<z.infer<typeof macroProfileSchema>>

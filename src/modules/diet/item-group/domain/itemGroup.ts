@@ -2,53 +2,38 @@ import { z } from 'zod'
 
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import {
+  entityBaseSchema,
+  namedEntityBaseSchema,
+} from '~/shared/domain/schema/baseSchemas'
+import { createNumberField } from '~/shared/domain/schema/validationMessages'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { generateId } from '~/shared/utils/idUtils'
 
-export const simpleItemGroupSchema = z.object({
-  id: z.number({
-    required_error: "O campo 'id' do grupo é obrigatório.",
-    invalid_type_error: "O campo 'id' do grupo deve ser um número.",
-  }),
-  name: z.string({
-    required_error: "O campo 'name' do grupo é obrigatório.",
-    invalid_type_error: "O campo 'name' do grupo deve ser uma string.",
-  }),
-  items: itemSchema.array(),
-  recipe: z
-    .number({
-      required_error:
-        "O campo 'recipe' do grupo é obrigatório quando presente.",
-      invalid_type_error: "O campo 'recipe' do grupo deve ser um número.",
-    })
-    .nullable()
-    .optional()
-    .transform((recipe) => recipe ?? undefined),
-  __type: z.literal('ItemGroup').optional().default('ItemGroup'),
-})
+export const simpleItemGroupSchema = entityBaseSchema
+  .merge(namedEntityBaseSchema)
+  .extend({
+    items: itemSchema.array(),
+    recipe: createNumberField('id')
+      .nullable()
+      .optional()
+      .transform((recipe) => recipe ?? undefined),
+    __type: z.literal('ItemGroup').optional().default('ItemGroup'),
+  })
 
-export const recipedItemGroupSchema = z.object({
-  id: z.number({
-    required_error: "O campo 'id' do grupo é obrigatório.",
-    invalid_type_error: "O campo 'id' do grupo deve ser um número.",
-  }),
-  name: z.string({
-    required_error: "O campo 'name' do grupo é obrigatório.",
-    invalid_type_error: "O campo 'name' do grupo deve ser uma string.",
-  }),
-  items: itemSchema
-    .array()
-    .refine((arr) => Array.isArray(arr) && arr.length > 0, {
-      message:
-        "O campo 'items' do grupo deve ser uma lista de itens e não pode ser vazio.",
-    })
-    .readonly(),
-  recipe: z.number({
-    required_error: "O campo 'recipe' do grupo é obrigatório.",
-    invalid_type_error: "O campo 'recipe' do grupo deve ser um número.",
-  }),
-  __type: z.literal('ItemGroup').default('ItemGroup'),
-})
+export const recipedItemGroupSchema = entityBaseSchema
+  .merge(namedEntityBaseSchema)
+  .extend({
+    items: itemSchema
+      .array()
+      .refine((arr) => Array.isArray(arr) && arr.length > 0, {
+        message:
+          "O campo 'items' do grupo deve ser uma lista de itens e não pode ser vazio.",
+      })
+      .readonly(),
+    recipe: createNumberField('id'),
+    __type: z.literal('ItemGroup').default('ItemGroup'),
+  })
 
 /**
  * @deprecated

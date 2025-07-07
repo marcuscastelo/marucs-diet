@@ -2,26 +2,27 @@ import { z } from 'zod'
 
 import { mealSchema } from '~/modules/diet/meal/domain/meal'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
+import {
+  createNewTypeField,
+  createTypeField,
+  entityBaseSchema,
+  ownedEntityBaseSchema,
+} from '~/shared/domain/schema/baseSchemas'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
-export const dayDietSchema = z.object({
-  id: z.number(),
-  target_day: z.string(), // TODO:   Change target_day to supabase date type
-  owner: z.number(),
-  meals: z.array(mealSchema),
-  __type: z
-    .string()
-    .nullable()
-    .optional()
-    .transform(() => 'DayDiet' as const),
-})
+export const dayDietSchema = entityBaseSchema
+  .merge(ownedEntityBaseSchema)
+  .extend({
+    target_day: z.string(), // TODO:   Change target_day to supabase date type
+    meals: z.array(mealSchema),
+    __type: createTypeField('DayDiet'),
+  })
 
 // Type for creating new day diets (without ID)
-export const newDayDietSchema = z.object({
+export const newDayDietSchema = ownedEntityBaseSchema.extend({
   target_day: z.string(),
-  owner: z.number(),
   meals: z.array(mealSchema),
-  __type: z.literal('NewDayDiet'),
+  __type: createNewTypeField('NewDayDiet'),
 })
 
 export type DayDiet = Readonly<z.infer<typeof dayDietSchema>>

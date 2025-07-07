@@ -6,71 +6,53 @@ import {
   FoodInvalidNameError,
   FoodNegativeMacrosError,
 } from '~/modules/diet/food/domain/foodErrors'
+import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
-  type MacroNutrients,
-  macroNutrientsSchema,
-} from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+  createNewTypeField,
+  createTypeField,
+  entityBaseSchema,
+  namedEntityBaseSchema,
+} from '~/shared/domain/schema/baseSchemas'
+import { macroNutrientsBaseSchema } from '~/shared/domain/schema/macroNutrientsBaseSchema'
+import { createNullableStringField } from '~/shared/domain/schema/validationMessages'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
-export const newFoodSchema = z.object({
-  name: z.string({
-    required_error: "O campo 'name' do alimento é obrigatório.",
-    invalid_type_error: "O campo 'name' do alimento deve ser uma string.",
-  }),
-  ean: z
-    .string({
-      required_error: "O campo 'ean' do alimento é obrigatório.",
-      invalid_type_error: "O campo 'ean' do alimento deve ser uma string.",
-    })
-    .nullable(),
-  macros: macroNutrientsSchema,
-  source: z
-    .object({
-      type: z.literal('api'),
-      id: z.string({
-        required_error: "O campo 'id' da fonte do alimento é obrigatório.",
-        invalid_type_error:
-          "O campo 'id' da fonte do alimento deve ser uma string.",
-      }),
-    })
-    .optional(),
-  __type: z.literal('NewFood'),
-})
+export const newFoodSchema = namedEntityBaseSchema
+  .merge(macroNutrientsBaseSchema)
+  .extend({
+    ean: createNullableStringField('ean'),
+    source: z
+      .object({
+        type: z.literal('api'),
+        id: z.string({
+          required_error: "O campo 'id' da fonte do alimento é obrigatório.",
+          invalid_type_error:
+            "O campo 'id' da fonte do alimento deve ser uma string.",
+        }),
+      })
+      .optional(),
+    __type: createNewTypeField('NewFood'),
+  })
 
-export const foodSchema = z.object({
-  id: z.number({
-    required_error: "O campo 'id' do alimento é obrigatório.",
-    invalid_type_error: "O campo 'id' do alimento deve ser um número.",
-  }),
-  source: z
-    .object({
-      type: z.literal('api'),
-      id: z.string({
-        required_error: "O campo 'id' da fonte do alimento é obrigatório.",
-        invalid_type_error:
-          "O campo 'id' da fonte do alimento deve ser uma string.",
-      }),
-    })
-    .nullable()
-    .transform((val) => val ?? undefined)
-    .optional(),
-  name: z.string({
-    required_error: "O campo 'name' do alimento é obrigatório.",
-    invalid_type_error: "O campo 'name' do alimento deve ser uma string.",
-  }),
-  ean: z
-    .string({
-      required_error: "O campo 'ean' do alimento é obrigatório.",
-      invalid_type_error: "O campo 'ean' do alimento deve ser uma string.",
-    })
-    .nullable(),
-  macros: macroNutrientsSchema,
-  __type: z
-    .string()
-    .nullable()
-    .optional()
-    .transform(() => 'Food' as const),
-})
+export const foodSchema = entityBaseSchema
+  .merge(namedEntityBaseSchema)
+  .merge(macroNutrientsBaseSchema)
+  .extend({
+    source: z
+      .object({
+        type: z.literal('api'),
+        id: z.string({
+          required_error: "O campo 'id' da fonte do alimento é obrigatório.",
+          invalid_type_error:
+            "O campo 'id' da fonte do alimento deve ser uma string.",
+        }),
+      })
+      .nullable()
+      .transform((val) => val ?? undefined)
+      .optional(),
+    ean: createNullableStringField('ean'),
+    __type: createTypeField('Food'),
+  })
 
 export type NewFood = Readonly<z.infer<typeof newFoodSchema>>
 export type Food = Readonly<z.infer<typeof foodSchema>>
