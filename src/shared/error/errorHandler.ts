@@ -5,6 +5,8 @@
  * use these utilities or pass errors to their parent components.
  */
 
+import { DomainError, ValidationError, BusinessRuleError, InvariantError } from '~/shared/domain/errors'
+
 export type ErrorSeverity = 'critical' | 'error' | 'warning' | 'info'
 
 export type ErrorContext = {
@@ -169,6 +171,12 @@ export function handleApiError(error: unknown, context?: EnhancedErrorContext): 
  * @param context - Enhanced context information
  */
 export function handleApplicationError(error: unknown, context: EnhancedErrorContext): void {
+  // If it's a domain error, delegate to the domain error handler
+  if (error instanceof DomainError) {
+    handleDomainError(error, context)
+    return
+  }
+
   let errorToLog = error
   if (!(error instanceof Error)) {
     errorToLog = wrapErrorWithStack(error)
@@ -251,6 +259,35 @@ export function handleSystemError(error: unknown, context: EnhancedErrorContext)
     severity: context.severity ?? 'critical',
     module: context.module ?? 'system',
   })
+}
+
+/**
+ * Handle domain errors with enhanced context and proper classification
+ * @param error - The domain error to handle
+ * @param context - Enhanced context information
+ */
+export function handleDomainError(error: DomainError, context: EnhancedErrorContext): void {
+  const enhancedContext = {
+    ...context,
+    severity: context.severity ?? 'warning' as ErrorSeverity,
+    module: context.module ?? 'domain',
+    businessContext: {
+      ...context.businessContext,
+      errorCode: error.code,
+      domainContext: error.context,
+    },
+  }
+
+  // Determine severity based on domain error type
+  if (error instanceof InvariantError) {
+    enhancedContext.severity = 'critical'
+  } else if (error instanceof BusinessRuleError) {
+    enhancedContext.severity = 'error'
+  } else if (error instanceof ValidationError) {
+    enhancedContext.severity = 'warning'
+  }
+
+  logEnhancedError(error, enhancedContext)
 }
 
 /**
@@ -347,13 +384,32 @@ export function isApplicationError(error: unknown): boolean {
   return false
 }
 
+export function isDomainError(error: unknown): error is DomainError {
+  return error instanceof DomainError
+}
+
+export function isValidationDomainError(error: unknown): error is ValidationError {
+  return error instanceof ValidationError
+}
+
+export function isBusinessRuleDomainError(error: unknown): error is BusinessRuleError {
+  return error instanceof BusinessRuleError
+}
+
+export function isInvariantDomainError(error: unknown): error is InvariantError {
+  return error instanceof InvariantError
+}
+
 /**
  * Automatically classify and handle errors with appropriate specialized handler
  * @param error - The error to classify and handle
  * @param baseContext - Base context information
  */
 export function classifyAndHandleError(error: unknown, baseContext: EnhancedErrorContext): void {
-  if (isValidationError(error)) {
+  // First check if it's a domain error (highest priority)
+  if (error instanceof DomainError) {
+    handleDomainError(error, baseContext)
+  } else if (isValidationError(error)) {
     handleValidationError(error, baseContext)
   } else if (isInfrastructureError(error)) {
     handleInfrastructureError(error, baseContext)

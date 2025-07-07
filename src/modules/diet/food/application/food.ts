@@ -1,17 +1,18 @@
 import { type Food } from '~/modules/diet/food/domain/food'
+import { createNewFoodWithValidation } from '~/modules/diet/food/domain/food'
 import { type FoodSearchParams } from '~/modules/diet/food/domain/foodRepository'
 import {
   importFoodFromApiByEan,
   importFoodsFromApiByName,
 } from '~/modules/diet/food/infrastructure/api/application/apiFood'
 import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
+import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { isSearchCached } from '~/modules/search/application/searchCache'
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { setBackendOutage } from '~/shared/error/backendOutageSignal'
 import {
   handleApplicationError,
   handleInfrastructureError,
-  handleValidationError,
   isBackendOutageError,
 } from '~/shared/error/errorHandler'
 import { formatError } from '~/shared/formatError'
@@ -30,10 +31,10 @@ export async function fetchFoods(
     return await foodRepository.fetchFoods(params)
   } catch (error) {
     handleInfrastructureError(error, {
-      operation: 'moduleOperation',
-      entityType: 'Entity',
-      module: 'module',
-      component: 'application',
+      operation: 'fetchFoods',
+      entityType: 'Food',
+      module: 'diet/food',
+      component: 'foodApplication',
     })
     if (isBackendOutageError(error)) setBackendOutage(true)
     return []
@@ -54,10 +55,11 @@ export async function fetchFoodById(
     return await foodRepository.fetchFoodById(id, params)
   } catch (error) {
     handleInfrastructureError(error, {
-      operation: 'moduleOperation',
-      entityType: 'Entity',
-      module: 'module',
-      component: 'application',
+      operation: 'fetchFoodById',
+      entityType: 'Food',
+      entityId: id,
+      module: 'diet/food',
+      component: 'foodApplication',
     })
     if (isBackendOutageError(error)) setBackendOutage(true)
     return null
@@ -98,10 +100,11 @@ export async function fetchFoodsByName(
     )
   } catch (error) {
     handleInfrastructureError(error, {
-      operation: 'moduleOperation',
-      entityType: 'Entity',
-      module: 'module',
-      component: 'application',
+      operation: 'fetchFoodsByName',
+      entityType: 'Food',
+      module: 'diet/food',
+      component: 'foodApplication',
+      additionalData: { name },
     })
     if (isBackendOutageError(error)) setBackendOutage(true)
     return []
@@ -140,10 +143,11 @@ export async function fetchFoodByEan(
     )
   } catch (error) {
     handleInfrastructureError(error, {
-      operation: 'moduleOperation',
-      entityType: 'Entity',
-      module: 'module',
-      component: 'application',
+      operation: 'fetchFoodByEan',
+      entityType: 'Food',
+      module: 'diet/food',
+      component: 'foodApplication',
+      additionalData: { ean },
     })
     if (isBackendOutageError(error)) setBackendOutage(true)
     return null
@@ -163,10 +167,11 @@ export async function isEanCached(
     return cached
   } catch (error) {
     handleInfrastructureError(error, {
-      operation: 'moduleOperation',
-      entityType: 'Entity',
-      module: 'module',
-      component: 'application',
+      operation: 'isEanCached',
+      entityType: 'Food',
+      module: 'diet/food',
+      component: 'foodApplication',
+      additionalData: { ean },
     })
     if (isBackendOutageError(error)) setBackendOutage(true)
     return false
@@ -185,12 +190,46 @@ export async function fetchFoodsByIds(
     return await foodRepository.fetchFoodsByIds(ids)
   } catch (error) {
     handleInfrastructureError(error, {
-      operation: 'moduleOperation',
-      entityType: 'Entity',
-      module: 'module',
-      component: 'application',
+      operation: 'fetchFoodsByIds',
+      entityType: 'Food',
+      module: 'diet/food',
+      component: 'foodApplication',
+      additionalData: { ids },
     })
     if (isBackendOutageError(error)) setBackendOutage(true)
     return []
+  }
+}
+
+/**
+ * Creates and validates a new food with domain validation.
+ * This demonstrates proper domain error handling in the application layer.
+ * @param params - Food creation parameters
+ * @returns The created food or null on error
+ */
+export async function createValidatedFood(params: {
+  name: string
+  macros: MacroNutrients
+  ean: string | null
+  source?: { type: 'api'; id: string }
+}): Promise<Food | null> {
+  try {
+    // This will throw domain errors if validation fails
+    const newFood = createNewFoodWithValidation(params)
+
+    // Save to repository
+    const createdFood = await foodRepository.insertFood(newFood)
+    return createdFood
+  } catch (error) {
+    // The enhanced error handler will automatically detect and route domain errors
+    // to the appropriate handler with correct severity levels
+    handleApplicationError(error, {
+      operation: 'createValidatedFood',
+      entityType: 'Food',
+      module: 'diet/food',
+      component: 'foodApplication',
+      additionalData: params,
+    })
+    return null
   }
 }
