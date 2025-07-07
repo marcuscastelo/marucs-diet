@@ -1,5 +1,9 @@
 import { Show } from 'solid-js'
 
+import {
+  isTemplateFood,
+  type Template,
+} from '~/modules/diet/template/domain/template'
 import { deleteRecentFoodByReference } from '~/modules/recent-food/application/recentFood'
 import { debouncedTab } from '~/modules/search/application/search'
 import { showPromise } from '~/modules/toast/application/toastManager'
@@ -8,22 +12,20 @@ import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
 import { handleApiError } from '~/shared/error/errorHandler'
 
 type RemoveFromRecentButtonProps = {
-  templateId: number
+  template: Template
   refetch: (info?: unknown) => unknown
 }
 
-export function RemoveFromRecentButton(
-  props: RemoveFromRecentButtonProps & { type: 'food' | 'recipe' },
-) {
+export function RemoveFromRecentButton(props: RemoveFromRecentButtonProps) {
   const handleClick = (e: MouseEvent) => {
     e.stopPropagation()
     e.preventDefault()
+
+    const templateType = isTemplateFood(props.template) ? 'food' : 'recipe'
+    const templateId = props.template.id
+
     void showPromise(
-      deleteRecentFoodByReference(
-        currentUserId(),
-        props.type,
-        props.templateId,
-      ),
+      deleteRecentFoodByReference(currentUserId(), templateType, templateId),
       {
         loading: 'Removendo item da lista de recentes...',
         success: 'Item removido da lista de recentes com sucesso!',

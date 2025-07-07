@@ -2,7 +2,7 @@ import {
   isFoodItem,
   isGroupItem,
   isRecipeItem,
-  UnifiedItem,
+  type UnifiedItem,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 /**

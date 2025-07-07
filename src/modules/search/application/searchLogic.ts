@@ -5,7 +5,6 @@ import type { Food } from '~/modules/diet/food/domain/food'
 import type { Recipe } from '~/modules/diet/recipe/domain/recipe'
 import type { Template } from '~/modules/diet/template/domain/template'
 import { availableTabs } from '~/sections/search/components/TemplateSearchTabs'
-import { handleApiError } from '~/shared/error/errorHandler'
 
 /**
  * Dependencies for fetchTemplatesByTabLogic
@@ -18,12 +17,9 @@ export type FetchTemplatesDeps = {
   ) => Promise<readonly Recipe[] | null>
   fetchUserRecentFoods: (
     userId: number,
-    limit?: number,
-  ) => Promise<
-    { type: 'food' | 'recipe'; reference_id: number; last_used: Date }[] | null
-  >
-  fetchFoodById: (id: number) => Promise<Food | null>
-  fetchRecipeById: (id: number) => Promise<Recipe | null>
+    search: string,
+    opts?: { limit?: number },
+  ) => Promise<readonly Template[]>
   fetchFoods: (opts: {
     limit?: number
     allowedFoods?: number[]
@@ -33,10 +29,6 @@ export type FetchTemplatesDeps = {
     opts: { limit?: number; allowedFoods?: number[] },
   ) => Promise<readonly Food[] | null>
   getFavoriteFoods: () => number[]
-  /**
-   * Batch fetch foods by IDs. Returns all found foods, order not guaranteed.
-   */
-  fetchFoodsByIds: (ids: number[]) => Promise<readonly Food[] | null>
 }
 
 /**
@@ -56,64 +48,14 @@ export async function fetchTemplatesByTabLogic(
   const lowerSearch = search.trim().toLowerCase()
   switch (tabId) {
     case availableTabs.Recentes.id: {
-      const recentItems = (await deps.fetchUserRecentFoods(userId)) ?? []
-      const foodIds = recentItems
-        .filter((r) => r.type === 'food')
-        .map((r) => r.reference_id)
-      const recipeIds = recentItems
-        .filter((r) => r.type === 'recipe')
-        .map((r) => r.reference_id)
-      const foods =
-        foodIds.length > 0
-          ? await deps.fetchFoodsByIds(foodIds).then((result) => {
-              const safeResult = result ?? []
-              // Reorder to match foodIds order
-              const foodMap = new Map(safeResult.map((f) => [f.id, f]))
-              return foodIds.map((id) => foodMap.get(id) ?? null)
-            })
-          : []
-      const recipes =
-        recipeIds.length > 0
-          ? await Promise.all(
-              recipeIds.map((id) =>
-                deps.fetchRecipeById(id).catch((error) => {
-                  handleApiError(error)
-                  return null
-                }),
-              ),
-            )
-          : []
-      const validFoods = Array.isArray(foods)
-        ? (foods as (Food | null)[]).filter((f): f is Food => f !== null)
-        : []
-      const validRecipes = (recipes as (Recipe | null)[]).filter(
-        (r): r is Recipe => r !== null,
-      )
-      const filterFn = (item: { name: string; EAN?: string | null }) => {
-        if (lowerSearch === '') return true
-        if (item.name.toLowerCase().includes(lowerSearch)) return true
-        if (
-          typeof item.EAN === 'string' &&
-          item.EAN &&
-          item.EAN.toLowerCase().includes(lowerSearch)
-        )
-          return true
-        return false
-      }
-      const templates: Template[] = []
-      // Create maps for O(1) lookup instead of O(n) find operations
-      const foodMap = new Map(validFoods.map((f) => [f.id, f]))
-      const recipeMap = new Map(validRecipes.map((r) => [r.id, r]))
+      // Use the refactored function that returns Template objects directly
+      const templates = await deps.fetchUserRecentFoods(userId, search)
 
-      for (const recent of recentItems) {
-        if (recent.type === 'food') {
-          const food = foodMap.get(recent.reference_id)
-          if (food !== undefined && filterFn(food)) templates.push(food)
-        } else {
-          const recipe = recipeMap.get(recent.reference_id)
-          if (recipe !== undefined && filterFn(recipe)) templates.push(recipe)
-        }
+      // Apply additional client-side filtering if needed (for EAN search)
+      if (lowerSearch !== '') {
+        return templates.filter((item) => matchesSearch(item, lowerSearch))
       }
+
       return templates
     }
     case availableTabs.Receitas.id: {
@@ -144,6 +86,31 @@ export async function fetchTemplatesByTabLogic(
       }
     }
   }
+}
+
+/**
+ * Checks if a template matches the search term by name or EAN.
+ * @param item - The template item to check
+ * @param search - The search term (case-insensitive)
+ * @returns True if the item matches the search term
+ */
+function matchesSearch(
+  item: { name: string; ean?: string | null },
+  search: string,
+): boolean {
+  const lowerSearch = search.toLowerCase()
+
+  if (item.name.toLowerCase().includes(lowerSearch)) return true
+
+  if (
+    typeof item.ean === 'string' &&
+    item.ean &&
+    item.ean.toLowerCase().includes(lowerSearch)
+  ) {
+    return true
+  }
+
+  return false
 }
 
 /**

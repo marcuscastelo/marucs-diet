@@ -4,7 +4,7 @@
  * Component to test the toast system with ID-based management.
  */
 
-import { Component, createSignal } from 'solid-js'
+import { type Component, createSignal } from 'solid-js'
 import toast from 'solid-toast'
 
 import {
@@ -13,7 +13,7 @@ import {
   showPromise,
   showSuccess,
 } from '~/modules/toast/application/toastManager'
-import { ToastOptions } from '~/modules/toast/domain/toastTypes'
+import { type ToastOptions } from '~/modules/toast/domain/toastTypes'
 
 const ToastTest: Component = () => {
   const [toastOptions, setToastOptions] = createSignal<Partial<ToastOptions>>({

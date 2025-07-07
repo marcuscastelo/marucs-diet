@@ -6,7 +6,7 @@ import {
   getItemDepth,
 } from '~/modules/diet/unified-item/domain/treeUtils'
 import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
-import { UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 describe('treeUtils', () => {
   const unifiedFood: UnifiedItem = createUnifiedItem({

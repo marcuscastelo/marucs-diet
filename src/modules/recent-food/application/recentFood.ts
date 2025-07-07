@@ -1,111 +1,67 @@
-// Application layer for recent food operations, migrated from legacy controller
-// All error handling is done here, domain remains pure
+// Application layer for recent food operations - pure business logic
+import type { Template } from '~/modules/diet/template/domain/template'
 import {
-  type NewRecentFood,
-  type RecentFood,
-  recentFoodSchema,
+  createRecentFoodInput,
+  type RecentFoodCreationParams,
+  type RecentFoodInput,
+  type RecentFoodRecord,
+  type RecentFoodRepository,
+  type RecentFoodType,
 } from '~/modules/recent-food/domain/recentFood'
 import {
-  type CreateRecentFoodDAO,
-  daoToRecentFood,
-  type RecentFoodDAO,
-} from '~/modules/recent-food/infrastructure/recentFoodDAO'
+  supabaseRecentFoodRepository,
+  transformRowToTemplate,
+} from '~/modules/recent-food/infrastructure/supabaseRecentFoodRepository'
 import { showPromise } from '~/modules/toast/application/toastManager'
 import env from '~/shared/config/env'
 import { handleApiError } from '~/shared/error/errorHandler'
-import { parseWithStack } from '~/shared/utils/parseWithStack'
-import { removeDiacritics } from '~/shared/utils/removeDiacritics'
-import supabase from '~/shared/utils/supabase'
 
-const TABLE = 'recent_foods'
-
-// TODO: Implement proper infrastructure folder for recent food
+// Default repository implementation (can be swapped for testing)
+const recentFoodRepository: RecentFoodRepository = supabaseRecentFoodRepository
 
 /**
  * Fetches a recent food by user, type and reference ID.
  * @param userId - The user ID.
  * @param type - The type ('food' | 'recipe').
  * @param referenceId - The reference ID (foods.id ou recipes.id).
- * @returns The recent food or null if not found or on error.
+ * @returns The recent food record or null if not found or on error.
  */
 export async function fetchRecentFoodByUserTypeAndReferenceId(
-  userId: RecentFood['user_id'],
-  type: RecentFood['type'],
-  referenceId: RecentFood['reference_id'],
-): Promise<RecentFood | null> {
-  try {
-    const { data, error } = await supabase
-      .from(TABLE)
-      .select('*')
-      .eq('user_id', userId)
-      .eq('type', type)
-      .eq('reference_id', referenceId)
-    if (error !== null) throw error
-    return parseWithStack(recentFoodSchema.array(), data).at(0) ?? null
-  } catch (error) {
-    handleApiError(error)
-    return null
-  }
+  userId: number,
+  type: RecentFoodType,
+  referenceId: number,
+): Promise<RecentFoodRecord | null> {
+  return recentFoodRepository.fetchByUserTypeAndReferenceId(
+    userId,
+    type,
+    referenceId,
+  )
 }
 
 /**
- * Fetches recent foods for a user with optional limit and search filtering.
- * When search is provided, uses server-side search with joined food/recipe names for efficiency.
+ * Fetches recent foods as Templates for a user with optional limit and search filtering.
+ * Uses the enhanced database function to return complete Template objects directly.
  * @param userId - The user ID.
- * @param limit - Maximum number of recent foods to fetch (defaults to environment configuration).
- * @param search - Optional search term to filter by food/recipe names (case and diacritic insensitive).
- * @returns Array of recent foods or empty array on error.
+ * @param search - Search term to filter by food/recipe names (case and diacritic insensitive).
+ * @param opts - Optional configuration with limit for maximum number of recent foods to fetch.
+ * @returns Array of Template objects or empty array on error.
  */
 export async function fetchUserRecentFoods(
-  userId: RecentFood['user_id'],
-  limit: number = env.VITE_RECENT_FOODS_DEFAULT_LIMIT,
-  search?: string,
-): Promise<readonly RecentFood[]> {
+  userId: number,
+  search: string,
+  opts?: { limit?: number },
+): Promise<readonly Template[]> {
+  const limit = opts?.limit ?? env.VITE_RECENT_FOODS_DEFAULT_LIMIT
   try {
-    // If search is provided, use server-side search function for efficiency
-    if (search !== undefined && search.trim() !== '') {
-      const normalizedSearch = removeDiacritics(search.trim())
-      const response = await supabase.rpc('search_recent_foods_with_names', {
-        p_user_id: userId,
-        p_search_term: normalizedSearch,
-        p_limit: limit,
-      })
-      if (response.error !== null) throw response.error
+    const rawRows = await recentFoodRepository.fetchUserRecentFoodsRaw(
+      userId,
+      search,
+      { limit },
+    )
 
-      // Transform the joined result back to RecentFood schema (excluding the name field)
-      const recentFoodsData = (response.data as unknown[]).map(
-        (row: unknown) => {
-          const typedRow = row as {
-            id: number
-            user_id: number
-            type: string
-            reference_id: number
-            last_used: string | Date
-            times_used: number
-          }
-          return {
-            id: typedRow.id,
-            user_id: typedRow.user_id,
-            type: typedRow.type,
-            reference_id: typedRow.reference_id,
-            last_used: typedRow.last_used,
-            times_used: typedRow.times_used,
-          }
-        },
-      )
-
-      return parseWithStack(recentFoodSchema.array(), recentFoodsData)
-    }
-
-    // No search - use existing direct table query for optimal performance
-    const { data, error } = await supabase
-      .from(TABLE)
-      .select('*')
-      .eq('user_id', userId)
-      .order('last_used', { ascending: false })
-      .limit(limit)
-    if (error !== null) throw error
-    return parseWithStack(recentFoodSchema.array(), data)
+    // Transform raw data to Template objects
+    const templates = rawRows.map((row) => transformRowToTemplate(row))
+    return templates
   } catch (error) {
     handleApiError(error)
     return []
@@ -114,30 +70,15 @@ export async function fetchUserRecentFoods(
 
 /**
  * Inserts a new recent food.
- * @param newRecentFood - The new recent food data.
- * @returns The inserted recent food or null on error.
+ * @param recentFoodInput - The new recent food data.
+ * @returns The inserted recent food record or null on error.
  */
 export async function insertRecentFood(
-  newRecentFood: NewRecentFood,
-): Promise<RecentFood | null> {
+  recentFoodInput: RecentFoodInput,
+): Promise<RecentFoodRecord | null> {
   try {
     return await showPromise(
-      (async () => {
-        const createDAO: CreateRecentFoodDAO = {
-          user_id: newRecentFood.user_id,
-          type: newRecentFood.type,
-          reference_id: newRecentFood.reference_id,
-          last_used: newRecentFood.last_used,
-          times_used: newRecentFood.times_used,
-        }
-        const { data, error } = await supabase
-          .from(TABLE)
-          .insert(createDAO)
-          .select()
-        if (error !== null) throw error
-        const recentFoodDAO = data[0] as RecentFoodDAO
-        return daoToRecentFood(recentFoodDAO)
-      })(),
+      recentFoodRepository.insert(recentFoodInput),
       {
         loading: 'Salvando alimento recente...',
         success: 'Alimento recente salvo com sucesso',
@@ -154,32 +95,16 @@ export async function insertRecentFood(
 /**
  * Updates a recent food by ID.
  * @param recentFoodId - The recent food ID.
- * @param newRecentFood - The new recent food data.
- * @returns The updated recent food or null on error.
+ * @param recentFoodInput - The new recent food data.
+ * @returns The updated recent food record or null on error.
  */
 export async function updateRecentFood(
-  recentFoodId: RecentFood['id'],
-  newRecentFood: NewRecentFood,
-): Promise<RecentFood | null> {
+  recentFoodId: number,
+  recentFoodInput: RecentFoodInput,
+): Promise<RecentFoodRecord | null> {
   try {
     return await showPromise(
-      (async () => {
-        const updateDAO = {
-          user_id: newRecentFood.user_id,
-          type: newRecentFood.type,
-          reference_id: newRecentFood.reference_id,
-          last_used: newRecentFood.last_used,
-          times_used: newRecentFood.times_used,
-        }
-        const { data, error } = await supabase
-          .from(TABLE)
-          .update(updateDAO)
-          .eq('id', recentFoodId)
-          .select()
-        if (error !== null) throw error
-        const recentFoodDAO = data[0] as RecentFoodDAO
-        return daoToRecentFood(recentFoodDAO)
-      })(),
+      recentFoodRepository.update(recentFoodId, recentFoodInput),
       {
         loading: 'Atualizando alimento recente...',
         success: 'Alimento recente atualizado com sucesso',
@@ -201,21 +126,13 @@ export async function updateRecentFood(
  * @returns True if deleted, false otherwise.
  */
 export async function deleteRecentFoodByReference(
-  userId: RecentFood['user_id'],
-  type: RecentFood['type'],
-  referenceId: RecentFood['reference_id'],
+  userId: number,
+  type: RecentFoodType,
+  referenceId: number,
 ): Promise<boolean> {
   try {
-    await showPromise(
-      (async () => {
-        const { error } = await supabase
-          .from(TABLE)
-          .delete()
-          .eq('user_id', userId)
-          .eq('type', type)
-          .eq('reference_id', referenceId)
-        if (error !== null) throw error
-      })(),
+    return await showPromise(
+      recentFoodRepository.deleteByReference(userId, type, referenceId),
       {
         loading: 'Removendo alimento recente...',
         success: 'Alimento recente removido com sucesso',
@@ -223,11 +140,17 @@ export async function deleteRecentFoodByReference(
       },
       { context: 'user-action', audience: 'user' },
     )
-    return true
   } catch (error) {
     handleApiError(error)
     return false
   }
 }
 
-export {}
+// Re-export domain functions for convenience
+export { createRecentFoodInput }
+export type {
+  RecentFoodCreationParams,
+  RecentFoodInput,
+  RecentFoodRecord,
+  RecentFoodType,
+}

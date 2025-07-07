@@ -60,3 +60,8 @@ const searchResults = await fetchUserRecentFoods(userId, 20, "arroz")
 - ✅ Supports Portuguese diacritics server-side
 - ✅ Backward compatible with existing code
 - ✅ Follows existing architectural patterns
+
+## Important Notes
+
+- The function casts `foods.macros` from `json` to `jsonb` to match the return type schema
+- This ensures compatibility with the application's expected data structure while maintaining the database's existing column types

@@ -5,7 +5,7 @@ import {
   isFoodItem,
   isGroupItem,
   isRecipeItem,
-  UnifiedItem,
+  type UnifiedItem,
   unifiedItemSchema,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { parseWithStack } from '~/shared/utils/parseWithStack'

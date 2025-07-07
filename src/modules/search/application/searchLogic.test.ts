@@ -2,23 +2,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   fetchTemplatesByTabLogic,
-  FetchTemplatesDeps,
+  type FetchTemplatesDeps,
 } from '~/modules/search/application/searchLogic'
 import { availableTabs } from '~/sections/search/components/TemplateSearchTabs'
 
 describe('fetchTemplatesByTabLogic', () => {
-  const mockFood = { id: 1, name: 'Banana', __type: 'Food', EAN: '123' }
+  const mockFood = { id: 1, name: 'Banana', __type: 'Food', ean: '123' }
   const mockRecipe = { id: 2, name: 'Bolo', __type: 'Recipe' }
-  const mockRecentFood = {
-    type: 'food',
-    reference_id: 1,
-    last_used: new Date(),
-  }
-  const mockRecentRecipe = {
-    type: 'recipe',
-    reference_id: 2,
-    last_used: new Date(),
-  }
   const userId = 1
   let deps: FetchTemplatesDeps
 
@@ -26,18 +16,9 @@ describe('fetchTemplatesByTabLogic', () => {
     deps = {
       fetchUserRecipes: vi.fn().mockResolvedValue([mockRecipe]),
       fetchUserRecipeByName: vi.fn().mockResolvedValue([mockRecipe]),
-      fetchUserRecentFoods: vi
-        .fn()
-        .mockResolvedValue([mockRecentFood, mockRecentRecipe]),
-      fetchFoodById: vi.fn().mockResolvedValue(mockFood),
-      fetchRecipeById: vi.fn().mockResolvedValue(mockRecipe),
+      fetchUserRecentFoods: vi.fn().mockResolvedValue([mockFood, mockRecipe]),
       fetchFoods: vi.fn().mockResolvedValue([mockFood]),
       fetchFoodsByName: vi.fn().mockResolvedValue([mockFood]),
-      fetchFoodsByIds: vi
-        .fn()
-        .mockImplementation((ids) =>
-          Promise.resolve(Array.isArray(ids) ? ids.map(() => mockFood) : []),
-        ),
       getFavoriteFoods: () => [1],
     }
   })
@@ -93,6 +74,9 @@ describe('fetchTemplatesByTabLogic', () => {
   })
 
   it('filters by search string in Recentes tab', async () => {
+    // Mock the function to return only the food template for search "Banana"
+    deps.fetchUserRecentFoods = vi.fn().mockResolvedValue([mockFood])
+
     const result = await fetchTemplatesByTabLogic(
       availableTabs.Recentes.id,
       'Banana',
@@ -100,16 +84,24 @@ describe('fetchTemplatesByTabLogic', () => {
       deps,
     )
     expect(result).toEqual([mockFood])
+    expect(deps.fetchUserRecentFoods).toHaveBeenCalledWith(userId, 'Banana')
   })
 
   it('filters by EAN in Recentes tab', async () => {
+    // The EAN search should filter client-side since the database function only searches by name
+    // Mock the function to return both templates, then expect client-side filtering to work
+    deps.fetchUserRecentFoods = vi
+      .fn()
+      .mockResolvedValue([mockFood, mockRecipe])
+
     const result = await fetchTemplatesByTabLogic(
       availableTabs.Recentes.id,
-      mockFood.EAN,
+      mockFood.ean,
       userId,
       deps,
     )
     expect(result).toEqual([mockFood])
+    expect(deps.fetchUserRecentFoods).toHaveBeenCalledWith(userId, mockFood.ean)
   })
 
   it('calls fetchFoodsByName with correct args for Todos tab and non-empty search', async () => {
@@ -118,62 +110,44 @@ describe('fetchTemplatesByTabLogic', () => {
     expect(deps.fetchFoodsByName).toHaveBeenCalledWith(search, { limit: 50 })
   })
 
-  it('respects limit parameter for recent foods', async () => {
-    const recentFoods = [
-      { type: 'food' as const, reference_id: 1, last_used: new Date() },
-      { type: 'food' as const, reference_id: 2, last_used: new Date() },
-      { type: 'food' as const, reference_id: 3, last_used: new Date() },
-    ]
-
-    const limitedDeps: FetchTemplatesDeps = {
-      ...deps,
-      fetchUserRecentFoods: vi.fn().mockResolvedValue(recentFoods),
-    }
-
-    await fetchTemplatesByTabLogic(
+  it('calls fetchUserRecentFoods with correct parameters', async () => {
+    const result = await fetchTemplatesByTabLogic(
       availableTabs.Recentes.id,
       '',
       userId,
-      limitedDeps,
+      deps,
     )
 
-    // Verify that fetchUserRecentFoods was called with only userId (default behavior)
-    expect(limitedDeps.fetchUserRecentFoods).toHaveBeenCalledWith(userId)
+    // Verify that fetchUserRecentFoods was called with correct parameters
+    expect(deps.fetchUserRecentFoods).toHaveBeenCalledWith(userId, '')
+    expect(result).toEqual([mockFood, mockRecipe])
   })
 
   it('handles large datasets efficiently in Recentes tab', async () => {
-    // Create large datasets to verify O(n) optimization works correctly
+    // Create large datasets to verify enhanced function works correctly
     const LARGE_SIZE = 1000
     const largeFoods = Array.from({ length: LARGE_SIZE }, (_, i) => ({
       id: i + 1,
       name: `Food ${i + 1}`,
       __type: 'Food' as const,
-      EAN: `${i + 1}`,
+      ean: `${i + 1}`,
     }))
     const largeRecipes = Array.from({ length: LARGE_SIZE }, (_, i) => ({
       id: i + 1,
       name: `Recipe ${i + 1}`,
       __type: 'Recipe' as const,
     }))
-    const largeRecentItems = Array.from({ length: LARGE_SIZE }, (_, i) => ({
-      type: i % 2 === 0 ? ('food' as const) : ('recipe' as const),
-      reference_id: (i % LARGE_SIZE) + 1,
-      last_used: new Date(),
-    }))
+    const largeTemplates = Array.from({ length: LARGE_SIZE }, (_, i) =>
+      i % 2 === 0 ? largeFoods[i / 2] : largeRecipes[Math.floor(i / 2)],
+    )
 
     const largeDeps: FetchTemplatesDeps = {
       ...deps,
-      fetchUserRecentFoods: vi.fn().mockResolvedValue(largeRecentItems),
-      fetchFoodsByIds: vi.fn().mockResolvedValue(largeFoods),
-      fetchRecipeById: vi
-        .fn()
-        .mockImplementation((id) =>
-          Promise.resolve(largeRecipes.find((r) => r.id === id) || null),
-        ),
+      fetchUserRecentFoods: vi.fn().mockResolvedValue(largeTemplates),
     }
 
     // Test that the function completes successfully with large datasets
-    // The O(n) optimization should handle this without issues
+    // The enhanced function should handle this efficiently
     const result = await fetchTemplatesByTabLogic(
       availableTabs.Recentes.id,
       '',
@@ -181,20 +155,15 @@ describe('fetchTemplatesByTabLogic', () => {
       largeDeps,
     )
 
-    // Verify correct results (should include foods and recipes based on recent items)
-    expect(result.length).toBeGreaterThan(0)
-    expect(result.length).toBeLessThanOrEqual(LARGE_SIZE)
+    // Verify correct results (should include foods and recipes based on templates)
+    expect(result.length).toBe(LARGE_SIZE)
+    expect(largeDeps.fetchUserRecentFoods).toHaveBeenCalledWith(userId, '')
 
-    // Verify the optimization is working by checking that all expected items are found
-    // With the Map-based lookup, all valid references should be resolved
-    const expectedFoodCount = largeRecentItems.filter(
-      (r) => r.type === 'food',
-    ).length
-    const expectedRecipeCount = largeRecentItems.filter(
-      (r) => r.type === 'recipe',
-    ).length
+    // Verify that we get the correct mix of foods and recipes
     const actualFoodCount = result.filter((r) => r.__type === 'Food').length
     const actualRecipeCount = result.filter((r) => r.__type === 'Recipe').length
+    const expectedFoodCount = Math.ceil(LARGE_SIZE / 2)
+    const expectedRecipeCount = Math.floor(LARGE_SIZE / 2)
 
     expect(actualFoodCount).toBe(expectedFoodCount)
     expect(actualRecipeCount).toBe(expectedRecipeCount)

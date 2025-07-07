@@ -1,4 +1,4 @@
-import { Accessor, createEffect, createSignal } from 'solid-js'
+import { type Accessor, createEffect, createSignal } from 'solid-js'
 import { untrack } from 'solid-js'
 
 import { type Item } from '~/modules/diet/item/domain/item'

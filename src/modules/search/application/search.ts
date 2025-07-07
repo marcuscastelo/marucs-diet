@@ -1,17 +1,14 @@
 import { createResource, createSignal } from 'solid-js'
 
 import {
-  fetchFoodById,
   fetchFoods,
-  fetchFoodsByIds,
   fetchFoodsByName,
 } from '~/modules/diet/food/application/food'
 import {
-  fetchRecipeById,
   fetchUserRecipeByName,
   fetchUserRecipes,
 } from '~/modules/diet/recipe/application/recipe'
-import { fetchUserRecentFoods as fetchUserRecentFoodsRaw } from '~/modules/recent-food/application/recentFood'
+import { fetchUserRecentFoods } from '~/modules/recent-food/application/recentFood'
 import { fetchTemplatesByTabLogic } from '~/modules/search/application/searchLogic'
 import { currentUser, currentUserId } from '~/modules/user/application/user'
 import { type TemplateSearchTab } from '~/sections/search/components/TemplateSearchTabs'
@@ -33,16 +30,6 @@ export const [debouncedTab] = createDebouncedSignal(
 
 const getFavoriteFoods = () => currentUser()?.favorite_foods ?? []
 
-const fetchUserRecentFoods = async (userId: number, limit?: number) => {
-  const result = await fetchUserRecentFoodsRaw(userId, limit)
-  // Adapt to expected type: { type, reference_id, last_used }
-  return result.map(({ type, reference_id, last_used }) => ({
-    type,
-    reference_id,
-    last_used,
-  }))
-}
-
 export const [
   templates,
   { refetch: refetchTemplates, mutate: mutateTemplates },
@@ -61,12 +48,9 @@ export const [
         fetchUserRecipes,
         fetchUserRecipeByName,
         fetchUserRecentFoods,
-        fetchFoodById,
-        fetchRecipeById,
         fetchFoods,
         fetchFoodsByName,
         getFavoriteFoods,
-        fetchFoodsByIds,
       },
     )
   },

@@ -4,7 +4,7 @@ import { Button } from '~/sections/common/components/buttons/Button'
 import { DarkToaster } from '~/sections/common/components/DarkToaster'
 import { cn } from '~/shared/cn'
 import { closeModal } from '~/shared/modal/helpers/modalHelpers'
-import { ModalState } from '~/shared/modal/types/modalTypes'
+import { type ModalState } from '~/shared/modal/types/modalTypes'
 import { createDebug } from '~/shared/utils/createDebug'
 
 export type ModalProps = ModalState & {

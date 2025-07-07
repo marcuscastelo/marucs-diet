@@ -10,7 +10,7 @@ import { createEffect, createSignal } from 'solid-js'
 
 import {
   TOAST_DURATION_INFINITY,
-  ToastItem,
+  type ToastItem,
 } from '~/modules/toast/domain/toastTypes'
 import {
   dismissSolidToast,

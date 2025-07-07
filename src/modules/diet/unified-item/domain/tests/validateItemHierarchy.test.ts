@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { validateItemHierarchy } from '~/modules/diet/unified-item/domain/validateItemHierarchy'
 import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
-import { UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 describe('validateItemHierarchy', () => {
   const unifiedFood: UnifiedItem = createUnifiedItem({

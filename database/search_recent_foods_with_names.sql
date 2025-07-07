@@ -12,32 +12,50 @@ CREATE OR REPLACE FUNCTION search_recent_foods_with_names(
   p_limit integer DEFAULT 50
 )
 RETURNS TABLE (
-  id bigint,
+  -- Recent food metadata
+  recent_food_id bigint,
   user_id bigint,
   type text,
   reference_id bigint,
   last_used timestamp with time zone,
   times_used integer,
-  name text
+  -- Complete Template object fields
+  template_id bigint,
+  template_name text,
+  template_ean text,
+  template_source jsonb,
+  template_macros jsonb,
+  template_owner bigint,
+  template_items jsonb,
+  template_prepared_multiplier real
 ) 
 LANGUAGE plpgsql
 AS $$
 BEGIN
-  -- If no search term provided, return recent foods with names (no filtering)
+  -- If no search term provided, return recent foods with complete template data (no filtering)
   IF p_search_term IS NULL OR p_search_term = '' THEN
     RETURN QUERY
     SELECT 
-      rf.id,
+      rf.id as recent_food_id,
       rf.user_id,
       rf.type,
       rf.reference_id,
       rf.last_used,
       rf.times_used,
-      COALESCE(f.name, r.name) as name
+      -- Complete Template fields (Food or Recipe)
+      COALESCE(f.id, r.id) as template_id,
+      COALESCE(f.name, r.name) as template_name,
+      f.ean as template_ean,
+      f.source as template_source,
+      f.macros::jsonb as template_macros,
+      r.owner as template_owner,
+      r.items as template_items,
+      r.prepared_multiplier as template_prepared_multiplier
     FROM public.recent_foods rf
     LEFT JOIN public.foods f ON rf.type = 'food' AND rf.reference_id = f.id
     LEFT JOIN public.recipes r ON rf.type = 'recipe' AND rf.reference_id = r.id
     WHERE rf.user_id = p_user_id
+      AND (f.id IS NOT NULL OR r.id IS NOT NULL) -- Ensure we have a valid template
     ORDER BY rf.last_used DESC
     LIMIT p_limit;
   ELSE
@@ -45,17 +63,26 @@ BEGIN
     -- Note: Using client-side normalized search term approach to match existing patterns
     RETURN QUERY
     SELECT 
-      rf.id,
+      rf.id as recent_food_id,
       rf.user_id,
       rf.type,
       rf.reference_id,
       rf.last_used,
       rf.times_used,
-      COALESCE(f.name, r.name) as name
+      -- Complete Template fields (Food or Recipe)
+      COALESCE(f.id, r.id) as template_id,
+      COALESCE(f.name, r.name) as template_name,
+      f.ean as template_ean,
+      f.source as template_source,
+      f.macros::jsonb as template_macros,
+      r.owner as template_owner,
+      r.items as template_items,
+      r.prepared_multiplier as template_prepared_multiplier
     FROM public.recent_foods rf
     LEFT JOIN public.foods f ON rf.type = 'food' AND rf.reference_id = f.id
     LEFT JOIN public.recipes r ON rf.type = 'recipe' AND rf.reference_id = r.id
     WHERE rf.user_id = p_user_id
+      AND (f.id IS NOT NULL OR r.id IS NOT NULL) -- Ensure we have a valid template
       AND (
         f.name ILIKE '%' || p_search_term || '%' OR
         r.name ILIKE '%' || p_search_term || '%'

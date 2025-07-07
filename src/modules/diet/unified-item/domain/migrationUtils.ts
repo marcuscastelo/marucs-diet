@@ -1,4 +1,4 @@
-import { Item } from '~/modules/diet/item/domain/item'
+import { type Item } from '~/modules/diet/item/domain/item'
 import type { ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import {
   itemGroupToUnifiedItem,

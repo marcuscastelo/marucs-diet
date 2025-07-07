@@ -6,9 +6,9 @@
  */
 
 import {
-  ToastError,
-  ToastExpandableErrorData,
-  ToastOptions,
+  type ToastError,
+  type ToastExpandableErrorData,
+  type ToastOptions,
 } from '~/modules/toast/domain/toastTypes'
 import { isNonEmptyString } from '~/shared/utils/isNonEmptyString'
 import { jsonParseWithStack } from '~/shared/utils/jsonParseWithStack'

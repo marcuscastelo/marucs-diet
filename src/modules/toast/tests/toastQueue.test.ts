@@ -5,7 +5,7 @@ import * as toastQueue from '~/modules/toast/application/toastQueue'
 import {
   createToastItem,
   DEFAULT_TOAST_OPTIONS,
-  ToastType,
+  type ToastType,
 } from '~/modules/toast/domain/toastTypes'
 import * as solidToast from '~/modules/toast/ui/solidToast'
 

@@ -1,4 +1,4 @@
-import { UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 type ProtoUnifiedItem = Omit<UnifiedItem, '__type'>
 

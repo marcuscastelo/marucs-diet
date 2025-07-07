@@ -1,62 +1,66 @@
-import { z } from 'zod'
+// Domain layer for recent food - pure business logic without external dependencies
 
-import { parseWithStack } from '~/shared/utils/parseWithStack'
+export type RecentFoodType = 'food' | 'recipe'
 
-export const recentFoodSchema = z.object({
-  id: z.number(),
-  user_id: z.number(),
-  type: z.enum(['food', 'recipe']),
-  reference_id: z.number(),
-  last_used: z
-    .date()
-    .or(z.string())
-    .transform((v) => new Date(v)),
-  times_used: z.number(),
-  __type: z
-    .string()
-    .nullable()
-    .optional()
-    .transform(() => 'RecentFood' as const),
-})
+// Domain record type for recent food
+export type RecentFoodRecord = {
+  id: number
+  user_id: number
+  type: RecentFoodType
+  reference_id: number
+  last_used: Date
+  times_used: number
+}
 
-// Schema for creating a new recent food (without ID)
-export const newRecentFoodSchema = z.object({
-  user_id: z.number(),
-  type: z.enum(['food', 'recipe']),
-  reference_id: z.number(),
-  last_used: z.date().default(() => new Date()),
-  times_used: z.number().default(1),
-  __type: z.literal('NewRecentFood'),
-})
+// Input type for creating/updating recent foods
+export type RecentFoodInput = {
+  user_id: number
+  type: RecentFoodType
+  reference_id: number
+  last_used?: Date
+  times_used?: number
+}
 
-export type RecentFood = Readonly<z.infer<typeof recentFoodSchema>>
-export type NewRecentFood = Readonly<z.infer<typeof newRecentFoodSchema>>
-export type RecentFoodCreationParams = Partial<RecentFood> &
-  Pick<RecentFood, 'user_id' | 'type' | 'reference_id'>
+// Creation params type (for backward compatibility)
+export type RecentFoodCreationParams = Partial<RecentFoodRecord> &
+  Pick<RecentFoodRecord, 'user_id' | 'type' | 'reference_id'>
+
+// Domain repository interface
+export type RecentFoodRepository = {
+  fetchByUserTypeAndReferenceId(
+    userId: number,
+    type: RecentFoodType,
+    referenceId: number,
+  ): Promise<RecentFoodRecord | null>
+
+  fetchUserRecentFoodsRaw(
+    userId: number,
+    search: string,
+    opts?: { limit?: number },
+  ): Promise<readonly unknown[]>
+
+  insert(input: RecentFoodInput): Promise<RecentFoodRecord | null>
+
+  update(id: number, input: RecentFoodInput): Promise<RecentFoodRecord | null>
+
+  deleteByReference(
+    userId: number,
+    type: RecentFoodType,
+    referenceId: number,
+  ): Promise<boolean>
+}
 
 /**
- * Creates a new recent food record
+ * Creates a recent food input object (pure domain logic)
  */
-export function createNewRecentFood(
+export function createRecentFoodInput(
   params: RecentFoodCreationParams,
-): NewRecentFood {
-  return parseWithStack(newRecentFoodSchema, {
+): RecentFoodInput {
+  return {
     user_id: params.user_id,
     type: params.type,
     reference_id: params.reference_id,
     last_used: new Date(),
     times_used: (params.times_used ?? 0) + 1,
-    __type: 'NewRecentFood',
-  })
-}
-
-export function demoteToNewRecentFood(recentFood: RecentFood): NewRecentFood {
-  return parseWithStack(newRecentFoodSchema, {
-    user_id: recentFood.user_id,
-    type: recentFood.type,
-    reference_id: recentFood.reference_id,
-    last_used: recentFood.last_used,
-    times_used: recentFood.times_used,
-    __type: 'NewRecentFood',
-  })
+  }
 }

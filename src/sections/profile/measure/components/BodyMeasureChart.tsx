@@ -1,5 +1,5 @@
 import type { ApexOptions } from 'apexcharts'
-import { Accessor, createMemo, Suspense } from 'solid-js'
+import { type Accessor, createMemo, Suspense } from 'solid-js'
 
 import ptBrLocale from '~/assets/locales/apex/pt-br.json'
 import {
