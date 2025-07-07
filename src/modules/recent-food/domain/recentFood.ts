@@ -35,8 +35,8 @@ export type RecentFoodRepository = {
 
   fetchUserRecentFoodsRaw(
     userId: number,
-    limit?: number,
-    search?: string,
+    search: string,
+    opts?: { limit?: number },
   ): Promise<readonly unknown[]>
 
   insert(input: RecentFoodInput): Promise<RecentFoodRecord | null>

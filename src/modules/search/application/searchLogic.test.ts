@@ -84,11 +84,7 @@ describe('fetchTemplatesByTabLogic', () => {
       deps,
     )
     expect(result).toEqual([mockFood])
-    expect(deps.fetchUserRecentFoods).toHaveBeenCalledWith(
-      userId,
-      undefined,
-      'Banana',
-    )
+    expect(deps.fetchUserRecentFoods).toHaveBeenCalledWith(userId, 'Banana')
   })
 
   it('filters by EAN in Recentes tab', async () => {
@@ -105,11 +101,7 @@ describe('fetchTemplatesByTabLogic', () => {
       deps,
     )
     expect(result).toEqual([mockFood])
-    expect(deps.fetchUserRecentFoods).toHaveBeenCalledWith(
-      userId,
-      undefined,
-      mockFood.ean,
-    )
+    expect(deps.fetchUserRecentFoods).toHaveBeenCalledWith(userId, mockFood.ean)
   })
 
   it('calls fetchFoodsByName with correct args for Todos tab and non-empty search', async () => {
@@ -127,11 +119,7 @@ describe('fetchTemplatesByTabLogic', () => {
     )
 
     // Verify that fetchUserRecentFoods was called with correct parameters
-    expect(deps.fetchUserRecentFoods).toHaveBeenCalledWith(
-      userId,
-      undefined,
-      '',
-    )
+    expect(deps.fetchUserRecentFoods).toHaveBeenCalledWith(userId, '')
     expect(result).toEqual([mockFood, mockRecipe])
   })
 
@@ -169,11 +157,7 @@ describe('fetchTemplatesByTabLogic', () => {
 
     // Verify correct results (should include foods and recipes based on templates)
     expect(result.length).toBe(LARGE_SIZE)
-    expect(largeDeps.fetchUserRecentFoods).toHaveBeenCalledWith(
-      userId,
-      undefined,
-      '',
-    )
+    expect(largeDeps.fetchUserRecentFoods).toHaveBeenCalledWith(userId, '')
 
     // Verify that we get the correct mix of foods and recipes
     const actualFoodCount = result.filter((r) => r.__type === 'Food').length

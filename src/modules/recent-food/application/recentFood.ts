@@ -42,20 +42,21 @@ export async function fetchRecentFoodByUserTypeAndReferenceId(
  * Fetches recent foods as Templates for a user with optional limit and search filtering.
  * Uses the enhanced database function to return complete Template objects directly.
  * @param userId - The user ID.
- * @param limit - Maximum number of recent foods to fetch (defaults to environment configuration).
- * @param search - Optional search term to filter by food/recipe names (case and diacritic insensitive).
+ * @param search - Search term to filter by food/recipe names (case and diacritic insensitive).
+ * @param opts - Optional configuration with limit for maximum number of recent foods to fetch.
  * @returns Array of Template objects or empty array on error.
  */
 export async function fetchUserRecentFoods(
   userId: number,
-  limit: number = env.VITE_RECENT_FOODS_DEFAULT_LIMIT,
-  search?: string,
+  search: string,
+  opts?: { limit?: number },
 ): Promise<readonly Template[]> {
+  const limit = opts?.limit ?? env.VITE_RECENT_FOODS_DEFAULT_LIMIT
   try {
     const rawRows = await recentFoodRepository.fetchUserRecentFoodsRaw(
       userId,
-      limit,
       search,
+      { limit },
     )
 
     // Transform raw data to Template objects

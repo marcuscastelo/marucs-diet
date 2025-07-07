@@ -88,14 +88,13 @@ export const supabaseRecentFoodRepository: RecentFoodRepository = {
 
   async fetchUserRecentFoodsRaw(
     userId: number,
-    limit?: number,
-    search?: string,
+    search: string,
+    opts?: { limit?: number },
   ): Promise<readonly unknown[]> {
     try {
+      const limit = opts?.limit
       const normalizedSearch =
-        search?.trim() !== undefined && search.trim() !== ''
-          ? removeDiacritics(search.trim())
-          : undefined
+        search.trim() !== '' ? removeDiacritics(search.trim()) : undefined
 
       const response = await supabase.rpc('search_recent_foods_with_names', {
         p_user_id: userId,
