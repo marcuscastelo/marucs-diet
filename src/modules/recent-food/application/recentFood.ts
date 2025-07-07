@@ -7,16 +7,8 @@ import { recipeSchema } from '~/modules/diet/recipe/domain/recipe'
 import type { Template } from '~/modules/diet/template/domain/template'
 import {
   createRecentTemplate,
-  type NewRecentFood,
-  type RecentFood,
-  recentFoodSchema,
   type RecentTemplate,
 } from '~/modules/recent-food/domain/recentFood'
-import {
-  type CreateRecentFoodDAO,
-  daoToRecentFood,
-  recentFoodDAOSchema,
-} from '~/modules/recent-food/infrastructure/recentFoodDAO'
 import { showPromise } from '~/modules/toast/application/toastManager'
 import env from '~/shared/config/env'
 import { handleApiError } from '~/shared/error/errorHandler'
@@ -25,6 +17,54 @@ import { removeDiacritics } from '~/shared/utils/removeDiacritics'
 import supabase from '~/shared/utils/supabase'
 
 const TABLE = 'recent_foods'
+
+// Database record type (replaces RecentFood domain entity)
+type RecentFoodRecord = {
+  id: number
+  user_id: number
+  type: 'food' | 'recipe'
+  reference_id: number
+  last_used: Date
+  times_used: number
+}
+
+// Input type for creating/updating recent foods
+type RecentFoodInput = {
+  user_id: number
+  type: 'food' | 'recipe'
+  reference_id: number
+  last_used?: Date
+  times_used?: number
+}
+
+// Creation params type (for backward compatibility)
+type RecentFoodCreationParams = Partial<RecentFoodRecord> &
+  Pick<RecentFoodRecord, 'user_id' | 'type' | 'reference_id'>
+
+// Database record schema for validation
+const recentFoodRecordSchema = z.object({
+  id: z.number(),
+  user_id: z.number(),
+  type: z.enum(['food', 'recipe']),
+  reference_id: z.number(),
+  last_used: z.coerce.date(),
+  times_used: z.number(),
+})
+
+/**
+ * Creates a recent food input object (replaces createNewRecentFood)
+ */
+export function createRecentFoodInput(
+  params: RecentFoodCreationParams,
+): RecentFoodInput {
+  return {
+    user_id: params.user_id,
+    type: params.type,
+    reference_id: params.reference_id,
+    last_used: new Date(),
+    times_used: (params.times_used ?? 0) + 1,
+  }
+}
 
 // Schema for the enhanced database function response
 const enhancedRecentFoodRowSchema = z
@@ -69,13 +109,13 @@ function getRecipeFields(row: z.infer<typeof enhancedRecentFoodRowSchema>) {
  * @param userId - The user ID.
  * @param type - The type ('food' | 'recipe').
  * @param referenceId - The reference ID (foods.id ou recipes.id).
- * @returns The recent food or null if not found or on error.
+ * @returns The recent food record or null if not found or on error.
  */
 export async function fetchRecentFoodByUserTypeAndReferenceId(
-  userId: RecentFood['user_id'],
-  type: RecentFood['type'],
-  referenceId: RecentFood['reference_id'],
-): Promise<RecentFood | null> {
+  userId: number,
+  type: 'food' | 'recipe',
+  referenceId: number,
+): Promise<RecentFoodRecord | null> {
   try {
     const { data, error } = await supabase
       .from(TABLE)
@@ -84,7 +124,9 @@ export async function fetchRecentFoodByUserTypeAndReferenceId(
       .eq('type', type)
       .eq('reference_id', referenceId)
     if (error !== null) throw error
-    return parseWithStack(recentFoodSchema.array(), data).at(0) ?? null
+
+    const records = parseWithStack(recentFoodRecordSchema.array(), data)
+    return records.at(0) ?? null
   } catch (error) {
     handleApiError(error)
     return null
@@ -100,7 +142,7 @@ export async function fetchRecentFoodByUserTypeAndReferenceId(
  * @returns Array of Template objects or empty array on error.
  */
 export async function fetchUserRecentFoods(
-  userId: RecentFood['user_id'],
+  userId: number,
   limit: number = env.VITE_RECENT_FOODS_DEFAULT_LIMIT,
   search?: string,
 ): Promise<readonly Template[]> {
@@ -161,7 +203,7 @@ export async function fetchUserRecentFoods(
  * @returns Array of recent templates or empty array on error.
  */
 export async function fetchUserRecentTemplates(
-  userId: RecentFood['user_id'],
+  userId: number,
   limit: number = env.VITE_RECENT_FOODS_DEFAULT_LIMIT,
   search?: string,
 ): Promise<readonly RecentTemplate[]> {
@@ -227,29 +269,28 @@ export async function fetchUserRecentTemplates(
 
 /**
  * Inserts a new recent food.
- * @param newRecentFood - The new recent food data.
- * @returns The inserted recent food or null on error.
+ * @param recentFoodInput - The new recent food data.
+ * @returns The inserted recent food record or null on error.
  */
 export async function insertRecentFood(
-  newRecentFood: NewRecentFood,
-): Promise<RecentFood | null> {
+  recentFoodInput: RecentFoodInput,
+): Promise<RecentFoodRecord | null> {
   try {
     return await showPromise(
       (async () => {
-        const createDAO: CreateRecentFoodDAO = {
-          user_id: newRecentFood.user_id,
-          type: newRecentFood.type,
-          reference_id: newRecentFood.reference_id,
-          last_used: newRecentFood.last_used,
-          times_used: newRecentFood.times_used,
+        const insertData = {
+          user_id: recentFoodInput.user_id,
+          type: recentFoodInput.type,
+          reference_id: recentFoodInput.reference_id,
+          last_used: recentFoodInput.last_used ?? new Date(),
+          times_used: recentFoodInput.times_used ?? 1,
         }
         const { data, error } = await supabase
           .from(TABLE)
-          .insert(createDAO)
+          .insert(insertData)
           .select()
         if (error !== null) throw error
-        const recentFoodDAO = parseWithStack(recentFoodDAOSchema, data[0])
-        return daoToRecentFood(recentFoodDAO)
+        return parseWithStack(recentFoodRecordSchema, data[0])
       })(),
       {
         loading: 'Salvando alimento recente...',
@@ -267,31 +308,30 @@ export async function insertRecentFood(
 /**
  * Updates a recent food by ID.
  * @param recentFoodId - The recent food ID.
- * @param newRecentFood - The new recent food data.
- * @returns The updated recent food or null on error.
+ * @param recentFoodInput - The new recent food data.
+ * @returns The updated recent food record or null on error.
  */
 export async function updateRecentFood(
-  recentFoodId: RecentFood['id'],
-  newRecentFood: NewRecentFood,
-): Promise<RecentFood | null> {
+  recentFoodId: number,
+  recentFoodInput: RecentFoodInput,
+): Promise<RecentFoodRecord | null> {
   try {
     return await showPromise(
       (async () => {
-        const updateDAO = {
-          user_id: newRecentFood.user_id,
-          type: newRecentFood.type,
-          reference_id: newRecentFood.reference_id,
-          last_used: newRecentFood.last_used,
-          times_used: newRecentFood.times_used,
+        const updateData = {
+          user_id: recentFoodInput.user_id,
+          type: recentFoodInput.type,
+          reference_id: recentFoodInput.reference_id,
+          last_used: recentFoodInput.last_used ?? new Date(),
+          times_used: recentFoodInput.times_used ?? 1,
         }
         const { data, error } = await supabase
           .from(TABLE)
-          .update(updateDAO)
+          .update(updateData)
           .eq('id', recentFoodId)
           .select()
         if (error !== null) throw error
-        const recentFoodDAO = parseWithStack(recentFoodDAOSchema, data[0])
-        return daoToRecentFood(recentFoodDAO)
+        return parseWithStack(recentFoodRecordSchema, data[0])
       })(),
       {
         loading: 'Atualizando alimento recente...',
@@ -314,9 +354,9 @@ export async function updateRecentFood(
  * @returns True if deleted, false otherwise.
  */
 export async function deleteRecentFoodByReference(
-  userId: RecentFood['user_id'],
-  type: RecentFood['type'],
-  referenceId: RecentFood['reference_id'],
+  userId: number,
+  type: 'food' | 'recipe',
+  referenceId: number,
 ): Promise<boolean> {
   try {
     await showPromise(

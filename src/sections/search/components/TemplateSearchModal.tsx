@@ -21,11 +21,11 @@ import {
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import {
+  createRecentFoodInput,
   fetchRecentFoodByUserTypeAndReferenceId,
   insertRecentFood,
   updateRecentFood,
 } from '~/modules/recent-food/application/recentFood'
-import { createNewRecentFood } from '~/modules/recent-food/domain/recentFood'
 import {
   debouncedSearch,
   refetchTemplates,
@@ -151,7 +151,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
         )
       }
 
-      const newRecentFood = createNewRecentFood({
+      const recentFoodInput = createRecentFoodInput({
         ...(recentFood ?? {}),
         user_id: currentUserId(),
         type,
@@ -159,9 +159,9 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
       })
 
       if (recentFood !== null) {
-        await updateRecentFood(recentFood.id, newRecentFood)
+        await updateRecentFood(recentFood.id, recentFoodInput)
       } else {
-        await insertRecentFood(newRecentFood)
+        await insertRecentFood(recentFoodInput)
       }
 
       const confirmModalId = openConfirmModal(
