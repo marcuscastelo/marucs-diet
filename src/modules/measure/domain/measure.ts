@@ -66,6 +66,7 @@ export const newBodyMeasureSchema = bodyMeasureSchema
   .extend({
     __type: z.literal('NewBodyMeasure'),
   })
+  .strict()
 
 export type BodyMeasure = Readonly<z.infer<typeof bodyMeasureSchema>>
 export type NewBodyMeasure = Readonly<z.infer<typeof newBodyMeasureSchema>>
@@ -93,8 +94,9 @@ export function promoteToBodyMeasure(
 export function demoteToNewBodyMeasure(
   bodyMeasure: BodyMeasure,
 ): NewBodyMeasure {
+  const { id: _id, ...bodyMeasureWithoutId } = bodyMeasure
   return parseWithStack(newBodyMeasureSchema, {
-    ...bodyMeasure,
+    ...bodyMeasureWithoutId,
     __type: 'NewBodyMeasure',
   })
 }

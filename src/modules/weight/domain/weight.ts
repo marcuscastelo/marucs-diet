@@ -2,31 +2,39 @@ import { z } from 'zod'
 
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
-export const newWeightSchema = z.object({
-  owner: z.number({
-    required_error: "O campo 'owner' do peso é obrigatório.",
-    invalid_type_error: "O campo 'owner' do peso deve ser um número.",
-  }),
-  weight: z.number({
-    required_error: "O campo 'weight' é obrigatório.",
-    invalid_type_error: "O campo 'weight' deve ser um número.",
-  }),
-  target_timestamp: z
-    .date({
-      required_error: "O campo 'target_timestamp' é obrigatório.",
-      invalid_type_error:
-        "O campo 'target_timestamp' deve ser uma data ou string.",
-    })
-    .or(
-      z.string({
+export const newWeightSchema = z
+  .object({
+    owner: z.number({
+      required_error: "O campo 'owner' do peso é obrigatório.",
+      invalid_type_error: "O campo 'owner' do peso deve ser um número.",
+    }),
+    weight: z.number({
+      required_error: "O campo 'weight' é obrigatório.",
+      invalid_type_error: "O campo 'weight' deve ser um número.",
+    }),
+    target_timestamp: z
+      .date({
         required_error: "O campo 'target_timestamp' é obrigatório.",
         invalid_type_error:
           "O campo 'target_timestamp' deve ser uma data ou string.",
+      })
+      .or(
+        z.string({
+          required_error: "O campo 'target_timestamp' é obrigatório.",
+          invalid_type_error:
+            "O campo 'target_timestamp' deve ser uma data ou string.",
+        }),
+      )
+      .transform((v) => {
+        const date = new Date(v)
+        if (isNaN(date.getTime())) {
+          throw new Error('Data inválida')
+        }
+        return date
       }),
-    )
-    .transform((v) => new Date(v)),
-  __type: z.literal('NewWeight'),
-})
+    __type: z.literal('NewWeight'),
+  })
+  .strict()
 
 export const weightSchema = z.object({
   id: z.number({
@@ -54,7 +62,13 @@ export const weightSchema = z.object({
           "O campo 'target_timestamp' deve ser uma data ou string.",
       }),
     )
-    .transform((v) => new Date(v)),
+    .transform((v) => {
+      const date = new Date(v)
+      if (isNaN(date.getTime())) {
+        throw new Error('Data inválida')
+      }
+      return date
+    }),
   __type: z
     .string()
     .nullable()

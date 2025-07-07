@@ -7,10 +7,12 @@ export const userSchema = z.object({
     required_error: "O campo 'id' do usuário é obrigatório.",
     invalid_type_error: "O campo 'id' do usuário deve ser um número.",
   }),
-  name: z.string({
-    required_error: "O campo 'name' do usuário é obrigatório.",
-    invalid_type_error: "O campo 'name' do usuário deve ser uma string.",
-  }),
+  name: z
+    .string({
+      required_error: "O campo 'name' do usuário é obrigatório.",
+      invalid_type_error: "O campo 'name' do usuário deve ser uma string.",
+    })
+    .min(1, 'O nome do usuário não pode estar vazio.'),
   favorite_foods: z
     .array(
       z.number({
@@ -31,11 +33,13 @@ export const userSchema = z.object({
     invalid_type_error: "O campo 'birthdate' do usuário deve ser uma string.",
   }),
   gender: z.union([z.literal('male'), z.literal('female')]),
-  desired_weight: z.number({
-    required_error: "O campo 'desired_weight' do usuário é obrigatório.",
-    invalid_type_error:
-      "O campo 'desired_weight' do usuário deve ser um número.",
-  }),
+  desired_weight: z
+    .number({
+      required_error: "O campo 'desired_weight' do usuário é obrigatório.",
+      invalid_type_error:
+        "O campo 'desired_weight' do usuário deve ser um número.",
+    })
+    .positive('O peso desejado deve ser um número positivo.'),
   __type: z
     .string()
     .nullable()
@@ -43,9 +47,12 @@ export const userSchema = z.object({
     .transform(() => 'User' as const),
 })
 
-export const newUserSchema = userSchema.omit({ id: true }).extend({
-  __type: z.literal('NewUser'),
-})
+export const newUserSchema = userSchema
+  .omit({ id: true })
+  .extend({
+    __type: z.literal('NewUser'),
+  })
+  .strict()
 
 export type NewUser = Readonly<z.infer<typeof newUserSchema>>
 export type User = Readonly<z.infer<typeof userSchema>>
