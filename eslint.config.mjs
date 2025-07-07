@@ -80,6 +80,10 @@ export default [
       '@typescript-eslint/strict-boolean-expressions': 'error',
       '@typescript-eslint/no-unnecessary-type-assertion': 'warn',
       '@typescript-eslint/no-unnecessary-condition': 'warn',
+      '@typescript-eslint/consistent-type-assertions': [
+        'warn',
+        { assertionStyle: 'never' },
+      ],
 
       "require-await": "off",
       "@typescript-eslint/require-await": "off",
