@@ -1,5 +1,7 @@
 // Application layer for recent food operations, migrated from legacy controller
 // All error handling is done here, domain remains pure
+import { z } from 'zod'
+
 import { foodSchema } from '~/modules/diet/food/domain/food'
 import { recipeSchema } from '~/modules/diet/recipe/domain/recipe'
 import type { Template } from '~/modules/diet/template/domain/template'
@@ -9,12 +11,11 @@ import {
   type RecentFood,
   recentFoodSchema,
   type RecentTemplate,
-  recentTemplateSchema,
 } from '~/modules/recent-food/domain/recentFood'
 import {
   type CreateRecentFoodDAO,
   daoToRecentFood,
-  type RecentFoodDAO,
+  recentFoodDAOSchema,
 } from '~/modules/recent-food/infrastructure/recentFoodDAO'
 import { showPromise } from '~/modules/toast/application/toastManager'
 import env from '~/shared/config/env'
@@ -24,6 +25,42 @@ import { removeDiacritics } from '~/shared/utils/removeDiacritics'
 import supabase from '~/shared/utils/supabase'
 
 const TABLE = 'recent_foods'
+
+// Schema for the enhanced database function response
+const enhancedRecentFoodRowSchema = z
+  .object({
+    recent_food_id: z.number(),
+    user_id: z.number(),
+    type: z.enum(['food', 'recipe']),
+    reference_id: z.number(),
+    last_used: z.coerce.date(),
+    times_used: z.number(),
+    template_id: z.number(),
+    template_name: z.string(),
+    template_ean: z.string().nullable(),
+    template_source: z.unknown(),
+    template_macros: z.unknown(),
+    template_owner: z.number().nullable(),
+    template_items: z.unknown(),
+    template_prepared_multiplier: z.number().nullable(),
+  })
+  .strip()
+
+// Helper function to safely get recipe fields
+function getRecipeFields(row: z.infer<typeof enhancedRecentFoodRowSchema>) {
+  if (row.type !== 'recipe') {
+    throw new Error('Expected recipe type but got food')
+  }
+
+  const owner = row.template_owner
+  const preparedMultiplier = row.template_prepared_multiplier
+
+  if (owner === null || preparedMultiplier === null) {
+    throw new Error('Recipe fields cannot be null')
+  }
+
+  return { owner, preparedMultiplier }
+}
 
 // TODO: Implement proper infrastructure folder for recent food
 
@@ -80,41 +117,29 @@ export async function fetchUserRecentFoods(
     if (response.error !== null) throw response.error
 
     // Transform the enhanced result to Template objects
-    const templates = (response.data as unknown[]).map((row: unknown) => {
-      const typedRow = row as {
-        recent_food_id: number
-        user_id: number
-        type: string
-        reference_id: number
-        last_used: string | Date
-        times_used: number
-        template_id: number
-        template_name: string
-        template_ean: string | null
-        template_source: unknown
-        template_macros: unknown
-        template_owner: number | null
-        template_items: unknown
-        template_prepared_multiplier: number | null
-      }
-
+    const validatedRows = parseWithStack(
+      enhancedRecentFoodRowSchema.array(),
+      response.data,
+    )
+    const templates = validatedRows.map((row) => {
       // Create the appropriate Template object based on type
-      if (typedRow.type === 'food') {
+      if (row.type === 'food') {
         return parseWithStack(foodSchema, {
-          id: typedRow.template_id,
-          name: typedRow.template_name,
-          ean: typedRow.template_ean,
-          source: typedRow.template_source,
-          macros: typedRow.template_macros,
+          id: row.template_id,
+          name: row.template_name,
+          ean: row.template_ean,
+          source: row.template_source,
+          macros: row.template_macros,
           __type: 'Food',
         })
       } else {
+        const { owner, preparedMultiplier } = getRecipeFields(row)
         return parseWithStack(recipeSchema, {
-          id: typedRow.template_id,
-          name: typedRow.template_name,
-          owner: typedRow.template_owner!,
-          items: typedRow.template_items,
-          prepared_multiplier: typedRow.template_prepared_multiplier!,
+          id: row.template_id,
+          name: row.template_name,
+          owner,
+          items: row.template_items,
+          prepared_multiplier: preparedMultiplier,
           __type: 'Recipe',
         })
       }
@@ -153,54 +178,42 @@ export async function fetchUserRecentTemplates(
     if (response.error !== null) throw response.error
 
     // Transform the enhanced result to RecentTemplate objects
-    const recentTemplates = (response.data as unknown[]).map((row: unknown) => {
-      const typedRow = row as {
-        recent_food_id: number
-        user_id: number
-        type: string
-        reference_id: number
-        last_used: string | Date
-        times_used: number
-        template_id: number
-        template_name: string
-        template_ean: string | null
-        template_source: unknown
-        template_macros: unknown
-        template_owner: number | null
-        template_items: unknown
-        template_prepared_multiplier: number | null
-      }
-
+    const validatedRows = parseWithStack(
+      enhancedRecentFoodRowSchema.array(),
+      response.data,
+    )
+    const recentTemplates = validatedRows.map((row) => {
       // Create the appropriate Template object based on type
-      if (typedRow.type === 'food') {
+      if (row.type === 'food') {
         const foodTemplate = parseWithStack(foodSchema, {
-          id: typedRow.template_id,
-          name: typedRow.template_name,
-          ean: typedRow.template_ean,
-          source: typedRow.template_source,
-          macros: typedRow.template_macros,
+          id: row.template_id,
+          name: row.template_name,
+          ean: row.template_ean,
+          source: row.template_source,
+          macros: row.template_macros,
           __type: 'Food',
         })
         return createRecentTemplate(
           foodTemplate,
-          typedRow.recent_food_id,
-          new Date(typedRow.last_used),
-          typedRow.times_used,
+          row.recent_food_id,
+          row.last_used,
+          row.times_used,
         )
       } else {
+        const { owner, preparedMultiplier } = getRecipeFields(row)
         const recipeTemplate = parseWithStack(recipeSchema, {
-          id: typedRow.template_id,
-          name: typedRow.template_name,
-          owner: typedRow.template_owner!,
-          items: typedRow.template_items,
-          prepared_multiplier: typedRow.template_prepared_multiplier!,
+          id: row.template_id,
+          name: row.template_name,
+          owner,
+          items: row.template_items,
+          prepared_multiplier: preparedMultiplier,
           __type: 'Recipe',
         })
         return createRecentTemplate(
           recipeTemplate,
-          typedRow.recent_food_id,
-          new Date(typedRow.last_used),
-          typedRow.times_used,
+          row.recent_food_id,
+          row.last_used,
+          row.times_used,
         )
       }
     })
@@ -235,7 +248,7 @@ export async function insertRecentFood(
           .insert(createDAO)
           .select()
         if (error !== null) throw error
-        const recentFoodDAO = data[0] as RecentFoodDAO
+        const recentFoodDAO = parseWithStack(recentFoodDAOSchema, data[0])
         return daoToRecentFood(recentFoodDAO)
       })(),
       {
@@ -277,7 +290,7 @@ export async function updateRecentFood(
           .eq('id', recentFoodId)
           .select()
         if (error !== null) throw error
-        const recentFoodDAO = data[0] as RecentFoodDAO
+        const recentFoodDAO = parseWithStack(recentFoodDAOSchema, data[0])
         return daoToRecentFood(recentFoodDAO)
       })(),
       {
