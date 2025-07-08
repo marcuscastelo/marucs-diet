@@ -207,6 +207,7 @@ The Recipe entity now supports both legacy Item[] and new UnifiedItem[] operatio
 - **UI Components**: UnifiedRecipeEditView for native UnifiedItem[] operations ✅
 - **Macro Calculations**: Support for both Recipe and UnifiedRecipe ✅
 - **Legacy UI**: Still uses legacy Item[] operations (for compatibility) ⚠️
+- **Note on Deprecated Types:** While the migration for new development is complete, some core domain operations (e.g., in `src/modules/diet/item-group/domain/itemGroupOperations.ts` and `src/modules/diet/recipe/domain/recipeOperations.ts`) still interact with the deprecated `Item` type. This is a deliberate decision to maintain backward compatibility and support existing data structures until the next major version release, at which point the full deprecation and removal of the `Item` type will be finalized. This approach ensures a smooth transition without breaking existing functionalities.
 - **Application Layer**: Needs migration to use UnifiedRecipe natively 🚧
 
 ## Phase 3 Completed: UI Layer Support ✅

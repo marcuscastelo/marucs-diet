@@ -6,6 +6,8 @@ _Last updated: 2025-06-07_
 This audit reviews the `food` submodule within the diet domain, focusing on DDD adherence, modularity, and architectural issues. It covers domain logic, schema usage, error handling, and test coverage.
 
 ## Key Findings
+- **Zod Schema for External API:** The `apiFoodModel.ts` uses `z.array(z.any())` for the `alimentos` field. While located in the infrastructure layer where `any` is permissible for untyped external APIs, consider if a more specific (even if flexible) Zod schema could be defined to improve type safety and clarity, reflecting the expected structure of the external data.
+
 - **ID Generation:** Food domain appears to use numeric IDs, but confirm that all ID generation is handled outside the domain.
 - **Schema/Type Logic:** Zod schemas are used for validation and transformation. Some transformation logic (e.g., setting `__type`) could be isolated for clarity.
 - **Repository Interface:** The domain defines a `FoodRepository` interface, which is good for abstraction and testability. Review for strict contracts and nullability.

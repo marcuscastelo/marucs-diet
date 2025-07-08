@@ -1,0 +1,16 @@
+{
+  "coreTools": [],
+  "mcpServers": {
+    "serena": {
+      "command": "uv",
+      "args": [
+        "run",
+        "serena-mcp-server",
+        "--transport",
+        "stdio"
+      ],
+      "cwd": "/home/marucs/opt/mcp/serena",
+      "timeout": 5000
+    }
+  }
+}

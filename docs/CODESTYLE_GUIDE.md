@@ -70,7 +70,11 @@ try {
 
 ---
 
+## Import Rules Violations
+- **Barrel Files (`index.ts`) are BANNED:** The `GEMINI.md` explicitly states that barrel files (`index.ts`) that only re-export from other files are forbidden. An instance of this violation was found in `src/shared/domain/errors/index.ts`.
+
 ## **Component Duplication - Specific Cases**
+
 
 ### ❌ Found Duplications
 ```typescript
