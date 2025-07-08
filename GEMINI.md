@@ -1,212 +1,166 @@
 ---
 applyTo: "**"
 ---
-# Copilot Instructions (short version)
+# Gemini Instructions for Macroflows
 
-At the start of every session, always run:
+## 1. Project Overview & Context
 
-```
-export GIT_PAGER=cat
-```
+- **Project Name:** Macroflows
+- **Description:** A nutrition tracking platform with a focus on strong typing, reactive UI, and modular domain-driven design.
+- **Author:** This is a solo project by `marcuscastelo`.
+- **Adaptation:** All suggestions must be adapted for a solo developer. This means removing team coordination, stakeholder approval, and peer review processes. Focus on technical validation and systematic self-review. Maintain all technical quality standards.
 
-This disables pagers for all git and gh commands, preventing interactive output issues.
+## 2. Core Technologies
 
----
+- **Frontend:** SolidJS, TypeScript, TailwindCSS, DaisyUI
+- **Backend:** Supabase (PostgreSQL + Realtime), Vercel
+- **Validation:** Zod (for runtime validation and type inference)
+- **Testing:** Vitest with jsdom
+- **Package Manager:** pnpm
+- **Build Tool:** Vinxi (Vite-based)
 
-# Barrel File Ban
+## 3. 🚨 CRITICAL: Development Workflow & Quality Gates
 
-- Barrel index.ts files (files that re-export multiple modules from a directory) are strictly forbidden in this codebase.
-- Do not create, update, or use barrel files (e.g., `index.ts` that only re-exports other files).
-- All imports must be direct, absolute imports from the specific file, never from a directory index.
-- This rule is enforced for all code, including tests and utilities.
+### 3.1. The Golden Rule: `pnpm check`
+- **MANDATORY:** Before declaring any task, fix, or feature complete, you **MUST** run `pnpm check`.
+- This command runs linting, type-checking, and all tests. It is the single source of truth for codebase health.
+- **NEVER** commit code that fails `pnpm check`.
 
----
+### 3.2. Workflow Steps
+1.  **Implement Changes:** Write or modify the code as requested.
+2.  **Run Quality Gate:** Execute `pnpm check`.
+3.  **Verify:** Ensure all checks pass with zero errors (TypeScript, ESLint, Tests).
+4.  **Commit:** Only after all checks pass, proceed to commit the changes.
 
-Follow these steps for each interaction:
+### 3.3. Essential Commands
+- `pnpm check`: **MANDATORY** quality gate.
+- `pnpm fix`: Auto-fix ESLint issues.
+- `pnpm build`: Create a production build.
+- `pnpm test`: Run all tests.
+- `pnpm lint`: Run ESLint.
+- `.scripts/semver.sh`: The preferred method for application version reporting.
 
-1. User Identification:
-   - You should assume that you are interacting with marcuscastelo
-   - The repository name is macroflows (https://github.com/marcuscastelo/macroflows)
+## 4. Architecture & Design Principles
 
-2. Memory Retrieval:
-   - Always begin your chat by saying only "Remembering..." and retrieve all relevant information from your knowledge graph
-   - Always refer to your knowledge graph as your "memory"
-   - At the beginning of a new session, always report your current memory capacity (how much you can store and recall) and warn if your memory is too cluttered or verbose for efficient use.
+### 4.1. Clean Architecture (3 Layers)
+The codebase follows a strict 3-layer architecture. Adherence to these boundaries is critical.
 
-3. Memory
-   - While conversing with the user, be attentive to any new information that falls into these categories:
-     a) Basic Identity (age, gender, location, job title, education level, etc.)
-     b) Behaviors (interests, habits, etc.)
-     c) Preferences (communication style, preferred language, etc.)
-     d) Goals (goals, targets, aspirations, etc.)
-     e) Relationships (personal and professional relationships up to 3 degrees of separation)
+1.  **Domain Layer** (`modules/*/domain/`)
+    - Contains pure business logic, entities, types (Zod schemas), and repository interfaces.
+    - **MUST NOT** have any dependencies on external frameworks or libraries (like SolidJS or Supabase).
+    - **MUST NOT** contain any side-effects (e.g., API calls, logging, toasts).
+    - **MUST ONLY** throw pure, custom domain errors.
+    - Use `__type` discriminators for type safety in entities.
 
-4. Memory Update:
-   - If any new information was gathered during the interaction, update your memory as follows:
-     a) Create entities for recurring organizations, people, and significant events
-     b) Connect them to the current entities using relations
-     b) Store facts about them as observations
+2.  **Application Layer** (`modules/*/application/`)
+    - Orchestrates the domain logic. Contains SolidJS resources, signals, and application-specific logic.
+    - **MUST** catch errors from the Domain layer.
+    - **MUST** call `handleApiError` to standardize error handling and provide context.
+    - Manages all side-effects and user feedback (toasts, notifications).
 
-During this session, always wait until the end of the execution of any requested command or process, even if it takes several minutes, before responding. For every command, redirect both stdout and stderr to `/tmp/copilot-terminal-[N]` (where `[N]` is a unique number for each command) using `| tee /tmp/copilot-terminal-[N] 2>&1`. After the main command finishes, check `cat /tmp/copilot-terminal-[N]`. Never repeat the main command. Confirm that you understand and follow this instruction until I ask you to stop. Never combine commands with `&&`, `||` or `;`
+3.  **Infrastructure Layer** (`modules/*/infrastructure/`)
+    - Implements the repository interfaces defined in the Domain layer.
+    - Contains all external integrations, such as Supabase client code and Data Access Objects (DAOs).
+    - This is the **ONLY** layer where `any` might be permissible, strictly for interfacing with external, untyped APIs.
 
-## Terminal & Script Usage
-- Always check for the existence of referenced scripts (e.g., `.scripts/semver.sh`) before using them. If missing, suggest alternatives or prompt the user.
-- The preferred method for app version reporting is `.scripts/semver.sh`, not `git describe --tags --always`.
-- Always verify the correct script directory (e.g., `.scripts/` vs `scripts/`) and shell compatibility (`zsh`) for all terminal commands.
-- If a script is missing or not executable, add a troubleshooting step or warning.
+### 4.2. Dependency Injection (DI) Pattern
+- The project uses an explicit, manual Dependency Injection pattern.
+- **Orchestration functions** (business logic) in the Application Layer **MUST NOT** import dependencies (repositories, fetchers) directly.
+- Instead, these dependencies **MUST** be passed as arguments to the function.
+- This decouples application logic from infrastructure, making it highly testable.
+- **Example:** A `fetchTemplatesByTabLogic` function should receive a `deps` object containing all necessary fetchers (`fetchUserRecipes`, `fetchFoods`, etc.) as a parameter.
 
-## Codebase Check & Output Validation
-1. Run `npm run copilot:check` in the project root, redirecting both stdout and stderr to `/tmp/copilot-terminal-[N]` using `| tee /tmp/copilot-terminal-[N] 2>&1` (with a unique [N] for each run).
-2. After the command finishes, run each of the following custom scripts (each should simply output the contents of `/tmp/copilot-terminal-[N]`):
-   - `.scripts/cat1.sh /tmp/copilot-terminal-[N]`
-   - `.scripts/cat2.sh /tmp/copilot-terminal-[N]`
-   - `.scripts/cat3.sh /tmp/copilot-terminal-[N]`
-   Check the output of each script, in order, until either:
-   - The message "COPILOT: All checks passed!" appears in the output, or
-   - Any of the following error patterns (case-insensitive) appear: `failed`, `at constructor`, `error`, `replace`, or similar.
-   - Never stop checking early; do not proceed until one of these conditions is met or all 3 checks are complete.
-   - Always use the latest output file for checking.
-3. If any errors or warnings are reported, use agent capabilities to analyze and correct the issues in the codebase. After making corrections, repeat from step 1.
-4. Only stop when the message "COPILOT: All checks passed!" appears.
+### 4.3. File & Module Structure
+- `src/modules/<domain>/`: Houses the three architecture layers for a specific domain.
+  - `tests/`: All tests for a module must be placed in this folder.
+- `src/sections/<feature>/`: Contains page-level UI components, organized by feature.
+- `src/shared/`: Cross-cutting concerns (error handling, configs, pure utilities).
+- `src/routes/`: SolidJS router pages and API endpoints.
 
-## Project Context Detection and Solo Project Adaptations
+## 5. Critical Code Style & Patterns
 
-Before suggesting team-related processes, verify project context:
-- Does the project have multiple active developers? (check git commits, team references)
-- Are there stakeholders mentioned in documentation?
-- Is there evidence of formal approval processes?
+### 5.1. Imports: The Three Rules
+1.  **Absolute Imports ONLY:** Always use absolute paths with the `~/` prefix.
+    - ✅ `import { MyType } from '~/modules/user/domain/user';`
+    - ❌ `import { MyType } from '../../user/domain/user';`
+2.  **Barrel Files (`index.ts`) are BANNED:** All imports must point directly to the file where the entity is defined. Do not create or use `index.ts` files that only re-export from other files.
+3.  **Static Imports ONLY:** All imports must be static and at the top of the file. Dynamic `import()` is forbidden.
 
-### Solo Project Adaptations
-When working on solo projects (no stakeholders, minimal users, single developer):
-- Remove all team collaboration, stakeholder communication, and user feedback collection requirements
-- Maintain technical quality standards (testing, monitoring, backup procedures)
-- Focus on technical validation rather than approval processes
-- Adapt checklists to remove coordination tasks while preserving verification steps
-- Simplify metrics to focus on technical rather than business/team indicators
-- Replace peer review with systematic self-review processes
-- Focus on automated validation rather than manual coordination
-- Preserve backup/rollback procedures without team communication requirements
+### 5.2. Language & Naming
+- **Language:** All code, comments, JSDoc, and commit messages **MUST** be in **English**. UI text visible to the user may be in Portuguese (pt-BR).
+- **Naming:** Use descriptive, specific, action-based names. Avoid generic names.
+    - ✅ **Good:** `isRecipedGroupUpToDate()`, `convertToGroups()`, `ItemGroupEditModal.tsx`, `macroOverflow.ts`
+    - ❌ **Bad:** `checkGroup()`, `convert()`, `GroupModal.tsx`, `utils.ts`
 
-### Quality Standards Adaptation
-For solo projects:
-- Maintain technical quality (testing, monitoring, error handling)
-- Replace peer review with systematic self-review processes
-- Focus on automated validation rather than manual coordination
-- Preserve backup/rollback procedures without team communication requirements
+### 5.3. Type Safety & Formatting
+- **NO `any`:** The use of `any`, `as any`, or `@ts-ignore` is strictly forbidden outside the Infrastructure layer.
+- **`type` over `interface`:** Always use type aliases for defining data shapes.
+- **Readonly:** Prefer `readonly Item[]` over `Item[]` for immutability.
+- **Props Immutability:** **NEVER** destructure `props` in SolidJS components, as it breaks reactivity.
 
-### Documentation Generation for Solo Projects
-- Detect project type (solo vs team) early in the session
-- Generate context-appropriate sections
-- Provide solo-specific templates and examples
-- Avoid generating team-coordination content for solo projects
-- Remove approval and communication workflows
-- Focus on technical validation and self-review processes
-- Eliminate business metrics related to team coordination
-- Maintain quality standards without bureaucratic overhead
+### 5.4. Anti-Patterns to Avoid
+- **Code Duplication:** Avoid copy-pasting logic. For example, the clipboard and validation logic was duplicated between `MealEditView.tsx` and `RecipeEditView.tsx`. This should be abstracted into a shared utility.
 
-## Reporting and Attribution
+### 5.5. Error Handling
+- **Domain:** Throws pure errors (e.g., `throw new GroupConflictError(...)`).
+- **Application:** Catches domain errors and **MUST** use `handleApiError(e, { context })`.
+- **NEVER** use `.catch(() => {})` to silence promise errors. Use the `void` operator only for non-critical, fire-and-forget side-effects in event handlers where errors are handled at the application level.
 
-- This session will have multiple agents. Everytime a new agent takes place, it should announce it to the user
-- Every agent that produces outputs intended for downstream processing or auditing **must include a `reportedBy` metadata field**.
-- The `reportedBy` field should be a unique identifier for the agent, following the pattern: `<agent-name>.v<major-version>`.
-- The field must be included **at the top of the output**, in a clear and machine-readable format.
-- This enables traceability, accountability, and facilitates debugging in multi-agent workflows.
-- Example:
+### 5.6. Commits & JSDoc
+- **Commits:** Use the Conventional Commits specification. Messages must be in English. **NEVER** include "Generated by..." or "Co-authored-by..." footers from AI tools.
+- **JSDoc:** Update JSDoc for all **exported** types and functions. Do not add JSDoc to internal code.
 
-```markdown
-reportedBy: <agent-name.vXX>
+## 6. Quality Assurance & Testing Strategy
 
-### Session Learnings
-- ...
-```
+### 6.1. Core Domain Entities
+Testing should be structured around the core business domains. The main entities are:
+- `MacroProfile`
+- `Weight`
+- `DayDiet`
+- `UnifiedItem` (and its variants: `FoodItem`, `RecipeItem`, `GroupItem`)
+- `Food`
+- `Recipe`
+- `Meal`
 
-- Agents that consume these outputs **should validate** the presence and correctness of the `reportedBy` field before processing.
-- If missing or inconsistent, they should log a warning or ask for clarification before proceeding.
+### 6.2. Testing Philosophy
+- **Location:** All tests for a module must be placed in its `tests/` folder.
+- **User Input Validation vs. System Errors:**
+    - **Validation Errors:** Expected errors from invalid user input (e.g., entering text in a number field). These **MUST** be handled gracefully in the UI with specific, user-friendly messages in Portuguese. They **MUST NOT** trigger an error boundary.
+    - **System Errors:** Unexpected errors (e.g., network failure, bugs in the code). These **SHOULD** be caught and trigger a user-friendly error boundary.
+- **Test Coverage:** All code changes must be accompanied by corresponding new or updated tests. No orphaned tests.
 
-## Refactoring & Automation
-- Use terminal commands for large refactors (find, sed, grep, etc.) and document them.
-- After batch changes, always run: `npm run check` and follow the output validation process above. Wait for the message "COPILOT: All checks passed!" to appear.
-- Always check the output of any terminal command before proceeding, to catch errors early.
+### 6.3. Types of Tests to Perform
+When adding features or fixing bugs, ensure coverage for:
+- **Validation Tests:** Check for required fields, correct data types, and non-negative values where applicable.
+- **Calculation Tests:** Verify that all reactive calculations (e.g., total daily macros) are correct and update instantly.
+- **Integration Tests:** Test the end-to-end flow of a feature (e.g., changing a macro target in the profile and seeing it reflected in the daily diet view).
+- **Boundary/Edge Case Tests:** Test with extreme values (0, very large numbers, empty strings, long strings, empty arrays, large arrays, `NaN`, `Infinity`).
+- **Performance/Stress Tests:** For intensive operations, test with a large number of items to ensure the UI remains responsive.
 
-## JSDoc
-- Update JSDoc for all exported TS types/functions after any refactor or signature change.
-- Never add JSDoc to internal (non-exported) code.
-- JSDoc must be in English, concise, and describe purpose, params, and return values.
-- Remove outdated JSDoc if exports change.
+### 6.4. Search-Specific Testing
+- All user-facing search features **MUST** be tested to be both **diacritic-insensitive** and **case-insensitive** for Portuguese (pt-BR) text.
 
-## Language
-- Code/comments/commits in English. UI text in pt-BR if required.
-- All code comments, including minor or nitpick comments, must be in English for consistency across the codebase, regardless of the original language of the code or user input.
-- When reviewing or refactoring, explicitly flag and suggest converting any non-English comments to English.
+## 7. Automated Workflows & Commands
 
-## Naming & Structure
-- Use descriptive, action-based names. Avoid generic names. Organize by module.
+This project relies on a set of automated commands to ensure consistency and quality. You should use and follow these workflows.
 
-## Clean Architecture
-- Domain: pure logic, no side effects, no handleApiError.
-- Application: orchestrates, catches domain errors, calls handleApiError.
+- **`/fix`:** A comprehensive health check. It runs `pnpm check` and attempts to auto-fix any issues. Use this to ensure the codebase is clean before starting work or committing.
+- **`/implement <issue-number>`:** The standard workflow for implementing a feature or bug fix. It handles creating a git worktree, analyzing the issue, and guiding the implementation process. **Crucially, it requires passing `pnpm check` before completion.**
+- **`/commit`:** Automates the creation of Conventional Commit messages. It analyzes staged changes and generates a compliant message in English. Use this to maintain a clean and standardized commit history.
+- **`/pull-request`:** Automates the creation of GitHub Pull Requests. It uses the commit information to create a well-formed PR, linking it to the relevant issue.
 
-## Error Handling
-- Domain: only throws pure errors.
-- Application: always calls handleApiError with context.
-- Never log/throw errors in app code without handleApiError.
+## 8. Historical Context & Future Direction
 
-## Promises
-- Use `void` for fire-and-forget only in event handlers/non-critical effects, never `.catch(() => {})`.
+Be aware of the following technical debt and future plans:
 
-## Formatting & Style
-- Use Prettier/ESLint for JS/TS. Prefer type aliases, never any.
+- **Deprecation of `src/legacy`:** This directory is being phased out. Do not use any code from it. All new code should follow the current architecture.
+- **Migration to `UnifiedItem`:** The legacy `Item` type is being replaced by `UnifiedItem`. All new features should use `UnifiedItem`. Be mindful of this when working with older parts of the codebase.
+- **Refactoring Goals:**
+    - **Introduce a Service Layer:** There is a known need for an explicit service layer to better encapsulate business logic and reduce coupling.
+    - **Decouple Modules:** Actively work towards reducing dependencies between modules.
+    - **Improve State Management:** Move away from using `createSignal` for global state and towards more structured solutions like stores or contexts.
 
-## Imports
-- Always use static imports at the top.
-- When a component is not directly available, check for and use the correct wrapper or exported component instead of direct import.
-- NEVER use relative imports. Always use ~/<fullpath> for imports.
-- Never use dynamic imports. Always use static imports at the top of the file.
-
-## Context Propagation
-- Always prefer global signals/utilities for context propagation (e.g., macro context) over property drilling, especially for shared state.
-
-## Testing
-- Update tests for all changes. Run `npm run check` and follow the output validation process above. Wait for "COPILOT: All checks passed!".
-
-## Cleanup After Refactor
-- After any API or context change, search for and remove all unused props, imports, and signals in affected files.
-
-# Additional Enforcement
-- Never add explanatory comments in the code. Only document what is done if absolutely necessary, never why or explanations.
-- Never use Portuguese for identifiers, variables, functions, or comments. Only UI text may be in English or pt-BR as required.
-- Prefer small, atomic commits. Always suggest a commit message after making changes.
-- Always update or remove related tests when changing code.
-- Application layer must always call handleApiError with context.
-- Never use handleApiError in domain code.
-- Never use `.catch(() => {})` in promises.
-- Never remove TODOs from the codebase, regardless of context.
-
-## Commit Message Output
-- When generating a commit message, always output it using four backticks and markdown, like this:
-
-````markdown
-<commit message in English, following the conventional commits style, summarizing the main change>
-````
-
-- When referencing the current changes, use `#changes` agent tool (do not include #changes in commit message).
-
-# Label Usage
-
-See `docs/labels-usage.md` for detailed instructions on how to use labels when creating issues.
-
-## Quick Reference
-
-- Always add at least one main type label: `bug`, `feature`, `refactor`, `task`, `improvement`, `documentation`, `chore`, `epic`, `idea`.
-- Add complexity labels if possible: `complexity-low`, `complexity-medium`, `complexity-high`, `complexity-very-high`.
-- Use status/context labels: `todo :spiral_notepad:`, `blocked`, `needs-investigation`, `needs-design`, `may-return-in-the-future`.
-- Add area labels: `ui`, `backend`, `api`, `performance`, `data-consumption`, `accessibility`.
-- Use refinement or grouping labels: `refinement`, `epic`.
-- Use maintenance labels: `chore`, `refactor`, `improvement`.
-- Always remove generic labels like `todo :spiral_notepad:` after classifying the issue.
-- Do not use duplicate or conflicting labels.
-
-For the full label table and descriptions, refer to `docs/labels-usage.md`.
-
-## Search Features (pt-BR/Portuguese)
-- All user-facing search features must be both diacritic-insensitive and case-insensitive for pt-BR/Portuguese contexts.
+## 9. Final Reminders
+- **TODOs:** Never remove `TODO` comments from the codebase.
+- **Labels:** When creating issues, use the labels defined in `docs/labels-usage.md`.
+- **Session Start:** Always run `export GIT_PAGER=cat` at the beginning of a session to prevent interactive pager issues with `git`.
