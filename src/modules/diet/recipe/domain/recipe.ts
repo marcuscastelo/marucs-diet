@@ -1,9 +1,8 @@
 import { type z } from 'zod/v4'
 
 import { itemSchema } from '~/modules/diet/item/domain/item'
-import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { unifiedItemSchema } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
-import { createZodEntity } from '~/shared/domain/validationMessages'
+import { createZodEntity } from '~/shared/domain/validation'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 const ze = createZodEntity('recipe')

@@ -1,6 +1,6 @@
 import { z } from 'zod/v4'
 
-import { createZodEntity } from '~/shared/domain/validationMessages'
+import { createZodEntity } from '~/shared/domain/validation'
 
 const ze = createZodEntity('user')
 

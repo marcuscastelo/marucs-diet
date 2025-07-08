@@ -9,9 +9,7 @@ import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { showError } from '~/modules/toast/application/toastManager'
 import { currentUser, updateUser } from '~/modules/user/application/user'
 import {
-  createNewUser,
   demoteUserToNewUser,
-  type NewUser,
   type User,
   userSchema,
 } from '~/modules/user/domain/user'

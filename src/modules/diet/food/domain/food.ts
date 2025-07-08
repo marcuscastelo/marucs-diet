@@ -1,7 +1,7 @@
 import { z } from 'zod/v4'
 
 import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
-import { createZodEntity } from '~/shared/domain/validationMessages'
+import { createZodEntity } from '~/shared/domain/validation'
 
 const ze = createZodEntity('food')
 

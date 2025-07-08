@@ -2,7 +2,7 @@ import { z } from 'zod/v4'
 
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
-import { createZodEntity } from '~/shared/domain/validationMessages'
+import { createZodEntity } from '~/shared/domain/validation'
 import { handleApiError } from '~/shared/error/errorHandler'
 import { generateId } from '~/shared/utils/idUtils'
 import { parseWithStack } from '~/shared/utils/parseWithStack'

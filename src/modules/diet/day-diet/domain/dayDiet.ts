@@ -1,7 +1,7 @@
 import { type z } from 'zod/v4'
 
 import { mealSchema } from '~/modules/diet/meal/domain/meal'
-import { createZodEntity } from '~/shared/domain/validationMessages'
+import { createZodEntity } from '~/shared/domain/validation'
 
 const ze = createZodEntity('dayDiet')
 

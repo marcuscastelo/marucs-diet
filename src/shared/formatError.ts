@@ -1,5 +1,4 @@
-import { z } from 'zod/v4'
-import { ZodError } from 'zod/v4'
+import { z, ZodError } from 'zod/v4'
 
 export function isZodError(error: unknown): error is ZodError {
   return (
