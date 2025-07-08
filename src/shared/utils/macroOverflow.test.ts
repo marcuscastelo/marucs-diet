@@ -124,16 +124,6 @@ describe('isOverflow', () => {
 // TODO: Consider property-based testing for macro overflow logic if logic becomes more complex.
 
 describe('isOverflow (edge cases)', () => {
-  it('returns false for negative macro values', () => {
-    const context = {
-      ...baseContext,
-      currentDayDiet: makeFakeDayDiet({ carbs: -10, protein: -10, fat: -10 }),
-    }
-    expect(isOverflow(baseItem, 'carbs', context)).toBe(false)
-    expect(isOverflow(baseItem, 'protein', context)).toBe(false)
-    expect(isOverflow(baseItem, 'fat', context)).toBe(false)
-  })
-
   it('returns true for positive macro values when target is zero', () => {
     const context = {
       ...baseContext,

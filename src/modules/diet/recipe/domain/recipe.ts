@@ -37,25 +37,6 @@ export type NewUnifiedRecipe = Readonly<z.infer<typeof newUnifiedRecipeSchema>>
 export type UnifiedRecipe = Readonly<z.infer<typeof unifiedRecipeSchema>>
 
 /**
- * Creates a Recipe from an ItemGroup.
- * Useful for converting item groups into standalone recipes.
- *
- * @param group - ItemGroup to convert to a recipe
- * @param owner - User ID who will own this recipe
- * @returns A new Recipe created from the group
- */
-export function createNewRecipeFromGroup(
-  group: ItemGroup,
-  owner: number,
-): NewRecipe {
-  return createNewRecipe({
-    name: group.name,
-    items: [...group.items],
-    owner,
-  })
-}
-
-/**
  * Creates a new NewRecipe.
  * Used for initializing new recipes before saving to database.
  *
@@ -97,20 +78,6 @@ export function promoteToRecipe(newRecipe: NewRecipe, id: number): Recipe {
     ...newRecipe,
     id,
     __type: 'Recipe',
-  })
-}
-
-/**
- * Demotes a Recipe to a NewRecipe for updates.
- * Used when converting a persisted Recipe back to NewRecipe for database operations.
- */
-export function demoteToNewRecipe(recipe: Recipe): NewRecipe {
-  return parseWithStack(newRecipeSchema, {
-    name: recipe.name,
-    owner: recipe.owner,
-    items: recipe.items,
-    prepared_multiplier: recipe.prepared_multiplier,
-    __type: 'NewRecipe',
   })
 }
 
@@ -159,21 +126,5 @@ export function promoteToUnifiedRecipe(
     ...newRecipe,
     id,
     __type: 'UnifiedRecipe',
-  })
-}
-
-/**
- * Demotes a UnifiedRecipe to a NewUnifiedRecipe for updates.
- * Used when converting a persisted UnifiedRecipe back to NewUnifiedRecipe for database operations.
- */
-export function demoteToNewUnifiedRecipe(
-  recipe: UnifiedRecipe,
-): NewUnifiedRecipe {
-  return parseWithStack(newUnifiedRecipeSchema, {
-    name: recipe.name,
-    owner: recipe.owner,
-    items: recipe.items,
-    prepared_multiplier: recipe.prepared_multiplier,
-    __type: 'NewUnifiedRecipe',
   })
 }
