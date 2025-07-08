@@ -17,9 +17,9 @@ export const {
     .date()
     .or(z.string())
     .transform((v) => new Date(v)),
-  gramsPerKgCarbs: ze.number(),
-  gramsPerKgProtein: ze.number(),
-  gramsPerKgFat: ze.number(),
+  gramsPerKgCarbs: ze.number().transform((v) => (isNaN(v) || v < 0 ? 0 : v)),
+  gramsPerKgProtein: ze.number().transform((v) => (isNaN(v) || v < 0 ? 0 : v)),
+  gramsPerKgFat: ze.number().transform((v) => (isNaN(v) || v < 0 ? 0 : v)),
 })
 
 export type MacroProfile = Readonly<z.infer<typeof macroProfileSchema>>

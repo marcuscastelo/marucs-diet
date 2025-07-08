@@ -1,4 +1,4 @@
-import { type z } from 'zod/v4'
+import { z } from 'zod/v4'
 
 import { createZodEntity } from '~/shared/domain/validationMessages'
 
@@ -6,9 +6,18 @@ const ze = createZodEntity('macroNutrients')
 
 // TODO:   Use macroNutrientsSchema for other schemas that need macro nutrients
 const macronutrientsEntity = ze.create({
-  carbs: ze.number().nonnegative(),
-  protein: ze.number().nonnegative(),
-  fat: ze.number().nonnegative(),
+  carbs: z
+    .nan() // TODDO: Remove NaN once all data is migrated and validated (NaN occurs on CopyLastDayButton on Test user)
+    .or(ze.number())
+    .transform((v) => (isNaN(v) || v < 0 ? 0 : v)),
+  protein: z
+    .nan()
+    .or(ze.number())
+    .transform((v) => (isNaN(v) || v < 0 ? 0 : v)),
+  fat: z
+    .nan()
+    .or(ze.number())
+    .transform((v) => (isNaN(v) || v < 0 ? 0 : v)),
 } as const)
 
 export const { schema: macroNutrientsSchema } = macronutrientsEntity
