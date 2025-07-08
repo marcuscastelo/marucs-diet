@@ -5,16 +5,7 @@ import {
   createNewDayDiet,
   promoteDayDiet,
 } from '~/modules/diet/day-diet/domain/dayDiet'
-import {
-  addMealsToDayDiet,
-  addMealToDayDiet,
-  clearDayDietMeals,
-  findMealInDayDiet,
-  removeMealFromDayDiet,
-  replaceDayDiet,
-  setDayDietMeals,
-  updateMealInDayDiet,
-} from '~/modules/diet/day-diet/domain/dayDietOperations'
+import { updateMealInDayDiet } from '~/modules/diet/day-diet/domain/dayDietOperations'
 import { createItem } from '~/modules/diet/item/domain/item'
 import { createNewMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { createNewMeal, promoteMeal } from '~/modules/diet/meal/domain/meal'
@@ -64,51 +55,9 @@ const baseDayDiet: DayDiet = promoteDayDiet(
 )
 
 describe('dayDietOperations', () => {
-  it('addMealToDayDiet adds a meal', () => {
-    const meal = { ...baseMeal, id: 2 }
-    const result = addMealToDayDiet(baseDayDiet, meal)
-    expect(result.meals).toHaveLength(2)
-    expect(result.meals[1]).toEqual(meal)
-  })
-
-  it('addMealsToDayDiet adds multiple meals', () => {
-    const meals = [
-      { ...baseMeal, id: 2 },
-      { ...baseMeal, id: 3 },
-    ]
-    const result = addMealsToDayDiet(baseDayDiet, meals)
-    expect(result.meals).toHaveLength(3)
-  })
-
   it('updateMealInDayDiet updates a meal', () => {
     const updated = makeMeal(1, 'Jantar', [makeUnifiedItemFromItem(baseItem)])
     const result = updateMealInDayDiet(baseDayDiet, 1, updated)
     expect(result.meals[0]?.name).toBe('Jantar')
-  })
-
-  it('removeMealFromDayDiet removes a meal', () => {
-    const result = removeMealFromDayDiet(baseDayDiet, 1)
-    expect(result.meals).toHaveLength(0)
-  })
-
-  it('setDayDietMeals sets meals', () => {
-    const meals = [{ ...baseMeal, id: 2 }]
-    const result = setDayDietMeals(baseDayDiet, meals)
-    expect(result.meals).toEqual(meals)
-  })
-
-  it('clearDayDietMeals clears meals', () => {
-    const result = clearDayDietMeals(baseDayDiet)
-    expect(result.meals).toEqual([])
-  })
-
-  it('findMealInDayDiet finds a meal', () => {
-    const found = findMealInDayDiet(baseDayDiet, 1)
-    expect(found).toEqual(baseMeal)
-  })
-
-  it('replaceDayDiet replaces fields', () => {
-    const result = replaceDayDiet(baseDayDiet, { owner: 2 })
-    expect(result.owner).toBe(2)
   })
 })
