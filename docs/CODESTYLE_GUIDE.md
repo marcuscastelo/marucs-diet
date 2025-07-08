@@ -1,5 +1,7 @@
 # Macroflows – Concrete Codebase Style & Anti-Patterns Guide
 
+_Last updated: 2025-07-08_
+
 This document provides **concrete, specific guidelines** for the Macroflows codebase, based on actual patterns found in the code and specific improvements needed.
 
 ---

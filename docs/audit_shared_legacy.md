@@ -1,6 +1,6 @@
 # Shared & Legacy Audit
 
-_Last updated: 2025-06-27_
+_Last updated: 2025-07-08_
 
 ## Overview
 Shared and legacy code has been significantly reduced as part of the unified item system migration. All legacy item/item-group view and edit components, context providers, and related utilities have been removed. The codebase now relies on unified components and shared utilities for all item, group, and recipe flows.

@@ -1,5 +1,7 @@
 # Application Layer Audit
 
+_Last updated: 2025-07-08_
+
 ## Overview
 The application layer orchestrates use cases, handles errors, and bridges domain and infrastructure. It should catch domain errors and call `handleApiError` with context.
 

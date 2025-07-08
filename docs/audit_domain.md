@@ -1,30 +1,6 @@
-# Domain Layer Audit
-
-## Overview
-The domain layer is responsible for pure business logic, validation, and type safety. It should not contain side effects, error handling utilities, or infrastructure concerns.
-
-## Findings
-- **Schema/Type Logic:** Some domain files (e.g., `item.ts`, `dayDiet.ts`) include ID generation or type transformation logic that could be moved to infrastructure or application layers.
-- **Error Handling:** Domain code correctly avoids `handleApiError`, but custom error classes could be standardized for better context.
-- **Purity:** Most domain modules are pure, but some rely on legacy utilities (e.g., `generateId` in domain).
-
-## Urgency
-- **High:** Remove ID generation and side-effect utilities from domain code.
-- **Medium:** Standardize error types and schemas.
-
-## Next Steps
-- Audit all domain modules for side-effect imports.
-- Refactor ID and type logic to infrastructure.
-- Document domain error types and usage patterns.
-
-## Future Refinement Suggestions
-- Perform a per-module audit (e.g., diet, measure, profile) and create `audit_domain_<module>.md` files as needed.
-- Analyze domain model boundaries and invariants.
-- Review test coverage for domain logic.
-
 # Domain Layer Audit – High-Level Review
 
-_Last updated: 2025-06-07_
+_Last updated: 2025-07-08_
 
 ## General Assessment
 The codebase demonstrates a strong commitment to modularity and DDD-inspired organization, with clear separation between domain, application, and infrastructure layers in most modules. Each business area (diet, measure, user, etc.) is structured as a module, and most domain logic is isolated from side effects and technical concerns.
