@@ -13,7 +13,9 @@ describe('item application services', () => {
     reference: {
       type: 'food' as const,
       id: 1,
-      macros: createNewMacroNutrients({ carbs: 10, protein: 2, fat: 1 }),
+      macros: createNewMacroNutrients(
+        createNewMacroNutrients({ carbs: 10, protein: 2, fat: 1 }),
+      ),
     },
   })
 

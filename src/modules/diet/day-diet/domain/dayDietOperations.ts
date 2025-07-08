@@ -1,4 +1,5 @@
 import {
+  createNewDayDiet,
   type DayDiet,
   type NewDayDiet,
 } from '~/modules/diet/day-diet/domain/dayDiet'
@@ -81,9 +82,9 @@ export function replaceDayDiet(
 
 // Helper for converting DayDiet to NewDayDiet while preserving updates
 export function convertToNewDayDiet(dayDiet: DayDiet): NewDayDiet {
-  const { id, ...rest } = dayDiet
-  return {
-    ...rest,
-    __type: 'NewDayDiet',
-  }
+  return createNewDayDiet({
+    target_day: dayDiet.target_day,
+    owner: dayDiet.owner,
+    meals: dayDiet.meals,
+  })
 }

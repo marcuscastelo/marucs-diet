@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
-import type { DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import type {
+  DayDiet,
+  NewDayDiet,
+} from '~/modules/diet/day-diet/domain/dayDiet'
+import {
+  createNewDayDiet,
+  promoteDayDiet,
+} from '~/modules/diet/day-diet/domain/dayDiet'
 import {
   addMealsToDayDiet,
   addMealToDayDiet,
@@ -13,7 +20,8 @@ import {
   updateMealInDayDiet,
 } from '~/modules/diet/day-diet/domain/dayDietOperations'
 import { createItem } from '~/modules/diet/item/domain/item'
-import { createMeal } from '~/modules/diet/meal/domain/meal'
+import { createNewMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { createNewMeal, promoteMeal } from '~/modules/diet/meal/domain/meal'
 import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 function makeItem(id: number, name = 'Arroz') {
@@ -22,7 +30,7 @@ function makeItem(id: number, name = 'Arroz') {
       name,
       reference: id,
       quantity: 100,
-      macros: { carbs: 10, protein: 2, fat: 1 },
+      macros: createNewMacroNutrients({ carbs: 10, protein: 2, fat: 1 }),
     }),
     id,
   }
@@ -45,21 +53,19 @@ function makeMeal(
   name = 'Almoço',
   items = [makeUnifiedItemFromItem(makeItem(1))],
 ) {
-  return {
-    ...createMeal({ name, items }),
-    id,
-  }
+  return promoteMeal(createNewMeal({ name, items }), id)
 }
 
 const baseItem = makeItem(1)
 const baseMeal = makeMeal(1, 'Almoço', [makeUnifiedItemFromItem(baseItem)])
-const baseDayDiet: DayDiet = {
-  id: 1,
-  __type: 'DayDiet',
-  owner: 1,
-  target_day: '2023-01-01',
-  meals: [baseMeal],
-}
+const baseDayDiet: DayDiet = promoteDayDiet(
+  createNewDayDiet({
+    target_day: '2023-01-01',
+    owner: 1,
+    meals: [baseMeal],
+  }),
+  1,
+)
 
 describe('dayDietOperations', () => {
   it('addMealToDayDiet adds a meal', () => {
@@ -112,8 +118,10 @@ describe('dayDietOperations', () => {
 
   it('convertToNewDayDiet returns NewDayDiet', () => {
     const result = convertToNewDayDiet(baseDayDiet)
-    expect(result.__type).toBe('NewDayDiet')
     // @ts-expect-error id should not exist
     expect(result.id).toBeUndefined()
+    expect(result.target_day).toBe(baseDayDiet.target_day)
+    expect(result.owner).toBe(baseDayDiet.owner)
+    expect(result.meals).toStrictEqual(baseDayDiet.meals)
   })
 })

@@ -8,7 +8,11 @@ import {
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { showError } from '~/modules/toast/application/toastManager'
 import { currentUser, updateUser } from '~/modules/user/application/user'
-import { type User, userSchema } from '~/modules/user/domain/user'
+import {
+  createNewUser,
+  type User,
+  userSchema,
+} from '~/modules/user/domain/user'
 import { UserIcon } from '~/sections/common/components/icons/UserIcon'
 import {
   convertString,
@@ -111,15 +115,14 @@ export function UserInfo() {
             return
           }
           // Convert User to NewUser for the update
-          const newUser = {
+          const newUser = createNewUser({
             name: user.name,
-            favorite_foods: user.favorite_foods,
+            favoriteFoods: user.favorite_foods,
             diet: user.diet,
             birthdate: user.birthdate,
             gender: user.gender,
-            desired_weight: user.desired_weight,
-            __type: 'NewUser' as const,
-          }
+            desiredWeight: user.desired_weight,
+          })
           updateUser(user.id, newUser).catch((error) => {
             handleApiError(error)
             showError(error, {}, 'Erro ao atualizar usuário')

@@ -187,7 +187,7 @@ async function internalCachedSearchFoods(
     operator = 'eq',
   }:
     | {
-        field: keyof Food
+        field: 'ean' | 'id' | 'name'
         value: Food['ean' | 'id' | 'name']
         operator?: 'eq' | 'ilike'
       }

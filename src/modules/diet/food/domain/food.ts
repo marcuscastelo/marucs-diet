@@ -11,11 +11,16 @@ import {
   macroNutrientsSchema,
 } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { createZodEntity } from '~/shared/domain/validationMessages'
-import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 const ze = createZodEntity('food')
 
-export const { schema: foodSchema, newSchema: newFoodSchema } = ze.create({
+export const {
+  schema: foodSchema,
+  newSchema: newFoodSchema,
+  createNew: createNewFood,
+  promote: promoteNewFoodToFood,
+  demote: demoteFoodToNewFood,
+} = ze.create({
   id: ze.number(),
   source: z
     .object({
@@ -28,64 +33,10 @@ export const { schema: foodSchema, newSchema: newFoodSchema } = ze.create({
   name: ze.string(),
   ean: ze.string().nullable(),
   macros: macroNutrientsSchema,
-  __type: z
-    .string()
-    .nullable()
-    .optional()
-    .transform(() => 'Food' as const),
 })
 
 export type NewFood = Readonly<z.infer<typeof newFoodSchema>>
 export type Food = Readonly<z.infer<typeof foodSchema>>
-
-/**
- * Creates a new NewFood.
- * Used for initializing new foods before saving to database.
- */
-export function createNewFood({
-  name,
-  macros,
-  ean,
-  source,
-}: {
-  name: string
-  macros: MacroNutrients
-  ean: string | null
-  source?: NewFood['source']
-}): NewFood {
-  return parseWithStack(newFoodSchema, {
-    name,
-    macros,
-    ean,
-    source,
-    __type: 'NewFood',
-  })
-}
-
-/**
- * Promotes a NewFood to a Food after persistence.
- */
-export function promoteToFood(newFood: NewFood, id: number): Food {
-  return parseWithStack(foodSchema, {
-    ...newFood,
-    id,
-    __type: 'Food',
-  })
-}
-
-/**
- * Demotes a Food to a NewFood for updates.
- * Used when converting a persisted Food back to NewFood for database operations.
- */
-export function demoteToNewFood(food: Food): NewFood {
-  return parseWithStack(newFoodSchema, {
-    name: food.name,
-    macros: food.macros,
-    ean: food.ean,
-    source: food.source,
-    __type: 'NewFood',
-  })
-}
 
 /**
  * Validates food name according to business rules
@@ -141,29 +92,4 @@ export function createNewFoodWithValidation({
   validateFoodEan(ean)
 
   return createNewFood({ name, macros, ean, source })
-}
-
-/**
- * Promotes a NewFood to a Food after persistence with validation.
- */
-export function promoteToFoodWithValidation(
-  newFood: NewFood,
-  id: number,
-): Food {
-  const food = promoteToFood(newFood, id)
-
-  // Additional validation can be performed here if needed
-
-  return food
-}
-
-/**
- * Demotes a Food to a NewFood for updates with validation.
- */
-export function demoteToNewFoodWithValidation(food: Food): NewFood {
-  const newFood = demoteToNewFood(food)
-
-  // Additional validation can be performed here if needed
-
-  return newFood
 }

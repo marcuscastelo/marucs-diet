@@ -1,6 +1,10 @@
 import { z } from 'zod/v4'
 
-import { type Weight, weightSchema } from '~/modules/weight/domain/weight'
+import {
+  type NewWeight,
+  type Weight,
+  weightSchema,
+} from '~/modules/weight/domain/weight'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 // Base schema (with ID)
@@ -44,7 +48,7 @@ export function createWeightFromDAO(dao: WeightDAO): Weight {
 }
 
 export function createInsertWeightDAOFromWeight(
-  weight: Omit<Weight, 'id' | '__type'>,
+  weight: NewWeight,
 ): CreateWeightDAO {
   return parseWithStack(createWeightDAOSchema, {
     owner: weight.owner,

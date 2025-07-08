@@ -126,10 +126,12 @@ export function MealEditViewHeader(props: {
         if (
           typeof data === 'object' &&
           '__type' in data &&
+          // @ts-expect-error TypeScript incorrectly thinks this comparison is impossible due to union narrowing
           data.__type === 'Meal'
         ) {
           // Handle pasted Meal - extract its items and add them to current meal
-          const mealData: Meal = data
+          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+          const mealData = data as Meal
           debug('Pasting meal with items:', mealData.items.length)
           const unifiedItemsToAdd = mealData.items.map((item) => ({
             ...item,

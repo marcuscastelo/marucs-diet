@@ -1,4 +1,4 @@
-import { z } from 'zod/v4'
+import { type z } from 'zod/v4'
 
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
@@ -26,11 +26,6 @@ export const {
   owner: ze.number(),
   items: ze.array(unifiedItemSchema).readonly(),
   prepared_multiplier: ze.number().default(1),
-  __type: z
-    .string()
-    .nullable()
-    .optional()
-    .transform(() => 'UnifiedRecipe' as const),
 })
 
 // Legacy types (using Item[])

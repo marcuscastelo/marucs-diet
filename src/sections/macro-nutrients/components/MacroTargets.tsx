@@ -236,7 +236,7 @@ function MacroTargetSetting(props: {
   currentProfile: MacroProfile
   weight: number
   target: MacroRepresentation
-  field: keyof MacroNutrients
+  field: 'carbs' | 'protein' | 'fat'
   mode: 'edit' | 'view'
 }) {
   const emptyIfZeroElse2Decimals = (value: number) =>

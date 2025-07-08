@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { createNewMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   createNewUnifiedRecipe,
   promoteToUnifiedRecipe,
@@ -28,7 +29,7 @@ describe('unifiedRecipeOperations', () => {
     reference: {
       type: 'food',
       id: 1,
-      macros: { carbs: 70, protein: 10, fat: 1 },
+      macros: createNewMacroNutrients({ carbs: 70, protein: 10, fat: 1 }),
     },
   })
 
@@ -39,7 +40,7 @@ describe('unifiedRecipeOperations', () => {
     reference: {
       type: 'food',
       id: 2,
-      macros: { carbs: 99, protein: 0, fat: 0 },
+      macros: createNewMacroNutrients({ carbs: 99, protein: 0, fat: 0 }),
     },
   })
 

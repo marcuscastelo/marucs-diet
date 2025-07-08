@@ -1,7 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { Food } from '~/modules/diet/food/domain/food'
-import type { Recipe } from '~/modules/diet/recipe/domain/recipe'
+import {
+  createNewFood,
+  type Food,
+  promoteNewFoodToFood,
+} from '~/modules/diet/food/domain/food'
+import { createNewMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import {
+  createNewRecipe,
+  promoteToRecipe,
+  type Recipe,
+} from '~/modules/diet/recipe/domain/recipe'
 import {
   isTemplateFood,
   type Template,
@@ -45,26 +54,28 @@ describe('RemoveFromRecentButton Logic', () => {
   const mockRefetch = vi.fn()
   const mockUserId = 1
 
-  const mockFoodTemplate: Food = {
-    id: 1,
-    name: 'Test Food',
-    ean: '1234567890',
-    macros: {
-      protein: 5,
-      carbs: 10,
-      fat: 5,
-    },
-    __type: 'Food',
-  }
+  const mockFoodTemplate: Food = promoteNewFoodToFood(
+    createNewFood({
+      name: 'Test Food',
+      ean: '1234567890',
+      macros: createNewMacroNutrients({
+        protein: 5,
+        carbs: 10,
+        fat: 5,
+      }),
+    }),
+    1,
+  )
 
-  const mockRecipeTemplate: Recipe = {
-    id: 2,
-    name: 'Test Recipe',
-    owner: 1,
-    items: [],
-    prepared_multiplier: 1,
-    __type: 'Recipe',
-  }
+  const mockRecipeTemplate: Recipe = promoteToRecipe(
+    createNewRecipe({
+      name: 'Test Recipe',
+      owner: 1,
+      items: [],
+      preparedMultiplier: 1,
+    }),
+    2,
+  )
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -198,7 +209,9 @@ describe('RemoveFromRecentButton Logic', () => {
         }
 
         expect(props.template).toBeDefined()
-        expect(props.template.__type).toMatch(/^(Food|Recipe)$/)
+        expect(isTemplateFood(props.template) ? 'Food' : 'Recipe').toMatch(
+          /^(Food|Recipe)$/,
+        )
         expect(props.template.id).toBeTypeOf('number')
         expect(props.refetch).toBeTypeOf('function')
       })

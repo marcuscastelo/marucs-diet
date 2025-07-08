@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest'
 
-import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import {
+  createNewFood,
+  promoteNewFoodToFood,
+} from '~/modules/diet/food/domain/food'
+import { createNewMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import {
+  createNewRecipe,
+  promoteToRecipe,
+  type Recipe,
+} from '~/modules/diet/recipe/domain/recipe'
 import { createUnifiedItemFromTemplate } from '~/modules/diet/template/application/createGroupFromTemplate'
 import { templateToUnifiedItem as templateToUnifiedItemDirect } from '~/modules/diet/template/application/templateToItem'
 import { unifiedItemToItem } from '~/modules/diet/unified-item/domain/conversionUtils'
@@ -17,27 +26,29 @@ describe('template application services', () => {
     reference: {
       type: 'food',
       id: 1,
-      macros: { carbs: 10, protein: 2, fat: 1 },
+      macros: createNewMacroNutrients({ carbs: 10, protein: 2, fat: 1 }),
     },
     __type: 'UnifiedItem' as const,
   } satisfies FoodItem
 
-  const foodTemplate = {
-    id: 1,
-    name: 'Arroz',
-    macros: { carbs: 10, protein: 2, fat: 1 },
-    ean: null,
-    __type: 'Food' as const,
-  }
+  const foodTemplate = promoteNewFoodToFood(
+    createNewFood({
+      name: 'Arroz',
+      macros: createNewMacroNutrients({ carbs: 10, protein: 2, fat: 1 }),
+      ean: null,
+    }),
+    1,
+  )
 
-  const recipeTemplate: Recipe = {
-    id: 2,
-    name: 'Recipe Test',
-    owner: 1,
-    items: [unifiedItemToItem(baseItem)],
-    prepared_multiplier: 2,
-    __type: 'Recipe',
-  }
+  const recipeTemplate: Recipe = promoteToRecipe(
+    createNewRecipe({
+      name: 'Recipe Test',
+      owner: 1,
+      items: [unifiedItemToItem(baseItem)],
+      preparedMultiplier: 2,
+    }),
+    2,
+  )
 
   describe('createUnifiedItemFromTemplate', () => {
     it('creates unified item from food template', () => {
