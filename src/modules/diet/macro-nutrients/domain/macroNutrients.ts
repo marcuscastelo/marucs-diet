@@ -7,7 +7,7 @@ const ze = createZodEntity('macroNutrients')
 // TODO:   Use macroNutrientsSchema for other schemas that need macro nutrients
 const macronutrientsEntity = ze.create({
   carbs: z
-    .nan() // TODDO: Remove NaN once all data is migrated and validated (NaN occurs on CopyLastDayButton on Test user)
+    .nan() // TODO: Remove NaN once all data is migrated and validated (NaN occurs on CopyLastDayButton on Test user)
     .or(ze.number())
     .transform((v) => (isNaN(v) || v < 0 ? 0 : v)),
   protein: z

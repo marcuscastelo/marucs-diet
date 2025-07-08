@@ -6,7 +6,6 @@ import {
   type Recipe,
   type UnifiedRecipe,
 } from '~/modules/diet/recipe/domain/recipe'
-import { isTemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { itemToUnifiedItem } from '~/modules/diet/unified-item/domain/conversionUtils'
 import {
   isFoodItem,
@@ -18,17 +17,17 @@ import {
 export function calcItemContainerMacros<
   T extends { items: readonly UnifiedItem[] },
 >(container: T): MacroNutrients {
-  return container.items.reduce(
+  const result = container.items.reduce(
     (acc, item) => {
       const itemMacros = calcUnifiedItemMacros(item)
-      return createNewMacroNutrients({
-        carbs: acc.carbs + itemMacros.carbs,
-        fat: acc.fat + itemMacros.fat,
-        protein: acc.protein + itemMacros.protein,
-      })
+      acc.carbs += itemMacros.carbs
+      acc.fat += itemMacros.fat
+      acc.protein += itemMacros.protein
+      return acc
     },
-    createNewMacroNutrients({ carbs: 0, fat: 0, protein: 0 }),
+    { carbs: 0, fat: 0, protein: 0 },
   )
+  return createNewMacroNutrients(result)
 }
 
 export function calcRecipeMacros(recipe: Recipe): MacroNutrients {
@@ -84,31 +83,31 @@ export function calcUnifiedItemMacros(item: UnifiedItem): MacroNutrients {
 }
 
 export function calcMealMacros(meal: Meal): MacroNutrients {
-  return meal.items.reduce(
+  const result = meal.items.reduce(
     (acc, item) => {
       const itemMacros = calcUnifiedItemMacros(item)
-      return createNewMacroNutrients({
-        carbs: acc.carbs + itemMacros.carbs,
-        fat: acc.fat + itemMacros.fat,
-        protein: acc.protein + itemMacros.protein,
-      })
+      acc.carbs += itemMacros.carbs
+      acc.fat += itemMacros.fat
+      acc.protein += itemMacros.protein
+      return acc
     },
-    createNewMacroNutrients({ carbs: 0, fat: 0, protein: 0 }),
+    { carbs: 0, fat: 0, protein: 0 },
   )
+  return createNewMacroNutrients(result)
 }
 
 export function calcDayMacros(day: DayDiet): MacroNutrients {
-  return day.meals.reduce(
+  const result = day.meals.reduce(
     (acc, meal) => {
       const mealMacros = calcMealMacros(meal)
-      return createNewMacroNutrients({
-        carbs: acc.carbs + mealMacros.carbs,
-        fat: acc.fat + mealMacros.fat,
-        protein: acc.protein + mealMacros.protein,
-      })
+      acc.carbs += mealMacros.carbs
+      acc.fat += mealMacros.fat
+      acc.protein += mealMacros.protein
+      return acc
     },
-    createNewMacroNutrients({ carbs: 0, fat: 0, protein: 0 }),
+    { carbs: 0, fat: 0, protein: 0 },
   )
+  return createNewMacroNutrients(result)
 }
 
 export function calcCalories(macroNutrients: MacroNutrients): number {
