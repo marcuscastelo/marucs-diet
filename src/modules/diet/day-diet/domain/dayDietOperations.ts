@@ -79,12 +79,3 @@ export function replaceDayDiet(
     ...updates,
   }
 }
-
-// Helper for converting DayDiet to NewDayDiet while preserving updates
-export function convertToNewDayDiet(dayDiet: DayDiet): NewDayDiet {
-  return createNewDayDiet({
-    target_day: dayDiet.target_day,
-    owner: dayDiet.owner,
-    meals: dayDiet.meals,
-  })
-}

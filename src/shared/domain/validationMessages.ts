@@ -189,8 +189,11 @@ export function createZodEntity<TEntity extends keyof typeof ENTITY_NAMES>(
           }),
         ) as BrandedSchema
 
-      const demote = (data: BrandedSchema): NewSchema =>
-        newSchema.parse(parseWithStack(brandedNewSchema, data))
+      const demote = (data: BrandedSchema): BrandedNewSchema =>
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+        newSchema.parse(
+          parseWithStack(brandedNewSchema, data),
+        ) as BrandedNewSchema
 
       return {
         schema: brandedSchema,

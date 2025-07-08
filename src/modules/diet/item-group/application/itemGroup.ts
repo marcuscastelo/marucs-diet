@@ -3,9 +3,10 @@ import {
   updateDayDiet,
 } from '~/modules/diet/day-diet/application/dayDiet'
 import {
-  convertToNewDayDiet,
-  updateMealInDayDiet,
-} from '~/modules/diet/day-diet/domain/dayDietOperations'
+  demoteNewDayDiet,
+  type NewDayDiet,
+} from '~/modules/diet/day-diet/domain/dayDiet'
+import { updateMealInDayDiet } from '~/modules/diet/day-diet/domain/dayDietOperations'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import {
   addItemToMeal,
@@ -45,7 +46,7 @@ export async function insertUnifiedItem(
     )
 
     // Convert to NewDayDiet
-    const newDay = convertToNewDayDiet(updatedDayDiet)
+    const newDay: NewDayDiet = demoteNewDayDiet(updatedDayDiet)
 
     await updateDayDiet(currentDayDiet_.id, newDay)
   } catch (error) {
@@ -85,7 +86,7 @@ export async function updateUnifiedItem(
     )
 
     // Convert to NewDayDiet
-    const newDay = convertToNewDayDiet(updatedDayDiet)
+    const newDay = demoteNewDayDiet(updatedDayDiet)
 
     await updateDayDiet(currentDayDiet_.id, newDay)
   } catch (error) {
@@ -124,7 +125,7 @@ export async function deleteUnifiedItem(
     )
 
     // Convert to NewDayDiet
-    const newDay = convertToNewDayDiet(updatedDayDiet)
+    const newDay = demoteNewDayDiet(updatedDayDiet)
 
     await updateDayDiet(currentDayDiet_.id, newDay)
   } catch (error) {

@@ -10,6 +10,8 @@ import { showError } from '~/modules/toast/application/toastManager'
 import { currentUser, updateUser } from '~/modules/user/application/user'
 import {
   createNewUser,
+  demoteUserToNewUser,
+  type NewUser,
   type User,
   userSchema,
 } from '~/modules/user/domain/user'
@@ -115,14 +117,7 @@ export function UserInfo() {
             return
           }
           // Convert User to NewUser for the update
-          const newUser = createNewUser({
-            name: user.name,
-            favoriteFoods: user.favorite_foods,
-            diet: user.diet,
-            birthdate: user.birthdate,
-            gender: user.gender,
-            desiredWeight: user.desired_weight,
-          })
+          const newUser = demoteUserToNewUser(user)
           updateUser(user.id, newUser).catch((error) => {
             handleApiError(error)
             showError(error, {}, 'Erro ao atualizar usuário')

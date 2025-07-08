@@ -10,6 +10,7 @@ export const {
   newSchema: newDayDietSchema,
   createNew: createNewDayDiet,
   promote: promoteDayDiet,
+  demote: demoteNewDayDiet,
 } = ze.create({
   id: ze.number(),
   target_day: ze.string(), // TODO:   Change target_day to supabase date type

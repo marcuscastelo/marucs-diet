@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import type {
-  DayDiet,
-  NewDayDiet,
-} from '~/modules/diet/day-diet/domain/dayDiet'
+import type { DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import {
   createNewDayDiet,
   promoteDayDiet,
@@ -12,7 +9,6 @@ import {
   addMealsToDayDiet,
   addMealToDayDiet,
   clearDayDietMeals,
-  convertToNewDayDiet,
   findMealInDayDiet,
   removeMealFromDayDiet,
   replaceDayDiet,
@@ -114,14 +110,5 @@ describe('dayDietOperations', () => {
   it('replaceDayDiet replaces fields', () => {
     const result = replaceDayDiet(baseDayDiet, { owner: 2 })
     expect(result.owner).toBe(2)
-  })
-
-  it('convertToNewDayDiet returns NewDayDiet', () => {
-    const result = convertToNewDayDiet(baseDayDiet)
-    // @ts-expect-error id should not exist
-    expect(result.id).toBeUndefined()
-    expect(result.target_day).toBe(baseDayDiet.target_day)
-    expect(result.owner).toBe(baseDayDiet.owner)
-    expect(result.meals).toStrictEqual(baseDayDiet.meals)
   })
 })
