@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 import { type NewUser, type User, userSchema } from '~/modules/user/domain/user'
 import { parseWithStack } from '~/shared/utils/parseWithStack'

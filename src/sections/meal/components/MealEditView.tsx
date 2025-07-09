@@ -1,5 +1,5 @@
 import { type Accessor, createEffect, type JSXElement, Show } from 'solid-js'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { itemSchema } from '~/modules/diet/item/domain/item'
@@ -126,9 +126,11 @@ export function MealEditViewHeader(props: {
         if (
           typeof data === 'object' &&
           '__type' in data &&
+          // @ts-expect-error TypeScript incorrectly thinks this comparison is impossible due to union narrowing
           data.__type === 'Meal'
         ) {
           // Handle pasted Meal - extract its items and add them to current meal
+          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
           const mealData = data as Meal
           debug('Pasting meal with items:', mealData.items.length)
           const unifiedItemsToAdd = mealData.items.map((item) => ({
@@ -153,8 +155,8 @@ export function MealEditViewHeader(props: {
         ) {
           // Handle single UnifiedItem - type is already validated by schema
           const regeneratedItem = {
-            ...(data as UnifiedItem),
-            id: regenerateId(data as UnifiedItem).id,
+            ...data,
+            id: regenerateId(data).id,
           }
 
           // Update the meal with the single item

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { createNewMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   addChildToItem,
   removeChildFromItem,
@@ -15,7 +16,7 @@ describe('childOperations', () => {
     reference: {
       type: 'food',
       id: 100,
-      macros: { protein: 1, carbs: 1, fat: 1 },
+      macros: createNewMacroNutrients({ protein: 1, carbs: 1, fat: 1 }),
     },
   })
   const childB = createUnifiedItem({
@@ -25,7 +26,7 @@ describe('childOperations', () => {
     reference: {
       type: 'food',
       id: 101,
-      macros: { protein: 2, carbs: 2, fat: 2 },
+      macros: createNewMacroNutrients({ protein: 2, carbs: 2, fat: 2 }),
     },
   })
   const baseGroup = createUnifiedItem({

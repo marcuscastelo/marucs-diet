@@ -1,5 +1,7 @@
 # Macroflows – Concrete Codebase Style & Anti-Patterns Guide
 
+_Last updated: 2025-07-08_
+
 This document provides **concrete, specific guidelines** for the Macroflows codebase, based on actual patterns found in the code and specific improvements needed.
 
 ---
@@ -70,7 +72,11 @@ try {
 
 ---
 
+## Import Rules Violations
+- **Barrel Files (`index.ts`) are BANNED:** The `GEMINI.md` explicitly states that barrel files (`index.ts`) that only re-export from other files are forbidden. An instance of this violation was found in `src/shared/domain/errors/index.ts`.
+
 ## **Component Duplication - Specific Cases**
+
 
 ### ❌ Found Duplications
 ```typescript

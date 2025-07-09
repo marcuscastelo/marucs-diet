@@ -1,5 +1,8 @@
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
-import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import {
+  createNewMacroNutrients,
+  type MacroNutrients,
+} from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { handleValidationError } from '~/shared/error/errorHandler'
 import { calcDayMacros, calcUnifiedItemMacros } from '~/shared/utils/macroMath'
@@ -101,7 +104,7 @@ export function isOverflow(
   const originalItemMacros: MacroNutrients =
     macroOverflowOptions.originalItem !== undefined
       ? _calcTemplateItemMacros(macroOverflowOptions.originalItem)
-      : { carbs: 0, protein: 0, fat: 0 }
+      : createNewMacroNutrients({ carbs: 0, protein: 0, fat: 0 })
   const current = (dayMacros ?? calcDayMacros(currentDayDiet))[property]
   const target = macroTarget[property]
   return _computeOverflow(
@@ -149,11 +152,11 @@ function _calcTemplateItemMacros(item: TemplateItem): MacroNutrients {
       macros: MacroNutrients
       quantity: number
     }
-    return {
+    return createNewMacroNutrients({
       carbs: (legacyItem.macros.carbs * legacyItem.quantity) / 100,
       protein: (legacyItem.macros.protein * legacyItem.quantity) / 100,
       fat: (legacyItem.macros.fat * legacyItem.quantity) / 100,
-    }
+    })
   }
 
   // Modern UnifiedItem: use the standard calculation

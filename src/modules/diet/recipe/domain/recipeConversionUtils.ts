@@ -1,7 +1,11 @@
 import { type Item } from '~/modules/diet/item/domain/item'
 import {
+  createNewRecipe,
+  createNewUnifiedRecipe,
   type NewRecipe,
   type NewUnifiedRecipe,
+  promoteToRecipe,
+  promoteToUnifiedRecipe,
   type Recipe,
   type UnifiedRecipe,
 } from '~/modules/diet/recipe/domain/recipe'
@@ -23,14 +27,14 @@ export function convertUnifiedRecipeToRecipe(
 ): Recipe {
   const items: Item[] = unifiedRecipe.items.map(unifiedItemToItem)
 
-  return {
-    id: unifiedRecipe.id,
+  const newRecipe = createNewRecipe({
     name: unifiedRecipe.name,
     owner: unifiedRecipe.owner,
     items,
-    prepared_multiplier: unifiedRecipe.prepared_multiplier,
-    __type: 'Recipe',
-  }
+    preparedMultiplier: unifiedRecipe.prepared_multiplier,
+  })
+
+  return promoteToRecipe(newRecipe, unifiedRecipe.id)
 }
 
 /**
@@ -43,14 +47,14 @@ export function convertUnifiedRecipeToRecipe(
 export function convertRecipeToUnifiedRecipe(recipe: Recipe): UnifiedRecipe {
   const items: UnifiedItem[] = recipe.items.map(itemToUnifiedItem)
 
-  return {
-    id: recipe.id,
+  const newUnifiedRecipe = createNewUnifiedRecipe({
     name: recipe.name,
     owner: recipe.owner,
     items,
-    prepared_multiplier: recipe.prepared_multiplier,
-    __type: 'UnifiedRecipe',
-  }
+    preparedMultiplier: recipe.prepared_multiplier,
+  })
+
+  return promoteToUnifiedRecipe(newUnifiedRecipe, recipe.id)
 }
 
 /**
@@ -65,13 +69,12 @@ export function convertNewUnifiedRecipeToNewRecipe(
 ): NewRecipe {
   const items: Item[] = newUnifiedRecipe.items.map(unifiedItemToItem)
 
-  return {
+  return createNewRecipe({
     name: newUnifiedRecipe.name,
     owner: newUnifiedRecipe.owner,
     items,
-    prepared_multiplier: newUnifiedRecipe.prepared_multiplier,
-    __type: 'NewRecipe',
-  }
+    preparedMultiplier: newUnifiedRecipe.prepared_multiplier,
+  })
 }
 
 /**
@@ -86,11 +89,10 @@ export function convertNewRecipeToNewUnifiedRecipe(
 ): NewUnifiedRecipe {
   const items: UnifiedItem[] = newRecipe.items.map(itemToUnifiedItem)
 
-  return {
+  return createNewUnifiedRecipe({
     name: newRecipe.name,
     owner: newRecipe.owner,
     items,
-    prepared_multiplier: newRecipe.prepared_multiplier,
-    __type: 'NewUnifiedRecipe',
-  }
+    preparedMultiplier: newRecipe.prepared_multiplier,
+  })
 }

@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
-import type { Item } from '~/modules/diet/item/domain/item'
-import type { ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { createItem, type Item } from '~/modules/diet/item/domain/item'
+import {
+  createSimpleItemGroup,
+  type ItemGroup,
+} from '~/modules/diet/item-group/domain/itemGroup'
+import { createNewMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   itemGroupToUnifiedItem,
   itemToUnifiedItem,
@@ -12,20 +16,22 @@ import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedIte
 
 describe('conversionUtils', () => {
   const sampleItem: Item = {
+    ...createItem({
+      name: 'Chicken',
+      reference: 10,
+      quantity: 100,
+      macros: createNewMacroNutrients({ protein: 20, carbs: 0, fat: 2 }),
+    }),
     id: 1,
-    name: 'Chicken',
-    quantity: 100,
-    macros: { protein: 20, carbs: 0, fat: 2 },
-    reference: 10,
-    __type: 'Item',
   }
   const sampleGroup: ItemGroup = {
+    ...createSimpleItemGroup({
+      name: 'Lunch',
+      items: [sampleItem],
+    }),
     id: 2,
-    name: 'Lunch',
-    items: [sampleItem],
     recipe: 1,
-    __type: 'ItemGroup',
-  }
+  } as ItemGroup
   const unifiedFood = {
     id: 1,
     name: 'Chicken',
@@ -33,7 +39,7 @@ describe('conversionUtils', () => {
     reference: {
       type: 'food',
       id: 10,
-      macros: { protein: 20, carbs: 0, fat: 2 },
+      macros: createNewMacroNutrients({ protein: 20, carbs: 0, fat: 2 }),
     },
   }
   it('itemToUnifiedItem and unifiedItemToItem are inverse', () => {
@@ -53,10 +59,11 @@ describe('conversionUtils', () => {
 
   it('itemGroupToUnifiedItem converts group to group when no recipe field', () => {
     const plainGroup: ItemGroup = {
+      ...createSimpleItemGroup({
+        name: 'Simple Group',
+        items: [sampleItem],
+      }),
       id: 3,
-      name: 'Simple Group',
-      items: [sampleItem],
-      __type: 'ItemGroup',
     }
     const groupUnified = itemGroupToUnifiedItem(plainGroup)
     expect(groupUnified.reference.type).toBe('group')
@@ -74,18 +81,20 @@ describe('conversionUtils', () => {
       reference: {
         type: 'food',
         id: 10,
-        macros: { protein: 20, carbs: 0, fat: 2 },
+        macros: createNewMacroNutrients({ protein: 20, carbs: 0, fat: 2 }),
       }, // Per 100g
     })
 
     const item = unifiedItemToItem(unifiedItemWith200g)
 
     // Macros should remain per 100g (not calculated for the specific quantity)
-    expect(item.macros).toEqual({
-      protein: 20, // Still per 100g
-      carbs: 0, // Still per 100g
-      fat: 2, // Still per 100g
-    })
+    expect(item.macros).toEqual(
+      createNewMacroNutrients({
+        protein: 20, // Still per 100g
+        carbs: 0, // Still per 100g
+        fat: 2, // Still per 100g
+      }),
+    )
     expect(item.quantity).toBe(200)
   })
 
@@ -98,18 +107,20 @@ describe('conversionUtils', () => {
       reference: {
         type: 'food',
         id: 10,
-        macros: { protein: 20, carbs: 10, fat: 2 },
+        macros: createNewMacroNutrients({ protein: 20, carbs: 10, fat: 2 }),
       }, // Per 100g
     })
 
     const item = unifiedItemToItem(unifiedItemWith50g)
 
     // Macros should remain per 100g (not calculated for the specific quantity)
-    expect(item.macros).toEqual({
-      protein: 20, // Still per 100g
-      carbs: 10, // Still per 100g
-      fat: 2, // Still per 100g
-    })
+    expect(item.macros).toEqual(
+      createNewMacroNutrients({
+        protein: 20, // Still per 100g
+        carbs: 10, // Still per 100g
+        fat: 2, // Still per 100g
+      }),
+    )
     expect(item.quantity).toBe(50)
   })
 })

@@ -1,7 +1,7 @@
 // TODO:   Unify Recipe and Recipe components into a single component?
 
 import { type Accessor, type JSXElement, type Setter } from 'solid-js'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import {

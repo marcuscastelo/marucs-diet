@@ -1,5 +1,6 @@
 import { createNewFood, type NewFood } from '~/modules/diet/food/domain/food'
 import { type ApiFood } from '~/modules/diet/food/infrastructure/api/domain/apiFoodModel'
+import { createNewMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 
 /**
  * Converts an ApiFood object to a NewFood object.
@@ -14,10 +15,10 @@ export function convertApi2Food(food: ApiFood): NewFood {
       id: food.id.toString(),
     },
     ean: food.ean === '' ? null : food.ean, // Convert EAN to null if not provided
-    macros: {
+    macros: createNewMacroNutrients({
       carbs: food.carboidratos * 100,
       protein: food.proteinas * 100,
       fat: food.gordura * 100,
-    },
+    }),
   })
 }

@@ -1,5 +1,9 @@
-import { type Item } from '~/modules/diet/item/domain/item'
-import type { ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { createItem, type Item } from '~/modules/diet/item/domain/item'
+import {
+  createRecipedItemGroup,
+  createSimpleItemGroup,
+  type ItemGroup,
+} from '~/modules/diet/item-group/domain/itemGroup'
 import {
   itemGroupToUnifiedItem,
   itemToUnifiedItem,
@@ -58,62 +62,62 @@ export function migrateFromUnifiedItems(unified: UnifiedItem[]): {
 } {
   const items: Item[] = []
   const groups: ItemGroup[] = []
+
   for (const u of unified) {
     if (u.reference.type === 'food') {
-      items.push({
-        id: u.id,
+      const item = createItem({
         name: u.name,
+        reference: u.reference.id,
         quantity: u.quantity,
         macros: u.reference.macros,
-        reference: u.reference.id,
-        __type: 'Item',
       })
+      items.push({ ...item, id: u.id })
     } else if (u.reference.type === 'group') {
-      groups.push({
-        id: u.id,
-        name: u.name,
-        items: u.reference.children.map((c) => {
-          if (c.reference.type !== 'food') {
-            throw new Error(
-              `migrateFromUnifiedItems: Only food children are supported in group.items. Found type: ${c.reference.type} (id: ${c.id})`,
-            )
-          }
-          return {
-            id: c.id,
-            name: c.name,
-            quantity: c.quantity,
-            macros: c.reference.macros,
-            reference: c.reference.id,
-            __type: 'Item',
-          }
-        }),
-        recipe: undefined,
-        __type: 'ItemGroup',
+      const itemsForGroup = u.reference.children.map((c) => {
+        if (c.reference.type !== 'food') {
+          throw new Error(
+            `migrateFromUnifiedItems: Only food children are supported in group.items. Found type: ${c.reference.type} (id: ${c.id})`,
+          )
+        }
+        const childItem = createItem({
+          name: c.name,
+          reference: c.reference.id,
+          quantity: c.quantity,
+          macros: c.reference.macros,
+        })
+        return { ...childItem, id: c.id }
       })
+
+      const group = createSimpleItemGroup({
+        name: u.name,
+        items: itemsForGroup,
+      })
+      groups.push({ ...group, id: u.id })
     } else {
       // Recipe case (u.reference.type === 'recipe')
-      groups.push({
-        id: u.id,
-        name: u.name,
-        items: u.reference.children.map((c) => {
-          if (c.reference.type !== 'food') {
-            throw new Error(
-              `migrateFromUnifiedItems: Only food children are supported in recipe.items. Found type: ${c.reference.type} (id: ${c.id})`,
-            )
-          }
-          return {
-            id: c.id,
-            name: c.name,
-            quantity: c.quantity,
-            macros: c.reference.macros,
-            reference: c.reference.id,
-            __type: 'Item',
-          }
-        }),
-        recipe: u.reference.id,
-        __type: 'ItemGroup',
+      const itemsForRecipe = u.reference.children.map((c) => {
+        if (c.reference.type !== 'food') {
+          throw new Error(
+            `migrateFromUnifiedItems: Only food children are supported in recipe.items. Found type: ${c.reference.type} (id: ${c.id})`,
+          )
+        }
+        const childItem = createItem({
+          name: c.name,
+          reference: c.reference.id,
+          quantity: c.quantity,
+          macros: c.reference.macros,
+        })
+        return { ...childItem, id: c.id }
       })
+
+      const group = createRecipedItemGroup({
+        name: u.name,
+        items: itemsForRecipe,
+        recipe: u.reference.id,
+      })
+      groups.push({ ...group, id: u.id })
     }
   }
+
   return { items, groups }
 }

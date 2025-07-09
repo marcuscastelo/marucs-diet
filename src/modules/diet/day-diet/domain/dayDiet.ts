@@ -1,48 +1,22 @@
-import { z } from 'zod'
+import { type z } from 'zod/v4'
 
 import { mealSchema } from '~/modules/diet/meal/domain/meal'
-import { type Meal } from '~/modules/diet/meal/domain/meal'
-import { parseWithStack } from '~/shared/utils/parseWithStack'
+import { createZodEntity } from '~/shared/domain/validation'
 
-export const dayDietSchema = z.object({
-  id: z.number(),
-  target_day: z.string(), // TODO:   Change target_day to supabase date type
-  owner: z.number(),
-  meals: z.array(mealSchema),
-  __type: z
-    .string()
-    .nullable()
-    .optional()
-    .transform(() => 'DayDiet' as const),
-})
+const ze = createZodEntity('dayDiet')
 
-// Type for creating new day diets (without ID)
-export const newDayDietSchema = z.object({
-  target_day: z.string(),
-  owner: z.number(),
-  meals: z.array(mealSchema),
-  __type: z.literal('NewDayDiet'),
+export const {
+  schema: dayDietSchema,
+  newSchema: newDayDietSchema,
+  createNew: createNewDayDiet,
+  promote: promoteDayDiet,
+  demote: demoteNewDayDiet,
+} = ze.create({
+  id: ze.number(),
+  target_day: ze.string(), // TODO:   Change target_day to supabase date type
+  owner: ze.number(),
+  meals: ze.array(mealSchema),
 })
 
 export type DayDiet = Readonly<z.infer<typeof dayDietSchema>>
 export type NewDayDiet = Readonly<z.infer<typeof newDayDietSchema>>
-
-/**
- * Creates a NewDayDiet object for day diet creation without generating an ID
- */
-export function createNewDayDiet({
-  target_day: targetDay,
-  owner,
-  meals = [],
-}: {
-  target_day: string
-  owner: number
-  meals?: Meal[]
-}): NewDayDiet {
-  return parseWithStack(newDayDietSchema, {
-    target_day: targetDay,
-    owner,
-    meals,
-    __type: 'NewDayDiet',
-  })
-}

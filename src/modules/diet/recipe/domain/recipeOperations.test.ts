@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { createItem, type Item } from '~/modules/diet/item/domain/item'
+import { createNewMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   createNewRecipe,
   promoteToRecipe,
@@ -29,7 +30,7 @@ function makeItem(id: number, name = 'Arroz') {
       name,
       reference: id,
       quantity: 100,
-      macros: { carbs: 10, protein: 2, fat: 1 },
+      macros: createNewMacroNutrients({ carbs: 10, protein: 2, fat: 1 }),
     }),
     id,
   }

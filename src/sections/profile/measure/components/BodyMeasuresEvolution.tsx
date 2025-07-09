@@ -5,10 +5,7 @@ import {
   insertBodyMeasure,
   refetchBodyMeasures,
 } from '~/modules/measure/application/measure'
-import {
-  createNewBodyMeasure,
-  type NewBodyMeasureProps,
-} from '~/modules/measure/domain/measure'
+import { createNewBodyMeasure } from '~/modules/measure/domain/measure'
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { showError } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
@@ -28,7 +25,9 @@ export function BodyMeasuresEvolution() {
       (field) => field.value() === undefined,
     )
 
-  const handleAddMeasures = (bodyMeasureProps: NewBodyMeasureProps) => {
+  const handleAddMeasures = (
+    bodyMeasureProps: Parameters<typeof createNewBodyMeasure>[0],
+  ) => {
     if (isMissingFields()) {
       showError('Medidas inválidas: preencha todos os campos')
       return
@@ -52,7 +51,7 @@ export function BodyMeasuresEvolution() {
 
           <button
             class="btn cursor-pointer uppercase btn-primary no-animation w-full"
-            onClick={() =>
+            onClick={() => {
               handleAddMeasures({
                 owner: currentUserId(),
                 height: heightField.value() ?? 0,
@@ -61,7 +60,7 @@ export function BodyMeasuresEvolution() {
                 neck: neckField.value() ?? 0,
                 target_timestamp: new Date(Date.now()),
               })
-            }
+            }}
           >
             Adicionar medidas
           </button>

@@ -4,13 +4,22 @@ import {
   setTargetDay,
   targetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
-import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
-import { type Item } from '~/modules/diet/item/domain/item'
+import {
+  createNewDayDiet,
+  type DayDiet,
+  promoteDayDiet,
+} from '~/modules/diet/day-diet/domain/dayDiet'
+import { createItem, type Item } from '~/modules/diet/item/domain/item'
 import {
   createSimpleItemGroup,
   type ItemGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
-import { type Meal } from '~/modules/diet/meal/domain/meal'
+import { createNewMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import {
+  createNewMeal,
+  type Meal,
+  promoteMeal,
+} from '~/modules/diet/meal/domain/meal'
 import { itemGroupToUnifiedItem } from '~/modules/diet/unified-item/domain/conversionUtils'
 import { showSuccess } from '~/modules/toast/application/toastManager'
 import { TestChart } from '~/sections/common/components/charts/TestChart'
@@ -36,18 +45,18 @@ export default function TestApp() {
   const [unifiedItemEditModalVisible, setUnifiedItemEditModalVisible] =
     createSignal(false)
 
-  const [item] = createSignal<Item>({
-    __type: 'Item',
-    id: 1,
-    macros: {
-      carbs: 10,
-      protein: 12,
-      fat: 10,
-    },
-    name: 'Teste',
-    quantity: 100,
-    reference: 31606,
-  })
+  const [item] = createSignal<Item>(
+    createItem({
+      macros: createNewMacroNutrients({
+        carbs: 10,
+        protein: 12,
+        fat: 10,
+      }),
+      name: 'Teste',
+      quantity: 100,
+      reference: 31606,
+    }),
+  )
 
   const [group, setGroup] = createSignal<ItemGroup>(
     createSimpleItemGroup({
@@ -63,12 +72,15 @@ export default function TestApp() {
     })
   })
 
-  const [meal, setMeal] = createSignal<Meal>({
-    id: 1,
-    name: 'Teste',
-    items: [],
-    __type: 'Meal',
-  } satisfies Meal)
+  const [meal, setMeal] = createSignal<Meal>(
+    promoteMeal(
+      createNewMeal({
+        name: 'Teste',
+        items: [],
+      }),
+      1,
+    ),
+  )
 
   createEffect(() => {
     setMeal({
@@ -77,13 +89,16 @@ export default function TestApp() {
     })
   })
 
-  const [dayDiet, setDayDiet] = createSignal<DayDiet>({
-    __type: 'DayDiet',
-    id: 1,
-    meals: [],
-    owner: 3,
-    target_day: '2023-11-02',
-  })
+  const [dayDiet, setDayDiet] = createSignal<DayDiet>(
+    promoteDayDiet(
+      createNewDayDiet({
+        meals: [],
+        owner: 3,
+        target_day: '2023-11-02',
+      }),
+      1,
+    ),
+  )
 
   createEffect(() => {
     setDayDiet({

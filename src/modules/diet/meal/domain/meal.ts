@@ -1,32 +1,18 @@
-import { z } from 'zod'
+import { type z } from 'zod/v4'
 
 import { unifiedItemSchema } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
-import { generateId } from '~/shared/utils/idUtils'
+import { createZodEntity } from '~/shared/domain/validation'
 
-export const mealSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  items: z.array(unifiedItemSchema),
-  __type: z
-    .string()
-    .nullable()
-    .optional()
-    .transform(() => 'Meal' as const),
+const ze = createZodEntity('meal')
+
+export const {
+  schema: mealSchema,
+  createNew: createNewMeal,
+  promote: promoteMeal,
+} = ze.create({
+  id: ze.number(),
+  name: ze.string(),
+  items: ze.array(unifiedItemSchema),
 })
 
 export type Meal = Readonly<z.infer<typeof mealSchema>>
-
-export function createMeal({
-  name,
-  items,
-}: {
-  name: string
-  items: Meal['items']
-}): Meal {
-  return {
-    id: generateId(),
-    name,
-    items,
-    __type: 'Meal',
-  }
-}

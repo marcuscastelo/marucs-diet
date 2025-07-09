@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest'
 
 import { createItem } from '~/modules/diet/item/domain/item'
 import { createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
-import { createMeal } from '~/modules/diet/meal/domain/meal'
+import { createNewMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { createNewMeal, promoteMeal } from '~/modules/diet/meal/domain/meal'
 import {
   addGroupToMeal,
   addItemsToMeal,
@@ -23,7 +24,7 @@ function makeItem(id: number, name = 'Arroz') {
       name,
       reference: id,
       quantity: 100,
-      macros: { carbs: 10, protein: 2, fat: 1 },
+      macros: createNewMacroNutrients({ carbs: 10, protein: 2, fat: 1 }),
     }),
     id,
   }
@@ -54,10 +55,7 @@ function makeMeal(
   name = 'Almoço',
   items = [makeUnifiedItemFromItem(makeItem(1))],
 ) {
-  return {
-    ...createMeal({ name, items }),
-    id,
-  }
+  return promoteMeal(createNewMeal({ name, items }), id)
 }
 
 const baseItem = makeItem(1)

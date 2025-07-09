@@ -60,7 +60,7 @@ export default function DietPage() {
 
   return (
     <Suspense fallback={<PageLoading message="Carregando dieta do dia..." />}>
-      <TopBar selectedDay={targetDay()} />
+      <TopBar />
       <Show when={currentDayDiet()} fallback={<div />}>
         {(currentDayDiet) => (
           <DayMacros dayDiet={currentDayDiet()} class="mb-4" />
