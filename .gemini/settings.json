@@ -1,5 +1,7 @@
 {
-  "coreTools": [],
+  "coreTools": [
+    "run_shell_command"
+  ],
   "sequential-thinking": {
     "command": "npx",
     "args": [
@@ -21,6 +23,16 @@
       "cwd": "/home/marucs/opt/mcp/serena",
       "timeout": 5000
     },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ]
+    },
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/"
+    },
     "context7": {
       "command": "npx",
       "args": [
@@ -40,6 +52,12 @@
       "args": [
         "mcp-server-time",
         "--local-timezone=America/Sao_Paulo"
+      ]
+    },
+    "language-server": {
+      "command": "bash",
+      "args": [
+        "start-language-server.sh"
       ]
     }
   }

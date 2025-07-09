@@ -164,3 +164,97 @@ Be aware of the following technical debt and future plans:
 - **TODOs:** Never remove `TODO` comments from the codebase.
 - **Labels:** When creating issues, use the labels defined in `docs/labels-usage.md`.
 - **Session Start:** Always run `export GIT_PAGER=cat` at the beginning of a session to prevent interactive pager issues with `git`.
+
+# QA Workflow for Macroflows 
+
+## Development server
+- **Start the development server:** Run `pnpm dev` to start the local development server.
+- **Access the app:** Open your browser and navigate to `http://localhost:3000` to interact with the Macroflows app.
+
+## ✅ Purpose
+
+This workflow defines the exact steps and constraints that an automation agent must follow to interact with the UI of the Macroflows app using Playwright safely and predictably. It assumes the agent has no implicit understanding of UI behavior or loading dynamics. Every step must be followed precisely and in order.
+
+---
+
+## 1. Navigation and Load Validation
+
+- Always wait for the full page to load after navigation.
+- Do not proceed until the network has become idle.
+- Confirm that the main content of the page has rendered.
+- If a loading spinner or overlay exists, wait until it is fully removed.
+- Never assume the page is ready based on time alone.
+
+---
+
+## 2. Element Presence and Visibility Before Interaction
+
+Before interacting with any UI element (clicking, filling, selecting):
+
+- Ensure the element is present in the DOM.
+- Ensure the element is visible to the user.
+- Ensure the element is enabled and interactive.
+- Do not proceed with the interaction until all of the above are confirmed.
+
+---
+
+## 3. Never Assume Absence = Error
+
+- If an element is not found:
+  - Check if the correct page was loaded.
+  - Wait a few extra seconds for slow UI states.
+  - Double-check the selector or test identifier.
+- Never assume that missing elements indicate a frontend bug without verifying the full context.
+
+---
+
+## 4. Post-Interaction Assertions
+
+- After every interaction, verify the result.
+- Confirm that UI changes occurred as expected (new element appears, button becomes disabled, toast message appears, etc).
+- Do not proceed to the next action without verifying the outcome of the previous one.
+
+---
+
+## 5. No Manual Loops or Timeouts
+
+- Never use retry loops, sleep functions, or manual time delays.
+- All waiting must be based on the presence, visibility, or state of UI elements.
+- Time-based waiting introduces flakiness and must be avoided entirely.
+
+---
+
+## 6. Error Recovery and Diagnostics
+
+- On any failure:
+  - Capture a full-page screenshot for diagnostics.
+  - Capture the visible DOM tree (HTML snapshot).
+  - Record what was expected and what was missing.
+- Do not silently ignore errors or continue after a failure.
+
+---
+
+## 7. Selector Best Practices
+
+- Prefer stable, semantic, and test-specific selectors (e.g., `data-testid`).
+- Avoid selectors that depend on visual layout (e.g., position, nth-child).
+- Avoid selectors based on dynamic text unless the text is guaranteed to be static.
+- Never use XPath.
+- Do not use class names that may change with styling updates.
+
+---
+
+## 8. Final Rules Summary
+
+- Never interact with the page until it is fully loaded and stable.
+- Never click or fill without confirming the element is visible and enabled.
+- Always assert the outcome of every interaction.
+- Always produce diagnostic artifacts on failure.
+- Never rely on timing, loops, or assumptions.
+- Every action must be justified by explicit confirmation of UI state.
+
+---
+
+## ✅ Goal
+
+This workflow must be followed strictly and completely. Any deviation from this process can lead to invalid, flaky, or misleading test results. The agent is expected to follow every step **explicitly** with no shortcuts, assumptions, or "smart" behavior.
