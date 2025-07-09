@@ -1,6 +1,6 @@
 # Architecture Audit – Summary
 
-_Last updated: 2025-06-27_
+_Last updated: 2025-07-08_
 
 This document provides a high-level overview of the current state of the codebase architecture, focusing on Domain-Driven Design (DDD), modularity, and separation of concerns. For detailed findings and recommendations, see the linked area-specific audits below.
 
