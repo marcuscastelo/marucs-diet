@@ -163,19 +163,18 @@ export function createZodEntity<TEntity extends keyof typeof ENTITY_NAMES>(
     ) => {
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       const defaultExtras = {
-        id: z.number('ID is necessary'),
+        id: z.number(
+          createFieldValidationMessages(TYPE_DESCRIPTIONS.number, entityName),
+        ),
       } as const satisfies z.ZodRawShape as z.ZodRawShape as TExtras
 
-      const a: TExtras = {
-        ...defaultExtras,
-        ...entityExtras,
-      }
+      const a: TExtras = entityExtras ?? defaultExtras
 
       const schema = z.object({
         ...shape,
         ...a,
         __type: z
-          .literal<TEntity>(entityKey)
+          .string()
           .nullish()
           .transform(() => entityKey),
       } as const)
@@ -184,9 +183,9 @@ export function createZodEntity<TEntity extends keyof typeof ENTITY_NAMES>(
       const newSchema = z.object({
         ...shape,
         __type: z
-          .literal<`New${TEntity}`>(`New${entityKey}`)
+          .string()
           .nullish()
-          .transform(() => `New${entityKey}`),
+          .transform(() => `New${entityKey}` as const),
       })
 
       type NewSchema = z.infer<typeof newSchema>

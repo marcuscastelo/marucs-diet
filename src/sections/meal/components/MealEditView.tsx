@@ -126,7 +126,6 @@ export function MealEditViewHeader(props: {
         if (
           typeof data === 'object' &&
           '__type' in data &&
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
           data.__type === 'Meal'
         ) {
           // Handle pasted Meal - extract its items and add them to current meal
