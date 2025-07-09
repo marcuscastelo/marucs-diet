@@ -1,5 +1,10 @@
 import type { ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
-import { type Meal } from '~/modules/diet/meal/domain/meal'
+import { createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import {
+  createNewMeal,
+  type Meal,
+  promoteMeal,
+} from '~/modules/diet/meal/domain/meal'
 import {
   migrateFromUnifiedItems,
   migrateToUnifiedItems,
@@ -24,12 +29,13 @@ export function migrateLegacyMealToUnified(legacyMeal: LegacyMeal): Meal {
   // Convert each group to a UnifiedItem, preserving group structure including empty groups
   const unifiedItems = migrateToUnifiedItems([], legacyMeal.groups)
 
-  return {
-    id: legacyMeal.id,
-    name: legacyMeal.name,
-    items: unifiedItems,
-    __type: 'Meal',
-  }
+  return promoteMeal(
+    createNewMeal({
+      name: legacyMeal.name,
+      items: unifiedItems,
+    }),
+    { id: legacyMeal.id },
+  )
 }
 
 /**
@@ -46,11 +52,11 @@ export function migrateUnifiedMealToLegacy(unifiedMeal: Meal): LegacyMeal {
   // Each standalone item should become its own group
   for (const item of items) {
     allGroups.push({
+      ...createSimpleItemGroup({
+        name: item.name,
+        items: [item],
+      }),
       id: item.id,
-      name: item.name, // Use the item's name as the group name
-      items: [item],
-      recipe: undefined,
-      __type: 'ItemGroup',
     })
   }
 

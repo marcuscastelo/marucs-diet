@@ -1,5 +1,5 @@
 // Infrastructure layer for recent food - Supabase implementation
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 import { foodSchema } from '~/modules/diet/food/domain/food'
 import { recipeSchema } from '~/modules/diet/recipe/domain/recipe'

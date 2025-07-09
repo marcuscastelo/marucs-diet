@@ -1,14 +1,42 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
+  createNewFood,
+  promoteNewFoodToFood,
+} from '~/modules/diet/food/domain/food'
+import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import {
+  createNewRecipe,
+  promoteToRecipe,
+} from '~/modules/diet/recipe/domain/recipe'
+import {
   fetchTemplatesByTabLogic,
   type FetchTemplatesDeps,
 } from '~/modules/search/application/searchLogic'
 import { availableTabs } from '~/sections/search/components/TemplateSearchTabs'
 
 describe('fetchTemplatesByTabLogic', () => {
-  const mockFood = { id: 1, name: 'Banana', __type: 'Food', ean: '123' }
-  const mockRecipe = { id: 2, name: 'Bolo', __type: 'Recipe' }
+  const mockFood = promoteNewFoodToFood(
+    createNewFood({
+      name: 'Banana',
+      ean: '123',
+      macros: createMacroNutrients({
+        carbs: 25,
+        protein: 2,
+        fat: 0.5,
+      }),
+    }),
+    { id: 1 },
+  )
+  const mockRecipe = promoteToRecipe(
+    createNewRecipe({
+      name: 'Bolo',
+      owner: 1,
+      items: [],
+      prepared_multiplier: 1,
+    }),
+    { id: 2 },
+  )
   const userId = 1
   let deps: FetchTemplatesDeps
 
@@ -96,12 +124,15 @@ describe('fetchTemplatesByTabLogic', () => {
 
     const result = await fetchTemplatesByTabLogic(
       availableTabs.Recentes.id,
-      mockFood.ean,
+      mockFood.ean!,
       userId,
       deps,
     )
     expect(result).toEqual([mockFood])
-    expect(deps.fetchUserRecentFoods).toHaveBeenCalledWith(userId, mockFood.ean)
+    expect(deps.fetchUserRecentFoods).toHaveBeenCalledWith(
+      userId,
+      mockFood.ean!,
+    )
   })
 
   it('calls fetchFoodsByName with correct args for Todos tab and non-empty search', async () => {
@@ -126,17 +157,31 @@ describe('fetchTemplatesByTabLogic', () => {
   it('handles large datasets efficiently in Recentes tab', async () => {
     // Create large datasets to verify enhanced function works correctly
     const LARGE_SIZE = 1000
-    const largeFoods = Array.from({ length: LARGE_SIZE }, (_, i) => ({
-      id: i + 1,
-      name: `Food ${i + 1}`,
-      __type: 'Food' as const,
-      ean: `${i + 1}`,
-    }))
-    const largeRecipes = Array.from({ length: LARGE_SIZE }, (_, i) => ({
-      id: i + 1,
-      name: `Recipe ${i + 1}`,
-      __type: 'Recipe' as const,
-    }))
+    const largeFoods = Array.from({ length: LARGE_SIZE }, (_, i) =>
+      promoteNewFoodToFood(
+        createNewFood({
+          name: `Food ${i + 1}`,
+          ean: `${i + 1}`,
+          macros: createMacroNutrients({
+            carbs: 10,
+            protein: 1,
+            fat: 0.1,
+          }),
+        }),
+        { id: i + 1 },
+      ),
+    )
+    const largeRecipes = Array.from({ length: LARGE_SIZE }, (_, i) =>
+      promoteToRecipe(
+        createNewRecipe({
+          name: `Recipe ${i + 1}`,
+          owner: 1,
+          items: [],
+          prepared_multiplier: 1,
+        }),
+        { id: i + 1 },
+      ),
+    )
     const largeTemplates = Array.from({ length: LARGE_SIZE }, (_, i) =>
       i % 2 === 0 ? largeFoods[i / 2] : largeRecipes[Math.floor(i / 2)],
     )
@@ -160,8 +205,8 @@ describe('fetchTemplatesByTabLogic', () => {
     expect(largeDeps.fetchUserRecentFoods).toHaveBeenCalledWith(userId, '')
 
     // Verify that we get the correct mix of foods and recipes
-    const actualFoodCount = result.filter((r) => r.__type === 'Food').length
-    const actualRecipeCount = result.filter((r) => r.__type === 'Recipe').length
+    const actualFoodCount = result.filter((r) => 'macros' in r).length
+    const actualRecipeCount = result.filter((r) => 'items' in r).length
     const expectedFoodCount = Math.ceil(LARGE_SIZE / 2)
     const expectedRecipeCount = Math.floor(LARGE_SIZE / 2)
 

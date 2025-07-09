@@ -10,11 +10,7 @@ import {
   macroProfileDAOSchema,
 } from '~/modules/diet/macro-profile/infrastructure/macroProfileDAO'
 import { type User } from '~/modules/user/domain/user'
-import {
-  handleApplicationError,
-  handleInfrastructureError,
-  handleValidationError,
-} from '~/shared/error/errorHandler'
+import { handleInfrastructureError } from '~/shared/error/errorHandler'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 import supabase from '~/shared/utils/supabase'
 

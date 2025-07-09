@@ -1,0 +1,64 @@
+{
+  "coreTools": [
+    "run_shell_command"
+  ],
+  "sequential-thinking": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "@modelcontextprotocol/server-sequential-thinking"
+    ]
+  },
+  "mcpServers": {
+    "serena": {
+      "command": "uv",
+      "args": [
+        "run",
+        "serena-mcp-server",
+        "--context",
+        "agent",
+        "--transport",
+        "stdio"
+      ],
+      "cwd": "/home/marucs/opt/mcp/serena",
+      "timeout": 5000
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ]
+    },
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/"
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp"
+      ]
+    },
+    "mcp-compass": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@liuyoshio/mcp-compass"
+      ]
+    },
+    "time": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-time",
+        "--local-timezone=America/Sao_Paulo"
+      ]
+    },
+    "language-server": {
+      "command": "bash",
+      "args": [
+        "start-language-server.sh"
+      ]
+    }
+  }
+}

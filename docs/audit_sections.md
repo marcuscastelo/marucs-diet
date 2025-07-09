@@ -1,6 +1,6 @@
 # Sections/UI Layer Audit
 
-_Last updated: 2025-06-27_
+_Last updated: 2025-07-08_
 
 ## Overview
 Sections and UI components now exclusively use the unified item system for all item, group, and recipe flows. All legacy section-specific item/group components and context providers have been removed. Business logic (validation, macro overflow, clipboard, ID management) is centralized in unified components and shared utilities.

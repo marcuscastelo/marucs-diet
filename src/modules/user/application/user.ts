@@ -2,7 +2,7 @@ import { createEffect, createSignal } from 'solid-js'
 
 import { showPromise } from '~/modules/toast/application/toastManager'
 import {
-  demoteToNewUser,
+  demoteUserToNewUser,
   type NewUser,
   type User,
 } from '~/modules/user/domain/user'
@@ -240,7 +240,7 @@ export function setFoodAsFavorite(foodId: number, favorite: boolean): void {
     }
   }
   void updateUser(currentUser_.id, {
-    ...demoteToNewUser(currentUser_),
+    ...demoteUserToNewUser(currentUser_),
     favorite_foods: favoriteFoods,
   })
     .then(fetchCurrentUser)

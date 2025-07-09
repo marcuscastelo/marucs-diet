@@ -1,5 +1,5 @@
 import { type Accessor, type JSXElement, type Setter } from 'solid-js'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 import {
   convertToGroups,
@@ -217,7 +217,7 @@ function AddNewItemButton(props: { onClick: () => void }) {
     <button
       type="button"
       class="btn btn-outline w-full"
-      onClick={props.onClick}
+      onClick={() => props.onClick()}
     >
       Adicionar item
     </button>

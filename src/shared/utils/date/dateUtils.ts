@@ -5,7 +5,7 @@
  * including timezone adjustments, formatting, and date normalization.
  */
 
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 

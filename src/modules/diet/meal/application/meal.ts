@@ -2,10 +2,8 @@ import {
   currentDayDiet,
   updateDayDiet,
 } from '~/modules/diet/day-diet/application/dayDiet'
-import {
-  convertToNewDayDiet,
-  updateMealInDayDiet,
-} from '~/modules/diet/day-diet/domain/dayDietOperations'
+import { demoteNewDayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import { updateMealInDayDiet } from '~/modules/diet/day-diet/domain/dayDietOperations'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import {
   handleApplicationError,
@@ -38,7 +36,7 @@ export async function updateMeal(
       return false
     }
     const updatedDayDiet = updateMealInDayDiet(currentDayDiet_, mealId, newMeal)
-    const newDay = convertToNewDayDiet(updatedDayDiet)
+    const newDay = demoteNewDayDiet(updatedDayDiet)
     await updateDayDiet(currentDayDiet_.id, newDay)
     return true
   } catch (error) {

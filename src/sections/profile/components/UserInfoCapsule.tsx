@@ -72,8 +72,31 @@ const makeOnBlur = <T extends keyof User>(
 
 export const convertString = (value: string) => value
 
+// User field keys without the brand symbol
+type UserFieldKey =
+  | 'id'
+  | 'name'
+  | 'favorite_foods'
+  | 'diet'
+  | 'birthdate'
+  | 'gender'
+  | 'desired_weight'
+
+/**
+ * Safely converts a user field value to string for display
+ */
+function valueToString(value: unknown): string {
+  if (Array.isArray(value)) {
+    return value.join(', ')
+  }
+  if (typeof value === 'string' || typeof value === 'number') {
+    return String(value)
+  }
+  return JSON.stringify(value)
+}
+
 // TODO:   Create module for translations
-const USER_FIELD_TRANSLATION: Translation<keyof Omit<User, '__type'>> = {
+const USER_FIELD_TRANSLATION: Translation<UserFieldKey> = {
   name: 'Nome',
   gender: 'Gênero',
   diet: 'Dieta',
@@ -96,7 +119,7 @@ function renderComboBox<T extends keyof User>(
   return (
     <ComboBox
       options={options}
-      value={innerData()[field].toString()}
+      value={valueToString(innerData()[field])}
       onChange={(value) => {
         const newUser = {
           ...innerData(),
@@ -109,7 +132,7 @@ function renderComboBox<T extends keyof User>(
   )
 }
 
-export function UserInfoCapsule<T extends keyof Omit<User, '__type'>>(props: {
+export function UserInfoCapsule<T extends UserFieldKey>(props: {
   field: T
   convert: (value: string) => User[T]
   extra?: string
@@ -123,10 +146,7 @@ export function UserInfoCapsule<T extends keyof Omit<User, '__type'>>(props: {
   )
 }
 
-function LeftContent(props: {
-  field: keyof Omit<User, '__type'>
-  extra?: string
-}) {
+function LeftContent(props: { field: UserFieldKey; extra?: string }) {
   return (
     <CapsuleContent>
       <h5
@@ -166,7 +186,7 @@ function RightContent<T extends keyof Omit<User, '__type'>>(props: {
                 class={
                   'btn-ghost input bg-transparent text-center px-0 text-xl my-auto'
                 }
-                value={innerData()[props.field].toString()}
+                value={valueToString(innerData()[props.field])}
                 onChange={makeOnChange(props.field, convertString)}
                 onBlur={makeOnBlur(props.field, props.convert)}
                 style={{ width: '100%' }}

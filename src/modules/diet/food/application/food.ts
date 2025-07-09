@@ -1,5 +1,5 @@
-import { type Food } from '~/modules/diet/food/domain/food'
-import { createNewFoodWithValidation } from '~/modules/diet/food/domain/food'
+import { type Food, type NewFood } from '~/modules/diet/food/domain/food'
+import { createNewFood } from '~/modules/diet/food/domain/food'
 import { type FoodSearchParams } from '~/modules/diet/food/domain/foodRepository'
 import {
   importFoodFromApiByEan,
@@ -198,38 +198,5 @@ export async function fetchFoodsByIds(
     })
     if (isBackendOutageError(error)) setBackendOutage(true)
     return []
-  }
-}
-
-/**
- * Creates and validates a new food with domain validation.
- * This demonstrates proper domain error handling in the application layer.
- * @param params - Food creation parameters
- * @returns The created food or null on error
- */
-export async function createValidatedFood(params: {
-  name: string
-  macros: MacroNutrients
-  ean: string | null
-  source?: { type: 'api'; id: string }
-}): Promise<Food | null> {
-  try {
-    // This will throw domain errors if validation fails
-    const newFood = createNewFoodWithValidation(params)
-
-    // Save to repository
-    const createdFood = await foodRepository.insertFood(newFood)
-    return createdFood
-  } catch (error) {
-    // The enhanced error handler will automatically detect and route domain errors
-    // to the appropriate handler with correct severity levels
-    handleApplicationError(error, {
-      operation: 'createValidatedFood',
-      entityType: 'Food',
-      module: 'diet/food',
-      component: 'foodApplication',
-      additionalData: params,
-    })
-    return null
   }
 }

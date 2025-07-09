@@ -6,11 +6,6 @@ export type FoodSearchParams = {
 }
 
 export type FoodRepository = {
-  /**
-   * Fetches foods by an array of IDs.
-   * @param ids - Array of Food IDs.
-   * @returns Array of foods matching the IDs.
-   */
   fetchFoodsByIds: (ids: Food['id'][]) => Promise<readonly Food[]>
   fetchFoods: (params: FoodSearchParams) => Promise<readonly Food[]>
   fetchFoodById: (

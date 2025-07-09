@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { updateUnifiedItemQuantity } from '~/modules/diet/item/application/item'
+import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { calcUnifiedItemMacros } from '~/shared/utils/macroMath'
 
@@ -12,7 +13,9 @@ describe('item application services', () => {
     reference: {
       type: 'food' as const,
       id: 1,
-      macros: { carbs: 10, protein: 2, fat: 1 },
+      macros: createMacroNutrients(
+        createMacroNutrients({ carbs: 10, protein: 2, fat: 1 }),
+      ),
     },
   })
 
@@ -22,11 +25,13 @@ describe('item application services', () => {
       expect(result.quantity).toBe(200)
       expect(result.name).toBe(baseUnifiedItem.name)
       // Macros should scale proportionally with quantity
-      expect(calcUnifiedItemMacros(result)).toEqual({
-        carbs: 20, // (10 * 200) / 100
-        fat: 2, // (1 * 200) / 100
-        protein: 4, // (2 * 200) / 100
-      })
+      expect(calcUnifiedItemMacros(result)).toEqual(
+        createMacroNutrients({
+          carbs: 20, // (10 * 200) / 100
+          fat: 2, // (1 * 200) / 100
+          protein: 4, // (2 * 200) / 100
+        }),
+      )
     })
   })
 })

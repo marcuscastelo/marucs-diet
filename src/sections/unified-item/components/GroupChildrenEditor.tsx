@@ -1,5 +1,5 @@
 import { type Accessor, For, type Setter, Show } from 'solid-js'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 import { saveUnifiedRecipe } from '~/modules/diet/recipe/application/unifiedRecipe'
 import { createNewUnifiedRecipe } from '~/modules/diet/recipe/domain/recipe'
@@ -24,10 +24,7 @@ import { ConvertToRecipeIcon } from '~/sections/common/components/icons/ConvertT
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
-import {
-  handleUserError,
-  handleValidationError,
-} from '~/shared/error/errorHandler'
+import { handleUserError } from '~/shared/error/errorHandler'
 import { createDebug } from '~/shared/utils/createDebug'
 import { generateId, regenerateId } from '~/shared/utils/idUtils'
 

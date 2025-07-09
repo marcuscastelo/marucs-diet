@@ -1,7 +1,7 @@
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 export const cachedSearchSchema = z.object({
-  search: z.string({ required_error: 'Search is required' }),
+  search: z.string(),
 })
 
 export type CachedSearch = Readonly<z.infer<typeof cachedSearchSchema>>

@@ -1,51 +1,37 @@
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 import { itemSchema } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import { createZodEntity } from '~/shared/domain/validation'
+import { handleApiError } from '~/shared/error/errorHandler'
 import { generateId } from '~/shared/utils/idUtils'
+import { parseWithStack } from '~/shared/utils/parseWithStack'
 
-export const simpleItemGroupSchema = z.object({
-  id: z.number({
-    required_error: "O campo 'id' do grupo é obrigatório.",
-    invalid_type_error: "O campo 'id' do grupo deve ser um número.",
-  }),
-  name: z.string({
-    required_error: "O campo 'name' do grupo é obrigatório.",
-    invalid_type_error: "O campo 'name' do grupo deve ser uma string.",
-  }),
-  items: itemSchema.array(),
+const ze = createZodEntity('ItemGroup')
+
+export const { schema: simpleItemGroupSchema } = ze.create({
+  id: ze.number(),
+  name: ze.string(),
+  items: ze.array(itemSchema),
   recipe: z
-    .number({
-      required_error:
-        "O campo 'recipe' do grupo é obrigatório quando presente.",
-      invalid_type_error: "O campo 'recipe' do grupo deve ser um número.",
-    })
+    .number()
     .nullable()
     .optional()
     .transform((recipe) => recipe ?? undefined),
   __type: z.literal('ItemGroup').optional().default('ItemGroup'),
 })
 
-export const recipedItemGroupSchema = z.object({
-  id: z.number({
-    required_error: "O campo 'id' do grupo é obrigatório.",
-    invalid_type_error: "O campo 'id' do grupo deve ser um número.",
-  }),
-  name: z.string({
-    required_error: "O campo 'name' do grupo é obrigatório.",
-    invalid_type_error: "O campo 'name' do grupo deve ser uma string.",
-  }),
-  items: itemSchema
-    .array()
+export const { schema: recipedItemGroupSchema } = ze.create({
+  id: ze.number(),
+  name: ze.string(),
+  items: ze
+    .array(itemSchema)
     .refine((arr) => Array.isArray(arr) && arr.length > 0, {
       message:
         "O campo 'items' do grupo deve ser uma lista de itens e não pode ser vazio.",
     })
     .readonly(),
-  recipe: z.number({
-    required_error: "O campo 'recipe' do grupo é obrigatório.",
-    invalid_type_error: "O campo 'recipe' do grupo deve ser um número.",
-  }),
+  recipe: ze.number(),
   __type: z.literal('ItemGroup').default('ItemGroup'),
 })
 
@@ -57,47 +43,19 @@ export const itemGroupSchema = z.union([
   recipedItemGroupSchema,
 ])
 
-/**
- * Type guard for SimpleItemGroup.
- * @deprecated
- * @param group - The ItemGroup to check
- * @returns True if group is SimpleItemGroup
- */
-export function isSimpleItemGroup(group: ItemGroup): group is SimpleItemGroup {
-  return typeof group.recipe !== 'number' || isNaN(group.recipe)
-}
-
-/**
- * Type guard for RecipedItemGroup.
- * @deprecated
- * @param group - The ItemGroup to check
- * @returns True if group is RecipedItemGroup
- */
-export function isRecipedItemGroup(
-  group: ItemGroup,
-): group is RecipedItemGroup {
-  return typeof group.recipe === 'number' && !isNaN(group.recipe)
-}
-
 // Use output type for strict clipboard unions
 /**
  * @deprecated
  */
-export type SimpleItemGroup = Readonly<z.output<typeof simpleItemGroupSchema>>
+type SimpleItemGroup = Readonly<z.output<typeof simpleItemGroupSchema>>
 /**
  * @deprecated
  */
-export type RecipedItemGroup = Readonly<z.output<typeof recipedItemGroupSchema>>
+type RecipedItemGroup = Readonly<z.output<typeof recipedItemGroupSchema>>
 /**
  * @deprecated
  */
 export type ItemGroup = Readonly<z.output<typeof itemGroupSchema>>
-
-export function isSimpleSingleGroup(
-  group: ItemGroup,
-): group is SimpleItemGroup {
-  return isSimpleItemGroup(group) && group.items.length === 1
-}
 
 /**
  * Calculates the total quantity of an ItemGroup by summing all item quantities.
@@ -129,13 +87,13 @@ export function createSimpleItemGroup({
   name: string
   items?: SimpleItemGroup['items']
 }): SimpleItemGroup {
-  return {
+  return parseWithStack(simpleItemGroupSchema, {
     id: generateId(),
     name,
     items,
     recipe: undefined,
-    __type: 'ItemGroup',
-  }
+    __type: 'itemGroup',
+  })
 }
 
 /**
@@ -157,54 +115,11 @@ export function createRecipedItemGroup({
   recipe: number
   items?: RecipedItemGroup['items']
 }): RecipedItemGroup {
-  return {
+  return parseWithStack(recipedItemGroupSchema, {
     id: generateId(),
     name,
     items,
     recipe,
-    __type: 'ItemGroup',
-  }
-}
-
-/**
- * Checks if a RecipedItemGroup is up to date with its associated Recipe.
- * Returns false if any item reference, quantity, or macros differ.
- *
- * @deprecated
- * @param group - The RecipedItemGroup to check
- * @param groupRecipe - The Recipe to compare against
- * @returns True if up to date
- */
-export function isRecipedGroupUpToDate(
-  group: RecipedItemGroup,
-  groupRecipe: Recipe,
-): boolean {
-  if (groupRecipe.id !== group.recipe) {
-    // Defensive: always throw for invalid state
-    throw new Error(
-      'Invalid state! Group recipe is not the same as the recipe in the group!',
-    )
-  }
-  const groupRecipeItems = groupRecipe.items
-  const groupItems = group.items
-  if (groupRecipeItems.length !== groupItems.length) {
-    return false
-  }
-
-  for (let i = 0; i < groupRecipeItems.length; i++) {
-    const recipeItem = groupRecipeItems[i]
-    const groupItem = groupItems[i]
-
-    if (recipeItem === undefined || groupItem === undefined) {
-      return false
-    }
-    if (recipeItem.reference !== groupItem.reference) {
-      return false
-    }
-    if (recipeItem.quantity !== groupItem.quantity) {
-      return false
-    }
-    // TODO:   Compare macros when they are implemented in the recipe
-  }
-  return true
+    __type: 'itemGroup',
+  })
 }

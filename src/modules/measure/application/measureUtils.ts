@@ -109,16 +109,20 @@ export function calculateBodyFatFromAverages(
   gender: 'male' | 'female',
   weightAverage: number,
 ): number {
-  const bf = calculateBodyFat({
-    gender,
-    height: averages.height,
-    waist: averages.waist,
-    hip: averages.hip,
-    neck: averages.neck,
-    weight: weightAverage,
-  } satisfies BodyFatInput<'male' | 'female'>)
+  try {
+    const bf = calculateBodyFat({
+      gender,
+      height: averages.height,
+      waist: averages.waist,
+      hip: averages.hip,
+      neck: averages.neck,
+      weight: weightAverage,
+    } satisfies BodyFatInput<'male' | 'female'>)
 
-  return isFinite(bf) && bf > 0 ? parseFloat(bf.toFixed(2)) : 0
+    return isFinite(bf) && bf > 0 ? parseFloat(bf.toFixed(2)) : 0
+  } catch {
+    return 0
+  }
 }
 
 /**

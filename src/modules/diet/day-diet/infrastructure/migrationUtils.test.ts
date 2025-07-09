@@ -8,7 +8,8 @@ import {
 } from '~/modules/diet/day-diet/infrastructure/migrationUtils'
 import { createItem } from '~/modules/diet/item/domain/item'
 import { createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
-import { createMeal } from '~/modules/diet/meal/domain/meal'
+import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { createNewMeal, promoteMeal } from '~/modules/diet/meal/domain/meal'
 import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
 function makeItem(id: number, name = 'Arroz') {
@@ -17,7 +18,7 @@ function makeItem(id: number, name = 'Arroz') {
       name,
       reference: id,
       quantity: 100,
-      macros: { carbs: 10, protein: 2, fat: 1 },
+      macros: createMacroNutrients({ carbs: 10, protein: 2, fat: 1 }),
     }),
     id,
   }
@@ -61,10 +62,7 @@ function makeUnifiedMeal(
   name = 'Almoço',
   items = [makeUnifiedItemFromItem(makeItem(1))],
 ) {
-  return {
-    ...createMeal({ name, items }),
-    id,
-  }
+  return promoteMeal(createNewMeal({ name, items }), { id })
 }
 
 const baseItem = makeItem(1)
@@ -81,7 +79,6 @@ describe('infrastructure migration utils', () => {
 
       expect(result.id).toBe(1)
       expect(result.name).toBe('Almoço')
-      expect(result.__type).toBe('Meal')
       expect(result.items).toHaveLength(1)
       expect(result.items[0]?.name).toBe('Arroz')
       expect(result.items[0]?.reference.type).toBe('food')
@@ -303,7 +300,7 @@ describe('infrastructure migration utils', () => {
       }
 
       // Test that the legacy meal can be migrated to unified format
-      const legacyMeal = legacyDayData.meals[0] as LegacyMeal
+      const legacyMeal = legacyDayData.meals[0] as LegacyMeal // eslint-disable-line @typescript-eslint/consistent-type-assertions
       const unifiedMeal = migrateLegacyMealToUnified(legacyMeal)
 
       expect(unifiedMeal).toHaveProperty('items')
