@@ -134,11 +134,6 @@ export function wrapErrorWithStack(error: unknown): Error {
 }
 
 /**
- * Detects if an error is a backend outage/network error (e.g., fetch failed, CORS, DNS, etc).
- * @param error - The error to check
- * @returns True if the error is a backend outage/network error
- */
-/**
  * Creates a contextual error handler for any module and entity type.
  * Automatically infers execution context to reduce boilerplate across the entire codebase.
  *
@@ -148,87 +143,6 @@ export function wrapErrorWithStack(error: unknown): Error {
  * @param module - The architectural layer: 'application' | 'infrastructure' | 'validation' | 'user' | 'system' | 'domain'
  * @param entityType - The business entity being operated on (e.g., 'Food', 'Recipe', 'DayDiet', 'User')
  *
- * @example
- * ```typescript
- * // === APPLICATION LAYER EXAMPLES ===
- *
- * // Day Diet Application
- * const dayDietErrorHandler = createErrorHandler('application', 'DayDiet')
- * dayDietErrorHandler.error(error, { operation: 'fetchAllUserDayDiets' })
- *
- * // Food Application
- * const foodErrorHandler = createErrorHandler('application', 'Food')
- * foodErrorHandler.apiError(error, { operation: 'searchFood' })
- *
- * // Recipe Application
- * const recipeErrorHandler = createErrorHandler('application', 'Recipe')
- * recipeErrorHandler.error(error, { operation: 'createRecipe', entityId: recipeId })
- *
- * // === INFRASTRUCTURE LAYER EXAMPLES ===
- *
- * // Food Infrastructure (Supabase)
- * const foodInfraErrorHandler = createErrorHandler('infrastructure', 'Food')
- * foodInfraErrorHandler.error(error, { operation: 'insertFood' })
- *
- * // Recipe Infrastructure (Supabase)
- * const recipeInfraErrorHandler = createErrorHandler('infrastructure', 'Recipe')
- * recipeInfraErrorHandler.error(error, { operation: 'updateRecipe', entityId: recipeId })
- *
- * // Day Diet Infrastructure (Supabase)
- * const dayDietInfraErrorHandler = createErrorHandler('infrastructure', 'DayDiet')
- * dayDietInfraErrorHandler.error(error, { operation: 'fetchDayDiet', entityId: dayId })
- *
- * // === VALIDATION LAYER EXAMPLES ===
- *
- * // User Validation
- * const userValidationErrorHandler = createErrorHandler('validation', 'User')
- * userValidationErrorHandler.validationError(error, { operation: 'validateUserData' })
- *
- * // Recipe Validation
- * const recipeValidationErrorHandler = createErrorHandler('validation', 'Recipe')
- * recipeValidationErrorHandler.validationError(error, { operation: 'validateRecipeSchema' })
- *
- * // === DOMAIN LAYER EXAMPLES ===
- *
- * // Item Group Domain Logic
- * const itemGroupDomainErrorHandler = createErrorHandler('domain', 'ItemGroup')
- * itemGroupDomainErrorHandler.error(error, { operation: 'validateGroupHierarchy' })
- *
- * // === SYSTEM LAYER EXAMPLES ===
- *
- * // Weight System Operations
- * const weightSystemErrorHandler = createErrorHandler('system', 'Weight')
- * weightSystemErrorHandler.criticalError(error, { operation: 'systemSync' })
- *
- * // Search System Operations
- * const searchSystemErrorHandler = createErrorHandler('system', 'Search')
- * searchSystemErrorHandler.error(error, { operation: 'cacheInvalidation' })
- *
- * // === MIGRATION GUIDE ===
- *
- * // Replace these old patterns:
- * handleInfrastructureError(error, { operation: 'insertFood', entityType: 'Food', module: 'infrastructure', component: 'supabaseFoodRepository' })
- * handleApplicationError(error, { operation: 'searchFood', entityType: 'Food', module: 'application', component: 'food' })
- * handleValidationError(error, { operation: 'validateUserData', entityType: 'User', module: 'validation', component: 'userValidation' })
- * handleUserError(error, { operation: 'userAction', entityType: 'User', module: 'user', component: 'userApplication' })
- * handleSystemError(error, { operation: 'systemSync', entityType: 'Weight', module: 'system', component: 'weightSystem' })
- *
- * // With this new pattern:
- * const errorHandler = createErrorHandler('infrastructure', 'Food')
- * errorHandler.error(error, { operation: 'insertFood' })
- *
- * const errorHandler = createErrorHandler('application', 'Food')
- * errorHandler.error(error, { operation: 'searchFood' })
- *
- * const errorHandler = createErrorHandler('validation', 'User')
- * errorHandler.validationError(error, { operation: 'validateUserData' })
- *
- * const errorHandler = createErrorHandler('user', 'User')
- * errorHandler.error(error, { operation: 'userAction' })
- *
- * const errorHandler = createErrorHandler('system', 'Weight')
- * errorHandler.criticalError(error, { operation: 'systemSync' })
- * ```
  */
 export function createErrorHandler<
   TModule extends

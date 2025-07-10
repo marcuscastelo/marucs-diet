@@ -78,7 +78,7 @@ export const modalManager: ModalManager = {
       if (shouldClose) performClose(id, modal)
     } catch (e) {
       performClose(id, modal)
-      errorHandler.criticalError(e, { operation: 'closeModal' })
+      errorHandler.criticalError(e, { operation: 'closeModalManager' })
     }
   },
 }

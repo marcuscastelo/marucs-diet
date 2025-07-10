@@ -136,7 +136,7 @@ export function closeModal(modalId: ModalId, onClose?: () => void): void {
     void modalManager.closeModal(modalId)
     onClose?.()
   } catch (e) {
-    errorHandler.criticalError(e, { operation: 'closeModal' })
+    errorHandler.criticalError(e, { operation: 'closeModalHelper' })
     throw e
   }
 }
