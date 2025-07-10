@@ -40,12 +40,14 @@ Editor, Service, Manager
 ### Domain Layer (`~/modules/*/domain/`)
 **Purpose**: Pure business logic, no side effects
 - **Never import or use side-effect utilities** (e.g., `handleApiError`, logging, toasts, API calls).
-- **Only throw pure errors** (e.g., `throw new DomainError(...)`).
+- **Only throw standard errors** (e.g., `throw new Error('descriptive message', { cause: { context } })`)
 - If you need to provide error context, use custom error classes with properties, but do not depend on external modules.
 
 ```typescript
 // GOOD (domain):
-throw new GroupConflictError('Group mismatch', { groupId, recipeId })
+throw new Error('Group mismatch: cannot mix different groups', { 
+  cause: { groupId, recipeId } 
+})
 
 // BAD (domain):
 import { handleApiError } from '~/shared/error/errorHandler'
@@ -73,7 +75,7 @@ try {
 ---
 
 ## Import Rules Violations
-- **Barrel Files (`index.ts`) are BANNED:** The `GEMINI.md` explicitly states that barrel files (`index.ts`) that only re-export from other files are forbidden. An instance of this violation was found in `src/shared/domain/errors/index.ts`.
+- **Barrel Files (`index.ts`) are BANNED:** The `CLAUDE.md` explicitly states that barrel files (`index.ts`) that only re-export from other files are forbidden.
 
 ## **Component Duplication - Specific Cases**
 

@@ -3,7 +3,7 @@ applyTo: "**"
 ---
 # Gemini Instructions for Macroflows
 
-Ao fim de toda mensagem sua, exiba <End of Response>.
+At the end of every message, show <End of Response>.
 
 ## 1. Project Overview & Context
 
