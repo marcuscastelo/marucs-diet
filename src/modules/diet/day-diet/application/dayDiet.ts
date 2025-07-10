@@ -1,7 +1,6 @@
 import { createEffect, createSignal, onCleanup } from 'solid-js'
 
 import {
-  createNewDayDiet,
   type DayDiet,
   type NewDayDiet,
 } from '~/modules/diet/day-diet/domain/dayDiet'
@@ -12,29 +11,9 @@ import {
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
 import { type User } from '~/modules/user/domain/user'
-import {
-  handleApplicationError,
-  handleInfrastructureError,
-  handleValidationError,
-} from '~/shared/error/errorHandler'
+import { handleInfrastructureError } from '~/shared/error/errorHandler'
 import { getTodayYYYYMMDD } from '~/shared/utils/date/dateUtils'
 import { registerSubapabaseRealtimeCallback } from '~/shared/utils/supabase'
-
-export function createDayDiet({
-  target_day: targetDay,
-  owner,
-  meals = [],
-}: {
-  target_day: string
-  owner: number
-  meals?: DayDiet['meals']
-}): NewDayDiet {
-  return createNewDayDiet({
-    target_day: targetDay,
-    owner,
-    meals,
-  })
-}
 
 const dayRepository = createSupabaseDayRepository()
 
