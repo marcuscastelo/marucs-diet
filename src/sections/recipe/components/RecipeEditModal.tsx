@@ -20,7 +20,7 @@ import {
   RecipeEditHeader,
 } from '~/sections/recipe/components/RecipeEditView'
 import { RecipeEditContextProvider } from '~/sections/recipe/context/RecipeEditContext'
-import { handleValidationError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 import {
   openDeleteConfirmModal,
   openTemplateSearchModal,
@@ -36,6 +36,8 @@ export type RecipeEditModalProps = {
   onClose?: () => void
 }
 
+const errorHandler = createErrorHandler('validation', 'RecipeEditModal')
+
 export function RecipeEditModal(props: RecipeEditModalProps) {
   const [recipe, setRecipe] = createSignal(untrack(() => props.recipe()))
 
@@ -50,14 +52,16 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
     try {
       // Only food items can be directly converted to Items for recipes
       if (newItem.reference.type !== 'food') {
-        handleValidationError('Cannot add non-food items to recipes', {
-          component: 'RecipeEditModal',
-          operation: 'handleNewUnifiedItem',
-          additionalData: {
-            itemType: newItem.reference.type,
-            itemId: newItem.id,
+        errorHandler.validationError(
+          new Error('Cannot add non-food items to recipes'),
+          {
+            operation: 'handleNewUnifiedItem',
+            additionalData: {
+              itemType: newItem.reference.type,
+              itemId: newItem.id,
+            },
           },
-        })
+        )
         showError(
           'Não é possível adicionar itens que não sejam alimentos a receitas.',
         )

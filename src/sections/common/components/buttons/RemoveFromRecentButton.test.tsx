@@ -1,7 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { Food } from '~/modules/diet/food/domain/food'
-import type { Recipe } from '~/modules/diet/recipe/domain/recipe'
+import {
+  createNewFood,
+  type Food,
+  promoteNewFoodToFood,
+} from '~/modules/diet/food/domain/food'
+import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import {
+  createNewRecipe,
+  promoteToRecipe,
+  type Recipe,
+} from '~/modules/diet/recipe/domain/recipe'
 import {
   isTemplateFood,
   type Template,
@@ -25,7 +34,12 @@ vi.mock('~/modules/user/application/user', () => ({
 }))
 
 vi.mock('~/shared/error/errorHandler', () => ({
-  handleApiError: vi.fn(),
+  createErrorHandler: vi.fn(() => ({
+    error: vi.fn(),
+    apiError: vi.fn(),
+    validationError: vi.fn(),
+    criticalError: vi.fn(),
+  })),
 }))
 
 // Import the mocked modules
@@ -33,38 +47,40 @@ import { deleteRecentFoodByReference } from '~/modules/recent-food/application/r
 import { debouncedTab } from '~/modules/search/application/search'
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 
 const mockDeleteRecentFoodByReference = vi.mocked(deleteRecentFoodByReference)
 const mockDebouncedTab = vi.mocked(debouncedTab)
 const mockShowPromise = vi.mocked(showPromise)
 const mockCurrentUserId = vi.mocked(currentUserId)
-const mockHandleApiError = vi.mocked(handleApiError)
+const mockCreateErrorHandler = vi.mocked(createErrorHandler)
 
 describe('RemoveFromRecentButton Logic', () => {
   const mockRefetch = vi.fn()
   const mockUserId = 1
 
-  const mockFoodTemplate: Food = {
-    id: 1,
-    name: 'Test Food',
-    ean: '1234567890',
-    macros: {
-      protein: 5,
-      carbs: 10,
-      fat: 5,
-    },
-    __type: 'Food',
-  }
+  const mockFoodTemplate: Food = promoteNewFoodToFood(
+    createNewFood({
+      name: 'Test Food',
+      ean: '1234567890',
+      macros: createMacroNutrients({
+        protein: 5,
+        carbs: 10,
+        fat: 5,
+      }),
+    }),
+    { id: 1 },
+  )
 
-  const mockRecipeTemplate: Recipe = {
-    id: 2,
-    name: 'Test Recipe',
-    owner: 1,
-    items: [],
-    prepared_multiplier: 1,
-    __type: 'Recipe',
-  }
+  const mockRecipeTemplate: Recipe = promoteToRecipe(
+    createNewRecipe({
+      name: 'Test Recipe',
+      owner: 1,
+      items: [],
+      prepared_multiplier: 1,
+    }),
+    { id: 2 },
+  )
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -154,7 +170,10 @@ describe('RemoveFromRecentButton Logic', () => {
         loading: 'Removendo item da lista de recentes...',
         success: 'Item removido da lista de recentes com sucesso!',
         error: (err: unknown) => {
-          handleApiError(err)
+          const errorHandler = mockCreateErrorHandler('user', 'RecentFood')
+          errorHandler.error(err, {
+            operation: 'userAction',
+          })
           return 'Erro ao remover item da lista de recentes.'
         },
       })
@@ -176,13 +195,16 @@ describe('RemoveFromRecentButton Logic', () => {
 
       // Create error handler function like in the component
       const errorHandler = (err: unknown) => {
-        handleApiError(err)
+        const handler = mockCreateErrorHandler('user', 'RecentFood')
+        handler.error(err, {
+          operation: 'userAction',
+        })
         return 'Erro ao remover item da lista de recentes.'
       }
 
       const errorMessage = errorHandler(mockError)
 
-      expect(mockHandleApiError).toHaveBeenCalledWith(mockError)
+      expect(mockCreateErrorHandler).toHaveBeenCalledWith('user', 'RecentFood')
       expect(errorMessage).toBe('Erro ao remover item da lista de recentes.')
     })
   })
@@ -198,7 +220,9 @@ describe('RemoveFromRecentButton Logic', () => {
         }
 
         expect(props.template).toBeDefined()
-        expect(props.template.__type).toMatch(/^(Food|Recipe)$/)
+        expect(isTemplateFood(props.template) ? 'Food' : 'Recipe').toMatch(
+          /^(Food|Recipe)$/,
+        )
         expect(props.template.id).toBeTypeOf('number')
         expect(props.refetch).toBeTypeOf('function')
       })

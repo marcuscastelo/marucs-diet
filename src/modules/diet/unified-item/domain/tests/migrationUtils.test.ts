@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
-import type { Item } from '~/modules/diet/item/domain/item'
-import type { ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
+import { createItem, type Item } from '~/modules/diet/item/domain/item'
+import {
+  createRecipedItemGroup,
+  type ItemGroup,
+} from '~/modules/diet/item-group/domain/itemGroup'
+import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   migrateFromUnifiedItems,
   migrateToUnifiedItems,
@@ -9,19 +13,21 @@ import {
 
 describe('migrationUtils', () => {
   const sampleItem: Item = {
+    ...createItem({
+      name: 'Chicken',
+      reference: 10,
+      quantity: 100,
+      macros: createMacroNutrients({ protein: 20, carbs: 0, fat: 2 }),
+    }),
     id: 1,
-    name: 'Chicken',
-    quantity: 100,
-    macros: { protein: 20, carbs: 0, fat: 2 },
-    reference: 10,
-    __type: 'Item',
   }
   const sampleGroup: ItemGroup = {
+    ...createRecipedItemGroup({
+      name: 'Lunch',
+      items: [sampleItem],
+      recipe: 1,
+    }),
     id: 2,
-    name: 'Lunch',
-    items: [sampleItem],
-    recipe: 1,
-    __type: 'ItemGroup',
   }
   it('migrates items and groups to unified and back', () => {
     const unified = migrateToUnifiedItems([sampleItem], [sampleGroup])

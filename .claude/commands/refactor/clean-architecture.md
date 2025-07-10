@@ -69,7 +69,7 @@ export function updateDayDiet(dayDiet: DayDiet) {
 // After: Pure domain logic
 export function updateDayDiet(dayDiet: DayDiet): DayDiet {
   if (!isValidDayDiet(dayDiet)) {
-    throw new DomainError('Invalid day diet', { dayDiet }) // ✅
+    throw new Error('Invalid day diet', { cause: { dayDiet } }) // ✅
   }
   return dayDiet
 }

@@ -14,6 +14,7 @@ import {
   updateItemGroupName,
   updateItemInGroup,
 } from '~/modules/diet/item-group/domain/itemGroupOperations'
+import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 
 function makeItem(id: number, name = 'Arroz') {
   return {
@@ -21,7 +22,7 @@ function makeItem(id: number, name = 'Arroz') {
       name,
       reference: id,
       quantity: 100,
-      macros: { carbs: 10, protein: 2, fat: 1 },
+      macros: createMacroNutrients({ carbs: 10, protein: 2, fat: 1 }),
     }),
     id,
   }

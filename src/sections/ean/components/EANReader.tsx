@@ -6,10 +6,12 @@ import { createSignal, onCleanup, onMount, Show } from 'solid-js'
 
 import { showError } from '~/modules/toast/application/toastManager'
 import { LoadingRing } from '~/sections/common/components/LoadingRing'
-import { handleScannerError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 
 // Html5QrcodeSupportedFormats.EAN_13
 const Html5QrcodeSupportedFormats_EAN_13 = 9
+
+const errorHandler = createErrorHandler('user', 'EANReader')
 
 export function EANReader(props: {
   id: string
@@ -77,10 +79,7 @@ export function EANReader(props: {
             {},
             'Erro ao iniciar o leitor de código de barras. Verifique se a câmera está acessível e tente novamente.',
           )
-          handleScannerError(err, {
-            component: 'EANReader',
-            operation: 'startScanner',
-          })
+          errorHandler.error(err, { operation: 'startScanner' })
           return false
         })
 
@@ -88,10 +87,7 @@ export function EANReader(props: {
         didStart
           .then(async () => {
             await html5QrcodeScanner.stop().catch((err) => {
-              handleScannerError(err, {
-                component: 'EANReader',
-                operation: 'stopScanner',
-              })
+              errorHandler.error(err, { operation: 'stopScanner' })
             })
           })
           .catch(() => {
@@ -101,10 +97,7 @@ export function EANReader(props: {
     }
 
     run().catch((err) => {
-      handleScannerError(err, {
-        component: 'EANReader',
-        operation: 'run',
-      })
+      errorHandler.error(err, { operation: 'run' })
       setLoadingScanner(false)
     })
   })

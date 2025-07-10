@@ -1,9 +1,10 @@
-/* eslint-disable */
 /**
  * Centralized error handling utilities for the application layer.
  * Components should not directly use console.error, instead they should
  * use these utilities or pass errors to their parent components.
  */
+
+export type ErrorSeverity = 'critical' | 'error' | 'warning' | 'info'
 
 export type ErrorContext = {
   component?: string
@@ -12,7 +13,21 @@ export type ErrorContext = {
   additionalData?: Record<string, unknown>
 }
 
+export type EnhancedErrorContext = {
+  operation: string
+  entityType?: string
+  entityId?: string | number
+  userId?: string | number
+  severity?: ErrorSeverity
+  module?: string
+  component?: string
+  businessContext?: Record<string, unknown>
+  technicalContext?: Record<string, unknown>
+  additionalData?: Record<string, unknown>
+}
+
 export function getCallerFile(): string | undefined {
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   const originalPrepareStackTrace = Error.prepareStackTrace
 
   try {
@@ -38,7 +53,7 @@ function getCallerContext(): string {
 }
 
 /**
- * Log an error with context information
+ * Enhanced log function that supports both context types
  */
 export function logError(error: unknown, context?: ErrorContext): void {
   const timestamp = new Date().toISOString()
@@ -59,21 +74,50 @@ export function logError(error: unknown, context?: ErrorContext): void {
   }
 }
 
+/**
+ * Enhanced log function for comprehensive error contexts
+ */
+export function logEnhancedError(
+  error: unknown,
+  context: EnhancedErrorContext,
+): void {
+  const timestamp = new Date().toISOString()
+  const severity = context.severity ?? 'error'
+  const module = context.module ?? 'unknown'
+  const component = context.component ?? getCallerContext()
+  const operation = context.operation
+
+  const contextStr = `[${severity.toUpperCase()}][${module}][${component}::${operation}]`
+
+  console.error(`${timestamp} ${contextStr} Error:`, error)
+
+  if (context.entityType !== undefined && context.entityId !== undefined) {
+    console.error(`Entity: ${context.entityType}#${context.entityId}`)
+  }
+
+  if (context.userId !== undefined) {
+    console.error(`User: ${context.userId}`)
+  }
+
+  if (context.businessContext) {
+    console.error('Business context:', context.businessContext)
+  }
+
+  if (context.technicalContext) {
+    console.error('Technical context:', context.technicalContext)
+  }
+}
+
 const ORIGINAL_ERROR_SYMBOL = Symbol('originalError')
 export function wrapErrorWithStack(error: unknown): Error {
   let message = 'Unknown error'
   if (typeof error === 'object' && error !== null) {
     const keys = Object.keys(error)
-    if (
-      'message' in error &&
-      typeof (error as Record<string, unknown>).message === 'string'
-    ) {
+    if ('message' in error && typeof error.message === 'string') {
       if (keys.length > 1) {
-        message = `${(error as { message: string }).message}: ${JSON.stringify(
-          error,
-        )}`
+        message = `${error.message}: ${JSON.stringify(error)}`
       } else {
-        message = (error as { message: string }).message
+        message = error.message
       }
     } else {
       message = JSON.stringify(error)
@@ -90,47 +134,125 @@ export function wrapErrorWithStack(error: unknown): Error {
 }
 
 /**
- * Handle errors related to API operations
- * Now infers context/module automatically; manual context is ignored.
+ * Creates a contextual error handler for any module and entity type.
+ * Automatically infers execution context to reduce boilerplate across the entire codebase.
+ *
+ * This factory function should be used in ALL modules and layers to replace direct calls
+ * to handleInfrastructureError, handleApplicationError, handleValidationError, etc.
+ *
+ * @param module - The architectural layer: 'application' | 'infrastructure' | 'validation' | 'user' | 'system' | 'domain'
+ * @param entityType - The business entity being operated on (e.g., 'Food', 'Recipe', 'DayDiet', 'User')
+ *
  */
-export function handleApiError(error: unknown): void {
-  let errorToLog = error
-  if (!(error instanceof Error)) {
-    errorToLog = wrapErrorWithStack(error)
+export function createErrorHandler<
+  TModule extends
+    | 'application'
+    | 'infrastructure'
+    | 'validation'
+    | 'user'
+    | 'system'
+    | 'domain',
+>(module: TModule, entityType: string) {
+  return {
+    /**
+     * Handle errors with automatic context inference.
+     */
+    error: (error: unknown, context?: Partial<EnhancedErrorContext>): void => {
+      const inferredComponent = getCallerContext()
+      const enhancedContext: EnhancedErrorContext = {
+        module,
+        entityType,
+        component: inferredComponent,
+        operation: context?.operation ?? 'unknown',
+        severity: context?.severity ?? 'error',
+        ...context,
+      }
+
+      let errorToLog = error
+      if (!(error instanceof Error)) {
+        errorToLog = wrapErrorWithStack(error)
+      }
+
+      logEnhancedError(errorToLog, enhancedContext)
+    },
+
+    /**
+     * Handle API-specific errors with automatic context inference.
+     */
+    apiError: (
+      error: unknown,
+      context?: Partial<EnhancedErrorContext>,
+    ): void => {
+      const inferredComponent = getCallerContext()
+      const enhancedContext: EnhancedErrorContext = {
+        module,
+        entityType,
+        component: inferredComponent,
+        operation: context?.operation ?? 'API request',
+        severity: context?.severity ?? 'error',
+        ...context,
+      }
+
+      let errorToLog = error
+      if (!(error instanceof Error)) {
+        errorToLog = wrapErrorWithStack(error)
+      }
+
+      logEnhancedError(errorToLog, enhancedContext)
+    },
+
+    /**
+     * Handle validation errors with automatic context inference.
+     */
+    validationError: (
+      error: unknown,
+      context?: Partial<EnhancedErrorContext>,
+    ): void => {
+      const inferredComponent = getCallerContext()
+      const enhancedContext: EnhancedErrorContext = {
+        module,
+        entityType,
+        component: inferredComponent,
+        operation: context?.operation ?? 'validation',
+        severity: context?.severity ?? 'warning',
+        ...context,
+      }
+
+      let errorToLog = error
+      if (!(error instanceof Error)) {
+        errorToLog = wrapErrorWithStack(error)
+      }
+
+      logEnhancedError(errorToLog, enhancedContext)
+    },
+
+    /**
+     * Handle critical system errors with automatic context inference.
+     */
+    criticalError: (
+      error: unknown,
+      context?: Partial<EnhancedErrorContext>,
+    ): void => {
+      const inferredComponent = getCallerContext()
+      const enhancedContext: EnhancedErrorContext = {
+        module,
+        entityType,
+        component: inferredComponent,
+        operation: context?.operation ?? 'system operation',
+        severity: 'critical',
+        ...context,
+      }
+
+      let errorToLog = error
+      if (!(error instanceof Error)) {
+        errorToLog = wrapErrorWithStack(error)
+      }
+
+      logEnhancedError(errorToLog, enhancedContext)
+    },
   }
-  const inferredComponent = getCallerContext()
-  logError(errorToLog, {
-    component: inferredComponent,
-    operation: 'API request',
-    additionalData: { originalError: error },
-  })
 }
 
-/**
- * Handle errors related to scanner/hardware operations
- */
-export function handleScannerError(
-  error: unknown,
-  context?: ErrorContext,
-): void {
-  logError(error, { ...context, operation: 'Scanner operation' })
-}
-
-/**
- * Handle validation/business logic errors
- */
-export function handleValidationError(
-  error: unknown,
-  context?: ErrorContext,
-): void {
-  logError(error, { ...context, operation: 'Validation' })
-}
-
-/**
- * Detects if an error is a backend outage/network error (e.g., fetch failed, CORS, DNS, etc).
- * @param error - The error to check
- * @returns True if the error is a backend outage/network error
- */
 export function isBackendOutageError(error: unknown): boolean {
   if (typeof error === 'string') {
     return (
@@ -143,12 +265,12 @@ export function isBackendOutageError(error: unknown): boolean {
   }
   if (typeof error === 'object' && error !== null) {
     const msg =
-      typeof (error as { message?: unknown }).message === 'string'
-        ? (error as { message: string }).message
+      'message' in error && typeof error.message === 'string'
+        ? error.message
         : ''
     const details =
-      typeof (error as { details?: unknown }).details === 'string'
-        ? (error as { details: string }).details
+      'details' in error && typeof error.details === 'string'
+        ? error.details
         : ''
     return (
       msg.includes('Failed to fetch') ||

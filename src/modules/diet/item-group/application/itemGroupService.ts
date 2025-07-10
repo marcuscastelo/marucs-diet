@@ -6,7 +6,7 @@ import {
   itemGroupSchema,
 } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Recipe, recipeSchema } from '~/modules/diet/recipe/domain/recipe'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 
 export type GroupConvertible =
   | ItemGroup
@@ -30,6 +30,8 @@ export type GroupConvertible =
  * @param convertible - The object to convert (see accepted types above)
  * @returns Array of ItemGroup (empty if input is not convertible)
  */
+const errorHandler = createErrorHandler('application', 'ItemGroup')
+
 export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
   if (Array.isArray(convertible)) {
     // Defensive: filter only valid ItemGroups
@@ -58,10 +60,13 @@ export function convertToGroups(convertible: GroupConvertible): ItemGroup[] {
   if (isItemGroup(convertible)) {
     return [{ ...convertible }]
   }
-  handleApiError(
+  errorHandler.error(
     new Error(
       `Unsupported convertible type: ${getTypeDescription(convertible)}`,
     ),
+    {
+      additionalData: { convertibleType: getTypeDescription(convertible) },
+    },
   )
   // Defensive: always return an empty array for unsupported input
   return []

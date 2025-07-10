@@ -7,14 +7,14 @@ import type { JSXElement } from 'solid-js'
 import { ErrorBoundary } from 'solid-js'
 
 import { showError } from '~/modules/toast/application/toastManager'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 
 /**
  * Error fallback component displayed when modal content fails to render.
  */
 function ModalErrorFallback(error: Error, reset: () => void) {
   // Handle the error using our error handler
-  handleApiError(error)
+  errorHandler.apiError(error)
   showError(error, {}, `Modal Error`)
 
   return (
@@ -45,6 +45,8 @@ function ModalErrorFallback(error: Error, reset: () => void) {
  * Modal error boundary component.
  * Wraps modal content to catch and handle rendering errors.
  */
+const errorHandler = createErrorHandler('system', 'Modal')
+
 export function ModalErrorBoundary(props: {
   children: JSXElement
   modalId?: string

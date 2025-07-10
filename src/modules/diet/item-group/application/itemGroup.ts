@@ -3,9 +3,10 @@ import {
   updateDayDiet,
 } from '~/modules/diet/day-diet/application/dayDiet'
 import {
-  convertToNewDayDiet,
-  updateMealInDayDiet,
-} from '~/modules/diet/day-diet/domain/dayDietOperations'
+  demoteNewDayDiet,
+  type NewDayDiet,
+} from '~/modules/diet/day-diet/domain/dayDiet'
+import { updateMealInDayDiet } from '~/modules/diet/day-diet/domain/dayDietOperations'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import {
   addItemToMeal,
@@ -13,11 +14,13 @@ import {
   updateItemInMeal,
 } from '~/modules/diet/meal/domain/mealOperations'
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 
 /**
  * Inserts a UnifiedItem directly into a meal (new unified approach)
  */
+const errorHandler = createErrorHandler('application', 'ItemGroup')
+
 export async function insertUnifiedItem(
   mealId: Meal['id'],
   newUnifiedItem: UnifiedItem,
@@ -45,11 +48,11 @@ export async function insertUnifiedItem(
     )
 
     // Convert to NewDayDiet
-    const newDay = convertToNewDayDiet(updatedDayDiet)
+    const newDay: NewDayDiet = demoteNewDayDiet(updatedDayDiet)
 
     await updateDayDiet(currentDayDiet_.id, newDay)
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     throw error
   }
 }
@@ -85,11 +88,11 @@ export async function updateUnifiedItem(
     )
 
     // Convert to NewDayDiet
-    const newDay = convertToNewDayDiet(updatedDayDiet)
+    const newDay = demoteNewDayDiet(updatedDayDiet)
 
     await updateDayDiet(currentDayDiet_.id, newDay)
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     throw error
   }
 }
@@ -124,11 +127,11 @@ export async function deleteUnifiedItem(
     )
 
     // Convert to NewDayDiet
-    const newDay = convertToNewDayDiet(updatedDayDiet)
+    const newDay = demoteNewDayDiet(updatedDayDiet)
 
     await updateDayDiet(currentDayDiet_.id, newDay)
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     throw error
   }
 }

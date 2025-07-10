@@ -1,5 +1,4 @@
 import { type Accessor, createSignal } from 'solid-js'
-import { set } from 'zod/v4'
 
 import {
   dayDiets,
@@ -7,7 +6,10 @@ import {
   insertDayDiet,
   updateDayDiet,
 } from '~/modules/diet/day-diet/application/dayDiet'
-import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import {
+  createNewDayDiet,
+  type DayDiet,
+} from '~/modules/diet/day-diet/domain/dayDiet'
 import {
   showError,
   showSuccess,
@@ -45,12 +47,11 @@ export function CopyLastDayButton(props: {
     }
     const allDays = dayDiets()
     const existing = allDays.find((d) => d.target_day === props.selectedDay)
-    const newDay = {
+    const newDay = createNewDayDiet({
       target_day: props.selectedDay,
       owner: copyFrom.owner,
       meals: copyFrom.meals,
-      __type: 'NewDayDiet' as const,
-    }
+    })
     try {
       if (existing) {
         await updateDayDiet(existing.id, newDay)

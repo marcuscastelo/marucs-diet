@@ -8,7 +8,10 @@ import {
   createInsertFoodDAOFromNewFood,
   foodDAOSchema,
 } from '~/modules/diet/food/infrastructure/foodDAO'
-import { handleApiError, wrapErrorWithStack } from '~/shared/error/errorHandler'
+import {
+  createErrorHandler,
+  wrapErrorWithStack,
+} from '~/shared/error/errorHandler'
 import { isSupabaseDuplicateEanError } from '~/shared/supabase/supabaseErrorUtils'
 import { createDebug } from '~/shared/utils/createDebug'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
@@ -16,6 +19,7 @@ import { removeDiacritics } from '~/shared/utils/removeDiacritics'
 import supabase from '~/shared/utils/supabase'
 
 const debug = createDebug()
+const errorHandler = createErrorHandler('infrastructure', 'Food')
 
 const TABLE = 'foods'
 
@@ -49,12 +53,12 @@ async function fetchFoodById(
       { ...params, limit: 1 },
     )
     if (foods.length === 0 || foods[0] === undefined) {
-      handleApiError('Food not found')
+      errorHandler.error(new Error('Food not found'))
       throw new Error('Food not found')
     }
     return foods[0]
   } catch (err) {
-    handleApiError(err)
+    errorHandler.error(err)
     throw err
   }
 }
@@ -77,12 +81,12 @@ async function fetchFoodByEan(
       { ...params, limit: 1 },
     )
     if (foods.length === 0 || foods[0] === undefined) {
-      handleApiError('Food not found')
+      errorHandler.error(new Error('Food not found'))
       throw new Error('Food not found')
     }
     return foods[0]
   } catch (err) {
-    handleApiError(err)
+    errorHandler.error(err)
     throw err
   }
 }
@@ -104,13 +108,13 @@ async function insertFood(newFood: NewFood): Promise<Food> {
     if (isSupabaseDuplicateEanError(error, newFood.ean)) {
       return await fetchFoodByEan(newFood.ean)
     }
-    handleApiError(error)
+    errorHandler.error(error)
     throw wrapErrorWithStack(error)
   }
   const foodDAOs = parseWithStack(foodDAOSchema.array(), data)
   const foods = foodDAOs.map(createFoodFromDAO)
   if (foods.length === 0 || foods[0] === undefined) {
-    handleApiError('Food not created')
+    errorHandler.error(new Error('Food not created'))
     throw new Error('Food not created')
   }
   return foods[0]
@@ -133,13 +137,13 @@ async function upsertFood(newFood: NewFood): Promise<Food> {
     if (isSupabaseDuplicateEanError(error, newFood.ean)) {
       return await fetchFoodByEan(newFood.ean)
     }
-    handleApiError(error)
+    errorHandler.error(error)
     throw wrapErrorWithStack(error)
   }
   const foodDAOs = parseWithStack(foodDAOSchema.array(), data)
   const foods = foodDAOs.map(createFoodFromDAO)
   if (foods.length === 0 || foods[0] === undefined) {
-    handleApiError('Food not created')
+    errorHandler.error(new Error('Food not created'))
     throw new Error('Food not created')
   }
   return foods[0]
@@ -187,7 +191,7 @@ async function internalCachedSearchFoods(
     operator = 'eq',
   }:
     | {
-        field: keyof Food
+        field: 'ean' | 'id' | 'name'
         value: Food['ean' | 'id' | 'name']
         operator?: 'eq' | 'ilike'
       }
@@ -241,7 +245,7 @@ async function internalCachedSearchFoods(
 
   const { data, error } = await query
   if (error !== null) {
-    handleApiError(error)
+    errorHandler.error(error)
     throw wrapErrorWithStack(error)
   }
 
@@ -259,7 +263,7 @@ async function fetchFoodsByIds(ids: Food['id'][]): Promise<readonly Food[]> {
   if (!Array.isArray(ids) || ids.length === 0) return []
   const { data, error } = await supabase.from(TABLE).select('*').in('id', ids)
   if (error !== null) {
-    handleApiError(error)
+    errorHandler.error(error)
     throw wrapErrorWithStack(error)
   }
   const foodDAOs = parseWithStack(foodDAOSchema.array(), data)

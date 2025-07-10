@@ -4,7 +4,7 @@ import {
   currentDayDiet,
   targetDay,
 } from '~/modules/diet/day-diet/application/dayDiet'
-import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { type MacroNutrientsRecord } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import { getRecipePreparedQuantity } from '~/modules/diet/recipe/domain/recipeOperations'
 import { createUnifiedItemFromTemplate } from '~/modules/diet/template/application/createGroupFromTemplate'
@@ -45,7 +45,7 @@ import {
   availableTabs,
   TemplateSearchTabs,
 } from '~/sections/search/components/TemplateSearchTabs'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 import { formatError } from '~/shared/formatError'
 import {
   closeModal,
@@ -68,6 +68,8 @@ export type TemplateSearchModalProps = {
   onClose?: () => void
 }
 
+const errorHandler = createErrorHandler('user', 'Search')
+
 export function TemplateSearchModal(props: TemplateSearchModalProps) {
   const handleTemplateSelected = (template: Template) => {
     const initialQuantity = isTemplateRecipe(template)
@@ -89,7 +91,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
         handleNewUnifiedItem(unifiedItem, templateItem, () =>
           controller.close(),
         ).catch((err) => {
-          handleApiError(err)
+          errorHandler.error(err, { operation: 'handleNewUnifiedItem' })
           showError(err, {}, `Erro ao adicionar item: ${formatError(err)}`)
         })
       },
@@ -115,7 +117,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
     }
 
     // Helper function for checking individual macro properties on the unified item
-    const checkMacroOverflow = (property: keyof MacroNutrients) => {
+    const checkMacroOverflow = (property: keyof MacroNutrientsRecord) => {
       return isOverflow(originalAddedItem, property, macroOverflowContext)
     }
 
@@ -206,7 +208,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
                 closeEditModal()
               })
               .catch((err) => {
-                handleApiError(err)
+                errorHandler.error(err, { operation: 'Adicionar mesmo assim' })
                 showError(err, {}, 'Erro ao adicionar item')
                 closeModal(overflowModalId)
               })
@@ -220,7 +222,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
       try {
         await onConfirm()
       } catch (err) {
-        handleApiError(err)
+        errorHandler.error(err, { operation: 'adicionar item' })
         showError(err, {}, 'Erro ao adicionar item')
       }
     }

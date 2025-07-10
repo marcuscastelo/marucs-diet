@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 import { migrateUnifiedMealToLegacy } from '~/modules/diet/day-diet/infrastructure/migrationUtils'
 import { itemGroupSchema } from '~/modules/diet/item-group/domain/itemGroup'

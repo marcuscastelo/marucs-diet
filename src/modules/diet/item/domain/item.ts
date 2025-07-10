@@ -1,29 +1,23 @@
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
-import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import {
+  createMacroNutrients,
+  macroNutrientsSchema,
+} from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { createZodEntity } from '~/shared/domain/validation'
 import { generateId } from '~/shared/utils/idUtils'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
+
+const ze = createZodEntity('Item')
 
 /**
  * @deprecated Use UnifiedItem instead
  */
-export const itemSchema = z.object({
-  id: z.number({
-    required_error: "O campo 'id' é obrigatório.",
-    invalid_type_error: "O campo 'id' deve ser um número.",
-  }),
-  name: z.string({
-    required_error: "O campo 'name' é obrigatório.",
-    invalid_type_error: "O campo 'name' deve ser uma string.",
-  }),
-  reference: z.number({
-    required_error: "O campo 'reference' é obrigatório.",
-    invalid_type_error: "O campo 'reference' deve ser um número.",
-  }),
-  quantity: z.number({
-    required_error: "O campo 'quantity' é obrigatório.",
-    invalid_type_error: "O campo 'quantity' deve ser um número.",
-  }),
+export const { schema: itemSchema } = ze.create({
+  id: ze.number(),
+  name: ze.string(),
+  reference: ze.number(),
+  quantity: ze.number(),
   /**
    * @deprecated Should be derived from the quantity and the reference
    */
@@ -55,15 +49,14 @@ export function createItem({
   macros?: Partial<Item['macros']>
 }) {
   return parseWithStack(itemSchema, {
-    __type: 'Item',
     id: generateId(), // TODO:   Remove id generation from createItem and use it only in the database
     name,
     reference,
     quantity,
-    macros: {
+    macros: createMacroNutrients({
       protein: macros.protein ?? 0,
       carbs: macros.carbs ?? 0,
       fat: macros.fat ?? 0,
-    },
-  } satisfies Item)
+    }),
+  })
 }

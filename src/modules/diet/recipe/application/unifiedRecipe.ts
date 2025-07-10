@@ -5,9 +5,11 @@ import {
 import { createSupabaseUnifiedRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseUnifiedRecipeRepository'
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { type User } from '~/modules/user/domain/user'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 
 const unifiedRecipeRepository = createSupabaseUnifiedRecipeRepository()
+
+const errorHandler = createErrorHandler('application', 'UnifiedRecipe')
 
 export async function fetchUserUnifiedRecipes(userId: User['id']) {
   try {
@@ -21,7 +23,7 @@ export async function fetchUserUnifiedRecipes(userId: User['id']) {
       { context: 'background', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return []
   }
 }
@@ -41,7 +43,7 @@ export async function fetchUserUnifiedRecipeByName(
       { context: 'background', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return []
   }
 }
@@ -58,7 +60,7 @@ export async function fetchUnifiedRecipeById(recipeId: UnifiedRecipe['id']) {
       { context: 'background', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return null
   }
 }
@@ -77,7 +79,7 @@ export async function saveUnifiedRecipe(
       { context: 'background', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return null
   }
 }
@@ -97,7 +99,7 @@ export async function updateUnifiedRecipe(
       { context: 'background', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return null
   }
 }
@@ -115,7 +117,7 @@ export async function deleteUnifiedRecipe(recipeId: UnifiedRecipe['id']) {
     )
     return true
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return false
   }
 }

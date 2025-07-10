@@ -1,12 +1,11 @@
 import { Show } from 'solid-js'
 
-import {
-  createDayDiet,
-  insertDayDiet,
-} from '~/modules/diet/day-diet/application/dayDiet'
-import { createMeal } from '~/modules/diet/meal/domain/meal'
+import { insertDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
+import { createNewDayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import { createNewMeal, promoteMeal } from '~/modules/diet/meal/domain/meal'
 import { currentUser } from '~/modules/user/application/user'
 import { Button } from '~/sections/common/components/buttons/Button'
+import { generateId } from '~/shared/utils/idUtils'
 
 // TODO:   Make meal names editable and persistent by user
 const DEFAULT_MEALS = [
@@ -15,7 +14,9 @@ const DEFAULT_MEALS = [
   'Lanche',
   'Janta',
   'Pós janta',
-].map((name) => createMeal({ name, items: [] }))
+].map((name) =>
+  promoteMeal(createNewMeal({ name, items: [] }), { id: generateId() }),
+)
 
 export function CreateBlankDayButton(props: { selectedDay: string }) {
   return (
@@ -25,7 +26,7 @@ export function CreateBlankDayButton(props: { selectedDay: string }) {
           class="btn-primary w-full mt-3 rounded px-4 py-2 font-bold text-white"
           onClick={() => {
             void insertDayDiet(
-              createDayDiet({
+              createNewDayDiet({
                 owner: currentUser().id,
                 target_day: props.selectedDay,
                 meals: DEFAULT_MEALS,

@@ -1,21 +1,25 @@
 # Architecture Audit – Summary
 
-_Last updated: 2025-06-27_
+_Last updated: 2025-07-08_
 
 This document provides a high-level overview of the current state of the codebase architecture, focusing on Domain-Driven Design (DDD), modularity, and separation of concerns. For detailed findings and recommendations, see the linked area-specific audits below.
 
 ## **Major Architectural Change: Unified Item System Full Migration (2025-06-27)**
 
-A comprehensive migration to the Unified Item System has been completed, resulting in:
+A comprehensive migration to the Unified Item System has been completed for new development and in-memory operations. This means:
 
-- **Removal of all legacy item, item-group, and related view/edit components**: All legacy UI and context providers for items and groups have been deleted. The codebase now exclusively uses `UnifiedItemView`, `UnifiedItemEditModal`, and `UnifiedItemListView` for all item types (food, recipe, group).
+- **New development exclusively uses `UnifiedItem`**: All new UI and business logic are built around the `UnifiedItem` type.
+- **Legacy item, item-group, and related view/edit components removed**: All legacy UI and context providers for items and groups have been deleted.
 - **Centralization of business logic**: Validation, macro overflow, clipboard, and ID management logic are now handled in unified components and utilities, eliminating duplication and scattered logic.
 - **Consistent type conversion**: All item and group conversions use shared utilities (`itemToUnifiedItem`, `itemGroupToUnifiedItem`), improving type safety and maintainability.
 - **Improved separation of concerns**: UI components focus on presentation, with business logic delegated to application/domain layers or shared hooks.
 - **Significant reduction in technical debt**: Legacy utilities and context providers have been removed or isolated, and the codebase is now easier to maintain and extend.
 - **Enhanced test coverage**: Tests have been updated to use the unified item factories and conversion utilities, improving reliability and consistency.
 
-This migration represents a major milestone in the project’s architectural evolution, fully realizing the goals of modularity, maintainability, and DDD alignment.
+**Note on Deprecated Types:** While the migration for new development is complete, some core domain operations (e.g., in `src/modules/diet/item-group/domain/itemGroupOperations.ts` and `src/modules/diet/recipe/domain/recipeOperations.ts`) still interact with the deprecated `Item` type. This is a deliberate decision to maintain backward compatibility and support existing data structures until the next major version release, at which point the full deprecation and removal of the `Item` type will be finalized. This approach ensures a smooth transition without breaking existing functionalities.
+
+
+
 
 ## Audit Index & Status
 | Area                | Audit File                | Status         | Last Update   |
@@ -24,6 +28,7 @@ This migration represents a major milestone in the project’s architectural evo
 | Application Layer   | [audit_application.md](./audit_application.md) | Initial       | 2025-06-07    |
 | Sections/UI Layer   | [audit_sections.md](./audit_sections.md)       | Updated       | 2025-06-27    |
 | Shared & Legacy     | [audit_shared_legacy.md](./audit_shared_legacy.md) | Updated       | 2025-06-27    |
+| Testing Strategy    | [audit_testing_strategy.md](./audit_testing_strategy.md) | Initial       | 2025-07-08    |
 
 ---
 

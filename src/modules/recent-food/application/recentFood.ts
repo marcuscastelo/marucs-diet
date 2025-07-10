@@ -14,7 +14,7 @@ import {
 } from '~/modules/recent-food/infrastructure/supabaseRecentFoodRepository'
 import { showPromise } from '~/modules/toast/application/toastManager'
 import env from '~/shared/config/env'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 
 // Default repository implementation (can be swapped for testing)
 const recentFoodRepository: RecentFoodRepository = supabaseRecentFoodRepository
@@ -26,6 +26,8 @@ const recentFoodRepository: RecentFoodRepository = supabaseRecentFoodRepository
  * @param referenceId - The reference ID (foods.id ou recipes.id).
  * @returns The recent food record or null if not found or on error.
  */
+const errorHandler = createErrorHandler('application', 'RecentFood')
+
 export async function fetchRecentFoodByUserTypeAndReferenceId(
   userId: number,
   type: RecentFoodType,
@@ -63,7 +65,7 @@ export async function fetchUserRecentFoods(
     const templates = rawRows.map((row) => transformRowToTemplate(row))
     return templates
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return []
   }
 }
@@ -87,7 +89,7 @@ export async function insertRecentFood(
       { context: 'user-action', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return null
   }
 }
@@ -113,7 +115,7 @@ export async function updateRecentFood(
       { context: 'user-action', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return null
   }
 }
@@ -141,7 +143,7 @@ export async function deleteRecentFoodByReference(
       { context: 'user-action', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return false
   }
 }

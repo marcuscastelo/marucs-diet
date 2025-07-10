@@ -1,0 +1,73 @@
+{
+  "coreTools": [
+    "run_shell_command",
+    "google_web_search",
+    "web_fetch"
+  ],
+  "sequential-thinking": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "@modelcontextprotocol/server-sequential-thinking"
+    ]
+  },
+  "mcpServers": {
+    "serena": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena-mcp-server",
+        "--context",
+        "agent",
+        "--transport",
+        "stdio",
+        "--enable-web-dashboard",
+        "false",
+        "--project",
+        "$(pwd)"
+      ],
+      "cwd": "/home/marucs/opt/mcp/serena",
+      "timeout": 5000
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ]
+    },
+    "github": {
+      "command": "bash",
+      "args": [
+        "scripts/start-github-mcp-server.sh"
+      ]
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp"
+      ]
+    },
+    "mcp-compass": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@liuyoshio/mcp-compass"
+      ]
+    },
+    "time": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-time",
+        "--local-timezone=America/Sao_Paulo"
+      ]
+    },
+    "language-server": {
+      "command": "bash",
+      "args": [
+        "scripts/start-language-server.sh"
+      ]
+    }
+  }
+}
