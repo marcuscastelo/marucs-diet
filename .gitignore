@@ -38,3 +38,5 @@ src/app-version.json
 android-sdk/
 android/
 *.log
+
+.serena/cache
