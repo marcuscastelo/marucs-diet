@@ -10,11 +10,16 @@ import {
   createUpdateBodyMeasureDAOFromNewBodyMeasure,
 } from '~/modules/measure/infrastructure/measureDAO'
 import { type User } from '~/modules/user/domain/user'
-import { handleApiError, wrapErrorWithStack } from '~/shared/error/errorHandler'
+import {
+  createErrorHandler,
+  wrapErrorWithStack,
+} from '~/shared/error/errorHandler'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 import supabase from '~/shared/utils/supabase'
 
 const TABLE = 'body_measures'
+
+const errorHandler = createErrorHandler('infrastructure', 'Measure')
 
 export function createSupabaseBodyMeasureRepository(): BodyMeasureRepository {
   return {
@@ -33,7 +38,7 @@ async function fetchUserBodyMeasures(userId: User['id']) {
     .order('target_timestamp', { ascending: true })
 
   if (error !== null) {
-    handleApiError(error)
+    errorHandler.error(error)
     throw wrapErrorWithStack(error)
   }
 
@@ -48,7 +53,7 @@ async function insertBodyMeasure(
   const { data, error } = await supabase.from(TABLE).insert(createDAO).select()
 
   if (error !== null) {
-    handleApiError(error)
+    errorHandler.error(error)
     throw wrapErrorWithStack(error)
   }
 
@@ -70,7 +75,7 @@ async function updateBodyMeasure(
     .select()
 
   if (error !== null) {
-    handleApiError(error)
+    errorHandler.error(error)
     throw wrapErrorWithStack(error)
   }
 
@@ -84,7 +89,7 @@ async function deleteBodyMeasure(id: BodyMeasure['id']) {
   const { error } = await supabase.from(TABLE).delete().eq('id', id)
 
   if (error !== null) {
-    handleApiError(error)
+    errorHandler.error(error)
     throw wrapErrorWithStack(error)
   }
 }

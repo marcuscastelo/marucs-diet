@@ -1,6 +1,8 @@
 {
   "coreTools": [
-    "run_shell_command"
+    "run_shell_command",
+    "google_web_search",
+    "web_fetch"
   ],
   "sequential-thinking": {
     "command": "npx",
@@ -11,14 +13,19 @@
   },
   "mcpServers": {
     "serena": {
-      "command": "uv",
+      "command": "uvx",
       "args": [
-        "run",
+        "--from",
+        "git+https://github.com/oraios/serena",
         "serena-mcp-server",
         "--context",
         "agent",
         "--transport",
-        "stdio"
+        "stdio",
+        "--enable-web-dashboard",
+        "false",
+        "--project",
+        "$(pwd)"
       ],
       "cwd": "/home/marucs/opt/mcp/serena",
       "timeout": 5000
@@ -30,8 +37,10 @@
       ]
     },
     "github": {
-      "type": "http",
-      "url": "https://api.githubcopilot.com/mcp/"
+      "command": "bash",
+      "args": [
+        "scripts/start-github-mcp-server.sh"
+      ]
     },
     "context7": {
       "command": "npx",
@@ -57,7 +66,7 @@
     "language-server": {
       "command": "bash",
       "args": [
-        "start-language-server.sh"
+        "scripts/start-language-server.sh"
       ]
     }
   }

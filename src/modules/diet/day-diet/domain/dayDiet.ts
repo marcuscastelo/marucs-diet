@@ -3,7 +3,7 @@ import { type z } from 'zod/v4'
 import { mealSchema } from '~/modules/diet/meal/domain/meal'
 import { createZodEntity } from '~/shared/domain/validation'
 
-const ze = createZodEntity('dayDiet')
+const ze = createZodEntity('DayDiet')
 
 export const {
   schema: dayDietSchema,
@@ -12,7 +12,6 @@ export const {
   promote: promoteDayDiet,
   demote: demoteNewDayDiet,
 } = ze.create({
-  id: ze.number(),
   target_day: ze.string(), // TODO:   Change target_day to supabase date type
   owner: ze.number(),
   meals: ze.array(mealSchema),

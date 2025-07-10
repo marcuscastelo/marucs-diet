@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { createItem, type Item } from '~/modules/diet/item/domain/item'
-import { createNewMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   createNewRecipe,
   promoteToRecipe,
@@ -30,7 +30,7 @@ function makeItem(id: number, name = 'Arroz') {
       name,
       reference: id,
       quantity: 100,
-      macros: createNewMacroNutrients({ carbs: 10, protein: 2, fat: 1 }),
+      macros: createMacroNutrients({ carbs: 10, protein: 2, fat: 1 }),
     }),
     id,
   }
@@ -41,9 +41,9 @@ const baseRecipe = promoteToRecipe(
     name: 'Receita',
     owner: 1,
     items: [baseItem],
-    preparedMultiplier: 1,
+    prepared_multiplier: 1,
   }),
-  1,
+  { id: 1 },
 )
 
 describe('recipeOperations', () => {
@@ -52,7 +52,7 @@ describe('recipeOperations', () => {
     expect(result.name).toBe('Novo')
   })
 
-  it('updateRecipePreparedMultiplier updates multiplier', () => {
+  it('updateRecipeprepared_multiplier updates multiplier', () => {
     const result = updateRecipePreparedMultiplier(baseRecipe, 2)
     expect(result.prepared_multiplier).toBe(2)
   })
@@ -107,9 +107,9 @@ describe('recipeOperations', () => {
         name: 'Complexa',
         owner: 1,
         items: [baseItem],
-        preparedMultiplier: 2,
+        prepared_multiplier: 2,
       }),
-      2,
+      { id: 2 },
     )
     const item = makeItem(99, 'Novo')
     const result = addItemToRecipe(complexRecipe, item)
@@ -123,9 +123,9 @@ describe('recipeOperations', () => {
         name: 'Complexa',
         owner: 1,
         items: [baseItem],
-        preparedMultiplier: 3,
+        prepared_multiplier: 3,
       }),
-      3,
+      { id: 3 },
     )
     const items = [makeItem(100, 'A'), makeItem(101, 'B')]
     const result = addItemsToRecipe(complexRecipe, items)
@@ -135,15 +135,15 @@ describe('recipeOperations', () => {
 })
 
 describe('Recipe scaling operations', () => {
-  const makeRecipe = (items: Item[], preparedMultiplier = 1): Recipe => {
+  const makeRecipe = (items: Item[], prepared_multiplier = 1): Recipe => {
     return promoteToRecipe(
       createNewRecipe({
         name: 'Test Recipe',
         owner: 1,
         items,
-        preparedMultiplier,
+        prepared_multiplier,
       }),
-      1,
+      { id: 1 },
     )
   }
 

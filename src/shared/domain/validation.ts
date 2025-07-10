@@ -1,5 +1,3 @@
-/* eslint-disable no-restricted-syntax */
-
 /**
  * Shared validation message utilities for Portuguese error messages.
  * Centralizes common validation patterns to reduce duplication across domain schemas.
@@ -35,18 +33,18 @@ export function createInvalidTypeMessage(
  * Common entity name mappings for consistent Portuguese messages.
  */
 export const ENTITY_NAMES = {
-  food: 'do alimento',
-  recipe: 'da receita',
-  user: 'do usuário',
-  weight: 'do peso',
-  measure: 'da medida corporal',
-  dayDiet: 'da dieta do dia',
-  macroProfile: 'do perfil de macros',
-  itemGroup: 'do grupo de itens',
-  item: 'do item',
-  recipeItem: 'do item de receita',
-  meal: 'da refeição',
-  macroNutrients: 'dos macronutrientes',
+  Food: 'do alimento',
+  Recipe: 'da receita',
+  User: 'do usuário',
+  Weight: 'do peso',
+  Measure: 'da medida corporal',
+  DayDiet: 'da dieta do dia',
+  MacroProfile: 'do perfil de macros',
+  ItemGroup: 'do grupo de itens',
+  Item: 'do item',
+  RecipeItem: 'do item de receita',
+  Meal: 'da refeição',
+  MacroNutrients: 'dos macronutrientes',
 } as const
 
 /**
@@ -154,54 +152,60 @@ export function createZodEntity<TEntity extends keyof typeof ENTITY_NAMES>(
     /**
      * Creates a generic Zod object schema using the current entity context.
      */
-    create: <TShape extends z.ZodRawShape>(shape: TShape) => {
-      const hasId = 'id' in shape
+    create: <
+      TShape extends z.ZodRawShape,
+      TExtras extends z.ZodRawShape = {
+        id: z.ZodNumber
+      },
+    >(
+      shape: TShape,
+      entityExtras?: TExtras,
+    ) => {
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      const defaultExtras = {
+        id: z.number(
+          createFieldValidationMessages(TYPE_DESCRIPTIONS.number, entityName),
+        ),
+      } as const satisfies z.ZodRawShape as z.ZodRawShape as TExtras
 
-      let schema, newSchema, brandedSchema, brandedNewSchema
-      if (hasId) {
-        schema = z.object(shape)
-        newSchema = z.object(shape).omit({ id: true })
-        brandedSchema = schema.brand<TEntity>(entityKey)
-        brandedNewSchema = newSchema.brand<`New${TEntity}`>(`New${entityKey}`)
-      } else {
-        schema = z.object(shape)
-        newSchema = z.object(shape)
-        brandedSchema = schema.brand<TEntity>(entityKey)
-        brandedNewSchema = newSchema.brand<TEntity>(entityKey)
-      }
+      const a: TExtras = entityExtras ?? defaultExtras
+
+      const schema = z.object({
+        ...shape,
+        ...a,
+        __type: z
+          .string()
+          .nullish()
+          .transform(() => entityKey),
+      } as const)
+      type Schema = z.infer<typeof schema>
+
+      const newSchema = z.object({
+        ...shape,
+        __type: z
+          .string()
+          .nullish()
+          .transform(() => `New${entityKey}` as const),
+      })
 
       type NewSchema = z.infer<typeof newSchema>
-      type BrandedNewSchema = z.infer<typeof brandedNewSchema>
-      type BrandedSchema = z.infer<typeof brandedSchema>
 
-      const createNew = (data: NewSchema): BrandedNewSchema =>
-        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-        brandedNewSchema.parse(
-          parseWithStack(newSchema, data),
-        ) as BrandedNewSchema
+      const createNew = (
+        data: Omit<z.input<typeof newSchema>, '__type'>,
+      ): NewSchema => parseWithStack(newSchema, data)
 
-      const promote = (data: BrandedNewSchema, id: number): BrandedSchema =>
-        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-        brandedSchema.parse(
-          parseWithStack(schema, {
-            ...data,
-            id,
-          }),
-        ) as BrandedSchema
+      const promote = (data: NewSchema, extra: { id: number }): Schema =>
+        parseWithStack(schema, {
+          ...data,
+          ...extra,
+        })
 
-      const demote = (data: BrandedSchema): BrandedNewSchema =>
-        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-        newSchema.parse(
-          parseWithStack(brandedNewSchema, data),
-        ) as BrandedNewSchema
+      const demote = (data: Schema): NewSchema =>
+        parseWithStack(newSchema, data)
 
       return {
-        schema: brandedSchema,
-        newSchema: brandedNewSchema,
-        unbranded: {
-          schema,
-          newSchema,
-        },
+        schema,
+        newSchema,
         createNew,
         promote,
         demote,

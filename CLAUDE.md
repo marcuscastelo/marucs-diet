@@ -8,6 +8,37 @@ Macroflows is a nutrition tracking platform built with SolidJS, TypeScript, and 
 
 **Project Context:** This is a solo project by marcuscastelo - adapt all suggestions to remove team coordination/approval processes while maintaining technical quality.
 
+## Frontend Simplicity Principles - CRITICAL
+
+**🚨 THIS IS A FRONTEND APP, NOT A LIBRARY**
+
+### Anti-Over-Engineering Rules
+
+**Never Add These Patterns:**
+- **Custom Error Classes**: Use standard `Error()` + Zod validation instead
+- **Abstract Base Classes**: Avoid unless there are 3+ concrete implementations
+- **Domain-Specific Exceptions**: Use descriptive error messages, not error types
+- **Complex Hierarchies**: Prefer composition over inheritance
+- **Enterprise Patterns**: This is a solo project - keep it simple
+
+**Frontend Reality Check:**
+- Most errors come from network/API calls, not business logic violations
+- Zod provides excellent validation without custom error classes
+- Standard `Error()` + good error handling functions are sufficient
+- TypeScript provides compile-time safety - runtime errors should be simple
+- Users don't care about your error taxonomy - they care about clear messages
+
+### Before Adding Any Abstraction, Ask:
+
+- [ ] **Multiple implementations**: Will this pattern have 3+ different implementations?
+- [ ] **Real problem**: Does this solve a problem we actually have (not might have)?
+- [ ] **Platform sufficiency**: Is standard web platform functionality insufficient?
+- [ ] **Library vs App**: Are we building a reusable library or a specific frontend app?
+- [ ] **Lines of code**: Will this reduce or increase total lines of code?
+- [ ] **Maintenance burden**: Will future developers thank us or curse us for this?
+
+**Golden Rule**: If you can't immediately name 3 different concrete implementations of your abstraction, don't create it.
+
 ## Critical Setup Requirements
 
 **Environment Setup:**
@@ -81,12 +112,12 @@ The codebase follows a strict 3-layer architecture pattern with clean separation
 - Uses Zod schemas for validation and type inference
 - Entities have `__type` discriminators for type safety
 - **NEVER** import or use side-effect utilities (handleApiError, logging, toasts)
-- Only throw pure domain errors with context
+- Throw standard `Error()` with descriptive messages and context
 - **CRITICAL:** Domain layer must remain free of framework dependencies
 
 **Application Layer** (`modules/*/application/`):
 - SolidJS resources, signals, and orchestration logic
-- **Must always catch domain errors and call `handleApiError` with full context**
+- **Must always catch errors and call `handleApiError` with full context**
 - Manages global reactive state using `createSignal`/`createEffect`
 - Coordinates between UI and infrastructure layers
 - Handles all side effects and user feedback (toasts, notifications)
@@ -148,8 +179,16 @@ export type ModalConfig = {
 
 **Domain Layer:**
 ```typescript
-// ✅ Good: Pure domain error with context
-throw new GroupConflictError('Group mismatch', { groupId, recipeId })
+// ✅ Good: Simple descriptive errors
+throw new Error('Group mismatch: cannot mix different groups', { 
+  cause: { groupId, recipeId } 
+})
+
+// ✅ Good: Use Zod for validation
+const result = schema.safeParse(data)
+if (!result.success) {
+  throw new Error('Invalid data format', { cause: result.error })
+}
 
 // ❌ Bad: Never use handleApiError in domain
 import { handleApiError } from '~/shared/error/errorHandler'
@@ -169,12 +208,28 @@ try {
   })
   throw e // Re-throw after logging
 }
+
+// ✅ Good: Handle Zod validation errors
+const result = schema.safeParse(data)
+if (!result.success) {
+  handleValidationError(result.error, {
+    component: 'UserForm',
+    operation: 'validateUserInput',
+    additionalData: { data }
+  })
+  return // Don't proceed with invalid data
+}
 ```
 
 **Error Context Requirements:**
 - `component`: Specific component/module name
 - `operation`: Specific operation being performed
 - `additionalData`: Relevant IDs, state, or debugging info
+
+**Error Patterns to Avoid:**
+- Custom error class hierarchies (use standard Error)
+- Domain-specific error types (use descriptive messages)
+- instanceof checks for business logic (use error messages/codes)
 
 ## Component and Promise Patterns
 

@@ -2,7 +2,7 @@ import { z } from 'zod/v4'
 
 import { createZodEntity } from '~/shared/domain/validation'
 
-const ze = createZodEntity('macroProfile')
+const ze = createZodEntity('MacroProfile')
 
 export const {
   schema: macroProfileSchema,
@@ -11,7 +11,6 @@ export const {
   promote: promoteToMacroProfile,
   demote: demoteToNewMacroProfile,
 } = ze.create({
-  id: ze.number(),
   owner: ze.number(),
   target_day: z
     .date()

@@ -126,7 +126,6 @@ export function MealEditViewHeader(props: {
         if (
           typeof data === 'object' &&
           '__type' in data &&
-          // @ts-expect-error TypeScript incorrectly thinks this comparison is impossible due to union narrowing
           data.__type === 'Meal'
         ) {
           // Handle pasted Meal - extract its items and add them to current meal

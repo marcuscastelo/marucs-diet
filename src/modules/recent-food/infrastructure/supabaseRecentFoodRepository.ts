@@ -9,7 +9,7 @@ import type {
   RecentFoodRepository,
   RecentFoodType,
 } from '~/modules/recent-food/domain/recentFood'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 import { removeDiacritics } from '~/shared/utils/removeDiacritics'
 import supabase from '~/shared/utils/supabase'
@@ -81,7 +81,7 @@ export const supabaseRecentFoodRepository: RecentFoodRepository = {
       const records = parseWithStack(recentFoodRecordSchema.array(), data)
       return records.at(0) ?? null
     } catch (error) {
-      handleApiError(error)
+      errorHandler.error(error)
       return null
     }
   },
@@ -106,7 +106,7 @@ export const supabaseRecentFoodRepository: RecentFoodRepository = {
       // Return raw validated data for application layer to transform
       return parseWithStack(enhancedRecentFoodRowSchema.array(), response.data)
     } catch (error) {
-      handleApiError(error)
+      errorHandler.error(error)
       return []
     }
   },
@@ -127,7 +127,7 @@ export const supabaseRecentFoodRepository: RecentFoodRepository = {
       if (error !== null) throw error
       return parseWithStack(recentFoodRecordSchema, data[0])
     } catch (error) {
-      handleApiError(error)
+      errorHandler.error(error)
       return null
     }
   },
@@ -152,7 +152,7 @@ export const supabaseRecentFoodRepository: RecentFoodRepository = {
       if (error !== null) throw error
       return parseWithStack(recentFoodRecordSchema, data[0])
     } catch (error) {
-      handleApiError(error)
+      errorHandler.error(error)
       return null
     }
   },
@@ -172,13 +172,15 @@ export const supabaseRecentFoodRepository: RecentFoodRepository = {
       if (error !== null) throw error
       return true
     } catch (error) {
-      handleApiError(error)
+      errorHandler.error(error)
       return false
     }
   },
 }
 
 // Helper function to transform raw database data to Template objects
+const errorHandler = createErrorHandler('infrastructure', 'RecentFood')
+
 export function transformRowToTemplate(row: unknown) {
   const validatedRow = parseWithStack(enhancedRecentFoodRowSchema, row)
 

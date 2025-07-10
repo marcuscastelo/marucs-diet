@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { createNewMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   findItemById,
   flattenItemTree,
@@ -17,7 +17,7 @@ describe('treeUtils', () => {
     reference: {
       type: 'food',
       id: 10,
-      macros: createNewMacroNutrients({ protein: 20, carbs: 0, fat: 2 }),
+      macros: createMacroNutrients({ protein: 20, carbs: 0, fat: 2 }),
     },
   })
   const unifiedGroup: UnifiedItem = createUnifiedItem({

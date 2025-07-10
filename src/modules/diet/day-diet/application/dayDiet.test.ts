@@ -14,7 +14,7 @@ const makeDay = (target_day: string, id: number): DayDiet =>
       owner: 1,
       meals: [],
     }),
-    id,
+    { id },
   )
 
 describe('getPreviousDayDiets', () => {

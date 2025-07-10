@@ -5,7 +5,7 @@ import {
   createNewDayDiet,
   promoteDayDiet,
 } from '~/modules/diet/day-diet/domain/dayDiet'
-import { createNewMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { createNewMeal, promoteMeal } from '~/modules/diet/meal/domain/meal'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
@@ -28,7 +28,7 @@ function makeFakeDayDiet(macros: {
     reference: {
       type: 'food' as const,
       id: 1,
-      macros: createNewMacroNutrients(macros),
+      macros: createMacroNutrients(macros),
     },
   })
 
@@ -37,7 +37,7 @@ function makeFakeDayDiet(macros: {
     name: 'Meal',
     items: [unifiedItem],
   })
-  const meal = promoteMeal(newMeal, 1)
+  const meal = promoteMeal(newMeal, { id: 1 })
 
   // Create the DayDiet
   const newDayDiet = createNewDayDiet({
@@ -46,7 +46,7 @@ function makeFakeDayDiet(macros: {
     meals: [meal],
   })
 
-  return promoteDayDiet(newDayDiet, 1)
+  return promoteDayDiet(newDayDiet, { id: 1 })
 }
 
 const baseItem: TemplateItem = createUnifiedItem({
@@ -56,13 +56,13 @@ const baseItem: TemplateItem = createUnifiedItem({
   reference: {
     type: 'food' as const,
     id: 1,
-    macros: createNewMacroNutrients({ carbs: 0, protein: 30, fat: 5 }),
+    macros: createMacroNutrients({ carbs: 0, protein: 30, fat: 5 }),
   },
 })
 
 const baseContext: MacroOverflowContext = {
   currentDayDiet: makeFakeDayDiet({ carbs: 0, protein: 0, fat: 0 }),
-  macroTarget: createNewMacroNutrients({ carbs: 100, protein: 100, fat: 50 }),
+  macroTarget: createMacroNutrients({ carbs: 100, protein: 100, fat: 50 }),
   macroOverflowOptions: { enable: true },
 }
 
@@ -85,7 +85,7 @@ describe('isOverflow', () => {
       reference: {
         type: 'food' as const,
         id: 1,
-        macros: createNewMacroNutrients({ carbs: 0, protein: 30, fat: 5 }),
+        macros: createMacroNutrients({ carbs: 0, protein: 30, fat: 5 }),
       },
     })
     expect(isOverflow(item, 'protein', context)).toBe(true)
@@ -112,7 +112,7 @@ describe('isOverflow', () => {
           reference: {
             type: 'food' as const,
             id: 1,
-            macros: createNewMacroNutrients({ carbs: 0, protein: 20, fat: 5 }),
+            macros: createMacroNutrients({ carbs: 0, protein: 20, fat: 5 }),
           },
         }),
       },
@@ -127,7 +127,7 @@ describe('isOverflow (edge cases)', () => {
   it('returns true for positive macro values when target is zero', () => {
     const context = {
       ...baseContext,
-      macroTarget: createNewMacroNutrients({ carbs: 0, protein: 0, fat: 0 }),
+      macroTarget: createMacroNutrients({ carbs: 0, protein: 0, fat: 0 }),
     }
     const carbItem = createUnifiedItem({
       id: 1,
@@ -136,7 +136,7 @@ describe('isOverflow (edge cases)', () => {
       reference: {
         type: 'food' as const,
         id: 1,
-        macros: createNewMacroNutrients({ carbs: 10, protein: 0, fat: 0 }),
+        macros: createMacroNutrients({ carbs: 10, protein: 0, fat: 0 }),
       },
     })
     const proteinItem = createUnifiedItem({
@@ -146,7 +146,7 @@ describe('isOverflow (edge cases)', () => {
       reference: {
         type: 'food' as const,
         id: 2,
-        macros: createNewMacroNutrients({ carbs: 0, protein: 10, fat: 0 }),
+        macros: createMacroNutrients({ carbs: 0, protein: 10, fat: 0 }),
       },
     })
     const fatItem = createUnifiedItem({
@@ -156,7 +156,7 @@ describe('isOverflow (edge cases)', () => {
       reference: {
         type: 'food' as const,
         id: 3,
-        macros: createNewMacroNutrients({ carbs: 0, protein: 0, fat: 10 }),
+        macros: createMacroNutrients({ carbs: 0, protein: 0, fat: 10 }),
       },
     })
     expect(isOverflow(carbItem, 'carbs', context)).toBe(true)

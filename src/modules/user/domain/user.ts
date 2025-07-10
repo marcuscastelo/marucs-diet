@@ -2,7 +2,7 @@ import { z } from 'zod/v4'
 
 import { createZodEntity } from '~/shared/domain/validation'
 
-const ze = createZodEntity('user')
+const ze = createZodEntity('User')
 
 export const {
   schema: userSchema,
@@ -11,7 +11,6 @@ export const {
   promote: promoteNewUserToUser,
   demote: demoteUserToNewUser,
 } = ze.create({
-  id: ze.number(),
   name: ze.string(),
   favorite_foods: ze
     .array(ze.number())

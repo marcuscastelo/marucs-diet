@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { createNewMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   createNewUnifiedRecipe,
   promoteToUnifiedRecipe,
@@ -29,7 +29,7 @@ describe('unifiedRecipeOperations', () => {
     reference: {
       type: 'food',
       id: 1,
-      macros: createNewMacroNutrients({ carbs: 70, protein: 10, fat: 1 }),
+      macros: createMacroNutrients({ carbs: 70, protein: 10, fat: 1 }),
     },
   })
 
@@ -40,7 +40,7 @@ describe('unifiedRecipeOperations', () => {
     reference: {
       type: 'food',
       id: 2,
-      macros: createNewMacroNutrients({ carbs: 99, protein: 0, fat: 0 }),
+      macros: createMacroNutrients({ carbs: 99, protein: 0, fat: 0 }),
     },
   })
 
@@ -49,9 +49,9 @@ describe('unifiedRecipeOperations', () => {
       name: 'Test Recipe',
       items: [mockUnifiedItem1],
       owner: 1,
-      preparedMultiplier: 0.8,
+      prepared_multiplier: 0.8,
     })
-    return promoteToUnifiedRecipe(newRecipe, 1)
+    return promoteToUnifiedRecipe(newRecipe, { id: 1 })
   }
 
   describe('addUnifiedItemToRecipe', () => {
@@ -156,7 +156,7 @@ describe('unifiedRecipeOperations', () => {
     })
   })
 
-  describe('updateUnifiedRecipePreparedMultiplier', () => {
+  describe('updateUnifiedRecipeprepared_multiplier', () => {
     it('should update the prepared multiplier', () => {
       const recipe = makeUnifiedRecipe()
       const updatedRecipe = updateUnifiedRecipePreparedMultiplier(recipe, 1.2)

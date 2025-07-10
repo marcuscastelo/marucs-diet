@@ -1,13 +1,11 @@
 import { z } from 'zod/v4'
 
 import { itemSchema } from '~/modules/diet/item/domain/item'
-import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import { createZodEntity } from '~/shared/domain/validation'
-import { handleApiError } from '~/shared/error/errorHandler'
 import { generateId } from '~/shared/utils/idUtils'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
-const ze = createZodEntity('itemGroup')
+const ze = createZodEntity('ItemGroup')
 
 export const { schema: simpleItemGroupSchema } = ze.create({
   id: ze.number(),
@@ -92,7 +90,6 @@ export function createSimpleItemGroup({
     name,
     items,
     recipe: undefined,
-    __type: 'ItemGroup',
   })
 }
 
@@ -120,6 +117,5 @@ export function createRecipedItemGroup({
     name,
     items,
     recipe,
-    __type: 'ItemGroup',
   })
 }

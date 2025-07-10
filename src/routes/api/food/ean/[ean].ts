@@ -3,9 +3,11 @@ import { type APIEvent } from '@solidjs/start/server'
 import { type AxiosError } from 'axios'
 
 import { createApiFoodRepository } from '~/modules/diet/food/infrastructure/api/infrastructure/apiFoodRepository'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 
 const apiFoodRepository = createApiFoodRepository()
+
+const errorHandler = createErrorHandler('infrastructure', 'Food')
 
 export async function GET({ params }: APIEvent) {
   console.debug('GET', params)
@@ -18,7 +20,7 @@ export async function GET({ params }: APIEvent) {
 
     return json(apiFood)
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return json(
       {
         error:

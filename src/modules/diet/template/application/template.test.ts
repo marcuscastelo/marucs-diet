@@ -4,7 +4,7 @@ import {
   createNewFood,
   promoteNewFoodToFood,
 } from '~/modules/diet/food/domain/food'
-import { createNewMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   createNewRecipe,
   promoteToRecipe,
@@ -26,7 +26,7 @@ describe('template application services', () => {
     reference: {
       type: 'food',
       id: 1,
-      macros: createNewMacroNutrients({ carbs: 10, protein: 2, fat: 1 }),
+      macros: createMacroNutrients({ carbs: 10, protein: 2, fat: 1 }),
     },
     __type: 'UnifiedItem' as const,
   } satisfies FoodItem
@@ -34,10 +34,10 @@ describe('template application services', () => {
   const foodTemplate = promoteNewFoodToFood(
     createNewFood({
       name: 'Arroz',
-      macros: createNewMacroNutrients({ carbs: 10, protein: 2, fat: 1 }),
+      macros: createMacroNutrients({ carbs: 10, protein: 2, fat: 1 }),
       ean: null,
     }),
-    1,
+    { id: 1 },
   )
 
   const recipeTemplate: Recipe = promoteToRecipe(
@@ -45,9 +45,9 @@ describe('template application services', () => {
       name: 'Recipe Test',
       owner: 1,
       items: [unifiedItemToItem(baseItem)],
-      preparedMultiplier: 2,
+      prepared_multiplier: 2,
     }),
-    2,
+    { id: 2 },
   )
 
   describe('createUnifiedItemFromTemplate', () => {

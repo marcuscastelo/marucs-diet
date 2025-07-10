@@ -2,7 +2,7 @@ import { z } from 'zod/v4'
 
 import { createZodEntity } from '~/shared/domain/validation'
 
-const ze = createZodEntity('weight')
+const ze = createZodEntity('Weight')
 
 export const {
   schema: weightSchema,
@@ -11,7 +11,6 @@ export const {
   promote: promoteToWeight,
   demote: demoteToNewWeight,
 } = ze.create({
-  id: ze.number(),
   owner: ze.number(),
   weight: ze.number(),
   target_timestamp: z

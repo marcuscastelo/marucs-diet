@@ -5,7 +5,7 @@ import {
   createRecipedItemGroup,
   type ItemGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
-import { createNewMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   migrateFromUnifiedItems,
   migrateToUnifiedItems,
@@ -17,7 +17,7 @@ describe('migrationUtils', () => {
       name: 'Chicken',
       reference: 10,
       quantity: 100,
-      macros: createNewMacroNutrients({ protein: 20, carbs: 0, fat: 2 }),
+      macros: createMacroNutrients({ protein: 20, carbs: 0, fat: 2 }),
     }),
     id: 1,
   }

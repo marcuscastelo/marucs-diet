@@ -8,7 +8,7 @@ import {
 } from '~/modules/diet/day-diet/infrastructure/migrationUtils'
 import { createItem } from '~/modules/diet/item/domain/item'
 import { createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
-import { createNewMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { createNewMeal, promoteMeal } from '~/modules/diet/meal/domain/meal'
 import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
@@ -18,7 +18,7 @@ function makeItem(id: number, name = 'Arroz') {
       name,
       reference: id,
       quantity: 100,
-      macros: createNewMacroNutrients({ carbs: 10, protein: 2, fat: 1 }),
+      macros: createMacroNutrients({ carbs: 10, protein: 2, fat: 1 }),
     }),
     id,
   }
@@ -62,7 +62,7 @@ function makeUnifiedMeal(
   name = 'Almoço',
   items = [makeUnifiedItemFromItem(makeItem(1))],
 ) {
-  return promoteMeal(createNewMeal({ name, items }), id)
+  return promoteMeal(createNewMeal({ name, items }), { id })
 }
 
 const baseItem = makeItem(1)

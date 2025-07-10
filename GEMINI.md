@@ -3,6 +3,8 @@ applyTo: "**"
 ---
 # Gemini Instructions for Macroflows
 
+At the end of every message, show <End of Response>.
+
 ## 1. Project Overview & Context
 
 - **Project Name:** Macroflows
@@ -148,6 +150,18 @@ This project relies on a set of automated commands to ensure consistency and qua
 - **`/implement <issue-number>`:** The standard workflow for implementing a feature or bug fix. It handles creating a git worktree, analyzing the issue, and guiding the implementation process. **Crucially, it requires passing `pnpm check` before completion.**
 - **`/commit`:** Automates the creation of Conventional Commit messages. It analyzes staged changes and generates a compliant message in English. Use this to maintain a clean and standardized commit history.
 - **`/pull-request`:** Automates the creation of GitHub Pull Requests. It uses the commit information to create a well-formed PR, linking it to the relevant issue.
+
+### 7.6. Agent Interaction with External Tools (e.g., GitHub MCP Server)
+
+When external tools, such as the `github-mcp-server`, are integrated into the agent's environment, they expose their functionalities as callable functions. The agent interacts with these tools by directly invoking these functions with the required parameters, similar to how it uses its built-in `default_api` tools.
+
+For example, if the `github-mcp-server` exposes a tool to list GitHub issues, the agent would use it as a direct function call:
+
+```python
+default_api.list_issues(owner="octocat", repo="Spoon-Knife", state="open")
+```
+
+The availability and specific parameters of these external tools depend on their integration with the agent's environment. The agent will discover and utilize them as part of its available toolset.
 
 ## 8. Historical Context & Future Direction
 

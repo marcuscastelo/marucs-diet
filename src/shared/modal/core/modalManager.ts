@@ -1,6 +1,6 @@
 import { createSignal } from 'solid-js'
 
-import { handleApiError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 import type {
   ModalConfig,
   ModalId,
@@ -12,6 +12,8 @@ import { createDebug } from '~/shared/utils/createDebug'
 const debug = createDebug()
 
 export const [modals, setModals] = createSignal<ModalState[]>([])
+
+const errorHandler = createErrorHandler('system', 'Modal')
 
 function generateModalId(): ModalId {
   return `modal-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`
@@ -76,7 +78,7 @@ export const modalManager: ModalManager = {
       if (shouldClose) performClose(id, modal)
     } catch (e) {
       performClose(id, modal)
-      handleApiError(e)
+      errorHandler.criticalError(e, { operation: 'closeModalManager' })
     }
   },
 }

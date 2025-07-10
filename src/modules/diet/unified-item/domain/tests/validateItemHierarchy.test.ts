@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { createNewMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { validateItemHierarchy } from '~/modules/diet/unified-item/domain/validateItemHierarchy'
 import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
@@ -13,7 +13,7 @@ describe('validateItemHierarchy', () => {
     reference: {
       type: 'food',
       id: 10,
-      macros: createNewMacroNutrients({ protein: 20, carbs: 0, fat: 2 }),
+      macros: createMacroNutrients({ protein: 20, carbs: 0, fat: 2 }),
     },
   })
   const unifiedGroup: UnifiedItem = createUnifiedItem({

@@ -1,11 +1,14 @@
 import { z } from 'zod/v4'
 
-import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import {
+  createMacroNutrients,
+  macroNutrientsSchema,
+} from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { createZodEntity } from '~/shared/domain/validation'
 import { generateId } from '~/shared/utils/idUtils'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
-const ze = createZodEntity('item')
+const ze = createZodEntity('Item')
 
 /**
  * @deprecated Use UnifiedItem instead
@@ -46,12 +49,11 @@ export function createItem({
   macros?: Partial<Item['macros']>
 }) {
   return parseWithStack(itemSchema, {
-    __type: 'Item',
     id: generateId(), // TODO:   Remove id generation from createItem and use it only in the database
     name,
     reference,
     quantity,
-    macros: parseWithStack(macroNutrientsSchema, {
+    macros: createMacroNutrients({
       protein: macros.protein ?? 0,
       carbs: macros.carbs ?? 0,
       fat: macros.fat ?? 0,

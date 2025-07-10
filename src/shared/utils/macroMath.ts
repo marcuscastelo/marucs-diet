@@ -1,5 +1,5 @@
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
-import { createNewMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 import {
@@ -27,7 +27,7 @@ export function calcItemContainerMacros<
     },
     { carbs: 0, fat: 0, protein: 0 },
   )
-  return createNewMacroNutrients(result)
+  return createMacroNutrients(result)
 }
 
 export function calcRecipeMacros(recipe: Recipe): MacroNutrients {
@@ -46,7 +46,7 @@ export function calcUnifiedRecipeMacros(recipe: UnifiedRecipe): MacroNutrients {
 export function calcUnifiedItemMacros(item: UnifiedItem): MacroNutrients {
   if (isFoodItem(item)) {
     // For food items, calculate proportionally from stored macros in reference
-    return createNewMacroNutrients({
+    return createMacroNutrients({
       carbs: (item.reference.macros.carbs * item.quantity) / 100,
       fat: (item.reference.macros.fat * item.quantity) / 100,
       protein: (item.reference.macros.protein * item.quantity) / 100,
@@ -61,16 +61,16 @@ export function calcUnifiedItemMacros(item: UnifiedItem): MacroNutrients {
     const defaultMacros = item.reference.children.reduce(
       (acc, child) => {
         const childMacros = calcUnifiedItemMacros(child)
-        return createNewMacroNutrients({
+        return createMacroNutrients({
           carbs: acc.carbs + childMacros.carbs,
           fat: acc.fat + childMacros.fat,
           protein: acc.protein + childMacros.protein,
         })
       },
-      createNewMacroNutrients({ carbs: 0, fat: 0, protein: 0 }),
+      createMacroNutrients({ carbs: 0, fat: 0, protein: 0 }),
     )
 
-    return createNewMacroNutrients({
+    return createMacroNutrients({
       carbs: (item.quantity / defaultQuantity) * defaultMacros.carbs,
       fat: (item.quantity / defaultQuantity) * defaultMacros.fat,
       protein: (item.quantity / defaultQuantity) * defaultMacros.protein,
@@ -79,7 +79,7 @@ export function calcUnifiedItemMacros(item: UnifiedItem): MacroNutrients {
 
   // Fallback for unknown types
   item satisfies never
-  return createNewMacroNutrients({ carbs: 0, fat: 0, protein: 0 })
+  return createMacroNutrients({ carbs: 0, fat: 0, protein: 0 })
 }
 
 export function calcMealMacros(meal: Meal): MacroNutrients {
@@ -93,7 +93,7 @@ export function calcMealMacros(meal: Meal): MacroNutrients {
     },
     { carbs: 0, fat: 0, protein: 0 },
   )
-  return createNewMacroNutrients(result)
+  return createMacroNutrients(result)
 }
 
 export function calcDayMacros(day: DayDiet): MacroNutrients {
@@ -107,7 +107,7 @@ export function calcDayMacros(day: DayDiet): MacroNutrients {
     },
     { carbs: 0, fat: 0, protein: 0 },
   )
-  return createNewMacroNutrients(result)
+  return createMacroNutrients(result)
 }
 
 export function calcCalories(macroNutrients: MacroNutrients): number {

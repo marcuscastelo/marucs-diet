@@ -33,7 +33,7 @@ describe('measureUtils', () => {
             hip: 90,
             neck: 35,
           }),
-          1,
+          { id: 1 },
         ),
         promoteToBodyMeasure(
           createNewBodyMeasure({
@@ -44,7 +44,7 @@ describe('measureUtils', () => {
             hip: 91,
             neck: 36,
           }),
-          2,
+          { id: 2 },
         ),
         promoteToBodyMeasure(
           createNewBodyMeasure({
@@ -55,7 +55,7 @@ describe('measureUtils', () => {
             hip: 92,
             neck: 37,
           }),
-          3,
+          { id: 3 },
         ),
       ]
 
@@ -83,7 +83,7 @@ describe('measureUtils', () => {
           hip: 90,
           neck: 35,
         }),
-        1,
+        { id: 1 },
       )
 
       expect(isValidBodyMeasure(measure)).toBe(true)
@@ -99,7 +99,7 @@ describe('measureUtils', () => {
           hip: undefined,
           neck: 35,
         }),
-        1,
+        { id: 1 },
       )
 
       expect(isValidBodyMeasure(measure)).toBe(true)
@@ -187,7 +187,7 @@ describe('measureUtils', () => {
             hip: 90,
             neck: 35,
           }),
-          1,
+          { id: 1 },
         ),
         promoteToBodyMeasure(
           createNewBodyMeasure({
@@ -198,7 +198,7 @@ describe('measureUtils', () => {
             hip: 92,
             neck: 37,
           }),
-          2,
+          { id: 2 },
         ),
       ]
 
@@ -221,7 +221,7 @@ describe('measureUtils', () => {
             hip: undefined,
             neck: 35,
           }),
-          1,
+          { id: 1 },
         ),
         promoteToBodyMeasure(
           createNewBodyMeasure({
@@ -232,7 +232,7 @@ describe('measureUtils', () => {
             hip: 92,
             neck: 37,
           }),
-          2,
+          { id: 2 },
         ),
       ]
 
@@ -254,7 +254,7 @@ describe('measureUtils', () => {
             weight: 70,
             target_timestamp: new Date('2023-01-01T10:00:00Z'),
           }),
-          1,
+          { id: 1 },
         ),
         promoteToWeight(
           createNewWeight({
@@ -262,7 +262,7 @@ describe('measureUtils', () => {
             weight: 71,
             target_timestamp: new Date('2023-01-02T10:00:00Z'),
           }),
-          2,
+          { id: 2 },
         ),
         promoteToWeight(
           createNewWeight({
@@ -270,7 +270,7 @@ describe('measureUtils', () => {
             weight: 72,
             target_timestamp: new Date('2023-01-03T10:00:00Z'),
           }),
-          3,
+          { id: 3 },
         ),
       ]
 
@@ -343,7 +343,7 @@ describe('measureUtils', () => {
               hip: 90,
               neck: 35,
             }),
-            1,
+            { id: 1 },
           ),
         ],
       }
@@ -355,7 +355,7 @@ describe('measureUtils', () => {
             weight: 70,
             target_timestamp: new Date('2023-01-01T10:00:00Z'),
           }),
-          1,
+          { id: 1 },
         ),
       ]
 

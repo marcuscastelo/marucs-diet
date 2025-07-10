@@ -31,10 +31,10 @@ export function convertUnifiedRecipeToRecipe(
     name: unifiedRecipe.name,
     owner: unifiedRecipe.owner,
     items,
-    preparedMultiplier: unifiedRecipe.prepared_multiplier,
+    prepared_multiplier: unifiedRecipe.prepared_multiplier,
   })
 
-  return promoteToRecipe(newRecipe, unifiedRecipe.id)
+  return promoteToRecipe(newRecipe, { id: unifiedRecipe.id })
 }
 
 /**
@@ -51,10 +51,10 @@ export function convertRecipeToUnifiedRecipe(recipe: Recipe): UnifiedRecipe {
     name: recipe.name,
     owner: recipe.owner,
     items,
-    preparedMultiplier: recipe.prepared_multiplier,
+    prepared_multiplier: recipe.prepared_multiplier,
   })
 
-  return promoteToUnifiedRecipe(newUnifiedRecipe, recipe.id)
+  return promoteToUnifiedRecipe(newUnifiedRecipe, { id: recipe.id })
 }
 
 /**
@@ -73,7 +73,7 @@ export function convertNewUnifiedRecipeToNewRecipe(
     name: newUnifiedRecipe.name,
     owner: newUnifiedRecipe.owner,
     items,
-    preparedMultiplier: newUnifiedRecipe.prepared_multiplier,
+    prepared_multiplier: newUnifiedRecipe.prepared_multiplier,
   })
 }
 
@@ -93,6 +93,6 @@ export function convertNewRecipeToNewUnifiedRecipe(
     name: newRecipe.name,
     owner: newRecipe.owner,
     items,
-    preparedMultiplier: newRecipe.prepared_multiplier,
+    prepared_multiplier: newRecipe.prepared_multiplier,
   })
 }

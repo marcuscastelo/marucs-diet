@@ -1,5 +1,5 @@
 import {
-  createNewMacroNutrients,
+  createMacroNutrients,
   type MacroNutrients,
 } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { userMacroProfiles } from '~/modules/diet/macro-profile/application/macroProfile'
@@ -17,7 +17,7 @@ export const calculateMacroTarget = (
     'gramsPerKgCarbs' | 'gramsPerKgFat' | 'gramsPerKgProtein'
   >,
 ): MacroNutrients =>
-  createNewMacroNutrients({
+  createMacroNutrients({
     carbs: weight * savedMacroTarget.gramsPerKgCarbs,
     protein: weight * savedMacroTarget.gramsPerKgProtein,
     fat: weight * savedMacroTarget.gramsPerKgFat,

@@ -5,7 +5,7 @@ import {
   createSimpleItemGroup,
   type ItemGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
-import { createNewMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   itemGroupToUnifiedItem,
   itemToUnifiedItem,
@@ -20,7 +20,7 @@ describe('conversionUtils', () => {
       name: 'Chicken',
       reference: 10,
       quantity: 100,
-      macros: createNewMacroNutrients({ protein: 20, carbs: 0, fat: 2 }),
+      macros: createMacroNutrients({ protein: 20, carbs: 0, fat: 2 }),
     }),
     id: 1,
   }
@@ -39,7 +39,7 @@ describe('conversionUtils', () => {
     reference: {
       type: 'food',
       id: 10,
-      macros: createNewMacroNutrients({ protein: 20, carbs: 0, fat: 2 }),
+      macros: createMacroNutrients({ protein: 20, carbs: 0, fat: 2 }),
     },
   }
   it('itemToUnifiedItem and unifiedItemToItem are inverse', () => {
@@ -81,7 +81,7 @@ describe('conversionUtils', () => {
       reference: {
         type: 'food',
         id: 10,
-        macros: createNewMacroNutrients({ protein: 20, carbs: 0, fat: 2 }),
+        macros: createMacroNutrients({ protein: 20, carbs: 0, fat: 2 }),
       }, // Per 100g
     })
 
@@ -89,7 +89,7 @@ describe('conversionUtils', () => {
 
     // Macros should remain per 100g (not calculated for the specific quantity)
     expect(item.macros).toEqual(
-      createNewMacroNutrients({
+      createMacroNutrients({
         protein: 20, // Still per 100g
         carbs: 0, // Still per 100g
         fat: 2, // Still per 100g
@@ -107,7 +107,7 @@ describe('conversionUtils', () => {
       reference: {
         type: 'food',
         id: 10,
-        macros: createNewMacroNutrients({ protein: 20, carbs: 10, fat: 2 }),
+        macros: createMacroNutrients({ protein: 20, carbs: 10, fat: 2 }),
       }, // Per 100g
     })
 
@@ -115,7 +115,7 @@ describe('conversionUtils', () => {
 
     // Macros should remain per 100g (not calculated for the specific quantity)
     expect(item.macros).toEqual(
-      createNewMacroNutrients({
+      createMacroNutrients({
         protein: 20, // Still per 100g
         carbs: 10, // Still per 100g
         fat: 2, // Still per 100g

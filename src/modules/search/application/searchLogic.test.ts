@@ -4,7 +4,7 @@ import {
   createNewFood,
   promoteNewFoodToFood,
 } from '~/modules/diet/food/domain/food'
-import { createNewMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   createNewRecipe,
   promoteToRecipe,
@@ -20,22 +20,22 @@ describe('fetchTemplatesByTabLogic', () => {
     createNewFood({
       name: 'Banana',
       ean: '123',
-      macros: createNewMacroNutrients({
+      macros: createMacroNutrients({
         carbs: 25,
         protein: 2,
         fat: 0.5,
       }),
     }),
-    1,
+    { id: 1 },
   )
   const mockRecipe = promoteToRecipe(
     createNewRecipe({
       name: 'Bolo',
       owner: 1,
       items: [],
-      preparedMultiplier: 1,
+      prepared_multiplier: 1,
     }),
-    2,
+    { id: 2 },
   )
   const userId = 1
   let deps: FetchTemplatesDeps
@@ -162,13 +162,13 @@ describe('fetchTemplatesByTabLogic', () => {
         createNewFood({
           name: `Food ${i + 1}`,
           ean: `${i + 1}`,
-          macros: createNewMacroNutrients({
+          macros: createMacroNutrients({
             carbs: 10,
             protein: 1,
             fat: 0.1,
           }),
         }),
-        i + 1,
+        { id: i + 1 },
       ),
     )
     const largeRecipes = Array.from({ length: LARGE_SIZE }, (_, i) =>
@@ -177,9 +177,9 @@ describe('fetchTemplatesByTabLogic', () => {
           name: `Recipe ${i + 1}`,
           owner: 1,
           items: [],
-          preparedMultiplier: 1,
+          prepared_multiplier: 1,
         }),
-        i + 1,
+        { id: i + 1 },
       ),
     )
     const largeTemplates = Array.from({ length: LARGE_SIZE }, (_, i) =>

@@ -7,7 +7,7 @@ import {
 } from '~/modules/diet/day-diet/domain/dayDiet'
 import { updateMealInDayDiet } from '~/modules/diet/day-diet/domain/dayDietOperations'
 import { createItem } from '~/modules/diet/item/domain/item'
-import { createNewMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { createNewMeal, promoteMeal } from '~/modules/diet/meal/domain/meal'
 import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
@@ -17,7 +17,7 @@ function makeItem(id: number, name = 'Arroz') {
       name,
       reference: id,
       quantity: 100,
-      macros: createNewMacroNutrients({ carbs: 10, protein: 2, fat: 1 }),
+      macros: createMacroNutrients({ carbs: 10, protein: 2, fat: 1 }),
     }),
     id,
   }
@@ -40,7 +40,7 @@ function makeMeal(
   name = 'Almoço',
   items = [makeUnifiedItemFromItem(makeItem(1))],
 ) {
-  return promoteMeal(createNewMeal({ name, items }), id)
+  return promoteMeal(createNewMeal({ name, items }), { id })
 }
 
 const baseItem = makeItem(1)
@@ -51,7 +51,7 @@ const baseDayDiet: DayDiet = promoteDayDiet(
     owner: 1,
     meals: [baseMeal],
   }),
-  1,
+  { id: 1 },
 )
 
 describe('dayDietOperations', () => {

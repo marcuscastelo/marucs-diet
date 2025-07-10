@@ -1,7 +1,7 @@
 import { createItem, type Item } from '~/modules/diet/item/domain/item'
 import type { ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { getItemGroupQuantity } from '~/modules/diet/item-group/domain/itemGroup'
-import { createNewMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import {
   createUnifiedItem,
@@ -34,7 +34,7 @@ export function itemToUnifiedItem(item: Item): UnifiedItem {
 export function unifiedItemToItem(unified: UnifiedItem): Item {
   const macros = isFoodItem(unified)
     ? unified.reference.macros
-    : createNewMacroNutrients({ carbs: 0, protein: 0, fat: 0 })
+    : createMacroNutrients({ carbs: 0, protein: 0, fat: 0 })
 
   return {
     ...createItem({

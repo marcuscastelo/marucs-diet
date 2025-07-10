@@ -3,7 +3,7 @@ import { createMemo, Show } from 'solid-js'
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import {
-  createNewMacroNutrients,
+  createMacroNutrients,
   type MacroNutrients,
 } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
@@ -53,7 +53,7 @@ export default function DayMacros(props: {
             class="w-full"
             macros={
               macroSignals().macros ??
-              createNewMacroNutrients({ carbs: 0, protein: 0, fat: 0 })
+              createMacroNutrients({ carbs: 0, protein: 0, fat: 0 })
             }
             targetCalories={macroSignals().targetCalories ?? 0}
           />
@@ -63,11 +63,11 @@ export default function DayMacros(props: {
             class="mt-3 text-xl xs:mt-0"
             macros={
               macroSignals().macros ??
-              createNewMacroNutrients({ carbs: 0, protein: 0, fat: 0 })
+              createMacroNutrients({ carbs: 0, protein: 0, fat: 0 })
             }
             targetMacros={
               macroSignals().macroTarget ??
-              createNewMacroNutrients({ carbs: 0, protein: 0, fat: 0 })
+              createMacroNutrients({ carbs: 0, protein: 0, fat: 0 })
             }
           />
         </div>

@@ -34,7 +34,7 @@ export function migrateLegacyMealToUnified(legacyMeal: LegacyMeal): Meal {
       name: legacyMeal.name,
       items: unifiedItems,
     }),
-    legacyMeal.id,
+    { id: legacyMeal.id },
   )
 }
 

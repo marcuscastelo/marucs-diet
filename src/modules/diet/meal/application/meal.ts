@@ -5,7 +5,7 @@ import {
 import { demoteNewDayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { updateMealInDayDiet } from '~/modules/diet/day-diet/domain/dayDietOperations'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 
 /**
  * Updates a meal in the current day diet.
@@ -13,6 +13,8 @@ import { handleApiError } from '~/shared/error/errorHandler'
  * @param newMeal - The new meal data.
  * @returns True if updated, false otherwise.
  */
+const errorHandler = createErrorHandler('application', 'Meal')
+
 export async function updateMeal(
   mealId: Meal['id'],
   newMeal: Meal,
@@ -20,7 +22,7 @@ export async function updateMeal(
   try {
     const currentDayDiet_ = currentDayDiet()
     if (currentDayDiet_ === null) {
-      handleApiError('[meal::application] Current day diet is null')
+      errorHandler.error(new Error('Current day diet is null'))
       return false
     }
     const updatedDayDiet = updateMealInDayDiet(currentDayDiet_, mealId, newMeal)
@@ -28,7 +30,7 @@ export async function updateMeal(
     await updateDayDiet(currentDayDiet_.id, newDay)
     return true
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return false
   }
 }

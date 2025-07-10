@@ -11,7 +11,7 @@ import {
   createSupabaseWeightRepository,
   SUPABASE_TABLE_WEIGHTS,
 } from '~/modules/weight/infrastructure/supabaseWeightRepository'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 import { jsonParseWithStack } from '~/shared/utils/jsonParseWithStack'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 import { registerSubapabaseRealtimeCallback } from '~/shared/utils/supabase'
@@ -33,7 +33,7 @@ export const [
       localStorage.setItem(`userWeights-${userId}`, JSON.stringify(weights))
       return weights
     } catch (error) {
-      handleApiError(error)
+      errorHandler.error(error)
       throw error
     }
   },
@@ -56,6 +56,8 @@ registerSubapabaseRealtimeCallback(SUPABASE_TABLE_WEIGHTS, () => {
   void refetchUserWeights()
 })
 
+const errorHandler = createErrorHandler('application', 'Weight')
+
 export async function insertWeight(newWeight: NewWeight) {
   try {
     const weight = await weightRepository.insertWeight(newWeight)
@@ -66,7 +68,7 @@ export async function insertWeight(newWeight: NewWeight) {
     })
     return weight
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     throw error
   }
 }
@@ -84,7 +86,7 @@ export async function updateWeight(weightId: Weight['id'], newWeight: Weight) {
     void refetchUserWeights()
     return weight
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     throw error
   }
 }
@@ -98,7 +100,7 @@ export async function deleteWeight(weightId: Weight['id']) {
     })
     void refetchUserWeights()
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     throw error
   }
 }

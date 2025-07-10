@@ -17,14 +17,15 @@ import {
 } from '~/modules/diet/day-diet/infrastructure/migrationUtils'
 import { type User } from '~/modules/user/domain/user'
 import {
-  handleApiError,
-  handleValidationError,
+  createErrorHandler,
   wrapErrorWithStack,
 } from '~/shared/error/errorHandler'
 import supabase from '~/shared/utils/supabase'
 
 // TODO:   Delete old days table and rename days_test to days
 export const SUPABASE_TABLE_DAYS = 'days_test'
+
+const errorHandler = createErrorHandler('infrastructure', 'DayDiet')
 
 export function createSupabaseDayRepository(): DayRepository {
   return {
@@ -60,13 +61,13 @@ async function fetchDayDiet(dayId: DayDiet['id']): Promise<DayDiet> {
       .eq('id', dayId)
 
     if (error !== null) {
-      handleApiError(error)
+      errorHandler.error(error)
       throw error
     }
 
     const dayDiets = Array.isArray(data) ? data : []
     if (dayDiets.length === 0) {
-      handleValidationError('DayDiet not found', {
+      errorHandler.validationError('DayDiet not found', {
         component: 'supabaseDayRepository',
         operation: 'fetchDayDiet',
         additionalData: { dayId },
@@ -76,7 +77,7 @@ async function fetchDayDiet(dayId: DayDiet['id']): Promise<DayDiet> {
     const migratedDay = migrateDayDataIfNeeded(dayDiets[0])
     const result = dayDietSchema.safeParse(migratedDay)
     if (!result.success) {
-      handleValidationError('DayDiet invalid', {
+      errorHandler.validationError('DayDiet invalid', {
         component: 'supabaseDayRepository',
         operation: 'fetchDayDiet',
         additionalData: { dayId, parseError: result.error },
@@ -85,7 +86,7 @@ async function fetchDayDiet(dayId: DayDiet['id']): Promise<DayDiet> {
     }
     return result.data
   } catch (err) {
-    handleApiError(err)
+    errorHandler.error(err)
     throw err
   }
 }
@@ -162,7 +163,7 @@ async function fetchAllUserDayDiets(
     .order('target_day', { ascending: true })
 
   if (error !== null) {
-    handleApiError(error)
+    errorHandler.error(error)
     throw error
   }
 
@@ -176,7 +177,7 @@ async function fetchAllUserDayDiets(
       if (result.success) {
         return result.data
       }
-      handleValidationError('Error while parsing day', {
+      errorHandler.validationError('Error while parsing day', {
         component: 'supabaseDayRepository',
         operation: 'fetchAllUserDayDiets',
         additionalData: { parseError: result.error },
@@ -230,7 +231,7 @@ const updateDayDiet = async (
     .select()
 
   if (error !== null) {
-    handleApiError(error)
+    errorHandler.error(error)
     throw error
   }
 

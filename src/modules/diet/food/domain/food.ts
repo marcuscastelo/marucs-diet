@@ -3,7 +3,7 @@ import { z } from 'zod/v4'
 import { macroNutrientsSchema } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { createZodEntity } from '~/shared/domain/validation'
 
-const ze = createZodEntity('food')
+const ze = createZodEntity('Food')
 
 export const {
   schema: foodSchema,
@@ -12,7 +12,6 @@ export const {
   promote: promoteNewFoodToFood,
   demote: demoteFoodToNewFood,
 } = ze.create({
-  id: ze.number(),
   source: z
     .object({
       type: z.literal('api'),

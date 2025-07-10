@@ -1,7 +1,6 @@
 import { createEffect, createSignal, onCleanup } from 'solid-js'
 
 import {
-  createNewDayDiet,
   type DayDiet,
   type NewDayDiet,
 } from '~/modules/diet/day-diet/domain/dayDiet'
@@ -12,27 +11,12 @@ import {
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
 import { type User } from '~/modules/user/domain/user'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 import { getTodayYYYYMMDD } from '~/shared/utils/date/dateUtils'
 import { registerSubapabaseRealtimeCallback } from '~/shared/utils/supabase'
 
-export function createDayDiet({
-  target_day: targetDay,
-  owner,
-  meals = [],
-}: {
-  target_day: string
-  owner: number
-  meals?: DayDiet['meals']
-}): NewDayDiet {
-  return createNewDayDiet({
-    target_day: targetDay,
-    owner,
-    meals,
-  })
-}
-
 const dayRepository = createSupabaseDayRepository()
+const errorHandler = createErrorHandler('application', 'DayDiet')
 
 export const [targetDay, setTargetDay] =
   createSignal<string>(getTodayYYYYMMDD())
@@ -165,7 +149,7 @@ async function fetchAllUserDayDiets(userId: User['id']): Promise<void> {
     const newDayDiets = await dayRepository.fetchAllUserDayDiets(userId)
     setDayDiets(newDayDiets)
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     setDayDiets([])
   }
 }
@@ -189,7 +173,7 @@ export async function insertDayDiet(dayDiet: NewDayDiet): Promise<boolean> {
     await fetchAllUserDayDiets(dayDiet.owner)
     return true
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return false
   }
 }
@@ -217,7 +201,7 @@ export async function updateDayDiet(
     await fetchAllUserDayDiets(dayDiet.owner)
     return true
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return false
   }
 }
@@ -241,7 +225,7 @@ export async function deleteDayDiet(dayId: DayDiet['id']): Promise<boolean> {
     await fetchAllUserDayDiets(currentUserId())
     return true
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return false
   }
 }

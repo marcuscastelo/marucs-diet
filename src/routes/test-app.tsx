@@ -14,7 +14,7 @@ import {
   createSimpleItemGroup,
   type ItemGroup,
 } from '~/modules/diet/item-group/domain/itemGroup'
-import { createNewMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   createNewMeal,
   type Meal,
@@ -47,7 +47,7 @@ export default function TestApp() {
 
   const [item] = createSignal<Item>(
     createItem({
-      macros: createNewMacroNutrients({
+      macros: createMacroNutrients({
         carbs: 10,
         protein: 12,
         fat: 10,
@@ -78,7 +78,7 @@ export default function TestApp() {
         name: 'Teste',
         items: [],
       }),
-      1,
+      { id: 1 },
     ),
   )
 
@@ -96,7 +96,7 @@ export default function TestApp() {
         owner: 3,
         target_day: '2023-11-02',
       }),
-      1,
+      { id: 1 },
     ),
   )
 

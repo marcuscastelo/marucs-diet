@@ -2,7 +2,7 @@ import { z } from 'zod/v4'
 
 import { createZodEntity } from '~/shared/domain/validation'
 
-const ze = createZodEntity('measure')
+const ze = createZodEntity('Measure')
 
 // TODO:   Create discriminate union type for Male and Female body measures
 export const {
@@ -12,7 +12,6 @@ export const {
   promote: promoteToBodyMeasure,
   demote: demoteToNewBodyMeasure,
 } = ze.create({
-  id: ze.number(),
   height: ze.number(),
   waist: ze.number(),
   hip: ze

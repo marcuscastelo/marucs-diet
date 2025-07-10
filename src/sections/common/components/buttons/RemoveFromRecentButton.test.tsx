@@ -5,7 +5,7 @@ import {
   type Food,
   promoteNewFoodToFood,
 } from '~/modules/diet/food/domain/food'
-import { createNewMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   createNewRecipe,
   promoteToRecipe,
@@ -34,7 +34,12 @@ vi.mock('~/modules/user/application/user', () => ({
 }))
 
 vi.mock('~/shared/error/errorHandler', () => ({
-  handleApiError: vi.fn(),
+  createErrorHandler: vi.fn(() => ({
+    error: vi.fn(),
+    apiError: vi.fn(),
+    validationError: vi.fn(),
+    criticalError: vi.fn(),
+  })),
 }))
 
 // Import the mocked modules
@@ -42,13 +47,13 @@ import { deleteRecentFoodByReference } from '~/modules/recent-food/application/r
 import { debouncedTab } from '~/modules/search/application/search'
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 
 const mockDeleteRecentFoodByReference = vi.mocked(deleteRecentFoodByReference)
 const mockDebouncedTab = vi.mocked(debouncedTab)
 const mockShowPromise = vi.mocked(showPromise)
 const mockCurrentUserId = vi.mocked(currentUserId)
-const mockHandleApiError = vi.mocked(handleApiError)
+const mockCreateErrorHandler = vi.mocked(createErrorHandler)
 
 describe('RemoveFromRecentButton Logic', () => {
   const mockRefetch = vi.fn()
@@ -58,13 +63,13 @@ describe('RemoveFromRecentButton Logic', () => {
     createNewFood({
       name: 'Test Food',
       ean: '1234567890',
-      macros: createNewMacroNutrients({
+      macros: createMacroNutrients({
         protein: 5,
         carbs: 10,
         fat: 5,
       }),
     }),
-    1,
+    { id: 1 },
   )
 
   const mockRecipeTemplate: Recipe = promoteToRecipe(
@@ -72,9 +77,9 @@ describe('RemoveFromRecentButton Logic', () => {
       name: 'Test Recipe',
       owner: 1,
       items: [],
-      preparedMultiplier: 1,
+      prepared_multiplier: 1,
     }),
-    2,
+    { id: 2 },
   )
 
   beforeEach(() => {
@@ -165,7 +170,10 @@ describe('RemoveFromRecentButton Logic', () => {
         loading: 'Removendo item da lista de recentes...',
         success: 'Item removido da lista de recentes com sucesso!',
         error: (err: unknown) => {
-          handleApiError(err)
+          const errorHandler = mockCreateErrorHandler('user', 'RecentFood')
+          errorHandler.error(err, {
+            operation: 'userAction',
+          })
           return 'Erro ao remover item da lista de recentes.'
         },
       })
@@ -187,13 +195,16 @@ describe('RemoveFromRecentButton Logic', () => {
 
       // Create error handler function like in the component
       const errorHandler = (err: unknown) => {
-        handleApiError(err)
+        const handler = mockCreateErrorHandler('user', 'RecentFood')
+        handler.error(err, {
+          operation: 'userAction',
+        })
         return 'Erro ao remover item da lista de recentes.'
       }
 
       const errorMessage = errorHandler(mockError)
 
-      expect(mockHandleApiError).toHaveBeenCalledWith(mockError)
+      expect(mockCreateErrorHandler).toHaveBeenCalledWith('user', 'RecentFood')
       expect(errorMessage).toBe('Erro ao remover item da lista de recentes.')
     })
   })

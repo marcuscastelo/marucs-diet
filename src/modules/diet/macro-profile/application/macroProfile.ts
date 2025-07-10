@@ -10,7 +10,7 @@ import {
 } from '~/modules/diet/macro-profile/infrastructure/supabaseMacroProfileRepository'
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 import { getLatestMacroProfile } from '~/shared/utils/macroProfileUtils'
 import { registerSubapabaseRealtimeCallback } from '~/shared/utils/supabase'
 
@@ -53,7 +53,7 @@ async function fetchUserMacroProfiles(
       },
     )
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return []
   }
 }
@@ -63,6 +63,8 @@ async function fetchUserMacroProfiles(
  * @param newMacroProfile - The new macro profile data.
  * @returns The inserted macro profile or null on error.
  */
+const errorHandler = createErrorHandler('application', 'MacroProfile')
+
 export async function insertMacroProfile(
   newMacroProfile: NewMacroProfile,
 ): Promise<MacroProfile | null> {
@@ -90,7 +92,7 @@ export async function insertMacroProfile(
     }
     return macroProfile
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return null
   }
 }
@@ -130,7 +132,7 @@ export async function updateMacroProfile(
     }
     return macroProfile
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return null
   }
 }
@@ -159,7 +161,7 @@ export async function deleteMacroProfile(
     }
     return true
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return false
   }
 }
