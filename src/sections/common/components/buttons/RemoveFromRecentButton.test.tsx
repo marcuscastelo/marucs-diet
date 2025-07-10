@@ -34,7 +34,12 @@ vi.mock('~/modules/user/application/user', () => ({
 }))
 
 vi.mock('~/shared/error/errorHandler', () => ({
-  handleUserError: vi.fn(),
+  createErrorHandler: vi.fn(() => ({
+    error: vi.fn(),
+    apiError: vi.fn(),
+    validationError: vi.fn(),
+    criticalError: vi.fn(),
+  })),
 }))
 
 // Import the mocked modules
@@ -42,13 +47,13 @@ import { deleteRecentFoodByReference } from '~/modules/recent-food/application/r
 import { debouncedTab } from '~/modules/search/application/search'
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
-import { handleUserError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 
 const mockDeleteRecentFoodByReference = vi.mocked(deleteRecentFoodByReference)
 const mockDebouncedTab = vi.mocked(debouncedTab)
 const mockShowPromise = vi.mocked(showPromise)
 const mockCurrentUserId = vi.mocked(currentUserId)
-const mockHandleUserError = vi.mocked(handleUserError)
+const mockCreateErrorHandler = vi.mocked(createErrorHandler)
 
 describe('RemoveFromRecentButton Logic', () => {
   const mockRefetch = vi.fn()
@@ -165,11 +170,9 @@ describe('RemoveFromRecentButton Logic', () => {
         loading: 'Removendo item da lista de recentes...',
         success: 'Item removido da lista de recentes com sucesso!',
         error: (err: unknown) => {
-          handleUserError(err, {
+          const errorHandler = mockCreateErrorHandler('user', 'RecentFood')
+          errorHandler.error(err, {
             operation: 'userAction',
-            entityType: 'UI',
-            module: 'sections',
-            component: 'component',
           })
           return 'Erro ao remover item da lista de recentes.'
         },
@@ -192,21 +195,16 @@ describe('RemoveFromRecentButton Logic', () => {
 
       // Create error handler function like in the component
       const errorHandler = (err: unknown) => {
-        handleUserError(err, {
+        const handler = mockCreateErrorHandler('user', 'RecentFood')
+        handler.error(err, {
           operation: 'userAction',
-          entityType: 'UI',
-          module: 'sections',
-          component: 'component',
         })
         return 'Erro ao remover item da lista de recentes.'
       }
 
       const errorMessage = errorHandler(mockError)
 
-      expect(mockHandleUserError).toHaveBeenCalledWith(
-        mockError,
-        expect.any(Object),
-      )
+      expect(mockCreateErrorHandler).toHaveBeenCalledWith('user', 'RecentFood')
       expect(errorMessage).toBe('Erro ao remover item da lista de recentes.')
     })
   })

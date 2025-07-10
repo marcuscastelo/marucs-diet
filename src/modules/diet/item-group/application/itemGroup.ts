@@ -14,15 +14,13 @@ import {
   updateItemInMeal,
 } from '~/modules/diet/meal/domain/mealOperations'
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
-import {
-  handleApplicationError,
-  handleInfrastructureError,
-  handleValidationError,
-} from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 
 /**
  * Inserts a UnifiedItem directly into a meal (new unified approach)
  */
+const errorHandler = createErrorHandler('application', 'ItemGroup')
+
 export async function insertUnifiedItem(
   mealId: Meal['id'],
   newUnifiedItem: UnifiedItem,
@@ -54,12 +52,7 @@ export async function insertUnifiedItem(
 
     await updateDayDiet(currentDayDiet_.id, newDay)
   } catch (error) {
-    handleInfrastructureError(error, {
-      operation: 'moduleOperation',
-      entityType: 'Entity',
-      module: 'module',
-      component: 'application',
-    })
+    errorHandler.error(error)
     throw error
   }
 }
@@ -99,12 +92,7 @@ export async function updateUnifiedItem(
 
     await updateDayDiet(currentDayDiet_.id, newDay)
   } catch (error) {
-    handleInfrastructureError(error, {
-      operation: 'moduleOperation',
-      entityType: 'Entity',
-      module: 'module',
-      component: 'application',
-    })
+    errorHandler.error(error)
     throw error
   }
 }
@@ -143,12 +131,7 @@ export async function deleteUnifiedItem(
 
     await updateDayDiet(currentDayDiet_.id, newDay)
   } catch (error) {
-    handleInfrastructureError(error, {
-      operation: 'moduleOperation',
-      entityType: 'Entity',
-      module: 'module',
-      component: 'application',
-    })
+    errorHandler.error(error)
     throw error
   }
 }

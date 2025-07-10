@@ -18,10 +18,7 @@ import {
   convertString,
   UserInfoCapsule,
 } from '~/sections/profile/components/UserInfoCapsule'
-import {
-  handleUserError,
-  handleValidationError,
-} from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 type Translation<T extends string> = { [_key in T]: string }
 // TODO:   Create module for translations
 // Export DIET_TRANSLATION for use in UserInfoCapsule
@@ -36,6 +33,8 @@ export const GENDER_TRANSLATION: Translation<User['gender']> = {
   male: 'Masculino',
   female: 'Feminino',
 }
+
+const errorHandler = createErrorHandler('user', 'User')
 
 export function UserInfo() {
   createEffect(() => {
@@ -120,12 +119,7 @@ export function UserInfo() {
           // Convert User to NewUser for the update
           const newUser = demoteUserToNewUser(user)
           updateUser(user.id, newUser).catch((error) => {
-            handleUserError(error, {
-              operation: 'userAction',
-              entityType: 'UI',
-              module: 'sections',
-              component: 'component',
-            })
+            errorHandler.error(error, { operation: 'changeUser' })
             showError(error, {}, 'Erro ao atualizar usuário')
           })
         }}

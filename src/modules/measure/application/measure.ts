@@ -8,11 +8,7 @@ import { createSupabaseBodyMeasureRepository } from '~/modules/measure/infrastru
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
 import { type User } from '~/modules/user/domain/user'
-import {
-  handleApplicationError,
-  handleInfrastructureError,
-  handleValidationError,
-} from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 
 const bodyMeasureRepository = createSupabaseBodyMeasureRepository()
 
@@ -27,18 +23,15 @@ export const [bodyMeasures, { refetch: refetchBodyMeasures }] = createResource(
  * @param userId - The user ID.
  * @returns Array of body measures or empty array on error.
  */
+const errorHandler = createErrorHandler('application', 'Measure')
+
 export async function fetchUserBodyMeasures(
   userId: User['id'],
 ): Promise<readonly BodyMeasure[]> {
   try {
     return await bodyMeasureRepository.fetchUserBodyMeasures(userId)
   } catch (error) {
-    handleInfrastructureError(error, {
-      operation: 'moduleOperation',
-      entityType: 'Entity',
-      module: 'module',
-      component: 'application',
-    })
+    errorHandler.error(error)
     return []
   }
 }
@@ -62,12 +55,7 @@ export async function insertBodyMeasure(
       { context: 'user-action', audience: 'user' },
     )
   } catch (error) {
-    handleInfrastructureError(error, {
-      operation: 'moduleOperation',
-      entityType: 'Entity',
-      module: 'module',
-      component: 'application',
-    })
+    errorHandler.error(error)
     return null
   }
 }
@@ -93,12 +81,7 @@ export async function updateBodyMeasure(
       { context: 'user-action', audience: 'user' },
     )
   } catch (error) {
-    handleInfrastructureError(error, {
-      operation: 'moduleOperation',
-      entityType: 'Entity',
-      module: 'module',
-      component: 'application',
-    })
+    errorHandler.error(error)
     return null
   }
 }
@@ -123,12 +106,7 @@ export async function deleteBodyMeasure(
     )
     return true
   } catch (error) {
-    handleInfrastructureError(error, {
-      operation: 'moduleOperation',
-      entityType: 'Entity',
-      module: 'module',
-      component: 'application',
-    })
+    errorHandler.error(error)
     return false
   }
 }

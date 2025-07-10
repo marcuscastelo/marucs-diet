@@ -5,7 +5,7 @@ import {
   type MacroNutrientsRecord,
 } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
-import { handleValidationError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 import { calcDayMacros, calcUnifiedItemMacros } from '~/shared/utils/macroMath'
 
 /**
@@ -57,6 +57,8 @@ function _computeOverflow(
  * @param dayMacros - (Optional) Precomputed day macros to avoid redundant calculation
  * @returns true if the macro would exceed the target, false otherwise
  */
+const errorHandler = createErrorHandler('validation', 'Macro')
+
 export function isOverflow(
   item: TemplateItem,
   property: keyof MacroNutrientsRecord,
@@ -69,9 +71,7 @@ export function isOverflow(
     typeof property !== 'string' ||
     !['carbs', 'protein', 'fat'].includes(property)
   ) {
-    handleValidationError('Invalid macro property for overflow check', {
-      component: 'macroOverflow',
-      operation: 'isOverflow',
+    errorHandler.validationError('Invalid macro property for overflow check', {
       additionalData: { property, itemName: item.name },
     })
     return false
@@ -80,22 +80,18 @@ export function isOverflow(
     return false
   }
   if (currentDayDiet === null) {
-    handleValidationError(
+    errorHandler.validationError(
       'currentDayDiet is undefined, cannot calculate overflow',
       {
-        component: 'macroOverflow',
-        operation: 'isOverflow',
         additionalData: { property, itemName: item.name },
       },
     )
     return false
   }
   if (macroTarget === null) {
-    handleValidationError(
+    errorHandler.validationError(
       'macroTarget is undefined, cannot calculate overflow',
       {
-        component: 'macroOverflow',
-        operation: 'isOverflow',
         additionalData: { property, itemName: item.name },
       },
     )

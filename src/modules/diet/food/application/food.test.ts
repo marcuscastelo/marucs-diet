@@ -1,13 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { fetchFoods } from '~/modules/diet/food/application/food'
-import { handleApplicationError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 
 // Mock dependencies
 vi.mock('~/modules/diet/food/infrastructure/supabaseFoodRepository')
 vi.mock('~/shared/error/errorHandler', () => ({
-  handleApplicationError: vi.fn(),
-  handleInfrastructureError: vi.fn(),
+  createErrorHandler: vi.fn(() => ({
+    error: vi.fn(),
+    apiError: vi.fn(),
+    validationError: vi.fn(),
+    criticalError: vi.fn(),
+  })),
   isBackendOutageError: vi.fn(() => false),
 }))
 vi.mock('~/shared/error/backendOutageSignal')
@@ -15,8 +19,6 @@ vi.mock('~/modules/diet/food/infrastructure/api/application/apiFood')
 vi.mock('~/modules/search/application/searchCache')
 vi.mock('~/modules/toast/application/toastManager')
 vi.mock('~/shared/formatError')
-
-const mockHandleApplicationError = vi.mocked(handleApplicationError)
 
 describe('Food Application - Domain Error Integration', () => {
   beforeEach(() => {

@@ -5,7 +5,7 @@
 
 import type { JSXElement } from 'solid-js'
 
-import { handleSystemError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 import { modalManager } from '~/shared/modal/core/modalManager'
 import type { ModalId, ModalPriority } from '~/shared/modal/types/modalTypes'
 
@@ -16,6 +16,8 @@ import type { ModalId, ModalPriority } from '~/shared/modal/types/modalTypes'
  * @param options Configuration for the confirmation modal
  * @returns The modal ID for tracking
  */
+const errorHandler = createErrorHandler('system', 'Modal')
+
 export function openConfirmModal(
   message: string,
   options: {
@@ -42,12 +44,7 @@ export function openConfirmModal(
       showCloseButton: true,
     })
   } catch (e) {
-    handleSystemError(e, {
-      operation: 'systemOperation',
-      entityType: 'System',
-      module: 'shared',
-      component: 'system',
-    })
+    errorHandler.criticalError(e, { operation: 'openConfirmModal' })
     throw e
   }
 }
@@ -84,12 +81,7 @@ export function openContentModal(
       onClose: options.onClose,
     })
   } catch (e) {
-    handleSystemError(e, {
-      operation: 'systemOperation',
-      entityType: 'System',
-      module: 'shared',
-      component: 'system',
-    })
+    errorHandler.criticalError(e, { operation: 'systemOperation' })
     throw e
   }
 }
@@ -128,12 +120,7 @@ export function openEditModal(
       onClose: options.onClose,
     })
   } catch (e) {
-    handleSystemError(e, {
-      operation: 'systemOperation',
-      entityType: 'System',
-      module: 'shared',
-      component: 'system',
-    })
+    errorHandler.criticalError(e, { operation: 'systemOperation' })
     throw e
   }
 }
@@ -149,12 +136,7 @@ export function closeModal(modalId: ModalId, onClose?: () => void): void {
     void modalManager.closeModal(modalId)
     onClose?.()
   } catch (e) {
-    handleSystemError(e, {
-      operation: 'systemOperation',
-      entityType: 'System',
-      module: 'shared',
-      component: 'system',
-    })
+    errorHandler.criticalError(e, { operation: 'systemOperation' })
     throw e
   }
 }

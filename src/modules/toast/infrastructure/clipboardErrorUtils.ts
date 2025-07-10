@@ -5,11 +5,7 @@
 import { TOAST_MESSAGES } from '~/modules/toast/domain/toastMessages'
 import { type ToastError } from '~/modules/toast/domain/toastTypes'
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
-import {
-  handleApplicationError,
-  handleInfrastructureError,
-  handleValidationError,
-} from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 
 /**
  * Context for clipboard error operations.
@@ -23,6 +19,8 @@ export type ClipboardErrorContext = { component: string; operation: string }
  * @param errorDetails The error details to format.
  * @returns A formatted string for clipboard.
  */
+const errorHandler = createErrorHandler('infrastructure', 'Toast')
+
 export function formatErrorForClipboard(errorDetails: ToastError): string {
   const sections: string[] = []
   if (
@@ -78,12 +76,7 @@ export async function handleCopyErrorToClipboard(
   const clipboardContent = formatErrorForClipboard(errorDetails)
   write(clipboardContent, (error) => {
     if (error !== null) {
-      handleInfrastructureError(error, {
-        operation: 'infraOperation',
-        entityType: 'Infrastructure',
-        module: 'infrastructure',
-        component: 'repository',
-      })
+      errorHandler.error(error)
     }
   })
 }

@@ -270,6 +270,192 @@ export function handleScannerError(
  * @param error - The error to check
  * @returns True if the error is a backend outage/network error
  */
+/**
+ * Creates a contextual error handler for any module and entity type.
+ * Automatically infers execution context to reduce boilerplate across the entire codebase.
+ * 
+ * This factory function should be used in ALL modules and layers to replace direct calls
+ * to handleInfrastructureError, handleApplicationError, handleValidationError, etc.
+ * 
+ * @param module - The architectural layer: 'application' | 'infrastructure' | 'validation' | 'user' | 'system' | 'domain'
+ * @param entityType - The business entity being operated on (e.g., 'Food', 'Recipe', 'DayDiet', 'User')
+ * 
+ * @example
+ * ```typescript
+ * // === APPLICATION LAYER EXAMPLES ===
+ * 
+ * // Day Diet Application
+ * const dayDietErrorHandler = createErrorHandler('application', 'DayDiet')
+ * dayDietErrorHandler.error(error, { operation: 'fetchAllUserDayDiets' })
+ * 
+ * // Food Application  
+ * const foodErrorHandler = createErrorHandler('application', 'Food')
+ * foodErrorHandler.apiError(error, { operation: 'searchFood' })
+ * 
+ * // Recipe Application
+ * const recipeErrorHandler = createErrorHandler('application', 'Recipe')
+ * recipeErrorHandler.error(error, { operation: 'createRecipe', entityId: recipeId })
+ * 
+ * // === INFRASTRUCTURE LAYER EXAMPLES ===
+ * 
+ * // Food Infrastructure (Supabase)
+ * const foodInfraErrorHandler = createErrorHandler('infrastructure', 'Food')
+ * foodInfraErrorHandler.error(error, { operation: 'insertFood' })
+ * 
+ * // Recipe Infrastructure (Supabase)
+ * const recipeInfraErrorHandler = createErrorHandler('infrastructure', 'Recipe')
+ * recipeInfraErrorHandler.error(error, { operation: 'updateRecipe', entityId: recipeId })
+ * 
+ * // Day Diet Infrastructure (Supabase)
+ * const dayDietInfraErrorHandler = createErrorHandler('infrastructure', 'DayDiet')
+ * dayDietInfraErrorHandler.error(error, { operation: 'fetchDayDiet', entityId: dayId })
+ * 
+ * // === VALIDATION LAYER EXAMPLES ===
+ * 
+ * // User Validation
+ * const userValidationErrorHandler = createErrorHandler('validation', 'User')
+ * userValidationErrorHandler.validationError(error, { operation: 'validateUserData' })
+ * 
+ * // Recipe Validation
+ * const recipeValidationErrorHandler = createErrorHandler('validation', 'Recipe')
+ * recipeValidationErrorHandler.validationError(error, { operation: 'validateRecipeSchema' })
+ * 
+ * // === DOMAIN LAYER EXAMPLES ===
+ * 
+ * // Item Group Domain Logic
+ * const itemGroupDomainErrorHandler = createErrorHandler('domain', 'ItemGroup')
+ * itemGroupDomainErrorHandler.error(error, { operation: 'validateGroupHierarchy' })
+ * 
+ * // === SYSTEM LAYER EXAMPLES ===
+ * 
+ * // Weight System Operations
+ * const weightSystemErrorHandler = createErrorHandler('system', 'Weight')
+ * weightSystemErrorHandler.criticalError(error, { operation: 'systemSync' })
+ * 
+ * // Search System Operations
+ * const searchSystemErrorHandler = createErrorHandler('system', 'Search')
+ * searchSystemErrorHandler.error(error, { operation: 'cacheInvalidation' })
+ * 
+ * // === MIGRATION GUIDE ===
+ * 
+ * // Replace these old patterns:
+ * handleInfrastructureError(error, { operation: 'insertFood', entityType: 'Food', module: 'infrastructure', component: 'supabaseFoodRepository' })
+ * handleApplicationError(error, { operation: 'searchFood', entityType: 'Food', module: 'application', component: 'food' })
+ * handleValidationError(error, { operation: 'validateUserData', entityType: 'User', module: 'validation', component: 'userValidation' })
+ * handleUserError(error, { operation: 'userAction', entityType: 'User', module: 'user', component: 'userApplication' })
+ * handleSystemError(error, { operation: 'systemSync', entityType: 'Weight', module: 'system', component: 'weightSystem' })
+ * 
+ * // With this new pattern:
+ * const errorHandler = createErrorHandler('infrastructure', 'Food')
+ * errorHandler.error(error, { operation: 'insertFood' })
+ * 
+ * const errorHandler = createErrorHandler('application', 'Food')
+ * errorHandler.error(error, { operation: 'searchFood' })
+ * 
+ * const errorHandler = createErrorHandler('validation', 'User')
+ * errorHandler.validationError(error, { operation: 'validateUserData' })
+ * 
+ * const errorHandler = createErrorHandler('user', 'User')
+ * errorHandler.error(error, { operation: 'userAction' })
+ * 
+ * const errorHandler = createErrorHandler('system', 'Weight')
+ * errorHandler.criticalError(error, { operation: 'systemSync' })
+ * ```
+ */
+export function createErrorHandler<
+  TModule extends 'application' | 'infrastructure' | 'validation' | 'user' | 'system' | 'domain',
+>(module: TModule, entityType: string) {
+  return {
+    /**
+     * Handle errors with automatic context inference.
+     */
+    error: (error: unknown, context?: Partial<EnhancedErrorContext>): void => {
+      const inferredComponent = getCallerContext()
+      const enhancedContext: EnhancedErrorContext = {
+        module,
+        entityType,
+        component: inferredComponent,
+        operation: context?.operation ?? 'unknown',
+        severity: context?.severity ?? 'error',
+        ...context,
+      }
+
+      let errorToLog = error
+      if (!(error instanceof Error)) {
+        errorToLog = wrapErrorWithStack(error)
+      }
+
+      logEnhancedError(errorToLog, enhancedContext)
+    },
+
+    /**
+     * Handle API-specific errors with automatic context inference.
+     */
+    apiError: (error: unknown, context?: Partial<EnhancedErrorContext>): void => {
+      const inferredComponent = getCallerContext()
+      const enhancedContext: EnhancedErrorContext = {
+        module,
+        entityType,
+        component: inferredComponent,
+        operation: context?.operation ?? 'API request',
+        severity: context?.severity ?? 'error',
+        ...context,
+      }
+
+      let errorToLog = error
+      if (!(error instanceof Error)) {
+        errorToLog = wrapErrorWithStack(error)
+      }
+
+      logEnhancedError(errorToLog, enhancedContext)
+    },
+
+    /**
+     * Handle validation errors with automatic context inference.
+     */
+    validationError: (error: unknown, context?: Partial<EnhancedErrorContext>): void => {
+      const inferredComponent = getCallerContext()
+      const enhancedContext: EnhancedErrorContext = {
+        module,
+        entityType,
+        component: inferredComponent,
+        operation: context?.operation ?? 'validation',
+        severity: context?.severity ?? 'warning',
+        ...context,
+      }
+
+      let errorToLog = error
+      if (!(error instanceof Error)) {
+        errorToLog = wrapErrorWithStack(error)
+      }
+
+      logEnhancedError(errorToLog, enhancedContext)
+    },
+
+    /**
+     * Handle critical system errors with automatic context inference.
+     */
+    criticalError: (error: unknown, context?: Partial<EnhancedErrorContext>): void => {
+      const inferredComponent = getCallerContext()
+      const enhancedContext: EnhancedErrorContext = {
+        module,
+        entityType,
+        component: inferredComponent,
+        operation: context?.operation ?? 'system operation',
+        severity: 'critical',
+        ...context,
+      }
+
+      let errorToLog = error
+      if (!(error instanceof Error)) {
+        errorToLog = wrapErrorWithStack(error)
+      }
+
+      logEnhancedError(errorToLog, enhancedContext)
+    },
+  }
+}
+
 export function isBackendOutageError(error: unknown): boolean {
   if (typeof error === 'string') {
     return (
@@ -305,66 +491,3 @@ export function isBackendOutageError(error: unknown): boolean {
   return false
 }
 
-/**
- * Error classification utilities
- */
-
-export function isValidationError(error: unknown): boolean {
-  if (typeof error === 'string') {
-    return error.includes('validation') || error.includes('invalid') || error.includes('required')
-  }
-  if (error instanceof Error) {
-    return error.message.includes('validation') || error.message.includes('invalid') || error.message.includes('required')
-  }
-  return false
-}
-
-export function isInfrastructureError(error: unknown): boolean {
-  if (typeof error === 'string') {
-    return error.includes('database') || error.includes('connection') || error.includes('timeout') || isBackendOutageError(error)
-  }
-  if (error instanceof Error) {
-    return error.message.includes('database') || error.message.includes('connection') || error.message.includes('timeout') || isBackendOutageError(error)
-  }
-  return false
-}
-
-export function isUserError(error: unknown): boolean {
-  if (typeof error === 'string') {
-    return error.includes('permission') || error.includes('unauthorized') || error.includes('forbidden')
-  }
-  if (error instanceof Error) {
-    return error.message.includes('permission') || error.message.includes('unauthorized') || error.message.includes('forbidden')
-  }
-  return false
-}
-
-export function isApplicationError(error: unknown): boolean {
-  if (typeof error === 'string') {
-    return error.includes('orchestration') || error.includes('workflow') || error.includes('business')
-  }
-  if (error instanceof Error) {
-    return error.message.includes('orchestration') || error.message.includes('workflow') || error.message.includes('business')
-  }
-  return false
-}
-
-
-/**
- * Automatically classify and handle errors with appropriate specialized handler
- * @param error - The error to classify and handle
- * @param baseContext - Base context information
- */
-export function classifyAndHandleError(error: unknown, baseContext: EnhancedErrorContext): void {
-  if (isValidationError(error)) {
-    handleValidationError(error, baseContext)
-  } else if (isInfrastructureError(error)) {
-    handleInfrastructureError(error, baseContext)
-  } else if (isUserError(error)) {
-    handleUserError(error, baseContext)
-  } else if (isApplicationError(error)) {
-    handleApplicationError(error, baseContext)
-  } else {
-    handleSystemError(error, baseContext)
-  }
-}

@@ -45,7 +45,7 @@ import {
   availableTabs,
   TemplateSearchTabs,
 } from '~/sections/search/components/TemplateSearchTabs'
-import { handleUserError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 import { formatError } from '~/shared/formatError'
 import {
   closeModal,
@@ -68,6 +68,8 @@ export type TemplateSearchModalProps = {
   onClose?: () => void
 }
 
+const errorHandler = createErrorHandler('user', 'Search')
+
 export function TemplateSearchModal(props: TemplateSearchModalProps) {
   const handleTemplateSelected = (template: Template) => {
     const initialQuantity = isTemplateRecipe(template)
@@ -89,12 +91,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
         handleNewUnifiedItem(unifiedItem, templateItem, () =>
           controller.close(),
         ).catch((err) => {
-          handleUserError(err, {
-            operation: 'userAction',
-            entityType: 'UI',
-            module: 'sections',
-            component: 'component',
-          })
+          errorHandler.error(err, { operation: 'handleNewUnifiedItem' })
           showError(err, {}, `Erro ao adicionar item: ${formatError(err)}`)
         })
       },
@@ -211,12 +208,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
                 closeEditModal()
               })
               .catch((err) => {
-                handleUserError(err, {
-                  operation: 'userAction',
-                  entityType: 'UI',
-                  module: 'sections',
-                  component: 'component',
-                })
+                errorHandler.error(err, { operation: 'Adicionar mesmo assim' })
                 showError(err, {}, 'Erro ao adicionar item')
                 closeModal(overflowModalId)
               })
@@ -230,12 +222,7 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
       try {
         await onConfirm()
       } catch (err) {
-        handleUserError(err, {
-          operation: 'userAction',
-          entityType: 'UI',
-          module: 'sections',
-          component: 'component',
-        })
+        errorHandler.error(err, { operation: 'adicionar item' })
         showError(err, {}, 'Erro ao adicionar item')
       }
     }

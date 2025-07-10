@@ -16,7 +16,7 @@ import {
 } from '~/modules/diet/food/infrastructure/api/domain/apiFoodModel'
 import { type ApiFoodRepository } from '~/modules/diet/food/infrastructure/api/domain/apiFoodRepository'
 import {
-  handleInfrastructureError,
+  createErrorHandler,
   wrapErrorWithStack,
 } from '~/shared/error/errorHandler'
 import { jsonParseWithStack } from '~/shared/utils/jsonParseWithStack'
@@ -27,6 +27,8 @@ const API = rateLimit(axios.create(), {
   perMilliseconds: 1000,
   maxRPS: 2,
 })
+
+const errorHandler = createErrorHandler('infrastructure', 'Food')
 
 export function createApiFoodRepository(): ApiFoodRepository {
   return {
@@ -49,12 +51,7 @@ async function fetchApiFoodsByName(
   try {
     parsedParams = jsonParseWithStack(EXTERNAL_API_FOOD_PARAMS)
   } catch (err) {
-    handleInfrastructureError(err, {
-      operation: 'repositoryOperation',
-      entityType: 'Repository',
-      module: 'infrastructure',
-      component: 'repository',
-    })
+    errorHandler.error(err)
     parsedParams = {}
   }
   const params =
@@ -84,12 +81,7 @@ async function fetchApiFoodsByName(
   try {
     response = await API.get(url, config)
   } catch (error) {
-    handleInfrastructureError(error, {
-      operation: 'infraOperation',
-      entityType: 'Infrastructure',
-      module: 'infrastructure',
-      component: 'repository',
-    })
+    errorHandler.error(error)
     throw wrapErrorWithStack(error)
   }
 
@@ -98,16 +90,9 @@ async function fetchApiFoodsByName(
   const data = response.data as Record<string, unknown>
   const alimentosRaw = data.alimentos
   if (!Array.isArray(alimentosRaw)) {
-    handleInfrastructureError(
-      new Error('Invalid alimentos array in API response'),
-      {
-        operation: 'fetchApiFoodsByName',
-        entityType: 'ApiFood',
-        module: 'diet/food',
-        component: 'apiFoodRepository',
-        additionalData: { url, dataType: typeof alimentosRaw },
-      },
-    )
+    errorHandler.error(new Error('Invalid alimentos array in API response'), {
+      additionalData: { url, dataType: typeof alimentosRaw },
+    })
     return []
   }
   return parseWithStack(apiFoodSchema.array(), alimentosRaw)

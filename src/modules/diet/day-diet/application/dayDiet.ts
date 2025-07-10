@@ -11,11 +11,12 @@ import {
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
 import { type User } from '~/modules/user/domain/user'
-import { handleInfrastructureError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 import { getTodayYYYYMMDD } from '~/shared/utils/date/dateUtils'
 import { registerSubapabaseRealtimeCallback } from '~/shared/utils/supabase'
 
 const dayRepository = createSupabaseDayRepository()
+const errorHandler = createErrorHandler('application', 'DayDiet')
 
 export const [targetDay, setTargetDay] =
   createSignal<string>(getTodayYYYYMMDD())
@@ -148,12 +149,7 @@ async function fetchAllUserDayDiets(userId: User['id']): Promise<void> {
     const newDayDiets = await dayRepository.fetchAllUserDayDiets(userId)
     setDayDiets(newDayDiets)
   } catch (error) {
-    handleInfrastructureError(error, {
-      operation: 'moduleOperation',
-      entityType: 'Entity',
-      module: 'module',
-      component: 'application',
-    })
+    errorHandler.error(error)
     setDayDiets([])
   }
 }
@@ -177,12 +173,7 @@ export async function insertDayDiet(dayDiet: NewDayDiet): Promise<boolean> {
     await fetchAllUserDayDiets(dayDiet.owner)
     return true
   } catch (error) {
-    handleInfrastructureError(error, {
-      operation: 'moduleOperation',
-      entityType: 'Entity',
-      module: 'module',
-      component: 'application',
-    })
+    errorHandler.error(error)
     return false
   }
 }
@@ -210,12 +201,7 @@ export async function updateDayDiet(
     await fetchAllUserDayDiets(dayDiet.owner)
     return true
   } catch (error) {
-    handleInfrastructureError(error, {
-      operation: 'moduleOperation',
-      entityType: 'Entity',
-      module: 'module',
-      component: 'application',
-    })
+    errorHandler.error(error)
     return false
   }
 }
@@ -239,12 +225,7 @@ export async function deleteDayDiet(dayId: DayDiet['id']): Promise<boolean> {
     await fetchAllUserDayDiets(currentUserId())
     return true
   } catch (error) {
-    handleInfrastructureError(error, {
-      operation: 'moduleOperation',
-      entityType: 'Entity',
-      module: 'module',
-      component: 'application',
-    })
+    errorHandler.error(error)
     return false
   }
 }
