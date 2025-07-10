@@ -191,7 +191,7 @@ export function isFoodFavorite(foodId: number): boolean {
 export function setFoodAsFavorite(foodId: number, favorite: boolean): void {
   const currentUser_ = currentUser()
   if (currentUser_ === null) {
-    errorHandler.error('User not initialized')
+    errorHandler.error(new Error('User not initialized'))
     return
   }
   const favoriteFoods = currentUser_.favorite_foods

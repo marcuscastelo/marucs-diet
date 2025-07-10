@@ -86,7 +86,7 @@ async function fetchDayDiet(dayId: DayDiet['id']): Promise<DayDiet> {
     }
     return result.data
   } catch (err) {
-    errorHandler.error(err, { operation: 'repositoryOperation' })
+    errorHandler.error(err)
     throw err
   }
 }

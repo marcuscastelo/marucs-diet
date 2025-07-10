@@ -53,14 +53,13 @@ const fetchUserRecipes = async (userId: User['id']): Promise<Recipe[]> => {
     } catch (validationError) {
       errorHandler.validationError(validationError, {
         component: 'supabaseRecipeRepository',
-        operation: 'fetchUserRecipes',
         additionalData: { userId },
       })
       throw validationError
     }
     return recipeDAOs.map(createRecipeFromDAO)
   } catch (err) {
-    errorHandler.error(err, { operation: 'repositoryOperation' })
+    errorHandler.error(err)
     throw err
   }
 }
@@ -99,7 +98,7 @@ const fetchRecipeById = async (id: Recipe['id']): Promise<Recipe> => {
     }
     return recipes[0]
   } catch (err) {
-    errorHandler.error(err, { operation: 'repositoryOperation' })
+    errorHandler.error(err)
     throw err
   }
 }
@@ -141,7 +140,7 @@ const fetchUserRecipeByName = async (
     }
     return recipeDAOs.map(createRecipeFromDAO)
   } catch (err) {
-    errorHandler.error(err, { operation: 'repositoryOperation' })
+    errorHandler.error(err)
     throw err
   }
 }
@@ -184,7 +183,7 @@ const insertRecipe = async (newRecipe: NewRecipe): Promise<Recipe> => {
     }
     return recipes[0]
   } catch (err) {
-    errorHandler.error(err, { operation: 'repositoryOperation' })
+    errorHandler.error(err)
     throw err
   }
 }
@@ -225,14 +224,12 @@ const updateRecipe = async (
     }
     const recipes = recipeDAOs.map(createRecipeFromDAO)
     if (!recipes[0]) {
-      errorHandler.error(new Error('Recipe not found after update'), {
-        operation: 'updateRecipe',
-      })
+      errorHandler.error(new Error('Recipe not found after update'))
       throw new Error(`Recipe with id ${recipeId} not found after update`)
     }
     return recipes[0]
   } catch (err) {
-    errorHandler.error(err, { operation: 'repositoryOperation' })
+    errorHandler.error(err)
     throw err
   }
 }
@@ -251,7 +248,7 @@ const deleteRecipe = async (id: Recipe['id']): Promise<void> => {
       throw error
     }
   } catch (err) {
-    errorHandler.error(err, { operation: 'repositoryOperation' })
+    errorHandler.error(err)
     throw err
   }
 }

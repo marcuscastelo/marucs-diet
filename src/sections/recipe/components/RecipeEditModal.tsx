@@ -52,14 +52,16 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
     try {
       // Only food items can be directly converted to Items for recipes
       if (newItem.reference.type !== 'food') {
-        errorHandler.validationError('Cannot add non-food items to recipes', {
-          component: 'RecipeEditModal',
-          operation: 'handleNewUnifiedItem',
-          additionalData: {
-            itemType: newItem.reference.type,
-            itemId: newItem.id,
+        errorHandler.validationError(
+          new Error('Cannot add non-food items to recipes'),
+          {
+            operation: 'handleNewUnifiedItem',
+            additionalData: {
+              itemType: newItem.reference.type,
+              itemId: newItem.id,
+            },
           },
-        })
+        )
         showError(
           'Não é possível adicionar itens que não sejam alimentos a receitas.',
         )

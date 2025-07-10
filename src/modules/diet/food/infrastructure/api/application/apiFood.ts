@@ -18,8 +18,6 @@ export async function importFoodFromApiByEan(
 ): Promise<Food | null> {
   if (ean === null) {
     errorHandler.error(new Error('EAN is required to import food from API'), {
-      operation: 'importFoodFromApiByEan',
-
       additionalData: { ean },
     })
     return null
@@ -32,8 +30,6 @@ export async function importFoodFromApiByEan(
     errorHandler.error(
       new Error(`Food with ean ${ean} not found on external api`),
       {
-        operation: 'importFoodFromApiByEan',
-
         additionalData: { ean },
       },
     )

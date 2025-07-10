@@ -44,7 +44,6 @@ export async function fetchUserRecipeByName(userId: User['id'], name: string) {
     )
   } catch (error) {
     errorHandler.error(error, {
-      operation: 'fetchUserRecipeByName',
       userId,
       businessContext: { userId, recipeName: name },
     })
@@ -65,7 +64,6 @@ export async function fetchRecipeById(recipeId: Recipe['id']) {
     )
   } catch (error) {
     errorHandler.error(error, {
-      operation: 'fetchRecipeById',
       entityId: recipeId,
       businessContext: { recipeId },
     })
@@ -86,7 +84,6 @@ export async function insertRecipe(newRecipe: NewRecipe) {
     )
   } catch (error) {
     errorHandler.error(error, {
-      operation: 'insertRecipe',
       businessContext: {
         recipeName: newRecipe.name,
         itemsCount: newRecipe.items.length,
@@ -109,11 +106,7 @@ export async function updateRecipe(recipeId: Recipe['id'], newRecipe: Recipe) {
     )
   } catch (error) {
     errorHandler.error(error, {
-      operation: 'updateRecipe',
-      entityType: 'Recipe',
       entityId: recipeId,
-      module: 'diet/recipe',
-      component: 'recipe',
       businessContext: {
         recipeId,
         recipeName: newRecipe.name,
@@ -137,7 +130,6 @@ export async function deleteRecipe(recipeId: Recipe['id']) {
     )
   } catch (error) {
     errorHandler.error(error, {
-      operation: 'deleteRecipe',
       entityId: recipeId,
       businessContext: { recipeId },
     })

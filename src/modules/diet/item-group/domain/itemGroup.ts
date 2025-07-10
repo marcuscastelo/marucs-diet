@@ -90,7 +90,6 @@ export function createSimpleItemGroup({
     name,
     items,
     recipe: undefined,
-    __type: 'itemGroup',
   })
 }
 
@@ -118,6 +117,5 @@ export function createRecipedItemGroup({
     name,
     items,
     recipe,
-    __type: 'itemGroup',
   })
 }

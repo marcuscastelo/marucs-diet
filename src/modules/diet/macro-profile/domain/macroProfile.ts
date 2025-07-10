@@ -19,7 +19,7 @@ export const {
   gramsPerKgCarbs: ze.number().transform((v) => (isNaN(v) || v < 0 ? 0 : v)),
   gramsPerKgProtein: ze.number().transform((v) => (isNaN(v) || v < 0 ? 0 : v)),
   gramsPerKgFat: ze.number().transform((v) => (isNaN(v) || v < 0 ? 0 : v)),
-} as const)
+})
 
 export type MacroProfile = Readonly<z.infer<typeof macroProfileSchema>>
 export type NewMacroProfile = Readonly<z.infer<typeof newMacroProfileSchema>>

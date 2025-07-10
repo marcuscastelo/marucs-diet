@@ -49,7 +49,6 @@ export function createItem({
   macros?: Partial<Item['macros']>
 }) {
   return parseWithStack(itemSchema, {
-    __type: 'item',
     id: generateId(), // TODO:   Remove id generation from createItem and use it only in the database
     name,
     reference,

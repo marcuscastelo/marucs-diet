@@ -81,7 +81,7 @@ export function openContentModal(
       onClose: options.onClose,
     })
   } catch (e) {
-    errorHandler.criticalError(e, { operation: 'systemOperation' })
+    errorHandler.criticalError(e, { operation: 'openContentModal' })
     throw e
   }
 }
@@ -120,7 +120,7 @@ export function openEditModal(
       onClose: options.onClose,
     })
   } catch (e) {
-    errorHandler.criticalError(e, { operation: 'systemOperation' })
+    errorHandler.criticalError(e, { operation: 'openEditModal' })
     throw e
   }
 }
@@ -136,7 +136,7 @@ export function closeModal(modalId: ModalId, onClose?: () => void): void {
     void modalManager.closeModal(modalId)
     onClose?.()
   } catch (e) {
-    errorHandler.criticalError(e, { operation: 'systemOperation' })
+    errorHandler.criticalError(e, { operation: 'closeModal' })
     throw e
   }
 }

@@ -57,7 +57,7 @@ function _computeOverflow(
  * @param dayMacros - (Optional) Precomputed day macros to avoid redundant calculation
  * @returns true if the macro would exceed the target, false otherwise
  */
-const errorHandler = createErrorHandler('validation', 'Macro')
+const errorHandler = createErrorHandler('validation', 'MacroNutrients')
 
 export function isOverflow(
   item: TemplateItem,
