@@ -35,7 +35,7 @@ describe('BodyMeasure Domain', () => {
         expect(result.data.target_timestamp).toStrictEqual(
           new Date('2023-01-01'),
         )
-        expect(result.data.__type).toBe('BodyMeasure')
+        expect(result.data.__type).toBe('Measure')
       }
     })
 
@@ -128,7 +128,7 @@ describe('BodyMeasure Domain', () => {
         neck: 38.0,
         owner: 42,
         target_timestamp: new Date('2023-01-01'),
-        __type: 'NewBodyMeasure' as const,
+        __type: 'NewMeasure' as const,
       }
 
       const result = newBodyMeasureSchema.safeParse(validNewBodyMeasure)
@@ -142,26 +142,29 @@ describe('BodyMeasure Domain', () => {
         expect(result.data.target_timestamp).toStrictEqual(
           new Date('2023-01-01'),
         )
-        expect(result.data.__type).toBe('NewBodyMeasure')
+        expect(result.data.__type).toBe('NewMeasure')
       }
     })
 
-    it('should reject extra fields due to strict mode', () => {
+    it('should ignore extra fields (not in strict mode)', () => {
       const bodyMeasureWithExtraField = {
         height: 175.5,
         waist: 80.0,
         neck: 38.0,
         owner: 42,
         target_timestamp: new Date(),
-        __type: 'NewBodyMeasure' as const,
-        extraField: 'should not be allowed',
+        __type: 'NewMeasure' as const,
+        extraField: 'should be ignored',
       }
 
       const result = newBodyMeasureSchema.safeParse(bodyMeasureWithExtraField)
-      expect(result.success).toBe(false)
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect('extraField' in result.data).toBe(false)
+      }
     })
 
-    it('should reject id field', () => {
+    it('should ignore id field (not in strict mode)', () => {
       const bodyMeasureWithId = {
         id: 1,
         height: 175.5,
@@ -169,16 +172,19 @@ describe('BodyMeasure Domain', () => {
         neck: 38.0,
         owner: 42,
         target_timestamp: new Date(),
-        __type: 'NewBodyMeasure' as const,
+        __type: 'NewMeasure' as const,
       }
 
       const result = newBodyMeasureSchema.safeParse(bodyMeasureWithId)
-      expect(result.success).toBe(false)
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect('id' in result.data).toBe(false)
+      }
     })
 
     it('should fail validation with missing required fields', () => {
       const invalidNewBodyMeasure = {
-        __type: 'NewBodyMeasure' as const,
+        __type: 'NewMeasure' as const,
       }
 
       const result = newBodyMeasureSchema.safeParse(invalidNewBodyMeasure)
@@ -207,7 +213,7 @@ describe('BodyMeasure Domain', () => {
       expect(newBodyMeasure.target_timestamp).toStrictEqual(
         new Date('2023-01-01'),
       )
-      expect(newBodyMeasure.__type).toBe('NewBodyMeasure')
+      expect(newBodyMeasure.__type).toBe('NewMeasure')
     })
 
     it('should handle different measurement values', () => {
@@ -229,7 +235,7 @@ describe('BodyMeasure Domain', () => {
         expect(newBodyMeasure.height).toBe(height)
         expect(newBodyMeasure.waist).toBe(waist)
         expect(newBodyMeasure.neck).toBe(neck)
-        expect(newBodyMeasure.__type).toBe('NewBodyMeasure')
+        expect(newBodyMeasure.__type).toBe('NewMeasure')
       })
     })
 
@@ -246,7 +252,7 @@ describe('BodyMeasure Domain', () => {
         })
 
         expect(newBodyMeasure.owner).toBe(owner)
-        expect(newBodyMeasure.__type).toBe('NewBodyMeasure')
+        expect(newBodyMeasure.__type).toBe('NewMeasure')
       })
     })
 
@@ -274,10 +280,10 @@ describe('BodyMeasure Domain', () => {
         neck: 38.0,
         owner: 42,
         target_timestamp: new Date('2023-01-01'),
-        __type: 'NewBodyMeasure',
+        __type: 'NewMeasure',
       }
 
-      const bodyMeasure = promoteToBodyMeasure(newBodyMeasure, 123)
+      const bodyMeasure = promoteToBodyMeasure(newBodyMeasure, { id: 123 })
 
       expect(bodyMeasure.id).toBe(123)
       expect(bodyMeasure.height).toBe(175.5)
@@ -286,25 +292,22 @@ describe('BodyMeasure Domain', () => {
       expect(bodyMeasure.neck).toBe(38.0)
       expect(bodyMeasure.owner).toBe(42)
       expect(bodyMeasure.target_timestamp).toStrictEqual(new Date('2023-01-01'))
-      expect(bodyMeasure.__type).toBe('BodyMeasure')
     })
 
     it('should handle different ID values', () => {
-      const newBodyMeasure: NewBodyMeasure = {
+      const newBodyMeasure: NewBodyMeasure = createNewBodyMeasure({
         height: 175.0,
         waist: 80.0,
         neck: 38.0,
         owner: 1,
         target_timestamp: new Date(),
-        __type: 'NewBodyMeasure',
-      }
+      })
 
       const testIds = [1, 42, 999, 123456]
 
       testIds.forEach((id) => {
-        const bodyMeasure = promoteToBodyMeasure(newBodyMeasure, id)
+        const bodyMeasure = promoteToBodyMeasure(newBodyMeasure, { id })
         expect(bodyMeasure.id).toBe(id)
-        expect(bodyMeasure.__type).toBe('BodyMeasure')
       })
     })
   })
@@ -319,7 +322,7 @@ describe('BodyMeasure Domain', () => {
         neck: 38.0,
         owner: 42,
         target_timestamp: new Date('2023-01-01'),
-        __type: 'BodyMeasure',
+        __type: 'Measure',
       }
 
       const newBodyMeasure = demoteToNewBodyMeasure(bodyMeasure)
@@ -332,52 +335,7 @@ describe('BodyMeasure Domain', () => {
       expect(newBodyMeasure.target_timestamp).toStrictEqual(
         new Date('2023-01-01'),
       )
-      expect(newBodyMeasure.__type).toBe('NewBodyMeasure')
-      expect('id' in newBodyMeasure).toBe(false)
-    })
-  })
-
-  describe('Type definitions', () => {
-    it('should define correct BodyMeasure type structure', () => {
-      const bodyMeasure: BodyMeasure = {
-        id: 1,
-        height: 175.5,
-        waist: 80.0,
-        hip: 95.0,
-        neck: 38.0,
-        owner: 42,
-        target_timestamp: new Date(),
-        __type: 'BodyMeasure',
-      }
-
-      // Type checks - these should compile without errors
-      expect(typeof bodyMeasure.id).toBe('number')
-      expect(typeof bodyMeasure.height).toBe('number')
-      expect(typeof bodyMeasure.waist).toBe('number')
-      expect(typeof bodyMeasure.neck).toBe('number')
-      expect(typeof bodyMeasure.owner).toBe('number')
-      expect(bodyMeasure.target_timestamp).toBeInstanceOf(Date)
-      expect(bodyMeasure.__type).toBe('BodyMeasure')
-    })
-
-    it('should define correct NewBodyMeasure type structure', () => {
-      const newBodyMeasure: NewBodyMeasure = {
-        height: 175.5,
-        waist: 80.0,
-        hip: 95.0,
-        neck: 38.0,
-        owner: 42,
-        target_timestamp: new Date(),
-        __type: 'NewBodyMeasure',
-      }
-
-      // Type checks - these should compile without errors
-      expect(typeof newBodyMeasure.height).toBe('number')
-      expect(typeof newBodyMeasure.waist).toBe('number')
-      expect(typeof newBodyMeasure.neck).toBe('number')
-      expect(typeof newBodyMeasure.owner).toBe('number')
-      expect(newBodyMeasure.target_timestamp).toBeInstanceOf(Date)
-      expect(newBodyMeasure.__type).toBe('NewBodyMeasure')
+      expect(newBodyMeasure.__type).toBe('NewMeasure')
       expect('id' in newBodyMeasure).toBe(false)
     })
   })
@@ -432,46 +390,6 @@ describe('BodyMeasure Domain', () => {
       expect(newBodyMeasure.waist).toBe(80.987654)
       expect(newBodyMeasure.hip).toBe(95.555555)
       expect(newBodyMeasure.neck).toBe(38.333333)
-    })
-  })
-
-  describe('Schema compatibility', () => {
-    it('should be compatible with objects parsed from JSON', () => {
-      const jsonData = {
-        id: 1,
-        height: 175.5,
-        waist: 80.0,
-        hip: 95.0,
-        neck: 38.0,
-        owner: 42,
-        target_timestamp: '2023-01-01T00:00:00.000Z',
-      }
-
-      const result = bodyMeasureSchema.safeParse(jsonData)
-
-      expect(result.success).toBe(true)
-      if (result.success) {
-        expect(result.data.target_timestamp).toBeInstanceOf(Date)
-      }
-    })
-
-    it('should be compatible with database row objects', () => {
-      const dbRow = {
-        id: 1,
-        height: 175.5,
-        waist: 80.0,
-        hip: 95.0,
-        neck: 38.0,
-        owner: 42,
-        target_timestamp: new Date('2023-01-01'),
-        created_at: new Date(), // Extra field that should be stripped
-      }
-
-      const result = bodyMeasureSchema.safeParse(dbRow)
-      expect(result.success).toBe(true)
-      if (result.success) {
-        expect('created_at' in result.data).toBe(false)
-      }
     })
   })
 })

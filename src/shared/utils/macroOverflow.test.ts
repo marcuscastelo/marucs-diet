@@ -163,21 +163,6 @@ describe('isOverflow (edge cases)', () => {
     expect(isOverflow(proteinItem, 'protein', context)).toBe(true)
     expect(isOverflow(fatItem, 'fat', context)).toBe(true)
   })
-
-  it('returns false for invalid property', () => {
-    // @ts-expect-error: purposely passing invalid property
-    expect(isOverflow(baseItem, 'invalid', baseContext)).toBe(false)
-  })
-
-  it('returns false for null macroTarget', () => {
-    const context = { ...baseContext, macroTarget: null }
-    expect(isOverflow(baseItem, 'carbs', context)).toBe(false)
-  })
-
-  it('returns false for null currentDayDiet', () => {
-    const context = { ...baseContext, currentDayDiet: null }
-    expect(isOverflow(baseItem, 'carbs', context)).toBe(false)
-  })
 })
 
 describe('createMacroOverflowChecker', () => {

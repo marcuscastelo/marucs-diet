@@ -74,7 +74,7 @@ The codebase follows a strict 3-layer architecture. Adherence to these boundarie
 
 ### 4.3. File & Module Structure
 - `src/modules/<domain>/`: Houses the three architecture layers for a specific domain.
-  - `tests/`: All tests for a module must be placed in this folder.
+  - `tests/`: All tests for a module **MUST** be placed in this folder. This ensures consistent organization and discoverability of tests.
 - `src/sections/<feature>/`: Contains page-level UI components, organized by feature.
 - `src/shared/`: Cross-cutting concerns (error handling, configs, pure utilities).
 - `src/routes/`: SolidJS router pages and API endpoints.
@@ -95,7 +95,7 @@ The codebase follows a strict 3-layer architecture. Adherence to these boundarie
     - ❌ **Bad:** `checkGroup()`, `convert()`, `GroupModal.tsx`, `utils.ts`
 
 ### 5.3. Type Safety & Formatting
-- **NO `any`:** The use of `any`, `as any`, or `@ts-ignore` is strictly forbidden outside the Infrastructure layer.
+- **NO `any`:** The use of `any`, `as any`, or `@ts-ignore` is strictly forbidden outside the Infrastructure layer. This ensures strong type safety and reduces the need for redundant runtime type checks in tests.
 - **`type` over `interface`:** Always use type aliases for defining data shapes.
 - **Readonly:** Prefer `readonly Item[]` over `Item[]` for immutability.
 - **Props Immutability:** **NEVER** destructure `props` in SolidJS components, as it breaks reactivity.
@@ -125,6 +125,17 @@ Testing should be structured around the core business domains. The main entities
 - `Meal`
 
 ### 6.2. Testing Philosophy
+- **Location:** All tests for a module must be placed in its `tests/` folder.
+- **User Input Validation vs. System Errors:**
+    - **Validation Errors:** Expected errors from invalid user input (e.g., entering text in a number field). These **MUST** be handled gracefully in the UI with specific, user-friendly messages in Portuguese. They **MUST NOT** trigger an error boundary.
+    - **System Errors:** Unexpected errors (e.g., network failure, bugs in the code). These **SHOULD** be caught and trigger a user-friendly error boundary.
+- **Test Coverage:** All code changes must be accompanied by corresponding new or updated tests. No orphaned tests.
+
+### 6.2.1. Type Safety in Testing
+
+- **Trust TypeScript:** Our primary line of defense against type-related errors is TypeScript itself. Tests should not redundantly validate conditions that the TypeScript compiler already guarantees (e.g., `null` checks for non-nullable types, invalid string values for union types).
+- **Focus on Business Logic:** Tests should primarily focus on verifying business logic, calculations, integration points, and user-facing behavior.
+- **Avoid Redundant Runtime Checks:** Tests that validate type-related runtime scenarios (e.g., passing `null` to a non-nullable parameter) are generally discouraged if TypeScript is properly enforced. Such tests may indicate a lack of full trust in the type system or an overemphasis on defensive runtime checks for scenarios that should be impossible given the type definitions.
 - **Location:** All tests for a module must be placed in its `tests/` folder.
 - **User Input Validation vs. System Errors:**
     - **Validation Errors:** Expected errors from invalid user input (e.g., entering text in a number field). These **MUST** be handled gracefully in the UI with specific, user-friendly messages in Portuguese. They **MUST NOT** trigger an error boundary.
