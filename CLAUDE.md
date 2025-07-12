@@ -287,6 +287,17 @@ const hasAnyHandler = () =>
 - Mock dependencies explicitly for domain/application logic
 - Update tests when changing code - no orphaned tests
 
+### Type Safety in Testing
+
+- **Trust TypeScript:** Our primary line of defense against type-related errors is TypeScript itself. Tests should not redundantly validate conditions that the TypeScript compiler already guarantees (e.g., `null` checks for non-nullable types, invalid string values for union types).
+- **Focus on Business Logic:** Tests should primarily focus on verifying business logic, calculations, integration points, and user-facing behavior.
+- **Avoid Redundant Runtime Checks:** Tests that validate type-related runtime scenarios (e.g., passing `null` to a non-nullable parameter) are generally discouraged if TypeScript is properly enforced. Such tests may indicate a lack of full trust in the type system or an overemphasis on defensive runtime checks for scenarios that should be impossible given the type definitions.
+
+- Place tests in module's `tests/` folder or alongside source files with `.test.ts` suffix
+- Use Vitest + jsdom for component testing
+- Mock dependencies explicitly for domain/application logic
+- Update tests when changing code - no orphaned tests
+
 ## Critical Code Style Rules
 
 ### Imports and Module System
@@ -329,7 +340,7 @@ const { Component } = await import('solid-js')
 - **Avoid generic names:** Never use `utils.ts`, `helper.ts`, `common.ts`
 
 ### Type Safety Requirements
-- **Never use `any`, `as any`, or `@ts-ignore`** (except in infrastructure layer for external APIs)
+- **Never use `any`, `as any`, or `@ts-ignore`** (except in infrastructure layer for external APIs). This ensures strong type safety and reduces the need for redundant runtime type checks in tests.
 - **Always prefer type aliases over interfaces** for data shapes
 - **Use Zod schemas for runtime validation and type inference**
 - **Prefer `readonly` arrays:** `readonly Item[]` over `Item[]`
@@ -466,7 +477,7 @@ type(scope): description
 - **Remove orphaned tests** - no tests for deleted functionality
 - Use Vitest + jsdom for component testing
 - Mock dependencies explicitly for domain/application logic
-- Place tests in `tests/` folder or alongside source with `.test.ts` suffix
+- Place tests in `tests/` folder **MUST** be placed in this folder. This ensures consistent organization and discoverability of tests.
 
 ### Search Feature Requirements
 

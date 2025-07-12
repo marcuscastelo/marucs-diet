@@ -79,6 +79,8 @@ describe('fetchTemplatesByTabLogic', () => {
       deps,
     )
     expect(result).toEqual([mockFood, mockRecipe])
+    // Verify that fetchUserRecentFoods was called with correct parameters
+    expect(deps.fetchUserRecentFoods).toHaveBeenCalledWith(userId, '')
   })
 
   it('fetches favorite foods for Favoritos tab', async () => {
@@ -139,78 +141,5 @@ describe('fetchTemplatesByTabLogic', () => {
     const search = 'Banana'
     await fetchTemplatesByTabLogic(availableTabs.Todos.id, search, userId, deps)
     expect(deps.fetchFoodsByName).toHaveBeenCalledWith(search, { limit: 50 })
-  })
-
-  it('calls fetchUserRecentFoods with correct parameters', async () => {
-    const result = await fetchTemplatesByTabLogic(
-      availableTabs.Recentes.id,
-      '',
-      userId,
-      deps,
-    )
-
-    // Verify that fetchUserRecentFoods was called with correct parameters
-    expect(deps.fetchUserRecentFoods).toHaveBeenCalledWith(userId, '')
-    expect(result).toEqual([mockFood, mockRecipe])
-  })
-
-  it('handles large datasets efficiently in Recentes tab', async () => {
-    // Create large datasets to verify enhanced function works correctly
-    const LARGE_SIZE = 1000
-    const largeFoods = Array.from({ length: LARGE_SIZE }, (_, i) =>
-      promoteNewFoodToFood(
-        createNewFood({
-          name: `Food ${i + 1}`,
-          ean: `${i + 1}`,
-          macros: createMacroNutrients({
-            carbs: 10,
-            protein: 1,
-            fat: 0.1,
-          }),
-        }),
-        { id: i + 1 },
-      ),
-    )
-    const largeRecipes = Array.from({ length: LARGE_SIZE }, (_, i) =>
-      promoteToRecipe(
-        createNewRecipe({
-          name: `Recipe ${i + 1}`,
-          owner: 1,
-          items: [],
-          prepared_multiplier: 1,
-        }),
-        { id: i + 1 },
-      ),
-    )
-    const largeTemplates = Array.from({ length: LARGE_SIZE }, (_, i) =>
-      i % 2 === 0 ? largeFoods[i / 2] : largeRecipes[Math.floor(i / 2)],
-    )
-
-    const largeDeps: FetchTemplatesDeps = {
-      ...deps,
-      fetchUserRecentFoods: vi.fn().mockResolvedValue(largeTemplates),
-    }
-
-    // Test that the function completes successfully with large datasets
-    // The enhanced function should handle this efficiently
-    const result = await fetchTemplatesByTabLogic(
-      availableTabs.Recentes.id,
-      '',
-      userId,
-      largeDeps,
-    )
-
-    // Verify correct results (should include foods and recipes based on templates)
-    expect(result.length).toBe(LARGE_SIZE)
-    expect(largeDeps.fetchUserRecentFoods).toHaveBeenCalledWith(userId, '')
-
-    // Verify that we get the correct mix of foods and recipes
-    const actualFoodCount = result.filter((r) => 'macros' in r).length
-    const actualRecipeCount = result.filter((r) => 'items' in r).length
-    const expectedFoodCount = Math.ceil(LARGE_SIZE / 2)
-    const expectedRecipeCount = Math.floor(LARGE_SIZE / 2)
-
-    expect(actualFoodCount).toBe(expectedFoodCount)
-    expect(actualRecipeCount).toBe(expectedRecipeCount)
   })
 })

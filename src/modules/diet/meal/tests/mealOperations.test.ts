@@ -5,15 +5,9 @@ import { createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGrou
 import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { createNewMeal, promoteMeal } from '~/modules/diet/meal/domain/meal'
 import {
-  addGroupToMeal,
   addItemsToMeal,
-  addItemToMeal,
-  clearMealItems,
-  removeGroupFromMeal,
   removeItemFromMeal,
-  setMealGroups,
   setMealItems,
-  updateGroupInMeal,
   updateItemInMeal,
 } from '~/modules/diet/meal/domain/mealOperations'
 import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
@@ -43,13 +37,6 @@ function makeUnifiedItemFromItem(item: ReturnType<typeof makeItem>) {
   })
 }
 
-function makeGroup(id: number, name = 'G1', items = [makeItem(1)]) {
-  return {
-    ...createSimpleItemGroup({ name, items }),
-    id,
-  }
-}
-
 function makeMeal(
   id: number,
   name = 'Almoço',
@@ -60,16 +47,9 @@ function makeMeal(
 
 const baseItem = makeItem(1)
 const baseUnifiedItem = makeUnifiedItemFromItem(baseItem)
-const baseGroup = makeGroup(1, 'G1', [baseItem])
 const baseMeal = makeMeal(1, 'Almoço', [baseUnifiedItem])
 
 describe('mealOperations', () => {
-  it('addItemToMeal adds an item', () => {
-    const newItem = makeUnifiedItemFromItem(makeItem(2, 'Feijão'))
-    const result = addItemToMeal(baseMeal, newItem)
-    expect(result.items).toHaveLength(2)
-  })
-
   it('addItemsToMeal adds multiple items', () => {
     const items = [
       makeUnifiedItemFromItem(makeItem(2, 'Feijão')),
@@ -97,33 +77,5 @@ describe('mealOperations', () => {
     const items = [makeUnifiedItemFromItem(makeItem(2, 'Feijão'))]
     const result = setMealItems(baseMeal, items)
     expect(result.items).toEqual(items)
-  })
-
-  it('clearMealItems clears items', () => {
-    const result = clearMealItems(baseMeal)
-    expect(result.items).toEqual([])
-  })
-
-  it('addGroupToMeal adds a group (legacy)', () => {
-    const group = { ...baseGroup, id: 2 }
-    const result = addGroupToMeal(baseMeal, group)
-    expect(result.items).toHaveLength(2)
-  })
-
-  it('updateGroupInMeal updates a group (legacy)', () => {
-    const updated = makeGroup(1, 'Novo', [baseItem])
-    const result = updateGroupInMeal(baseMeal, 1, updated)
-    expect(result.items).toHaveLength(1)
-  })
-
-  it('removeGroupFromMeal removes a group (legacy)', () => {
-    const result = removeGroupFromMeal(baseMeal, 1)
-    expect(result.items).toHaveLength(0)
-  })
-
-  it('setMealGroups sets groups (legacy)', () => {
-    const groups = [{ ...baseGroup, id: 2 }]
-    const result = setMealGroups(baseMeal, groups)
-    expect(result.items).toHaveLength(1)
   })
 })

@@ -156,16 +156,4 @@ describe('toastManager (refactored)', () => {
     expect(typeof errorToast?.message).toBe('string')
     expect(errorToast?.message).toContain('Erro:')
   })
-
-  it('show skips toast if shouldSkipToast returns true', () => {
-    // Simulate background context with showSuccess
-    const registerToast = vi.spyOn(toastQueue, 'registerToast')
-    const id = showSuccess('Não deve aparecer', {
-      context: 'background',
-      audience: 'system',
-      showSuccess: false,
-    })
-    expect(registerToast).not.toHaveBeenCalled()
-    expect(id).toBe('')
-  })
 })

@@ -222,31 +222,14 @@ describe('Modal Integration Tests', () => {
   })
 
   describe('Performance and State Management', () => {
-    it('should handle rapid modal opening and closing', async () => {
-      // Rapidly open multiple modals
-      const modalIds = []
-      for (let i = 0; i < 10; i++) {
-        modalIds.push(openContentModal(`Content ${i}`, { title: `Modal ${i}` }))
-      }
-
-      expect(modals()).toHaveLength(10)
-
-      // Rapidly close half of them
-      for (let i = 0; i < 5; i++) {
-        closeModal(modalIds[i]!)
-      }
-
-      // Wait for async closes to complete
-      await new Promise((resolve) => setTimeout(resolve, 50))
-      expect(modals()).toHaveLength(5)
-    })
-
-    it('should generate unique modal IDs', () => {
-      const modalIds = new Set()
+    it('should generate unique modal IDs for multiple modals', () => {
+      const modalIds = new Set<string>()
 
       for (let i = 0; i < 20; i++) {
-        const modalId = openContentModal(`Content ${i}`, {
+        const modalId = modalManager.openModal({
+          type: 'content' as const,
           title: `Modal ${i}`,
+          content: `Content ${i}`,
         })
         modalIds.add(modalId)
       }

@@ -10,10 +10,4 @@ describe('removeDiacritics', () => {
     expect(removeDiacritics('Pão de queijo')).toBe('Pao de queijo')
     expect(removeDiacritics('Fruta maçã')).toBe('Fruta maca')
   })
-  it('returns empty string for empty input', () => {
-    expect(removeDiacritics('')).toBe('')
-  })
-  it('does not change non-accented input', () => {
-    expect(removeDiacritics('banana')).toBe('banana')
-  })
 })

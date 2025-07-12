@@ -67,15 +67,7 @@ export function isOverflow(
 ): boolean {
   const { currentDayDiet, macroTarget, macroOverflowOptions } = context
   // Type assertions for safety (defensive, in case of untyped input)
-  if (
-    typeof property !== 'string' ||
-    !['carbs', 'protein', 'fat'].includes(property)
-  ) {
-    errorHandler.validationError('Invalid macro property for overflow check', {
-      additionalData: { property, itemName: item.name },
-    })
-    return false
-  }
+
   if (!macroOverflowOptions.enable) {
     return false
   }

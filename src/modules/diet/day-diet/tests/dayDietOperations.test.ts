@@ -60,4 +60,40 @@ describe('dayDietOperations', () => {
     const result = updateMealInDayDiet(baseDayDiet, 1, updated)
     expect(result.meals[0]?.name).toBe('Jantar')
   })
+
+  it('updateMealInDayDiet should return the original DayDiet if mealId does not exist', () => {
+    const nonExistentMealId = 999
+    const updated = makeMeal(nonExistentMealId, 'Non Existent', [])
+    const result = updateMealInDayDiet(baseDayDiet, nonExistentMealId, updated)
+    expect(result).toEqual(baseDayDiet)
+  })
+
+  it('updateMealInDayDiet should preserve other meals in the DayDiet', () => {
+    const meal2 = makeMeal(2, 'Café da Manhã', [
+      makeUnifiedItemFromItem(makeItem(2)),
+    ])
+    const dayDietWithTwoMeals = promoteDayDiet(
+      createNewDayDiet({
+        target_day: '2023-01-01',
+        owner: 1,
+        meals: [baseMeal, meal2],
+      }),
+      { id: 1 },
+    )
+    const updatedMeal1 = makeMeal(1, 'Almoço Atualizado', [
+      makeUnifiedItemFromItem(baseItem),
+    ])
+    const result = updateMealInDayDiet(dayDietWithTwoMeals, 1, updatedMeal1)
+    expect(result.meals).toHaveLength(2)
+    expect(result.meals[0]?.name).toBe('Almoço Atualizado')
+    expect(result.meals[1]).toEqual(meal2)
+  })
+
+  it('updateMealInDayDiet should preserve other properties of the DayDiet', () => {
+    const updated = makeMeal(1, 'Jantar', [makeUnifiedItemFromItem(baseItem)])
+    const result = updateMealInDayDiet(baseDayDiet, 1, updated)
+    expect(result.target_day).toBe(baseDayDiet.target_day)
+    expect(result.owner).toBe(baseDayDiet.owner)
+    expect(result.id).toBe(baseDayDiet.id)
+  })
 })

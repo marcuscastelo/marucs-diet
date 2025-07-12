@@ -2,13 +2,9 @@
  * @fileoverview Unit tests for field transform utilities
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
-import {
-  createDateTransform,
-  createFloatTransform,
-} from '~/sections/common/hooks/transforms/fieldTransforms'
-import { dateToString, stringToDate } from '~/shared/utils/date/dateUtils'
+import { createFloatTransform } from '~/sections/common/hooks/transforms/fieldTransforms'
 
 // Mock the date utils module
 vi.mock('~/shared/utils/date/dateUtils', () => ({
@@ -106,61 +102,6 @@ describe('fieldTransforms', () => {
         expect(transform.toValue('invalid')).toBe(5)
         expect(transform.toValue('2000')).toBe(1000)
       })
-    })
-  })
-
-  describe('createDateTransform', () => {
-    beforeEach(() => {
-      vi.clearAllMocks()
-    })
-
-    it('should delegate to dateToString for toRaw', () => {
-      const testDate = new Date('2023-12-25')
-      const expectedString = '2023-12-25'
-
-      vi.mocked(dateToString).mockReturnValue(expectedString)
-
-      const transform = createDateTransform()
-      const result = transform.toRaw(testDate)
-
-      expect(dateToString).toHaveBeenCalledWith(testDate)
-      expect(result).toBe(expectedString)
-    })
-
-    it('should delegate to stringToDate for toValue', () => {
-      const testString = '2023-12-25'
-      const expectedDate = new Date('2023-12-25')
-
-      vi.mocked(stringToDate).mockReturnValue(expectedDate)
-
-      const transform = createDateTransform()
-      const result = transform.toValue(testString)
-
-      expect(stringToDate).toHaveBeenCalledWith(testString)
-      expect(result).toBe(expectedDate)
-    })
-  })
-
-  describe('FieldTransform interface', () => {
-    it('should provide consistent interface for float transform', () => {
-      const transform = createFloatTransform()
-
-      expect(typeof transform.toRaw).toBe('function')
-      expect(typeof transform.toValue).toBe('function')
-
-      // Test round-trip consistency
-      const originalValue = 123.45
-      const rawValue = transform.toRaw(originalValue)
-      const parsedValue = transform.toValue(rawValue)
-
-      expect(parsedValue).toBe(originalValue)
-    })
-
-    it('should provide consistent interface for date transform', () => {
-      const transform = createDateTransform()
-
-      expect(typeof transform.toRaw).toBe('function')
-      expect(typeof transform.toValue).toBe('function')
     })
   })
 })

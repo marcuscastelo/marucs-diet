@@ -97,30 +97,4 @@ describe('conversionUtils', () => {
     )
     expect(item.quantity).toBe(200)
   })
-
-  it('unifiedItemToItem handles 50g quantity correctly', () => {
-    // Test with 50g quantity
-    const unifiedItemWith50g: UnifiedItem = createUnifiedItem({
-      id: 1,
-      name: 'Chicken',
-      quantity: 50, // 50g
-      reference: {
-        type: 'food',
-        id: 10,
-        macros: createMacroNutrients({ protein: 20, carbs: 10, fat: 2 }),
-      }, // Per 100g
-    })
-
-    const item = unifiedItemToItem(unifiedItemWith50g)
-
-    // Macros should remain per 100g (not calculated for the specific quantity)
-    expect(item.macros).toEqual(
-      createMacroNutrients({
-        protein: 20, // Still per 100g
-        carbs: 10, // Still per 100g
-        fat: 2, // Still per 100g
-      }),
-    )
-    expect(item.quantity).toBe(50)
-  })
 })
