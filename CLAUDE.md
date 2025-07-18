@@ -39,6 +39,129 @@ Macroflows is a nutrition tracking platform built with SolidJS, TypeScript, and 
 
 **Golden Rule**: If you can't immediately name 3 different concrete implementations of your abstraction, don't create it.
 
+## Rapid Implementation Guidelines - CRITICAL
+
+**🚀 SPEED COMES FROM SAYING NO TO UNNECESSARY COMPLEXITY**
+
+### Implementation Velocity Principles
+
+**Never Add These Unless Absolutely Essential:**
+- **Backward Compatibility**: Frontend is versioned - Vercel rollback solves problems
+- **Feature Flags**: Just implement the feature directly
+- **A/B Testing Infrastructure**: Manual testing is sufficient for most cases
+- **Fallback Mechanisms**: Trust your implementation and monitoring
+- **Migration Strategies**: Direct replacement with proper testing
+- **Enterprise Rollout Plans**: This is a solo project with simple deployment
+
+**Speed-First Decision Framework:**
+- [ ] **Direct implementation**: Can we just build the feature without scaffolding?
+- [ ] **Platform leverage**: Are we using database/framework strengths optimally?
+- [ ] **Delete over add**: Can we remove complexity instead of adding abstraction?
+- [ ] **Server-side logic**: Should this logic live in PostgreSQL instead of TypeScript?
+- [ ] **Testing necessity**: Does this need a test or does TypeScript/DB already guarantee it?
+
+### Logic Placement Hierarchy (Most to Least Preferred)
+
+1. **PostgreSQL Functions (RPC)**: For search, data processing, complex queries
+2. **Domain Layer**: Pure business logic, validations, calculations  
+3. **Application Layer**: SolidJS orchestration, error handling, UI state
+4. **Infrastructure Layer**: External API calls, data transformation
+
+**Example Decision Tree:**
+```typescript
+// ❌ Complex: Spread across layers
+// Client: word splitting + normalization
+// Server: multiple API calls + merging
+// Database: simple ILIKE queries
+
+// ✅ Simple: Centralized in optimal layer  
+// PostgreSQL: All search logic with scoring
+// Client: Single RPC call + mapping
+```
+
+### Rapid Implementation Patterns
+
+**Database-First for Complex Logic:**
+- Text search → PostgreSQL functions with scoring
+- Data aggregations → SQL with CTEs  
+- Complex filtering → Server-side functions
+- Real-time updates → Supabase subscriptions
+
+**TypeScript for Orchestration Only:**
+- Error handling and user feedback
+- State management and reactivity
+- Domain object mapping and validation
+- UI component coordination
+
+**Testing Reality Check:**
+```typescript
+// ❌ Over-testing: What TypeScript already guarantees
+test('should have correct type structure', () => {
+  expect(typeof food.name).toBe('string')  // TypeScript already ensures this
+})
+
+// ✅ Behavioral testing: What actually matters
+test('should call correct search function for tab', () => {
+  expect(deps.fetchFoodsByName).toHaveBeenCalledWith(search, { limit: 50 })
+})
+```
+
+### Implementation Speed Checklist
+
+**Before adding any complexity, ask:**
+- [ ] **Platform sufficiency**: Does PostgreSQL/Supabase/SolidJS already solve this?
+- [ ] **Real user problem**: Are we solving an actual issue or theoretical edge case?
+- [ ] **Deployment reality**: Is Vercel rollback + monitoring sufficient safety net?
+- [ ] **Maintenance cost**: Will this make future changes harder or easier?
+- [ ] **Line count impact**: Does this reduce or increase total codebase size?
+
+**When to choose simple over "robust":**
+- ✅ **Single RPC call** vs elaborate client-side orchestration
+- ✅ **Standard Error()** vs custom error hierarchies  
+- ✅ **Direct implementation** vs abstraction layers
+- ✅ **PostgreSQL functions** vs client-side complex logic
+- ✅ **Zod validation** vs manual type checking
+
+### Database Logic Advantages
+
+**Why prefer PostgreSQL functions:**
+- **Performance**: Processing happens close to data
+- **Concurrency**: Database handles concurrent requests optimally
+- **Consistency**: Single source of truth for complex operations
+- **Optimization**: Query planner + indexes automatically optimize
+- **Simplicity**: TypeScript becomes thin orchestration layer
+
+**Example - Search Implementation:**
+```sql
+-- ✅ All logic in database function
+CREATE FUNCTION search_foods_with_scoring(p_search_term text, p_limit integer)
+-- Complex scoring, fuzzy matching, normalization all server-side
+```
+
+```typescript
+// ✅ Simple client call
+const result = await supabase.rpc('search_foods_with_scoring', {
+  p_search_term: name,
+  p_limit: params.limit ?? 50
+})
+```
+
+### Key Success Metrics
+
+**Implementation completed in ~1 hour instead of potential days/weeks**
+- ✅ **Rejected complexity**: No backward compatibility, feature flags, fallbacks
+- ✅ **Leveraged platform**: PostgreSQL for search logic optimization  
+- ✅ **Deleted code**: Removed 26 lines of word separation logic
+- ✅ **Trusted tools**: TypeScript compilation + Vercel deployment patterns
+- ✅ **Focused testing**: Only behavioral tests, not redundant type validation
+
+**Final Reality Check:**
+- **Frontend apps are not distributed systems** - avoid over-engineering
+- **Vercel rollback > elaborate fallback mechanisms** - trust your deployment
+- **PostgreSQL > complex TypeScript** for data processing
+- **Delete complexity > add abstractions** - prefer subtraction
+- **Good enough > perfect** - solve real user problems quickly
+
 ## Critical Setup Requirements
 
 **Environment Setup:**

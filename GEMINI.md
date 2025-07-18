@@ -42,9 +42,132 @@ At the end of every message, show <End of Response>.
 - `pnpm lint`: Run ESLint.
 - `.scripts/semver.sh`: The preferred method for application version reporting.
 
-## 4. Architecture & Design Principles
+## 4. 🚀 Rapid Implementation Guidelines - CRITICAL
 
-### 4.1. Clean Architecture (3 Layers)
+**SPEED COMES FROM SAYING NO TO UNNECESSARY COMPLEXITY**
+
+### 4.1. Implementation Velocity Principles
+
+**Never Add These Unless Absolutely Essential:**
+- **Backward Compatibility**: Frontend is versioned - Vercel rollback solves problems
+- **Feature Flags**: Just implement the feature directly
+- **A/B Testing Infrastructure**: Manual testing is sufficient for most cases
+- **Fallback Mechanisms**: Trust your implementation and monitoring
+- **Migration Strategies**: Direct replacement with proper testing
+- **Enterprise Rollout Plans**: This is a solo project with simple deployment
+
+**Speed-First Decision Framework:**
+- [ ] **Direct implementation**: Can we just build the feature without scaffolding?
+- [ ] **Platform leverage**: Are we using database/framework strengths optimally?
+- [ ] **Delete over add**: Can we remove complexity instead of adding abstraction?
+- [ ] **Server-side logic**: Should this logic live in PostgreSQL instead of TypeScript?
+- [ ] **Testing necessity**: Does this need a test or does TypeScript/DB already guarantee it?
+
+### 4.2. Logic Placement Hierarchy (Most to Least Preferred)
+
+1. **PostgreSQL Functions (RPC)**: For search, data processing, complex queries
+2. **Domain Layer**: Pure business logic, validations, calculations  
+3. **Application Layer**: SolidJS orchestration, error handling, UI state
+4. **Infrastructure Layer**: External API calls, data transformation
+
+**Example Decision Tree:**
+```typescript
+// ❌ Complex: Spread across layers
+// Client: word splitting + normalization
+// Server: multiple API calls + merging
+// Database: simple ILIKE queries
+
+// ✅ Simple: Centralized in optimal layer  
+// PostgreSQL: All search logic with scoring
+// Client: Single RPC call + mapping
+```
+
+### 4.3. Rapid Implementation Patterns
+
+**Database-First for Complex Logic:**
+- Text search → PostgreSQL functions with scoring
+- Data aggregations → SQL with CTEs  
+- Complex filtering → Server-side functions
+- Real-time updates → Supabase subscriptions
+
+**TypeScript for Orchestration Only:**
+- Error handling and user feedback
+- State management and reactivity
+- Domain object mapping and validation
+- UI component coordination
+
+**Testing Reality Check:**
+```typescript
+// ❌ Over-testing: What TypeScript already guarantees
+test('should have correct type structure', () => {
+  expect(typeof food.name).toBe('string')  // TypeScript already ensures this
+})
+
+// ✅ Behavioral testing: What actually matters
+test('should call correct search function for tab', () => {
+  expect(deps.fetchFoodsByName).toHaveBeenCalledWith(search, { limit: 50 })
+})
+```
+
+### 4.4. Implementation Speed Checklist
+
+**Before adding any complexity, ask:**
+- [ ] **Platform sufficiency**: Does PostgreSQL/Supabase/SolidJS already solve this?
+- [ ] **Real user problem**: Are we solving an actual issue or theoretical edge case?
+- [ ] **Deployment reality**: Is Vercel rollback + monitoring sufficient safety net?
+- [ ] **Maintenance cost**: Will this make future changes harder or easier?
+- [ ] **Line count impact**: Does this reduce or increase total codebase size?
+
+**When to choose simple over "robust":**
+- ✅ **Single RPC call** vs elaborate client-side orchestration
+- ✅ **Standard Error()** vs custom error hierarchies  
+- ✅ **Direct implementation** vs abstraction layers
+- ✅ **PostgreSQL functions** vs client-side complex logic
+- ✅ **Zod validation** vs manual type checking
+
+### 4.5. Database Logic Advantages
+
+**Why prefer PostgreSQL functions:**
+- **Performance**: Processing happens close to data
+- **Concurrency**: Database handles concurrent requests optimally
+- **Consistency**: Single source of truth for complex operations
+- **Optimization**: Query planner + indexes automatically optimize
+- **Simplicity**: TypeScript becomes thin orchestration layer
+
+**Example - Search Implementation:**
+```sql
+-- ✅ All logic in database function
+CREATE FUNCTION search_foods_with_scoring(p_search_term text, p_limit integer)
+-- Complex scoring, fuzzy matching, normalization all server-side
+```
+
+```typescript
+// ✅ Simple client call
+const result = await supabase.rpc('search_foods_with_scoring', {
+  p_search_term: name,
+  p_limit: params.limit ?? 50
+})
+```
+
+### 4.6. Key Success Metrics
+
+**Implementation completed in ~1 hour instead of potential days/weeks**
+- ✅ **Rejected complexity**: No backward compatibility, feature flags, fallbacks
+- ✅ **Leveraged platform**: PostgreSQL for search logic optimization  
+- ✅ **Deleted code**: Removed 26 lines of word separation logic
+- ✅ **Trusted tools**: TypeScript compilation + Vercel deployment patterns
+- ✅ **Focused testing**: Only behavioral tests, not redundant type validation
+
+**Final Reality Check:**
+- **Frontend apps are not distributed systems** - avoid over-engineering
+- **Vercel rollback > elaborate fallback mechanisms** - trust your deployment
+- **PostgreSQL > complex TypeScript** for data processing
+- **Delete complexity > add abstractions** - prefer subtraction
+- **Good enough > perfect** - solve real user problems quickly
+
+## 5. Architecture & Design Principles
+
+### 5.1. Clean Architecture (3 Layers)
 The codebase follows a strict 3-layer architecture. Adherence to these boundaries is critical.
 
 1.  **Domain Layer** (`modules/*/domain/`)
@@ -65,56 +188,56 @@ The codebase follows a strict 3-layer architecture. Adherence to these boundarie
     - Contains all external integrations, such as Supabase client code and Data Access Objects (DAOs).
     - This is the **ONLY** layer where `any` might be permissible, strictly for interfacing with external, untyped APIs.
 
-### 4.2. Dependency Injection (DI) Pattern
+### 6.2. Dependency Injection (DI) Pattern
 - The project uses an explicit, manual Dependency Injection pattern.
 - **Orchestration functions** (business logic) in the Application Layer **MUST NOT** import dependencies (repositories, fetchers) directly.
 - Instead, these dependencies **MUST** be passed as arguments to the function.
 - This decouples application logic from infrastructure, making it highly testable.
 - **Example:** A `fetchTemplatesByTabLogic` function should receive a `deps` object containing all necessary fetchers (`fetchUserRecipes`, `fetchFoods`, etc.) as a parameter.
 
-### 4.3. File & Module Structure
+### 6.3. File & Module Structure
 - `src/modules/<domain>/`: Houses the three architecture layers for a specific domain.
   - `tests/`: All tests for a module **MUST** be placed in this folder. This ensures consistent organization and discoverability of tests.
 - `src/sections/<feature>/`: Contains page-level UI components, organized by feature.
 - `src/shared/`: Cross-cutting concerns (error handling, configs, pure utilities).
 - `src/routes/`: SolidJS router pages and API endpoints.
 
-## 5. Critical Code Style & Patterns
+## 6. Critical Code Style & Patterns
 
-### 5.1. Imports: The Three Rules
+### 6.1. Imports: The Three Rules
 1.  **Absolute Imports ONLY:** Always use absolute paths with the `~/` prefix.
     - ✅ `import { MyType } from '~/modules/user/domain/user';`
     - ❌ `import { MyType } from '../../user/domain/user';`
 2.  **Barrel Files (`index.ts`) are BANNED:** All imports must point directly to the file where the entity is defined. Do not create or use `index.ts` files that only re-export from other files.
 3.  **Static Imports ONLY:** All imports must be static and at the top of the file. Dynamic `import()` is forbidden.
 
-### 5.2. Language & Naming
+### 6.2. Language & Naming
 - **Language:** All code, comments, JSDoc, and commit messages **MUST** be in **English**. UI text visible to the user may be in Portuguese (pt-BR).
 - **Naming:** Use descriptive, specific, action-based names. Avoid generic names.
     - ✅ **Good:** `isRecipedGroupUpToDate()`, `convertToGroups()`, `ItemGroupEditModal.tsx`, `macroOverflow.ts`
     - ❌ **Bad:** `checkGroup()`, `convert()`, `GroupModal.tsx`, `utils.ts`
 
-### 5.3. Type Safety & Formatting
+### 6.3. Type Safety & Formatting
 - **NO `any`:** The use of `any`, `as any`, or `@ts-ignore` is strictly forbidden outside the Infrastructure layer. This ensures strong type safety and reduces the need for redundant runtime type checks in tests.
 - **`type` over `interface`:** Always use type aliases for defining data shapes.
 - **Readonly:** Prefer `readonly Item[]` over `Item[]` for immutability.
 - **Props Immutability:** **NEVER** destructure `props` in SolidJS components, as it breaks reactivity.
 
-### 5.4. Anti-Patterns to Avoid
+### 6.4. Anti-Patterns to Avoid
 - **Code Duplication:** Avoid copy-pasting logic. For example, the clipboard and validation logic was duplicated between `MealEditView.tsx` and `RecipeEditView.tsx`. This should be abstracted into a shared utility.
 
-### 5.5. Error Handling
+### 6.5. Error Handling
 - **Domain:** Throws pure errors (e.g., `throw new GroupConflictError(...)`).
 - **Application:** Catches domain errors and **MUST** use `handleApiError(e, { context })`.
 - **NEVER** use `.catch(() => {})` to silence promise errors. Use the `void` operator only for non-critical, fire-and-forget side-effects in event handlers where errors are handled at the application level.
 
-### 5.6. Commits & JSDoc
+### 6.6. Commits & JSDoc
 - **Commits:** Use the Conventional Commits specification. Messages must be in English. **NEVER** include "Generated by..." or "Co-authored-by..." footers from AI tools.
 - **JSDoc:** Update JSDoc for all **exported** types and functions. Do not add JSDoc to internal code.
 
-## 6. Quality Assurance & Testing Strategy
+## 8. Quality Assurance & Testing Strategy
 
-### 6.1. Core Domain Entities
+### 7.1. Core Domain Entities
 Testing should be structured around the core business domains. The main entities are:
 - `MacroProfile`
 - `Weight`
@@ -153,7 +276,7 @@ When adding features or fixing bugs, ensure coverage for:
 ### 6.4. Search-Specific Testing
 - All user-facing search features **MUST** be tested to be both **diacritic-insensitive** and **case-insensitive** for Portuguese (pt-BR) text.
 
-## 7. Automated Workflows & Commands
+## 8. Automated Workflows & Commands
 
 This project relies on a set of automated commands to ensure consistency and quality. You should use and follow these workflows.
 
@@ -162,7 +285,7 @@ This project relies on a set of automated commands to ensure consistency and qua
 - **`/commit`:** Automates the creation of Conventional Commit messages. It analyzes staged changes and generates a compliant message in English. Use this to maintain a clean and standardized commit history.
 - **`/pull-request`:** Automates the creation of GitHub Pull Requests. It uses the commit information to create a well-formed PR, linking it to the relevant issue.
 
-### 7.6. Agent Interaction with External Tools (e.g., GitHub MCP Server)
+### 6.6. Agent Interaction with External Tools (e.g., GitHub MCP Server)
 
 When external tools, such as the `github-mcp-server`, are integrated into the agent's environment, they expose their functionalities as callable functions. The agent interacts with these tools by directly invoking these functions with the required parameters, similar to how it uses its built-in `default_api` tools.
 
@@ -185,7 +308,7 @@ Be aware of the following technical debt and future plans:
     - **Decouple Modules:** Actively work towards reducing dependencies between modules.
     - **Improve State Management:** Move away from using `createSignal` for global state and towards more structured solutions like stores or contexts.
 
-## 9. Final Reminders
+## 8. Final Reminders
 - **TODOs:** Never remove `TODO` comments from the codebase.
 - **Labels:** When creating issues, use the labels defined in `docs/labels-usage.md`.
 - **Session Start:** Always run `export GIT_PAGER=cat` at the beginning of a session to prevent interactive pager issues with `git`.
@@ -259,7 +382,7 @@ Before interacting with any UI element (clicking, filling, selecting):
 
 ---
 
-## 7. Selector Best Practices
+## 8. Selector Best Practices
 
 - Prefer stable, semantic, and test-specific selectors (e.g., `data-testid`).
 - Avoid selectors that depend on visual layout (e.g., position, nth-child).
