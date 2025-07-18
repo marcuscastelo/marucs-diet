@@ -123,6 +123,7 @@ createEffect(() => {
 /**
  * When realtime day diets change, update day diets for current user
  */
+// TODO: Move all registerSubapabaseRealtimeCallback to infra layer
 registerSubapabaseRealtimeCallback(SUPABASE_TABLE_DAYS, () => {
   bootstrap()
 })
