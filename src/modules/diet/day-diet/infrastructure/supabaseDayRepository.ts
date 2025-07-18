@@ -22,8 +22,7 @@ import {
 } from '~/shared/error/errorHandler'
 import supabase from '~/shared/utils/supabase'
 
-// TODO:   Delete old days table and rename days_test to days
-export const SUPABASE_TABLE_DAYS = 'days_test'
+export const SUPABASE_TABLE_DAYS = 'days'
 
 const errorHandler = createErrorHandler('infrastructure', 'DayDiet')
 
