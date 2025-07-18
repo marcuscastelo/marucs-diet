@@ -15,7 +15,6 @@ import {
 import { isSupabaseDuplicateEanError } from '~/shared/supabase/supabaseErrorUtils'
 import { createDebug } from '~/shared/utils/createDebug'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
-import { removeDiacritics } from '~/shared/utils/removeDiacritics'
 import supabase from '~/shared/utils/supabase'
 
 const debug = createDebug()
@@ -153,31 +152,31 @@ async function fetchFoodsByName(
   name: Required<Food>['name'],
   params: FoodSearchParams = {},
 ) {
-  const normalizedName = removeDiacritics(name)
-  // Exact search.
-  const exactMatches = await internalCachedSearchFoods(
-    { field: 'name', value: normalizedName, operator: 'ilike' },
-    params,
-  )
+  try {
+    const result = await supabase.rpc('search_foods_with_scoring', {
+      p_search_term: name,
+      p_limit: params.limit ?? 50,
+    })
 
-  // Partial search per word.
-  const words = normalizedName.split(/\s+/).filter(Boolean)
-  let partialMatches: Food[] = []
-  if (words.length > 1) {
-    const partialResults = await Promise.all(
-      words.map((word) =>
-        internalCachedSearchFoods(
-          { field: 'name', value: word, operator: 'ilike' },
-          params,
-        ),
-      ),
+    if (result.error !== null) {
+      errorHandler.error(result.error)
+      throw wrapErrorWithStack(result.error)
+    }
+
+    if (result.data === null || result.data === undefined) {
+      debug('No data returned from enhanced search')
+      return []
+    }
+
+    debug(
+      `Found ${Array.isArray(result.data) ? result.data.length : 0} foods using enhanced search`,
     )
-    partialMatches = partialResults
-      .flat()
-      .filter((food) => !exactMatches.some((f) => f.id === food.id))
+    const foodDAOs = parseWithStack(foodDAOSchema.array(), result.data)
+    return foodDAOs.map(createFoodFromDAO)
+  } catch (err) {
+    errorHandler.error(err)
+    throw err
   }
-
-  return [...exactMatches, ...partialMatches]
 }
 
 async function fetchFoods(params: FoodSearchParams = {}) {
@@ -218,9 +217,7 @@ async function internalCachedSearchFoods(
   let query = base
 
   if (field !== '' && value !== '') {
-    // Normalize diacritics for search in DB as well
-    const normalizedValue =
-      typeof value === 'string' ? removeDiacritics(value) : value
+    const normalizedValue = value
     switch (operator) {
       case 'eq':
         query = query.eq(field, normalizedValue)
