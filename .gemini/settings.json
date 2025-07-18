@@ -13,22 +13,10 @@
   },
   "mcpServers": {
     "serena": {
-      "command": "uvx",
+      "command": "bash",
       "args": [
-        "--from",
-        "git+https://github.com/oraios/serena",
-        "serena-mcp-server",
-        "--context",
-        "agent",
-        "--transport",
-        "stdio",
-        "--enable-web-dashboard",
-        "false",
-        "--project",
-        "$(pwd)"
-      ],
-      "cwd": "/home/marucs/opt/mcp/serena",
-      "timeout": 5000
+        "scripts/start-serena-server.sh"
+      ]
     },
     "playwright": {
       "command": "npx",

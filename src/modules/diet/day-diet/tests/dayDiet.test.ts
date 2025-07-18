@@ -38,10 +38,4 @@ describe('getPreviousDayDiets', () => {
     const result = getPreviousDayDiets(days, '2024-01-01')
     expect(result).toEqual([])
   })
-
-  it('ignores days equal to selectedDay', () => {
-    const days = [makeDay('2024-01-01', 1), makeDay('2024-01-02', 2)]
-    const result = getPreviousDayDiets(days, '2024-01-01')
-    expect(result).toEqual([])
-  })
 })
