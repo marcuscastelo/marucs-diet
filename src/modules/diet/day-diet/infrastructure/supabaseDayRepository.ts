@@ -74,8 +74,7 @@ async function fetchDayDiet(dayId: DayDiet['id']): Promise<DayDiet> {
       })
       throw new Error('DayDiet not found')
     }
-    const migratedDay = migrateDayDataIfNeeded(dayDiets[0])
-    const result = dayDietSchema.safeParse(migratedDay)
+    const result = dayDietSchema.safeParse(dayDiets[0])
     if (!result.success) {
       errorHandler.validationError('DayDiet invalid', {
         component: 'supabaseDayRepository',
@@ -94,62 +93,12 @@ async function fetchDayDiet(dayId: DayDiet['id']): Promise<DayDiet> {
 /**
  * Type for raw database data before validation
  */
-type RawDayData = {
-  meals?: unknown[]
-  [key: string]: unknown
-}
+// Legacy data type removed
 
 /**
  * Migrates day data from legacy format (meals with groups) to new format (meals with items)
  * if needed. Returns the data unchanged if it's already in the new format.
  */
-function migrateDayDataIfNeeded(dayData: unknown): unknown {
-  // Type guard to check if dayData has the expected structure
-  if (
-    typeof dayData !== 'object' ||
-    dayData === null ||
-    !('meals' in dayData) ||
-    !Array.isArray((dayData as RawDayData).meals)
-  ) {
-    return dayData
-  }
-
-  const rawDay = dayData as RawDayData
-  const meals = rawDay.meals || []
-
-  // Check if any meal has the legacy 'groups' property instead of 'items'
-  const hasLegacyFormat = meals.some(
-    (meal: unknown) =>
-      typeof meal === 'object' &&
-      meal !== null &&
-      'groups' in meal &&
-      !('items' in meal),
-  )
-
-  if (!hasLegacyFormat) {
-    return dayData // Already in new format
-  }
-
-  // Migrate meals from legacy format to unified format
-  const migratedMeals = meals.map((meal: unknown) => {
-    if (
-      typeof meal === 'object' &&
-      meal !== null &&
-      'groups' in meal &&
-      !('items' in meal)
-    ) {
-      // This is a legacy meal, migrate it
-      const legacyMeal = meal as LegacyMeal
-      return migrateLegacyMealsToUnified([legacyMeal])[0]
-    }
-    return meal // Already in new format or different structure
-  })
-
-  return {
-    ...rawDay,
-    meals: migratedMeals,
-  }
-}
 
 // TODO:   better error handling
 async function fetchAllUserDayDiets(
@@ -169,9 +118,7 @@ async function fetchAllUserDayDiets(
 
   const days = data
     .map((day) => {
-      // Check if day contains legacy meal format and migrate if needed
-      const migratedDay = migrateDayDataIfNeeded(day)
-      return dayDietSchema.safeParse(migratedDay)
+      return dayDietSchema.safeParse(day)
     })
     .map((result) => {
       if (result.success) {
@@ -255,5 +202,168 @@ const deleteDayDiet = async (id: DayDiet['id']): Promise<void> => {
     throw new Error(
       `Invalid state: userId not found for day ${id} on local cache`,
     )
+  }
+}
+
+/**
+ * Migra todos os registros legacy do banco de dados para o formato UnifiedItem
+ * @returns Estatísticas da migração
+ */
+export async function migrateLegacyDatabaseRecords(): Promise<{
+  totalProcessed: number
+  totalMigrated: number
+  errors: string[]
+}> {
+  try {
+    console.log('🔍 Buscando registros legacy...')
+
+    // Buscar todos os registros da tabela days
+    const { data: allRecords, error: fetchError } = await supabase
+      .from(SUPABASE_TABLE_DAYS)
+      .select('*')
+
+    if (fetchError !== null) {
+      errorHandler.error(fetchError)
+      throw fetchError
+    }
+
+    const records = allRecords ?? []
+    console.log(`📊 Total de registros encontrados: ${records.length}`)
+
+    // Identificar registros legacy (que têm 'groups' ao invés de 'items')
+    const legacyRecords = records.filter((record: unknown) => {
+      if (
+        typeof record !== 'object' ||
+        record === null ||
+        !('meals' in record) ||
+        !Array.isArray((record as { meals: unknown }).meals)
+      ) {
+        return false
+      }
+
+      const recordWithMeals = record as { meals: unknown[] }
+      return recordWithMeals.meals.some(
+        (meal: unknown) =>
+          meal !== null &&
+          typeof meal === 'object' &&
+          'groups' in meal &&
+          !('items' in meal),
+      )
+    })
+
+    console.log(`🔄 Registros legacy encontrados: ${legacyRecords.length}`)
+
+    if (legacyRecords.length === 0) {
+      console.log(
+        '✅ Nenhum registro legacy encontrado. Todos os dados já estão no formato UnifiedItem!',
+      )
+      return { totalProcessed: records.length, totalMigrated: 0, errors: [] }
+    }
+
+    // Estatísticas
+    let totalMigrated = 0
+    const errors: string[] = []
+
+    // Migrar registros em batches
+    const batchSize = 10
+    for (let i = 0; i < legacyRecords.length; i += batchSize) {
+      const batch = legacyRecords.slice(i, i + batchSize)
+      console.log(
+        `📦 Processando batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(legacyRecords.length / batchSize)} (${batch.length} registros)`,
+      )
+
+      for (const record of batch) {
+        try {
+          // Type guard para garantir que record tem a estrutura esperada
+          if (
+            typeof record !== 'object' ||
+            record === null ||
+            !('id' in record) ||
+            !('target_day' in record) ||
+            !('meals' in record) ||
+            !Array.isArray((record as { meals: unknown }).meals)
+          ) {
+            throw new Error('Estrutura de registro inválida')
+          }
+
+          const typedRecord = record as {
+            id: number
+            target_day: string
+            meals: unknown[]
+          }
+
+          // Migrar meals do formato legacy para unified
+          const migratedMeals = typedRecord.meals.map((meal: unknown) => {
+            if (
+              meal !== null &&
+              typeof meal === 'object' &&
+              'groups' in meal &&
+              !('items' in meal)
+            ) {
+              // Este é um meal legacy, migrar usando a função existente
+              const legacyMeal = meal as LegacyMeal
+              const unifiedMeals = migrateLegacyMealsToUnified([legacyMeal])
+              return unifiedMeals[0]
+            }
+            return meal // Já está no formato unified
+          })
+
+          // Atualizar registro no banco usando formato unificado
+          const { error: updateError } = await supabase
+            .from(SUPABASE_TABLE_DAYS)
+            .update({ meals: migratedMeals })
+            .eq('id', typedRecord.id)
+
+          if (updateError !== null) {
+            throw updateError
+          }
+
+          totalMigrated++
+          console.log(
+            `  ✅ Migrado: day ${typedRecord.id} (${typedRecord.target_day})`,
+          )
+        } catch (error) {
+          const recordId =
+            typeof record === 'object' && record !== null && 'id' in record
+              ? (record as { id: number }).id
+              : 'unknown'
+          const errorMsg = `Erro ao migrar registro ${recordId}: ${error instanceof Error ? error.message : String(error)}`
+          errors.push(errorMsg)
+          console.error(`  ❌ ${errorMsg}`)
+          errorHandler.error(error, {
+            component: 'supabaseDayRepository',
+            operation: 'migrateLegacyDatabaseRecords',
+            additionalData: { recordId },
+          })
+        }
+      }
+
+      // Pequena pausa entre batches para evitar sobrecarga
+      await new Promise((resolve) => setTimeout(resolve, 100))
+    }
+
+    console.log('\n📈 Estatísticas da migração:')
+    console.log(`  📊 Total de registros: ${records.length}`)
+    console.log(`  🔄 Registros legacy encontrados: ${legacyRecords.length}`)
+    console.log(`  ✅ Registros migrados com sucesso: ${totalMigrated}`)
+    console.log(`  ❌ Erros: ${errors.length}`)
+
+    if (errors.length > 0) {
+      console.log('\n❌ Erros encontrados:')
+      errors.forEach((error) => console.log(`  - ${error}`))
+    }
+
+    return {
+      totalProcessed: records.length,
+      totalMigrated,
+      errors,
+    }
+  } catch (error) {
+    errorHandler.error(error, {
+      component: 'supabaseDayRepository',
+      operation: 'migrateLegacyDatabaseRecords',
+    })
+    console.error('💥 Erro fatal durante a migração:', error)
+    throw error
   }
 }

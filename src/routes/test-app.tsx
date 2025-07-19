@@ -1,4 +1,4 @@
-import { createEffect, createSignal, untrack } from 'solid-js'
+import { createEffect, createSignal, For, untrack } from 'solid-js'
 
 import {
   setTargetDay,
@@ -9,6 +9,7 @@ import {
   type DayDiet,
   promoteDayDiet,
 } from '~/modules/diet/day-diet/domain/dayDiet'
+import { migrateLegacyDatabaseRecords } from '~/modules/diet/day-diet/infrastructure/supabaseDayRepository'
 import { createItem, type Item } from '~/modules/diet/item/domain/item'
 import {
   createSimpleItemGroup,
@@ -21,7 +22,10 @@ import {
   promoteMeal,
 } from '~/modules/diet/meal/domain/meal'
 import { itemGroupToUnifiedItem } from '~/modules/diet/unified-item/domain/conversionUtils'
-import { showSuccess } from '~/modules/toast/application/toastManager'
+import {
+  showError,
+  showSuccess,
+} from '~/modules/toast/application/toastManager'
 import { TestChart } from '~/sections/common/components/charts/TestChart'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { EANIcon } from '~/sections/common/components/icons/EANIcon'
@@ -42,7 +46,7 @@ import {
 import { openEditModal } from '~/shared/modal/helpers/modalHelpers'
 
 export default function TestApp() {
-  const [unifiedItemEditModalVisible, setUnifiedItemEditModalVisible] =
+  const [_unifiedItemEditModalVisible, setUnifiedItemEditModalVisible] =
     createSignal(false)
 
   const [item] = createSignal<Item>(
@@ -215,6 +219,22 @@ export default function TestApp() {
           </div>
         </details>
 
+        {/* Migração de Banco */}
+        <details>
+          <summary class="text-lg cursor-pointer select-none">
+            🔄 Migração de Banco
+          </summary>
+          <div class="pl-4 flex flex-col gap-4">
+            <div class="alert alert-warning">
+              <div>
+                <strong>⚠️ Atenção:</strong> Esta operação migra dados legacy do
+                banco para o formato UnifiedItem. Use apenas se necessário.
+              </div>
+            </div>
+            <MigrationSection />
+          </div>
+        </details>
+
         {/* Outros */}
         <details>
           <summary class="text-lg cursor-pointer select-none">Outros</summary>
@@ -289,5 +309,130 @@ function TestConfirmModal() {
       {' '}
       Open confirm modal{' '}
     </button>
+  )
+}
+
+function MigrationSection() {
+  const [isLoading, setIsLoading] = createSignal(false)
+  const [migrationResult, setMigrationResult] = createSignal<{
+    totalProcessed: number
+    totalMigrated: number
+    errors: string[]
+  } | null>(null)
+
+  const handleMigration = async () => {
+    if (isLoading()) return
+
+    const confirmed = confirm(
+      '⚠️ Confirmar Migração\n\n' +
+        'Esta operação irá:\n' +
+        '• Buscar todos os registros da tabela days\n' +
+        '• Identificar dados no formato legacy (meals.groups)\n' +
+        '• Converter para formato UnifiedItem (meals.items)\n' +
+        '• Atualizar os registros no banco\n\n' +
+        'Deseja continuar?',
+    )
+
+    if (!confirmed) return
+
+    setIsLoading(true)
+    setMigrationResult(null)
+
+    try {
+      const result = await migrateLegacyDatabaseRecords()
+      setMigrationResult(result)
+
+      if (result.errors.length === 0) {
+        showSuccess(
+          `✅ Migração concluída! ${result.totalMigrated} registros migrados de ${result.totalProcessed} processados.`,
+        )
+      } else {
+        showError(
+          `⚠️ Migração concluída com ${result.errors.length} erros. Verifique os detalhes abaixo.`,
+        )
+      }
+    } catch (error) {
+      console.error('Erro na migração:', error)
+      showError(
+        `❌ Falha na migração: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
+      )
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <div class="space-y-4">
+      <div class="space-y-2">
+        <h3 class="text-lg font-semibold">🔄 Migração Legacy → UnifiedItem</h3>
+        <p class="text-sm text-base-content/70">
+          Converte dados legacy (meals.groups) para o novo formato UnifiedItem
+          (meals.items)
+        </p>
+      </div>
+
+      <button
+        class={`btn btn-warning ${isLoading() ? 'loading' : ''}`}
+        onClick={() => void handleMigration()}
+        disabled={isLoading()}
+      >
+        {isLoading() ? 'Executando migração...' : '🚀 Executar Migração'}
+      </button>
+
+      {migrationResult() && (
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h4 class="card-title text-base">📊 Resultado da Migração</h4>
+            <div class="stats stats-vertical lg:stats-horizontal">
+              <div class="stat">
+                <div class="stat-title">Total Processado</div>
+                <div class="stat-value text-2xl">
+                  {migrationResult()?.totalProcessed}
+                </div>
+              </div>
+              <div class="stat">
+                <div class="stat-title">Migrados</div>
+                <div class="stat-value text-2xl text-success">
+                  {migrationResult()?.totalMigrated}
+                </div>
+              </div>
+              <div class="stat">
+                <div class="stat-title">Erros</div>
+                <div
+                  class={`stat-value text-2xl ${
+                    migrationResult()?.errors.length === 0
+                      ? 'text-success'
+                      : 'text-error'
+                  }`}
+                >
+                  {migrationResult()?.errors.length}
+                </div>
+              </div>
+            </div>
+
+            {migrationResult()?.errors &&
+              migrationResult()!.errors.length > 0 && (
+                <div class="mt-4">
+                  <h5 class="font-semibold text-error mb-2">
+                    ❌ Erros encontrados:
+                  </h5>
+                  <div class="bg-error/10 p-3 rounded">
+                    <For each={migrationResult()!.errors}>
+                      {(error) => (
+                        <div class="text-sm text-error">• {error}</div>
+                      )}
+                    </For>
+                  </div>
+                </div>
+              )}
+          </div>
+        </div>
+      )}
+
+      <div class="text-xs text-base-content/50">
+        💡 Dica: Esta operação é idempotente - pode ser executada múltiplas
+        vezes com segurança.
+      </div>
+    </div>
   )
 }
