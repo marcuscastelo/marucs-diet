@@ -19,6 +19,13 @@ export const createLegacyDayDietDAOSchema = z.object({
   meals: z.array(legacyMealDAOSchema),
 })
 
+// DAO schema for creating new day diets in unified format (direct UnifiedItem persistence)
+export const createDayDietDAOSchema = z.object({
+  target_day: z.string(),
+  owner: z.number(),
+  meals: z.array(mealDAOSchema),
+})
+
 // DAO schema for database record
 export const dayDietDAOSchema = z.object({
   id: z.number(),
@@ -27,18 +34,24 @@ export const dayDietDAOSchema = z.object({
   meals: z.array(mealDAOSchema),
 })
 
-// Legacy DAO schema for database record (canary strategy)
-export const legacyDayDietDAOSchema = z.object({
-  id: z.number(),
-  target_day: z.string(),
-  owner: z.number(),
-  meals: z.array(legacyMealDAOSchema),
-})
-
+export type CreateDayDietDAO = z.infer<typeof createDayDietDAOSchema>
 export type CreateLegacyDayDietDAO = z.infer<
   typeof createLegacyDayDietDAOSchema
 >
 export type DayDietDAO = z.infer<typeof dayDietDAOSchema>
+
+/**
+ * Converts a NewDayDiet object to a CreateDayDietDAO for direct UnifiedItem database operations
+ */
+export function createDayDietDAOFromNewDayDiet(
+  newDayDiet: NewDayDiet,
+): CreateDayDietDAO {
+  return parseWithStack(createDayDietDAOSchema, {
+    target_day: newDayDiet.target_day,
+    owner: newDayDiet.owner,
+    meals: newDayDiet.meals, // Use meals directly with UnifiedItems
+  })
+}
 
 /**
  * Converts a NewDayDiet object to a CreateLegacyDayDietDAO for database operations (canary strategy)

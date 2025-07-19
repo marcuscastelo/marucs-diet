@@ -7,6 +7,7 @@ import {
 } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type DayRepository } from '~/modules/diet/day-diet/domain/dayDietRepository'
 import {
+  createDayDietDAOFromNewDayDiet,
   createInsertLegacyDayDietDAOFromNewDayDiet,
   daoToDayDiet,
   type DayDietDAO,
@@ -196,8 +197,8 @@ async function fetchAllUserDayDiets(
 
 // TODO:   Change upserts to inserts on the entire app
 const insertDayDiet = async (newDay: NewDayDiet): Promise<DayDiet | null> => {
-  // Use legacy format for canary strategy
-  const createDAO = createInsertLegacyDayDietDAOFromNewDayDiet(newDay)
+  // Use direct UnifiedItem persistence (no migration needed)
+  const createDAO = createDayDietDAOFromNewDayDiet(newDay)
 
   const { data: days, error } = await supabase
     .from(SUPABASE_TABLE_DAYS)
@@ -209,9 +210,8 @@ const insertDayDiet = async (newDay: NewDayDiet): Promise<DayDiet | null> => {
 
   const dayDAO = days[0] as DayDietDAO | undefined
   if (dayDAO !== undefined) {
-    // Migrate the returned data if needed before converting to domain
-    const migratedDay = migrateDayDataIfNeeded(dayDAO)
-    return daoToDayDiet(migratedDay as DayDietDAO)
+    // Data is already in unified format, no migration needed for new inserts
+    return daoToDayDiet(dayDAO)
   }
   return null
 }
@@ -220,8 +220,8 @@ const updateDayDiet = async (
   id: DayDiet['id'],
   newDay: NewDayDiet,
 ): Promise<DayDiet> => {
-  // Use legacy format for canary strategy
-  const updateDAO = createInsertLegacyDayDietDAOFromNewDayDiet(newDay)
+  // Use direct UnifiedItem persistence (no migration needed)
+  const updateDAO = createDayDietDAOFromNewDayDiet(newDay)
 
   const { data, error } = await supabase
     .from(SUPABASE_TABLE_DAYS)
@@ -235,9 +235,8 @@ const updateDayDiet = async (
   }
 
   const dayDAO = data[0] as DayDietDAO
-  // Migrate the returned data if needed before converting to domain
-  const migratedDay = migrateDayDataIfNeeded(dayDAO)
-  return daoToDayDiet(migratedDay as DayDietDAO)
+  // Data is already in unified format, no migration needed for updates
+  return daoToDayDiet(dayDAO)
 }
 
 const deleteDayDiet = async (id: DayDiet['id']): Promise<void> => {
