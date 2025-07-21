@@ -1,8 +1,6 @@
 import { type Accessor, createMemo, createResource, Show } from 'solid-js'
 
-import { fetchUnifiedRecipeById } from '~/modules/diet/recipe/application/unifiedRecipe'
-import { convertUnifiedRecipeToRecipe } from '~/modules/diet/recipe/domain/recipeConversionUtils'
-import { isRecipeUnifiedItemManuallyEdited } from '~/modules/diet/unified-item/domain/conversionUtils'
+import { fetchRecipeById } from '~/modules/diet/recipe/application/recipe'
 import {
   isRecipeItem,
   type UnifiedItem,
@@ -23,7 +21,7 @@ export function UnifiedItemName(props: UnifiedItemNameProps) {
     },
     async (recipeId: number) => {
       try {
-        return await fetchUnifiedRecipeById(recipeId)
+        return await fetchRecipeById(recipeId)
       } catch (error) {
         console.warn('Failed to fetch recipe for comparison:', error)
         return null
@@ -44,9 +42,8 @@ export function UnifiedItemName(props: UnifiedItemNameProps) {
       return false
     }
 
-    // Convert UnifiedRecipe to legacy Recipe format for comparison
-    const legacyRecipe = convertUnifiedRecipeToRecipe(unifiedRecipe)
-    return isRecipeUnifiedItemManuallyEdited(item, legacyRecipe)
+    // TODO: implement recipe item manual edit detection
+    return false
   })
 
   const warningIndicator = () => (isManuallyEdited() ? '⚠️' : '')

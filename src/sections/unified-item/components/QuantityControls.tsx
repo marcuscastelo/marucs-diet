@@ -6,7 +6,6 @@ import {
   untrack,
 } from 'solid-js'
 
-import { updateUnifiedItemQuantity } from '~/modules/diet/item/application/item'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   isFoodItem,
@@ -38,12 +37,10 @@ export function QuantityControls(props: QuantityControlsProps) {
       '[QuantityControls] Update unified item quantity from field',
       props.quantityField.value() ?? 0.1,
     )
-    props.setItem(
-      updateUnifiedItemQuantity(
-        untrack(props.item),
-        props.quantityField.value() ?? 0.1,
-      ),
-    )
+    props.setItem({
+      ...untrack(props.item),
+      quantity: props.quantityField.value() ?? 0.1,
+    })
   })
 
   const increment = () => {

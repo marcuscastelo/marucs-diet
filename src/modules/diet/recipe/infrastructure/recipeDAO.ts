@@ -1,11 +1,11 @@
 import { z } from 'zod/v4'
 
-import { itemSchema } from '~/modules/diet/item/domain/item'
 import {
   type NewRecipe,
   type Recipe,
   recipeSchema,
 } from '~/modules/diet/recipe/domain/recipe'
+import { unifiedItemSchema } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 // Base schema (with ID)
@@ -13,7 +13,7 @@ export const recipeDAOSchema = z.object({
   id: z.number(),
   name: z.string(),
   owner: z.number(),
-  items: z.array(itemSchema),
+  items: z.array(unifiedItemSchema),
   prepared_multiplier: z.number(),
 })
 

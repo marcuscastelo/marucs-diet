@@ -1,20 +1,17 @@
 import {
-  type NewUnifiedRecipe,
-  type UnifiedRecipe,
+  type NewRecipe,
+  type Recipe,
 } from '~/modules/diet/recipe/domain/recipe'
 import { type User } from '~/modules/user/domain/user'
 
-export type UnifiedRecipeRepository = {
-  fetchUserRecipes: (userId: User['id']) => Promise<readonly UnifiedRecipe[]>
-  fetchRecipeById: (id: UnifiedRecipe['id']) => Promise<UnifiedRecipe>
+export type RecipeRepository = {
+  fetchUserRecipes: (userId: User['id']) => Promise<readonly Recipe[]>
+  fetchRecipeById: (id: Recipe['id']) => Promise<Recipe>
   fetchUserRecipeByName: (
     userId: User['id'],
-    name: UnifiedRecipe['name'],
-  ) => Promise<readonly UnifiedRecipe[]>
-  insertRecipe: (newRecipe: NewUnifiedRecipe) => Promise<UnifiedRecipe>
-  updateRecipe: (
-    recipeId: UnifiedRecipe['id'],
-    newRecipe: UnifiedRecipe,
-  ) => Promise<UnifiedRecipe>
-  deleteRecipe: (id: UnifiedRecipe['id']) => Promise<void>
+    name: Recipe['name'],
+  ) => Promise<readonly Recipe[]>
+  insertRecipe: (newRecipe: NewRecipe) => Promise<Recipe>
+  updateRecipe: (recipeId: Recipe['id'], newRecipe: Recipe) => Promise<Recipe>
+  deleteRecipe: (id: Recipe['id']) => Promise<void>
 }

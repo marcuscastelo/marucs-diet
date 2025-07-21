@@ -7,7 +7,7 @@ import {
 import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   createNewRecipe,
-  promoteToRecipe,
+  promoteRecipe,
 } from '~/modules/diet/recipe/domain/recipe'
 import {
   fetchTemplatesByTabLogic,
@@ -28,7 +28,7 @@ describe('fetchTemplatesByTabLogic', () => {
     }),
     { id: 1 },
   )
-  const mockRecipe = promoteToRecipe(
+  const mockRecipe = promoteRecipe(
     createNewRecipe({
       name: 'Bolo',
       owner: 1,

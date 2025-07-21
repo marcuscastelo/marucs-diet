@@ -1,8 +1,8 @@
 import { type Accessor, For, type Setter, Show } from 'solid-js'
 import { z } from 'zod/v4'
 
-import { saveUnifiedRecipe } from '~/modules/diet/recipe/application/unifiedRecipe'
-import { createNewUnifiedRecipe } from '~/modules/diet/recipe/domain/recipe'
+import { saveRecipe } from '~/modules/diet/recipe/application/unifiedRecipe'
+import { createNewRecipe } from '~/modules/diet/recipe/domain/recipe'
 import {
   addChildToItem,
   removeChildFromItem,
@@ -149,7 +149,7 @@ export function GroupChildrenEditor(props: GroupChildrenEditorProps) {
 
     try {
       // Create new unified recipe directly from UnifiedItem children
-      const newUnifiedRecipe = createNewUnifiedRecipe({
+      const newUnifiedRecipe = createNewRecipe({
         name:
           item.name.length > 0
             ? `${item.name} (Receita)`
@@ -158,7 +158,7 @@ export function GroupChildrenEditor(props: GroupChildrenEditorProps) {
         owner: currentUserId(),
       })
 
-      const insertedRecipe = await saveUnifiedRecipe(newUnifiedRecipe)
+      const insertedRecipe = await saveRecipe(newUnifiedRecipe)
 
       if (!insertedRecipe) {
         showError('Falha ao criar receita a partir do grupo')

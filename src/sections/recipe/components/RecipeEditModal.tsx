@@ -1,13 +1,11 @@
 import { type Accessor, createEffect, createSignal } from 'solid-js'
 import { untrack } from 'solid-js'
 
-import { type Item } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import {
   addItemToRecipe,
   updateItemInRecipe,
 } from '~/modules/diet/recipe/domain/recipeOperations'
-import { unifiedItemToItem } from '~/modules/diet/unified-item/domain/conversionUtils'
 import {
   createUnifiedItem,
   isRecipeItem,
@@ -68,7 +66,8 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
         return
       }
 
-      const item = unifiedItemToItem(newItem)
+      // Legacy conversion removed - using UnifiedItem directly
+      const item = newItem
       const updatedRecipe = addItemToRecipe(recipe(), item)
 
       console.debug(
@@ -126,11 +125,10 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
               macroOverflow: () => ({ enable: false }),
               onApply: (unifiedItem) => {
                 // Convert back to Item for recipe operations
-                const convertedItem = unifiedItemToItem(unifiedItem)
-                const updatedItem: Item = {
-                  ...convertedItem,
-                  quantity: convertedItem.quantity,
-                }
+                // Legacy conversion removed - using UnifiedItem directly
+                const convertedItem = unifiedItem
+                // Using UnifiedItem directly
+                const updatedItem = convertedItem
                 const updatedRecipe = updateItemInRecipe(
                   recipe(),
                   convertedItem.id,

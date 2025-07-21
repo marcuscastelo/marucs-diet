@@ -3,12 +3,6 @@
 import { type Accessor, type JSXElement, type Setter } from 'solid-js'
 import { z } from 'zod/v4'
 
-import { itemSchema } from '~/modules/diet/item/domain/item'
-import {
-  convertToGroups,
-  type GroupConvertible,
-} from '~/modules/diet/item-group/application/itemGroupService'
-import { itemGroupSchema } from '~/modules/diet/item-group/domain/itemGroup'
 import { mealSchema } from '~/modules/diet/meal/domain/meal'
 import { type Recipe, recipeSchema } from '~/modules/diet/recipe/domain/recipe'
 import {
@@ -22,10 +16,6 @@ import {
   isTemplateItem,
   type TemplateItem,
 } from '~/modules/diet/template-item/domain/templateItem'
-import {
-  itemToUnifiedItem,
-  unifiedItemToItem,
-} from '~/modules/diet/unified-item/domain/conversionUtils'
 import {
   type UnifiedItem,
   unifiedItemSchema,
@@ -66,8 +56,6 @@ export function RecipeEditHeader(props: {
   onUpdateRecipe: (Recipe: Recipe) => void
 }) {
   const acceptedClipboardSchema = mealSchema
-    .or(itemGroupSchema)
-    .or(itemSchema)
     .or(recipeSchema)
     .or(unifiedItemSchema)
     .or(z.array(unifiedItemSchema))
@@ -93,7 +81,7 @@ export function RecipeEditHeader(props: {
         if (Array.isArray(data) && data.every(isUnifiedItem)) {
           const itemsToAdd = data
             .filter((item) => item.reference.type === 'food') // Only food items in recipes
-            .map((item) => unifiedItemToItem(item))
+            // Legacy conversion removed
             .map((item) => regenerateId(item))
           const newRecipe = addItemsToRecipe(recipe(), itemsToAdd)
           props.onUpdateRecipe(newRecipe)
@@ -103,7 +91,8 @@ export function RecipeEditHeader(props: {
         // Check if data is single UnifiedItem
         if (isUnifiedItem(data)) {
           if (data.reference.type === 'food') {
-            const item = unifiedItemToItem(data)
+            // Legacy conversion removed - using UnifiedItem directly
+            const item = data
             const regeneratedItem = regenerateId(item)
             const newRecipe = addItemsToRecipe(recipe(), [regeneratedItem])
             props.onUpdateRecipe(newRecipe)
@@ -111,16 +100,8 @@ export function RecipeEditHeader(props: {
           return
         }
 
-        // Fallback to legacy conversion
-        const groupsToAdd = convertToGroups(data as GroupConvertible)
-          .map((group) => regenerateId(group))
-          .map((g) => ({
-            ...g,
-            items: g.items.map((item) => regenerateId(item)),
-          }))
-        const itemsToAdd = groupsToAdd.flatMap((g) => g.items)
-        const newRecipe = addItemsToRecipe(recipe(), itemsToAdd)
-        props.onUpdateRecipe(newRecipe)
+        // Handle other supported clipboard formats
+        console.warn('Unsupported paste format:', data)
       },
     })
 
@@ -176,7 +157,7 @@ export function RecipeEditContent(props: {
         value={recipe().name}
       />
       <UnifiedItemListView
-        items={() => recipe().items.map(itemToUnifiedItem)}
+        items={() => [...recipe().items]}
         mode="edit"
         handlers={{
           onEdit: (unifiedItem: UnifiedItem) => {
@@ -191,7 +172,8 @@ export function RecipeEditContent(props: {
           },
           onDelete: (unifiedItem: UnifiedItem) => {
             // Convert back to Item for the legacy operation
-            const item = unifiedItemToItem(unifiedItem)
+            // Legacy conversion removed - using UnifiedItem directly
+            const item = unifiedItem
             setRecipe(removeItemFromRecipe(recipe(), item.id))
           },
         }}

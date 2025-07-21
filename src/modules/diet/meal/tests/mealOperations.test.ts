@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'vitest'
 
-import { createItem } from '~/modules/diet/item/domain/item'
-import { createSimpleItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { createNewMeal, promoteMeal } from '~/modules/diet/meal/domain/meal'
 import {
@@ -12,49 +10,29 @@ import {
 } from '~/modules/diet/meal/domain/mealOperations'
 import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
-function makeItem(id: number, name = 'Arroz') {
-  return {
-    ...createItem({
-      name,
-      reference: id,
-      quantity: 100,
-      macros: createMacroNutrients({ carbs: 10, protein: 2, fat: 1 }),
-    }),
-    id,
-  }
-}
-
-function makeUnifiedItemFromItem(item: ReturnType<typeof makeItem>) {
+function makeUnifiedItem(id: number, name = 'Arroz') {
   return createUnifiedItem({
-    id: item.id,
-    name: item.name,
-    quantity: item.quantity,
+    id,
+    name,
+    quantity: 100,
     reference: {
       type: 'food' as const,
-      id: item.reference,
-      macros: item.macros,
+      id,
+      macros: createMacroNutrients({ carbs: 10, protein: 2, fat: 1 }),
     },
   })
 }
 
-function makeMeal(
-  id: number,
-  name = 'Almoço',
-  items = [makeUnifiedItemFromItem(makeItem(1))],
-) {
+function makeMeal(id: number, name = 'Almoço', items = [makeUnifiedItem(1)]) {
   return promoteMeal(createNewMeal({ name, items }), { id })
 }
 
-const baseItem = makeItem(1)
-const baseUnifiedItem = makeUnifiedItemFromItem(baseItem)
+const baseUnifiedItem = makeUnifiedItem(1)
 const baseMeal = makeMeal(1, 'Almoço', [baseUnifiedItem])
 
 describe('mealOperations', () => {
   it('addItemsToMeal adds multiple items', () => {
-    const items = [
-      makeUnifiedItemFromItem(makeItem(2, 'Feijão')),
-      makeUnifiedItemFromItem(makeItem(3, 'Carne')),
-    ]
+    const items = [makeUnifiedItem(2, 'Feijão'), makeUnifiedItem(3, 'Carne')]
     const result = addItemsToMeal(baseMeal, items)
     expect(result.items).toHaveLength(3)
   })
@@ -74,7 +52,7 @@ describe('mealOperations', () => {
   })
 
   it('setMealItems sets items', () => {
-    const items = [makeUnifiedItemFromItem(makeItem(2, 'Feijão'))]
+    const items = [makeUnifiedItem(2, 'Feijão')]
     const result = setMealItems(baseMeal, items)
     expect(result.items).toEqual(items)
   })

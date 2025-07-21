@@ -1,10 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
-import { createItem, type Item } from '~/modules/diet/item/domain/item'
 import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   createNewRecipe,
-  promoteToRecipe,
+  promoteRecipe,
   type Recipe,
 } from '~/modules/diet/recipe/domain/recipe'
 import {
@@ -13,32 +12,30 @@ import {
   getRecipeRawQuantity,
   scaleRecipeByPreparedQuantity,
 } from '~/modules/diet/recipe/domain/recipeOperations'
+import {
+  createUnifiedItem,
+  type UnifiedItem,
+} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
-function makeItem(id: number, name = 'Arroz') {
-  return {
-    ...createItem({
-      name,
-      reference: id,
-      quantity: 100,
-      macros: createMacroNutrients({ carbs: 10, protein: 2, fat: 1 }),
-    }),
+function makeItem(id: number, name = 'Arroz'): UnifiedItem {
+  return createUnifiedItem({
     id,
-  }
+    name,
+    quantity: 100,
+    reference: {
+      type: 'food' as const,
+      id,
+      macros: createMacroNutrients({ carbs: 10, protein: 2, fat: 1 }),
+    },
+  })
 }
-const baseItem = makeItem(1)
-const baseRecipe = promoteToRecipe(
-  createNewRecipe({
-    name: 'Receita',
-    owner: 1,
-    items: [baseItem],
-    prepared_multiplier: 1,
-  }),
-  { id: 1 },
-)
 
 describe('Recipe scaling operations', () => {
-  const makeRecipe = (items: Item[], prepared_multiplier = 1): Recipe => {
-    return promoteToRecipe(
+  const makeRecipe = (
+    items: UnifiedItem[],
+    prepared_multiplier = 1,
+  ): Recipe => {
+    return promoteRecipe(
       createNewRecipe({
         name: 'Test Recipe',
         owner: 1,

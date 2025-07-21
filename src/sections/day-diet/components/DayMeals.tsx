@@ -1,13 +1,13 @@
 import { For } from 'solid-js'
 
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
-import {
-  insertUnifiedItem,
-  updateUnifiedItem,
-} from '~/modules/diet/item-group/application/itemGroup'
 import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import { updateMeal } from '~/modules/diet/meal/application/meal'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
+import {
+  addItemToMeal,
+  updateItemInMeal,
+} from '~/modules/diet/meal/domain/mealOperations'
 import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { showError } from '~/modules/toast/application/toastManager'
 import { CopyLastDayButton } from '~/sections/day-diet/components/CopyLastDayButton'
@@ -80,7 +80,8 @@ export default function DayMeals(props: {
         return macroOverflow
       },
       onApply: (updatedItem) => {
-        void updateUnifiedItem(meal.id, updatedItem.id, updatedItem)
+        const updatedMeal = updateItemInMeal(meal, updatedItem.id, updatedItem)
+        void handleUpdateMeal(updatedMeal)
       },
       targetName: meal.name,
       showAddItemButton: true,
@@ -139,7 +140,8 @@ export default function DayMeals(props: {
       return
     }
 
-    void insertUnifiedItem(meal.id, newItem)
+    const updatedMeal = addItemToMeal(meal, newItem)
+    void handleUpdateMeal(updatedMeal)
   }
 
   return (
@@ -165,6 +167,7 @@ export default function DayMeals(props: {
                 onEditItem={(item) => {
                   handleEditUnifiedItem(meal, item)
                 }}
+                onUpdateMeal={(meal) => void handleUpdateMeal(meal)}
                 mode={props.mode}
               />
             }
