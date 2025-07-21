@@ -39,13 +39,14 @@ export function createUnifiedItemFromTemplate(
       item.quantity,
     )
 
-    // Create a UnifiedItem with group reference containing scaled items
+    // Create a UnifiedItem with recipe reference containing scaled items
     const unifiedItem = createUnifiedItem({
       id: generateId(),
       name: item.name,
       quantity: item.quantity,
       reference: {
-        type: 'group',
+        type: 'recipe',
+        id: template.id,
         children: scaledItems,
       },
     })
