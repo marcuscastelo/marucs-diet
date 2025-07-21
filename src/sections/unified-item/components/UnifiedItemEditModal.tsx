@@ -19,6 +19,7 @@ import {
   addChildToItem,
   updateChildInItem,
 } from '~/modules/diet/unified-item/domain/childOperations'
+import { compareUnifiedItemArrays } from '~/modules/diet/unified-item/domain/unifiedItemOperations'
 import {
   asGroupItem,
   createUnifiedItem,
@@ -138,8 +139,12 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
       return false
     }
 
-    // TODO: implement recipe synchronization check
-    return false
+    // Compare original recipe items with current recipe items
+    // If they're different, the recipe was manually edited
+    return !compareUnifiedItemArrays(
+      recipe.items,
+      currentItem.reference.children,
+    )
   })
 
   const quantitySignal = () =>

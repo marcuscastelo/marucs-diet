@@ -1,6 +1,7 @@
 import { type Accessor, createMemo, createResource, Show } from 'solid-js'
 
 import { fetchRecipeById } from '~/modules/diet/recipe/application/recipe'
+import { compareUnifiedItemArrays } from '~/modules/diet/unified-item/domain/unifiedItemOperations'
 import {
   isRecipeItem,
   type UnifiedItem,
@@ -42,8 +43,12 @@ export function UnifiedItemName(props: UnifiedItemNameProps) {
       return false
     }
 
-    // TODO: implement recipe item manual edit detection
-    return false
+    // Compare original recipe items with current recipe items
+    // If they're different, the recipe was manually edited
+    return !compareUnifiedItemArrays(
+      unifiedRecipe.items,
+      item.reference.children,
+    )
   })
 
   const warningIndicator = () => (isManuallyEdited() ? '⚠️' : '')
