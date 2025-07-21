@@ -12,10 +12,7 @@ import {
   updateRecipeName,
   updateRecipePreparedMultiplier,
 } from '~/modules/diet/recipe/domain/recipeOperations'
-import {
-  isTemplateItem,
-  type TemplateItem,
-} from '~/modules/diet/template-item/domain/templateItem'
+import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import {
   type UnifiedItem,
   unifiedItemSchema,
@@ -81,7 +78,6 @@ export function RecipeEditHeader(props: {
         if (Array.isArray(data) && data.every(isUnifiedItem)) {
           const itemsToAdd = data
             .filter((item) => item.reference.type === 'food') // Only food items in recipes
-            // Legacy conversion removed
             .map((item) => regenerateId(item))
           const newRecipe = addItemsToRecipe(recipe(), itemsToAdd)
           props.onUpdateRecipe(newRecipe)
@@ -91,7 +87,6 @@ export function RecipeEditHeader(props: {
         // Check if data is single UnifiedItem
         if (isUnifiedItem(data)) {
           if (data.reference.type === 'food') {
-            // Legacy conversion removed - using UnifiedItem directly
             const item = data
             const regeneratedItem = regenerateId(item)
             const newRecipe = addItemsToRecipe(recipe(), [regeneratedItem])
@@ -161,19 +156,12 @@ export function RecipeEditContent(props: {
         mode="edit"
         handlers={{
           onEdit: (unifiedItem: UnifiedItem) => {
-            if (!isTemplateItem(unifiedItem)) {
-              console.warn('Item does not have a reference, cannot edit')
-              return
-            }
             props.onEditItem(unifiedItem)
           },
           onCopy: (unifiedItem: UnifiedItem) => {
             clipboard.write(JSON.stringify(unifiedItem))
           },
-          onDelete: (unifiedItem: UnifiedItem) => {
-            // Convert back to Item for the legacy operation
-            // Legacy conversion removed - using UnifiedItem directly
-            const item = unifiedItem
+          onDelete: (item: UnifiedItem) => {
             setRecipe(removeItemFromRecipe(recipe(), item.id))
           },
         }}

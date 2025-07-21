@@ -10,10 +10,7 @@ import {
   updateRecipeName,
   updateRecipePreparedMultiplier,
 } from '~/modules/diet/recipe/domain/recipeOperations'
-import {
-  isTemplateItem,
-  type TemplateItem,
-} from '~/modules/diet/template-item/domain/templateItem'
+import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import {
   type UnifiedItem,
   unifiedItemSchema,
@@ -135,10 +132,6 @@ export function RecipeEditView(props: RecipeEditViewProps) {
         mode="edit"
         handlers={{
           onEdit: (unifiedItem: UnifiedItem) => {
-            if (!isTemplateItem(unifiedItem)) {
-              console.warn('Item does not have a reference, cannot edit')
-              return
-            }
             props.onEditItem(unifiedItem)
           },
           onCopy: (unifiedItem: UnifiedItem) => {

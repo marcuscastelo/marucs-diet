@@ -66,7 +66,6 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
         return
       }
 
-      // Legacy conversion removed - using UnifiedItem directly
       const item = newItem
       const updatedRecipe = addItemToRecipe(recipe(), item)
 
@@ -123,16 +122,11 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
               item: () => createUnifiedItem(item),
               targetMealName: recipe().name,
               macroOverflow: () => ({ enable: false }),
-              onApply: (unifiedItem) => {
-                // Convert back to Item for recipe operations
-                // Legacy conversion removed - using UnifiedItem directly
-                const convertedItem = unifiedItem
-                // Using UnifiedItem directly
-                const updatedItem = convertedItem
+              onApply: (item) => {
                 const updatedRecipe = updateItemInRecipe(
                   recipe(),
-                  convertedItem.id,
-                  updatedItem,
+                  item.id,
+                  item,
                 )
                 setRecipe(updatedRecipe)
               },

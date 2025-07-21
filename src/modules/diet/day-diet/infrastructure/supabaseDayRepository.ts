@@ -85,16 +85,6 @@ async function fetchDayDiet(dayId: DayDiet['id']): Promise<DayDiet> {
   }
 }
 
-/**
- * Type for raw database data before validation
- */
-// Legacy data type removed
-
-/**
- * Migrates day data from legacy format (meals with groups) to new format (meals with items)
- * if needed. Returns the data unchanged if it's already in the new format.
- */
-
 // TODO:   better error handling
 async function fetchAllUserDayDiets(
   userId: User['id'],
