@@ -187,17 +187,26 @@ export function scaleRecipeItemQuantity(
 
   const scalingFactor = newQuantity / currentQuantity
 
-  // Scale all children proportionally
+  // Scale all children proportionally with minimum values
   const scaledChildren = recipeItem.reference.children.map((child) => {
+    const scaledQuantity = child.quantity * scalingFactor
+    const roundedQuantity = Math.round(scaledQuantity * 10000) / 10000 // Round to 4 decimal places
+
+    // Ensure minimum quantity of 0.0001g for ingredients to prevent zero-lock
+    const finalQuantity = Math.max(roundedQuantity, 0.0001)
+
     return {
       ...child,
-      quantity: Math.round(child.quantity * scalingFactor * 100) / 100, // Round to 2 decimal places
+      quantity: finalQuantity,
     }
   })
 
+  // Ensure minimum quantity of 0.01g for main item
+  const finalMainQuantity = Math.max(Math.round(newQuantity * 100) / 100, 0.01)
+
   return {
     ...recipeItem,
-    quantity: Math.round(newQuantity * 100) / 100, // Round to 2 decimal places
+    quantity: finalMainQuantity,
     reference: {
       ...recipeItem.reference,
       children: scaledChildren,

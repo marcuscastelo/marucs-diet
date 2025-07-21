@@ -428,8 +428,8 @@ describe('scaleRecipeItemQuantity', () => {
 
     if (scaledItem.reference.type === 'recipe') {
       const scaledChild = scaledItem.reference.children[0]!
-      // 33.33 * (123.45/100) = 41.1669, rounds to 41.15
-      expect(scaledChild.quantity).toBe(41.15)
+      // 33.33 * (123.45/100) = 41.1669, rounds to 41.1459 (4 decimal places)
+      expect(scaledChild.quantity).toBe(41.1459)
     }
   })
 
@@ -471,5 +471,81 @@ describe('scaleRecipeItemQuantity', () => {
     expect(() => {
       scaleRecipeItemQuantity(recipeItem, -10)
     }).toThrow('New quantity must be greater than 0')
+  })
+
+  it('should enforce minimum quantities to prevent zero-lock', () => {
+    const childFood: UnifiedItem = {
+      id: 1,
+      name: 'Salt',
+      quantity: 0.1, // Very small amount
+      reference: {
+        type: 'food',
+        id: 10,
+        macros: createMacroNutrients({ protein: 0, carbs: 0, fat: 0 }),
+      },
+      __type: 'UnifiedItem',
+    }
+
+    const recipeItem: UnifiedItem = {
+      id: 2,
+      name: 'Recipe',
+      quantity: 100,
+      reference: {
+        type: 'recipe',
+        id: 100,
+        children: [childFood],
+      },
+      __type: 'UnifiedItem',
+    }
+
+    // Scale down to very small amount that would normally round to 0
+    const scaledItem = scaleRecipeItemQuantity(recipeItem, 0.001) // Scale to 0.001g
+
+    // Main item should be at least 0.01g
+    expect(scaledItem.quantity).toBe(0.01)
+
+    if (scaledItem.reference.type === 'recipe') {
+      const scaledChild = scaledItem.reference.children[0]!
+      // Child should be at least 0.0001g even if scaling would make it smaller
+      expect(scaledChild.quantity).toBeGreaterThanOrEqual(0.0001)
+      expect(scaledChild.quantity).toBe(0.0001) // Should be exactly the minimum
+    }
+  })
+
+  it('should maintain normal scaling when above minimum thresholds', () => {
+    const childFood: UnifiedItem = {
+      id: 1,
+      name: 'Flour',
+      quantity: 10,
+      reference: {
+        type: 'food',
+        id: 10,
+        macros: createMacroNutrients({ protein: 10, carbs: 70, fat: 1 }),
+      },
+      __type: 'UnifiedItem',
+    }
+
+    const recipeItem: UnifiedItem = {
+      id: 2,
+      name: 'Recipe',
+      quantity: 100,
+      reference: {
+        type: 'recipe',
+        id: 100,
+        children: [childFood],
+      },
+      __type: 'UnifiedItem',
+    }
+
+    // Scale to reasonable size - should work normally
+    const scaledItem = scaleRecipeItemQuantity(recipeItem, 50)
+
+    expect(scaledItem.quantity).toBe(50)
+
+    if (scaledItem.reference.type === 'recipe') {
+      const scaledChild = scaledItem.reference.children[0]!
+      // 10g * (50/100) = 5g - normal scaling
+      expect(scaledChild.quantity).toBe(5)
+    }
   })
 })
