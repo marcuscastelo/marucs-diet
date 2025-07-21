@@ -1,0 +1,1515 @@
+[
+  {
+    "id": 1,
+    "created_at": "2023-08-05T19:08:10.761234+00:00",
+    "items": [
+      {
+        "id": 793202,
+        "name": "Biscoito Água e Sal Adria",
+        "__type": "FoodItem",
+        "macros": {
+          "fat": 14,
+          "carbs": 70,
+          "protein": 11
+        },
+        "quantity": 18,
+        "reference": 23364
+      },
+      {
+        "id": 218280,
+        "name": "Queijo Mussarela LITORAL",
+        "__type": "FoodItem",
+        "macros": {
+          "fat": 27.700000000000003,
+          "carbs": 0,
+          "protein": 20.7
+        },
+        "quantity": 40,
+        "reference": 23176
+      },
+      {
+        "id": 472591,
+        "name": "MARGARINA CREMOSA COM SAL 1KG DORIANA",
+        "__type": "FoodItem",
+        "macros": {
+          "fat": 80,
+          "carbs": 0,
+          "protein": 0
+        },
+        "quantity": 4,
+        "reference": 23616
+      }
+    ],
+    "owner": 1,
+    "name": "4 Biscoitos com 40g de Queijo e 5g de Margarina",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 2,
+    "created_at": "2023-08-05T19:08:10.761234+00:00",
+    "items": [
+      {
+        "id": 593797,
+        "name": "Biscoito Água e Sal Adria",
+        "__type": "FoodItem",
+        "macros": {
+          "fat": 14,
+          "carbs": 70,
+          "protein": 11
+        },
+        "quantity": 10,
+        "reference": 23364
+      },
+      {
+        "id": 360567,
+        "name": "Queijo Mussarela LITORAL",
+        "__type": "FoodItem",
+        "macros": {
+          "fat": 27.700000000000003,
+          "carbs": 0,
+          "protein": 20.7
+        },
+        "quantity": 40,
+        "reference": 23176
+      }
+    ],
+    "owner": 2,
+    "name": "2 Biscoitos com 30g de Queijo",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 38,
+    "created_at": "2024-05-21T13:58:39.451475+00:00",
+    "items": [
+      {
+        "id": 855429,
+        "name": "Ovo cru",
+        "__type": "FoodItem",
+        "macros": {
+          "fat": 10,
+          "carbs": 1.2,
+          "protein": 12.6
+        },
+        "quantity": 220,
+        "reference": 33118
+      },
+      {
+        "id": 33148,
+        "name": "FARINHA DE TRIGO ESPECIAL GUTH PLAST 1KG",
+        "__type": "FoodItem",
+        "macros": {
+          "fat": 1.4000000000000001,
+          "carbs": 72,
+          "protein": 9.8
+        },
+        "quantity": 156,
+        "reference": 32823
+      },
+      {
+        "id": 648,
+        "name": "Açúcar",
+        "__type": "FoodItem",
+        "macros": {
+          "fat": 0,
+          "carbs": 100,
+          "protein": 0
+        },
+        "quantity": 183,
+        "reference": 28523
+      },
+      {
+        "id": 648,
+        "name": "LEITE UHT SEMIDESNATADO 1L COM TAMPA ITALAC",
+        "__type": "FoodItem",
+        "macros": {
+          "fat": 1,
+          "carbs": 5,
+          "protein": 2.9000000000000004
+        },
+        "quantity": 77,
+        "reference": 23806
+      },
+      {
+        "id": 682642,
+        "name": "ÓLEO DE SOJA VITALIV GARRAFA 900ML",
+        "__type": "FoodItem",
+        "macros": {
+          "fat": 92.30000000000001,
+          "carbs": 0,
+          "protein": 0
+        },
+        "quantity": 100,
+        "reference": 34281
+      },
+      {
+        "id": 968443,
+        "name": "FERMENTO QUÍMICO EM PÓ ROYAL POTE 250G",
+        "__type": "FoodItem",
+        "macros": {
+          "fat": 0,
+          "carbs": 0,
+          "protein": 0
+        },
+        "quantity": 12,
+        "reference": 34282
+      }
+    ],
+    "owner": 2,
+    "name": "Bolo de pão de ló",
+    "prepared_multiplier": 0.934492
+  },
+  {
+    "id": 39,
+    "created_at": "2024-06-22T14:34:34.602255+00:00",
+    "items": [
+      {
+        "id": 41410,
+        "name": "FILE DE PEITO DE FRANGO LAR 1KG CONG",
+        "__type": "FoodItem",
+        "macros": {
+          "fat": 3.1,
+          "carbs": 0,
+          "protein": 22.400000000000002
+        },
+        "quantity": 225,
+        "reference": 23809
+      },
+      {
+        "id": 114780,
+        "name": "Farinha De Rosca Kisabor 500G",
+        "__type": "FoodItem",
+        "macros": {
+          "fat": 1.6,
+          "carbs": 70,
+          "protein": 11
+        },
+        "quantity": 30,
+        "reference": 31165
+      }
+    ],
+    "owner": 1,
+    "name": "Frango a milanesa 225/30 Fg/FarRos",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 44,
+    "created_at": "2024-08-01T18:27:24.572174+00:00",
+    "items": [
+      {
+        "id": 984410,
+        "name": "FARINHA DE TRIGO ESPECIAL GUTH PLAST 1KG",
+        "__type": "FoodItem",
+        "macros": {
+          "fat": 1.4000000000000001,
+          "carbs": 72,
+          "protein": 9.8
+        },
+        "quantity": 124,
+        "reference": 32823
+      },
+      {
+        "id": 118659,
+        "name": "Ovo, Avine",
+        "__type": "FoodItem",
+        "macros": {
+          "fat": 9.5,
+          "carbs": 1.6,
+          "protein": 13.3
+        },
+        "quantity": 47,
+        "reference": 33907
+      },
+      {
+        "id": 154468,
+        "name": "CARNE MOIDA ACEM BOV ZF ATM 500G",
+        "__type": "FoodItem",
+        "macros": {
+          "fat": 11,
+          "carbs": 0,
+          "protein": 21
+        },
+        "quantity": 500,
+        "reference": 28332
+      }
+    ],
+    "owner": 1,
+    "name": "Almôndega crua, massa",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 45,
+    "created_at": "2024-08-05T17:27:47.446824+00:00",
+    "items": [
+      {
+        "id": 902685,
+        "name": "PÃO KIM PACOTE 500G",
+        "__type": "Item",
+        "macros": {
+          "fat": 4,
+          "carbs": 50,
+          "__type": "MacroNutrients",
+          "protein": 9.4
+        },
+        "quantity": 25,
+        "reference": 23119
+      },
+      {
+        "id": 924295,
+        "name": "MARGARINA CREMOSA COM SAL 1KG DORIANA",
+        "__type": "Item",
+        "macros": {
+          "fat": 80,
+          "carbs": 0,
+          "__type": "MacroNutrients",
+          "protein": 0
+        },
+        "quantity": 8,
+        "reference": 31069
+      },
+      {
+        "id": 30902,
+        "name": "Queijo litoral",
+        "__type": "Item",
+        "macros": {
+          "fat": 27.700000000000003,
+          "carbs": 0,
+          "__type": "MacroNutrients",
+          "protein": 20.7
+        },
+        "quantity": 20,
+        "reference": 23803
+      }
+    ],
+    "owner": 1,
+    "name": "1 Fatia de pão com queijo e marg.",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 143,
+    "created_at": "2025-06-25T21:34:27.761197+00:00",
+    "items": [
+      {
+        "id": 277333,
+        "name": "Pao Forma Kim 400G Integral",
+        "__type": "Item",
+        "macros": {
+          "fat": 0.9119999999999999,
+          "carbs": 10.08,
+          "protein": 3.12
+        },
+        "quantity": 24,
+        "reference": 52582
+      },
+      {
+        "id": 51040,
+        "name": "MARGARINA CREMOSA COM SAL 1KG DORIANA",
+        "__type": "Item",
+        "macros": {
+          "fat": 4,
+          "carbs": 0,
+          "protein": 0
+        },
+        "quantity": 5,
+        "reference": 31069
+      }
+    ],
+    "owner": 3,
+    "name": "Pao Forma Kim 400G Integral (Receita)",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 150,
+    "created_at": "2025-06-28T02:50:16.493116+00:00",
+    "items": [
+      {
+        "id": 149393,
+        "name": "Pao Forma Kim 400G Integral",
+        "__type": "Item",
+        "macros": {
+          "fat": 3.8,
+          "carbs": 42,
+          "protein": 13
+        },
+        "quantity": 24,
+        "reference": 52582
+      },
+      {
+        "id": 547329,
+        "name": "Pao Forma Kim 400G Integral",
+        "__type": "Item",
+        "macros": {
+          "fat": 3.8,
+          "carbs": 42,
+          "protein": 13
+        },
+        "quantity": 24,
+        "reference": 52582
+      }
+    ],
+    "owner": 3,
+    "name": "Pao Forma Kim 400G Integral (Receita) (Receita) (Receita)",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 47,
+    "created_at": "2024-08-05T17:37:15.179906+00:00",
+    "items": [
+      {
+        "id": 734198,
+        "name": "PÃO DE FORMA INTEGRAL VISCONTI PACOTE 400G",
+        "__type": "FoodItem",
+        "macros": {
+          "fat": 4.2,
+          "carbs": 50,
+          "protein": 8.799999999999999
+        },
+        "quantity": 50,
+        "reference": 32702
+      },
+      {
+        "id": 769300,
+        "name": "MARGARINA CREMOSA COM SAL 1KG DORIANA",
+        "__type": "FoodItem",
+        "macros": {
+          "fat": 80,
+          "carbs": 0,
+          "protein": 0
+        },
+        "quantity": 5,
+        "reference": 31069
+      }
+    ],
+    "owner": 2,
+    "name": "2 pães com margarina",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 46,
+    "created_at": "2024-08-05T17:32:31.738491+00:00",
+    "items": [
+      {
+        "id": 234478,
+        "name": "BISCOITO ÁGUA E SAL ADRIA PACOTE 200G",
+        "__type": "FoodItem",
+        "macros": {
+          "fat": 13.3,
+          "carbs": 70,
+          "protein": 10
+        },
+        "quantity": 25,
+        "reference": 24043
+      },
+      {
+        "id": 232826,
+        "name": "MARGARINA CREMOSA COM SAL 1KG DORIANA",
+        "__type": "FoodItem",
+        "macros": {
+          "fat": 80,
+          "carbs": 0,
+          "protein": 0
+        },
+        "quantity": 7,
+        "reference": 31069
+      },
+      {
+        "id": 90573,
+        "name": "Queijo litoral",
+        "__type": "FoodItem",
+        "macros": {
+          "fat": 27.700000000000003,
+          "carbs": 0,
+          "protein": 20.7
+        },
+        "quantity": 32,
+        "reference": 23174
+      }
+    ],
+    "owner": 1,
+    "name": "5 Bolachas água e sal (25g Bol, 7g Mar, 32g Queij)",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 66,
+    "created_at": "2024-09-20T11:58:46.632927+00:00",
+    "items": [
+      {
+        "id": 86426,
+        "name": "PÃO KIM PACOTE 500G",
+        "__type": "FoodItem",
+        "macros": {
+          "fat": 4,
+          "carbs": 50,
+          "protein": 9.4
+        },
+        "quantity": 25,
+        "reference": 23119
+      },
+      {
+        "id": 626795,
+        "name": "Queijo litoral",
+        "__type": "FoodItem",
+        "macros": {
+          "fat": 27.700000000000003,
+          "carbs": 0,
+          "protein": 20.7
+        },
+        "quantity": 20,
+        "reference": 23174
+      },
+      {
+        "id": 869043,
+        "name": "MARGARINA CREMOSA COM SAL 1KG DORIANA",
+        "__type": "FoodItem",
+        "macros": {
+          "fat": 80,
+          "carbs": 0,
+          "protein": 0
+        },
+        "quantity": 5,
+        "reference": 23616
+      }
+    ],
+    "owner": 1,
+    "name": "1 Fatia de pão com queijo e marg.",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 139,
+    "created_at": "2025-06-17T12:56:18.421625+00:00",
+    "items": [
+      {
+        "id": 566081,
+        "name": "Pao Forma Kim 400G Integral",
+        "__type": "Item",
+        "macros": {
+          "fat": 3.8,
+          "carbs": 42,
+          "protein": 13
+        },
+        "quantity": 24,
+        "reference": 52582
+      }
+    ],
+    "owner": 2,
+    "name": "Pao Forma Kim 400G Integral",
+    "prepared_multiplier": 2.08333
+  },
+  {
+    "id": 156,
+    "created_at": "2025-07-08T02:07:33.374819+00:00",
+    "items": [
+      {
+        "id": 431442,
+        "name": "Abacate, cru",
+        "__type": "Item",
+        "macros": {
+          "fat": 15,
+          "carbs": 9,
+          "protein": 2
+        },
+        "quantity": 100,
+        "reference": 63357
+      },
+      {
+        "id": 684244,
+        "name": "Abacate, cru",
+        "__type": "Item",
+        "macros": {
+          "fat": 15,
+          "carbs": 9,
+          "protein": 2
+        },
+        "quantity": 100,
+        "reference": 63357
+      },
+      {
+        "id": 695052,
+        "name": "Arroz Cozido",
+        "__type": "Item",
+        "macros": {
+          "fat": 0.3,
+          "carbs": 28.000000000000004,
+          "protein": 2.7
+        },
+        "quantity": 100,
+        "reference": 40009
+      }
+    ],
+    "owner": 3,
+    "name": "Abacate, cru (Receita)",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 151,
+    "created_at": "2025-06-28T21:42:56.182509+00:00",
+    "items": [
+      {
+        "id": 97096,
+        "name": "LEITE UHT SEMIDESNATADO PIRACANJUBA CAIXA COM TAMPA 1L",
+        "__type": "Item",
+        "macros": {
+          "fat": 1.2,
+          "carbs": 4.6,
+          "protein": 3.1
+        },
+        "quantity": 500,
+        "reference": 32414
+      },
+      {
+        "id": 511365,
+        "name": "Whey protein 3VS",
+        "__type": "Item",
+        "macros": {
+          "fat": 6.5,
+          "carbs": 12.5,
+          "protein": 72.5
+        },
+        "quantity": 40,
+        "reference": 35448
+      },
+      {
+        "id": 167930,
+        "name": "Toddy",
+        "__type": "Item",
+        "macros": {
+          "fat": 0,
+          "carbs": 90,
+          "protein": 0
+        },
+        "quantity": 10,
+        "reference": 23807
+      }
+    ],
+    "owner": 3,
+    "name": "LEITE UHT SEMIDESNATADO PIRACANJUBA CAIXA COM TAMPA 1L (Receita)",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 9,
+    "created_at": "2023-10-13T21:56:27.025799+00:00",
+    "items": [
+      {
+        "id": 766414,
+        "name": "LEITE UHT SEMIDESNATADO 1L COM TAMPA ITALAC",
+        "__type": "Item",
+        "macros": {
+          "fat": 1,
+          "carbs": 5,
+          "__type": "MacroNutrients",
+          "protein": 2.9000000000000004
+        },
+        "quantity": 180,
+        "reference": 23806
+      },
+      {
+        "id": 295851,
+        "name": "Toddy",
+        "__type": "Item",
+        "macros": {
+          "fat": 0,
+          "carbs": 90,
+          "__type": "MacroNutrients",
+          "protein": 0
+        },
+        "quantity": 13,
+        "reference": 23807
+      }
+    ],
+    "owner": 1,
+    "name": "Leite com Toddy",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 154,
+    "created_at": "2025-07-01T00:28:20.674953+00:00",
+    "items": [
+      {
+        "id": 720425,
+        "name": "Abacate, cru",
+        "__type": "Item",
+        "macros": {
+          "fat": 15,
+          "carbs": 9,
+          "protein": 2
+        },
+        "quantity": 500,
+        "reference": 63357
+      },
+      {
+        "id": 929020,
+        "name": "LEITE UHT SEMIDESNATADO 1L COM TAMPA ITALAC",
+        "__type": "Item",
+        "macros": {
+          "fat": 1,
+          "carbs": 5,
+          "protein": 2.9000000000000004
+        },
+        "quantity": 600,
+        "reference": 23806
+      },
+      {
+        "id": 807091,
+        "name": "Acucar Cristal Alcon",
+        "__type": "Item",
+        "macros": {
+          "fat": 0,
+          "carbs": 100,
+          "protein": 0
+        },
+        "quantity": 24,
+        "reference": 24849
+      }
+    ],
+    "owner": 1,
+    "name": "Vitamina de Abacate",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 159,
+    "created_at": "2025-07-10T13:03:35.764917+00:00",
+    "items": [
+      {
+        "id": 894131,
+        "name": "FARINHA DE TRIGO ESPECIAL GUTH PLAST 1KG",
+        "__type": "Item",
+        "macros": {
+          "fat": 1.4000000000000001,
+          "carbs": 72,
+          "__type": "MacroNutrients",
+          "protein": 9.8
+        },
+        "quantity": 100,
+        "reference": 32823
+      },
+      {
+        "id": 945046,
+        "name": "Patinho",
+        "__type": "Item",
+        "macros": {
+          "fat": 5,
+          "carbs": 0,
+          "__type": "MacroNutrients",
+          "protein": 22
+        },
+        "quantity": 945,
+        "reference": 33433
+      }
+    ],
+    "owner": 1,
+    "name": "Massa almôndega patinho, crua (Receita)",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 85,
+    "created_at": "2025-06-07T19:38:38.960808+00:00",
+    "items": [
+      {
+        "id": 722657,
+        "name": "açaí",
+        "__type": "Item",
+        "macros": {
+          "fat": 6.3,
+          "carbs": 21.7,
+          "protein": 3.3000000000000003
+        },
+        "quantity": 302,
+        "reference": 28569
+      }
+    ],
+    "owner": 3,
+    "name": "açaí",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 86,
+    "created_at": "2025-06-07T19:39:10.091583+00:00",
+    "items": [
+      {
+        "id": 722657,
+        "name": "açaí",
+        "__type": "Item",
+        "macros": {
+          "fat": 6.3,
+          "carbs": 21.7,
+          "protein": 3.3000000000000003
+        },
+        "quantity": 302,
+        "reference": 28569
+      }
+    ],
+    "owner": 3,
+    "name": "açaí",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 87,
+    "created_at": "2025-06-07T19:39:32.948681+00:00",
+    "items": [
+      {
+        "id": 722657,
+        "name": "açaí",
+        "__type": "Item",
+        "macros": {
+          "fat": 6.3,
+          "carbs": 21.7,
+          "protein": 3.3000000000000003
+        },
+        "quantity": 302,
+        "reference": 28569
+      }
+    ],
+    "owner": 3,
+    "name": "açaí",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 88,
+    "created_at": "2025-06-07T19:40:02.197366+00:00",
+    "items": [
+      {
+        "id": 722657,
+        "name": "açaí",
+        "__type": "Item",
+        "macros": {
+          "fat": 6.3,
+          "carbs": 21.7,
+          "protein": 3.3000000000000003
+        },
+        "quantity": 302,
+        "reference": 28569
+      }
+    ],
+    "owner": 3,
+    "name": "açaí",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 89,
+    "created_at": "2025-06-07T19:40:19.662971+00:00",
+    "items": [
+      {
+        "id": 722657,
+        "name": "açaí",
+        "__type": "Item",
+        "macros": {
+          "fat": 6.3,
+          "carbs": 21.7,
+          "protein": 3.3000000000000003
+        },
+        "quantity": 302,
+        "reference": 28569
+      }
+    ],
+    "owner": 3,
+    "name": "açaí",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 90,
+    "created_at": "2025-06-07T19:40:39.600344+00:00",
+    "items": [
+      {
+        "id": 722657,
+        "name": "açaí",
+        "__type": "Item",
+        "macros": {
+          "fat": 6.3,
+          "carbs": 21.7,
+          "protein": 3.3000000000000003
+        },
+        "quantity": 302,
+        "reference": 28569
+      }
+    ],
+    "owner": 3,
+    "name": "açaí",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 91,
+    "created_at": "2025-06-07T19:41:00.357904+00:00",
+    "items": [
+      {
+        "id": 722657,
+        "name": "açaí",
+        "__type": "Item",
+        "macros": {
+          "fat": 6.3,
+          "carbs": 21.7,
+          "protein": 3.3000000000000003
+        },
+        "quantity": 302,
+        "reference": 28569
+      }
+    ],
+    "owner": 3,
+    "name": "açaí",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 92,
+    "created_at": "2025-06-07T19:41:22.260326+00:00",
+    "items": [
+      {
+        "id": 722657,
+        "name": "açaí",
+        "__type": "Item",
+        "macros": {
+          "fat": 6.3,
+          "carbs": 21.7,
+          "protein": 3.3000000000000003
+        },
+        "quantity": 302,
+        "reference": 28569
+      }
+    ],
+    "owner": 3,
+    "name": "açaí",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 93,
+    "created_at": "2025-06-07T19:41:43.658237+00:00",
+    "items": [
+      {
+        "id": 722657,
+        "name": "açaí",
+        "__type": "Item",
+        "macros": {
+          "fat": 6.3,
+          "carbs": 21.7,
+          "protein": 3.3000000000000003
+        },
+        "quantity": 302,
+        "reference": 28569
+      }
+    ],
+    "owner": 3,
+    "name": "açaí",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 94,
+    "created_at": "2025-06-07T19:41:46.557787+00:00",
+    "items": [
+      {
+        "id": 722657,
+        "name": "açaí",
+        "__type": "Item",
+        "macros": {
+          "fat": 6.3,
+          "carbs": 21.7,
+          "protein": 3.3000000000000003
+        },
+        "quantity": 302,
+        "reference": 28569
+      }
+    ],
+    "owner": 3,
+    "name": "açaí",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 136,
+    "created_at": "2025-06-12T07:05:35.732346+00:00",
+    "items": [
+      {
+        "id": 468521,
+        "name": "Abacaxi",
+        "__type": "Item",
+        "macros": {
+          "fat": 0,
+          "carbs": 10,
+          "protein": 0
+        },
+        "quantity": 100,
+        "reference": 53323
+      },
+      {
+        "id": 151665,
+        "name": "Abacaxi",
+        "__type": "Item",
+        "macros": {
+          "fat": 0,
+          "carbs": 10,
+          "protein": 0
+        },
+        "quantity": 100,
+        "reference": 53323
+      }
+    ],
+    "owner": 3,
+    "name": "Abacaxi",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 140,
+    "created_at": "2025-06-19T14:01:57.528192+00:00",
+    "items": [
+      {
+        "id": 966558,
+        "name": "açaí",
+        "__type": "Item",
+        "macros": {
+          "fat": 6.3,
+          "carbs": 21.7,
+          "protein": 3.3000000000000003
+        },
+        "quantity": 300,
+        "reference": 28569
+      },
+      {
+        "id": 612300,
+        "name": "açaí",
+        "__type": "Item",
+        "macros": {
+          "fat": 6.3,
+          "carbs": 21.7,
+          "protein": 3.3000000000000003
+        },
+        "quantity": 300,
+        "reference": 28569
+      }
+    ],
+    "owner": 3,
+    "name": "açaí",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 141,
+    "created_at": "2025-06-19T14:02:10.232468+00:00",
+    "items": [
+      {
+        "id": 966558,
+        "name": "açaí",
+        "__type": "Item",
+        "macros": {
+          "fat": 6.3,
+          "carbs": 21.7,
+          "protein": 3.3000000000000003
+        },
+        "quantity": 300,
+        "reference": 28569
+      },
+      {
+        "id": 612300,
+        "name": "açaí",
+        "__type": "Item",
+        "macros": {
+          "fat": 6.3,
+          "carbs": 21.7,
+          "protein": 3.3000000000000003
+        },
+        "quantity": 300,
+        "reference": 28569
+      }
+    ],
+    "owner": 3,
+    "name": "açaí",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 148,
+    "created_at": "2025-06-28T02:25:42.495287+00:00",
+    "items": [
+      {
+        "id": 149393,
+        "name": "Pao Forma Kim 400G Integral",
+        "__type": "Item",
+        "macros": {
+          "fat": 3.8,
+          "carbs": 42,
+          "protein": 13
+        },
+        "quantity": 24,
+        "reference": 52582
+      },
+      {
+        "id": 547329,
+        "name": "Pao Forma Kim 400G Integral",
+        "__type": "Item",
+        "macros": {
+          "fat": 3.8,
+          "carbs": 42,
+          "protein": 13
+        },
+        "quantity": 24,
+        "reference": 52582
+      }
+    ],
+    "owner": 3,
+    "name": "Pao Forma Kim 400G Integral (Receita)",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 152,
+    "created_at": "2025-06-28T21:49:32.195127+00:00",
+    "items": [
+      {
+        "id": 97096,
+        "name": "LEITE UHT SEMIDESNATADO PIRACANJUBA CAIXA COM TAMPA 1L",
+        "__type": "Item",
+        "macros": {
+          "fat": 1.2,
+          "carbs": 4.6,
+          "protein": 3.1
+        },
+        "quantity": 500,
+        "reference": 32414
+      },
+      {
+        "id": 511365,
+        "name": "Whey protein 3VS",
+        "__type": "Item",
+        "macros": {
+          "fat": 6.5,
+          "carbs": 12.5,
+          "protein": 72.5
+        },
+        "quantity": 40,
+        "reference": 35448
+      },
+      {
+        "id": 167930,
+        "name": "Toddy",
+        "__type": "Item",
+        "macros": {
+          "fat": 0,
+          "carbs": 90,
+          "protein": 0
+        },
+        "quantity": 10,
+        "reference": 23807
+      }
+    ],
+    "owner": 1,
+    "name": "Leite com Whey e Toddy (Receita)",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 155,
+    "created_at": "2025-07-01T00:30:59.970977+00:00",
+    "items": [
+      {
+        "id": 720425,
+        "name": "Abacate, cru",
+        "__type": "Item",
+        "macros": {
+          "fat": 15,
+          "carbs": 9,
+          "protein": 2
+        },
+        "quantity": 500,
+        "reference": 63357
+      },
+      {
+        "id": 929020,
+        "name": "LEITE UHT SEMIDESNATADO 1L COM TAMPA ITALAC",
+        "__type": "Item",
+        "macros": {
+          "fat": 1,
+          "carbs": 5,
+          "protein": 2.9000000000000004
+        },
+        "quantity": 600,
+        "reference": 23806
+      },
+      {
+        "id": 807091,
+        "name": "Acucar Cristal Alcon",
+        "__type": "Item",
+        "macros": {
+          "fat": 0,
+          "carbs": 100,
+          "protein": 0
+        },
+        "quantity": 24,
+        "reference": 24849
+      }
+    ],
+    "owner": 2,
+    "name": "Vitamina de Abacate",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 157,
+    "created_at": "2025-07-08T02:08:00.46107+00:00",
+    "items": [
+      {
+        "id": 431442,
+        "name": "Abacate, cru",
+        "__type": "Item",
+        "macros": {
+          "fat": 15,
+          "carbs": 9,
+          "protein": 2
+        },
+        "quantity": 100,
+        "reference": 63357
+      },
+      {
+        "id": 684244,
+        "name": "Abacate, cru",
+        "__type": "Item",
+        "macros": {
+          "fat": 15,
+          "carbs": 9,
+          "protein": 2
+        },
+        "quantity": 100,
+        "reference": 63357
+      },
+      {
+        "id": 695052,
+        "name": "Arroz Cozido",
+        "__type": "Item",
+        "macros": {
+          "fat": 0.3,
+          "carbs": 28.000000000000004,
+          "protein": 2.7
+        },
+        "quantity": 100,
+        "reference": 40009
+      },
+      {
+        "id": 231397,
+        "name": "Abacaxi",
+        "__type": "Item",
+        "macros": {
+          "fat": 0,
+          "carbs": 10,
+          "protein": 0
+        },
+        "quantity": 100,
+        "reference": 53323
+      }
+    ],
+    "owner": 3,
+    "name": "Abacate, cru (Receita) (Receita)",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 137,
+    "created_at": "2025-06-12T07:05:49.634911+00:00",
+    "items": [
+      {
+        "id": 468521,
+        "name": "Abacaxi",
+        "__type": "Item",
+        "macros": {
+          "fat": 0,
+          "carbs": 10,
+          "protein": 0
+        },
+        "quantity": 100,
+        "reference": 53323
+      }
+    ],
+    "owner": 3,
+    "name": "Abacaxi",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 149,
+    "created_at": "2025-06-28T02:39:06.607094+00:00",
+    "items": [
+      {
+        "id": 149393,
+        "name": "Pao Forma Kim 400G Integral",
+        "__type": "Item",
+        "macros": {
+          "fat": 3.8,
+          "carbs": 42,
+          "protein": 13
+        },
+        "quantity": 24,
+        "reference": 52582
+      },
+      {
+        "id": 547329,
+        "name": "Pao Forma Kim 400G Integral",
+        "__type": "Item",
+        "macros": {
+          "fat": 3.8,
+          "carbs": 42,
+          "protein": 13
+        },
+        "quantity": 24,
+        "reference": 52582
+      }
+    ],
+    "owner": 3,
+    "name": "Pao Forma Kim 400G Integral (Receita) (Receita)",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 133,
+    "created_at": "2025-06-12T07:03:30.986335+00:00",
+    "items": [
+      {
+        "id": 722657,
+        "name": "açaí",
+        "__type": "Item",
+        "macros": {
+          "fat": 6.3,
+          "carbs": 21.7,
+          "protein": 3.3000000000000003
+        },
+        "quantity": 302,
+        "reference": 28569
+      }
+    ],
+    "owner": 3,
+    "name": "açaí 2",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 158,
+    "created_at": "2025-07-09T15:15:27.032986+00:00",
+    "items": [
+      {
+        "id": 100207,
+        "name": "CONDENSADO ITALAC",
+        "__type": "Item",
+        "macros": {
+          "fat": 6,
+          "carbs": 55.00000000000001,
+          "protein": 7.5
+        },
+        "quantity": 354,
+        "reference": 34336
+      },
+      {
+        "id": 695013,
+        "name": "Toddy",
+        "__type": "Item",
+        "macros": {
+          "fat": 0,
+          "carbs": 90,
+          "protein": 0
+        },
+        "quantity": 109,
+        "reference": 23807
+      },
+      {
+        "id": 622219,
+        "name": "MARGARINA CREMOSA COM SAL 1KG DORIANA",
+        "__type": "Item",
+        "macros": {
+          "fat": 80,
+          "carbs": 0,
+          "protein": 0
+        },
+        "quantity": 29,
+        "reference": 31069
+      }
+    ],
+    "owner": 1,
+    "name": "Brigadeiro",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 160,
+    "created_at": "2025-07-10T13:05:05.727358+00:00",
+    "items": [
+      {
+        "id": 894131,
+        "name": "FARINHA DE TRIGO ESPECIAL GUTH PLAST 1KG",
+        "__type": "Item",
+        "macros": {
+          "fat": 1.4000000000000001,
+          "carbs": 72,
+          "__type": "MacroNutrients",
+          "protein": 9.8
+        },
+        "quantity": 100,
+        "reference": 32823
+      },
+      {
+        "id": 945046,
+        "name": "Patinho",
+        "__type": "Item",
+        "macros": {
+          "fat": 5,
+          "carbs": 0,
+          "__type": "MacroNutrients",
+          "protein": 22
+        },
+        "quantity": 945,
+        "reference": 33433
+      }
+    ],
+    "owner": 2,
+    "name": "Massa almôndega patinho, crua (Receita)",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 125,
+    "created_at": "2025-06-09T05:42:33.090904+00:00",
+    "items": [
+      {
+        "id": 694843,
+        "name": "Açaí",
+        "__type": "Item",
+        "macros": {
+          "fat": 2.3,
+          "carbs": 26.700000000000003,
+          "protein": 0.3
+        },
+        "quantity": 10,
+        "reference": 24600
+      }
+    ],
+    "owner": 3,
+    "name": "açaí",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 126,
+    "created_at": "2025-06-09T05:42:40.280486+00:00",
+    "items": [
+      {
+        "id": 694843,
+        "name": "Açaí",
+        "__type": "Item",
+        "macros": {
+          "fat": 2.3,
+          "carbs": 26.700000000000003,
+          "protein": 0.3
+        },
+        "quantity": 10,
+        "reference": 24600
+      }
+    ],
+    "owner": 3,
+    "name": "açaí",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 127,
+    "created_at": "2025-06-09T05:42:43.459006+00:00",
+    "items": [
+      {
+        "id": 694843,
+        "name": "Açaí",
+        "__type": "Item",
+        "macros": {
+          "fat": 2.3,
+          "carbs": 26.700000000000003,
+          "protein": 0.3
+        },
+        "quantity": 12,
+        "reference": 24600
+      }
+    ],
+    "owner": 3,
+    "name": "açaí",
+    "prepared_multiplier": 2
+  },
+  {
+    "id": 132,
+    "created_at": "2025-06-11T02:03:48.495869+00:00",
+    "items": [
+      {
+        "id": 930269,
+        "name": "PÃO KIM PACOTE 500G",
+        "__type": "Item",
+        "macros": {
+          "fat": 4,
+          "carbs": 50,
+          "protein": 9.4
+        },
+        "quantity": 67,
+        "reference": 23119
+      },
+      {
+        "id": 770237,
+        "name": "MARGARINA CREMOSA COM SAL 1KG DORIANA",
+        "__type": "Item",
+        "macros": {
+          "fat": 80,
+          "carbs": 0,
+          "protein": 0
+        },
+        "quantity": 6,
+        "reference": 31069
+      },
+      {
+        "id": 283728,
+        "name": "Queijo litoral",
+        "__type": "Item",
+        "macros": {
+          "fat": 27.700000000000003,
+          "carbs": 0,
+          "protein": 20.7
+        },
+        "quantity": 39,
+        "reference": 23803
+      }
+    ],
+    "owner": 1,
+    "name": "Pão média queijo",
+    "prepared_multiplier": 1
+  },
+  {
+    "id": 161,
+    "created_at": "2025-07-12T13:47:34.380638+00:00",
+    "items": [
+      {
+        "id": 894131,
+        "name": "FARINHA DE TRIGO ESPECIAL GUTH PLAST 1KG",
+        "__type": "Item",
+        "macros": {
+          "fat": 1.4000000000000001,
+          "carbs": 72,
+          "__type": "MacroNutrients",
+          "protein": 9.8
+        },
+        "quantity": 150,
+        "reference": 32823
+      },
+      {
+        "id": 945046,
+        "name": "Patinho",
+        "__type": "Item",
+        "macros": {
+          "fat": 5,
+          "carbs": 0,
+          "__type": "MacroNutrients",
+          "protein": 22
+        },
+        "quantity": 1000,
+        "reference": 33433
+      },
+      {
+        "id": 272904,
+        "name": "Trigo Para Kibe Lopes 500G",
+        "__type": "Item",
+        "macros": {
+          "fat": 1.4000000000000001,
+          "carbs": 60,
+          "__type": "MacroNutrients",
+          "protein": 13
+        },
+        "quantity": 200,
+        "reference": 33951
+      },
+      {
+        "id": 377583,
+        "name": "Omelete",
+        "__type": "Item",
+        "macros": {
+          "fat": 8.3,
+          "carbs": 1.3,
+          "__type": "MacroNutrients",
+          "protein": 10.8
+        },
+        "quantity": 58,
+        "reference": 72545
+      }
+    ],
+    "owner": 1,
+    "name": "Massa kibe patinho, crua (Receita)",
+    "prepared_multiplier": 1
+  }
+]
