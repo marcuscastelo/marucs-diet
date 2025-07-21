@@ -28,8 +28,19 @@ export type UnifiedItemNutritionalInfoProps = {
 export function UnifiedItemNutritionalInfo(
   props: UnifiedItemNutritionalInfoProps,
 ) {
-  const calories = createMemo(() => calcUnifiedItemCalories(props.item()))
-  const macros = createMemo(() => calcUnifiedItemMacros(props.item()))
+  const calories = createMemo(() => {
+    // Force memo to update by depending on the full item structure
+    const item = props.item()
+    JSON.stringify(item) // Touch the full object to trigger on deep changes
+    return calcUnifiedItemCalories(item)
+  })
+
+  const macros = createMemo(() => {
+    // Force memo to update by depending on the full item structure
+    const item = props.item()
+    JSON.stringify(item) // Touch the full object to trigger on deep changes
+    return calcUnifiedItemMacros(item)
+  })
 
   // Create macro overflow checker if macroOverflow is enabled
   const isMacroOverflowing = createMemo(() => {
