@@ -163,3 +163,44 @@ export function synchronizeRecipeItemWithOriginal(
     },
   }
 }
+
+/**
+ * Scales a RecipeItem by changing its quantity and proportionally scaling all children
+ * Used when user changes the total quantity of a recipe item
+ */
+export function scaleRecipeItemQuantity(
+  recipeItem: UnifiedItem,
+  newQuantity: number,
+): UnifiedItem {
+  if (recipeItem.reference.type !== 'recipe') {
+    throw new Error('Can only scale recipe items')
+  }
+
+  if (newQuantity <= 0) {
+    throw new Error('New quantity must be greater than 0')
+  }
+
+  const currentQuantity = recipeItem.quantity
+  if (currentQuantity <= 0) {
+    throw new Error('Current quantity must be greater than 0')
+  }
+
+  const scalingFactor = newQuantity / currentQuantity
+
+  // Scale all children proportionally
+  const scaledChildren = recipeItem.reference.children.map((child) => {
+    return {
+      ...child,
+      quantity: Math.round(child.quantity * scalingFactor * 100) / 100, // Round to 2 decimal places
+    }
+  })
+
+  return {
+    ...recipeItem,
+    quantity: Math.round(newQuantity * 100) / 100, // Round to 2 decimal places
+    reference: {
+      ...recipeItem.reference,
+      children: scaledChildren,
+    },
+  }
+}
