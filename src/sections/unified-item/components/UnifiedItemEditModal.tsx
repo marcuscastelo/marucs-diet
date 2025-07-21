@@ -19,7 +19,10 @@ import {
   addChildToItem,
   updateChildInItem,
 } from '~/modules/diet/unified-item/domain/childOperations'
-import { compareUnifiedItemArrays } from '~/modules/diet/unified-item/domain/unifiedItemOperations'
+import {
+  compareUnifiedItemArrays,
+  synchronizeRecipeItemWithOriginal,
+} from '~/modules/diet/unified-item/domain/unifiedItemOperations'
 import {
   asGroupItem,
   createUnifiedItem,
@@ -187,9 +190,18 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
     if (!recipe) return
 
     const currentItem = item()
-    // TODO: implement recipe synchronization
-    const syncedItem = currentItem
-    setItem(syncedItem)
+    if (currentItem.reference.type !== 'recipe') {
+      throw new Error('Can only synchronize recipe items')
+    }
+
+    // Synchronize with original recipe items
+    const syncedItem = synchronizeRecipeItemWithOriginal(
+      currentItem,
+      recipe.items,
+    )
+
+    // Force reactivity by creating a new reference
+    setItem({ ...syncedItem })
   }
 
   // Recipe edit handlers
@@ -199,9 +211,14 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
       // Update the current item to reflect the changes
       const currentItem = item()
       if (isRecipeItem(currentItem)) {
-        // TODO: implement recipe synchronization
-        const syncedItem = currentItem
-        setItem(syncedItem)
+        // Automatically synchronize with the updated recipe
+        const syncedItem = synchronizeRecipeItemWithOriginal(
+          currentItem,
+          updatedRecipe.items,
+        )
+
+        // Force reactivity by creating a new reference
+        setItem({ ...syncedItem })
       }
     }
   }
