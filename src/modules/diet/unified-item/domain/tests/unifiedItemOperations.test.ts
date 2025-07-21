@@ -8,8 +8,6 @@ import {
 
 import {
   compareUnifiedItemArrays,
-  generateUnifiedItemId,
-  regenerateUnifiedItemIds,
   scaleRecipeItemQuantity,
   synchronizeRecipeItemWithOriginal,
 } from '../unifiedItemOperations'
@@ -150,76 +148,6 @@ describe('compareUnifiedItemArrays', () => {
   })
 })
 
-describe('generateUnifiedItemId', () => {
-  it('should generate unique IDs', () => {
-    const id1 = generateUnifiedItemId()
-    const id2 = generateUnifiedItemId()
-
-    expect(id1).not.toBe(id2)
-    expect(typeof id1).toBe('number')
-    expect(typeof id2).toBe('number')
-  })
-})
-
-describe('regenerateUnifiedItemIds', () => {
-  it('should regenerate ID for food item', () => {
-    const foodItem: UnifiedItem = {
-      id: 1,
-      name: 'Apple',
-      quantity: 100,
-      reference: {
-        type: 'food',
-        id: 10,
-        macros: createMacroNutrients({ protein: 1, carbs: 25, fat: 0 }),
-      },
-      __type: 'UnifiedItem',
-    }
-
-    const regenerated = regenerateUnifiedItemIds(foodItem)
-
-    expect(regenerated.id).not.toBe(foodItem.id)
-    expect(regenerated.name).toBe(foodItem.name)
-    expect(regenerated.quantity).toBe(foodItem.quantity)
-    expect(regenerated.reference).toEqual(foodItem.reference)
-  })
-
-  it('should recursively regenerate IDs for recipe item children', () => {
-    const childFood: UnifiedItem = {
-      id: 2,
-      name: 'Banana',
-      quantity: 50,
-      reference: {
-        type: 'food',
-        id: 20,
-        macros: createMacroNutrients({ protein: 1, carbs: 12, fat: 0 }),
-      },
-      __type: 'UnifiedItem',
-    }
-
-    const recipeItem: UnifiedItem = {
-      id: 1,
-      name: 'Fruit Bowl',
-      quantity: 1,
-      reference: {
-        type: 'recipe',
-        id: 100,
-        children: [childFood],
-      },
-      __type: 'UnifiedItem',
-    }
-
-    const regenerated = regenerateUnifiedItemIds(recipeItem)
-
-    expect(regenerated.id).not.toBe(recipeItem.id)
-    expect(regenerated.reference.type).toBe('recipe')
-    if (regenerated.reference.type === 'recipe') {
-      expect(regenerated.reference.children).toHaveLength(1)
-      expect(regenerated.reference.children[0]!.id).not.toBe(childFood.id)
-      expect(regenerated.reference.children[0]!.name).toBe(childFood.name)
-    }
-  })
-})
-
 describe('synchronizeRecipeItemWithOriginal', () => {
   it('should synchronize recipe item with original items', () => {
     const originalItems: UnifiedItem[] = [
@@ -270,8 +198,8 @@ describe('synchronizeRecipeItemWithOriginal', () => {
       expect(synchronized.reference.children).toHaveLength(1)
       const syncedChild = synchronized.reference.children[0]!
 
-      // Should have original values (but new ID)
-      expect(syncedChild.id).not.toBe(originalItems[0]!.id) // New ID
+      // Should have original values (including original ID)
+      expect(syncedChild.id).toBe(originalItems[0]!.id) // Keep original ID
       expect(syncedChild.name).toBe('Original Apple') // Original name
       expect(syncedChild.quantity).toBe(200) // Original quantity
 
