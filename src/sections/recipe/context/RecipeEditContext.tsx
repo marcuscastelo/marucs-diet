@@ -8,10 +8,7 @@ import {
   useContext,
 } from 'solid-js'
 
-import {
-  type Recipe,
-  type UnifiedRecipe,
-} from '~/modules/diet/recipe/domain/recipe'
+import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 
 export type RecipeContext = {
   recipe: Accessor<Recipe>
@@ -20,34 +17,15 @@ export type RecipeContext = {
   saveRecipe: () => void
 }
 
-export type UnifiedRecipeContext = {
-  recipe: Accessor<UnifiedRecipe>
-  persistentRecipe: Accessor<UnifiedRecipe>
-  setRecipe: Setter<UnifiedRecipe>
-  saveRecipe: () => void
-}
-
 const recipeContext = createContext<RecipeContext | null>(null)
-const unifiedRecipeContext = createContext<UnifiedRecipeContext | null>(null)
+const unifiedRecipeContext = createContext<RecipeContext | null>(null)
 
 export function useRecipeEditContext() {
-  const context = useContext(recipeContext)
-
-  if (context === null) {
-    throw new Error(
-      'useRecipeEditContext must be used within a RecipeEditContextProvider',
-    )
-  }
-
-  return context
-}
-
-export function useUnifiedRecipeEditContext() {
   const context = useContext(unifiedRecipeContext)
 
   if (context === null) {
     throw new Error(
-      'useUnifiedRecipeEditContext must be used within a UnifiedRecipeEditContextProvider',
+      'useRecipeEditContext must be used within a RecipeEditContextProvider',
     )
   }
 
@@ -61,36 +39,6 @@ export function RecipeEditContextProvider(props: {
   children: JSXElement
 }) {
   const [persistentRecipe, setPersistentRecipe] = createSignal<Recipe>(
-    untrack(() => props.recipe()),
-  )
-
-  const handleSaveRecipe = () => {
-    const recipe = props.recipe()
-    props.onSaveRecipe(recipe)
-    setPersistentRecipe(recipe)
-  }
-
-  return (
-    <recipeContext.Provider
-      value={{
-        recipe: () => props.recipe(),
-        setRecipe: (arg) => props.setRecipe(arg),
-        persistentRecipe,
-        saveRecipe: handleSaveRecipe,
-      }}
-    >
-      {props.children}
-    </recipeContext.Provider>
-  )
-}
-
-export function UnifiedRecipeEditContextProvider(props: {
-  recipe: Accessor<UnifiedRecipe>
-  setRecipe: Setter<UnifiedRecipe>
-  onSaveRecipe: (recipe: UnifiedRecipe) => void
-  children: JSXElement
-}) {
-  const [persistentRecipe, setPersistentRecipe] = createSignal<UnifiedRecipe>(
     untrack(() => props.recipe()),
   )
 

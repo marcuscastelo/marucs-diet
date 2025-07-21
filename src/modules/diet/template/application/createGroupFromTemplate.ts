@@ -1,16 +1,16 @@
-import { createRecipedItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { scaleRecipeByPreparedQuantity } from '~/modules/diet/recipe/domain/recipeOperations'
 import {
   isTemplateRecipe,
   type Template,
 } from '~/modules/diet/template/domain/template'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
-import { itemGroupToUnifiedItem } from '~/modules/diet/unified-item/domain/conversionUtils'
 import {
+  createUnifiedItem,
   isFoodItem,
   isRecipeItem,
   type UnifiedItem,
 } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import { generateId } from '~/shared/utils/idUtils'
 
 /**
  * Creates a UnifiedItem from a Template and TemplateItem.
@@ -39,14 +39,17 @@ export function createUnifiedItemFromTemplate(
       item.quantity,
     )
 
-    // Create a group and convert to UnifiedItem
-    const group = createRecipedItemGroup({
+    // Create a UnifiedItem with recipe reference containing scaled items
+    const unifiedItem = createUnifiedItem({
+      id: generateId(),
       name: item.name,
-      recipe: template.id,
-      items: scaledItems,
+      quantity: item.quantity,
+      reference: {
+        type: 'recipe',
+        id: template.id,
+        children: scaledItems,
+      },
     })
-
-    const unifiedItem = itemGroupToUnifiedItem(group)
     return {
       unifiedItem,
       operation: 'addUnifiedRecipeItem',

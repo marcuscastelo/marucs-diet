@@ -8,7 +8,7 @@ import {
 import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   createNewRecipe,
-  promoteToRecipe,
+  promoteRecipe,
   type Recipe,
 } from '~/modules/diet/recipe/domain/recipe'
 import {
@@ -72,7 +72,7 @@ describe('RemoveFromRecentButton Logic', () => {
     { id: 1 },
   )
 
-  const mockRecipeTemplate: Recipe = promoteToRecipe(
+  const mockRecipeTemplate: Recipe = promoteRecipe(
     createNewRecipe({
       name: 'Test Recipe',
       owner: 1,

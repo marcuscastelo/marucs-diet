@@ -7,14 +7,10 @@ import {
 } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type DayRepository } from '~/modules/diet/day-diet/domain/dayDietRepository'
 import {
-  createInsertLegacyDayDietDAOFromNewDayDiet,
+  createDayDietDAOFromNewDayDiet,
   daoToDayDiet,
   type DayDietDAO,
 } from '~/modules/diet/day-diet/infrastructure/dayDietDAO'
-import {
-  type LegacyMeal,
-  migrateLegacyMealsToUnified,
-} from '~/modules/diet/day-diet/infrastructure/migrationUtils'
 import { type User } from '~/modules/user/domain/user'
 import {
   createErrorHandler,
@@ -73,8 +69,7 @@ async function fetchDayDiet(dayId: DayDiet['id']): Promise<DayDiet> {
       })
       throw new Error('DayDiet not found')
     }
-    const migratedDay = migrateDayDataIfNeeded(dayDiets[0])
-    const result = dayDietSchema.safeParse(migratedDay)
+    const result = dayDietSchema.safeParse(dayDiets[0])
     if (!result.success) {
       errorHandler.validationError('DayDiet invalid', {
         component: 'supabaseDayRepository',
@@ -87,66 +82,6 @@ async function fetchDayDiet(dayId: DayDiet['id']): Promise<DayDiet> {
   } catch (err) {
     errorHandler.error(err)
     throw err
-  }
-}
-
-/**
- * Type for raw database data before validation
- */
-type RawDayData = {
-  meals?: unknown[]
-  [key: string]: unknown
-}
-
-/**
- * Migrates day data from legacy format (meals with groups) to new format (meals with items)
- * if needed. Returns the data unchanged if it's already in the new format.
- */
-function migrateDayDataIfNeeded(dayData: unknown): unknown {
-  // Type guard to check if dayData has the expected structure
-  if (
-    typeof dayData !== 'object' ||
-    dayData === null ||
-    !('meals' in dayData) ||
-    !Array.isArray((dayData as RawDayData).meals)
-  ) {
-    return dayData
-  }
-
-  const rawDay = dayData as RawDayData
-  const meals = rawDay.meals || []
-
-  // Check if any meal has the legacy 'groups' property instead of 'items'
-  const hasLegacyFormat = meals.some(
-    (meal: unknown) =>
-      typeof meal === 'object' &&
-      meal !== null &&
-      'groups' in meal &&
-      !('items' in meal),
-  )
-
-  if (!hasLegacyFormat) {
-    return dayData // Already in new format
-  }
-
-  // Migrate meals from legacy format to unified format
-  const migratedMeals = meals.map((meal: unknown) => {
-    if (
-      typeof meal === 'object' &&
-      meal !== null &&
-      'groups' in meal &&
-      !('items' in meal)
-    ) {
-      // This is a legacy meal, migrate it
-      const legacyMeal = meal as LegacyMeal
-      return migrateLegacyMealsToUnified([legacyMeal])[0]
-    }
-    return meal // Already in new format or different structure
-  })
-
-  return {
-    ...rawDay,
-    meals: migratedMeals,
   }
 }
 
@@ -168,9 +103,7 @@ async function fetchAllUserDayDiets(
 
   const days = data
     .map((day) => {
-      // Check if day contains legacy meal format and migrate if needed
-      const migratedDay = migrateDayDataIfNeeded(day)
-      return dayDietSchema.safeParse(migratedDay)
+      return dayDietSchema.safeParse(day)
     })
     .map((result) => {
       if (result.success) {
@@ -196,8 +129,8 @@ async function fetchAllUserDayDiets(
 
 // TODO:   Change upserts to inserts on the entire app
 const insertDayDiet = async (newDay: NewDayDiet): Promise<DayDiet | null> => {
-  // Use legacy format for canary strategy
-  const createDAO = createInsertLegacyDayDietDAOFromNewDayDiet(newDay)
+  // Use direct UnifiedItem persistence (no migration needed)
+  const createDAO = createDayDietDAOFromNewDayDiet(newDay)
 
   const { data: days, error } = await supabase
     .from(SUPABASE_TABLE_DAYS)
@@ -209,9 +142,8 @@ const insertDayDiet = async (newDay: NewDayDiet): Promise<DayDiet | null> => {
 
   const dayDAO = days[0] as DayDietDAO | undefined
   if (dayDAO !== undefined) {
-    // Migrate the returned data if needed before converting to domain
-    const migratedDay = migrateDayDataIfNeeded(dayDAO)
-    return daoToDayDiet(migratedDay as DayDietDAO)
+    // Data is already in unified format, no migration needed for new inserts
+    return daoToDayDiet(dayDAO)
   }
   return null
 }
@@ -220,8 +152,8 @@ const updateDayDiet = async (
   id: DayDiet['id'],
   newDay: NewDayDiet,
 ): Promise<DayDiet> => {
-  // Use legacy format for canary strategy
-  const updateDAO = createInsertLegacyDayDietDAOFromNewDayDiet(newDay)
+  // Use direct UnifiedItem persistence (no migration needed)
+  const updateDAO = createDayDietDAOFromNewDayDiet(newDay)
 
   const { data, error } = await supabase
     .from(SUPABASE_TABLE_DAYS)
@@ -235,9 +167,8 @@ const updateDayDiet = async (
   }
 
   const dayDAO = data[0] as DayDietDAO
-  // Migrate the returned data if needed before converting to domain
-  const migratedDay = migrateDayDataIfNeeded(dayDAO)
-  return daoToDayDiet(migratedDay as DayDietDAO)
+  // Data is already in unified format, no migration needed for updates
+  return daoToDayDiet(dayDAO)
 }
 
 const deleteDayDiet = async (id: DayDiet['id']): Promise<void> => {

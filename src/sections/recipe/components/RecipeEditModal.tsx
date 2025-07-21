@@ -1,13 +1,11 @@
 import { type Accessor, createEffect, createSignal } from 'solid-js'
 import { untrack } from 'solid-js'
 
-import { type Item } from '~/modules/diet/item/domain/item'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import {
   addItemToRecipe,
   updateItemInRecipe,
 } from '~/modules/diet/recipe/domain/recipeOperations'
-import { unifiedItemToItem } from '~/modules/diet/unified-item/domain/conversionUtils'
 import {
   createUnifiedItem,
   isRecipeItem,
@@ -68,7 +66,7 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
         return
       }
 
-      const item = unifiedItemToItem(newItem)
+      const item = newItem
       const updatedRecipe = addItemToRecipe(recipe(), item)
 
       console.debug(
@@ -124,17 +122,11 @@ export function RecipeEditModal(props: RecipeEditModalProps) {
               item: () => createUnifiedItem(item),
               targetMealName: recipe().name,
               macroOverflow: () => ({ enable: false }),
-              onApply: (unifiedItem) => {
-                // Convert back to Item for recipe operations
-                const convertedItem = unifiedItemToItem(unifiedItem)
-                const updatedItem: Item = {
-                  ...convertedItem,
-                  quantity: convertedItem.quantity,
-                }
+              onApply: (item) => {
                 const updatedRecipe = updateItemInRecipe(
                   recipe(),
-                  convertedItem.id,
-                  updatedItem,
+                  item.id,
+                  item,
                 )
                 setRecipe(updatedRecipe)
               },

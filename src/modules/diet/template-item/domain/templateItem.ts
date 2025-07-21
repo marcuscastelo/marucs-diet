@@ -1,15 +1,3 @@
-import {
-  type FoodItem,
-  type GroupItem,
-  isFoodItem,
-  isGroupItem,
-  isRecipeItem,
-  type RecipeItem,
-  type UnifiedItem,
-} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
-export type TemplateItem = FoodItem | RecipeItem | GroupItem
-
-export function isTemplateItem(t: UnifiedItem): t is TemplateItem {
-  return isFoodItem(t) || isRecipeItem(t) || isGroupItem(t)
-}
+export type TemplateItem = UnifiedItem

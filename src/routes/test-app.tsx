@@ -9,18 +9,16 @@ import {
   type DayDiet,
   promoteDayDiet,
 } from '~/modules/diet/day-diet/domain/dayDiet'
-import { createItem, type Item } from '~/modules/diet/item/domain/item'
-import {
-  createSimpleItemGroup,
-  type ItemGroup,
-} from '~/modules/diet/item-group/domain/itemGroup'
 import { createMacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
   createNewMeal,
   type Meal,
   promoteMeal,
 } from '~/modules/diet/meal/domain/meal'
-import { itemGroupToUnifiedItem } from '~/modules/diet/unified-item/domain/conversionUtils'
+import {
+  createUnifiedItem,
+  type UnifiedItem,
+} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { showSuccess } from '~/modules/toast/application/toastManager'
 import { TestChart } from '~/sections/common/components/charts/TestChart'
 import { FloatInput } from '~/sections/common/components/FloatInput'
@@ -40,35 +38,48 @@ import {
   openContentModal,
 } from '~/shared/modal/helpers/modalHelpers'
 import { openEditModal } from '~/shared/modal/helpers/modalHelpers'
+import { generateId } from '~/shared/utils/idUtils'
 
 export default function TestApp() {
-  const [unifiedItemEditModalVisible, setUnifiedItemEditModalVisible] =
+  const [_unifiedItemEditModalVisible, setUnifiedItemEditModalVisible] =
     createSignal(false)
 
-  const [item] = createSignal<Item>(
-    createItem({
-      macros: createMacroNutrients({
-        carbs: 10,
-        protein: 12,
-        fat: 10,
-      }),
+  const [item] = createSignal<UnifiedItem>(
+    createUnifiedItem({
+      id: generateId(),
       name: 'Teste',
       quantity: 100,
-      reference: 31606,
+      reference: {
+        type: 'food',
+        id: 31606,
+        macros: createMacroNutrients({
+          carbs: 10,
+          protein: 12,
+          fat: 10,
+        }),
+      },
     }),
   )
 
-  const [group, setGroup] = createSignal<ItemGroup>(
-    createSimpleItemGroup({
+  const [group, setGroup] = createSignal<UnifiedItem>(
+    createUnifiedItem({
+      id: generateId(),
       name: 'Teste',
-      items: [],
+      quantity: 100,
+      reference: {
+        type: 'group',
+        children: [],
+      },
     }),
   )
 
   createEffect(() => {
     setGroup({
       ...untrack(group),
-      items: [item()],
+      reference: {
+        type: 'group',
+        children: [item()],
+      },
     })
   })
 
@@ -172,7 +183,7 @@ export default function TestApp() {
             /> */}
             <h1>UnifiedItemView (ItemGroup test)</h1>
             <UnifiedItemView
-              item={() => itemGroupToUnifiedItem(group())}
+              item={() => group()}
               handlers={{
                 onEdit: () => {
                   setUnifiedItemEditModalVisible(true)

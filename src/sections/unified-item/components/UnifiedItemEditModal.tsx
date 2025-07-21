@@ -20,9 +20,9 @@ import {
   updateChildInItem,
 } from '~/modules/diet/unified-item/domain/childOperations'
 import {
-  isRecipeUnifiedItemManuallyEdited,
-  syncRecipeUnifiedItemWithOriginal,
-} from '~/modules/diet/unified-item/domain/conversionUtils'
+  compareUnifiedItemArrays,
+  synchronizeRecipeItemWithOriginal,
+} from '~/modules/diet/unified-item/domain/unifiedItemOperations'
 import {
   asGroupItem,
   createUnifiedItem,
@@ -142,7 +142,12 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
       return false
     }
 
-    return isRecipeUnifiedItemManuallyEdited(currentItem, recipe)
+    // Compare original recipe items with current recipe items
+    // If they're different, the recipe was manually edited
+    return !compareUnifiedItemArrays(
+      recipe.items,
+      currentItem.reference.children,
+    )
   })
 
   const quantitySignal = () =>
@@ -185,8 +190,18 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
     if (!recipe) return
 
     const currentItem = item()
-    const syncedItem = syncRecipeUnifiedItemWithOriginal(currentItem, recipe)
-    setItem(syncedItem)
+    if (currentItem.reference.type !== 'recipe') {
+      throw new Error('Can only synchronize recipe items')
+    }
+
+    // Synchronize with original recipe items
+    const syncedItem = synchronizeRecipeItemWithOriginal(
+      currentItem,
+      recipe.items,
+    )
+
+    // Force reactivity by creating a new reference
+    setItem({ ...syncedItem })
   }
 
   // Recipe edit handlers
@@ -196,11 +211,14 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
       // Update the current item to reflect the changes
       const currentItem = item()
       if (isRecipeItem(currentItem)) {
-        const syncedItem = syncRecipeUnifiedItemWithOriginal(
+        // Automatically synchronize with the updated recipe
+        const syncedItem = synchronizeRecipeItemWithOriginal(
           currentItem,
-          updatedRecipe,
+          updatedRecipe.items,
         )
-        setItem(syncedItem)
+
+        // Force reactivity by creating a new reference
+        setItem({ ...syncedItem })
       }
     }
   }

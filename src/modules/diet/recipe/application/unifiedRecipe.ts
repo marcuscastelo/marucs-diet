@@ -1,17 +1,17 @@
 import {
-  type NewUnifiedRecipe,
-  type UnifiedRecipe,
+  type NewRecipe,
+  type Recipe,
 } from '~/modules/diet/recipe/domain/recipe'
-import { createSupabaseUnifiedRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseUnifiedRecipeRepository'
+import { createSupabaseRecipeRepository } from '~/modules/diet/recipe/infrastructure/supabaseRecipeRepository'
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { type User } from '~/modules/user/domain/user'
 import { createErrorHandler } from '~/shared/error/errorHandler'
 
-const unifiedRecipeRepository = createSupabaseUnifiedRecipeRepository()
+const unifiedRecipeRepository = createSupabaseRecipeRepository()
 
-const errorHandler = createErrorHandler('application', 'UnifiedRecipe')
+const errorHandler = createErrorHandler('application', 'Recipe')
 
-export async function fetchUserUnifiedRecipes(userId: User['id']) {
+export async function fetchUserRecipes(userId: User['id']) {
   try {
     return await showPromise(
       unifiedRecipeRepository.fetchUserRecipes(userId),
@@ -28,10 +28,7 @@ export async function fetchUserUnifiedRecipes(userId: User['id']) {
   }
 }
 
-export async function fetchUserUnifiedRecipeByName(
-  userId: User['id'],
-  name: string,
-) {
+export async function fetchUserRecipeByName(userId: User['id'], name: string) {
   try {
     return await showPromise(
       unifiedRecipeRepository.fetchUserRecipeByName(userId, name),
@@ -48,7 +45,7 @@ export async function fetchUserUnifiedRecipeByName(
   }
 }
 
-export async function fetchUnifiedRecipeById(recipeId: UnifiedRecipe['id']) {
+export async function fetchRecipeById(recipeId: Recipe['id']) {
   try {
     return await showPromise(
       unifiedRecipeRepository.fetchRecipeById(recipeId),
@@ -65,9 +62,7 @@ export async function fetchUnifiedRecipeById(recipeId: UnifiedRecipe['id']) {
   }
 }
 
-export async function saveUnifiedRecipe(
-  newRecipe: NewUnifiedRecipe,
-): Promise<UnifiedRecipe | null> {
+export async function saveRecipe(newRecipe: NewRecipe): Promise<Recipe | null> {
   try {
     return await showPromise(
       unifiedRecipeRepository.insertRecipe(newRecipe),
@@ -84,10 +79,10 @@ export async function saveUnifiedRecipe(
   }
 }
 
-export async function updateUnifiedRecipe(
-  recipeId: UnifiedRecipe['id'],
-  recipe: UnifiedRecipe,
-): Promise<UnifiedRecipe | null> {
+export async function updateRecipe(
+  recipeId: Recipe['id'],
+  recipe: Recipe,
+): Promise<Recipe | null> {
   try {
     return await showPromise(
       unifiedRecipeRepository.updateRecipe(recipeId, recipe),
@@ -104,7 +99,7 @@ export async function updateUnifiedRecipe(
   }
 }
 
-export async function deleteUnifiedRecipe(recipeId: UnifiedRecipe['id']) {
+export async function deleteRecipe(recipeId: Recipe['id']) {
   try {
     await showPromise(
       unifiedRecipeRepository.deleteRecipe(recipeId),

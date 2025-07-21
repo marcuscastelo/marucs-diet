@@ -6,8 +6,8 @@ import {
   untrack,
 } from 'solid-js'
 
-import { updateUnifiedItemQuantity } from '~/modules/diet/item/application/item'
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import { scaleRecipeItemQuantity } from '~/modules/diet/unified-item/domain/unifiedItemOperations'
 import {
   isFoodItem,
   isRecipeItem,
@@ -34,16 +34,34 @@ export type QuantityControlsProps = {
 
 export function QuantityControls(props: QuantityControlsProps) {
   createEffect(() => {
+    const newQuantity = props.quantityField.value() ?? 0.1
+    const currentItem = untrack(props.item)
+
     debug(
       '[QuantityControls] Update unified item quantity from field',
-      props.quantityField.value() ?? 0.1,
+      newQuantity,
     )
-    props.setItem(
-      updateUnifiedItemQuantity(
-        untrack(props.item),
-        props.quantityField.value() ?? 0.1,
-      ),
-    )
+
+    if (isRecipeItem(currentItem)) {
+      // For recipe items, scale children proportionally
+      try {
+        const scaledItem = scaleRecipeItemQuantity(currentItem, newQuantity)
+        props.setItem({ ...scaledItem })
+      } catch (error) {
+        debug('[QuantityControls] Error scaling recipe:', error)
+        // Fallback to simple quantity update if scaling fails
+        props.setItem({
+          ...currentItem,
+          quantity: newQuantity,
+        })
+      }
+    } else {
+      // For food items, just update quantity
+      props.setItem({
+        ...currentItem,
+        quantity: newQuantity,
+      })
+    }
   })
 
   const increment = () => {

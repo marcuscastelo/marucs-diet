@@ -3,7 +3,6 @@ import {
   type Template,
 } from '~/modules/diet/template/domain/template'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
-import { itemToUnifiedItem } from '~/modules/diet/unified-item/domain/conversionUtils'
 import { createUnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { generateId } from '~/shared/utils/idUtils'
 
@@ -40,7 +39,7 @@ export function templateToUnifiedItem(
       type: 'recipe',
       id: template.id,
       children: template.items.map((item) => {
-        return itemToUnifiedItem(item)
+        return item
       }),
     },
   })
