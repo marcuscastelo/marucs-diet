@@ -15,6 +15,7 @@ This directory contains Claude Code commands adapted from GitHub Copilot prompts
 ### Issue Management (`issues/`)
 - **`/create-issue`** - Create GitHub issues using proper templates
 - **`/implement`** - Autonomous issue implementation after plan approval
+- **`/breakdown`** - Analyze issues to determine if they should be split into subissues
 - **`/prioritize-milestone`** - Analyze and prioritize milestone issues for optimal capacity
 
 ### Refactoring (`refactor/`)
@@ -45,6 +46,7 @@ This directory contains Claude Code commands adapted from GitHub Copilot prompts
 ```bash
 /create-issue bug      # Report and create bug issue
 /create-issue refactor # Create refactoring task
+/breakdown 123         # Analyze issue #123 for potential breakdown
 /prioritize-milestone  # Analyze and prioritize milestone issues
 /end-session          # Summarize learnings and export knowledge
 ```
