@@ -31,7 +31,7 @@ jobs:
       - name: Validate README.md version
         shell: bash
         run: |
-          branch_version=$(echo ${{ github.head_ref }} | sed 's/^rc\///')
+          branch_version=$(echo ${{ github.head_ref }} | sed 's/^rc\/v//')
           if ! grep -q "$branch_version" README.md; then
             echo "Error: README.md does not contain the version $branch_version."
             exit 1
