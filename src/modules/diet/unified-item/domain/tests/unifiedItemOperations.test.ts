@@ -209,6 +209,95 @@ describe('synchronizeRecipeItemWithOriginal', () => {
         ) // Original macros
       }
     }
+
+    // BUG FIX: Verify that parent recipe quantity matches sum of children quantities
+    expect(synchronized.quantity).toBe(200) // Should match the sum of children (200g)
+  })
+
+  it('should calculate total quantity from multiple children', () => {
+    const originalItems: UnifiedItem[] = [
+      {
+        id: 100,
+        name: 'Apple',
+        quantity: 150,
+        reference: {
+          type: 'food',
+          id: 10,
+          macros: createMacroNutrients({ protein: 1, carbs: 35, fat: 0 }),
+        },
+        __type: 'UnifiedItem',
+      },
+      {
+        id: 101,
+        name: 'Banana',
+        quantity: 100,
+        reference: {
+          type: 'food',
+          id: 11,
+          macros: createMacroNutrients({ protein: 1, carbs: 25, fat: 0 }),
+        },
+        __type: 'UnifiedItem',
+      },
+    ]
+
+    const recipeItem: UnifiedItem = {
+      id: 1,
+      name: 'Fruit Mix',
+      quantity: 500, // Inconsistent with children sum (should be 250)
+      reference: {
+        type: 'recipe',
+        id: 500,
+        children: [], // Empty children for test
+      },
+      __type: 'UnifiedItem',
+    }
+
+    const synchronized = synchronizeRecipeItemWithOriginal(
+      recipeItem,
+      originalItems,
+    )
+
+    // Should calculate correct total: 150 + 100 = 250
+    expect(synchronized.quantity).toBe(250)
+    expect(synchronized.reference.type).toBe('recipe')
+    if (synchronized.reference.type === 'recipe') {
+      expect(synchronized.reference.children).toHaveLength(2)
+    }
+  })
+
+  it('should handle empty children array', () => {
+    const recipeItem: UnifiedItem = {
+      id: 1,
+      name: 'Empty Recipe',
+      quantity: 100, // Should become 0 after sync
+      reference: {
+        type: 'recipe',
+        id: 500,
+        children: [
+          {
+            id: 999,
+            name: 'Some Item',
+            quantity: 50,
+            reference: {
+              type: 'food',
+              id: 999,
+              macros: createMacroNutrients({ protein: 1, carbs: 10, fat: 0 }),
+            },
+            __type: 'UnifiedItem',
+          },
+        ],
+      },
+      __type: 'UnifiedItem',
+    }
+
+    const synchronized = synchronizeRecipeItemWithOriginal(recipeItem, [])
+
+    // Empty children should result in 0 total quantity
+    expect(synchronized.quantity).toBe(0)
+    expect(synchronized.reference.type).toBe('recipe')
+    if (synchronized.reference.type === 'recipe') {
+      expect(synchronized.reference.children).toHaveLength(0)
+    }
   })
 
   it('should throw error for non-recipe items', () => {
