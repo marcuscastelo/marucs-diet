@@ -2,6 +2,7 @@
 // All exported functions will have JSDoc
 
 import type { Food } from '~/modules/diet/food/domain/food'
+import type { FoodSearchParams } from '~/modules/diet/food/domain/foodRepository'
 import type { Recipe } from '~/modules/diet/recipe/domain/recipe'
 import type { Template } from '~/modules/diet/template/domain/template'
 import { availableTabs } from '~/sections/search/components/TemplateSearchTabs'
@@ -26,7 +27,7 @@ export type FetchTemplatesDeps = {
   }) => Promise<readonly Food[] | null>
   fetchFoodsByName: (
     name: string,
-    opts: { limit?: number; allowedFoods?: number[] },
+    opts: FoodSearchParams,
   ) => Promise<readonly Food[] | null>
   getFavoriteFoods: () => number[]
 }
@@ -72,7 +73,11 @@ export async function fetchTemplatesByTabLogic(
         return (await deps.fetchFoods({ limit, allowedFoods })) ?? []
       } else {
         return (
-          (await deps.fetchFoodsByName(search, { limit, allowedFoods })) ?? []
+          (await deps.fetchFoodsByName(search, {
+            limit,
+            userId,
+            isFavoritesSearch: true,
+          })) ?? []
         )
       }
     }

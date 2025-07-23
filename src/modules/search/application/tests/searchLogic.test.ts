@@ -142,4 +142,35 @@ describe('fetchTemplatesByTabLogic', () => {
     await fetchTemplatesByTabLogic(availableTabs.Todos.id, search, userId, deps)
     expect(deps.fetchFoodsByName).toHaveBeenCalledWith(search, { limit: 50 })
   })
+
+  it('calls fetchFoodsByName with userId and isFavoritesSearch for Favoritos tab and non-empty search', async () => {
+    const search = 'Banana'
+    const favoriteFoods = [1, 2, 3]
+    deps.getFavoriteFoods = () => favoriteFoods
+
+    await fetchTemplatesByTabLogic(
+      availableTabs.Favoritos.id,
+      search,
+      userId,
+      deps,
+    )
+
+    expect(deps.fetchFoodsByName).toHaveBeenCalledWith(search, {
+      limit: undefined,
+      userId,
+      isFavoritesSearch: true,
+    })
+  })
+
+  it('calls fetchFoods with allowedFoods for Favoritos tab and empty search', async () => {
+    const favoriteFoods = [1, 2, 3]
+    deps.getFavoriteFoods = () => favoriteFoods
+
+    await fetchTemplatesByTabLogic(availableTabs.Favoritos.id, '', userId, deps)
+
+    expect(deps.fetchFoods).toHaveBeenCalledWith({
+      limit: undefined,
+      allowedFoods: favoriteFoods,
+    })
+  })
 })

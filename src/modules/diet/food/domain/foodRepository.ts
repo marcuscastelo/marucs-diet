@@ -3,6 +3,8 @@ import { type Food, type NewFood } from '~/modules/diet/food/domain/food'
 export type FoodSearchParams = {
   limit?: number
   allowedFoods?: number[]
+  userId?: number
+  isFavoritesSearch?: boolean
 }
 
 export type FoodRepository = {
