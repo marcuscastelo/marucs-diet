@@ -24,8 +24,35 @@
       "Bash(rm:*)",
       "Bash(ls:*)",
       "Bash(gh issue list:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(gemini:*)",
+      "Bash(pnpm copilot:check:*)",
+      "mcp__ide__getDiagnostics",
+      "mcp__ide__executeCode",
+      "Bash(node:*)",
+      "Bash(npx tsc:*)",
+      "Bash(chmod:*)",
+      "Bash(./fix_never_errors.sh:*)",
+      "Bash(pnpm run:*)",
+      "Bash(pnpm run test:*)",
+      "mcp__serena__list_dir",
+      "mcp__serena__search_for_pattern",
+      "mcp__serena__read_file",
+      "mcp__serena:*",
+      "mcp__serena__create_text_file",
+      "mcp__serena__replace_regex",
+      "mcp__serena__get_symbols_overview",
+      "mcp__serena__find_symbol",
+      "mcp__serena__find_file"
     ],
     "deny": []
-  }
+  },
+  "enabledMcpjsonServers": [
+    "serena",
+    "playwright",
+    "context7",
+    "mcp-compass",
+    "time",
+    "language-server"
+  ]
 }
