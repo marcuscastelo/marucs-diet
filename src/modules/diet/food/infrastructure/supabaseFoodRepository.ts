@@ -153,10 +153,24 @@ async function fetchFoodsByName(
   params: FoodSearchParams = {},
 ) {
   try {
-    const result = await supabase.rpc('search_foods_with_scoring', {
-      p_search_term: name,
-      p_limit: params.limit ?? 50,
-    })
+    // Use optimized favorites search if allowedFoods is provided
+    const { allowedFoods, limit = 50 } = params
+
+    let result
+    if (allowedFoods !== undefined && allowedFoods.length > 0) {
+      // Search within favorites only using optimized RPC
+      result = await supabase.rpc('search_favorite_foods_with_scoring', {
+        p_search_term: name,
+        p_favorite_ids: allowedFoods,
+        p_limit: limit,
+      })
+    } else {
+      // Use standard search for all foods
+      result = await supabase.rpc('search_foods_with_scoring', {
+        p_search_term: name,
+        p_limit: limit,
+      })
+    }
 
     if (result.error !== null) {
       errorHandler.error(result.error)
@@ -168,8 +182,12 @@ async function fetchFoodsByName(
       return []
     }
 
+    const searchType =
+      allowedFoods !== undefined && allowedFoods.length > 0
+        ? 'favorites search'
+        : 'enhanced search'
     debug(
-      `Found ${Array.isArray(result.data) ? result.data.length : 0} foods using enhanced search`,
+      `Found ${Array.isArray(result.data) ? result.data.length : 0} foods using ${searchType}`,
     )
     const foodDAOs = parseWithStack(foodDAOSchema.array(), result.data)
     return foodDAOs.map(createFoodFromDAO)
