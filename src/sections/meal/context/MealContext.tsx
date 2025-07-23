@@ -5,7 +5,7 @@ import {
   useContext,
 } from 'solid-js'
 
-import { DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
+import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
 
 // TODO:   Rename to TemplateItemContext

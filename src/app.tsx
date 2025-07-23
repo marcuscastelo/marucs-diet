@@ -2,11 +2,15 @@ import '~/app.css'
 
 import { Router } from '@solidjs/router'
 import { FileRoutes } from '@solidjs/start/router'
-import { createSignal, lazy, onCleanup, Suspense } from 'solid-js'
+import { createSignal, lazy, onCleanup, onMount, Suspense } from 'solid-js'
 
 import { BackendOutageBanner } from '~/sections/common/components/BackendOutageBanner'
-import { LoadingRing } from '~/sections/common/components/LoadingRing'
+import { PageLoading } from '~/sections/common/components/PageLoading'
 import { Providers } from '~/sections/common/context/Providers'
+import {
+  startConsoleInterception,
+  stopConsoleInterception,
+} from '~/shared/console/consoleInterceptor'
 
 const BottomNavigation = lazy(async () => ({
   default: (await import('~/sections/common/components/BottomNavigation'))
@@ -33,11 +37,20 @@ function useAspectWidth() {
  */
 export default function App() {
   const width = useAspectWidth()
+
+  onMount(() => {
+    startConsoleInterception()
+  })
+
+  onCleanup(() => {
+    stopConsoleInterception()
+  })
+
   return (
     <Router
       root={(props) => (
         <>
-          <Suspense fallback={<LoadingRing class="h-screen" />}>
+          <Suspense fallback={<PageLoading message="Iniciando app..." />}>
             <Providers>
               <BackendOutageBanner />
               <div

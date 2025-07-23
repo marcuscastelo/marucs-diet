@@ -50,12 +50,19 @@ export default [
       "simple-import-sort/imports": "warn",
       "simple-import-sort/exports": "warn",
       'no-restricted-imports': [
-        'error',
+        'warn',
         {
           patterns: ['../*', './*'],
+          paths: [
+            {
+              name: 'zod',
+              message: "Please use 'zod/v4' instead.",
+            },
+          ],
         },
       ],
       'import/no-unresolved': ['error'],
+      'import/no-empty-named-blocks': ['warn'],
 
       eqeqeq: ["error", "always"],
 
@@ -76,9 +83,14 @@ export default [
       '@typescript-eslint/no-throw-literal': 'off',
       '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
       '@typescript-eslint/prefer-readonly-parameter-types': 'off',
-      '@typescript-eslint/strict-boolean-expressions': 'warn',
+      '@typescript-eslint/strict-boolean-expressions': 'error',
       '@typescript-eslint/no-unnecessary-type-assertion': 'warn',
       '@typescript-eslint/no-unnecessary-condition': 'warn',
+      '@typescript-eslint/consistent-type-assertions': [
+        'warn',
+        { assertionStyle: 'never' },
+      ],
+      '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports', fixStyle: 'inline-type-imports' }],
 
       "require-await": "off",
       "@typescript-eslint/require-await": "off",

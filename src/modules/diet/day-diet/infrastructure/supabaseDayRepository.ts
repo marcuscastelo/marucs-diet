@@ -7,20 +7,20 @@ import {
 } from '~/modules/diet/day-diet/domain/dayDiet'
 import { type DayRepository } from '~/modules/diet/day-diet/domain/dayDietRepository'
 import {
-  createInsertDayDietDAOFromNewDayDiet,
+  createDayDietDAOFromNewDayDiet,
   daoToDayDiet,
   type DayDietDAO,
 } from '~/modules/diet/day-diet/infrastructure/dayDietDAO'
 import { type User } from '~/modules/user/domain/user'
 import {
-  handleApiError,
-  handleValidationError,
+  createErrorHandler,
   wrapErrorWithStack,
 } from '~/shared/error/errorHandler'
 import supabase from '~/shared/utils/supabase'
 
-// TODO:   Delete old days table and rename days_test to days
-export const SUPABASE_TABLE_DAYS = 'days_test'
+export const SUPABASE_TABLE_DAYS = 'days'
+
+const errorHandler = createErrorHandler('infrastructure', 'DayDiet')
 
 export function createSupabaseDayRepository(): DayRepository {
   return {
@@ -56,13 +56,13 @@ async function fetchDayDiet(dayId: DayDiet['id']): Promise<DayDiet> {
       .eq('id', dayId)
 
     if (error !== null) {
-      handleApiError(error)
+      errorHandler.error(error)
       throw error
     }
 
     const dayDiets = Array.isArray(data) ? data : []
     if (dayDiets.length === 0) {
-      handleValidationError('DayDiet not found', {
+      errorHandler.validationError('DayDiet not found', {
         component: 'supabaseDayRepository',
         operation: 'fetchDayDiet',
         additionalData: { dayId },
@@ -71,7 +71,7 @@ async function fetchDayDiet(dayId: DayDiet['id']): Promise<DayDiet> {
     }
     const result = dayDietSchema.safeParse(dayDiets[0])
     if (!result.success) {
-      handleValidationError('DayDiet invalid', {
+      errorHandler.validationError('DayDiet invalid', {
         component: 'supabaseDayRepository',
         operation: 'fetchDayDiet',
         additionalData: { dayId, parseError: result.error },
@@ -80,7 +80,7 @@ async function fetchDayDiet(dayId: DayDiet['id']): Promise<DayDiet> {
     }
     return result.data
   } catch (err) {
-    handleApiError(err)
+    errorHandler.error(err)
     throw err
   }
 }
@@ -97,17 +97,19 @@ async function fetchAllUserDayDiets(
     .order('target_day', { ascending: true })
 
   if (error !== null) {
-    handleApiError(error)
+    errorHandler.error(error)
     throw error
   }
 
   const days = data
-    .map((day) => dayDietSchema.safeParse(day))
+    .map((day) => {
+      return dayDietSchema.safeParse(day)
+    })
     .map((result) => {
       if (result.success) {
         return result.data
       }
-      handleValidationError('Error while parsing day', {
+      errorHandler.validationError('Error while parsing day', {
         component: 'supabaseDayRepository',
         operation: 'fetchAllUserDayDiets',
         additionalData: { parseError: result.error },
@@ -127,7 +129,8 @@ async function fetchAllUserDayDiets(
 
 // TODO:   Change upserts to inserts on the entire app
 const insertDayDiet = async (newDay: NewDayDiet): Promise<DayDiet | null> => {
-  const createDAO = createInsertDayDietDAOFromNewDayDiet(newDay)
+  // Use direct UnifiedItem persistence (no migration needed)
+  const createDAO = createDayDietDAOFromNewDayDiet(newDay)
 
   const { data: days, error } = await supabase
     .from(SUPABASE_TABLE_DAYS)
@@ -139,6 +142,7 @@ const insertDayDiet = async (newDay: NewDayDiet): Promise<DayDiet | null> => {
 
   const dayDAO = days[0] as DayDietDAO | undefined
   if (dayDAO !== undefined) {
+    // Data is already in unified format, no migration needed for new inserts
     return daoToDayDiet(dayDAO)
   }
   return null
@@ -148,7 +152,8 @@ const updateDayDiet = async (
   id: DayDiet['id'],
   newDay: NewDayDiet,
 ): Promise<DayDiet> => {
-  const updateDAO = createInsertDayDietDAOFromNewDayDiet(newDay)
+  // Use direct UnifiedItem persistence (no migration needed)
+  const updateDAO = createDayDietDAOFromNewDayDiet(newDay)
 
   const { data, error } = await supabase
     .from(SUPABASE_TABLE_DAYS)
@@ -157,11 +162,12 @@ const updateDayDiet = async (
     .select()
 
   if (error !== null) {
-    handleApiError(error)
+    errorHandler.error(error)
     throw error
   }
 
   const dayDAO = data[0] as DayDietDAO
+  // Data is already in unified format, no migration needed for updates
   return daoToDayDiet(dayDAO)
 }
 

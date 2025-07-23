@@ -2,7 +2,7 @@ import { createEffect, createSignal } from 'solid-js'
 
 import { showPromise } from '~/modules/toast/application/toastManager'
 import {
-  demoteToNewUser,
+  demoteUserToNewUser,
   type NewUser,
   type User,
 } from '~/modules/user/domain/user'
@@ -14,10 +14,8 @@ import {
   createSupabaseUserRepository,
   SUPABASE_TABLE_USERS,
 } from '~/modules/user/infrastructure/supabaseUserRepository'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 import { registerSubapabaseRealtimeCallback } from '~/shared/utils/supabase'
-
-export const DEFAULT_USER_ID = 3
 
 const userRepository = createSupabaseUserRepository()
 
@@ -42,7 +40,9 @@ createEffect(() => {
 
 function bootstrap() {
   fetchUsers().catch((error) => {
-    handleApiError(error)
+    errorHandler.error(error, {
+      businessContext: { action: 'app_initialization' },
+    })
   })
 }
 
@@ -72,7 +72,9 @@ export async function fetchUsers(): Promise<readonly User[]> {
     setCurrentUser(newCurrentUser ?? null)
     return users
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error, {
+      businessContext: { action: 'fetch_all_users' },
+    })
     setUsers([])
     setCurrentUser(null)
     return []
@@ -89,7 +91,10 @@ export async function fetchCurrentUser(): Promise<User | null> {
     setCurrentUser(user)
     return user
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error, {
+      userId: currentUserId(),
+      businessContext: { userId: currentUserId() },
+    })
     setCurrentUser(null)
     return null
   }
@@ -114,7 +119,7 @@ export async function insertUser(newUser: NewUser): Promise<boolean> {
     await fetchUsers()
     return true
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return false
   }
 }
@@ -142,7 +147,7 @@ export async function updateUser(
     await fetchUsers()
     return user
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return null
   }
 }
@@ -166,10 +171,12 @@ export async function deleteUser(userId: User['id']): Promise<boolean> {
     await fetchUsers()
     return true
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return false
   }
 }
+
+const errorHandler = createErrorHandler('application', 'User')
 
 export function changeToUser(userId: User['id']): void {
   saveUserIdToLocalStorage(userId)
@@ -184,7 +191,7 @@ export function isFoodFavorite(foodId: number): boolean {
 export function setFoodAsFavorite(foodId: number, favorite: boolean): void {
   const currentUser_ = currentUser()
   if (currentUser_ === null) {
-    handleApiError('User not initialized')
+    errorHandler.error(new Error('User not initialized'))
     return
   }
   const favoriteFoods = currentUser_.favorite_foods
@@ -199,11 +206,11 @@ export function setFoodAsFavorite(foodId: number, favorite: boolean): void {
     }
   }
   void updateUser(currentUser_.id, {
-    ...demoteToNewUser(currentUser_),
+    ...demoteUserToNewUser(currentUser_),
     favorite_foods: favoriteFoods,
   })
     .then(fetchCurrentUser)
     .catch((error) => {
-      handleApiError(error)
+      errorHandler.error(error)
     })
 }

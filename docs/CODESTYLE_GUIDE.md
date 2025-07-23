@@ -1,6 +1,8 @@
-# Marucs Diet – Concrete Codebase Style & Anti-Patterns Guide
+# Macroflows – Concrete Codebase Style & Anti-Patterns Guide
 
-This document provides **concrete, specific guidelines** for the Marucs Diet codebase, based on actual patterns found in the code and specific improvements needed.
+_Last updated: 2025-07-08_
+
+This document provides **concrete, specific guidelines** for the Macroflows codebase, based on actual patterns found in the code and specific improvements needed.
 
 ---
 
@@ -20,7 +22,7 @@ macroOverflow.ts                      // vs overflow.ts
 
 // Components: Complete description
 ItemGroupEditModal                     // vs GroupModal
-ExternalTemplateSearchModal           // vs SearchModal
+TemplateSearchModal           // vs SearchModal
 ```
 
 ### ❌ Avoid Generic Names
@@ -38,12 +40,14 @@ Editor, Service, Manager
 ### Domain Layer (`~/modules/*/domain/`)
 **Purpose**: Pure business logic, no side effects
 - **Never import or use side-effect utilities** (e.g., `handleApiError`, logging, toasts, API calls).
-- **Only throw pure errors** (e.g., `throw new DomainError(...)`).
+- **Only throw standard errors** (e.g., `throw new Error('descriptive message', { cause: { context } })`)
 - If you need to provide error context, use custom error classes with properties, but do not depend on external modules.
 
 ```typescript
 // GOOD (domain):
-throw new GroupConflictError('Group mismatch', { groupId, recipeId })
+throw new Error('Group mismatch: cannot mix different groups', { 
+  cause: { groupId, recipeId } 
+})
 
 // BAD (domain):
 import { handleApiError } from '~/shared/error/errorHandler'
@@ -70,7 +74,11 @@ try {
 
 ---
 
+## Import Rules Violations
+- **Barrel Files (`index.ts`) are BANNED:** The `CLAUDE.md` explicitly states that barrel files (`index.ts`) that only re-export from other files are forbidden.
+
 ## **Component Duplication - Specific Cases**
+
 
 ### ❌ Found Duplications
 ```typescript

@@ -1,14 +1,16 @@
 import toast from 'solid-toast'
 
-import { ToastItem } from '~/modules/toast/domain/toastTypes'
+import { type ToastItem } from '~/modules/toast/domain/toastTypes'
 import { displayExpandableErrorToast } from '~/modules/toast/ui/ExpandableErrorToast'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 
 /**
  * Displays a toast in solid-toast with the appropriate styling.
  * @param toastItem The toast item to display.
  * @returns The solid-toast ID for later dismissal.
  */
+const errorHandler = createErrorHandler('infrastructure', 'Toast')
+
 export function displaySolidToast(toastItem: ToastItem): string {
   const { message, options } = toastItem
   const { type, expandableErrorData, duration } = options
@@ -45,9 +47,12 @@ export function displaySolidToast(toastItem: ToastItem): string {
       break
     default:
       ;((_: never) => _)(type) // TODO:   Create a better function for exhaustive checks
-      handleApiError(
+      errorHandler.error(
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         new Error(`Unknown toast type: ${type}`),
+        {
+          additionalData: { type, message },
+        },
       )
       return ''
   }

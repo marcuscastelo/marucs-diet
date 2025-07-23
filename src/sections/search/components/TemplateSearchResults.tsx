@@ -1,117 +1,119 @@
-import { type Accessor, For, type Setter } from 'solid-js'
+import { For, Show } from 'solid-js'
 
-import { type Food } from '~/modules/diet/food/domain/food'
-import { createItem } from '~/modules/diet/item/domain/item'
-import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
+import { deleteRecipe } from '~/modules/diet/recipe/application/recipe'
 import { getRecipePreparedQuantity } from '~/modules/diet/recipe/domain/recipeOperations'
+import { templateToUnifiedItem } from '~/modules/diet/template/application/templateToItem'
 import {
   isTemplateFood,
+  isTemplateRecipe,
   type Template,
 } from '~/modules/diet/template/domain/template'
-import { debouncedTab } from '~/modules/search/application/search'
+import { debouncedTab, templates } from '~/modules/search/application/search'
 import { Alert } from '~/sections/common/components/Alert'
-import { HeaderWithActions } from '~/sections/common/components/HeaderWithActions'
-import {
-  ItemFavorite,
-  ItemName,
-  ItemNutritionalInfo,
-  ItemView,
-} from '~/sections/food-item/components/ItemView'
-import { RemoveFromRecentButton } from '~/sections/food-item/components/RemoveFromRecentButton'
-import { calcRecipeMacros } from '~/shared/utils/macroMath'
+import { RemoveFromRecentButton } from '~/sections/common/components/buttons/RemoveFromRecentButton'
+import { SearchLoadingIndicator } from '~/sections/search/components/SearchLoadingIndicator'
+import { UnifiedItemFavorite } from '~/sections/unified-item/components/UnifiedItemFavorite'
+import { UnifiedItemView } from '~/sections/unified-item/components/UnifiedItemView'
+import { openDeleteConfirmModal } from '~/shared/modal/helpers/specializedModalHelpers'
+import { createDebug } from '~/shared/utils/createDebug'
+
+const debug = createDebug()
 
 export function TemplateSearchResults(props: {
   search: string
   filteredTemplates: readonly Template[]
-  setSelectedTemplate: (food: Template | undefined) => void
-  EANModalVisible: Accessor<boolean>
-  setEANModalVisible: Setter<boolean>
-  itemEditModalVisible: Accessor<boolean>
-  setItemEditModalVisible: Setter<boolean>
+  onTemplateSelected: (template: Template) => void
   refetch: (info?: unknown) => unknown
 }) {
-  // Rounding factor for recipe display quantity
-  const RECIPE_ROUNDING_FACTOR = 50
-
   return (
     <>
-      {props.filteredTemplates.length === 0 && (
-        <Alert color="yellow" class="mt-2">
-          {debouncedTab() === 'recent' && props.search === ''
-            ? 'Sem alimentos recentes. Eles aparecerão aqui assim que você adicionar seu primeiro alimento'
-            : debouncedTab() === 'favorites' && props.search === ''
-              ? 'Sem favoritos. Adicione alimentos ou receitas aos favoritos para vê-los aqui.'
-              : `Nenhum alimento encontrado para a busca "${props.search}".`}
-        </Alert>
-      )}
+      <Show
+        when={!templates.loading}
+        fallback={
+          <SearchLoadingIndicator
+            message="Buscando alimentos..."
+            size="medium"
+            class="mt-4"
+          />
+        }
+      >
+        <Show when={props.filteredTemplates.length === 0}>
+          <Alert color="yellow" class="mt-2">
+            {debouncedTab() === 'recent' && props.search === ''
+              ? 'Sem alimentos recentes. Eles aparecerão aqui assim que você adicionar seu primeiro alimento'
+              : debouncedTab() === 'favorites' && props.search === ''
+                ? 'Sem favoritos. Adicione alimentos ou receitas aos favoritos para vê-los aqui.'
+                : `Nenhum alimento encontrado para a busca "${props.search}".`}
+          </Alert>
+        </Show>
 
-      <div class="flex-1 min-h-0 max-h-[60vh] overflow-y-auto scrollbar-gutter-outside scrollbar-clean bg-gray-800 mt-1 pr-4">
-        <For each={props.filteredTemplates}>
-          {(template) => {
-            // Calculate appropriate display quantity for each template
-            const getDisplayQuantity = () => {
-              if (isTemplateFood(template)) {
-                return 100 // Standard 100g for foods
-              } else {
-                // For recipes, show the prepared quantity rounded to nearest RECIPE_ROUNDING_FACTOR
-                const recipe = template as Recipe
-                const preparedQuantity = getRecipePreparedQuantity(recipe)
-                return Math.max(
-                  RECIPE_ROUNDING_FACTOR,
-                  Math.round(preparedQuantity / RECIPE_ROUNDING_FACTOR) *
-                    RECIPE_ROUNDING_FACTOR,
-                )
+        <div class="flex-1 min-h-0 max-h-[60vh] overflow-y-auto scrollbar-gutter-outside scrollbar-clean bg-gray-800 mt-1 pr-4">
+          <For each={props.filteredTemplates}>
+            {(template) => {
+              // Calculate appropriate display quantity for each template
+              const getDisplayQuantity = () => {
+                if (isTemplateFood(template)) {
+                  return 100 // Standard 100g for foods
+                } else {
+                  // For recipes, show the prepared quantity rounded to nearest RECIPE_ROUNDING_FACTOR
+                  const recipe = template
+                  debug('recipe', recipe)
+                  const preparedQuantity = getRecipePreparedQuantity(recipe)
+                  debug('recipe.preparedQuantity', preparedQuantity)
+                  return preparedQuantity
+                }
               }
-            }
 
-            const displayQuantity = getDisplayQuantity()
+              const displayQuantity = getDisplayQuantity()
 
-            return (
-              <>
-                <ItemView
-                  mode="read-only"
-                  item={() => ({
-                    ...createItem({
-                      name: template.name,
-                      quantity: displayQuantity,
-                      macros: isTemplateFood(template)
-                        ? (template as Food).macros
-                        : calcRecipeMacros(template as Recipe),
-                      reference: template.id,
-                    }),
-                    __type: isTemplateFood(template) ? 'Item' : 'RecipeItem', // TODO:   Refactor conversion from template type to group/item types
-                  })}
-                  class="mt-1"
-                  macroOverflow={() => ({
-                    enable: false,
-                  })}
-                  handlers={{
-                    onClick: () => {
-                      props.setSelectedTemplate(template)
-                      props.setItemEditModalVisible(true)
-                      props.setEANModalVisible(false)
-                    },
-                  }}
-                  header={
-                    <HeaderWithActions
-                      name={<ItemName />}
-                      primaryActions={<ItemFavorite foodId={template.id} />}
-                      secondaryActions={
-                        <RemoveFromRecentButton
-                          templateId={template.id}
-                          type={isTemplateFood(template) ? 'food' : 'recipe'}
-                          refetch={props.refetch}
-                        />
-                      }
-                    />
-                  }
-                  nutritionalInfo={<ItemNutritionalInfo />}
-                />
-              </>
-            )
-          }}
-        </For>
-      </div>
+              // Convert template to UnifiedItem using shared utility
+              const createUnifiedItemFromTemplate = () => {
+                const result = templateToUnifiedItem(template, displayQuantity)
+                debug('createUnifiedItemFromTemplate', result)
+                return result
+              }
+
+              return (
+                <>
+                  <UnifiedItemView
+                    mode="read-only"
+                    item={createUnifiedItemFromTemplate}
+                    class="mt-1"
+                    handlers={{
+                      onClick: () => {
+                        props.onTemplateSelected(template)
+                      },
+                      onDelete: isTemplateRecipe(template)
+                        ? () => {
+                            openDeleteConfirmModal({
+                              itemName: template.name,
+                              itemType: 'receita',
+                              onConfirm: () => {
+                                const refetch = props.refetch
+                                void deleteRecipe(template.id).then(() => {
+                                  refetch()
+                                })
+                              },
+                            })
+                          }
+                        : undefined,
+                    }}
+                    primaryActions={
+                      <UnifiedItemFavorite foodId={template.id} />
+                    }
+                    secondaryActions={
+                      <RemoveFromRecentButton
+                        template={template}
+                        refetch={props.refetch}
+                      />
+                    }
+                  />
+                </>
+              )
+            }}
+          </For>
+        </div>
+      </Show>
     </>
   )
 }

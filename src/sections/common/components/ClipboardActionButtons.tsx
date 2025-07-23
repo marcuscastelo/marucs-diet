@@ -1,8 +1,9 @@
-import { JSXElement } from 'solid-js'
+import { type JSXElement } from 'solid-js'
 
-import { CopyIcon } from '~/sections/common/components/icons/CopyIcon'
+import { CopyButton } from '~/sections/common/components/CopyButton'
 import { PasteIcon } from '~/sections/common/components/icons/PasteIcon'
 import { TrashIcon } from '~/sections/common/components/icons/TrashIcon'
+import { COPY_BUTTON_STYLES } from '~/sections/common/styles/buttonStyles'
 
 export type ClipboardActionButtonsProps = {
   canCopy: boolean
@@ -19,32 +20,20 @@ export function ClipboardActionButtons(
   return (
     <div class={'ml-auto flex gap-2'}>
       {props.canCopy && (
-        <div
-          class={
-            'btn-ghost btn cursor-pointer uppercase ml-auto mt-1 px-2 text-white hover:scale-105'
-          }
-          onClick={props.onCopy}
-        >
-          <CopyIcon />
-        </div>
+        <CopyButton
+          value={() => null}
+          onCopy={() => props.onCopy()}
+          class={COPY_BUTTON_STYLES}
+          stopPropagation={false}
+        />
       )}
       {props.canPaste && (
-        <div
-          class={
-            'btn-ghost btn cursor-pointer uppercase ml-auto mt-1 px-2 text-white hover:scale-105'
-          }
-          onClick={props.onPaste}
-        >
+        <div class={COPY_BUTTON_STYLES} onClick={props.onPaste}>
           <PasteIcon />
         </div>
       )}
       {props.canClear && (
-        <div
-          class={
-            'btn-ghost btn cursor-pointer uppercase ml-auto mt-1 px-2 text-white hover:scale-105'
-          }
-          onClick={props.onClear}
-        >
+        <div class={COPY_BUTTON_STYLES} onClick={props.onClear}>
           <TrashIcon />
         </div>
       )}

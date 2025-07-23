@@ -1,7 +1,7 @@
-import { SolidApexCharts } from 'solid-apexcharts'
 import { createSignal } from 'solid-js'
 
 import ptBrLocale from '~/assets/locales/apex/pt-br.json'
+import { Chart } from '~/sections/common/components/charts/Chart'
 
 export function TestChart() {
   const [options] = createSignal<ApexCharts.ApexOptions>({
@@ -50,11 +50,5 @@ export function TestChart() {
 
   // options and series can be a store or signal
 
-  return (
-    <SolidApexCharts
-      type="candlestick"
-      options={options()}
-      series={series().list}
-    />
-  )
+  return <Chart type="candlestick" options={options()} series={series().list} />
 }

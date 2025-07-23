@@ -1,25 +1,29 @@
-import { createEffect, createMemo, createSignal, Show } from 'solid-js'
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  Show,
+  Suspense,
+  untrack,
+} from 'solid-js'
 
 import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import {
-  deleteMacroProfile,
   insertMacroProfile,
   updateMacroProfile,
-  userMacroProfiles,
 } from '~/modules/diet/macro-profile/application/macroProfile'
 import {
   createNewMacroProfile,
   type MacroProfile,
 } from '~/modules/diet/macro-profile/domain/macroProfile'
 import { calculateMacroTarget } from '~/modules/diet/macro-target/application/macroTarget'
-import {
-  showError,
-  showSuccess,
-} from '~/modules/toast/application/toastManager'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
-import { dateToYYYYMMDD, getTodayYYYYMMDD } from '~/shared/utils/date'
+import { showError } from '~/modules/toast/application/toastManager'
+import { type Weight } from '~/modules/weight/domain/weight'
+import { Button } from '~/sections/common/components/buttons/Button'
+import { openRestoreProfileModal } from '~/shared/modal/helpers/specializedModalHelpers'
+import { dateToYYYYMMDD, getTodayYYYYMMDD } from '~/shared/utils/date/dateUtils'
 import { calcCalories } from '~/shared/utils/macroMath'
-import { getLatestMacroProfile } from '~/shared/utils/macroProfileUtils'
 
 const CARBO_CALORIES = 4 as const
 const PROTEIN_CALORIES = 4 as const
@@ -81,8 +85,9 @@ const calculateMacroRepresentation = (
 // }
 
 export type MacroTargetProps = {
-  weight: () => number
-  profiles: () => readonly MacroProfile[]
+  weight: Accessor<Weight['weight']>
+  currentProfile: Accessor<MacroProfile>
+  previousMacroProfile: Accessor<MacroProfile | null>
   className?: string
   mode: 'edit' | 'view'
 }
@@ -130,40 +135,19 @@ const onSaveMacroProfile = (profile: MacroProfile) => {
 }
 
 export function MacroTarget(props: MacroTargetProps) {
-  const { show: showConfirmModal } = useConfirmModalContext()
-  const currentProfile = () => getLatestMacroProfile(props.profiles())
-  const oldProfile = () => getLatestMacroProfile(props.profiles(), 1)
-
-  const currentMacroRepresentation = () => {
-    const profile_ = currentProfile()
-    if (profile_ === null) {
-      return calculateMacroRepresentation(
-        {
-          gramsPerKgCarbs: 0,
-          gramsPerKgFat: 0,
-          gramsPerKgProtein: 0,
-        },
-        0,
-      )
-    }
-    return calculateMacroRepresentation(profile_, props.weight())
-  }
+  const currentMacroRepresentation = createMemo(() =>
+    calculateMacroRepresentation(props.currentProfile(), props.weight()),
+  )
 
   const targetCalories = createMemo(() => {
-    const profile_ = currentProfile()
-    if (profile_ === null) {
-      return 'Sem meta, preencha os campos abaixo'
-    }
-
-    const grams = calculateMacroTarget(props.weight(), profile_)
+    const grams = calculateMacroTarget(props.weight(), props.currentProfile())
     const calories = Math.round(calcCalories(grams) * 100) / 100
     return calories.toString() + ' kcal'
   })
 
   return (
-    <>
+    <Suspense fallback={<div>Carregando...</div>}>
       <h1 class="mb-6 text-center text-3xl font-bold">Meta calórica diária</h1>
-      A: {userMacroProfiles().length}
       <div class="mx-5">
         <input
           value={targetCalories()}
@@ -176,127 +160,74 @@ export function MacroTarget(props: MacroTargetProps) {
           required
         />
       </div>
-      <Show when={currentProfile()} keyed>
-        {(profile) => (
-          <>
-            <div class="mx-5 flex flex-col">
-              {props.mode === 'edit' && (
-                <>
-                  <Show
-                    when={oldProfile()}
-                    fallback={
-                      <span class="text-center">
-                        Tem perfil antigo? <span class="text-red-500">Não</span>
-                      </span>
-                    }
-                    keyed
-                  >
-                    {(oldProfile) => (
-                      <>
-                        <span class="text-center">
-                          Tem perfil antigo?{' '}
-                          {'Sim, de ' + dateToYYYYMMDD(oldProfile.target_day)}
-                        </span>
-                        <button
-                          class="btn cursor-pointer uppercase btn-primary btn-sm"
-                          onClick={() => {
-                            showConfirmModal({
-                              title: () => (
-                                <div class="text-red-500 text-center mb-5 text-xl">
-                                  {' '}
-                                  Restaurar perfil antigo{' '}
-                                </div>
-                              ),
-                              body: () => (
-                                <>
-                                  <MacroTarget
-                                    weight={props.weight}
-                                    profiles={() =>
-                                      props
-                                        .profiles()
-                                        .filter((p) => p.id !== profile.id)
-                                    }
-                                    mode="view"
-                                  />
-                                  <div>
-                                    {`Tem certeza que deseja restaurar o perfil de ${dateToYYYYMMDD(
-                                      oldProfile.target_day,
-                                    )}?`}
-                                  </div>
-                                  <div class="text-red-500 text-center text-lg font-bold">
-                                    ---- Os dados atuais serão perdidos. ----
-                                  </div>
-                                </>
-                              ),
-                              actions: [
-                                {
-                                  text: 'Cancelar',
-                                  onClick: () => undefined,
-                                },
-                                {
-                                  text: 'Apagar atual e restaurar antigo',
-                                  primary: true,
-                                  onClick: () => {
-                                    deleteMacroProfile(profile.id)
-                                      .then(() => {
-                                        showSuccess(
-                                          'Perfil antigo restaurado com sucesso, se necessário, atualize a página',
-                                        )
-                                      })
-                                      .catch((e) => {
-                                        showError(
-                                          e,
-                                          undefined,
-                                          'Erro ao restaurar perfil antigo',
-                                        )
-                                      })
-                                  },
-                                },
-                              ],
-                            })
-                          }}
-                        >
-                          Restaurar perfil antigo
-                        </button>
-                      </>
-                    )}
-                  </Show>
-                </>
-              )}
-            </div>
 
-            <div class="mx-5 flex flex-col">
-              <MacroTargetSetting
-                headerColor="text-green-400"
-                currentProfile={profile}
-                weight={props.weight()}
-                target={currentMacroRepresentation().carbs}
-                field="carbs"
-                mode={props.mode}
-              />
+      <>
+        <div class="mx-5 flex flex-col">
+          {props.mode === 'edit' && (
+            <>
+              <Show
+                when={props.previousMacroProfile()}
+                fallback={
+                  <span class="text-center">
+                    Tem perfil antigo? <span class="text-red-500">Não</span>
+                  </span>
+                }
+              >
+                {(previousMacroProfile) => (
+                  <>
+                    <span class="text-center">
+                      Tem perfil antigo?{' '}
+                      {'Sim, de ' +
+                        dateToYYYYMMDD(previousMacroProfile().target_day)}
+                    </span>
+                    <Button
+                      class="btn-primary btn-sm"
+                      onClick={() => {
+                        openRestoreProfileModal({
+                          currentProfile: props.currentProfile(),
+                          previousMacroProfile: previousMacroProfile(),
+                        })
+                      }}
+                    >
+                      Restaurar perfil antigo
+                    </Button>
+                  </>
+                )}
+              </Show>
+            </>
+          )}
+        </div>
 
-              <MacroTargetSetting
-                headerColor="text-red-500"
-                currentProfile={profile}
-                weight={props.weight()}
-                target={currentMacroRepresentation().protein}
-                field="protein"
-                mode={props.mode}
-              />
+        <div class="mx-5 flex flex-col">
+          <MacroTargetSetting
+            headerColor="text-green-400"
+            currentProfile={props.currentProfile()}
+            weight={props.weight()}
+            target={currentMacroRepresentation().carbs}
+            field="carbs"
+            mode={props.mode}
+          />
 
-              <MacroTargetSetting
-                headerColor="text-yellow-500"
-                currentProfile={profile}
-                weight={props.weight()}
-                target={currentMacroRepresentation().fat}
-                field="fat"
-                mode={props.mode}
-              />
-            </div>
-          </>
-        )}
-      </Show>
-    </>
+          <MacroTargetSetting
+            headerColor="text-red-500"
+            currentProfile={props.currentProfile()}
+            weight={props.weight()}
+            target={currentMacroRepresentation().protein}
+            field="protein"
+            mode={props.mode}
+          />
+
+          <MacroTargetSetting
+            headerColor="text-yellow-500"
+            currentProfile={props.currentProfile()}
+            weight={props.weight()}
+            target={currentMacroRepresentation().fat}
+            field="fat"
+            mode={props.mode}
+          />
+        </div>
+      </>
+    </Suspense>
   )
 }
 
@@ -305,7 +236,7 @@ function MacroTargetSetting(props: {
   currentProfile: MacroProfile
   weight: number
   target: MacroRepresentation
-  field: keyof MacroNutrients
+  field: 'carbs' | 'protein' | 'fat'
   mode: 'edit' | 'view'
 }) {
   const emptyIfZeroElse2Decimals = (value: number) =>
@@ -353,7 +284,7 @@ function MacroTargetSetting(props: {
           <span class="hidden sm:inline">:</span>
         </span>
         <span class="my-auto flex-1 text-xl text-center">
-          {(props.target.calorieMultiplier * (Number(grams) || 0)).toFixed(0)}{' '}
+          {(props.target.calorieMultiplier * props.target.grams).toFixed(0)}{' '}
           kcal
           <span class="ml-2 text-slate-300 text-lg">({percentage()}%)</span>
         </span>
@@ -402,7 +333,7 @@ function MacroField(props: {
   disabled?: boolean
   className?: string
 }) {
-  const [innerField, setInnerField] = createSignal(props.field)
+  const [innerField, setInnerField] = createSignal(untrack(() => props.field))
 
   createEffect(() => {
     setInnerField(props.field)

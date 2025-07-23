@@ -2,6 +2,7 @@
 applyTo: "**"
 ---
 # Copilot Instructions (short version)
+
 At the start of every session, always run:
 
 ```
@@ -9,6 +10,42 @@ export GIT_PAGER=cat
 ```
 
 This disables pagers for all git and gh commands, preventing interactive output issues.
+
+---
+
+# Barrel File Ban
+
+- Barrel index.ts files (files that re-export multiple modules from a directory) are strictly forbidden in this codebase.
+- Do not create, update, or use barrel files (e.g., `index.ts` that only re-exports other files).
+- All imports must be direct, absolute imports from the specific file, never from a directory index.
+- This rule is enforced for all code, including tests and utilities.
+
+---
+
+Follow these steps for each interaction:
+
+1. User Identification:
+   - You should assume that you are interacting with marcuscastelo
+   - The repository name is macroflows (https://github.com/marcuscastelo/macroflows)
+
+2. Memory Retrieval:
+   - Always begin your chat by saying only "Remembering..." and retrieve all relevant information from your knowledge graph
+   - Always refer to your knowledge graph as your "memory"
+   - At the beginning of a new session, always report your current memory capacity (how much you can store and recall) and warn if your memory is too cluttered or verbose for efficient use.
+
+3. Memory
+   - While conversing with the user, be attentive to any new information that falls into these categories:
+     a) Basic Identity (age, gender, location, job title, education level, etc.)
+     b) Behaviors (interests, habits, etc.)
+     c) Preferences (communication style, preferred language, etc.)
+     d) Goals (goals, targets, aspirations, etc.)
+     e) Relationships (personal and professional relationships up to 3 degrees of separation)
+
+4. Memory Update:
+   - If any new information was gathered during the interaction, update your memory as follows:
+     a) Create entities for recurring organizations, people, and significant events
+     b) Connect them to the current entities using relations
+     b) Store facts about them as observations
 
 During this session, always wait until the end of the execution of any requested command or process, even if it takes several minutes, before responding. For every command, redirect both stdout and stderr to `/tmp/copilot-terminal-[N]` (where `[N]` is a unique number for each command) using `| tee /tmp/copilot-terminal-[N] 2>&1`. After the main command finishes, check `cat /tmp/copilot-terminal-[N]`. Never repeat the main command. Confirm that you understand and follow this instruction until I ask you to stop. Never combine commands with `&&`, `||` or `;`
 
@@ -31,6 +68,41 @@ During this session, always wait until the end of the execution of any requested
    - Always use the latest output file for checking.
 3. If any errors or warnings are reported, use agent capabilities to analyze and correct the issues in the codebase. After making corrections, repeat from step 1.
 4. Only stop when the message "COPILOT: All checks passed!" appears.
+
+## Project Context Detection and Solo Project Adaptations
+
+Before suggesting team-related processes, verify project context:
+- Does the project have multiple active developers? (check git commits, team references)
+- Are there stakeholders mentioned in documentation?
+- Is there evidence of formal approval processes?
+
+### Solo Project Adaptations
+When working on solo projects (no stakeholders, minimal users, single developer):
+- Remove all team collaboration, stakeholder communication, and user feedback collection requirements
+- Maintain technical quality standards (testing, monitoring, backup procedures)
+- Focus on technical validation rather than approval processes
+- Adapt checklists to remove coordination tasks while preserving verification steps
+- Simplify metrics to focus on technical rather than business/team indicators
+- Replace peer review with systematic self-review processes
+- Focus on automated validation rather than manual coordination
+- Preserve backup/rollback procedures without team communication requirements
+
+### Quality Standards Adaptation
+For solo projects:
+- Maintain technical quality (testing, monitoring, error handling)
+- Replace peer review with systematic self-review processes
+- Focus on automated validation rather than manual coordination
+- Preserve backup/rollback procedures without team communication requirements
+
+### Documentation Generation for Solo Projects
+- Detect project type (solo vs team) early in the session
+- Generate context-appropriate sections
+- Provide solo-specific templates and examples
+- Avoid generating team-coordination content for solo projects
+- Remove approval and communication workflows
+- Focus on technical validation and self-review processes
+- Eliminate business metrics related to team coordination
+- Maintain quality standards without bureaucratic overhead
 
 ## Reporting and Attribution
 

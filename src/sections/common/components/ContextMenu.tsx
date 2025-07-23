@@ -2,7 +2,7 @@ import {
   createContext,
   createEffect,
   createSignal,
-  JSX,
+  type JSX,
   onCleanup,
   Show,
   useContext,

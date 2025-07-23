@@ -1,7 +1,10 @@
 import { createEffect, createSignal } from 'solid-js'
-import { type z } from 'zod'
+import { type z } from 'zod/v4'
 
-import { showSuccess } from '~/modules/toast/application/toastManager'
+import {
+  showError,
+  showSuccess,
+} from '~/modules/toast/application/toastManager'
 import { jsonParseWithStack } from '~/shared/utils/jsonParseWithStack'
 
 // Utility to check if an error is a NotAllowedError DOMException
@@ -20,6 +23,12 @@ export function useClipboard(props?: {
   const [clipboard, setClipboard] = createSignal('')
 
   const handleWrite = (text: string, onError?: (error: unknown) => void) => {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (window.navigator.clipboard === undefined) {
+      showError(`Clipboard API not supported`)
+      setClipboard('')
+      return
+    }
     window.navigator.clipboard
       .writeText(text)
       .then(() => {
@@ -46,6 +55,12 @@ export function useClipboard(props?: {
       }
 
       setClipboard(newClipboard)
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (window.navigator.clipboard === undefined) {
+      // Clipboard API not supported, set empty clipboard
+      setClipboard('')
+      return
     }
     window.navigator.clipboard
       .readText()

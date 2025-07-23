@@ -9,12 +9,13 @@ import { isSearchCached } from '~/modules/search/application/searchCache'
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { setBackendOutage } from '~/shared/error/backendOutageSignal'
 import {
-  handleApiError,
+  createErrorHandler,
   isBackendOutageError,
 } from '~/shared/error/errorHandler'
 import { formatError } from '~/shared/formatError'
 
 const foodRepository = createSupabaseFoodRepository()
+const errorHandler = createErrorHandler('application', 'Food')
 
 /**
  * Fetches foods by search params.
@@ -27,7 +28,7 @@ export async function fetchFoods(
   try {
     return await foodRepository.fetchFoods(params)
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     if (isBackendOutageError(error)) setBackendOutage(true)
     return []
   }
@@ -46,7 +47,9 @@ export async function fetchFoodById(
   try {
     return await foodRepository.fetchFoodById(id, params)
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error, {
+      entityId: id,
+    })
     if (isBackendOutageError(error)) setBackendOutage(true)
     return null
   }
@@ -85,7 +88,9 @@ export async function fetchFoodsByName(
       { context: 'user-action', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error, {
+      additionalData: { name },
+    })
     if (isBackendOutageError(error)) setBackendOutage(true)
     return []
   }
@@ -122,7 +127,9 @@ export async function fetchFoodByEan(
       { context: 'user-action', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error, {
+      additionalData: { ean },
+    })
     if (isBackendOutageError(error)) setBackendOutage(true)
     return null
   }
@@ -140,7 +147,9 @@ export async function isEanCached(
     const cached = (await foodRepository.fetchFoodByEan(ean, {})) !== null
     return cached
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error, {
+      additionalData: { ean },
+    })
     if (isBackendOutageError(error)) setBackendOutage(true)
     return false
   }
@@ -157,7 +166,9 @@ export async function fetchFoodsByIds(
   try {
     return await foodRepository.fetchFoodsByIds(ids)
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error, {
+      additionalData: { ids },
+    })
     if (isBackendOutageError(error)) setBackendOutage(true)
     return []
   }

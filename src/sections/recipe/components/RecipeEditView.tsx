@@ -1,13 +1,8 @@
 // TODO:   Unify Recipe and Recipe components into a single component?
 
 import { type Accessor, type JSXElement, type Setter } from 'solid-js'
+import { z } from 'zod/v4'
 
-import { itemSchema } from '~/modules/diet/item/domain/item'
-import {
-  convertToGroups,
-  type GroupConvertible,
-} from '~/modules/diet/item-group/application/itemGroupService'
-import { itemGroupSchema } from '~/modules/diet/item-group/domain/itemGroup'
 import { mealSchema } from '~/modules/diet/meal/domain/meal'
 import { type Recipe, recipeSchema } from '~/modules/diet/recipe/domain/recipe'
 import {
@@ -18,19 +13,19 @@ import {
   updateRecipePreparedMultiplier,
 } from '~/modules/diet/recipe/domain/recipeOperations'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
+import {
+  type UnifiedItem,
+  unifiedItemSchema,
+} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { ClipboardActionButtons } from '~/sections/common/components/ClipboardActionButtons'
 import { FloatInput } from '~/sections/common/components/FloatInput'
 import { PreparedQuantity } from '~/sections/common/components/PreparedQuantity'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useClipboard } from '~/sections/common/hooks/useClipboard'
 import { useCopyPasteActions } from '~/sections/common/hooks/useCopyPasteActions'
 import { useFloatField } from '~/sections/common/hooks/useField'
-import { ItemListView } from '~/sections/food-item/components/ItemListView'
-import {
-  RecipeEditContextProvider,
-  useRecipeEditContext,
-} from '~/sections/recipe/context/RecipeEditContext'
-import { cn } from '~/shared/cn'
+import { useRecipeEditContext } from '~/sections/recipe/context/RecipeEditContext'
+import { UnifiedItemListView } from '~/sections/unified-item/components/UnifiedItemListView'
+import { openClearItemsConfirmModal } from '~/shared/modal/helpers/specializedModalHelpers'
 import { regenerateId } from '~/shared/utils/idUtils'
 import { calcRecipeCalories } from '~/shared/utils/macroMath'
 
@@ -54,32 +49,13 @@ export type RecipeEditViewProps = {
 //   return result
 // }
 
-// export default function RecipeEditView(props: RecipeEditViewProps) {
-//   // TODO:   implement setRecipe
-//   return (
-//     <div class={cn('p-3', props.className)}>
-//       <RecipeEditContextProvider
-//         recipe={props.recipe}
-//         setRecipe={props.setRecipe}
-//         onSaveRecipe={props.onSaveRecipe}
-//       >
-//         {props.header}
-//         {props.content}
-//         {props.footer}
-//       </RecipeEditContextProvider>
-//     </div>
-//   )
-// }
-
 export function RecipeEditHeader(props: {
   onUpdateRecipe: (Recipe: Recipe) => void
 }) {
-  const { show: showConfirmModal } = useConfirmModalContext()
-
   const acceptedClipboardSchema = mealSchema
-    .or(itemGroupSchema)
-    .or(itemSchema)
     .or(recipeSchema)
+    .or(unifiedItemSchema)
+    .or(z.array(unifiedItemSchema))
 
   const { recipe } = useRecipeEditContext()
 
@@ -88,15 +64,39 @@ export function RecipeEditHeader(props: {
       acceptedClipboardSchema,
       getDataToCopy: () => recipe(),
       onPaste: (data) => {
-        const groupsToAdd = convertToGroups(data as GroupConvertible)
-          .map((group) => regenerateId(group))
-          .map((g) => ({
-            ...g,
-            items: g.items.map((item) => regenerateId(item)),
-          }))
-        const itemsToAdd = groupsToAdd.flatMap((g) => g.items)
-        const newRecipe = addItemsToRecipe(recipe(), itemsToAdd)
-        props.onUpdateRecipe(newRecipe)
+        // Helper function to check if an object is a UnifiedItem
+        const isUnifiedItem = (obj: unknown): obj is UnifiedItem => {
+          return (
+            typeof obj === 'object' &&
+            obj !== null &&
+            '__type' in obj &&
+            obj.__type === 'UnifiedItem'
+          )
+        }
+
+        // Check if data is array of UnifiedItems
+        if (Array.isArray(data) && data.every(isUnifiedItem)) {
+          const itemsToAdd = data
+            .filter((item) => item.reference.type === 'food') // Only food items in recipes
+            .map((item) => regenerateId(item))
+          const newRecipe = addItemsToRecipe(recipe(), itemsToAdd)
+          props.onUpdateRecipe(newRecipe)
+          return
+        }
+
+        // Check if data is single UnifiedItem
+        if (isUnifiedItem(data)) {
+          if (data.reference.type === 'food') {
+            const item = data
+            const regeneratedItem = regenerateId(item)
+            const newRecipe = addItemsToRecipe(recipe(), [regeneratedItem])
+            props.onUpdateRecipe(newRecipe)
+          }
+          return
+        }
+
+        // Handle other supported clipboard formats
+        console.warn('Unsupported paste format:', data)
       },
     })
 
@@ -104,20 +104,12 @@ export function RecipeEditHeader(props: {
 
   const onClearItems = (e: MouseEvent) => {
     e.preventDefault()
-    showConfirmModal({
-      title: 'Limpar itens',
-      body: 'Tem certeza que deseja limpar os itens?',
-      actions: [
-        { text: 'Cancelar', onClick: () => undefined },
-        {
-          text: 'Excluir todos os itens',
-          primary: true,
-          onClick: () => {
-            const newRecipe = clearRecipeItems(recipe())
-            props.onUpdateRecipe(newRecipe)
-          },
-        },
-      ],
+    openClearItemsConfirmModal({
+      context: 'os itens',
+      onConfirm: () => {
+        const newRecipe = clearRecipeItems(recipe())
+        props.onUpdateRecipe(newRecipe)
+      },
     })
   }
 
@@ -159,21 +151,17 @@ export function RecipeEditContent(props: {
         }}
         value={recipe().name}
       />
-      <ItemListView
-        items={() => recipe().items}
+      <UnifiedItemListView
+        items={() => [...recipe().items]}
         mode="edit"
         handlers={{
-          onEdit: (item) => {
-            if (!item.reference) {
-              console.warn('Item does not have a reference, cannot edit')
-              return
-            }
-            props.onEditItem(item)
+          onEdit: (unifiedItem: UnifiedItem) => {
+            props.onEditItem(unifiedItem)
           },
-          onCopy: (item) => {
-            clipboard.write(JSON.stringify(item))
+          onCopy: (unifiedItem: UnifiedItem) => {
+            clipboard.write(JSON.stringify(unifiedItem))
           },
-          onDelete: (item) => {
+          onDelete: (item: UnifiedItem) => {
             setRecipe(removeItemFromRecipe(recipe(), item.id))
           },
         }}

@@ -1,8 +1,12 @@
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
-import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import {
+  createMacroNutrients,
+  type MacroNutrients,
+  type MacroNutrientsRecord,
+} from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
-import { handleValidationError } from '~/shared/error/errorHandler'
-import { calcDayMacros, calcItemMacros } from '~/shared/utils/macroMath'
+import { createErrorHandler } from '~/shared/error/errorHandler'
+import { calcDayMacros, calcUnifiedItemMacros } from '~/shared/utils/macroMath'
 
 /**
  * MacroOverflowOptions controls overflow logic for macro nutrients.
@@ -53,55 +57,43 @@ function _computeOverflow(
  * @param dayMacros - (Optional) Precomputed day macros to avoid redundant calculation
  * @returns true if the macro would exceed the target, false otherwise
  */
+const errorHandler = createErrorHandler('validation', 'MacroNutrients')
+
 export function isOverflow(
   item: TemplateItem,
-  property: keyof MacroNutrients,
+  property: keyof MacroNutrientsRecord,
   context: MacroOverflowContext,
   dayMacros?: MacroNutrients | null,
 ): boolean {
   const { currentDayDiet, macroTarget, macroOverflowOptions } = context
   // Type assertions for safety (defensive, in case of untyped input)
-  if (
-    typeof property !== 'string' ||
-    !['carbs', 'protein', 'fat'].includes(property)
-  ) {
-    handleValidationError('Invalid macro property for overflow check', {
-      component: 'macroOverflow',
-      operation: 'isOverflow',
-      additionalData: { property, itemName: item.name },
-    })
-    return false
-  }
+
   if (!macroOverflowOptions.enable) {
     return false
   }
   if (currentDayDiet === null) {
-    handleValidationError(
+    errorHandler.validationError(
       'currentDayDiet is undefined, cannot calculate overflow',
       {
-        component: 'macroOverflow',
-        operation: 'isOverflow',
         additionalData: { property, itemName: item.name },
       },
     )
     return false
   }
   if (macroTarget === null) {
-    handleValidationError(
+    errorHandler.validationError(
       'macroTarget is undefined, cannot calculate overflow',
       {
-        component: 'macroOverflow',
-        operation: 'isOverflow',
         additionalData: { property, itemName: item.name },
       },
     )
     return false
   }
-  const itemMacros = calcItemMacros(item)
+  const itemMacros = _calcTemplateItemMacros(item)
   const originalItemMacros: MacroNutrients =
     macroOverflowOptions.originalItem !== undefined
-      ? calcItemMacros(macroOverflowOptions.originalItem)
-      : { carbs: 0, protein: 0, fat: 0 }
+      ? _calcTemplateItemMacros(macroOverflowOptions.originalItem)
+      : createMacroNutrients({ carbs: 0, protein: 0, fat: 0 })
   const current = (dayMacros ?? calcDayMacros(currentDayDiet))[property]
   const target = macroTarget[property]
   return _computeOverflow(
@@ -134,79 +126,28 @@ export function createMacroOverflowChecker(
 }
 
 /**
- * Checks if adding a group of items would cause a macro nutrient to exceed the target.
- * @param items - Array of template items (all items are summed for calculation)
- * @param property - The macro nutrient property to check
- * @param context - Context containing current day diet, macro target, and overflow options
- * @returns true if the macro would exceed the target, false otherwise
+ * Calculates macros for a TemplateItem, handling both UnifiedItem and legacy Item formats.
+ * @private
  */
-export function isOverflowForItemGroup(
-  items: readonly TemplateItem[],
-  property: keyof MacroNutrients,
-  context: MacroOverflowContext,
-): boolean {
-  // Type assertions for safety (defensive, in case of untyped input)
+function _calcTemplateItemMacros(item: TemplateItem): MacroNutrients {
+  // Check if it's a legacy Item type with direct macros property
   if (
-    typeof property !== 'string' ||
-    !['carbs', 'protein', 'fat'].includes(property)
+    'macros' in item &&
+    typeof item.macros === 'object' &&
+    item.macros !== null
   ) {
-    handleValidationError('Invalid macro property for overflow check', {
-      component: 'macroOverflow',
-      operation: 'isOverflowForItemGroup',
-      additionalData: { property },
+    // Legacy Item: macros are stored directly and proportional to quantity
+    const legacyItem = item as {
+      macros: MacroNutrients
+      quantity: number
+    }
+    return createMacroNutrients({
+      carbs: (legacyItem.macros.carbs * legacyItem.quantity) / 100,
+      protein: (legacyItem.macros.protein * legacyItem.quantity) / 100,
+      fat: (legacyItem.macros.fat * legacyItem.quantity) / 100,
     })
-    return false
   }
-  if (items.length === 0) {
-    return false
-  }
-  const { currentDayDiet, macroTarget, macroOverflowOptions } = context
-  if (!macroOverflowOptions.enable) {
-    return false
-  }
-  if (currentDayDiet === null) {
-    handleValidationError(
-      'currentDayDiet is undefined, cannot calculate overflow',
-      {
-        component: 'macroOverflow',
-        operation: 'isOverflowForItemGroup',
-        additionalData: { property },
-      },
-    )
-    return false
-  }
-  if (macroTarget === null) {
-    handleValidationError(
-      'macroTarget is undefined, cannot calculate overflow',
-      {
-        component: 'macroOverflow',
-        operation: 'isOverflowForItemGroup',
-        additionalData: { property },
-      },
-    )
-    return false
-  }
-  const totalMacros = items.reduce<MacroNutrients>(
-    (acc, item) => {
-      const macros = calcItemMacros(item)
-      return {
-        carbs: acc.carbs + macros.carbs,
-        protein: acc.protein + macros.protein,
-        fat: acc.fat + macros.fat,
-      }
-    },
-    { carbs: 0, protein: 0, fat: 0 },
-  )
-  const hasOriginalItem = macroOverflowOptions.originalItem !== undefined
-  const originalItemMacros: MacroNutrients = hasOriginalItem
-    ? calcItemMacros(macroOverflowOptions.originalItem!)
-    : { carbs: 0, protein: 0, fat: 0 }
-  const current = calcDayMacros(currentDayDiet)[property]
-  const target = macroTarget[property]
-  return _computeOverflow(
-    current,
-    totalMacros[property],
-    originalItemMacros[property],
-    target,
-  )
+
+  // Modern UnifiedItem: use the standard calculation
+  return calcUnifiedItemMacros(item)
 }

@@ -15,7 +15,10 @@ import {
   apiFoodSchema,
 } from '~/modules/diet/food/infrastructure/api/domain/apiFoodModel'
 import { type ApiFoodRepository } from '~/modules/diet/food/infrastructure/api/domain/apiFoodRepository'
-import { handleApiError, wrapErrorWithStack } from '~/shared/error/errorHandler'
+import {
+  createErrorHandler,
+  wrapErrorWithStack,
+} from '~/shared/error/errorHandler'
 import { jsonParseWithStack } from '~/shared/utils/jsonParseWithStack'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
@@ -24,6 +27,8 @@ const API = rateLimit(axios.create(), {
   perMilliseconds: 1000,
   maxRPS: 2,
 })
+
+const errorHandler = createErrorHandler('infrastructure', 'Food')
 
 export function createApiFoodRepository(): ApiFoodRepository {
   return {
@@ -46,7 +51,7 @@ async function fetchApiFoodsByName(
   try {
     parsedParams = jsonParseWithStack(EXTERNAL_API_FOOD_PARAMS)
   } catch (err) {
-    handleApiError(err)
+    errorHandler.error(err)
     parsedParams = {}
   }
   const params =
@@ -76,7 +81,7 @@ async function fetchApiFoodsByName(
   try {
     response = await API.get(url, config)
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     throw wrapErrorWithStack(error)
   }
 
@@ -85,7 +90,9 @@ async function fetchApiFoodsByName(
   const data = response.data as Record<string, unknown>
   const alimentosRaw = data.alimentos
   if (!Array.isArray(alimentosRaw)) {
-    handleApiError(new Error('Invalid alimentos array in API response'))
+    errorHandler.error(new Error('Invalid alimentos array in API response'), {
+      additionalData: { url, dataType: typeof alimentosRaw },
+    })
     return []
   }
   return parseWithStack(apiFoodSchema.array(), alimentosRaw)

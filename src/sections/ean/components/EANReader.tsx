@@ -1,23 +1,25 @@
 import {
-  Html5Qrcode,
   type Html5QrcodeFullConfig,
   type Html5QrcodeResult,
-  Html5QrcodeSupportedFormats,
 } from 'html5-qrcode'
-import { createEffect, createSignal, onCleanup, Show } from 'solid-js'
+import { createSignal, onCleanup, onMount, Show } from 'solid-js'
 
+import { showError } from '~/modules/toast/application/toastManager'
 import { LoadingRing } from '~/sections/common/components/LoadingRing'
-import { handleScannerError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
+
+// Html5QrcodeSupportedFormats.EAN_13
+const Html5QrcodeSupportedFormats_EAN_13 = 9
+
+const errorHandler = createErrorHandler('user', 'EANReader')
 
 export function EANReader(props: {
   id: string
-  enabled: boolean
   onScanned: (EAN: string) => void
 }) {
   const [loadingScanner, setLoadingScanner] = createSignal(true)
 
-  createEffect(() => {
-    if (!props.enabled) return
+  onMount(() => {
     setLoadingScanner(true)
 
     function onScanSuccess(
@@ -25,8 +27,8 @@ export function EANReader(props: {
       decodedResult: Html5QrcodeResult,
     ) {
       if (
-        decodedResult.result.format?.format !==
-        Html5QrcodeSupportedFormats.EAN_13
+        (decodedResult.result.format?.format as number) !==
+        Html5QrcodeSupportedFormats_EAN_13
       ) {
         console.warn(
           `Atenção: Formato de código de barras não suportado: ${decodedResult.result.format?.format}`,
@@ -51,61 +53,52 @@ export function EANReader(props: {
     }
 
     const config: Html5QrcodeFullConfig = {
-      formatsToSupport: [
-        Html5QrcodeSupportedFormats.AZTEC,
-        Html5QrcodeSupportedFormats.CODABAR,
-        Html5QrcodeSupportedFormats.CODE_39,
-        Html5QrcodeSupportedFormats.CODE_93,
-        Html5QrcodeSupportedFormats.CODE_128,
-        Html5QrcodeSupportedFormats.DATA_MATRIX,
-        Html5QrcodeSupportedFormats.MAXICODE,
-        Html5QrcodeSupportedFormats.ITF,
-        Html5QrcodeSupportedFormats.EAN_13,
-        Html5QrcodeSupportedFormats.EAN_8,
-        Html5QrcodeSupportedFormats.PDF_417,
-        Html5QrcodeSupportedFormats.RSS_14,
-        Html5QrcodeSupportedFormats.RSS_EXPANDED,
-        Html5QrcodeSupportedFormats.UPC_A,
-        Html5QrcodeSupportedFormats.UPC_E,
-        Html5QrcodeSupportedFormats.UPC_EAN_EXTENSION,
-      ],
+      // Html5QrcodeSupportedFormats
+      formatsToSupport: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
       verbose: false,
       useBarCodeDetectorIfSupported: true,
     }
 
-    const html5QrcodeScanner = new Html5Qrcode(props.id, config)
-    const didStart = html5QrcodeScanner
-      .start(
-        { facingMode: 'environment' },
-        { fps: 10, qrbox: qrboxFunction },
-        onScanSuccess,
-        undefined,
-      )
-      .then(() => {
-        setLoadingScanner(false)
-        return true
-      })
-      .catch((err) => {
-        handleScannerError(err, {
-          component: 'EANReader',
-          operation: 'startScanner',
+    async function run() {
+      const { Html5Qrcode } = await import('html5-qrcode')
+      const html5QrcodeScanner = new Html5Qrcode(props.id, config)
+      const didStart = html5QrcodeScanner
+        .start(
+          { facingMode: 'environment' },
+          { fps: 10, qrbox: qrboxFunction },
+          onScanSuccess,
+          undefined,
+        )
+        .then(() => {
+          setLoadingScanner(false)
+          return true
         })
-        return false
-      })
+        .catch((err) => {
+          showError(
+            err,
+            {},
+            'Erro ao iniciar o leitor de código de barras. Verifique se a câmera está acessível e tente novamente.',
+          )
+          errorHandler.error(err, { operation: 'startScanner' })
+          return false
+        })
 
-    onCleanup(() => {
-      didStart
-        .then(async () => {
-          await html5QrcodeScanner.stop().catch((err) => {
-            handleScannerError(err, {
-              component: 'EANReader',
-              operation: 'stopScanner',
+      onCleanup(() => {
+        didStart
+          .then(async () => {
+            await html5QrcodeScanner.stop().catch((err) => {
+              errorHandler.error(err, { operation: 'stopScanner' })
             })
           })
-        })
-        .catch(() => {
-          console.log('Error stopping scanner')
-        })
+          .catch(() => {
+            console.log('Error stopping scanner')
+          })
+      })
+    }
+
+    run().catch((err) => {
+      errorHandler.error(err, { operation: 'run' })
+      setLoadingScanner(false)
     })
   })
   return (

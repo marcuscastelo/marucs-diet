@@ -2,10 +2,13 @@ import { createMemo, Show } from 'solid-js'
 
 import { currentDayDiet } from '~/modules/diet/day-diet/application/dayDiet'
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
-import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import {
+  createMacroNutrients,
+  type MacroNutrients,
+} from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { getMacroTargetForDay } from '~/modules/diet/macro-target/application/macroTarget'
 import { Progress } from '~/sections/common/components/Progress'
-import { stringToDate } from '~/shared/utils/date'
+import { stringToDate } from '~/shared/utils/date/dateUtils'
 import { calcCalories, calcDayMacros } from '~/shared/utils/macroMath'
 
 export default function DayMacros(props: {
@@ -48,16 +51,23 @@ export default function DayMacros(props: {
         <div class="shrink">
           <Calories
             class="w-full"
-            macros={macroSignals().macros ?? { carbs: 0, protein: 0, fat: 0 }}
+            macros={
+              macroSignals().macros ??
+              createMacroNutrients({ carbs: 0, protein: 0, fat: 0 })
+            }
             targetCalories={macroSignals().targetCalories ?? 0}
           />
         </div>
         <div class="flex-1">
           <Macros
             class="mt-3 text-xl xs:mt-0"
-            macros={macroSignals().macros ?? { carbs: 0, protein: 0, fat: 0 }}
+            macros={
+              macroSignals().macros ??
+              createMacroNutrients({ carbs: 0, protein: 0, fat: 0 })
+            }
             targetMacros={
-              macroSignals().macroTarget ?? { carbs: 0, protein: 0, fat: 0 }
+              macroSignals().macroTarget ??
+              createMacroNutrients({ carbs: 0, protein: 0, fat: 0 })
             }
           />
         </div>

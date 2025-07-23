@@ -1,10 +1,10 @@
-import { z } from 'zod'
+import { type z } from 'zod/v4'
 
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import {
   createClipboardSchemaFilter,
   useClipboard,
 } from '~/sections/common/hooks/useClipboard'
+import { openConfirmModal } from '~/shared/modal/helpers/modalHelpers'
 import { deserializeClipboard } from '~/shared/utils/clipboardUtils'
 
 /**
@@ -23,7 +23,6 @@ export function useCopyPasteActions<T>({
   getDataToCopy: () => T
   onPaste: (data: T) => void
 }) {
-  const { show: showConfirmModal } = useConfirmModalContext()
   const isClipboardValid = createClipboardSchemaFilter(acceptedClipboardSchema)
   const {
     clipboard: clipboardText,
@@ -45,13 +44,11 @@ export function useCopyPasteActions<T>({
   }
 
   const handlePaste = () => {
-    showConfirmModal({
+    openConfirmModal('Tem certeza que deseja colar os itens?', {
       title: 'Colar itens',
-      body: 'Tem certeza que deseja colar os itens?',
-      actions: [
-        { text: 'Cancelar', onClick: () => undefined },
-        { text: 'Colar', primary: true, onClick: handlePasteAfterConfirm },
-      ],
+      confirmText: 'Colar',
+      cancelText: 'Cancelar',
+      onConfirm: handlePasteAfterConfirm,
     })
   }
 

@@ -1,82 +1,54 @@
-import { type ItemGroup } from '~/modules/diet/item-group/domain/itemGroup'
 import { type Meal } from '~/modules/diet/meal/domain/meal'
+import { type UnifiedItem } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 
-/**
- * Pure functions for meal operations
- * Replaces the deprecated MealEditor pattern
- */
-
-export function updateMealName(meal: Meal, name: string): Meal {
+export function addItemToMeal(meal: Meal, item: UnifiedItem): Meal {
   return {
     ...meal,
-    name,
+    items: [...meal.items, item],
   }
 }
 
-export function addGroupToMeal(meal: Meal, group: ItemGroup): Meal {
-  return {
-    ...meal,
-    groups: [...meal.groups, group],
-  }
-}
-
-export function addGroupsToMeal(
+export function addItemsToMeal(
   meal: Meal,
-  groups: readonly ItemGroup[],
+  items: readonly UnifiedItem[],
 ): Meal {
   return {
     ...meal,
-    groups: [...meal.groups, ...groups],
+    items: [...meal.items, ...items],
   }
 }
 
-export function updateGroupInMeal(
+export function updateItemInMeal(
   meal: Meal,
-  groupId: ItemGroup['id'],
-  updatedGroup: ItemGroup,
+  itemId: UnifiedItem['id'],
+  updatedItem: UnifiedItem,
 ): Meal {
   return {
     ...meal,
-    groups: meal.groups.map((group) =>
-      group.id === groupId ? updatedGroup : group,
-    ),
+    items: meal.items.map((item) => (item.id === itemId ? updatedItem : item)),
   }
 }
 
-export function removeGroupFromMeal(
+export function removeItemFromMeal(
   meal: Meal,
-  groupId: ItemGroup['id'],
+  itemId: UnifiedItem['id'],
 ): Meal {
   return {
     ...meal,
-    groups: meal.groups.filter((group) => group.id !== groupId),
+    items: meal.items.filter((item) => item.id !== itemId),
   }
 }
 
-export function setMealGroups(meal: Meal, groups: ItemGroup[]): Meal {
+export function setMealItems(meal: Meal, items: UnifiedItem[]): Meal {
   return {
     ...meal,
-    groups,
+    items,
   }
 }
 
-export function clearMealGroups(meal: Meal): Meal {
+export function clearMealItems(meal: Meal): Meal {
   return {
     ...meal,
-    groups: [],
-  }
-}
-
-export function findGroupInMeal(
-  meal: Meal,
-  groupId: ItemGroup['id'],
-): ItemGroup | undefined {
-  return meal.groups.find((group) => group.id === groupId)
-}
-
-export function replaceMeal(meal: Meal, updates: Partial<Meal>): Meal {
-  return {
-    ...meal,
-    ...updates,
+    items: [],
   }
 }

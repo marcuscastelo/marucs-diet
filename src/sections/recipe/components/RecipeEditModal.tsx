@@ -1,191 +1,153 @@
-import { Accessor, createEffect, createSignal } from 'solid-js'
+import { type Accessor, createEffect, createSignal } from 'solid-js'
 import { untrack } from 'solid-js'
 
-import { createItem, type Item } from '~/modules/diet/item/domain/item'
-import {
-  isSimpleSingleGroup,
-  type ItemGroup,
-} from '~/modules/diet/item-group/domain/itemGroup'
 import { type Recipe } from '~/modules/diet/recipe/domain/recipe'
 import {
-  addItemsToRecipe,
-  removeItemFromRecipe,
+  addItemToRecipe,
   updateItemInRecipe,
 } from '~/modules/diet/recipe/domain/recipeOperations'
 import {
-  isTemplateItemFood,
-  isTemplateItemRecipe,
-} from '~/modules/diet/template-item/domain/templateItem'
+  createUnifiedItem,
+  isRecipeItem,
+  type UnifiedItem,
+} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
 import { showError } from '~/modules/toast/application/toastManager'
-import { Modal } from '~/sections/common/components/Modal'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
-import {
-  ModalContextProvider,
-  useModalContext,
-} from '~/sections/common/context/ModalContext'
-import { ExternalItemEditModal } from '~/sections/food-item/components/ExternalItemEditModal'
+import { Button } from '~/sections/common/components/buttons/Button'
 import {
   RecipeEditContent,
   RecipeEditHeader,
 } from '~/sections/recipe/components/RecipeEditView'
 import { RecipeEditContextProvider } from '~/sections/recipe/context/RecipeEditContext'
-import { ExternalTemplateSearchModal } from '~/sections/search/components/ExternalTemplateSearchModal'
-import { handleValidationError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
+import {
+  openDeleteConfirmModal,
+  openTemplateSearchModal,
+  openUnifiedItemEditModal,
+} from '~/shared/modal/helpers/specializedModalHelpers'
 
 export type RecipeEditModalProps = {
-  show?: boolean
   recipe: Accessor<Recipe>
   onSaveRecipe: (recipe: Recipe) => void
   onRefetch: () => void
   onCancel?: () => void
   onDelete: (recipeId: Recipe['id']) => void
-  onVisibilityChange?: (isShowing: boolean) => void
+  onClose?: () => void
 }
 
-export function RecipeEditModal(props: RecipeEditModalProps) {
-  const { visible, setVisible } = useModalContext()
+const errorHandler = createErrorHandler('validation', 'RecipeEditModal')
 
+export function RecipeEditModal(props: RecipeEditModalProps) {
   const [recipe, setRecipe] = createSignal(untrack(() => props.recipe()))
 
   createEffect(() => {
     setRecipe(props.recipe())
   })
 
-  const [selectedItem, setSelectedItem] = createSignal<Item | null>(null)
+  const handleNewUnifiedItem = (newItem: UnifiedItem) => {
+    console.debug('onNewUnifiedItem', newItem)
 
-  const impossibleItem = createItem({
-    name: 'IMPOSSIBLE ITEM',
-    reference: 0,
-  })
+    // Convert UnifiedItem to Item for adding to recipe
+    try {
+      // Only food items can be directly converted to Items for recipes
+      if (newItem.reference.type !== 'food') {
+        errorHandler.validationError(
+          new Error('Cannot add non-food items to recipes'),
+          {
+            operation: 'handleNewUnifiedItem',
+            additionalData: {
+              itemType: newItem.reference.type,
+              itemId: newItem.id,
+            },
+          },
+        )
+        showError(
+          'Não é possível adicionar itens que não sejam alimentos a receitas.',
+        )
+        return
+      }
 
-  const [itemEditModalVisible, setItemEditModalVisible] = createSignal(false)
-  const [templateSearchModalVisible, setTemplateSearchModalVisible] =
-    createSignal(false)
+      const item = newItem
+      const updatedRecipe = addItemToRecipe(recipe(), item)
 
-  const handleNewItemGroup = (newGroup: ItemGroup) => {
-    console.debug('onNewItemGroup', newGroup)
-
-    if (!isSimpleSingleGroup(newGroup)) {
-      // TODO:   Handle non-simple groups on handleNewItemGroup
-      handleValidationError('Cannot add complex groups to recipes', {
-        component: 'RecipeEditModal',
-        operation: 'handleNewItemGroup',
-        additionalData: { groupType: 'complex', groupId: newGroup.id },
-      })
-      showError(
-        'Não é possível adicionar grupos complexos a receitas, por enquanto.',
+      console.debug(
+        'handleNewUnifiedItem: applying',
+        JSON.stringify(updatedRecipe, null, 2),
       )
-      return
+
+      setRecipe(updatedRecipe)
+    } catch (error) {
+      console.error('Error converting UnifiedItem to Item:', error)
+      showError('Erro ao adicionar item à receita.')
     }
-
-    const updatedRecipe = addItemsToRecipe(recipe(), newGroup.items)
-
-    console.debug(
-      'handleNewItemGroup: applying',
-      JSON.stringify(updatedRecipe, null, 2),
-    )
-
-    setRecipe(updatedRecipe)
   }
 
-  createEffect(() => {
-    // TODO:   Replace itemEditModalVisible with a derived signal
-    setItemEditModalVisible(selectedItem() !== null)
-  })
-
-  createEffect(() => {
-    if (!itemEditModalVisible()) {
-      setSelectedItem(null)
-    }
-  })
-
   return (
-    <>
-      <ExternalItemEditModal
-        visible={itemEditModalVisible}
-        setVisible={setItemEditModalVisible}
-        item={() => selectedItem() ?? impossibleItem}
-        targetName={recipe().name}
-        onApply={(item) => {
-          // Only handle regular Items, not RecipeItems
-          if (!isTemplateItemFood(item)) {
-            console.warn('Cannot edit RecipeItems in recipe')
-            return
-          }
+    <RecipeEditContextProvider
+      recipe={recipe}
+      setRecipe={setRecipe}
+      onSaveRecipe={props.onSaveRecipe}
+    >
+      <div class="space-y-4">
+        <RecipeEditHeader
+          onUpdateRecipe={(newRecipe) => {
+            console.debug('[RecipeEditModal] onUpdateRecipe: ', newRecipe)
+            setRecipe(newRecipe)
+          }}
+        />
 
-          const updatedItem: Item = { ...item, quantity: item.quantity }
-          const updatedRecipe = updateItemInRecipe(
-            recipe(),
-            item.id,
-            updatedItem,
-          )
+        <RecipeEditContent
+          onNewItem={() => {
+            openTemplateSearchModal({
+              targetName: recipe().name,
+              onNewUnifiedItem: handleNewUnifiedItem,
+              onFinish: () => {
+                props.onRefetch()
+              },
+              onClose: () => {
+                props.onRefetch()
+              },
+            })
+          }}
+          onEditItem={(item) => {
+            // TODO: Allow user to edit recipes inside recipes
+            if (isRecipeItem(item)) {
+              showError(
+                'Ainda não é possível editar receitas dentro de receitas! Funcionalidade em desenvolvimento',
+              )
+              return
+            }
 
-          setRecipe(updatedRecipe)
-          setSelectedItem(null)
-        }}
-      />
+            // Use unified modal system instead of legacy pattern
+            openUnifiedItemEditModal({
+              item: () => createUnifiedItem(item),
+              targetMealName: recipe().name,
+              macroOverflow: () => ({ enable: false }),
+              onApply: (item) => {
+                const updatedRecipe = updateItemInRecipe(
+                  recipe(),
+                  item.id,
+                  item,
+                )
+                setRecipe(updatedRecipe)
+              },
+              title: 'Editar item',
+              targetName: item.name,
+            })
+          }}
+        />
 
-      <ExternalTemplateSearchModal
-        visible={templateSearchModalVisible}
-        setVisible={setTemplateSearchModalVisible}
-        onRefetch={props.onRefetch}
-        targetName={recipe().name}
-        onNewItemGroup={handleNewItemGroup}
-      />
-
-      <ModalContextProvider visible={visible} setVisible={setVisible}>
-        <Modal class="border-2 border-cyan-600">
-          <RecipeEditContextProvider
-            recipe={recipe}
-            setRecipe={setRecipe}
-            onSaveRecipe={props.onSaveRecipe}
-          >
-            <Modal.Header
-              title={
-                <RecipeEditHeader
-                  onUpdateRecipe={(newRecipe) => {
-                    console.debug(
-                      '[RecipeEditModal] onUpdateRecipe: ',
-                      newRecipe,
-                    )
-                    setRecipe(newRecipe)
-                  }}
-                />
-              }
-            />
-            <Modal.Content>
-              <RecipeEditContent
-                onNewItem={() => {
-                  setTemplateSearchModalVisible(true)
-                }}
-                onEditItem={(item) => {
-                  // TODO: Allow user to edit recipes inside recipes
-                  if (isTemplateItemRecipe(item)) {
-                    showError(
-                      'Ainda não é possível editar receitas dentro de receitas! Funcionalidade em desenvolvimento',
-                    )
-                    return
-                  }
-
-                  setSelectedItem(item)
-                }}
-              />
-            </Modal.Content>
-            <Modal.Footer>
-              <Actions
-                onApply={() => {
-                  props.onSaveRecipe(recipe())
-                }}
-                onCancel={props.onCancel}
-                onDelete={() => {
-                  props.onDelete(recipe().id)
-                }}
-              />
-            </Modal.Footer>
-          </RecipeEditContextProvider>
-        </Modal>
-      </ModalContextProvider>
-    </>
+        <Actions
+          onApply={() => {
+            props.onSaveRecipe(recipe())
+          }}
+          onCancel={props.onCancel}
+          onDelete={() => {
+            props.onDelete(recipe().id)
+          }}
+          onClose={props.onClose}
+        />
+      </div>
+    </RecipeEditContextProvider>
   )
 }
 
@@ -193,58 +155,48 @@ function Actions(props: {
   onApply: () => void
   onDelete: () => void
   onCancel?: () => void
+  onClose?: () => void
 }) {
-  const { setVisible } = useModalContext()
-  const { show: showConfirmModal } = useConfirmModalContext()
+  const handleDelete = () => {
+    openDeleteConfirmModal({
+      itemName: 'receita',
+      itemType: 'receita',
+      onConfirm: () => {
+        props.onDelete()
+        props.onClose?.()
+      },
+    })
+  }
 
   return (
-    <>
-      <button
-        class="btn-error btn cursor-pointer uppercase mr-auto"
+    <div class="flex flex-row gap-2">
+      <Button
+        class="btn-error mr-auto"
         onClick={(e) => {
           e.preventDefault()
-          showConfirmModal({
-            title: 'Excluir receita',
-            body: 'Tem certeza que deseja excluir esta receita? Esta ação não pode ser desfeita.',
-            actions: [
-              {
-                text: 'Cancelar',
-                onClick: () => undefined,
-              },
-              {
-                text: 'Excluir',
-                primary: true,
-                onClick: () => {
-                  props.onDelete()
-                  setVisible(false)
-                },
-              },
-            ],
-          })
+          handleDelete()
         }}
       >
         Excluir
-      </button>
-      <button
-        class="btn cursor-pointer uppercase"
+      </Button>
+      <Button
         onClick={(e) => {
           e.preventDefault()
-          setVisible(false)
+          props.onClose?.()
           props.onCancel?.()
         }}
       >
         Cancelar
-      </button>
-      <button
-        class="btn cursor-pointer uppercase"
+      </Button>
+      <Button
         onClick={(e) => {
           e.preventDefault()
           props.onApply()
-          setVisible(false)
+          props.onClose?.()
         }}
       >
         Aplicar
-      </button>
-    </>
+      </Button>
+    </div>
   )
 }

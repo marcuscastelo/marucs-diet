@@ -8,11 +8,17 @@ import {
   createInsertFoodDAOFromNewFood,
   foodDAOSchema,
 } from '~/modules/diet/food/infrastructure/foodDAO'
-import { handleApiError, wrapErrorWithStack } from '~/shared/error/errorHandler'
+import {
+  createErrorHandler,
+  wrapErrorWithStack,
+} from '~/shared/error/errorHandler'
 import { isSupabaseDuplicateEanError } from '~/shared/supabase/supabaseErrorUtils'
+import { createDebug } from '~/shared/utils/createDebug'
 import { parseWithStack } from '~/shared/utils/parseWithStack'
-import { removeDiacritics } from '~/shared/utils/removeDiacritics'
 import supabase from '~/shared/utils/supabase'
+
+const debug = createDebug()
+const errorHandler = createErrorHandler('infrastructure', 'Food')
 
 const TABLE = 'foods'
 
@@ -46,12 +52,12 @@ async function fetchFoodById(
       { ...params, limit: 1 },
     )
     if (foods.length === 0 || foods[0] === undefined) {
-      handleApiError('Food not found')
+      errorHandler.error(new Error('Food not found'))
       throw new Error('Food not found')
     }
     return foods[0]
   } catch (err) {
-    handleApiError(err)
+    errorHandler.error(err)
     throw err
   }
 }
@@ -74,12 +80,12 @@ async function fetchFoodByEan(
       { ...params, limit: 1 },
     )
     if (foods.length === 0 || foods[0] === undefined) {
-      handleApiError('Food not found')
+      errorHandler.error(new Error('Food not found'))
       throw new Error('Food not found')
     }
     return foods[0]
   } catch (err) {
-    handleApiError(err)
+    errorHandler.error(err)
     throw err
   }
 }
@@ -101,13 +107,13 @@ async function insertFood(newFood: NewFood): Promise<Food> {
     if (isSupabaseDuplicateEanError(error, newFood.ean)) {
       return await fetchFoodByEan(newFood.ean)
     }
-    handleApiError(error)
+    errorHandler.error(error)
     throw wrapErrorWithStack(error)
   }
   const foodDAOs = parseWithStack(foodDAOSchema.array(), data)
   const foods = foodDAOs.map(createFoodFromDAO)
   if (foods.length === 0 || foods[0] === undefined) {
-    handleApiError('Food not created')
+    errorHandler.error(new Error('Food not created'))
     throw new Error('Food not created')
   }
   return foods[0]
@@ -130,13 +136,13 @@ async function upsertFood(newFood: NewFood): Promise<Food> {
     if (isSupabaseDuplicateEanError(error, newFood.ean)) {
       return await fetchFoodByEan(newFood.ean)
     }
-    handleApiError(error)
+    errorHandler.error(error)
     throw wrapErrorWithStack(error)
   }
   const foodDAOs = parseWithStack(foodDAOSchema.array(), data)
   const foods = foodDAOs.map(createFoodFromDAO)
   if (foods.length === 0 || foods[0] === undefined) {
-    handleApiError('Food not created')
+    errorHandler.error(new Error('Food not created'))
     throw new Error('Food not created')
   }
   return foods[0]
@@ -146,31 +152,49 @@ async function fetchFoodsByName(
   name: Required<Food>['name'],
   params: FoodSearchParams = {},
 ) {
-  const normalizedName = removeDiacritics(name)
-  // Exact search.
-  const exactMatches = await internalCachedSearchFoods(
-    { field: 'name', value: normalizedName, operator: 'ilike' },
-    params,
-  )
+  try {
+    // Use optimized favorites search if userId and isFavoritesSearch are provided
+    const { userId, isFavoritesSearch, limit = 50 } = params
 
-  // Partial search per word.
-  const words = normalizedName.split(/\s+/).filter(Boolean)
-  let partialMatches: Food[] = []
-  if (words.length > 1) {
-    const partialResults = await Promise.all(
-      words.map((word) =>
-        internalCachedSearchFoods(
-          { field: 'name', value: word, operator: 'ilike' },
-          params,
-        ),
-      ),
+    let result
+    if (isFavoritesSearch === true && userId !== undefined) {
+      // Search within favorites only using optimized RPC
+      result = await supabase.rpc('search_favorite_foods_with_scoring', {
+        p_user_id: userId,
+        p_search_term: name,
+        p_limit: limit,
+      })
+    } else {
+      // Use standard search for all foods
+      result = await supabase.rpc('search_foods_with_scoring', {
+        p_search_term: name,
+        p_limit: limit,
+      })
+    }
+
+    if (result.error !== null) {
+      errorHandler.error(result.error)
+      throw wrapErrorWithStack(result.error)
+    }
+
+    if (result.data === null || result.data === undefined) {
+      debug('No data returned from enhanced search')
+      return []
+    }
+
+    const searchType =
+      isFavoritesSearch === true && userId !== undefined
+        ? 'favorites search'
+        : 'enhanced search'
+    debug(
+      `Found ${Array.isArray(result.data) ? result.data.length : 0} foods using ${searchType}`,
     )
-    partialMatches = partialResults
-      .flat()
-      .filter((food) => !exactMatches.some((f) => f.id === food.id))
+    const foodDAOs = parseWithStack(foodDAOSchema.array(), result.data)
+    return foodDAOs.map(createFoodFromDAO)
+  } catch (err) {
+    errorHandler.error(err)
+    throw err
   }
-
-  return [...exactMatches, ...partialMatches]
 }
 
 async function fetchFoods(params: FoodSearchParams = {}) {
@@ -184,7 +208,7 @@ async function internalCachedSearchFoods(
     operator = 'eq',
   }:
     | {
-        field: keyof Food
+        field: 'ean' | 'id' | 'name'
         value: Food['ean' | 'id' | 'name']
         operator?: 'eq' | 'ilike'
       }
@@ -195,8 +219,8 @@ async function internalCachedSearchFoods(
       },
   params?: FoodSearchParams,
 ): Promise<readonly Food[]> {
-  console.debug(
-    `[Food] Searching for foods with ${field} = ${value} (limit: ${
+  debug(
+    `Searching for foods with ${field} = ${value} (limit: ${
       params?.limit ?? 'none'
     })`,
   )
@@ -211,9 +235,7 @@ async function internalCachedSearchFoods(
   let query = base
 
   if (field !== '' && value !== '') {
-    // Normalize diacritics for search in DB as well
-    const normalizedValue =
-      typeof value === 'string' ? removeDiacritics(value) : value
+    const normalizedValue = value
     switch (operator) {
       case 'eq':
         query = query.eq(field, normalizedValue)
@@ -227,22 +249,22 @@ async function internalCachedSearchFoods(
   }
 
   if (allowedFoods !== undefined) {
-    console.debug('[Food] Limiting search to allowed foods')
+    debug('Limiting search to allowed foods')
     query = query.in('id', allowedFoods)
   }
 
   if (limit !== undefined) {
-    console.debug(`[Food] Limiting search to ${limit} results`)
+    debug(`Limiting search to ${limit} results`)
     query = query.limit(limit)
   }
 
   const { data, error } = await query
   if (error !== null) {
-    handleApiError(error)
+    errorHandler.error(error)
     throw wrapErrorWithStack(error)
   }
 
-  console.debug(`[Food] Found ${data.length} foods`)
+  debug(`Found ${data.length} foods`)
   const foodDAOs = parseWithStack(foodDAOSchema.array(), data)
   return foodDAOs.map(createFoodFromDAO)
 }
@@ -256,7 +278,7 @@ async function fetchFoodsByIds(ids: Food['id'][]): Promise<readonly Food[]> {
   if (!Array.isArray(ids) || ids.length === 0) return []
   const { data, error } = await supabase.from(TABLE).select('*').in('id', ids)
   if (error !== null) {
-    handleApiError(error)
+    errorHandler.error(error)
     throw wrapErrorWithStack(error)
   }
   const foodDAOs = parseWithStack(foodDAOSchema.array(), data)

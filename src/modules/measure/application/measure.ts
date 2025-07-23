@@ -1,26 +1,37 @@
+import { createResource } from 'solid-js'
+
 import {
   type BodyMeasure,
   type NewBodyMeasure,
 } from '~/modules/measure/domain/measure'
 import { createSupabaseBodyMeasureRepository } from '~/modules/measure/infrastructure/measures'
 import { showPromise } from '~/modules/toast/application/toastManager'
+import { currentUserId } from '~/modules/user/application/user'
 import { type User } from '~/modules/user/domain/user'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 
 const bodyMeasureRepository = createSupabaseBodyMeasureRepository()
+
+export const [bodyMeasures, { refetch: refetchBodyMeasures }] = createResource(
+  currentUserId,
+  fetchUserBodyMeasures,
+  { initialValue: [], ssrLoadFrom: 'initial' },
+)
 
 /**
  * Fetches all body measures for a user.
  * @param userId - The user ID.
  * @returns Array of body measures or empty array on error.
  */
+const errorHandler = createErrorHandler('application', 'Measure')
+
 export async function fetchUserBodyMeasures(
   userId: User['id'],
 ): Promise<readonly BodyMeasure[]> {
   try {
     return await bodyMeasureRepository.fetchUserBodyMeasures(userId)
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return []
   }
 }
@@ -44,7 +55,7 @@ export async function insertBodyMeasure(
       { context: 'user-action', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return null
   }
 }
@@ -70,7 +81,7 @@ export async function updateBodyMeasure(
       { context: 'user-action', audience: 'user' },
     )
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return null
   }
 }
@@ -95,7 +106,7 @@ export async function deleteBodyMeasure(
     )
     return true
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return false
   }
 }

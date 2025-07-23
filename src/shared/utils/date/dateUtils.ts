@@ -5,7 +5,7 @@
  * including timezone adjustments, formatting, and date normalization.
  */
 
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 import { parseWithStack } from '~/shared/utils/parseWithStack'
 
@@ -158,19 +158,19 @@ export function dateToYYYYMMDD(date: Date): string {
  * Formats a date as DD/MM string
  *
  * @param {Date} date - The date to format
- * @returns {string} Date formatted as DD/MM
+ * @returns {string} Date formatted as DD/MM with zero-padding
  *
  * @example
  * ```typescript
  * const date = new Date('2024-01-15')
  * const formatted = dateToDDMM(date)
- * console.log(formatted) // "15/1"
+ * console.log(formatted) // "15/01"
  * ```
  */
 export function dateToDDMM(date: Date): string {
   const month = date.getMonth() + 1
   const day = date.getDate()
-  return `${day}/${month}`
+  return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}`
 }
 
 /**

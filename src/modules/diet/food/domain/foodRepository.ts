@@ -3,14 +3,11 @@ import { type Food, type NewFood } from '~/modules/diet/food/domain/food'
 export type FoodSearchParams = {
   limit?: number
   allowedFoods?: number[]
+  userId?: number
+  isFavoritesSearch?: boolean
 }
 
 export type FoodRepository = {
-  /**
-   * Fetches foods by an array of IDs.
-   * @param ids - Array of Food IDs.
-   * @returns Array of foods matching the IDs.
-   */
   fetchFoodsByIds: (ids: Food['id'][]) => Promise<readonly Food[]>
   fetchFoods: (params: FoodSearchParams) => Promise<readonly Food[]>
   fetchFoodById: (

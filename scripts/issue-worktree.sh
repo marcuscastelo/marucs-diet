@@ -19,7 +19,7 @@ if [[ $# -eq 1 && "$1" == "clear-merged" ]]; then
   fi
   echo "Base branch for merge check: $BASE_BRANCH"
   # Find all worktrees matching pattern
-  for WT_PATH in ../marucs-diet-issue*; do
+  for WT_PATH in ../macroflows-issue*; do
     if [[ -e "$WT_PATH/.git" ]]; then
       BRANCH=$(git -C "$WT_PATH" rev-parse --abbrev-ref HEAD)
       # Only consider branches matching the pattern
@@ -61,7 +61,7 @@ if [[ $# -ge 1 && "$1" != "clear-merged" ]]; then
   fi
   for ISSUE_NUMBER in "$@"; do
     FEATURE_BRANCH="marcuscastelo/issue${ISSUE_NUMBER}"
-    WORKTREE_PATH="../marucs-diet-issue${ISSUE_NUMBER}"
+    WORKTREE_PATH="../macroflows-issue${ISSUE_NUMBER}"
     # Check if worktree already exists
     if [[ -d "$WORKTREE_PATH" ]]; then
       echo "Worktree $WORKTREE_PATH already exists."
@@ -90,16 +90,13 @@ if [[ $# -ge 1 && "$1" != "clear-merged" ]]; then
       fi
       cd "$WORKTREE_PATH"
     fi
-    # Create immediate.prompt.md focused on this issue
-    PROMPT_DIR="$WORKTREE_PATH/.github/prompts"
-    PROMPT_FILE="$PROMPT_DIR/.immediate.prompt.md"
-    TEMPLATE_FILE="$REPO_ROOT/.github/prompts/issue-implementation.prompt.md"
-    mkdir -p "$PROMPT_DIR"
-    if [[ -f "$TEMPLATE_FILE" ]]; then
-      sed "s/Issue Implementation Agent/Immediate Issue Agent for Issue #${ISSUE_NUMBER}/; s/implementing a GitHub issue/implementing GitHub issue #${ISSUE_NUMBER}/g; s/<ISSUE_NUMBER>/${ISSUE_NUMBER}/g" "$TEMPLATE_FILE" > "$PROMPT_FILE"
-    else
-      echo "Warning: Template $TEMPLATE_FILE not found. Skipping immediate.prompt.md creation." >&2
+    # Create hardlink of .claude/settings.json to .claude/settings.local.json
+    mkdir -p "$WORKTREE_PATH/.claude"
+    if [[ -f "$REPO_ROOT/.claude/settings.json" ]]; then
+      ln "$REPO_ROOT/.claude/settings.json" "$WORKTREE_PATH/.claude/settings.local.json"
     fi
+    # Create immediate.prompt.md focused on this issue
+    zsh "$REPO_ROOT/scripts/create-immediate-prompt.sh" "$WORKTREE_PATH" "$REPO_ROOT" "$ISSUE_NUMBER"
     echo "Repository root: $REPO_ROOT"
     echo "Using base branch: $BASE_BRANCH"
     echo "Using feature branch: $FEATURE_BRANCH"

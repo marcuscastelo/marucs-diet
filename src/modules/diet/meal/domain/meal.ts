@@ -1,32 +1,20 @@
-import { z } from 'zod'
+import { type z } from 'zod/v4'
 
-import { itemGroupSchema } from '~/modules/diet/item-group/domain/itemGroup'
-import { generateId } from '~/shared/utils/idUtils'
+import { unifiedItemSchema } from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import { createZodEntity } from '~/shared/domain/validation'
 
-export const mealSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  groups: z.array(itemGroupSchema),
-  __type: z
-    .string()
-    .nullable()
-    .optional()
-    .transform(() => 'Meal' as const),
+const ze = createZodEntity('Meal')
+
+export const {
+  schema: mealSchema,
+  newSchema: newMealSchema,
+  createNew: createNewMeal,
+  promote: promoteMeal,
+  demote: demoteMeal,
+} = ze.create({
+  name: ze.string(),
+  items: ze.array(unifiedItemSchema),
 })
 
+export type NewMeal = Readonly<z.infer<typeof newMealSchema>>
 export type Meal = Readonly<z.infer<typeof mealSchema>>
-
-export function createMeal({
-  name,
-  groups,
-}: {
-  name: string
-  groups: Meal['groups']
-}): Meal {
-  return {
-    id: generateId(),
-    name,
-    groups,
-    __type: 'Meal',
-  }
-}

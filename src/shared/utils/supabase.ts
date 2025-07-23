@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 import env from '~/shared/config/env'
 import { parseWithStack } from '~/shared/utils/parseWithStack'

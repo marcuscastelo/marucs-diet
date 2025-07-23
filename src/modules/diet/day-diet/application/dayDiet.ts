@@ -1,7 +1,6 @@
-import { createEffect, createSignal } from 'solid-js'
+import { createEffect, createSignal, onCleanup } from 'solid-js'
 
 import {
-  createNewDayDiet,
   type DayDiet,
   type NewDayDiet,
 } from '~/modules/diet/day-diet/domain/dayDiet'
@@ -12,27 +11,12 @@ import {
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
 import { type User } from '~/modules/user/domain/user'
-import { handleApiError } from '~/shared/error/errorHandler'
-import { getTodayYYYYMMDD } from '~/shared/utils/date'
+import { createErrorHandler } from '~/shared/error/errorHandler'
+import { getTodayYYYYMMDD } from '~/shared/utils/date/dateUtils'
 import { registerSubapabaseRealtimeCallback } from '~/shared/utils/supabase'
 
-export function createDayDiet({
-  target_day: targetDay,
-  owner,
-  meals = [],
-}: {
-  target_day: string
-  owner: number
-  meals?: DayDiet['meals']
-}): NewDayDiet {
-  return createNewDayDiet({
-    target_day: targetDay,
-    owner,
-    meals,
-  })
-}
-
 const dayRepository = createSupabaseDayRepository()
+const errorHandler = createErrorHandler('application', 'DayDiet')
 
 export const [targetDay, setTargetDay] =
   createSignal<string>(getTodayYYYYMMDD())
@@ -42,6 +26,80 @@ export const [dayDiets, setDayDiets] = createSignal<readonly DayDiet[]>([])
 export const [currentDayDiet, setCurrentDayDiet] = createSignal<DayDiet | null>(
   null,
 )
+
+/**
+ * Reactive signal that tracks the current day and automatically updates when the day changes.
+ * This is used for day lock functionality to ensure proper edit mode restrictions.
+ */
+export const [currentToday, setCurrentToday] =
+  createSignal<string>(getTodayYYYYMMDD())
+
+/**
+ * Signal that tracks when the day has changed and a confirmation modal should be shown.
+ * Contains the previous day that the user was viewing when the day changed.
+ */
+export const [dayChangeData, setDayChangeData] = createSignal<{
+  previousDay: string
+  newDay: string
+} | null>(null)
+
+// Set up automatic day change detection
+let dayCheckInterval: NodeJS.Timeout | null = null
+
+function startDayChangeDetection() {
+  // Clear any existing interval
+  if (dayCheckInterval !== null) {
+    clearInterval(dayCheckInterval)
+  }
+
+  dayCheckInterval = setInterval(() => {
+    const newToday = getTodayYYYYMMDD()
+    const previousToday = currentToday()
+
+    if (newToday !== previousToday) {
+      console.log(`[dayDiet] Day changed from ${previousToday} to ${newToday}`)
+      setCurrentToday(newToday)
+
+      // Only show modal if user is not already viewing today
+      if (targetDay() !== newToday) {
+        setDayChangeData({
+          previousDay: previousToday,
+          newDay: newToday,
+        })
+      }
+    }
+  }, 6000)
+}
+
+createEffect(() => {
+  // Start day change detection immediately
+  startDayChangeDetection()
+  // Cleanup interval on module cleanup
+  onCleanup(() => {
+    if (dayCheckInterval !== null) {
+      clearInterval(dayCheckInterval)
+      dayCheckInterval = null
+    }
+  })
+})
+
+/**
+ * Dismisses the day change confirmation modal
+ */
+export function dismissDayChangeModal() {
+  setDayChangeData(null)
+}
+
+/**
+ * Accepts the day change and navigates to the new day
+ */
+export function acceptDayChange() {
+  const changeData = dayChangeData()
+  if (changeData) {
+    setTargetDay(changeData.newDay)
+    setDayChangeData(null)
+  }
+}
 
 function bootstrap() {
   void showPromise(
@@ -65,6 +123,7 @@ createEffect(() => {
 /**
  * When realtime day diets change, update day diets for current user
  */
+// TODO: Move all registerSubapabaseRealtimeCallback to infra layer
 registerSubapabaseRealtimeCallback(SUPABASE_TABLE_DAYS, () => {
   bootstrap()
 })
@@ -91,7 +150,7 @@ async function fetchAllUserDayDiets(userId: User['id']): Promise<void> {
     const newDayDiets = await dayRepository.fetchAllUserDayDiets(userId)
     setDayDiets(newDayDiets)
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     setDayDiets([])
   }
 }
@@ -115,7 +174,7 @@ export async function insertDayDiet(dayDiet: NewDayDiet): Promise<boolean> {
     await fetchAllUserDayDiets(dayDiet.owner)
     return true
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return false
   }
 }
@@ -143,7 +202,7 @@ export async function updateDayDiet(
     await fetchAllUserDayDiets(dayDiet.owner)
     return true
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return false
   }
 }
@@ -167,7 +226,7 @@ export async function deleteDayDiet(dayId: DayDiet['id']): Promise<boolean> {
     await fetchAllUserDayDiets(currentUserId())
     return true
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return false
   }
 }
@@ -183,13 +242,18 @@ export function getPreviousDayDiets(
   dayDiets: readonly DayDiet[],
   selectedDay: string,
 ): DayDiet[] {
+  const selectedDate = new Date(selectedDay)
+  selectedDate.setHours(0, 0, 0, 0) // Normalize to midnight to avoid time zone issues
+
   return dayDiets
-    .filter(
-      (day) =>
-        new Date(day.target_day).getTime() < new Date(selectedDay).getTime(),
-    )
-    .sort(
-      (a, b) =>
-        new Date(b.target_day).getTime() - new Date(a.target_day).getTime(),
-    )
+    .filter((day) => {
+      const dayDate = new Date(day.target_day)
+      dayDate.setHours(0, 0, 0, 0) // Normalize to midnight
+      return dayDate.getTime() < selectedDate.getTime()
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.target_day)
+      const dateB = new Date(b.target_day)
+      return dateB.getTime() - dateA.getTime()
+    })
 }

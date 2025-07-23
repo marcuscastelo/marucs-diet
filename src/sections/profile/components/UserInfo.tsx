@@ -8,13 +8,17 @@ import {
 import { CARD_BACKGROUND_COLOR, CARD_STYLE } from '~/modules/theme/constants'
 import { showError } from '~/modules/toast/application/toastManager'
 import { currentUser, updateUser } from '~/modules/user/application/user'
-import { type User, userSchema } from '~/modules/user/domain/user'
+import {
+  demoteUserToNewUser,
+  type User,
+  userSchema,
+} from '~/modules/user/domain/user'
 import { UserIcon } from '~/sections/common/components/icons/UserIcon'
 import {
   convertString,
   UserInfoCapsule,
 } from '~/sections/profile/components/UserInfoCapsule'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 type Translation<T extends string> = { [_key in T]: string }
 // TODO:   Create module for translations
 // Export DIET_TRANSLATION for use in UserInfoCapsule
@@ -29,6 +33,8 @@ export const GENDER_TRANSLATION: Translation<User['gender']> = {
   male: 'Masculino',
   female: 'Feminino',
 }
+
+const errorHandler = createErrorHandler('user', 'User')
 
 export function UserInfo() {
   createEffect(() => {
@@ -59,7 +65,7 @@ export function UserInfo() {
   const convertDesiredWeight = (value: string) => Number(value)
 
   const convertGender = (value: string): User['gender'] => {
-    const result = userSchema._def.shape().gender.safeParse(value)
+    const result = userSchema.shape.gender.safeParse(value)
     if (!result.success) {
       return 'male'
     }
@@ -111,17 +117,9 @@ export function UserInfo() {
             return
           }
           // Convert User to NewUser for the update
-          const newUser = {
-            name: user.name,
-            favorite_foods: user.favorite_foods,
-            diet: user.diet,
-            birthdate: user.birthdate,
-            gender: user.gender,
-            desired_weight: user.desired_weight,
-            __type: 'NewUser' as const,
-          }
+          const newUser = demoteUserToNewUser(user)
           updateUser(user.id, newUser).catch((error) => {
-            handleApiError(error)
+            errorHandler.error(error, { operation: 'changeUser' })
             showError(error, {}, 'Erro ao atualizar usuário')
           })
         }}

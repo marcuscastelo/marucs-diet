@@ -1,10 +1,8 @@
-import { format } from 'date-fns'
-import { createSignal } from 'solid-js'
-
 import { type DayDiet } from '~/modules/diet/day-diet/domain/dayDiet'
-import PreviousDayCardActions from '~/sections/day-diet/components/PreviousDayCardActions'
+import { PreviousDayCardActions } from '~/sections/day-diet/components/PreviousDayCardActions'
 import PreviousDayDetailsModal from '~/sections/day-diet/components/PreviousDayDetailsModal'
 import MacroNutrientsView from '~/sections/macro-nutrients/components/MacroNutrientsView'
+import { openContentModal } from '~/shared/modal/helpers/modalHelpers'
 import { calcCalories, calcDayMacros } from '~/shared/utils/macroMath'
 
 type PreviousDayCardProps = {
@@ -15,14 +13,18 @@ type PreviousDayCardProps = {
 }
 
 export function PreviousDayCard(props: PreviousDayCardProps) {
-  const [showDetails, setShowDetails] = createSignal(false)
   const macros = () => calcDayMacros(props.dayDiet)
   const calories = () => calcCalories(macros())
+
+  const normalizedDate = () => {
+    return new Date(props.dayDiet.target_day + 'T00:00:00') // Force UTC interpretation
+  }
+
   return (
     <div class="border rounded p-3 flex flex-col gap-2">
       <div class="flex justify-between">
         <div class="font-semibold">
-          {format(new Date(props.dayDiet.target_day), 'dd/MM/yyyy')}
+          {normalizedDate().toLocaleDateString('en-GB')}
         </div>
         <div class="flex gap-2 text-sm text-gray-600 justify-between px-2 items-center">
           <div>
@@ -37,14 +39,16 @@ export function PreviousDayCard(props: PreviousDayCardProps) {
         dayDiet={props.dayDiet}
         copying={props.copying}
         copyingDay={props.copyingDay}
-        onShowDetails={() => setShowDetails(true)}
+        onShowDetails={() => {
+          openContentModal(
+            () => <PreviousDayDetailsModal dayDiet={props.dayDiet} />,
+            {
+              title: 'Resumo do dia',
+              closeOnOutsideClick: true,
+            },
+          )
+        }}
         onCopy={props.onCopy}
-      />
-
-      <PreviousDayDetailsModal
-        visible={showDetails()}
-        setVisible={setShowDetails}
-        dayDiet={props.dayDiet}
       />
     </div>
   )

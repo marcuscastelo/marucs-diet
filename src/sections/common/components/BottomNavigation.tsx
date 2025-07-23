@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from '@solidjs/router'
 import {
+  createEffect,
   createSignal,
   For,
   type JSXElement,
@@ -17,15 +18,21 @@ import {
   users,
 } from '~/modules/user/application/user'
 import { type User } from '~/modules/user/domain/user'
+import { Button } from '~/sections/common/components/buttons/Button'
+import { ConsoleDumpButton } from '~/sections/common/components/ConsoleDumpButton'
 import { UserIcon } from '~/sections/common/components/icons/UserIcon'
-import { useConfirmModalContext } from '~/sections/common/context/ConfirmModalContext'
 import { useIntersectionObserver } from '~/shared/hooks/useIntersectionObserver'
+import {
+  closeModal,
+  openConfirmModal,
+  openContentModal,
+} from '~/shared/modal/helpers/modalHelpers'
+import { vibrate } from '~/shared/utils/vibrate'
 
 export function BottomNavigation() {
   const navigate = useNavigate()
   const location = useLocation()
-  const pathname = location.pathname
-  const { show: showConfirmModal } = useConfirmModalContext()
+  const pathname = () => location.pathname
 
   const [footerHeight, setFooterHeight] = createSignal(0)
   let footerRef: HTMLDivElement | undefined
@@ -82,29 +89,32 @@ export function BottomNavigation() {
         <div class="z-50 w-full h-16 bg-white border border-gray-200 rounded-full dark:bg-slate-800 dark:border-slate-700 bottom-0">
           <div class="grid h-full max-w-lg grid-cols-5 mx-auto">
             <BottomNavigationTab
-              active={pathname === '/diet'}
+              active={pathname() === '/diet'}
               label="Home"
               icon={HomeIcon}
               onClick={() => {
+                vibrate(50)
                 navigate('/diet')
               }}
               position="first"
             />
             <BottomNavigationTab
-              active={pathname.startsWith('/profile')}
+              active={pathname().startsWith('/profile')}
               label="Perfil"
               icon={ProfileIcon}
               onClick={() => {
+                vibrate(50)
                 navigate('/profile')
               }}
               position="middle"
             />
             <CTAButton />
             <BottomNavigationTab
-              active={pathname.startsWith('/settings')}
+              active={pathname().startsWith('/settings')}
               label="Configurações"
               icon={SettingsIcon}
               onClick={() => {
+                vibrate(50)
                 navigate('/settings')
               }}
               position="middle"
@@ -122,12 +132,14 @@ export function BottomNavigation() {
                 />
               )}
               onClick={() => {
-                showConfirmModal({
-                  title: '',
-                  body: () => <UserSelectorDropdown />,
-                  actions: [],
-                  hasBackdrop: true,
-                })
+                vibrate(50)
+                openContentModal(
+                  (modalId) => <UserSelectorDropdown modalId={modalId} />,
+                  {
+                    closeOnOutsideClick: true,
+                    showCloseButton: false,
+                  },
+                )
               }}
               position="last"
             />
@@ -136,19 +148,25 @@ export function BottomNavigation() {
       </div>
       <footer
         ref={footerRef}
-        class="w-full flex flex-col justify-center items-center gap-1  p-2 rounded-t left-0 bottom-0 z-40 lg:static lg:rounded-none"
+        class="w-full flex flex-col justify-center items-center gap-1 p-2 rounded-t left-0 bottom-0 z-40 lg:static lg:rounded-none"
       >
-        <pre class="text-xs text-white">Version: {APP_VERSION}</pre>
+        <div class="flex flex-col text-center items-center gap-2">
+          <i class="text-xs text-gray-500 dark:text-gray-400">
+            Version: <br />
+            {APP_VERSION}
+          </i>
+          <ConsoleDumpButton />
+        </div>
         <Show when={!window.location.href.includes('stable')}>
-          <button
+          <Button
             type="button"
-            class="btn cursor-pointer uppercase btn-primary btn-xs mt-1"
+            class="btn-primary btn-xs mt-1"
             onClick={() => {
-              window.location.href = 'https://marucs-diet-stable.vercel.app/'
+              window.location.href = 'https://macroflows-stable.vercel.app/'
             }}
           >
             Trocar para versão estável
-          </button>
+          </Button>
         </Show>
       </footer>
     </div>
@@ -178,7 +196,7 @@ function BottomNavigationTab(props: {
       <button
         data-tooltip-target={`tooltip-${props.label}`}
         type="button"
-        class={`${getRound()} inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-slate-900 group cursor-pointer`}
+        class={`${getRound()} inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-slate-900 hover:scale-105 active:scale-102 transition-transform group cursor-pointer`}
         onClick={() => {
           props.onClick()
         }}
@@ -285,42 +303,27 @@ function CTAButton() {
   )
 }
 
-const UserSelectorDropdown = () => {
-  const { show: showConfirmModal, close: closeConfirmModal } =
-    useConfirmModalContext()
-
-  fetchUsers().catch((error) => {
-    console.error('[UserSelectorDropdown] Error fetching users:', error)
-    showError('Erro ao buscar usuários', { context: 'background' })
-    closeConfirmModal()
+const UserSelectorDropdown = (props: { modalId: string }) => {
+  createEffect(() => {
+    const modalId = props.modalId
+    fetchUsers().catch((error) => {
+      console.error('[UserSelectorDropdown] Error fetching users:', error)
+      showError('Erro ao buscar usuários', { context: 'background' })
+      closeModal(modalId)
+    })
   })
 
   const handleChangeUser = (user: User) => {
-    showConfirmModal({
+    vibrate(50)
+    openConfirmModal(`Deseja entrar como ${user.name}?`, {
       title: 'Trocar de usuário',
-      body: () => (
-        <div class="flex justify-between">
-          <span>{`Deseja entrar como ${user.name}?`}</span>
-          <UserIcon
-            class="w-16 h-16"
-            userId={() => user.id}
-            userName={() => user.name}
-          />
-        </div>
-      ),
-      actions: [
-        {
-          text: 'Cancelar',
-          onClick: () => undefined,
-        },
-        {
-          primary: true,
-          text: 'Entrar',
-          onClick: () => {
-            changeToUser(user.id)
-          },
-        },
-      ],
+      confirmText: 'Entrar',
+      cancelText: 'Cancelar',
+      onConfirm: () => {
+        vibrate(50)
+        changeToUser(user.id)
+        closeModal(props.modalId)
+      },
     })
   }
 
@@ -328,8 +331,8 @@ const UserSelectorDropdown = () => {
     <div class="flex flex-col gap-1">
       <For each={users()}>
         {(user) => (
-          <div
-            class="btn cursor-pointer uppercase btn-ghost flex justify-between"
+          <Button
+            class="btn-ghost flex justify-between"
             onClick={() => {
               handleChangeUser(user)
               // Force dropdown to close without having to click outside setting aria
@@ -345,7 +348,7 @@ const UserSelectorDropdown = () => {
               userName={() => user.name}
             />
             <div class="text-xl flex-1 text-start">{user.name}</div>
-          </div>
+          </Button>
         )}
       </For>
     </div>

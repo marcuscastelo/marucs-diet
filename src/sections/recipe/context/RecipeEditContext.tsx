@@ -18,9 +18,10 @@ export type RecipeContext = {
 }
 
 const recipeContext = createContext<RecipeContext | null>(null)
+const unifiedRecipeContext = createContext<RecipeContext | null>(null)
 
 export function useRecipeEditContext() {
-  const context = useContext(recipeContext)
+  const context = useContext(unifiedRecipeContext)
 
   if (context === null) {
     throw new Error(
@@ -48,7 +49,7 @@ export function RecipeEditContextProvider(props: {
   }
 
   return (
-    <recipeContext.Provider
+    <unifiedRecipeContext.Provider
       value={{
         recipe: () => props.recipe(),
         setRecipe: (arg) => props.setRecipe(arg),
@@ -57,6 +58,6 @@ export function RecipeEditContextProvider(props: {
       }}
     >
       {props.children}
-    </recipeContext.Provider>
+    </unifiedRecipeContext.Provider>
   )
 }

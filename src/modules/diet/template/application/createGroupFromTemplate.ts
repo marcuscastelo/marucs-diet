@@ -1,57 +1,58 @@
-import {
-  createRecipedItemGroup,
-  createSimpleItemGroup,
-  type ItemGroup,
-} from '~/modules/diet/item-group/domain/itemGroup'
 import { scaleRecipeByPreparedQuantity } from '~/modules/diet/recipe/domain/recipeOperations'
 import {
   isTemplateRecipe,
   type Template,
 } from '~/modules/diet/template/domain/template'
+import { type TemplateItem } from '~/modules/diet/template-item/domain/templateItem'
 import {
-  isTemplateItemFood,
-  isTemplateItemRecipe,
-  type TemplateItem,
-} from '~/modules/diet/template-item/domain/templateItem'
+  createUnifiedItem,
+  isFoodItem,
+  isRecipeItem,
+  type UnifiedItem,
+} from '~/modules/diet/unified-item/schema/unifiedItemSchema'
+import { generateId } from '~/shared/utils/idUtils'
 
 /**
- * Creates an ItemGroup from a Template and TemplateItem, returning group, operation and templateType.
- * For recipes, this properly scales the recipe items based on the user's desired quantity and
- * the recipe's prepared multiplier.
+ * Creates a UnifiedItem from a Template and TemplateItem.
+ * This is the new unified approach that directly creates UnifiedItems.
  *
  * @param template - The Template (food or recipe)
- * @param item - The TemplateItem (Item or RecipeItem) containing user's desired quantity
- * @returns Object with newGroup, operation, templateType
+ * @param item - The TemplateItem containing user's desired quantity
+ * @returns Object with unifiedItem, operation, templateType
  */
-export function createGroupFromTemplate(
+export function createUnifiedItemFromTemplate(
   template: Template,
   item: TemplateItem,
-): { newGroup: ItemGroup; operation: string; templateType: string } {
-  if (isTemplateItemFood(item)) {
+): { unifiedItem: UnifiedItem; operation: string; templateType: string } {
+  if (isFoodItem(item)) {
     return {
-      newGroup: createSimpleItemGroup({
-        name: item.name,
-        items: [item],
-      }),
-      operation: 'addSimpleItem',
+      unifiedItem: item,
+      operation: 'addUnifiedItem',
       templateType: 'Item',
     }
   }
 
-  if (isTemplateRecipe(template) && isTemplateItemRecipe(item)) {
+  if (isTemplateRecipe(template) && isRecipeItem(item)) {
     // Scale the recipe items based on the user's desired quantity
     const { scaledItems } = scaleRecipeByPreparedQuantity(
       template,
       item.quantity,
     )
 
+    // Create a UnifiedItem with recipe reference containing scaled items
+    const unifiedItem = createUnifiedItem({
+      id: generateId(),
+      name: item.name,
+      quantity: item.quantity,
+      reference: {
+        type: 'recipe',
+        id: template.id,
+        children: scaledItems,
+      },
+    })
     return {
-      newGroup: createRecipedItemGroup({
-        name: item.name,
-        recipe: template.id,
-        items: scaledItems,
-      }),
-      operation: 'addRecipeItem',
+      unifiedItem,
+      operation: 'addUnifiedRecipeItem',
       templateType: 'Recipe',
     }
   }

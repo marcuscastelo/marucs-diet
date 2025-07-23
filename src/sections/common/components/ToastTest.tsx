@@ -1,10 +1,4 @@
-/**
- * Toast Test Component
- *
- * Component to test the toast system with ID-based management.
- */
-
-import { Component, createSignal } from 'solid-js'
+import { type Component, createSignal } from 'solid-js'
 import toast from 'solid-toast'
 
 import {
@@ -13,7 +7,7 @@ import {
   showPromise,
   showSuccess,
 } from '~/modules/toast/application/toastManager'
-import { ToastOptions } from '~/modules/toast/domain/toastTypes'
+import { type ToastOptions } from '~/modules/toast/domain/toastTypes'
 
 const ToastTest: Component = () => {
   const [toastOptions, setToastOptions] = createSignal<Partial<ToastOptions>>({
@@ -69,7 +63,6 @@ const ToastTest: Component = () => {
       promise,
       {
         loading: 'Loading without success message...',
-        // No success message to test if loading toast is removed correctly
       },
       toastOptions(),
     ).catch((err) => {
@@ -193,7 +186,6 @@ const ToastTest: Component = () => {
               promise,
               {
                 loading: 'Loading without success message...',
-                // No success message to test if loading toast is removed correctly
                 error: 'Operação falhou\nPor favor, tente novamente.',
               },
               toastOptions(),

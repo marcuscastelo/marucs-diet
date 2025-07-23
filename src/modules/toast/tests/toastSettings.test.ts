@@ -21,7 +21,7 @@ const DEFAULTS = {
   showDetailedErrors: true,
 }
 
-const STORAGE_KEY = 'marucs-diet:toast-settings'
+const STORAGE_KEY = 'macroflows:toast-settings'
 
 let localStorageMock: Record<string, string> = {}
 

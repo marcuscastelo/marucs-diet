@@ -1,7 +1,7 @@
 import { Show } from 'solid-js'
 
 import { Progress } from '~/sections/common/components/Progress'
-import { calculateWeightProgress } from '~/shared/utils/weightUtils'
+import { type calculateWeightProgress } from '~/shared/utils/weightUtils'
 
 /**
  * Displays the user's weight progress as a progress bar and summary text.

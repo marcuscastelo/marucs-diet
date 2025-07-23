@@ -1,32 +1,51 @@
 # Architecture Audit – Summary
 
-_Last updated: 2025-06-07_
+_Last updated: 2025-07-08_
 
 This document provides a high-level overview of the current state of the codebase architecture, focusing on Domain-Driven Design (DDD), modularity, and separation of concerns. For detailed findings and recommendations, see the linked area-specific audits below.
+
+## **Major Architectural Change: Unified Item System Full Migration (2025-06-27)**
+
+A comprehensive migration to the Unified Item System has been completed for new development and in-memory operations. This means:
+
+- **New development exclusively uses `UnifiedItem`**: All new UI and business logic are built around the `UnifiedItem` type.
+- **Legacy item, item-group, and related view/edit components removed**: All legacy UI and context providers for items and groups have been deleted.
+- **Centralization of business logic**: Validation, macro overflow, clipboard, and ID management logic are now handled in unified components and utilities, eliminating duplication and scattered logic.
+- **Consistent type conversion**: All item and group conversions use shared utilities (`itemToUnifiedItem`, `itemGroupToUnifiedItem`), improving type safety and maintainability.
+- **Improved separation of concerns**: UI components focus on presentation, with business logic delegated to application/domain layers or shared hooks.
+- **Significant reduction in technical debt**: Legacy utilities and context providers have been removed or isolated, and the codebase is now easier to maintain and extend.
+- **Enhanced test coverage**: Tests have been updated to use the unified item factories and conversion utilities, improving reliability and consistency.
+
+**Note on Deprecated Types:** While the migration for new development is complete, some core domain operations (e.g., in `src/modules/diet/item-group/domain/itemGroupOperations.ts` and `src/modules/diet/recipe/domain/recipeOperations.ts`) still interact with the deprecated `Item` type. This is a deliberate decision to maintain backward compatibility and support existing data structures until the next major version release, at which point the full deprecation and removal of the `Item` type will be finalized. This approach ensures a smooth transition without breaking existing functionalities.
+
+
+
 
 ## Audit Index & Status
 | Area                | Audit File                | Status         | Last Update   |
 |---------------------|--------------------------|----------------|--------------|
-| Domain Layer        | [audit_domain.md](./audit_domain.md)         | Initial       | 2025-06-07    |
+| Domain Layer        | [audit_domain.md](./audit_domain.md)         | Updated       | 2025-06-27    |
 | Application Layer   | [audit_application.md](./audit_application.md) | Initial       | 2025-06-07    |
-| Sections/UI Layer   | [audit_sections.md](./audit_sections.md)       | Initial       | 2025-06-07    |
-| Shared & Legacy     | [audit_shared_legacy.md](./audit_shared_legacy.md) | Initial       | 2025-06-07    |
+| Sections/UI Layer   | [audit_sections.md](./audit_sections.md)       | Updated       | 2025-06-27    |
+| Shared & Legacy     | [audit_shared_legacy.md](./audit_shared_legacy.md) | Updated       | 2025-06-27    |
+| Testing Strategy    | [audit_testing_strategy.md](./audit_testing_strategy.md) | Initial       | 2025-07-08    |
 
 ---
 
 ## Key Findings (Summary)
-- **Domain Layer:** Mostly pure, but some schema/ID logic and type handling could be further isolated. See [Domain Audit](./audit_domain.md).
-- **Application Layer:** Error handling is mostly correct, but some orchestration logic may leak into UI or domain. See [Application Audit](./audit_application.md).
-- **Sections/UI:** Some duplication and business logic leakage into UI components. See [Sections Audit](./audit_sections.md).
-- **Shared/Legacy:** Legacy utilities and shared code sometimes break DDD boundaries. See [Shared & Legacy Audit](./audit_shared_legacy.md).
+- **Unified Item System:** All item, group, and recipe UI flows are now handled by unified components. Legacy code and duplication have been eliminated.
+- **Business Logic Centralization:** Validation, macro overflow, and clipboard logic are now centralized in unified utilities and components.
+- **Type Safety:** All conversions and type guards are handled by shared utilities, reducing errors and improving maintainability.
+- **Legacy Utility Removal:** Most legacy utilities and context providers have been removed. Remaining usage is isolated and scheduled for migration.
+- **Test Coverage:** All tests now use unified item factories and conversion utilities, improving reliability.
 
 ---
 
 ## Next Steps
-- Prioritize refactoring areas with high urgency in each audit.
-- Schedule focused reviews for modules with unclear boundaries.
-- Expand audits to cover test structure, error propagation, and cross-module dependencies.
-- For deeper analysis, create new audit files per module/section as needed and link them here.
+- Continue migration of any remaining legacy utilities and shared code.
+- Monitor unified system performance and optimize as needed.
+- Expand audits to cover async flows, error propagation, and cross-module dependencies.
+- Review and improve test coverage for all modules and shared utilities.
 
 ---
 
@@ -78,14 +97,7 @@ This document provides a high-level overview of the current state of the codebas
 
 ## Summary
 
-The codebase demonstrates strong modularity and a clear intent to follow DDD and clean architecture principles. Most business areas are well-structured, with separation between domain, application, and UI layers. However, there are recurring issues:
-- ID generation and legacy utility usage in domain code (especially in diet submodules).
-- Business logic leakage and code duplication in UI/sections.
-- Inconsistent repository interfaces and lack of custom error types.
-- Some modules lack a true domain layer (e.g., profile).
-- Shared/legacy code still present in critical paths.
-
-The enriched roadmap above prioritizes DDD purity, separation of concerns, consolidation of shared logic, and migration from legacy patterns. Following these steps will increase maintainability, testability, and clarity for future contributors, and help avoid common DDD pitfalls.
+The codebase now demonstrates strong modularity and a clear intent to follow DDD and clean architecture principles. The unified item system migration is complete, and all business areas are well-structured, with separation between domain, application, and UI layers. Remaining work focuses on legacy utility migration, test coverage, and further consolidation of shared logic.
 
 _See area-specific audits in the docs/ folder for detailed findings and actionable tasks._
 

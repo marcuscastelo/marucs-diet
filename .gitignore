@@ -37,3 +37,6 @@ src/app-version.json
 .github/prompts/.*.md
 android-sdk/
 android/
+*.log
+
+.serena/cache

@@ -1,33 +1,23 @@
-import { type JSXElement, Suspense } from 'solid-js'
+import { type JSXElement } from 'solid-js'
 
 import { lazyImport } from '~/shared/solid/lazyImport'
 
-const { GlobalModalContainer } = lazyImport(
-  () => import('~/modules/toast/ui/GlobalModalContainer'),
-  ['GlobalModalContainer'],
+const { UnifiedModalContainer } = lazyImport(
+  () => import('~/shared/modal/components/UnifiedModalContainer'),
+  ['UnifiedModalContainer'],
 )
-const { ConfirmModal } = lazyImport(
-  () => import('~/sections/common/components/ConfirmModal'),
-  ['ConfirmModal'],
-)
+
 const { DarkToaster } = lazyImport(
   () => import('~/sections/common/components/DarkToaster'),
   ['DarkToaster'],
 )
-const { ConfirmModalProvider } = lazyImport(
-  () => import('~/sections/common/context/ConfirmModalContext'),
-  ['ConfirmModalProvider'],
-)
 
 export function Providers(props: { children: JSXElement }) {
   return (
-    <ConfirmModalProvider>
-      <Suspense fallback={<></>}>
-        <ConfirmModal />
-        <DarkToaster />
-        <GlobalModalContainer />
-      </Suspense>
+    <>
+      <DarkToaster />
+      <UnifiedModalContainer />
       {props.children}
-    </ConfirmModalProvider>
+    </>
   )
 }

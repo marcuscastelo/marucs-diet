@@ -1,4 +1,4 @@
-import { createEffect, createSignal } from 'solid-js'
+import { createResource } from 'solid-js'
 
 import {
   type MacroProfile,
@@ -10,45 +10,26 @@ import {
 } from '~/modules/diet/macro-profile/infrastructure/supabaseMacroProfileRepository'
 import { showPromise } from '~/modules/toast/application/toastManager'
 import { currentUserId } from '~/modules/user/application/user'
-import { handleApiError } from '~/shared/error/errorHandler'
+import { createErrorHandler } from '~/shared/error/errorHandler'
 import { getLatestMacroProfile } from '~/shared/utils/macroProfileUtils'
 import { registerSubapabaseRealtimeCallback } from '~/shared/utils/supabase'
 
 const macroProfileRepository = createSupabaseMacroProfileRepository()
 
-export const [userMacroProfiles, setUserMacroProfiles] = createSignal<
-  readonly MacroProfile[]
->([])
+export const [userMacroProfiles, { refetch: refetchUserMacroProfiles }] =
+  createResource(currentUserId, fetchUserMacroProfiles, {
+    initialValue: [],
+    ssrLoadFrom: 'initial',
+  })
 
 export const latestMacroProfile = () =>
-  getLatestMacroProfile(userMacroProfiles())
+  getLatestMacroProfile(userMacroProfiles.latest)
 
-function bootstrap() {
-  void showPromise(
-    fetchUserMacroProfiles(currentUserId()),
-    {
-      loading: 'Carregando perfis de macro...',
-      success: 'Perfis de macro carregados com sucesso',
-      error: 'Falha ao carregar perfis de macro',
-    },
-    {
-      context: 'background',
-    },
-  )
-}
+export const previousMacroProfile = () =>
+  getLatestMacroProfile(userMacroProfiles.latest, 1)
 
-/**
- * Every time the user changes, fetch all user macro profiles
- */
-createEffect(() => {
-  bootstrap()
-})
-
-/**
- * When a realtime event occurs, fetch all user macro profiles again
- */
 registerSubapabaseRealtimeCallback(SUPABASE_TABLE_MACRO_PROFILES, () => {
-  bootstrap()
+  void refetchUserMacroProfiles()
 })
 
 /**
@@ -56,17 +37,23 @@ registerSubapabaseRealtimeCallback(SUPABASE_TABLE_MACRO_PROFILES, () => {
  * @param userId - The user ID.
  * @returns Array of macro profiles or empty array on error.
  */
-export async function fetchUserMacroProfiles(
+async function fetchUserMacroProfiles(
   userId: number,
 ): Promise<readonly MacroProfile[]> {
   try {
-    const macroProfiles =
-      await macroProfileRepository.fetchUserMacroProfiles(userId)
-    setUserMacroProfiles(macroProfiles)
-    return macroProfiles
+    return await showPromise(
+      macroProfileRepository.fetchUserMacroProfiles(userId),
+      {
+        loading: 'Carregando perfis de macro...',
+        success: 'Perfis de macro carregados com sucesso',
+        error: 'Falha ao carregar perfis de macro',
+      },
+      {
+        context: 'background',
+      },
+    )
   } catch (error) {
-    handleApiError(error)
-    setUserMacroProfiles([])
+    errorHandler.error(error)
     return []
   }
 }
@@ -76,6 +63,8 @@ export async function fetchUserMacroProfiles(
  * @param newMacroProfile - The new macro profile data.
  * @returns The inserted macro profile or null on error.
  */
+const errorHandler = createErrorHandler('application', 'MacroProfile')
+
 export async function insertMacroProfile(
   newMacroProfile: NewMacroProfile,
 ): Promise<MacroProfile | null> {
@@ -103,7 +92,7 @@ export async function insertMacroProfile(
     }
     return macroProfile
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return null
   }
 }
@@ -143,7 +132,7 @@ export async function updateMacroProfile(
     }
     return macroProfile
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return null
   }
 }
@@ -172,7 +161,7 @@ export async function deleteMacroProfile(
     }
     return true
   } catch (error) {
-    handleApiError(error)
+    errorHandler.error(error)
     return false
   }
 }

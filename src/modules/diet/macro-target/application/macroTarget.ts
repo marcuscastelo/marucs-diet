@@ -1,4 +1,7 @@
-import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
+import {
+  createMacroNutrients,
+  type MacroNutrients,
+} from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { userMacroProfiles } from '~/modules/diet/macro-profile/application/macroProfile'
 import { type MacroProfile } from '~/modules/diet/macro-profile/domain/macroProfile'
 import { showError } from '~/modules/toast/application/toastManager'
@@ -13,11 +16,12 @@ export const calculateMacroTarget = (
     MacroProfile,
     'gramsPerKgCarbs' | 'gramsPerKgFat' | 'gramsPerKgProtein'
   >,
-): MacroNutrients => ({
-  carbs: weight * savedMacroTarget.gramsPerKgCarbs,
-  protein: weight * savedMacroTarget.gramsPerKgProtein,
-  fat: weight * savedMacroTarget.gramsPerKgFat,
-})
+): MacroNutrients =>
+  createMacroNutrients({
+    carbs: weight * savedMacroTarget.gramsPerKgCarbs,
+    protein: weight * savedMacroTarget.gramsPerKgProtein,
+    fat: weight * savedMacroTarget.gramsPerKgFat,
+  })
 
 class WeightNotFoundForDayError extends Error {
   readonly day: Date
@@ -74,7 +78,8 @@ class MacroTargetNotFoundForDayError extends Error {
 }
 
 export const getMacroTargetForDay = (day: Date): MacroNutrients | null => {
-  const targetDayWeight_ = inForceWeight(userWeights(), day)?.weight ?? null
+  const targetDayWeight_ =
+    inForceWeight(userWeights.latest, day)?.weight ?? null
   const targetDayMacroProfile_ = inForceMacroProfile(userMacroProfiles(), day)
 
   const userId = currentUserId()
