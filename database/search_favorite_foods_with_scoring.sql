@@ -28,9 +28,9 @@ DECLARE
   user_favorite_ids bigint[];
 BEGIN
   -- Get user's favorite foods from users table
-  SELECT favorite_foods INTO user_favorite_ids
-  FROM public.users 
-  WHERE id = p_user_id;
+  SELECT u.favorite_foods INTO user_favorite_ids
+  FROM public.users u
+  WHERE u.id = p_user_id;
   
   -- Handle empty favorite list - return empty result
   IF user_favorite_ids IS NULL OR array_length(user_favorite_ids, 1) IS NULL OR array_length(user_favorite_ids, 1) = 0 THEN
