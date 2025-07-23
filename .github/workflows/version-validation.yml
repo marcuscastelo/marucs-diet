@@ -40,7 +40,7 @@ jobs:
       - name: Validate Git tag
         shell: bash
         run: |
-          branch_version=$(echo ${{ github.head_ref }} | sed 's/^rc\///')
+          branch_version=$(echo ${{ github.head_ref }} | sed 's/^rc\/v//')
           if ! git tag | grep -q "$branch_version"; then
             echo "Error: Git tag $branch_version does not exist."
             exit 1
