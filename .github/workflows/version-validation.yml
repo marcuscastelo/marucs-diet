@@ -41,7 +41,7 @@ jobs:
         shell: bash
         run: |
           branch_version=$(echo ${{ github.head_ref }} | sed 's/^rc\/v//')
-          if ! git tag | grep -q "v$branch_version"; then
-            echo "Error: Git tag $branch_version does not exist."
+          if ! git ls-remote --tags origin | grep -q "refs/tags/v$branch_version"; then
+            echo "Error: Git tag v$branch_version does not exist on remote."
             exit 1
           fi
