@@ -4,10 +4,11 @@
 
 -- Drop existing function to avoid conflicts
 DROP FUNCTION IF EXISTS search_favorite_foods_with_scoring(text, bigint[], integer);
+DROP FUNCTION IF EXISTS search_favorite_foods_with_scoring(bigint, text, integer);
 
 CREATE OR REPLACE FUNCTION search_favorite_foods_with_scoring(
+  p_user_id bigint,
   p_search_term text,
-  p_favorite_ids bigint[],
   p_limit integer DEFAULT 50
 )
 RETURNS TABLE (
@@ -24,9 +25,15 @@ DECLARE
   normalized_search text;
   search_words text[];
   word_count integer;
+  user_favorite_ids bigint[];
 BEGIN
+  -- Get user's favorite foods from users table
+  SELECT favorite_foods INTO user_favorite_ids
+  FROM public.users 
+  WHERE id = p_user_id;
+  
   -- Handle empty favorite list - return empty result
-  IF p_favorite_ids IS NULL OR array_length(p_favorite_ids, 1) IS NULL OR array_length(p_favorite_ids, 1) = 0 THEN
+  IF user_favorite_ids IS NULL OR array_length(user_favorite_ids, 1) IS NULL OR array_length(user_favorite_ids, 1) = 0 THEN
     RETURN;
   END IF;
 
@@ -41,7 +48,7 @@ BEGIN
       f.source,
       f.created_at
     FROM public.foods f
-    WHERE f.id = ANY(p_favorite_ids)
+    WHERE f.id = ANY(user_favorite_ids)
       AND f.name != '' AND f.name != '.'
     ORDER BY f.name ASC
     LIMIT p_limit;
@@ -137,7 +144,7 @@ BEGIN
         ) * 0.6
       END as relevance_score
     FROM public.foods f
-    WHERE f.id = ANY(p_favorite_ids)  -- Pre-filter to favorites for performance
+    WHERE f.id = ANY(user_favorite_ids)  -- Pre-filter to favorites for performance
       AND f.name != '' AND f.name != '.'
       AND (
         -- Use ILIKE for basic matching (handles most cases efficiently)

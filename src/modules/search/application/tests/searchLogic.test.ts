@@ -143,7 +143,7 @@ describe('fetchTemplatesByTabLogic', () => {
     expect(deps.fetchFoodsByName).toHaveBeenCalledWith(search, { limit: 50 })
   })
 
-  it('calls fetchFoodsByName with allowedFoods for Favoritos tab and non-empty search', async () => {
+  it('calls fetchFoodsByName with userId and isFavoritesSearch for Favoritos tab and non-empty search', async () => {
     const search = 'Banana'
     const favoriteFoods = [1, 2, 3]
     deps.getFavoriteFoods = () => favoriteFoods
@@ -157,7 +157,8 @@ describe('fetchTemplatesByTabLogic', () => {
 
     expect(deps.fetchFoodsByName).toHaveBeenCalledWith(search, {
       limit: undefined,
-      allowedFoods: favoriteFoods,
+      userId,
+      isFavoritesSearch: true,
     })
   })
 

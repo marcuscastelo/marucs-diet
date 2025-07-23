@@ -153,15 +153,15 @@ async function fetchFoodsByName(
   params: FoodSearchParams = {},
 ) {
   try {
-    // Use optimized favorites search if allowedFoods is provided
-    const { allowedFoods, limit = 50 } = params
+    // Use optimized favorites search if userId and isFavoritesSearch are provided
+    const { userId, isFavoritesSearch, limit = 50 } = params
 
     let result
-    if (allowedFoods !== undefined && allowedFoods.length > 0) {
+    if (isFavoritesSearch === true && userId !== undefined) {
       // Search within favorites only using optimized RPC
       result = await supabase.rpc('search_favorite_foods_with_scoring', {
+        p_user_id: userId,
         p_search_term: name,
-        p_favorite_ids: allowedFoods,
         p_limit: limit,
       })
     } else {
@@ -183,7 +183,7 @@ async function fetchFoodsByName(
     }
 
     const searchType =
-      allowedFoods !== undefined && allowedFoods.length > 0
+      isFavoritesSearch === true && userId !== undefined
         ? 'favorites search'
         : 'enhanced search'
     debug(
