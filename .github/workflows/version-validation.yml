@@ -21,8 +21,8 @@ jobs:
       - name: Validate package.json version
         shell: bash
         run: |
-          branch_version=$(echo ${{ github.head_ref }} | sed 's/^rc\///')
-          package_version="v$(jq -r .version package.json)"
+          branch_version=$(echo ${{ github.head_ref }} | sed 's/^rc\/v//')
+          package_version=$(jq -r .version package.json)
           if [ "$branch_version" != "$package_version" ]; then
             echo "Error: package.json version ($package_version) does not match branch version ($branch_version)."
             exit 1
