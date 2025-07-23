@@ -100,8 +100,15 @@ export function synchronizeRecipeItemWithOriginal(
   // Use original items directly - no need to regenerate IDs
   const syncedChildren = [...originalRecipeItems]
 
+  // Calculate total quantity from synchronized children to maintain consistency
+  const totalQuantity = syncedChildren.reduce(
+    (sum, child) => sum + child.quantity,
+    0,
+  )
+
   return {
     ...recipeItem,
+    quantity: totalQuantity,
     reference: {
       ...recipeItem.reference,
       children: syncedChildren,
