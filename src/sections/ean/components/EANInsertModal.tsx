@@ -49,6 +49,8 @@ export const EANInsertModal = (props: EANInsertModalProps) => {
 
   // Auto-select food when it is set to avoid user clicking twice
   createEffect(() => {
+    console.debug('ModalID: ' + props.modalId)
+    console.debug(modals())
     if (food() !== null) {
       handleSelect()
     }
