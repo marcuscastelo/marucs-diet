@@ -86,9 +86,13 @@ export function EANReader(props: {
         })
 
       stopFn = () => {
-        scanner.stop().catch((err) => {
-          errorHandler.error(err, { operation: 'stopScanner' })
-        })
+        try {
+          scanner.stop().catch((err) => {
+            errorHandler.error(err, { operation: 'stopScannerPromise' })
+          })
+        } catch (err) {
+          errorHandler.error(err, { operation: 'stopScannerTryCatch' })
+        }
       }
     }
 
@@ -98,7 +102,7 @@ export function EANReader(props: {
     })
     onCleanup(() => {
       console.debug('EANReader onCleanup()')
-      stopFn?.()
+      setTimeout(() => stopFn?.(), 5000)
     })
   })
   return (
