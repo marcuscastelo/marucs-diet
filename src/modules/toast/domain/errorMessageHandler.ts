@@ -160,6 +160,7 @@ function mapUnknownToToastError(
   }
 
   if (typeof error === 'object' && error !== null) {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const errorObj = error as Record<string, unknown>
     let message: string
     if (typeof errorObj.message === 'string') {

@@ -34,13 +34,11 @@ export function getCallerFile(): string | undefined {
     Error.prepareStackTrace = (_, stack) => stack
     const err = new Error()
 
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const stack = err.stack as unknown as NodeJS.CallSite[]
 
-    // stack[0] = getCallerFile
-    // stack[1] = quem chamou getCallerFile
-    // stack[2] = o arquivo chamador da função que chamou getCallerFile
     const caller = stack[2]
-    return caller?.getFileName?.() ?? undefined
+    return caller?.getFileName() ?? undefined
   } finally {
     Error.prepareStackTrace = originalPrepareStackTrace
   }

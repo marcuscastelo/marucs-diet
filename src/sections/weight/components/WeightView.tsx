@@ -80,9 +80,7 @@ export function WeightView(props: WeightViewProps) {
               showError('Data inválida: \n' + JSON.stringify(value))
               return
             }
-            const date = normalizeDateToLocalMidnightPlusOne(
-              value.startDate as string,
-            )
+            const date = normalizeDateToLocalMidnightPlusOne(value.startDate)
             dateField.setRawValue(dateToYYYYMMDD(date))
             handleSave({
               dateValue: date,

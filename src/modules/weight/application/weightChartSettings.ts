@@ -28,9 +28,11 @@ function getStoredChartType(): WeightChartType {
   }
 
   const stored = localStorage.getItem(STORAGE_KEY)
-  const validTypes: readonly string[] = ['7d', '14d', '30d', '6m', '1y', 'all']
+  const validTypes = ['7d', '14d', '30d', '6m', '1y', 'all'] as const
 
+  // TODO: Make tuple.includes narrow item type if tuple is const
   if (stored !== null && validTypes.includes(stored)) {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     return stored as WeightChartType
   }
 

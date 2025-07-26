@@ -11,13 +11,11 @@ export type CopyButtonProps<T> = {
 }
 
 export function CopyButton<T>(props: CopyButtonProps<T>): JSXElement {
-  const shouldStopPropagation = props.stopPropagation ?? true
-
   return (
     <div
       class={props.class ?? COPY_BUTTON_STYLES}
       onClick={(e) => {
-        if (shouldStopPropagation) {
+        if (props.stopPropagation ?? true) {
           e.stopPropagation()
           e.preventDefault()
         }

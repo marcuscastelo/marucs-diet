@@ -338,6 +338,7 @@ const UserSelectorDropdown = (props: { modalId: string }) => {
               // Force dropdown to close without having to click outside setting aria
               // Credit: https://reacthustle.com/blog/how-to-close-daisyui-dropdown-with-one-click
               const dropdown =
+                // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
                 document.activeElement as HTMLAnchorElement | null
               dropdown?.blur()
             }}

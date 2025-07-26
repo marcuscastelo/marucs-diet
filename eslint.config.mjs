@@ -50,7 +50,7 @@ export default [
       "simple-import-sort/imports": "warn",
       "simple-import-sort/exports": "warn",
       'no-restricted-imports': [
-        'warn',
+        'error',
         {
           patterns: ['../*', './*'],
           paths: [
@@ -84,10 +84,10 @@ export default [
       '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
       '@typescript-eslint/prefer-readonly-parameter-types': 'off',
       '@typescript-eslint/strict-boolean-expressions': 'error',
-      '@typescript-eslint/no-unnecessary-type-assertion': 'warn',
-      '@typescript-eslint/no-unnecessary-condition': 'warn',
+      '@typescript-eslint/no-unnecessary-type-assertion': 'error',
+      '@typescript-eslint/no-unnecessary-condition': 'error',
       '@typescript-eslint/consistent-type-assertions': [
-        'warn',
+        'error',
         { assertionStyle: 'never' },
       ],
       '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports', fixStyle: 'inline-type-imports' }],
@@ -97,7 +97,7 @@ export default [
 
       'no-unused-vars': 'off',
       "@typescript-eslint/no-unused-vars": [
-        "warn",
+        "error",
         {
           "args": "all",
           "argsIgnorePattern": "^_",

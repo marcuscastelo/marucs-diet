@@ -6,7 +6,6 @@ import {
   untrack,
 } from 'solid-js'
 
-import { type MacroNutrients } from '~/modules/diet/macro-nutrients/domain/macroNutrients'
 import { scaleRecipeItemQuantity } from '~/modules/diet/unified-item/domain/unifiedItemOperations'
 import {
   isFoodItem,

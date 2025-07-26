@@ -27,7 +27,12 @@ export function ComboBox<T extends string>(
     <select
       class={`select select-bordered ${props.class ?? ''}`}
       value={props.value}
-      onInput={(e) => props.onChange(e.currentTarget.value as T)}
+      onInput={(e) => {
+        const value = e.currentTarget.value
+        // Safe cast since T extends string and options are constrained
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+        props.onChange(value as T)
+      }}
     >
       <For each={props.options}>
         {(option) => (

@@ -20,7 +20,7 @@ type Translation<T extends string> = { [key in T]: string }
 
 const makeOnChange = <T extends keyof User>(
   field: T,
-  convert: (value: string) => string,
+  convert: (value: string) => User[T] | string,
 ) => {
   return (
     event: Event & {
@@ -38,6 +38,8 @@ const makeOnChange = <T extends keyof User>(
 
     const newUser: Mutable<User> = { ...innerData_ }
 
+    // TODO: Stop storing intermediate values with type assertion lies (maybe store in local var)
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     newUser[field] = convert(event.target.value) as unknown as User[T]
     setInnerData(newUser)
   }
@@ -187,6 +189,7 @@ function RightContent<T extends keyof Omit<User, '__type'>>(props: {
                   'btn-ghost input bg-transparent text-center px-0 text-xl my-auto'
                 }
                 value={valueToString(innerData()[props.field])}
+                // TODO: Stop storing intermediate values with type assertion lies (maybe store in local var)
                 onChange={makeOnChange(props.field, convertString)}
                 onBlur={makeOnBlur(props.field, props.convert)}
                 style={{ width: '100%' }}

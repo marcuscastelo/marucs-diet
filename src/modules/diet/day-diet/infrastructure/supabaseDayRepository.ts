@@ -9,7 +9,6 @@ import { type DayRepository } from '~/modules/diet/day-diet/domain/dayDietReposi
 import {
   createDayDietDAOFromNewDayDiet,
   daoToDayDiet,
-  type DayDietDAO,
 } from '~/modules/diet/day-diet/infrastructure/dayDietDAO'
 import { type User } from '~/modules/user/domain/user'
 import {
@@ -140,9 +139,11 @@ const insertDayDiet = async (newDay: NewDayDiet): Promise<DayDiet | null> => {
     throw wrapErrorWithStack(error)
   }
 
-  const dayDAO = days[0] as DayDietDAO | undefined
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const dayDAO = days[0]
   if (dayDAO !== undefined) {
     // Data is already in unified format, no migration needed for new inserts
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return daoToDayDiet(dayDAO)
   }
   return null
@@ -166,8 +167,10 @@ const updateDayDiet = async (
     throw error
   }
 
-  const dayDAO = data[0] as DayDietDAO
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const dayDAO = data[0]
   // Data is already in unified format, no migration needed for updates
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   return daoToDayDiet(dayDAO)
 }
 

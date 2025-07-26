@@ -16,10 +16,10 @@ export function isSupabaseDuplicateKeyError(
     typeof error === 'object' &&
     error !== null &&
     'code' in error &&
-    (error as { code?: string }).code === '23505' &&
+    error.code === '23505' &&
     'message' in error &&
-    typeof (error as { message?: string }).message === 'string' &&
-    (error as { message: string }).message.includes(uniqueKey)
+    typeof error.message === 'string' &&
+    error.message.includes(uniqueKey)
   ) {
     if (
       ean !== undefined &&

@@ -87,7 +87,9 @@ async function fetchApiFoodsByName(
 
   console.debug(`[ApiFood] Response from url ${url}`, response.data)
 
-  const data = response.data as Record<string, unknown>
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const data = response.data
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
   const alimentosRaw = data.alimentos
   if (!Array.isArray(alimentosRaw)) {
     errorHandler.error(new Error('Invalid alimentos array in API response'), {

@@ -49,16 +49,16 @@ export function UserInfo() {
       return
     }
 
-    const reduceFunc = (acc: UnsavedFields, key: string) => {
-      acc[key as keyof UnsavedFields] =
-        innerData_[key as keyof UnsavedFields] !== user_[key as keyof User]
+    const reduceFunc = (acc: UnsavedFields, key: keyof UnsavedFields) => {
+      acc[key] = innerData_[key] !== user_[key]
       return acc
     }
+
+    // TODO: Find a way to make Object.keys strongly typed
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    const keys = Object.keys(innerData_) as (keyof UnsavedFields)[]
     setUnsavedFields(
-      Object.keys(innerData_).reduce<UnsavedFields>(
-        reduceFunc,
-        {} satisfies UnsavedFields,
-      ),
+      keys.reduce<UnsavedFields>(reduceFunc, {} satisfies UnsavedFields),
     )
   })
 
@@ -73,6 +73,7 @@ export function UserInfo() {
   }
 
   const convertDiet = (value: string): User['diet'] =>
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     (Object.keys(DIET_TRANSLATION) as Array<User['diet']>).find(
       (key) => key === value,
     ) ?? 'normo'

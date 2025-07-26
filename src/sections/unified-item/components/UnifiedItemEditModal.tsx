@@ -292,24 +292,26 @@ export const UnifiedItemEditModal = (_props: UnifiedItemEditModalProps) => {
 
               {/* Edit recipe button - only show for recipe items */}
               <Show when={isRecipeItem(item()) && originalRecipe()}>
-                <button
-                  class="btn btn-sm btn-ghost text-white rounded-md flex items-center gap-1"
-                  onClick={() => {
-                    openRecipeEditModal({
-                      recipe: () => originalRecipe() as Recipe,
-                      onSaveRecipe: (updatedRecipe) => {
-                        void handleSaveRecipe(updatedRecipe)
-                      },
-                      onRefetch: () => {},
-                      onDelete: (recipeId) => {
-                        void handleDeleteRecipe(recipeId)
-                      },
-                    })
-                  }}
-                  title="Editar receita original"
-                >
-                  ✏️
-                </button>
+                {(originalRecipe) => (
+                  <button
+                    class="btn btn-sm btn-ghost text-white rounded-md flex items-center gap-1"
+                    onClick={() => {
+                      openRecipeEditModal({
+                        recipe: () => originalRecipe(),
+                        onSaveRecipe: (updatedRecipe) => {
+                          void handleSaveRecipe(updatedRecipe)
+                        },
+                        onRefetch: () => {},
+                        onDelete: (recipeId) => {
+                          void handleDeleteRecipe(recipeId)
+                        },
+                      })
+                    }}
+                    title="Editar receita original"
+                  >
+                    ✏️
+                  </button>
+                )}
               </Show>
             </div>
           </Show>

@@ -2,10 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 import {
   acceptDayChange,
-  currentToday,
   dayChangeData,
-  dismissDayChangeModal,
-  setCurrentToday,
   setDayChangeData,
 } from '~/modules/diet/day-diet/application/dayDiet'
 import * as dateUtils from '~/shared/utils/date/dateUtils'
