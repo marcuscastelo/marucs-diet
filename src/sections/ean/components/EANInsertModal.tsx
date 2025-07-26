@@ -21,7 +21,6 @@ let currentId = 1
 export const EANInsertModal = (props: EANInsertModalProps) => {
   const [EAN, setEAN] = createSignal<string>('')
   const [food, setFood] = createSignal<Food | null>(null)
-  const [isScanning, setIsScanning] = createSignal(true)
 
   const handleSelect = (
     e?: MouseEvent & {
@@ -37,22 +36,11 @@ export const EANInsertModal = (props: EANInsertModalProps) => {
       return
     }
 
-    // Stop scanning to unmount EANReader and trigger camera cleanup
-    setIsScanning(false)
-
-    // Allow time for component cleanup before calling onSelect
-    setTimeout(() => {
-      props.onSelect(food_)
-    }, 100)
+    props.onSelect(food_)
   }
 
   const handleCancel = () => {
-    setIsScanning(false)
-
-    // Allow time for component cleanup before closing
-    setTimeout(() => {
-      props.onClose?.()
-    }, 100)
+    props.onClose?.()
   }
 
   // Auto-select food when it is set to avoid user clicking twice
@@ -64,9 +52,7 @@ export const EANInsertModal = (props: EANInsertModalProps) => {
 
   return (
     <div class="ean-insert-modal-content">
-      {isScanning() && (
-        <EANReader id={`EAN-reader-${currentId++}`} onScanned={setEAN} />
-      )}
+      <EANReader id={`EAN-reader-${currentId++}`} onScanned={setEAN} />
       <Suspense fallback={<LoadingRing />}>
         <EANSearch EAN={EAN} setEAN={setEAN} food={food} setFood={setFood} />
       </Suspense>
