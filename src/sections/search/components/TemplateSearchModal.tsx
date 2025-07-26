@@ -229,9 +229,10 @@ export function TemplateSearchModal(props: TemplateSearchModalProps) {
   }
 
   const handleEANModal = () => {
-    const modalId = openContentModal(
-      () => (
+    openContentModal(
+      (modalId) => (
         <EANInsertModal
+          modalId={modalId}
           onSelect={(template: Template) => {
             handleTemplateSelected(template)
             closeModal(modalId)
