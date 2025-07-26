@@ -3,10 +3,6 @@ import { describe, expect, it } from 'vitest'
 import {
   createRecentFoodInput,
   type RecentFoodCreationParams,
-  type RecentFoodInput,
-  type RecentFoodRecord,
-  type RecentFoodRepository,
-  type RecentFoodType,
 } from '~/modules/recent-food/domain/recentFood'
 
 describe('Recent Food Domain', () => {

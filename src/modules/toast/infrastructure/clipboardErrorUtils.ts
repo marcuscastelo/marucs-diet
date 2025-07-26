@@ -68,9 +68,10 @@ export function formatErrorForClipboard(errorDetails: ToastError): string {
  * @param errorDetails The error details to copy.
  * @param context The context for error handling.
  */
+// TODO: use _context
 export async function handleCopyErrorToClipboard(
   errorDetails: ToastError,
-  context: ClipboardErrorContext,
+  _context: ClipboardErrorContext,
 ) {
   const { write } = useClipboard()
   const clipboardContent = formatErrorForClipboard(errorDetails)

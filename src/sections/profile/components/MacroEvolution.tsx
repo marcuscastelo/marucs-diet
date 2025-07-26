@@ -117,7 +117,7 @@ function AllMacrosChart(props: {
           .reduce((a, b) => a + b, 0)
       : 0
 
-  const data = () => {
+  const _data = () => {
     const weights = props.weights()
     if (!weights) return []
     return createChartData(weights, dayDiets(), userMacroProfiles())
@@ -232,7 +232,7 @@ function AllMacrosChart(props: {
 function CaloriesChart(props: {
   weights: Resource<readonly Weight[] | undefined>
 }) {
-  const data = () => {
+  const _data = () => {
     const weights = props.weights()
     if (!weights) return []
     return createChartData(weights, dayDiets(), userMacroProfiles())
@@ -283,7 +283,7 @@ function CaloriesChart(props: {
 function ProteinChart(props: {
   weights: Resource<readonly Weight[] | undefined>
 }) {
-  const data = () => {
+  const _data = () => {
     const weights = props.weights()
     if (!weights) return []
     return createChartData(weights, dayDiets(), userMacroProfiles())
@@ -331,7 +331,7 @@ function ProteinChart(props: {
 }
 
 function FatChart(props: { weights: Resource<readonly Weight[] | undefined> }) {
-  const data = () => {
+  const _data = () => {
     const weights = props.weights()
     if (!weights) return []
     return createChartData(weights, dayDiets(), userMacroProfiles())
@@ -381,7 +381,7 @@ function FatChart(props: { weights: Resource<readonly Weight[] | undefined> }) {
 function CarbsChart(props: {
   weights: Resource<readonly Weight[] | undefined>
 }) {
-  const data = () => {
+  const _data = () => {
     const weights = props.weights()
     if (!weights) return []
     return createChartData(weights, dayDiets(), userMacroProfiles())

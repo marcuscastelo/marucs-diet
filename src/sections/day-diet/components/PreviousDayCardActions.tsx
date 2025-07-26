@@ -34,7 +34,10 @@ export function PreviousDayCardActions(props: PreviousDayCardActionsProps) {
 
   return (
     <div class="flex gap-3">
-      <button class="btn-secondary btn flex-1" onClick={props.onShowDetails}>
+      <button
+        class="btn-secondary btn flex-1"
+        onClick={() => props.onShowDetails()}
+      >
         Ver dia
       </button>
       <button

@@ -1,6 +1,5 @@
 import { json } from '@solidjs/router'
 import { type APIEvent } from '@solidjs/start/server'
-import { type AxiosError } from 'axios'
 
 import { createApiFoodRepository } from '~/modules/diet/food/infrastructure/api/infrastructure/apiFoodRepository'
 import { createErrorHandler } from '~/shared/error/errorHandler'
@@ -8,6 +7,15 @@ import { createErrorHandler } from '~/shared/error/errorHandler'
 const apiFoodRepository = createApiFoodRepository()
 
 const errorHandler = createErrorHandler('infrastructure', 'Food')
+
+function getErrorStatus(error: unknown): number {
+  if (error !== null && typeof error === 'object' && 'status' in error) {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    const status = (error as { status: unknown }).status
+    return typeof status === 'number' ? status : 500
+  }
+  return 500
+}
 
 export async function GET({ params }: APIEvent) {
   console.debug('GET', params)
@@ -24,9 +32,12 @@ export async function GET({ params }: APIEvent) {
     return json(
       {
         error:
-          'Error fetching food item by EAN: ' + (error as AxiosError).message,
+          'Error fetching food item by EAN: ' +
+          (error instanceof Error ? error.message : String(error)),
       },
-      { status: (error as AxiosError).status },
+      {
+        status: getErrorStatus(error),
+      },
     )
   }
 }

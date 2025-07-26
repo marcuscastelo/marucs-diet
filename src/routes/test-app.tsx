@@ -41,8 +41,7 @@ import { openEditModal } from '~/shared/modal/helpers/modalHelpers'
 import { generateId } from '~/shared/utils/idUtils'
 
 export default function TestApp() {
-  const [_unifiedItemEditModalVisible, setUnifiedItemEditModalVisible] =
-    createSignal(false)
+  const [, setUnifiedItemEditModalVisible] = createSignal(false)
 
   const [item] = createSignal<UnifiedItem>(
     createUnifiedItem({
@@ -212,6 +211,7 @@ export default function TestApp() {
                 endDate: targetDay(),
               }}
               onChange={(value: DateValueType) => {
+                // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
                 setTargetDay(value?.startDate as string)
               }}
             />

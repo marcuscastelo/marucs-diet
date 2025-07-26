@@ -9,7 +9,6 @@ import {
   type Weight,
   weightSchema,
 } from '~/modules/weight/domain/weight'
-import { parseWithStack } from '~/shared/utils/parseWithStack'
 
 describe('Weight Domain', () => {
   describe('weightSchema', () => {

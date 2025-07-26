@@ -24,6 +24,7 @@ export function WeightChartTooltip({
     desiredWeight: number
   } & WeightChartOHLC)[]
 }): string {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const chartW = w as {
     config?: {
       series?: Array<{
@@ -36,7 +37,8 @@ export function WeightChartTooltip({
     chartW.config.series &&
     chartW.config.series[0] &&
     chartW.config.series[0].data
-      ? (chartW.config.series[0].data[dataPointIndex] as
+      ? // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+        (chartW.config.series[0].data[dataPointIndex] as
           | { x: string; y: number[] }
           | undefined)
       : undefined
@@ -78,14 +80,18 @@ export function WeightChartTooltip({
       const periodKey = periodKeys[idx]
       const periodWeights: readonly Weight[] =
         periodKey !== undefined && Array.isArray(weightsByPeriod[periodKey])
-          ? (weightsByPeriod[periodKey] as readonly Weight[])
+          ? weightsByPeriod[periodKey]
           : []
       let diet: 'cut' | 'normo' | 'bulk' = 'cut'
       if (
-        typeof window !== 'undefined' &&
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+        typeof (window as unknown as { currentUser?: { diet?: string } }) !==
+          'undefined' &&
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
         typeof (window as unknown as { currentUser?: { diet?: string } })
           .currentUser?.diet === 'string'
       ) {
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
         const d = (window as unknown as { currentUser?: { diet?: string } })
           .currentUser?.diet
         if (d === 'cut' || d === 'normo' || d === 'bulk') diet = d

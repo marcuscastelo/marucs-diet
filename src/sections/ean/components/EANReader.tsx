@@ -27,6 +27,7 @@ export function EANReader(props: {
       decodedResult: Html5QrcodeResult,
     ) {
       if (
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
         (decodedResult.result.format?.format as number) !==
         Html5QrcodeSupportedFormats_EAN_13
       ) {

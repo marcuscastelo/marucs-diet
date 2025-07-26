@@ -41,7 +41,8 @@ export type RecipeEditViewProps = {
 export function RecipeEditView(props: RecipeEditViewProps) {
   const clipboard = useClipboard()
 
-  const { recipe, setRecipe } = props
+  const recipe = props.recipe
+  const setRecipe = props.setRecipe
 
   const acceptedClipboardSchema = z.union([
     unifiedItemSchema,
@@ -70,7 +71,7 @@ export function RecipeEditView(props: RecipeEditViewProps) {
             .filter((item) => item.reference.type === 'food') // Only food items in recipes
             .map((item) => regenerateId(item))
           const newRecipe = addItemsToRecipe(recipe(), itemsToAdd)
-          props.onUpdateRecipe(newRecipe)
+          setRecipe(newRecipe)
           return
         }
 
@@ -79,7 +80,7 @@ export function RecipeEditView(props: RecipeEditViewProps) {
           if (data.reference.type === 'food') {
             const regeneratedItem = regenerateId(data)
             const newRecipe = addItemsToRecipe(recipe(), [regeneratedItem])
-            props.onUpdateRecipe(newRecipe)
+            setRecipe(newRecipe)
           }
           return
         }

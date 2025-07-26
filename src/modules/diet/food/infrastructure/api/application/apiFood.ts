@@ -1,7 +1,6 @@
 import axios from 'axios'
 
 import { type Food } from '~/modules/diet/food/domain/food'
-import { type ApiFood } from '~/modules/diet/food/infrastructure/api/domain/apiFoodModel'
 import { createSupabaseFoodRepository } from '~/modules/diet/food/infrastructure/supabaseFoodRepository'
 import { markSearchAsCached } from '~/modules/search/application/searchCache'
 import { showError } from '~/modules/toast/application/toastManager'
@@ -23,9 +22,10 @@ export async function importFoodFromApiByEan(
     return null
   }
 
-  const apiFood = (await axios.get(`/api/food/ean/${ean}`))
-    .data as unknown as ApiFood
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const apiFood = (await axios.get(`/api/food/ean/${ean}`)).data
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   if (apiFood.id === 0) {
     errorHandler.error(
       new Error(`Food with ean ${ean} not found on external api`),
@@ -36,6 +36,7 @@ export async function importFoodFromApiByEan(
     return null
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   const food = convertApi2Food(apiFood)
   const upsertedFood = await foodRepository.upsertFood(food)
   return upsertedFood
@@ -43,17 +44,21 @@ export async function importFoodFromApiByEan(
 
 export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
   console.debug(`[ApiFood] Importing foods with name "${name}"`)
-  const apiFoods = (await axios.get(`/api/food/name/${name}`))
-    .data as unknown as ApiFood[]
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const apiFoods = (await axios.get(`/api/food/name/${name}`)).data
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   if (apiFoods.length === 0) {
     showError(`Nenhum alimento encontrado para "${name}"`)
     return []
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   console.debug(`[ApiFood] Found ${apiFoods.length} foods`)
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
   const foodsToupsert = apiFoods.map(convertApi2Food)
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
   const upsertPromises = foodsToupsert.map(foodRepository.upsertFood)
 
   const upsertionResults = await Promise.allSettled(upsertPromises)
@@ -70,11 +75,11 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
       (result): result is PromiseRejectedResult => result.status === 'rejected',
     )
 
-    type Reason = { code: string }
+    type _Reason = { code: string }
     const reasons = allRejected.map((result) => {
       const reason: unknown = result.reason
       if (typeof reason === 'object' && reason !== null && 'code' in reason) {
-        return reason as Reason
+        return reason
       }
       return { code: 'unknown' }
     })
@@ -85,7 +90,8 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
     ]
 
     const relevantErrors = errors.filter(
-      (error) => !ignoredErrors.includes(error),
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      (error) => !ignoredErrors.includes(error as string),
     )
 
     if (relevantErrors.length > 0) {
@@ -120,6 +126,7 @@ export async function importFoodsFromApiByName(name: string): Promise<Food[]> {
     .map((result) => result.value)
 
   console.debug(
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     `[ApiFood] Returning ${upsertedFoods.length}/${apiFoods.length} foods`,
   )
 

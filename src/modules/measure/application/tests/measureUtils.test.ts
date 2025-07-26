@@ -116,6 +116,7 @@ describe('measureUtils', () => {
         neck: 35,
       }
 
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- Test needs to pass invalid data to validate runtime checks
       expect(isValidBodyMeasure(measure as BodyMeasure)).toBe(false)
     })
 
@@ -130,6 +131,7 @@ describe('measureUtils', () => {
         neck: 35,
       }
 
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- Test needs to pass invalid data to validate runtime checks
       expect(isValidBodyMeasure(measure as BodyMeasure)).toBe(false)
     })
 
@@ -144,6 +146,7 @@ describe('measureUtils', () => {
         neck: -5,
       }
 
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- Test needs to pass invalid data to validate runtime checks
       expect(isValidBodyMeasure(measure as BodyMeasure)).toBe(false)
     })
 
@@ -158,6 +161,7 @@ describe('measureUtils', () => {
         neck: 35,
       }
 
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- Test needs to pass invalid data to validate runtime checks
       expect(isValidBodyMeasure(measure as BodyMeasure)).toBe(false)
     })
   })

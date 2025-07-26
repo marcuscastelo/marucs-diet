@@ -12,7 +12,7 @@ import { createErrorHandler } from '~/shared/error/errorHandler'
 /**
  * Error fallback component displayed when modal content fails to render.
  */
-function ModalErrorFallback(error: Error, reset: () => void) {
+function ModalErrorFallback(error: Error, _reset: () => void) {
   // Handle the error using our error handler
   errorHandler.apiError(error)
   showError(error, {}, `Modal Error`)

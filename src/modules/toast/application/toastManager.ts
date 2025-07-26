@@ -84,7 +84,11 @@ function resolveValueOrFunction<T, R>(
   arg: T,
 ): R | undefined {
   if (valueOrFn === undefined) return undefined
-  if (typeof valueOrFn === 'function') return (valueOrFn as (arg: T) => R)(arg)
+  if (typeof valueOrFn === 'function') {
+    // Type assertion needed for generic function parameter
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    return (valueOrFn as (arg: T) => R)(arg)
+  }
   return valueOrFn
 }
 
